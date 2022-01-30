@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48ED64A3565
-	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 10:45:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A51D74A3564
+	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 10:45:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354497AbiA3JpT convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 30 Jan 2022 04:45:19 -0500
+        id S1354492AbiA3JpS convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 30 Jan 2022 04:45:18 -0500
 Received: from mail-eopbgr120087.outbound.protection.outlook.com ([40.107.12.87]:29216
         "EHLO FRA01-PR2-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1354490AbiA3JpR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 30 Jan 2022 04:45:17 -0500
+        id S1354463AbiA3JpO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 30 Jan 2022 04:45:14 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Ud4VSrOz6Wk26afIB0qabPQJJr41Nm/T+kyw74ZmyEgKqnd2bgLR9W3f6pJhE4PwrEWGST3lz2ekk/h80VEKg+4oRF3QnrAGUBjPCfl/k5ocVBhhk5cVfoUtnIJ2bqwKbk2oQSh5dYbokX8fzfaFwEfKVM8SbnvhPaeHolsG1TPdiZom84TEuSglKnh0LnjdPepJZp7OGL77VmOhWXRLVy0KwPxU4+xxLUb/2+2P4Oct4vZu/NOtYRfyPC3CGIJTr89kq87Yxq6dufEyUoHCTDnyIzAOBm1iZOyO3nwgjnuh9SUidGhxpbDCqM4wqhs367v7k7GPW2YtevsIjjJHFg==
+ b=Zi+bgBa25zx0cm29rTHg5E3kvxofp7XSxupWD/cVyg3W2CEEqCcDwFqzmvrDSdqFj263uytfybE1xO8jz1wg/OIT7YIgCpHYxhtJLKiPPKb24ahN0cv2dune1XYkeU7SlEHYI7zrYONdE5/l/WM3/S74MRkx0jtHCA22tCIb7zNFA+XS8RUwemU/x7TAdleMD3kAdF9nUae8Y+S8yetG5qXeedIDUaWrb1ACpJ/OyLLjC9JhHckHHwfkKm9EtmiwE7XoUPlhx5c6aN2yOVAQWmwIp4ID86oIGv/24IXqVsW7oB97bLuEwCIB6raOkgzdQ60OGuncmjNKbWQrd37LiA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=hICisB2VemkgfsXUfFO2QPvOzDQC+oA4ZqChYt6MWE8=;
- b=huh5Zis9PGcqGFyGZB0LCKfOK2uFde9l6a+2fhCzo5AlxbYO+5GakCQ+hfaznpHeB/EI2EskWaLImmzZfcOX59o2PDa8WouA1qX6UQ+B2dWNavdmg+5l6emNdm5aHDD6RbEynKmtbEqTgOh0M5zwCkcOdFwsuAnoOfw/wSu5Gdtq/98UYVWtP20/n6SSB/O0cLJTdwC2vB3GBVn3TEAelLUlD5jSTjTUo5ngjcpzqg2If0AktYIsMVj5GbfFrh3x0+6KzgX3n6mt47Kp3JmfpqODiH0kz1dDYD5wSp96DunbQV4/IiIls4xcnj0Yx9Ppt1+0L/26DDBRO3Krqirx/w==
+ bh=hUZBRHrJPodr+naq8Xw2gBSIPmwWk9burGP6FsgJyAs=;
+ b=PBh0bRRkfv9LHo5Rod6NQXdP78LgS3YfTqUOTjcsFmvrpVGGryxuYPYEUO7BiPfrZ9g1usQQ5FGmFfbUievYYm8lJa75wvuUHHckPKJjO7mhtqWw5hKMW2zuUfNiNADIXK0AGYtxowJc6Jgu3H9NqM/ZGeCWCOZ8NZV9aLqFbrpLvPCgUgMu3jFL9oC+lu++c2tGQtIDYRDFSLVE/4bSqp32tQhJegI5wp8BDUwITZaMSlEAY9NkLQAi04SWtPaThylDzeqJ7TVDkPWjY4LLbs6o67jtZ0ZxNwxpHAZW6JTmnAAe+e3mJn/aqM2ClPBSvukYrvdj4yxBARjjOWOoCA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:31::15)
@@ -29,7 +29,7 @@ Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:31::15)
 Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
  ([fe80::c9a2:1db0:5469:54e1]) by MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
  ([fe80::c9a2:1db0:5469:54e1%6]) with mapi id 15.20.4930.020; Sun, 30 Jan 2022
- 09:45:10 +0000
+ 09:45:11 +0000
 From:   Christophe Leroy <christophe.leroy@csgroup.eu>
 To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
@@ -38,13 +38,15 @@ CC:     Christophe Leroy <christophe.leroy@csgroup.eu>,
         "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
         Erhard Furtner <erhard_f@mailbox.org>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH] [Rebased for 4.19 and 4.14] powerpc/32: Fix boot failure with
- GCC latent entropy plugin
-Thread-Topic: [PATCH] [Rebased for 4.19 and 4.14] powerpc/32: Fix boot failure
- with GCC latent entropy plugin
-Thread-Index: AQHYFb4SdIk4VY6uSEqn34ouj1+4xA==
-Date:   Sun, 30 Jan 2022 09:45:10 +0000
-Message-ID: <e230a64554197468089375631e040b4249789fbd.1643535825.git.christophe.leroy@csgroup.eu>
+Subject: [PATCH] [Rebased for 4.9] powerpc/32: Fix boot failure with GCC
+ latent entropy plugin
+Thread-Topic: [PATCH] [Rebased for 4.9] powerpc/32: Fix boot failure with GCC
+ latent entropy plugin
+Thread-Index: AQHYFb4SE5OtDxlEHkCorID54UeKzA==
+Date:   Sun, 30 Jan 2022 09:45:11 +0000
+Message-ID: <636306e2355919bb031d9d5a871170bd431d5bdc.1643535758.git.christophe.leroy@csgroup.eu>
+References: <e230a64554197468089375631e040b4249789fbd.1643535825.git.christophe.leroy@csgroup.eu>
+In-Reply-To: <e230a64554197468089375631e040b4249789fbd.1643535825.git.christophe.leroy@csgroup.eu>
 Accept-Language: fr-FR, en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -52,65 +54,65 @@ X-MS-TNEF-Correlator:
 authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=csgroup.eu;
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: d729d4dd-0b9b-4242-e67a-08d9e3d53511
+x-ms-office365-filtering-correlation-id: 982f4e77-7eea-46d5-1377-08d9e3d535a8
 x-ms-traffictypediagnostic: MR2P264MB0084:EE_
-x-microsoft-antispam-prvs: <MR2P264MB0084CBE598133F203A55C2D0ED249@MR2P264MB0084.FRAP264.PROD.OUTLOOK.COM>
+x-microsoft-antispam-prvs: <MR2P264MB008475C6D3827D28D1CC0DE2ED249@MR2P264MB0084.FRAP264.PROD.OUTLOOK.COM>
 x-ms-oob-tlc-oobclassifiers: OLM:826;
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: ZcIMAtyNkrMLEISPXq4KJboZZy5ujDdWS2c08SPnwvAL9VlQdNRfBnM0AYpmcWHoIELqct8+nQKoWFxE08IhFNU7r/Eq4crGTvpB/AEEyZRzsAS0XaQd+3aGa8TScPXiI8T+Tc/1vcGP94EY/dD5lAgM5fopOFJqiR4++/smRsEXkF2YgJYW4rGO4WEpbAnMBSbfGYF+vVseXQ0o5fXptKHPr/YnOQWFvS0OkzEBSmq2ji77ciKihtIcZBUv44SLORN4sUkP1oLDYvQM/IOXQRAGLEwghLiyc1BqAEBVQMdswizSJjO6nr6RE9GGofjYI96dfBHO3wqeO3+C6ZAp3cNnteUCBaMIQAVe0xLK7hXlD+J1qLZFCeZTNxxCcfDYW1Q8yt5j1OulQloWMCCLbzBDkY0RpgDBm+h/Ol4engqMeIfXwUbUxzDnRaerni4Qb6cNU+gMbnVh6y0iYX8jlGYu6ey+k0BzSVGFsE/azRMtv97L7NCw73ed+cGB6i3ZKSRfCkPmyGcPSTLbWnpFNxF86l60LqKjPFRTqNzO+89cS7tNzmNplaSknxy9Wg4myyllIUiReMRIu1bexPUcdl2t6NiToOfuRxMOgy4PHXGlaKwQPZbYdN9PaFlrgheHWwsDOTTpvehvIZ9MdTpsVQe1Cntpi3GutkZkN2pLkPnxbyfPAcbgNSSR56g+LwaW6gTmqx5jnxsJUAYH/Rx4w1m5bWp6KfuyJnB2HJI607m8t3ty8HGKbZ82ONbymmBKzqe3KJc1nXaorNElYOXT7I8EnBvdlzJTsJCPdmCWDKs=
+x-microsoft-antispam-message-info: hO8ayB/rvmk+t/c3KCsifmL36AIi2MHMB9oeaPcJxA/DuwU0GztOi/W+g2b7grhi7liJG9TuBV2uyQpqsO5Xk/uJxcFgn+Rj/vYA47vx05VFoRyjpDbk9ZFO6BDrNaq6a3UHqVMpzwz2W9mfJyoBzS65ta65u57QHhydLvj5ZkDvZ/PwSL323kIgOf6nNMIXs+f7IoYKt90UeIby2xayxas5SvnjOpbOVSBsJb89kmdPbZg+2mEz5SJZMSEJNNj+7psx8RvNdWAxNt921zx3BmWF7HElaJS3V2o4NYt+LlieOsJXW2rKpCODtGcns8k99yIU1QjeBZFvc9avfPB+RqOf5SKpVsWldxlV4TMym/iy7+6B9IfVjc8gdThSBfcyyOt4AVFmLVbTFPU7fVYQizsBvxq3XT8v4Pvtgnr8DIikG8N1Ng4Lm39F6+PbwcY/u+Lxp8wMLKBVcysWXwQSoYXD5wj4BM/rtKShKVb5LGa8FWNgXfhc4CNwx//DuUA7HSuJas+5X/vOxJnThKOcoKZ37cc5AOBWohvbhJPZUKkLCSSOdzYCDjTbxKfeBwucv8Xe2nYBw6rhrSAOMWyA6WFbG6lxUGlJb2dWXeEq4aBSGPe6D4MlXwkpGAuDpDrIJ+aCVVWI6JRb02ZV4t2qBjCO02I3C9wiKUc+VF/muenaL0+ZTBvED9FO2ymw2mF/pkOkLR8Viy2+hkncqdJ6yYfP1qJbSn2Y1Mb18tzCtJHdhTYamOnkRv72attXR0yNwItdngaC7TglwM9uHWyMA/pf3q2PB6EN4PifofdOuHc=
 x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(2616005)(44832011)(26005)(83380400001)(186003)(2906002)(38100700002)(86362001)(122000001)(38070700005)(6506007)(76116006)(966005)(508600001)(8676002)(8936002)(6512007)(36756003)(64756008)(6486002)(4326008)(71200400001)(5660300002)(66446008)(54906003)(110136005)(66946007)(316002)(66556008)(91956017)(66476007)(20210929001);DIR:OUT;SFP:1101;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?M7OPCmEW724sI1TTQ3h+1Bo8WDG5VoGpiAGk1qImb8wX6w2TrWCU75MPGm?=
- =?iso-8859-1?Q?9AVsqtlBWZyMBsETfaOPI8iUBtUCYnisMQwE51STL3vHiBxqpXK1HiHErH?=
- =?iso-8859-1?Q?iPTS6Cf7BfLbyu6LlckMyIoKSv8AtcL1QWOJOQU3fwFQLy6zOnk07HP09G?=
- =?iso-8859-1?Q?o8BzxcDcDZljZWo1RwnPTlEXLdfYOEST9qMpDojHCAMvfoKDOrXlR2TgKy?=
- =?iso-8859-1?Q?miDWASaviU9E0C7xkDFKCr+8atKsS5N7gyTjfJ/wuYHEM4hfzIHMbTtIUJ?=
- =?iso-8859-1?Q?r2n9pEGHPes6+r5s848ZgbrgnvWa/zYm8fNArdYbGsUxY9gBHaH6KxT23u?=
- =?iso-8859-1?Q?f2rUvrCAthnZeRklgFqwxLKBPQI9H/TmH7SCUPraP9VdAmvi0NDBNhGgAP?=
- =?iso-8859-1?Q?Uf7YrXht9MrGFUVU50GW5Lz6FE26Oysn/HoPbrb5bK46lwRePIXf6UqSAQ?=
- =?iso-8859-1?Q?N3w2BzBXy+KVs0NDi6tnigeCyN3jeex73tu92BqJY+1qbOqHBERqdjIY1v?=
- =?iso-8859-1?Q?FzamggVo6ukW6er6D2+zoAbOgDzR3xEZ5Z9eDNDAq0nAHMSodUBILatB9O?=
- =?iso-8859-1?Q?sth0nRVW9kM5XeaPbvUkcJDv/xHnr5sYCW13dGS4B8awgff37SnNViZ6a/?=
- =?iso-8859-1?Q?zq80fWldnIqlNgYpMMRiLw9YiCKT3qqZ1ZFM2X0wjRRDFbLR7tZHaTTIN0?=
- =?iso-8859-1?Q?Tihrn64UO1SuNsAKJgqn4WnS0KZKEJzYOmQc9Xmz0TTTYSCDHIT2REQ5+O?=
- =?iso-8859-1?Q?2Wef6gO+FUk0BjmUmx3VDhC1SaENOzhINfUR6sJs7l4/bDdKlKw+/ba3lo?=
- =?iso-8859-1?Q?nj+KczPyJ25bT8lcBGLez+846LIkkzGU6CoqIvL1pLBjmC5biYxVT+SCDT?=
- =?iso-8859-1?Q?0Qj8VQcYZx9jWBVblMONh1zpp5QqBrVUbP7fCi8LoVpXfvfK9YQM3V+ps3?=
- =?iso-8859-1?Q?RQMSD6wRXNdn2CYhlp/unQbKfX0fQCJkA2DMUNIIUpGHqWHbFgTaUE0+zh?=
- =?iso-8859-1?Q?96sOsSDaji7wfQP14/LUphEmc1YAxZI9C3i5Da/cveh4So+v7sBS9msEUv?=
- =?iso-8859-1?Q?4V65Dz/ICo1hjHkNDzEvwdwHFPbB8NPMx3A32slMp3iDD58vT3/NlkaCzu?=
- =?iso-8859-1?Q?ZlGAh6wOhufMRYdGuv14D5rk1mzbKsXAkIO+h82EX95k4cN6RaM/4xbYfR?=
- =?iso-8859-1?Q?Yfniz9jpvbx2C5quEcwEwn+ynK+u9hFrJ+9eG4rV3WxnHCk4nHkVAuWTkW?=
- =?iso-8859-1?Q?Z/h7L+EnpExsgbDLVXQAePvKzYh9nWhnVPo/l1pD8ui+fT0k7n1axF4Fi/?=
- =?iso-8859-1?Q?sRvfWU1WswRukyCFo4eZIQDTo0Vxbmjl7oS09VqrGpsjJGm228TIWp64yD?=
- =?iso-8859-1?Q?cXzwuQ3++shaJjESe6P4YLTrYjDGIC9Ay7BkUm8HB7UO8w3msmdS7s7Q4V?=
- =?iso-8859-1?Q?pQ7Zq6LWi+9fqHrNki9qFtZwRiB/9QTQ+LudxH5gNCIP7AqYEqC/JrstM/?=
- =?iso-8859-1?Q?93/OmWSr+X5fhAbjo9TzEfKleZsRuFp3g9BNp5mFm1ofj+KEiDA5bF7e7W?=
- =?iso-8859-1?Q?SwlGnKvhWtW9BmrfRiJxzoE6e//XGWfCOV9bv7uCNUH5ovm3YtvUWE8hiU?=
- =?iso-8859-1?Q?tp7lvZrDZ5CbqMdzBCG8QFBxObJP01Wojiay2gQ4LmEOMnJ9W6Hx6eHWsy?=
- =?iso-8859-1?Q?YrNfOkXxr8iYgPQ01o5vwcXtlcTR9N6WtziNlw6Xn4+JXcTEmubHispIb9?=
- =?iso-8859-1?Q?njwpb8bc17+nd/RAw8L3vfzlg=3D?=
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?V7fqJCMBbKJf24ju10S0YplB1JloV5ThhhP/udRpFIJMjxGCvreCZ9DiBt?=
+ =?iso-8859-1?Q?CWzQRZveY2ZarVKny/QZsfECiUq0tbkJVMOQB8d7OdUBw+BBs8xZvWo7eW?=
+ =?iso-8859-1?Q?kNKPOvEbwSGd3c/JvHDSXSnNFOyB/makznCLocTsJ5G8/Ml3BoIUeh8M0C?=
+ =?iso-8859-1?Q?bmaoxj3HcAafHLHQHuB18p1MUmSx3z8vsGi896VdagzZxsU7HxKoWtcxi8?=
+ =?iso-8859-1?Q?N0hfwGN8swIb6r4f9i/NqvOze9FA1TdwGROFxR3L49BFya8yODkWouhotk?=
+ =?iso-8859-1?Q?MLe4Q/o2uvAvQtLiGWFuDs9QvmvNh4nmBGZ8+N2q+VmrT43hSRhMYLVzoo?=
+ =?iso-8859-1?Q?BSU9Ts8q/WntJpVKGFZQcOZUvKtDjWVtQghsEpp1ae5TDs/KUZmEkSALrw?=
+ =?iso-8859-1?Q?2MzrsjwaLSbdx8mFXqWP9IFatGKNM164MP7p/9tvUflDjYP31GEryAn8ek?=
+ =?iso-8859-1?Q?vqQzXNHlb62/R5R7C1ERdedSWZml0ZqB6ROgKikdTNw1FTJJpGbuXxclkc?=
+ =?iso-8859-1?Q?0Kjes4tGwPjSGg+dW3coR2HMOSd4fmla47ohjhWqKz5iPKD8YR85MU0w9v?=
+ =?iso-8859-1?Q?vD3EomEqnnerUpK/MbrJhBlYAovwud0WV0IT36rxo4dAe7tYtk4rAtvyt0?=
+ =?iso-8859-1?Q?7V4GVMC1yXyubIHIu7HXF+tj0+gEErc5vDh/yDTJyWN3RTeDn+teabNTzB?=
+ =?iso-8859-1?Q?/kYhQA8UJh0huV2EUEBMEw99skanodiTsE2obEtTzZQ0qZIrar1JswcG0v?=
+ =?iso-8859-1?Q?MkhXUR9iq7jWrB6DnbbTeOyw08rCfPsKLxm9iOeCUyVmny2hYH4gQs6Nm8?=
+ =?iso-8859-1?Q?9wmpYYcMGdteuDoVSgJ+5T1oId5owp0OzGt+qxmsnmSVpHWoAPYSJtZANo?=
+ =?iso-8859-1?Q?eJ4kfnKQtBpZonT5Ln5Ncx5PCCOqmG63s1/1vcr81NhkQSdxDwLd1d3FvB?=
+ =?iso-8859-1?Q?aYOLl9bG+IWmbgp6kCczEcLTH1VRzpE+6LWKWybuheQKM193k2BvDkhG8K?=
+ =?iso-8859-1?Q?zBuxmLH5uh1w5c6HCD4mQ9ZHy2wvlVaV9zoT5s6xp6MeF051/Nvpk77PUh?=
+ =?iso-8859-1?Q?iTYyB9WPaXGNWo/caiPh8/jObC3llbP49tEQhovAOciThHLafW+qOU5aZK?=
+ =?iso-8859-1?Q?koD0NbwEc2tjedUCbCnkFXOmEl8sSh5zSAbKrdTFnIDXCT2hh1ZsPKbbRT?=
+ =?iso-8859-1?Q?UBbM5ZGrNXunpyaB0FHrRJh7M3d97RNprASACG0CxkPRKK9dzgadiRH3Gp?=
+ =?iso-8859-1?Q?D3NE4U/kpj2pXXHQoOMHcLl9KAT9LDUYmFcwZVU87HfYnNj0wtGkNJS1/q?=
+ =?iso-8859-1?Q?jaeH9DczFyOEiHosuqCEErch6G3/FeyaYVj0pMcmbNV4Apy3uoz0egtcUX?=
+ =?iso-8859-1?Q?EH+xyEPb5yBmfsbESrpoPBxQqIqt1wZoBQnpOOeffac63GE9FPRPCNqLlp?=
+ =?iso-8859-1?Q?tFTcN9tSw43InXj2LUBnOKmmGWDt1BynmFpyKbct6D9U/Dsijwf7jT90iH?=
+ =?iso-8859-1?Q?qGzilOfkcy44X+FKHsP+UEyLbDpF3k30PFjkZ8hPxiEZ9YbkfED2xnI/j/?=
+ =?iso-8859-1?Q?JcbO5uyWcamKqamMFvO4EKKb3ajzy14gHtO1ZvQ7qoNwQPXzRmEUrTetHl?=
+ =?iso-8859-1?Q?wqBovqjQ9o9/P3+Ni0+/Vh0lt22li5skC4xqyYyze6ksRHm8Mv65f3NzIC?=
+ =?iso-8859-1?Q?+r8gDepALsZpWnXFH0H7EDqAVJ3WwH7RirExEf2hYutnhUvLvFkfNTphLy?=
+ =?iso-8859-1?Q?xwYlBAW1ACex5UDuweuw1eWFw=3D?=
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 X-OriginatorOrg: csgroup.eu
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-Network-Message-Id: d729d4dd-0b9b-4242-e67a-08d9e3d53511
-X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Jan 2022 09:45:10.6603
+X-MS-Exchange-CrossTenant-Network-Message-Id: 982f4e77-7eea-46d5-1377-08d9e3d535a8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Jan 2022 09:45:11.1758
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 9914def7-b676-4fda-8815-5d49fb3b45c8
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Xr8R6fbN41YDCLdivgjRK65MyZ4fnahdYGDrkE4qJsByM2Jhh5TvvJicMStTW/m4C05gF+SmEgaZ+aNUMeYU7PQiBzFCVnn6omqCW2ORGgQ=
+X-MS-Exchange-CrossTenant-userprincipalname: 1Xb108zom4trnB8P+PgQIuhDV/mXIaCLLYvUgVeISNjCjeYlRU9b8REqNkWMlhntFOCAVl848l8XL3pDFMSKphSWovpn7xInn0V9ozSkhrE=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: MR2P264MB0084
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is backport for 4.19 and 4.14
+This is backport for 4.9
 
 (cherry picked from commit bba496656a73fc1d1330b49c7f82843836e9feb1)
 
@@ -137,10 +139,10 @@ Link: https://lore.kernel.org/r/2bac55483b8daf5b1caa163a45fa5f9cdbe18be4.1640178
  2 files changed, 4 insertions(+)
 
 diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
-index 1e64cfe22a83..bf19c5514d6c 100644
+index d80fbf0884ff..bc6c85788b84 100644
 --- a/arch/powerpc/kernel/Makefile
 +++ b/arch/powerpc/kernel/Makefile
-@@ -15,6 +15,7 @@ CFLAGS_prom_init.o      += -fPIC
+@@ -14,6 +14,7 @@ CFLAGS_prom_init.o      += -fPIC
  CFLAGS_btext.o		+= -fPIC
  endif
  
@@ -149,18 +151,18 @@ index 1e64cfe22a83..bf19c5514d6c 100644
  CFLAGS_prom_init.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
  CFLAGS_btext.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
 diff --git a/arch/powerpc/lib/Makefile b/arch/powerpc/lib/Makefile
-index 670286808928..36f913084429 100644
+index 309361e86523..3e3370d126ae 100644
 --- a/arch/powerpc/lib/Makefile
 +++ b/arch/powerpc/lib/Makefile
-@@ -10,6 +10,9 @@ ccflags-$(CONFIG_PPC64)	:= $(NO_MINIMAL_TOC)
+@@ -9,6 +9,9 @@ ccflags-$(CONFIG_PPC64)	:= $(NO_MINIMAL_TOC)
  CFLAGS_REMOVE_code-patching.o = $(CC_FLAGS_FTRACE)
  CFLAGS_REMOVE_feature-fixups.o = $(CC_FLAGS_FTRACE)
  
 +CFLAGS_code-patching.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
 +CFLAGS_feature-fixups.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
 +
- obj-y += string.o alloc.o code-patching.o feature-fixups.o
+ obj-y += string.o alloc.o crtsavres.o code-patching.o \
+ 	 feature-fixups.o
  
- obj-$(CONFIG_PPC32)	+= div64.o copy_32.o crtsavres.o strlen_32.o
 -- 
 2.33.1
