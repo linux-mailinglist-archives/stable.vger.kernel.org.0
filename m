@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C1134A36CC
-	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 15:42:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBD734A36CD
+	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 15:42:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345078AbiA3OmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 Jan 2022 09:42:14 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53442 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355042AbiA3OmO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 09:42:14 -0500
+        id S1355050AbiA3OmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 Jan 2022 09:42:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58104 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355046AbiA3OmP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 09:42:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C233CC061714
+        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 06:42:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A5DBB8294B
-        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 14:42:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D831C340E4;
-        Sun, 30 Jan 2022 14:42:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 570AD611D3
+        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 14:42:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31907C340E4;
+        Sun, 30 Jan 2022 14:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643553731;
-        bh=IKwzU81N1ePZ/6c8ASvJhh7vxf2A9OIGBIx3TixXXAI=;
+        s=korg; t=1643553734;
+        bh=Ug6h4yVGwEb637tzp+kX1Vy8/t5R59v+ehNp5maWm6g=;
         h=Subject:To:Cc:From:Date:From;
-        b=HEeXOLCQZXHBEHJK/Xvtr4zLNjmhBoqBok6KcEiTDx8fGM4X7VIfWvaUo4hMTEfaA
-         Ewnn3gJVIAuGWj0jVqOF+EGZZ+1b1fvov2qqPpRIfLCveT1VaCkLl7JjaEZjA3+JA0
-         yt2SsFx3YxtGTXSWMZEyBSbMenPWZCH9zqBXug+Q=
-Subject: FAILED: patch "[PATCH] i40e: Fix for failed to init adminq while VF reset" failed to apply to 4.14-stable tree
+        b=faG5Dsjk+GHiQz12CZarZ9pNG+l8WQK1RrZwc2oL8oN7R/76aZgo+jNCilW7CEadc
+         DSzW+el/P2KIfVwxVBz+pLlqjjCwuQilb3Dmdq7OE4yOnbwaBU+8M20Aufg6xudrUw
+         iqu1AzUhSffGaY2heZi6KCiLjkHxMr8CoT+QGGUA=
+Subject: FAILED: patch "[PATCH] i40e: Fix for failed to init adminq while VF reset" failed to apply to 4.9-stable tree
 To:     karen.sornek@intel.com, anthony.l.nguyen@intel.com,
         grzegorzx.szczurek@intel.com, konrad0.jankowski@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 30 Jan 2022 15:42:01 +0100
-Message-ID: <1643553721222107@kroah.com>
+Message-ID: <1643553721160139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
