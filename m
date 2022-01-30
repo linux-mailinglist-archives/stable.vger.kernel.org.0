@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9A8C4A36D0
-	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 15:42:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 627FB4A36D1
+	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 15:42:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355053AbiA3Ome (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 Jan 2022 09:42:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58186 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355046AbiA3Omd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 09:42:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A53CDC061714
-        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 06:42:33 -0800 (PST)
+        id S1355046AbiA3Omv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 Jan 2022 09:42:51 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37160 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355072AbiA3Omr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 09:42:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4555E60EC1
-        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 14:42:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 134F9C340E4;
-        Sun, 30 Jan 2022 14:42:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1BB260EC1
+        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 14:42:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84089C340E4;
+        Sun, 30 Jan 2022 14:42:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643553752;
-        bh=Xk8HwUsA3W2yDg/91ZrNTw3s2f3HMJ9xUznadQi+e30=;
+        s=korg; t=1643553766;
+        bh=FokdIGW6wCGdeyEFwy41QlDcNnYrXPkACGhnPEuN2sw=;
         h=Subject:To:Cc:From:Date:From;
-        b=cOodvAFhwoA/Dq4d0jPDZRerVm4dVexm2wItIk+Ymx3ago/Z+ZVPMz7pNL/xIjE/7
-         byR6EAU4x8rD89kWrkhrRh+YiYr89eelJ+JGtJxmGHfgmbp7uxIonsy8bRuAMMshqz
-         1/dWZNnOjN/E9kypXUrVtegLjvbWKV8jv+sAY8lQ=
-Subject: FAILED: patch "[PATCH] i40e: fix unsigned stat widths" failed to apply to 4.4-stable tree
+        b=2goQC83LtZbK0Isetl9hv8LZBXvzVb3HmD8S4sbkRtcMwusy25xjNdWDi1WbAKJOb
+         xNbSzXBLC1NfohiNdnFX8fE9Qj3DMKclIfNSFABM+LqJdbk68lbsTMatdlknijSlzf
+         l+GT4vJjxLzNZ4SK1w3f0LSTYWBXVw9u6WPbqhCw=
+Subject: FAILED: patch "[PATCH] i40e: fix unsigned stat widths" failed to apply to 4.9-stable tree
 To:     jdamato@fastly.com, anthony.l.nguyen@intel.com,
         gurucharanx.g@intel.com, lkp@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 Jan 2022 15:42:29 +0100
-Message-ID: <1643553749115182@kroah.com>
+Date:   Sun, 30 Jan 2022 15:42:30 +0100
+Message-ID: <16435537503561@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
