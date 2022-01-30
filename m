@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12CDF4A38B3
+	by mail.lfdr.de (Postfix) with ESMTP id 89FF54A38B4
 	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 20:30:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356014AbiA3Ta2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 Jan 2022 14:30:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36478 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355987AbiA3Ta1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 14:30:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DECC061714
-        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 11:30:27 -0800 (PST)
+        id S1355987AbiA3Ta3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 Jan 2022 14:30:29 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38248 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356013AbiA3Ta2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 14:30:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D18FDB8290B
-        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 19:30:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED9FC340E4;
-        Sun, 30 Jan 2022 19:30:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22829612EA
+        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 19:30:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35320C340E4;
+        Sun, 30 Jan 2022 19:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643571024;
-        bh=fZ9dJZRCudqE1DEneGmuvl2Zev+wRvf7qLKP0kGHmSc=;
+        s=korg; t=1643571027;
+        bh=sHvyKTlgD5xpVTcVPJWXocWw2JmwsWBq0pfbBdVZGao=;
         h=Subject:To:Cc:From:Date:From;
-        b=PBqrD2BWppegsy8fwLVrhSrI+VlgwXze5U6K4NlFeLmbX0+jjqBmJxyAy5YH3L1N9
-         VZUrzC+Dz5EMN+DU1Zsug1xj6hEgQ+v9sLRLBm47pI9B5zfd0tYIk7/qQtx0x7tFQr
-         A401KH1Q0GdaiZsb9rA8rMlue1tLAi8SSn5APGbE=
-Subject: FAILED: patch "[PATCH] ping: fix the sk_bound_dev_if match in ping_lookup" failed to apply to 4.4-stable tree
+        b=TcYntSfoLcW40Aehfa1xCp68RCKu9rDGbqhdmtB2tdAFBvB+lAhOSKoiehzQltrdE
+         EWmZMaoKiaytml7HPTsK556B3mXlTK/vbexW2IR1kTDE6fN1l5WNZA2VfvP1gIc/dZ
+         cjn3JOSf+j2Yn1oA2u4/rxDct1SlkxG8IkLra/c4=
+Subject: FAILED: patch "[PATCH] ping: fix the sk_bound_dev_if match in ping_lookup" failed to apply to 4.9-stable tree
 To:     lucien.xin@gmail.com, davem@davemloft.net, liuhangbin@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 Jan 2022 20:23:32 +0100
-Message-ID: <164357061217264@kroah.com>
+Date:   Sun, 30 Jan 2022 20:23:33 +0100
+Message-ID: <1643570613226205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
