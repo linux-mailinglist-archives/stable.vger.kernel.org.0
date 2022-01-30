@@ -2,83 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9812B4A3645
-	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 13:34:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0D9E4A365E
+	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 13:50:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242522AbiA3MeT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 Jan 2022 07:34:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58554 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240805AbiA3MeT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 07:34:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E24ABC061714
-        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 04:34:18 -0800 (PST)
+        id S1354800AbiA3Mud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 Jan 2022 07:50:33 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:60782 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347113AbiA3Mud (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 07:50:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A18F1B8291E
-        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 12:34:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C816BC340E4;
-        Sun, 30 Jan 2022 12:34:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D38ADB8285B;
+        Sun, 30 Jan 2022 12:50:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21BE7C340E4;
+        Sun, 30 Jan 2022 12:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643546056;
-        bh=JhQH1od0nAclxEvrgIZznYuaJ2uz3HBrFnUjr1LVivg=;
-        h=Subject:To:Cc:From:Date:From;
-        b=elt57jAZntCHnXZiRiiaFyD9A51o61rH1ZYmWAewOessaseZQWZY9cBedfVkjAaFW
-         OPbph7cR+ao8/tsP2v0YXZHR1MzDt+V6c5fiW1fFQ25yfvddPzcMPP6mIVik7NgWij
-         Hs4bsOz3KkNfW6U602DgeKhnuNeh+W4P4q3QYNOw=
-Subject: FAILED: patch "[PATCH] x86/cpu: Add Xeon Icelake-D to list of CPUs that support PPIN" failed to apply to 5.10-stable tree
-To:     tony.luck@intel.com, ailin.xu@intel.com, bp@suse.de,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 Jan 2022 13:34:13 +0100
-Message-ID: <164354605382174@kroah.com>
+        s=korg; t=1643547030;
+        bh=iyo+mlHxHiMCbs0SnF8JOaLkc59upPWg3JbFGcSEqpM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=yE85WGOJQqUx9mVNtXLXPMTV/8Y4YzBUzS9c7wxTJfFwrZeegbSrNMm+4LlmXAAc/
+         g0kxwwK9OfPRsrbE+lefYqYvfs2oBm1YaMQZu1eXSm+CmdRol2cqE6VD0GfCO8Kzb+
+         bqxLexM8FpZ51CvS4mK/rPK8v56QMsRzXhBwdTKk=
+Date:   Sun, 30 Jan 2022 13:50:27 +0100
+From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Maxime Bizon <mbizon@freebox.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH] [Modified for 5.16 and 5.15] powerpc/32s: Fix
+ kasan_init_region() for KASAN
+Message-ID: <YfaJk9dUMmiQOJJT@kroah.com>
+References: <247bff242993dd6c8975a4f1248d822a448701ac.1643476812.git.christophe.leroy@csgroup.eu>
+ <383707b74eac769f971ea72ea3db39aaf08e5111.1643476880.git.christophe.leroy@csgroup.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <383707b74eac769f971ea72ea3db39aaf08e5111.1643476880.git.christophe.leroy@csgroup.eu>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Jan 29, 2022 at 05:26:10PM +0000, Christophe Leroy wrote:
+> This is a backport for 5.16 and 5.15.
+> 
+> To apply, it also requires commit 37eb7ca91b69 ("powerpc/32s: Allocate
+> one 256k IBAT instead of two consecutives 128k IBATs")
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Thanks for these, now queued up.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From e464121f2d40eabc7d11823fb26db807ce945df4 Mon Sep 17 00:00:00 2001
-From: Tony Luck <tony.luck@intel.com>
-Date: Fri, 21 Jan 2022 09:47:38 -0800
-Subject: [PATCH] x86/cpu: Add Xeon Icelake-D to list of CPUs that support PPIN
-
-Missed adding the Icelake-D CPU to the list. It uses the same MSRs
-to control and read the inventory number as all the other models.
-
-Fixes: dc6b025de95b ("x86/mce: Add Xeon Icelake to list of CPUs that support PPIN")
-Reported-by: Ailin Xu <ailin.xu@intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220121174743.1875294-2-tony.luck@intel.com
-
-diff --git a/arch/x86/kernel/cpu/mce/intel.c b/arch/x86/kernel/cpu/mce/intel.c
-index bb9a46a804bf..baafbb37be67 100644
---- a/arch/x86/kernel/cpu/mce/intel.c
-+++ b/arch/x86/kernel/cpu/mce/intel.c
-@@ -486,6 +486,7 @@ static void intel_ppin_init(struct cpuinfo_x86 *c)
- 	case INTEL_FAM6_BROADWELL_X:
- 	case INTEL_FAM6_SKYLAKE_X:
- 	case INTEL_FAM6_ICELAKE_X:
-+	case INTEL_FAM6_ICELAKE_D:
- 	case INTEL_FAM6_SAPPHIRERAPIDS_X:
- 	case INTEL_FAM6_XEON_PHI_KNL:
- 	case INTEL_FAM6_XEON_PHI_KNM:
-
