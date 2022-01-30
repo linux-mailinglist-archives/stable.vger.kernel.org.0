@@ -2,145 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACABB4A3672
-	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 14:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0D234A36AF
+	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 15:33:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347076AbiA3NHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 Jan 2022 08:07:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37482 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347045AbiA3NHK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 08:07:10 -0500
-Received: from nautica.notk.org (ipv6.notk.org [IPv6:2001:41d0:1:7a93::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0974C061714;
-        Sun, 30 Jan 2022 05:07:09 -0800 (PST)
-Received: by nautica.notk.org (Postfix, from userid 108)
-        id 2C4C9C01E; Sun, 30 Jan 2022 14:07:05 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
-        t=1643548025; bh=WzIC+v4+UrPRQhCkj2dIOPEwY3tXxjMgRe2rgwvMEZY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=A/eTCDAYeVJIxX5tbvB12/4/652HP6a+M3FpLRcse+Sc/SEjEpfTDPYqr1LDWJh1v
-         mKGkEQeNIvKnL7zXo0of38hdfHCmurruuAq1RVuh/WRkZ29Azka74FfWZ2FMPKPa7E
-         OFzMujNAmlWwYryiv62a1n0xCvaQolZw3yZ4TE8ZNDfbF1x4cKDIA1DmHKvN902c1R
-         CHdTs98gR/dogx6TZ8YrpA42dOjVmuR57wwsv/Oe8z1gb3TAn8r2u07I6qF7QdICHx
-         wkg7Bzw9y1kIem4Y6uVmScgtSqVubnftN4Gv2MpiYgmAfNmiW/4DcWSBnHarALyF7n
-         aXKrUoaYdnxKQ==
-X-Spam-Checker-Version: SpamAssassin 3.3.2 (2011-06-06) on nautica.notk.org
-X-Spam-Level: 
-X-Spam-Status: No, score=0.0 required=5.0 tests=UNPARSEABLE_RELAY
-        autolearn=unavailable version=3.3.2
-Received: from odin.codewreck.org (localhost [127.0.0.1])
-        by nautica.notk.org (Postfix) with ESMTPS id C0393C01B;
-        Sun, 30 Jan 2022 14:07:01 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
-        t=1643548024; bh=WzIC+v4+UrPRQhCkj2dIOPEwY3tXxjMgRe2rgwvMEZY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=f92Lnoe7HN1ufdYJSbNXcyVI/iMnA8btHbNuPezzvvhOQa41J/nJcEc7dibLwCS/G
-         YeXUlLJlorVVVAc8ayShvappXCEwRTXw5F+AqipPbYGKmZx4rMs4qqDYrNN1VLfrGX
-         7MXSoeDVhEvNk6X/KUVxjalJXF/G5wdlvkpC3qhwkzyNBfkbF27SOy5jmqhZXFgqxK
-         vFqD7IzAAuFQw0AF9Xnm5zcLo+PSxECkbrsiGK3GQGuYfpKbXdVW+/cyBgRvLoly8V
-         I8r1O5bdT9amTUA81wljgpkQ72J2meQt5rJNlmxiy2rkVPoTm+p1o/tP2m6WtYBamU
-         fmdHqvKGboAbA==
-Received: from localhost (odin.codewreck.org [local])
-        by odin.codewreck.org (OpenSMTPD) with ESMTPA id b42ff00b;
-        Sun, 30 Jan 2022 13:06:57 +0000 (UTC)
-From:   Dominique Martinet <asmadeus@codewreck.org>
-To:     v9fs-developer@lists.sourceforge.net, ericvh@gmail.com,
-        lucho@ionkov.net
-Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        stable@vger.kernel.org, ron minnich <rminnich@gmail.com>,
-        ng@0x80.stream
-Subject: [PATCH] Revert "fs/9p: search open fids first"
-Date:   Sun, 30 Jan 2022 22:06:51 +0900
-Message-Id: <20220130130651.712293-1-asmadeus@codewreck.org>
-X-Mailer: git-send-email 2.33.1
+        id S1355003AbiA3Odx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 Jan 2022 09:33:53 -0500
+Received: from mout.kundenserver.de ([217.72.192.74]:44575 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355011AbiA3Odw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 09:33:52 -0500
+Received: from quad ([82.142.10.94]) by mrelayeu.kundenserver.de (mreue107
+ [212.227.15.183]) with ESMTPSA (Nemesis) id 1MJn4B-1mz8IM3nuD-00KBmy; Sun, 30
+ Jan 2022 15:33:40 +0100
+From:   Laurent Vivier <laurent@vivier.eu>
+To:     linux-kernel@vger.kernel.org
+Cc:     Arnd Bergmann <arnd@arndb.de>, linux-rtc@vger.kernel.org,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-m68k@lists.linux-m68k.org,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Laurent Vivier <laurent@vivier.eu>, stable@vger.kernel.org
+Subject: [PATCH v14 2/5] tty: goldfish: introduce gf_ioread32()/gf_iowrite32()
+Date:   Sun, 30 Jan 2022 15:33:30 +0100
+Message-Id: <20220130143333.552646-3-laurent@vivier.eu>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220130143333.552646-1-laurent@vivier.eu>
+References: <20220130143333.552646-1-laurent@vivier.eu>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:GDMx2XT+d9n7WypZPPYjcEVTVTvlAAyx/oEPSpfs1Ookc5d9ozY
+ 2DNxrndeZ05hHdD8VDYG++EeOKJAhxD5X0mZHCj/AL08/geB/O/t6zzlI0wL6qetjQAAZBD
+ WCPcbFNSdJHMhHdHibCLlvfseMk0AwJv5+2k9HJfQYnHd7yeiJ16yyjTWkFyJ6R9iAAMZIp
+ zmKQZ/KPx4mPXw9Y4KAMA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:SgrEka7cSOU=:Oxcf1mGPW6i3JJSdI0RLvb
+ +nM9stW7F0JydnMPXt/3dAEBQAm3PggfP3kJM9XlwaVzxvGt3CrRxZ3JH5pGJTywLaKHkvGKc
+ +/XMEtWVqM+C8QC0TLidgfzt30w/6VQevLjFVxO9MaQJHmh4mU2U3xnUVKhIiAerWGQZkDNh4
+ 9czT8FJNGU4N35Qfqgwna0X5zPVrBu82HOPsObXDxFWEaA7EmFC35HKBHAjswuY3vXr7y/atH
+ NstmjNuhx+pgM0XohOC5/XiTLyun7HUk3HHZIGqXtLd98PA6e3x1JWLARnnabwMz6duir5u71
+ CYo6e4YcLIzJ686CMhBgBtjQrc+fEVtXNuQFfjVB7w0UFlGJcOjzFS67Zcm/eb/FRLrAWXb9o
+ MX7yGCNkpIkUPK1c3sfr6Dc1HZmvMKmxLbSMebl7gfjKC/7+wf4BJn9bfNLIVxgMPBhFdwQDF
+ sfl/ow/liHmZ2bHEE0s6ZLVJJQ+bONVXiUFBGABMStgUPqAuKGVoMG9feGU+w/nkZcYVeRd4n
+ mYZZ3Vuff0NuwWV3lbNFUlwdaCKMtUUfzUvQMoGNTYZvQhCiIisTUtampRDHNEu240yYANmrj
+ OCFDMT0BQxvnI3/bnUPqjirhLas4VIMyMxkg+ntkvZvIMuPKAk6LBkatAnyi67I/8fr/TOD15
+ cObEt7jRwMdgVoCcoEdplefQGNzTNzi3xmeIFqyo2wCbBVkQJk4pxt0dp/LPBMRA4FkI=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 478ba09edc1f2f2ee27180a06150cb2d1a686f9c.
+Revert
+commit da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
 
-That commit was meant as a fix for setattrs with by fd (e.g. ftruncate)
-to use an open fid instead of the first fid it found on lookup.
-The proper fix for that is to use the fid associated with the open file
-struct, available in iattr->ia_file for such operations, and was
-actually done just before in 66246641609b ("9p: retrieve fid from file
-when file instance exist.")
-As such, this commit is no longer required.
+and define gf_ioread32()/gf_iowrite32() to be able to use accessors
+defined by the architecture.
 
-Furthermore, changing lookup to return open fids first had unwanted side
-effects, as it turns out the protocol forbids the use of open fids for
-further walks (e.g. clone_fid) and we broke mounts for some servers
-enforcing this rule.
-
-Note this only reverts to the old working behaviour, but it's still
-possible for lookup to return open fids if dentry->d_fsdata is not set,
-so more work is needed to make sure we respect this rule in the future,
-for example by adding a flag to the lookup functions to only match
-certain fid open modes depending on caller requirements.
-
-Fixes: 478ba09edc1f ("fs/9p: search open fids first")
 Cc: stable@vger.kernel.org # v5.11+
-Reported-by: ron minnich <rminnich@gmail.com>
-Reported-by: ng@0x80.stream
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Fixes: da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
+Signed-off-by: Laurent Vivier <laurent@vivier.eu>
 ---
+ drivers/tty/goldfish.c   | 20 ++++++++++----------
+ include/linux/goldfish.h | 15 +++++++++++----
+ 2 files changed, 21 insertions(+), 14 deletions(-)
 
-I'm sorry I didn't find time to check this properly fixes the clone
-open fid issues, but Ron reported it did so I'll assume it did for now.
-I'll try to find time to either implement the check in ganesha or use
-another server -- if you have a suggestion that'd run either a ramfs or
-export a local filesystem from linux I'm all ears, I couldn't get go9p
-to work in the very little time I tried.
-
-I did however check that Greg's original open/chmod 0/ftruncate pattern
-works (while truncate was refused).
-Also, before revert the truncate by path wasn't refused, and now is
-again, so that's definitely good.
-
-I've also tested open-unlink-ftruncate and it works properly with
-ganesha, but not with qemu -- it looks like qemu tries to access the
-file by path in setattr even if the fid has an associated fd, so that'd
-be a qemu bug, but it's unrelated to this patch anyway.
-
-
-Unless there are issues with this patch I'll send it to Linus around
-Friday
-
- fs/9p/fid.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
-
-diff --git a/fs/9p/fid.c b/fs/9p/fid.c
-index 6aab046c98e2..79df61fe0e59 100644
---- a/fs/9p/fid.c
-+++ b/fs/9p/fid.c
-@@ -96,12 +96,8 @@ static struct p9_fid *v9fs_fid_find(struct dentry *dentry, kuid_t uid, int any)
- 		 dentry, dentry, from_kuid(&init_user_ns, uid),
- 		 any);
- 	ret = NULL;
--
--	if (d_inode(dentry))
--		ret = v9fs_fid_find_inode(d_inode(dentry), uid);
--
- 	/* we'll recheck under lock if there's anything to look in */
--	if (!ret && dentry->d_fsdata) {
-+	if (dentry->d_fsdata) {
- 		struct hlist_head *h = (struct hlist_head *)&dentry->d_fsdata;
+diff --git a/drivers/tty/goldfish.c b/drivers/tty/goldfish.c
+index 5ed19a9857ad..10c13b93ed52 100644
+--- a/drivers/tty/goldfish.c
++++ b/drivers/tty/goldfish.c
+@@ -61,13 +61,13 @@ static void do_rw_io(struct goldfish_tty *qtty,
+ 	spin_lock_irqsave(&qtty->lock, irq_flags);
+ 	gf_write_ptr((void *)address, base + GOLDFISH_TTY_REG_DATA_PTR,
+ 		     base + GOLDFISH_TTY_REG_DATA_PTR_HIGH);
+-	__raw_writel(count, base + GOLDFISH_TTY_REG_DATA_LEN);
++	gf_iowrite32(count, base + GOLDFISH_TTY_REG_DATA_LEN);
  
- 		spin_lock(&dentry->d_lock);
-@@ -113,6 +109,9 @@ static struct p9_fid *v9fs_fid_find(struct dentry *dentry, kuid_t uid, int any)
- 			}
+ 	if (is_write)
+-		__raw_writel(GOLDFISH_TTY_CMD_WRITE_BUFFER,
++		gf_iowrite32(GOLDFISH_TTY_CMD_WRITE_BUFFER,
+ 		       base + GOLDFISH_TTY_REG_CMD);
+ 	else
+-		__raw_writel(GOLDFISH_TTY_CMD_READ_BUFFER,
++		gf_iowrite32(GOLDFISH_TTY_CMD_READ_BUFFER,
+ 		       base + GOLDFISH_TTY_REG_CMD);
+ 
+ 	spin_unlock_irqrestore(&qtty->lock, irq_flags);
+@@ -142,7 +142,7 @@ static irqreturn_t goldfish_tty_interrupt(int irq, void *dev_id)
+ 	unsigned char *buf;
+ 	u32 count;
+ 
+-	count = __raw_readl(base + GOLDFISH_TTY_REG_BYTES_READY);
++	count = gf_ioread32(base + GOLDFISH_TTY_REG_BYTES_READY);
+ 	if (count == 0)
+ 		return IRQ_NONE;
+ 
+@@ -159,7 +159,7 @@ static int goldfish_tty_activate(struct tty_port *port, struct tty_struct *tty)
+ {
+ 	struct goldfish_tty *qtty = container_of(port, struct goldfish_tty,
+ 									port);
+-	__raw_writel(GOLDFISH_TTY_CMD_INT_ENABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
++	gf_iowrite32(GOLDFISH_TTY_CMD_INT_ENABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
+ 	return 0;
+ }
+ 
+@@ -167,7 +167,7 @@ static void goldfish_tty_shutdown(struct tty_port *port)
+ {
+ 	struct goldfish_tty *qtty = container_of(port, struct goldfish_tty,
+ 									port);
+-	__raw_writel(GOLDFISH_TTY_CMD_INT_DISABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
++	gf_iowrite32(GOLDFISH_TTY_CMD_INT_DISABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
+ }
+ 
+ static int goldfish_tty_open(struct tty_struct *tty, struct file *filp)
+@@ -202,7 +202,7 @@ static unsigned int goldfish_tty_chars_in_buffer(struct tty_struct *tty)
+ {
+ 	struct goldfish_tty *qtty = &goldfish_ttys[tty->index];
+ 	void __iomem *base = qtty->base;
+-	return __raw_readl(base + GOLDFISH_TTY_REG_BYTES_READY);
++	return gf_ioread32(base + GOLDFISH_TTY_REG_BYTES_READY);
+ }
+ 
+ static void goldfish_tty_console_write(struct console *co, const char *b,
+@@ -355,7 +355,7 @@ static int goldfish_tty_probe(struct platform_device *pdev)
+ 	 * on Ranchu emulator (qemu2) returns 1 here and
+ 	 * driver will use physical addresses.
+ 	 */
+-	qtty->version = __raw_readl(base + GOLDFISH_TTY_REG_VERSION);
++	qtty->version = gf_ioread32(base + GOLDFISH_TTY_REG_VERSION);
+ 
+ 	/*
+ 	 * Goldfish TTY device on Ranchu emulator (qemu2)
+@@ -374,7 +374,7 @@ static int goldfish_tty_probe(struct platform_device *pdev)
  		}
- 		spin_unlock(&dentry->d_lock);
-+	} else {
-+		if (dentry->d_inode)
-+			ret = v9fs_fid_find_inode(dentry->d_inode, uid);
  	}
  
- 	return ret;
+-	__raw_writel(GOLDFISH_TTY_CMD_INT_DISABLE, base + GOLDFISH_TTY_REG_CMD);
++	gf_iowrite32(GOLDFISH_TTY_CMD_INT_DISABLE, base + GOLDFISH_TTY_REG_CMD);
+ 
+ 	ret = request_irq(irq, goldfish_tty_interrupt, IRQF_SHARED,
+ 			  "goldfish_tty", qtty);
+@@ -436,7 +436,7 @@ static int goldfish_tty_remove(struct platform_device *pdev)
+ #ifdef CONFIG_GOLDFISH_TTY_EARLY_CONSOLE
+ static void gf_early_console_putchar(struct uart_port *port, int ch)
+ {
+-	__raw_writel(ch, port->membase);
++	gf_iowrite32(ch, port->membase);
+ }
+ 
+ static void gf_early_write(struct console *con, const char *s, unsigned int n)
+diff --git a/include/linux/goldfish.h b/include/linux/goldfish.h
+index 12be1601fd84..bcc17f95b906 100644
+--- a/include/linux/goldfish.h
++++ b/include/linux/goldfish.h
+@@ -8,14 +8,21 @@
+ 
+ /* Helpers for Goldfish virtual platform */
+ 
++#ifndef gf_ioread32
++#define gf_ioread32 ioread32
++#endif
++#ifndef gf_iowrite32
++#define gf_iowrite32 iowrite32
++#endif
++
+ static inline void gf_write_ptr(const void *ptr, void __iomem *portl,
+ 				void __iomem *porth)
+ {
+ 	const unsigned long addr = (unsigned long)ptr;
+ 
+-	__raw_writel(lower_32_bits(addr), portl);
++	gf_iowrite32(lower_32_bits(addr), portl);
+ #ifdef CONFIG_64BIT
+-	__raw_writel(upper_32_bits(addr), porth);
++	gf_iowrite32(upper_32_bits(addr), porth);
+ #endif
+ }
+ 
+@@ -23,9 +30,9 @@ static inline void gf_write_dma_addr(const dma_addr_t addr,
+ 				     void __iomem *portl,
+ 				     void __iomem *porth)
+ {
+-	__raw_writel(lower_32_bits(addr), portl);
++	gf_iowrite32(lower_32_bits(addr), portl);
+ #ifdef CONFIG_ARCH_DMA_ADDR_T_64BIT
+-	__raw_writel(upper_32_bits(addr), porth);
++	gf_iowrite32(upper_32_bits(addr), porth);
+ #endif
+ }
+ 
 -- 
 2.34.1
 
