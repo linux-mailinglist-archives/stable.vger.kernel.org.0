@@ -2,204 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B04B4A51DE
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 22:51:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 662794A51F3
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 22:59:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351284AbiAaVvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 16:51:47 -0500
-Received: from first.geanix.com ([116.203.34.67]:37720 "EHLO first.geanix.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345541AbiAaVvr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Jan 2022 16:51:47 -0500
-Received: from zen.. (unknown [185.17.218.86])
-        by first.geanix.com (Postfix) with ESMTPSA id 63061126B7D;
-        Mon, 31 Jan 2022 21:51:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
-        t=1643665904; bh=iIJNpft2xL+n2vE0wSgEc/ganWtCw9JUh/zcBq4c1so=;
-        h=From:To:Cc:Subject:Date;
-        b=BpCK9Qn/VAPuo+A4mc1RLxUpVtffpFFJElctH9OSnBdLu5FLSY4JqZPA0sqjMPszx
-         tdSv2KU5a+KkHjqA7zzV3h6LbZi8LvHqQBNm2Dywa3vRzAJM1Fxh4hEEEHAt/pXwHK
-         Zi3y9Mcyu6JN2PUzfSkCmzOjgnPg6Zuusz3qRJi75FGm/n5cB5yflRZ8lm9lVevJrV
-         El6kwrPipC9nFPgWrcBqmSpbzpj+ABfkqZnXxwZAa6hHFfD1Vl8X7svhfAEyZIB6Up
-         LuVYz8jppKoYpQgCqSC0LzT1gfTZUorAFwGqN9Q4RHsgq/nTYtG20d8/bzf5lxMaN9
-         +LqQzD5P+5AsQ==
-From:   Sean Nyekjaer <sean@geanix.com>
-To:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Boris Brezillon <bbrezillon@kernel.org>
-Cc:     Sean Nyekjaer <sean@geanix.com>, stable@vger.kernel.org,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2] mtd: rawnand: protect access to rawnand devices while in suspend
-Date:   Mon, 31 Jan 2022 22:51:38 +0100
-Message-Id: <20220131215138.2013649-1-sean@geanix.com>
-X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-3.1 required=4.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=disabled version=3.4.6
-X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on 13e2a5895688
+        id S229953AbiAaV7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 16:59:46 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:54776 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229710AbiAaV7o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 16:59:44 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70E1961581;
+        Mon, 31 Jan 2022 21:59:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55909C340E8;
+        Mon, 31 Jan 2022 21:59:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1643666381;
+        bh=vNlLgrPBYYVLtyrSiMdjfL/qJCb4K3K6IhJIJV2Y96U=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=ddqgOcAOpEQDMmnkqDH9mzjGwcK0/itBNcvh7267A1cu82AEZgDp2XVFoUkWCSqJs
+         22jOnS9lho9WOAKWSJ0xmydlBWAs9YjhMVXTneKGEWiP2NEMeqO05sZiir4V9mEdrW
+         +oS4crPs0fdnLGL4EFqaUDEwmhclMXIqcKvly5vc=
+Date:   Mon, 31 Jan 2022 13:59:40 -0800
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Christian Brauner <brauner@kernel.org>
+Cc:     Matthew Wilcox <willy@infradead.org>,
+        kernel test robot <oliver.sang@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Ariadne Conill <ariadne@dereferenced.org>,
+        0day robot <lkp@intel.com>,
+        Michael Kerrisk <mtk.manpages@gmail.com>,
+        Rich Felker <dalias@libc.org>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        LKML <linux-kernel@vger.kernel.org>, lkp@lists.01.org,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Subject: Re: [fs/exec]  80bd5afdd8: xfstests.generic.633.fail
+Message-Id: <20220131135940.20790cff1747e79dd855aaf4@linux-foundation.org>
+In-Reply-To: <20220131171344.77iifun5wdilbqdz@wittgenstein>
+References: <20220127000724.15106-1-ariadne@dereferenced.org>
+        <20220131144352.GE16385@xsang-OptiPlex-9020>
+        <20220131150819.iuqlz3rz6q7cheap@wittgenstein>
+        <Yff9+tIDAvYM5EO/@casper.infradead.org>
+        <20220131153707.oe45h7tuci2cbfuv@wittgenstein>
+        <YfgFeWbZPl+gAUYE@casper.infradead.org>
+        <20220131161415.wlvtsd4ecehyg3x5@wittgenstein>
+        <20220131171344.77iifun5wdilbqdz@wittgenstein>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Prevent rawnend access while in a suspended state.
+On Mon, 31 Jan 2022 18:13:44 +0100 Christian Brauner <brauner@kernel.org> wrote:
 
-Commit 013e6292aaf5 ("mtd: rawnand: Simplify the locking") allows the
-rawnand layer to return errors rather than waiting in a blocking wait.
+> > in other words, the changes that you see CMD_ARGS[0] == NULL for
+> > execveat() seem higher than for path-based exec.
+> > 
+> > To counter that we should probably at least update the execveat()
+> > manpage with a recommendation what CMD_ARGS[0] should be set to if it
+> > isn't allowed to be set to NULL anymore. This is why was asking what
+> > argv[0] is supposed to be if the binary doesn't take any arguments.
+> 
+> Sent a fix to our fstests now replacing the argv[0] as NULL with "".
 
-Tested on a iMX6ULL.
-
-Fixes: 013e6292aaf5 ("mtd: rawnand: Simplify the locking")
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
----
-Follow-up on discussion in:
-https://lkml.org/lkml/2021/10/4/41
-https://lkml.org/lkml/2021/10/11/435
-https://lkml.org/lkml/2021/10/20/184
-https://lkml.org/lkml/2021/10/25/288
-https://lkml.org/lkml/2021/10/26/55
-https://lkml.org/lkml/2021/11/2/352
-
-Changes since v1:
- - fixed uninitialized return
-
- drivers/mtd/nand/raw/nand_base.c | 44 +++++++++++++++-----------------
- include/linux/mtd/rawnand.h      |  1 +
- 2 files changed, 21 insertions(+), 24 deletions(-)
-
-diff --git a/drivers/mtd/nand/raw/nand_base.c b/drivers/mtd/nand/raw/nand_base.c
-index e7b2ba016d8c..8daaba96edb2 100644
---- a/drivers/mtd/nand/raw/nand_base.c
-+++ b/drivers/mtd/nand/raw/nand_base.c
-@@ -338,16 +338,19 @@ static int nand_isbad_bbm(struct nand_chip *chip, loff_t ofs)
-  *
-  * Return: -EBUSY if the chip has been suspended, 0 otherwise
-  */
--static int nand_get_device(struct nand_chip *chip)
-+static void nand_get_device(struct nand_chip *chip)
- {
--	mutex_lock(&chip->lock);
--	if (chip->suspended) {
-+	/* Wait until the device is resumed. */
-+	while (1) {
-+		mutex_lock(&chip->lock);
-+		if (!chip->suspended) {
-+			mutex_lock(&chip->controller->lock);
-+			return;
-+		}
- 		mutex_unlock(&chip->lock);
--		return -EBUSY;
--	}
--	mutex_lock(&chip->controller->lock);
- 
--	return 0;
-+		wait_event(chip->resume_wq, !chip->suspended);
-+	}
- }
- 
- /**
-@@ -576,9 +579,7 @@ static int nand_block_markbad_lowlevel(struct nand_chip *chip, loff_t ofs)
- 		nand_erase_nand(chip, &einfo, 0);
- 
- 		/* Write bad block marker to OOB */
--		ret = nand_get_device(chip);
--		if (ret)
--			return ret;
-+		nand_get_device(chip);
- 
- 		ret = nand_markbad_bbm(chip, ofs);
- 		nand_release_device(chip);
-@@ -3826,9 +3827,7 @@ static int nand_read_oob(struct mtd_info *mtd, loff_t from,
- 	    ops->mode != MTD_OPS_RAW)
- 		return -ENOTSUPP;
- 
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	if (!ops->datbuf)
- 		ret = nand_do_read_oob(chip, from, ops);
-@@ -4415,13 +4414,11 @@ static int nand_write_oob(struct mtd_info *mtd, loff_t to,
- 			  struct mtd_oob_ops *ops)
- {
- 	struct nand_chip *chip = mtd_to_nand(mtd);
--	int ret;
-+	int ret = 0;
- 
- 	ops->retlen = 0;
- 
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	switch (ops->mode) {
- 	case MTD_OPS_PLACE_OOB:
-@@ -4481,9 +4478,7 @@ int nand_erase_nand(struct nand_chip *chip, struct erase_info *instr,
- 		return -EIO;
- 
- 	/* Grab the lock and see if the device is available */
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	/* Shift to get first page */
- 	page = (int)(instr->addr >> chip->page_shift);
-@@ -4570,7 +4565,7 @@ static void nand_sync(struct mtd_info *mtd)
- 	pr_debug("%s: called\n", __func__);
- 
- 	/* Grab the lock and see if the device is available */
--	WARN_ON(nand_get_device(chip));
-+	nand_get_device(chip);
- 	/* Release it and go back */
- 	nand_release_device(chip);
- }
-@@ -4587,9 +4582,7 @@ static int nand_block_isbad(struct mtd_info *mtd, loff_t offs)
- 	int ret;
- 
- 	/* Select the NAND device */
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	nand_select_target(chip, chipnr);
- 
-@@ -4660,6 +4653,8 @@ static void nand_resume(struct mtd_info *mtd)
- 			__func__);
- 	}
- 	mutex_unlock(&chip->lock);
-+
-+	wake_up_all(&chip->resume_wq);
- }
- 
- /**
-@@ -5437,6 +5432,7 @@ static int nand_scan_ident(struct nand_chip *chip, unsigned int maxchips,
- 	chip->cur_cs = -1;
- 
- 	mutex_init(&chip->lock);
-+	init_waitqueue_head(&chip->resume_wq);
- 
- 	/* Enforce the right timings for reset/detection */
- 	chip->current_interface_config = nand_get_reset_interface_config();
-diff --git a/include/linux/mtd/rawnand.h b/include/linux/mtd/rawnand.h
-index 5b88cd51fadb..99d50a15a263 100644
---- a/include/linux/mtd/rawnand.h
-+++ b/include/linux/mtd/rawnand.h
-@@ -1294,6 +1294,7 @@ struct nand_chip {
- 	/* Internals */
- 	struct mutex lock;
- 	unsigned int suspended : 1;
-+	wait_queue_head_t resume_wq;
- 	int cur_cs;
- 	int read_retries;
- 	struct nand_secure_region *secure_regions;
--- 
-2.34.1
-
+As we hit this check so quickly, I'm thinking that Ariadne's patch
+"fs/exec: require argv[0] presence in do_execveat_common()" (which
+added the check) isn't something we'll be able to merge into mainline?
