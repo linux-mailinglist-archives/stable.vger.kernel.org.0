@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16F514A4497
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:33:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18FCA4A4589
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:42:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242176AbiAaLbX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:31:23 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43092 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376954AbiAaLZs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:25:48 -0500
+        id S236970AbiAaLm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:42:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52598 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240459AbiAaLkW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:40:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4189DC034613;
+        Mon, 31 Jan 2022 03:25:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DCF1FB82A60;
-        Mon, 31 Jan 2022 11:25:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03695C340E8;
-        Mon, 31 Jan 2022 11:25:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04C15B82A74;
+        Mon, 31 Jan 2022 11:25:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26C99C340E8;
+        Mon, 31 Jan 2022 11:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628344;
-        bh=2so/aH1HrEYms4CSSmQg1fyclMbh8LUD69G5RMRjb70=;
+        s=korg; t=1643628347;
+        bh=GCvIH/oJjBW/EhQKy4afOvfc/4c+zPQYSjPhbyL4AIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tiozxjPWy9xLQ/dNZot4WUDXtwqBdJfpgtbr4JGy0P5Zxo6bHqxxAH3Cdtk9uaozq
-         FlF+SUlLRgbbLrrNbFdAgeUlk11rbVmaXonUmecgmptxOI23Jw8RiWMTXrAl4rH95G
-         WCnucaACNer0W8/COsA41ldW3Zo0Ki+LbNpEtiwc=
+        b=D6tyqyspCP1MeC9vBPFsSyY/C0k9nLoseY+zuRiruAHvqzR0F+eFVuDWEgoTUqQng
+         D4Gs8x7Qi1PByLpLpFNrB34LzhCzvIydP0sKBwoybLTyRS3cQKZBiaCxP1pHmOIvct
+         LI5Np1pXgvl5YOBfbSDcDX2QEx7zInGDCsCOl2+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
         Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 169/200] drm/msm/hdmi: Fix missing put_device() call in msm_hdmi_get_phy
-Date:   Mon, 31 Jan 2022 11:57:12 +0100
-Message-Id: <20220131105239.238924427@linuxfoundation.org>
+Subject: [PATCH 5.16 170/200] drm/msm/dpu: invalid parameter check in dpu_setup_dspp_pcc
+Date:   Mon, 31 Jan 2022 11:57:13 +0100
+Message-Id: <20220131105239.275458113@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
 References: <20220131105233.561926043@linuxfoundation.org>
@@ -45,45 +49,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 774fe0cd838d1b1419d41ab4ea0613c80d4ecbd7 ]
+[ Upstream commit 170b22234d5495f5e0844246e23f004639ee89ba ]
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the error handling path.
+The function performs a check on the "ctx" input parameter, however, it
+is used before the check.
 
-Fixes: e00012b256d4 ("drm/msm/hdmi: Make HDMI core get its PHY")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20220107085026.23831-1-linmq006@gmail.com
+Initialize the "base" variable after the sanity check to avoid a
+possible NULL pointer dereference.
+
+Fixes: 4259ff7ae509e ("drm/msm/dpu: add support for pcc color block in dpu driver")
+Addresses-Coverity-ID: 1493866 ("Null pointer dereference")
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Link: https://lore.kernel.org/r/20220109192431.135949-1-jose.exposito89@gmail.com
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/hdmi/hdmi.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
-index 75b64e6ae0350..a439794a32e81 100644
---- a/drivers/gpu/drm/msm/hdmi/hdmi.c
-+++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
-@@ -95,10 +95,15 @@ static int msm_hdmi_get_phy(struct hdmi *hdmi)
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c
+index a98e964c3b6fa..355894a3b48c3 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c
+@@ -26,9 +26,16 @@ static void dpu_setup_dspp_pcc(struct dpu_hw_dspp *ctx,
+ 		struct dpu_hw_pcc_cfg *cfg)
+ {
  
- 	of_node_put(phy_node);
+-	u32 base = ctx->cap->sblk->pcc.base;
++	u32 base;
  
--	if (!phy_pdev || !hdmi->phy) {
-+	if (!phy_pdev) {
- 		DRM_DEV_ERROR(&pdev->dev, "phy driver is not ready\n");
- 		return -EPROBE_DEFER;
- 	}
-+	if (!hdmi->phy) {
-+		DRM_DEV_ERROR(&pdev->dev, "phy driver is not ready\n");
-+		put_device(&phy_pdev->dev);
-+		return -EPROBE_DEFER;
+-	if (!ctx || !base) {
++	if (!ctx) {
++		DRM_ERROR("invalid ctx %pK\n", ctx);
++		return;
 +	}
- 
- 	hdmi->phy_dev = get_device(&phy_pdev->dev);
- 
++
++	base = ctx->cap->sblk->pcc.base;
++
++	if (!base) {
+ 		DRM_ERROR("invalid ctx %pK pcc base 0x%x\n", ctx, base);
+ 		return;
+ 	}
 -- 
 2.34.1
 
