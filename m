@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AED884A44F2
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7903A4A4380
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359285AbiAaLfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:35:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49596 "EHLO
+        id S1376423AbiAaLVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379031AbiAaL3n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:29:43 -0500
+        with ESMTP id S1376532AbiAaLR3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:17:29 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E45A5C0613F5;
-        Mon, 31 Jan 2022 03:18:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE422C0617AF;
+        Mon, 31 Jan 2022 03:11:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A246AB82A60;
-        Mon, 31 Jan 2022 11:18:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE84C340E8;
-        Mon, 31 Jan 2022 11:18:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 62F37B82A66;
+        Mon, 31 Jan 2022 11:11:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9408CC36AE5;
+        Mon, 31 Jan 2022 11:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627927;
-        bh=CF/4MY7FKckAGskhdW8kSRtZt/dF4cnf9veiaqT7nkQ=;
+        s=korg; t=1643627492;
+        bh=IaqLZl+CdXYL64x6EZzxtDxk/aOj4h8gnttrGM8rZnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nUnCK8051hZGY/uRPUUIzEZoHccs9oG+sAEayo4pfmeDccFTMOKeGDK0O1TuHYtx8
-         VeRlZI6E2Ko7t/IBKh7LKzCKa+4QZOpxYOMBX4MNgWuCAAPwG3RGibpKyMjhNYODG5
-         yrGCtp7ybIFH/A4oIhDDsMX4m5b6Qz98w3zGombM=
+        b=kbC6bBBLDw1RAnu8/Y2PHXRM5TFwkhW38WEnrbPriubv0QBgwVoP28JDmyNxedoTt
+         v5uE3sZViP/yqHPDl9bQMA1lgKQdZaA2CGm2dQEp2j7IJSHi9upAVYTTVxF6shmBl5
+         OQzNCF3v+rNxJIEWHzzt7JJOkIdQGoXgEno7V9jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        "Maciej W. Rozycki" <macro@embecosm.com>
-Subject: [PATCH 5.16 070/200] tty: Partially revert the removal of the Cyclades public API
+        stable@vger.kernel.org,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.15 068/171] sched/membarrier: Fix membarrier-rseq fence command missing from query bitmask
 Date:   Mon, 31 Jan 2022 11:55:33 +0100
-Message-Id: <20220131105235.942332788@linuxfoundation.org>
+Message-Id: <20220131105232.345969651@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,77 +48,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@embecosm.com>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit f23653fe64479d96910bfda2b700b1af17c991ac upstream.
+commit 809232619f5b15e31fb3563985e705454f32621f upstream.
 
-Fix a user API regression introduced with commit f76edd8f7ce0 ("tty:
-cyclades, remove this orphan"), which removed a part of the API and
-caused compilation errors for user programs using said part, such as
-GCC 9 in its libsanitizer component[1]:
+The membarrier command MEMBARRIER_CMD_QUERY allows querying the
+available membarrier commands. When the membarrier-rseq fence commands
+were added, a new MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK was
+introduced with the intent to expose them with the MEMBARRIER_CMD_QUERY
+command, the but it was never added to MEMBARRIER_CMD_BITMASK.
 
-.../libsanitizer/sanitizer_common/sanitizer_platform_limits_posix.cc:160:10: fatal error: linux/cyclades.h: No such file or directory
-  160 | #include <linux/cyclades.h>
-      |          ^~~~~~~~~~~~~~~~~~
-compilation terminated.
-make[4]: *** [Makefile:664: sanitizer_platform_limits_posix.lo] Error 1
+The membarrier-rseq fence commands are therefore not wired up with the
+query command.
 
-As the absolute minimum required bring `struct cyclades_monitor' and
-ioctl numbers back then so as to make the library build again.  Add a
-preprocessor warning as to the obsolescence of the features provided.
+Rename MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK to
+MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK (the bitmask is not a command
+per-se), and change the erroneous
+MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ_BITMASK (which does not
+actually exist) to MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ.
 
+Wire up MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK in
+MEMBARRIER_CMD_BITMASK. Fixing this allows discovering availability of
+the membarrier-rseq fence feature.
 
-[1] GCC PR sanitizer/100379, "cyclades.h is removed from linux kernel
-    header files", <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100379>
-
-Fixes: f76edd8f7ce0 ("tty: cyclades, remove this orphan")
-Cc: stable@vger.kernel.org # v5.13+
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Maciej W. Rozycki <macro@embecosm.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.20.2201260733430.11348@tpp.orcam.me.uk
+Fixes: 2a36ab717e8f ("rseq/membarrier: Add MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ")
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <stable@vger.kernel.org> # 5.10+
+Link: https://lkml.kernel.org/r/20220117203010.30129-1-mathieu.desnoyers@efficios.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/cyclades.h |   35 +++++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
- create mode 100644 include/uapi/linux/cyclades.h
+ kernel/sched/membarrier.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- /dev/null
-+++ b/include/uapi/linux/cyclades.h
-@@ -0,0 +1,35 @@
-+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-+
-+#ifndef _UAPI_LINUX_CYCLADES_H
-+#define _UAPI_LINUX_CYCLADES_H
-+
-+#warning "Support for features provided by this header has been removed"
-+#warning "Please consider updating your code"
-+
-+struct cyclades_monitor {
-+	unsigned long int_count;
-+	unsigned long char_count;
-+	unsigned long char_max;
-+	unsigned long char_last;
-+};
-+
-+#define CYGETMON		0x435901
-+#define CYGETTHRESH		0x435902
-+#define CYSETTHRESH		0x435903
-+#define CYGETDEFTHRESH		0x435904
-+#define CYSETDEFTHRESH		0x435905
-+#define CYGETTIMEOUT		0x435906
-+#define CYSETTIMEOUT		0x435907
-+#define CYGETDEFTIMEOUT		0x435908
-+#define CYSETDEFTIMEOUT		0x435909
-+#define CYSETRFLOW		0x43590a
-+#define CYGETRFLOW		0x43590b
-+#define CYSETRTSDTR_INV		0x43590c
-+#define CYGETRTSDTR_INV		0x43590d
-+#define CYZSETPOLLCYCLE		0x43590e
-+#define CYZGETPOLLCYCLE		0x43590f
-+#define CYGETCD1400VER		0x435910
-+#define CYSETWAIT		0x435912
-+#define CYGETWAIT		0x435913
-+
-+#endif /* _UAPI_LINUX_CYCLADES_H */
+--- a/kernel/sched/membarrier.c
++++ b/kernel/sched/membarrier.c
+@@ -147,11 +147,11 @@
+ #endif
+ 
+ #ifdef CONFIG_RSEQ
+-#define MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK		\
++#define MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK		\
+ 	(MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ			\
+-	| MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ_BITMASK)
++	| MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ)
+ #else
+-#define MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK	0
++#define MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK	0
+ #endif
+ 
+ #define MEMBARRIER_CMD_BITMASK						\
+@@ -159,7 +159,8 @@
+ 	| MEMBARRIER_CMD_REGISTER_GLOBAL_EXPEDITED			\
+ 	| MEMBARRIER_CMD_PRIVATE_EXPEDITED				\
+ 	| MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED			\
+-	| MEMBARRIER_PRIVATE_EXPEDITED_SYNC_CORE_BITMASK)
++	| MEMBARRIER_PRIVATE_EXPEDITED_SYNC_CORE_BITMASK		\
++	| MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK)
+ 
+ static void ipi_mb(void *info)
+ {
 
 
