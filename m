@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 895D94A4045
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 11:33:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E7AC4A4044
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 11:33:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358217AbiAaKc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1358201AbiAaKc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 31 Jan 2022 05:32:59 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44480 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358208AbiAaKc5 (ORCPT
+Received: from sin.source.kernel.org ([145.40.73.55]:42332 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358202AbiAaKc5 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:32:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F3FF61363
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 10:32:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6825AC340E8;
-        Mon, 31 Jan 2022 10:32:56 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5DA80CE10F0
+        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 10:32:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21E39C340E8;
+        Mon, 31 Jan 2022 10:32:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643625177;
-        bh=yFhnqksUaJ+c1/lQmuF3rm/KgTDojtigTf/fNAXm6lY=;
+        s=korg; t=1643625173;
+        bh=G6bGvWLMjLJgBqxlXhVNyyUTLEfD/qLTdI0EOsSzFpk=;
         h=Subject:To:Cc:From:Date:From;
-        b=aqmIhKkCQvpYc0nUA5eD5DUXOsFwG1UvySJlcgwd77Q8jEZgzph1tjtdcL8q6yQuk
-         SvrQVl0DB9nl5w7Es4OyHLKgaqGkMXOOtZP54n+LnuaW1qnbZnPjIOPGZ/NMRqpaAx
-         yT6LMkl8q0MRPH7TqwHg86u+e/OxNXPxiDLHcpMc=
-Subject: FAILED: patch "[PATCH] loop: make autoclear operation asynchronous" failed to apply to 5.10-stable tree
+        b=Hjcmzm996SxD7NcoWTVFLRe21i3iN9PrxyDh6DtfRl2lVuNO90V7Al/1DLv+t2XYb
+         Czj3Gzqnq/EJpDUpUncU1ZdFokMzSXpmEM+DqqceFgfpTk+Bn0XrFYlZ9/uFJ5wkve
+         Jf8V2ucMFId6d/OQFGr6oMbjE37yzvCW/d1ES+Vo=
+Subject: FAILED: patch "[PATCH] loop: make autoclear operation asynchronous" failed to apply to 5.4-stable tree
 To:     penguin-kernel@i-love.sakura.ne.jp, axboe@kernel.dk,
         hch@infradead.org, hch@lst.de, jack@suse.cz,
         penguin-kernel@I-love.SAKURA.ne.jp,
@@ -33,7 +33,7 @@ To:     penguin-kernel@i-love.sakura.ne.jp, axboe@kernel.dk,
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 31 Jan 2022 11:32:37 +0100
-Message-ID: <16436251575932@kroah.com>
+Message-ID: <16436251578591@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
