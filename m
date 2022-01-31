@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5241C4A44A3
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:33:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D54CE4A426A
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239099AbiAaLbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:31:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48644 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377885AbiAaL1o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:27:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26B3EC094257;
-        Mon, 31 Jan 2022 03:16:55 -0800 (PST)
+        id S1359623AbiAaLLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:50 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41462 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377102AbiAaLJm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:09:42 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B9B3761170;
-        Mon, 31 Jan 2022 11:16:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7699DC340E8;
-        Mon, 31 Jan 2022 11:16:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF95060F96;
+        Mon, 31 Jan 2022 11:09:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C692C340E8;
+        Mon, 31 Jan 2022 11:09:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627814;
-        bh=yCdY9W4lizVQOQitcORHyijLSocRxrJhHdT9YQ2SzMw=;
+        s=korg; t=1643627381;
+        bh=H8Kqjec3vy20GA6mnXYJLGonJa+G2hoAOvhv1VCBA/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bmyuWa26LvW8ChkQ/bQ7OGYo20fiQ7c1QYbqgTMjfqScN84Fz9lNBetjZnpbVSKZG
-         7dWTzBwJpdMdWV12tPlOoMa/dc/orSFujscmLXb7/BsKaibcpBbqsjn2kbLGrGX2Jh
-         dw6Us8PwgWBtkJGAXqwa137AFKTm81qHSmkFeIkY=
+        b=R+RYh7TnTgtKe0Kit8HTV1C8g0EJvNz0nuCwM92eOUIFqzCylo6CnThxHtZnztMjA
+         GcuZmNOuoRciuKIKH7jUm7atNusxmkTAC9aEJLuvS3PppqMrZXGZjy00q11bvECR9x
+         SRJifsOJ5vf5Ne9v8SVCwl8Zq/dEnBKdCUrXWjcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan van der Ster <dan@vanderster.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.16 034/200] ceph: set pool_ns in new inode layout for async creates
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Simon Ser <contact@emersion.fr>,
+        Pekka Paalanen <pekka.paalanen@collabora.co.uk>,
+        Daniel Stone <daniels@collabora.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        dri-devel@lists.freedesktop.org,
+        Manasi Navare <manasi.d.navare@intel.com>
+Subject: [PATCH 5.15 032/171] drm/atomic: Add the crtc to affected crtc only if uapi.enable = true
 Date:   Mon, 31 Jan 2022 11:54:57 +0100
-Message-Id: <20220131105234.711759172@linuxfoundation.org>
+Message-Id: <20220131105231.108448665@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,52 +50,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Manasi Navare <manasi.d.navare@intel.com>
 
-commit 4584a768f22b7669cdebabc911543621ac661341 upstream.
+commit 5ec1cebd59300ddd26dbaa96c17c508764eef911 upstream.
 
-Dan reported that he was unable to write to files that had been
-asynchronously created when the client's OSD caps are restricted to a
-particular namespace.
+In case of a modeset where a mode gets split across multiple CRTCs
+in the driver specific implementation (bigjoiner in i915) we wrongly count
+the affected CRTCs based on the drm_crtc_mask and indicate the stolen CRTC as
+an affected CRTC in atomic_check_only().
+This triggers a warning since affected CRTCs doent match requested CRTC.
 
-The issue is that the layout for the new inode is only partially being
-filled. Ensure that we populate the pool_ns_data and pool_ns_len in the
-iinfo before calling ceph_fill_inode.
+To fix this in such bigjoiner configurations, we should only
+increment affected crtcs if that CRTC is enabled in UAPI not
+if it is just used internally in the driver to split the mode.
 
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/54013
-Fixes: 9a8d03ca2e2c ("ceph: attempt to do async create when possible")
-Reported-by: Dan van der Ster <dan@vanderster.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+v3: Add the same uapi crtc_state->enable check in requested
+crtc calc (Ville)
+
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Simon Ser <contact@emersion.fr>
+Cc: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Cc: Daniel Stone <daniels@collabora.com>
+Cc: Daniel Vetter <daniel.vetter@intel.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.11+
+Fixes: 919c2299a893 ("drm/i915: Enable bigjoiner")
+Signed-off-by: Manasi Navare <manasi.d.navare@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211004115913.23889-1-manasi.d.navare@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/file.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/drm_atomic.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -579,6 +579,7 @@ static int ceph_finish_async_create(stru
- 	struct ceph_inode_info *ci = ceph_inode(dir);
- 	struct inode *inode;
- 	struct timespec64 now;
-+	struct ceph_string *pool_ns;
- 	struct ceph_mds_client *mdsc = ceph_sb_to_mdsc(dir->i_sb);
- 	struct ceph_vino vino = { .ino = req->r_deleg_ino,
- 				  .snap = CEPH_NOSNAP };
-@@ -628,6 +629,12 @@ static int ceph_finish_async_create(stru
- 	in.max_size = cpu_to_le64(lo->stripe_unit);
+--- a/drivers/gpu/drm/drm_atomic.c
++++ b/drivers/gpu/drm/drm_atomic.c
+@@ -1310,8 +1310,10 @@ int drm_atomic_check_only(struct drm_ato
  
- 	ceph_file_layout_to_legacy(lo, &in.layout);
-+	/* lo is private, so pool_ns can't change */
-+	pool_ns = rcu_dereference_raw(lo->pool_ns);
-+	if (pool_ns) {
-+		iinfo.pool_ns_len = pool_ns->len;
-+		iinfo.pool_ns_data = pool_ns->str;
+ 	DRM_DEBUG_ATOMIC("checking %p\n", state);
+ 
+-	for_each_new_crtc_in_state(state, crtc, new_crtc_state, i)
+-		requested_crtc |= drm_crtc_mask(crtc);
++	for_each_new_crtc_in_state(state, crtc, new_crtc_state, i) {
++		if (new_crtc_state->enable)
++			requested_crtc |= drm_crtc_mask(crtc);
 +	}
  
- 	down_read(&mdsc->snap_rwsem);
- 	ret = ceph_fill_inode(inode, NULL, &iinfo, NULL, req->r_session,
+ 	for_each_oldnew_plane_in_state(state, plane, old_plane_state, new_plane_state, i) {
+ 		ret = drm_atomic_plane_check(old_plane_state, new_plane_state);
+@@ -1360,8 +1362,10 @@ int drm_atomic_check_only(struct drm_ato
+ 		}
+ 	}
+ 
+-	for_each_new_crtc_in_state(state, crtc, new_crtc_state, i)
+-		affected_crtc |= drm_crtc_mask(crtc);
++	for_each_new_crtc_in_state(state, crtc, new_crtc_state, i) {
++		if (new_crtc_state->enable)
++			affected_crtc |= drm_crtc_mask(crtc);
++	}
+ 
+ 	/*
+ 	 * For commits that allow modesets drivers can add other CRTCs to the
 
 
