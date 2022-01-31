@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99F044A437F
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B9114A422A
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376400AbiAaLVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:21:43 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:50544 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359857AbiAaLRN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:17:13 -0500
+        id S1358980AbiAaLLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:00 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56138 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359014AbiAaLH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:07:27 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EBB861253;
-        Mon, 31 Jan 2022 11:17:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73F44C340E8;
-        Mon, 31 Jan 2022 11:17:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF454B82A31;
+        Mon, 31 Jan 2022 11:07:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EC42C340E8;
+        Mon, 31 Jan 2022 11:07:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627833;
-        bh=ZcdLGpwrRzM4z270cG3mVxCpval/I4K+QpVb6FH+tZk=;
+        s=korg; t=1643627244;
+        bh=y8gnLAmebI/LsWI7Qf1t1rVMg1fjqFljK3zoLhrq18I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sVTQr3WP4YU8nS19VGu+lFMRF0s0YxjtqjldOelRNpXzdFw7EQFyQocZatSNg+kQF
-         T95VoQUF8yiiTNwj8mL137Xhfi0shvuFqs5MfSBnmNr6/T9A8FFZ699Wjd5GwXbuW8
-         QrTIplMH5YqE8WgeIeUp1MAi+mbuquhmh2l9NnNY=
+        b=VmsW57Q6t6t8ogDQftRQWJet2Zf927ls0sHpARorzltm+mvf2Mz1kQ+cJthN84aWu
+         9KFVN7H3x6UeZObCStojRhuBaEqg8DEyii18C3pkpf0u2hOGLDhRqe/JciXwfxQudu
+         +1ZSxG7Y3qEGZpIb6/tTeTY4eqL7OHfswbGkBcuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.16 022/200] powerpc32/bpf: Fix codegen for bpf-to-bpf calls
+        stable@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.15 020/171] PM: wakeup: simplify the output logic of pm_show_wakelocks()
 Date:   Mon, 31 Jan 2022 11:54:45 +0100
-Message-Id: <20220131105234.306593746@linuxfoundation.org>
+Message-Id: <20220131105230.707768581@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit fab07611fb2e6a15fac05c4583045ca5582fd826 upstream.
+commit c9d967b2ce40d71e968eb839f36c936b8a9cf1ea upstream.
 
-Pad instructions emitted for BPF_CALL so that the number of instructions
-generated does not change for different function addresses. This is
-especially important for calls to other bpf functions, whose address
-will only be known during extra pass.
+The buffer handling in pm_show_wakelocks() is tricky, and hopefully
+correct.  Ensure it really is correct by using sysfs_emit_at() which
+handles all of the tricky string handling logic in a PAGE_SIZE buffer
+for us automatically as this is a sysfs file being read from.
 
-Fixes: 51c66ad849a703 ("powerpc/bpf: Implement extended BPF on PPC32")
-Cc: stable@vger.kernel.org # v5.13+
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/52d8fe51f7620a6f27f377791564d79d75463576.1641468127.git.naveen.n.rao@linux.vnet.ibm.com
+Reviewed-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/net/bpf_jit_comp32.c |    3 +++
- 1 file changed, 3 insertions(+)
+ kernel/power/wakelock.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
---- a/arch/powerpc/net/bpf_jit_comp32.c
-+++ b/arch/powerpc/net/bpf_jit_comp32.c
-@@ -191,6 +191,9 @@ void bpf_jit_emit_func_call_rel(u32 *ima
+--- a/kernel/power/wakelock.c
++++ b/kernel/power/wakelock.c
+@@ -39,23 +39,20 @@ ssize_t pm_show_wakelocks(char *buf, boo
+ {
+ 	struct rb_node *node;
+ 	struct wakelock *wl;
+-	char *str = buf;
+-	char *end = buf + PAGE_SIZE;
++	int len = 0;
  
- 	if (image && rel < 0x2000000 && rel >= -0x2000000) {
- 		PPC_BL_ABS(func);
-+		EMIT(PPC_RAW_NOP());
-+		EMIT(PPC_RAW_NOP());
-+		EMIT(PPC_RAW_NOP());
- 	} else {
- 		/* Load function address into r0 */
- 		EMIT(PPC_RAW_LIS(_R0, IMM_H(func)));
+ 	mutex_lock(&wakelocks_lock);
+ 
+ 	for (node = rb_first(&wakelocks_tree); node; node = rb_next(node)) {
+ 		wl = rb_entry(node, struct wakelock, node);
+ 		if (wl->ws->active == show_active)
+-			str += scnprintf(str, end - str, "%s ", wl->name);
++			len += sysfs_emit_at(buf, len, "%s ", wl->name);
+ 	}
+-	if (str > buf)
+-		str--;
+ 
+-	str += scnprintf(str, end - str, "\n");
++	len += sysfs_emit_at(buf, len, "\n");
+ 
+ 	mutex_unlock(&wakelocks_lock);
+-	return (str - buf);
++	return len;
+ }
+ 
+ #if CONFIG_PM_WAKELOCKS_LIMIT > 0
 
 
