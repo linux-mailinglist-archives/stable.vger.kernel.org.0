@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E667D4A44C7
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 366B94A42ED
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:15:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359746AbiAaLce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:32:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49840 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379453AbiAaLaU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:30:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2296EC0617BD;
-        Mon, 31 Jan 2022 03:20:43 -0800 (PST)
+        id S1376543AbiAaLP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:15:28 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33244 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376889AbiAaLN1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:13:27 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B79CB611DB;
-        Mon, 31 Jan 2022 11:20:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81C8DC340E8;
-        Mon, 31 Jan 2022 11:20:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33E79B82A69;
+        Mon, 31 Jan 2022 11:13:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74C94C340E8;
+        Mon, 31 Jan 2022 11:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628042;
-        bh=K8uS/L0iTWLq7FlRCD2DFohHBclcjVpDwfvTy1cfNPY=;
+        s=korg; t=1643627605;
+        bh=cxLfZfsDQeybGrT0LvcP/UqveDE4obs6ThtNGI0gzLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NczWrz4NDp3kZFMabt2fXC3Y7XkgwAjGM0eVwi1QPhOzREnaK45yANvasVTigYfuf
-         EkwxTk2+EEKJlQeXm/BGpXLQbGYh6sQbnyZOGEQrX41cWOQc6qzB31kYf+r2S6vDFT
-         NWXCmrMPo1IdPkmfA8bcBOtqNCcyIe8x4NZ67Kuk=
+        b=lOz3wX4YWWPvulm05ce2Dn+GTTWX9eivkcKUSpB50Aw7o3JCAl/VnL2dCgME0og3H
+         CUSKDKovD/rEF0liHPrz4tF3vPy4QHE9b0UeidoiD6h9QIUknUqEa5BqJoyOdJqDwe
+         8ysEM57Vcm/7+P4+4tLo0qM3Zj6kRh8ntdebHq8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, huangshaobo <huangshaobo6@huawei.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.16 107/200] ARM: 9170/1: fix panic when kasan and kprobe are enabled
+        stable@vger.kernel.org,
+        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 105/171] powerpc64/bpf: Limit ldbrx to processors compliant with ISA v2.06
 Date:   Mon, 31 Jan 2022 11:56:10 +0100
-Message-Id: <20220131105237.176823572@linuxfoundation.org>
+Message-Id: <20220131105233.600744911@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,114 +47,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sparkhuang <huangshaobo6@huawei.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit 8b59b0a53c840921b625378f137e88adfa87647e upstream.
+[ Upstream commit 3f5f766d5f7f95a69a630da3544a1a0cee1cdddf ]
 
-arm32 uses software to simulate the instruction replaced
-by kprobe. some instructions may be simulated by constructing
-assembly functions. therefore, before executing instruction
-simulation, it is necessary to construct assembly function
-execution environment in C language through binding registers.
-after kasan is enabled, the register binding relationship will
-be destroyed, resulting in instruction simulation errors and
-causing kernel panic.
+Johan reported the below crash with test_bpf on ppc64 e5500:
 
-the kprobe emulate instruction function is distributed in three
-files: actions-common.c actions-arm.c actions-thumb.c, so disable
-KASAN when compiling these files.
+  test_bpf: #296 ALU_END_FROM_LE 64: 0x0123456789abcdef -> 0x67452301 jited:1
+  Oops: Exception in kernel mode, sig: 4 [#1]
+  BE PAGE_SIZE=4K SMP NR_CPUS=24 QEMU e500
+  Modules linked in: test_bpf(+)
+  CPU: 0 PID: 76 Comm: insmod Not tainted 5.14.0-03771-g98c2059e008a-dirty #1
+  NIP:  8000000000061c3c LR: 80000000006dea64 CTR: 8000000000061c18
+  REGS: c0000000032d3420 TRAP: 0700   Not tainted (5.14.0-03771-g98c2059e008a-dirty)
+  MSR:  0000000080089000 <EE,ME>  CR: 88002822  XER: 20000000 IRQMASK: 0
+  <...>
+  NIP [8000000000061c3c] 0x8000000000061c3c
+  LR [80000000006dea64] .__run_one+0x104/0x17c [test_bpf]
+  Call Trace:
+   .__run_one+0x60/0x17c [test_bpf] (unreliable)
+   .test_bpf_init+0x6a8/0xdc8 [test_bpf]
+   .do_one_initcall+0x6c/0x28c
+   .do_init_module+0x68/0x28c
+   .load_module+0x2460/0x2abc
+   .__do_sys_init_module+0x120/0x18c
+   .system_call_exception+0x110/0x1b8
+   system_call_common+0xf0/0x210
+  --- interrupt: c00 at 0x101d0acc
+  <...>
+  ---[ end trace 47b2bf19090bb3d0 ]---
 
-for example, use kprobe insert on cap_capable+20 after kasan
-enabled, the cap_capable assembly code is as follows:
-<cap_capable>:
-e92d47f0	push	{r4, r5, r6, r7, r8, r9, sl, lr}
-e1a05000	mov	r5, r0
-e280006c	add	r0, r0, #108    ; 0x6c
-e1a04001	mov	r4, r1
-e1a06002	mov	r6, r2
-e59fa090	ldr	sl, [pc, #144]  ;
-ebfc7bf8	bl	c03aa4b4 <__asan_load4>
-e595706c	ldr	r7, [r5, #108]  ; 0x6c
-e2859014	add	r9, r5, #20
-......
-The emulate_ldr assembly code after enabling kasan is as follows:
-c06f1384 <emulate_ldr>:
-e92d47f0	push	{r4, r5, r6, r7, r8, r9, sl, lr}
-e282803c	add	r8, r2, #60     ; 0x3c
-e1a05000	mov	r5, r0
-e7e37855	ubfx	r7, r5, #16, #4
-e1a00008	mov	r0, r8
-e1a09001	mov	r9, r1
-e1a04002	mov	r4, r2
-ebf35462	bl	c03c6530 <__asan_load4>
-e357000f	cmp	r7, #15
-e7e36655	ubfx	r6, r5, #12, #4
-e205a00f	and	sl, r5, #15
-0a000001	beq	c06f13bc <emulate_ldr+0x38>
-e0840107	add	r0, r4, r7, lsl #2
-ebf3545c	bl	c03c6530 <__asan_load4>
-e084010a	add	r0, r4, sl, lsl #2
-ebf3545a	bl	c03c6530 <__asan_load4>
-e2890010	add	r0, r9, #16
-ebf35458	bl	c03c6530 <__asan_load4>
-e5990010	ldr	r0, [r9, #16]
-e12fff30	blx	r0
-e356000f	cm	r6, #15
-1a000014	bne	c06f1430 <emulate_ldr+0xac>
-e1a06000	mov	r6, r0
-e2840040	add	r0, r4, #64     ; 0x40
-......
+  Illegal instruction
 
-when running in emulate_ldr to simulate the ldr instruction, panic
-occurred, and the log is as follows:
-Unable to handle kernel NULL pointer dereference at virtual address
-00000090
-pgd = ecb46400
-[00000090] *pgd=2e0fa003, *pmd=00000000
-Internal error: Oops: 206 [#1] SMP ARM
-PC is at cap_capable+0x14/0xb0
-LR is at emulate_ldr+0x50/0xc0
-psr: 600d0293 sp : ecd63af8  ip : 00000004  fp : c0a7c30c
-r10: 00000000  r9 : c30897f4  r8 : ecd63cd4
-r7 : 0000000f  r6 : 0000000a  r5 : e59fa090  r4 : ecd63c98
-r3 : c06ae294  r2 : 00000000  r1 : b7611300  r0 : bf4ec008
-Flags: nZCv  IRQs off  FIQs on  Mode SVC_32  ISA ARM  Segment user
-Control: 32c5387d  Table: 2d546400  DAC: 55555555
-Process bash (pid: 1643, stack limit = 0xecd60190)
-(cap_capable) from (kprobe_handler+0x218/0x340)
-(kprobe_handler) from (kprobe_trap_handler+0x24/0x48)
-(kprobe_trap_handler) from (do_undefinstr+0x13c/0x364)
-(do_undefinstr) from (__und_svc_finish+0x0/0x30)
-(__und_svc_finish) from (cap_capable+0x18/0xb0)
-(cap_capable) from (cap_vm_enough_memory+0x38/0x48)
-(cap_vm_enough_memory) from
-(security_vm_enough_memory_mm+0x48/0x6c)
-(security_vm_enough_memory_mm) from
-(copy_process.constprop.5+0x16b4/0x25c8)
-(copy_process.constprop.5) from (_do_fork+0xe8/0x55c)
-(_do_fork) from (SyS_clone+0x1c/0x24)
-(SyS_clone) from (__sys_trace_return+0x0/0x10)
-Code: 0050a0e1 6c0080e2 0140a0e1 0260a0e1 (f801f0e7)
+The illegal instruction turned out to be 'ldbrx' emitted for
+BPF_FROM_[L|B]E, which was only introduced in ISA v2.06. Guard use of
+the same and implement an alternative approach for older processors.
 
-Fixes: 35aa1df43283 ("ARM kprobes: instruction single-stepping support")
-Fixes: 421015713b30 ("ARM: 9017/2: Enable KASan for ARM")
-Signed-off-by: huangshaobo <huangshaobo6@huawei.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 156d0e290e969c ("powerpc/ebpf/jit: Implement JIT compiler for extended BPF")
+Reported-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Tested-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Acked-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/d1e51c6fdf572062cf3009a751c3406bda01b832.1641468127.git.naveen.n.rao@linux.vnet.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/probes/kprobes/Makefile |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/include/asm/ppc-opcode.h |  1 +
+ arch/powerpc/net/bpf_jit_comp64.c     | 22 +++++++++++++---------
+ 2 files changed, 14 insertions(+), 9 deletions(-)
 
---- a/arch/arm/probes/kprobes/Makefile
-+++ b/arch/arm/probes/kprobes/Makefile
-@@ -1,4 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
-+KASAN_SANITIZE_actions-common.o := n
-+KASAN_SANITIZE_actions-arm.o := n
-+KASAN_SANITIZE_actions-thumb.o := n
- obj-$(CONFIG_KPROBES)		+= core.o actions-common.o checkers-common.o
- obj-$(CONFIG_ARM_KPROBES_TEST)	+= test-kprobes.o
- test-kprobes-objs		:= test-core.o
+diff --git a/arch/powerpc/include/asm/ppc-opcode.h b/arch/powerpc/include/asm/ppc-opcode.h
+index baea657bc8687..bca31a61e57f8 100644
+--- a/arch/powerpc/include/asm/ppc-opcode.h
++++ b/arch/powerpc/include/asm/ppc-opcode.h
+@@ -498,6 +498,7 @@
+ #define PPC_RAW_LDX(r, base, b)		(0x7c00002a | ___PPC_RT(r) | ___PPC_RA(base) | ___PPC_RB(b))
+ #define PPC_RAW_LHZ(r, base, i)		(0xa0000000 | ___PPC_RT(r) | ___PPC_RA(base) | IMM_L(i))
+ #define PPC_RAW_LHBRX(r, base, b)	(0x7c00062c | ___PPC_RT(r) | ___PPC_RA(base) | ___PPC_RB(b))
++#define PPC_RAW_LWBRX(r, base, b)	(0x7c00042c | ___PPC_RT(r) | ___PPC_RA(base) | ___PPC_RB(b))
+ #define PPC_RAW_LDBRX(r, base, b)	(0x7c000428 | ___PPC_RT(r) | ___PPC_RA(base) | ___PPC_RB(b))
+ #define PPC_RAW_STWCX(s, a, b)		(0x7c00012d | ___PPC_RS(s) | ___PPC_RA(a) | ___PPC_RB(b))
+ #define PPC_RAW_CMPWI(a, i)		(0x2c000000 | ___PPC_RA(a) | IMM_L(i))
+diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
+index 95a337b5dc2b4..57e1b6680365c 100644
+--- a/arch/powerpc/net/bpf_jit_comp64.c
++++ b/arch/powerpc/net/bpf_jit_comp64.c
+@@ -633,17 +633,21 @@ bpf_alu32_trunc:
+ 				EMIT(PPC_RAW_MR(dst_reg, b2p[TMP_REG_1]));
+ 				break;
+ 			case 64:
+-				/*
+-				 * Way easier and faster(?) to store the value
+-				 * into stack and then use ldbrx
+-				 *
+-				 * ctx->seen will be reliable in pass2, but
+-				 * the instructions generated will remain the
+-				 * same across all passes
+-				 */
++				/* Store the value to stack and then use byte-reverse loads */
+ 				PPC_BPF_STL(dst_reg, 1, bpf_jit_stack_local(ctx));
+ 				EMIT(PPC_RAW_ADDI(b2p[TMP_REG_1], 1, bpf_jit_stack_local(ctx)));
+-				EMIT(PPC_RAW_LDBRX(dst_reg, 0, b2p[TMP_REG_1]));
++				if (cpu_has_feature(CPU_FTR_ARCH_206)) {
++					EMIT(PPC_RAW_LDBRX(dst_reg, 0, b2p[TMP_REG_1]));
++				} else {
++					EMIT(PPC_RAW_LWBRX(dst_reg, 0, b2p[TMP_REG_1]));
++					if (IS_ENABLED(CONFIG_CPU_LITTLE_ENDIAN))
++						EMIT(PPC_RAW_SLDI(dst_reg, dst_reg, 32));
++					EMIT(PPC_RAW_LI(b2p[TMP_REG_2], 4));
++					EMIT(PPC_RAW_LWBRX(b2p[TMP_REG_2], b2p[TMP_REG_2], b2p[TMP_REG_1]));
++					if (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
++						EMIT(PPC_RAW_SLDI(b2p[TMP_REG_2], b2p[TMP_REG_2], 32));
++					EMIT(PPC_RAW_OR(dst_reg, dst_reg, b2p[TMP_REG_2]));
++				}
+ 				break;
+ 			}
+ 			break;
+-- 
+2.34.1
+
 
 
