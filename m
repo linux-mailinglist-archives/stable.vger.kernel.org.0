@@ -2,125 +2,204 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E9654A51E4
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 22:52:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B04B4A51DE
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 22:51:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350892AbiAaVwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 16:52:44 -0500
-Received: from pop31.abv.bg ([194.153.145.221]:52612 "EHLO pop31.abv.bg"
+        id S1351284AbiAaVvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 16:51:47 -0500
+Received: from first.geanix.com ([116.203.34.67]:37720 "EHLO first.geanix.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376500AbiAaVwo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Jan 2022 16:52:44 -0500
-X-Greylist: delayed 514 seconds by postgrey-1.27 at vger.kernel.org; Mon, 31 Jan 2022 16:52:42 EST
-Received: from smtp.abv.bg (localhost [127.0.0.1])
-        by pop31.abv.bg (Postfix) with ESMTP id 698A3180AA91;
-        Mon, 31 Jan 2022 23:43:58 +0200 (EET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=abv.bg; s=smtp-out;
-        t=1643665438; bh=iWjdHNIDwdz1nE3eZyu9fh57i4nneBCZfkedFsbdT+w=;
-        h=Subject:From:In-Reply-To:Date:Cc:References:To:From;
-        b=R2VKrYYtGHF5MBJ0WVuFEY2D3T94n180PVbGEOfvGkBFfz1KZb7Bp5EKbjept1XSo
-         t+iP1ccWRlHWkZkWf8kmIHuzmJkzkt2i0DLZIaJ2/Rk6+U2lB6eGf/8rWv3HmeM7de
-         oSCn2EQAWStyRxZHge4JZBAd2hsll1GeL3F3eDo0=
-X-HELO: smtpclient.apple
-Authentication-Results: smtp.abv.bg; auth=pass (plain) smtp.auth=gvalkov@abv.bg
-Received: from 212-39-89-254.ip.btc-net.bg (HELO smtpclient.apple) (212.39.89.254)
- by smtp.abv.bg (qpsmtpd/0.96) with ESMTPSA (ECDHE-RSA-AES256-GCM-SHA384 encrypted); Mon, 31 Jan 2022 23:43:58 +0200
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 14.0 \(3654.120.0.1.13\))
-Subject: Re: ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
-From:   Georgi Valkov <gvalkov@abv.bg>
-In-Reply-To: <6108f260-36bf-0059-ccb9-8189f4a2d0c1@siemens.com>
-Date:   Mon, 31 Jan 2022 23:43:52 +0200
-Cc:     Jakub Kicinski <kuba@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>, davem@davemloft.net,
-        mhabets@solarflare.com, luc.vanoostenryck@gmail.com,
-        snelson@pensando.io, mst@redhat.com, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        corsac@corsac.net, matti.vuorela@bitfactor.fi,
-        stable@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <FF6FFC1F-0AE9-4253-B55E-755BB90C4DBA@abv.bg>
-References: <B60B8A4B-92A0-49B3-805D-809A2433B46C@abv.bg>
- <20210720122215.54abaf53@cakuba>
- <5D0CFF83-439B-4A10-A276-D2D17B037704@abv.bg> <YPa4ZelG2k8Z826E@kroah.com>
- <C6AA954F-8382-461D-835F-E5CA03363D84@abv.bg> <YPbHoScEo8ZJyox6@kroah.com>
- <AEC79E3B-FA7F-4A36-95CE-B6D0F3063DF8@abv.bg>
- <80a13e9b-e026-1238-39ed-32deb5ff17b0@siemens.com>
- <20220131092726.3864b19f@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <6108f260-36bf-0059-ccb9-8189f4a2d0c1@siemens.com>
-To:     Jan Kiszka <jan.kiszka@siemens.com>
-X-Mailer: Apple Mail (2.3654.120.0.1.13)
+        id S1345541AbiAaVvr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Jan 2022 16:51:47 -0500
+Received: from zen.. (unknown [185.17.218.86])
+        by first.geanix.com (Postfix) with ESMTPSA id 63061126B7D;
+        Mon, 31 Jan 2022 21:51:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
+        t=1643665904; bh=iIJNpft2xL+n2vE0wSgEc/ganWtCw9JUh/zcBq4c1so=;
+        h=From:To:Cc:Subject:Date;
+        b=BpCK9Qn/VAPuo+A4mc1RLxUpVtffpFFJElctH9OSnBdLu5FLSY4JqZPA0sqjMPszx
+         tdSv2KU5a+KkHjqA7zzV3h6LbZi8LvHqQBNm2Dywa3vRzAJM1Fxh4hEEEHAt/pXwHK
+         Zi3y9Mcyu6JN2PUzfSkCmzOjgnPg6Zuusz3qRJi75FGm/n5cB5yflRZ8lm9lVevJrV
+         El6kwrPipC9nFPgWrcBqmSpbzpj+ABfkqZnXxwZAa6hHFfD1Vl8X7svhfAEyZIB6Up
+         LuVYz8jppKoYpQgCqSC0LzT1gfTZUorAFwGqN9Q4RHsgq/nTYtG20d8/bzf5lxMaN9
+         +LqQzD5P+5AsQ==
+From:   Sean Nyekjaer <sean@geanix.com>
+To:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Boris Brezillon <bbrezillon@kernel.org>
+Cc:     Sean Nyekjaer <sean@geanix.com>, stable@vger.kernel.org,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] mtd: rawnand: protect access to rawnand devices while in suspend
+Date:   Mon, 31 Jan 2022 22:51:38 +0100
+Message-Id: <20220131215138.2013649-1-sean@geanix.com>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-3.1 required=4.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=disabled version=3.4.6
+X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on 13e2a5895688
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Prevent rawnend access while in a suspended state.
 
+Commit 013e6292aaf5 ("mtd: rawnand: Simplify the locking") allows the
+rawnand layer to return errors rather than waiting in a blocking wait.
 
-> On 2022-01-31, at 7:35 PM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
->=20
-> On 31.01.22 18:27, Jakub Kicinski wrote:
->> On Mon, 31 Jan 2022 10:45:23 +0100 Jan Kiszka wrote:
->>> On 20.07.21 15:12, Georgi Valkov wrote:
->>>> Thank you, Greg!
->>>>=20
->>>> git send-email =
-drivers/net/0001-ipheth-fix-EOVERFLOW-in-ipheth_rcvbulk_callback.patch
->>>> ...
->>>> Result: OK
->>>>=20
->>>> I hope I got right. I added most of the e-mail addresses, and also =
-tried adding Message-Id.
->>>> I have not received the e-mail yet, so I cannot confirm if it =
-worked or not.
->>>>  =20
->>>=20
->>> What happened here afterwards?
->>>=20
->>> I just found out the hard way that this patch is still not in =
-mainline
->>> but really needed.
->> I have not seen the repost :(
->=20
-> Would it help if I do that on behalf of Georgi? Meanwhile, I can add a =
-tested-by to it, after almost a full working day with it applied.
+Tested on a iMX6ULL.
 
-Yes, please do it! The faster it gets mainline, the more people will =
-benefit from the fix. As far as I recall, some months ago someone asked =
-me to submit the patch using git mail or something like that, which I =
-did for the first time. It command reported success, but I did not get =
-any replays since then from anyone. I intended to resubmit it the =
-following week, but got overwhelmed by tasks, and the time passed. =
-Meanwhile I still keep the patch in GitHub/httpstorm/openwrt, brach =
-gvalkov. No changes are required since the original e-mail, so it can be =
-submitted to mainline.
+Fixes: 013e6292aaf5 ("mtd: rawnand: Simplify the locking")
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+---
+Follow-up on discussion in:
+https://lkml.org/lkml/2021/10/4/41
+https://lkml.org/lkml/2021/10/11/435
+https://lkml.org/lkml/2021/10/20/184
+https://lkml.org/lkml/2021/10/25/288
+https://lkml.org/lkml/2021/10/26/55
+https://lkml.org/lkml/2021/11/2/352
 
-There is another issue with my iPhone 7 Plus, which is unrelated to this =
-patch:
-If an iPhone is tethered to a MacBook, the next time it gets connected =
-to an OpenWRT router the USB Ethernet interface appears, but there is no =
-communication. Hence I would assume this unrelated issue also has to be =
-fixed in another patch. I can confirm that in this state macOS and =
-Windows are able to use USB tethering, only OpenWRT is affected. So far =
-I found the following workarounds:
-* reboot the phone or run:
-* usbreset 002/002 && /etc/init.d/usbmuxd restart
+Changes since v1:
+ - fixed uninitialized return
 
-The same happens if the phone reboots due to extreme cold temperatures =
-while tethered. Finally there is also a bug or possible =
-hardware/baseband fault in my phone where every few days the modem =
-reboots: the LTE icon disappears for a few seconds, and tethering is =
-turned off. Either way, running the commands mentioned above re-enable =
-tethering and restore the communication instantly. It would be nice if a =
-watchdog is integrated in ipheth to trigger recovery automatically.
+ drivers/mtd/nand/raw/nand_base.c | 44 +++++++++++++++-----------------
+ include/linux/mtd/rawnand.h      |  1 +
+ 2 files changed, 21 insertions(+), 24 deletions(-)
 
-Georgi Valkov
-
-
-> Jan
->=20
-> --=20
-> Siemens AG, Technology
-> Competence Center Embedded Linux
->=20
+diff --git a/drivers/mtd/nand/raw/nand_base.c b/drivers/mtd/nand/raw/nand_base.c
+index e7b2ba016d8c..8daaba96edb2 100644
+--- a/drivers/mtd/nand/raw/nand_base.c
++++ b/drivers/mtd/nand/raw/nand_base.c
+@@ -338,16 +338,19 @@ static int nand_isbad_bbm(struct nand_chip *chip, loff_t ofs)
+  *
+  * Return: -EBUSY if the chip has been suspended, 0 otherwise
+  */
+-static int nand_get_device(struct nand_chip *chip)
++static void nand_get_device(struct nand_chip *chip)
+ {
+-	mutex_lock(&chip->lock);
+-	if (chip->suspended) {
++	/* Wait until the device is resumed. */
++	while (1) {
++		mutex_lock(&chip->lock);
++		if (!chip->suspended) {
++			mutex_lock(&chip->controller->lock);
++			return;
++		}
+ 		mutex_unlock(&chip->lock);
+-		return -EBUSY;
+-	}
+-	mutex_lock(&chip->controller->lock);
+ 
+-	return 0;
++		wait_event(chip->resume_wq, !chip->suspended);
++	}
+ }
+ 
+ /**
+@@ -576,9 +579,7 @@ static int nand_block_markbad_lowlevel(struct nand_chip *chip, loff_t ofs)
+ 		nand_erase_nand(chip, &einfo, 0);
+ 
+ 		/* Write bad block marker to OOB */
+-		ret = nand_get_device(chip);
+-		if (ret)
+-			return ret;
++		nand_get_device(chip);
+ 
+ 		ret = nand_markbad_bbm(chip, ofs);
+ 		nand_release_device(chip);
+@@ -3826,9 +3827,7 @@ static int nand_read_oob(struct mtd_info *mtd, loff_t from,
+ 	    ops->mode != MTD_OPS_RAW)
+ 		return -ENOTSUPP;
+ 
+-	ret = nand_get_device(chip);
+-	if (ret)
+-		return ret;
++	nand_get_device(chip);
+ 
+ 	if (!ops->datbuf)
+ 		ret = nand_do_read_oob(chip, from, ops);
+@@ -4415,13 +4414,11 @@ static int nand_write_oob(struct mtd_info *mtd, loff_t to,
+ 			  struct mtd_oob_ops *ops)
+ {
+ 	struct nand_chip *chip = mtd_to_nand(mtd);
+-	int ret;
++	int ret = 0;
+ 
+ 	ops->retlen = 0;
+ 
+-	ret = nand_get_device(chip);
+-	if (ret)
+-		return ret;
++	nand_get_device(chip);
+ 
+ 	switch (ops->mode) {
+ 	case MTD_OPS_PLACE_OOB:
+@@ -4481,9 +4478,7 @@ int nand_erase_nand(struct nand_chip *chip, struct erase_info *instr,
+ 		return -EIO;
+ 
+ 	/* Grab the lock and see if the device is available */
+-	ret = nand_get_device(chip);
+-	if (ret)
+-		return ret;
++	nand_get_device(chip);
+ 
+ 	/* Shift to get first page */
+ 	page = (int)(instr->addr >> chip->page_shift);
+@@ -4570,7 +4565,7 @@ static void nand_sync(struct mtd_info *mtd)
+ 	pr_debug("%s: called\n", __func__);
+ 
+ 	/* Grab the lock and see if the device is available */
+-	WARN_ON(nand_get_device(chip));
++	nand_get_device(chip);
+ 	/* Release it and go back */
+ 	nand_release_device(chip);
+ }
+@@ -4587,9 +4582,7 @@ static int nand_block_isbad(struct mtd_info *mtd, loff_t offs)
+ 	int ret;
+ 
+ 	/* Select the NAND device */
+-	ret = nand_get_device(chip);
+-	if (ret)
+-		return ret;
++	nand_get_device(chip);
+ 
+ 	nand_select_target(chip, chipnr);
+ 
+@@ -4660,6 +4653,8 @@ static void nand_resume(struct mtd_info *mtd)
+ 			__func__);
+ 	}
+ 	mutex_unlock(&chip->lock);
++
++	wake_up_all(&chip->resume_wq);
+ }
+ 
+ /**
+@@ -5437,6 +5432,7 @@ static int nand_scan_ident(struct nand_chip *chip, unsigned int maxchips,
+ 	chip->cur_cs = -1;
+ 
+ 	mutex_init(&chip->lock);
++	init_waitqueue_head(&chip->resume_wq);
+ 
+ 	/* Enforce the right timings for reset/detection */
+ 	chip->current_interface_config = nand_get_reset_interface_config();
+diff --git a/include/linux/mtd/rawnand.h b/include/linux/mtd/rawnand.h
+index 5b88cd51fadb..99d50a15a263 100644
+--- a/include/linux/mtd/rawnand.h
++++ b/include/linux/mtd/rawnand.h
+@@ -1294,6 +1294,7 @@ struct nand_chip {
+ 	/* Internals */
+ 	struct mutex lock;
+ 	unsigned int suspended : 1;
++	wait_queue_head_t resume_wq;
+ 	int cur_cs;
+ 	int read_retries;
+ 	struct nand_secure_region *secure_regions;
+-- 
+2.34.1
 
