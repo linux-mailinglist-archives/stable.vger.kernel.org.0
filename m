@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B72AE4A4214
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 853D84A43CC
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:24:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358398AbiAaLKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:10:47 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40292 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359543AbiAaLFz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:05:55 -0500
+        id S236451AbiAaLYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:24:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47538 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378712AbiAaLUh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:20:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47E01C06174A;
+        Mon, 31 Jan 2022 03:13:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F3A160ECF;
-        Mon, 31 Jan 2022 11:05:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58129C340E8;
-        Mon, 31 Jan 2022 11:05:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0EECDB82A66;
+        Mon, 31 Jan 2022 11:13:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16A86C340E8;
+        Mon, 31 Jan 2022 11:13:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627154;
-        bh=qlYEMax3/uk+lIMXDR6HWYREniDkhu3SiEJfvPNDbaw=;
+        s=korg; t=1643627629;
+        bh=Xm+A8pdfqqSPnqxPI7lMbPUiBTga4FhdkPaKKgHvq4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pyLQsk79Z5vtfWl8PP7CbSgvphyHHcUTr4QxMJB3HsY0yk6rSHaLS5tQ7tdAtYoy5
-         xB7LqDqwkL989CYRflcUSv4okxxI9X6N1WaDe1Mr4ICgR+3XMIHqG+jdj2/OIWjIPH
-         WaCm7oDTWUtn3Txsd3lpieF/5dd2W7SV5sJz6jX4=
+        b=mjuv8bc1Ar65jkTD9WMpgluyklzekCU0sNzT1Mu41glQ+1Dpn2OGbios9fAssCBLm
+         XAOO/WWnG0OF4RR0Fvfnus0mF0wwsyVhVtbQ5YLyo7vHNeOzOeOBJWcLUjfqqdxurB
+         qBwXu1/ibnZ6jOb9e/iL3NUzE464ifyME7t1LTxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 091/100] Revert "ipv6: Honor all IPv6 PIO Valid Lifetime values"
+Subject: [PATCH 5.15 147/171] yam: fix a memory leak in yam_siocdevprivate()
 Date:   Mon, 31 Jan 2022 11:56:52 +0100
-Message-Id: <20220131105223.513846641@linuxfoundation.org>
+Message-Id: <20220131105234.989125463@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,94 +48,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 36268983e90316b37000a005642af42234dabb36 ]
+[ Upstream commit 29eb31542787e1019208a2e1047bb7c76c069536 ]
 
-This reverts commit b75326c201242de9495ff98e5d5cff41d7fc0d9d.
+ym needs to be free when ym->cmd != SIOCYAMSMCS.
 
-This commit breaks Linux compatibility with USGv6 tests. The RFC this
-commit was based on is actually an expired draft: no published RFC
-currently allows the new behaviour it introduced.
-
-Without full IETF endorsement, the flash renumbering scenario this
-patch was supposed to enable is never going to work, as other IPv6
-equipements on the same LAN will keep the 2 hours limit.
-
-Fixes: b75326c20124 ("ipv6: Honor all IPv6 PIO Valid Lifetime values")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Fixes: 0781168e23a2 ("yam: fix a missing-check bug")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/addrconf.h |  2 ++
- net/ipv6/addrconf.c    | 27 ++++++++++++++++++++-------
- 2 files changed, 22 insertions(+), 7 deletions(-)
+ drivers/net/hamradio/yam.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/include/net/addrconf.h b/include/net/addrconf.h
-index 78ea3e332688f..e7ce719838b5e 100644
---- a/include/net/addrconf.h
-+++ b/include/net/addrconf.h
-@@ -6,6 +6,8 @@
- #define RTR_SOLICITATION_INTERVAL	(4*HZ)
- #define RTR_SOLICITATION_MAX_INTERVAL	(3600*HZ)	/* 1 hour */
- 
-+#define MIN_VALID_LIFETIME		(2*3600)	/* 2 hours */
-+
- #define TEMP_VALID_LIFETIME		(7*86400)
- #define TEMP_PREFERRED_LIFETIME		(86400)
- #define REGEN_MAX_RETRY			(3)
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 29526937077b3..4dde49e628fab 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -2577,7 +2577,7 @@ int addrconf_prefix_rcv_add_addr(struct net *net, struct net_device *dev,
- 				 __u32 valid_lft, u32 prefered_lft)
- {
- 	struct inet6_ifaddr *ifp = ipv6_get_ifaddr(net, addr, dev, 1);
--	int create = 0;
-+	int create = 0, update_lft = 0;
- 
- 	if (!ifp && valid_lft) {
- 		int max_addresses = in6_dev->cnf.max_addresses;
-@@ -2621,19 +2621,32 @@ int addrconf_prefix_rcv_add_addr(struct net *net, struct net_device *dev,
- 		unsigned long now;
- 		u32 stored_lft;
- 
--		/* Update lifetime (RFC4862 5.5.3 e)
--		 * We deviate from RFC4862 by honoring all Valid Lifetimes to
--		 * improve the reaction of SLAAC to renumbering events
--		 * (draft-gont-6man-slaac-renum-06, Section 4.2)
--		 */
-+		/* update lifetime (RFC2462 5.5.3 e) */
- 		spin_lock_bh(&ifp->lock);
- 		now = jiffies;
- 		if (ifp->valid_lft > (now - ifp->tstamp) / HZ)
- 			stored_lft = ifp->valid_lft - (now - ifp->tstamp) / HZ;
- 		else
- 			stored_lft = 0;
--
- 		if (!create && stored_lft) {
-+			const u32 minimum_lft = min_t(u32,
-+				stored_lft, MIN_VALID_LIFETIME);
-+			valid_lft = max(valid_lft, minimum_lft);
-+
-+			/* RFC4862 Section 5.5.3e:
-+			 * "Note that the preferred lifetime of the
-+			 *  corresponding address is always reset to
-+			 *  the Preferred Lifetime in the received
-+			 *  Prefix Information option, regardless of
-+			 *  whether the valid lifetime is also reset or
-+			 *  ignored."
-+			 *
-+			 * So we should always update prefered_lft here.
-+			 */
-+			update_lft = 1;
-+		}
-+
-+		if (update_lft) {
- 			ifp->valid_lft = valid_lft;
- 			ifp->prefered_lft = prefered_lft;
- 			ifp->tstamp = now;
+diff --git a/drivers/net/hamradio/yam.c b/drivers/net/hamradio/yam.c
+index 6ddacbdb224ba..528d57a435394 100644
+--- a/drivers/net/hamradio/yam.c
++++ b/drivers/net/hamradio/yam.c
+@@ -950,9 +950,7 @@ static int yam_siocdevprivate(struct net_device *dev, struct ifreq *ifr, void __
+ 		ym = memdup_user(data, sizeof(struct yamdrv_ioctl_mcs));
+ 		if (IS_ERR(ym))
+ 			return PTR_ERR(ym);
+-		if (ym->cmd != SIOCYAMSMCS)
+-			return -EINVAL;
+-		if (ym->bitrate > YAM_MAXBITRATE) {
++		if (ym->cmd != SIOCYAMSMCS || ym->bitrate > YAM_MAXBITRATE) {
+ 			kfree(ym);
+ 			return -EINVAL;
+ 		}
 -- 
 2.34.1
 
