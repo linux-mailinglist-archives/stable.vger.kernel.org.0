@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 942D84A42DF
+	by mail.lfdr.de (Postfix) with ESMTP id 1A6434A42DE
 	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:15:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359357AbiAaLOs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1359352AbiAaLOs (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 31 Jan 2022 06:14:48 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58344 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376574AbiAaLNB (ORCPT
+Received: from dfw.source.kernel.org ([139.178.84.217]:46618 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376592AbiAaLNB (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:13:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E546B82A65;
-        Mon, 31 Jan 2022 11:12:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AA3FC340EE;
-        Mon, 31 Jan 2022 11:12:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83DBF611C1;
+        Mon, 31 Jan 2022 11:13:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C299C340E8;
+        Mon, 31 Jan 2022 11:13:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627577;
-        bh=hRKTuIsnl4WN0VxrzUwjAAfV/KmgykqxL+AVfx9ryCM=;
+        s=korg; t=1643627581;
+        bh=tx0AFZR/+x5PM+4Z/GTo32lYuvY+PqI/XgpAT+t3vSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IdNhGdN0v63028yEJabwvDv4UO5mVqP84TUjX4uuIgYyr3DA2GjcZVTmms0O6GGGJ
-         mAnVDrTcp8s76Xcz9B1P+03om75EyNZGCUrH9GPuKebHcOc5WcckKprMg6xF3gXf1m
-         VUedUhFroGI8unW/0zCty0wP7FML/Qmbf9xo3jh8=
+        b=qB7p60fnChFZgA3zOApef+66JhH0E1JjkQ0eYjPhaXag1tpoTH0gALc1z4Fhrsvys
+         BZpmptTsiozsmHIy579eNwrIM+ZXhn2kqGTB+dCb2+67UppjHc9lM0nJbIN4HQTRqZ
+         SlKItT/yniaWzBBtU7bzFEcAUF/g7dUXDIvolxdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        linux-afs@lists.infradead.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Mihai Carabas <mihai.carabas@oracle.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 128/171] rxrpc: Adjust retransmission backoff
-Date:   Mon, 31 Jan 2022 11:56:33 +0100
-Message-Id: <20220131105234.345893969@linuxfoundation.org>
+Subject: [PATCH 5.15 129/171] efi/libstub: arm64: Fix image check alignment at entry
+Date:   Mon, 31 Jan 2022 11:56:34 +0100
+Message-Id: <20220131105234.377287950@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
 References: <20220131105229.959216821@linuxfoundation.org>
@@ -47,91 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Mihai Carabas <mihai.carabas@oracle.com>
 
-[ Upstream commit 2c13c05c5ff4b9fc907b07f7311821910ebaaf8a ]
+[ Upstream commit e9b7c3a4263bdcfd31bc3d03d48ce0ded7a94635 ]
 
-Improve retransmission backoff by only backing off when we retransmit data
-packets rather than when we set the lost ack timer.
+The kernel is aligned at SEGMENT_SIZE and this is the size populated in the PE
+headers:
 
-To this end:
+arch/arm64/kernel/efi-header.S: .long   SEGMENT_ALIGN // SectionAlignment
 
- (1) In rxrpc_resend(), use rxrpc_get_rto_backoff() when setting the
-     retransmission timer and only tell it that we are retransmitting if we
-     actually have things to retransmit.
+EFI_KIMG_ALIGN is defined as: (SEGMENT_ALIGN > THREAD_ALIGN ? SEGMENT_ALIGN :
+THREAD_ALIGN)
 
-     Note that it's possible for the retransmission algorithm to race with
-     the processing of a received ACK, so we may see no packets needing
-     retransmission.
+So it depends on THREAD_ALIGN. On newer builds this message started to appear
+even though the loader is taking into account the PE header (which is stating
+SEGMENT_ALIGN).
 
- (2) In rxrpc_send_data_packet(), don't bump the backoff when setting the
-     ack_lost_at timer, as it may then get bumped twice.
-
-With this, when looking at one particular packet, the retransmission
-intervals were seen to be 1.5ms, 2ms, 3ms, 5ms, 9ms, 17ms, 33ms, 71ms,
-136ms, 264ms, 544ms, 1.088s, 2.1s, 4.2s and 8.3s.
-
-Fixes: c410bf01933e ("rxrpc: Fix the excessive initial retransmission timeout")
-Suggested-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Tested-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/164138117069.2023386.17446904856843997127.stgit@warthog.procyon.org.uk/
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c32ac11da3f8 ("efi/libstub: arm64: Double check image alignment at entry")
+Signed-off-by: Mihai Carabas <mihai.carabas@oracle.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/call_event.c | 8 +++-----
- net/rxrpc/output.c     | 2 +-
- 2 files changed, 4 insertions(+), 6 deletions(-)
+ drivers/firmware/efi/libstub/arm64-stub.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/rxrpc/call_event.c b/net/rxrpc/call_event.c
-index 6be2672a65eab..df864e6922679 100644
---- a/net/rxrpc/call_event.c
-+++ b/net/rxrpc/call_event.c
-@@ -157,7 +157,7 @@ static void rxrpc_congestion_timeout(struct rxrpc_call *call)
- static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
- {
- 	struct sk_buff *skb;
--	unsigned long resend_at, rto_j;
-+	unsigned long resend_at;
- 	rxrpc_seq_t cursor, seq, top;
- 	ktime_t now, max_age, oldest, ack_ts;
- 	int ix;
-@@ -165,10 +165,8 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
+diff --git a/drivers/firmware/efi/libstub/arm64-stub.c b/drivers/firmware/efi/libstub/arm64-stub.c
+index 2363fee9211c9..9cc556013d085 100644
+--- a/drivers/firmware/efi/libstub/arm64-stub.c
++++ b/drivers/firmware/efi/libstub/arm64-stub.c
+@@ -119,9 +119,9 @@ efi_status_t handle_kernel_image(unsigned long *image_addr,
+ 	if (image->image_base != _text)
+ 		efi_err("FIRMWARE BUG: efi_loaded_image_t::image_base has bogus value\n");
  
- 	_enter("{%d,%d}", call->tx_hard_ack, call->tx_top);
+-	if (!IS_ALIGNED((u64)_text, EFI_KIMG_ALIGN))
+-		efi_err("FIRMWARE BUG: kernel image not aligned on %ldk boundary\n",
+-			EFI_KIMG_ALIGN >> 10);
++	if (!IS_ALIGNED((u64)_text, SEGMENT_ALIGN))
++		efi_err("FIRMWARE BUG: kernel image not aligned on %dk boundary\n",
++			SEGMENT_ALIGN >> 10);
  
--	rto_j = call->peer->rto_j;
--
- 	now = ktime_get_real();
--	max_age = ktime_sub(now, jiffies_to_usecs(rto_j));
-+	max_age = ktime_sub(now, jiffies_to_usecs(call->peer->rto_j));
- 
- 	spin_lock_bh(&call->lock);
- 
-@@ -213,7 +211,7 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
- 	}
- 
- 	resend_at = nsecs_to_jiffies(ktime_to_ns(ktime_sub(now, oldest)));
--	resend_at += jiffies + rto_j;
-+	resend_at += jiffies + rxrpc_get_rto_backoff(call->peer, retrans);
- 	WRITE_ONCE(call->resend_at, resend_at);
- 
- 	if (unacked)
-diff --git a/net/rxrpc/output.c b/net/rxrpc/output.c
-index 10f2bf2e9068a..a45c83f22236e 100644
---- a/net/rxrpc/output.c
-+++ b/net/rxrpc/output.c
-@@ -468,7 +468,7 @@ done:
- 			if (call->peer->rtt_count > 1) {
- 				unsigned long nowj = jiffies, ack_lost_at;
- 
--				ack_lost_at = rxrpc_get_rto_backoff(call->peer, retrans);
-+				ack_lost_at = rxrpc_get_rto_backoff(call->peer, false);
- 				ack_lost_at += nowj;
- 				WRITE_ONCE(call->ack_lost_at, ack_lost_at);
- 				rxrpc_reduce_call_timer(call, ack_lost_at, nowj,
+ 	kernel_size = _edata - _text;
+ 	kernel_memsize = kernel_size + (_end - _edata);
 -- 
 2.34.1
 
