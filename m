@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BD9B4A40D2
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:00:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D43D74A4099
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 11:58:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243988AbiAaLA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:00:27 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47818 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358347AbiAaK7z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:59:55 -0500
+        id S239890AbiAaK6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 05:58:16 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59510 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239344AbiAaK6P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:58:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41AC2B82A61;
-        Mon, 31 Jan 2022 10:59:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 645B7C36AE3;
-        Mon, 31 Jan 2022 10:59:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9164A60B28;
+        Mon, 31 Jan 2022 10:58:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79BE9C340E8;
+        Mon, 31 Jan 2022 10:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626793;
-        bh=5RpfSYlB+m4DKtd8y+OsIMz88vwvd7QTSuwCX00payI=;
+        s=korg; t=1643626695;
+        bh=OMklhXxpD3qq02yGA+cPXwbcYLb0YVS3ZDDGQVSvSiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eRJRVedcYfyrVSAwOwoNQUokyeSxW9zsjcwrOvwb3cqmWdjWF9nTTJQOlpCXYpwA+
-         XoXZRJ0UAhaQutskO8TdzAom7mTzwFS7LWJdrYxVG1TRPR2fJYB1rl05CkY3IT8yqT
-         Zqf4YUlnQF9PvQH48WPX3SR2qUugfXIuqNwu71c0=
+        b=nPP2JjTsQ1SGg1v7Thqe5zAA4utZSI4xtE/oV8al0dBWWHot4hHlZ8X+FoORLq1IG
+         5LbskVozMVYD789g0i6LIal3jDoRCdwUXKppRRrX+MEc8mI19UyO3xBuxcYDcZ+vex
+         BAsIrKfs6NfXfl0uMycGl7UF2ddOpTWwAu1ajupE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Delalande <colona@arista.com>,
-        Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.4 09/64] fsnotify: fix fsnotify hooks in pseudo filesystems
-Date:   Mon, 31 Jan 2022 11:55:54 +0100
-Message-Id: <20220131105215.972215147@linuxfoundation.org>
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 5.4 10/64] drm/etnaviv: relax submit size limits
+Date:   Mon, 31 Jan 2022 11:55:55 +0100
+Message-Id: <20220131105216.005198204@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105215.644174521@linuxfoundation.org>
 References: <20220131105215.644174521@linuxfoundation.org>
@@ -44,124 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-commit 29044dae2e746949ad4b9cbdbfb248994d1dcdb4 upstream.
+commit e3d26528e083e612314d4dcd713f3d5a26143ddc upstream.
 
-Commit 49246466a989 ("fsnotify: move fsnotify_nameremove() hook out of
-d_delete()") moved the fsnotify delete hook before d_delete() so fsnotify
-will have access to a positive dentry.
+While all userspace tried to limit commandstreams to 64K in size,
+a bug in the Mesa driver lead to command streams of up to 128K
+being submitted. Allow those to avoid breaking existing userspace.
 
-This allowed a race where opening the deleted file via cached dentry
-is now possible after receiving the IN_DELETE event.
-
-To fix the regression in pseudo filesystems, convert d_delete() calls
-to d_drop() (see commit 46c46f8df9aa ("devpts_pty_kill(): don't bother
-with d_delete()") and move the fsnotify hook after d_drop().
-
-Add a missing fsnotify_unlink() hook in nfsdfs that was found during
-the audit of fsnotify hooks in pseudo filesystems.
-
-Note that the fsnotify hooks in simple_recursive_removal() follow
-d_invalidate(), so they require no change.
-
-Link: https://lore.kernel.org/r/20220120215305.282577-2-amir73il@gmail.com
-Reported-by: Ivan Delalande <colona@arista.com>
-Link: https://lore.kernel.org/linux-fsdevel/YeNyzoDM5hP5LtGW@visor/
-Fixes: 49246466a989 ("fsnotify: move fsnotify_nameremove() hook out of d_delete()")
-Cc: stable@vger.kernel.org # v5.3+
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: 6dfa2fab8ddd ("drm/etnaviv: limit submit sizes")
+Cc: stable@vger.kernel.org
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/configfs/dir.c     |    6 +++---
- fs/devpts/inode.c     |    2 +-
- fs/nfsd/nfsctl.c      |    5 +++--
- net/sunrpc/rpc_pipe.c |    4 ++--
- 4 files changed, 9 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -1805,8 +1805,8 @@ void configfs_unregister_group(struct co
- 	configfs_detach_group(&group->cg_item);
- 	d_inode(dentry)->i_flags |= S_DEAD;
- 	dont_mount(dentry);
-+	d_drop(dentry);
- 	fsnotify_rmdir(d_inode(parent), dentry);
--	d_delete(dentry);
- 	inode_unlock(d_inode(parent));
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
+@@ -471,8 +471,8 @@ int etnaviv_ioctl_gem_submit(struct drm_
+ 		return -EINVAL;
+ 	}
  
- 	dput(dentry);
-@@ -1947,10 +1947,10 @@ void configfs_unregister_subsystem(struc
- 	configfs_detach_group(&group->cg_item);
- 	d_inode(dentry)->i_flags |= S_DEAD;
- 	dont_mount(dentry);
--	fsnotify_rmdir(d_inode(root), dentry);
- 	inode_unlock(d_inode(dentry));
- 
--	d_delete(dentry);
-+	d_drop(dentry);
-+	fsnotify_rmdir(d_inode(root), dentry);
- 
- 	inode_unlock(d_inode(root));
- 
---- a/fs/devpts/inode.c
-+++ b/fs/devpts/inode.c
-@@ -621,8 +621,8 @@ void devpts_pty_kill(struct dentry *dent
- 
- 	dentry->d_fsdata = NULL;
- 	drop_nlink(dentry->d_inode);
--	fsnotify_unlink(d_inode(dentry->d_parent), dentry);
- 	d_drop(dentry);
-+	fsnotify_unlink(d_inode(dentry->d_parent), dentry);
- 	dput(dentry);	/* d_alloc_name() in devpts_pty_new() */
- }
- 
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -1247,7 +1247,8 @@ static void nfsdfs_remove_file(struct in
- 	clear_ncl(d_inode(dentry));
- 	dget(dentry);
- 	ret = simple_unlink(dir, dentry);
--	d_delete(dentry);
-+	d_drop(dentry);
-+	fsnotify_unlink(dir, dentry);
- 	dput(dentry);
- 	WARN_ON_ONCE(ret);
- }
-@@ -1336,8 +1337,8 @@ void nfsd_client_rmdir(struct dentry *de
- 	dget(dentry);
- 	ret = simple_rmdir(dir, dentry);
- 	WARN_ON_ONCE(ret);
-+	d_drop(dentry);
- 	fsnotify_rmdir(dir, dentry);
--	d_delete(dentry);
- 	dput(dentry);
- 	inode_unlock(dir);
- }
---- a/net/sunrpc/rpc_pipe.c
-+++ b/net/sunrpc/rpc_pipe.c
-@@ -599,9 +599,9 @@ static int __rpc_rmdir(struct inode *dir
- 
- 	dget(dentry);
- 	ret = simple_rmdir(dir, dentry);
-+	d_drop(dentry);
- 	if (!ret)
- 		fsnotify_rmdir(dir, dentry);
--	d_delete(dentry);
- 	dput(dentry);
- 	return ret;
- }
-@@ -612,9 +612,9 @@ static int __rpc_unlink(struct inode *di
- 
- 	dget(dentry);
- 	ret = simple_unlink(dir, dentry);
-+	d_drop(dentry);
- 	if (!ret)
- 		fsnotify_unlink(dir, dentry);
--	d_delete(dentry);
- 	dput(dentry);
- 	return ret;
- }
+-	if (args->stream_size > SZ_64K || args->nr_relocs > SZ_64K ||
+-	    args->nr_bos > SZ_64K || args->nr_pmrs > 128) {
++	if (args->stream_size > SZ_128K || args->nr_relocs > SZ_128K ||
++	    args->nr_bos > SZ_128K || args->nr_pmrs > 128) {
+ 		DRM_ERROR("submit arguments out of size limits\n");
+ 		return -EINVAL;
+ 	}
 
 
