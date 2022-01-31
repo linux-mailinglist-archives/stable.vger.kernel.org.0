@@ -2,97 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3F604A4FB2
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 20:49:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D39744A4FB8
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 20:51:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240770AbiAaTtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 14:49:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54720 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231583AbiAaTtm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 14:49:42 -0500
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A131C061714;
-        Mon, 31 Jan 2022 11:49:41 -0800 (PST)
-Received: by mail-pl1-x631.google.com with SMTP id d1so13397810plh.10;
-        Mon, 31 Jan 2022 11:49:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=6R6OUgnfV1k8Sve3u9OgysfGAeZ1zorxKpacMbFUxbs=;
-        b=ja6gI1H5SbNDkZ/NdDhjF0S7EANdILuP5RRGIidH6X1o4uRF+YxGImErNm3vDNTSdB
-         PVYrXCbaDb90fIJ7++FvVsy/Mn+Ury8PNCdGLCE6fBHN//FW4FGzohGrLJKxe1yWBg0o
-         37FTTxOSeifJxuYc3rgwRiDFKRbIXLXf/As51qGrGi1ReTYVFEF1vJ3q3Wzz/Z0veKGr
-         Z+2B6cDIqyTtlBF4nxD6YEMzsbKiixr8uqEcCpAXFaefHWgVKX3DNBCrk81SdVByEV/T
-         ddYRJv62Wi7zs+IMcag2IhF0axcySmWTNZkCk7fytbzCTHibSxxXl1uybmjOJJUV4KAg
-         COHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=6R6OUgnfV1k8Sve3u9OgysfGAeZ1zorxKpacMbFUxbs=;
-        b=DkDFLkbhdJgO1g1Ymi44qLmnLwXdfUOu2yEmXqx19CAUzC9jiyv8UaEPu5zRWU6sDP
-         g4I/CAAMjpF3ZtFRoxX1WzlL3t9KXhKTfJ0NLoIgEDAklr7J5i2SGdabnhgkZ+TDmlon
-         UHE6jdEY4vHNrqTL/ha/A0B6VDrSlPu73wv6AEMM0+jBERQMyaSMnACVoKQLAgMURwol
-         n3ANi9wSnqjh3S00ERNXxhIm9Lvdq1/iZytnnwRZ+wwIk/am1ZcF/Yr923hd41n/uMx9
-         ca73+tJz7ZrHss7QfOYkQKrHaQ00WR59bVggmoudRMKm5YlLtzYczh1+riO8+8hHHoQ9
-         66Jw==
-X-Gm-Message-State: AOAM530iRRjSr+ClzfFlhoD9JwORVv+e7bmYqLQV0GVSsZ8tzJohWUki
-        BcE33SQU2T3NcML8g7ELafZIaygNoEA=
-X-Google-Smtp-Source: ABdhPJyTpReZMFOt5r7yEbJ/OQOk6PJvlfSO7lScnbzh++HVzukIbA+jju0jRDGKehNrrzhX0MsqvA==
-X-Received: by 2002:a17:90a:b107:: with SMTP id z7mr36285123pjq.38.1643658580574;
-        Mon, 31 Jan 2022 11:49:40 -0800 (PST)
-Received: from [10.230.4.36] ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id x23sm16351475pfh.216.2022.01.31.11.49.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 31 Jan 2022 11:49:39 -0800 (PST)
-Message-ID: <6cd5d2c3-4097-bb86-ad96-508cddb6b027@gmail.com>
-Date:   Mon, 31 Jan 2022 11:49:38 -0800
+        id S231643AbiAaTvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 14:51:44 -0500
+Received: from mga18.intel.com ([134.134.136.126]:42806 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232738AbiAaTvX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Jan 2022 14:51:23 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1643658683; x=1675194683;
+  h=date:from:to:cc:subject:in-reply-to:message-id:
+   references:mime-version;
+  bh=AuQjRb5W+n0pT7rLWvB6cY+pUQDPFpGw+PwT3Eo7hgY=;
+  b=WjmMyeQNo6IR0Y2JhIdaxUldK2ixlGH5pAxtFiUungGbIio+s9TiYtq3
+   BKtz05+3XT5x2u9zP0Mpi21cdZ2UcteyAW31cxK7yXVYyWmRn9s+15wZ4
+   qP0o+ng+gAGu75TYqIcN0kIRuzeJ1jdGE+jk9Q1f2a1f84vOQH0umRpFD
+   IhYvAKYtceO4LLjI1w4tJtPGIG5PEdUqDkIMu1w8j1x1wsegZAjOcm9Ik
+   9iumkfxXU8idl1DWpZyqKPD8nJDjxHBdx8z7KJX4BY6KIRduT4QuNBFHD
+   S6RfyiPsCitVZ2hJsatW1Jrjqao3VjbDV3h1nOe/bHqUJ3u/HwLiImT8n
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10244"; a="231109334"
+X-IronPort-AV: E=Sophos;i="5.88,331,1635231600"; 
+   d="scan'208";a="231109334"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2022 11:51:22 -0800
+X-IronPort-AV: E=Sophos;i="5.88,331,1635231600"; 
+   d="scan'208";a="537455738"
+Received: from abilal-mobl1.amr.corp.intel.com ([10.212.252.235])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2022 11:51:21 -0800
+Date:   Mon, 31 Jan 2022 11:51:21 -0800 (PST)
+From:   Mat Martineau <mathew.j.martineau@linux.intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Jean Sacren <sakiwit@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.16 137/200] mptcp: clean up harmless false
+ expressions
+In-Reply-To: <20220131105238.167982722@linuxfoundation.org>
+Message-ID: <b1fa42c0-bd8f-9090-a7b9-275b6b245aaf@linux.intel.com>
+References: <20220131105233.561926043@linuxfoundation.org> <20220131105238.167982722@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 5.4 00/64] 5.4.176-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com
-References: <20220131105215.644174521@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220131105215.644174521@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, 31 Jan 2022, Greg Kroah-Hartman wrote:
+
+> From: Jean Sacren <sakiwit@gmail.com>
+>
+> [ Upstream commit 59060a47ca50bbdb1d863b73667a1065873ecc06 ]
+>
+
+Please drop this from the stable queue for both 5.15 and 5.16. This is a 
+code cleanup (no functional change) patch that was originally merged in 
+net-next and then got selected for stable.
+
+It's pretty harmless to backport this one, but I hope this feedback is 
+useful for tuning your scripts or manual patch review processes. If it's 
+more helpful for me to let something like this slide by, or I'm 
+misunderstanding how this might belong in the stable trees, I am likewise 
+open to feedback!
 
 
-On 1/31/2022 2:55 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.176 release.
-> There are 64 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 02 Feb 2022 10:51:59 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.176-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Thanks,
+Mat
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+> entry->addr.id is u8 with a range from 0 to 255 and MAX_ADDR_ID is 255.
+> We should drop both false expressions of (entry->addr.id > MAX_ADDR_ID).
+>
+> We should also remove the obsolete parentheses in the first if branch.
+>
+> Use U8_MAX for MAX_ADDR_ID and add a comment to show the link to
+> mptcp_addr_info.id as suggested by Mr. Matthieu Baerts.
+>
+> Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+> Signed-off-by: Jean Sacren <sakiwit@gmail.com>
+> Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+> net/mptcp/pm_netlink.c | 8 ++++----
+> 1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
+> index d18b13e3e74c6..27427aeeee0e5 100644
+> --- a/net/mptcp/pm_netlink.c
+> +++ b/net/mptcp/pm_netlink.c
+> @@ -38,7 +38,8 @@ struct mptcp_pm_add_entry {
+> 	u8			retrans_times;
+> };
+>
+> -#define MAX_ADDR_ID		255
+> +/* max value of mptcp_addr_info.id */
+> +#define MAX_ADDR_ID		U8_MAX
+> #define BITMAP_SZ DIV_ROUND_UP(MAX_ADDR_ID + 1, BITS_PER_LONG)
+>
+> struct pm_nl_pernet {
+> @@ -831,14 +832,13 @@ find_next:
+> 		entry->addr.id = find_next_zero_bit(pernet->id_bitmap,
+> 						    MAX_ADDR_ID + 1,
+> 						    pernet->next_id);
+> -		if ((!entry->addr.id || entry->addr.id > MAX_ADDR_ID) &&
+> -		    pernet->next_id != 1) {
+> +		if (!entry->addr.id && pernet->next_id != 1) {
+> 			pernet->next_id = 1;
+> 			goto find_next;
+> 		}
+> 	}
+>
+> -	if (!entry->addr.id || entry->addr.id > MAX_ADDR_ID)
+> +	if (!entry->addr.id)
+> 		goto out;
+>
+> 	__set_bit(entry->addr.id, pernet->id_bitmap);
+> -- 
+> 2.34.1
+>
+>
+>
+>
+
+--
+Mat Martineau
+Intel
