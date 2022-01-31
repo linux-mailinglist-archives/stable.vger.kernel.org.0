@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 002894A420F
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FE5F4A43D5
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:24:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348684AbiAaLKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:10:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44360 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359487AbiAaLFl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:05:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B14EC061343;
-        Mon, 31 Jan 2022 03:04:09 -0800 (PST)
+        id S1377629AbiAaLYM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:24:12 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39306 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359489AbiAaLVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:21:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F63960F30;
-        Mon, 31 Jan 2022 11:04:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66CACC340EE;
-        Mon, 31 Jan 2022 11:04:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFF30B82A61;
+        Mon, 31 Jan 2022 11:21:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2731C340E8;
+        Mon, 31 Jan 2022 11:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627048;
-        bh=cyrUHQ/bV6GZ/AT9V/xmKq9w0SJfnB1JiyEl7DchvfA=;
+        s=korg; t=1643628073;
+        bh=8pC7zi+x+Nwfp2vVMr81Kz8GvyFvgdehqb2HvP18y6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kkno23gHTbkwfig28rmM04qUZoqVbQjJC0vvSPHA5HVol7wzfuWnZ1VI8tSJn4Bmq
-         QJZuySOqMZTlsghklnGOumRB4jXbY5vAM5hO4w81/DhHSk3++i5ecsA/gU4+BjzA2X
-         fYnw/O+lht3KFhBfMn2WNawuQqzYSDDexI5sYulk=
+        b=vZpylrU37F7CdHxpA9bivckjSZ1+koEVxFZ1z+YOp1Y33JyBJrQap+VnPtPzUBk9C
+         rBOci+nEu+LxdX39T2Q3b7fWnHOdM85Te/lmRpUGubuqq7D0iiRplNEwTnLU6OZiwy
+         q+Cy2QZQlr71FLkaQXmEIryZ1x0Pdbdha+azM7cs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 058/100] hwmon: (lm90) Reduce maximum conversion rate for G781
+        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 116/200] net-procfs: show net devices bound packet types
 Date:   Mon, 31 Jan 2022 11:56:19 +0100
-Message-Id: <20220131105222.388646211@linuxfoundation.org>
+Message-Id: <20220131105237.479975552@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,39 +44,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Jianguo Wu <wujianguo@chinatelecom.cn>
 
-[ Upstream commit a66c5ed539277b9f2363bbace0dba88b85b36c26 ]
+commit 1d10f8a1f40b965d449e8f2d5ed7b96a7c138b77 upstream.
 
-According to its datasheet, G781 supports a maximum conversion rate value
-of 8 (62.5 ms). However, chips labeled G781 and G780 were found to only
-support a maximum conversion rate value of 7 (125 ms). On the other side,
-chips labeled G781-1 and G784 were found to support a conversion rate value
-of 8. There is no known means to distinguish G780 from G781 or G784; all
-chips report the same manufacturer ID and chip revision.
-Setting the conversion rate register value to 8 on chips not supporting
-it causes unexpected behavior since the real conversion rate is set to 0
-(16 seconds) if a value of 8 is written into the conversion rate register.
-Limit the conversion rate register value to 7 for all G78x chips to avoid
-the problem.
+After commit:7866a621043f ("dev: add per net_device packet type chains"),
+we can not get packet types that are bound to a specified net device by
+/proc/net/ptype, this patch fix the regression.
 
-Fixes: ae544f64cc7b ("hwmon: (lm90) Add support for GMT G781")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Run "tcpdump -i ens192 udp -nns0" Before and after apply this patch:
+
+Before:
+  [root@localhost ~]# cat /proc/net/ptype
+  Type Device      Function
+  0800          ip_rcv
+  0806          arp_rcv
+  86dd          ipv6_rcv
+
+After:
+  [root@localhost ~]# cat /proc/net/ptype
+  Type Device      Function
+  ALL  ens192   tpacket_rcv
+  0800          ip_rcv
+  0806          arp_rcv
+  86dd          ipv6_rcv
+
+v1 -> v2:
+  - fix the regression rather than adding new /proc API as
+    suggested by Stephen Hemminger.
+
+Fixes: 7866a621043f ("dev: add per net_device packet type chains")
+Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/lm90.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/net-procfs.c |   35 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 32 insertions(+), 3 deletions(-)
 
---- a/drivers/hwmon/lm90.c
-+++ b/drivers/hwmon/lm90.c
-@@ -373,7 +373,7 @@ static const struct lm90_params lm90_par
- 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
- 		  | LM90_HAVE_BROKEN_ALERT | LM90_HAVE_CRIT,
- 		.alert_alarms = 0x7c,
--		.max_convrate = 8,
-+		.max_convrate = 7,
- 	},
- 	[lm86] = {
- 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
+--- a/net/core/net-procfs.c
++++ b/net/core/net-procfs.c
+@@ -190,12 +190,23 @@ static const struct seq_operations softn
+ 	.show  = softnet_seq_show,
+ };
+ 
+-static void *ptype_get_idx(loff_t pos)
++static void *ptype_get_idx(struct seq_file *seq, loff_t pos)
+ {
++	struct list_head *ptype_list = NULL;
+ 	struct packet_type *pt = NULL;
++	struct net_device *dev;
+ 	loff_t i = 0;
+ 	int t;
+ 
++	for_each_netdev_rcu(seq_file_net(seq), dev) {
++		ptype_list = &dev->ptype_all;
++		list_for_each_entry_rcu(pt, ptype_list, list) {
++			if (i == pos)
++				return pt;
++			++i;
++		}
++	}
++
+ 	list_for_each_entry_rcu(pt, &ptype_all, list) {
+ 		if (i == pos)
+ 			return pt;
+@@ -216,22 +227,40 @@ static void *ptype_seq_start(struct seq_
+ 	__acquires(RCU)
+ {
+ 	rcu_read_lock();
+-	return *pos ? ptype_get_idx(*pos - 1) : SEQ_START_TOKEN;
++	return *pos ? ptype_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ }
+ 
+ static void *ptype_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
++	struct net_device *dev;
+ 	struct packet_type *pt;
+ 	struct list_head *nxt;
+ 	int hash;
+ 
+ 	++*pos;
+ 	if (v == SEQ_START_TOKEN)
+-		return ptype_get_idx(0);
++		return ptype_get_idx(seq, 0);
+ 
+ 	pt = v;
+ 	nxt = pt->list.next;
++	if (pt->dev) {
++		if (nxt != &pt->dev->ptype_all)
++			goto found;
++
++		dev = pt->dev;
++		for_each_netdev_continue_rcu(seq_file_net(seq), dev) {
++			if (!list_empty(&dev->ptype_all)) {
++				nxt = dev->ptype_all.next;
++				goto found;
++			}
++		}
++
++		nxt = ptype_all.next;
++		goto ptype_all;
++	}
++
+ 	if (pt->type == htons(ETH_P_ALL)) {
++ptype_all:
+ 		if (nxt != &ptype_all)
+ 			goto found;
+ 		hash = 0;
 
 
