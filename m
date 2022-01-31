@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD8554A43A8
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 144014A43FC
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:26:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377225AbiAaLWg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:22:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47062 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378708AbiAaLUh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:20:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 865CFC0698C1;
-        Mon, 31 Jan 2022 03:13:30 -0800 (PST)
+        id S1376334AbiAaLY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:24:27 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40600 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376851AbiAaLWG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:22:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5985AB82A60;
-        Mon, 31 Jan 2022 11:13:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96705C340E8;
-        Mon, 31 Jan 2022 11:13:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81556B82A4C;
+        Mon, 31 Jan 2022 11:22:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5213C340E8;
+        Mon, 31 Jan 2022 11:22:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627608;
-        bh=cV/tBrF8igkYghxgdAlvpCjcLp7koFtF1DiSCLSyycU=;
+        s=korg; t=1643628124;
+        bh=7A4qnYHNOgw7UEy2wv9i8aSmgdn8cU6m8yfXH/2Kx2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tjj4hg80fnbolETfJAV4rCtmdGeM5EYz2334gJTlKSuW07gOtz3X75xGCoOB7SBpt
-         76GkkAe0gzM61G/traiNSYWT9u3MO/+pzy/6E4Wpl9Ik+DG5MYpqVsNG06uZZZK9F2
-         XxZ/96rceypW/BOztfYuB8RwptG7CSpIAGSAbfQw=
+        b=H16Fmb6tD1tImFjq2pa02f1qHnF1kIJB0hdNwgStxQKbLhsvW2aCE+YiIyznu4iCY
+         PQ2tUAkBs6TNNoDpQ8Mec2LZNTWQF6/BVkLzfkg9cPbzwEXeE6zBujrwyo26+IFHkW
+         MDT+cnA9z+I1orybwbdvMxq/ZWYWduLLiVmq4q8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Xianting Tian <xianting.tian@linux.alibaba.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 096/171] drm/msm: Fix wrong size calculation
+        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Kiran Bhandare <kiranx.bhandare@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.16 098/200] i40e: Fix queues reservation for XDP
 Date:   Mon, 31 Jan 2022 11:56:01 +0100
-Message-Id: <20220131105233.285068117@linuxfoundation.org>
+Message-Id: <20220131105236.898816236@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,42 +48,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xianting Tian <xianting.tian@linux.alibaba.com>
+From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
 
-commit 0a727b459ee39bd4c5ced19d6024258ac87b6b2e upstream.
+commit 92947844b8beee988c0ce17082b705c2f75f0742 upstream.
 
-For example, memory-region in .dts as below,
-	reg = <0x0 0x50000000 0x0 0x20000000>
+When XDP was configured on a system with large number of CPUs
+and X722 NIC there was a call trace with NULL pointer dereference.
 
-We can get below values,
-struct resource r;
-r.start = 0x50000000;
-r.end	= 0x6fffffff;
+i40e 0000:87:00.0: failed to get tracking for 256 queues for VSI 0 err -12
+i40e 0000:87:00.0: setup of MAIN VSI failed
 
-So the size should be:
-size = r.end - r.start + 1 = 0x20000000
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+RIP: 0010:i40e_xdp+0xea/0x1b0 [i40e]
+Call Trace:
+? i40e_reconfig_rss_queues+0x130/0x130 [i40e]
+dev_xdp_install+0x61/0xe0
+dev_xdp_attach+0x18a/0x4c0
+dev_change_xdp_fd+0x1e6/0x220
+do_setlink+0x616/0x1030
+? ahci_port_stop+0x80/0x80
+? ata_qc_issue+0x107/0x1e0
+? lock_timer_base+0x61/0x80
+? __mod_timer+0x202/0x380
+rtnl_setlink+0xe5/0x170
+? bpf_lsm_binder_transaction+0x10/0x10
+? security_capable+0x36/0x50
+rtnetlink_rcv_msg+0x121/0x350
+? rtnl_calcit.isra.0+0x100/0x100
+netlink_rcv_skb+0x50/0xf0
+netlink_unicast+0x1d3/0x2a0
+netlink_sendmsg+0x22a/0x440
+sock_sendmsg+0x5e/0x60
+__sys_sendto+0xf0/0x160
+? __sys_getsockname+0x7e/0xc0
+? _copy_from_user+0x3c/0x80
+? __sys_setsockopt+0xc8/0x1a0
+__x64_sys_sendto+0x20/0x30
+do_syscall_64+0x33/0x40
+entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7f83fa7a39e0
 
-Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Fixes: 072f1f9168ed ("drm/msm: add support for "stolen" mem")
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20220112123334.749776-1-xianting.tian@linux.alibaba.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+This was caused by PF queue pile fragmentation due to
+flow director VSI queue being placed right after main VSI.
+Because of this main VSI was not able to resize its
+queue allocation for XDP resulting in no queues allocated
+for main VSI when XDP was turned on.
+
+Fix this by always allocating last queue in PF queue pile
+for a flow director VSI.
+
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Fixes: 74608d17fe29 ("i40e: add support for XDP_TX action")
+Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Kiran Bhandare <kiranx.bhandare@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -437,7 +437,7 @@ static int msm_init_vram(struct drm_devi
- 		of_node_put(node);
- 		if (ret)
- 			return ret;
--		size = r.end - r.start;
-+		size = r.end - r.start + 1;
- 		DRM_INFO("using VRAM carveout: %lx@%pa\n", size, &r.start);
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -210,6 +210,20 @@ static int i40e_get_lump(struct i40e_pf
+ 		return -EINVAL;
+ 	}
  
- 		/* if we have no IOMMU, then we need to use carveout allocator.
++	/* Allocate last queue in the pile for FDIR VSI queue
++	 * so it doesn't fragment the qp_pile
++	 */
++	if (pile == pf->qp_pile && pf->vsi[id]->type == I40E_VSI_FDIR) {
++		if (pile->list[pile->num_entries - 1] & I40E_PILE_VALID_BIT) {
++			dev_err(&pf->pdev->dev,
++				"Cannot allocate queue %d for I40E_VSI_FDIR\n",
++				pile->num_entries - 1);
++			return -ENOMEM;
++		}
++		pile->list[pile->num_entries - 1] = id | I40E_PILE_VALID_BIT;
++		return pile->num_entries - 1;
++	}
++
+ 	i = 0;
+ 	while (i < pile->num_entries) {
+ 		/* skip already allocated entries */
 
 
