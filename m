@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 066604A4564
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E15194A4414
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:26:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349765AbiAaLkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:40:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51168 "EHLO
+        id S1377155AbiAaLZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:25:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376792AbiAaLg2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:36:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44DADC0401FC;
-        Mon, 31 Jan 2022 03:24:50 -0800 (PST)
+        with ESMTP id S1378281AbiAaLXy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:23:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86E17C08E820;
+        Mon, 31 Jan 2022 03:14:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05570B82A71;
-        Mon, 31 Jan 2022 11:24:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45041C340E8;
-        Mon, 31 Jan 2022 11:24:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2051660ED0;
+        Mon, 31 Jan 2022 11:14:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BD67C340E8;
+        Mon, 31 Jan 2022 11:14:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628287;
-        bh=iawvoDM2oJeS8vpvOWXHjDaMvstzoHp2Ce2rUhh93CQ=;
+        s=korg; t=1643627691;
+        bh=jxJjGJQnN9EiZZsKB1Qdr7b4KXmNmYe3+R3/dfYuTxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eb65DwBneVfP6uHC1jGiOCqbdb4/N37ZnGpE9tmvb1oI27EjqTU/VlMOUmtDV7occ
-         2RM/boZu8txy+DYAPE93RfbAWRtM2mDRoWgr9j/+O7znyNgmUxj+fF+jgfNIE73Lcs
-         d2wSVsyCt9KE6lN4CILPTrq2ol2yuFKnGSDsIZ9o=
+        b=LCcyOpXbeY7GynL0bBpKohbjTp2ZAE1uSjEyCEHwxNdCPYvxof6ypI01b9bnnMeGH
+         teiqY8/1kNtWKlVr528QGD8morGIc1eigDcQvNBfP1+1aIXNQSuATIR7yZnAwbXzME
+         Yf5xeTb1MK8Q+o4+jgiU1jpFNcre9xasZTyAo+5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 167/200] can: tcan4x5x: regmap: fix max register value
+Subject: [PATCH 5.15 165/171] perf/core: Fix cgroup event list management
 Date:   Mon, 31 Jan 2022 11:57:10 +0100
-Message-Id: <20220131105239.166992994@linuxfoundation.org>
+Message-Id: <20220131105235.592097093@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,40 +48,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit e59986de5ff701494e14c722b78b6e6d513e0ab5 ]
+commit c5de60cd622a2607c043ba65e25a6e9998a369f9 upstream.
 
-The MRAM of the tcan4x5x has a size of 2K and starts at 0x8000. There
-are no further registers in the tcan4x5x making 0x87fc the biggest
-addressable register.
+The active cgroup events are managed in the per-cpu cgrp_cpuctx_list.
+This list is only accessed from current cpu and not protected by any
+locks.  But from the commit ef54c1a476ae ("perf: Rework
+perf_event_exit_event()"), it's possible to access (actually modify)
+the list from another cpu.
 
-This patch fixes the max register value of the regmap config from
-0x8ffc to 0x87fc.
+In the perf_remove_from_context(), it can remove an event from the
+context without an IPI when the context is not active.  This is not
+safe with cgroup events which can have some active events in the
+context even if ctx->is_active is 0 at the moment.  The target cpu
+might be in the middle of list iteration at the same time.
 
-Fixes: 6e1caaf8ed22 ("can: tcan4x5x: fix max register value")
-Link: https://lore.kernel.org/all/20220119064011.2943292-1-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+If the event is enabled when it's about to be closed, it might call
+perf_cgroup_event_disable() and list_del() with the cgrp_cpuctx_list
+on a different cpu.
+
+This resulted in a crash due to an invalid list pointer access during
+the cgroup list traversal on the cpu which the event belongs to.
+
+Let's fallback to IPI to access the cgrp_cpuctx_list from that cpu.
+Similarly, perf_install_in_context() should use IPI for the cgroup
+events too.
+
+Fixes: ef54c1a476ae ("perf: Rework perf_event_exit_event()")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220124195808.2252071-1-namhyung@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/tcan4x5x-regmap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/events/core.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/can/m_can/tcan4x5x-regmap.c b/drivers/net/can/m_can/tcan4x5x-regmap.c
-index ca80dbaf7a3f5..26e212b8ca7a6 100644
---- a/drivers/net/can/m_can/tcan4x5x-regmap.c
-+++ b/drivers/net/can/m_can/tcan4x5x-regmap.c
-@@ -12,7 +12,7 @@
- #define TCAN4X5X_SPI_INSTRUCTION_WRITE (0x61 << 24)
- #define TCAN4X5X_SPI_INSTRUCTION_READ (0x41 << 24)
- 
--#define TCAN4X5X_MAX_REGISTER 0x8ffc
-+#define TCAN4X5X_MAX_REGISTER 0x87fc
- 
- static int tcan4x5x_regmap_gather_write(void *context,
- 					const void *reg, size_t reg_len,
--- 
-2.34.1
-
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -2458,7 +2458,11 @@ static void perf_remove_from_context(str
+ 	 * event_function_call() user.
+ 	 */
+ 	raw_spin_lock_irq(&ctx->lock);
+-	if (!ctx->is_active) {
++	/*
++	 * Cgroup events are per-cpu events, and must IPI because of
++	 * cgrp_cpuctx_list.
++	 */
++	if (!ctx->is_active && !is_cgroup_event(event)) {
+ 		__perf_remove_from_context(event, __get_cpu_context(ctx),
+ 					   ctx, (void *)flags);
+ 		raw_spin_unlock_irq(&ctx->lock);
+@@ -2891,11 +2895,14 @@ perf_install_in_context(struct perf_even
+ 	 * perf_event_attr::disabled events will not run and can be initialized
+ 	 * without IPI. Except when this is the first event for the context, in
+ 	 * that case we need the magic of the IPI to set ctx->is_active.
++	 * Similarly, cgroup events for the context also needs the IPI to
++	 * manipulate the cgrp_cpuctx_list.
+ 	 *
+ 	 * The IOC_ENABLE that is sure to follow the creation of a disabled
+ 	 * event will issue the IPI and reprogram the hardware.
+ 	 */
+-	if (__perf_effective_state(event) == PERF_EVENT_STATE_OFF && ctx->nr_events) {
++	if (__perf_effective_state(event) == PERF_EVENT_STATE_OFF &&
++	    ctx->nr_events && !is_cgroup_event(event)) {
+ 		raw_spin_lock_irq(&ctx->lock);
+ 		if (ctx->task == TASK_TOMBSTONE) {
+ 			raw_spin_unlock_irq(&ctx->lock);
 
 
