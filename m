@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D64244A4241
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B83D84A437D
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359388AbiAaLLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:11:12 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42274 "EHLO
+        id S1376284AbiAaLVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:38 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:50462 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376299AbiAaLIH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:08:07 -0500
+        with ESMTP id S1376991AbiAaLRI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:17:08 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25BF760B98;
-        Mon, 31 Jan 2022 11:08:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E93F3C340E8;
-        Mon, 31 Jan 2022 11:08:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64C6A61120;
+        Mon, 31 Jan 2022 11:17:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4554AC340EE;
+        Mon, 31 Jan 2022 11:17:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627286;
-        bh=tZDQBq/qO6TsFqwPJb6+scacLa0iS0cC5ClrL9EoY+o=;
+        s=korg; t=1643627826;
+        bh=kJ2yLHfvzrV+DKPHJJnprn/eCodUFlc/YFddcwIPV44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RHEreCl15ed38OC7oNOjf75ubU24PSS0pDjJeXgR9S3oyWUqvQVbbEb9HzQMg4e6s
-         kj0EuDFI1zVAhmlKXMH6Oc7qH/eBDEPUWzvU4VECFifWUfgVv3W3aLNDJ829H+QcdS
-         ZLOx6TSes/RQIJMMmQOj5qgjkuSEtPrWEpbLzsvk=
+        b=0lBqCYJ8h2pmwhfP1Ii+Ww3ZnP0QzG8SHJpkNJdB01f27lYmSo4xyimGbdDa2ctDS
+         F2lBYarh7I2BV7q5DfgMznMNjYHAkv5199k30T1Oz51FcDALtnUhYEP3+pb7z30N2w
+         ABjLtas1wh1UdUfJhgYKwYzrbhrwn/O42AyKeDT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Liam Merwick <liam.merwick@oracle.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 035/171] KVM: SVM: Never reject emulation due to SMAP errata for !SEV guests
-Date:   Mon, 31 Jan 2022 11:55:00 +0100
-Message-Id: <20220131105231.206060647@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Suren Baghdasaryan <surenb@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Eric Biggers <ebiggers@kernel.org>
+Subject: [PATCH 5.16 038/200] psi: Fix uaf issue when psi trigger is destroyed while being polled
+Date:   Mon, 31 Jan 2022 11:55:01 +0100
+Message-Id: <20220131105234.840296929@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,55 +50,240 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Suren Baghdasaryan <surenb@google.com>
 
-commit 55467fcd55b89c622e62b4afe60ac0eb2fae91f2 upstream.
+commit a06247c6804f1a7c86a2e5398a4c1f1db1471848 upstream.
 
-Always signal that emulation is possible for !SEV guests regardless of
-whether or not the CPU provided a valid instruction byte stream.  KVM can
-read all guest state (memory and registers) for !SEV guests, i.e. can
-fetch the code stream from memory even if the CPU failed to do so because
-of the SMAP errata.
+With write operation on psi files replacing old trigger with a new one,
+the lifetime of its waitqueue is totally arbitrary. Overwriting an
+existing trigger causes its waitqueue to be freed and pending poll()
+will stumble on trigger->event_wait which was destroyed.
+Fix this by disallowing to redefine an existing psi trigger. If a write
+operation is used on a file descriptor with an already existing psi
+trigger, the operation will fail with EBUSY error.
+Also bypass a check for psi_disabled in the psi_trigger_destroy as the
+flag can be flipped after the trigger is created, leading to a memory
+leak.
 
-Fixes: 05d5a4863525 ("KVM: SVM: Workaround errata#1096 (insn_len maybe zero on SMAP violation)")
+Fixes: 0e94682b73bf ("psi: introduce psi monitor")
+Reported-by: syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Analyzed-by: Eric Biggers <ebiggers@kernel.org>
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
 Cc: stable@vger.kernel.org
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Brijesh Singh <brijesh.singh@amd.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
-Message-Id: <20220120010719.711476-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/r/20220111232309.1786347-1-surenb@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/svm.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ Documentation/accounting/psi.rst |    3 +
+ include/linux/psi.h              |    2 -
+ include/linux/psi_types.h        |    3 -
+ kernel/cgroup/cgroup.c           |   11 ++++--
+ kernel/sched/psi.c               |   66 +++++++++++++++++----------------------
+ 5 files changed, 40 insertions(+), 45 deletions(-)
 
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -4407,8 +4407,13 @@ static bool svm_can_emulate_instruction(
- 	bool smep, smap, is_user;
- 	unsigned long cr4;
+--- a/Documentation/accounting/psi.rst
++++ b/Documentation/accounting/psi.rst
+@@ -92,7 +92,8 @@ Triggers can be set on more than one psi
+ for the same psi metric can be specified. However for each trigger a separate
+ file descriptor is required to be able to poll it separately from others,
+ therefore for each trigger a separate open() syscall should be made even
+-when opening the same psi interface file.
++when opening the same psi interface file. Write operations to a file descriptor
++with an already existing psi trigger will fail with EBUSY.
  
-+	/* Emulation is always possible when KVM has access to all guest state. */
-+	if (!sev_guest(vcpu->kvm))
-+		return true;
-+
- 	/*
--	 * When the guest is an SEV-ES guest, emulation is not possible.
-+	 * Emulation is impossible for SEV-ES guests as KVM doesn't have access
-+	 * to guest register state.
+ Monitors activate only when system enters stall state for the monitored
+ psi metric and deactivates upon exit from the stall state. While system is
+--- a/include/linux/psi.h
++++ b/include/linux/psi.h
+@@ -32,7 +32,7 @@ void cgroup_move_task(struct task_struct
+ 
+ struct psi_trigger *psi_trigger_create(struct psi_group *group,
+ 			char *buf, size_t nbytes, enum psi_res res);
+-void psi_trigger_replace(void **trigger_ptr, struct psi_trigger *t);
++void psi_trigger_destroy(struct psi_trigger *t);
+ 
+ __poll_t psi_trigger_poll(void **trigger_ptr, struct file *file,
+ 			poll_table *wait);
+--- a/include/linux/psi_types.h
++++ b/include/linux/psi_types.h
+@@ -140,9 +140,6 @@ struct psi_trigger {
+ 	 * events to one per window
  	 */
- 	if (sev_es_guest(vcpu->kvm))
- 		return false;
-@@ -4461,9 +4466,6 @@ static bool svm_can_emulate_instruction(
- 	smap = cr4 & X86_CR4_SMAP;
- 	is_user = svm_get_cpl(vcpu) == 3;
- 	if (smap && (!smep || is_user)) {
--		if (!sev_guest(vcpu->kvm))
--			return true;
+ 	u64 last_event_time;
 -
- 		pr_err_ratelimited("KVM: SEV Guest triggered AMD Erratum 1096\n");
- 		kvm_make_request(KVM_REQ_TRIPLE_FAULT, vcpu);
+-	/* Refcounting to prevent premature destruction */
+-	struct kref refcount;
+ };
+ 
+ struct psi_group {
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -3642,6 +3642,12 @@ static ssize_t cgroup_pressure_write(str
+ 	cgroup_get(cgrp);
+ 	cgroup_kn_unlock(of->kn);
+ 
++	/* Allow only one trigger per file descriptor */
++	if (ctx->psi.trigger) {
++		cgroup_put(cgrp);
++		return -EBUSY;
++	}
++
+ 	psi = cgroup_ino(cgrp) == 1 ? &psi_system : &cgrp->psi;
+ 	new = psi_trigger_create(psi, buf, nbytes, res);
+ 	if (IS_ERR(new)) {
+@@ -3649,8 +3655,7 @@ static ssize_t cgroup_pressure_write(str
+ 		return PTR_ERR(new);
  	}
+ 
+-	psi_trigger_replace(&ctx->psi.trigger, new);
+-
++	smp_store_release(&ctx->psi.trigger, new);
+ 	cgroup_put(cgrp);
+ 
+ 	return nbytes;
+@@ -3689,7 +3694,7 @@ static void cgroup_pressure_release(stru
+ {
+ 	struct cgroup_file_ctx *ctx = of->priv;
+ 
+-	psi_trigger_replace(&ctx->psi.trigger, NULL);
++	psi_trigger_destroy(ctx->psi.trigger);
+ }
+ 
+ bool cgroup_psi_enabled(void)
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -1162,7 +1162,6 @@ struct psi_trigger *psi_trigger_create(s
+ 	t->event = 0;
+ 	t->last_event_time = 0;
+ 	init_waitqueue_head(&t->event_wait);
+-	kref_init(&t->refcount);
+ 
+ 	mutex_lock(&group->trigger_lock);
+ 
+@@ -1191,15 +1190,19 @@ struct psi_trigger *psi_trigger_create(s
+ 	return t;
+ }
+ 
+-static void psi_trigger_destroy(struct kref *ref)
++void psi_trigger_destroy(struct psi_trigger *t)
+ {
+-	struct psi_trigger *t = container_of(ref, struct psi_trigger, refcount);
+-	struct psi_group *group = t->group;
++	struct psi_group *group;
+ 	struct task_struct *task_to_destroy = NULL;
+ 
+-	if (static_branch_likely(&psi_disabled))
++	/*
++	 * We do not check psi_disabled since it might have been disabled after
++	 * the trigger got created.
++	 */
++	if (!t)
+ 		return;
+ 
++	group = t->group;
+ 	/*
+ 	 * Wakeup waiters to stop polling. Can happen if cgroup is deleted
+ 	 * from under a polling process.
+@@ -1235,9 +1238,9 @@ static void psi_trigger_destroy(struct k
+ 	mutex_unlock(&group->trigger_lock);
+ 
+ 	/*
+-	 * Wait for both *trigger_ptr from psi_trigger_replace and
+-	 * poll_task RCUs to complete their read-side critical sections
+-	 * before destroying the trigger and optionally the poll_task
++	 * Wait for psi_schedule_poll_work RCU to complete its read-side
++	 * critical section before destroying the trigger and optionally the
++	 * poll_task.
+ 	 */
+ 	synchronize_rcu();
+ 	/*
+@@ -1254,18 +1257,6 @@ static void psi_trigger_destroy(struct k
+ 	kfree(t);
+ }
+ 
+-void psi_trigger_replace(void **trigger_ptr, struct psi_trigger *new)
+-{
+-	struct psi_trigger *old = *trigger_ptr;
+-
+-	if (static_branch_likely(&psi_disabled))
+-		return;
+-
+-	rcu_assign_pointer(*trigger_ptr, new);
+-	if (old)
+-		kref_put(&old->refcount, psi_trigger_destroy);
+-}
+-
+ __poll_t psi_trigger_poll(void **trigger_ptr,
+ 				struct file *file, poll_table *wait)
+ {
+@@ -1275,24 +1266,15 @@ __poll_t psi_trigger_poll(void **trigger
+ 	if (static_branch_likely(&psi_disabled))
+ 		return DEFAULT_POLLMASK | EPOLLERR | EPOLLPRI;
+ 
+-	rcu_read_lock();
+-
+-	t = rcu_dereference(*(void __rcu __force **)trigger_ptr);
+-	if (!t) {
+-		rcu_read_unlock();
++	t = smp_load_acquire(trigger_ptr);
++	if (!t)
+ 		return DEFAULT_POLLMASK | EPOLLERR | EPOLLPRI;
+-	}
+-	kref_get(&t->refcount);
+-
+-	rcu_read_unlock();
+ 
+ 	poll_wait(file, &t->event_wait, wait);
+ 
+ 	if (cmpxchg(&t->event, 1, 0) == 1)
+ 		ret |= EPOLLPRI;
+ 
+-	kref_put(&t->refcount, psi_trigger_destroy);
+-
+ 	return ret;
+ }
+ 
+@@ -1316,14 +1298,24 @@ static ssize_t psi_write(struct file *fi
+ 
+ 	buf[buf_size - 1] = '\0';
+ 
+-	new = psi_trigger_create(&psi_system, buf, nbytes, res);
+-	if (IS_ERR(new))
+-		return PTR_ERR(new);
+-
+ 	seq = file->private_data;
++
+ 	/* Take seq->lock to protect seq->private from concurrent writes */
+ 	mutex_lock(&seq->lock);
+-	psi_trigger_replace(&seq->private, new);
++
++	/* Allow only one trigger per file descriptor */
++	if (seq->private) {
++		mutex_unlock(&seq->lock);
++		return -EBUSY;
++	}
++
++	new = psi_trigger_create(&psi_system, buf, nbytes, res);
++	if (IS_ERR(new)) {
++		mutex_unlock(&seq->lock);
++		return PTR_ERR(new);
++	}
++
++	smp_store_release(&seq->private, new);
+ 	mutex_unlock(&seq->lock);
+ 
+ 	return nbytes;
+@@ -1358,7 +1350,7 @@ static int psi_fop_release(struct inode
+ {
+ 	struct seq_file *seq = file->private_data;
+ 
+-	psi_trigger_replace(&seq->private, NULL);
++	psi_trigger_destroy(seq->private);
+ 	return single_release(inode, file);
+ }
+ 
 
 
