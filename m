@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CD8F4A45B4
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:48:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 577054A455E
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:41:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358750AbiAaLqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:46:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52900 "EHLO
+        id S239898AbiAaLkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:40:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377782AbiAaLlf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:41:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D00C02B76A;
-        Mon, 31 Jan 2022 03:26:04 -0800 (PST)
+        with ESMTP id S1359446AbiAaLgG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:36:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACCAAC0797AA;
+        Mon, 31 Jan 2022 03:24:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32666611E3;
-        Mon, 31 Jan 2022 11:26:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EF6DC36AF6;
-        Mon, 31 Jan 2022 11:26:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DD62B82A59;
+        Mon, 31 Jan 2022 11:24:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40E78C340E8;
+        Mon, 31 Jan 2022 11:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628363;
-        bh=qNlQ7jXzaiw0lDO8EJIiMrBPH5Y0ncOONj/Rttap/vE=;
+        s=korg; t=1643628253;
+        bh=MBN22VmzfNkPcLqzGiCFTU1wm89FYeeBn5uoaTj78F8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2RCAoqxP+uy8b0z564FGgy1++7R+wbnn8WnGmfAWwmkfMhVvzTCBNTCV/hpcWXHH
-         ghDzRKrbL12xilU1ouc9HF3+c8ecnnJSkKWPl571Jh0p7qY+HgNTLZ0LRCJIUjnIS9
-         JOMxnpMD0wmZCKphfMNH1m5hQ3OO6QFDhUd6gb68=
+        b=a7tCaOMy0dgYBt/n9OXIEQcfFMI+6dCK5WUs/FJwduZYisNEhE0kMg8CyM3L+Fv6f
+         8RyCZNOpZhJ0whEfcJpJKUMFOPESKEVaITe8qG+vJ7/RcPpHFepUQhNPVqePQQVKYF
+         cLyKTuOBIurwiNnNJS1tXmNvuqMLaRNodVAAuP3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Helge Deller <deller@gmx.de>, Wei Liu <wei.liu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 165/200] net/smc: Transitional solution for clcsock race issue
-Date:   Mon, 31 Jan 2022 11:57:08 +0100
-Message-Id: <20220131105239.097172693@linuxfoundation.org>
+Subject: [PATCH 5.16 166/200] video: hyperv_fb: Fix validation of screen resolution
+Date:   Mon, 31 Jan 2022 11:57:09 +0100
+Message-Id: <20220131105239.137560916@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
 References: <20220131105233.561926043@linuxfoundation.org>
@@ -49,199 +49,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gu <guwen@linux.alibaba.com>
+From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit c0bf3d8a943b6f2e912b7c1de03e2ef28e76f760 ]
+[ Upstream commit 9ff5549b1d1d3c3a9d71220d44bd246586160f1d ]
 
-We encountered a crash in smc_setsockopt() and it is caused by
-accessing smc->clcsock after clcsock was released.
+In the WIN10 version of the Synthetic Video protocol with Hyper-V,
+Hyper-V reports a list of supported resolutions as part of the protocol
+negotiation. The driver calculates the maximum width and height from
+the list of resolutions, and uses those maximums to validate any screen
+resolution specified in the video= option on the kernel boot line.
 
- BUG: kernel NULL pointer dereference, address: 0000000000000020
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] PREEMPT SMP PTI
- CPU: 1 PID: 50309 Comm: nginx Kdump: loaded Tainted: G E     5.16.0-rc4+ #53
- RIP: 0010:smc_setsockopt+0x59/0x280 [smc]
- Call Trace:
-  <TASK>
-  __sys_setsockopt+0xfc/0x190
-  __x64_sys_setsockopt+0x20/0x30
-  do_syscall_64+0x34/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f16ba83918e
-  </TASK>
+This method of validation is incorrect. For example, the list of
+supported resolutions could contain 1600x1200 and 1920x1080, both of
+which fit in an 8 Mbyte frame buffer.  But calculating the max width
+and height yields 1920 and 1200, and 1920x1200 resolution does not fit
+in an 8 Mbyte frame buffer.  Unfortunately, this resolution is accepted,
+causing a kernel fault when the driver accesses memory outside the
+frame buffer.
 
-This patch tries to fix it by holding clcsock_release_lock and
-checking whether clcsock has already been released before access.
+Instead, validate the specified screen resolution by calculating
+its size, and comparing against the frame buffer size.  Delete the
+code for calculating the max width and height from the list of
+resolutions, since these max values have no use.  Also add the
+frame buffer size to the info message to aid in understanding why
+a resolution might be rejected.
 
-In case that a crash of the same reason happens in smc_getsockopt()
-or smc_switch_to_fallback(), this patch also checkes smc->clcsock
-in them too. And the caller of smc_switch_to_fallback() will identify
-whether fallback succeeds according to the return value.
-
-Fixes: fd57770dd198 ("net/smc: wait for pending work before clcsock release_sock")
-Link: https://lore.kernel.org/lkml/5dd7ffd1-28e2-24cc-9442-1defec27375e@linux.ibm.com/T/
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 67e7cdb4829d ("video: hyperv: hyperv_fb: Obtain screen resolution from Hyper-V host")
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+Acked-by: Helge Deller <deller@gmx.de>
+Link: https://lore.kernel.org/r/1642360711-2335-1-git-send-email-mikelley@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c | 63 +++++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 51 insertions(+), 12 deletions(-)
+ drivers/video/fbdev/hyperv_fb.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 211cd91b6c408..85e077a69c67d 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -566,12 +566,17 @@ static void smc_stat_fallback(struct smc_sock *smc)
- 	mutex_unlock(&net->smc.mutex_fback_rsn);
- }
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index 23999df527393..c8e0ea27caf1d 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -287,8 +287,6 @@ struct hvfb_par {
  
--static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
-+static int smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
- {
- 	wait_queue_head_t *smc_wait = sk_sleep(&smc->sk);
--	wait_queue_head_t *clc_wait = sk_sleep(smc->clcsock->sk);
-+	wait_queue_head_t *clc_wait;
- 	unsigned long flags;
+ static uint screen_width = HVFB_WIDTH;
+ static uint screen_height = HVFB_HEIGHT;
+-static uint screen_width_max = HVFB_WIDTH;
+-static uint screen_height_max = HVFB_HEIGHT;
+ static uint screen_depth;
+ static uint screen_fb_size;
+ static uint dio_fb_size; /* FB size for deferred IO */
+@@ -582,7 +580,6 @@ static int synthvid_get_supported_resolution(struct hv_device *hdev)
+ 	int ret = 0;
+ 	unsigned long t;
+ 	u8 index;
+-	int i;
  
-+	mutex_lock(&smc->clcsock_release_lock);
-+	if (!smc->clcsock) {
-+		mutex_unlock(&smc->clcsock_release_lock);
-+		return -EBADF;
-+	}
- 	smc->use_fallback = true;
- 	smc->fallback_rsn = reason_code;
- 	smc_stat_fallback(smc);
-@@ -586,18 +591,30 @@ static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
- 		 * smc socket->wq, which should be removed
- 		 * to clcsocket->wq during the fallback.
- 		 */
-+		clc_wait = sk_sleep(smc->clcsock->sk);
- 		spin_lock_irqsave(&smc_wait->lock, flags);
- 		spin_lock_nested(&clc_wait->lock, SINGLE_DEPTH_NESTING);
- 		list_splice_init(&smc_wait->head, &clc_wait->head);
- 		spin_unlock(&clc_wait->lock);
- 		spin_unlock_irqrestore(&smc_wait->lock, flags);
- 	}
-+	mutex_unlock(&smc->clcsock_release_lock);
-+	return 0;
- }
- 
- /* fall back during connect */
- static int smc_connect_fallback(struct smc_sock *smc, int reason_code)
- {
--	smc_switch_to_fallback(smc, reason_code);
-+	struct net *net = sock_net(&smc->sk);
-+	int rc = 0;
-+
-+	rc = smc_switch_to_fallback(smc, reason_code);
-+	if (rc) { /* fallback fails */
-+		this_cpu_inc(net->smc.smc_stats->clnt_hshake_err_cnt);
-+		if (smc->sk.sk_state == SMC_INIT)
-+			sock_put(&smc->sk); /* passive closing */
-+		return rc;
-+	}
- 	smc_copy_sock_settings_to_clc(smc);
- 	smc->connect_nonblock = 0;
- 	if (smc->sk.sk_state == SMC_INIT)
-@@ -1514,11 +1531,12 @@ static void smc_listen_decline(struct smc_sock *new_smc, int reason_code,
- {
- 	/* RDMA setup failed, switch back to TCP */
- 	smc_conn_abort(new_smc, local_first);
--	if (reason_code < 0) { /* error, no fallback possible */
-+	if (reason_code < 0 ||
-+	    smc_switch_to_fallback(new_smc, reason_code)) {
-+		/* error, no fallback possible */
- 		smc_listen_out_err(new_smc);
- 		return;
- 	}
--	smc_switch_to_fallback(new_smc, reason_code);
- 	if (reason_code && reason_code != SMC_CLC_DECL_PEERDECL) {
- 		if (smc_clc_send_decline(new_smc, reason_code, version) < 0) {
- 			smc_listen_out_err(new_smc);
-@@ -1960,8 +1978,11 @@ static void smc_listen_work(struct work_struct *work)
- 
- 	/* check if peer is smc capable */
- 	if (!tcp_sk(newclcsock->sk)->syn_smc) {
--		smc_switch_to_fallback(new_smc, SMC_CLC_DECL_PEERNOSMC);
--		smc_listen_out_connected(new_smc);
-+		rc = smc_switch_to_fallback(new_smc, SMC_CLC_DECL_PEERNOSMC);
-+		if (rc)
-+			smc_listen_out_err(new_smc);
-+		else
-+			smc_listen_out_connected(new_smc);
- 		return;
+ 	memset(msg, 0, sizeof(struct synthvid_msg));
+ 	msg->vid_hdr.type = SYNTHVID_RESOLUTION_REQUEST;
+@@ -613,13 +610,6 @@ static int synthvid_get_supported_resolution(struct hv_device *hdev)
+ 		goto out;
  	}
  
-@@ -2250,7 +2271,9 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+-	for (i = 0; i < msg->resolution_resp.resolution_count; i++) {
+-		screen_width_max = max_t(unsigned int, screen_width_max,
+-		    msg->resolution_resp.supported_resolution[i].width);
+-		screen_height_max = max_t(unsigned int, screen_height_max,
+-		    msg->resolution_resp.supported_resolution[i].height);
+-	}
+-
+ 	screen_width =
+ 		msg->resolution_resp.supported_resolution[index].width;
+ 	screen_height =
+@@ -941,7 +931,7 @@ static void hvfb_get_option(struct fb_info *info)
  
- 	if (msg->msg_flags & MSG_FASTOPEN) {
- 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
--			smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
-+			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
-+			if (rc)
-+				goto out;
- 		} else {
- 			rc = -EINVAL;
- 			goto out;
-@@ -2443,6 +2466,11 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 	/* generic setsockopts reaching us here always apply to the
- 	 * CLC socket
- 	 */
-+	mutex_lock(&smc->clcsock_release_lock);
-+	if (!smc->clcsock) {
-+		mutex_unlock(&smc->clcsock_release_lock);
-+		return -EBADF;
-+	}
- 	if (unlikely(!smc->clcsock->ops->setsockopt))
- 		rc = -EOPNOTSUPP;
- 	else
-@@ -2452,6 +2480,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 		sk->sk_err = smc->clcsock->sk->sk_err;
- 		sk_error_report(sk);
+ 	if (x < HVFB_WIDTH_MIN || y < HVFB_HEIGHT_MIN ||
+ 	    (synthvid_ver_ge(par->synthvid_version, SYNTHVID_VERSION_WIN10) &&
+-	    (x > screen_width_max || y > screen_height_max)) ||
++	    (x * y * screen_depth / 8 > screen_fb_size)) ||
+ 	    (par->synthvid_version == SYNTHVID_VERSION_WIN8 &&
+ 	     x * y * screen_depth / 8 > SYNTHVID_FB_SIZE_WIN8) ||
+ 	    (par->synthvid_version == SYNTHVID_VERSION_WIN7 &&
+@@ -1194,8 +1184,8 @@ static int hvfb_probe(struct hv_device *hdev,
  	}
-+	mutex_unlock(&smc->clcsock_release_lock);
  
- 	if (optlen < sizeof(int))
- 		return -EINVAL;
-@@ -2468,7 +2497,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 	case TCP_FASTOPEN_NO_COOKIE:
- 		/* option not supported by SMC */
- 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
--			smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
-+			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
- 		} else {
- 			rc = -EINVAL;
- 		}
-@@ -2511,13 +2540,23 @@ static int smc_getsockopt(struct socket *sock, int level, int optname,
- 			  char __user *optval, int __user *optlen)
- {
- 	struct smc_sock *smc;
-+	int rc;
+ 	hvfb_get_option(info);
+-	pr_info("Screen resolution: %dx%d, Color depth: %d\n",
+-		screen_width, screen_height, screen_depth);
++	pr_info("Screen resolution: %dx%d, Color depth: %d, Frame buffer size: %d\n",
++		screen_width, screen_height, screen_depth, screen_fb_size);
  
- 	smc = smc_sk(sock->sk);
-+	mutex_lock(&smc->clcsock_release_lock);
-+	if (!smc->clcsock) {
-+		mutex_unlock(&smc->clcsock_release_lock);
-+		return -EBADF;
-+	}
- 	/* socket options apply to the CLC socket */
--	if (unlikely(!smc->clcsock->ops->getsockopt))
-+	if (unlikely(!smc->clcsock->ops->getsockopt)) {
-+		mutex_unlock(&smc->clcsock_release_lock);
- 		return -EOPNOTSUPP;
--	return smc->clcsock->ops->getsockopt(smc->clcsock, level, optname,
--					     optval, optlen);
-+	}
-+	rc = smc->clcsock->ops->getsockopt(smc->clcsock, level, optname,
-+					   optval, optlen);
-+	mutex_unlock(&smc->clcsock_release_lock);
-+	return rc;
- }
- 
- static int smc_ioctl(struct socket *sock, unsigned int cmd,
+ 	ret = hvfb_getmem(hdev, info);
+ 	if (ret) {
 -- 
 2.34.1
 
