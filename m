@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 754894A40F6
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:01:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34C394A40FA
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:01:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240779AbiAaLBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:01:20 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48234 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358456AbiAaLAX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:00:23 -0500
+        id S1358431AbiAaLB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:01:26 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:33094 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358610AbiAaLAZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:00:25 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79B07B82A5E;
-        Mon, 31 Jan 2022 11:00:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92F22C340E8;
-        Mon, 31 Jan 2022 11:00:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1AF860BC0;
+        Mon, 31 Jan 2022 11:00:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDCD6C340E8;
+        Mon, 31 Jan 2022 11:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626821;
-        bh=6bTuMqjIAe8M5U9uAeUKlMxp1hGna8u+ajA/AFCtbEM=;
+        s=korg; t=1643626824;
+        bh=ZIeqG/4W3iMtANw1XSfN8K18a49BnpXQ6VvJzNGfFAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ng0M60fYzLkcfwBoTwvKt7eAPkgmqx4UA8kzSoHEnsTUI7NK+GiC4d7TtPPUOHqbz
-         ngJm+ujIfEJsO4XfmRhZNsjM+y5QQfg1Uhyj7E6scs2GIDsBDO4TTLiVrua3iMHwKw
-         a9gSaZZpbyScDZ8bA2bNN44cIBtfn+tHQHlxz3ZY=
+        b=ASoVHX3rMzBoYSfztU4k7pyIqAGJCxDf9rb49oXu5TSozp/K/zDing6f7WxbwIGqY
+         kdRhPLoTrXqVefsh+QBsCW63kuS4OugwX90TujRJl931+1uw2F9eV5QBoVtmStzr8X
+         n4jTktc3Ci1M17YFqOuH+dgaoX7biWxWB+n3L1MI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
+        David Howells <dhowells@redhat.com>,
+        linux-afs@lists.infradead.org,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 51/64] phylib: fix potential use-after-free
-Date:   Mon, 31 Jan 2022 11:56:36 +0100
-Message-Id: <20220131105217.406475015@linuxfoundation.org>
+Subject: [PATCH 5.4 52/64] rxrpc: Adjust retransmission backoff
+Date:   Mon, 31 Jan 2022 11:56:37 +0100
+Message-Id: <20220131105217.437321340@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105215.644174521@linuxfoundation.org>
 References: <20220131105215.644174521@linuxfoundation.org>
@@ -46,53 +47,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit cbda1b16687580d5beee38273f6241ae3725960c ]
+[ Upstream commit 2c13c05c5ff4b9fc907b07f7311821910ebaaf8a ]
 
-Commit bafbdd527d56 ("phylib: Add device reset GPIO support") added call
-to phy_device_reset(phydev) after the put_device() call in phy_detach().
+Improve retransmission backoff by only backing off when we retransmit data
+packets rather than when we set the lost ack timer.
 
-The comment before the put_device() call says that the phydev might go
-away with put_device().
+To this end:
 
-Fix potential use-after-free by calling phy_device_reset() before
-put_device().
+ (1) In rxrpc_resend(), use rxrpc_get_rto_backoff() when setting the
+     retransmission timer and only tell it that we are retransmitting if we
+     actually have things to retransmit.
 
-Fixes: bafbdd527d56 ("phylib: Add device reset GPIO support")
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220119162748.32418-1-kabel@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+     Note that it's possible for the retransmission algorithm to race with
+     the processing of a received ACK, so we may see no packets needing
+     retransmission.
+
+ (2) In rxrpc_send_data_packet(), don't bump the backoff when setting the
+     ack_lost_at timer, as it may then get bumped twice.
+
+With this, when looking at one particular packet, the retransmission
+intervals were seen to be 1.5ms, 2ms, 3ms, 5ms, 9ms, 17ms, 33ms, 71ms,
+136ms, 264ms, 544ms, 1.088s, 2.1s, 4.2s and 8.3s.
+
+Fixes: c410bf01933e ("rxrpc: Fix the excessive initial retransmission timeout")
+Suggested-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Tested-by: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+Link: https://lore.kernel.org/r/164138117069.2023386.17446904856843997127.stgit@warthog.procyon.org.uk/
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy_device.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/rxrpc/call_event.c | 8 +++-----
+ net/rxrpc/output.c     | 2 +-
+ 2 files changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index 35ade5d21de51..78b918dcd5472 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -1433,6 +1433,9 @@ void phy_detach(struct phy_device *phydev)
- 	    phy_driver_is_genphy_10g(phydev))
- 		device_release_driver(&phydev->mdio.dev);
+diff --git a/net/rxrpc/call_event.c b/net/rxrpc/call_event.c
+index 9ff85ee8337cd..80e15310f1b29 100644
+--- a/net/rxrpc/call_event.c
++++ b/net/rxrpc/call_event.c
+@@ -157,7 +157,7 @@ static void rxrpc_congestion_timeout(struct rxrpc_call *call)
+ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
+ {
+ 	struct sk_buff *skb;
+-	unsigned long resend_at, rto_j;
++	unsigned long resend_at;
+ 	rxrpc_seq_t cursor, seq, top;
+ 	ktime_t now, max_age, oldest, ack_ts;
+ 	int ix;
+@@ -165,10 +165,8 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
  
-+	/* Assert the reset signal */
-+	phy_device_reset(phydev, 1);
-+
- 	/*
- 	 * The phydev might go away on the put_device() below, so avoid
- 	 * a use-after-free bug by reading the underlying bus first.
-@@ -1444,9 +1447,6 @@ void phy_detach(struct phy_device *phydev)
- 		ndev_owner = dev->dev.parent->driver->owner;
- 	if (ndev_owner != bus->owner)
- 		module_put(bus->owner);
+ 	_enter("{%d,%d}", call->tx_hard_ack, call->tx_top);
+ 
+-	rto_j = call->peer->rto_j;
 -
--	/* Assert the reset signal */
--	phy_device_reset(phydev, 1);
- }
- EXPORT_SYMBOL(phy_detach);
+ 	now = ktime_get_real();
+-	max_age = ktime_sub(now, jiffies_to_usecs(rto_j));
++	max_age = ktime_sub(now, jiffies_to_usecs(call->peer->rto_j));
  
+ 	spin_lock_bh(&call->lock);
+ 
+@@ -213,7 +211,7 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
+ 	}
+ 
+ 	resend_at = nsecs_to_jiffies(ktime_to_ns(ktime_sub(now, oldest)));
+-	resend_at += jiffies + rto_j;
++	resend_at += jiffies + rxrpc_get_rto_backoff(call->peer, retrans);
+ 	WRITE_ONCE(call->resend_at, resend_at);
+ 
+ 	if (unacked)
+diff --git a/net/rxrpc/output.c b/net/rxrpc/output.c
+index f8b632a5c6197..a4a6f8ee07201 100644
+--- a/net/rxrpc/output.c
++++ b/net/rxrpc/output.c
+@@ -426,7 +426,7 @@ done:
+ 			if (call->peer->rtt_count > 1) {
+ 				unsigned long nowj = jiffies, ack_lost_at;
+ 
+-				ack_lost_at = rxrpc_get_rto_backoff(call->peer, retrans);
++				ack_lost_at = rxrpc_get_rto_backoff(call->peer, false);
+ 				ack_lost_at += nowj;
+ 				WRITE_ONCE(call->ack_lost_at, ack_lost_at);
+ 				rxrpc_reduce_call_timer(call, ack_lost_at, nowj,
 -- 
 2.34.1
 
