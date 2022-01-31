@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4544A4A4103
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:01:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0749C4A4105
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:01:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358507AbiAaLBm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:01:42 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:60416 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358623AbiAaLAh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:00:37 -0500
+        id S1358508AbiAaLBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:01:44 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:48454 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358530AbiAaLAm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:00:42 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7127960ABE;
-        Mon, 31 Jan 2022 11:00:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51A02C340E8;
-        Mon, 31 Jan 2022 11:00:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11C92B82A5B;
+        Mon, 31 Jan 2022 11:00:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DD33C340EE;
+        Mon, 31 Jan 2022 11:00:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626836;
-        bh=hp3tUhukj1H0fyjDpKJuoQvkedvjJfb9P/laApICm3M=;
+        s=korg; t=1643626839;
+        bh=/wAIDgbERjf5UmB7nohSv94TjpNXrntbr7XxfL+KZ5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mRN+IdXbopUU+c5ECz+aWD9it4YvrYaT56rMZWIm4DDvKMTYqWIbgUSp3/OdcaL9L
-         va9GuRWioHVG6swnFbvQoMBhId0ZH5kjED8EiigRe3TkhL7dLdX5s3tRj2W7cHR2Ot
-         kcrWIF/FkBpGjiHixLcayL/bypCU2ALPhtcd4daY=
+        b=Sv8U26TrP39ev74c6rTdXDE+ZMX4X5YHBn+oH4HxT/NlF7gKRcIF2/i9FJ2DsWt2Z
+         8CBKn0DxAnHYdKc1rC1fRLFH4+3jlHwFxeLCRF/35mU2dwABTY5f6NgjdrDxycpVGH
+         HkUVYArh8pqKKQ6coEipEkrzdmxyZmrXkI3JEy1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        Dany Madden <drt@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 55/64] ibmvnic: dont spin in tasklet
-Date:   Mon, 31 Jan 2022 11:56:40 +0100
-Message-Id: <20220131105217.538146815@linuxfoundation.org>
+Subject: [PATCH 5.4 56/64] drm/msm/hdmi: Fix missing put_device() call in msm_hdmi_get_phy
+Date:   Mon, 31 Jan 2022 11:56:41 +0100
+Message-Id: <20220131105217.568120068@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105215.644174521@linuxfoundation.org>
 References: <20220131105215.644174521@linuxfoundation.org>
@@ -47,45 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 48079e7fdd0269d66b1d7d66ae88bd03162464ad ]
+[ Upstream commit 774fe0cd838d1b1419d41ab4ea0613c80d4ecbd7 ]
 
-ibmvnic_tasklet() continuously spins waiting for responses to all
-capability requests. It does this to avoid encountering an error
-during initialization of the vnic. However if there is a bug in the
-VIOS and we do not receive a response to one or more queries the
-tasklet ends up spinning continuously leading to hard lock ups.
+The reference taken by 'of_find_device_by_node()' must be released when
+not needed anymore.
+Add the corresponding 'put_device()' in the error handling path.
 
-If we fail to receive a message from the VIOS it is reasonable to
-timeout the login attempt rather than spin indefinitely in the tasklet.
-
-Fixes: 249168ad07cd ("ibmvnic: Make CRQ interrupt tasklet wait for all capabilities crqs")
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Reviewed-by: Dany Madden <drt@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e00012b256d4 ("drm/msm/hdmi: Make HDMI core get its PHY")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20220107085026.23831-1-linmq006@gmail.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/gpu/drm/msm/hdmi/hdmi.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 6ecbe70614378..26d49dcdbeb3e 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -4823,12 +4823,6 @@ static void ibmvnic_tasklet(void *data)
- 			ibmvnic_handle_crq(crq, adapter);
- 			crq->generic.first = 0;
- 		}
--
--		/* remain in tasklet until all
--		 * capabilities responses are received
--		 */
--		if (!adapter->wait_capability)
--			done = true;
+diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
+index 355afb936401a..1a7e77373407f 100644
+--- a/drivers/gpu/drm/msm/hdmi/hdmi.c
++++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
+@@ -97,10 +97,15 @@ static int msm_hdmi_get_phy(struct hdmi *hdmi)
+ 
+ 	of_node_put(phy_node);
+ 
+-	if (!phy_pdev || !hdmi->phy) {
++	if (!phy_pdev) {
+ 		DRM_DEV_ERROR(&pdev->dev, "phy driver is not ready\n");
+ 		return -EPROBE_DEFER;
  	}
- 	/* if capabilities CRQ's were sent in this tasklet, the following
- 	 * tasklet must wait until all responses are received
++	if (!hdmi->phy) {
++		DRM_DEV_ERROR(&pdev->dev, "phy driver is not ready\n");
++		put_device(&phy_pdev->dev);
++		return -EPROBE_DEFER;
++	}
+ 
+ 	hdmi->phy_dev = get_device(&phy_pdev->dev);
+ 
 -- 
 2.34.1
 
