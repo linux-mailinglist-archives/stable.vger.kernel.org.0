@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CD674A42D9
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:15:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE4A44A4169
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:03:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359106AbiAaLOi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:14:38 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60584 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376368AbiAaLMf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:12:35 -0500
+        id S1358572AbiAaLDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:03:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43302 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359108AbiAaLC6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:02:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C6E8C061377;
+        Mon, 31 Jan 2022 03:01:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6830CB82A4C;
-        Mon, 31 Jan 2022 11:12:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 889AAC340EE;
-        Mon, 31 Jan 2022 11:12:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D011260B2D;
+        Mon, 31 Jan 2022 11:01:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF0B7C340E8;
+        Mon, 31 Jan 2022 11:01:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627553;
-        bh=aEo9R4LgPqEQKePIly64t3WBTWHoW6E2ocSvBdF0Szk=;
+        s=korg; t=1643626877;
+        bh=AW09Hw0O0tjN//AzuiSh6wQwxIaj6bNbvICHTQHbuRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V35Lx9IPLrQJyeAtnGtVI0Qt9ZfPGjHIewY4TfwU28fSCkxCo1Y2dqAqvQTvehbYV
-         4Zf17qfQ3yPQ6DjYljQmIblpuqSE7wFQjOTAqPdUf1d75IEIxTTdCMpUaP3D/lGM4L
-         MU8t6vOl8SdYdGLGQPmCYlZAGTX6skr4l9oNCmhw=
+        b=Kfqn8BU/gXhBhL2qnZ43+Kloo9Dxp3Fqp8A+mycZIQwtXQ7wYM3tSNMItIgRNGhS5
+         IKzXzU4HhXTIrJK4zTIdCEbSjYF8o84ftJsLWr56J5hz7vtuZx9cjJp9BMht3ZxPQG
+         BSBisKrvP7Hmh4AOYA/pJ9qQ8aBZMAphgAGdqTAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 121/171] octeontx2-af: Fix LBK backpressure id count
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.4 41/64] NFSv4: nfs_atomic_open() can race when looking up a non-regular file
 Date:   Mon, 31 Jan 2022 11:56:26 +0100
-Message-Id: <20220131105234.134819720@linuxfoundation.org>
+Message-Id: <20220131105217.063133700@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105215.644174521@linuxfoundation.org>
+References: <20220131105215.644174521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sunil Goutham <sgoutham@marvell.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 00bfe94e388fe12bfd0d4f6361b1b1343374ff5b ]
+commit 1751fc1db36f6f411709e143d5393f92d12137a9 upstream.
 
-In rvu_nix_get_bpid() lbk_bpid_cnt is being read from
-wrong register. Due to this backpressure enable is failing
-for LBK VF32 onwards. This patch fixes that.
+If the file type changes back to being a regular file on the server
+between the failed OPEN and our LOOKUP, then we need to re-run the OPEN.
 
-Fixes: fe1939bb2340 ("octeontx2-af: Add SDP interface support")
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: Subbaraya Sundeep <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0dd2b474d0b6 ("nfs: implement i_op->atomic_open()")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/nfs/dir.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-index 6970540dc4709..8ee324aabf2d6 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-@@ -511,11 +511,11 @@ static int rvu_nix_get_bpid(struct rvu *rvu, struct nix_bp_cfg_req *req,
- 	cfg = rvu_read64(rvu, blkaddr, NIX_AF_CONST);
- 	lmac_chan_cnt = cfg & 0xFF;
- 
--	cfg = rvu_read64(rvu, blkaddr, NIX_AF_CONST1);
--	sdp_chan_cnt = cfg & 0xFFF;
--
- 	cgx_bpid_cnt = hw->cgx_links * lmac_chan_cnt;
- 	lbk_bpid_cnt = hw->lbk_links * ((cfg >> 16) & 0xFF);
-+
-+	cfg = rvu_read64(rvu, blkaddr, NIX_AF_CONST1);
-+	sdp_chan_cnt = cfg & 0xFFF;
- 	sdp_bpid_cnt = hw->sdp_links * sdp_chan_cnt;
- 
- 	pfvf = rvu_get_pfvf(rvu, req->hdr.pcifunc);
--- 
-2.34.1
-
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -1643,12 +1643,17 @@ no_open:
+ 		if ((lookup_flags & LOOKUP_DIRECTORY) && inode &&
+ 		    !S_ISDIR(inode->i_mode))
+ 			res = ERR_PTR(-ENOTDIR);
++		else if (inode && S_ISREG(inode->i_mode))
++			res = ERR_PTR(-EOPENSTALE);
+ 	} else if (!IS_ERR(res)) {
+ 		inode = d_inode(res);
+ 		if ((lookup_flags & LOOKUP_DIRECTORY) && inode &&
+ 		    !S_ISDIR(inode->i_mode)) {
+ 			dput(res);
+ 			res = ERR_PTR(-ENOTDIR);
++		} else if (inode && S_ISREG(inode->i_mode)) {
++			dput(res);
++			res = ERR_PTR(-EOPENSTALE);
+ 		}
+ 	}
+ 	if (switched) {
 
 
