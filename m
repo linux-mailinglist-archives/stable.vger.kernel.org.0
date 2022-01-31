@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC4D54A449E
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:33:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A45A74A4298
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350551AbiAaLbq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:31:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49458 "EHLO
+        id S1376339AbiAaLMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:12:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351257AbiAaL1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:27:06 -0500
+        with ESMTP id S1377575AbiAaLKM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:12 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC017C06176C;
-        Mon, 31 Jan 2022 03:16:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C5E6C061758;
+        Mon, 31 Jan 2022 03:09:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B92261120;
-        Mon, 31 Jan 2022 11:16:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C17EC340F0;
-        Mon, 31 Jan 2022 11:16:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1F3461035;
+        Mon, 31 Jan 2022 11:09:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92D89C340EE;
+        Mon, 31 Jan 2022 11:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627807;
-        bh=PDdpZt7AHPHXZe6U2v2wShYmb1XFB5RGAmHqGoiNsLE=;
+        s=korg; t=1643627375;
+        bh=0PjmHfOgWRzGow6i7AqImzcQU+i2us/OM0DxEqBdPKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZ7SfnWIddIoa//hH0aW+zDjs/v5o2X8zDwrKdougklWq6XxQl8kafKcttucnYIgx
-         JWlIDj8lKkbbZY/Ix53W5FG31FH5NI2TVRwF3+3iDUsKIZj4w3iKnyxKvAoUR9l9zh
-         7uLfoJ9R5eYOQEpqTAWXxxL3wfcgErhNcrz79DVc=
+        b=H1FR0AaB3iPWsRQp84aIWN+1JSCYq4UYy8YewOd4x46RN2rzwP6Jh1Ah1gyfiaNV/
+         LXvnR7qXQcKytzoRVmpSqK/Ap7SgCCVtDqraB+lttwfrRgMpeVHL56Q4Cp+A41vqKV
+         8/EUjbISmPsWtUCwpOHxjf1v1+FmLaqc/hqJPiBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.16 032/200] tracing: Dont inc err_log entry count if entry allocation fails
+        stable@vger.kernel.org,
+        "Damjan Marion (damarion)" <damarion@cisco.com>,
+        Chan Edison <edison_chan_gz@hotmail.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.15 030/171] perf/x86/intel: Add a quirk for the calculation of the number of counters on Alder Lake
 Date:   Mon, 31 Jan 2022 11:54:55 +0100
-Message-Id: <20220131105234.649732364@linuxfoundation.org>
+Message-Id: <20220131105231.039241149@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,38 +50,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Zanussi <zanussi@kernel.org>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit 67ab5eb71b37b55f7c5522d080a1b42823351776 upstream.
+commit 7fa981cad216e9f64f49e22112f610c0bfed91bc upstream.
 
-tr->n_err_log_entries should only be increased if entry allocation
-succeeds.
+For some Alder Lake machine with all E-cores disabled in a BIOS, the
+below warning may be triggered.
 
-Doing it when it fails won't cause any problems other than wasting an
-entry, but should be fixed anyway.
+[ 2.010766] hw perf events fixed 5 > max(4), clipping!
 
-Link: https://lkml.kernel.org/r/cad1ab28f75968db0f466925e7cba5970cec6c29.1643319703.git.zanussi@kernel.org
+Current perf code relies on the CPUID leaf 0xA and leaf 7.EDX[15] to
+calculate the number of the counters and follow the below assumption.
 
+For a hybrid configuration, the leaf 7.EDX[15] (X86_FEATURE_HYBRID_CPU)
+is set. The leaf 0xA only enumerate the common counters. Linux perf has
+to manually add the extra GP counters and fixed counters for P-cores.
+For a non-hybrid configuration, the X86_FEATURE_HYBRID_CPU should not
+be set. The leaf 0xA enumerates all counters.
+
+However, that's not the case when all E-cores are disabled in a BIOS.
+Although there are only P-cores in the system, the leaf 7.EDX[15]
+(X86_FEATURE_HYBRID_CPU) is still set. But the leaf 0xA is updated
+to enumerate all counters of P-cores. The inconsistency triggers the
+warning.
+
+Several software ways were considered to handle the inconsistency.
+- Drop the leaf 0xA and leaf 7.EDX[15] CPUID enumeration support.
+  Hardcode the number of counters. This solution may be a problem for
+  virtualization. A hypervisor cannot control the number of counters
+  in a Linux guest via changing the guest CPUID enumeration anymore.
+- Find another CPUID bit that is also updated with E-cores disabled.
+  There may be a problem in the virtualization environment too. Because
+  a hypervisor may disable the feature/CPUID bit.
+- The P-cores have a maximum of 8 GP counters and 4 fixed counters on
+  ADL. The maximum number can be used to detect the case.
+  This solution is implemented in this patch.
+
+Fixes: ee72a94ea4a6 ("perf/x86/intel: Fix fixed counter check warning for some Alder Lake")
+Reported-by: Damjan Marion (damarion) <damarion@cisco.com>
+Reported-by: Chan Edison <edison_chan_gz@hotmail.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Damjan Marion (damarion) <damarion@cisco.com>
 Cc: stable@vger.kernel.org
-Fixes: 2f754e771b1a6 ("tracing: Don't inc err_log entry count if entry allocation fails")
-Signed-off-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Link: https://lkml.kernel.org/r/1641925238-149288-1-git-send-email-kan.liang@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/events/intel/core.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -7734,7 +7734,8 @@ static struct tracing_log_err *get_traci
- 		err = kzalloc(sizeof(*err), GFP_KERNEL);
- 		if (!err)
- 			err = ERR_PTR(-ENOMEM);
--		tr->n_err_log_entries++;
-+		else
-+			tr->n_err_log_entries++;
- 
- 		return err;
- 	}
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -6187,6 +6187,19 @@ __init int intel_pmu_init(void)
+ 			pmu->num_counters = x86_pmu.num_counters;
+ 			pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
+ 		}
++
++		/*
++		 * Quirk: For some Alder Lake machine, when all E-cores are disabled in
++		 * a BIOS, the leaf 0xA will enumerate all counters of P-cores. However,
++		 * the X86_FEATURE_HYBRID_CPU is still set. The above codes will
++		 * mistakenly add extra counters for P-cores. Correct the number of
++		 * counters here.
++		 */
++		if ((pmu->num_counters > 8) || (pmu->num_counters_fixed > 4)) {
++			pmu->num_counters = x86_pmu.num_counters;
++			pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
++		}
++
+ 		pmu->max_pebs_events = min_t(unsigned, MAX_PEBS_EVENTS, pmu->num_counters);
+ 		pmu->unconstrained = (struct event_constraint)
+ 					__EVENT_CONSTRAINT(0, (1ULL << pmu->num_counters) - 1,
 
 
