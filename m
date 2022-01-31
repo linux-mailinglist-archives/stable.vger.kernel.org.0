@@ -2,77 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F94B4A3E95
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 09:29:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B244C4A3E3D
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 08:33:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343685AbiAaI3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 03:29:08 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:60882 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbiAaI3H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 03:29:07 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62F2D612C6
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 08:29:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41B26C340E8;
-        Mon, 31 Jan 2022 08:29:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643617746;
-        bh=pzBBzUVblElYhohG6YAHECebGDWiecUp5NWhMIzTVc0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pexQbDkBtqJwbMtfdwahwcdsKVZwctx4153Lme5sPhUCWsc0AyfFteK3c657Cdgs8
-         zdxxDdTugbhJIiAxTLhpYS+HvZ2FgHRT/0/McclZryA54HEXmbrmJApgM+XQnYNfYW
-         vAY0m+xzhrD2xhQUF6zJrxPLOJTXUZ7hofkM4JPY=
-Date:   Mon, 31 Jan 2022 07:40:14 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Albert Geanta <albertgeanta@gmail.com>
-Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
-Subject: Re: [PATCH] ALSA: hda/realtek: Add quirk for ASUS GU603
-Message-ID: <YfeETp1AKeek7zwj@kroah.com>
-References: <20220131010523.546386-1-albertgeanta@gmail.com>
+        id S1348063AbiAaHdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 02:33:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52388 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348127AbiAaHdB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 02:33:01 -0500
+Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 133DBC061714
+        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 23:33:01 -0800 (PST)
+Received: by mail-yb1-xb2e.google.com with SMTP id p5so37570695ybd.13
+        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 23:33:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=WfEeKb/NTSjJH2L+2R43Qyv7EwbzBc9bc+QRXN1/xiw=;
+        b=d3HTNbUDVrlhTRYbOrwj3veq+iMxHJzYEb0zJVrADfzxB2ijy/hiDBw4hdXtU0LUL8
+         in+M9nA+iEMhmL5NwLM1MidvBI0CFkBCsXZgTsXqWwneJeMNOayGp4PbR2wWaYVU4/Vm
+         Pm9WS6/YAIDjPvCU7pYxbVeJYwJkYB1TgxXZjNHoSOKXkcf6oRtPdch5N0r00cnAf88k
+         vTA7e+JTwSDHewwCgLK5d5UztvlPd7aME9eSjT2mw/j7vsfW6Tz2+2BIjvbDGeqP258c
+         0bRjMW4ggjoTxaDDr9xv/oldgwjzIYSmd50cIpLPldh1gREF3cBL4R90iyY6W9X/q5Y4
+         qsBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=WfEeKb/NTSjJH2L+2R43Qyv7EwbzBc9bc+QRXN1/xiw=;
+        b=Dj1p+2tDb65oB0IFWbZr5NQVA/uR0k/8MXme+emYagFvy6GhYM5OyveLolMrBG+U2d
+         nqrdlU13DPKg91mvfAK3GzTJs6uNGB33n1UItog8l7QxwZTt5ngHWBsVl3OC13NiNQpJ
+         QChJHLt2qeRxRwmkiEja3M2NF6E3rcqmzRuPAebQ9MlYLtzhHE9pD7MH7hpB2CStqeC0
+         OsYLqWDeStvuYdh322KucPQv4rpJaHedfFhSTilmgbl0jqoYKghERXShtRiJfzNhGBu/
+         1jUnh8VE0G/x2y+L7L0wpBlydzg37yq3/HktWiV1F1CmZnnCt/3tqP6yO41rBfZIGmx6
+         kAmQ==
+X-Gm-Message-State: AOAM532GZg3LeIXh55crQzzSZa3Y8m08+P94J2EosnN2L5kqzWx99Lb1
+        EC+fCOAnAt0awowoVYvLGPvF379d1TZLzpL7YQ0=
+X-Google-Smtp-Source: ABdhPJzbCebz9+npxRrJKSlOx9BGq8kyz9SOOlgK4cwU+W6y0gT095ETQbFe47TGUPSbIVqA1QmI+H0hJ6/igyEDXeg=
+X-Received: by 2002:a25:d116:: with SMTP id i22mr26983427ybg.361.1643614380302;
+ Sun, 30 Jan 2022 23:33:00 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220131010523.546386-1-albertgeanta@gmail.com>
+Sender: debbyhallcom137@gmail.com
+Received: by 2002:a05:7010:3888:b0:202:35b1:6306 with HTTP; Sun, 30 Jan 2022
+ 23:33:00 -0800 (PST)
+From:   Jackie James <jackiejames614@gmail.com>
+Date:   Mon, 31 Jan 2022 07:33:00 +0000
+X-Google-Sender-Auth: pMd2D-E1RU4Db0CC-WEa4HOvqfo
+Message-ID: <CAO-vaX3FHVkt5YtzLM_g7ZfXm7ZR8rO-dtbFdkecSUKeejXuWw@mail.gmail.com>
+Subject: Good Day My beloved
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 31, 2022 at 03:05:23AM +0200, Albert Geanta wrote:
-> The ASUS GU603 (Zephyrus M16 - SSID 1043:16b2) requires a quirk similar to
-> other ASUS devices for correctly routing the 4 integrated speakers. This
-> fixes it by adding a corresponding quirk entry, which connects the bass
-> speakers to the proper DAC.
-> 
-> Signed-off-by: Albert Geantă <albertgeanta@gmail.com>
-> ---
->  sound/pci/hda/patch_realtek.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-> index 668274e52674..61b314c7dbc9 100644
-> --- a/sound/pci/hda/patch_realtek.c
-> +++ b/sound/pci/hda/patch_realtek.c
-> @@ -8969,6 +8969,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
->  	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
->  	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
->  	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
-> +	SND_PCI_QUIRK(0x1043, 0x16b2, "ASUS GU603", ALC289_FIXUP_ASUS_GA401),
->  	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
->  	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
->  	SND_PCI_QUIRK(0x1043, 0x834a, "ASUS S101", ALC269_FIXUP_STEREO_DMIC),
-> -- 
-> 2.35.1
-> 
+Greetings my beloved,
 
-<formletter>
+  I sent this mail praying it will get to you in a good condition of
+health, since I myself are in a very critical health condition in
+which I sleep every night without knowing if I may be alive to see the
+next day. I bring peace and love to you. It is by the grace of God, I
+had no choice than to do what is lawful and right in the sight of God
+for eternal life and in the sight of man, for witness of God=E2=80=99s merc=
+y
+and glory upon my life. I am Mrs.James Jackie,a widow,I am suffering
+from a long time brain tumor, It has defiled all forms of medical
+treatment, and right now I have about a few months to leave, according
+to medical experts.
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+   The situation has gotten complicated recently with my inability to
+hear proper, am communicating with you with the help of the chief
+nurse herein the hospital, from all indication my conditions is really
+deteriorating and it is quite obvious that, according to my doctors
+they have advised me that I may not live too long, Because this
+illness has gotten to a very bad stage. I plead that you will not
+expose or betray this trust and confidence that I am about to repose
+on you for the mutual benefit of the orphans and the less privilege. I
+have some funds I inherited from my late husband, the sum of ($
+12,500,000.00 Dollars).Having known my condition, I decided to donate
+this fund to you believing that you will utilize it the way i am going
+to instruct herein.
 
-</formletter>
+   I need you to assist me and reclaim this money and use it for
+Charity works, for orphanages and gives justice and help to the poor,
+needy and widows says The Lord." Jeremiah 22:15-16.=E2=80=9C and also build
+schools for less privilege that will be named after my late husband if
+possible and to promote the word of God and the effort that the house
+of God is maintained. I do not want a situation where this money will
+be used in an ungodly manner. That's why I'm taking this decision. I'm
+not afraid of death, so I know where I'm going. I accept this decision
+because I do not have any child who will inherit this money after I
+die. Please I want your sincerely and urgent answer to know if you
+will be able to execute this project for the glory of God, and I will
+give you more information on how the fund will be transferred to your
+bank account. May the grace, peace, love and the truth in the Word of
+God be with you and all those that you love and care for.
+I'm waiting for your immediate reply.
+Regards.
+Mrs.James Jackie
+Writting From the hospital.
+May God Bless you.
