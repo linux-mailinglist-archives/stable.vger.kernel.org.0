@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2E424A422C
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 553624A4383
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359147AbiAaLLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:11:01 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56220 "EHLO
+        id S1376454AbiAaLVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:44 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37606 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359387AbiAaLHd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:07:33 -0500
+        with ESMTP id S1377402AbiAaLSM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:18:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF6A3B82A4C;
-        Mon, 31 Jan 2022 11:07:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10ED9C340EF;
-        Mon, 31 Jan 2022 11:07:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5336EB82A61;
+        Mon, 31 Jan 2022 11:18:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 976A9C340E8;
+        Mon, 31 Jan 2022 11:18:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627250;
-        bh=7opjUJhub79r6zwtVoRoknIviCjszJdFquO2gnMKlAg=;
+        s=korg; t=1643627890;
+        bh=zQGbytej+hfBcd7CzPG1kNgAXhdOl0s9NMF5c/xeaWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nau2ywgQOUb3z5556rXgLpcvXPVUfRiNwb6vdMxL29UDT2stXt1Zw1Vp3NweOxX9X
-         utNjrvdBNxRQ/zdknAcqQoqL7HqtqQOetni4sieDRg64bz+6tWINNaegF1/abZ6x9g
-         /jIVQCPDieGGbiGiQaBJKKgRoyPmGG+yTawEg+CU=
+        b=bDrZm5o+Ud6MsANM2c2iC9ECTrA7QC71lAr6Zb7Oo7mX9TPjPm/LvKsJ2OTLkpmBS
+         6AFQNsT3AQtSoafXgrkUIHZMHy6MTRpPwzpMictZu1qRkFgRw5SIZN9Qi7MK5dMhzE
+         H7Fa1sFfOXbghPrmheNeD5JKUfEftBPGg4ufdTTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 022/171] tracing: Dont inc err_log entry count if entry allocation fails
+        stable@vger.kernel.org, Qian Cai <quic_qiancai@quicinc.com>,
+        Mathias Krause <minipli@grsecurity.net>,
+        Alexey Gladkov <legion@kernel.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.16 024/200] ucount:  Make get_ucount a safe get_user replacement
 Date:   Mon, 31 Jan 2022 11:54:47 +0100
-Message-Id: <20220131105230.769670120@linuxfoundation.org>
+Message-Id: <20220131105234.384457549@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Zanussi <zanussi@kernel.org>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit 67ab5eb71b37b55f7c5522d080a1b42823351776 upstream.
+commit f9d87929d451d3e649699d0f1d74f71f77ad38f5 upstream.
 
-tr->n_err_log_entries should only be increased if entry allocation
-succeeds.
+When the ucount code was refactored to create get_ucount it was missed
+that some of the contexts in which a rlimit is kept elevated can be
+the only reference to the user/ucount in the system.
 
-Doing it when it fails won't cause any problems other than wasting an
-entry, but should be fixed anyway.
+Ordinary ucount references exist in places that also have a reference
+to the user namspace, but in POSIX message queues, the SysV shm code,
+and the SIGPENDING code there is no independent user namespace
+reference.
 
-Link: https://lkml.kernel.org/r/cad1ab28f75968db0f466925e7cba5970cec6c29.1643319703.git.zanussi@kernel.org
+Inspection of the the user_namespace show no instance of circular
+references between struct ucounts and the user_namespace.  So
+hold a reference from struct ucount to i's user_namespace to
+resolve this problem.
 
+Link: https://lore.kernel.org/lkml/YZV7Z+yXbsx9p3JN@fixkernel.com/
+Reported-by: Qian Cai <quic_qiancai@quicinc.com>
+Reported-by: Mathias Krause <minipli@grsecurity.net>
+Tested-by: Mathias Krause <minipli@grsecurity.net>
+Reviewed-by: Mathias Krause <minipli@grsecurity.net>
+Reviewed-by: Alexey Gladkov <legion@kernel.org>
+Fixes: d64696905554 ("Reimplement RLIMIT_SIGPENDING on top of ucounts")
+Fixes: 6e52a9f0532f ("Reimplement RLIMIT_MSGQUEUE on top of ucounts")
+Fixes: d7c9e99aee48 ("Reimplement RLIMIT_MEMLOCK on top of ucounts")
 Cc: stable@vger.kernel.org
-Fixes: 2f754e771b1a6 ("tracing: Don't inc err_log entry count if entry allocation fails")
-Signed-off-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/ucount.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -7749,7 +7749,8 @@ static struct tracing_log_err *get_traci
- 		err = kzalloc(sizeof(*err), GFP_KERNEL);
- 		if (!err)
- 			err = ERR_PTR(-ENOMEM);
--		tr->n_err_log_entries++;
-+		else
-+			tr->n_err_log_entries++;
- 
- 		return err;
+--- a/kernel/ucount.c
++++ b/kernel/ucount.c
+@@ -190,6 +190,7 @@ struct ucounts *alloc_ucounts(struct use
+ 			kfree(new);
+ 		} else {
+ 			hlist_add_head(&new->node, hashent);
++			get_user_ns(new->ns);
+ 			spin_unlock_irq(&ucounts_lock);
+ 			return new;
+ 		}
+@@ -210,6 +211,7 @@ void put_ucounts(struct ucounts *ucounts
+ 	if (atomic_dec_and_lock_irqsave(&ucounts->count, &ucounts_lock, flags)) {
+ 		hlist_del_init(&ucounts->node);
+ 		spin_unlock_irqrestore(&ucounts_lock, flags);
++		put_user_ns(ucounts->ns);
+ 		kfree(ucounts);
  	}
+ }
 
 
