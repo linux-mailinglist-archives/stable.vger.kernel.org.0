@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F9B74A425F
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4118F4A438A
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359574AbiAaLLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:11:41 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42274 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376914AbiAaLJU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:09:20 -0500
+        id S1350353AbiAaLVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:54 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35518 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378080AbiAaLTm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:19:42 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 436416102A;
-        Mon, 31 Jan 2022 11:09:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23EC4C340E8;
-        Mon, 31 Jan 2022 11:09:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B08DAB82A60;
+        Mon, 31 Jan 2022 11:19:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8124C340E8;
+        Mon, 31 Jan 2022 11:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627359;
-        bh=MHXlHwAP0nOuHl9xPnMSnywI5ytIcnBsXgjfK+SJr0o=;
+        s=korg; t=1643627980;
+        bh=I2vpxdTzHoTigqEtBiKo4GOPjxCVeueE+HHjONE84zs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oR2toczDXb3iK81JvxaYKAb4oD/z3/+rosvJEd+julmtozjq+4yj49fHhcqmIOZgN
-         It3G02GGuA3TDTL6d4xz7NwCKmP1DcsQemduJo8FdQZzmmRPF6MNb6MHpwyMe6R0gN
-         yESrvioiTk2PLfFxkfXLoYwXOOcupjFR8lmTkZ0o=
+        b=I9WALWUYl3Jr4Npo5/WaLCDHOXBByirxWO5TccuvbqAnK0ixM/7p6f+CwNGXIlJkm
+         9TY+facm8PG+ovA0ci8PwDQXbRbls5yiw+dZqfisDPGyvkjmHhnrkcMkfq3ayHotg3
+         aE2D12NL5umF9c3zSb7rlEg4yAFx1hUaZ7AJK5i0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pawel Laszczak <pawell@cadence.com>
-Subject: [PATCH 5.15 057/171] usb: cdnsp: Fix segmentation fault in cdns_lost_power function
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.16 059/200] KVM: PPC: Book3S HV Nested: Fix nested HFSCR being clobbered with multiple vCPUs
 Date:   Mon, 31 Jan 2022 11:55:22 +0100
-Message-Id: <20220131105231.953701145@linuxfoundation.org>
+Message-Id: <20220131105235.561395235@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Laszczak <pawell@cadence.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 79aa3e19fe8f5be30e846df8a436bfe306e8b1a6 upstream.
+commit 22f7ff0dea9491e90b6fe808ed40c30bd791e5c2 upstream.
 
-CDNSP driver read not initialized cdns->otg_v0_regs
-which lead to segmentation fault. Patch fixes this issue.
+The L0 is storing HFSCR requested by the L1 for the L2 in struct
+kvm_nested_guest when the L1 requests a vCPU enter L2. kvm_nested_guest
+is not a per-vCPU structure. Hilarity ensues.
 
-Fixes: 2cf2581cd229 ("usb: cdns3: add power lost support for system resume")
-cc: <stable@vger.kernel.org>
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20220111090737.10345-1-pawell@gli-login.cadence.com
+Fix it by moving the nested hfscr into the vCPU structure together with
+the other per-vCPU nested fields.
+
+Fixes: 8b210a880b35 ("KVM: PPC: Book3S HV Nested: Make nested HFSCR state accessible")
+Cc: stable@vger.kernel.org # v5.15+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220122105530.3477250-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/drd.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/kvm_book3s_64.h |    1 -
+ arch/powerpc/include/asm/kvm_host.h      |    1 +
+ arch/powerpc/kvm/book3s_hv.c             |    3 +--
+ arch/powerpc/kvm/book3s_hv_nested.c      |    2 +-
+ 4 files changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/cdns3/drd.c
-+++ b/drivers/usb/cdns3/drd.c
-@@ -483,11 +483,11 @@ int cdns_drd_exit(struct cdns *cdns)
- /* Indicate the cdns3 core was power lost before */
- bool cdns_power_is_lost(struct cdns *cdns)
+--- a/arch/powerpc/include/asm/kvm_book3s_64.h
++++ b/arch/powerpc/include/asm/kvm_book3s_64.h
+@@ -39,7 +39,6 @@ struct kvm_nested_guest {
+ 	pgd_t *shadow_pgtable;		/* our page table for this guest */
+ 	u64 l1_gr_to_hr;		/* L1's addr of part'n-scoped table */
+ 	u64 process_table;		/* process table entry for this guest */
+-	u64 hfscr;			/* HFSCR that the L1 requested for this nested guest */
+ 	long refcnt;			/* number of pointers to this struct */
+ 	struct mutex tlb_lock;		/* serialize page faults and tlbies */
+ 	struct kvm_nested_guest *next;
+--- a/arch/powerpc/include/asm/kvm_host.h
++++ b/arch/powerpc/include/asm/kvm_host.h
+@@ -814,6 +814,7 @@ struct kvm_vcpu_arch {
+ 
+ 	/* For support of nested guests */
+ 	struct kvm_nested_guest *nested;
++	u64 nested_hfscr;	/* HFSCR that the L1 requested for the nested guest */
+ 	u32 nested_vcpu_id;
+ 	gpa_t nested_io_gpr;
+ #endif
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -1731,7 +1731,6 @@ static int kvmppc_handle_exit_hv(struct
+ 
+ static int kvmppc_handle_nested_exit(struct kvm_vcpu *vcpu)
  {
--	if (cdns->version == CDNS3_CONTROLLER_V1) {
--		if (!(readl(&cdns->otg_v1_regs->simulate) & BIT(0)))
-+	if (cdns->version == CDNS3_CONTROLLER_V0) {
-+		if (!(readl(&cdns->otg_v0_regs->simulate) & BIT(0)))
- 			return true;
- 	} else {
--		if (!(readl(&cdns->otg_v0_regs->simulate) & BIT(0)))
-+		if (!(readl(&cdns->otg_v1_regs->simulate) & BIT(0)))
- 			return true;
- 	}
- 	return false;
+-	struct kvm_nested_guest *nested = vcpu->arch.nested;
+ 	int r;
+ 	int srcu_idx;
+ 
+@@ -1831,7 +1830,7 @@ static int kvmppc_handle_nested_exit(str
+ 		 * it into a HEAI.
+ 		 */
+ 		if (!(vcpu->arch.hfscr_permitted & (1UL << cause)) ||
+-					(nested->hfscr & (1UL << cause))) {
++				(vcpu->arch.nested_hfscr & (1UL << cause))) {
+ 			vcpu->arch.trap = BOOK3S_INTERRUPT_H_EMUL_ASSIST;
+ 
+ 			/*
+--- a/arch/powerpc/kvm/book3s_hv_nested.c
++++ b/arch/powerpc/kvm/book3s_hv_nested.c
+@@ -362,7 +362,7 @@ long kvmhv_enter_nested_guest(struct kvm
+ 	/* set L1 state to L2 state */
+ 	vcpu->arch.nested = l2;
+ 	vcpu->arch.nested_vcpu_id = l2_hv.vcpu_token;
+-	l2->hfscr = l2_hv.hfscr;
++	vcpu->arch.nested_hfscr = l2_hv.hfscr;
+ 	vcpu->arch.regs = l2_regs;
+ 
+ 	/* Guest must always run with ME enabled, HV disabled. */
 
 
