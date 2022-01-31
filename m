@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10E4B4A43AD
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:24:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA9DB4A4389
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377278AbiAaLWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:22:39 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:52560 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378763AbiAaLUq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:20:46 -0500
+        id S1376619AbiAaLVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47586 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377884AbiAaLTO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:19:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ADD2C06135E;
+        Mon, 31 Jan 2022 03:11:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0675A611DB;
-        Mon, 31 Jan 2022 11:20:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3CE4C340E8;
-        Mon, 31 Jan 2022 11:20:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF58E60F96;
+        Mon, 31 Jan 2022 11:11:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA610C36AE2;
+        Mon, 31 Jan 2022 11:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628045;
-        bh=IfmWyfy0RYi0nBygqtA6QQrBuFvTA8qN//7zwFwIzOI=;
+        s=korg; t=1643627507;
+        bh=rEqdq7v63HYoM1RUtMY3FTYSi4VVJnZarw6/dAiwbJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lcpM2LoLgYdNF+Lg7PiW+QHJ5SMSCWSkodF2OrFosl7U/hX5OmJ7fTa3fobLBWYK1
-         aUf4hZs2fpXdILZKBnhw+PGB34iabXS/hVnAFmayFIvotFo6uozckaoOtmVT12N924
-         T/6cxqmfZ1RIWDsstfBUxKCvnIwhaX52RRZ57HuE=
+        b=biLKh+mxPlcr9kkfT2gmwdXWXNiVUid9ptMKbDjyooN0VRErAJwdy9fAYnUjac8/5
+         EHyKVVVxilvoPX0LGIDVfjA4IfUEWfTxa5zpl0NQxpsIwSU+o6IEqsxd/4Y68B1j7q
+         Xs8fu0giwjfZvjsfhiCCR8nUHJAUOCMr+kAHKiTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Congyu Liu <liu3101@purdue.edu>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 108/200] net: fix information leakage in /proc/net/ptype
-Date:   Mon, 31 Jan 2022 11:56:11 +0100
-Message-Id: <20220131105237.215487960@linuxfoundation.org>
+Subject: [PATCH 5.15 107/171] powerpc/64s: Mask SRR0 before checking against the masked NIP
+Date:   Mon, 31 Jan 2022 11:56:12 +0100
+Message-Id: <20220131105233.660265910@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +48,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Congyu Liu <liu3101@purdue.edu>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 47934e06b65637c88a762d9c98329ae6e3238888 upstream.
+[ Upstream commit aee101d7b95a03078945681dd7f7ea5e4a1e7686 ]
 
-In one net namespace, after creating a packet socket without binding
-it to a device, users in other net namespaces can observe the new
-`packet_type` added by this packet socket by reading `/proc/net/ptype`
-file. This is minor information leakage as packet socket is
-namespace aware.
+Commit 314f6c23dd8d ("powerpc/64s: Mask NIP before checking against
+SRR0") masked off the low 2 bits of the NIP value in the interrupt
+stack frame in case they are non-zero and mis-compare against a SRR0
+register value of a CPU which always reads back 0 from the 2 low bits
+which are reserved.
 
-Add a net pointer in `packet_type` to keep the net namespace of
-of corresponding packet socket. In `ptype_seq_show`, this net pointer
-must be checked when it is not NULL.
+This now causes the opposite problem that an implementation which does
+implement those bits in SRR0 will mis-compare against the masked NIP
+value in which they have been cleared. QEMU is one such implementation,
+and this is allowed by the architecture.
 
-Fixes: 2feb27dbe00c ("[NETNS]: Minor information leak via /proc/net/ptype file.")
-Signed-off-by: Congyu Liu <liu3101@purdue.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This can be triggered by sigfuz by setting low bits of PT_NIP in the
+signal context.
+
+Fix this for now by masking the SRR0 bits as well. Cleaner is probably
+to sanitise these values before putting them in registers or stack, but
+this is the quick and backportable fix.
+
+Fixes: 314f6c23dd8d ("powerpc/64s: Mask NIP before checking against SRR0")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220117134403.2995059-1-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/netdevice.h |    1 +
- net/core/net-procfs.c     |    3 ++-
- net/packet/af_packet.c    |    2 ++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/interrupt_64.S | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -2636,6 +2636,7 @@ struct packet_type {
- 					      struct net_device *);
- 	bool			(*id_match)(struct packet_type *ptype,
- 					    struct sock *sk);
-+	struct net		*af_packet_net;
- 	void			*af_packet_priv;
- 	struct list_head	list;
- };
---- a/net/core/net-procfs.c
-+++ b/net/core/net-procfs.c
-@@ -260,7 +260,8 @@ static int ptype_seq_show(struct seq_fil
- 
- 	if (v == SEQ_START_TOKEN)
- 		seq_puts(seq, "Type Device      Function\n");
--	else if (pt->dev == NULL || dev_net(pt->dev) == seq_file_net(seq)) {
-+	else if ((!pt->af_packet_net || net_eq(pt->af_packet_net, seq_file_net(seq))) &&
-+		 (!pt->dev || net_eq(dev_net(pt->dev), seq_file_net(seq)))) {
- 		if (pt->type == htons(ETH_P_ALL))
- 			seq_puts(seq, "ALL ");
- 		else
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1773,6 +1773,7 @@ static int fanout_add(struct sock *sk, s
- 		match->prot_hook.dev = po->prot_hook.dev;
- 		match->prot_hook.func = packet_rcv_fanout;
- 		match->prot_hook.af_packet_priv = match;
-+		match->prot_hook.af_packet_net = read_pnet(&match->net);
- 		match->prot_hook.id_match = match_fanout_group;
- 		match->max_num_members = args->max_num_members;
- 		list_add(&match->list, &fanout_list);
-@@ -3358,6 +3359,7 @@ static int packet_create(struct net *net
- 		po->prot_hook.func = packet_rcv_spkt;
- 
- 	po->prot_hook.af_packet_priv = sk;
-+	po->prot_hook.af_packet_net = sock_net(sk);
- 
- 	if (proto) {
- 		po->prot_hook.type = proto;
+diff --git a/arch/powerpc/kernel/interrupt_64.S b/arch/powerpc/kernel/interrupt_64.S
+index 4b1ff94e67eb4..4c6d1a8dcefed 100644
+--- a/arch/powerpc/kernel/interrupt_64.S
++++ b/arch/powerpc/kernel/interrupt_64.S
+@@ -30,6 +30,7 @@ COMPAT_SYS_CALL_TABLE:
+ 	.ifc \srr,srr
+ 	mfspr	r11,SPRN_SRR0
+ 	ld	r12,_NIP(r1)
++	clrrdi  r11,r11,2
+ 	clrrdi  r12,r12,2
+ 100:	tdne	r11,r12
+ 	EMIT_WARN_ENTRY 100b,__FILE__,__LINE__,(BUGFLAG_WARNING | BUGFLAG_ONCE)
+@@ -40,6 +41,7 @@ COMPAT_SYS_CALL_TABLE:
+ 	.else
+ 	mfspr	r11,SPRN_HSRR0
+ 	ld	r12,_NIP(r1)
++	clrrdi  r11,r11,2
+ 	clrrdi  r12,r12,2
+ 100:	tdne	r11,r12
+ 	EMIT_WARN_ENTRY 100b,__FILE__,__LINE__,(BUGFLAG_WARNING | BUGFLAG_ONCE)
+-- 
+2.34.1
+
 
 
