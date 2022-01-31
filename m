@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F454A43A6
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 509F84A43A7
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377156AbiAaLWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:22:35 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:52438 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378691AbiAaLUg (ORCPT
+        id S1377178AbiAaLWg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:22:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47044 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378697AbiAaLUg (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:20:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA63C0604E5;
+        Mon, 31 Jan 2022 03:13:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 469666114D;
-        Mon, 31 Jan 2022 11:20:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50DB4C340E8;
-        Mon, 31 Jan 2022 11:20:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A1B0C6114F;
+        Mon, 31 Jan 2022 11:13:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8334DC340E8;
+        Mon, 31 Jan 2022 11:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628032;
-        bh=tB7JCLFXx3Iwrv0oV3/fnaCWjJ379uUPqtNDv1Sgty0=;
+        s=korg; t=1643627596;
+        bh=2XoMdHyhCWacHgDF8xxYDHMPmrEmzbHUGPWlSLAPgFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mw40r12mByCcdt/Bcbc3W0fMQGxNbjPuyOh/WmBCZIET4LRiK73dBPSAJPhq5WuJ/
-         KhpshxWFs00s6ninkPOjVl+kQsfkHMYBJG59dsW5CFriWAydpGnUFksa7kGblRpX8z
-         DGufEVbo3vUa7XO8xQ5lc2yHdyV++m0dlsNs3Mjg=
+        b=Ag9AICwFUjSz1txX8z4SzFK7cJ0bk+iISZRdfidyqkvgkVcKfwe3HfXU6dlNEff4G
+         59oh5OO9S/apxV7ZnhrFfLuqEjzJnkfpvBg9Gc3SUf4qflYABvrMyh14E9YpG9D3+N
+         TsvHMuFnsCBoswrvvBbpc7U0oeTICSC/jnSSo9KU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        James Smart <jsmart2021@gmail.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.16 104/200] scsi: elx: efct: Dont use GFP_KERNEL under spin lock
+        stable@vger.kernel.org, Quentin Perret <qperret@google.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 102/171] KVM: arm64: pkvm: Use the mm_ops indirection for cache maintenance
 Date:   Mon, 31 Jan 2022 11:56:07 +0100
-Message-Id: <20220131105237.085540545@linuxfoundation.org>
+Message-Id: <20220131105233.502358533@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 61263b3a11a2594b4e898f166c31162236182b5c upstream.
+[ Upstream commit 094d00f8ca58c5d29b25e23b4daaed1ff1f13b41 ]
 
-GFP_KERNEL/GFP_DMA can't be used under a spin lock. According the comment,
-els_ios_lock is used to protect els ios list so we can move down the spin
-lock to avoid using this flag under the lock.
+CMOs issued from EL2 cannot directly use the kernel helpers,
+as EL2 doesn't have a mapping of the guest pages. Oops.
 
-Link: https://lore.kernel.org/r/20220111012441.3232527-1-yangyingliang@huawei.com
-Fixes: 8f406ef72859 ("scsi: elx: libefc: Extended link Service I/O handling")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Instead, use the mm_ops indirection to use helpers that will
+perform a mapping at EL2 and allow the CMO to be effective.
+
+Fixes: 25aa28691bb9 ("KVM: arm64: Move guest CMOs to the fault handlers")
+Reviewed-by: Quentin Perret <qperret@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220114125038.1336965-1-maz@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/elx/libefc/efc_els.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ arch/arm64/kvm/hyp/pgtable.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
---- a/drivers/scsi/elx/libefc/efc_els.c
-+++ b/drivers/scsi/elx/libefc/efc_els.c
-@@ -46,18 +46,14 @@ efc_els_io_alloc_size(struct efc_node *n
+diff --git a/arch/arm64/kvm/hyp/pgtable.c b/arch/arm64/kvm/hyp/pgtable.c
+index f8ceebe4982eb..4c77ff556f0ae 100644
+--- a/arch/arm64/kvm/hyp/pgtable.c
++++ b/arch/arm64/kvm/hyp/pgtable.c
+@@ -921,13 +921,9 @@ static int stage2_unmap_walker(u64 addr, u64 end, u32 level, kvm_pte_t *ptep,
+ 	 */
+ 	stage2_put_pte(ptep, mmu, addr, level, mm_ops);
  
- 	efc = node->efc;
- 
--	spin_lock_irqsave(&node->els_ios_lock, flags);
+-	if (need_flush) {
+-		kvm_pte_t *pte_follow = kvm_pte_follow(pte, mm_ops);
 -
- 	if (!node->els_io_enabled) {
- 		efc_log_err(efc, "els io alloc disabled\n");
--		spin_unlock_irqrestore(&node->els_ios_lock, flags);
- 		return NULL;
- 	}
+-		dcache_clean_inval_poc((unsigned long)pte_follow,
+-				    (unsigned long)pte_follow +
+-					    kvm_granule_size(level));
+-	}
++	if (need_flush && mm_ops->dcache_clean_inval_poc)
++		mm_ops->dcache_clean_inval_poc(kvm_pte_follow(pte, mm_ops),
++					       kvm_granule_size(level));
  
- 	els = mempool_alloc(efc->els_io_pool, GFP_ATOMIC);
- 	if (!els) {
- 		atomic_add_return(1, &efc->els_io_alloc_failed_count);
--		spin_unlock_irqrestore(&node->els_ios_lock, flags);
- 		return NULL;
- 	}
+ 	if (childp)
+ 		mm_ops->put_page(childp);
+@@ -1089,15 +1085,13 @@ static int stage2_flush_walker(u64 addr, u64 end, u32 level, kvm_pte_t *ptep,
+ 	struct kvm_pgtable *pgt = arg;
+ 	struct kvm_pgtable_mm_ops *mm_ops = pgt->mm_ops;
+ 	kvm_pte_t pte = *ptep;
+-	kvm_pte_t *pte_follow;
  
-@@ -74,7 +70,6 @@ efc_els_io_alloc_size(struct efc_node *n
- 					      &els->io.req.phys, GFP_DMA);
- 	if (!els->io.req.virt) {
- 		mempool_free(els, efc->els_io_pool);
--		spin_unlock_irqrestore(&node->els_ios_lock, flags);
- 		return NULL;
- 	}
+ 	if (!kvm_pte_valid(pte) || !stage2_pte_cacheable(pgt, pte))
+ 		return 0;
  
-@@ -94,10 +89,11 @@ efc_els_io_alloc_size(struct efc_node *n
- 
- 		/* add els structure to ELS IO list */
- 		INIT_LIST_HEAD(&els->list_entry);
-+		spin_lock_irqsave(&node->els_ios_lock, flags);
- 		list_add_tail(&els->list_entry, &node->els_ios_list);
-+		spin_unlock_irqrestore(&node->els_ios_lock, flags);
- 	}
- 
--	spin_unlock_irqrestore(&node->els_ios_lock, flags);
- 	return els;
+-	pte_follow = kvm_pte_follow(pte, mm_ops);
+-	dcache_clean_inval_poc((unsigned long)pte_follow,
+-			    (unsigned long)pte_follow +
+-				    kvm_granule_size(level));
++	if (mm_ops->dcache_clean_inval_poc)
++		mm_ops->dcache_clean_inval_poc(kvm_pte_follow(pte, mm_ops),
++					       kvm_granule_size(level));
+ 	return 0;
  }
  
+-- 
+2.34.1
+
 
 
