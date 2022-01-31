@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF8804A43DD
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:25:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20C724A4236
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377755AbiAaLYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:24:31 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54746 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376896AbiAaLWI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:22:08 -0500
+        id S1359309AbiAaLLI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44058 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359814AbiAaLH6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:07:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7265C06175E;
+        Mon, 31 Jan 2022 03:05:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFB8860FF0;
-        Mon, 31 Jan 2022 11:22:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0752C340E8;
-        Mon, 31 Jan 2022 11:22:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B4E3B82A6B;
+        Mon, 31 Jan 2022 11:05:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA6B3C340E8;
+        Mon, 31 Jan 2022 11:04:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628127;
-        bh=Drc0GsiNZrcBcv4xS0NRamkCfkHmCeJH4517ls2OviM=;
+        s=korg; t=1643627099;
+        bh=Wqg69i/kAkE8iQFF0uMwAU4zMNRtto1xKrShNqHzgBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eDq4VsYVLqwFFsaNeBKIqqjC5zkC23STOdmFZqp4Ff1IkKA5UgR9/sUtp2H2gpaIC
-         AiLmtF7CfGVVJzE425mrvb54+mU/jjJI6UUTMzoS1Na2Z5Cbs23TJ1hU8HqIJ1C+RW
-         yt8qYOVLaWVuS0Vqz2BelCDkeNTqN3sPb2rCuZIg=
+        b=B9ER44311phoooudJnqb55xQ5n4MXayNcd6j5QB91qDkM3wip08NFyD/QzE1TpOqA
+         krEaR6svqgM6P3vcUpRDMudeqZa0SHqBy881VkT4RaEMb5COMcjqdgtOkCnN6FV/iM
+         d/9dy3vt8Qm71ZqALZB4DeryKREn0MUet6NHDblQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Karen Sornek <karen.sornek@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.16 099/200] i40e: Fix for failed to init adminq while VF reset
+        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 041/100] powerpc/32: Fix boot failure with GCC latent entropy plugin
 Date:   Mon, 31 Jan 2022 11:56:02 +0100
-Message-Id: <20220131105236.928536111@linuxfoundation.org>
+Message-Id: <20220131105221.820340276@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,120 +48,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karen Sornek <karen.sornek@intel.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 0f344c8129a5337dae50e31b817dd50a60ff238c upstream.
+commit bba496656a73fc1d1330b49c7f82843836e9feb1 upstream.
 
-Fix for failed to init adminq: -53 while VF is resetting via MAC
-address changing procedure.
-Added sync module to avoid reading deadbeef value in reinit adminq
-during software reset.
-Without this patch it is possible to trigger VF reset procedure
-during reinit adminq. This resulted in an incorrect reading of
-value from the AQP registers and generated the -53 error.
+Boot fails with GCC latent entropy plugin enabled.
 
-Fixes: 5c3c48ac6bf5 ("i40e: implement virtual device interface")
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Signed-off-by: Karen Sornek <karen.sornek@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+This is due to early boot functions trying to access 'latent_entropy'
+global data while the kernel is not relocated at its final
+destination yet.
+
+As there is no way to tell GCC to use PTRRELOC() to access it,
+disable latent entropy plugin in early_32.o and feature-fixups.o and
+code-patching.o
+
+Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
+Cc: stable@vger.kernel.org # v4.9+
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215217
+Link: https://lore.kernel.org/r/2bac55483b8daf5b1caa163a45fa5f9cdbe18be4.1640178426.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_register.h    |    3 +
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |   44 ++++++++++++++++++++-
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h |    1 
- 3 files changed, 46 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/Makefile |    1 +
+ arch/powerpc/lib/Makefile    |    3 +++
+ 2 files changed, 4 insertions(+)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_register.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e_register.h
-@@ -413,6 +413,9 @@
- #define I40E_VFINT_DYN_CTLN(_INTVF) (0x00024800 + ((_INTVF) * 4)) /* _i=0...511 */ /* Reset: VFR */
- #define I40E_VFINT_DYN_CTLN_CLEARPBA_SHIFT 1
- #define I40E_VFINT_DYN_CTLN_CLEARPBA_MASK I40E_MASK(0x1, I40E_VFINT_DYN_CTLN_CLEARPBA_SHIFT)
-+#define I40E_VFINT_ICR0_ADMINQ_SHIFT 30
-+#define I40E_VFINT_ICR0_ADMINQ_MASK I40E_MASK(0x1, I40E_VFINT_ICR0_ADMINQ_SHIFT)
-+#define I40E_VFINT_ICR0_ENA(_VF) (0x0002C000 + ((_VF) * 4)) /* _i=0...127 */ /* Reset: CORER */
- #define I40E_VPINT_AEQCTL(_VF) (0x0002B800 + ((_VF) * 4)) /* _i=0...127 */ /* Reset: CORER */
- #define I40E_VPINT_AEQCTL_MSIX_INDX_SHIFT 0
- #define I40E_VPINT_AEQCTL_ITR_INDX_SHIFT 11
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -1377,6 +1377,32 @@ static i40e_status i40e_config_vf_promis
- }
+--- a/arch/powerpc/kernel/Makefile
++++ b/arch/powerpc/kernel/Makefile
+@@ -11,6 +11,7 @@ CFLAGS_prom_init.o      += -fPIC
+ CFLAGS_btext.o		+= -fPIC
+ endif
  
- /**
-+ * i40e_sync_vfr_reset
-+ * @hw: pointer to hw struct
-+ * @vf_id: VF identifier
-+ *
-+ * Before trigger hardware reset, we need to know if no other process has
-+ * reserved the hardware for any reset operations. This check is done by
-+ * examining the status of the RSTAT1 register used to signal the reset.
-+ **/
-+static int i40e_sync_vfr_reset(struct i40e_hw *hw, int vf_id)
-+{
-+	u32 reg;
-+	int i;
-+
-+	for (i = 0; i < I40E_VFR_WAIT_COUNT; i++) {
-+		reg = rd32(hw, I40E_VFINT_ICR0_ENA(vf_id)) &
-+			   I40E_VFINT_ICR0_ADMINQ_MASK;
-+		if (reg)
-+			return 0;
-+
-+		usleep_range(100, 200);
-+	}
-+
-+	return -EAGAIN;
-+}
-+
-+/**
-  * i40e_trigger_vf_reset
-  * @vf: pointer to the VF structure
-  * @flr: VFLR was issued or not
-@@ -1390,9 +1416,11 @@ static void i40e_trigger_vf_reset(struct
- 	struct i40e_pf *pf = vf->pf;
- 	struct i40e_hw *hw = &pf->hw;
- 	u32 reg, reg_idx, bit_idx;
-+	bool vf_active;
-+	u32 radq;
++CFLAGS_early_32.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+ CFLAGS_cputable.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+ CFLAGS_prom_init.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+ CFLAGS_btext.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+--- a/arch/powerpc/lib/Makefile
++++ b/arch/powerpc/lib/Makefile
+@@ -19,6 +19,9 @@ CFLAGS_code-patching.o += -DDISABLE_BRAN
+ CFLAGS_feature-fixups.o += -DDISABLE_BRANCH_PROFILING
+ endif
  
- 	/* warn the VF */
--	clear_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states);
-+	vf_active = test_and_clear_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states);
- 
- 	/* Disable VF's configuration API during reset. The flag is re-enabled
- 	 * in i40e_alloc_vf_res(), when it's safe again to access VF's VSI.
-@@ -1406,7 +1434,19 @@ static void i40e_trigger_vf_reset(struct
- 	 * just need to clean up, so don't hit the VFRTRIG register.
- 	 */
- 	if (!flr) {
--		/* reset VF using VPGEN_VFRTRIG reg */
-+		/* Sync VFR reset before trigger next one */
-+		radq = rd32(hw, I40E_VFINT_ICR0_ENA(vf->vf_id)) &
-+			    I40E_VFINT_ICR0_ADMINQ_MASK;
-+		if (vf_active && !radq)
-+			/* waiting for finish reset by virtual driver */
-+			if (i40e_sync_vfr_reset(hw, vf->vf_id))
-+				dev_info(&pf->pdev->dev,
-+					 "Reset VF %d never finished\n",
-+				vf->vf_id);
++CFLAGS_code-patching.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
++CFLAGS_feature-fixups.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
 +
-+		/* Reset VF using VPGEN_VFRTRIG reg. It is also setting
-+		 * in progress state in rstat1 register.
-+		 */
- 		reg = rd32(hw, I40E_VPGEN_VFRTRIG(vf->vf_id));
- 		reg |= I40E_VPGEN_VFRTRIG_VFSWR_MASK;
- 		wr32(hw, I40E_VPGEN_VFRTRIG(vf->vf_id), reg);
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
-@@ -19,6 +19,7 @@
- #define I40E_MAX_VF_PROMISC_FLAGS	3
+ obj-y += alloc.o code-patching.o feature-fixups.o pmem.o inst.o test_code-patching.o
  
- #define I40E_VF_STATE_WAIT_COUNT	20
-+#define I40E_VFR_WAIT_COUNT		100
- 
- /* Various queue ctrls */
- enum i40e_queue_ctrl {
+ ifndef CONFIG_KASAN
 
 
