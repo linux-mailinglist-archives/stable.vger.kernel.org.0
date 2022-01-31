@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A45A74A4298
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D49A44A437A
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376339AbiAaLMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:12:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44626 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377575AbiAaLKM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C5E6C061758;
-        Mon, 31 Jan 2022 03:09:36 -0800 (PST)
+        id S1359844AbiAaLVg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:36 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:50168 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359336AbiAaLQv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:16:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1F3461035;
-        Mon, 31 Jan 2022 11:09:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92D89C340EE;
-        Mon, 31 Jan 2022 11:09:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8772461267;
+        Mon, 31 Jan 2022 11:16:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63309C340F2;
+        Mon, 31 Jan 2022 11:16:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627375;
-        bh=0PjmHfOgWRzGow6i7AqImzcQU+i2us/OM0DxEqBdPKo=;
+        s=korg; t=1643627811;
+        bh=X2NLHHrc8/3gNl+DOPHGYjac8IB7EXpwxxT1Q3LKgYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1FR0AaB3iPWsRQp84aIWN+1JSCYq4UYy8YewOd4x46RN2rzwP6Jh1Ah1gyfiaNV/
-         LXvnR7qXQcKytzoRVmpSqK/Ap7SgCCVtDqraB+lttwfrRgMpeVHL56Q4Cp+A41vqKV
-         8/EUjbISmPsWtUCwpOHxjf1v1+FmLaqc/hqJPiBA=
+        b=1+aVqLcVlCHqhZQmaN77HcUa+ICZi3rL8ltU+LnXUpvYs6o8vQgSgu9vkNMDvh69h
+         YKXjomCp7E/lqiYgTyjeZcJ5CPQBwZkWQzt0nQXdUZjnrptFeLvyDbIZj4FFR9rSbY
+         ddmlo532oc3qjretz9H0nZcBDjoK9kScCsfuxmpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Damjan Marion (damarion)" <damarion@cisco.com>,
-        Chan Edison <edison_chan_gz@hotmail.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.15 030/171] perf/x86/intel: Add a quirk for the calculation of the number of counters on Alder Lake
-Date:   Mon, 31 Jan 2022 11:54:55 +0100
-Message-Id: <20220131105231.039241149@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.16 033/200] ceph: properly put ceph_string reference after async create attempt
+Date:   Mon, 31 Jan 2022 11:54:56 +0100
+Message-Id: <20220131105234.680676359@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,76 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 7fa981cad216e9f64f49e22112f610c0bfed91bc upstream.
+commit 932a9b5870d38b87ba0a9923c804b1af7d3605b9 upstream.
 
-For some Alder Lake machine with all E-cores disabled in a BIOS, the
-below warning may be triggered.
+The reference acquired by try_prep_async_create is currently leaked.
+Ensure we put it.
 
-[ 2.010766] hw perf events fixed 5 > max(4), clipping!
-
-Current perf code relies on the CPUID leaf 0xA and leaf 7.EDX[15] to
-calculate the number of the counters and follow the below assumption.
-
-For a hybrid configuration, the leaf 7.EDX[15] (X86_FEATURE_HYBRID_CPU)
-is set. The leaf 0xA only enumerate the common counters. Linux perf has
-to manually add the extra GP counters and fixed counters for P-cores.
-For a non-hybrid configuration, the X86_FEATURE_HYBRID_CPU should not
-be set. The leaf 0xA enumerates all counters.
-
-However, that's not the case when all E-cores are disabled in a BIOS.
-Although there are only P-cores in the system, the leaf 7.EDX[15]
-(X86_FEATURE_HYBRID_CPU) is still set. But the leaf 0xA is updated
-to enumerate all counters of P-cores. The inconsistency triggers the
-warning.
-
-Several software ways were considered to handle the inconsistency.
-- Drop the leaf 0xA and leaf 7.EDX[15] CPUID enumeration support.
-  Hardcode the number of counters. This solution may be a problem for
-  virtualization. A hypervisor cannot control the number of counters
-  in a Linux guest via changing the guest CPUID enumeration anymore.
-- Find another CPUID bit that is also updated with E-cores disabled.
-  There may be a problem in the virtualization environment too. Because
-  a hypervisor may disable the feature/CPUID bit.
-- The P-cores have a maximum of 8 GP counters and 4 fixed counters on
-  ADL. The maximum number can be used to detect the case.
-  This solution is implemented in this patch.
-
-Fixes: ee72a94ea4a6 ("perf/x86/intel: Fix fixed counter check warning for some Alder Lake")
-Reported-by: Damjan Marion (damarion) <damarion@cisco.com>
-Reported-by: Chan Edison <edison_chan_gz@hotmail.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Damjan Marion (damarion) <damarion@cisco.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1641925238-149288-1-git-send-email-kan.liang@linux.intel.com
+Fixes: 9a8d03ca2e2c ("ceph: attempt to do async create when possible")
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/core.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ fs/ceph/file.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -6187,6 +6187,19 @@ __init int intel_pmu_init(void)
- 			pmu->num_counters = x86_pmu.num_counters;
- 			pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -746,8 +746,10 @@ retry:
+ 				restore_deleg_ino(dir, req->r_deleg_ino);
+ 				ceph_mdsc_put_request(req);
+ 				try_async = false;
++				ceph_put_string(rcu_dereference_raw(lo.pool_ns));
+ 				goto retry;
+ 			}
++			ceph_put_string(rcu_dereference_raw(lo.pool_ns));
+ 			goto out_req;
  		}
-+
-+		/*
-+		 * Quirk: For some Alder Lake machine, when all E-cores are disabled in
-+		 * a BIOS, the leaf 0xA will enumerate all counters of P-cores. However,
-+		 * the X86_FEATURE_HYBRID_CPU is still set. The above codes will
-+		 * mistakenly add extra counters for P-cores. Correct the number of
-+		 * counters here.
-+		 */
-+		if ((pmu->num_counters > 8) || (pmu->num_counters_fixed > 4)) {
-+			pmu->num_counters = x86_pmu.num_counters;
-+			pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
-+		}
-+
- 		pmu->max_pebs_events = min_t(unsigned, MAX_PEBS_EVENTS, pmu->num_counters);
- 		pmu->unconstrained = (struct event_constraint)
- 					__EVENT_CONSTRAINT(0, (1ULL << pmu->num_counters) - 1,
+ 	}
 
 
