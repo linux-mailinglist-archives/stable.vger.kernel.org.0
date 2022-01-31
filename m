@@ -2,240 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4E444A49D4
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 16:07:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CC0A4A49D7
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 16:08:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242214AbiAaPH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 10:07:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45338 "EHLO
+        id S242381AbiAaPI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 10:08:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235301AbiAaPH3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 10:07:29 -0500
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22E86C061714
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 07:07:29 -0800 (PST)
-Received: by mail-pj1-x1036.google.com with SMTP id o11so14304804pjf.0
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 07:07:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=PDu3sPbQ7y1EnSBOP0NMkeHPlXiNYuO3bfC8cqvIeXE=;
-        b=ydXXO3l4qVsPRMpvlo1fNBilkzLlfDivlch5or8fCmtX1vv3HGyXdRkrtoLyQVAsq8
-         gYKXUodB1W2D8jiuiwgZcEGqVWh8TeDvHVOokDNEXy+9Cth3Km6/95AqSAQGIMRM4o9d
-         krSm+fseWIeLcGduMfu27dmXiZT0Qk3ryIzXbJR2gj4ka2Hi2/z0MF5DoTC3pKhD3CxN
-         O/kiEaUMo79S8tCSfWKWiJaX0RZdoAsJTzV5CacIV4RWSIHfBu1IehhnkoM5vBCTpqQ9
-         lSwO2RDtvQyQEP5lVFXIaGsBlrQvDalV5Aq8pNc/j81dQDfXWQ0rMAg30dOQAdDZtiMz
-         R+bQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=PDu3sPbQ7y1EnSBOP0NMkeHPlXiNYuO3bfC8cqvIeXE=;
-        b=HCLLle/Q6/L8wkWME8ziQcIVFFzd78mu4rkP3VMYP05M9JeqkahdFggdEfr64e4gEu
-         Rps3qDDuDqfqR94io6e5Pl3FfeY/4sgSPzFWe3zGlql7IsdLQ1quIHhnsA1n37oZvKyN
-         w0HLSWZMkvxz4P9R79nIIMak1RlctcPP1L1FObYtYi+9TBUM0SX4jsUlp99xDyMhyi2o
-         DI8aOnN6dV/zIYiDmiKEdNyr1P2qF3vWx/eK/qauCT8fsX7H+DBwiNFGs+lJ62jpYA88
-         TKsQrY87eGpM2ztoeYJQWneRUcew9hDbYk5mksKEeyIRqpDIoW9Y8RwDFPbsJaZL1TK6
-         7Ymg==
-X-Gm-Message-State: AOAM530Yi/V5iznZWI5cYb73zYdSCGeaWni6t1lZ1Hkk/aw5p4SrVxs2
-        8pqzcsCD4keAYhtGST9IbsY5HI3e4naYXEpV
-X-Google-Smtp-Source: ABdhPJxCj1sG36GVi/98e5WNsBlivkO4LHgFnUVIII/EkSqIuwsNsHFsIOp5ltEW8cv1o2s/T2873Q==
-X-Received: by 2002:a17:903:1250:: with SMTP id u16mr20985785plh.126.1643641648350;
-        Mon, 31 Jan 2022 07:07:28 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d18sm16361987pfu.127.2022.01.31.07.07.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Jan 2022 07:07:27 -0800 (PST)
-Message-ID: <61f7fb2f.1c69fb81.cf151.a661@mx.google.com>
-Date:   Mon, 31 Jan 2022 07:07:27 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S235301AbiAaPI2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 10:08:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48854C061714;
+        Mon, 31 Jan 2022 07:08:28 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04705B82B3A;
+        Mon, 31 Jan 2022 15:08:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D7F2C340E8;
+        Mon, 31 Jan 2022 15:08:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643641705;
+        bh=DJv8QiHD+2J/NbX3ujdDj7noq1FHPrQE+g5GGbv7o0Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LDkxIsuTE0aBZUOT/fEgGwsiZaz+f1oc1RWFEYgeEraqnxW/NtRoxAiyk9SOphpkT
+         F41eyvm/sLrTo6vlJjMgpxGZKNF3wuS+yBJnxy8Jqn5UQQURoeP1CduMAjB8FakLoJ
+         ErjD7ZQ9oKjBFGdnnLzG9hoUwGO840Tzn76GWTAAX/f+Ifc+s1uqhfF+PX1gTshwqZ
+         LYIoJDvLumom64rKjQIYUgLmvoGSnWb8l+R/2F23ng4DVN/it1ucqvpMpSHrS/HUPU
+         XEUsJW4yIliFm4txFkdeRLoJXjLx6moKAWH7mjHg+LDmhCzJSv/zR0DuTOLFo3RS4v
+         yTsxjbq3Y3niQ==
+Date:   Mon, 31 Jan 2022 16:08:19 +0100
+From:   Christian Brauner <brauner@kernel.org>
+To:     kernel test robot <oliver.sang@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Ariadne Conill <ariadne@dereferenced.org>
+Cc:     Ariadne Conill <ariadne@dereferenced.org>,
+        0day robot <lkp@intel.com>,
+        Michael Kerrisk <mtk.manpages@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Rich Felker <dalias@libc.org>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        LKML <linux-kernel@vger.kernel.org>, lkp@lists.01.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Subject: Re: [fs/exec]  80bd5afdd8: xfstests.generic.633.fail
+Message-ID: <20220131150819.iuqlz3rz6q7cheap@wittgenstein>
+References: <20220127000724.15106-1-ariadne@dereferenced.org>
+ <20220131144352.GE16385@xsang-OptiPlex-9020>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.175-62-g1dbccdc9d01a
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 107 runs,
- 4 regressions (v5.4.175-62-g1dbccdc9d01a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220131144352.GE16385@xsang-OptiPlex-9020>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 107 runs, 4 regressions (v5.4.175-62-g1dbccdc=
-9d01a)
+On Mon, Jan 31, 2022 at 10:43:52PM +0800, kernel test robot wrote:
+> 
+> 
+> Greeting,
+> 
+> FYI, we noticed the following commit (built with gcc-9):
+> 
+> commit: 80bd5afdd8568e41fc3a75c695bb179e0d9eee4d ("[PATCH v3] fs/exec: require argv[0] presence in do_execveat_common()")
+> url: https://github.com/0day-ci/linux/commits/Ariadne-Conill/fs-exec-require-argv-0-presence-in-do_execveat_common/20220127-080829
+> base: https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git 2c271fe77d52a0555161926c232cd5bc07178b39
+> patch link: https://lore.kernel.org/lkml/20220127000724.15106-1-ariadne@dereferenced.org
+> 
+> in testcase: xfstests
+> version: xfstests-x86_64-972d710-1_20220127
+> with following parameters:
+> 
+> 	disk: 4HDD
+> 	fs: f2fs
+> 	test: generic-group-31
+> 	ucode: 0xe2
+> 
+> test-description: xfstests is a regression test suite for xfs and other files ystems.
+> test-url: git://git.kernel.org/pub/scm/fs/xfs/xfstests-dev.git
+> 
+> 
+> on test machine: 4 threads Intel(R) Core(TM) i5-6500 CPU @ 3.20GHz with 32G memory
+> 
+> caused below changes (please refer to attached dmesg/kmsg for entire log/backtrace):
+> 
+> 
+> 
+> 
+> If you fix the issue, kindly add following tag
+> Reported-by: kernel test robot <oliver.sang@intel.com>
+> 
+> 
+> 
+> user  :warn  : [  208.077271] run fstests generic/633 at 2022-01-30 04:50:49
+> kern  :warn  : [  208.529090] Attempted to run process '/dev/fd/5/file1' with NULL argv
+> user  :notice: [  208.806756] generic/633       [failed, exit status 1]- output mismatch (see /lkp/benchmarks/xfstests/results//generic/633.out.bad)
+> 
+> user  :notice: [  208.826454]     --- tests/generic/633.out     2022-01-27 11:54:16.000000000 +0000
+> 
+> user  :notice: [  208.842458]     +++ /lkp/benchmarks/xfstests/results//generic/633.out.bad     2022-01-30 04:50:49.769538285 +0000
+> 
+> user  :notice: [  208.859622]     @@ -1,2 +1,4 @@
+> 
+> user  :warn  : [  208.860623] run fstests generic/634 at 2022-01-30 04:50:49
+> user  :notice: [  208.866037]      QA output created by 633
+> 
+> user  :notice: [  208.889262]      Silence is golden
+> 
+> user  :notice: [  208.901240]     +idmapped-mounts.c: 3608: setid_binaries - Invalid argument - failure: sys_execveat
 
-Regressions Summary
--------------------
+This is from the generic part of the vfs testsuite.
+It verifies that set*id binaries are executed with the right e{g,u}id.
+Part of that test calls execveat() as:
 
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
+static char *argv[] = {
+	NULL,
+};
 
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
+static char *envp[] = {
+	"EXPECTED_EUID=5000",
+	"EXPECTED_EGID=5000",
+	NULL,
+};
 
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
+syscall(__NR_execveat, fd, some_path, argv, envp, 0);
 
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
+I can fix this rather simply in our upstream fstests with:
 
+static char *argv[] = {
+	"",
+};
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.175-62-g1dbccdc9d01a/plan/baseline/
+I guess.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.175-62-g1dbccdc9d01a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1dbccdc9d01af99724b7148cc6dfb3fe321f399c =
+But doesn't
 
+static char *argv[] = {
+	NULL,
+};
 
+seem something that should work especially with execveat()?
 
-Test Regressions
----------------- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61f7c3bf6ece06b6c2abbd1b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
-2-g1dbccdc9d01a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
-2-g1dbccdc9d01a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61f7c3bf6ece06b6c2abb=
-d1c
-        failing since 46 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61f7c3e0ac9379a8d0abbd58
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
-2-g1dbccdc9d01a/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
-2-g1dbccdc9d01a/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61f7c3e0ac9379a8d0abb=
-d59
-        failing since 46 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61f7c3c16ece06b6c2abbd20
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
-2-g1dbccdc9d01a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
-2-g1dbccdc9d01a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61f7c3c16ece06b6c2abb=
-d21
-        failing since 46 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61f7c3e2de238258e2abbd11
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
-2-g1dbccdc9d01a/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
-2-g1dbccdc9d01a/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61f7c3e2de238258e2abb=
-d12
-        failing since 46 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =20
+Christian
