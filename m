@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DD294A423B
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5FE54A44E1
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349086AbiAaLLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:11:12 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:54076 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376275AbiAaLIG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:08:06 -0500
+        id S1377092AbiAaLcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:32:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48706 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377947AbiAaL1u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:27:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1783DC094262;
+        Mon, 31 Jan 2022 03:17:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAE3EB82A4D;
-        Mon, 31 Jan 2022 11:08:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AEA3C340E8;
-        Mon, 31 Jan 2022 11:08:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2A30B82A5D;
+        Mon, 31 Jan 2022 11:17:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09E64C340E8;
+        Mon, 31 Jan 2022 11:16:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627283;
-        bh=k70UCGaKdelyUX4hLZO2WfvpGsnNzGI95PXnQiEeiXU=;
+        s=korg; t=1643627820;
+        bh=ntHB1EwPANzHF9BsgsFhEVLHwKVhjJU/F0L+D+K/BxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FwthVCYnQi3B/4v7UcZV21m4/wx8jfuGtoMLJ0ByLWfBo5eVLYQhcsAAh3cAPkEZW
-         iaC5hlpnwYjJxMXqbbRG7cGwmHJ3JV8kvgqlRRNC2U5qrpja+jYbrT+WZbux3beDfV
-         +R8GnXadS6lI7lVkXCvMJJfA9df+Tkg2dLpwQDYU=
+        b=Bh/IvTm7PBSuj11TpAOufOBqiGpprndJy5QJfR8Gg8k955A1fs7IFEKCdoGP8+rZM
+         FgpobTZ0jN9ZXPptzCdEXQm5DTFQag+W/3oSr/Mkw/BQog0l6/Ys4KzMPnkZ1yqjUJ
+         jigxRtCD3QUUUm7647uyW4fIOLz2t7qAtjPfNrK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 034/171] KVM: LAPIC: Also cancel preemption timer during SET_LAPIC
+        stable@vger.kernel.org, Ivan Delalande <colona@arista.com>,
+        Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.16 036/200] fsnotify: fix fsnotify hooks in pseudo filesystems
 Date:   Mon, 31 Jan 2022 11:54:59 +0100
-Message-Id: <20220131105231.168825677@linuxfoundation.org>
+Message-Id: <20220131105234.778305751@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +47,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit 35fe7cfbab2e81f1afb23fc4212210b1de6d9633 upstream.
+commit 29044dae2e746949ad4b9cbdbfb248994d1dcdb4 upstream.
 
-The below warning is splatting during guest reboot.
+Commit 49246466a989 ("fsnotify: move fsnotify_nameremove() hook out of
+d_delete()") moved the fsnotify delete hook before d_delete() so fsnotify
+will have access to a positive dentry.
 
-  ------------[ cut here ]------------
-  WARNING: CPU: 0 PID: 1931 at arch/x86/kvm/x86.c:10322 kvm_arch_vcpu_ioctl_run+0x874/0x880 [kvm]
-  CPU: 0 PID: 1931 Comm: qemu-system-x86 Tainted: G          I       5.17.0-rc1+ #5
-  RIP: 0010:kvm_arch_vcpu_ioctl_run+0x874/0x880 [kvm]
-  Call Trace:
-   <TASK>
-   kvm_vcpu_ioctl+0x279/0x710 [kvm]
-   __x64_sys_ioctl+0x83/0xb0
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  RIP: 0033:0x7fd39797350b
+This allowed a race where opening the deleted file via cached dentry
+is now possible after receiving the IN_DELETE event.
 
-This can be triggered by not exposing tsc-deadline mode and doing a reboot in
-the guest. The lapic_shutdown() function which is called in sys_reboot path
-will not disarm the flying timer, it just masks LVTT. lapic_shutdown() clears
-APIC state w/ LVT_MASKED and timer-mode bit is 0, this can trigger timer-mode
-switch between tsc-deadline and oneshot/periodic, which can result in preemption
-timer be cancelled in apic_update_lvtt(). However, We can't depend on this when
-not exposing tsc-deadline mode and oneshot/periodic modes emulated by preemption
-timer. Qemu will synchronise states around reset, let's cancel preemption timer
-under KVM_SET_LAPIC.
+To fix the regression in pseudo filesystems, convert d_delete() calls
+to d_drop() (see commit 46c46f8df9aa ("devpts_pty_kill(): don't bother
+with d_delete()") and move the fsnotify hook after d_drop().
 
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Message-Id: <1643102220-35667-1-git-send-email-wanpengli@tencent.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Add a missing fsnotify_unlink() hook in nfsdfs that was found during
+the audit of fsnotify hooks in pseudo filesystems.
+
+Note that the fsnotify hooks in simple_recursive_removal() follow
+d_invalidate(), so they require no change.
+
+Link: https://lore.kernel.org/r/20220120215305.282577-2-amir73il@gmail.com
+Reported-by: Ivan Delalande <colona@arista.com>
+Link: https://lore.kernel.org/linux-fsdevel/YeNyzoDM5hP5LtGW@visor/
+Fixes: 49246466a989 ("fsnotify: move fsnotify_nameremove() hook out of d_delete()")
+Cc: stable@vger.kernel.org # v5.3+
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/lapic.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/configfs/dir.c     |    6 +++---
+ fs/devpts/inode.c     |    2 +-
+ fs/nfsd/nfsctl.c      |    5 +++--
+ net/sunrpc/rpc_pipe.c |    4 ++--
+ 4 files changed, 9 insertions(+), 8 deletions(-)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -2623,7 +2623,7 @@ int kvm_apic_set_state(struct kvm_vcpu *
- 	kvm_apic_set_version(vcpu);
+--- a/fs/configfs/dir.c
++++ b/fs/configfs/dir.c
+@@ -1780,8 +1780,8 @@ void configfs_unregister_group(struct co
+ 	configfs_detach_group(&group->cg_item);
+ 	d_inode(dentry)->i_flags |= S_DEAD;
+ 	dont_mount(dentry);
++	d_drop(dentry);
+ 	fsnotify_rmdir(d_inode(parent), dentry);
+-	d_delete(dentry);
+ 	inode_unlock(d_inode(parent));
  
- 	apic_update_ppr(apic);
--	hrtimer_cancel(&apic->lapic_timer.timer);
-+	cancel_apic_timer(apic);
- 	apic->lapic_timer.expired_tscdeadline = 0;
- 	apic_update_lvtt(apic);
- 	apic_manage_nmi_watchdog(apic, kvm_lapic_get_reg(apic, APIC_LVT0));
+ 	dput(dentry);
+@@ -1922,10 +1922,10 @@ void configfs_unregister_subsystem(struc
+ 	configfs_detach_group(&group->cg_item);
+ 	d_inode(dentry)->i_flags |= S_DEAD;
+ 	dont_mount(dentry);
+-	fsnotify_rmdir(d_inode(root), dentry);
+ 	inode_unlock(d_inode(dentry));
+ 
+-	d_delete(dentry);
++	d_drop(dentry);
++	fsnotify_rmdir(d_inode(root), dentry);
+ 
+ 	inode_unlock(d_inode(root));
+ 
+--- a/fs/devpts/inode.c
++++ b/fs/devpts/inode.c
+@@ -621,8 +621,8 @@ void devpts_pty_kill(struct dentry *dent
+ 
+ 	dentry->d_fsdata = NULL;
+ 	drop_nlink(dentry->d_inode);
+-	fsnotify_unlink(d_inode(dentry->d_parent), dentry);
+ 	d_drop(dentry);
++	fsnotify_unlink(d_inode(dentry->d_parent), dentry);
+ 	dput(dentry);	/* d_alloc_name() in devpts_pty_new() */
+ }
+ 
+--- a/fs/nfsd/nfsctl.c
++++ b/fs/nfsd/nfsctl.c
+@@ -1249,7 +1249,8 @@ static void nfsdfs_remove_file(struct in
+ 	clear_ncl(d_inode(dentry));
+ 	dget(dentry);
+ 	ret = simple_unlink(dir, dentry);
+-	d_delete(dentry);
++	d_drop(dentry);
++	fsnotify_unlink(dir, dentry);
+ 	dput(dentry);
+ 	WARN_ON_ONCE(ret);
+ }
+@@ -1340,8 +1341,8 @@ void nfsd_client_rmdir(struct dentry *de
+ 	dget(dentry);
+ 	ret = simple_rmdir(dir, dentry);
+ 	WARN_ON_ONCE(ret);
++	d_drop(dentry);
+ 	fsnotify_rmdir(dir, dentry);
+-	d_delete(dentry);
+ 	dput(dentry);
+ 	inode_unlock(dir);
+ }
+--- a/net/sunrpc/rpc_pipe.c
++++ b/net/sunrpc/rpc_pipe.c
+@@ -600,9 +600,9 @@ static int __rpc_rmdir(struct inode *dir
+ 
+ 	dget(dentry);
+ 	ret = simple_rmdir(dir, dentry);
++	d_drop(dentry);
+ 	if (!ret)
+ 		fsnotify_rmdir(dir, dentry);
+-	d_delete(dentry);
+ 	dput(dentry);
+ 	return ret;
+ }
+@@ -613,9 +613,9 @@ static int __rpc_unlink(struct inode *di
+ 
+ 	dget(dentry);
+ 	ret = simple_unlink(dir, dentry);
++	d_drop(dentry);
+ 	if (!ret)
+ 		fsnotify_unlink(dir, dentry);
+-	d_delete(dentry);
+ 	dput(dentry);
+ 	return ret;
+ }
 
 
