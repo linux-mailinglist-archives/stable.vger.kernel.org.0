@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D667D4A41EF
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:10:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15B394A455D
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:41:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358943AbiAaLHS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:07:18 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53200 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359357AbiAaLFR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:05:17 -0500
+        id S235324AbiAaLkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:40:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51022 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350886AbiAaLfs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:35:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D685C0797A2;
+        Mon, 31 Jan 2022 03:24:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A4E8B82A5E;
-        Mon, 31 Jan 2022 11:05:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAA41C340E8;
-        Mon, 31 Jan 2022 11:05:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3EEE7B82A5D;
+        Mon, 31 Jan 2022 11:24:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C2C7C340E8;
+        Mon, 31 Jan 2022 11:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627114;
-        bh=UZqAeWaT4UU0ub23NmEW130ffEa5NGj+ACSVG0Tkre8=;
+        s=korg; t=1643628243;
+        bh=88oYFIp/4O3Rc0lDu4K9lruJkhi6ry2zeND8ApQXK0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XNr/BTh28u2Lmv5Vn95gAayqgrWbI4lGA82hJcryCnk2pSGvRmwBANmH5c9b5wa6B
-         htT1rqTWVHLmlLtGLwmYKmz32VyROOsFfseoKXvZ7BLGybsaNsqMNQyZ3u9Bvtg9jN
-         nmDbjwwusK5O5c0Xl6JmH9EIf2pGQXc30JVY2R/M=
+        b=WXWSj45FYU72OrrrxrjuFh/GWHCjlUxlw5Dk4X/1iQNT/qq2QYw+6YCrvuicEek1H
+         asIciZOQl5SVkK58xn6vH6FWKQsIWYddlphoLSVmknsGZlrDGLmODHEC28X2xb+5MB
+         i0puSNa6VhebVeXh8bhb3kr/YzWAH0TJhDIOMHIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sachin Sant <sachinp@linux.ibm.com>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Jean Sacren <sakiwit@gmail.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 079/100] powerpc/perf: Fix power_pmu_disable to call clear_pmi_irq_pending only if PMI is pending
+Subject: [PATCH 5.16 137/200] mptcp: clean up harmless false expressions
 Date:   Mon, 31 Jan 2022 11:56:40 +0100
-Message-Id: <20220131105223.086890433@linuxfoundation.org>
+Message-Id: <20220131105238.167982722@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,92 +51,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Jean Sacren <sakiwit@gmail.com>
 
-[ Upstream commit fb6433b48a178d4672cb26632454ee0b21056eaa ]
+[ Upstream commit 59060a47ca50bbdb1d863b73667a1065873ecc06 ]
 
-Running selftest with CONFIG_PPC_IRQ_SOFT_MASK_DEBUG enabled in kernel
-triggered below warning:
+entry->addr.id is u8 with a range from 0 to 255 and MAX_ADDR_ID is 255.
+We should drop both false expressions of (entry->addr.id > MAX_ADDR_ID).
 
-[  172.851380] ------------[ cut here ]------------
-[  172.851391] WARNING: CPU: 8 PID: 2901 at arch/powerpc/include/asm/hw_irq.h:246 power_pmu_disable+0x270/0x280
-[  172.851402] Modules linked in: dm_mod bonding nft_ct nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables rfkill nfnetlink sunrpc xfs libcrc32c pseries_rng xts vmx_crypto uio_pdrv_genirq uio sch_fq_codel ip_tables ext4 mbcache jbd2 sd_mod t10_pi sg ibmvscsi ibmveth scsi_transport_srp fuse
-[  172.851442] CPU: 8 PID: 2901 Comm: lost_exception_ Not tainted 5.16.0-rc5-03218-g798527287598 #2
-[  172.851451] NIP:  c00000000013d600 LR: c00000000013d5a4 CTR: c00000000013b180
-[  172.851458] REGS: c000000017687860 TRAP: 0700   Not tainted  (5.16.0-rc5-03218-g798527287598)
-[  172.851465] MSR:  8000000000029033 <SF,EE,ME,IR,DR,RI,LE>  CR: 48004884  XER: 20040000
-[  172.851482] CFAR: c00000000013d5b4 IRQMASK: 1
-[  172.851482] GPR00: c00000000013d5a4 c000000017687b00 c000000002a10600 0000000000000004
-[  172.851482] GPR04: 0000000082004000 c0000008ba08f0a8 0000000000000000 00000008b7ed0000
-[  172.851482] GPR08: 00000000446194f6 0000000000008000 c00000000013b118 c000000000d58e68
-[  172.851482] GPR12: c00000000013d390 c00000001ec54a80 0000000000000000 0000000000000000
-[  172.851482] GPR16: 0000000000000000 0000000000000000 c000000015d5c708 c0000000025396d0
-[  172.851482] GPR20: 0000000000000000 0000000000000000 c00000000a3bbf40 0000000000000003
-[  172.851482] GPR24: 0000000000000000 c0000008ba097400 c0000000161e0d00 c00000000a3bb600
-[  172.851482] GPR28: c000000015d5c700 0000000000000001 0000000082384090 c0000008ba0020d8
-[  172.851549] NIP [c00000000013d600] power_pmu_disable+0x270/0x280
-[  172.851557] LR [c00000000013d5a4] power_pmu_disable+0x214/0x280
-[  172.851565] Call Trace:
-[  172.851568] [c000000017687b00] [c00000000013d5a4] power_pmu_disable+0x214/0x280 (unreliable)
-[  172.851579] [c000000017687b40] [c0000000003403ac] perf_pmu_disable+0x4c/0x60
-[  172.851588] [c000000017687b60] [c0000000003445e4] __perf_event_task_sched_out+0x1d4/0x660
-[  172.851596] [c000000017687c50] [c000000000d1175c] __schedule+0xbcc/0x12a0
-[  172.851602] [c000000017687d60] [c000000000d11ea8] schedule+0x78/0x140
-[  172.851608] [c000000017687d90] [c0000000001a8080] sys_sched_yield+0x20/0x40
-[  172.851615] [c000000017687db0] [c0000000000334dc] system_call_exception+0x18c/0x380
-[  172.851622] [c000000017687e10] [c00000000000c74c] system_call_common+0xec/0x268
+We should also remove the obsolete parentheses in the first if branch.
 
-The warning indicates that MSR_EE being set(interrupt enabled) when
-there was an overflown PMC detected. This could happen in
-power_pmu_disable since it runs under interrupt soft disable
-condition ( local_irq_save ) and not with interrupts hard disabled.
-commit 2c9ac51b850d ("powerpc/perf: Fix PMU callbacks to clear
-pending PMI before resetting an overflown PMC") intended to clear
-PMI pending bit in Paca when disabling the PMU. It could happen
-that PMC gets overflown while code is in power_pmu_disable
-callback function. Hence add a check to see if PMI pending bit
-is set in Paca before clearing it via clear_pmi_pending.
+Use U8_MAX for MAX_ADDR_ID and add a comment to show the link to
+mptcp_addr_info.id as suggested by Mr. Matthieu Baerts.
 
-Fixes: 2c9ac51b850d ("powerpc/perf: Fix PMU callbacks to clear pending PMI before resetting an overflown PMC")
-Reported-by: Sachin Sant <sachinp@linux.ibm.com>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Tested-by: Sachin Sant <sachinp@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220122033429.25395-1-atrajeev@linux.vnet.ibm.com
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Jean Sacren <sakiwit@gmail.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/core-book3s.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ net/mptcp/pm_netlink.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-index bd34e062bd290..e49aa8fc6a491 100644
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -1273,9 +1273,20 @@ static void power_pmu_disable(struct pmu *pmu)
- 		 * Otherwise provide a warning if there is PMI pending, but
- 		 * no counter is found overflown.
- 		 */
--		if (any_pmc_overflown(cpuhw))
--			clear_pmi_irq_pending();
--		else
-+		if (any_pmc_overflown(cpuhw)) {
-+			/*
-+			 * Since power_pmu_disable runs under local_irq_save, it
-+			 * could happen that code hits a PMC overflow without PMI
-+			 * pending in paca. Hence only clear PMI pending if it was
-+			 * set.
-+			 *
-+			 * If a PMI is pending, then MSR[EE] must be disabled (because
-+			 * the masked PMI handler disabling EE). So it is safe to
-+			 * call clear_pmi_irq_pending().
-+			 */
-+			if (pmi_irq_pending())
-+				clear_pmi_irq_pending();
-+		} else
- 			WARN_ON(pmi_irq_pending());
+diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
+index d18b13e3e74c6..27427aeeee0e5 100644
+--- a/net/mptcp/pm_netlink.c
++++ b/net/mptcp/pm_netlink.c
+@@ -38,7 +38,8 @@ struct mptcp_pm_add_entry {
+ 	u8			retrans_times;
+ };
  
- 		val = mmcra = cpuhw->mmcr.mmcra;
+-#define MAX_ADDR_ID		255
++/* max value of mptcp_addr_info.id */
++#define MAX_ADDR_ID		U8_MAX
+ #define BITMAP_SZ DIV_ROUND_UP(MAX_ADDR_ID + 1, BITS_PER_LONG)
+ 
+ struct pm_nl_pernet {
+@@ -831,14 +832,13 @@ find_next:
+ 		entry->addr.id = find_next_zero_bit(pernet->id_bitmap,
+ 						    MAX_ADDR_ID + 1,
+ 						    pernet->next_id);
+-		if ((!entry->addr.id || entry->addr.id > MAX_ADDR_ID) &&
+-		    pernet->next_id != 1) {
++		if (!entry->addr.id && pernet->next_id != 1) {
+ 			pernet->next_id = 1;
+ 			goto find_next;
+ 		}
+ 	}
+ 
+-	if (!entry->addr.id || entry->addr.id > MAX_ADDR_ID)
++	if (!entry->addr.id)
+ 		goto out;
+ 
+ 	__set_bit(entry->addr.id, pernet->id_bitmap);
 -- 
 2.34.1
 
