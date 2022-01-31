@@ -2,118 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06BFF4A4CD9
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 18:13:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A21004A4CDC
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 18:14:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380741AbiAaRNv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 12:13:51 -0500
-Received: from frasgout.his.huawei.com ([185.176.79.56]:4577 "EHLO
-        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380775AbiAaRNt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 12:13:49 -0500
-Received: from fraeml714-chm.china.huawei.com (unknown [172.18.147.201])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4JnZQN2X6hz67lD0;
-        Tue,  1 Feb 2022 01:13:16 +0800 (CST)
-Received: from roberto-ThinkStation-P620.huawei.com (10.204.63.22) by
- fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.21; Mon, 31 Jan 2022 18:13:46 +0100
-From:   Roberto Sassu <roberto.sassu@huawei.com>
-To:     <zohar@linux.ibm.com>
-CC:     <linux-integrity@vger.kernel.org>,
-        <linux-security-module@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <guozihua@huawei.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH] ima: Allow template selection with ima_template[_fmt]= after ima_hash=
-Date:   Mon, 31 Jan 2022 18:11:39 +0100
-Message-ID: <20220131171139.3024883-1-roberto.sassu@huawei.com>
-X-Mailer: git-send-email 2.32.0
+        id S1380791AbiAaRNx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 12:13:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46814 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1380790AbiAaRNx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 12:13:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1F0BC061714;
+        Mon, 31 Jan 2022 09:13:52 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 603CDB82B94;
+        Mon, 31 Jan 2022 17:13:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BB62C340E8;
+        Mon, 31 Jan 2022 17:13:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643649230;
+        bh=QKbhQb3UR1s6+IgkObzqyN3XT/7OqGbzgTX3Keth7eU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GuIJTFxO4zIqV3Ue8ez89NoOPQonTyZdASpGL7OeQhz0tgABjROgoYmD+xU4qYCGg
+         wLupSkWO7cLALEoh7n5XvVAPb5YWadFTYuYuV48XYJtV5Kf7tsTKXHwgYKaeiJaD2B
+         /z+mTlSvVU/154uBGS8Y3UrfLAtMc60HvnrTsDGZGN/h0bFvPN15VdsZmCWaztUG6U
+         p64MjOHVX1wWhJicWMsjPH4NA1pXt0/5pn2d1vAHZs9KXntwZqGqa8uzNyrhOTchVo
+         RhlXwSaux/U0LJoS/dAs2UlR/gtDGR8nTfpsb7Jwspip6WYCbkssxEmv0aVksj/l2E
+         T/gD2LdV1kXlA==
+Date:   Mon, 31 Jan 2022 18:13:44 +0100
+From:   Christian Brauner <brauner@kernel.org>
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     kernel test robot <oliver.sang@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Ariadne Conill <ariadne@dereferenced.org>,
+        0day robot <lkp@intel.com>,
+        Michael Kerrisk <mtk.manpages@gmail.com>,
+        Rich Felker <dalias@libc.org>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        LKML <linux-kernel@vger.kernel.org>, lkp@lists.01.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Subject: Re: [fs/exec]  80bd5afdd8: xfstests.generic.633.fail
+Message-ID: <20220131171344.77iifun5wdilbqdz@wittgenstein>
+References: <20220127000724.15106-1-ariadne@dereferenced.org>
+ <20220131144352.GE16385@xsang-OptiPlex-9020>
+ <20220131150819.iuqlz3rz6q7cheap@wittgenstein>
+ <Yff9+tIDAvYM5EO/@casper.infradead.org>
+ <20220131153707.oe45h7tuci2cbfuv@wittgenstein>
+ <YfgFeWbZPl+gAUYE@casper.infradead.org>
+ <20220131161415.wlvtsd4ecehyg3x5@wittgenstein>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.204.63.22]
-X-ClientProxiedBy: lhreml751-chm.china.huawei.com (10.201.108.201) To
- fraeml714-chm.china.huawei.com (10.206.15.33)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220131161415.wlvtsd4ecehyg3x5@wittgenstein>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit c2426d2ad5027 ("ima: added support for new kernel cmdline parameter
-ima_template_fmt") introduced an additional check on the ima_template
-variable to avoid multiple template selection.
+On Mon, Jan 31, 2022 at 05:14:15PM +0100, Christian Brauner wrote:
+> On Mon, Jan 31, 2022 at 03:51:21PM +0000, Matthew Wilcox wrote:
+> > On Mon, Jan 31, 2022 at 04:37:07PM +0100, Christian Brauner wrote:
+> > > On Mon, Jan 31, 2022 at 03:19:22PM +0000, Matthew Wilcox wrote:
+> > > > On Mon, Jan 31, 2022 at 04:08:19PM +0100, Christian Brauner wrote:
+> > > > > On Mon, Jan 31, 2022 at 10:43:52PM +0800, kernel test robot wrote:
+> > > > > I can fix this rather simply in our upstream fstests with:
+> > > > > 
+> > > > > static char *argv[] = {
+> > > > > 	"",
+> > > > > };
+> > > > > 
+> > > > > I guess.
+> > > > > 
+> > > > > But doesn't
+> > > > > 
+> > > > > static char *argv[] = {
+> > > > > 	NULL,
+> > > > > };
+> > > > > 
+> > > > > seem something that should work especially with execveat()?
+> > > > 
+> > > > The problem is that the exec'ed program sees an argc of 0, which is the
+> > > > problem we're trying to work around in the kernel (instead of leaving
+> > > > it to ld.so to fix for suid programs).
+> > > 
+> > > Ok, just seems a bit more intuitive for path-based exec than for
+> > > fd-based execveat().
+> > > 
+> > > What's argv[0] supposed to contain in these cases?
+> > > 
+> > > 1. execveat(fd, NULL, ..., AT_EMPTY_PATH)
+> > > 2. execveat(fd, "my-file", ..., )
+> > > 
+> > > "" in both 1. and 2.?
+> > > "" in 1. and "my-file" in 2.?
+> > 
+> > You didn't specify argv for either of those, so I have no idea.
+> > Programs shouldn't be assuming anything about argv[0]; it's purely
+> > advisory.  Unfortunately, some of them do.  And some of them are suid.
+> 
+> Yes, programs shouldn't assume anything about argv[0]. But a lot of
+> programs are used to setting argv[0] to the name of the executed binary.
+> The exec* manpages examples do this. Just looking at a random selftest, e.g.
+> 
+> bpf/prog_tests/test_lsm.c
+> 
+> where we find:
+> 
+> 	char *CMD_ARGS[] = {"true", NULL};
+> 	execvp(CMD_ARGS[0], CMD_ARGS);
+> 
+> I'm just wondering how common this is for execveat() because it is not
+> as clear what the actual name of the binary is in these two examples
+> 
+> 	1.
+> 	fd = open("/bin/true", );
+> 	char *CMD_ARGS[] = {"", NULL};
+> 	execveat(fd, NULL, ..., AT_EMPTY_PATH)
+> 	
+> 	2.
+> 	fd = open("/bin", );
+> 	char *CMD_ARGS[] = {"true", NULL};
+> 	execveat(fd, CMD_ARGS[0], CMD_ARGS 0)
+> 
+> in other words, the changes that you see CMD_ARGS[0] == NULL for
+> execveat() seem higher than for path-based exec.
+> 
+> To counter that we should probably at least update the execveat()
+> manpage with a recommendation what CMD_ARGS[0] should be set to if it
+> isn't allowed to be set to NULL anymore. This is why was asking what
+> argv[0] is supposed to be if the binary doesn't take any arguments.
 
-Unfortunately, ima_template could be also set by the setup function of the
-ima_hash= parameter, when it calls ima_template_desc_current(). This causes
-attempts to choose a new template with ima_template= or with
-ima_template_fmt=, after ima_hash=, to be ignored.
-
-Achieve the goal of the commit mentioned with the new static variable
-template_setup_done, so that template selection requests after ima_hash=
-are not ignored.
-
-Finally, call ima_init_template_list(), if not already done, to initialize
-the list of templates before lookup_template_desc() is called.
-
-Cc: stable@vger.kernel.org
-Fixes: c2426d2ad5027 ("ima: added support for new kernel cmdline parameter ima_template_fmt")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
----
- security/integrity/ima/ima_template.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/security/integrity/ima/ima_template.c b/security/integrity/ima/ima_template.c
-index 694560396be0..db1ad6d7a57f 100644
---- a/security/integrity/ima/ima_template.c
-+++ b/security/integrity/ima/ima_template.c
-@@ -29,6 +29,7 @@ static struct ima_template_desc builtin_templates[] = {
- 
- static LIST_HEAD(defined_templates);
- static DEFINE_SPINLOCK(template_list);
-+static int template_setup_done;
- 
- static const struct ima_template_field supported_fields[] = {
- 	{.field_id = "d", .field_init = ima_eventdigest_init,
-@@ -101,10 +102,11 @@ static int __init ima_template_setup(char *str)
- 	struct ima_template_desc *template_desc;
- 	int template_len = strlen(str);
- 
--	if (ima_template)
-+	if (template_setup_done)
- 		return 1;
- 
--	ima_init_template_list();
-+	if (!ima_template)
-+		ima_init_template_list();
- 
- 	/*
- 	 * Verify that a template with the supplied name exists.
-@@ -128,6 +130,7 @@ static int __init ima_template_setup(char *str)
- 	}
- 
- 	ima_template = template_desc;
-+	template_setup_done = 1;
- 	return 1;
- }
- __setup("ima_template=", ima_template_setup);
-@@ -136,7 +139,7 @@ static int __init ima_template_fmt_setup(char *str)
- {
- 	int num_templates = ARRAY_SIZE(builtin_templates);
- 
--	if (ima_template)
-+	if (template_setup_done)
- 		return 1;
- 
- 	if (template_desc_init_fields(str, NULL, NULL) < 0) {
-@@ -147,6 +150,7 @@ static int __init ima_template_fmt_setup(char *str)
- 
- 	builtin_templates[num_templates - 1].fmt = str;
- 	ima_template = builtin_templates + num_templates - 1;
-+	template_setup_done = 1;
- 
- 	return 1;
- }
--- 
-2.32.0
-
+Sent a fix to our fstests now replacing the argv[0] as NULL with "".
