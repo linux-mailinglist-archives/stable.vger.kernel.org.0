@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC624A44C4
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA8394A416D
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:04:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359624AbiAaLc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:32:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49814 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379406AbiAaLaR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:30:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F36AC0617AE;
-        Mon, 31 Jan 2022 03:20:09 -0800 (PST)
+        id S1358605AbiAaLDs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:03:48 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:51100 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359098AbiAaLC5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:02:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2D8261214;
-        Mon, 31 Jan 2022 11:20:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A363C340EE;
-        Mon, 31 Jan 2022 11:20:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BF39B82A57;
+        Mon, 31 Jan 2022 11:02:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0968C340EF;
+        Mon, 31 Jan 2022 11:02:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628008;
-        bh=IR4qDBZBsb9q2Ri7BZxMKf/izArnxWz5eMQaB0C0emY=;
+        s=korg; t=1643626975;
+        bh=7BpYgPwu1UsHm+ODdEAtD9Qh4ktMDhSuWtddKky/638=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p0mXjdMAcRMHh+okwT/+QpnPrJ+QUwZk5B2aSM8NfRbIR8u5d4T5u+WcLpAk/ln+H
-         xIauLjabVMwSP8KitA4t+XbWCTJ3xA428lC4OjjcUQMAd+OIboVKL8oRZpeCQZ4bcV
-         wrZh+wt8CDLozuuF8wu0bxQUhOsF25hhu4BeqwQk=
+        b=no9CZfXCBw2DV7/GXje1ss3geJTUUu9joFx17Fa2cE0pMjAB13EjhVeNmKrubRqfu
+         QxleRpZbojowtLjXhylR/NzK7mYpNG995JUf5nYwYEIcNlg92Xza8Zekxl0D8FUd7J
+         GQF6nG1pqRlDgPfoUFmISCyhTnleP4jRkqzFiMe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.16 062/200] dm: revert partial fix for redundant bio-based IO accounting
+        stable@vger.kernel.org,
+        Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 004/100] net: stmmac: skip only stmmac_ptp_register when resume from suspend
 Date:   Mon, 31 Jan 2022 11:55:25 +0100
-Message-Id: <20220131105235.663972456@linuxfoundation.org>
+Message-Id: <20220131105220.583649704@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,53 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
 
-commit f524d9c95fab54783d0038f7a3e8c014d5b56857 upstream.
+commit 0735e639f129dff455aeb91da291f5c578cc33db upstream.
 
-Reverts a1e1cb72d9649 ("dm: fix redundant IO accounting for bios that
-need splitting") because it was too narrow in scope (only addressed
-redundant 'sectors[]' accounting and not ios, nsecs[], etc).
+When resume from suspend, besides skipping PTP registration, it also
+skipping PTP HW initialization. This could cause PTP clock not able to
+operate properly when resume from suspend.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Link: https://lore.kernel.org/r/20220128155841.39644-3-snitzer@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+To fix this, only stmmac_ptp_register() is skipped when resume from
+suspend.
+
+Fixes: fe1319291150 ("stmmac: Don't init ptp again when resume from suspend/hibernation")
+Cc: <stable@vger.kernel.org> # 5.15.x
+Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm.c |   15 ---------------
- 1 file changed, 15 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1510,9 +1510,6 @@ static void init_clone_info(struct clone
- 	ci->sector = bio->bi_iter.bi_sector;
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -816,8 +816,6 @@ static int stmmac_init_ptp(struct stmmac
+ 	priv->hwts_tx_en = 0;
+ 	priv->hwts_rx_en = 0;
+ 
+-	stmmac_ptp_register(priv);
+-
+ 	return 0;
  }
  
--#define __dm_part_stat_sub(part, field, subnd)	\
--	(part_stat_get(part, field) -= (subnd))
--
- /*
-  * Entry point to split a bio into clones and submit them to the targets.
+@@ -2691,7 +2689,7 @@ static void stmmac_safety_feat_configura
+ /**
+  * stmmac_hw_setup - setup mac in a usable state.
+  *  @dev : pointer to the device structure.
+- *  @init_ptp: initialize PTP if set
++ *  @ptp_register: register PTP if set
+  *  Description:
+  *  this is the main function to setup the HW in a usable state because the
+  *  dma engine is reset, the core registers are configured (e.g. AXI,
+@@ -2701,7 +2699,7 @@ static void stmmac_safety_feat_configura
+  *  0 on success and an appropriate (-)ve integer as defined in errno.h
+  *  file on failure.
   */
-@@ -1548,18 +1545,6 @@ static void __split_and_process_bio(stru
- 						  GFP_NOIO, &md->queue->bio_split);
- 			ci.io->orig_bio = b;
+-static int stmmac_hw_setup(struct net_device *dev, bool init_ptp)
++static int stmmac_hw_setup(struct net_device *dev, bool ptp_register)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+ 	u32 rx_cnt = priv->plat->rx_queues_to_use;
+@@ -2757,13 +2755,13 @@ static int stmmac_hw_setup(struct net_de
  
--			/*
--			 * Adjust IO stats for each split, otherwise upon queue
--			 * reentry there will be redundant IO accounting.
--			 * NOTE: this is a stop-gap fix, a proper fix involves
--			 * significant refactoring of DM core's bio splitting
--			 * (by eliminating DM's splitting and just using bio_split)
--			 */
--			part_stat_lock();
--			__dm_part_stat_sub(dm_disk(md)->part0,
--					   sectors[op_stat_group(bio_op(bio))], ci.sector_count);
--			part_stat_unlock();
--
- 			bio_chain(b, bio);
- 			trace_block_split(b, bio->bi_iter.bi_sector);
- 			submit_bio_noacct(bio);
+ 	stmmac_mmc_setup(priv);
+ 
+-	if (init_ptp) {
+-		ret = stmmac_init_ptp(priv);
+-		if (ret == -EOPNOTSUPP)
+-			netdev_warn(priv->dev, "PTP not supported by HW\n");
+-		else if (ret)
+-			netdev_warn(priv->dev, "PTP init failed\n");
+-	}
++	ret = stmmac_init_ptp(priv);
++	if (ret == -EOPNOTSUPP)
++		netdev_warn(priv->dev, "PTP not supported by HW\n");
++	else if (ret)
++		netdev_warn(priv->dev, "PTP init failed\n");
++	else if (ptp_register)
++		stmmac_ptp_register(priv);
+ 
+ 	priv->eee_tw_timer = STMMAC_DEFAULT_TWT_LS;
+ 
 
 
