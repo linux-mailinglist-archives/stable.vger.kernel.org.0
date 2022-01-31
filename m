@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5761C4A427A
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21CFC4A432F
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:21:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359749AbiAaLME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:12:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44620 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377292AbiAaLJx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:09:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9570C0613B2;
-        Mon, 31 Jan 2022 03:06:59 -0800 (PST)
+        id S1376708AbiAaLRk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:17:40 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35162 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376714AbiAaLPz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:15:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8704B82A4E;
-        Mon, 31 Jan 2022 11:06:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D603CC340E8;
-        Mon, 31 Jan 2022 11:06:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F80EB82A61;
+        Mon, 31 Jan 2022 11:15:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C953C340E8;
+        Mon, 31 Jan 2022 11:15:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627217;
-        bh=dq3UKIv6Kj7DEP5efr5OSdt9hjQc0Unsi01ogKeSj9Y=;
+        s=korg; t=1643627751;
+        bh=nSDn0/dlALnDYL/nwBq7guoFwDOI7dGG6cuhXkb1QZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=conP/EIuFByRKRKDEwUy0yjEgfOiY5kbTLLQRl0CPNA/YiwsttSL6MFn5HniTXEVk
-         3Z8LwTbJeOC5lFnrYANCiO03f94YAfDiT14SU1WMi4129fuM5pNDpQpEwvQYmWAN7l
-         udgY61EJi4q4c5Q8E6B30rBYiU4018n88rC4pNWU=
+        b=MUvX4awDoqifdacIn/9va2bTbrNZn27QZeTk8B+R79Rrv/3OP6jvc0jZctStaW/9U
+         tPsBExYTEIi/jAqOYXPO3TERhXzeKYcvEJyHROEHZlXbTEMKKE7Is7yroXxQQVGRbQ
+         5NZ7Xc4i8fTK/RTU2JudrDi7nhoyRzIZf74WjpNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 012/171] bpf: Guard against accessing NULL pt_regs in bpf_get_task_stack()
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.16 014/200] ARM: 9180/1: Thumb2: align ALT_UP() sections in modules sufficiently
 Date:   Mon, 31 Jan 2022 11:54:37 +0100
-Message-Id: <20220131105230.420734603@linuxfoundation.org>
+Message-Id: <20220131105234.040375029@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,44 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit b992f01e66150fc5e90be4a96f5eb8e634c8249e upstream.
+commit 9f80ccda53b9417236945bc7ece4b519037df74d upstream.
 
-task_pt_regs() can return NULL on powerpc for kernel threads. This is
-then used in __bpf_get_stack() to check for user mode, resulting in a
-kernel oops. Guard against this by checking return value of
-task_pt_regs() before trying to obtain the call chain.
+When building for Thumb2, the .alt.smp.init sections that are emitted by
+the ALT_UP() patching code may not be 32-bit aligned, even though the
+fixup_smp_on_up() routine expects that. This results in alignment faults
+at module load time, which need to be fixed up by the fault handler.
 
-Fixes: fa28dcb82a38f8 ("bpf: Introduce helper bpf_get_task_stack()")
-Cc: stable@vger.kernel.org # v5.9+
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Acked-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/d5ef83c361cc255494afd15ff1b4fb02a36e1dcf.1641468127.git.naveen.n.rao@linux.vnet.ibm.com
+So let's align those sections explicitly, and prevent this from occurring.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/stackmap.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/include/asm/assembler.h |    2 ++
+ arch/arm/include/asm/processor.h |    1 +
+ 2 files changed, 3 insertions(+)
 
---- a/kernel/bpf/stackmap.c
-+++ b/kernel/bpf/stackmap.c
-@@ -525,13 +525,14 @@ BPF_CALL_4(bpf_get_task_stack, struct ta
- 	   u32, size, u64, flags)
- {
- 	struct pt_regs *regs;
--	long res;
-+	long res = -EINVAL;
- 
- 	if (!try_get_task_stack(task))
- 		return -EFAULT;
- 
- 	regs = task_pt_regs(task);
--	res = __bpf_get_stack(regs, task, NULL, buf, size, flags);
-+	if (regs)
-+		res = __bpf_get_stack(regs, task, NULL, buf, size, flags);
- 	put_task_stack(task);
- 
- 	return res;
+--- a/arch/arm/include/asm/assembler.h
++++ b/arch/arm/include/asm/assembler.h
+@@ -288,6 +288,7 @@
+  */
+ #define ALT_UP(instr...)					\
+ 	.pushsection ".alt.smp.init", "a"			;\
++	.align	2						;\
+ 	.long	9998b - .					;\
+ 9997:	instr							;\
+ 	.if . - 9997b == 2					;\
+@@ -299,6 +300,7 @@
+ 	.popsection
+ #define ALT_UP_B(label)					\
+ 	.pushsection ".alt.smp.init", "a"			;\
++	.align	2						;\
+ 	.long	9998b - .					;\
+ 	W(b)	. + (label - 9998b)					;\
+ 	.popsection
+--- a/arch/arm/include/asm/processor.h
++++ b/arch/arm/include/asm/processor.h
+@@ -96,6 +96,7 @@ unsigned long __get_wchan(struct task_st
+ #define __ALT_SMP_ASM(smp, up)						\
+ 	"9998:	" smp "\n"						\
+ 	"	.pushsection \".alt.smp.init\", \"a\"\n"		\
++	"	.align	2\n"						\
+ 	"	.long	9998b - .\n"					\
+ 	"	" up "\n"						\
+ 	"	.popsection\n"
 
 
