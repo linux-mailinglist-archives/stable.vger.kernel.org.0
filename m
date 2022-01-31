@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF2EC4A4421
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:27:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A0FE4A4422
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:27:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350316AbiAaL0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:26:31 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42024 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378454AbiAaLY2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:24:28 -0500
+        id S1359281AbiAaL0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:26:32 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56790 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377752AbiAaLYb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:24:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 032C5B82A5D;
-        Mon, 31 Jan 2022 11:24:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A9F4C340E8;
-        Mon, 31 Jan 2022 11:24:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6272C61298;
+        Mon, 31 Jan 2022 11:24:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67330C340E8;
+        Mon, 31 Jan 2022 11:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628265;
-        bh=dM3iea27OHICyc17xNvr5LK/MG0brUjiMVVrlnGqQ5k=;
+        s=korg; t=1643628268;
+        bh=qk9u8HkJMkipvnE4bSjIQsDwSh/2/xDehKN+Oc7cf/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nE7JDjvi/KdCalM7eGduQZ0tKg14v7G4xp6XsrC+/1/usLO/O+ki2SKfum/SqwgH8
-         RbNa08DIkMmHXDmMfOUCTnzO6xolFMboy3/+L9Y6U2ENRu+UrGge9Iwqr/K6TUrPJK
-         wnU1+hFa221MeGZwmsFHJM09F5A0L6lN2q8xyjpc=
+        b=sP8lTFBz9YKUcebVy1BVQH2oTK6ZNyLS+bOD8dRcAyKcISiZBVRLKtsoy8Ga/mlbr
+         CplKTxBA3gOaOG1ZZYWe1k6mxeS53firQDke6+eUmp5hxoCDNp9Oi+XoHTOtSFgPBZ
+         XH8Lvl+q8RN41W1+dJ4nCJAjDpcJswPevdo8mV88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
+        Venky Shankar <vshankar@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 178/200] KVM: selftests: Dont skip L2s VMCALL in SMM test for SVM guest
-Date:   Mon, 31 Jan 2022 11:57:21 +0100
-Message-Id: <20220131105239.536898422@linuxfoundation.org>
+Subject: [PATCH 5.16 179/200] ceph: put the requests/sessions when it fails to alloc memory
+Date:   Mon, 31 Jan 2022 11:57:22 +0100
+Message-Id: <20220131105239.567707487@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
 References: <20220131105233.561926043@linuxfoundation.org>
@@ -47,43 +47,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit 4cf3d3ebe8794c449af3e0e8c1d790c97e461d20 ]
+[ Upstream commit 89d43d0551a848e70e63d9ba11534aaeabc82443 ]
 
-Don't skip the vmcall() in l2_guest_code() prior to re-entering L2, doing
-so will result in L2 running to completion, popping '0' off the stack for
-RET, jumping to address '0', and ultimately dying with a triple fault
-shutdown.
+When failing to allocate the sessions memory we should make sure
+the req1 and req2 and the sessions get put. And also in case the
+max_sessions decreased so when kreallocate the new memory some
+sessions maybe missed being put.
 
-It's not at all obvious why the test re-enters L2 and re-executes VMCALL,
-but presumably it serves a purpose.  The VMX path doesn't skip vmcall(),
-and the test can't possibly have passed on SVM, so just do what VMX does.
+And if the max_sessions is 0 krealloc will return ZERO_SIZE_PTR,
+which will lead to a distinct access fault.
 
-Fixes: d951b2210c1a ("KVM: selftests: smm_test: Test SMM enter from L2")
-Cc: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220125221725.2101126-1-seanjc@google.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Tested-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+URL: https://tracker.ceph.com/issues/53819
+Fixes: e1a4541ec0b9 ("ceph: flush the mdlog before waiting on unsafe reqs")
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Venky Shankar <vshankar@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/x86_64/smm_test.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/ceph/caps.c | 55 +++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 37 insertions(+), 18 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/x86_64/smm_test.c b/tools/testing/selftests/kvm/x86_64/smm_test.c
-index d0fe2fdce58c4..db2a17559c3d5 100644
---- a/tools/testing/selftests/kvm/x86_64/smm_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/smm_test.c
-@@ -105,7 +105,6 @@ static void guest_code(void *arg)
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index c447fa2e2d1fe..2f8696f3b925d 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -2218,6 +2218,7 @@ static int unsafe_request_wait(struct inode *inode)
+ 	struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
+ 	struct ceph_inode_info *ci = ceph_inode(inode);
+ 	struct ceph_mds_request *req1 = NULL, *req2 = NULL;
++	unsigned int max_sessions;
+ 	int ret, err = 0;
  
- 		if (cpu_has_svm()) {
- 			run_guest(svm->vmcb, svm->vmcb_gpa);
--			svm->vmcb->save.rip += 3;
- 			run_guest(svm->vmcb, svm->vmcb_gpa);
- 		} else {
- 			vmlaunch();
+ 	spin_lock(&ci->i_unsafe_lock);
+@@ -2235,37 +2236,45 @@ static int unsafe_request_wait(struct inode *inode)
+ 	}
+ 	spin_unlock(&ci->i_unsafe_lock);
+ 
++	/*
++	 * The mdsc->max_sessions is unlikely to be changed
++	 * mostly, here we will retry it by reallocating the
++	 * sessions array memory to get rid of the mdsc->mutex
++	 * lock.
++	 */
++retry:
++	max_sessions = mdsc->max_sessions;
++
+ 	/*
+ 	 * Trigger to flush the journal logs in all the relevant MDSes
+ 	 * manually, or in the worst case we must wait at most 5 seconds
+ 	 * to wait the journal logs to be flushed by the MDSes periodically.
+ 	 */
+-	if (req1 || req2) {
++	if ((req1 || req2) && likely(max_sessions)) {
+ 		struct ceph_mds_session **sessions = NULL;
+ 		struct ceph_mds_session *s;
+ 		struct ceph_mds_request *req;
+-		unsigned int max;
+ 		int i;
+ 
+-		/*
+-		 * The mdsc->max_sessions is unlikely to be changed
+-		 * mostly, here we will retry it by reallocating the
+-		 * sessions arrary memory to get rid of the mdsc->mutex
+-		 * lock.
+-		 */
+-retry:
+-		max = mdsc->max_sessions;
+-		sessions = krealloc(sessions, max * sizeof(s), __GFP_ZERO);
+-		if (!sessions)
+-			return -ENOMEM;
++		sessions = kzalloc(max_sessions * sizeof(s), GFP_KERNEL);
++		if (!sessions) {
++			err = -ENOMEM;
++			goto out;
++		}
+ 
+ 		spin_lock(&ci->i_unsafe_lock);
+ 		if (req1) {
+ 			list_for_each_entry(req, &ci->i_unsafe_dirops,
+ 					    r_unsafe_dir_item) {
+ 				s = req->r_session;
+-				if (unlikely(s->s_mds >= max)) {
++				if (unlikely(s->s_mds >= max_sessions)) {
+ 					spin_unlock(&ci->i_unsafe_lock);
++					for (i = 0; i < max_sessions; i++) {
++						s = sessions[i];
++						if (s)
++							ceph_put_mds_session(s);
++					}
++					kfree(sessions);
+ 					goto retry;
+ 				}
+ 				if (!sessions[s->s_mds]) {
+@@ -2278,8 +2287,14 @@ retry:
+ 			list_for_each_entry(req, &ci->i_unsafe_iops,
+ 					    r_unsafe_target_item) {
+ 				s = req->r_session;
+-				if (unlikely(s->s_mds >= max)) {
++				if (unlikely(s->s_mds >= max_sessions)) {
+ 					spin_unlock(&ci->i_unsafe_lock);
++					for (i = 0; i < max_sessions; i++) {
++						s = sessions[i];
++						if (s)
++							ceph_put_mds_session(s);
++					}
++					kfree(sessions);
+ 					goto retry;
+ 				}
+ 				if (!sessions[s->s_mds]) {
+@@ -2300,7 +2315,7 @@ retry:
+ 		spin_unlock(&ci->i_ceph_lock);
+ 
+ 		/* send flush mdlog request to MDSes */
+-		for (i = 0; i < max; i++) {
++		for (i = 0; i < max_sessions; i++) {
+ 			s = sessions[i];
+ 			if (s) {
+ 				send_flush_mdlog(s);
+@@ -2317,15 +2332,19 @@ retry:
+ 					ceph_timeout_jiffies(req1->r_timeout));
+ 		if (ret)
+ 			err = -EIO;
+-		ceph_mdsc_put_request(req1);
+ 	}
+ 	if (req2) {
+ 		ret = !wait_for_completion_timeout(&req2->r_safe_completion,
+ 					ceph_timeout_jiffies(req2->r_timeout));
+ 		if (ret)
+ 			err = -EIO;
+-		ceph_mdsc_put_request(req2);
+ 	}
++
++out:
++	if (req1)
++		ceph_mdsc_put_request(req1);
++	if (req2)
++		ceph_mdsc_put_request(req2);
+ 	return err;
+ }
+ 
 -- 
 2.34.1
 
