@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A25354A4149
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:03:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E4A44A4274
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358492AbiAaLDX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:03:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42816 "EHLO
+        id S1359697AbiAaLL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358931AbiAaLCN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:02:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D6E7C061759;
-        Mon, 31 Jan 2022 03:00:19 -0800 (PST)
+        with ESMTP id S1377226AbiAaLJt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:09:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32406C0613FC;
+        Mon, 31 Jan 2022 03:06:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEEB360AF6;
-        Mon, 31 Jan 2022 11:00:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C0DAC340E8;
-        Mon, 31 Jan 2022 11:00:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EDA89B82A60;
+        Mon, 31 Jan 2022 11:06:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AD48C340EE;
+        Mon, 31 Jan 2022 11:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626818;
-        bh=gRRUr3GZfH0oOWsALBJ1NzPStNd7gByEVdYf3P2O07k=;
+        s=korg; t=1643627196;
+        bh=pdE/ftul88bx3uGjcDMp1tLlzo0wwAG4y/GYzI/oO7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ws+5ImAWjSh07C8WzATqna3/yJ5HZaKTRkOL3zlGsTm6RrSbdpy5m49l/XLDv2IYN
-         BSUYTkRW/j0SozvKqneUJ84wU5jl6hNo5vaQhG6DBrTGwjc3Fb0X4Vy5uuZbtL7mWL
-         hZ++AT7u5uTAW1jAzzmnDLAAT3Ai5a0eFsIcrrO4=
+        b=kbndM2cRJI6gclSUB2ugjYg7q30V5L6VANTJp9xFSH/aSjfBSuXM0ZXmisxudaKhZ
+         w11zTyr7jnfsBPwzmfKw4Ex0/uke1IoS2rqdAlks+GwfOY9RLhcJgV5hSVcd3MVBjk
+         8kig/mEtXuHURdktV5TBpN1Rb4Z9mdqkJBOBSlt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 50/64] net: phy: broadcom: hook up soft_reset for BCM54616S
-Date:   Mon, 31 Jan 2022 11:56:35 +0100
-Message-Id: <20220131105217.373387209@linuxfoundation.org>
+Subject: [PATCH 5.10 075/100] octeontx2-pf: Forward error codes to VF
+Date:   Mon, 31 Jan 2022 11:56:36 +0100
+Message-Id: <20220131105222.951181036@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105215.644174521@linuxfoundation.org>
-References: <20220131105215.644174521@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,59 +49,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Subbaraya Sundeep <sbhatta@marvell.com>
 
-[ Upstream commit d15c7e875d44367005370e6a82e8f3a382a04f9b ]
+[ Upstream commit a8db854be28622a2477cb21cdf7f829adbb2c42d ]
 
-A problem was encountered with the Bel-Fuse 1GBT-SFP05 SFP module (which
-is a 1 Gbps copper module operating in SGMII mode with an internal
-BCM54616S PHY device) using the Xilinx AXI Ethernet MAC core, where the
-module would work properly on the initial insertion or boot of the
-device, but after the device was rebooted, the link would either only
-come up at 100 Mbps speeds or go up and down erratically.
+PF forwards its VF messages to AF and corresponding
+replies from AF to VF. AF sets proper error code in the
+replies after processing message requests. Currently PF
+checks the error codes in replies and sends invalid
+message to VF. This way VF lacks the information of
+error code set by AF for its messages. This patch
+changes that such that PF simply forwards AF replies
+so that VF can handle error codes.
 
-I found no meaningful changes in the PHY configuration registers between
-the working and non-working boots, but the status registers seemed to
-have a lot of error indications set on the SERDES side of the device on
-the non-working boot. I suspect the problem is that whatever happens on
-the SGMII link when the device is rebooted and the FPGA logic gets
-reloaded ends up putting the module's onboard PHY into a bad state.
-
-Since commit 6e2d85ec0559 ("net: phy: Stop with excessive soft reset")
-the genphy_soft_reset call is not made automatically by the PHY core
-unless the callback is explicitly specified in the driver structure. For
-most of these Broadcom devices, there is probably a hardware reset that
-gets asserted to reset the PHY during boot, however for SFP modules
-(where the BCM54616S is commonly found) no such reset line exists, so if
-the board keeps the SFP cage powered up across a reboot, it will end up
-with no reset occurring during reboots.
-
-Hook up the genphy_soft_reset callback for BCM54616S to ensure that a
-PHY reset is performed before the device is initialized. This appears to
-fix the issue with erratic operation after a reboot with this SFP
-module.
-
-Fixes: 6e2d85ec0559 ("net: phy: Stop with excessive soft reset")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: d424b6c02415 ("octeontx2-pf: Enable SRIOV and added VF mbox handling")
+Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
+Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/broadcom.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/broadcom.c b/drivers/net/phy/broadcom.c
-index 5e956089bf525..c23fec34b50e9 100644
---- a/drivers/net/phy/broadcom.c
-+++ b/drivers/net/phy/broadcom.c
-@@ -646,6 +646,7 @@ static struct phy_driver broadcom_drivers[] = {
- 	.phy_id_mask	= 0xfffffff0,
- 	.name		= "Broadcom BCM54616S",
- 	/* PHY_GBIT_FEATURES */
-+	.soft_reset     = genphy_soft_reset,
- 	.config_init	= bcm54xx_config_init,
- 	.config_aneg	= bcm54616s_config_aneg,
- 	.ack_interrupt	= bcm_phy_ack_intr,
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
+index 044a5b1196acb..161174be51c31 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
+@@ -386,7 +386,12 @@ static int otx2_forward_vf_mbox_msgs(struct otx2_nic *pf,
+ 		dst_mdev->msg_size = mbox_hdr->msg_size;
+ 		dst_mdev->num_msgs = num_msgs;
+ 		err = otx2_sync_mbox_msg(dst_mbox);
+-		if (err) {
++		/* Error code -EIO indicate there is a communication failure
++		 * to the AF. Rest of the error codes indicate that AF processed
++		 * VF messages and set the error codes in response messages
++		 * (if any) so simply forward responses to VF.
++		 */
++		if (err == -EIO) {
+ 			dev_warn(pf->dev,
+ 				 "AF not responding to VF%d messages\n", vf);
+ 			/* restore PF mbase and exit */
 -- 
 2.34.1
 
