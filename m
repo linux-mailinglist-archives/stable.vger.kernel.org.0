@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCEA44A4042
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 11:32:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 895D94A4045
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 11:33:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358199AbiAaKcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 05:32:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36684 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358206AbiAaKct (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:32:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F9F3C061714
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 02:32:48 -0800 (PST)
+        id S1358217AbiAaKc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 05:32:59 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44480 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358208AbiAaKc5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:32:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C43D613E9
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 10:32:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A7EEC340EE;
-        Mon, 31 Jan 2022 10:32:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F3FF61363
+        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 10:32:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6825AC340E8;
+        Mon, 31 Jan 2022 10:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643625167;
-        bh=bMRXG7GaG+DajgTQPNB8DZy0lLBlqujsqNz/qWpQj+k=;
+        s=korg; t=1643625177;
+        bh=yFhnqksUaJ+c1/lQmuF3rm/KgTDojtigTf/fNAXm6lY=;
         h=Subject:To:Cc:From:Date:From;
-        b=cJVgYXzGZZyrjacKpmZodwDbNlsxR4LDxb3qQxVYs3AMxMltARR7XAPctPIf75Klz
-         hvTPm3wrm7N05dXlurUpcbtYnUykPV13Sps7EoVnGwnlhQtxGFLcikX61NroZWeK5R
-         MLQPbO87otegeGKE6/j5tCnI7iSuwopUzQ1JOE7s=
-Subject: FAILED: patch "[PATCH] loop: make autoclear operation asynchronous" failed to apply to 5.15-stable tree
+        b=aqmIhKkCQvpYc0nUA5eD5DUXOsFwG1UvySJlcgwd77Q8jEZgzph1tjtdcL8q6yQuk
+         SvrQVl0DB9nl5w7Es4OyHLKgaqGkMXOOtZP54n+LnuaW1qnbZnPjIOPGZ/NMRqpaAx
+         yT6LMkl8q0MRPH7TqwHg86u+e/OxNXPxiDLHcpMc=
+Subject: FAILED: patch "[PATCH] loop: make autoclear operation asynchronous" failed to apply to 5.10-stable tree
 To:     penguin-kernel@i-love.sakura.ne.jp, axboe@kernel.dk,
         hch@infradead.org, hch@lst.de, jack@suse.cz,
         penguin-kernel@I-love.SAKURA.ne.jp,
         syzbot+643e4ce4b6ad1347d372@syzkaller.appspotmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Jan 2022 11:32:36 +0100
-Message-ID: <1643625156169193@kroah.com>
+Date:   Mon, 31 Jan 2022 11:32:37 +0100
+Message-ID: <16436251575932@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -45,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
