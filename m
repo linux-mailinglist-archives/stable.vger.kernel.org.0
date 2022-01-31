@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C89094A4371
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:21:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C7F64A42A8
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:14:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359610AbiAaLVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:21:31 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38400 "EHLO
+        id S1376466AbiAaLMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:12:45 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58138 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378132AbiAaLTp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:19:45 -0500
+        with ESMTP id S1358682AbiAaLKm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:42 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE704B82A4C;
-        Mon, 31 Jan 2022 11:19:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DB4FC340E8;
-        Mon, 31 Jan 2022 11:19:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3414CB82A5C;
+        Mon, 31 Jan 2022 11:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59A52C340EE;
+        Mon, 31 Jan 2022 11:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627983;
-        bh=pz05IZcGWACADVBvxdAq92ZPbMNlGCY/ENYXnBkp9pc=;
+        s=korg; t=1643627439;
+        bh=5KbiUx6X5HZdRKu9eFEQMOeG+LLKQ/WIBXG4G8PLDGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JaYGlTs6icTqL4du7ZZUwBNXoiHNffpxLtG2FyC3WLp2bFts/AnzfMgtYQm60BHgp
-         AxQdhWFBJ12Xpwzy64sTvfL6FRQ3u70a5T9wosQKugGZfGz5aORjMr+NYus2AteCUU
-         p8hbprcY5qChsu2f476P4bHIERvdY98WqBz7SZtE=
+        b=Tw6AOTu+M4I0mUxNOE/dR5nREBOUykPsK8z0GKU2vh/JQVGlA4iaQgZWTv9teLoc5
+         K9jspf6ICSKvj9jiZdOiAJXuerFio+SxYMSx4PpyKcmauyOjkRsgBCs9IU3zAWE4AM
+         M2moHqK9QHS8D5op7KATc6XIE8BQVqBeNsB1JJQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.16 086/200] mm, kasan: use compare-exchange operation to set KASAN page tag
+        stable@vger.kernel.org, Guangwu Zhang <guazhang@redhat.com>,
+        Maurizio Lombardi <mlombard@redhat.com>,
+        John Meneghini <jmeneghi@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 084/171] scsi: bnx2fc: Flush destroy_work queue before calling bnx2fc_interface_put()
 Date:   Mon, 31 Jan 2022 11:55:49 +0100
-Message-Id: <20220131105236.503859012@linuxfoundation.org>
+Message-Id: <20220131105232.870875250@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,56 +46,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Collingbourne <pcc@google.com>
+From: John Meneghini <jmeneghi@redhat.com>
 
-commit 27fe73394a1c6d0b07fa4d95f1bca116d1cc66e9 upstream.
+commit 847f9ea4c5186fdb7b84297e3eeed9e340e83fce upstream.
 
-It has been reported that the tag setting operation on newly-allocated
-pages can cause the page flags to be corrupted when performed
-concurrently with other flag updates as a result of the use of
-non-atomic operations.
+The bnx2fc_destroy() functions are removing the interface before calling
+destroy_work. This results multiple WARNings from sysfs_remove_group() as
+the controller rport device attributes are removed too early.
 
-Fix the problem by using a compare-exchange loop to update the tag.
+Replace the fcoe_port's destroy_work queue. It's not needed.
 
-Link: https://lkml.kernel.org/r/20220120020148.1632253-1-pcc@google.com
-Link: https://linux-review.googlesource.com/id/I456b24a2b9067d93968d43b4bb3351c0cec63101
-Fixes: 2813b9c02962 ("kasan, mm, arm64: tag non slab memory allocated via pagealloc")
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The problem is easily reproducible with the following steps.
+
+Example:
+
+  $ dmesg -w &
+  $ systemctl enable --now fcoe
+  $ fipvlan -s -c ens2f1
+  $ fcoeadm -d ens2f1.802
+  [  583.464488] host2: libfc: Link down on port (7500a1)
+  [  583.472651] bnx2fc: 7500a1 - rport not created Yet!!
+  [  583.490468] ------------[ cut here ]------------
+  [  583.538725] sysfs group 'power' not found for kobject 'rport-2:0-0'
+  [  583.568814] WARNING: CPU: 3 PID: 192 at fs/sysfs/group.c:279 sysfs_remove_group+0x6f/0x80
+  [  583.607130] Modules linked in: dm_service_time 8021q garp mrp stp llc bnx2fc cnic uio rpcsec_gss_krb5 auth_rpcgss nfsv4 ...
+  [  583.942994] CPU: 3 PID: 192 Comm: kworker/3:2 Kdump: loaded Not tainted 5.14.0-39.el9.x86_64 #1
+  [  583.984105] Hardware name: HP ProLiant DL120 G7, BIOS J01 07/01/2013
+  [  584.016535] Workqueue: fc_wq_2 fc_rport_final_delete [scsi_transport_fc]
+  [  584.050691] RIP: 0010:sysfs_remove_group+0x6f/0x80
+  [  584.074725] Code: ff 5b 48 89 ef 5d 41 5c e9 ee c0 ff ff 48 89 ef e8 f6 b8 ff ff eb d1 49 8b 14 24 48 8b 33 48 c7 c7 ...
+  [  584.162586] RSP: 0018:ffffb567c15afdc0 EFLAGS: 00010282
+  [  584.188225] RAX: 0000000000000000 RBX: ffffffff8eec4220 RCX: 0000000000000000
+  [  584.221053] RDX: ffff8c1586ce84c0 RSI: ffff8c1586cd7cc0 RDI: ffff8c1586cd7cc0
+  [  584.255089] RBP: 0000000000000000 R08: 0000000000000000 R09: ffffb567c15afc00
+  [  584.287954] R10: ffffb567c15afbf8 R11: ffffffff8fbe7f28 R12: ffff8c1486326400
+  [  584.322356] R13: ffff8c1486326480 R14: ffff8c1483a4a000 R15: 0000000000000004
+  [  584.355379] FS:  0000000000000000(0000) GS:ffff8c1586cc0000(0000) knlGS:0000000000000000
+  [  584.394419] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [  584.421123] CR2: 00007fe95a6f7840 CR3: 0000000107674002 CR4: 00000000000606e0
+  [  584.454888] Call Trace:
+  [  584.466108]  device_del+0xb2/0x3e0
+  [  584.481701]  device_unregister+0x13/0x60
+  [  584.501306]  bsg_unregister_queue+0x5b/0x80
+  [  584.522029]  bsg_remove_queue+0x1c/0x40
+  [  584.541884]  fc_rport_final_delete+0xf3/0x1d0 [scsi_transport_fc]
+  [  584.573823]  process_one_work+0x1e3/0x3b0
+  [  584.592396]  worker_thread+0x50/0x3b0
+  [  584.609256]  ? rescuer_thread+0x370/0x370
+  [  584.628877]  kthread+0x149/0x170
+  [  584.643673]  ? set_kthread_struct+0x40/0x40
+  [  584.662909]  ret_from_fork+0x22/0x30
+  [  584.680002] ---[ end trace 53575ecefa942ece ]---
+
+Link: https://lore.kernel.org/r/20220115040044.1013475-1-jmeneghi@redhat.com
+Fixes: 0cbf32e1681d ("[SCSI] bnx2fc: Avoid calling bnx2fc_if_destroy with unnecessary locks")
+Tested-by: Guangwu Zhang <guazhang@redhat.com>
+Co-developed-by: Maurizio Lombardi <mlombard@redhat.com>
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Signed-off-by: John Meneghini <jmeneghi@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/mm.h |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/scsi/bnx2fc/bnx2fc_fcoe.c |   20 +++++---------------
+ 1 file changed, 5 insertions(+), 15 deletions(-)
 
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1524,11 +1524,18 @@ static inline u8 page_kasan_tag(const st
+--- a/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
++++ b/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
+@@ -82,7 +82,7 @@ static int bnx2fc_bind_pcidev(struct bnx
+ static void bnx2fc_unbind_pcidev(struct bnx2fc_hba *hba);
+ static struct fc_lport *bnx2fc_if_create(struct bnx2fc_interface *interface,
+ 				  struct device *parent, int npiv);
+-static void bnx2fc_destroy_work(struct work_struct *work);
++static void bnx2fc_port_destroy(struct fcoe_port *port);
  
- static inline void page_kasan_tag_set(struct page *page, u8 tag)
- {
--	if (kasan_enabled()) {
--		tag ^= 0xff;
--		page->flags &= ~(KASAN_TAG_MASK << KASAN_TAG_PGSHIFT);
--		page->flags |= (tag & KASAN_TAG_MASK) << KASAN_TAG_PGSHIFT;
--	}
-+	unsigned long old_flags, flags;
-+
-+	if (!kasan_enabled())
-+		return;
-+
-+	tag ^= 0xff;
-+	old_flags = READ_ONCE(page->flags);
-+	do {
-+		flags = old_flags;
-+		flags &= ~(KASAN_TAG_MASK << KASAN_TAG_PGSHIFT);
-+		flags |= (tag & KASAN_TAG_MASK) << KASAN_TAG_PGSHIFT;
-+	} while (unlikely(!try_cmpxchg(&page->flags, &old_flags, flags)));
+ static struct bnx2fc_hba *bnx2fc_hba_lookup(struct net_device *phys_dev);
+ static struct bnx2fc_interface *bnx2fc_interface_lookup(struct net_device
+@@ -907,9 +907,6 @@ static void bnx2fc_indicate_netevent(voi
+ 				__bnx2fc_destroy(interface);
+ 		}
+ 		mutex_unlock(&bnx2fc_dev_lock);
+-
+-		/* Ensure ALL destroy work has been completed before return */
+-		flush_workqueue(bnx2fc_wq);
+ 		return;
+ 
+ 	default:
+@@ -1215,8 +1212,8 @@ static int bnx2fc_vport_destroy(struct f
+ 	mutex_unlock(&n_port->lp_mutex);
+ 	bnx2fc_free_vport(interface->hba, port->lport);
+ 	bnx2fc_port_shutdown(port->lport);
++	bnx2fc_port_destroy(port);
+ 	bnx2fc_interface_put(interface);
+-	queue_work(bnx2fc_wq, &port->destroy_work);
+ 	return 0;
  }
  
- static inline void page_kasan_tag_reset(struct page *page)
+@@ -1525,7 +1522,6 @@ static struct fc_lport *bnx2fc_if_create
+ 	port->lport = lport;
+ 	port->priv = interface;
+ 	port->get_netdev = bnx2fc_netdev;
+-	INIT_WORK(&port->destroy_work, bnx2fc_destroy_work);
+ 
+ 	/* Configure fcoe_port */
+ 	rc = bnx2fc_lport_config(lport);
+@@ -1653,8 +1649,8 @@ static void __bnx2fc_destroy(struct bnx2
+ 	bnx2fc_interface_cleanup(interface);
+ 	bnx2fc_stop(interface);
+ 	list_del(&interface->list);
++	bnx2fc_port_destroy(port);
+ 	bnx2fc_interface_put(interface);
+-	queue_work(bnx2fc_wq, &port->destroy_work);
+ }
+ 
+ /**
+@@ -1694,15 +1690,12 @@ netdev_err:
+ 	return rc;
+ }
+ 
+-static void bnx2fc_destroy_work(struct work_struct *work)
++static void bnx2fc_port_destroy(struct fcoe_port *port)
+ {
+-	struct fcoe_port *port;
+ 	struct fc_lport *lport;
+ 
+-	port = container_of(work, struct fcoe_port, destroy_work);
+ 	lport = port->lport;
+-
+-	BNX2FC_HBA_DBG(lport, "Entered bnx2fc_destroy_work\n");
++	BNX2FC_HBA_DBG(lport, "Entered %s, destroying lport %p\n", __func__, lport);
+ 
+ 	bnx2fc_if_destroy(lport);
+ }
+@@ -2556,9 +2549,6 @@ static void bnx2fc_ulp_exit(struct cnic_
+ 			__bnx2fc_destroy(interface);
+ 	mutex_unlock(&bnx2fc_dev_lock);
+ 
+-	/* Ensure ALL destroy work has been completed before return */
+-	flush_workqueue(bnx2fc_wq);
+-
+ 	bnx2fc_ulp_stop(hba);
+ 	/* unregister cnic device */
+ 	if (test_and_clear_bit(BNX2FC_CNIC_REGISTERED, &hba->reg_with_cnic))
 
 
