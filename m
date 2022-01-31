@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 218E54A4166
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:03:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 314D74A42A4
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:14:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358360AbiAaLDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:03:44 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35926 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358435AbiAaLCV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:02:21 -0500
+        id S1376421AbiAaLMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:12:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44476 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377729AbiAaLKY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34302C06175E;
+        Mon, 31 Jan 2022 03:10:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09D3060B28;
-        Mon, 31 Jan 2022 11:02:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C27B3C340E8;
-        Mon, 31 Jan 2022 11:02:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E401FB82A4D;
+        Mon, 31 Jan 2022 11:10:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 145A2C340E8;
+        Mon, 31 Jan 2022 11:10:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626940;
-        bh=FdwPPk2gvLjIFkl3+JgjvyKrpdqDALAn+JhXfZlZT9I=;
+        s=korg; t=1643627421;
+        bh=2gdeo+OV1A8WaT8/Z+ea+QryuYCvNzv0FYUi8zwOxts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uVOqhDUTD67ga+CnNODF1ce83f/l0G+77SxIOx/nUWYwNWt0lyJn52Bx5/wK86VEp
-         bdXGdSjPCFh3G/j31q0toSmRQH30nda6H86JxA1mnjLO2OE6Jm7U+eFM2X2MlkkEVo
-         LHoYv5wme+azyrNhKtnsKo0+wtozw1I30qb/s/Rk=
+        b=PgA7itYow5GFx6UXTcSV0j57H9k2WjQ+kdItPMeUyAku7wEnSEHSDOrjMxcP159G0
+         9Xn7hpSzr9eqNfgWAJvHAW9WCI50bHe+aHAEmRjskzb23OL4vJZC3d8FUb6P6x8OSo
+         W6KHQYCx2AsOOZNPPjN8htxCTZwDX7adnL+kBMR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Florian Westphal <fw@strlen.de>,
-        Steffen Weinreich <steve@weinreich.org>
-Subject: [PATCH 5.10 023/100] netfilter: nft_payload: do not update layer 4 checksum when mangling fragments
+        stable@vger.kernel.org, Joe Damato <jdamato@fastly.com>,
+        kernel test robot <lkp@intel.com>,
+        Gurucharan G <gurucharanx.g@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.15 079/171] i40e: fix unsigned stat widths
 Date:   Mon, 31 Jan 2022 11:55:44 +0100
-Message-Id: <20220131105221.236589643@linuxfoundation.org>
+Message-Id: <20220131105232.709269325@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +49,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Joe Damato <jdamato@fastly.com>
 
-commit 4e1860a3863707e8177329c006d10f9e37e097a8 upstream.
+commit 3b8428b84539c78fdc8006c17ebd25afd4722d51 upstream.
 
-IP fragments do not come with the transport header, hence skip bogus
-layer 4 checksum updates.
+Change i40e_update_vsi_stats and struct i40e_vsi to use u64 fields to match
+the width of the stats counters in struct i40e_rx_queue_stats.
 
-Fixes: 1814096980bb ("netfilter: nft_payload: layer 4 checksum adjustment for pseudoheader fields")
-Reported-and-tested-by: Steffen Weinreich <steve@weinreich.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Update debugfs code to use the correct format specifier for u64.
+
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Signed-off-by: Joe Damato <jdamato@fastly.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nft_payload.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/intel/i40e/i40e.h         |    8 ++++----
+ drivers/net/ethernet/intel/i40e/i40e_debugfs.c |    2 +-
+ drivers/net/ethernet/intel/i40e/i40e_main.c    |    4 ++--
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
---- a/net/netfilter/nft_payload.c
-+++ b/net/netfilter/nft_payload.c
-@@ -502,6 +502,9 @@ static int nft_payload_l4csum_offset(con
- 				     struct sk_buff *skb,
- 				     unsigned int *l4csum_offset)
- {
-+	if (pkt->xt.fragoff)
-+		return -1;
-+
- 	switch (pkt->tprot) {
- 	case IPPROTO_TCP:
- 		*l4csum_offset = offsetof(struct tcphdr, check);
+--- a/drivers/net/ethernet/intel/i40e/i40e.h
++++ b/drivers/net/ethernet/intel/i40e/i40e.h
+@@ -847,12 +847,12 @@ struct i40e_vsi {
+ 	struct rtnl_link_stats64 net_stats_offsets;
+ 	struct i40e_eth_stats eth_stats;
+ 	struct i40e_eth_stats eth_stats_offsets;
+-	u32 tx_restart;
+-	u32 tx_busy;
++	u64 tx_restart;
++	u64 tx_busy;
+ 	u64 tx_linearize;
+ 	u64 tx_force_wb;
+-	u32 rx_buf_failed;
+-	u32 rx_page_failed;
++	u64 rx_buf_failed;
++	u64 rx_page_failed;
+ 
+ 	/* These are containers of ring pointers, allocated at run-time */
+ 	struct i40e_ring **rx_rings;
+--- a/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
+@@ -240,7 +240,7 @@ static void i40e_dbg_dump_vsi_seid(struc
+ 		 (unsigned long int)vsi->net_stats_offsets.rx_compressed,
+ 		 (unsigned long int)vsi->net_stats_offsets.tx_compressed);
+ 	dev_info(&pf->pdev->dev,
+-		 "    tx_restart = %d, tx_busy = %d, rx_buf_failed = %d, rx_page_failed = %d\n",
++		 "    tx_restart = %llu, tx_busy = %llu, rx_buf_failed = %llu, rx_page_failed = %llu\n",
+ 		 vsi->tx_restart, vsi->tx_busy,
+ 		 vsi->rx_buf_failed, vsi->rx_page_failed);
+ 	rcu_read_lock();
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -778,9 +778,9 @@ static void i40e_update_vsi_stats(struct
+ 	struct rtnl_link_stats64 *ns;   /* netdev stats */
+ 	struct i40e_eth_stats *oes;
+ 	struct i40e_eth_stats *es;     /* device's eth stats */
+-	u32 tx_restart, tx_busy;
++	u64 tx_restart, tx_busy;
+ 	struct i40e_ring *p;
+-	u32 rx_page, rx_buf;
++	u64 rx_page, rx_buf;
+ 	u64 bytes, packets;
+ 	unsigned int start;
+ 	u64 tx_linearize;
 
 
