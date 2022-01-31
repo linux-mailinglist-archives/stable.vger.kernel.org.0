@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E54844A4397
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C31DA4A418A
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:04:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376832AbiAaLWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:22:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46964 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378572AbiAaLUW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:20:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D10AC0604E1;
-        Mon, 31 Jan 2022 03:13:11 -0800 (PST)
+        id S1359168AbiAaLEg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:04:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:51434 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358711AbiAaLD2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:03:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEF81611D8;
-        Mon, 31 Jan 2022 11:13:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92456C340E8;
-        Mon, 31 Jan 2022 11:13:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2D12B82A5E;
+        Mon, 31 Jan 2022 11:03:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5368C340E8;
+        Mon, 31 Jan 2022 11:03:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627590;
-        bh=/yQQiLT0m1y1/euz6bfN4ort1cviBYyUBTmrqAeAjP4=;
+        s=korg; t=1643627005;
+        bh=RfohiMaJGLb6M+sTWyHIxh/F9JRrZ2rOThUjK4zLoHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eM09wiBTUjJ8h6nIJqN8N1BDG63/2yzna/J1eyPFZSxhijq76ClJONSOvR3qRwwvX
-         TaAEtRw4wsmBvK57mAf8cbhLsfNoJkCyDuHpvMXoOHpDQCccJRcmjxcRpMQ6rAfB57
-         Ojf6XmLnkeE1Crv3nLpB1vPMalLU8oP2zS1Bzz8Q=
+        b=b2DQVEsdVv3Jx74ZLfvORpaSldTO/NbOmEyvz7ZXjW/cYiEjW3sB9M5wIgq/1hrDh
+         zrWIBGdN/TmNaXQdOK3DjUBZUYCG4MaIocshjCUoEIdM8OCRrHdY9B2GpHd+mM3CMo
+         R7bOC3lfHPvY0or3SjaeZNGPee4a34vJQxjitkoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 100/171] NFS: Ensure the server has an up to date ctime before hardlinking
-Date:   Mon, 31 Jan 2022 11:56:05 +0100
-Message-Id: <20220131105233.433593413@linuxfoundation.org>
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Karen Sornek <karen.sornek@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.10 045/100] i40e: Fix for failed to init adminq while VF reset
+Date:   Mon, 31 Jan 2022 11:56:06 +0100
+Message-Id: <20220131105221.957317332@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,32 +47,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Karen Sornek <karen.sornek@intel.com>
 
-[ Upstream commit 204975036b34f55237bc44c8a302a88468ef21b5 ]
+commit 0f344c8129a5337dae50e31b817dd50a60ff238c upstream.
 
-Creating a hard link is required by POSIX to update the file ctime, so
-ensure that the file data is synced to disk so that we don't clobber the
-updated ctime by writing back after creating the hard link.
+Fix for failed to init adminq: -53 while VF is resetting via MAC
+address changing procedure.
+Added sync module to avoid reading deadbeef value in reinit adminq
+during software reset.
+Without this patch it is possible to trigger VF reset procedure
+during reinit adminq. This resulted in an incorrect reading of
+value from the AQP registers and generated the -53 error.
 
-Fixes: 9f7682728728 ("NFS: Move the delegation return down into nfs4_proc_link()")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5c3c48ac6bf5 ("i40e: implement virtual device interface")
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Signed-off-by: Karen Sornek <karen.sornek@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/dir.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/i40e/i40e_register.h    |    3 +
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |   44 ++++++++++++++++++++-
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h |    1 
+ 3 files changed, 46 insertions(+), 2 deletions(-)
 
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -2400,6 +2400,8 @@ nfs_link(struct dentry *old_dentry, stru
+--- a/drivers/net/ethernet/intel/i40e/i40e_register.h
++++ b/drivers/net/ethernet/intel/i40e/i40e_register.h
+@@ -279,6 +279,9 @@
+ #define I40E_VFINT_DYN_CTLN(_INTVF) (0x00024800 + ((_INTVF) * 4)) /* _i=0...511 */ /* Reset: VFR */
+ #define I40E_VFINT_DYN_CTLN_CLEARPBA_SHIFT 1
+ #define I40E_VFINT_DYN_CTLN_CLEARPBA_MASK I40E_MASK(0x1, I40E_VFINT_DYN_CTLN_CLEARPBA_SHIFT)
++#define I40E_VFINT_ICR0_ADMINQ_SHIFT 30
++#define I40E_VFINT_ICR0_ADMINQ_MASK I40E_MASK(0x1, I40E_VFINT_ICR0_ADMINQ_SHIFT)
++#define I40E_VFINT_ICR0_ENA(_VF) (0x0002C000 + ((_VF) * 4)) /* _i=0...127 */ /* Reset: CORER */
+ #define I40E_VPINT_AEQCTL(_VF) (0x0002B800 + ((_VF) * 4)) /* _i=0...127 */ /* Reset: CORER */
+ #define I40E_VPINT_AEQCTL_MSIX_INDX_SHIFT 0
+ #define I40E_VPINT_AEQCTL_ITR_INDX_SHIFT 11
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -1324,6 +1324,32 @@ static i40e_status i40e_config_vf_promis
+ }
  
- 	trace_nfs_link_enter(inode, dir, dentry);
- 	d_drop(dentry);
-+	if (S_ISREG(inode->i_mode))
-+		nfs_sync_inode(inode);
- 	error = NFS_PROTO(dir)->link(inode, dir, &dentry->d_name);
- 	if (error == 0) {
- 		ihold(inode);
+ /**
++ * i40e_sync_vfr_reset
++ * @hw: pointer to hw struct
++ * @vf_id: VF identifier
++ *
++ * Before trigger hardware reset, we need to know if no other process has
++ * reserved the hardware for any reset operations. This check is done by
++ * examining the status of the RSTAT1 register used to signal the reset.
++ **/
++static int i40e_sync_vfr_reset(struct i40e_hw *hw, int vf_id)
++{
++	u32 reg;
++	int i;
++
++	for (i = 0; i < I40E_VFR_WAIT_COUNT; i++) {
++		reg = rd32(hw, I40E_VFINT_ICR0_ENA(vf_id)) &
++			   I40E_VFINT_ICR0_ADMINQ_MASK;
++		if (reg)
++			return 0;
++
++		usleep_range(100, 200);
++	}
++
++	return -EAGAIN;
++}
++
++/**
+  * i40e_trigger_vf_reset
+  * @vf: pointer to the VF structure
+  * @flr: VFLR was issued or not
+@@ -1337,9 +1363,11 @@ static void i40e_trigger_vf_reset(struct
+ 	struct i40e_pf *pf = vf->pf;
+ 	struct i40e_hw *hw = &pf->hw;
+ 	u32 reg, reg_idx, bit_idx;
++	bool vf_active;
++	u32 radq;
+ 
+ 	/* warn the VF */
+-	clear_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states);
++	vf_active = test_and_clear_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states);
+ 
+ 	/* Disable VF's configuration API during reset. The flag is re-enabled
+ 	 * in i40e_alloc_vf_res(), when it's safe again to access VF's VSI.
+@@ -1353,7 +1381,19 @@ static void i40e_trigger_vf_reset(struct
+ 	 * just need to clean up, so don't hit the VFRTRIG register.
+ 	 */
+ 	if (!flr) {
+-		/* reset VF using VPGEN_VFRTRIG reg */
++		/* Sync VFR reset before trigger next one */
++		radq = rd32(hw, I40E_VFINT_ICR0_ENA(vf->vf_id)) &
++			    I40E_VFINT_ICR0_ADMINQ_MASK;
++		if (vf_active && !radq)
++			/* waiting for finish reset by virtual driver */
++			if (i40e_sync_vfr_reset(hw, vf->vf_id))
++				dev_info(&pf->pdev->dev,
++					 "Reset VF %d never finished\n",
++				vf->vf_id);
++
++		/* Reset VF using VPGEN_VFRTRIG reg. It is also setting
++		 * in progress state in rstat1 register.
++		 */
+ 		reg = rd32(hw, I40E_VPGEN_VFRTRIG(vf->vf_id));
+ 		reg |= I40E_VPGEN_VFRTRIG_VFSWR_MASK;
+ 		wr32(hw, I40E_VPGEN_VFRTRIG(vf->vf_id), reg);
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
+@@ -19,6 +19,7 @@
+ #define I40E_MAX_VF_PROMISC_FLAGS	3
+ 
+ #define I40E_VF_STATE_WAIT_COUNT	20
++#define I40E_VFR_WAIT_COUNT		100
+ 
+ /* Various queue ctrls */
+ enum i40e_queue_ctrl {
 
 
