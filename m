@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3094A4184
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:04:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E54844A4397
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359122AbiAaLEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:04:23 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51356 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358534AbiAaLDY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:03:24 -0500
+        id S1376832AbiAaLWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:22:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46964 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378572AbiAaLUW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:20:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D10AC0604E1;
+        Mon, 31 Jan 2022 03:13:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98124B82A59;
-        Mon, 31 Jan 2022 11:03:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD647C340F3;
-        Mon, 31 Jan 2022 11:03:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEF81611D8;
+        Mon, 31 Jan 2022 11:13:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92456C340E8;
+        Mon, 31 Jan 2022 11:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627002;
-        bh=/XUiWIQai6L56J/l4Q8HMbWzlCJaHrOsjheH+Cti7XA=;
+        s=korg; t=1643627590;
+        bh=/yQQiLT0m1y1/euz6bfN4ort1cviBYyUBTmrqAeAjP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BwaQEfchULiD8cE3RT9mvBsmPTFn8Ot9E3KotTBQTlj2P0/AXGbd1Om/BRKxxfufm
-         UCeF9DP748q80rpbi6fDcTatu2jMt3j9sLQFInmaHxxXs7tYQxAJafzJNgWaZuJuuP
-         b8kpn+8U99jqXSOPL7lMMYpMHfXsoqyTWZ2VXRek=
+        b=eM09wiBTUjJ8h6nIJqN8N1BDG63/2yzna/J1eyPFZSxhijq76ClJONSOvR3qRwwvX
+         TaAEtRw4wsmBvK57mAf8cbhLsfNoJkCyDuHpvMXoOHpDQCccJRcmjxcRpMQ6rAfB57
+         Ojf6XmLnkeE1Crv3nLpB1vPMalLU8oP2zS1Bzz8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Kiran Bhandare <kiranx.bhandare@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.10 044/100] i40e: Fix queues reservation for XDP
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 100/171] NFS: Ensure the server has an up to date ctime before hardlinking
 Date:   Mon, 31 Jan 2022 11:56:05 +0100
-Message-Id: <20220131105221.914432799@linuxfoundation.org>
+Message-Id: <20220131105233.433593413@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,89 +49,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 92947844b8beee988c0ce17082b705c2f75f0742 upstream.
+[ Upstream commit 204975036b34f55237bc44c8a302a88468ef21b5 ]
 
-When XDP was configured on a system with large number of CPUs
-and X722 NIC there was a call trace with NULL pointer dereference.
+Creating a hard link is required by POSIX to update the file ctime, so
+ensure that the file data is synced to disk so that we don't clobber the
+updated ctime by writing back after creating the hard link.
 
-i40e 0000:87:00.0: failed to get tracking for 256 queues for VSI 0 err -12
-i40e 0000:87:00.0: setup of MAIN VSI failed
-
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-RIP: 0010:i40e_xdp+0xea/0x1b0 [i40e]
-Call Trace:
-? i40e_reconfig_rss_queues+0x130/0x130 [i40e]
-dev_xdp_install+0x61/0xe0
-dev_xdp_attach+0x18a/0x4c0
-dev_change_xdp_fd+0x1e6/0x220
-do_setlink+0x616/0x1030
-? ahci_port_stop+0x80/0x80
-? ata_qc_issue+0x107/0x1e0
-? lock_timer_base+0x61/0x80
-? __mod_timer+0x202/0x380
-rtnl_setlink+0xe5/0x170
-? bpf_lsm_binder_transaction+0x10/0x10
-? security_capable+0x36/0x50
-rtnetlink_rcv_msg+0x121/0x350
-? rtnl_calcit.isra.0+0x100/0x100
-netlink_rcv_skb+0x50/0xf0
-netlink_unicast+0x1d3/0x2a0
-netlink_sendmsg+0x22a/0x440
-sock_sendmsg+0x5e/0x60
-__sys_sendto+0xf0/0x160
-? __sys_getsockname+0x7e/0xc0
-? _copy_from_user+0x3c/0x80
-? __sys_setsockopt+0xc8/0x1a0
-__x64_sys_sendto+0x20/0x30
-do_syscall_64+0x33/0x40
-entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f83fa7a39e0
-
-This was caused by PF queue pile fragmentation due to
-flow director VSI queue being placed right after main VSI.
-Because of this main VSI was not able to resize its
-queue allocation for XDP resulting in no queues allocated
-for main VSI when XDP was turned on.
-
-Fix this by always allocating last queue in PF queue pile
-for a flow director VSI.
-
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Fixes: 74608d17fe29 ("i40e: add support for XDP_TX action")
-Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: Kiran Bhandare <kiranx.bhandare@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9f7682728728 ("NFS: Move the delegation return down into nfs4_proc_link()")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ fs/nfs/dir.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -209,6 +209,20 @@ static int i40e_get_lump(struct i40e_pf
- 		return -EINVAL;
- 	}
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -2400,6 +2400,8 @@ nfs_link(struct dentry *old_dentry, stru
  
-+	/* Allocate last queue in the pile for FDIR VSI queue
-+	 * so it doesn't fragment the qp_pile
-+	 */
-+	if (pile == pf->qp_pile && pf->vsi[id]->type == I40E_VSI_FDIR) {
-+		if (pile->list[pile->num_entries - 1] & I40E_PILE_VALID_BIT) {
-+			dev_err(&pf->pdev->dev,
-+				"Cannot allocate queue %d for I40E_VSI_FDIR\n",
-+				pile->num_entries - 1);
-+			return -ENOMEM;
-+		}
-+		pile->list[pile->num_entries - 1] = id | I40E_PILE_VALID_BIT;
-+		return pile->num_entries - 1;
-+	}
-+
- 	i = 0;
- 	while (i < pile->num_entries) {
- 		/* skip already allocated entries */
+ 	trace_nfs_link_enter(inode, dir, dentry);
+ 	d_drop(dentry);
++	if (S_ISREG(inode->i_mode))
++		nfs_sync_inode(inode);
+ 	error = NFS_PROTO(dir)->link(inode, dir, &dentry->d_name);
+ 	if (error == 0) {
+ 		ihold(inode);
 
 
