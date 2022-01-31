@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67D7B4A441D
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:26:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF7BB4A4219
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359638AbiAaL0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:26:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47178 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358626AbiAaLVE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:21:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C0EC0797A9;
-        Mon, 31 Jan 2022 03:14:10 -0800 (PST)
+        id S1358544AbiAaLKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:10:49 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54076 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358926AbiAaLGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:06:14 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6CCF8B82A66;
-        Mon, 31 Jan 2022 11:14:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC25BC340E8;
-        Mon, 31 Jan 2022 11:14:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BCF59B82A6E;
+        Mon, 31 Jan 2022 11:06:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C603FC340E8;
+        Mon, 31 Jan 2022 11:06:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627648;
-        bh=dM3iea27OHICyc17xNvr5LK/MG0brUjiMVVrlnGqQ5k=;
+        s=korg; t=1643627172;
+        bh=DoZ1E/+8ix+OgIbNqPUNVDPpuSpcbXv83pH9UB60g/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TB+9gBIr5r0oMlsJH6L+xt3THgvDvs2CqnZ8W42NGiegAe7HF2v479ySfWdFtRb+G
-         bYtwgJEIGE9BBbMAAJxgDgsHjvoaiuCHep4bFpGyF3J2vGeJY3Kz1d2yl185lw0pJq
-         yED0aIFci55Lf1UoEyPaEtu4n7CvSoNfWJWS4K/8=
+        b=JuC7Bok7U+kB85x2SPeAhJ1ud11gf02HV+VK47KWfePS/3CpwT/eKdxQKLfhgUqXc
+         efN0l5GHhcdIhg2XcaKfjFCUSboOl2U17k/k5KcjQiVicrs1WwwwdlcksJbMCiO8mh
+         7oO71m1tcAUQZ8G1annCzkQD86lIND7XjxLSjn5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 152/171] KVM: selftests: Dont skip L2s VMCALL in SMM test for SVM guest
-Date:   Mon, 31 Jan 2022 11:56:57 +0100
-Message-Id: <20220131105235.157600309@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 097/100] dt-bindings: can: tcan4x5x: fix mram-cfg RX FIFO config
+Date:   Mon, 31 Jan 2022 11:56:58 +0100
+Message-Id: <20220131105223.714641649@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,45 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 4cf3d3ebe8794c449af3e0e8c1d790c97e461d20 ]
+commit 17a30422621c0e04cb6060d20d7edcefd7463347 upstream.
 
-Don't skip the vmcall() in l2_guest_code() prior to re-entering L2, doing
-so will result in L2 running to completion, popping '0' off the stack for
-RET, jumping to address '0', and ultimately dying with a triple fault
-shutdown.
+This tcan4x5x only comes with 2K of MRAM, a RX FIFO with a dept of 32
+doesn't fit into the MRAM. Use a depth of 16 instead.
 
-It's not at all obvious why the test re-enters L2 and re-executes VMCALL,
-but presumably it serves a purpose.  The VMX path doesn't skip vmcall(),
-and the test can't possibly have passed on SVM, so just do what VMX does.
-
-Fixes: d951b2210c1a ("KVM: selftests: smm_test: Test SMM enter from L2")
-Cc: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220125221725.2101126-1-seanjc@google.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Tested-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4edd396a1911 ("dt-bindings: can: tcan4x5x: Add DT bindings for TCAN4x5X driver")
+Link: https://lore.kernel.org/all/20220119062951.2939851-1-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/kvm/x86_64/smm_test.c | 1 -
- 1 file changed, 1 deletion(-)
+ Documentation/devicetree/bindings/net/can/tcan4x5x.txt |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/kvm/x86_64/smm_test.c b/tools/testing/selftests/kvm/x86_64/smm_test.c
-index d0fe2fdce58c4..db2a17559c3d5 100644
---- a/tools/testing/selftests/kvm/x86_64/smm_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/smm_test.c
-@@ -105,7 +105,6 @@ static void guest_code(void *arg)
- 
- 		if (cpu_has_svm()) {
- 			run_guest(svm->vmcb, svm->vmcb_gpa);
--			svm->vmcb->save.rip += 3;
- 			run_guest(svm->vmcb, svm->vmcb_gpa);
- 		} else {
- 			vmlaunch();
--- 
-2.34.1
-
+--- a/Documentation/devicetree/bindings/net/can/tcan4x5x.txt
++++ b/Documentation/devicetree/bindings/net/can/tcan4x5x.txt
+@@ -31,7 +31,7 @@ tcan4x5x: tcan4x5x@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+ 		spi-max-frequency = <10000000>;
+-		bosch,mram-cfg = <0x0 0 0 32 0 0 1 1>;
++		bosch,mram-cfg = <0x0 0 0 16 0 0 1 1>;
+ 		interrupt-parent = <&gpio1>;
+ 		interrupts = <14 IRQ_TYPE_LEVEL_LOW>;
+ 		device-state-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
 
 
