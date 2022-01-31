@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB4EB4A4346
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:21:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07F154A4244
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377569AbiAaLUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:20:40 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35628 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376824AbiAaLQe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:16:34 -0500
+        id S1359163AbiAaLLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:02 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42128 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359440AbiAaLHu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:07:50 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71006B82A5F;
-        Mon, 31 Jan 2022 11:16:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9303FC340E8;
-        Mon, 31 Jan 2022 11:16:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16F8360E76;
+        Mon, 31 Jan 2022 11:07:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F20A2C340E8;
+        Mon, 31 Jan 2022 11:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627789;
-        bh=gmPK/npHsN/H2bxF8vKX300kzqc94NfnneRn0xilyw4=;
+        s=korg; t=1643627268;
+        bh=m3LZqmH1nbge2TQOPSDQjTtRd5XlahkS46mn4dWGeJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NQiulh2kqrq4VMvBCrLz1fSFe7O7nMd5Qf91QdpOk933UEX4w04kFWh9+4Abd4WBu
-         fH3n/JeHcBuMxp4KTFaYRsJS2w/kJgI0xhGpe7aDh1OnZaMm3R8sr2nrbDtiFnsbiD
-         U/HgBr9fe88oZvBg0HaRAhDqHgKrf7eN3CX+3bmk=
+        b=iCf8XoLa5K9/hX0faMTs+fBFV0WMZ6OukOkQ208oWOxgoCSEGSjP3hECtlTahyGDV
+         M08wBC+bKW6IQJgP9LdhjVQrkTlolEBmeEadRibzZEEiJW7++F+T0AMDzx6RoJ2DJQ
+         0JnItHJZioYK/5NNO3IQ11LjD1FCL4EDXjXdeVPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.16 008/200] btrfs: update writeback index when starting defrag
-Date:   Mon, 31 Jan 2022 11:54:31 +0100
-Message-Id: <20220131105233.838548740@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Fuad Tabba <tabba@google.com>
+Subject: [PATCH 5.15 007/171] KVM: arm64: Use shadow SPSR_EL1 when injecting exceptions on !VHE
+Date:   Mon, 31 Jan 2022 11:54:32 +0100
+Message-Id: <20220131105230.223736832@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 27cdfde181bcacd226c230b2fd831f6f5b8c215f upstream.
+commit 278583055a237270fac70518275ba877bf9e4013 upstream.
 
-When starting a defrag, we should update the writeback index of the
-inode's mapping in case it currently has a value beyond the start of the
-range we are defragging. This can help performance and often result in
-getting less extents after writeback - for e.g., if the current value
-of the writeback index sits somewhere in the middle of a range that
-gets dirty by the defrag, then after writeback we can get two smaller
-extents instead of a single, larger extent.
+Injecting an exception into a guest with non-VHE is risky business.
+Instead of writing in the shadow register for the switch code to
+restore it, we override the CPU register instead. Which gets
+overriden a few instructions later by said restore code.
 
-We used to have this before the refactoring in 5.16, but it was removed
-without any reason to do so. Originally it was added in kernel 3.1, by
-commit 2a0f7f5769992b ("Btrfs: fix recursive auto-defrag"), in order to
-fix a loop with autodefrag resulting in dirtying and writing pages over
-and over, but some testing on current code did not show that happening,
-at least with the test described in that commit.
+The result is that although the guest correctly gets the exception,
+it will return to the original context in some random state,
+depending on what was there the first place... Boo.
 
-So add back the behaviour, as at the very least it is a nice to have
-optimization.
+Fix the issue by writing to the shadow register. The original code
+is absolutely fine on VHE, as the state is already loaded, and writing
+to the shadow register in that case would actually be a bug.
 
-Fixes: 7b508037d4cac3 ("btrfs: defrag: use defrag_one_cluster() to implement btrfs_defrag_file()")
-CC: stable@vger.kernel.org # 5.16
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: bb666c472ca2 ("KVM: arm64: Inject AArch64 exceptions from HYP")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Fuad Tabba <tabba@google.com>
+Link: https://lore.kernel.org/r/20220121184207.423426-1-maz@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ioctl.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/arm64/kvm/hyp/exception.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -1511,6 +1511,7 @@ int btrfs_defrag_file(struct inode *inod
- 	int compress_type = BTRFS_COMPRESS_ZLIB;
- 	int ret = 0;
- 	u32 extent_thresh = range->extent_thresh;
-+	pgoff_t start_index;
+--- a/arch/arm64/kvm/hyp/exception.c
++++ b/arch/arm64/kvm/hyp/exception.c
+@@ -38,7 +38,10 @@ static inline void __vcpu_write_sys_reg(
  
- 	if (isize == 0)
- 		return 0;
-@@ -1552,6 +1553,14 @@ int btrfs_defrag_file(struct inode *inod
- 			file_ra_state_init(ra, inode->i_mapping);
- 	}
+ static void __vcpu_write_spsr(struct kvm_vcpu *vcpu, u64 val)
+ {
+-	write_sysreg_el1(val, SYS_SPSR);
++	if (has_vhe())
++		write_sysreg_el1(val, SYS_SPSR);
++	else
++		__vcpu_sys_reg(vcpu, SPSR_EL1) = val;
+ }
  
-+	/*
-+	 * Make writeback start from the beginning of the range, so that the
-+	 * defrag range can be written sequentially.
-+	 */
-+	start_index = cur >> PAGE_SHIFT;
-+	if (start_index < inode->i_mapping->writeback_index)
-+		inode->i_mapping->writeback_index = start_index;
-+
- 	while (cur < last_byte) {
- 		const unsigned long prev_sectors_defragged = sectors_defragged;
- 		u64 cluster_end;
+ static void __vcpu_write_spsr_abt(struct kvm_vcpu *vcpu, u64 val)
 
 
