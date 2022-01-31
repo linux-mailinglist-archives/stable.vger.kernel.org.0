@@ -2,29 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53CE64A43E2
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:25:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 176CF4A426D
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350832AbiAaLYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:24:43 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:55130 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377002AbiAaLWU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:22:20 -0500
+        id S1359635AbiAaLLw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44372 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377169AbiAaLJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:09:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88691C0604CA;
+        Mon, 31 Jan 2022 03:06:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5972A61298;
-        Mon, 31 Jan 2022 11:22:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35676C340E8;
-        Mon, 31 Jan 2022 11:22:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2794460FB5;
+        Mon, 31 Jan 2022 11:06:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA66BC340E8;
+        Mon, 31 Jan 2022 11:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628139;
-        bh=tcdbW/8UqgiCGn1wuJRWV1j3SX/4Fj4DznIlan+YDvo=;
+        s=korg; t=1643627187;
+        bh=Nc46HbOlscxH1ZoeqPE08D0tvHM0jh6dbN/WgavK4V0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ITemSXb4Mw+AlxiC/pViOyB8Cqk/JjeROoQDoNbJ2P5fI1Xifg6qlFK1fzirTnqak
-         6IDLqq1KPyptEHAjLFVBTCOSiwJNRolGpfmBrQkgvJfDJ9wikwu5tj/Ll9cI70YRFo
-         VSXNiy/Rs4WsfdJWvdUfnT0oNu0UfCU0R8aoR7KE=
+        b=18Qr1qrSSg2IJjB7PRReUVX8Q85srXRZWUZINWKYyT2n1ByOHOJstErZ5Z9aEIYy9
+         MLJiL+TZqXdjFDvzORVc3FBd/LjAzRx2YHtPEVARu8PaVD0ecG2EbPn7cWTBiU/9r+
+         2aM8sZm3vfXRtyabPrUaQd8UmaxVmrgC2BVJsr50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -34,12 +37,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dietmar Eggemann <dietmar.eggemann@arm.com>,
         Sachin Sant <sachinp@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 130/200] sched/pelt: Relax the sync of util_sum with util_avg
+Subject: [PATCH 5.10 072/100] sched/pelt: Relax the sync of util_sum with util_avg
 Date:   Mon, 31 Jan 2022 11:56:33 +0100
-Message-Id: <20220131105237.926644981@linuxfoundation.org>
+Message-Id: <20220131105222.848675855@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -88,10 +91,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 16 insertions(+), 4 deletions(-)
 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index f2cf047b25e56..069e01772d922 100644
+index 8d2f238fdd2ac..acd9833b8ec22 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -3382,7 +3382,6 @@ void set_task_rq_fair(struct sched_entity *se,
+@@ -3379,7 +3379,6 @@ void set_task_rq_fair(struct sched_entity *se,
  	se->avg.last_update_time = n_last_update_time;
  }
  
@@ -99,7 +102,7 @@ index f2cf047b25e56..069e01772d922 100644
  /*
   * When on migration a sched_entity joins/leaves the PELT hierarchy, we need to
   * propagate its contribution. The key to this propagation is the invariant
-@@ -3450,7 +3449,6 @@ void set_task_rq_fair(struct sched_entity *se,
+@@ -3447,7 +3446,6 @@ void set_task_rq_fair(struct sched_entity *se,
   * XXX: only do this for the part of runnable > running ?
   *
   */
@@ -107,7 +110,7 @@ index f2cf047b25e56..069e01772d922 100644
  static inline void
  update_tg_cfs_util(struct cfs_rq *cfs_rq, struct sched_entity *se, struct cfs_rq *gcfs_rq)
  {
-@@ -3682,7 +3680,19 @@ update_cfs_rq_load_avg(u64 now, struct cfs_rq *cfs_rq)
+@@ -3676,7 +3674,19 @@ update_cfs_rq_load_avg(u64 now, struct cfs_rq *cfs_rq)
  
  		r = removed_util;
  		sub_positive(&sa->util_avg, r);
@@ -129,7 +132,7 @@ index f2cf047b25e56..069e01772d922 100644
  		r = removed_runnable;
  		sub_positive(&sa->runnable_avg, r);
 diff --git a/kernel/sched/pelt.h b/kernel/sched/pelt.h
-index e06071bf3472c..c336f5f481bca 100644
+index 0b9aeebb9c325..45bf08e22207c 100644
 --- a/kernel/sched/pelt.h
 +++ b/kernel/sched/pelt.h
 @@ -37,9 +37,11 @@ update_irq_load_avg(struct rq *rq, u64 running)
