@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4EA34A44D4
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82AC14A41F3
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:10:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377143AbiAaLcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:32:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48386 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359302AbiAaLYl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:24:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DF99C08E87E;
-        Mon, 31 Jan 2022 03:15:09 -0800 (PST)
+        id S245372AbiAaLH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:07:27 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39888 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359393AbiAaLFY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:05:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29A81B82A72;
-        Mon, 31 Jan 2022 11:15:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41D95C340E8;
-        Mon, 31 Jan 2022 11:15:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 195F960B28;
+        Mon, 31 Jan 2022 11:05:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9239C340E8;
+        Mon, 31 Jan 2022 11:05:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627706;
-        bh=HzL/f2fJDdFAYlaAgmyyXD8k+KU7W+Bltptoq5GZwQY=;
+        s=korg; t=1643627123;
+        bh=PvqhyxCJZxpLaJ8L1wBqus7S7SnmSWuGiwYAapgizFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o2UlrI1Ms9pr/m0rpFBxxSEdzOliA2OKsm8A7pbatHhqxdfYi0xCKMEa5AR9QFP6/
-         225ja/9AwFKRk/ebqUm3a2CglpehOC5/IfpZ2NiPt4fmah/f3QFoDT2HXrVrcgG8QY
-         Av0IhfbC7RYOnC5C0h9gP3Z0AGm6IQAFIwirHOf8=
+        b=a48DE/2OobGJM0F/OnQfi9Z8QQt6RZhnreEaMhXkadtHC34X5vQvLVBKXa7KZHz7z
+         /M+s8+HNFsL9n+NKhy0hcrMr2mL+Mc1iJHDBeoYjDFkcKt/fA+Sh2vR3PAzatRW55G
+         8609n/2esPXaigPtG/ywCs9qHvT0/iKO6umbvEUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        Dany Madden <drt@linux.ibm.com>,
+        stable@vger.kernel.org, caixf <ooppublic@163.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 138/171] ibmvnic: Allow extra failures before disabling
+Subject: [PATCH 5.10 082/100] ipv4: fix ip option filtering for locally generated fragments
 Date:   Mon, 31 Jan 2022 11:56:43 +0100
-Message-Id: <20220131105234.673474930@linuxfoundation.org>
+Message-Id: <20220131105223.204395895@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,75 +46,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit db9f0e8bf79e6da7068b5818fea0ffd9d0d4b4da ]
+[ Upstream commit 27a8caa59babb96c5890569e131bc0eb6d45daee ]
 
-If auto-priority-failover (APF) is enabled and there are at least two
-backing devices of different priorities, some resets like fail-over,
-change-param etc can cause at least two back to back failovers. (Failover
-from high priority backing device to lower priority one and then back
-to the higher priority one if that is still functional).
+During IP fragmentation we sanitize IP options. This means overwriting
+options which should not be copied with NOPs. Only the first fragment
+has the original, full options.
 
-Depending on the timimg of the two failovers it is possible to trigger
-a "hard" reset and for the hard reset to fail due to failovers. When this
-occurs, the driver assumes that the network is unstable and disables the
-VNIC for a 60-second "settling time". This in turn can cause the ethtool
-command to fail with "No such device" while the vnic automatically recovers
-a little while later.
+ip_fraglist_prepare() copies the IP header and options from previous
+fragment to the next one. Commit 19c3401a917b ("net: ipv4: place control
+buffer handling away from fragmentation iterators") moved sanitizing
+options before ip_fraglist_prepare() which means options are sanitized
+and then overwritten again with the old values.
 
-Given that it's possible to have two back to back failures, allow for extra
-failures before disabling the vnic for the settling time.
+Fixing this is not enough, however, nor did the sanitization work
+prior to aforementioned commit.
 
-Fixes: f15fde9d47b8 ("ibmvnic: delay next reset if hard reset fails")
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Reviewed-by: Dany Madden <drt@linux.ibm.com>
+ip_options_fragment() (which does the sanitization) uses ipcb->opt.optlen
+for the length of the options. ipcb->opt of fragments is not populated
+(it's 0), only the head skb has the state properly built. So even when
+called at the right time ip_options_fragment() does nothing. This seems
+to date back all the way to v2.5.44 when the fast path for pre-fragmented
+skbs had been introduced. Prior to that ip_options_build() would have been
+called for every fragment (in fact ever since v2.5.44 the fragmentation
+handing in ip_options_build() has been dead code, I'll clean it up in
+-next).
+
+In the original patch (see Link) caixf mentions fixing the handling
+for fragments other than the second one, but I'm not sure how _any_
+fragment could have had their options sanitized with the code
+as it stood.
+
+Tested with python (MTU on lo lowered to 1000 to force fragmentation):
+
+  import socket
+  s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+  s.setsockopt(socket.IPPROTO_IP, socket.IP_OPTIONS,
+               bytearray([7,4,5,192, 20|0x80,4,1,0]))
+  s.sendto(b'1'*2000, ('127.0.0.1', 1234))
+
+Before:
+
+IP (tos 0x0, ttl 64, id 1053, offset 0, flags [+], proto UDP (17), length 996, options (RR [bad length 4] [bad ptr 5] 192.148.4.1,,RA value 256))
+    localhost.36500 > localhost.search-agent: UDP, length 2000
+IP (tos 0x0, ttl 64, id 1053, offset 968, flags [+], proto UDP (17), length 996, options (RR [bad length 4] [bad ptr 5] 192.148.4.1,,RA value 256))
+    localhost > localhost: udp
+IP (tos 0x0, ttl 64, id 1053, offset 1936, flags [none], proto UDP (17), length 100, options (RR [bad length 4] [bad ptr 5] 192.148.4.1,,RA value 256))
+    localhost > localhost: udp
+
+After:
+
+IP (tos 0x0, ttl 96, id 42549, offset 0, flags [+], proto UDP (17), length 996, options (RR [bad length 4] [bad ptr 5] 192.148.4.1,,RA value 256))
+    localhost.51607 > localhost.search-agent: UDP, bad length 2000 > 960
+IP (tos 0x0, ttl 96, id 42549, offset 968, flags [+], proto UDP (17), length 996, options (NOP,NOP,NOP,NOP,RA value 256))
+    localhost > localhost: udp
+IP (tos 0x0, ttl 96, id 42549, offset 1936, flags [none], proto UDP (17), length 100, options (NOP,NOP,NOP,NOP,RA value 256))
+    localhost > localhost: udp
+
+RA (20 | 0x80) is now copied as expected, RR (7) is "NOPed out".
+
+Link: https://lore.kernel.org/netdev/20220107080559.122713-1-ooppublic@163.com/
+Fixes: 19c3401a917b ("net: ipv4: place control buffer handling away from fragmentation iterators")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: caixf <ooppublic@163.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+ net/ipv4/ip_output.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 352ffe982d849..191b3b7350182 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -2424,6 +2424,7 @@ static void __ibmvnic_reset(struct work_struct *work)
- 	struct ibmvnic_rwi *rwi;
- 	unsigned long flags;
- 	u32 reset_state;
-+	int num_fails = 0;
- 	int rc = 0;
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+index e77afaecc9818..4f76e8183f403 100644
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -834,15 +834,24 @@ int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+ 		/* Everything is OK. Generate! */
+ 		ip_fraglist_init(skb, iph, hlen, &iter);
  
- 	adapter = container_of(work, struct ibmvnic_adapter, ibmvnic_reset);
-@@ -2477,11 +2478,23 @@ static void __ibmvnic_reset(struct work_struct *work)
- 				rc = do_hard_reset(adapter, rwi, reset_state);
- 				rtnl_unlock();
- 			}
--			if (rc) {
--				/* give backing device time to settle down */
-+			if (rc)
-+				num_fails++;
-+			else
-+				num_fails = 0;
+-		if (iter.frag)
+-			ip_options_fragment(iter.frag);
+-
+ 		for (;;) {
+ 			/* Prepare header of the next frame,
+ 			 * before previous one went down. */
+ 			if (iter.frag) {
++				bool first_frag = (iter.offset == 0);
 +
-+			/* If auto-priority-failover is enabled we can get
-+			 * back to back failovers during resets, resulting
-+			 * in at least two failed resets (from high-priority
-+			 * backing device to low-priority one and then back)
-+			 * If resets continue to fail beyond that, give the
-+			 * adapter some time to settle down before retrying.
-+			 */
-+			if (num_fails >= 3) {
- 				netdev_dbg(adapter->netdev,
--					   "[S:%s] Hard reset failed, waiting 60 secs\n",
--					   adapter_state_to_string(adapter->state));
-+					   "[S:%s] Hard reset failed %d times, waiting 60 secs\n",
-+					   adapter_state_to_string(adapter->state),
-+					   num_fails);
- 				set_current_state(TASK_UNINTERRUPTIBLE);
- 				schedule_timeout(60 * HZ);
+ 				IPCB(iter.frag)->flags = IPCB(skb)->flags;
+ 				ip_fraglist_prepare(skb, &iter);
++				if (first_frag && IPCB(skb)->opt.optlen) {
++					/* ipcb->opt is not populated for frags
++					 * coming from __ip_make_skb(),
++					 * ip_options_fragment() needs optlen
++					 */
++					IPCB(iter.frag)->opt.optlen =
++						IPCB(skb)->opt.optlen;
++					ip_options_fragment(iter.frag);
++					ip_send_check(iter.iph);
++				}
  			}
+ 
+ 			skb->tstamp = tstamp;
 -- 
 2.34.1
 
