@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDACE4A4395
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90BDF4A4160
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:03:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376784AbiAaLWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:22:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
+        id S229867AbiAaLDi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:03:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378547AbiAaLUV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:20:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB5FCC0604D3;
-        Mon, 31 Jan 2022 03:12:38 -0800 (PST)
+        with ESMTP id S1359118AbiAaLC7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:02:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F3B8C0613E9;
+        Mon, 31 Jan 2022 03:01:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A5E0B82A61;
-        Mon, 31 Jan 2022 11:12:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 978B3C340E8;
-        Mon, 31 Jan 2022 11:12:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D11E260BA2;
+        Mon, 31 Jan 2022 11:01:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAC6DC340E8;
+        Mon, 31 Jan 2022 11:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627556;
-        bh=fSaPjkaBX8uP1JANbpgChwr8VuMwKXYx2urdUv8ufbs=;
+        s=korg; t=1643626880;
+        bh=eqaDUaWKBeWkcDFPzgRykjEQnCAlLdBYpvHrHiPgvio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPHwvoXw0950FT4lIud/n9O80v7lfH3+cDFDp3qevCzpcNjlqeWuhFjdM6TszQj2X
-         2bhf927yxc3ID/NXjhNkmRjRDJfrJSVtu47yyMJ9Pq/HDDY/Z6ixS6kurTmUUfTlQF
-         TKy6zzFM3K1H+pz3p8NKnjKUHV/ON+q5HzrLM2bc=
+        b=jBFsRpDn/rSx54J91L+wCaODl84GYP5b+mPYyy/5mBpjZ17fTmXtO9wFaHjhzWn2A
+         SfzHwPrwqnGt6jEPaym5MquyapsOKuexQIWhmLR2XO25nnXhoYdJ448V4jdhB0nkKW
+         ZJ8QzDrKBDcveVi0AyVBq11GwYVTLBt5GAJNZtnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geetha sowjanya <gakula@marvell.com>,
-        Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 122/171] octeontx2-af: Retry until RVU block reset complete
+        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 42/64] net-procfs: show net devices bound packet types
 Date:   Mon, 31 Jan 2022 11:56:27 +0100
-Message-Id: <20220131105234.165213139@linuxfoundation.org>
+Message-Id: <20220131105217.100841787@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105215.644174521@linuxfoundation.org>
+References: <20220131105215.644174521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,43 +47,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geetha sowjanya <gakula@marvell.com>
+From: Jianguo Wu <wujianguo@chinatelecom.cn>
 
-[ Upstream commit 03ffbc9914bd1130fba464f0a41c01372e5fc359 ]
+commit 1d10f8a1f40b965d449e8f2d5ed7b96a7c138b77 upstream.
 
-Few RVU blocks like SSO require more time for reset on some
-silicons. Hence retrying the block reset until success.
+After commit:7866a621043f ("dev: add per net_device packet type chains"),
+we can not get packet types that are bound to a specified net device by
+/proc/net/ptype, this patch fix the regression.
 
-Fixes: c0fa2cff8822c ("octeontx2-af: Handle return value in block reset")
-Signed-off-by: Geetha sowjanya <gakula@marvell.com>
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+Run "tcpdump -i ens192 udp -nns0" Before and after apply this patch:
+
+Before:
+  [root@localhost ~]# cat /proc/net/ptype
+  Type Device      Function
+  0800          ip_rcv
+  0806          arp_rcv
+  86dd          ipv6_rcv
+
+After:
+  [root@localhost ~]# cat /proc/net/ptype
+  Type Device      Function
+  ALL  ens192   tpacket_rcv
+  0800          ip_rcv
+  0806          arp_rcv
+  86dd          ipv6_rcv
+
+v1 -> v2:
+  - fix the regression rather than adding new /proc API as
+    suggested by Stephen Hemminger.
+
+Fixes: 7866a621043f ("dev: add per net_device packet type chains")
+Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/core/net-procfs.c |   35 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 32 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
-index 90dc5343827f0..11ef46e72ddd9 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
-@@ -520,8 +520,11 @@ static void rvu_block_reset(struct rvu *rvu, int blkaddr, u64 rst_reg)
+--- a/net/core/net-procfs.c
++++ b/net/core/net-procfs.c
+@@ -182,12 +182,23 @@ static const struct seq_operations softn
+ 	.show  = softnet_seq_show,
+ };
  
- 	rvu_write64(rvu, blkaddr, rst_reg, BIT_ULL(0));
- 	err = rvu_poll_reg(rvu, blkaddr, rst_reg, BIT_ULL(63), true);
--	if (err)
--		dev_err(rvu->dev, "HW block:%d reset failed\n", blkaddr);
-+	if (err) {
-+		dev_err(rvu->dev, "HW block:%d reset timeout retrying again\n", blkaddr);
-+		while (rvu_poll_reg(rvu, blkaddr, rst_reg, BIT_ULL(63), true) == -EBUSY)
-+			;
+-static void *ptype_get_idx(loff_t pos)
++static void *ptype_get_idx(struct seq_file *seq, loff_t pos)
+ {
++	struct list_head *ptype_list = NULL;
+ 	struct packet_type *pt = NULL;
++	struct net_device *dev;
+ 	loff_t i = 0;
+ 	int t;
+ 
++	for_each_netdev_rcu(seq_file_net(seq), dev) {
++		ptype_list = &dev->ptype_all;
++		list_for_each_entry_rcu(pt, ptype_list, list) {
++			if (i == pos)
++				return pt;
++			++i;
++		}
 +	}
++
+ 	list_for_each_entry_rcu(pt, &ptype_all, list) {
+ 		if (i == pos)
+ 			return pt;
+@@ -208,22 +219,40 @@ static void *ptype_seq_start(struct seq_
+ 	__acquires(RCU)
+ {
+ 	rcu_read_lock();
+-	return *pos ? ptype_get_idx(*pos - 1) : SEQ_START_TOKEN;
++	return *pos ? ptype_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
  }
  
- static void rvu_reset_all_blocks(struct rvu *rvu)
--- 
-2.34.1
-
+ static void *ptype_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
++	struct net_device *dev;
+ 	struct packet_type *pt;
+ 	struct list_head *nxt;
+ 	int hash;
+ 
+ 	++*pos;
+ 	if (v == SEQ_START_TOKEN)
+-		return ptype_get_idx(0);
++		return ptype_get_idx(seq, 0);
+ 
+ 	pt = v;
+ 	nxt = pt->list.next;
++	if (pt->dev) {
++		if (nxt != &pt->dev->ptype_all)
++			goto found;
++
++		dev = pt->dev;
++		for_each_netdev_continue_rcu(seq_file_net(seq), dev) {
++			if (!list_empty(&dev->ptype_all)) {
++				nxt = dev->ptype_all.next;
++				goto found;
++			}
++		}
++
++		nxt = ptype_all.next;
++		goto ptype_all;
++	}
++
+ 	if (pt->type == htons(ETH_P_ALL)) {
++ptype_all:
+ 		if (nxt != &ptype_all)
+ 			goto found;
+ 		hash = 0;
 
 
