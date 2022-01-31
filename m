@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCE294A452D
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:41:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28F434A41F1
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:10:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359024AbiAaLhC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:37:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50252 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378481AbiAaLeU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:34:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2CD7C02B8DA;
-        Mon, 31 Jan 2022 03:22:23 -0800 (PST)
+        id S1358986AbiAaLHX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:07:23 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38682 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358994AbiAaLFV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:05:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93B5861120;
-        Mon, 31 Jan 2022 11:22:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EBDAC340E8;
-        Mon, 31 Jan 2022 11:22:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1207360B98;
+        Mon, 31 Jan 2022 11:05:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0558BC340EF;
+        Mon, 31 Jan 2022 11:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628143;
-        bh=uCgyX+vVQ+WN6+QQjxI4uIQfHhW8Ybycw8rU5Uc4pKw=;
+        s=korg; t=1643627120;
+        bh=hRGw969o3xfx3kaJXxvceU8n0eam0mIvnot3klzJX4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nmQk0jXSHrqJcG3CPkwR8U1Dp22+dIPK4+rhOamuTiFJpb/en3ahFGw3SzvN4x8wa
-         AwqBsEk70AwGAy9mSyCWW1FlOY/FXPBIHfdJEj81/RS2uwPYfanYOiGHAz7KG+TE7l
-         L6DD4+ZyzRFM1pqjOGonXu1ihF4dqreX/804WeFs=
+        b=YkZSV1x0U2qugzhKdw2ieREP3/qwmM4D5ggY8m//DZdbjNcUecLBEbov9uzIY2Yc/
+         HTnA9RgoqgCyue1AP8/RmAS1rTH7RtVYsh+8zaFzNn8cT2MgAj6NBJ/81Bv42eUSaN
+         DuYh8Yqs2pZnpGynlu8q26Cf7Znwue4QGTCKBoVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Yajun Deng <yajun.deng@linux.dev>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 139/200] mptcp: fix msk traversal in mptcp_nl_cmd_set_flags()
+Subject: [PATCH 5.10 081/100] net: ipv4: Fix the warning for dereference
 Date:   Mon, 31 Jan 2022 11:56:42 +0100
-Message-Id: <20220131105238.229221476@linuxfoundation.org>
+Message-Id: <20220131105223.166114763@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,83 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Yajun Deng <yajun.deng@linux.dev>
 
-[ Upstream commit 8e9eacad7ec7a9cbf262649ebf1fa6e6f6cc7d82 ]
+[ Upstream commit 1b9fbe813016b08e08b22ddba4ddbf9cb1b04b00 ]
 
-The MPTCP endpoint list is under RCU protection, guarded by the
-pernet spinlock. mptcp_nl_cmd_set_flags() traverses the list
-without acquiring the spin-lock nor under the RCU critical section.
+Add a if statements to avoid the warning.
 
-This change addresses the issue performing the lookup and the endpoint
-update under the pernet spinlock.
+Dan Carpenter report:
+The patch faf482ca196a: "net: ipv4: Move ip_options_fragment() out of
+loop" from Aug 23, 2021, leads to the following Smatch complaint:
 
-Fixes: 0f9f696a502e ("mptcp: add set_flags command in PM netlink")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+    net/ipv4/ip_output.c:833 ip_do_fragment()
+    warn: variable dereferenced before check 'iter.frag' (see line 828)
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: faf482ca196a ("net: ipv4: Move ip_options_fragment() out of loop")
+Link: https://lore.kernel.org/netdev/20210830073802.GR7722@kadam/T/#t
+Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/pm_netlink.c | 37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ net/ipv4/ip_output.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
-index ad3dc9c6c5310..35abcce604b4d 100644
---- a/net/mptcp/pm_netlink.c
-+++ b/net/mptcp/pm_netlink.c
-@@ -469,6 +469,20 @@ __lookup_addr_by_id(struct pm_nl_pernet *pernet, unsigned int id)
- 	return NULL;
- }
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+index fb91a466b2d34..e77afaecc9818 100644
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -833,7 +833,9 @@ int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
  
-+static struct mptcp_pm_addr_entry *
-+__lookup_addr(struct pm_nl_pernet *pernet, const struct mptcp_addr_info *info,
-+	      bool lookup_by_id)
-+{
-+	struct mptcp_pm_addr_entry *entry;
+ 		/* Everything is OK. Generate! */
+ 		ip_fraglist_init(skb, iph, hlen, &iter);
+-		ip_options_fragment(iter.frag);
 +
-+	list_for_each_entry(entry, &pernet->local_addr_list, list) {
-+		if ((!lookup_by_id && addresses_equal(&entry->addr, info, true)) ||
-+		    (lookup_by_id && entry->addr.id == info->id))
-+			return entry;
-+	}
-+	return NULL;
-+}
-+
- static int
- lookup_id_by_addr(struct pm_nl_pernet *pernet, const struct mptcp_addr_info *addr)
- {
-@@ -1753,18 +1767,21 @@ static int mptcp_nl_cmd_set_flags(struct sk_buff *skb, struct genl_info *info)
- 			return -EOPNOTSUPP;
- 	}
++		if (iter.frag)
++			ip_options_fragment(iter.frag);
  
--	list_for_each_entry(entry, &pernet->local_addr_list, list) {
--		if ((!lookup_by_id && addresses_equal(&entry->addr, &addr.addr, true)) ||
--		    (lookup_by_id && entry->addr.id == addr.addr.id)) {
--			mptcp_nl_addr_backup(net, &entry->addr, bkup);
--
--			if (bkup)
--				entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
--			else
--				entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
--		}
-+	spin_lock_bh(&pernet->lock);
-+	entry = __lookup_addr(pernet, &addr.addr, lookup_by_id);
-+	if (!entry) {
-+		spin_unlock_bh(&pernet->lock);
-+		return -EINVAL;
- 	}
- 
-+	if (bkup)
-+		entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
-+	else
-+		entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
-+	addr = *entry;
-+	spin_unlock_bh(&pernet->lock);
-+
-+	mptcp_nl_addr_backup(net, &addr.addr, bkup);
- 	return 0;
- }
- 
+ 		for (;;) {
+ 			/* Prepare header of the next frame,
 -- 
 2.34.1
 
