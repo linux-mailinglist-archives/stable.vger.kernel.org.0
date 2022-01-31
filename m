@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F944A44A2
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:33:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D64244A4241
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349746AbiAaLbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:31:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49152 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377963AbiAaL1v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:27:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50A42C061770;
-        Mon, 31 Jan 2022 03:17:06 -0800 (PST)
+        id S1359388AbiAaLLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:12 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42274 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376299AbiAaLIH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:08:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14AB9B82A5C;
-        Mon, 31 Jan 2022 11:17:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C7B2C340E8;
-        Mon, 31 Jan 2022 11:17:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25BF760B98;
+        Mon, 31 Jan 2022 11:08:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E93F3C340E8;
+        Mon, 31 Jan 2022 11:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627823;
-        bh=Pk9yqF0VzNnCZ7Rq02d3TFKeJGwmxs67fyNI0lIrF9E=;
+        s=korg; t=1643627286;
+        bh=tZDQBq/qO6TsFqwPJb6+scacLa0iS0cC5ClrL9EoY+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SFF4FLyU/klY/D0lpmLuSIbBis3NQXywFjslTSDjuqgoFlBYLaxUwD0Hv7Mpd5Bw3
-         0c1OBdoNSS9OA/15L539H9qaiIqO92zS+UFGCWzdHwdXInEf0bf1JZOOV8mgm29Tl0
-         U89at9G3QyO2Nk0SV8bJBU6WnA6dYQVEYSepz8go=
+        b=RHEreCl15ed38OC7oNOjf75ubU24PSS0pDjJeXgR9S3oyWUqvQVbbEb9HzQMg4e6s
+         kj0EuDFI1zVAhmlKXMH6Oc7qH/eBDEPUWzvU4VECFifWUfgVv3W3aLNDJ829H+QcdS
+         ZLOx6TSes/RQIJMMmQOj5qgjkuSEtPrWEpbLzsvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liam Merwick <liam.merwick@oracle.com>,
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Brijesh Singh <brijesh.singh@amd.com>,
         Sean Christopherson <seanjc@google.com>,
+        Liam Merwick <liam.merwick@oracle.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.16 037/200] Revert "KVM: SVM: avoid infinite loop on NPF from bad address"
+Subject: [PATCH 5.15 035/171] KVM: SVM: Never reject emulation due to SMAP errata for !SEV guests
 Date:   Mon, 31 Jan 2022 11:55:00 +0100
-Message-Id: <20220131105234.809129836@linuxfoundation.org>
+Message-Id: <20220131105231.206060647@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,58 +49,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit 31c25585695abdf03d6160aa6d829e855b256329 upstream.
+commit 55467fcd55b89c622e62b4afe60ac0eb2fae91f2 upstream.
 
-Revert a completely broken check on an "invalid" RIP in SVM's workaround
-for the DecodeAssists SMAP errata.  kvm_vcpu_gfn_to_memslot() obviously
-expects a gfn, i.e. operates in the guest physical address space, whereas
-RIP is a virtual (not even linear) address.  The "fix" worked for the
-problematic KVM selftest because the test identity mapped RIP.
+Always signal that emulation is possible for !SEV guests regardless of
+whether or not the CPU provided a valid instruction byte stream.  KVM can
+read all guest state (memory and registers) for !SEV guests, i.e. can
+fetch the code stream from memory even if the CPU failed to do so because
+of the SMAP errata.
 
-Fully revert the hack instead of trying to translate RIP to a GPA, as the
-non-SEV case is now handled earlier, and KVM cannot access guest page
-tables to translate RIP.
-
-This reverts commit e72436bc3a5206f95bb384e741154166ddb3202e.
-
-Fixes: e72436bc3a52 ("KVM: SVM: avoid infinite loop on NPF from bad address")
-Reported-by: Liam Merwick <liam.merwick@oracle.com>
+Fixes: 05d5a4863525 ("KVM: SVM: Workaround errata#1096 (insn_len maybe zero on SMAP violation)")
 Cc: stable@vger.kernel.org
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
-Message-Id: <20220120010719.711476-3-seanjc@google.com>
+Message-Id: <20220120010719.711476-2-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/svm.c |    7 -------
- virt/kvm/kvm_main.c    |    1 -
- 2 files changed, 8 deletions(-)
+ arch/x86/kvm/svm/svm.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 --- a/arch/x86/kvm/svm/svm.c
 +++ b/arch/x86/kvm/svm/svm.c
-@@ -4513,13 +4513,6 @@ static bool svm_can_emulate_instruction(
- 	if (likely(!insn || insn_len))
- 		return true;
+@@ -4407,8 +4407,13 @@ static bool svm_can_emulate_instruction(
+ 	bool smep, smap, is_user;
+ 	unsigned long cr4;
  
--	/*
--	 * If RIP is invalid, go ahead with emulation which will cause an
--	 * internal error exit.
--	 */
--	if (!kvm_vcpu_gfn_to_memslot(vcpu, kvm_rip_read(vcpu) >> PAGE_SHIFT))
--		return true;
--
- 	cr4 = kvm_read_cr4(vcpu);
- 	smep = cr4 & X86_CR4_SMEP;
++	/* Emulation is always possible when KVM has access to all guest state. */
++	if (!sev_guest(vcpu->kvm))
++		return true;
++
+ 	/*
+-	 * When the guest is an SEV-ES guest, emulation is not possible.
++	 * Emulation is impossible for SEV-ES guests as KVM doesn't have access
++	 * to guest register state.
+ 	 */
+ 	if (sev_es_guest(vcpu->kvm))
+ 		return false;
+@@ -4461,9 +4466,6 @@ static bool svm_can_emulate_instruction(
  	smap = cr4 & X86_CR4_SMAP;
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2112,7 +2112,6 @@ struct kvm_memory_slot *kvm_vcpu_gfn_to_
- 
- 	return NULL;
- }
--EXPORT_SYMBOL_GPL(kvm_vcpu_gfn_to_memslot);
- 
- bool kvm_is_visible_gfn(struct kvm *kvm, gfn_t gfn)
- {
+ 	is_user = svm_get_cpl(vcpu) == 3;
+ 	if (smap && (!smep || is_user)) {
+-		if (!sev_guest(vcpu->kvm))
+-			return true;
+-
+ 		pr_err_ratelimited("KVM: SEV Guest triggered AMD Erratum 1096\n");
+ 		kvm_make_request(KVM_REQ_TRIPLE_FAULT, vcpu);
+ 	}
 
 
