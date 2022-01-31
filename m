@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AB084A4424
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:27:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF2EC4A4421
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:27:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377325AbiAaL0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:26:37 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:56732 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378421AbiAaLYY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:24:24 -0500
+        id S1350316AbiAaL0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:26:31 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42024 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378454AbiAaLY2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:24:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 387B96129E;
-        Mon, 31 Jan 2022 11:24:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1836BC340EE;
-        Mon, 31 Jan 2022 11:24:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 032C5B82A5D;
+        Mon, 31 Jan 2022 11:24:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A9F4C340E8;
+        Mon, 31 Jan 2022 11:24:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628262;
-        bh=4OSZBtWLrvk3XZbaNpArCk8kQ9Usrw+AeQKGcKTYR1w=;
+        s=korg; t=1643628265;
+        bh=dM3iea27OHICyc17xNvr5LK/MG0brUjiMVVrlnGqQ5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wDu/zhms90CZzt/vw39qmdR10zvZ5s1VqVaTu4rd2WmgIx/d1TJhXBJrmWzUkwUeH
-         XKAUkeCp8sg0O//yzW/2wuKlx4W+laGaGfv9haJ9nDGamC90Qq9ikgX0LkddZtNHVQ
-         016ecHrbuej2KOUm3bT80LKk7zofJiy15qbth1LA=
+        b=nE7JDjvi/KdCalM7eGduQZ0tKg14v7G4xp6XsrC+/1/usLO/O+ki2SKfum/SqwgH8
+         RbNa08DIkMmHXDmMfOUCTnzO6xolFMboy3/+L9Y6U2ENRu+UrGge9Iwqr/K6TUrPJK
+         wnU1+hFa221MeGZwmsFHJM09F5A0L6lN2q8xyjpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Airlie <airlied@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 177/200] Revert "drm/ast: Support 1600x900 with 108MHz PCLK"
-Date:   Mon, 31 Jan 2022 11:57:20 +0100
-Message-Id: <20220131105239.501421956@linuxfoundation.org>
+Subject: [PATCH 5.16 178/200] KVM: selftests: Dont skip L2s VMCALL in SMM test for SVM guest
+Date:   Mon, 31 Jan 2022 11:57:21 +0100
+Message-Id: <20220131105239.536898422@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
 References: <20220131105233.561926043@linuxfoundation.org>
@@ -45,36 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Airlie <airlied@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 76cea3d95513fe40000d06a3719c4bb6b53275e2 ]
+[ Upstream commit 4cf3d3ebe8794c449af3e0e8c1d790c97e461d20 ]
 
-This reverts commit 9bb7b689274b67ecb3641e399e76f84adc627df1.
+Don't skip the vmcall() in l2_guest_code() prior to re-entering L2, doing
+so will result in L2 running to completion, popping '0' off the stack for
+RET, jumping to address '0', and ultimately dying with a triple fault
+shutdown.
 
-This caused a regression reported to Red Hat.
+It's not at all obvious why the test re-enters L2 and re-executes VMCALL,
+but presumably it serves a purpose.  The VMX path doesn't skip vmcall(),
+and the test can't possibly have passed on SVM, so just do what VMX does.
 
-Fixes: 9bb7b689274b ("drm/ast: Support 1600x900 with 108MHz PCLK")
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220120040527.552068-1-airlied@gmail.com
+Fixes: d951b2210c1a ("KVM: selftests: smm_test: Test SMM enter from L2")
+Cc: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220125221725.2101126-1-seanjc@google.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Tested-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ast/ast_tables.h | 2 --
- 1 file changed, 2 deletions(-)
+ tools/testing/selftests/kvm/x86_64/smm_test.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/ast/ast_tables.h b/drivers/gpu/drm/ast/ast_tables.h
-index d9eb353a4bf09..dbe1cc620f6e6 100644
---- a/drivers/gpu/drm/ast/ast_tables.h
-+++ b/drivers/gpu/drm/ast/ast_tables.h
-@@ -282,8 +282,6 @@ static const struct ast_vbios_enhtable res_1360x768[] = {
- };
+diff --git a/tools/testing/selftests/kvm/x86_64/smm_test.c b/tools/testing/selftests/kvm/x86_64/smm_test.c
+index d0fe2fdce58c4..db2a17559c3d5 100644
+--- a/tools/testing/selftests/kvm/x86_64/smm_test.c
++++ b/tools/testing/selftests/kvm/x86_64/smm_test.c
+@@ -105,7 +105,6 @@ static void guest_code(void *arg)
  
- static const struct ast_vbios_enhtable res_1600x900[] = {
--	{1800, 1600, 24, 80, 1000,  900, 1, 3, VCLK108,		/* 60Hz */
--	 (SyncPP | Charx8Dot | LineCompareOff | WideScreenMode | NewModeInfo), 60, 3, 0x3A },
- 	{1760, 1600, 48, 32, 926, 900, 3, 5, VCLK97_75,		/* 60Hz CVT RB */
- 	 (SyncNP | Charx8Dot | LineCompareOff | WideScreenMode | NewModeInfo |
- 	  AST2500PreCatchCRT), 60, 1, 0x3A },
+ 		if (cpu_has_svm()) {
+ 			run_guest(svm->vmcb, svm->vmcb_gpa);
+-			svm->vmcb->save.rip += 3;
+ 			run_guest(svm->vmcb, svm->vmcb_gpa);
+ 		} else {
+ 			vmlaunch();
 -- 
 2.34.1
 
