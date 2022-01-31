@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DFD14A44BB
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:33:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0C5E4A429D
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:13:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358682AbiAaLcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:32:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49636 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379110AbiAaL3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:29:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2966C0617A3;
-        Mon, 31 Jan 2022 03:19:16 -0800 (PST)
+        id S1358785AbiAaLMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:12:34 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43314 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377584AbiAaLKN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 534D060FF0;
-        Mon, 31 Jan 2022 11:19:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D050C340E8;
-        Mon, 31 Jan 2022 11:19:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B40FF60F96;
+        Mon, 31 Jan 2022 11:10:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9778DC340EE;
+        Mon, 31 Jan 2022 11:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627955;
-        bh=lAg1e2oPaAdy0h+YKy48zIGdGuDhjdDaxDk/g/xpYQ4=;
+        s=korg; t=1643627412;
+        bh=wvUlsKNiZszStL8rCLGexJjyh8bvLFNLhEH5NRdIVT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fpuW2d+IIoBDieAS+W+PG3RfHc8pz1IlPXwNHBXigs4YoH8mPQ5A9OgKhrLWY5e0K
-         5fbr2Unon6AzdLStlTM0g68rbB3s0LkSdJftYpAGiW1P4jgq7WM7f18GfviOJWEVSV
-         dj60Ff1xNY5nMC3mAcCl7O5PCSTBaw8Q6L7HkRos=
+        b=hDWk7MdrVHDqEw+c9pmWkWgk0/iKrZ4LJUWMxsnQ4QV4FjT3Qe1hBlVFsHa2/COxz
+         4nSV4N19PN9noIce3PHxBRafb/athamA9gblGC8TKP3N/uV7K4mHj9QkmWMyQd3z7e
+         KjnGTC5yNdQpE0gO+LBJU6ZTRwQDIwfTcANm7AN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>
-Subject: [PATCH 5.16 078/200] usb: dwc3: xilinx: Skip resets and USB3 register settings for USB2.0 mode
+        stable@vger.kernel.org, Jaroslaw Gawin <jaroslawx.gawin@intel.com>,
+        Slawomir Laba <slawomirx.laba@intel.com>,
+        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.15 076/171] i40e: Fix issue when maximum queues is exceeded
 Date:   Mon, 31 Jan 2022 11:55:41 +0100
-Message-Id: <20220131105236.226828088@linuxfoundation.org>
+Message-Id: <20220131105232.609876208@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +47,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
 
-commit 9678f3361afc27a3124cd2824aec0227739986fb upstream.
+commit d701658a50a471591094b3eb3961b4926cc8f104 upstream.
 
-It appears that the PIPE clock should not be selected when only USB 2.0
-is being used in the design and no USB 3.0 reference clock is used.
-Also, the core resets are not required if a USB3 PHY is not in use, and
-will break things if USB3 is actually used but the PHY entry is not
-listed in the device tree.
+Before this patch VF interface vanished when
+maximum queue number was exceeded. Driver tried
+to add next queues even if there was not enough
+space. PF sent incorrect number of queues to
+the VF when there were not enough of them.
 
-Skip core resets and register settings that are only required for
-USB3 mode when no USB3 PHY is specified in the device tree.
+Add an additional condition introduced to check
+available space in 'qp_pile' before proceeding.
+This condition makes it impossible to add queues
+if they number is greater than the number resulting
+from available space.
+Also add the search for free space in PF queue
+pair piles.
 
-Fixes: 84770f028fab ("usb: dwc3: Add driver for Xilinx platforms")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20220126000253.1586760-2-robert.hancock@calian.com
+Without this patch VF interfaces are not seen
+when available space for queues has been
+exceeded and following logs appears permanently
+in dmesg:
+"Unable to get VF config (-32)".
+"VF 62 failed opcode 3, retval: -5"
+"Unable to get VF config due to PF error condition, not retrying"
+
+Fixes: 7daa6bf3294e ("i40e: driver core headers")
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Signed-off-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
+Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
+Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-xilinx.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/ethernet/intel/i40e/i40e.h             |    1 
+ drivers/net/ethernet/intel/i40e/i40e_main.c        |   14 ----
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |   59 +++++++++++++++++++++
+ 3 files changed, 61 insertions(+), 13 deletions(-)
 
---- a/drivers/usb/dwc3/dwc3-xilinx.c
-+++ b/drivers/usb/dwc3/dwc3-xilinx.c
-@@ -110,6 +110,18 @@ static int dwc3_xlnx_init_zynqmp(struct
- 		usb3_phy = NULL;
+--- a/drivers/net/ethernet/intel/i40e/i40e.h
++++ b/drivers/net/ethernet/intel/i40e/i40e.h
+@@ -174,7 +174,6 @@ enum i40e_interrupt_policy {
+ 
+ struct i40e_lump_tracking {
+ 	u16 num_entries;
+-	u16 search_hint;
+ 	u16 list[0];
+ #define I40E_PILE_VALID_BIT  0x8000
+ #define I40E_IWARP_IRQ_PILE_ID  (I40E_PILE_VALID_BIT - 2)
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -196,10 +196,6 @@ int i40e_free_virt_mem_d(struct i40e_hw
+  * @id: an owner id to stick on the items assigned
+  *
+  * Returns the base item index of the lump, or negative for error
+- *
+- * The search_hint trick and lack of advanced fit-finding only work
+- * because we're highly likely to have all the same size lump requests.
+- * Linear search time and any fragmentation should be minimal.
+  **/
+ static int i40e_get_lump(struct i40e_pf *pf, struct i40e_lump_tracking *pile,
+ 			 u16 needed, u16 id)
+@@ -214,8 +210,7 @@ static int i40e_get_lump(struct i40e_pf
+ 		return -EINVAL;
  	}
  
-+	/*
-+	 * The following core resets are not required unless a USB3 PHY
-+	 * is used, and the subsequent register settings are not required
-+	 * unless a core reset is performed (they should be set properly
-+	 * by the first-stage boot loader, but may be reverted by a core
-+	 * reset). They may also break the configuration if USB3 is actually
-+	 * in use but the usb3-phy entry is missing from the device tree.
-+	 * Therefore, skip these operations in this case.
-+	 */
-+	if (!usb3_phy)
-+		goto skip_usb3_phy;
+-	/* start the linear search with an imperfect hint */
+-	i = pile->search_hint;
++	i = 0;
+ 	while (i < pile->num_entries) {
+ 		/* skip already allocated entries */
+ 		if (pile->list[i] & I40E_PILE_VALID_BIT) {
+@@ -234,7 +229,6 @@ static int i40e_get_lump(struct i40e_pf
+ 			for (j = 0; j < needed; j++)
+ 				pile->list[i+j] = id | I40E_PILE_VALID_BIT;
+ 			ret = i;
+-			pile->search_hint = i + j;
+ 			break;
+ 		}
+ 
+@@ -257,7 +251,7 @@ static int i40e_put_lump(struct i40e_lum
+ {
+ 	int valid_id = (id | I40E_PILE_VALID_BIT);
+ 	int count = 0;
+-	int i;
++	u16 i;
+ 
+ 	if (!pile || index >= pile->num_entries)
+ 		return -EINVAL;
+@@ -269,8 +263,6 @@ static int i40e_put_lump(struct i40e_lum
+ 		count++;
+ 	}
+ 
+-	if (count && index < pile->search_hint)
+-		pile->search_hint = index;
+ 
+ 	return count;
+ }
+@@ -11786,7 +11778,6 @@ static int i40e_init_interrupt_scheme(st
+ 		return -ENOMEM;
+ 
+ 	pf->irq_pile->num_entries = vectors;
+-	pf->irq_pile->search_hint = 0;
+ 
+ 	/* track first vector for misc interrupts, ignore return */
+ 	(void)i40e_get_lump(pf, pf->irq_pile, 1, I40E_PILE_VALID_BIT - 1);
+@@ -12589,7 +12580,6 @@ static int i40e_sw_init(struct i40e_pf *
+ 		goto sw_init_done;
+ 	}
+ 	pf->qp_pile->num_entries = pf->hw.func_caps.num_tx_qp;
+-	pf->qp_pile->search_hint = 0;
+ 
+ 	pf->tx_timeout_recovery_level = 1;
+ 
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -2618,6 +2618,59 @@ error_param:
+ }
+ 
+ /**
++ * i40e_check_enough_queue - find big enough queue number
++ * @vf: pointer to the VF info
++ * @needed: the number of items needed
++ *
++ * Returns the base item index of the queue, or negative for error
++ **/
++static int i40e_check_enough_queue(struct i40e_vf *vf, u16 needed)
++{
++	unsigned int  i, cur_queues, more, pool_size;
++	struct i40e_lump_tracking *pile;
++	struct i40e_pf *pf = vf->pf;
++	struct i40e_vsi *vsi;
 +
- 	crst = devm_reset_control_get_exclusive(dev, "usb_crst");
- 	if (IS_ERR(crst)) {
- 		ret = PTR_ERR(crst);
-@@ -188,6 +200,7 @@ static int dwc3_xlnx_init_zynqmp(struct
- 		goto err;
- 	}
- 
-+skip_usb3_phy:
- 	/*
- 	 * This routes the USB DMA traffic to go through FPD path instead
- 	 * of reaching DDR directly. This traffic routing is needed to
++	vsi = pf->vsi[vf->lan_vsi_idx];
++	cur_queues = vsi->alloc_queue_pairs;
++
++	/* if current allocated queues are enough for need */
++	if (cur_queues >= needed)
++		return vsi->base_queue;
++
++	pile = pf->qp_pile;
++	if (cur_queues > 0) {
++		/* if the allocated queues are not zero
++		 * just check if there are enough queues for more
++		 * behind the allocated queues.
++		 */
++		more = needed - cur_queues;
++		for (i = vsi->base_queue + cur_queues;
++			i < pile->num_entries; i++) {
++			if (pile->list[i] & I40E_PILE_VALID_BIT)
++				break;
++
++			if (more-- == 1)
++				/* there is enough */
++				return vsi->base_queue;
++		}
++	}
++
++	pool_size = 0;
++	for (i = 0; i < pile->num_entries; i++) {
++		if (pile->list[i] & I40E_PILE_VALID_BIT) {
++			pool_size = 0;
++			continue;
++		}
++		if (needed <= ++pool_size)
++			/* there is enough */
++			return i;
++	}
++
++	return -ENOMEM;
++}
++
++/**
+  * i40e_vc_request_queues_msg
+  * @vf: pointer to the VF info
+  * @msg: pointer to the msg buffer
+@@ -2651,6 +2704,12 @@ static int i40e_vc_request_queues_msg(st
+ 			 req_pairs - cur_pairs,
+ 			 pf->queues_left);
+ 		vfres->num_queue_pairs = pf->queues_left + cur_pairs;
++	} else if (i40e_check_enough_queue(vf, req_pairs) < 0) {
++		dev_warn(&pf->pdev->dev,
++			 "VF %d requested %d more queues, but there is not enough for it.\n",
++			 vf->vf_id,
++			 req_pairs - cur_pairs);
++		vfres->num_queue_pairs = cur_pairs;
+ 	} else {
+ 		/* successful request */
+ 		vf->num_req_queues = req_pairs;
 
 
