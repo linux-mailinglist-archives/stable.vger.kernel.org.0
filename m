@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A0FE4A4422
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:27:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F1FA4A4426
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:27:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359281AbiAaL0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:26:32 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:56790 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377752AbiAaLYb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:24:31 -0500
+        id S1377357AbiAaL0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:26:39 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42070 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377825AbiAaLYi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:24:38 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6272C61298;
-        Mon, 31 Jan 2022 11:24:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67330C340E8;
-        Mon, 31 Jan 2022 11:24:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F02FB82A5F;
+        Mon, 31 Jan 2022 11:24:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FFFCC340EF;
+        Mon, 31 Jan 2022 11:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628268;
-        bh=qk9u8HkJMkipvnE4bSjIQsDwSh/2/xDehKN+Oc7cf/0=;
+        s=korg; t=1643628272;
+        bh=h5wXTcjiTMvA3SO2YOFReimdJuI467zY2G4HA4CEC70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sP8lTFBz9YKUcebVy1BVQH2oTK6ZNyLS+bOD8dRcAyKcISiZBVRLKtsoy8Ga/mlbr
-         CplKTxBA3gOaOG1ZZYWe1k6mxeS53firQDke6+eUmp5hxoCDNp9Oi+XoHTOtSFgPBZ
-         XH8Lvl+q8RN41W1+dJ4nCJAjDpcJswPevdo8mV88=
+        b=HtcbO/Wh8isutgDpFhYJHFyr0D4MIOaCR9F6T8aXhDYipWE8lzOS2ZKYz7z/WtVQz
+         AMusNGbsc8wdEUNUnxVib8K9JuBokf+dnT2w+jmDcE3K6C3EtzRbEmlPr+0EMY7vRW
+         DduOmp8VP9RrJuzmmyjW0Fh3TBR4SwK0YwW0Y3PA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
-        Venky Shankar <vshankar@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org, Catherine Sullivan <csully@google.com>,
+        David Awogbemila <awogbemila@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 179/200] ceph: put the requests/sessions when it fails to alloc memory
-Date:   Mon, 31 Jan 2022 11:57:22 +0100
-Message-Id: <20220131105239.567707487@linuxfoundation.org>
+Subject: [PATCH 5.16 180/200] gve: Fix GFP flags when allocing pages
+Date:   Mon, 31 Jan 2022 11:57:23 +0100
+Message-Id: <20220131105239.607269908@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
 References: <20220131105233.561926043@linuxfoundation.org>
@@ -47,147 +46,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Catherine Sullivan <csully@google.com>
 
-[ Upstream commit 89d43d0551a848e70e63d9ba11534aaeabc82443 ]
+[ Upstream commit a92f7a6feeb3884c69c1c7c1f13bccecb2228ad0 ]
 
-When failing to allocate the sessions memory we should make sure
-the req1 and req2 and the sessions get put. And also in case the
-max_sessions decreased so when kreallocate the new memory some
-sessions maybe missed being put.
+Use GFP_ATOMIC when allocating pages out of the hotpath,
+continue to use GFP_KERNEL when allocating pages during setup.
 
-And if the max_sessions is 0 krealloc will return ZERO_SIZE_PTR,
-which will lead to a distinct access fault.
+GFP_KERNEL will allow blocking which allows it to succeed
+more often in a low memory enviornment but in the hotpath we do
+not want to allow the allocation to block.
 
-URL: https://tracker.ceph.com/issues/53819
-Fixes: e1a4541ec0b9 ("ceph: flush the mdlog before waiting on unsafe reqs")
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Venky Shankar <vshankar@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Fixes: f5cedc84a30d2 ("gve: Add transmit and receive support")
+Signed-off-by: Catherine Sullivan <csully@google.com>
+Signed-off-by: David Awogbemila <awogbemila@google.com>
+Link: https://lore.kernel.org/r/20220126003843.3584521-1-awogbemila@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c | 55 +++++++++++++++++++++++++++++++++-----------------
- 1 file changed, 37 insertions(+), 18 deletions(-)
+ drivers/net/ethernet/google/gve/gve.h        | 2 +-
+ drivers/net/ethernet/google/gve/gve_main.c   | 6 +++---
+ drivers/net/ethernet/google/gve/gve_rx.c     | 3 ++-
+ drivers/net/ethernet/google/gve/gve_rx_dqo.c | 2 +-
+ 4 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index c447fa2e2d1fe..2f8696f3b925d 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -2218,6 +2218,7 @@ static int unsafe_request_wait(struct inode *inode)
- 	struct ceph_mds_client *mdsc = ceph_sb_to_client(inode->i_sb)->mdsc;
- 	struct ceph_inode_info *ci = ceph_inode(inode);
- 	struct ceph_mds_request *req1 = NULL, *req2 = NULL;
-+	unsigned int max_sessions;
- 	int ret, err = 0;
+diff --git a/drivers/net/ethernet/google/gve/gve.h b/drivers/net/ethernet/google/gve/gve.h
+index b719f72281c44..3d469073fbc54 100644
+--- a/drivers/net/ethernet/google/gve/gve.h
++++ b/drivers/net/ethernet/google/gve/gve.h
+@@ -830,7 +830,7 @@ static inline bool gve_is_gqi(struct gve_priv *priv)
+ /* buffers */
+ int gve_alloc_page(struct gve_priv *priv, struct device *dev,
+ 		   struct page **page, dma_addr_t *dma,
+-		   enum dma_data_direction);
++		   enum dma_data_direction, gfp_t gfp_flags);
+ void gve_free_page(struct device *dev, struct page *page, dma_addr_t dma,
+ 		   enum dma_data_direction);
+ /* tx handling */
+diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
+index 59b66f679e46e..28e2d4d8ed7c6 100644
+--- a/drivers/net/ethernet/google/gve/gve_main.c
++++ b/drivers/net/ethernet/google/gve/gve_main.c
+@@ -752,9 +752,9 @@ static void gve_free_rings(struct gve_priv *priv)
  
- 	spin_lock(&ci->i_unsafe_lock);
-@@ -2235,37 +2236,45 @@ static int unsafe_request_wait(struct inode *inode)
- 	}
- 	spin_unlock(&ci->i_unsafe_lock);
+ int gve_alloc_page(struct gve_priv *priv, struct device *dev,
+ 		   struct page **page, dma_addr_t *dma,
+-		   enum dma_data_direction dir)
++		   enum dma_data_direction dir, gfp_t gfp_flags)
+ {
+-	*page = alloc_page(GFP_KERNEL);
++	*page = alloc_page(gfp_flags);
+ 	if (!*page) {
+ 		priv->page_alloc_fail++;
+ 		return -ENOMEM;
+@@ -797,7 +797,7 @@ static int gve_alloc_queue_page_list(struct gve_priv *priv, u32 id,
+ 	for (i = 0; i < pages; i++) {
+ 		err = gve_alloc_page(priv, &priv->pdev->dev, &qpl->pages[i],
+ 				     &qpl->page_buses[i],
+-				     gve_qpl_dma_dir(priv, id));
++				     gve_qpl_dma_dir(priv, id), GFP_KERNEL);
+ 		/* caller handles clean up */
+ 		if (err)
+ 			return -ENOMEM;
+diff --git a/drivers/net/ethernet/google/gve/gve_rx.c b/drivers/net/ethernet/google/gve/gve_rx.c
+index 3d04b5aff331b..04a08904305a9 100644
+--- a/drivers/net/ethernet/google/gve/gve_rx.c
++++ b/drivers/net/ethernet/google/gve/gve_rx.c
+@@ -86,7 +86,8 @@ static int gve_rx_alloc_buffer(struct gve_priv *priv, struct device *dev,
+ 	dma_addr_t dma;
+ 	int err;
  
-+	/*
-+	 * The mdsc->max_sessions is unlikely to be changed
-+	 * mostly, here we will retry it by reallocating the
-+	 * sessions array memory to get rid of the mdsc->mutex
-+	 * lock.
-+	 */
-+retry:
-+	max_sessions = mdsc->max_sessions;
-+
- 	/*
- 	 * Trigger to flush the journal logs in all the relevant MDSes
- 	 * manually, or in the worst case we must wait at most 5 seconds
- 	 * to wait the journal logs to be flushed by the MDSes periodically.
- 	 */
--	if (req1 || req2) {
-+	if ((req1 || req2) && likely(max_sessions)) {
- 		struct ceph_mds_session **sessions = NULL;
- 		struct ceph_mds_session *s;
- 		struct ceph_mds_request *req;
--		unsigned int max;
- 		int i;
+-	err = gve_alloc_page(priv, dev, &page, &dma, DMA_FROM_DEVICE);
++	err = gve_alloc_page(priv, dev, &page, &dma, DMA_FROM_DEVICE,
++			     GFP_ATOMIC);
+ 	if (err)
+ 		return err;
  
--		/*
--		 * The mdsc->max_sessions is unlikely to be changed
--		 * mostly, here we will retry it by reallocating the
--		 * sessions arrary memory to get rid of the mdsc->mutex
--		 * lock.
--		 */
--retry:
--		max = mdsc->max_sessions;
--		sessions = krealloc(sessions, max * sizeof(s), __GFP_ZERO);
--		if (!sessions)
--			return -ENOMEM;
-+		sessions = kzalloc(max_sessions * sizeof(s), GFP_KERNEL);
-+		if (!sessions) {
-+			err = -ENOMEM;
-+			goto out;
-+		}
+diff --git a/drivers/net/ethernet/google/gve/gve_rx_dqo.c b/drivers/net/ethernet/google/gve/gve_rx_dqo.c
+index beb8bb079023c..8c939628e2d85 100644
+--- a/drivers/net/ethernet/google/gve/gve_rx_dqo.c
++++ b/drivers/net/ethernet/google/gve/gve_rx_dqo.c
+@@ -157,7 +157,7 @@ static int gve_alloc_page_dqo(struct gve_priv *priv,
+ 	int err;
  
- 		spin_lock(&ci->i_unsafe_lock);
- 		if (req1) {
- 			list_for_each_entry(req, &ci->i_unsafe_dirops,
- 					    r_unsafe_dir_item) {
- 				s = req->r_session;
--				if (unlikely(s->s_mds >= max)) {
-+				if (unlikely(s->s_mds >= max_sessions)) {
- 					spin_unlock(&ci->i_unsafe_lock);
-+					for (i = 0; i < max_sessions; i++) {
-+						s = sessions[i];
-+						if (s)
-+							ceph_put_mds_session(s);
-+					}
-+					kfree(sessions);
- 					goto retry;
- 				}
- 				if (!sessions[s->s_mds]) {
-@@ -2278,8 +2287,14 @@ retry:
- 			list_for_each_entry(req, &ci->i_unsafe_iops,
- 					    r_unsafe_target_item) {
- 				s = req->r_session;
--				if (unlikely(s->s_mds >= max)) {
-+				if (unlikely(s->s_mds >= max_sessions)) {
- 					spin_unlock(&ci->i_unsafe_lock);
-+					for (i = 0; i < max_sessions; i++) {
-+						s = sessions[i];
-+						if (s)
-+							ceph_put_mds_session(s);
-+					}
-+					kfree(sessions);
- 					goto retry;
- 				}
- 				if (!sessions[s->s_mds]) {
-@@ -2300,7 +2315,7 @@ retry:
- 		spin_unlock(&ci->i_ceph_lock);
- 
- 		/* send flush mdlog request to MDSes */
--		for (i = 0; i < max; i++) {
-+		for (i = 0; i < max_sessions; i++) {
- 			s = sessions[i];
- 			if (s) {
- 				send_flush_mdlog(s);
-@@ -2317,15 +2332,19 @@ retry:
- 					ceph_timeout_jiffies(req1->r_timeout));
- 		if (ret)
- 			err = -EIO;
--		ceph_mdsc_put_request(req1);
- 	}
- 	if (req2) {
- 		ret = !wait_for_completion_timeout(&req2->r_safe_completion,
- 					ceph_timeout_jiffies(req2->r_timeout));
- 		if (ret)
- 			err = -EIO;
--		ceph_mdsc_put_request(req2);
- 	}
-+
-+out:
-+	if (req1)
-+		ceph_mdsc_put_request(req1);
-+	if (req2)
-+		ceph_mdsc_put_request(req2);
- 	return err;
- }
+ 	err = gve_alloc_page(priv, &priv->pdev->dev, &buf_state->page_info.page,
+-			     &buf_state->addr, DMA_FROM_DEVICE);
++			     &buf_state->addr, DMA_FROM_DEVICE, GFP_KERNEL);
+ 	if (err)
+ 		return err;
  
 -- 
 2.34.1
