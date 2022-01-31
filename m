@@ -2,41 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAF954A42AB
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:14:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A5324A44B8
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:33:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376483AbiAaLMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:12:47 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43836 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349232AbiAaLKr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:47 -0500
+        id S1350683AbiAaLcO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:32:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49644 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379129AbiAaL3u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:29:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C93C0617A8;
+        Mon, 31 Jan 2022 03:19:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 607236114A;
-        Mon, 31 Jan 2022 11:10:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40913C340E8;
-        Mon, 31 Jan 2022 11:10:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2271261207;
+        Mon, 31 Jan 2022 11:19:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA7AAC340E8;
+        Mon, 31 Jan 2022 11:19:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627445;
-        bh=K8uS/L0iTWLq7FlRCD2DFohHBclcjVpDwfvTy1cfNPY=;
+        s=korg; t=1643627989;
+        bh=X0VcEdGakIz6rEue8sRTEPf3AQkU+2J1McCJq0WJgpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dZxdr0PR6eAtljbl7cUYP0ZwGZiR0sNd0ehj3YL0gc7GtAJ6rrzNKW3rKJ99xR+Sw
-         S1BV/sdYdlRc+nIsUvlZK0mCnuXo97hGTC1/hicUUYeOAiShFrrDOB149380Qehjba
-         rhBw2YwUmQWs1JOcyyll3lsYK6fin9YQ1AuBPL/A=
+        b=Xjv4vIrzCU0ZX8wstx9FltdSXovwz0bPI+M5GBaE/pZ2aR53QAXUSScs0zwWvRPjc
+         2ScmFMpN495KNU+hxk2/kuHGs4GKh6QYyZpfmPpVnsP0AOEq1Pq/7NCqEaje4L3cnj
+         CSQc0okCDL4Pvl9qvRPsReg5IkQlPUR1iXjBmVis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, huangshaobo <huangshaobo6@huawei.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.15 086/171] ARM: 9170/1: fix panic when kasan and kprobe are enabled
+        stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Gautham Ananthakrishna <gautham.ananthakrishna@oracle.com>,
+        Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
+        "Theodore Tso" <tytso@mit.edu>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Jun Piao <piaojun@huawei.com>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.16 088/200] ocfs2: fix a deadlock when commit trans
 Date:   Mon, 31 Jan 2022 11:55:51 +0100
-Message-Id: <20220131105232.940860909@linuxfoundation.org>
+Message-Id: <20220131105236.572204917@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,114 +57,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sparkhuang <huangshaobo6@huawei.com>
+From: Joseph Qi <joseph.qi@linux.alibaba.com>
 
-commit 8b59b0a53c840921b625378f137e88adfa87647e upstream.
+commit ddf4b773aa40790dfa936bd845c18e735a49c61c upstream.
 
-arm32 uses software to simulate the instruction replaced
-by kprobe. some instructions may be simulated by constructing
-assembly functions. therefore, before executing instruction
-simulation, it is necessary to construct assembly function
-execution environment in C language through binding registers.
-after kasan is enabled, the register binding relationship will
-be destroyed, resulting in instruction simulation errors and
-causing kernel panic.
+commit 6f1b228529ae introduces a regression which can deadlock as
+follows:
 
-the kprobe emulate instruction function is distributed in three
-files: actions-common.c actions-arm.c actions-thumb.c, so disable
-KASAN when compiling these files.
+  Task1:                              Task2:
+  jbd2_journal_commit_transaction     ocfs2_test_bg_bit_allocatable
+  spin_lock(&jh->b_state_lock)        jbd_lock_bh_journal_head
+  __jbd2_journal_remove_checkpoint    spin_lock(&jh->b_state_lock)
+  jbd2_journal_put_journal_head
+  jbd_lock_bh_journal_head
 
-for example, use kprobe insert on cap_capable+20 after kasan
-enabled, the cap_capable assembly code is as follows:
-<cap_capable>:
-e92d47f0	push	{r4, r5, r6, r7, r8, r9, sl, lr}
-e1a05000	mov	r5, r0
-e280006c	add	r0, r0, #108    ; 0x6c
-e1a04001	mov	r4, r1
-e1a06002	mov	r6, r2
-e59fa090	ldr	sl, [pc, #144]  ;
-ebfc7bf8	bl	c03aa4b4 <__asan_load4>
-e595706c	ldr	r7, [r5, #108]  ; 0x6c
-e2859014	add	r9, r5, #20
-......
-The emulate_ldr assembly code after enabling kasan is as follows:
-c06f1384 <emulate_ldr>:
-e92d47f0	push	{r4, r5, r6, r7, r8, r9, sl, lr}
-e282803c	add	r8, r2, #60     ; 0x3c
-e1a05000	mov	r5, r0
-e7e37855	ubfx	r7, r5, #16, #4
-e1a00008	mov	r0, r8
-e1a09001	mov	r9, r1
-e1a04002	mov	r4, r2
-ebf35462	bl	c03c6530 <__asan_load4>
-e357000f	cmp	r7, #15
-e7e36655	ubfx	r6, r5, #12, #4
-e205a00f	and	sl, r5, #15
-0a000001	beq	c06f13bc <emulate_ldr+0x38>
-e0840107	add	r0, r4, r7, lsl #2
-ebf3545c	bl	c03c6530 <__asan_load4>
-e084010a	add	r0, r4, sl, lsl #2
-ebf3545a	bl	c03c6530 <__asan_load4>
-e2890010	add	r0, r9, #16
-ebf35458	bl	c03c6530 <__asan_load4>
-e5990010	ldr	r0, [r9, #16]
-e12fff30	blx	r0
-e356000f	cm	r6, #15
-1a000014	bne	c06f1430 <emulate_ldr+0xac>
-e1a06000	mov	r6, r0
-e2840040	add	r0, r4, #64     ; 0x40
-......
+Task1 and Task2 lock bh->b_state and jh->b_state_lock in different
+order, which finally result in a deadlock.
 
-when running in emulate_ldr to simulate the ldr instruction, panic
-occurred, and the log is as follows:
-Unable to handle kernel NULL pointer dereference at virtual address
-00000090
-pgd = ecb46400
-[00000090] *pgd=2e0fa003, *pmd=00000000
-Internal error: Oops: 206 [#1] SMP ARM
-PC is at cap_capable+0x14/0xb0
-LR is at emulate_ldr+0x50/0xc0
-psr: 600d0293 sp : ecd63af8  ip : 00000004  fp : c0a7c30c
-r10: 00000000  r9 : c30897f4  r8 : ecd63cd4
-r7 : 0000000f  r6 : 0000000a  r5 : e59fa090  r4 : ecd63c98
-r3 : c06ae294  r2 : 00000000  r1 : b7611300  r0 : bf4ec008
-Flags: nZCv  IRQs off  FIQs on  Mode SVC_32  ISA ARM  Segment user
-Control: 32c5387d  Table: 2d546400  DAC: 55555555
-Process bash (pid: 1643, stack limit = 0xecd60190)
-(cap_capable) from (kprobe_handler+0x218/0x340)
-(kprobe_handler) from (kprobe_trap_handler+0x24/0x48)
-(kprobe_trap_handler) from (do_undefinstr+0x13c/0x364)
-(do_undefinstr) from (__und_svc_finish+0x0/0x30)
-(__und_svc_finish) from (cap_capable+0x18/0xb0)
-(cap_capable) from (cap_vm_enough_memory+0x38/0x48)
-(cap_vm_enough_memory) from
-(security_vm_enough_memory_mm+0x48/0x6c)
-(security_vm_enough_memory_mm) from
-(copy_process.constprop.5+0x16b4/0x25c8)
-(copy_process.constprop.5) from (_do_fork+0xe8/0x55c)
-(_do_fork) from (SyS_clone+0x1c/0x24)
-(SyS_clone) from (__sys_trace_return+0x0/0x10)
-Code: 0050a0e1 6c0080e2 0140a0e1 0260a0e1 (f801f0e7)
+So use jbd2_journal_[grab|put]_journal_head instead in
+ocfs2_test_bg_bit_allocatable() to fix it.
 
-Fixes: 35aa1df43283 ("ARM kprobes: instruction single-stepping support")
-Fixes: 421015713b30 ("ARM: 9017/2: Enable KASan for ARM")
-Signed-off-by: huangshaobo <huangshaobo6@huawei.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lkml.kernel.org/r/20220121071205.100648-3-joseph.qi@linux.alibaba.com
+Fixes: 6f1b228529ae ("ocfs2: fix race between searching chunks and release journal_head from buffer_head")
+Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Reported-by: Gautham Ananthakrishna <gautham.ananthakrishna@oracle.com>
+Tested-by: Gautham Ananthakrishna <gautham.ananthakrishna@oracle.com>
+Reported-by: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Andreas Dilger <adilger.kernel@dilger.ca>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/probes/kprobes/Makefile |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/ocfs2/suballoc.c |   25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
---- a/arch/arm/probes/kprobes/Makefile
-+++ b/arch/arm/probes/kprobes/Makefile
-@@ -1,4 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
-+KASAN_SANITIZE_actions-common.o := n
-+KASAN_SANITIZE_actions-arm.o := n
-+KASAN_SANITIZE_actions-thumb.o := n
- obj-$(CONFIG_KPROBES)		+= core.o actions-common.o checkers-common.o
- obj-$(CONFIG_ARM_KPROBES_TEST)	+= test-kprobes.o
- test-kprobes-objs		:= test-core.o
+--- a/fs/ocfs2/suballoc.c
++++ b/fs/ocfs2/suballoc.c
+@@ -1251,26 +1251,23 @@ static int ocfs2_test_bg_bit_allocatable
+ {
+ 	struct ocfs2_group_desc *bg = (struct ocfs2_group_desc *) bg_bh->b_data;
+ 	struct journal_head *jh;
+-	int ret = 1;
++	int ret;
+ 
+ 	if (ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap))
+ 		return 0;
+ 
+-	if (!buffer_jbd(bg_bh))
++	jh = jbd2_journal_grab_journal_head(bg_bh);
++	if (!jh)
+ 		return 1;
+ 
+-	jbd_lock_bh_journal_head(bg_bh);
+-	if (buffer_jbd(bg_bh)) {
+-		jh = bh2jh(bg_bh);
+-		spin_lock(&jh->b_state_lock);
+-		bg = (struct ocfs2_group_desc *) jh->b_committed_data;
+-		if (bg)
+-			ret = !ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap);
+-		else
+-			ret = 1;
+-		spin_unlock(&jh->b_state_lock);
+-	}
+-	jbd_unlock_bh_journal_head(bg_bh);
++	spin_lock(&jh->b_state_lock);
++	bg = (struct ocfs2_group_desc *) jh->b_committed_data;
++	if (bg)
++		ret = !ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap);
++	else
++		ret = 1;
++	spin_unlock(&jh->b_state_lock);
++	jbd2_journal_put_journal_head(jh);
+ 
+ 	return ret;
+ }
 
 
