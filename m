@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83C604A41C5
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:06:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40F6C4A438D
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348685AbiAaLGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:06:00 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52250 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348484AbiAaLEU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:04:20 -0500
+        id S1376704AbiAaLV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47144 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378388AbiAaLUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:20:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C17E7C0610EC;
+        Mon, 31 Jan 2022 03:12:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E09C1B82A65;
-        Mon, 31 Jan 2022 11:04:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 027C8C340E8;
-        Mon, 31 Jan 2022 11:04:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 632C360E76;
+        Mon, 31 Jan 2022 11:12:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 406BAC340E8;
+        Mon, 31 Jan 2022 11:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627057;
-        bh=ZoPY949hCwVCTd+mgsiOvYWdOrBBWHV7xdcxQnPKTBA=;
+        s=korg; t=1643627540;
+        bh=fVlo420avUhmp+OSCpJHITks02oYo6ASqkbt0PYVoZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OkIadMKcOOgI2q9cK9evsJDbC1JMTadAYZbAlVxq9leVLHoijL8yObaiVpzv1xaxV
-         10MWdqq6mtvhLIkq8PtWbP6r6vlqfBNJSZR37C9S7RLtIWhe6xCl17LXjEf3J9W3XE
-         R4HZCGbTgXXyP3Qo2YrsyZ9rqs5HGX/glFaj2/ls=
+        b=Zxo6bCvG9JsYx/K2kI9SCH5+WEbnZrNNt89mOcF3+bJBgU9A6SvMxMcn7oJSpB8+y
+         PAb0Fb/M9M9HmiVdD/Kd6yJj7r/zSBhOEyYRvmGXSRJ7nDR83OWI2XPQeeSzSVoiMc
+         QJFcEd59xKOvbxRyVv7pc8A5VtO46vyzRcMW87dU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 061/100] net-procfs: show net devices bound packet types
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 117/171] mptcp: fix msk traversal in mptcp_nl_cmd_set_flags()
 Date:   Mon, 31 Jan 2022 11:56:22 +0100
-Message-Id: <20220131105222.483720997@linuxfoundation.org>
+Message-Id: <20220131105234.003753473@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,112 +49,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianguo Wu <wujianguo@chinatelecom.cn>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit 1d10f8a1f40b965d449e8f2d5ed7b96a7c138b77 upstream.
+[ Upstream commit 8e9eacad7ec7a9cbf262649ebf1fa6e6f6cc7d82 ]
 
-After commit:7866a621043f ("dev: add per net_device packet type chains"),
-we can not get packet types that are bound to a specified net device by
-/proc/net/ptype, this patch fix the regression.
+The MPTCP endpoint list is under RCU protection, guarded by the
+pernet spinlock. mptcp_nl_cmd_set_flags() traverses the list
+without acquiring the spin-lock nor under the RCU critical section.
 
-Run "tcpdump -i ens192 udp -nns0" Before and after apply this patch:
+This change addresses the issue performing the lookup and the endpoint
+update under the pernet spinlock.
 
-Before:
-  [root@localhost ~]# cat /proc/net/ptype
-  Type Device      Function
-  0800          ip_rcv
-  0806          arp_rcv
-  86dd          ipv6_rcv
-
-After:
-  [root@localhost ~]# cat /proc/net/ptype
-  Type Device      Function
-  ALL  ens192   tpacket_rcv
-  0800          ip_rcv
-  0806          arp_rcv
-  86dd          ipv6_rcv
-
-v1 -> v2:
-  - fix the regression rather than adding new /proc API as
-    suggested by Stephen Hemminger.
-
-Fixes: 7866a621043f ("dev: add per net_device packet type chains")
-Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0f9f696a502e ("mptcp: add set_flags command in PM netlink")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/net-procfs.c |   35 ++++++++++++++++++++++++++++++++---
- 1 file changed, 32 insertions(+), 3 deletions(-)
+ net/mptcp/pm_netlink.c | 37 +++++++++++++++++++++++++++----------
+ 1 file changed, 27 insertions(+), 10 deletions(-)
 
---- a/net/core/net-procfs.c
-+++ b/net/core/net-procfs.c
-@@ -193,12 +193,23 @@ static const struct seq_operations softn
- 	.show  = softnet_seq_show,
- };
- 
--static void *ptype_get_idx(loff_t pos)
-+static void *ptype_get_idx(struct seq_file *seq, loff_t pos)
- {
-+	struct list_head *ptype_list = NULL;
- 	struct packet_type *pt = NULL;
-+	struct net_device *dev;
- 	loff_t i = 0;
- 	int t;
- 
-+	for_each_netdev_rcu(seq_file_net(seq), dev) {
-+		ptype_list = &dev->ptype_all;
-+		list_for_each_entry_rcu(pt, ptype_list, list) {
-+			if (i == pos)
-+				return pt;
-+			++i;
-+		}
-+	}
-+
- 	list_for_each_entry_rcu(pt, &ptype_all, list) {
- 		if (i == pos)
- 			return pt;
-@@ -219,22 +230,40 @@ static void *ptype_seq_start(struct seq_
- 	__acquires(RCU)
- {
- 	rcu_read_lock();
--	return *pos ? ptype_get_idx(*pos - 1) : SEQ_START_TOKEN;
-+	return *pos ? ptype_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
+index bba166ddacc78..7f11eb3e35137 100644
+--- a/net/mptcp/pm_netlink.c
++++ b/net/mptcp/pm_netlink.c
+@@ -469,6 +469,20 @@ __lookup_addr_by_id(struct pm_nl_pernet *pernet, unsigned int id)
+ 	return NULL;
  }
  
- static void *ptype_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- {
-+	struct net_device *dev;
- 	struct packet_type *pt;
- 	struct list_head *nxt;
- 	int hash;
- 
- 	++*pos;
- 	if (v == SEQ_START_TOKEN)
--		return ptype_get_idx(0);
-+		return ptype_get_idx(seq, 0);
- 
- 	pt = v;
- 	nxt = pt->list.next;
-+	if (pt->dev) {
-+		if (nxt != &pt->dev->ptype_all)
-+			goto found;
++static struct mptcp_pm_addr_entry *
++__lookup_addr(struct pm_nl_pernet *pernet, const struct mptcp_addr_info *info,
++	      bool lookup_by_id)
++{
++	struct mptcp_pm_addr_entry *entry;
 +
-+		dev = pt->dev;
-+		for_each_netdev_continue_rcu(seq_file_net(seq), dev) {
-+			if (!list_empty(&dev->ptype_all)) {
-+				nxt = dev->ptype_all.next;
-+				goto found;
-+			}
-+		}
-+
-+		nxt = ptype_all.next;
-+		goto ptype_all;
++	list_for_each_entry(entry, &pernet->local_addr_list, list) {
++		if ((!lookup_by_id && addresses_equal(&entry->addr, info, true)) ||
++		    (lookup_by_id && entry->addr.id == info->id))
++			return entry;
 +	}
++	return NULL;
++}
 +
- 	if (pt->type == htons(ETH_P_ALL)) {
-+ptype_all:
- 		if (nxt != &ptype_all)
- 			goto found;
- 		hash = 0;
+ static int
+ lookup_id_by_addr(struct pm_nl_pernet *pernet, const struct mptcp_addr_info *addr)
+ {
+@@ -1753,18 +1767,21 @@ static int mptcp_nl_cmd_set_flags(struct sk_buff *skb, struct genl_info *info)
+ 			return -EOPNOTSUPP;
+ 	}
+ 
+-	list_for_each_entry(entry, &pernet->local_addr_list, list) {
+-		if ((!lookup_by_id && addresses_equal(&entry->addr, &addr.addr, true)) ||
+-		    (lookup_by_id && entry->addr.id == addr.addr.id)) {
+-			mptcp_nl_addr_backup(net, &entry->addr, bkup);
+-
+-			if (bkup)
+-				entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
+-			else
+-				entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
+-		}
++	spin_lock_bh(&pernet->lock);
++	entry = __lookup_addr(pernet, &addr.addr, lookup_by_id);
++	if (!entry) {
++		spin_unlock_bh(&pernet->lock);
++		return -EINVAL;
+ 	}
+ 
++	if (bkup)
++		entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
++	else
++		entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
++	addr = *entry;
++	spin_unlock_bh(&pernet->lock);
++
++	mptcp_nl_addr_backup(net, &addr.addr, bkup);
+ 	return 0;
+ }
+ 
+-- 
+2.34.1
+
 
 
