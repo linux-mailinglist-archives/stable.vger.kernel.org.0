@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42C1D4A40B4
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 11:59:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E2C34A40BF
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:00:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244586AbiAaK7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 05:59:47 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47194 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244170AbiAaK7B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:59:01 -0500
+        id S1348465AbiAaK7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 05:59:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42830 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358344AbiAaK7Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:59:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B24BC06174E;
+        Mon, 31 Jan 2022 02:59:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DDD1B82A5C;
-        Mon, 31 Jan 2022 10:58:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99F8AC340EF;
-        Mon, 31 Jan 2022 10:58:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DA7760ABE;
+        Mon, 31 Jan 2022 10:59:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA0D8C340EF;
+        Mon, 31 Jan 2022 10:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626738;
-        bh=zK74JLsNNG35iN3KFqzkDIftMt6obJHu9qL2hrEwLkU=;
+        s=korg; t=1643626741;
+        bh=e2WQ35VBoBcBt40QoBPEn2xr4K/4V24VvJRY9NjJxNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HUr10TtUv4bheFd26/5cfOaJZ62kfDLW9OjU6N1a8ESjXrPizcqvG+A+n15+x2I1K
-         0R6NvnBg1JSlYwTM023bMQNji68rRb82IMmWqruMqEiKH4GiB8F/nATpi4An0P73c3
-         ws3erCy/9dgSOlnKsHj4nzyYkk6K0yuPkoNyfpDY=
+        b=jHuIPhkLJZWoMK+mp/q41pUouxEsgTrE5AcBWm1Z+BcHDRJ52U2R8u0l03h3WHQGI
+         XpzG0qcWpSNOswuH21RDu75Tt1FP18CpG74DZQqAxqw6AzW2cgZYcMQuLtqRmJ/+ht
+         y1dFrzTLEauY1y7QsOJBq+aTxurtZ97QKXLjn2lU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 23/64] net: sfp: ignore disabled SFP node
-Date:   Mon, 31 Jan 2022 11:56:08 +0100
-Message-Id: <20220131105216.448654800@linuxfoundation.org>
+        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 24/64] powerpc/32: Fix boot failure with GCC latent entropy plugin
+Date:   Mon, 31 Jan 2022 11:56:09 +0100
+Message-Id: <20220131105216.481851495@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105215.644174521@linuxfoundation.org>
 References: <20220131105215.644174521@linuxfoundation.org>
@@ -45,42 +48,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 2148927e6ed43a1667baf7c2ae3e0e05a44b51a0 upstream.
+commit bba496656a73fc1d1330b49c7f82843836e9feb1 upstream.
 
-Commit ce0aa27ff3f6 ("sfp: add sfp-bus to bridge between network devices
-and sfp cages") added code which finds SFP bus DT node even if the node
-is disabled with status = "disabled". Because of this, when phylink is
-created, it ends with non-null .sfp_bus member, even though the SFP
-module is not probed (because the node is disabled).
+Boot fails with GCC latent entropy plugin enabled.
 
-We need to ignore disabled SFP bus node.
+This is due to early boot functions trying to access 'latent_entropy'
+global data while the kernel is not relocated at its final
+destination yet.
 
-Fixes: ce0aa27ff3f6 ("sfp: add sfp-bus to bridge between network devices and sfp cages")
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org # 2203cbf2c8b5 ("net: sfp: move fwnode parsing into sfp-bus layer")
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[ backport to 5.4 ]
-Signed-off-by: Marek Behún <kabel@kernel.org>
+As there is no way to tell GCC to use PTRRELOC() to access it,
+disable latent entropy plugin in early_32.o and feature-fixups.o and
+code-patching.o
+
+Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
+Cc: stable@vger.kernel.org # v4.9+
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215217
+Link: https://lore.kernel.org/r/2bac55483b8daf5b1caa163a45fa5f9cdbe18be4.1640178426.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/phylink.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/powerpc/kernel/Makefile |    1 +
+ arch/powerpc/lib/Makefile    |    3 +++
+ 2 files changed, 4 insertions(+)
 
---- a/drivers/net/phy/phylink.c
-+++ b/drivers/net/phy/phylink.c
-@@ -582,6 +582,11 @@ static int phylink_register_sfp(struct p
- 		return ret;
- 	}
+--- a/arch/powerpc/kernel/Makefile
++++ b/arch/powerpc/kernel/Makefile
+@@ -13,6 +13,7 @@ CFLAGS_prom_init.o      += -fPIC
+ CFLAGS_btext.o		+= -fPIC
+ endif
  
-+	if (!fwnode_device_is_available(ref.fwnode)) {
-+		fwnode_handle_put(ref.fwnode);
-+		return 0;
-+	}
++CFLAGS_early_32.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+ CFLAGS_cputable.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+ CFLAGS_prom_init.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+ CFLAGS_btext.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+--- a/arch/powerpc/lib/Makefile
++++ b/arch/powerpc/lib/Makefile
+@@ -16,6 +16,9 @@ CFLAGS_code-patching.o += -DDISABLE_BRAN
+ CFLAGS_feature-fixups.o += -DDISABLE_BRANCH_PROFILING
+ endif
+ 
++CFLAGS_code-patching.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
++CFLAGS_feature-fixups.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
 +
- 	pl->sfp_bus = sfp_register_upstream(ref.fwnode, pl, &sfp_phylink_ops);
- 	if (!pl->sfp_bus)
- 		return -ENOMEM;
+ obj-y += alloc.o code-patching.o feature-fixups.o pmem.o
+ 
+ ifndef CONFIG_KASAN
 
 
