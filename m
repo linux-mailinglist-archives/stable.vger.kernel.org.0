@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53DB94A421A
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 265BB4A43EF
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:25:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358832AbiAaLKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:10:50 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40980 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348507AbiAaLGb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:06:31 -0500
+        id S1359079AbiAaLZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:25:02 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:41222 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377442AbiAaLW4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:22:56 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BBC26104B;
-        Mon, 31 Jan 2022 11:06:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AB5AC36AE3;
-        Mon, 31 Jan 2022 11:06:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DDE6B82A76;
+        Mon, 31 Jan 2022 11:22:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7916DC340E8;
+        Mon, 31 Jan 2022 11:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627190;
-        bh=i/qDGYIStvA+YTvPwrw5QtUqxP1K+kAf+KVBEzQxREI=;
+        s=korg; t=1643628174;
+        bh=05u4659g45mJj8TYTwy6Hv2WqO2LL6t/KdgTntH3sjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BosN7zXh58OxuN54z9NnVW7AbWtak0/3Hlz5E4dK1D+RdlGpNwFTH90ZqARKazJG
-         qiVwZUKx+/X1dctg3LCtcq/eU5ILSxrSbILOrN/MMybZIiWnY8t93ezi/NIbfmrMHO
-         BqdIEJLKVHmdRV6Rn0DPv7qMMKcfNAHymZOfcTNM=
+        b=RQEfE9GIDmobNcZ/7LTf2wQj07zDywsh6yMpQHq2s1IaYxihNGeomMxSMe7aUaZOO
+         93XD+sqbQA/D36xqW922A6dqTB4AfU1/wdS85p6z4dIdoufLQo6nnFofu8HFGaORAe
+         x/k86PKK1Ty8MB6B3tiZz5RyX5DmD3sfgWHjaRFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +32,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/100] net: phy: broadcom: hook up soft_reset for BCM54616S
+Subject: [PATCH 5.16 131/200] net: phy: broadcom: hook up soft_reset for BCM54616S
 Date:   Mon, 31 Jan 2022 11:56:34 +0100
-Message-Id: <20220131105222.877560759@linuxfoundation.org>
+Message-Id: <20220131105237.957986263@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -88,17 +88,17 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/net/phy/broadcom.c b/drivers/net/phy/broadcom.c
-index dbed15dc0fe77..644861366d544 100644
+index bb5104ae46104..3c683e0e40e9e 100644
 --- a/drivers/net/phy/broadcom.c
 +++ b/drivers/net/phy/broadcom.c
-@@ -789,6 +789,7 @@ static struct phy_driver broadcom_drivers[] = {
+@@ -854,6 +854,7 @@ static struct phy_driver broadcom_drivers[] = {
  	.phy_id_mask	= 0xfffffff0,
  	.name		= "Broadcom BCM54616S",
  	/* PHY_GBIT_FEATURES */
 +	.soft_reset     = genphy_soft_reset,
  	.config_init	= bcm54xx_config_init,
  	.config_aneg	= bcm54616s_config_aneg,
- 	.ack_interrupt	= bcm_phy_ack_intr,
+ 	.config_intr	= bcm_phy_config_intr,
 -- 
 2.34.1
 
