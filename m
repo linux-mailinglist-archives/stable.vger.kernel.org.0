@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A8F84A44D3
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D9DD4A424D
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377110AbiAaLcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:32:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48894 "EHLO
+        id S1358387AbiAaLLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359313AbiAaLYl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:24:41 -0500
+        with ESMTP id S1376614AbiAaLIm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:08:42 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A662C08E8A4;
-        Mon, 31 Jan 2022 03:15:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21C05C0619D0;
+        Mon, 31 Jan 2022 03:05:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 314E4B82A7B;
-        Mon, 31 Jan 2022 11:15:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53719C340E8;
-        Mon, 31 Jan 2022 11:15:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BB32EB82A5F;
+        Mon, 31 Jan 2022 11:05:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3C31C340E8;
+        Mon, 31 Jan 2022 11:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627709;
-        bh=qaGC6a4GxzbMSKOY4uDM40vyLvP9sdjTICBmAWo+TMI=;
+        s=korg; t=1643627126;
+        bh=gzbIsjtQpfVOlvuIIXAoK1Ll7cxgvVQq1fRslI9n4/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R3wv/rJOpKTBSpQwQfuhoeFFAFEm46FnowdJT2kq45oOySc2NK8AkKDVByj57k+2Z
-         T/BNnuCPeN3RG03/txNOhcc0ip7DGog/pkXyqLrMSWFZ4BtlKXlPh7PvpH7wP5rtCv
-         bM/mOi1cxtVrsipAqNf8Ynb6awtgrVkEFPIUIrkM=
+        b=tVkHloly3ci8jzwUKya/z486yM1teLiOLny+cWO07+dotZc4B2qgBrh45k6P1wVAi
+         1//ySqqnO4eTtf6cowunRbGsdQafpcJVeYDYBudGwzOZdGMb6u8v+HPJYEJPzUXzt9
+         OOidsRS70Uc+gd3h0Ik503mp2RgllGoXw4OTvkkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dany Madden <drt@linux.ibm.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 139/171] ibmvnic: init ->running_cap_crqs early
+Subject: [PATCH 5.10 083/100] ibmvnic: init ->running_cap_crqs early
 Date:   Mon, 31 Jan 2022 11:56:44 +0100
-Message-Id: <20220131105234.712184948@linuxfoundation.org>
+Message-Id: <20220131105223.242124271@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -95,10 +95,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 71 insertions(+), 35 deletions(-)
 
 diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 191b3b7350182..a3dd5c648fecd 100644
+index 4f99d97638248..232c68af4c60a 100644
 --- a/drivers/net/ethernet/ibm/ibmvnic.c
 +++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -3675,11 +3675,25 @@ static void send_request_cap(struct ibmvnic_adapter *adapter, int retry)
+@@ -3401,11 +3401,25 @@ static void send_request_cap(struct ibmvnic_adapter *adapter, int retry)
  	struct device *dev = &adapter->vdev->dev;
  	union ibmvnic_crq crq;
  	int max_entries;
@@ -124,7 +124,7 @@ index 191b3b7350182..a3dd5c648fecd 100644
  		if (adapter->min_tx_entries_per_subcrq > entries_page ||
  		    adapter->min_rx_add_entries_per_subcrq > entries_page) {
  			dev_err(dev, "Fatal, invalid entries per sub-crq\n");
-@@ -3740,44 +3754,45 @@ static void send_request_cap(struct ibmvnic_adapter *adapter, int retry)
+@@ -3466,44 +3480,45 @@ static void send_request_cap(struct ibmvnic_adapter *adapter, int retry)
  					adapter->opt_rx_comp_queues;
  
  		adapter->req_rx_add_queues = adapter->max_rx_add_queues;
@@ -177,7 +177,7 @@ index 191b3b7350182..a3dd5c648fecd 100644
  	ibmvnic_send_crq(adapter, &crq);
  
  	if (adapter->netdev->flags & IFF_PROMISC) {
-@@ -3785,16 +3800,21 @@ static void send_request_cap(struct ibmvnic_adapter *adapter, int retry)
+@@ -3511,16 +3526,21 @@ static void send_request_cap(struct ibmvnic_adapter *adapter, int retry)
  			crq.request_capability.capability =
  			    cpu_to_be16(PROMISC_REQUESTED);
  			crq.request_capability.number = cpu_to_be64(1);
@@ -201,7 +201,7 @@ index 191b3b7350182..a3dd5c648fecd 100644
  }
  
  static int pending_scrq(struct ibmvnic_adapter *adapter,
-@@ -4188,118 +4208,132 @@ static void send_query_map(struct ibmvnic_adapter *adapter)
+@@ -3953,118 +3973,132 @@ static void send_query_map(struct ibmvnic_adapter *adapter)
  static void send_query_cap(struct ibmvnic_adapter *adapter)
  {
  	union ibmvnic_crq crq;
@@ -360,7 +360,7 @@ index 191b3b7350182..a3dd5c648fecd 100644
  }
  
  static void send_query_ip_offload(struct ibmvnic_adapter *adapter)
-@@ -4604,6 +4638,8 @@ static void handle_request_cap_rsp(union ibmvnic_crq *crq,
+@@ -4369,6 +4403,8 @@ static void handle_request_cap_rsp(union ibmvnic_crq *crq,
  	char *name;
  
  	atomic_dec(&adapter->running_cap_crqs);
