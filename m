@@ -2,96 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 925DC4A3F29
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 10:24:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90D7B4A3F2F
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 10:25:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238556AbiAaJYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 04:24:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49370 "EHLO
+        id S238722AbiAaJZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 04:25:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231476AbiAaJYl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 04:24:41 -0500
+        with ESMTP id S231476AbiAaJZT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 04:25:19 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77A94C061714
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 01:24:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B0D5C06173B
+        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 01:25:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0E33DCE10E6
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 09:24:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C30DBC340E8;
-        Mon, 31 Jan 2022 09:24:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AC7CFCE10AE
+        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 09:25:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C0E5C340E8;
+        Mon, 31 Jan 2022 09:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643621077;
-        bh=Soq3weMdREJkHX5LRONHFKswdHRa9ZR/VYPVD2WQ/bw=;
-        h=Subject:To:From:Date:From;
-        b=hZEDeJt3hVQ+Akl4sPtcmoeyxK1Ps1L0csxLWill7uvJnOT3HlkIABMiRLsGzGXh+
-         Fuzx1aorveSlUw2gZYl2tR2PKQiStSF8LGUh4GwCqSjxhr7fc60fAqGlTKPN4UNrdl
-         CnYhK2FxRDAGyxzG1i9t8jKP17cUb57+2fFjXGAk=
-Subject: patch "usb: dwc3: xilinx: fix uninitialized return value" added to usb-linus
-To:     robert.hancock@calian.com, gregkh@linuxfoundation.org,
-        nathan@kernel.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Jan 2022 10:24:34 +0100
-Message-ID: <164362107465184@kroah.com>
+        s=korg; t=1643621116;
+        bh=QK10OpLXKOl5Zt7IQYUA/H9/LZJr1EhlL5I18RzZSMg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=f2NZ7+hUuH3ccvvXtSVbz7+xOwMivF1AGw/XPAmvdpXD9XAI/UZR8S9vfa2fI4JNZ
+         eYRxbMHEEt7r65kRotbcRqWngLHPLjM6l4QrMR/SKa5SMMLDBUikWayXpuaspJg4nQ
+         /kwMUBFqDDTFUnGmHAbxEb1Omy5XduCqTP+2nGBc=
+Date:   Mon, 31 Jan 2022 10:25:13 +0100
+From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To:     Robert Hancock <robert.hancock@calian.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: Patch "usb: dwc3: xilinx: Skip resets and USB3 register settings
+ for USB2.0 mode" has been added to the 5.16-stable tree
+Message-ID: <Yfeq+cJkG3oSrJaf@kroah.com>
+References: <1643473458172238@kroah.com>
+ <8e6827b335e07010ca97faf1c98657434ec8b341.camel@calian.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8e6827b335e07010ca97faf1c98657434ec8b341.camel@calian.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Jan 29, 2022 at 09:40:56PM +0000, Robert Hancock wrote:
+> On Sat, 2022-01-29 at 17:24 +0100, gregkh@linuxfoundation.org wrote:
+> > This is a note to let you know that I've just added the patch titled
+> > 
+> >     usb: dwc3: xilinx: Skip resets and USB3 register settings for USB2.0 mode
+> > 
+> > to the 5.16-stable tree which can be found at:
+> >     
+> > https://urldefense.com/v3/__http://www.kernel.org/git/?p=linux*kernel*git*stable*stable-queue.git;a=summary__;Ly8vLw!!IOGos0k!zf9QJvY84EtqUpdi6VflkIp1CJqnnCaQoiGGvZ8KORysjiM44hQecYjVySxsuD6OjZA$
+> >  
+> > 
+> > The filename of the patch is:
+> >      usb-dwc3-xilinx-skip-resets-and-usb3-register-settings-for-usb2.0-
+> > mode.patch
+> > and it can be found in the queue-5.16 subdirectory.
+> > 
+> > If you, or anyone else, feels it should not be added to the stable tree,
+> > please let <stable@vger.kernel.org> know about it.
+> 
+> Hi Greg,
+> 
+> This patch should likely only go into stable along with the follow-up patch I
+> posted (or something equivalent):
+> 
+> https://patchwork.kernel.org/project/linux-usb/patch/20220127221500.177021-1-robert.hancock@calian.com/
+> 
+> Otherwise it will cause a regression.
 
-This is a note to let you know that I've just added the patch titled
+Thanks for pointing this out, I'll take the fix too.
 
-    usb: dwc3: xilinx: fix uninitialized return value
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From b470947c3672f7eb7c4c271d510383d896831cc2 Mon Sep 17 00:00:00 2001
-From: Robert Hancock <robert.hancock@calian.com>
-Date: Thu, 27 Jan 2022 16:15:00 -0600
-Subject: usb: dwc3: xilinx: fix uninitialized return value
-
-A previous patch to skip part of the initialization when a USB3 PHY was
-not present could result in the return value being uninitialized in that
-case, causing spurious probe failures. Initialize ret to 0 to avoid this.
-
-Fixes: 9678f3361afc ("usb: dwc3: xilinx: Skip resets and USB3 register settings for USB2.0 mode")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20220127221500.177021-1-robert.hancock@calian.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/dwc3/dwc3-xilinx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/usb/dwc3/dwc3-xilinx.c b/drivers/usb/dwc3/dwc3-xilinx.c
-index e14ac15e24c3..a6f3a9b38789 100644
---- a/drivers/usb/dwc3/dwc3-xilinx.c
-+++ b/drivers/usb/dwc3/dwc3-xilinx.c
-@@ -99,7 +99,7 @@ static int dwc3_xlnx_init_zynqmp(struct dwc3_xlnx *priv_data)
- 	struct device		*dev = priv_data->dev;
- 	struct reset_control	*crst, *hibrst, *apbrst;
- 	struct phy		*usb3_phy;
--	int			ret;
-+	int			ret = 0;
- 	u32			reg;
- 
- 	usb3_phy = devm_phy_optional_get(dev, "usb3-phy");
--- 
-2.35.1
-
-
+greg k-h
