@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF1104A43C2
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:24:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92DD04A42CE
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:14:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377618AbiAaLYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:24:12 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:39204 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359243AbiAaLVG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:21:06 -0500
+        id S240420AbiAaLOR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:14:17 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45474 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359688AbiAaLL5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:11:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83716B82A65;
-        Mon, 31 Jan 2022 11:21:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94E09C340E8;
-        Mon, 31 Jan 2022 11:21:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E72B6610B1;
+        Mon, 31 Jan 2022 11:11:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C11A2C340EF;
+        Mon, 31 Jan 2022 11:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628061;
-        bh=IcZM6Y5BA+nG06mDGCAzua8aJeNr5MqdlLu67IuS6E0=;
+        s=korg; t=1643627516;
+        bh=sUC1HgVOnkKu10wxMxJshj6DYaGKxn0UwTEkmc22aXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FR37TlbaocXM0gM+RfnYJw3eI3JJM1EaBGcWxwvuR6HbCc9YzX6Y7hsjp7nNygOc+
-         Oq8XFE5oHgWC0PKIg7r3jR2IPodvJkO30HdOxDiHN4Vf3gA9TXLw24mboQd46MhpzJ
-         fdBkDIXNFT4nrrgCQUyO9tuD2c/w5oVUbIRzh8Zs=
+        b=NnUq/wPumdZ7O+rHRUhENZmETlSEj0RSm9XNQloQE4N1WJgHNo2B0jzUG/CV9+T6y
+         OsRncpMStH6KbwLvkdsxYf2FET+R5ODmHMZ+tWDdEykUBFhSsRmsXCsirbk6prnS3W
+         TL/j/vWPKW/MufGaW9NpUd5vf0czjqenp+m2+zeM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>, Ray Che <xijiache@gmail.com>,
-        Willy Tarreau <w@1wt.eu>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 112/200] ipv4: avoid using shared IP generator for connected sockets
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 110/171] net: phy: broadcom: hook up soft_reset for BCM54616S
 Date:   Mon, 31 Jan 2022 11:56:15 +0100
-Message-Id: <20220131105237.351177146@linuxfoundation.org>
+Message-Id: <20220131105233.757871162@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Robert Hancock <robert.hancock@calian.com>
 
-commit 23f57406b82de51809d5812afd96f210f8b627f3 upstream.
+[ Upstream commit d15c7e875d44367005370e6a82e8f3a382a04f9b ]
 
-ip_select_ident_segs() has been very conservative about using
-the connected socket private generator only for packets with IP_DF
-set, claiming it was needed for some VJ compression implementations.
+A problem was encountered with the Bel-Fuse 1GBT-SFP05 SFP module (which
+is a 1 Gbps copper module operating in SGMII mode with an internal
+BCM54616S PHY device) using the Xilinx AXI Ethernet MAC core, where the
+module would work properly on the initial insertion or boot of the
+device, but after the device was rebooted, the link would either only
+come up at 100 Mbps speeds or go up and down erratically.
 
-As mentioned in this referenced document, this can be abused.
-(Ref: Off-Path TCP Exploits of the Mixed IPID Assignment)
+I found no meaningful changes in the PHY configuration registers between
+the working and non-working boots, but the status registers seemed to
+have a lot of error indications set on the SERDES side of the device on
+the non-working boot. I suspect the problem is that whatever happens on
+the SGMII link when the device is rebooted and the FPGA logic gets
+reloaded ends up putting the module's onboard PHY into a bad state.
 
-Before switching to pure random IPID generation and possibly hurt
-some workloads, lets use the private inet socket generator.
+Since commit 6e2d85ec0559 ("net: phy: Stop with excessive soft reset")
+the genphy_soft_reset call is not made automatically by the PHY core
+unless the callback is explicitly specified in the driver structure. For
+most of these Broadcom devices, there is probably a hardware reset that
+gets asserted to reset the PHY during boot, however for SFP modules
+(where the BCM54616S is commonly found) no such reset line exists, so if
+the board keeps the SFP cage powered up across a reboot, it will end up
+with no reset occurring during reboots.
 
-Not only this will remove one vulnerability, this will also
-improve performance of TCP flows using pmtudisc==IP_PMTUDISC_DONT
+Hook up the genphy_soft_reset callback for BCM54616S to ensure that a
+PHY reset is performed before the device is initialized. This appears to
+fix the issue with erratic operation after a reboot with this SFP
+module.
 
-Fixes: 73f156a6e8c1 ("inetpeer: get rid of ip_id_count")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Reported-by: Ray Che <xijiache@gmail.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6e2d85ec0559 ("net: phy: Stop with excessive soft reset")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip.h |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/net/phy/broadcom.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -525,19 +525,18 @@ static inline void ip_select_ident_segs(
- {
- 	struct iphdr *iph = ip_hdr(skb);
- 
-+	/* We had many attacks based on IPID, use the private
-+	 * generator as much as we can.
-+	 */
-+	if (sk && inet_sk(sk)->inet_daddr) {
-+		iph->id = htons(inet_sk(sk)->inet_id);
-+		inet_sk(sk)->inet_id += segs;
-+		return;
-+	}
- 	if ((iph->frag_off & htons(IP_DF)) && !skb->ignore_df) {
--		/* This is only to work around buggy Windows95/2000
--		 * VJ compression implementations.  If the ID field
--		 * does not change, they drop every other packet in
--		 * a TCP stream using header compression.
--		 */
--		if (sk && inet_sk(sk)->inet_daddr) {
--			iph->id = htons(inet_sk(sk)->inet_id);
--			inet_sk(sk)->inet_id += segs;
--		} else {
--			iph->id = 0;
--		}
-+		iph->id = 0;
- 	} else {
-+		/* Unfortunately we need the big hammer to get a suitable IPID */
- 		__ip_select_ident(net, iph, segs);
- 	}
- }
+diff --git a/drivers/net/phy/broadcom.c b/drivers/net/phy/broadcom.c
+index 83aea5c5cd03c..db26ff8ce7dbb 100644
+--- a/drivers/net/phy/broadcom.c
++++ b/drivers/net/phy/broadcom.c
+@@ -768,6 +768,7 @@ static struct phy_driver broadcom_drivers[] = {
+ 	.phy_id_mask	= 0xfffffff0,
+ 	.name		= "Broadcom BCM54616S",
+ 	/* PHY_GBIT_FEATURES */
++	.soft_reset     = genphy_soft_reset,
+ 	.config_init	= bcm54xx_config_init,
+ 	.config_aneg	= bcm54616s_config_aneg,
+ 	.config_intr	= bcm_phy_config_intr,
+-- 
+2.34.1
+
 
 
