@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 249824A44AC
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:33:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D7DF4A4386
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358890AbiAaLcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:32:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49948 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378759AbiAaL3G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:29:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38438C0613EC;
-        Mon, 31 Jan 2022 03:18:22 -0800 (PST)
+        id S1376595AbiAaLVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:50 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:50168 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377523AbiAaLSX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:18:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFF7BB82A60;
-        Mon, 31 Jan 2022 11:18:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B9A2C340E8;
-        Mon, 31 Jan 2022 11:18:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 446856114D;
+        Mon, 31 Jan 2022 11:18:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C843C340E8;
+        Mon, 31 Jan 2022 11:18:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627899;
-        bh=Qaq1eYmEKuHp4EfSym8gVoXa+XNpJfoIhWl2rY8NBjo=;
+        s=korg; t=1643627902;
+        bh=8bbaXZER4a2mhUTdrkD8ZgmE7ImLm7ZobG8EiC1hc94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CJjMNZvwB5fsqVMFDwGusrHQGDDJXxJgUZUzBEb6OIKeDfcEIZVVTOWbsqN9PqIKW
-         3xyTTQfy5GwvJRN9jwFvKwKEUkRN0xl+HoN86gQzSyglbpoA+6TdLawKd9OFGvJ9X9
-         B3bUYoTkjSejnhrdmBVTPSLlAoAsIyKgc/tgEtuc=
+        b=RlJ0p4QVHqbmwRul9ZoZcEpVCFotwuPWocC5ESOAcQ/lzn2vx3XqQVzr4KBSzp8mL
+         fj0irXYdkiyGgfdrA9yVF9deYjRaRKoa/Uan1SmN72IG4wRYgvFAlyBqKeEvwrPsWM
+         EnUsz2pR/t4eVbly29TIrd6KAphq5T0wD7mNJJxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.16 027/200] udf: Fix NULL ptr deref when converting from inline format
-Date:   Mon, 31 Jan 2022 11:54:50 +0100
-Message-Id: <20220131105234.484099734@linuxfoundation.org>
+        stable@vger.kernel.org, Jeremy Kerr <jk@ozlabs.org>,
+        Matthew Garrett <mjg59@srcf.ucam.org>,
+        Aditya Garg <gargaditya08@live.com>,
+        Orlando Chamberlain <redecorating@protonmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.16 028/200] efi: runtime: avoid EFIv2 runtime services on Apple x86 machines
+Date:   Mon, 31 Jan 2022 11:54:51 +0100
+Message-Id: <20220131105234.520022336@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
 References: <20220131105233.561926043@linuxfoundation.org>
@@ -47,64 +47,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 7fc3b7c2981bbd1047916ade327beccb90994eee upstream.
+commit f5390cd0b43c2e54c7cf5506c7da4a37c5cef746 upstream.
 
-udf_expand_file_adinicb() calls directly ->writepage to write data
-expanded into a page. This however misses to setup inode for writeback
-properly and so we can crash on inode->i_wb dereference when submitting
-page for IO like:
+Aditya reports [0] that his recent MacbookPro crashes in the firmware
+when using the variable services at runtime. The culprit appears to be a
+call to QueryVariableInfo(), which we did not use to call on Apple x86
+machines in the past as they only upgraded from EFI v1.10 to EFI v2.40
+firmware fairly recently, and QueryVariableInfo() (along with
+UpdateCapsule() et al) was added in EFI v2.00.
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000158
-  #PF: supervisor read access in kernel mode
-...
-  <TASK>
-  __folio_start_writeback+0x2ac/0x350
-  __block_write_full_page+0x37d/0x490
-  udf_expand_file_adinicb+0x255/0x400 [udf]
-  udf_file_write_iter+0xbe/0x1b0 [udf]
-  new_sync_write+0x125/0x1c0
-  vfs_write+0x28e/0x400
+The only runtime service introduced in EFI v2.00 that we actually use in
+Linux is QueryVariableInfo(), as the capsule based ones are optional,
+generally not used at runtime (all the LVFS/fwupd firmware update
+infrastructure uses helper EFI programs that invoke capsule update at
+boot time, not runtime), and not implemented by Apple machines in the
+first place. QueryVariableInfo() is used to 'safely' set variables,
+i.e., only when there is enough space. This prevents machines with buggy
+firmwares from corrupting their NVRAMs when they run out of space.
 
-Fix the problem by marking the page dirty and going through the standard
-writeback path to write the page. Strictly speaking we would not even
-have to write the page but we want to catch e.g. ENOSPC errors early.
+Given that Apple machines have been using EFI v1.10 services only for
+the longest time (the EFI v2.0 spec was released in 2006, and Linux
+support for the newly introduced runtime services was added in 2011, but
+the MacbookPro12,1 released in 2015 still claims to be EFI v1.10 only),
+let's avoid the EFI v2.0 ones on all Apple x86 machines.
 
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-CC: stable@vger.kernel.org
-Fixes: 52ebea749aae ("writeback: make backing_dev_info host cgroup-specific bdi_writebacks")
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jan Kara <jack@suse.cz>
+[0] https://lore.kernel.org/all/6D757C75-65B1-468B-842D-10410081A8E4@live.com/
+
+Cc: <stable@vger.kernel.org>
+Cc: Jeremy Kerr <jk@ozlabs.org>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>
+Reported-by: Aditya Garg <gargaditya08@live.com>
+Tested-by: Orlando Chamberlain <redecorating@protonmail.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Tested-by: Aditya Garg <gargaditya08@live.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215277
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/inode.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/firmware/efi/efi.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -258,10 +258,6 @@ int udf_expand_file_adinicb(struct inode
- 	char *kaddr;
- 	struct udf_inode_info *iinfo = UDF_I(inode);
- 	int err;
--	struct writeback_control udf_wbc = {
--		.sync_mode = WB_SYNC_NONE,
--		.nr_to_write = 1,
--	};
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -722,6 +722,13 @@ void __init efi_systab_report_header(con
+ 		systab_hdr->revision >> 16,
+ 		systab_hdr->revision & 0xffff,
+ 		vendor);
++
++	if (IS_ENABLED(CONFIG_X86_64) &&
++	    systab_hdr->revision > EFI_1_10_SYSTEM_TABLE_REVISION &&
++	    !strcmp(vendor, "Apple")) {
++		pr_info("Apple Mac detected, using EFI v1.10 runtime services only\n");
++		efi.runtime_version = EFI_1_10_SYSTEM_TABLE_REVISION;
++	}
+ }
  
- 	WARN_ON_ONCE(!inode_is_locked(inode));
- 	if (!iinfo->i_lenAlloc) {
-@@ -305,8 +301,10 @@ int udf_expand_file_adinicb(struct inode
- 		iinfo->i_alloc_type = ICBTAG_FLAG_AD_LONG;
- 	/* from now on we have normal address_space methods */
- 	inode->i_data.a_ops = &udf_aops;
-+	set_page_dirty(page);
-+	unlock_page(page);
- 	up_write(&iinfo->i_data_sem);
--	err = inode->i_data.a_ops->writepage(page, &udf_wbc);
-+	err = filemap_fdatawrite(inode->i_mapping);
- 	if (err) {
- 		/* Restore everything back so that we don't lose data... */
- 		lock_page(page);
+ static __initdata char memory_type_name[][13] = {
 
 
