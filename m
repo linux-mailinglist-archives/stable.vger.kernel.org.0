@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7DA54A424E
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 208A64A44E4
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359504AbiAaLLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:11:22 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56888 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376609AbiAaLIm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:08:42 -0500
+        id S1377312AbiAaLdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:33:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49904 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378674AbiAaL24 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:28:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80CB9C0613E6;
+        Mon, 31 Jan 2022 03:17:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 059B5B82A68;
-        Mon, 31 Jan 2022 11:08:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 100A8C340EE;
-        Mon, 31 Jan 2022 11:08:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2138061170;
+        Mon, 31 Jan 2022 11:17:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5C07C340E8;
+        Mon, 31 Jan 2022 11:17:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627319;
-        bh=ecJFmKJDYdU3rLXxZJsdCvxkFYyBlEkQ5JXzF9zoskE=;
+        s=korg; t=1643627861;
+        bh=k70UCGaKdelyUX4hLZO2WfvpGsnNzGI95PXnQiEeiXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2l9XV5ukkIUN1etd2n0jk1pEVN27+bEZ/sN6Uz/WZGSN5lsrsceF1xyzr5mwzuEM/
-         K6SINoPyvQq9xvxmU/kzzr7PzF0+laajb4f7uM5GSAVmDX0S/lisQSuSQ8TtOzsAK0
-         x2AFefuOI9D92LoknVVeMpFPrdMR2DdN+F14z0Io=
+        b=EW2mhGLHNTSZ3wVMGR9aYxExye7r/wLCNp/5uc6zsfPG8gp5Hx/GeC6zlyUjgXqv+
+         QIZt3CUQwLLvNLRlFz9bKggaw5Uie/P6A71CIYynJ3siacc+KNInufCuovTFQHtWZ6
+         CEzvu4RZrMZpylxGW/vKub6lR7lfVkmOAbY1cikU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bud Brown <bubrown@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Mike Snitzer <snitzer@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 045/171] dm: properly fix redundant bio-based IO accounting
-Date:   Mon, 31 Jan 2022 11:55:10 +0100
-Message-Id: <20220131105231.546721826@linuxfoundation.org>
+        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.16 048/200] KVM: LAPIC: Also cancel preemption timer during SET_LAPIC
+Date:   Mon, 31 Jan 2022 11:55:11 +0100
+Message-Id: <20220131105235.177585417@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-commit b879f915bc48a18d4f4462729192435bb0f17052 upstream.
+commit 35fe7cfbab2e81f1afb23fc4212210b1de6d9633 upstream.
 
-Record the start_time for a bio but defer the starting block core's IO
-accounting until after IO is submitted using bio_start_io_acct_time().
+The below warning is splatting during guest reboot.
 
-This approach avoids the need to mess around with any of the
-individual IO stats in response to a bio_split() that follows bio
-submission.
+  ------------[ cut here ]------------
+  WARNING: CPU: 0 PID: 1931 at arch/x86/kvm/x86.c:10322 kvm_arch_vcpu_ioctl_run+0x874/0x880 [kvm]
+  CPU: 0 PID: 1931 Comm: qemu-system-x86 Tainted: G          I       5.17.0-rc1+ #5
+  RIP: 0010:kvm_arch_vcpu_ioctl_run+0x874/0x880 [kvm]
+  Call Trace:
+   <TASK>
+   kvm_vcpu_ioctl+0x279/0x710 [kvm]
+   __x64_sys_ioctl+0x83/0xb0
+   do_syscall_64+0x3b/0xc0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  RIP: 0033:0x7fd39797350b
 
-Reported-by: Bud Brown <bubrown@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+This can be triggered by not exposing tsc-deadline mode and doing a reboot in
+the guest. The lapic_shutdown() function which is called in sys_reboot path
+will not disarm the flying timer, it just masks LVTT. lapic_shutdown() clears
+APIC state w/ LVT_MASKED and timer-mode bit is 0, this can trigger timer-mode
+switch between tsc-deadline and oneshot/periodic, which can result in preemption
+timer be cancelled in apic_update_lvtt(). However, We can't depend on this when
+not exposing tsc-deadline mode and oneshot/periodic modes emulated by preemption
+timer. Qemu will synchronise states around reset, let's cancel preemption timer
+under KVM_SET_LAPIC.
+
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Message-Id: <1643102220-35667-1-git-send-email-wanpengli@tencent.com>
 Cc: stable@vger.kernel.org
-Depends-on: e45c47d1f94e ("block: add bio_start_io_acct_time() to control start_time")
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Link: https://lore.kernel.org/r/20220128155841.39644-4-snitzer@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kvm/lapic.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -489,7 +489,7 @@ static void start_io_acct(struct dm_io *
- 	struct mapped_device *md = io->md;
- 	struct bio *bio = io->orig_bio;
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -2623,7 +2623,7 @@ int kvm_apic_set_state(struct kvm_vcpu *
+ 	kvm_apic_set_version(vcpu);
  
--	io->start_time = bio_start_io_acct(bio);
-+	bio_start_io_acct_time(bio, io->start_time);
- 	if (unlikely(dm_stats_used(&md->stats)))
- 		dm_stats_account_io(&md->stats, bio_data_dir(bio),
- 				    bio->bi_iter.bi_sector, bio_sectors(bio),
-@@ -535,7 +535,7 @@ static struct dm_io *alloc_io(struct map
- 	io->md = md;
- 	spin_lock_init(&io->endio_lock);
- 
--	start_io_acct(io);
-+	io->start_time = jiffies;
- 
- 	return io;
- }
-@@ -1555,6 +1555,7 @@ static blk_qc_t __split_and_process_bio(
- 			ret = submit_bio_noacct(bio);
- 		}
- 	}
-+	start_io_acct(ci.io);
- 
- 	/* drop the extra reference count */
- 	dm_io_dec_pending(ci.io, errno_to_blk_status(error));
+ 	apic_update_ppr(apic);
+-	hrtimer_cancel(&apic->lapic_timer.timer);
++	cancel_apic_timer(apic);
+ 	apic->lapic_timer.expired_tscdeadline = 0;
+ 	apic_update_lvtt(apic);
+ 	apic_manage_nmi_watchdog(apic, kvm_lapic_get_reg(apic, APIC_LVT0));
 
 
