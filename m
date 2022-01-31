@@ -2,154 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA6F74A3F78
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 10:45:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 788794A3FE2
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 11:13:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238769AbiAaJp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 04:45:29 -0500
-Received: from mail-eopbgr140042.outbound.protection.outlook.com ([40.107.14.42]:17915
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S237067AbiAaJp3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Jan 2022 04:45:29 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=X0NZr30cx5KhMVZY5HNQp5nbpLbmLzrS77C8TGeFpWBV7HLyiayb7vC3OhY5EXZ0+zewIUkY1Xlm5RfPSpJ+/2D056H8n1mP/v6WFWiM8pNpOoJXC4a847Bu7QPjYItLLHsa30WEs6p9zIfZxSbpYGYY1KTulmGCqMXc1DOBVef5bi8fFhcTFBkD8ox54pBvnbC6EnwwTCtjRfry1AOf1ye5h4jLOVFVSQ3n7mY8EH+VbwkOjE7gwgVs9iD/4oJQwiBrJsqYGVf8R0UL27+vBNdqXEgK6ZYPpiDc3dTr2PNt1Wk9nC80znd2fIK/4Je8Rp/5QF54KItwTzrvdoswiw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=jOWvio7s9XAQKQgBO74aZuGa8UXYgQEgpXMZc4Y+teM=;
- b=getpDuYLB5u7fr3ZK/TnGK08m5Ys917JFGh3WJsT2AflNY9umDkWQmaEi1dJ+HxhImTJ8PGoS0bFp9pRmcyU5DtucCVPtABPqJ/PJZDZOK7gg88hkLBUY/8umPqMRSY/2S7N9fNaqKL3ynyUx3yKloStjd2yOgu7IzIa6x9j/IaIO8G0RQRPAQCITv8nIL6kEWaw8kq5V0yX7WvIIKPdhqiQOfYobv6T6QUDYidFITa3bcuReVYVxZZjhACI/KAL4z0JOeXUupheqnP94U3mwKWque6+pXjsY74P1TxQUZ14L7hSyrWsLgeY6aJTo4GCRP36C8c6VVpTaE6VprFFRA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 194.138.21.72) smtp.rcpttodomain=abv.bg smtp.mailfrom=siemens.com; dmarc=pass
- (p=none sp=none pct=100) action=none header.from=siemens.com; dkim=none
- (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=siemens.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jOWvio7s9XAQKQgBO74aZuGa8UXYgQEgpXMZc4Y+teM=;
- b=cLKrJginMimnTuaNw1h5mErUDBD7rFX9JoIOYKCqmO85kffYryHahCgiE1Z3emeT5Jwsb5BUv9bVC1sal2jF57eWm5obd5YX6txi8JzRprs8XgM7OdVeovajhEFY7Tezfge56k5jcEnTU8l8c3V94VApRUHr58khq3+1hyRJTB5LpQRNENuCKkc22U4WBZ8MxusLQl/2Y7562jBn408UVeyjxVw1pgwt1Iz0QfXL5wK9lVd+jAj9QJapXdRKeqvi796W/ZWvpf4fhurqA1VxHbIzPz5XkGAwvTnpq7UMsmqdYZTy/tkupyjWP04t+YYmR1t36/z+RjKHyiduab8UqQ==
-Received: from DB6PR0802CA0028.eurprd08.prod.outlook.com (2603:10a6:4:a3::14)
- by PAXPR10MB4874.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:102:201::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4930.17; Mon, 31 Jan
- 2022 09:45:26 +0000
-Received: from DB5EUR01FT046.eop-EUR01.prod.protection.outlook.com
- (2603:10a6:4:a3:cafe::bc) by DB6PR0802CA0028.outlook.office365.com
- (2603:10a6:4:a3::14) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4844.15 via Frontend
- Transport; Mon, 31 Jan 2022 09:45:26 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 194.138.21.72)
- smtp.mailfrom=siemens.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=siemens.com;
-Received-SPF: Pass (protection.outlook.com: domain of siemens.com designates
- 194.138.21.72 as permitted sender) receiver=protection.outlook.com;
- client-ip=194.138.21.72; helo=hybrid.siemens.com;
-Received: from hybrid.siemens.com (194.138.21.72) by
- DB5EUR01FT046.mail.protection.outlook.com (10.152.5.231) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4930.15 via Frontend Transport; Mon, 31 Jan 2022 09:45:26 +0000
-Received: from DEMCHDC8A0A.ad011.siemens.net (139.25.226.106) by
- DEMCHDC9SMA.ad011.siemens.net (194.138.21.72) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.18; Mon, 31 Jan 2022 10:45:26 +0100
-Received: from [167.87.32.84] (167.87.32.84) by DEMCHDC8A0A.ad011.siemens.net
- (139.25.226.106) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.17; Mon, 31 Jan
- 2022 10:45:24 +0100
-Message-ID: <80a13e9b-e026-1238-39ed-32deb5ff17b0@siemens.com>
-Date:   Mon, 31 Jan 2022 10:45:23 +0100
+        id S242767AbiAaKN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 05:13:26 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:42796 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232024AbiAaKNZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:13:25 -0500
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 794621F381;
+        Mon, 31 Jan 2022 10:13:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1643624004; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=rd9CmQUsjRGD2JChwuTMm4dyR7BKneigkDz+IKnsrt8=;
+        b=PWCn0PO8CnlrRNZr91kbs8QffbwfA++c0q6E59m5Gyew2rnWbXQy/6Gv3Y2CNNA64fju79
+        3nCv9Zvirg1y07vO3oVADCV5L1utDiUS50y1L1iuZyB3oPJB4iC4YcgCToHS7BFiA53tKK
+        0lQ1RJzY8B63SKPv6I8T6rsSgRasMwU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1643624004;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=rd9CmQUsjRGD2JChwuTMm4dyR7BKneigkDz+IKnsrt8=;
+        b=/Y593z9kz0ERz9yJh5rLiYWmyy5W4mozJnEyrCzxSG+CTzQgxsFU8Y7Qr79cbpjtqFCkv/
+        bBDTMHsiNRmP78Aw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 3431C13BB9;
+        Mon, 31 Jan 2022 10:13:24 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id tZRZC0S292G5IQAAMHmgww
+        (envelope-from <ptesarik@suse.cz>); Mon, 31 Jan 2022 10:13:24 +0000
+Message-ID: <3ca4de98-8f4d-9937-923e-f8865c96f82c@suse.cz>
+Date:   Mon, 31 Jan 2022 11:13:18 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
-Content-Language: en-US
-To:     Georgi Valkov <gvalkov@abv.bg>,
-        Greg KH <gregkh@linuxfoundation.org>
-CC:     Jakub Kicinski <kuba@kernel.org>, <davem@davemloft.net>,
-        <mhabets@solarflare.com>, <luc.vanoostenryck@gmail.com>,
-        <snelson@pensando.io>, <mst@redhat.com>,
-        <linux-usb@vger.kernel.org>, <netdev@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <corsac@corsac.net>,
-        <matti.vuorela@bitfactor.fi>, <stable@vger.kernel.org>
-References: <B60B8A4B-92A0-49B3-805D-809A2433B46C@abv.bg>
- <20210720122215.54abaf53@cakuba>
- <5D0CFF83-439B-4A10-A276-D2D17B037704@abv.bg> <YPa4ZelG2k8Z826E@kroah.com>
- <C6AA954F-8382-461D-835F-E5CA03363D84@abv.bg> <YPbHoScEo8ZJyox6@kroah.com>
- <AEC79E3B-FA7F-4A36-95CE-B6D0F3063DF8@abv.bg>
-From:   Jan Kiszka <jan.kiszka@siemens.com>
-In-Reply-To: <AEC79E3B-FA7F-4A36-95CE-B6D0F3063DF8@abv.bg>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [167.87.32.84]
-X-ClientProxiedBy: DEMCHDC89XA.ad011.siemens.net (139.25.226.103) To
- DEMCHDC8A0A.ad011.siemens.net (139.25.226.106)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: d0674e9f-0fa2-4e45-3905-08d9e49e68fa
-X-MS-TrafficTypeDiagnostic: PAXPR10MB4874:EE_
-X-Microsoft-Antispam-PRVS: <PAXPR10MB48746A89756D8D24003C242E95259@PAXPR10MB4874.EURPRD10.PROD.OUTLOOK.COM>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Tm8AHexnv+FkLCylnETfbx8eQJIx4R0WAP3FjD5Y24u1R3aPowUsThc7jMSmZNvUyWcs/q0/Ufzj85wzyxLnQAQ7MpCRLxu1ULuOgljOUwd3QNJI51tBW/hxDnwPTg276VY0FF+SigrwRs0k0AODNsMPGxAhRdLjAdpFUmmH0mUq888oa37aaANgNpfLkLWXyux6JN6fYZ9Gcr6G7ITQj0LUfC2aoSEPEvg126C8X3kNcAJN8h7VzLjeJZTE55UeMehLfp737Kjbs2EDtD3ukKzOgt24QwJezdh8MsPlUuCtfHsxS6RsIRlkfooj+vBpDTaAGv2yimsDMpyBFNg4BWKrBwGNpY6enwxqz2ytbIzfUmfcA8qv6uXp5EvHcHhCTFmrqbMMoJE0El73rHW7aIaeIIQfM4I5nJH2NyKzcmmWr5D1X3+coj5tnHSNgVsySzf+LzUbVE+jEe98RtaYDkloqYCh69qLi29sxhCxKJur+EGN++Ehjc1MyTXNtOcv45+EB9cSfV4w1qJeFv2UDvDYgmvNY9JH9pRrYEuTTo4oPeDx+Z3KXJ/R6XLLUsEUlQ1iJzQRF4oulDwMjju33IT3Q8iBBWIdoyTsD3/HHcia9Ef3KQc46Lx68eT522kBTMD2JIx+j+z8KoH9TguIboRZweByS6dQHJ0Xe7kitpxeDom3jlYqByyblLFlm/1FLgn5xqSLI/XqoF2ZJfUy3EiKHlNrg0lkISRtsFey/b2IgTokq6b/7zQFL4hxdk4KOgvXt+y4TDaE5MGIMfGdiA==
-X-Forefront-Antispam-Report: CIP:194.138.21.72;CTRY:DE;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:hybrid.siemens.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230001)(4636009)(40470700004)(36840700001)(46966006)(81166007)(6706004)(54906003)(110136005)(31686004)(508600001)(356005)(336012)(40460700003)(16576012)(82960400001)(316002)(36756003)(86362001)(31696002)(47076005)(36860700001)(4326008)(44832011)(5660300002)(7416002)(16526019)(186003)(83380400001)(8676002)(70206006)(70586007)(82310400004)(53546011)(2906002)(956004)(2616005)(26005)(8936002)(3940600001)(36900700001)(43740500002)(20210929001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: siemens.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Jan 2022 09:45:26.6086
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: d0674e9f-0fa2-4e45-3905-08d9e49e68fa
-X-MS-Exchange-CrossTenant-Id: 38ae3bcd-9579-4fd4-adda-b42e1495d55a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=38ae3bcd-9579-4fd4-adda-b42e1495d55a;Ip=[194.138.21.72];Helo=[hybrid.siemens.com]
-X-MS-Exchange-CrossTenant-AuthSource: DB5EUR01FT046.eop-EUR01.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAXPR10MB4874
+ Thunderbird/91.4.1
+Subject: Re: [PATCH 1/1] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
+Content-Language: en-GB
+To:     Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Michael Mueller <mimu@linux.ibm.com>
+References: <20210827125429.1912577-1-pasic@linux.ibm.com>
+From:   =?UTF-8?B?UGV0ciBUZXNhxZnDrWs=?= <ptesarik@suse.cz>
+In-Reply-To: <20210827125429.1912577-1-pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Georgi,
-
-On 20.07.21 15:12, Georgi Valkov wrote:
-> Thank you, Greg!
-> 
-> git send-email drivers/net/0001-ipheth-fix-EOVERFLOW-in-ipheth_rcvbulk_callback.patch
-> ...
-> Result: OK
-> 
-> I hope I got right. I added most of the e-mail addresses, and also tried adding Message-Id.
-> I have not received the e-mail yet, so I cannot confirm if it worked or not.
-> 
-
-What happened here afterwards?
-
-I just found out the hard way that this patch is still not in mainline 
-but really needed.
-
-Thanks,
-Jan
-
->> On 2021-07-20, at 3:54 PM, Greg KH <gregkh@linuxfoundation.org> wrote:
->>
->> On Tue, Jul 20, 2021 at 03:46:11PM +0300, Georgi Valkov wrote:
->>> Yes, I read it, and before my previous e-mail that I also read the link from Jakub,
->>> which essentially provides the same information.
->>>
->>> There is only one patch 0001-ipheth-fix-EOVERFLOW-in-ipheth_rcvbulk_callback.patch
->>
->> Great, send that using 'git send-email' and all is good.
->>
->>> The command I used from the example also generated a 0000-cover-letter, so
->>> I included it as well.
->>
->> Why do you need a cover letter for 1 patch?
->>
->> thanks,
->>
->> greg k-h
->>
-> 
-
--- 
-Siemens AG, Technology
-Competence Center Embedded Linux
+SGkgSGFsaWwsDQoNCkRuZSAyNy4gMDguIDIxIHYgMTQ6NTQgSGFsaWwgUGFzaWMgbmFwc2Fs
+KGEpOg0KPiBXaGlsZSBpbiBwcmFjdGljZSB2Y3B1LT52Y3B1X2lkeCA9PSAgdmNwdS0+dmNw
+X2lkIGlzIG9mdGVuIHRydWUsDQo+IGl0IG1heSBub3QgYWx3YXlzIGJlLCBhbmQgd2UgbXVz
+dCBub3QgcmVseSBvbiB0aGlzLg0KPiANCj4gQ3VycmVudGx5IGt2bS0+YXJjaC5pZGxlX21h
+c2sgaXMgaW5kZXhlZCBieSB2Y3B1X2lkLCB3aGljaCBpbXBsaWVzDQo+IHRoYXQgY29kZSBs
+aWtlDQo+IGZvcl9lYWNoX3NldF9iaXQodmNwdV9pZCwga3ZtLT5hcmNoLmlkbGVfbWFzaywg
+b25saW5lX3ZjcHVzKSB7DQo+ICAgICAgICAgICAgICAgICAgdmNwdSA9IGt2bV9nZXRfdmNw
+dShrdm0sIHZjcHVfaWQpOw0KPiAJCWRvX3N0dWZmKHZjcHUpOw0KPiB9DQo+IGlzIG5vdCBs
+ZWdpdC4gVGhlIHRyb3VibGUgaXMsIHdlIGRvIGFjdHVhbGx5IHVzZSBrdm0tPmFyY2guaWRs
+ZV9tYXNrDQo+IGxpa2UgdGhpcy4gVG8gZml4IHRoaXMgcHJvYmxlbSB3ZSBoYXZlIHR3byBv
+cHRpb25zLiBFaXRoZXIgdXNlDQo+IGt2bV9nZXRfdmNwdV9ieV9pZCh2Y3B1X2lkKSwgd2hp
+Y2ggd291bGQgbG9vcCB0byBmaW5kIHRoZSByaWdodCB2Y3B1X2lkLA0KPiBvciBzd2l0Y2gg
+dG8gaW5kZXhpbmcgdmlhIHZjcHVfaWR4LiBUaGUgbGF0dGVyIGlzIHByZWZlcmFibGUgZm9y
+IG9idmlvdXMNCj4gcmVhc29ucy4NCg0KSSdtIGp1c3QgYmFja3BvcnRpbmcgdGhpcyBmaXgg
+dG8gU0xFUyAxMiBTUDUsIGFuZCBJJ3ZlIG5vdGljZWQgdGhhdCANCnRoZXJlIGlzIHN0aWxs
+IHRoaXMgY29kZSBpbiBfX2Zsb2F0aW5nX2lycV9raWNrKCk6DQoNCgkvKiBmaW5kIGlkbGUg
+VkNQVXMgZmlyc3QsIHRoZW4gcm91bmQgcm9iaW4gKi8NCglzaWdjcHUgPSBmaW5kX2ZpcnN0
+X2JpdChmaS0+aWRsZV9tYXNrLCBvbmxpbmVfdmNwdXMpOw0KLyogLi4uIHJvdW5kIHJvYmlu
+IGxvb3AgcmVtb3ZlZCAuLi4NCglkc3RfdmNwdSA9IGt2bV9nZXRfdmNwdShrdm0sIHNpZ2Nw
+dSk7DQoNCkl0IHNlZW1zIHRvIG1lIHRoYXQgdGhpcyBkb2VzIGV4YWN0bHkgdGhlIHRoaW5n
+IHRoYXQgaXMgbm90IGxlZ2l0LCBidXQgDQpJJ20gbm8gZXhwZXJ0LiBEaWQgSSBtaXNzIHNv
+bWV0aGluZz8NCg0KUGV0ciBUDQoNCj4gTGV0IHVzIG1ha2Ugc3dpdGNoIGZyb20gaW5kZXhp
+bmcga3ZtLT5hcmNoLmlkbGVfbWFzayBieSB2Y3B1X2lkIHRvDQo+IGluZGV4aW5nIGl0IGJ5
+IHZjcHVfaWR4LiAgVG8ga2VlcCBnaXNhX2ludC5raWNrZWRfbWFzayBpbmRleGVkIGJ5IHRo
+ZQ0KPiBzYW1lIGluZGV4IGFzIGlkbGVfbWFzayBsZXRzIG1ha2UgdGhlIHNhbWUgY2hhbmdl
+IGZvciBpdCBhcyB3ZWxsLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogSGFsaWwgUGFzaWMgPHBh
+c2ljQGxpbnV4LmlibS5jb20+DQo+IEZpeGVzOiAxZWUwYmM1NTlkYzMgKCJLVk06IHMzOTA6
+IGdldCByaWQgb2YgbG9jYWxfaW50IGFycmF5IikNCj4gQ2M6IDxzdGFibGVAdmdlci5rZXJu
+ZWwub3JnPiAjIDMuMTUrDQo+IC0tLQ0KPiAgIGFyY2gvczM5MC9pbmNsdWRlL2FzbS9rdm1f
+aG9zdC5oIHwgIDEgKw0KPiAgIGFyY2gvczM5MC9rdm0vaW50ZXJydXB0LmMgICAgICAgIHwg
+MTIgKysrKysrLS0tLS0tDQo+ICAgYXJjaC9zMzkwL2t2bS9rdm0tczM5MC5jICAgICAgICAg
+fCAgMiArLQ0KPiAgIGFyY2gvczM5MC9rdm0va3ZtLXMzOTAuaCAgICAgICAgIHwgIDIgKy0N
+Cj4gICA0IGZpbGVzIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKSwgOCBkZWxldGlvbnMoLSkN
+Cj4gDQo+IGRpZmYgLS1naXQgYS9hcmNoL3MzOTAvaW5jbHVkZS9hc20va3ZtX2hvc3QuaCBi
+L2FyY2gvczM5MC9pbmNsdWRlL2FzbS9rdm1faG9zdC5oDQo+IGluZGV4IDE2MWE5ZTEyYmZi
+OC4uNjMwZWFiMGZhMTc2IDEwMDY0NA0KPiAtLS0gYS9hcmNoL3MzOTAvaW5jbHVkZS9hc20v
+a3ZtX2hvc3QuaA0KPiArKysgYi9hcmNoL3MzOTAvaW5jbHVkZS9hc20va3ZtX2hvc3QuaA0K
+PiBAQCAtOTU3LDYgKzk1Nyw3IEBAIHN0cnVjdCBrdm1fYXJjaHsNCj4gICAJYXRvbWljNjRf
+dCBjbW1hX2RpcnR5X3BhZ2VzOw0KPiAgIAkvKiBzdWJzZXQgb2YgYXZhaWxhYmxlIGNwdSBm
+ZWF0dXJlcyBlbmFibGVkIGJ5IHVzZXIgc3BhY2UgKi8NCj4gICAJREVDTEFSRV9CSVRNQVAo
+Y3B1X2ZlYXQsIEtWTV9TMzkwX1ZNX0NQVV9GRUFUX05SX0JJVFMpOw0KPiArCS8qIGluZGV4
+ZWQgYnkgdmNwdV9pZHggKi8NCj4gICAJREVDTEFSRV9CSVRNQVAoaWRsZV9tYXNrLCBLVk1f
+TUFYX1ZDUFVTKTsNCj4gICAJc3RydWN0IGt2bV9zMzkwX2dpc2FfaW50ZXJydXB0IGdpc2Ff
+aW50Ow0KPiAgIAlzdHJ1Y3Qga3ZtX3MzOTBfcHYgcHY7DQo+IGRpZmYgLS1naXQgYS9hcmNo
+L3MzOTAva3ZtL2ludGVycnVwdC5jIGIvYXJjaC9zMzkwL2t2bS9pbnRlcnJ1cHQuYw0KPiBp
+bmRleCBkNTQ4ZDYwY2FlZDIuLjE2MjU2ZTE3YTU0NCAxMDA2NDQNCj4gLS0tIGEvYXJjaC9z
+MzkwL2t2bS9pbnRlcnJ1cHQuYw0KPiArKysgYi9hcmNoL3MzOTAva3ZtL2ludGVycnVwdC5j
+DQo+IEBAIC00MTksMTMgKzQxOSwxMyBAQCBzdGF0aWMgdW5zaWduZWQgbG9uZyBkZWxpdmVy
+YWJsZV9pcnFzKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkNCj4gICBzdGF0aWMgdm9pZCBfX3Nl
+dF9jcHVfaWRsZShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpDQo+ICAgew0KPiAgIAlrdm1fczM5
+MF9zZXRfY3B1ZmxhZ3ModmNwdSwgQ1BVU1RBVF9XQUlUKTsNCj4gLQlzZXRfYml0KHZjcHUt
+PnZjcHVfaWQsIHZjcHUtPmt2bS0+YXJjaC5pZGxlX21hc2spOw0KPiArCXNldF9iaXQoa3Zt
+X3ZjcHVfZ2V0X2lkeCh2Y3B1KSwgdmNwdS0+a3ZtLT5hcmNoLmlkbGVfbWFzayk7DQo+ICAg
+fQ0KPiAgIA0KPiAgIHN0YXRpYyB2b2lkIF9fdW5zZXRfY3B1X2lkbGUoc3RydWN0IGt2bV92
+Y3B1ICp2Y3B1KQ0KPiAgIHsNCj4gICAJa3ZtX3MzOTBfY2xlYXJfY3B1ZmxhZ3ModmNwdSwg
+Q1BVU1RBVF9XQUlUKTsNCj4gLQljbGVhcl9iaXQodmNwdS0+dmNwdV9pZCwgdmNwdS0+a3Zt
+LT5hcmNoLmlkbGVfbWFzayk7DQo+ICsJY2xlYXJfYml0KGt2bV92Y3B1X2dldF9pZHgodmNw
+dSksIHZjcHUtPmt2bS0+YXJjaC5pZGxlX21hc2spOw0KPiAgIH0NCj4gICANCj4gICBzdGF0
+aWMgdm9pZCBfX3Jlc2V0X2ludGVyY2VwdF9pbmRpY2F0b3JzKHN0cnVjdCBrdm1fdmNwdSAq
+dmNwdSkNCj4gQEAgLTMwNTAsMTggKzMwNTAsMTggQEAgaW50IGt2bV9zMzkwX2dldF9pcnFf
+c3RhdGUoc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBfX3U4IF9fdXNlciAqYnVmLCBpbnQgbGVu
+KQ0KPiAgIA0KPiAgIHN0YXRpYyB2b2lkIF9fYWlycXNfa2lja19zaW5nbGVfdmNwdShzdHJ1
+Y3Qga3ZtICprdm0sIHU4IGRlbGl2ZXJhYmxlX21hc2spDQo+ICAgew0KPiAtCWludCB2Y3B1
+X2lkLCBvbmxpbmVfdmNwdXMgPSBhdG9taWNfcmVhZCgma3ZtLT5vbmxpbmVfdmNwdXMpOw0K
+PiArCWludCB2Y3B1X2lkeCwgb25saW5lX3ZjcHVzID0gYXRvbWljX3JlYWQoJmt2bS0+b25s
+aW5lX3ZjcHVzKTsNCj4gICAJc3RydWN0IGt2bV9zMzkwX2dpc2FfaW50ZXJydXB0ICpnaSA9
+ICZrdm0tPmFyY2guZ2lzYV9pbnQ7DQo+ICAgCXN0cnVjdCBrdm1fdmNwdSAqdmNwdTsNCj4g
+ICANCj4gLQlmb3JfZWFjaF9zZXRfYml0KHZjcHVfaWQsIGt2bS0+YXJjaC5pZGxlX21hc2ss
+IG9ubGluZV92Y3B1cykgew0KPiAtCQl2Y3B1ID0ga3ZtX2dldF92Y3B1KGt2bSwgdmNwdV9p
+ZCk7DQo+ICsJZm9yX2VhY2hfc2V0X2JpdCh2Y3B1X2lkeCwga3ZtLT5hcmNoLmlkbGVfbWFz
+aywgb25saW5lX3ZjcHVzKSB7DQo+ICsJCXZjcHUgPSBrdm1fZ2V0X3ZjcHUoa3ZtLCB2Y3B1
+X2lkeCk7DQo+ICAgCQlpZiAocHN3X2lvaW50X2Rpc2FibGVkKHZjcHUpKQ0KPiAgIAkJCWNv
+bnRpbnVlOw0KPiAgIAkJZGVsaXZlcmFibGVfbWFzayAmPSAodTgpKHZjcHUtPmFyY2guc2ll
+X2Jsb2NrLT5nY3JbNl0gPj4gMjQpOw0KPiAgIAkJaWYgKGRlbGl2ZXJhYmxlX21hc2spIHsN
+Cj4gICAJCQkvKiBsYXRlbHkga2lja2VkIGJ1dCBub3QgeWV0IHJ1bm5pbmcgKi8NCj4gLQkJ
+CWlmICh0ZXN0X2FuZF9zZXRfYml0KHZjcHVfaWQsIGdpLT5raWNrZWRfbWFzaykpDQo+ICsJ
+CQlpZiAodGVzdF9hbmRfc2V0X2JpdCh2Y3B1X2lkeCwgZ2ktPmtpY2tlZF9tYXNrKSkNCj4g
+ICAJCQkJcmV0dXJuOw0KPiAgIAkJCWt2bV9zMzkwX3ZjcHVfd2FrZXVwKHZjcHUpOw0KPiAg
+IAkJCXJldHVybjsNCj4gZGlmZiAtLWdpdCBhL2FyY2gvczM5MC9rdm0va3ZtLXMzOTAuYyBi
+L2FyY2gvczM5MC9rdm0va3ZtLXMzOTAuYw0KPiBpbmRleCA0NTI3YWM3YjU5NjEuLjg1ODA1
+NDNjNWJjMyAxMDA2NDQNCj4gLS0tIGEvYXJjaC9zMzkwL2t2bS9rdm0tczM5MC5jDQo+ICsr
+KyBiL2FyY2gvczM5MC9rdm0va3ZtLXMzOTAuYw0KPiBAQCAtNDA0NCw3ICs0MDQ0LDcgQEAg
+c3RhdGljIGludCB2Y3B1X3ByZV9ydW4oc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQ0KPiAgIAkJ
+a3ZtX3MzOTBfcGF0Y2hfZ3Vlc3RfcGVyX3JlZ3ModmNwdSk7DQo+ICAgCX0NCj4gICANCj4g
+LQljbGVhcl9iaXQodmNwdS0+dmNwdV9pZCwgdmNwdS0+a3ZtLT5hcmNoLmdpc2FfaW50Lmtp
+Y2tlZF9tYXNrKTsNCj4gKwljbGVhcl9iaXQoa3ZtX3ZjcHVfZ2V0X2lkeCh2Y3B1KSwgdmNw
+dS0+a3ZtLT5hcmNoLmdpc2FfaW50LmtpY2tlZF9tYXNrKTsNCj4gICANCj4gICAJdmNwdS0+
+YXJjaC5zaWVfYmxvY2stPmljcHRjb2RlID0gMDsNCj4gICAJY3B1ZmxhZ3MgPSBhdG9taWNf
+cmVhZCgmdmNwdS0+YXJjaC5zaWVfYmxvY2stPmNwdWZsYWdzKTsNCj4gZGlmZiAtLWdpdCBh
+L2FyY2gvczM5MC9rdm0va3ZtLXMzOTAuaCBiL2FyY2gvczM5MC9rdm0va3ZtLXMzOTAuaA0K
+PiBpbmRleCA5ZmFkMjUxMDliMGQuLmVjZDc0MWVlMzI3NiAxMDA2NDQNCj4gLS0tIGEvYXJj
+aC9zMzkwL2t2bS9rdm0tczM5MC5oDQo+ICsrKyBiL2FyY2gvczM5MC9rdm0va3ZtLXMzOTAu
+aA0KPiBAQCAtNzksNyArNzksNyBAQCBzdGF0aWMgaW5saW5lIGludCBpc192Y3B1X3N0b3Bw
+ZWQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQ0KPiAgIA0KPiAgIHN0YXRpYyBpbmxpbmUgaW50
+IGlzX3ZjcHVfaWRsZShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpDQo+ICAgew0KPiAtCXJldHVy
+biB0ZXN0X2JpdCh2Y3B1LT52Y3B1X2lkLCB2Y3B1LT5rdm0tPmFyY2guaWRsZV9tYXNrKTsN
+Cj4gKwlyZXR1cm4gdGVzdF9iaXQoa3ZtX3ZjcHVfZ2V0X2lkeCh2Y3B1KSwgdmNwdS0+a3Zt
+LT5hcmNoLmlkbGVfbWFzayk7DQo+ICAgfQ0KPiAgIA0KPiAgIHN0YXRpYyBpbmxpbmUgaW50
+IGt2bV9pc191Y29udHJvbChzdHJ1Y3Qga3ZtICprdm0pDQo+IA0KPiBiYXNlLWNvbW1pdDog
+NzdkZDExNDM5Yjg2ZTNmNzk5MGU0YzBjOWUwYjY3ZGNhODI3NTBiYQ0K
