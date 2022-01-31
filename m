@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 169D34A41A0
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EED384A43CF
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:24:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359295AbiAaLEz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:04:55 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38196 "EHLO
+        id S1376495AbiAaLYI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:24:08 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:52718 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358345AbiAaLDo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:03:44 -0500
+        with ESMTP id S244984AbiAaLUx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:20:53 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29C9E60EDB;
-        Mon, 31 Jan 2022 11:03:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BA59C340E8;
-        Mon, 31 Jan 2022 11:03:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 43D9361267;
+        Mon, 31 Jan 2022 11:20:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 256BDC340F0;
+        Mon, 31 Jan 2022 11:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627023;
-        bh=8kwQ4IlCL4lt3evFQMydDkoqm2Wx6KwGPAVive888gE=;
+        s=korg; t=1643628051;
+        bh=0EFvWCyzPTR972W2aSbT7/hxxvBhl8DPD0Oj9l1LhLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eLUnr8Z981yUUJiRFgfEuve5y9mbv3d41+TyT6L4JMQXhe5ghtpxjVdT6mMnjyWty
-         AEElYYdY3HmB/fpk71Rpni+LKePYQa3l4hj2abMa6w2BTnhEgQ4/JHGXdkaCCNeuIn
-         1+arZfQjafGIz0k7FX+PFJgGOiy+pbfHrMLwxr2k=
+        b=TuhqXskAaQ08fjZD9AVa90Rd/hKaY47MntzK+N0oRQLaEIT45GdQrFn40tycSWzXB
+         W32khKoDyAVIxUBd6AIiFzCis5d1m6fCGukosUMkEMJePdzHjzyVqPVUW5hKy/mqgt
+         iP7rSAdxl4dkxCctL28+iKsn9fr9nHcKmvzyEH40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maksym Yaremchuk <maksymy@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Amit Cohen <amcohen@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 051/100] ipv6_tunnel: Rate limit warning messages
-Date:   Mon, 31 Jan 2022 11:56:12 +0100
-Message-Id: <20220131105222.155835649@linuxfoundation.org>
+Subject: [PATCH 5.16 110/200] hwmon: (lm90) Mark alert as broken for MAX6680
+Date:   Mon, 31 Jan 2022 11:56:13 +0100
+Message-Id: <20220131105237.286503791@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 6cee105e7f2ced596373951d9ea08dacc3883c68 upstream.
+commit 94746b0ba479743355e0d3cc1cb9cfe3011fb8be upstream.
 
-The warning messages can be invoked from the data path for every packet
-transmitted through an ip6gre netdev, leading to high CPU utilization.
+Experiments with MAX6680 and MAX6681 show that the alert function of those
+chips is broken, similar to other chips supported by the lm90 driver.
+Mark it accordingly.
 
-Fix that by rate limiting the messages.
-
-Fixes: 09c6bbf090ec ("[IPV6]: Do mandatory IPv6 tunnel endpoint checks in realtime")
-Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
-Tested-by: Maksym Yaremchuk <maksymy@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Amit Cohen <amcohen@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4667bcb8d8fc ("hwmon: (lm90) Introduce chip parameter structure")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_tunnel.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/hwmon/lm90.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv6/ip6_tunnel.c
-+++ b/net/ipv6/ip6_tunnel.c
-@@ -1066,14 +1066,14 @@ int ip6_tnl_xmit_ctl(struct ip6_tnl *t,
- 
- 		if (unlikely(!ipv6_chk_addr_and_flags(net, laddr, ldev, false,
- 						      0, IFA_F_TENTATIVE)))
--			pr_warn("%s xmit: Local address not yet configured!\n",
--				p->name);
-+			pr_warn_ratelimited("%s xmit: Local address not yet configured!\n",
-+					    p->name);
- 		else if (!(p->flags & IP6_TNL_F_ALLOW_LOCAL_REMOTE) &&
- 			 !ipv6_addr_is_multicast(raddr) &&
- 			 unlikely(ipv6_chk_addr_and_flags(net, raddr, ldev,
- 							  true, 0, IFA_F_TENTATIVE)))
--			pr_warn("%s xmit: Routing loop! Remote address found on this node!\n",
--				p->name);
-+			pr_warn_ratelimited("%s xmit: Routing loop! Remote address found on this node!\n",
-+					    p->name);
- 		else
- 			ret = 1;
- 		rcu_read_unlock();
+--- a/drivers/hwmon/lm90.c
++++ b/drivers/hwmon/lm90.c
+@@ -418,7 +418,7 @@ static const struct lm90_params lm90_par
+ 	},
+ 	[max6680] = {
+ 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_CRIT
+-		  | LM90_HAVE_CRIT_ALRM_SWP,
++		  | LM90_HAVE_CRIT_ALRM_SWP | LM90_HAVE_BROKEN_ALERT,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 7,
+ 	},
 
 
