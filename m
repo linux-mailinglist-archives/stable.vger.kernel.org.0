@@ -2,81 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 928384A4D74
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 18:43:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 362764A4D79
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 18:47:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236013AbiAaRnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 12:43:45 -0500
-Received: from mga09.intel.com ([134.134.136.24]:11407 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1381062AbiAaRnp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 Jan 2022 12:43:45 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1643651025; x=1675187025;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=jTZ1zZZotqiblEWSbQ+lyoBal0tj+0E6ZxSRyflFIzs=;
-  b=fZGM3vtYyZ833fhP5GrXGKHpZ1R9HFotAgNOodyOeIZAHqDt5bJ0KiBq
-   lPONXX9kKJH8isx5b+LW59gyVUBLKzEziOai4r4/jxYhKEHaD+k03xs2Y
-   B7tXnApHoQG3XXTvnE7nWybZqieN5RmuNyfHx11kP0gIiRhJ/jihY/lr1
-   rT7k44sdbMYjoFB1ixLPOWOiALyJ+PJyvcuE48kJ+4QiVnZep4rporWWK
-   r7ycxYlL7QeW+rcj5J6xLXx33YGVtR/RRNVU8YDDo/fuEY7WEf01U51zl
-   9aUajrqb7zxESwc4LVP+4Vw1u59WKk6VEa5xVkc7/1w8oNc/La7W+gsxt
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10244"; a="247285044"
-X-IronPort-AV: E=Sophos;i="5.88,331,1635231600"; 
-   d="scan'208";a="247285044"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2022 09:43:43 -0800
-X-IronPort-AV: E=Sophos;i="5.88,331,1635231600"; 
-   d="scan'208";a="698081561"
-Received: from agluck-desk2.sc.intel.com ([10.3.52.146])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2022 09:43:43 -0800
-From:   Tony Luck <tony.luck@intel.com>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, bp@suse.de,
-        ailin.xu@intel.com, Tony Luck <tony.luck@intel.com>
-Subject: [v5.10 stable PATCH 2/2] x86/cpu: Add Xeon Icelake-D to list of CPUs that support PPIN
-Date:   Mon, 31 Jan 2022 09:43:33 -0800
-Message-Id: <20220131174333.2000647-2-tony.luck@intel.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220131174333.2000647-1-tony.luck@intel.com>
-References: <Yfgd+nHcTbNcSHY0@kroah.com>
- <20220131174333.2000647-1-tony.luck@intel.com>
+        id S1381088AbiAaRrI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 12:47:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54582 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379995AbiAaRrH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 12:47:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CA5EC061714;
+        Mon, 31 Jan 2022 09:47:07 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7D4A6102C;
+        Mon, 31 Jan 2022 17:47:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D284C340ED;
+        Mon, 31 Jan 2022 17:47:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643651226;
+        bh=2X2BmVHS2Tyjnx4FsGnmfBWniGfTti/23qtfZG8b/w0=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=PawOG8f8o4aF/bLUiHEASQ7YacziQOSLTt198ijQrbmmLbGCicg8MhuHzFos8GDeY
+         kPU3C4pcxtQOgVrElDGIBGv4D7iDWFMlFWAM92idBXorZ0PIJ6G6dvBNZbTOYz9g7o
+         ipdrAdtLzvAWm0ki7Wnypj2FbjqkWIEJC4vWjuSt/6G4LO+hGVpKSUOTS1H5iA514n
+         EqJNMjWKIoWn1Cic2UCOtBDOj3XSE1O4HEEpdZp//K78TaQYGA2ncGPSKQTNXMLjBr
+         Kj9DFGgrH2enEGZcu2HbJYkQXY31JW2ecC7ZXPOavbajQWj+14VPGcvQCpyxh76bTk
+         OScGnZcTWkIFA==
+Date:   Mon, 31 Jan 2022 09:47:04 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Jan Kiszka <jan.kiszka@siemens.com>
+Cc:     Georgi Valkov <gvalkov@abv.bg>,
+        Greg KH <gregkh@linuxfoundation.org>, <davem@davemloft.net>,
+        <mhabets@solarflare.com>, <luc.vanoostenryck@gmail.com>,
+        <snelson@pensando.io>, <mst@redhat.com>,
+        <linux-usb@vger.kernel.org>, <netdev@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <corsac@corsac.net>,
+        <matti.vuorela@bitfactor.fi>, <stable@vger.kernel.org>
+Subject: Re: ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+Message-ID: <20220131094704.0e255169@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <6108f260-36bf-0059-ccb9-8189f4a2d0c1@siemens.com>
+References: <B60B8A4B-92A0-49B3-805D-809A2433B46C@abv.bg>
+        <20210720122215.54abaf53@cakuba>
+        <5D0CFF83-439B-4A10-A276-D2D17B037704@abv.bg>
+        <YPa4ZelG2k8Z826E@kroah.com>
+        <C6AA954F-8382-461D-835F-E5CA03363D84@abv.bg>
+        <YPbHoScEo8ZJyox6@kroah.com>
+        <AEC79E3B-FA7F-4A36-95CE-B6D0F3063DF8@abv.bg>
+        <80a13e9b-e026-1238-39ed-32deb5ff17b0@siemens.com>
+        <20220131092726.3864b19f@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        <6108f260-36bf-0059-ccb9-8189f4a2d0c1@siemens.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit e464121f2d40eabc7d11823fb26db807ce945df4 upstream
+On Mon, 31 Jan 2022 18:35:44 +0100 Jan Kiszka wrote:
+> On 31.01.22 18:27, Jakub Kicinski wrote:
+> > On Mon, 31 Jan 2022 10:45:23 +0100 Jan Kiszka wrote:  
+> >> What happened here afterwards?
+> >>
+> >> I just found out the hard way that this patch is still not in mainline
+> >> but really needed.  
+> > 
+> > I have not seen the repost :(  
+> 
+> Would it help if I do that on behalf of Georgi? Meanwhile, I can add a 
+> tested-by to it, after almost a full working day with it applied.
 
-Missed adding the Icelake-D CPU to the list. It uses the same MSRs
-to control and read the inventory number as all the other models.
-
-Fixes: dc6b025de95b ("x86/mce: Add Xeon Icelake to list of CPUs that support PPIN")
-Reported-by: Ailin Xu <ailin.xu@intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220121174743.1875294-2-tony.luck@intel.com
----
- arch/x86/kernel/cpu/mce/intel.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/x86/kernel/cpu/mce/intel.c b/arch/x86/kernel/cpu/mce/intel.c
-index 7cf08c1f082e..886d4648c9dd 100644
---- a/arch/x86/kernel/cpu/mce/intel.c
-+++ b/arch/x86/kernel/cpu/mce/intel.c
-@@ -486,6 +486,7 @@ static void intel_ppin_init(struct cpuinfo_x86 *c)
- 	case INTEL_FAM6_BROADWELL_X:
- 	case INTEL_FAM6_SKYLAKE_X:
- 	case INTEL_FAM6_ICELAKE_X:
-+	case INTEL_FAM6_ICELAKE_D:
- 	case INTEL_FAM6_SAPPHIRERAPIDS_X:
- 	case INTEL_FAM6_XEON_PHI_KNL:
- 	case INTEL_FAM6_XEON_PHI_KNM:
--- 
-2.31.1
-
+That's probably the most expedient way to close the issue, yup.
+Real Fixes: tag would be useful as well.
