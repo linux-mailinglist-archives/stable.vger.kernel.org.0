@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D934A434C
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:21:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59D574A419C
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:04:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349739AbiAaLUv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:20:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45928 "EHLO
+        id S1359269AbiAaLEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:04:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376594AbiAaLPe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:15:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A75D1C06177E;
-        Mon, 31 Jan 2022 03:11:22 -0800 (PST)
+        with ESMTP id S1348444AbiAaLDn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:03:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A30A8C061401;
+        Mon, 31 Jan 2022 03:03:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67160B82A4D;
-        Mon, 31 Jan 2022 11:11:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FC91C340E8;
-        Mon, 31 Jan 2022 11:11:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40F0560B28;
+        Mon, 31 Jan 2022 11:03:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A044C340E8;
+        Mon, 31 Jan 2022 11:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627480;
-        bh=1Q6eTWeiWtR6LSvwQnJSzAWZZD9k4gQvDPMrLqZSTwg=;
+        s=korg; t=1643626987;
+        bh=73BdNz4Hg5qLRQTfuS4+6Pt09s5QMlox2v1WqQLxkag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6QR6jUGbN4M1byjlaAynb2qyPlax7j+sRhPUd+vs/7lSg0KM/zlmWBjYipC7KLRl
-         yU2Ig0np9NnkxFuEoyA44X1/VmvKciUq1FCaBddZGZ+y3PZxFMxp54kVfdJfrz1lUC
-         2lIreGS95Ns3Lgl+HCVNNwebel8ddnf0uBBHQY7I=
+        b=Zy2u5b1BUPVBNVvq7xexlVE+DC34AKBS0zDWqnGBQsQgLpunfRwAiw7k6xWX4J6+N
+         am7AUl1sRey+a4TpAV0yiMolN63lN033B4mEeUBKJP+99ef6owcVw3oHOfYDg04nNi
+         QoH5EUELDCWmVEhDcJJ0nTonEkkj4InpsUinaHzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Sing-Han Chen <singhanc@nvidia.com>,
-        Wayne Chang <waynec@nvidia.com>
-Subject: [PATCH 5.15 064/171] ucsi_ccg: Check DEV_INT bit only when starting CCG4
+        stable@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 008/100] scsi: zfcp: Fix failed recovery on gone remote port with non-NPIV FCP devices
 Date:   Mon, 31 Jan 2022 11:55:29 +0100
-Message-Id: <20220131105232.199509047@linuxfoundation.org>
+Message-Id: <20220131105220.724050290@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,40 +48,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sing-Han Chen <singhanc@nvidia.com>
+From: Steffen Maier <maier@linux.ibm.com>
 
-commit 825911492eb15bf8bb7fb94bc0c0421fe7a6327d upstream.
+commit 8c9db6679be4348b8aae108e11d4be2f83976e30 upstream.
 
-CCGx clears Bit 0:Device Interrupt in the INTR_REG
-if CCGx is reset successfully. However, there might
-be a chance that other bits in INTR_REG are not
-cleared due to internal data queued in PPM. This case
-misleads the driver that CCGx reset failed.
+Suppose we have an environment with a number of non-NPIV FCP devices
+(virtual HBAs / FCP devices / zfcp "adapter"s) sharing the same physical
+FCP channel (HBA port) and its I_T nexus. Plus a number of storage target
+ports zoned to such shared channel. Now one target port logs out of the
+fabric causing an RSCN. Zfcp reacts with an ADISC ELS and subsequent port
+recovery depending on the ADISC result. This happens on all such FCP
+devices (in different Linux images) concurrently as they all receive a copy
+of this RSCN. In the following we look at one of those FCP devices.
 
-The commit checks bit 0 in INTR_REG and ignores other
-bits. The ucsi driver would reset PPM later.
+Requests other than FSF_QTCB_FCP_CMND can be slow until they get a
+response.
 
-Fixes: 247c554a14aa ("usb: typec: ucsi: add support for Cypress CCGx")
-Cc: stable@vger.kernel.org
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Sing-Han Chen <singhanc@nvidia.com>
-Signed-off-by: Wayne Chang <waynec@nvidia.com>
-Link: https://lore.kernel.org/r/20220112094143.628610-1-waynec@nvidia.com
+Depending on which requests are affected by slow responses, there are
+different recovery outcomes. Here we want to fix failed recoveries on port
+or adapter level by avoiding recovery requests that can be slow.
+
+We need the cached N_Port_ID for the remote port "link" test with ADISC.
+Just before sending the ADISC, we now intentionally forget the old cached
+N_Port_ID. The idea is that on receiving an RSCN for a port, we have to
+assume that any cached information about this port is stale.  This forces a
+fresh new GID_PN [FC-GS] nameserver lookup on any subsequent recovery for
+the same port. Since we typically can still communicate with the nameserver
+efficiently, we now reach steady state quicker: Either the nameserver still
+does not know about the port so we stop recovery, or the nameserver already
+knows the port potentially with a new N_Port_ID and we can successfully and
+quickly perform open port recovery.  For the one case, where ADISC returns
+successfully, we re-initialize port->d_id because that case does not
+involve any port recovery.
+
+This also solves a problem if the storage WWPN quickly logs into the fabric
+again but with a different N_Port_ID. Such as on virtual WWPN takeover
+during target NPIV failover.
+[https://www.redbooks.ibm.com/abstracts/redp5477.html] In that case the
+RSCN from the storage FDISC was ignored by zfcp and we could not
+successfully recover the failover. On some later failback on the storage,
+we could have been lucky if the virtual WWPN got the same old N_Port_ID
+from the SAN switch as we still had cached.  Then the related RSCN
+triggered a successful port reopen recovery.  However, there is no
+guarantee to get the same N_Port_ID on NPIV FDISC.
+
+Even though NPIV-enabled FCP devices are not affected by this problem, this
+code change optimizes recovery time for gone remote ports as a side effect.
+The timely drop of cached N_Port_IDs prevents unnecessary slow open port
+attempts.
+
+While the problem might have been in code before v2.6.32 commit
+799b76d09aee ("[SCSI] zfcp: Decouple gid_pn requests from erp") this fix
+depends on the gid_pn_work introduced with that commit, so we mark it as
+culprit to satisfy fix dependencies.
+
+Note: Point-to-point remote port is already handled separately and gets its
+N_Port_ID from the cached peer_d_id. So resetting port->d_id in general
+does not affect PtP.
+
+Link: https://lore.kernel.org/r/20220118165803.3667947-1-maier@linux.ibm.com
+Fixes: 799b76d09aee ("[SCSI] zfcp: Decouple gid_pn requests from erp")
+Cc: <stable@vger.kernel.org> #2.6.32+
+Suggested-by: Benjamin Block <bblock@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/ucsi/ucsi_ccg.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/scsi/zfcp_fc.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/typec/ucsi/ucsi_ccg.c
-+++ b/drivers/usb/typec/ucsi/ucsi_ccg.c
-@@ -325,7 +325,7 @@ static int ucsi_ccg_init(struct ucsi_ccg
- 		if (status < 0)
- 			return status;
+--- a/drivers/s390/scsi/zfcp_fc.c
++++ b/drivers/s390/scsi/zfcp_fc.c
+@@ -521,6 +521,8 @@ static void zfcp_fc_adisc_handler(void *
+ 		goto out;
+ 	}
  
--		if (!data)
-+		if (!(data & DEV_INT))
- 			return 0;
++	/* re-init to undo drop from zfcp_fc_adisc() */
++	port->d_id = ntoh24(adisc_resp->adisc_port_id);
+ 	/* port is good, unblock rport without going through erp */
+ 	zfcp_scsi_schedule_rport_register(port);
+  out:
+@@ -534,6 +536,7 @@ static int zfcp_fc_adisc(struct zfcp_por
+ 	struct zfcp_fc_req *fc_req;
+ 	struct zfcp_adapter *adapter = port->adapter;
+ 	struct Scsi_Host *shost = adapter->scsi_host;
++	u32 d_id;
+ 	int ret;
  
- 		status = ccg_write(uc, CCGX_RAB_INTR_REG, &data, sizeof(data));
+ 	fc_req = kmem_cache_zalloc(zfcp_fc_req_cache, GFP_ATOMIC);
+@@ -558,7 +561,15 @@ static int zfcp_fc_adisc(struct zfcp_por
+ 	fc_req->u.adisc.req.adisc_cmd = ELS_ADISC;
+ 	hton24(fc_req->u.adisc.req.adisc_port_id, fc_host_port_id(shost));
+ 
+-	ret = zfcp_fsf_send_els(adapter, port->d_id, &fc_req->ct_els,
++	d_id = port->d_id; /* remember as destination for send els below */
++	/*
++	 * Force fresh GID_PN lookup on next port recovery.
++	 * Must happen after request setup and before sending request,
++	 * to prevent race with port->d_id re-init in zfcp_fc_adisc_handler().
++	 */
++	port->d_id = 0;
++
++	ret = zfcp_fsf_send_els(adapter, d_id, &fc_req->ct_els,
+ 				ZFCP_FC_CTELS_TMO);
+ 	if (ret)
+ 		kmem_cache_free(zfcp_fc_req_cache, fc_req);
 
 
