@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 185644A425B
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32CA94A4385
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359562AbiAaLLh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:11:37 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53778 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376850AbiAaLJM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:09:12 -0500
+        id S1376570AbiAaLVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:49 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:51402 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377612AbiAaLSc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:18:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4E8EB82A72;
-        Mon, 31 Jan 2022 11:09:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA02DC340E8;
-        Mon, 31 Jan 2022 11:09:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87D0460B98;
+        Mon, 31 Jan 2022 11:18:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BCF9C340E8;
+        Mon, 31 Jan 2022 11:18:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627350;
-        bh=YP3uc33jwRUfDk9XScnitxmKQ9R/hWEnLuZ4nu+AswA=;
+        s=korg; t=1643627912;
+        bh=vWvkoWtaiQLQ6z+jhXRgzsRBkp3SBcLUGyJmxQZbJMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qPt6z8XCtN0joPTfttrvtFyM3okdnVgjI4w8s1l2s0vxUvInu+Xi8V4OdRNpTQBAZ
-         ftJdZmIy1WPdGErsMGg/jboGVRftUIAhnnxACKhh8HOZeh4+nMwENJWYqiLrm54vyT
-         s4K1OpkH8rzQHr+2Xbgf3tMyvxMcDiotU3JfgQuE=
+        b=jBx8BLpxy4n3wfATtj2p4/N5nxvhxmAkvMvdpBdeUrP4uh+DzMvb/8OZMZQf8NskE
+         az7bUzds2HNEqxIa2pYvaWIqpFiViOHV8Ls4PfVzP638PgBhYw+OzSkSzvNB5L4LAR
+         J7vG/V3zFUHvTkLmaDhb0w0GZYh9RzjBoT9bTKd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Frank Li <Frank.Li@nxp.com>, Abel Vesa <abel.vesa@nxp.com>
-Subject: [PATCH 5.15 054/171] usb: xhci-plat: fix crash when suspend if remote wake enable
-Date:   Mon, 31 Jan 2022 11:55:19 +0100
-Message-Id: <20220131105231.852924360@linuxfoundation.org>
+        stable@vger.kernel.org, Like Xu <likexu@tencent.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.16 057/200] KVM: x86: Update vCPUs runtime CPUID on write to MSR_IA32_XSS
+Date:   Mon, 31 Jan 2022 11:55:20 +0100
+Message-Id: <20220131105235.501756957@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Li <Frank.Li@nxp.com>
+From: Like Xu <likexu@tencent.com>
 
-commit 9df478463d9feb90dae24f183383961cf123a0ec upstream.
+commit 4c282e51e4450b94680d6ca3b10f830483b1f243 upstream.
 
-Crashed at i.mx8qm platform when suspend if enable remote wakeup
+Do a runtime CPUID update for a vCPU if MSR_IA32_XSS is written, as the
+size in bytes of the XSAVE area is affected by the states enabled in XSS.
 
-Internal error: synchronous external abort: 96000210 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 2 PID: 244 Comm: kworker/u12:6 Not tainted 5.15.5-dirty #12
-Hardware name: Freescale i.MX8QM MEK (DT)
-Workqueue: events_unbound async_run_entry_fn
-pstate: 600000c5 (nZCv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : xhci_disable_hub_port_wake.isra.62+0x60/0xf8
-lr : xhci_disable_hub_port_wake.isra.62+0x34/0xf8
-sp : ffff80001394bbf0
-x29: ffff80001394bbf0 x28: 0000000000000000 x27: ffff00081193b578
-x26: ffff00081193b570 x25: 0000000000000000 x24: 0000000000000000
-x23: ffff00081193a29c x22: 0000000000020001 x21: 0000000000000001
-x20: 0000000000000000 x19: ffff800014e90490 x18: 0000000000000000
-x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
-x14: 0000000000000000 x13: 0000000000000002 x12: 0000000000000000
-x11: 0000000000000000 x10: 0000000000000960 x9 : ffff80001394baa0
-x8 : ffff0008145d1780 x7 : ffff0008f95b8e80 x6 : 000000001853b453
-x5 : 0000000000000496 x4 : 0000000000000000 x3 : ffff00081193a29c
-x2 : 0000000000000001 x1 : 0000000000000000 x0 : ffff000814591620
-Call trace:
- xhci_disable_hub_port_wake.isra.62+0x60/0xf8
- xhci_suspend+0x58/0x510
- xhci_plat_suspend+0x50/0x78
- platform_pm_suspend+0x2c/0x78
- dpm_run_callback.isra.25+0x50/0xe8
- __device_suspend+0x108/0x3c0
-
-The basic flow:
-	1. run time suspend call xhci_suspend, xhci parent devices gate the clock.
-        2. echo mem >/sys/power/state, system _device_suspend call xhci_suspend
-        3. xhci_suspend call xhci_disable_hub_port_wake, which access register,
-	   but clock already gated by run time suspend.
-
-This problem was hidden by power domain driver, which call run time resume before it.
-
-But the below commit remove it and make this issue happen.
-	commit c1df456d0f06e ("PM: domains: Don't runtime resume devices at genpd_prepare()")
-
-This patch call run time resume before suspend to make sure clock is on
-before access register.
-
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Testeb-by: Abel Vesa <abel.vesa@nxp.com>
-Link: https://lore.kernel.org/r/20220110172738.31686-1-Frank.Li@nxp.com
+Fixes: 203000993de5 ("kvm: vmx: add MSR logic for XSAVES")
+Cc: stable@vger.kernel.org
+Signed-off-by: Like Xu <likexu@tencent.com>
+[sean: split out as a separate patch, adjust Fixes tag]
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220126172226.2298529-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-plat.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/x86.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/host/xhci-plat.c
-+++ b/drivers/usb/host/xhci-plat.c
-@@ -437,6 +437,9 @@ static int __maybe_unused xhci_plat_susp
- 	struct xhci_hcd	*xhci = hcd_to_xhci(hcd);
- 	int ret;
- 
-+	if (pm_runtime_suspended(dev))
-+		pm_runtime_resume(dev);
-+
- 	ret = xhci_priv_suspend_quirk(hcd);
- 	if (ret)
- 		return ret;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -3508,6 +3508,7 @@ int kvm_set_msr_common(struct kvm_vcpu *
+ 		if (data & ~supported_xss)
+ 			return 1;
+ 		vcpu->arch.ia32_xss = data;
++		kvm_update_cpuid_runtime(vcpu);
+ 		break;
+ 	case MSR_SMI_COUNT:
+ 		if (!msr_info->host_initiated)
 
 
