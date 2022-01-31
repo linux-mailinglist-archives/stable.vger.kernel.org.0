@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E21DE4A4153
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:03:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71BAA4A42A6
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:14:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358684AbiAaLD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:03:26 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50604 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358794AbiAaLCf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:02:35 -0500
+        id S1376443AbiAaLMo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:12:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45556 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358567AbiAaLKj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D695C061714;
+        Mon, 31 Jan 2022 03:10:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65051B82A5E;
-        Mon, 31 Jan 2022 11:02:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA549C340E8;
-        Mon, 31 Jan 2022 11:02:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E706B82A5C;
+        Mon, 31 Jan 2022 11:10:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7970FC340EF;
+        Mon, 31 Jan 2022 11:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626953;
-        bh=mQi7DC2Yo64qtEoxmuPaLsxo1LFKVrA26LL9w8rrprQ=;
+        s=korg; t=1643627437;
+        bh=tB7JCLFXx3Iwrv0oV3/fnaCWjJ379uUPqtNDv1Sgty0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PmKdRUuUaHG4wvzelbOEMZ3dWPK5e6f0rmIutVkkEIjtZOsZQJ7JLLjUmyzkvzoO7
-         RCzqzoaSoIVGN4IhKZm27lkxk6iJnSRMZsUC0sXR5PlU6PLPUdXRtTHj0t1N5fxg2w
-         MWfBeNrh7ybeupCeBjQIUBBPbyM3mfTrhrmcmwY8=
+        b=WNtvRJGxrSvjm/AnZEUhP0ksYdLmT6EhPxvxMH65Lppb67b9MZTvoJWmREvNrduue
+         hbXiFbHyxUVZT8S8NGbH/m8//HTUXh7BODJazYCfVeh9YTNfktSadKaNfP7kPHmLdR
+         q+GJaP7s5S6JneRflQZfgCA7SgJ3x0ndHo+XT2dE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cameron Williams <cang1@live.co.uk>
-Subject: [PATCH 5.10 027/100] tty: Add support for Brainboxes UC cards.
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        James Smart <jsmart2021@gmail.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 083/171] scsi: elx: efct: Dont use GFP_KERNEL under spin lock
 Date:   Mon, 31 Jan 2022 11:55:48 +0100
-Message-Id: <20220131105221.373197521@linuxfoundation.org>
+Message-Id: <20220131105232.832270331@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,139 +49,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cameron Williams <cang1@live.co.uk>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 152d1afa834c84530828ee031cf07a00e0fc0b8c upstream.
+commit 61263b3a11a2594b4e898f166c31162236182b5c upstream.
 
-This commit adds support for the some of the Brainboxes PCI range of
-cards, including the UC-101, UC-235/246, UC-257, UC-268, UC-275/279,
-UC-302, UC-310, UC-313, UC-320/324, UC-346, UC-357, UC-368
-and UC-420/431.
+GFP_KERNEL/GFP_DMA can't be used under a spin lock. According the comment,
+els_ios_lock is used to protect els ios list so we can move down the spin
+lock to avoid using this flag under the lock.
 
-Signed-off-by: Cameron Williams <cang1@live.co.uk>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/AM5PR0202MB2564688493F7DD9B9C610827C45E9@AM5PR0202MB2564.eurprd02.prod.outlook.com
+Link: https://lore.kernel.org/r/20220111012441.3232527-1-yangyingliang@huawei.com
+Fixes: 8f406ef72859 ("scsi: elx: libefc: Extended link Service I/O handling")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_pci.c |  100 ++++++++++++++++++++++++++++++++++++-
- 1 file changed, 98 insertions(+), 2 deletions(-)
+ drivers/scsi/elx/libefc/efc_els.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -5171,8 +5171,30 @@ static const struct pci_device_id serial
- 	{	PCI_VENDOR_ID_INTASHIELD, PCI_DEVICE_ID_INTASHIELD_IS400,
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,    /* 135a.0dc0 */
- 		pbn_b2_4_115200 },
-+	/* Brainboxes Devices */
- 	/*
--	 * BrainBoxes UC-260
-+	* Brainboxes UC-101
-+	*/
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x0BA1,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-235/246
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0AA1,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_1_115200 },
-+	/*
-+	 * Brainboxes UC-257
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0861,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-260/271/701/756
- 	 */
- 	{	PCI_VENDOR_ID_INTASHIELD, 0x0D21,
- 		PCI_ANY_ID, PCI_ANY_ID,
-@@ -5180,7 +5202,81 @@ static const struct pci_device_id serial
- 		pbn_b2_4_115200 },
- 	{	PCI_VENDOR_ID_INTASHIELD, 0x0E34,
- 		PCI_ANY_ID, PCI_ANY_ID,
--		 PCI_CLASS_COMMUNICATION_MULTISERIAL << 8, 0xffff00,
-+		PCI_CLASS_COMMUNICATION_MULTISERIAL << 8, 0xffff00,
-+		pbn_b2_4_115200 },
-+	/*
-+	 * Brainboxes UC-268
-+	 */
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x0841,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_4_115200 },
-+	/*
-+	 * Brainboxes UC-275/279
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0881,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_8_115200 },
-+	/*
-+	 * Brainboxes UC-302
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x08E1,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-310
-+	 */
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x08C1,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-313
-+	 */
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x08A3,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-320/324
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0A61,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_1_115200 },
-+	/*
-+	 * Brainboxes UC-346
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0B02,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_4_115200 },
-+	/*
-+	 * Brainboxes UC-357
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0A81,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0A83,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-368
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0C41,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_4_115200 },
-+	/*
-+	 * Brainboxes UC-420/431
-+	 */
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x0921,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
- 		pbn_b2_4_115200 },
- 	/*
- 	 * Perle PCI-RAS cards
+--- a/drivers/scsi/elx/libefc/efc_els.c
++++ b/drivers/scsi/elx/libefc/efc_els.c
+@@ -46,18 +46,14 @@ efc_els_io_alloc_size(struct efc_node *n
+ 
+ 	efc = node->efc;
+ 
+-	spin_lock_irqsave(&node->els_ios_lock, flags);
+-
+ 	if (!node->els_io_enabled) {
+ 		efc_log_err(efc, "els io alloc disabled\n");
+-		spin_unlock_irqrestore(&node->els_ios_lock, flags);
+ 		return NULL;
+ 	}
+ 
+ 	els = mempool_alloc(efc->els_io_pool, GFP_ATOMIC);
+ 	if (!els) {
+ 		atomic_add_return(1, &efc->els_io_alloc_failed_count);
+-		spin_unlock_irqrestore(&node->els_ios_lock, flags);
+ 		return NULL;
+ 	}
+ 
+@@ -74,7 +70,6 @@ efc_els_io_alloc_size(struct efc_node *n
+ 					      &els->io.req.phys, GFP_DMA);
+ 	if (!els->io.req.virt) {
+ 		mempool_free(els, efc->els_io_pool);
+-		spin_unlock_irqrestore(&node->els_ios_lock, flags);
+ 		return NULL;
+ 	}
+ 
+@@ -94,10 +89,11 @@ efc_els_io_alloc_size(struct efc_node *n
+ 
+ 		/* add els structure to ELS IO list */
+ 		INIT_LIST_HEAD(&els->list_entry);
++		spin_lock_irqsave(&node->els_ios_lock, flags);
+ 		list_add_tail(&els->list_entry, &node->els_ios_list);
++		spin_unlock_irqrestore(&node->els_ios_lock, flags);
+ 	}
+ 
+-	spin_unlock_irqrestore(&node->els_ios_lock, flags);
+ 	return els;
+ }
+ 
 
 
