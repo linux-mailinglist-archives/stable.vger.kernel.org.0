@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEEDB4A42EA
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:15:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63F844A41C2
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:06:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359825AbiAaLPW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:15:22 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33200 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376817AbiAaLNV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:13:21 -0500
+        id S239761AbiAaLF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:05:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42952 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359083AbiAaLET (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:04:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B858C061741;
+        Mon, 31 Jan 2022 03:03:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E973B82A61;
-        Mon, 31 Jan 2022 11:13:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 644A0C340E8;
-        Mon, 31 Jan 2022 11:13:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1A9860B98;
+        Mon, 31 Jan 2022 11:03:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF4B4C340EE;
+        Mon, 31 Jan 2022 11:03:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627599;
-        bh=VVFlRxXq3A5E85ti0MGg4WcaiubDLDuQRc9Mef1tSPM=;
+        s=korg; t=1643627014;
+        bh=MU457nlaBzqUkUiehB3MbrbuxJNSlNvVyeoL3/f57qM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lhynsmbYhmflOvhWvl+MML98YJRa89wg+jvnNoAzij97BHGCH2A3XlEyZA0ouWRsW
-         it7C/gpJy30lPTgzOp87iumgb1Pci4ti6Ir4Mqmy5U5LQT4UNysNfyGZuXVe7/8CFU
-         tW7QYxP7fwpRvLBfpyI4aznWP1mNXHMEIKAZ0aQk=
+        b=dQ1M0W6ykEpC8cGMHUeD4b+myn5Npg3lFveKgJStan3VgITN0Zk6UqoIY8eF7jpwZ
+         HE87ySZKH0/aY6+K/ODU7TLvfsXi1+rr+p1YjsZJ1rOqCGf2wNwAUfoyvsgCkMv7+n
+         yte5mkx0OTcs5uk6b9q5p4sU8omzcF0Rq/+JN4bE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 103/171] SUNRPC: Use BIT() macro in rpc_show_xprt_state()
-Date:   Mon, 31 Jan 2022 11:56:08 +0100
-Message-Id: <20220131105233.538017557@linuxfoundation.org>
+        stable@vger.kernel.org, Sujit Kautkar <sujitka@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>
+Subject: [PATCH 5.10 048/100] rpmsg: char: Fix race between the release of rpmsg_ctrldev and cdev
+Date:   Mon, 31 Jan 2022 11:56:09 +0100
+Message-Id: <20220131105222.056104924@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +50,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Sujit Kautkar <sujitka@chromium.org>
 
-[ Upstream commit 76497b1adb89175eee85afc437f08a68247314b3 ]
+commit b7fb2dad571d1e21173c06cef0bced77b323990a upstream.
 
-Clean up: BIT() is preferred over open-coding the shift.
+struct rpmsg_ctrldev contains a struct cdev. The current code frees
+the rpmsg_ctrldev struct in rpmsg_ctrldev_release_device(), but the
+cdev is a managed object, therefore its release is not predictable
+and the rpmsg_ctrldev could be freed before the cdev is entirely
+released, as in the backtrace below.
 
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[   93.625603] ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x7c
+[   93.636115] WARNING: CPU: 0 PID: 12 at lib/debugobjects.c:488 debug_print_object+0x13c/0x1b0
+[   93.644799] Modules linked in: veth xt_cgroup xt_MASQUERADE rfcomm algif_hash algif_skcipher af_alg uinput ip6table_nat fuse uvcvideo videobuf2_vmalloc venus_enc venus_dec videobuf2_dma_contig hci_uart btandroid btqca snd_soc_rt5682_i2c bluetooth qcom_spmi_temp_alarm snd_soc_rt5682v
+[   93.715175] CPU: 0 PID: 12 Comm: kworker/0:1 Tainted: G    B             5.4.163-lockdep #26
+[   93.723855] Hardware name: Google Lazor (rev3 - 8) with LTE (DT)
+[   93.730055] Workqueue: events kobject_delayed_cleanup
+[   93.735271] pstate: 60c00009 (nZCv daif +PAN +UAO)
+[   93.740216] pc : debug_print_object+0x13c/0x1b0
+[   93.744890] lr : debug_print_object+0x13c/0x1b0
+[   93.749555] sp : ffffffacf5bc7940
+[   93.752978] x29: ffffffacf5bc7940 x28: dfffffd000000000
+[   93.758448] x27: ffffffacdb11a800 x26: dfffffd000000000
+[   93.763916] x25: ffffffd0734f856c x24: dfffffd000000000
+[   93.769389] x23: 0000000000000000 x22: ffffffd0733c35b0
+[   93.774860] x21: ffffffd0751994a0 x20: ffffffd075ec27c0
+[   93.780338] x19: ffffffd075199100 x18: 00000000000276e0
+[   93.785814] x17: 0000000000000000 x16: dfffffd000000000
+[   93.791291] x15: ffffffffffffffff x14: 6e6968207473696c
+[   93.796768] x13: 0000000000000000 x12: ffffffd075e2b000
+[   93.802244] x11: 0000000000000001 x10: 0000000000000000
+[   93.807723] x9 : d13400dff1921900 x8 : d13400dff1921900
+[   93.813200] x7 : 0000000000000000 x6 : 0000000000000000
+[   93.818676] x5 : 0000000000000080 x4 : 0000000000000000
+[   93.824152] x3 : ffffffd0732a0fa4 x2 : 0000000000000001
+[   93.829628] x1 : ffffffacf5bc7580 x0 : 0000000000000061
+[   93.835104] Call trace:
+[   93.837644]  debug_print_object+0x13c/0x1b0
+[   93.841963]  __debug_check_no_obj_freed+0x25c/0x3c0
+[   93.846987]  debug_check_no_obj_freed+0x18/0x20
+[   93.851669]  slab_free_freelist_hook+0xbc/0x1e4
+[   93.856346]  kfree+0xfc/0x2f4
+[   93.859416]  rpmsg_ctrldev_release_device+0x78/0xb8
+[   93.864445]  device_release+0x84/0x168
+[   93.868310]  kobject_cleanup+0x12c/0x298
+[   93.872356]  kobject_delayed_cleanup+0x10/0x18
+[   93.876948]  process_one_work+0x578/0x92c
+[   93.881086]  worker_thread+0x804/0xcf8
+[   93.884963]  kthread+0x2a8/0x314
+[   93.888303]  ret_from_fork+0x10/0x18
+
+The cdev_device_add/del() API was created to address this issue (see
+commit '233ed09d7fda ("chardev: add helper function to register char
+devs with a struct device")'), use it instead of cdev add/del().
+
+Fixes: c0cdc19f84a4 ("rpmsg: Driver for user space endpoint interface")
+Signed-off-by: Sujit Kautkar <sujitka@chromium.org>
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220110104706.v6.1.Iaac908f3e3149a89190ce006ba166e2d3fd247a3@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/events/sunrpc.h | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/rpmsg/rpmsg_char.c |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/include/trace/events/sunrpc.h b/include/trace/events/sunrpc.h
-index 2d04eb96d4183..312507cb341f4 100644
---- a/include/trace/events/sunrpc.h
-+++ b/include/trace/events/sunrpc.h
-@@ -925,18 +925,18 @@ TRACE_EVENT(rpc_socket_nospace,
+--- a/drivers/rpmsg/rpmsg_char.c
++++ b/drivers/rpmsg/rpmsg_char.c
+@@ -458,7 +458,6 @@ static void rpmsg_ctrldev_release_device
  
- #define rpc_show_xprt_state(x)						\
- 	__print_flags(x, "|",						\
--		{ (1UL << XPRT_LOCKED),		"LOCKED"},		\
--		{ (1UL << XPRT_CONNECTED),	"CONNECTED"},		\
--		{ (1UL << XPRT_CONNECTING),	"CONNECTING"},		\
--		{ (1UL << XPRT_CLOSE_WAIT),	"CLOSE_WAIT"},		\
--		{ (1UL << XPRT_BOUND),		"BOUND"},		\
--		{ (1UL << XPRT_BINDING),	"BINDING"},		\
--		{ (1UL << XPRT_CLOSING),	"CLOSING"},		\
--		{ (1UL << XPRT_OFFLINE),	"OFFLINE"},		\
--		{ (1UL << XPRT_REMOVE),		"REMOVE"},		\
--		{ (1UL << XPRT_CONGESTED),	"CONGESTED"},		\
--		{ (1UL << XPRT_CWND_WAIT),	"CWND_WAIT"},		\
--		{ (1UL << XPRT_WRITE_SPACE),	"WRITE_SPACE"})
-+		{ BIT(XPRT_LOCKED),		"LOCKED" },		\
-+		{ BIT(XPRT_CONNECTED),		"CONNECTED" },		\
-+		{ BIT(XPRT_CONNECTING),		"CONNECTING" },		\
-+		{ BIT(XPRT_CLOSE_WAIT),		"CLOSE_WAIT" },		\
-+		{ BIT(XPRT_BOUND),		"BOUND" },		\
-+		{ BIT(XPRT_BINDING),		"BINDING" },		\
-+		{ BIT(XPRT_CLOSING),		"CLOSING" },		\
-+		{ BIT(XPRT_OFFLINE),		"OFFLINE" },		\
-+		{ BIT(XPRT_REMOVE),		"REMOVE" },		\
-+		{ BIT(XPRT_CONGESTED),		"CONGESTED" },		\
-+		{ BIT(XPRT_CWND_WAIT),		"CWND_WAIT" },		\
-+		{ BIT(XPRT_WRITE_SPACE),	"WRITE_SPACE" })
+ 	ida_simple_remove(&rpmsg_ctrl_ida, dev->id);
+ 	ida_simple_remove(&rpmsg_minor_ida, MINOR(dev->devt));
+-	cdev_del(&ctrldev->cdev);
+ 	kfree(ctrldev);
+ }
  
- DECLARE_EVENT_CLASS(rpc_xprt_lifetime_class,
- 	TP_PROTO(
--- 
-2.34.1
-
+@@ -493,19 +492,13 @@ static int rpmsg_chrdev_probe(struct rpm
+ 	dev->id = ret;
+ 	dev_set_name(&ctrldev->dev, "rpmsg_ctrl%d", ret);
+ 
+-	ret = cdev_add(&ctrldev->cdev, dev->devt, 1);
++	ret = cdev_device_add(&ctrldev->cdev, &ctrldev->dev);
+ 	if (ret)
+ 		goto free_ctrl_ida;
+ 
+ 	/* We can now rely on the release function for cleanup */
+ 	dev->release = rpmsg_ctrldev_release_device;
+ 
+-	ret = device_add(dev);
+-	if (ret) {
+-		dev_err(&rpdev->dev, "device_add failed: %d\n", ret);
+-		put_device(dev);
+-	}
+-
+ 	dev_set_drvdata(&rpdev->dev, ctrldev);
+ 
+ 	return ret;
+@@ -531,7 +524,7 @@ static void rpmsg_chrdev_remove(struct r
+ 	if (ret)
+ 		dev_warn(&rpdev->dev, "failed to nuke endpoints: %d\n", ret);
+ 
+-	device_del(&ctrldev->dev);
++	cdev_device_del(&ctrldev->cdev, &ctrldev->dev);
+ 	put_device(&ctrldev->dev);
+ }
+ 
 
 
