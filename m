@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84CB34A4186
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:04:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A69114A42A1
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:13:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358652AbiAaLEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:04:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43304 "EHLO
+        id S1376405AbiAaLMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:12:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358655AbiAaLDZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:03:25 -0500
+        with ESMTP id S1377683AbiAaLKU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:20 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE6B8C0617A8;
-        Mon, 31 Jan 2022 03:02:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23B0AC06175D;
+        Mon, 31 Jan 2022 03:10:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6F730B82A5B;
-        Mon, 31 Jan 2022 11:02:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97F02C340E8;
-        Mon, 31 Jan 2022 11:02:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9433B82A4E;
+        Mon, 31 Jan 2022 11:10:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D35B8C340E8;
+        Mon, 31 Jan 2022 11:10:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626937;
-        bh=NfBsyqXd511sI1aYr59BUHBTMSiOCuEVCxZncdw9ims=;
+        s=korg; t=1643627418;
+        bh=Drc0GsiNZrcBcv4xS0NRamkCfkHmCeJH4517ls2OviM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1uqlrZCMOKRl+zSsoog6aj1+PYYkiU30Y0nUbN3xtBxhCMo956YFcvxakx0ZXx5I+
-         lEsSA0S/akHzdU9jaGhHBEEjWEvgwPYBzEakc10R1vAILy9n6rwTRdFFdOhmlJkSuw
-         LC6SBvl555w34E9vYnficEa1d2SvUfGRNVGFBUdM=
+        b=UG3PaD8a7jfhh+w5vss2HxysVqaH/qcTpaP6DvATmT7Qas3gHW1yzwOmcIQy1aLtY
+         Pb3xn2gStFPCxZ+1mGcCfO8VCOrrpoC9aK/9AM+Ypab4mgnhCvkpgXwmcfYL8vAGr3
+         +bxxbnDpFBS3CZBvRADHYCBI09g6ndqlzvbJ4VB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        D Scott Phillips <scott@os.amperecomputing.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.10 022/100] arm64: errata: Fix exec handling in erratum 1418040 workaround
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Karen Sornek <karen.sornek@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.15 078/171] i40e: Fix for failed to init adminq while VF reset
 Date:   Mon, 31 Jan 2022 11:55:43 +0100
-Message-Id: <20220131105221.204911375@linuxfoundation.org>
+Message-Id: <20220131105232.673014556@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,102 +50,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D Scott Phillips <scott@os.amperecomputing.com>
+From: Karen Sornek <karen.sornek@intel.com>
 
-commit 38e0257e0e6f4fef2aa2966b089b56a8b1cfb75c upstream.
+commit 0f344c8129a5337dae50e31b817dd50a60ff238c upstream.
 
-The erratum 1418040 workaround enables CNTVCT_EL1 access trapping in EL0
-when executing compat threads. The workaround is applied when switching
-between tasks, but the need for the workaround could also change at an
-exec(), when a non-compat task execs a compat binary or vice versa. Apply
-the workaround in arch_setup_new_exec().
+Fix for failed to init adminq: -53 while VF is resetting via MAC
+address changing procedure.
+Added sync module to avoid reading deadbeef value in reinit adminq
+during software reset.
+Without this patch it is possible to trigger VF reset procedure
+during reinit adminq. This resulted in an incorrect reading of
+value from the AQP registers and generated the -53 error.
 
-This leaves a small window of time between SET_PERSONALITY and
-arch_setup_new_exec where preemption could occur and confuse the old
-workaround logic that compares TIF_32BIT between prev and next. Instead, we
-can just read cntkctl to make sure it's in the state that the next task
-needs. I measured cntkctl read time to be about the same as a mov from a
-general-purpose register on N1. Update the workaround logic to examine the
-current value of cntkctl instead of the previous task's compat state.
-
-Fixes: d49f7d7376d0 ("arm64: Move handling of erratum 1418040 into C code")
-Cc: <stable@vger.kernel.org> # 5.9.x
-Signed-off-by: D Scott Phillips <scott@os.amperecomputing.com>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20211220234114.3926-1-scott@os.amperecomputing.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: 5c3c48ac6bf5 ("i40e: implement virtual device interface")
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Signed-off-by: Karen Sornek <karen.sornek@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/process.c |   39 ++++++++++++++++-----------------------
- 1 file changed, 16 insertions(+), 23 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_register.h    |    3 +
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |   44 ++++++++++++++++++++-
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h |    1 
+ 3 files changed, 46 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kernel/process.c
-+++ b/arch/arm64/kernel/process.c
-@@ -511,34 +511,26 @@ static void entry_task_switch(struct tas
- 
- /*
-  * ARM erratum 1418040 handling, affecting the 32bit view of CNTVCT.
-- * Assuming the virtual counter is enabled at the beginning of times:
-- *
-- * - disable access when switching from a 64bit task to a 32bit task
-- * - enable access when switching from a 32bit task to a 64bit task
-+ * Ensure access is disabled when switching to a 32bit task, ensure
-+ * access is enabled when switching to a 64bit task.
-  */
--static void erratum_1418040_thread_switch(struct task_struct *prev,
--					  struct task_struct *next)
-+static void erratum_1418040_thread_switch(struct task_struct *next)
- {
--	bool prev32, next32;
--	u64 val;
--
--	if (!IS_ENABLED(CONFIG_ARM64_ERRATUM_1418040))
--		return;
--
--	prev32 = is_compat_thread(task_thread_info(prev));
--	next32 = is_compat_thread(task_thread_info(next));
--
--	if (prev32 == next32 || !this_cpu_has_cap(ARM64_WORKAROUND_1418040))
-+	if (!IS_ENABLED(CONFIG_ARM64_ERRATUM_1418040) ||
-+	    !this_cpu_has_cap(ARM64_WORKAROUND_1418040))
- 		return;
- 
--	val = read_sysreg(cntkctl_el1);
--
--	if (!next32)
--		val |= ARCH_TIMER_USR_VCT_ACCESS_EN;
-+	if (is_compat_thread(task_thread_info(next)))
-+		sysreg_clear_set(cntkctl_el1, ARCH_TIMER_USR_VCT_ACCESS_EN, 0);
- 	else
--		val &= ~ARCH_TIMER_USR_VCT_ACCESS_EN;
-+		sysreg_clear_set(cntkctl_el1, 0, ARCH_TIMER_USR_VCT_ACCESS_EN);
-+}
- 
--	write_sysreg(val, cntkctl_el1);
-+static void erratum_1418040_new_exec(void)
-+{
-+	preempt_disable();
-+	erratum_1418040_thread_switch(current);
-+	preempt_enable();
+--- a/drivers/net/ethernet/intel/i40e/i40e_register.h
++++ b/drivers/net/ethernet/intel/i40e/i40e_register.h
+@@ -413,6 +413,9 @@
+ #define I40E_VFINT_DYN_CTLN(_INTVF) (0x00024800 + ((_INTVF) * 4)) /* _i=0...511 */ /* Reset: VFR */
+ #define I40E_VFINT_DYN_CTLN_CLEARPBA_SHIFT 1
+ #define I40E_VFINT_DYN_CTLN_CLEARPBA_MASK I40E_MASK(0x1, I40E_VFINT_DYN_CTLN_CLEARPBA_SHIFT)
++#define I40E_VFINT_ICR0_ADMINQ_SHIFT 30
++#define I40E_VFINT_ICR0_ADMINQ_MASK I40E_MASK(0x1, I40E_VFINT_ICR0_ADMINQ_SHIFT)
++#define I40E_VFINT_ICR0_ENA(_VF) (0x0002C000 + ((_VF) * 4)) /* _i=0...127 */ /* Reset: CORER */
+ #define I40E_VPINT_AEQCTL(_VF) (0x0002B800 + ((_VF) * 4)) /* _i=0...127 */ /* Reset: CORER */
+ #define I40E_VPINT_AEQCTL_MSIX_INDX_SHIFT 0
+ #define I40E_VPINT_AEQCTL_ITR_INDX_SHIFT 11
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -1377,6 +1377,32 @@ static i40e_status i40e_config_vf_promis
  }
  
- /*
-@@ -556,7 +548,7 @@ __notrace_funcgraph struct task_struct *
- 	entry_task_switch(next);
- 	uao_thread_switch(next);
- 	ssbs_thread_switch(next);
--	erratum_1418040_thread_switch(prev, next);
-+	erratum_1418040_thread_switch(next);
+ /**
++ * i40e_sync_vfr_reset
++ * @hw: pointer to hw struct
++ * @vf_id: VF identifier
++ *
++ * Before trigger hardware reset, we need to know if no other process has
++ * reserved the hardware for any reset operations. This check is done by
++ * examining the status of the RSTAT1 register used to signal the reset.
++ **/
++static int i40e_sync_vfr_reset(struct i40e_hw *hw, int vf_id)
++{
++	u32 reg;
++	int i;
++
++	for (i = 0; i < I40E_VFR_WAIT_COUNT; i++) {
++		reg = rd32(hw, I40E_VFINT_ICR0_ENA(vf_id)) &
++			   I40E_VFINT_ICR0_ADMINQ_MASK;
++		if (reg)
++			return 0;
++
++		usleep_range(100, 200);
++	}
++
++	return -EAGAIN;
++}
++
++/**
+  * i40e_trigger_vf_reset
+  * @vf: pointer to the VF structure
+  * @flr: VFLR was issued or not
+@@ -1390,9 +1416,11 @@ static void i40e_trigger_vf_reset(struct
+ 	struct i40e_pf *pf = vf->pf;
+ 	struct i40e_hw *hw = &pf->hw;
+ 	u32 reg, reg_idx, bit_idx;
++	bool vf_active;
++	u32 radq;
  
- 	/*
- 	 * Complete any pending TLB or cache maintenance on this CPU in case
-@@ -622,6 +614,7 @@ void arch_setup_new_exec(void)
- 	current->mm->context.flags = is_compat_task() ? MMCF_AARCH32 : 0;
+ 	/* warn the VF */
+-	clear_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states);
++	vf_active = test_and_clear_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states);
  
- 	ptrauth_thread_init_user(current);
-+	erratum_1418040_new_exec();
+ 	/* Disable VF's configuration API during reset. The flag is re-enabled
+ 	 * in i40e_alloc_vf_res(), when it's safe again to access VF's VSI.
+@@ -1406,7 +1434,19 @@ static void i40e_trigger_vf_reset(struct
+ 	 * just need to clean up, so don't hit the VFRTRIG register.
+ 	 */
+ 	if (!flr) {
+-		/* reset VF using VPGEN_VFRTRIG reg */
++		/* Sync VFR reset before trigger next one */
++		radq = rd32(hw, I40E_VFINT_ICR0_ENA(vf->vf_id)) &
++			    I40E_VFINT_ICR0_ADMINQ_MASK;
++		if (vf_active && !radq)
++			/* waiting for finish reset by virtual driver */
++			if (i40e_sync_vfr_reset(hw, vf->vf_id))
++				dev_info(&pf->pdev->dev,
++					 "Reset VF %d never finished\n",
++				vf->vf_id);
++
++		/* Reset VF using VPGEN_VFRTRIG reg. It is also setting
++		 * in progress state in rstat1 register.
++		 */
+ 		reg = rd32(hw, I40E_VPGEN_VFRTRIG(vf->vf_id));
+ 		reg |= I40E_VPGEN_VFRTRIG_VFSWR_MASK;
+ 		wr32(hw, I40E_VPGEN_VFRTRIG(vf->vf_id), reg);
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
+@@ -19,6 +19,7 @@
+ #define I40E_MAX_VF_PROMISC_FLAGS	3
  
- 	if (task_spec_ssb_noexec(current)) {
- 		arch_prctl_spec_ctrl_set(current, PR_SPEC_STORE_BYPASS,
+ #define I40E_VF_STATE_WAIT_COUNT	20
++#define I40E_VFR_WAIT_COUNT		100
+ 
+ /* Various queue ctrls */
+ enum i40e_queue_ctrl {
 
 
