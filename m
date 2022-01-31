@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EE024A43F0
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CB4D4A4215
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359198AbiAaLZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:25:04 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41290 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377488AbiAaLXC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:23:02 -0500
+        id S1349276AbiAaLKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:10:47 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40362 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348644AbiAaLF6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:05:58 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA7ACB82A66;
-        Mon, 31 Jan 2022 11:23:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC34BC340E8;
-        Mon, 31 Jan 2022 11:22:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E31B460F96;
+        Mon, 31 Jan 2022 11:05:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99CA0C340E8;
+        Mon, 31 Jan 2022 11:05:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628180;
-        bh=ejZ3+VcKOF2fi6Kv8uF1OBEzCn4J7O1TRHenkBL77kA=;
+        s=korg; t=1643627157;
+        bh=3hFFj0tKoi4W0dZl+5NryhfL92TrUgIrc2iiMZM4PNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hEdkS8H7pmw8M4fNPT96CvUnoIqgbQ2jbyMiKi7ltfqSx2+KfNmAmNFYRhnTmkUrE
-         PY9ADsx3gwFAs2mI9RmPSMVdB1dwzbEj1nUSSWobAa0iWY6EBNpTqcmLfWr+P5fzqB
-         Tnw0uClAblE8h+1MUGz+2yUoAhyZF0aXPNztC/OE=
+        b=KqKpgcJ5/szGiyQlYsV5akHUiI22U8sUl/cdjZzfzW6WpNRNiS7NGLBeCd8g7rEol
+         xQdIm7O7Md45mpqlKnUZ/oROweQ7Q1SeBHlGEUFpSGCBsY0tSMXu7W6AoRHnGiA3zl
+         lP12NZVPuh8EXgXNcFm+8OQXMw1RjydvVisNYWWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kiran Kumar K <kirankumark@marvell.com>,
-        Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
+        stable@vger.kernel.org, Benjamin Poirier <bpoirier@nvidia.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 150/200] octeontx2-af: Add KPU changes to parse NGIO as separate layer
+Subject: [PATCH 5.10 092/100] net: bridge: vlan: fix single net device option dumping
 Date:   Mon, 31 Jan 2022 11:56:53 +0100
-Message-Id: <20220131105238.605683728@linuxfoundation.org>
+Message-Id: <20220131105223.546309373@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,169 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kiran Kumar K <kirankumark@marvell.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-[ Upstream commit 745166fcf01cecc4f5ff3defc6586868349a43f9 ]
+[ Upstream commit dcb2c5c6ca9b9177f04abaf76e5a983d177c9414 ]
 
-With current KPU profile NGIO is being parsed along with CTAG as
-a single layer. Because of this MCAM/ntuple rules installed with
-ethertype as 0x8842 are not being hit. Adding KPU profile changes
-to parse NGIO in separate ltype and CTAG in separate ltype.
+When dumping vlan options for a single net device we send the same
+entries infinitely because user-space expects a 0 return at the end but
+we keep returning skb->len and restarting the dump on retry. Fix it by
+returning the value from br_vlan_dump_dev() if it completed or there was
+an error. The only case that must return skb->len is when the dump was
+incomplete and needs to continue (-EMSGSIZE).
 
-Fixes: f9c49be90c05 ("octeontx2-af: Update the default KPU profile and fixes")
-Signed-off-by: Kiran Kumar K <kirankumark@marvell.com>
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+Reported-by: Benjamin Poirier <bpoirier@nvidia.com>
+Fixes: 8dcea187088b ("net: bridge: vlan: add rtm definitions and dump support")
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../marvell/octeontx2/af/npc_profile.h        | 70 +++++++++----------
- 1 file changed, 35 insertions(+), 35 deletions(-)
+ net/bridge/br_vlan.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/npc_profile.h b/drivers/net/ethernet/marvell/octeontx2/af/npc_profile.h
-index 0fe7ad35e36fd..4180376fa6763 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/npc_profile.h
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/npc_profile.h
-@@ -185,7 +185,6 @@ enum npc_kpu_parser_state {
- 	NPC_S_KPU2_QINQ,
- 	NPC_S_KPU2_ETAG,
- 	NPC_S_KPU2_EXDSA,
--	NPC_S_KPU2_NGIO,
- 	NPC_S_KPU2_CPT_CTAG,
- 	NPC_S_KPU2_CPT_QINQ,
- 	NPC_S_KPU3_CTAG,
-@@ -212,6 +211,7 @@ enum npc_kpu_parser_state {
- 	NPC_S_KPU5_NSH,
- 	NPC_S_KPU5_CPT_IP,
- 	NPC_S_KPU5_CPT_IP6,
-+	NPC_S_KPU5_NGIO,
- 	NPC_S_KPU6_IP6_EXT,
- 	NPC_S_KPU6_IP6_HOP_DEST,
- 	NPC_S_KPU6_IP6_ROUT,
-@@ -1120,15 +1120,6 @@ static struct npc_kpu_profile_cam kpu1_cam_entries[] = {
- 		0x0000,
- 		0x0000,
- 	},
--	{
--		NPC_S_KPU1_ETHER, 0xff,
--		NPC_ETYPE_CTAG,
--		0xffff,
--		NPC_ETYPE_NGIO,
--		0xffff,
--		0x0000,
--		0x0000,
--	},
- 	{
- 		NPC_S_KPU1_ETHER, 0xff,
- 		NPC_ETYPE_CTAG,
-@@ -1966,6 +1957,15 @@ static struct npc_kpu_profile_cam kpu2_cam_entries[] = {
- 		0x0000,
- 		0x0000,
- 	},
-+	{
-+		NPC_S_KPU2_CTAG, 0xff,
-+		NPC_ETYPE_NGIO,
-+		0xffff,
-+		0x0000,
-+		0x0000,
-+		0x0000,
-+		0x0000,
-+	},
- 	{
- 		NPC_S_KPU2_CTAG, 0xff,
- 		NPC_ETYPE_PPPOE,
-@@ -2749,15 +2749,6 @@ static struct npc_kpu_profile_cam kpu2_cam_entries[] = {
- 		0x0000,
- 		0x0000,
- 	},
--	{
--		NPC_S_KPU2_NGIO, 0xff,
--		0x0000,
--		0x0000,
--		0x0000,
--		0x0000,
--		0x0000,
--		0x0000,
--	},
- 	{
- 		NPC_S_KPU2_CPT_CTAG, 0xff,
- 		NPC_ETYPE_IP,
-@@ -5089,6 +5080,15 @@ static struct npc_kpu_profile_cam kpu5_cam_entries[] = {
- 		0x0000,
- 		0x0000,
- 	},
-+	{
-+		NPC_S_KPU5_NGIO, 0xff,
-+		0x0000,
-+		0x0000,
-+		0x0000,
-+		0x0000,
-+		0x0000,
-+		0x0000,
-+	},
- 	{
- 		NPC_S_NA, 0X00,
- 		0x0000,
-@@ -8422,14 +8422,6 @@ static struct npc_kpu_profile_action kpu1_action_entries[] = {
- 		0,
- 		0, 0, 0, 0,
- 	},
--	{
--		NPC_ERRLEV_RE, NPC_EC_NOERR,
--		8, 12, 0, 0, 0,
--		NPC_S_KPU2_NGIO, 12, 1,
--		NPC_LID_LA, NPC_LT_LA_ETHER,
--		0,
--		0, 0, 0, 0,
--	},
- 	{
- 		NPC_ERRLEV_RE, NPC_EC_NOERR,
- 		8, 12, 0, 0, 0,
-@@ -9194,6 +9186,14 @@ static struct npc_kpu_profile_action kpu2_action_entries[] = {
- 		0,
- 		0, 0, 0, 0,
- 	},
-+	{
-+		NPC_ERRLEV_RE, NPC_EC_NOERR,
-+		0, 0, 0, 2, 0,
-+		NPC_S_KPU5_NGIO, 6, 1,
-+		NPC_LID_LB, NPC_LT_LB_CTAG,
-+		0,
-+		0, 0, 0, 0,
-+	},
- 	{
- 		NPC_ERRLEV_RE, NPC_EC_NOERR,
- 		8, 0, 6, 2, 0,
-@@ -9890,14 +9890,6 @@ static struct npc_kpu_profile_action kpu2_action_entries[] = {
- 		NPC_F_LB_U_UNK_ETYPE | NPC_F_LB_L_EXDSA,
- 		0, 0, 0, 0,
- 	},
--	{
--		NPC_ERRLEV_RE, NPC_EC_NOERR,
--		0, 0, 0, 0, 1,
--		NPC_S_NA, 0, 1,
--		NPC_LID_LC, NPC_LT_LC_NGIO,
--		0,
--		0, 0, 0, 0,
--	},
- 	{
- 		NPC_ERRLEV_RE, NPC_EC_NOERR,
- 		8, 0, 6, 2, 0,
-@@ -11973,6 +11965,14 @@ static struct npc_kpu_profile_action kpu5_action_entries[] = {
- 		0,
- 		0, 0, 0, 0,
- 	},
-+	{
-+		NPC_ERRLEV_RE, NPC_EC_NOERR,
-+		0, 0, 0, 0, 1,
-+		NPC_S_NA, 0, 1,
-+		NPC_LID_LC, NPC_LT_LC_NGIO,
-+		0,
-+		0, 0, 0, 0,
-+	},
- 	{
- 		NPC_ERRLEV_LC, NPC_EC_UNK,
- 		0, 0, 0, 0, 1,
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 08c77418c687b..1f508d998fb2d 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -1873,7 +1873,8 @@ static int br_vlan_rtm_dump(struct sk_buff *skb, struct netlink_callback *cb)
+ 			goto out_err;
+ 		}
+ 		err = br_vlan_dump_dev(dev, skb, cb, dump_flags);
+-		if (err && err != -EMSGSIZE)
++		/* if the dump completed without an error we return 0 here */
++		if (err != -EMSGSIZE)
+ 			goto out_err;
+ 	} else {
+ 		for_each_netdev_rcu(net, dev) {
 -- 
 2.34.1
 
