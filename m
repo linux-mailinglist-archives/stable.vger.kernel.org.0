@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C561F4A440E
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:26:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BDB34A42FD
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:16:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377045AbiAaLZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:25:51 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:56242 "EHLO
+        id S1376717AbiAaLP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:15:58 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:47934 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377970AbiAaLXg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:23:36 -0500
+        with ESMTP id S1349498AbiAaLO1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:14:27 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91F3561267;
-        Mon, 31 Jan 2022 11:23:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DE6FC340E8;
-        Mon, 31 Jan 2022 11:23:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 74F30611DA;
+        Mon, 31 Jan 2022 11:14:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FF91C340E8;
+        Mon, 31 Jan 2022 11:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628215;
-        bh=GjGO6KS8Wz7i9WHvfILtYVTbWhOHZcSOqBUaV99E+jw=;
+        s=korg; t=1643627666;
+        bh=0/4qqa1wTaF3Qode9fXp/Z88QTW8pXk94tsFhuIOyyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=THmomt2b3LcbF9pgPBcYr1Y7AxxwDKP7vckN8/Le7+xrKXiwtDxyXO5FnPV98PJsE
-         mFlQmdJuThUlXnz46wKV5y1y2hX4GuG1nSse4bEk9x6fFbWy8hG4l6O4x6hVmgdZ7A
-         CGRkyMBCrxyTNME9kNMijYN5KXoqQtTmp6GtAqew=
+        b=wZbq9Kawp31s7mSgNIYnlBNTRFrXDsyKwSFBqYYiz2LrsaEruw8dvMHfRWx18OUy5
+         Ru1mWWjlyrDiBf24Cmt3dC/P8YPR3nWrKltT+gqN0dskMMIREI4mrNrT2RdWr2Vfh8
+         fPcUn6FMC/Dgcn9moItkHH1Gi45pJQbPvtlllSgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sachin Sant <sachinp@linux.ibm.com>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Ray Che <xijiache@gmail.com>, David Ahern <dsahern@kernel.org>,
+        Geoff Alexander <alexandg@cs.unm.edu>,
+        Willy Tarreau <w@1wt.eu>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 160/200] powerpc/perf: Fix power_pmu_disable to call clear_pmi_irq_pending only if PMI is pending
+Subject: [PATCH 5.15 158/171] ipv4: tcp: send zero IPID in SYNACK messages
 Date:   Mon, 31 Jan 2022 11:57:03 +0100
-Message-Id: <20220131105238.935259652@linuxfoundation.org>
+Message-Id: <20220131105235.361632029@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,92 +47,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit fb6433b48a178d4672cb26632454ee0b21056eaa ]
+[ Upstream commit 970a5a3ea86da637471d3cd04d513a0755aba4bf ]
 
-Running selftest with CONFIG_PPC_IRQ_SOFT_MASK_DEBUG enabled in kernel
-triggered below warning:
+In commit 431280eebed9 ("ipv4: tcp: send zero IPID for RST and
+ACK sent in SYN-RECV and TIME-WAIT state") we took care of some
+ctl packets sent by TCP.
 
-[  172.851380] ------------[ cut here ]------------
-[  172.851391] WARNING: CPU: 8 PID: 2901 at arch/powerpc/include/asm/hw_irq.h:246 power_pmu_disable+0x270/0x280
-[  172.851402] Modules linked in: dm_mod bonding nft_ct nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set nf_tables rfkill nfnetlink sunrpc xfs libcrc32c pseries_rng xts vmx_crypto uio_pdrv_genirq uio sch_fq_codel ip_tables ext4 mbcache jbd2 sd_mod t10_pi sg ibmvscsi ibmveth scsi_transport_srp fuse
-[  172.851442] CPU: 8 PID: 2901 Comm: lost_exception_ Not tainted 5.16.0-rc5-03218-g798527287598 #2
-[  172.851451] NIP:  c00000000013d600 LR: c00000000013d5a4 CTR: c00000000013b180
-[  172.851458] REGS: c000000017687860 TRAP: 0700   Not tainted  (5.16.0-rc5-03218-g798527287598)
-[  172.851465] MSR:  8000000000029033 <SF,EE,ME,IR,DR,RI,LE>  CR: 48004884  XER: 20040000
-[  172.851482] CFAR: c00000000013d5b4 IRQMASK: 1
-[  172.851482] GPR00: c00000000013d5a4 c000000017687b00 c000000002a10600 0000000000000004
-[  172.851482] GPR04: 0000000082004000 c0000008ba08f0a8 0000000000000000 00000008b7ed0000
-[  172.851482] GPR08: 00000000446194f6 0000000000008000 c00000000013b118 c000000000d58e68
-[  172.851482] GPR12: c00000000013d390 c00000001ec54a80 0000000000000000 0000000000000000
-[  172.851482] GPR16: 0000000000000000 0000000000000000 c000000015d5c708 c0000000025396d0
-[  172.851482] GPR20: 0000000000000000 0000000000000000 c00000000a3bbf40 0000000000000003
-[  172.851482] GPR24: 0000000000000000 c0000008ba097400 c0000000161e0d00 c00000000a3bb600
-[  172.851482] GPR28: c000000015d5c700 0000000000000001 0000000082384090 c0000008ba0020d8
-[  172.851549] NIP [c00000000013d600] power_pmu_disable+0x270/0x280
-[  172.851557] LR [c00000000013d5a4] power_pmu_disable+0x214/0x280
-[  172.851565] Call Trace:
-[  172.851568] [c000000017687b00] [c00000000013d5a4] power_pmu_disable+0x214/0x280 (unreliable)
-[  172.851579] [c000000017687b40] [c0000000003403ac] perf_pmu_disable+0x4c/0x60
-[  172.851588] [c000000017687b60] [c0000000003445e4] __perf_event_task_sched_out+0x1d4/0x660
-[  172.851596] [c000000017687c50] [c000000000d1175c] __schedule+0xbcc/0x12a0
-[  172.851602] [c000000017687d60] [c000000000d11ea8] schedule+0x78/0x140
-[  172.851608] [c000000017687d90] [c0000000001a8080] sys_sched_yield+0x20/0x40
-[  172.851615] [c000000017687db0] [c0000000000334dc] system_call_exception+0x18c/0x380
-[  172.851622] [c000000017687e10] [c00000000000c74c] system_call_common+0xec/0x268
+It turns out we need to use a similar strategy for SYNACK packets.
 
-The warning indicates that MSR_EE being set(interrupt enabled) when
-there was an overflown PMC detected. This could happen in
-power_pmu_disable since it runs under interrupt soft disable
-condition ( local_irq_save ) and not with interrupts hard disabled.
-commit 2c9ac51b850d ("powerpc/perf: Fix PMU callbacks to clear
-pending PMI before resetting an overflown PMC") intended to clear
-PMI pending bit in Paca when disabling the PMU. It could happen
-that PMC gets overflown while code is in power_pmu_disable
-callback function. Hence add a check to see if PMI pending bit
-is set in Paca before clearing it via clear_pmi_pending.
+By default, they carry IP_DF and IPID==0, but there are ways
+to ask them to use the hashed IP ident generator and thus
+be used to build off-path attacks.
+(Ref: Off-Path TCP Exploits of the Mixed IPID Assignment)
 
-Fixes: 2c9ac51b850d ("powerpc/perf: Fix PMU callbacks to clear pending PMI before resetting an overflown PMC")
-Reported-by: Sachin Sant <sachinp@linux.ibm.com>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Tested-by: Sachin Sant <sachinp@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220122033429.25395-1-atrajeev@linux.vnet.ibm.com
+One of this way is to force (before listener is started)
+echo 1 >/proc/sys/net/ipv4/ip_no_pmtu_disc
+
+Another way is using forged ICMP ICMP_FRAG_NEEDED
+with a very small MTU (like 68) to force a false return from
+ip_dont_fragment()
+
+In this patch, ip_build_and_send_pkt() uses the following
+heuristics.
+
+1) Most SYNACK packets are smaller than IPV4_MIN_MTU and therefore
+can use IP_DF regardless of the listener or route pmtu setting.
+
+2) In case the SYNACK packet is bigger than IPV4_MIN_MTU,
+we use prandom_u32() generator instead of the IPv4 hashed ident one.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Ray Che <xijiache@gmail.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Cc: Geoff Alexander <alexandg@cs.unm.edu>
+Cc: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/core-book3s.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ net/ipv4/ip_output.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-index bef6b1abce702..e78de70509472 100644
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -1326,9 +1326,20 @@ static void power_pmu_disable(struct pmu *pmu)
- 		 * Otherwise provide a warning if there is PMI pending, but
- 		 * no counter is found overflown.
- 		 */
--		if (any_pmc_overflown(cpuhw))
--			clear_pmi_irq_pending();
--		else
-+		if (any_pmc_overflown(cpuhw)) {
-+			/*
-+			 * Since power_pmu_disable runs under local_irq_save, it
-+			 * could happen that code hits a PMC overflow without PMI
-+			 * pending in paca. Hence only clear PMI pending if it was
-+			 * set.
-+			 *
-+			 * If a PMI is pending, then MSR[EE] must be disabled (because
-+			 * the masked PMI handler disabling EE). So it is safe to
-+			 * call clear_pmi_irq_pending().
-+			 */
-+			if (pmi_irq_pending())
-+				clear_pmi_irq_pending();
-+		} else
- 			WARN_ON(pmi_irq_pending());
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+index ff38b46bd4b0f..a4d2eb691cbc1 100644
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -162,12 +162,19 @@ int ip_build_and_send_pkt(struct sk_buff *skb, const struct sock *sk,
+ 	iph->daddr    = (opt && opt->opt.srr ? opt->opt.faddr : daddr);
+ 	iph->saddr    = saddr;
+ 	iph->protocol = sk->sk_protocol;
+-	if (ip_dont_fragment(sk, &rt->dst)) {
++	/* Do not bother generating IPID for small packets (eg SYNACK) */
++	if (skb->len <= IPV4_MIN_MTU || ip_dont_fragment(sk, &rt->dst)) {
+ 		iph->frag_off = htons(IP_DF);
+ 		iph->id = 0;
+ 	} else {
+ 		iph->frag_off = 0;
+-		__ip_select_ident(net, iph, 1);
++		/* TCP packets here are SYNACK with fat IPv4/TCP options.
++		 * Avoid using the hashed IP ident generator.
++		 */
++		if (sk->sk_protocol == IPPROTO_TCP)
++			iph->id = (__force __be16)prandom_u32();
++		else
++			__ip_select_ident(net, iph, 1);
+ 	}
  
- 		val = mmcra = cpuhw->mmcr.mmcra;
+ 	if (opt && opt->opt.optlen) {
 -- 
 2.34.1
 
