@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE6E64A4378
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE18D4A4299
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359743AbiAaLVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:21:34 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48110 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359155AbiAaLQm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:16:42 -0500
+        id S1349328AbiAaLMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:12:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44612 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377568AbiAaLKM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C88F0C061401;
+        Mon, 31 Jan 2022 03:09:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EC4661234;
-        Mon, 31 Jan 2022 11:16:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F24BAC340EE;
-        Mon, 31 Jan 2022 11:16:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67E2760F96;
+        Mon, 31 Jan 2022 11:09:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C002C340E8;
+        Mon, 31 Jan 2022 11:09:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627801;
-        bh=sinWUBPcepgMXWlm0Ar/8nKT1gvDMz9hj/gu+P1tCg8=;
+        s=korg; t=1643627368;
+        bh=RXJiMghcv4iaFoYHI7dB/1o8hostNGLl4333WgzAptc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TXBYlisIaLYn+HlNQOqj4YmhtPOl3LqK96vdpYiCBo79aiGQjtWKSBROxc8xNg5sd
-         ixZWFatNNphtLDmV3JxCRWWnhsDOJhrZ/6kJUNW0aM03Z4gWWi1b7rIBJI4ybj4+2W
-         xlZzgYQ6zVo4YGsGR2sQPDuMztOOYMfoT25m5cj8=
+        b=l0mLmNW1mJ1PuP3GPcPHLWu85X493Ggex1Ba33azSfxYZPThizJKtWQlU02VsK3gq
+         s9hmV8BncrEDTY4vq+HaVwpI4c/f74Yijup6Yluq0JllvUivhhICQhsURNy7UZKQfe
+         H+SLezlmSIStpCRwLLNC50lIat/p5sQqXJFB+7ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.16 030/200] tracing/histogram: Fix a potential memory leak for kstrdup()
+        stable@vger.kernel.org, "Dmitry V. Levin" <ldv@altlinux.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.15 028/171] powerpc/audit: Fix syscall_get_arch()
 Date:   Mon, 31 Jan 2022 11:54:53 +0100
-Message-Id: <20220131105234.583723810@linuxfoundation.org>
+Message-Id: <20220131105230.972888808@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +48,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit e629e7b525a179e29d53463d992bdee759c950fb upstream.
+commit 252745240ba0ae774d2f80c5e185ed59fbc4fb41 upstream.
 
-kfree() is missing on an error path to free the memory allocated by
-kstrdup():
+Commit 770cec16cdc9 ("powerpc/audit: Simplify syscall_get_arch()")
+and commit 898a1ef06ad4 ("powerpc/audit: Avoid unneccessary #ifdef
+in syscall_get_arguments()")
+replaced test_tsk_thread_flag(task, TIF_32BIT)) by is_32bit_task().
 
-  p = param = kstrdup(data->params[i], GFP_KERNEL);
+But is_32bit_task() applies on current task while be want the test
+done on task 'task'
 
-So it is better to free it via kfree(p).
+So add a new macro is_tsk_32bit_task() to check any task.
 
-Link: https://lkml.kernel.org/r/tencent_C52895FD37802832A3E5B272D05008866F0A@qq.com
-
+Fixes: 770cec16cdc9 ("powerpc/audit: Simplify syscall_get_arch()")
+Fixes: 898a1ef06ad4 ("powerpc/audit: Avoid unneccessary #ifdef in syscall_get_arguments()")
 Cc: stable@vger.kernel.org
-Fixes: d380dcde9a07c ("tracing: Fix now invalid var_ref_vals assumption in trace action")
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Reported-by: Dmitry V. Levin <ldv@altlinux.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/c55cddb8f65713bf5859ed675d75a50cb37d5995.1642159570.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events_hist.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/include/asm/syscall.h     |    4 ++--
+ arch/powerpc/include/asm/thread_info.h |    2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -3919,6 +3919,7 @@ static int trace_action_create(struct hi
+--- a/arch/powerpc/include/asm/syscall.h
++++ b/arch/powerpc/include/asm/syscall.h
+@@ -90,7 +90,7 @@ static inline void syscall_get_arguments
+ 	unsigned long val, mask = -1UL;
+ 	unsigned int n = 6;
  
- 			var_ref_idx = find_var_ref_idx(hist_data, var_ref);
- 			if (WARN_ON(var_ref_idx < 0)) {
-+				kfree(p);
- 				ret = var_ref_idx;
- 				goto err;
- 			}
+-	if (is_32bit_task())
++	if (is_tsk_32bit_task(task))
+ 		mask = 0xffffffff;
+ 
+ 	while (n--) {
+@@ -115,7 +115,7 @@ static inline void syscall_set_arguments
+ 
+ static inline int syscall_get_arch(struct task_struct *task)
+ {
+-	if (is_32bit_task())
++	if (is_tsk_32bit_task(task))
+ 		return AUDIT_ARCH_PPC;
+ 	else if (IS_ENABLED(CONFIG_CPU_LITTLE_ENDIAN))
+ 		return AUDIT_ARCH_PPC64LE;
+--- a/arch/powerpc/include/asm/thread_info.h
++++ b/arch/powerpc/include/asm/thread_info.h
+@@ -165,8 +165,10 @@ static inline bool test_thread_local_fla
+ 
+ #ifdef CONFIG_COMPAT
+ #define is_32bit_task()	(test_thread_flag(TIF_32BIT))
++#define is_tsk_32bit_task(tsk)	(test_tsk_thread_flag(tsk, TIF_32BIT))
+ #else
+ #define is_32bit_task()	(IS_ENABLED(CONFIG_PPC32))
++#define is_tsk_32bit_task(tsk)	(IS_ENABLED(CONFIG_PPC32))
+ #endif
+ 
+ #if defined(CONFIG_PPC64)
 
 
