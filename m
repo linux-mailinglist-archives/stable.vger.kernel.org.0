@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 623FC4A4374
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DC374A4288
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359669AbiAaLVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:21:33 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49820 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376775AbiAaLQY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:16:24 -0500
+        id S1359851AbiAaLMP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:12:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44462 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377479AbiAaLKD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DCD2C07979B;
+        Mon, 31 Jan 2022 03:07:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9B21611D6;
-        Mon, 31 Jan 2022 11:16:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83DB9C340E8;
-        Mon, 31 Jan 2022 11:16:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EAB36114D;
+        Mon, 31 Jan 2022 11:07:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25739C340E8;
+        Mon, 31 Jan 2022 11:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627783;
-        bh=xpyLcomK8xH4GvgyWZ/0+QziSchBb1NMFls8dDiycGM=;
+        s=korg; t=1643627262;
+        bh=gurpRK8pRh//+KMIzS4LXQmB8sq083h/1t9ww78Celw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qO0/Kvl4mMMZPZrKGFHSJDYslb/DTH1BweGHNF+ceIQku3xMQGY4eq6LVAsoEFLzU
-         H6RT//iDAJvA3z4LbqZgdUVleBUcurytSpuZYbBEVCqCc0izRhZI0K1pKP/1K/sZ8W
-         XdXpC2zhPIQcCcLgyznWGEuUMWeZr85yvRGtsb8g=
+        b=a69CZ1GklbPuT54r+Jhsn1Y6MTwC7ZtMRiBXvjYm9VznjVakCV8taKfbiuUKYd6wy
+         PpVn2F1btJz3wijjNORzh3zJP7w3N/Wj4sd8BtU2pbMz8VVKiKKDupA2RFDmhJnLv7
+         +VPYbMNteUdu6BgRqaCLRNm9Z1HsP6wHpMLzQoPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.16 006/200] btrfs: fix deadlock when reserving space during defrag
-Date:   Mon, 31 Jan 2022 11:54:29 +0100
-Message-Id: <20220131105233.776255625@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.15 005/171] ARM: 9179/1: uaccess: avoid alignment faults in copy_[from|to]_kernel_nofault
+Date:   Mon, 31 Jan 2022 11:54:30 +0100
+Message-Id: <20220131105230.151611980@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,96 +48,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 0cb5950f3f3b51a4e8657d106f897f2b913e0586 upstream.
+commit 15420269b02a63ed8c1841905d8b8b2403246004 upstream.
 
-When defragging we can end up collecting a range for defrag that has
-already pages under delalloc (dirty), as long as the respective extent
-map for their range is not mapped to a hole, a prealloc extent or
-the extent map is from an old generation.
+The helpers that are used to implement copy_from_kernel_nofault() and
+copy_to_kernel_nofault() cast a void* to a pointer to a wider type,
+which may result in alignment faults on ARM if the compiler decides to
+use double-word or multiple-word load/store instructions.
 
-Most of the time that is harmless from a functional perspective at
-least, however it can result in a deadlock:
+Only configurations that define CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS=y
+are affected, given that commit 2423de2e6f4d ("ARM: 9115/1: mm/maccess:
+fix unaligned copy_{from,to}_kernel_nofault") ensures that dst and src
+are sufficiently aligned otherwise.
 
-1) At defrag_collect_targets() we find an extent map that meets all
-   requirements but there's delalloc for the range it covers, and we add
-   its range to list of ranges to defrag;
+So use the unaligned accessors for accessing dst and src in cases where
+they may be misaligned.
 
-2) The defrag_collect_targets() function is called at defrag_one_range(),
-   after it locked a range that overlaps the range of the extent map;
-
-3) At defrag_one_range(), while the range is still locked, we call
-   defrag_one_locked_target() for the range associated to the extent
-   map we collected at step 1);
-
-4) Then finally at defrag_one_locked_target() we do a call to
-   btrfs_delalloc_reserve_space(), which will reserve data and metadata
-   space. If the space reservations can not be satisfied right away, the
-   flusher might be kicked in and start flushing delalloc and wait for
-   the respective ordered extents to complete. If this happens we will
-   deadlock, because both flushing delalloc and finishing an ordered
-   extent, requires locking the range in the inode's io tree, which was
-   already locked at defrag_collect_targets().
-
-So fix this by skipping extent maps for which there's already delalloc.
-
-Fixes: eb793cf857828d ("btrfs: defrag: introduce helper to collect target file extents")
-CC: stable@vger.kernel.org # 5.16
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: <stable@vger.kernel.org> # depends on 2423de2e6f4d
+Fixes: 2df4c9a741a0 ("ARM: 9112/1: uaccess: add __{get,put}_kernel_nofault")
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ioctl.c |   31 ++++++++++++++++++++++++++++++-
- 1 file changed, 30 insertions(+), 1 deletion(-)
+ arch/arm/include/asm/uaccess.h |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -1188,6 +1188,35 @@ static int defrag_collect_targets(struct
- 			goto next;
+--- a/arch/arm/include/asm/uaccess.h
++++ b/arch/arm/include/asm/uaccess.h
+@@ -11,6 +11,7 @@
+ #include <linux/string.h>
+ #include <asm/memory.h>
+ #include <asm/domain.h>
++#include <asm/unaligned.h>
+ #include <asm/unified.h>
+ #include <asm/compiler.h>
  
- 		/*
-+		 * Our start offset might be in the middle of an existing extent
-+		 * map, so take that into account.
-+		 */
-+		range_len = em->len - (cur - em->start);
-+		/*
-+		 * If this range of the extent map is already flagged for delalloc,
-+		 * skip it, because:
-+		 *
-+		 * 1) We could deadlock later, when trying to reserve space for
-+		 *    delalloc, because in case we can't immediately reserve space
-+		 *    the flusher can start delalloc and wait for the respective
-+		 *    ordered extents to complete. The deadlock would happen
-+		 *    because we do the space reservation while holding the range
-+		 *    locked, and starting writeback, or finishing an ordered
-+		 *    extent, requires locking the range;
-+		 *
-+		 * 2) If there's delalloc there, it means there's dirty pages for
-+		 *    which writeback has not started yet (we clean the delalloc
-+		 *    flag when starting writeback and after creating an ordered
-+		 *    extent). If we mark pages in an adjacent range for defrag,
-+		 *    then we will have a larger contiguous range for delalloc,
-+		 *    very likely resulting in a larger extent after writeback is
-+		 *    triggered (except in a case of free space fragmentation).
-+		 */
-+		if (test_range_bit(&inode->io_tree, cur, cur + range_len - 1,
-+				   EXTENT_DELALLOC, 0, NULL))
-+			goto next;
-+
-+		/*
- 		 * For do_compress case, we want to compress all valid file
- 		 * extents, thus no @extent_thresh or mergeable check.
- 		 */
-@@ -1195,7 +1224,7 @@ static int defrag_collect_targets(struct
- 			goto add;
- 
- 		/* Skip too large extent */
--		if (em->len >= extent_thresh)
-+		if (range_len >= extent_thresh)
- 			goto next;
- 
- 		next_mergeable = defrag_check_next_extent(&inode->vfs_inode, em,
+@@ -497,7 +498,10 @@ do {									\
+ 	}								\
+ 	default: __err = __get_user_bad(); break;			\
+ 	}								\
+-	*(type *)(dst) = __val;						\
++	if (IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS))		\
++		put_unaligned(__val, (type *)(dst));			\
++	else								\
++		*(type *)(dst) = __val; /* aligned by caller */		\
+ 	if (__err)							\
+ 		goto err_label;						\
+ } while (0)
+@@ -507,7 +511,9 @@ do {									\
+ 	const type *__pk_ptr = (dst);					\
+ 	unsigned long __dst = (unsigned long)__pk_ptr;			\
+ 	int __err = 0;							\
+-	type __val = *(type *)src;					\
++	type __val = IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)	\
++		     ? get_unaligned((type *)(src))			\
++		     : *(type *)(src);	/* aligned by caller */		\
+ 	switch (sizeof(type)) {						\
+ 	case 1: __put_user_asm_byte(__val, __dst, __err, ""); break;	\
+ 	case 2:	__put_user_asm_half(__val, __dst, __err, ""); break;	\
 
 
