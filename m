@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 208A64A44E4
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85D564A424F
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377312AbiAaLdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:33:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49904 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378674AbiAaL24 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:28:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80CB9C0613E6;
-        Mon, 31 Jan 2022 03:17:42 -0800 (PST)
+        id S1349270AbiAaLLX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:23 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41462 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376622AbiAaLIn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:08:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2138061170;
-        Mon, 31 Jan 2022 11:17:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5C07C340E8;
-        Mon, 31 Jan 2022 11:17:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 417D860B28;
+        Mon, 31 Jan 2022 11:08:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26A02C340E8;
+        Mon, 31 Jan 2022 11:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627861;
-        bh=k70UCGaKdelyUX4hLZO2WfvpGsnNzGI95PXnQiEeiXU=;
+        s=korg; t=1643627322;
+        bh=WIkSwz0/m7xluTgNQRpv2pohUX/lU1/FJ1P7c5Vh3ho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EW2mhGLHNTSZ3wVMGR9aYxExye7r/wLCNp/5uc6zsfPG8gp5Hx/GeC6zlyUjgXqv+
-         QIZt3CUQwLLvNLRlFz9bKggaw5Uie/P6A71CIYynJ3siacc+KNInufCuovTFQHtWZ6
-         CEzvu4RZrMZpylxGW/vKub6lR7lfVkmOAbY1cikU=
+        b=bSGkh4QPR4OmfKF5zJflRSKPJHD4lURSHX6ghjKAzHNDD6VPPq49J3E9Vz3Wbus/2
+         dRYecAj0Xci6UWaiOx3TGs2+tnb1QvMXBDrYaRxENRH03Okwj8vpevmFKCJR+YjgEx
+         TW0hy1D4LdtH7PHuDc4WWU3z5TOQX6m0NZFUmTjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.16 048/200] KVM: LAPIC: Also cancel preemption timer during SET_LAPIC
+        stable@vger.kernel.org, Lino Sanfilippo <LinoSanfilippo@gmx.de>,
+        Jochen Mades <jochen@mades.net>, Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 5.15 046/171] serial: pl011: Fix incorrect rs485 RTS polarity on set_mctrl
 Date:   Mon, 31 Jan 2022 11:55:11 +0100
-Message-Id: <20220131105235.177585417@linuxfoundation.org>
+Message-Id: <20220131105231.578810721@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,53 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Jochen Mades <jochen@mades.net>
 
-commit 35fe7cfbab2e81f1afb23fc4212210b1de6d9633 upstream.
+commit 62f676ff7898f6c1bd26ce014564773a3dc00601 upstream.
 
-The below warning is splatting during guest reboot.
+Commit 8d479237727c ("serial: amba-pl011: add RS485 support") sought to
+keep RTS deasserted on set_mctrl if rs485 is enabled.  However it did so
+only if deasserted RTS polarity is high.  Fix it in case it's low.
 
-  ------------[ cut here ]------------
-  WARNING: CPU: 0 PID: 1931 at arch/x86/kvm/x86.c:10322 kvm_arch_vcpu_ioctl_run+0x874/0x880 [kvm]
-  CPU: 0 PID: 1931 Comm: qemu-system-x86 Tainted: G          I       5.17.0-rc1+ #5
-  RIP: 0010:kvm_arch_vcpu_ioctl_run+0x874/0x880 [kvm]
-  Call Trace:
-   <TASK>
-   kvm_vcpu_ioctl+0x279/0x710 [kvm]
-   __x64_sys_ioctl+0x83/0xb0
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  RIP: 0033:0x7fd39797350b
-
-This can be triggered by not exposing tsc-deadline mode and doing a reboot in
-the guest. The lapic_shutdown() function which is called in sys_reboot path
-will not disarm the flying timer, it just masks LVTT. lapic_shutdown() clears
-APIC state w/ LVT_MASKED and timer-mode bit is 0, this can trigger timer-mode
-switch between tsc-deadline and oneshot/periodic, which can result in preemption
-timer be cancelled in apic_update_lvtt(). However, We can't depend on this when
-not exposing tsc-deadline mode and oneshot/periodic modes emulated by preemption
-timer. Qemu will synchronise states around reset, let's cancel preemption timer
-under KVM_SET_LAPIC.
-
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Message-Id: <1643102220-35667-1-git-send-email-wanpengli@tencent.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 8d479237727c ("serial: amba-pl011: add RS485 support")
+Cc: stable@vger.kernel.org # v5.15+
+Cc: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Signed-off-by: Jochen Mades <jochen@mades.net>
+[lukas: copyedit commit message, add stable designation]
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Link: https://lore.kernel.org/r/85fa3323ba8c307943969b7343e23f34c3e652ba.1642909284.git.lukas@wunner.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/lapic.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/amba-pl011.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -2623,7 +2623,7 @@ int kvm_apic_set_state(struct kvm_vcpu *
- 	kvm_apic_set_version(vcpu);
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -1615,8 +1615,12 @@ static void pl011_set_mctrl(struct uart_
+ 	    container_of(port, struct uart_amba_port, port);
+ 	unsigned int cr;
  
- 	apic_update_ppr(apic);
--	hrtimer_cancel(&apic->lapic_timer.timer);
-+	cancel_apic_timer(apic);
- 	apic->lapic_timer.expired_tscdeadline = 0;
- 	apic_update_lvtt(apic);
- 	apic_manage_nmi_watchdog(apic, kvm_lapic_get_reg(apic, APIC_LVT0));
+-	if (port->rs485.flags & SER_RS485_ENABLED)
+-		mctrl &= ~TIOCM_RTS;
++	if (port->rs485.flags & SER_RS485_ENABLED) {
++		if (port->rs485.flags & SER_RS485_RTS_AFTER_SEND)
++			mctrl &= ~TIOCM_RTS;
++		else
++			mctrl |= TIOCM_RTS;
++	}
+ 
+ 	cr = pl011_read(uap, REG_CR);
+ 
 
 
