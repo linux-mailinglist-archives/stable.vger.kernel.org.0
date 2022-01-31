@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5CBB4A40D1
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:00:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F5AD4A40C4
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:00:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358611AbiAaLAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:00:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42984 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358471AbiAaK7w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:59:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D569FC061401;
-        Mon, 31 Jan 2022 02:59:24 -0800 (PST)
+        id S1358376AbiAaLAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:00:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60416 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358387AbiAaK70 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:59:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A070B82A57;
-        Mon, 31 Jan 2022 10:59:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F67DC340E8;
-        Mon, 31 Jan 2022 10:59:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0628260B2E;
+        Mon, 31 Jan 2022 10:59:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB18BC340E8;
+        Mon, 31 Jan 2022 10:59:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626762;
-        bh=Wz/w4hNDWFLR4+ezkUUBoMewqb0kz+Z+JvTo/zU9V9w=;
+        s=korg; t=1643626765;
+        bh=lRIxAQRuIbiEZInmHSdCwwYZQESUK+uniNe1nS9nRSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z6ajhU7LfXz9zEwZvmQAYdwczLZBgyVJ5l76Omkh4g5ivSi8tD4Z5KuIn3fK3LT5g
-         RwAz2KvgHy3nIPxnkPcB3k7qeJwe90Cz9PcrKGIOdVRklU+Pklw8mFAGfOEOQXCykL
-         OEuaSYlFKaww5AT2F1Sfdsr0RpgTiU4AxM7dnD7s=
+        b=07oSr1jc0U+PVj2VUOXwuSn7YZpgMfZMCS/zdiOrKLO5ohuRHwRc00BwtZeUbWT2u
+         H9BxCWY+usfR3jO/MJ4UBbUAO8/o6yO72jdV5ERBa8WmbNLQmTz5ekWZo908yMseQy
+         pHdPs9ezNitS843ss647UTKX4Nznc7Pa+vy5+ChI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH 5.4 30/64] rpmsg: char: Fix race between the release of rpmsg_eptdev and cdev
-Date:   Mon, 31 Jan 2022 11:56:15 +0100
-Message-Id: <20220131105216.690902742@linuxfoundation.org>
+        stable@vger.kernel.org, Guangwu Zhang <guazhang@redhat.com>,
+        Maurizio Lombardi <mlombard@redhat.com>,
+        John Meneghini <jmeneghi@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 31/64] scsi: bnx2fc: Flush destroy_work queue before calling bnx2fc_interface_put()
+Date:   Mon, 31 Jan 2022 11:56:16 +0100
+Message-Id: <20220131105216.728297562@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105215.644174521@linuxfoundation.org>
 References: <20220131105215.644174521@linuxfoundation.org>
@@ -50,71 +46,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Kaehlcke <mka@chromium.org>
+From: John Meneghini <jmeneghi@redhat.com>
 
-commit 7a534ae89e34e9b51acb5a63dd0f88308178b46a upstream.
+commit 847f9ea4c5186fdb7b84297e3eeed9e340e83fce upstream.
 
-struct rpmsg_eptdev contains a struct cdev. The current code frees
-the rpmsg_eptdev struct in rpmsg_eptdev_destroy(), but the cdev is
-a managed object, therefore its release is not predictable and the
-rpmsg_eptdev could be freed before the cdev is entirely released.
+The bnx2fc_destroy() functions are removing the interface before calling
+destroy_work. This results multiple WARNings from sysfs_remove_group() as
+the controller rport device attributes are removed too early.
 
-The cdev_device_add/del() API was created to address this issue
-(see commit '233ed09d7fda ("chardev: add helper function to register
-char devs with a struct device")'), use it instead of cdev add/del().
+Replace the fcoe_port's destroy_work queue. It's not needed.
 
-Fixes: c0cdc19f84a4 ("rpmsg: Driver for user space endpoint interface")
-Suggested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220110104706.v6.2.Idde68b05b88d4a2e6e54766c653f3a6d9e419ce6@changeid
+The problem is easily reproducible with the following steps.
+
+Example:
+
+  $ dmesg -w &
+  $ systemctl enable --now fcoe
+  $ fipvlan -s -c ens2f1
+  $ fcoeadm -d ens2f1.802
+  [  583.464488] host2: libfc: Link down on port (7500a1)
+  [  583.472651] bnx2fc: 7500a1 - rport not created Yet!!
+  [  583.490468] ------------[ cut here ]------------
+  [  583.538725] sysfs group 'power' not found for kobject 'rport-2:0-0'
+  [  583.568814] WARNING: CPU: 3 PID: 192 at fs/sysfs/group.c:279 sysfs_remove_group+0x6f/0x80
+  [  583.607130] Modules linked in: dm_service_time 8021q garp mrp stp llc bnx2fc cnic uio rpcsec_gss_krb5 auth_rpcgss nfsv4 ...
+  [  583.942994] CPU: 3 PID: 192 Comm: kworker/3:2 Kdump: loaded Not tainted 5.14.0-39.el9.x86_64 #1
+  [  583.984105] Hardware name: HP ProLiant DL120 G7, BIOS J01 07/01/2013
+  [  584.016535] Workqueue: fc_wq_2 fc_rport_final_delete [scsi_transport_fc]
+  [  584.050691] RIP: 0010:sysfs_remove_group+0x6f/0x80
+  [  584.074725] Code: ff 5b 48 89 ef 5d 41 5c e9 ee c0 ff ff 48 89 ef e8 f6 b8 ff ff eb d1 49 8b 14 24 48 8b 33 48 c7 c7 ...
+  [  584.162586] RSP: 0018:ffffb567c15afdc0 EFLAGS: 00010282
+  [  584.188225] RAX: 0000000000000000 RBX: ffffffff8eec4220 RCX: 0000000000000000
+  [  584.221053] RDX: ffff8c1586ce84c0 RSI: ffff8c1586cd7cc0 RDI: ffff8c1586cd7cc0
+  [  584.255089] RBP: 0000000000000000 R08: 0000000000000000 R09: ffffb567c15afc00
+  [  584.287954] R10: ffffb567c15afbf8 R11: ffffffff8fbe7f28 R12: ffff8c1486326400
+  [  584.322356] R13: ffff8c1486326480 R14: ffff8c1483a4a000 R15: 0000000000000004
+  [  584.355379] FS:  0000000000000000(0000) GS:ffff8c1586cc0000(0000) knlGS:0000000000000000
+  [  584.394419] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [  584.421123] CR2: 00007fe95a6f7840 CR3: 0000000107674002 CR4: 00000000000606e0
+  [  584.454888] Call Trace:
+  [  584.466108]  device_del+0xb2/0x3e0
+  [  584.481701]  device_unregister+0x13/0x60
+  [  584.501306]  bsg_unregister_queue+0x5b/0x80
+  [  584.522029]  bsg_remove_queue+0x1c/0x40
+  [  584.541884]  fc_rport_final_delete+0xf3/0x1d0 [scsi_transport_fc]
+  [  584.573823]  process_one_work+0x1e3/0x3b0
+  [  584.592396]  worker_thread+0x50/0x3b0
+  [  584.609256]  ? rescuer_thread+0x370/0x370
+  [  584.628877]  kthread+0x149/0x170
+  [  584.643673]  ? set_kthread_struct+0x40/0x40
+  [  584.662909]  ret_from_fork+0x22/0x30
+  [  584.680002] ---[ end trace 53575ecefa942ece ]---
+
+Link: https://lore.kernel.org/r/20220115040044.1013475-1-jmeneghi@redhat.com
+Fixes: 0cbf32e1681d ("[SCSI] bnx2fc: Avoid calling bnx2fc_if_destroy with unnecessary locks")
+Tested-by: Guangwu Zhang <guazhang@redhat.com>
+Co-developed-by: Maurizio Lombardi <mlombard@redhat.com>
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Signed-off-by: John Meneghini <jmeneghi@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rpmsg/rpmsg_char.c |   11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/scsi/bnx2fc/bnx2fc_fcoe.c |   20 +++++---------------
+ 1 file changed, 5 insertions(+), 15 deletions(-)
 
---- a/drivers/rpmsg/rpmsg_char.c
-+++ b/drivers/rpmsg/rpmsg_char.c
-@@ -92,7 +92,7 @@ static int rpmsg_eptdev_destroy(struct d
- 	/* wake up any blocked readers */
- 	wake_up_interruptible(&eptdev->readq);
+--- a/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
++++ b/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
+@@ -80,7 +80,7 @@ static int bnx2fc_bind_pcidev(struct bnx
+ static void bnx2fc_unbind_pcidev(struct bnx2fc_hba *hba);
+ static struct fc_lport *bnx2fc_if_create(struct bnx2fc_interface *interface,
+ 				  struct device *parent, int npiv);
+-static void bnx2fc_destroy_work(struct work_struct *work);
++static void bnx2fc_port_destroy(struct fcoe_port *port);
  
--	device_del(&eptdev->dev);
-+	cdev_device_del(&eptdev->cdev, &eptdev->dev);
- 	put_device(&eptdev->dev);
+ static struct bnx2fc_hba *bnx2fc_hba_lookup(struct net_device *phys_dev);
+ static struct bnx2fc_interface *bnx2fc_interface_lookup(struct net_device
+@@ -902,9 +902,6 @@ static void bnx2fc_indicate_netevent(voi
+ 				__bnx2fc_destroy(interface);
+ 		}
+ 		mutex_unlock(&bnx2fc_dev_lock);
+-
+-		/* Ensure ALL destroy work has been completed before return */
+-		flush_workqueue(bnx2fc_wq);
+ 		return;
  
+ 	default:
+@@ -1211,8 +1208,8 @@ static int bnx2fc_vport_destroy(struct f
+ 	mutex_unlock(&n_port->lp_mutex);
+ 	bnx2fc_free_vport(interface->hba, port->lport);
+ 	bnx2fc_port_shutdown(port->lport);
++	bnx2fc_port_destroy(port);
+ 	bnx2fc_interface_put(interface);
+-	queue_work(bnx2fc_wq, &port->destroy_work);
  	return 0;
-@@ -336,7 +336,6 @@ static void rpmsg_eptdev_release_device(
- 
- 	ida_simple_remove(&rpmsg_ept_ida, dev->id);
- 	ida_simple_remove(&rpmsg_minor_ida, MINOR(eptdev->dev.devt));
--	cdev_del(&eptdev->cdev);
- 	kfree(eptdev);
  }
  
-@@ -381,19 +380,13 @@ static int rpmsg_eptdev_create(struct rp
- 	dev->id = ret;
- 	dev_set_name(dev, "rpmsg%d", ret);
+@@ -1521,7 +1518,6 @@ static struct fc_lport *bnx2fc_if_create
+ 	port->lport = lport;
+ 	port->priv = interface;
+ 	port->get_netdev = bnx2fc_netdev;
+-	INIT_WORK(&port->destroy_work, bnx2fc_destroy_work);
  
--	ret = cdev_add(&eptdev->cdev, dev->devt, 1);
-+	ret = cdev_device_add(&eptdev->cdev, &eptdev->dev);
- 	if (ret)
- 		goto free_ept_ida;
+ 	/* Configure fcoe_port */
+ 	rc = bnx2fc_lport_config(lport);
+@@ -1649,8 +1645,8 @@ static void __bnx2fc_destroy(struct bnx2
+ 	bnx2fc_interface_cleanup(interface);
+ 	bnx2fc_stop(interface);
+ 	list_del(&interface->list);
++	bnx2fc_port_destroy(port);
+ 	bnx2fc_interface_put(interface);
+-	queue_work(bnx2fc_wq, &port->destroy_work);
+ }
  
- 	/* We can now rely on the release function for cleanup */
- 	dev->release = rpmsg_eptdev_release_device;
+ /**
+@@ -1691,15 +1687,12 @@ netdev_err:
+ 	return rc;
+ }
  
--	ret = device_add(dev);
--	if (ret) {
--		dev_err(dev, "device_add failed: %d\n", ret);
--		put_device(dev);
--	}
+-static void bnx2fc_destroy_work(struct work_struct *work)
++static void bnx2fc_port_destroy(struct fcoe_port *port)
+ {
+-	struct fcoe_port *port;
+ 	struct fc_lport *lport;
+ 
+-	port = container_of(work, struct fcoe_port, destroy_work);
+ 	lport = port->lport;
 -
- 	return ret;
+-	BNX2FC_HBA_DBG(lport, "Entered bnx2fc_destroy_work\n");
++	BNX2FC_HBA_DBG(lport, "Entered %s, destroying lport %p\n", __func__, lport);
  
- free_ept_ida:
+ 	bnx2fc_if_destroy(lport);
+ }
+@@ -2553,9 +2546,6 @@ static void bnx2fc_ulp_exit(struct cnic_
+ 			__bnx2fc_destroy(interface);
+ 	mutex_unlock(&bnx2fc_dev_lock);
+ 
+-	/* Ensure ALL destroy work has been completed before return */
+-	flush_workqueue(bnx2fc_wq);
+-
+ 	bnx2fc_ulp_stop(hba);
+ 	/* unregister cnic device */
+ 	if (test_and_clear_bit(BNX2FC_CNIC_REGISTERED, &hba->reg_with_cnic))
 
 
