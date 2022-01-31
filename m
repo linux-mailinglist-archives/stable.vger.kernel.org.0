@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AD384A42E4
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:15:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19FF64A4581
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:42:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359724AbiAaLPD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:15:03 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44196 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376685AbiAaLNI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:13:08 -0500
+        id S1350646AbiAaLmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:42:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51510 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358648AbiAaLft (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:35:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E6E3C0797A0;
+        Mon, 31 Jan 2022 03:23:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB9EE61132;
-        Mon, 31 Jan 2022 11:13:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C53DC340E8;
-        Mon, 31 Jan 2022 11:13:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C0B4B82A61;
+        Mon, 31 Jan 2022 11:23:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F841C340E8;
+        Mon, 31 Jan 2022 11:23:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627587;
-        bh=MdEWgjRKDfc9GzOB4w6Dt4/YiyXxToHdfVqILfT/0eE=;
+        s=korg; t=1643628233;
+        bh=5fxfTELMQUQVDkvIVOXfIZzFJxL7rjRhJULPrrz4ABU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AEt6KMey/h4991LyJS0kZtk0r5sCXcfdc6FYbeLk0CGrtO75+ndhh3zWl4VGt92DV
-         ARSzH4cccKedlKb+fEVj3za02aYvP9+9ZX4GlqqnTkXBRpIzUamFib+GjxCLAm+430
-         3mqL79eacfUeKD4Y4jQre03obleHluteR0CqFWF0=
+        b=b4ICpwzS6myprAhfNa4HeXP3yTPv8fIsd20CBI7qk3W7V8crzgj/X7bi/JhGAv2Vw
+         ML2Lci4pMC7qBMq3vXiuO1n3V+p1L15l9s+NJJBCx7NAg8oyVukQPsMPy3VnM5Yp2j
+         lhy6CYHbX5jHxigJyE9DpGwTMKRORg3XxYwiFuec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
-        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
-        Yanming Liu <yanminglr@gmail.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 131/171] Drivers: hv: balloon: account for vmbus packet header in max_pkt_size
-Date:   Mon, 31 Jan 2022 11:56:36 +0100
-Message-Id: <20220131105234.440348179@linuxfoundation.org>
+        Yuji Ishikawa <yuji2.ishikawa@toshiba.co.jp>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 134/200] net: stmmac: dwmac-visconti: Fix clock configuration for RMII mode
+Date:   Mon, 31 Jan 2022 11:56:37 +0100
+Message-Id: <20220131105238.062966793@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,56 +50,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanming Liu <yanminglr@gmail.com>
+From: Yuji Ishikawa <yuji2.ishikawa@toshiba.co.jp>
 
-[ Upstream commit 96d9d1fa5cd505078534113308ced0aa56d8da58 ]
+[ Upstream commit 0959bc4bd4206433ed101a1332a23e93ad16ec77 ]
 
-Commit adae1e931acd ("Drivers: hv: vmbus: Copy packets sent by Hyper-V
-out of the ring buffer") introduced a notion of maximum packet size in
-vmbus channel and used that size to initialize a buffer holding all
-incoming packet along with their vmbus packet header. hv_balloon uses
-the default maximum packet size VMBUS_DEFAULT_MAX_PKT_SIZE which matches
-its maximum message size, however vmbus_open expects this size to also
-include vmbus packet header. This leads to 4096 bytes
-dm_unballoon_request messages being truncated to 4080 bytes. When the
-driver tries to read next packet it starts from a wrong read_index,
-receives garbage and prints a lot of "Unhandled message: type:
-<garbage>" in dmesg.
+Bit pattern of the ETHER_CLOCK_SEL register for RMII/MII mode should be fixed.
+Also, some control bits should be modified with a specific sequence.
 
-Allocate the buffer with HV_HYP_PAGE_SIZE more bytes to make room for
-the header.
-
-Fixes: adae1e931acd ("Drivers: hv: vmbus: Copy packets sent by Hyper-V out of the ring buffer")
-Suggested-by: Michael Kelley (LINUX) <mikelley@microsoft.com>
-Suggested-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Signed-off-by: Yanming Liu <yanminglr@gmail.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Reviewed-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Link: https://lore.kernel.org/r/20220119202052.3006981-1-yanminglr@gmail.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: b38dd98ff8d0 ("net: stmmac: Add Toshiba Visconti SoCs glue driver")
+Signed-off-by: Yuji Ishikawa <yuji2.ishikawa@toshiba.co.jp>
+Reviewed-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/hv_balloon.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ .../ethernet/stmicro/stmmac/dwmac-visconti.c  | 32 ++++++++++++-------
+ 1 file changed, 21 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
-index ca873a3b98dbe..f2d05bff42453 100644
---- a/drivers/hv/hv_balloon.c
-+++ b/drivers/hv/hv_balloon.c
-@@ -1660,6 +1660,13 @@ static int balloon_connect_vsp(struct hv_device *dev)
- 	unsigned long t;
- 	int ret;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-visconti.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-visconti.c
+index 43a446ceadf7a..dde5b772a5af7 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-visconti.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-visconti.c
+@@ -96,31 +96,41 @@ static void visconti_eth_fix_mac_speed(void *priv, unsigned int speed)
+ 	val |= ETHER_CLK_SEL_TX_O_E_N_IN;
+ 	writel(val, dwmac->reg + REG_ETHER_CLOCK_SEL);
  
-+	/*
-+	 * max_pkt_size should be large enough for one vmbus packet header plus
-+	 * our receive buffer size. Hyper-V sends messages up to
-+	 * HV_HYP_PAGE_SIZE bytes long on balloon channel.
-+	 */
-+	dev->channel->max_pkt_size = HV_HYP_PAGE_SIZE * 2;
++	/* Set Clock-Mux, Start clock, Set TX_O direction */
+ 	switch (dwmac->phy_intf_sel) {
+ 	case ETHER_CONFIG_INTF_RGMII:
+ 		val = clk_sel_val | ETHER_CLK_SEL_RX_CLK_EXT_SEL_RXC;
++		writel(val, dwmac->reg + REG_ETHER_CLOCK_SEL);
 +
- 	ret = vmbus_open(dev->channel, dm_ring_size, dm_ring_size, NULL, 0,
- 			 balloon_onchannelcallback, dev);
- 	if (ret)
++		val |= ETHER_CLK_SEL_RX_TX_CLK_EN;
++		writel(val, dwmac->reg + REG_ETHER_CLOCK_SEL);
++
++		val &= ~ETHER_CLK_SEL_TX_O_E_N_IN;
++		writel(val, dwmac->reg + REG_ETHER_CLOCK_SEL);
+ 		break;
+ 	case ETHER_CONFIG_INTF_RMII:
+ 		val = clk_sel_val | ETHER_CLK_SEL_RX_CLK_EXT_SEL_DIV |
+-			ETHER_CLK_SEL_TX_CLK_EXT_SEL_TXC | ETHER_CLK_SEL_TX_O_E_N_IN |
++			ETHER_CLK_SEL_TX_CLK_EXT_SEL_DIV | ETHER_CLK_SEL_TX_O_E_N_IN |
+ 			ETHER_CLK_SEL_RMII_CLK_SEL_RX_C;
++		writel(val, dwmac->reg + REG_ETHER_CLOCK_SEL);
++
++		val |= ETHER_CLK_SEL_RMII_CLK_RST;
++		writel(val, dwmac->reg + REG_ETHER_CLOCK_SEL);
++
++		val |= ETHER_CLK_SEL_RMII_CLK_EN | ETHER_CLK_SEL_RX_TX_CLK_EN;
++		writel(val, dwmac->reg + REG_ETHER_CLOCK_SEL);
+ 		break;
+ 	case ETHER_CONFIG_INTF_MII:
+ 	default:
+ 		val = clk_sel_val | ETHER_CLK_SEL_RX_CLK_EXT_SEL_RXC |
+-			ETHER_CLK_SEL_TX_CLK_EXT_SEL_DIV | ETHER_CLK_SEL_TX_O_E_N_IN |
+-			ETHER_CLK_SEL_RMII_CLK_EN;
++			ETHER_CLK_SEL_TX_CLK_EXT_SEL_TXC | ETHER_CLK_SEL_TX_O_E_N_IN;
++		writel(val, dwmac->reg + REG_ETHER_CLOCK_SEL);
++
++		val |= ETHER_CLK_SEL_RX_TX_CLK_EN;
++		writel(val, dwmac->reg + REG_ETHER_CLOCK_SEL);
+ 		break;
+ 	}
+ 
+-	/* Start clock */
+-	writel(val, dwmac->reg + REG_ETHER_CLOCK_SEL);
+-	val |= ETHER_CLK_SEL_RX_TX_CLK_EN;
+-	writel(val, dwmac->reg + REG_ETHER_CLOCK_SEL);
+-
+-	val &= ~ETHER_CLK_SEL_TX_O_E_N_IN;
+-	writel(val, dwmac->reg + REG_ETHER_CLOCK_SEL);
+-
+ 	spin_unlock_irqrestore(&dwmac->lock, flags);
+ }
+ 
 -- 
 2.34.1
 
