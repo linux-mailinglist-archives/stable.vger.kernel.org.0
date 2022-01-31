@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F9544A4137
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:03:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AED884A44F2
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241474AbiAaLDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:03:20 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:34528 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358809AbiAaLBj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:01:39 -0500
+        id S1359285AbiAaLfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:35:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49596 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379031AbiAaL3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:29:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E45A5C0613F5;
+        Mon, 31 Jan 2022 03:18:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A454A60B2C;
-        Mon, 31 Jan 2022 11:01:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79602C340E8;
-        Mon, 31 Jan 2022 11:01:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A246AB82A60;
+        Mon, 31 Jan 2022 11:18:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE84C340E8;
+        Mon, 31 Jan 2022 11:18:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626899;
-        bh=RlAyw1yro2XvdUgx7Zcqs3E/pvyLS4SrAYRZUEphfIw=;
+        s=korg; t=1643627927;
+        bh=CF/4MY7FKckAGskhdW8kSRtZt/dF4cnf9veiaqT7nkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z/1Y/TocN0gRZ7ZmNoPJ0tzJvajHC7UFfuUQkAiS3uMcew3N88PN45xBTLC/uGOFS
-         olbD8l8pO3rFiVV05aRVxgHl2f+0itQEnN21284Ds+DA6yv+JbI/20Iol6ICF5sJyh
-         /f5QeTymU3qG0nhBH8mDCmzlH7xnct5U4rJ5m6eY=
+        b=nUnCK8051hZGY/uRPUUIzEZoHccs9oG+sAEayo4pfmeDccFTMOKeGDK0O1TuHYtx8
+         VeRlZI6E2Ko7t/IBKh7LKzCKa+4QZOpxYOMBX4MNgWuCAAPwG3RGibpKyMjhNYODG5
+         yrGCtp7ybIFH/A4oIhDDsMX4m5b6Qz98w3zGombM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Kerr <jk@ozlabs.org>,
-        Matthew Garrett <mjg59@srcf.ucam.org>,
-        Aditya Garg <gargaditya08@live.com>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.10 011/100] efi: runtime: avoid EFIv2 runtime services on Apple x86 machines
-Date:   Mon, 31 Jan 2022 11:55:32 +0100
-Message-Id: <20220131105220.835281614@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        "Maciej W. Rozycki" <macro@embecosm.com>
+Subject: [PATCH 5.16 070/200] tty: Partially revert the removal of the Cyclades public API
+Date:   Mon, 31 Jan 2022 11:55:33 +0100
+Message-Id: <20220131105235.942332788@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,62 +47,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Maciej W. Rozycki <macro@embecosm.com>
 
-commit f5390cd0b43c2e54c7cf5506c7da4a37c5cef746 upstream.
+commit f23653fe64479d96910bfda2b700b1af17c991ac upstream.
 
-Aditya reports [0] that his recent MacbookPro crashes in the firmware
-when using the variable services at runtime. The culprit appears to be a
-call to QueryVariableInfo(), which we did not use to call on Apple x86
-machines in the past as they only upgraded from EFI v1.10 to EFI v2.40
-firmware fairly recently, and QueryVariableInfo() (along with
-UpdateCapsule() et al) was added in EFI v2.00.
+Fix a user API regression introduced with commit f76edd8f7ce0 ("tty:
+cyclades, remove this orphan"), which removed a part of the API and
+caused compilation errors for user programs using said part, such as
+GCC 9 in its libsanitizer component[1]:
 
-The only runtime service introduced in EFI v2.00 that we actually use in
-Linux is QueryVariableInfo(), as the capsule based ones are optional,
-generally not used at runtime (all the LVFS/fwupd firmware update
-infrastructure uses helper EFI programs that invoke capsule update at
-boot time, not runtime), and not implemented by Apple machines in the
-first place. QueryVariableInfo() is used to 'safely' set variables,
-i.e., only when there is enough space. This prevents machines with buggy
-firmwares from corrupting their NVRAMs when they run out of space.
+.../libsanitizer/sanitizer_common/sanitizer_platform_limits_posix.cc:160:10: fatal error: linux/cyclades.h: No such file or directory
+  160 | #include <linux/cyclades.h>
+      |          ^~~~~~~~~~~~~~~~~~
+compilation terminated.
+make[4]: *** [Makefile:664: sanitizer_platform_limits_posix.lo] Error 1
 
-Given that Apple machines have been using EFI v1.10 services only for
-the longest time (the EFI v2.0 spec was released in 2006, and Linux
-support for the newly introduced runtime services was added in 2011, but
-the MacbookPro12,1 released in 2015 still claims to be EFI v1.10 only),
-let's avoid the EFI v2.0 ones on all Apple x86 machines.
+As the absolute minimum required bring `struct cyclades_monitor' and
+ioctl numbers back then so as to make the library build again.  Add a
+preprocessor warning as to the obsolescence of the features provided.
 
-[0] https://lore.kernel.org/all/6D757C75-65B1-468B-842D-10410081A8E4@live.com/
 
-Cc: <stable@vger.kernel.org>
-Cc: Jeremy Kerr <jk@ozlabs.org>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>
-Reported-by: Aditya Garg <gargaditya08@live.com>
-Tested-by: Orlando Chamberlain <redecorating@protonmail.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Tested-by: Aditya Garg <gargaditya08@live.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215277
+[1] GCC PR sanitizer/100379, "cyclades.h is removed from linux kernel
+    header files", <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100379>
+
+Fixes: f76edd8f7ce0 ("tty: cyclades, remove this orphan")
+Cc: stable@vger.kernel.org # v5.13+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Maciej W. Rozycki <macro@embecosm.com>
+Link: https://lore.kernel.org/r/alpine.DEB.2.20.2201260733430.11348@tpp.orcam.me.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/efi.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ include/uapi/linux/cyclades.h |   35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+ create mode 100644 include/uapi/linux/cyclades.h
 
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -719,6 +719,13 @@ void __init efi_systab_report_header(con
- 		systab_hdr->revision >> 16,
- 		systab_hdr->revision & 0xffff,
- 		vendor);
+--- /dev/null
++++ b/include/uapi/linux/cyclades.h
+@@ -0,0 +1,35 @@
++/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
 +
-+	if (IS_ENABLED(CONFIG_X86_64) &&
-+	    systab_hdr->revision > EFI_1_10_SYSTEM_TABLE_REVISION &&
-+	    !strcmp(vendor, "Apple")) {
-+		pr_info("Apple Mac detected, using EFI v1.10 runtime services only\n");
-+		efi.runtime_version = EFI_1_10_SYSTEM_TABLE_REVISION;
-+	}
- }
- 
- static __initdata char memory_type_name[][13] = {
++#ifndef _UAPI_LINUX_CYCLADES_H
++#define _UAPI_LINUX_CYCLADES_H
++
++#warning "Support for features provided by this header has been removed"
++#warning "Please consider updating your code"
++
++struct cyclades_monitor {
++	unsigned long int_count;
++	unsigned long char_count;
++	unsigned long char_max;
++	unsigned long char_last;
++};
++
++#define CYGETMON		0x435901
++#define CYGETTHRESH		0x435902
++#define CYSETTHRESH		0x435903
++#define CYGETDEFTHRESH		0x435904
++#define CYSETDEFTHRESH		0x435905
++#define CYGETTIMEOUT		0x435906
++#define CYSETTIMEOUT		0x435907
++#define CYGETDEFTIMEOUT		0x435908
++#define CYSETDEFTIMEOUT		0x435909
++#define CYSETRFLOW		0x43590a
++#define CYGETRFLOW		0x43590b
++#define CYSETRTSDTR_INV		0x43590c
++#define CYGETRTSDTR_INV		0x43590d
++#define CYZSETPOLLCYCLE		0x43590e
++#define CYZGETPOLLCYCLE		0x43590f
++#define CYGETCD1400VER		0x435910
++#define CYSETWAIT		0x435912
++#define CYGETWAIT		0x435913
++
++#endif /* _UAPI_LINUX_CYCLADES_H */
 
 
