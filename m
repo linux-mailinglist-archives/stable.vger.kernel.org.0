@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D1114A4391
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23C394A4277
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350394AbiAaLV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:21:57 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:52264 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378455AbiAaLUM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:20:12 -0500
+        id S1359718AbiAaLMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:12:00 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57578 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377266AbiAaLJw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:09:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E69560B98;
-        Mon, 31 Jan 2022 11:20:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB208C340E8;
-        Mon, 31 Jan 2022 11:20:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1FA0B82A4D;
+        Mon, 31 Jan 2022 11:09:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01F38C340E8;
+        Mon, 31 Jan 2022 11:09:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628011;
-        bh=kbjFMXoRMtc4U9Oa+ibffCyvoiXCyLaA/lmIK/CuFx0=;
+        s=korg; t=1643627390;
+        bh=SdIECVcmzvG7Ae7fwzWMZkHzLtG0FTcE/FlWXeR9vOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0FC9zEGhXUmaHnAFAX6uWFkZobR9OAe23VyB6re/zbCN0FIvaEW0ssgz2sLLffB+b
-         297YJT4xsPJ9FkzEf3LckfdXg7KUIDyBBtvHnKyK0AiReD5gYzCX2ojeGTRXhMp9yL
-         awA7sm9+aZ1CseC8ok35J30lFqFeT/TN39sQaPI0=
+        b=vPKog7Ch50SW8vbqW/vQ7X5aQNTCatQ37MR/VSGJ/8jsfhLdkZKyutacpdzY8Bng9
+         B05Dr4w93C1bzCEXDSdYDN15qOamE+GTKo267s/LkXMPTqaclcn3AlpXzaYeNtGNPi
+         Cr9FE961t/2fYB7AN8uQyijTq36VoLLEIXoXyp3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Mike Snitzer <snitzer@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.16 063/200] block: add bio_start_io_acct_time() to control start_time
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Xu Yang <xu.yang_2@nxp.com>
+Subject: [PATCH 5.15 061/171] usb: typec: tcpci: dont touch CC line if its Vconn source
 Date:   Mon, 31 Jan 2022 11:55:26 +0100
-Message-Id: <20220131105235.695349937@linuxfoundation.org>
+Message-Id: <20220131105232.089036475@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,93 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Xu Yang <xu.yang_2@nxp.com>
 
-commit e45c47d1f94e0cc7b6b079fdb4bcce2995e2adc4 upstream.
+commit 5638b0dfb6921f69943c705383ff40fb64b987f2 upstream.
 
-bio_start_io_acct_time() interface is like bio_start_io_acct() that
-allows start_time to be passed in. This gives drivers the ability to
-defer starting accounting until after IO is issued (but possibily not
-entirely due to bio splitting).
+With the AMS and Collision Avoidance, tcpm often needs to change the CC's
+termination. When one CC line is sourcing Vconn, if we still change its
+termination, the voltage of the another CC line is likely to be fluctuant
+and unstable.
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Link: https://lore.kernel.org/r/20220128155841.39644-2-snitzer@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Therefore, we should verify whether a CC line is sourcing Vconn before
+changing its termination and only change the termination that is not
+a Vconn line. This can be done by reading the Vconn Present bit of
+POWER_ STATUS register. To determine the polarity, we can read the
+Plug Orientation bit of TCPC_CONTROL register. Since Vconn can only be
+sourced if Plug Orientation is set.
+
+Fixes: 0908c5aca31e ("usb: typec: tcpm: AMS and Collision Avoidance")
+cc: <stable@vger.kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
+Link: https://lore.kernel.org/r/20220113092943.752372-1-xu.yang_2@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-core.c       |   25 +++++++++++++++++++------
- include/linux/blkdev.h |    1 +
- 2 files changed, 20 insertions(+), 6 deletions(-)
+ drivers/usb/typec/tcpm/tcpci.c |   26 ++++++++++++++++++++++++++
+ drivers/usb/typec/tcpm/tcpci.h |    1 +
+ 2 files changed, 27 insertions(+)
 
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -1258,22 +1258,34 @@ void __blk_account_io_start(struct reque
- }
- 
- static unsigned long __part_start_io_acct(struct block_device *part,
--					  unsigned int sectors, unsigned int op)
-+					  unsigned int sectors, unsigned int op,
-+					  unsigned long start_time)
+--- a/drivers/usb/typec/tcpm/tcpci.c
++++ b/drivers/usb/typec/tcpm/tcpci.c
+@@ -75,9 +75,25 @@ static int tcpci_write16(struct tcpci *t
+ static int tcpci_set_cc(struct tcpc_dev *tcpc, enum typec_cc_status cc)
  {
- 	const int sgrp = op_stat_group(op);
--	unsigned long now = READ_ONCE(jiffies);
+ 	struct tcpci *tcpci = tcpc_to_tcpci(tcpc);
++	bool vconn_pres;
++	enum typec_cc_polarity polarity = TYPEC_POLARITY_CC1;
+ 	unsigned int reg;
+ 	int ret;
  
- 	part_stat_lock();
--	update_io_ticks(part, now, false);
-+	update_io_ticks(part, start_time, false);
- 	part_stat_inc(part, ios[sgrp]);
- 	part_stat_add(part, sectors[sgrp], sectors);
- 	part_stat_local_inc(part, in_flight[op_is_write(op)]);
- 	part_stat_unlock();
- 
--	return now;
-+	return start_time;
- }
- 
- /**
-+ * bio_start_io_acct_time - start I/O accounting for bio based drivers
-+ * @bio:	bio to start account for
-+ * @start_time:	start time that should be passed back to bio_end_io_acct().
-+ */
-+void bio_start_io_acct_time(struct bio *bio, unsigned long start_time)
-+{
-+	__part_start_io_acct(bio->bi_bdev, bio_sectors(bio),
-+			     bio_op(bio), start_time);
-+}
-+EXPORT_SYMBOL_GPL(bio_start_io_acct_time);
++	ret = regmap_read(tcpci->regmap, TCPC_POWER_STATUS, &reg);
++	if (ret < 0)
++		return ret;
 +
-+/**
-  * bio_start_io_acct - start I/O accounting for bio based drivers
-  * @bio:	bio to start account for
-  *
-@@ -1281,14 +1293,15 @@ static unsigned long __part_start_io_acc
-  */
- unsigned long bio_start_io_acct(struct bio *bio)
- {
--	return __part_start_io_acct(bio->bi_bdev, bio_sectors(bio), bio_op(bio));
-+	return __part_start_io_acct(bio->bi_bdev, bio_sectors(bio),
-+				    bio_op(bio), jiffies);
- }
- EXPORT_SYMBOL_GPL(bio_start_io_acct);
++	vconn_pres = !!(reg & TCPC_POWER_STATUS_VCONN_PRES);
++	if (vconn_pres) {
++		ret = regmap_read(tcpci->regmap, TCPC_TCPC_CTRL, &reg);
++		if (ret < 0)
++			return ret;
++
++		if (reg & TCPC_TCPC_CTRL_ORIENTATION)
++			polarity = TYPEC_POLARITY_CC2;
++	}
++
+ 	switch (cc) {
+ 	case TYPEC_CC_RA:
+ 		reg = (TCPC_ROLE_CTRL_CC_RA << TCPC_ROLE_CTRL_CC1_SHIFT) |
+@@ -112,6 +128,16 @@ static int tcpci_set_cc(struct tcpc_dev
+ 		break;
+ 	}
  
- unsigned long disk_start_io_acct(struct gendisk *disk, unsigned int sectors,
- 				 unsigned int op)
- {
--	return __part_start_io_acct(disk->part0, sectors, op);
-+	return __part_start_io_acct(disk->part0, sectors, op, jiffies);
- }
- EXPORT_SYMBOL(disk_start_io_acct);
++	if (vconn_pres) {
++		if (polarity == TYPEC_POLARITY_CC2) {
++			reg &= ~(TCPC_ROLE_CTRL_CC1_MASK << TCPC_ROLE_CTRL_CC1_SHIFT);
++			reg |= (TCPC_ROLE_CTRL_CC_OPEN << TCPC_ROLE_CTRL_CC1_SHIFT);
++		} else {
++			reg &= ~(TCPC_ROLE_CTRL_CC2_MASK << TCPC_ROLE_CTRL_CC2_SHIFT);
++			reg |= (TCPC_ROLE_CTRL_CC_OPEN << TCPC_ROLE_CTRL_CC2_SHIFT);
++		}
++	}
++
+ 	ret = regmap_write(tcpci->regmap, TCPC_ROLE_CTRL, reg);
+ 	if (ret < 0)
+ 		return ret;
+--- a/drivers/usb/typec/tcpm/tcpci.h
++++ b/drivers/usb/typec/tcpm/tcpci.h
+@@ -98,6 +98,7 @@
+ #define TCPC_POWER_STATUS_SOURCING_VBUS	BIT(4)
+ #define TCPC_POWER_STATUS_VBUS_DET	BIT(3)
+ #define TCPC_POWER_STATUS_VBUS_PRES	BIT(2)
++#define TCPC_POWER_STATUS_VCONN_PRES	BIT(1)
+ #define TCPC_POWER_STATUS_SINKING_VBUS	BIT(0)
  
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -1254,6 +1254,7 @@ unsigned long disk_start_io_acct(struct
- void disk_end_io_acct(struct gendisk *disk, unsigned int op,
- 		unsigned long start_time);
- 
-+void bio_start_io_acct_time(struct bio *bio, unsigned long start_time);
- unsigned long bio_start_io_acct(struct bio *bio);
- void bio_end_io_acct_remapped(struct bio *bio, unsigned long start_time,
- 		struct block_device *orig_bdev);
+ #define TCPC_FAULT_STATUS		0x1f
 
 
