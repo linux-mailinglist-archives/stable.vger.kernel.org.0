@@ -2,67 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E064A4D5C
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 18:36:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 486984A4D73
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 18:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350309AbiAaRf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 12:35:59 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37122 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245413AbiAaRf6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 12:35:58 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DDEA0B82BD0
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 17:35:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C3D2C340ED;
-        Mon, 31 Jan 2022 17:35:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643650556;
-        bh=Nhg9nwCc/svXBa8vLPdcFbAMBRvoHcfXkLMxYPvczec=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=k9xo5TcQwchyA87EIYeFkDLOYdvTLWZl+E8OZgrk4jDiiyZ38U/a8Cn/QAWJ57qkx
-         08ztXgXFEZWKC6szTBFaEAk3dxULGkrY6ByA5oeigqV5EC/nuQHqT0k9jfxrA/f0tv
-         B+lRFp6xw4ipLoNH8fJQSRS+a+SSKX3SiUlGbX34=
-Date:   Mon, 31 Jan 2022 18:35:54 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Luck, Tony" <tony.luck@intel.com>
-Cc:     ailin.xu@intel.com, bp@suse.de, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] x86/cpu: Add Xeon Icelake-D to list of
- CPUs that support PPIN" failed to apply to 5.10-stable tree
-Message-ID: <Yfgd+nHcTbNcSHY0@kroah.com>
-References: <164354605382174@kroah.com>
- <YfgZaKupZpQobmiA@agluck-desk2.amr.corp.intel.com>
+        id S1381067AbiAaRnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 12:43:45 -0500
+Received: from mga09.intel.com ([134.134.136.24]:11407 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236013AbiAaRnn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Jan 2022 12:43:43 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1643651023; x=1675187023;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=ojlS5jeRImpDghSEZ2+EoNlrlzO15fhv+eI6HpNMHKI=;
+  b=iZCR4yfZpU+tuld0VAR0A7k+XVzsYVEt+Kz4fPJH2XkdYG7543+hkYjr
+   +KHiJkBYlgkk2G8asNkDQdgDQX9U7OEV9f3awt6a1U+rlG5LwdUNRXrhh
+   8AAtEJZ7WI2P7nSgPzAxF9Pqp256rkW+uYI0PoRLqdKFqhYooRtmdjNlr
+   FDp8NsltxL+BfEwFIh570aYYEW9jIVXaAQ6tEt0np6SFyf7ZnGrLpYjh3
+   pX7sVd0lJx177Sjyl2PNmxfPPU+iDIsoixfMPTxFvEr9sIBfJW2O7fUYw
+   xv6f04LqBLmcpZNhva9D7lhqEMLAM4wxqxfAddBAiNu/88SPNGVyUa1QZ
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10244"; a="247285042"
+X-IronPort-AV: E=Sophos;i="5.88,331,1635231600"; 
+   d="scan'208";a="247285042"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2022 09:43:43 -0800
+X-IronPort-AV: E=Sophos;i="5.88,331,1635231600"; 
+   d="scan'208";a="698081556"
+Received: from agluck-desk2.sc.intel.com ([10.3.52.146])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2022 09:43:43 -0800
+From:   Tony Luck <tony.luck@intel.com>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, bp@suse.de,
+        ailin.xu@intel.com, Tony Luck <tony.luck@intel.com>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [v5.10 stable PATCH 1/2] x86/mce: Add Xeon Sapphire Rapids to list of CPUs that support PPIN
+Date:   Mon, 31 Jan 2022 09:43:32 -0800
+Message-Id: <20220131174333.2000647-1-tony.luck@intel.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <Yfgd+nHcTbNcSHY0@kroah.com>
+References: <Yfgd+nHcTbNcSHY0@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YfgZaKupZpQobmiA@agluck-desk2.amr.corp.intel.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 31, 2022 at 09:16:24AM -0800, Luck, Tony wrote:
-> >From 72a73811c4bd53e0ec8284c12180068468d7c733 Mon Sep 17 00:00:00 2001
-> From: Tony Luck <tony.luck@intel.com>
-> Date: Mon, 31 Jan 2022 09:00:41 -0800
-> Subject: [PATCH] x86/cpu: Add Sapphire Rapids and Icelake-D to list of CPUs that support PPIN
-> 
-> commit a331f5fdd36dba1ffb0239a4dfaaf1df91ff1aab upstream
-> commit e464121f2d40eabc7d11823fb26db807ce945df4 upstream
-> 
-> Add Sapphire Rapids and Icelake-D to list of CPUs that support PPIN
-> 
-> Signed-off-by: Tony Luck <tony.luck@intel.com>
-> ---
-> 
-> Failed to backport because the sapphire rapids CPU model number
-> patch had not been backported.  Bundled both together here. But if
-> that breaks stable rules or scripts, I can redo as two patches one
-> for each upstream commit.
+commit a331f5fdd36dba1ffb0239a4dfaaf1df91ff1aab upstream
 
-Two patches please.
+New CPU model, same MSRs to control and read the inventory number.
 
-thanks,
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20210319173919.291428-1-tony.luck@intel.com
+---
+ arch/x86/kernel/cpu/mce/intel.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-greg k-h
+diff --git a/arch/x86/kernel/cpu/mce/intel.c b/arch/x86/kernel/cpu/mce/intel.c
+index 2577d7875781..7cf08c1f082e 100644
+--- a/arch/x86/kernel/cpu/mce/intel.c
++++ b/arch/x86/kernel/cpu/mce/intel.c
+@@ -486,6 +486,7 @@ static void intel_ppin_init(struct cpuinfo_x86 *c)
+ 	case INTEL_FAM6_BROADWELL_X:
+ 	case INTEL_FAM6_SKYLAKE_X:
+ 	case INTEL_FAM6_ICELAKE_X:
++	case INTEL_FAM6_SAPPHIRERAPIDS_X:
+ 	case INTEL_FAM6_XEON_PHI_KNL:
+ 	case INTEL_FAM6_XEON_PHI_KNM:
+ 
+-- 
+2.31.1
+
