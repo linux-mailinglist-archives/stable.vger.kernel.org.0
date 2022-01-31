@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96C694A4359
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:21:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76A764A4253
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359409AbiAaLVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:21:11 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35518 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377310AbiAaLR7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:17:59 -0500
+        id S1359516AbiAaLLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:30 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42662 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376717AbiAaLIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:08:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6D81B82A5C;
-        Mon, 31 Jan 2022 11:17:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECD3DC340EE;
-        Mon, 31 Jan 2022 11:17:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB6A360ECF;
+        Mon, 31 Jan 2022 11:08:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E1F0C340E8;
+        Mon, 31 Jan 2022 11:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627877;
-        bh=3PhrSa9o0GNXbS7Lmn2NAFstnx7nk83jQUk7CopRbo0=;
+        s=korg; t=1643627335;
+        bh=CF/4MY7FKckAGskhdW8kSRtZt/dF4cnf9veiaqT7nkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UOzfMaYzVDdp8ZiyHI6BegYZAsh/bCwVYtWtp4ejEB66ngz1G9T82rhTYJmAIUuFa
-         eX5YlLOpYd+qcDOwtm/DqyH/mHX96VpYN/g3EzsXPjBe1ubrxyaXoxox7DH0mRyled
-         kFfm1xURAlN+jlLexpoxahQDalYrJRW9uV3dx8OQ=
+        b=tyWoezdi7gRs0se67aSL1Z1MUhUXH/qh8E/sIfimsozvmHz6GeKB0H+6iiAN2ilUL
+         eJocobwj4n0rKpBdqUc9gx0yz4wpXi0zxxoG/A5jIiYz4bX5bKNAkBlg1LtJnPMvU8
+         ExuIF3WwTCQKWhHAtT/0ZU1TZgy2E1kkbCDEoG88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.16 052/200] KVM: x86: Move CPUID.(EAX=0x12,ECX=1) mangling to __kvm_update_cpuid_runtime()
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        "Maciej W. Rozycki" <macro@embecosm.com>
+Subject: [PATCH 5.15 050/171] tty: Partially revert the removal of the Cyclades public API
 Date:   Mon, 31 Jan 2022 11:55:15 +0100
-Message-Id: <20220131105235.324283439@linuxfoundation.org>
+Message-Id: <20220131105231.721191500@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,107 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Maciej W. Rozycki <macro@embecosm.com>
 
-commit 5c89be1dd5cfb697614bc13626ba3bd0781aa160 upstream.
+commit f23653fe64479d96910bfda2b700b1af17c991ac upstream.
 
-Full equality check of CPUID data on update (kvm_cpuid_check_equal()) may
-fail for SGX enabled CPUs as CPUID.(EAX=0x12,ECX=1) is currently being
-mangled in kvm_vcpu_after_set_cpuid(). Move it to
-__kvm_update_cpuid_runtime() and split off cpuid_get_supported_xcr0()
-helper  as 'vcpu->arch.guest_supported_xcr0' update needs (logically)
-to stay in kvm_vcpu_after_set_cpuid().
+Fix a user API regression introduced with commit f76edd8f7ce0 ("tty:
+cyclades, remove this orphan"), which removed a part of the API and
+caused compilation errors for user programs using said part, such as
+GCC 9 in its libsanitizer component[1]:
 
-Cc: stable@vger.kernel.org
-Fixes: feb627e8d6f6 ("KVM: x86: Forbid KVM_SET_CPUID{,2} after KVM_RUN")
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220124103606.2630588-2-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+.../libsanitizer/sanitizer_common/sanitizer_platform_limits_posix.cc:160:10: fatal error: linux/cyclades.h: No such file or directory
+  160 | #include <linux/cyclades.h>
+      |          ^~~~~~~~~~~~~~~~~~
+compilation terminated.
+make[4]: *** [Makefile:664: sanitizer_platform_limits_posix.lo] Error 1
+
+As the absolute minimum required bring `struct cyclades_monitor' and
+ioctl numbers back then so as to make the library build again.  Add a
+preprocessor warning as to the obsolescence of the features provided.
+
+
+[1] GCC PR sanitizer/100379, "cyclades.h is removed from linux kernel
+    header files", <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100379>
+
+Fixes: f76edd8f7ce0 ("tty: cyclades, remove this orphan")
+Cc: stable@vger.kernel.org # v5.13+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Maciej W. Rozycki <macro@embecosm.com>
+Link: https://lore.kernel.org/r/alpine.DEB.2.20.2201260733430.11348@tpp.orcam.me.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/cpuid.c |   54 +++++++++++++++++++++++++++++++--------------------
- 1 file changed, 33 insertions(+), 21 deletions(-)
+ include/uapi/linux/cyclades.h |   35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+ create mode 100644 include/uapi/linux/cyclades.h
 
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -176,10 +176,26 @@ void kvm_update_pv_runtime(struct kvm_vc
- 		vcpu->arch.pv_cpuid.features = best->eax;
- }
- 
-+/*
-+ * Calculate guest's supported XCR0 taking into account guest CPUID data and
-+ * supported_xcr0 (comprised of host configuration and KVM_SUPPORTED_XCR0).
-+ */
-+static u64 cpuid_get_supported_xcr0(struct kvm_cpuid_entry2 *entries, int nent)
-+{
-+	struct kvm_cpuid_entry2 *best;
+--- /dev/null
++++ b/include/uapi/linux/cyclades.h
+@@ -0,0 +1,35 @@
++/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
 +
-+	best = cpuid_entry2_find(entries, nent, 0xd, 0);
-+	if (!best)
-+		return 0;
++#ifndef _UAPI_LINUX_CYCLADES_H
++#define _UAPI_LINUX_CYCLADES_H
 +
-+	return (best->eax | ((u64)best->edx << 32)) & supported_xcr0;
-+}
++#warning "Support for features provided by this header has been removed"
++#warning "Please consider updating your code"
 +
- static void __kvm_update_cpuid_runtime(struct kvm_vcpu *vcpu, struct kvm_cpuid_entry2 *entries,
- 				       int nent)
- {
- 	struct kvm_cpuid_entry2 *best;
-+	u64 guest_supported_xcr0 = cpuid_get_supported_xcr0(entries, nent);
- 
- 	best = cpuid_entry2_find(entries, nent, 1, 0);
- 	if (best) {
-@@ -218,6 +234,21 @@ static void __kvm_update_cpuid_runtime(s
- 					   vcpu->arch.ia32_misc_enable_msr &
- 					   MSR_IA32_MISC_ENABLE_MWAIT);
- 	}
++struct cyclades_monitor {
++	unsigned long int_count;
++	unsigned long char_count;
++	unsigned long char_max;
++	unsigned long char_last;
++};
 +
-+	/*
-+	 * Bits 127:0 of the allowed SECS.ATTRIBUTES (CPUID.0x12.0x1) enumerate
-+	 * the supported XSAVE Feature Request Mask (XFRM), i.e. the enclave's
-+	 * requested XCR0 value.  The enclave's XFRM must be a subset of XCRO
-+	 * at the time of EENTER, thus adjust the allowed XFRM by the guest's
-+	 * supported XCR0.  Similar to XCR0 handling, FP and SSE are forced to
-+	 * '1' even on CPUs that don't support XSAVE.
-+	 */
-+	best = cpuid_entry2_find(entries, nent, 0x12, 0x1);
-+	if (best) {
-+		best->ecx &= guest_supported_xcr0 & 0xffffffff;
-+		best->edx &= guest_supported_xcr0 >> 32;
-+		best->ecx |= XFEATURE_MASK_FPSSE;
-+	}
- }
- 
- void kvm_update_cpuid_runtime(struct kvm_vcpu *vcpu)
-@@ -241,27 +272,8 @@ static void kvm_vcpu_after_set_cpuid(str
- 		kvm_apic_set_version(vcpu);
- 	}
- 
--	best = kvm_find_cpuid_entry(vcpu, 0xD, 0);
--	if (!best)
--		vcpu->arch.guest_supported_xcr0 = 0;
--	else
--		vcpu->arch.guest_supported_xcr0 =
--			(best->eax | ((u64)best->edx << 32)) & supported_xcr0;
--
--	/*
--	 * Bits 127:0 of the allowed SECS.ATTRIBUTES (CPUID.0x12.0x1) enumerate
--	 * the supported XSAVE Feature Request Mask (XFRM), i.e. the enclave's
--	 * requested XCR0 value.  The enclave's XFRM must be a subset of XCRO
--	 * at the time of EENTER, thus adjust the allowed XFRM by the guest's
--	 * supported XCR0.  Similar to XCR0 handling, FP and SSE are forced to
--	 * '1' even on CPUs that don't support XSAVE.
--	 */
--	best = kvm_find_cpuid_entry(vcpu, 0x12, 0x1);
--	if (best) {
--		best->ecx &= vcpu->arch.guest_supported_xcr0 & 0xffffffff;
--		best->edx &= vcpu->arch.guest_supported_xcr0 >> 32;
--		best->ecx |= XFEATURE_MASK_FPSSE;
--	}
-+	vcpu->arch.guest_supported_xcr0 =
-+		cpuid_get_supported_xcr0(vcpu->arch.cpuid_entries, vcpu->arch.cpuid_nent);
- 
- 	kvm_update_pv_runtime(vcpu);
- 
++#define CYGETMON		0x435901
++#define CYGETTHRESH		0x435902
++#define CYSETTHRESH		0x435903
++#define CYGETDEFTHRESH		0x435904
++#define CYSETDEFTHRESH		0x435905
++#define CYGETTIMEOUT		0x435906
++#define CYSETTIMEOUT		0x435907
++#define CYGETDEFTIMEOUT		0x435908
++#define CYSETDEFTIMEOUT		0x435909
++#define CYSETRFLOW		0x43590a
++#define CYGETRFLOW		0x43590b
++#define CYSETRTSDTR_INV		0x43590c
++#define CYGETRTSDTR_INV		0x43590d
++#define CYZSETPOLLCYCLE		0x43590e
++#define CYZGETPOLLCYCLE		0x43590f
++#define CYGETCD1400VER		0x435910
++#define CYSETWAIT		0x435912
++#define CYGETWAIT		0x435913
++
++#endif /* _UAPI_LINUX_CYCLADES_H */
 
 
