@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FFB14A40AB
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 11:59:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24D924A40AE
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 11:59:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358338AbiAaK7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 05:59:13 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59948 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348439AbiAaK6t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:58:49 -0500
+        id S1358384AbiAaK7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 05:59:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42740 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348387AbiAaK6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:58:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08773C061401;
+        Mon, 31 Jan 2022 02:58:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D2AE60A75;
-        Mon, 31 Jan 2022 10:58:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44F9AC340E8;
-        Mon, 31 Jan 2022 10:58:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D5EE60ABE;
+        Mon, 31 Jan 2022 10:58:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FD58C340E8;
+        Mon, 31 Jan 2022 10:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626728;
-        bh=AzLDUvZKhjiXaHSVxJMEYJZbDTq15sluSU36IrxlWDQ=;
+        s=korg; t=1643626732;
+        bh=ImYMI2kEIGkDJb80MsVasoHkiHC0+iZ8ySDDAdgJNfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/rJtIeD1Oa/9VgwhXeh2V+NcK3KCLNjClE2oFdxJDvh5gtU9bv5snb9WDmMqULrs
-         szMd1b6pPOs6hoWSF18mKW3DZL59HL/SvedysRWhyzTxHMKrqmR1G0iVqJg7Vq8pZp
-         7HkOsayJFzbiYZFS1rVL2PiL2LWrf1qYj3aAwgiw=
+        b=AovQi6EwEjueVvU5wNZRKhRoZnF49Qe2ai0UJlG/bLBmL7j4GdvOXRYydAfAGsM8/
+         cOhn8UNouR3CTzoo8iKHyeBQk/xsTc27EJCW1amCo+f87SJno2E3OgIgMPrkThCQN7
+         oxgYCCd5fW+V9zI8+8DYPAFXNNK6Fx6twMd1PGZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+76629376e06e2c2ad626@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 20/64] USB: core: Fix hang in usb_kill_urb by adding memory barriers
-Date:   Mon, 31 Jan 2022 11:56:05 +0100
-Message-Id: <20220131105216.343049836@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Badhri Jagan Sridharan <badhri@google.com>
+Subject: [PATCH 5.4 21/64] usb: typec: tcpm: Do not disconnect while receiving VBUS off
+Date:   Mon, 31 Jan 2022 11:56:06 +0100
+Message-Id: <20220131105216.376549759@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105215.644174521@linuxfoundation.org>
 References: <20220131105215.644174521@linuxfoundation.org>
@@ -44,128 +48,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Badhri Jagan Sridharan <badhri@google.com>
 
-commit 26fbe9772b8c459687930511444ce443011f86bf upstream.
+commit 90b8aa9f5b09edae6928c0561f933fec9f7a9987 upstream.
 
-The syzbot fuzzer has identified a bug in which processes hang waiting
-for usb_kill_urb() to return.  It turns out the issue is not unlinking
-the URB; that works just fine.  Rather, the problem arises when the
-wakeup notification that the URB has completed is not received.
+With some chargers, vbus might momentarily raise above VSAFE5V and fall
+back to 0V before tcpm gets to read port->tcpc->get_vbus. This will
+will report a VBUS off event causing TCPM to transition to
+SNK_UNATTACHED where it should be waiting in either SNK_ATTACH_WAIT
+or SNK_DEBOUNCED state. This patch makes TCPM avoid vbus off events
+while in SNK_ATTACH_WAIT or SNK_DEBOUNCED state.
 
-The reason is memory-access ordering on SMP systems.  In outline form,
-usb_kill_urb() and __usb_hcd_giveback_urb() operating concurrently on
-different CPUs perform the following actions:
+Stub from the spec:
+    "4.5.2.2.4.2 Exiting from AttachWait.SNK State
+    A Sink shall transition to Unattached.SNK when the state of both
+    the CC1 and CC2 pins is SNK.Open for at least tPDDebounce.
+    A DRP shall transition to Unattached.SRC when the state of both
+    the CC1 and CC2 pins is SNK.Open for at least tPDDebounce."
 
-CPU 0					CPU 1
-----------------------------		---------------------------------
-usb_kill_urb():				__usb_hcd_giveback_urb():
-  ...					  ...
-  atomic_inc(&urb->reject);		  atomic_dec(&urb->use_count);
-  ...					  ...
-  wait_event(usb_kill_urb_queue,
-	atomic_read(&urb->use_count) == 0);
-					  if (atomic_read(&urb->reject))
-						wake_up(&usb_kill_urb_queue);
+[23.194131] CC1: 0 -> 0, CC2: 0 -> 5 [state SNK_UNATTACHED, polarity 0, connected]
+[23.201777] state change SNK_UNATTACHED -> SNK_ATTACH_WAIT [rev3 NONE_AMS]
+[23.209949] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev3 NONE_AMS]
+[23.300579] VBUS off
+[23.300668] state change SNK_ATTACH_WAIT -> SNK_UNATTACHED [rev3 NONE_AMS]
+[23.301014] VBUS VSAFE0V
+[23.301111] Start toggling
 
-Confining your attention to urb->reject and urb->use_count, you can
-see that the overall pattern of accesses on CPU 0 is:
-
-	write urb->reject, then read urb->use_count;
-
-whereas the overall pattern of accesses on CPU 1 is:
-
-	write urb->use_count, then read urb->reject.
-
-This pattern is referred to in memory-model circles as SB (for "Store
-Buffering"), and it is well known that without suitable enforcement of
-the desired order of accesses -- in the form of memory barriers -- it
-is entirely possible for one or both CPUs to execute their reads ahead
-of their writes.  The end result will be that sometimes CPU 0 sees the
-old un-decremented value of urb->use_count while CPU 1 sees the old
-un-incremented value of urb->reject.  Consequently CPU 0 ends up on
-the wait queue and never gets woken up, leading to the observed hang
-in usb_kill_urb().
-
-The same pattern of accesses occurs in usb_poison_urb() and the
-failure pathway of usb_hcd_submit_urb().
-
-The problem is fixed by adding suitable memory barriers.  To provide
-proper memory-access ordering in the SB pattern, a full barrier is
-required on both CPUs.  The atomic_inc() and atomic_dec() accesses
-themselves don't provide any memory ordering, but since they are
-present, we can use the optimized smp_mb__after_atomic() memory
-barrier in the various routines to obtain the desired effect.
-
-This patch adds the necessary memory barriers.
-
-CC: <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+76629376e06e2c2ad626@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/Ye8K0QYee0Q0Nna2@rowland.harvard.edu
+Fixes: f0690a25a140b8 ("staging: typec: USB Type-C Port Manager (tcpm)")
+Cc: stable@vger.kernel.org
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+Link: https://lore.kernel.org/r/20220122015520.332507-1-badhri@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hcd.c |   14 ++++++++++++++
- drivers/usb/core/urb.c |   12 ++++++++++++
- 2 files changed, 26 insertions(+)
+ drivers/usb/typec/tcpm/tcpm.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -1567,6 +1567,13 @@ int usb_hcd_submit_urb (struct urb *urb,
- 		urb->hcpriv = NULL;
- 		INIT_LIST_HEAD(&urb->urb_list);
- 		atomic_dec(&urb->use_count);
-+		/*
-+		 * Order the write of urb->use_count above before the read
-+		 * of urb->reject below.  Pairs with the memory barriers in
-+		 * usb_kill_urb() and usb_poison_urb().
-+		 */
-+		smp_mb__after_atomic();
-+
- 		atomic_dec(&urb->dev->urbnum);
- 		if (atomic_read(&urb->reject))
- 			wake_up(&usb_kill_urb_queue);
-@@ -1662,6 +1669,13 @@ static void __usb_hcd_giveback_urb(struc
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -3903,7 +3903,8 @@ static void _tcpm_pd_vbus_off(struct tcp
+ 	case SNK_TRYWAIT_DEBOUNCE:
+ 		break;
+ 	case SNK_ATTACH_WAIT:
+-		tcpm_set_state(port, SNK_UNATTACHED, 0);
++	case SNK_DEBOUNCED:
++		/* Do nothing, as TCPM is still waiting for vbus to reaach VSAFE5V to connect */
+ 		break;
  
- 	usb_anchor_resume_wakeups(anchor);
- 	atomic_dec(&urb->use_count);
-+	/*
-+	 * Order the write of urb->use_count above before the read
-+	 * of urb->reject below.  Pairs with the memory barriers in
-+	 * usb_kill_urb() and usb_poison_urb().
-+	 */
-+	smp_mb__after_atomic();
-+
- 	if (unlikely(atomic_read(&urb->reject)))
- 		wake_up(&usb_kill_urb_queue);
- 	usb_put_urb(urb);
---- a/drivers/usb/core/urb.c
-+++ b/drivers/usb/core/urb.c
-@@ -691,6 +691,12 @@ void usb_kill_urb(struct urb *urb)
- 	if (!(urb && urb->dev && urb->ep))
- 		return;
- 	atomic_inc(&urb->reject);
-+	/*
-+	 * Order the write of urb->reject above before the read
-+	 * of urb->use_count below.  Pairs with the barriers in
-+	 * __usb_hcd_giveback_urb() and usb_hcd_submit_urb().
-+	 */
-+	smp_mb__after_atomic();
- 
- 	usb_hcd_unlink_urb(urb, -ENOENT);
- 	wait_event(usb_kill_urb_queue, atomic_read(&urb->use_count) == 0);
-@@ -732,6 +738,12 @@ void usb_poison_urb(struct urb *urb)
- 	if (!urb)
- 		return;
- 	atomic_inc(&urb->reject);
-+	/*
-+	 * Order the write of urb->reject above before the read
-+	 * of urb->use_count below.  Pairs with the barriers in
-+	 * __usb_hcd_giveback_urb() and usb_hcd_submit_urb().
-+	 */
-+	smp_mb__after_atomic();
- 
- 	if (!urb->dev || !urb->ep)
- 		return;
+ 	case SNK_NEGOTIATE_CAPABILITIES:
 
 
