@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C9114A42EB
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:15:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E667D4A44C7
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376531AbiAaLPY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:15:24 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33224 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376871AbiAaLNY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:13:24 -0500
+        id S1359746AbiAaLce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:32:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49840 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379453AbiAaLaU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:30:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2296EC0617BD;
+        Mon, 31 Jan 2022 03:20:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E840B82A68;
-        Mon, 31 Jan 2022 11:13:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78511C340E8;
-        Mon, 31 Jan 2022 11:13:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B79CB611DB;
+        Mon, 31 Jan 2022 11:20:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81C8DC340E8;
+        Mon, 31 Jan 2022 11:20:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627602;
-        bh=b8wJglF94ze4TyFtxH7NCAIi2wOYVFD8caRZyOa6BtY=;
+        s=korg; t=1643628042;
+        bh=K8uS/L0iTWLq7FlRCD2DFohHBclcjVpDwfvTy1cfNPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MdIC6KEkTj+PM1J9HJljR3Ce2Co/z2umlGAckYvJerU3Ef/TGTEBPl4bL/miB5Em9
-         KVmvdw1z45OVK7zHpyz4ay2dnfsBzSoIpdzxRYnduPfYCBqowmOU+FGeoyASIjkr92
-         gKX7K3rVRknQeTl/2mO9VjFooFQPbX6muwB5d+hc=
+        b=NczWrz4NDp3kZFMabt2fXC3Y7XkgwAjGM0eVwi1QPhOzREnaK45yANvasVTigYfuf
+         EkwxTk2+EEKJlQeXm/BGpXLQbGYh6sQbnyZOGEQrX41cWOQc6qzB31kYf+r2S6vDFT
+         NWXCmrMPo1IdPkmfA8bcBOtqNCcyIe8x4NZ67Kuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 104/171] SUNRPC: Dont dereference xprt->snd_task if its a cookie
-Date:   Mon, 31 Jan 2022 11:56:09 +0100
-Message-Id: <20220131105233.569282280@linuxfoundation.org>
+        stable@vger.kernel.org, huangshaobo <huangshaobo6@huawei.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.16 107/200] ARM: 9170/1: fix panic when kasan and kprobe are enabled
+Date:   Mon, 31 Jan 2022 11:56:10 +0100
+Message-Id: <20220131105237.176823572@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +48,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: sparkhuang <huangshaobo6@huawei.com>
 
-[ Upstream commit aed28b7a2d620cb5cd0c554cb889075c02e25e8e ]
+commit 8b59b0a53c840921b625378f137e88adfa87647e upstream.
 
-Fixes: e26d9972720e ("SUNRPC: Clean up scheduling of autoclose")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+arm32 uses software to simulate the instruction replaced
+by kprobe. some instructions may be simulated by constructing
+assembly functions. therefore, before executing instruction
+simulation, it is necessary to construct assembly function
+execution environment in C language through binding registers.
+after kasan is enabled, the register binding relationship will
+be destroyed, resulting in instruction simulation errors and
+causing kernel panic.
+
+the kprobe emulate instruction function is distributed in three
+files: actions-common.c actions-arm.c actions-thumb.c, so disable
+KASAN when compiling these files.
+
+for example, use kprobe insert on cap_capable+20 after kasan
+enabled, the cap_capable assembly code is as follows:
+<cap_capable>:
+e92d47f0	push	{r4, r5, r6, r7, r8, r9, sl, lr}
+e1a05000	mov	r5, r0
+e280006c	add	r0, r0, #108    ; 0x6c
+e1a04001	mov	r4, r1
+e1a06002	mov	r6, r2
+e59fa090	ldr	sl, [pc, #144]  ;
+ebfc7bf8	bl	c03aa4b4 <__asan_load4>
+e595706c	ldr	r7, [r5, #108]  ; 0x6c
+e2859014	add	r9, r5, #20
+......
+The emulate_ldr assembly code after enabling kasan is as follows:
+c06f1384 <emulate_ldr>:
+e92d47f0	push	{r4, r5, r6, r7, r8, r9, sl, lr}
+e282803c	add	r8, r2, #60     ; 0x3c
+e1a05000	mov	r5, r0
+e7e37855	ubfx	r7, r5, #16, #4
+e1a00008	mov	r0, r8
+e1a09001	mov	r9, r1
+e1a04002	mov	r4, r2
+ebf35462	bl	c03c6530 <__asan_load4>
+e357000f	cmp	r7, #15
+e7e36655	ubfx	r6, r5, #12, #4
+e205a00f	and	sl, r5, #15
+0a000001	beq	c06f13bc <emulate_ldr+0x38>
+e0840107	add	r0, r4, r7, lsl #2
+ebf3545c	bl	c03c6530 <__asan_load4>
+e084010a	add	r0, r4, sl, lsl #2
+ebf3545a	bl	c03c6530 <__asan_load4>
+e2890010	add	r0, r9, #16
+ebf35458	bl	c03c6530 <__asan_load4>
+e5990010	ldr	r0, [r9, #16]
+e12fff30	blx	r0
+e356000f	cm	r6, #15
+1a000014	bne	c06f1430 <emulate_ldr+0xac>
+e1a06000	mov	r6, r0
+e2840040	add	r0, r4, #64     ; 0x40
+......
+
+when running in emulate_ldr to simulate the ldr instruction, panic
+occurred, and the log is as follows:
+Unable to handle kernel NULL pointer dereference at virtual address
+00000090
+pgd = ecb46400
+[00000090] *pgd=2e0fa003, *pmd=00000000
+Internal error: Oops: 206 [#1] SMP ARM
+PC is at cap_capable+0x14/0xb0
+LR is at emulate_ldr+0x50/0xc0
+psr: 600d0293 sp : ecd63af8  ip : 00000004  fp : c0a7c30c
+r10: 00000000  r9 : c30897f4  r8 : ecd63cd4
+r7 : 0000000f  r6 : 0000000a  r5 : e59fa090  r4 : ecd63c98
+r3 : c06ae294  r2 : 00000000  r1 : b7611300  r0 : bf4ec008
+Flags: nZCv  IRQs off  FIQs on  Mode SVC_32  ISA ARM  Segment user
+Control: 32c5387d  Table: 2d546400  DAC: 55555555
+Process bash (pid: 1643, stack limit = 0xecd60190)
+(cap_capable) from (kprobe_handler+0x218/0x340)
+(kprobe_handler) from (kprobe_trap_handler+0x24/0x48)
+(kprobe_trap_handler) from (do_undefinstr+0x13c/0x364)
+(do_undefinstr) from (__und_svc_finish+0x0/0x30)
+(__und_svc_finish) from (cap_capable+0x18/0xb0)
+(cap_capable) from (cap_vm_enough_memory+0x38/0x48)
+(cap_vm_enough_memory) from
+(security_vm_enough_memory_mm+0x48/0x6c)
+(security_vm_enough_memory_mm) from
+(copy_process.constprop.5+0x16b4/0x25c8)
+(copy_process.constprop.5) from (_do_fork+0xe8/0x55c)
+(_do_fork) from (SyS_clone+0x1c/0x24)
+(SyS_clone) from (__sys_trace_return+0x0/0x10)
+Code: 0050a0e1 6c0080e2 0140a0e1 0260a0e1 (f801f0e7)
+
+Fixes: 35aa1df43283 ("ARM kprobes: instruction single-stepping support")
+Fixes: 421015713b30 ("ARM: 9017/2: Enable KASan for ARM")
+Signed-off-by: huangshaobo <huangshaobo6@huawei.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/events/sunrpc.h | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ arch/arm/probes/kprobes/Makefile |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/trace/events/sunrpc.h b/include/trace/events/sunrpc.h
-index 312507cb341f4..daaf407e9e494 100644
---- a/include/trace/events/sunrpc.h
-+++ b/include/trace/events/sunrpc.h
-@@ -936,7 +936,8 @@ TRACE_EVENT(rpc_socket_nospace,
- 		{ BIT(XPRT_REMOVE),		"REMOVE" },		\
- 		{ BIT(XPRT_CONGESTED),		"CONGESTED" },		\
- 		{ BIT(XPRT_CWND_WAIT),		"CWND_WAIT" },		\
--		{ BIT(XPRT_WRITE_SPACE),	"WRITE_SPACE" })
-+		{ BIT(XPRT_WRITE_SPACE),	"WRITE_SPACE" },	\
-+		{ BIT(XPRT_SND_IS_COOKIE),	"SND_IS_COOKIE" })
- 
- DECLARE_EVENT_CLASS(rpc_xprt_lifetime_class,
- 	TP_PROTO(
-@@ -1133,8 +1134,11 @@ DECLARE_EVENT_CLASS(xprt_writelock_event,
- 			__entry->task_id = -1;
- 			__entry->client_id = -1;
- 		}
--		__entry->snd_task_id = xprt->snd_task ?
--					xprt->snd_task->tk_pid : -1;
-+		if (xprt->snd_task &&
-+		    !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
-+			__entry->snd_task_id = xprt->snd_task->tk_pid;
-+		else
-+			__entry->snd_task_id = -1;
- 	),
- 
- 	TP_printk("task:%u@%u snd_task:%u",
-@@ -1178,8 +1182,12 @@ DECLARE_EVENT_CLASS(xprt_cong_event,
- 			__entry->task_id = -1;
- 			__entry->client_id = -1;
- 		}
--		__entry->snd_task_id = xprt->snd_task ?
--					xprt->snd_task->tk_pid : -1;
-+		if (xprt->snd_task &&
-+		    !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
-+			__entry->snd_task_id = xprt->snd_task->tk_pid;
-+		else
-+			__entry->snd_task_id = -1;
-+
- 		__entry->cong = xprt->cong;
- 		__entry->cwnd = xprt->cwnd;
- 		__entry->wait = test_bit(XPRT_CWND_WAIT, &xprt->state);
--- 
-2.34.1
-
+--- a/arch/arm/probes/kprobes/Makefile
++++ b/arch/arm/probes/kprobes/Makefile
+@@ -1,4 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
++KASAN_SANITIZE_actions-common.o := n
++KASAN_SANITIZE_actions-arm.o := n
++KASAN_SANITIZE_actions-thumb.o := n
+ obj-$(CONFIG_KPROBES)		+= core.o actions-common.o checkers-common.o
+ obj-$(CONFIG_ARM_KPROBES_TEST)	+= test-kprobes.o
+ test-kprobes-objs		:= test-core.o
 
 
