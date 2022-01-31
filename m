@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 265BB4A43EF
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76AB34A4270
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359079AbiAaLZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:25:02 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41222 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377442AbiAaLW4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:22:56 -0500
+        id S242027AbiAaLLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44468 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377216AbiAaLJs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:09:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3350CC0604D4;
+        Mon, 31 Jan 2022 03:06:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4DDE6B82A76;
-        Mon, 31 Jan 2022 11:22:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7916DC340E8;
-        Mon, 31 Jan 2022 11:22:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E760BB82A5C;
+        Mon, 31 Jan 2022 11:06:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39E48C340EF;
+        Mon, 31 Jan 2022 11:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628174;
-        bh=05u4659g45mJj8TYTwy6Hv2WqO2LL6t/KdgTntH3sjc=;
+        s=korg; t=1643627193;
+        bh=fwtUg8Y8iUk8jIUE8qbO9EPXZyhnyzScNpHop/rrleU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQEfE9GIDmobNcZ/7LTf2wQj07zDywsh6yMpQHq2s1IaYxihNGeomMxSMe7aUaZOO
-         93XD+sqbQA/D36xqW922A6dqTB4AfU1/wdS85p6z4dIdoufLQo6nnFofu8HFGaORAe
-         x/k86PKK1Ty8MB6B3tiZz5RyX5DmD3sfgWHjaRFI=
+        b=xWDc+pOiguFC7IEfLsIlnY0PT41t7VOWSqXsmpZAlP7mURjT/svW3gjYBOeux0qjn
+         MI9G5+24s7GL9/H+nk7a2u/hopas68UklEuQTEogN1F004v90bkIcTERe58TyT1BUT
+         gSnXxuVYyBzFqfNhFPIXzutSEco4rPZsa4EPJTGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 131/200] net: phy: broadcom: hook up soft_reset for BCM54616S
-Date:   Mon, 31 Jan 2022 11:56:34 +0100
-Message-Id: <20220131105237.957986263@linuxfoundation.org>
+Subject: [PATCH 5.10 074/100] phylib: fix potential use-after-free
+Date:   Mon, 31 Jan 2022 11:56:35 +0100
+Message-Id: <20220131105222.910242948@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +49,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit d15c7e875d44367005370e6a82e8f3a382a04f9b ]
+[ Upstream commit cbda1b16687580d5beee38273f6241ae3725960c ]
 
-A problem was encountered with the Bel-Fuse 1GBT-SFP05 SFP module (which
-is a 1 Gbps copper module operating in SGMII mode with an internal
-BCM54616S PHY device) using the Xilinx AXI Ethernet MAC core, where the
-module would work properly on the initial insertion or boot of the
-device, but after the device was rebooted, the link would either only
-come up at 100 Mbps speeds or go up and down erratically.
+Commit bafbdd527d56 ("phylib: Add device reset GPIO support") added call
+to phy_device_reset(phydev) after the put_device() call in phy_detach().
 
-I found no meaningful changes in the PHY configuration registers between
-the working and non-working boots, but the status registers seemed to
-have a lot of error indications set on the SERDES side of the device on
-the non-working boot. I suspect the problem is that whatever happens on
-the SGMII link when the device is rebooted and the FPGA logic gets
-reloaded ends up putting the module's onboard PHY into a bad state.
+The comment before the put_device() call says that the phydev might go
+away with put_device().
 
-Since commit 6e2d85ec0559 ("net: phy: Stop with excessive soft reset")
-the genphy_soft_reset call is not made automatically by the PHY core
-unless the callback is explicitly specified in the driver structure. For
-most of these Broadcom devices, there is probably a hardware reset that
-gets asserted to reset the PHY during boot, however for SFP modules
-(where the BCM54616S is commonly found) no such reset line exists, so if
-the board keeps the SFP cage powered up across a reboot, it will end up
-with no reset occurring during reboots.
+Fix potential use-after-free by calling phy_device_reset() before
+put_device().
 
-Hook up the genphy_soft_reset callback for BCM54616S to ensure that a
-PHY reset is performed before the device is initialized. This appears to
-fix the issue with erratic operation after a reboot with this SFP
-module.
-
-Fixes: 6e2d85ec0559 ("net: phy: Stop with excessive soft reset")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: bafbdd527d56 ("phylib: Add device reset GPIO support")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220119162748.32418-1-kabel@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/broadcom.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/phy/phy_device.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/phy/broadcom.c b/drivers/net/phy/broadcom.c
-index bb5104ae46104..3c683e0e40e9e 100644
---- a/drivers/net/phy/broadcom.c
-+++ b/drivers/net/phy/broadcom.c
-@@ -854,6 +854,7 @@ static struct phy_driver broadcom_drivers[] = {
- 	.phy_id_mask	= 0xfffffff0,
- 	.name		= "Broadcom BCM54616S",
- 	/* PHY_GBIT_FEATURES */
-+	.soft_reset     = genphy_soft_reset,
- 	.config_init	= bcm54xx_config_init,
- 	.config_aneg	= bcm54616s_config_aneg,
- 	.config_intr	= bcm_phy_config_intr,
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index 85f3cde5ffd09..d2f6d8107595a 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -1682,6 +1682,9 @@ void phy_detach(struct phy_device *phydev)
+ 	    phy_driver_is_genphy_10g(phydev))
+ 		device_release_driver(&phydev->mdio.dev);
+ 
++	/* Assert the reset signal */
++	phy_device_reset(phydev, 1);
++
+ 	/*
+ 	 * The phydev might go away on the put_device() below, so avoid
+ 	 * a use-after-free bug by reading the underlying bus first.
+@@ -1693,9 +1696,6 @@ void phy_detach(struct phy_device *phydev)
+ 		ndev_owner = dev->dev.parent->driver->owner;
+ 	if (ndev_owner != bus->owner)
+ 		module_put(bus->owner);
+-
+-	/* Assert the reset signal */
+-	phy_device_reset(phydev, 1);
+ }
+ EXPORT_SYMBOL(phy_detach);
+ 
 -- 
 2.34.1
 
