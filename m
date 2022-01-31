@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D7DF4A4386
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9395B4A424B
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376595AbiAaLVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:21:50 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:50168 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377523AbiAaLSX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:18:23 -0500
+        id S1348478AbiAaLLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:19 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56826 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376522AbiAaLIg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:08:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 446856114D;
-        Mon, 31 Jan 2022 11:18:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C843C340E8;
-        Mon, 31 Jan 2022 11:18:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6FF4B82A59;
+        Mon, 31 Jan 2022 11:08:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D96CC340EF;
+        Mon, 31 Jan 2022 11:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627902;
-        bh=8bbaXZER4a2mhUTdrkD8ZgmE7ImLm7ZobG8EiC1hc94=;
+        s=korg; t=1643627313;
+        bh=E9EIDomCPCgL962F5vKhUfJoH4Jp6t+QuYTdmvDJ98A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RlJ0p4QVHqbmwRul9ZoZcEpVCFotwuPWocC5ESOAcQ/lzn2vx3XqQVzr4KBSzp8mL
-         fj0irXYdkiyGgfdrA9yVF9deYjRaRKoa/Uan1SmN72IG4wRYgvFAlyBqKeEvwrPsWM
-         EnUsz2pR/t4eVbly29TIrd6KAphq5T0wD7mNJJxY=
+        b=QqIWf6BWGplTr+UWozLXA66lRxlJGwuJiga0gzNLrzdxvgCcGqNVp5bfQCONaEkHx
+         MfhIZib4swzvq2dIpeF0UjCECg0z12cmKRal/uERfH2QrltONG3wF70N8T3DG/V2eV
+         YXjJvbcAvPJLtF9TJG2m2YJuHlyGcF569Jf+C+3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Kerr <jk@ozlabs.org>,
-        Matthew Garrett <mjg59@srcf.ucam.org>,
-        Aditya Garg <gargaditya08@live.com>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.16 028/200] efi: runtime: avoid EFIv2 runtime services on Apple x86 machines
+        stable@vger.kernel.org, Liam Merwick <liam.merwick@oracle.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 026/171] Revert "KVM: SVM: avoid infinite loop on NPF from bad address"
 Date:   Mon, 31 Jan 2022 11:54:51 +0100
-Message-Id: <20220131105234.520022336@linuxfoundation.org>
+Message-Id: <20220131105230.912100778@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,62 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Sean Christopherson <seanjc@google.com>
 
-commit f5390cd0b43c2e54c7cf5506c7da4a37c5cef746 upstream.
+commit 31c25585695abdf03d6160aa6d829e855b256329 upstream.
 
-Aditya reports [0] that his recent MacbookPro crashes in the firmware
-when using the variable services at runtime. The culprit appears to be a
-call to QueryVariableInfo(), which we did not use to call on Apple x86
-machines in the past as they only upgraded from EFI v1.10 to EFI v2.40
-firmware fairly recently, and QueryVariableInfo() (along with
-UpdateCapsule() et al) was added in EFI v2.00.
+Revert a completely broken check on an "invalid" RIP in SVM's workaround
+for the DecodeAssists SMAP errata.  kvm_vcpu_gfn_to_memslot() obviously
+expects a gfn, i.e. operates in the guest physical address space, whereas
+RIP is a virtual (not even linear) address.  The "fix" worked for the
+problematic KVM selftest because the test identity mapped RIP.
 
-The only runtime service introduced in EFI v2.00 that we actually use in
-Linux is QueryVariableInfo(), as the capsule based ones are optional,
-generally not used at runtime (all the LVFS/fwupd firmware update
-infrastructure uses helper EFI programs that invoke capsule update at
-boot time, not runtime), and not implemented by Apple machines in the
-first place. QueryVariableInfo() is used to 'safely' set variables,
-i.e., only when there is enough space. This prevents machines with buggy
-firmwares from corrupting their NVRAMs when they run out of space.
+Fully revert the hack instead of trying to translate RIP to a GPA, as the
+non-SEV case is now handled earlier, and KVM cannot access guest page
+tables to translate RIP.
 
-Given that Apple machines have been using EFI v1.10 services only for
-the longest time (the EFI v2.0 spec was released in 2006, and Linux
-support for the newly introduced runtime services was added in 2011, but
-the MacbookPro12,1 released in 2015 still claims to be EFI v1.10 only),
-let's avoid the EFI v2.0 ones on all Apple x86 machines.
+This reverts commit e72436bc3a5206f95bb384e741154166ddb3202e.
 
-[0] https://lore.kernel.org/all/6D757C75-65B1-468B-842D-10410081A8E4@live.com/
-
-Cc: <stable@vger.kernel.org>
-Cc: Jeremy Kerr <jk@ozlabs.org>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>
-Reported-by: Aditya Garg <gargaditya08@live.com>
-Tested-by: Orlando Chamberlain <redecorating@protonmail.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Tested-by: Aditya Garg <gargaditya08@live.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215277
+Fixes: e72436bc3a52 ("KVM: SVM: avoid infinite loop on NPF from bad address")
+Reported-by: Liam Merwick <liam.merwick@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
+Message-Id: <20220120010719.711476-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/efi.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/kvm/svm/svm.c |    7 -------
+ virt/kvm/kvm_main.c    |    1 -
+ 2 files changed, 8 deletions(-)
 
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -722,6 +722,13 @@ void __init efi_systab_report_header(con
- 		systab_hdr->revision >> 16,
- 		systab_hdr->revision & 0xffff,
- 		vendor);
-+
-+	if (IS_ENABLED(CONFIG_X86_64) &&
-+	    systab_hdr->revision > EFI_1_10_SYSTEM_TABLE_REVISION &&
-+	    !strcmp(vendor, "Apple")) {
-+		pr_info("Apple Mac detected, using EFI v1.10 runtime services only\n");
-+		efi.runtime_version = EFI_1_10_SYSTEM_TABLE_REVISION;
-+	}
- }
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -4456,13 +4456,6 @@ static bool svm_can_emulate_instruction(
+ 	if (likely(!insn || insn_len))
+ 		return true;
  
- static __initdata char memory_type_name[][13] = {
+-	/*
+-	 * If RIP is invalid, go ahead with emulation which will cause an
+-	 * internal error exit.
+-	 */
+-	if (!kvm_vcpu_gfn_to_memslot(vcpu, kvm_rip_read(vcpu) >> PAGE_SHIFT))
+-		return true;
+-
+ 	cr4 = kvm_read_cr4(vcpu);
+ 	smep = cr4 & X86_CR4_SMEP;
+ 	smap = cr4 & X86_CR4_SMAP;
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2104,7 +2104,6 @@ struct kvm_memory_slot *kvm_vcpu_gfn_to_
+ 
+ 	return NULL;
+ }
+-EXPORT_SYMBOL_GPL(kvm_vcpu_gfn_to_memslot);
+ 
+ bool kvm_is_visible_gfn(struct kvm *kvm, gfn_t gfn)
+ {
 
 
