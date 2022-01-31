@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DC374A4288
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0A144A449A
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:33:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359851AbiAaLMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:12:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44462 "EHLO
+        id S1344116AbiAaLbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:31:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377479AbiAaLKD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DCD2C07979B;
-        Mon, 31 Jan 2022 03:07:43 -0800 (PST)
+        with ESMTP id S1377535AbiAaL0z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:26:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78D85C033278;
+        Mon, 31 Jan 2022 03:16:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EAB36114D;
-        Mon, 31 Jan 2022 11:07:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25739C340E8;
-        Mon, 31 Jan 2022 11:07:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DF88B82A64;
+        Mon, 31 Jan 2022 11:16:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A467AC340EF;
+        Mon, 31 Jan 2022 11:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627262;
-        bh=gurpRK8pRh//+KMIzS4LXQmB8sq083h/1t9ww78Celw=;
+        s=korg; t=1643627786;
+        bh=qtLzw/kPPtrKxD0Js8hAC1GVIUEVQ8FVkEn0M0zlAIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a69CZ1GklbPuT54r+Jhsn1Y6MTwC7ZtMRiBXvjYm9VznjVakCV8taKfbiuUKYd6wy
-         PpVn2F1btJz3wijjNORzh3zJP7w3N/Wj4sd8BtU2pbMz8VVKiKKDupA2RFDmhJnLv7
-         +VPYbMNteUdu6BgRqaCLRNm9Z1HsP6wHpMLzQoPU=
+        b=1JioznHaRj9tcd5eTvosEsBF05D+fPOFI/LTFSuVnSR6pkIkVc+Vv91+TQNF3SFsS
+         e5uQEJ//6nF7uD2aeHZSy3VIEQHU38B1n8JcPpGuLqN48DMlUx2nxdmTeftf+xO71I
+         ehGbtVY8E5q/tKFdb4R0mmHX6xJiNDtWEc8/OChg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.15 005/171] ARM: 9179/1: uaccess: avoid alignment faults in copy_[from|to]_kernel_nofault
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.16 007/200] btrfs: add back missing dirty page rate limiting to defrag
 Date:   Mon, 31 Jan 2022 11:54:30 +0100
-Message-Id: <20220131105230.151611980@linuxfoundation.org>
+Message-Id: <20220131105233.807140830@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,65 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 15420269b02a63ed8c1841905d8b8b2403246004 upstream.
+commit 3c9d31c715948aaff0ee6d322a91a2dec07770bf upstream.
 
-The helpers that are used to implement copy_from_kernel_nofault() and
-copy_to_kernel_nofault() cast a void* to a pointer to a wider type,
-which may result in alignment faults on ARM if the compiler decides to
-use double-word or multiple-word load/store instructions.
+A defrag operation can dirty a lot of pages, specially if operating on
+the entire file or a large file range. Any task dirtying pages should
+periodically call balance_dirty_pages_ratelimited(), as stated in that
+function's comments, otherwise they can leave too many dirty pages in
+the system. This is what we did before the refactoring in 5.16, and
+it should have remained, just like in the buffered write path and
+relocation. So restore that behaviour.
 
-Only configurations that define CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS=y
-are affected, given that commit 2423de2e6f4d ("ARM: 9115/1: mm/maccess:
-fix unaligned copy_{from,to}_kernel_nofault") ensures that dst and src
-are sufficiently aligned otherwise.
-
-So use the unaligned accessors for accessing dst and src in cases where
-they may be misaligned.
-
-Cc: <stable@vger.kernel.org> # depends on 2423de2e6f4d
-Fixes: 2df4c9a741a0 ("ARM: 9112/1: uaccess: add __{get,put}_kernel_nofault")
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fixes: 7b508037d4cac3 ("btrfs: defrag: use defrag_one_cluster() to implement btrfs_defrag_file()")
+CC: stable@vger.kernel.org # 5.16
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/asm/uaccess.h |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/btrfs/ioctl.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/arm/include/asm/uaccess.h
-+++ b/arch/arm/include/asm/uaccess.h
-@@ -11,6 +11,7 @@
- #include <linux/string.h>
- #include <asm/memory.h>
- #include <asm/domain.h>
-+#include <asm/unaligned.h>
- #include <asm/unified.h>
- #include <asm/compiler.h>
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -1553,6 +1553,7 @@ int btrfs_defrag_file(struct inode *inod
+ 	}
  
-@@ -497,7 +498,10 @@ do {									\
- 	}								\
- 	default: __err = __get_user_bad(); break;			\
- 	}								\
--	*(type *)(dst) = __val;						\
-+	if (IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS))		\
-+		put_unaligned(__val, (type *)(dst));			\
-+	else								\
-+		*(type *)(dst) = __val; /* aligned by caller */		\
- 	if (__err)							\
- 		goto err_label;						\
- } while (0)
-@@ -507,7 +511,9 @@ do {									\
- 	const type *__pk_ptr = (dst);					\
- 	unsigned long __dst = (unsigned long)__pk_ptr;			\
- 	int __err = 0;							\
--	type __val = *(type *)src;					\
-+	type __val = IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)	\
-+		     ? get_unaligned((type *)(src))			\
-+		     : *(type *)(src);	/* aligned by caller */		\
- 	switch (sizeof(type)) {						\
- 	case 1: __put_user_asm_byte(__val, __dst, __err, ""); break;	\
- 	case 2:	__put_user_asm_half(__val, __dst, __err, ""); break;	\
+ 	while (cur < last_byte) {
++		const unsigned long prev_sectors_defragged = sectors_defragged;
+ 		u64 cluster_end;
+ 
+ 		/* The cluster size 256K should always be page aligned */
+@@ -1584,6 +1585,10 @@ int btrfs_defrag_file(struct inode *inod
+ 				cluster_end + 1 - cur, extent_thresh,
+ 				newer_than, do_compress,
+ 				&sectors_defragged, max_to_defrag);
++
++		if (sectors_defragged > prev_sectors_defragged)
++			balance_dirty_pages_ratelimited(inode->i_mapping);
++
+ 		btrfs_inode_unlock(inode, 0);
+ 		if (ret < 0)
+ 			break;
 
 
