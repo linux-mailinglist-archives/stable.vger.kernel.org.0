@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C23E44A4251
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15DD44A44A6
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:33:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348548AbiAaLL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:11:26 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56974 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376667AbiAaLIv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:08:51 -0500
+        id S1359052AbiAaLbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:31:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49458 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378742AbiAaL3F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:29:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1047FC02C308;
+        Mon, 31 Jan 2022 03:17:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1455AB82A4E;
-        Mon, 31 Jan 2022 11:08:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62E17C340E8;
-        Mon, 31 Jan 2022 11:08:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A81B8B82A5D;
+        Mon, 31 Jan 2022 11:17:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4AE8C340E8;
+        Mon, 31 Jan 2022 11:17:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627328;
-        bh=Ptmp80Y5+Ak9glksGMpn04O9rsKaxAULBmUBfj8gucw=;
+        s=korg; t=1643627874;
+        bh=mcIynJX9/ae1Tt6SIcDzhd8KHQ7zHoNNEnRPfxvnOd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z8FIQfnCqUgbi4QHAiSRIXEvZj/RwOLQ4+JOS3bOmsxQ7ZLejHVeqmQLO3+VnAcDN
-         4ghAjzjgZ8T1Ss6/+7N1So5ECx7doAgOg/gTjbgW4gLcrJkrfykQsNafSr9yIITOSO
-         mV+pPQYnr+DqIH0Tw7HNL6q3FpsW6WqVjNh384Hw=
+        b=JJTB0l0xkUgJt5yuu8Kcr35iOQ4SurIcokJ/kGfBz2hzaqIlzLS2F4eGs3O0WMrDq
+         PWBFJ6jw2+3OalH5x0riY14l8/gTuLEy7f5mYnjF0WP/Y33B/ffRiv2cR82G2IwMhS
+         z4Ps0LGjiffKqrEH7MWTRDXPpeu3D8HmLGcMKPdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
-        Valentin Caron <valentin.caron@foss.st.com>
-Subject: [PATCH 5.15 048/171] serial: stm32: fix software flow control transfer
-Date:   Mon, 31 Jan 2022 11:55:13 +0100
-Message-Id: <20220131105231.650554206@linuxfoundation.org>
+        stable@vger.kernel.org, Denis Valeev <lemniscattaden@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.16 051/200] KVM: x86: nSVM: skip eax alignment check for non-SVM instructions
+Date:   Mon, 31 Jan 2022 11:55:14 +0100
+Message-Id: <20220131105235.285631010@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Caron <valentin.caron@foss.st.com>
+From: Denis Valeev <lemniscattaden@gmail.com>
 
-commit 037b91ec7729524107982e36ec4b40f9b174f7a2 upstream.
+commit 47c28d436f409f5b009dc82bd82d4971088aa391 upstream.
 
-x_char is ignored by stm32_usart_start_tx() when xmit buffer is empty.
+The bug occurs on #GP triggered by VMware backdoor when eax value is
+unaligned. eax alignment check should not be applied to non-SVM
+instructions because it leads to incorrect omission of the instructions
+emulation.
+Apply the alignment check only to SVM instructions to fix.
 
-Fix start_tx condition to allow x_char to be sent.
-
-Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
-Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
-Link: https://lore.kernel.org/r/20220111164441.6178-3-valentin.caron@foss.st.com
+Fixes: d1cba6c92237 ("KVM: x86: nSVM: test eax for 4K alignment for GP errata workaround")
+Signed-off-by: Denis Valeev <lemniscattaden@gmail.com>
+Message-Id: <Yexlhaoe1Fscm59u@q>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/stm32-usart.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/svm/svm.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/tty/serial/stm32-usart.c
-+++ b/drivers/tty/serial/stm32-usart.c
-@@ -575,7 +575,7 @@ static void stm32_usart_start_tx(struct
- 	struct serial_rs485 *rs485conf = &port->rs485;
- 	struct circ_buf *xmit = &port->state->xmit;
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -2306,10 +2306,6 @@ static int gp_interception(struct kvm_vc
+ 	if (error_code)
+ 		goto reinject;
  
--	if (uart_circ_empty(xmit))
-+	if (uart_circ_empty(xmit) && !port->x_char)
- 		return;
+-	/* All SVM instructions expect page aligned RAX */
+-	if (svm->vmcb->save.rax & ~PAGE_MASK)
+-		goto reinject;
+-
+ 	/* Decode the instruction for usage later */
+ 	if (x86_decode_emulated_instruction(vcpu, 0, NULL, 0) != EMULATION_OK)
+ 		goto reinject;
+@@ -2327,8 +2323,13 @@ static int gp_interception(struct kvm_vc
+ 		if (!is_guest_mode(vcpu))
+ 			return kvm_emulate_instruction(vcpu,
+ 				EMULTYPE_VMWARE_GP | EMULTYPE_NO_DECODE);
+-	} else
++	} else {
++		/* All SVM instructions expect page aligned RAX */
++		if (svm->vmcb->save.rax & ~PAGE_MASK)
++			goto reinject;
++
+ 		return emulate_svm_instr(vcpu, opcode);
++	}
  
- 	if (rs485conf->flags & SER_RS485_ENABLED) {
+ reinject:
+ 	kvm_queue_exception_e(vcpu, GP_VECTOR, error_code);
 
 
