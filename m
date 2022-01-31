@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52F734A4311
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:16:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 066604A4564
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:42:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359366AbiAaLQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:16:51 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48256 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359406AbiAaLOt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:14:49 -0500
+        id S1349765AbiAaLkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:40:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51168 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376792AbiAaLg2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:36:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44DADC0401FC;
+        Mon, 31 Jan 2022 03:24:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27BDA611C1;
-        Mon, 31 Jan 2022 11:14:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03D9DC340E8;
-        Mon, 31 Jan 2022 11:14:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05570B82A71;
+        Mon, 31 Jan 2022 11:24:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45041C340E8;
+        Mon, 31 Jan 2022 11:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627688;
-        bh=DoZ1E/+8ix+OgIbNqPUNVDPpuSpcbXv83pH9UB60g/M=;
+        s=korg; t=1643628287;
+        bh=iawvoDM2oJeS8vpvOWXHjDaMvstzoHp2Ce2rUhh93CQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OHrt6u8hIacXkOzYDfU83Yv0g8uQBj3o+4Qv1fQ+0PD3gkV09T7L6eUGpfY103LHD
-         kB3Oid/wHoEBbuYbdGkdPiQn91jmBXznzD6FAfIdRF4ZIzfpT3I3LL7aAuHi5I0oAW
-         Gw+d8FoN/PdRhj7vFbqOo7obo1LncxLTQNTLoNA8=
+        b=Eb65DwBneVfP6uHC1jGiOCqbdb4/N37ZnGpE9tmvb1oI27EjqTU/VlMOUmtDV7occ
+         2RM/boZu8txy+DYAPE93RfbAWRtM2mDRoWgr9j/+O7znyNgmUxj+fF+jgfNIE73Lcs
+         d2wSVsyCt9KE6lN4CILPTrq2ol2yuFKnGSDsIZ9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 164/171] dt-bindings: can: tcan4x5x: fix mram-cfg RX FIFO config
-Date:   Mon, 31 Jan 2022 11:57:09 +0100
-Message-Id: <20220131105235.555394997@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 167/200] can: tcan4x5x: regmap: fix max register value
+Date:   Mon, 31 Jan 2022 11:57:10 +0100
+Message-Id: <20220131105239.166992994@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,29 +49,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit 17a30422621c0e04cb6060d20d7edcefd7463347 upstream.
+[ Upstream commit e59986de5ff701494e14c722b78b6e6d513e0ab5 ]
 
-This tcan4x5x only comes with 2K of MRAM, a RX FIFO with a dept of 32
-doesn't fit into the MRAM. Use a depth of 16 instead.
+The MRAM of the tcan4x5x has a size of 2K and starts at 0x8000. There
+are no further registers in the tcan4x5x making 0x87fc the biggest
+addressable register.
 
-Fixes: 4edd396a1911 ("dt-bindings: can: tcan4x5x: Add DT bindings for TCAN4x5X driver")
-Link: https://lore.kernel.org/all/20220119062951.2939851-1-mkl@pengutronix.de
+This patch fixes the max register value of the regmap config from
+0x8ffc to 0x87fc.
+
+Fixes: 6e1caaf8ed22 ("can: tcan4x5x: fix max register value")
+Link: https://lore.kernel.org/all/20220119064011.2943292-1-mkl@pengutronix.de
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/net/can/tcan4x5x.txt |    2 +-
+ drivers/net/can/m_can/tcan4x5x-regmap.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/devicetree/bindings/net/can/tcan4x5x.txt
-+++ b/Documentation/devicetree/bindings/net/can/tcan4x5x.txt
-@@ -31,7 +31,7 @@ tcan4x5x: tcan4x5x@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
- 		spi-max-frequency = <10000000>;
--		bosch,mram-cfg = <0x0 0 0 32 0 0 1 1>;
-+		bosch,mram-cfg = <0x0 0 0 16 0 0 1 1>;
- 		interrupt-parent = <&gpio1>;
- 		interrupts = <14 IRQ_TYPE_LEVEL_LOW>;
- 		device-state-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
+diff --git a/drivers/net/can/m_can/tcan4x5x-regmap.c b/drivers/net/can/m_can/tcan4x5x-regmap.c
+index ca80dbaf7a3f5..26e212b8ca7a6 100644
+--- a/drivers/net/can/m_can/tcan4x5x-regmap.c
++++ b/drivers/net/can/m_can/tcan4x5x-regmap.c
+@@ -12,7 +12,7 @@
+ #define TCAN4X5X_SPI_INSTRUCTION_WRITE (0x61 << 24)
+ #define TCAN4X5X_SPI_INSTRUCTION_READ (0x41 << 24)
+ 
+-#define TCAN4X5X_MAX_REGISTER 0x8ffc
++#define TCAN4X5X_MAX_REGISTER 0x87fc
+ 
+ static int tcan4x5x_regmap_gather_write(void *context,
+ 					const void *reg, size_t reg_len,
+-- 
+2.34.1
+
 
 
