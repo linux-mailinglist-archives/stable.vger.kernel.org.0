@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E42214A441E
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:26:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AB084A4424
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:27:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343727AbiAaL0X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:26:23 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:56700 "EHLO
+        id S1377325AbiAaL0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:26:37 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56732 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377703AbiAaLYU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:24:20 -0500
+        with ESMTP id S1378421AbiAaLYY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:24:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C55261237;
-        Mon, 31 Jan 2022 11:24:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C79A8C340EE;
-        Mon, 31 Jan 2022 11:24:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 387B96129E;
+        Mon, 31 Jan 2022 11:24:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1836BC340EE;
+        Mon, 31 Jan 2022 11:24:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628259;
-        bh=g3KRHvx21d6YBX7mUnSWSI64yk84o0QhYsXMVsF/jUA=;
+        s=korg; t=1643628262;
+        bh=4OSZBtWLrvk3XZbaNpArCk8kQ9Usrw+AeQKGcKTYR1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CM5zhFcQUXSdnrpGRYA8b3Lc40PGtVIjJqrT4jVh8YWM9VqT0XtL9kpdNRiTmhK+d
-         EpejG0/dIgwbOBITQtIAjBluJ8/kRpTyUhEpxEhBBgfMvU8MGMeabsI3ZkEQmWc26I
-         rX4d967qPBE6cwlO7vviKVhsWzk0ykzf2WbCuUsg=
+        b=wDu/zhms90CZzt/vw39qmdR10zvZ5s1VqVaTu4rd2WmgIx/d1TJhXBJrmWzUkwUeH
+         XKAUkeCp8sg0O//yzW/2wuKlx4W+laGaGfv9haJ9nDGamC90Qq9ikgX0LkddZtNHVQ
+         016ecHrbuej2KOUm3bT80LKk7zofJiy15qbth1LA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
+        stable@vger.kernel.org, Dave Airlie <airlied@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 176/200] sch_htb: Fail on unsupported parameters when offload is requested
-Date:   Mon, 31 Jan 2022 11:57:19 +0100
-Message-Id: <20220131105239.464153705@linuxfoundation.org>
+Subject: [PATCH 5.16 177/200] Revert "drm/ast: Support 1600x900 with 108MHz PCLK"
+Date:   Mon, 31 Jan 2022 11:57:20 +0100
+Message-Id: <20220131105239.501421956@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
 References: <20220131105233.561926043@linuxfoundation.org>
@@ -46,65 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Dave Airlie <airlied@redhat.com>
 
-[ Upstream commit 429c3be8a5e2695b5b92a6a12361eb89eb185495 ]
+[ Upstream commit 76cea3d95513fe40000d06a3719c4bb6b53275e2 ]
 
-The current implementation of HTB offload doesn't support some
-parameters. Instead of ignoring them, actively return the EINVAL error
-when they are set to non-defaults.
+This reverts commit 9bb7b689274b67ecb3641e399e76f84adc627df1.
 
-As this patch goes to stable, the driver API is not changed here. If
-future drivers support more offload parameters, the checks can be moved
-to the driver side.
+This caused a regression reported to Red Hat.
 
-Note that the buffer and cbuffer parameters are also not supported, but
-the tc userspace tool assigns some default values derived from rate and
-ceil, and identifying these defaults in sch_htb would be unreliable, so
-they are still ignored.
-
-Fixes: d03b195b5aa0 ("sch_htb: Hierarchical QoS hardware offload")
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Link: https://lore.kernel.org/r/20220125100654.424570-1-maximmi@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 9bb7b689274b ("drm/ast: Support 1600x900 with 108MHz PCLK")
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220120040527.552068-1-airlied@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_htb.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/gpu/drm/ast/ast_tables.h | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/net/sched/sch_htb.c b/net/sched/sch_htb.c
-index 9267922ea9c37..23a9d6242429f 100644
---- a/net/sched/sch_htb.c
-+++ b/net/sched/sch_htb.c
-@@ -1810,6 +1810,26 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
- 	if (!hopt->rate.rate || !hopt->ceil.rate)
- 		goto failure;
+diff --git a/drivers/gpu/drm/ast/ast_tables.h b/drivers/gpu/drm/ast/ast_tables.h
+index d9eb353a4bf09..dbe1cc620f6e6 100644
+--- a/drivers/gpu/drm/ast/ast_tables.h
++++ b/drivers/gpu/drm/ast/ast_tables.h
+@@ -282,8 +282,6 @@ static const struct ast_vbios_enhtable res_1360x768[] = {
+ };
  
-+	if (q->offload) {
-+		/* Options not supported by the offload. */
-+		if (hopt->rate.overhead || hopt->ceil.overhead) {
-+			NL_SET_ERR_MSG(extack, "HTB offload doesn't support the overhead parameter");
-+			goto failure;
-+		}
-+		if (hopt->rate.mpu || hopt->ceil.mpu) {
-+			NL_SET_ERR_MSG(extack, "HTB offload doesn't support the mpu parameter");
-+			goto failure;
-+		}
-+		if (hopt->quantum) {
-+			NL_SET_ERR_MSG(extack, "HTB offload doesn't support the quantum parameter");
-+			goto failure;
-+		}
-+		if (hopt->prio) {
-+			NL_SET_ERR_MSG(extack, "HTB offload doesn't support the prio parameter");
-+			goto failure;
-+		}
-+	}
-+
- 	/* Keeping backward compatible with rate_table based iproute2 tc */
- 	if (hopt->rate.linklayer == TC_LINKLAYER_UNAWARE)
- 		qdisc_put_rtab(qdisc_get_rtab(&hopt->rate, tb[TCA_HTB_RTAB],
+ static const struct ast_vbios_enhtable res_1600x900[] = {
+-	{1800, 1600, 24, 80, 1000,  900, 1, 3, VCLK108,		/* 60Hz */
+-	 (SyncPP | Charx8Dot | LineCompareOff | WideScreenMode | NewModeInfo), 60, 3, 0x3A },
+ 	{1760, 1600, 48, 32, 926, 900, 3, 5, VCLK97_75,		/* 60Hz CVT RB */
+ 	 (SyncNP | Charx8Dot | LineCompareOff | WideScreenMode | NewModeInfo |
+ 	  AST2500PreCatchCRT), 60, 1, 0x3A },
 -- 
 2.34.1
 
