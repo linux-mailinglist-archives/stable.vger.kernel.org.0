@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EF924A4304
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:16:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB7FB4A4519
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:41:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358895AbiAaLQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:16:12 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34120 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359006AbiAaLOg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:14:36 -0500
+        id S1377283AbiAaLge (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:36:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51224 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378604AbiAaLe1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:34:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AB17C07979C;
+        Mon, 31 Jan 2022 03:23:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FF69B82A64;
-        Mon, 31 Jan 2022 11:14:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81AEAC340E8;
-        Mon, 31 Jan 2022 11:14:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCB7D60B28;
+        Mon, 31 Jan 2022 11:23:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C21B3C340E8;
+        Mon, 31 Jan 2022 11:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627673;
-        bh=99WXz5UJ2KQSkBJVIoXmnyEOcDHEt1YaAxIJSmIyad0=;
+        s=korg; t=1643628221;
+        bh=guVQ+V1aZEpjK3fzuRxBMXzdw9oPOX8He4aeUdYe3vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNo0loOflPfeQboxWdjGOum4Levpvmg+HuqWU1Mo+j496+ew/rc4HICVeO7F3Il6b
-         HKEH12lqdb2FGOF/KUIXQ6x9mm1G7M0xt1URXBQ5gydFWtIgwFAUGHOet0nzv/JOSa
-         l05qJq+nLpn3TezsccDpEac8N3f7UROtJl8Gmv54=
+        b=pHeWJTUgLZMdXvidRgDXRl/hwdQIWMglWwl9OWHUrXveCH9DJp9jghlFmOZpEkD1y
+         /T8xnettmA6nSlhDervUxpW2LQJCbbd2UVIjFTlP1auA2XxGZYkQfcFe1TAXscNBp3
+         ivpWwkJ/8oUtPchY04FS5GhQYh8PANA8GqJi01Ho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Yi <tim.yi@pica8.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        Dany Madden <drt@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 160/171] net: bridge: vlan: fix memory leak in __allowed_ingress
+Subject: [PATCH 5.16 162/200] ibmvnic: Allow extra failures before disabling
 Date:   Mon, 31 Jan 2022 11:57:05 +0100
-Message-Id: <20220131105235.432187773@linuxfoundation.org>
+Message-Id: <20220131105239.005295871@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +50,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Yi <tim.yi@pica8.com>
+From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 
-[ Upstream commit fd20d9738395cf8e27d0a17eba34169699fccdff ]
+[ Upstream commit db9f0e8bf79e6da7068b5818fea0ffd9d0d4b4da ]
 
-When using per-vlan state, if vlan snooping and stats are disabled,
-untagged or priority-tagged ingress frame will go to check pvid state.
-If the port state is forwarding and the pvid state is not
-learning/forwarding, untagged or priority-tagged frame will be dropped
-but skb memory is not freed.
-Should free skb when __allowed_ingress returns false.
+If auto-priority-failover (APF) is enabled and there are at least two
+backing devices of different priorities, some resets like fail-over,
+change-param etc can cause at least two back to back failovers. (Failover
+from high priority backing device to lower priority one and then back
+to the higher priority one if that is still functional).
 
-Fixes: a580c76d534c ("net: bridge: vlan: add per-vlan state")
-Signed-off-by: Tim Yi <tim.yi@pica8.com>
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Link: https://lore.kernel.org/r/20220127074953.12632-1-tim.yi@pica8.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Depending on the timimg of the two failovers it is possible to trigger
+a "hard" reset and for the hard reset to fail due to failovers. When this
+occurs, the driver assumes that the network is unstable and disables the
+VNIC for a 60-second "settling time". This in turn can cause the ethtool
+command to fail with "No such device" while the vnic automatically recovers
+a little while later.
+
+Given that it's possible to have two back to back failures, allow for extra
+failures before disabling the vnic for the settling time.
+
+Fixes: f15fde9d47b8 ("ibmvnic: delay next reset if hard reset fails")
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Reviewed-by: Dany Madden <drt@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_vlan.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 06f5caee495aa..10e63ea6a13e1 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -560,10 +560,10 @@ static bool __allowed_ingress(const struct net_bridge *br,
- 		    !br_opt_get(br, BROPT_VLAN_STATS_ENABLED)) {
- 			if (*state == BR_STATE_FORWARDING) {
- 				*state = br_vlan_get_pvid_state(vg);
--				return br_vlan_state_allowed(*state, true);
--			} else {
--				return true;
-+				if (!br_vlan_state_allowed(*state, true))
-+					goto drop;
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 0bb3911dd014d..9b2d16ad76f12 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2598,6 +2598,7 @@ static void __ibmvnic_reset(struct work_struct *work)
+ 	struct ibmvnic_rwi *rwi;
+ 	unsigned long flags;
+ 	u32 reset_state;
++	int num_fails = 0;
+ 	int rc = 0;
+ 
+ 	adapter = container_of(work, struct ibmvnic_adapter, ibmvnic_reset);
+@@ -2651,11 +2652,23 @@ static void __ibmvnic_reset(struct work_struct *work)
+ 				rc = do_hard_reset(adapter, rwi, reset_state);
+ 				rtnl_unlock();
  			}
-+			return true;
- 		}
- 	}
- 	v = br_vlan_find(vg, *vid);
+-			if (rc) {
+-				/* give backing device time to settle down */
++			if (rc)
++				num_fails++;
++			else
++				num_fails = 0;
++
++			/* If auto-priority-failover is enabled we can get
++			 * back to back failovers during resets, resulting
++			 * in at least two failed resets (from high-priority
++			 * backing device to low-priority one and then back)
++			 * If resets continue to fail beyond that, give the
++			 * adapter some time to settle down before retrying.
++			 */
++			if (num_fails >= 3) {
+ 				netdev_dbg(adapter->netdev,
+-					   "[S:%s] Hard reset failed, waiting 60 secs\n",
+-					   adapter_state_to_string(adapter->state));
++					   "[S:%s] Hard reset failed %d times, waiting 60 secs\n",
++					   adapter_state_to_string(adapter->state),
++					   num_fails);
+ 				set_current_state(TASK_UNINTERRUPTIBLE);
+ 				schedule_timeout(60 * HZ);
+ 			}
 -- 
 2.34.1
 
