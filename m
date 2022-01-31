@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF9454A4250
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90A194A44A8
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:33:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349512AbiAaLLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:11:25 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42612 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376636AbiAaLIq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:08:46 -0500
+        id S1359190AbiAaLb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:31:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49466 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378745AbiAaL3F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:29:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC6FBC02C307;
+        Mon, 31 Jan 2022 03:17:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57AB861120;
-        Mon, 31 Jan 2022 11:08:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EE9CC340E8;
-        Mon, 31 Jan 2022 11:08:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C257B82A5C;
+        Mon, 31 Jan 2022 11:17:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2CB6C340E8;
+        Mon, 31 Jan 2022 11:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627325;
-        bh=5tY0CAlJUzcoaiWnUY4WMVkJA9mAYKR3uGYW2xPE+5s=;
+        s=korg; t=1643627871;
+        bh=7v0B2UhaT3PmQ3YNTN9Yu4Y8TPqXyjR/8nRw4Wtp3mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dmv09OoNkSMZkJoXhzH0aFGCkVvu+aih8uDhgGLEGY20jg4d99ljpTQQUDCF5kPVB
-         lZt33Au0oxV6hZFlNuMUKn8++eU+XYWveJLTqzj7qcSUacEy0yyb0PrQzCx+U3XQ+O
-         oFtl4rwrfsCV0Ud7+Q8QeX939Ycu16p7JqnhsUSo=
+        b=0kJvfcSFkeNVpoU+OTLvDG7LYnsOBXru5G/wxGjAJ5BECrLd/Vp2jFS35fLmdypau
+         +WcdLZACTmwv+wj60VGY8HvnI3NviyQ3HcjJzlCun6TTnJnd+iP1NvaNdHd1E5HaXu
+         njv2TMYpTNtjhcVQKwHoTV+wvrFB/Ga+Ux/lCkcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>
-Subject: [PATCH 5.15 047/171] serial: 8250: of: Fix mapped region size when using reg-offset property
-Date:   Mon, 31 Jan 2022 11:55:12 +0100
-Message-Id: <20220131105231.618648179@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Liam Merwick <liam.merwick@oracle.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.16 050/200] KVM: SVM: Dont intercept #GP for SEV guests
+Date:   Mon, 31 Jan 2022 11:55:13 +0100
+Message-Id: <20220131105235.246818323@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +50,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit d06b1cf28297e27127d3da54753a3a01a2fa2f28 upstream.
+commit 0b0be065b7563ac708aaa9f69dd4941c80b3446d upstream.
 
-8250_of supports a reg-offset property which is intended to handle
-cases where the device registers start at an offset inside the region
-of memory allocated to the device. The Xilinx 16550 UART, for which this
-support was initially added, requires this. However, the code did not
-adjust the overall size of the mapped region accordingly, causing the
-driver to request an area of memory past the end of the device's
-allocation. For example, if the UART was allocated an address of
-0xb0130000, size of 0x10000 and reg-offset of 0x1000 in the device
-tree, the region of memory reserved was b0131000-b0140fff, which caused
-the driver for the region starting at b0140000 to fail to probe.
+Never intercept #GP for SEV guests as reading SEV guest private memory
+will return cyphertext, i.e. emulating on #GP can't work as intended.
 
-Fix this by subtracting reg-offset from the mapped region size.
-
-Fixes: b912b5e2cfb3 ([POWERPC] Xilinx: of_serial support for Xilinx uart 16550.)
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20220112194214.881844-1-robert.hancock@calian.com
+Cc: stable@vger.kernel.org
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
+Message-Id: <20220120010719.711476-4-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_of.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/x86/kvm/svm/svm.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_of.c
-+++ b/drivers/tty/serial/8250/8250_of.c
-@@ -83,8 +83,17 @@ static int of_platform_serial_setup(stru
- 		port->mapsize = resource_size(&resource);
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -312,7 +312,11 @@ int svm_set_efer(struct kvm_vcpu *vcpu,
+ 				return ret;
+ 			}
  
- 		/* Check for shifted address mapping */
--		if (of_property_read_u32(np, "reg-offset", &prop) == 0)
-+		if (of_property_read_u32(np, "reg-offset", &prop) == 0) {
-+			if (prop >= port->mapsize) {
-+				dev_warn(&ofdev->dev, "reg-offset %u exceeds region size %pa\n",
-+					 prop, &port->mapsize);
-+				ret = -EINVAL;
-+				goto err_unprepare;
-+			}
-+
- 			port->mapbase += prop;
-+			port->mapsize -= prop;
-+		}
+-			if (svm_gp_erratum_intercept)
++			/*
++			 * Never intercept #GP for SEV guests, KVM can't
++			 * decrypt guest memory to workaround the erratum.
++			 */
++			if (svm_gp_erratum_intercept && !sev_guest(vcpu->kvm))
+ 				set_exception_intercept(svm, GP_VECTOR);
+ 		}
+ 	}
+@@ -1238,9 +1242,10 @@ static void init_vmcb(struct kvm_vcpu *v
+ 	 * Guest access to VMware backdoor ports could legitimately
+ 	 * trigger #GP because of TSS I/O permission bitmap.
+ 	 * We intercept those #GP and allow access to them anyway
+-	 * as VMware does.
++	 * as VMware does.  Don't intercept #GP for SEV guests as KVM can't
++	 * decrypt guest memory to decode the faulting instruction.
+ 	 */
+-	if (enable_vmware_backdoor)
++	if (enable_vmware_backdoor && !sev_guest(vcpu->kvm))
+ 		set_exception_intercept(svm, GP_VECTOR);
  
- 		port->iotype = UPIO_MEM;
- 		if (of_property_read_u32(np, "reg-io-width", &prop) == 0) {
+ 	svm_set_intercept(svm, INTERCEPT_INTR);
 
 
