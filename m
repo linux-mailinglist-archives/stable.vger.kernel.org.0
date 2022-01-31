@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 899954A41A6
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:05:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEB7C4A42C6
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:14:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358831AbiAaLFA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:05:00 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51878 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358846AbiAaLD4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:03:56 -0500
+        id S1376845AbiAaLN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:13:57 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45430 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359663AbiAaLLz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:11:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2B9EB82A31;
-        Mon, 31 Jan 2022 11:03:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2780AC340E8;
-        Mon, 31 Jan 2022 11:03:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D33A60B28;
+        Mon, 31 Jan 2022 11:11:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E50C6C36AE3;
+        Mon, 31 Jan 2022 11:11:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627032;
-        bh=kz2Lt6zhXS8sxBsfLdzg8w/oWhJ3AggNaq9bxEXj+Cw=;
+        s=korg; t=1643627513;
+        bh=CDQvcNd51qORtHk1aEkLx93b0VacLGE0an/9B/R4oO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vkyi+OQa5agEqtFxYK6408gzreHIzC2Xt4RcZO46+UDaG7ZaGibl4wFAP00dKVnNg
-         7hspbhmG/HLS7EzGkjjDs7QDj5Y+XtQ6XYQqBA54x33GtQmGhQvb/6X0RcfLSZqCID
-         WrEtXTZM7MCw2S1NEp0FjP2NmHctOZ8cIFJr5jtI=
+        b=L412AXBMKqGOc+zzVEiVU5m6nMrBpWyJbYqGfyWd7/z1GBAtwLxU4jkaKIFAwQwtF
+         A2+4doWwPIZ8kv242aqdHAiSGNfQ6uBIds98eF/E4xarbTgejlrKJU7O50N2rHUfKX
+         WfWSfaj2T/QQGGXLueQ/byv/zGmAt7y0zWqN95Q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Congyu Liu <liu3101@purdue.edu>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Rick Yiu <rickyiu@google.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Sachin Sant <sachinp@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 053/100] net: fix information leakage in /proc/net/ptype
+Subject: [PATCH 5.15 109/171] sched/pelt: Relax the sync of util_sum with util_avg
 Date:   Mon, 31 Jan 2022 11:56:14 +0100
-Message-Id: <20220131105222.221575774@linuxfoundation.org>
+Message-Id: <20220131105233.728252176@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +48,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Congyu Liu <liu3101@purdue.edu>
+From: Vincent Guittot <vincent.guittot@linaro.org>
 
-commit 47934e06b65637c88a762d9c98329ae6e3238888 upstream.
+[ Upstream commit 98b0d890220d45418cfbc5157b3382e6da5a12ab ]
 
-In one net namespace, after creating a packet socket without binding
-it to a device, users in other net namespaces can observe the new
-`packet_type` added by this packet socket by reading `/proc/net/ptype`
-file. This is minor information leakage as packet socket is
-namespace aware.
+Rick reported performance regressions in bugzilla because of cpu frequency
+being lower than before:
+    https://bugzilla.kernel.org/show_bug.cgi?id=215045
 
-Add a net pointer in `packet_type` to keep the net namespace of
-of corresponding packet socket. In `ptype_seq_show`, this net pointer
-must be checked when it is not NULL.
+He bisected the problem to:
+commit 1c35b07e6d39 ("sched/fair: Ensure _sum and _avg values stay consistent")
 
-Fixes: 2feb27dbe00c ("[NETNS]: Minor information leak via /proc/net/ptype file.")
-Signed-off-by: Congyu Liu <liu3101@purdue.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This commit forces util_sum to be synced with the new util_avg after
+removing the contribution of a task and before the next periodic sync. By
+doing so util_sum is rounded to its lower bound and might lost up to
+LOAD_AVG_MAX-1 of accumulated contribution which has not yet been
+reflected in util_avg.
+
+Instead of always setting util_sum to the low bound of util_avg, which can
+significantly lower the utilization of root cfs_rq after propagating the
+change down into the hierarchy, we revert the change of util_sum and
+propagate the difference.
+
+In addition, we also check that cfs's util_sum always stays above the
+lower bound for a given util_avg as it has been observed that
+sched_entity's util_sum is sometimes above cfs one.
+
+Fixes: 1c35b07e6d39 ("sched/fair: Ensure _sum and _avg values stay consistent")
+Reported-by: Rick Yiu <rickyiu@google.com>
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Tested-by: Sachin Sant <sachinp@linux.ibm.com>
+Link: https://lkml.kernel.org/r/20220111134659.24961-2-vincent.guittot@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netdevice.h |    1 +
- net/core/net-procfs.c     |    3 ++-
- net/packet/af_packet.c    |    2 ++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ kernel/sched/fair.c | 16 +++++++++++++---
+ kernel/sched/pelt.h |  4 +++-
+ 2 files changed, 16 insertions(+), 4 deletions(-)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -2543,6 +2543,7 @@ struct packet_type {
- 					      struct net_device *);
- 	bool			(*id_match)(struct packet_type *ptype,
- 					    struct sock *sk);
-+	struct net		*af_packet_net;
- 	void			*af_packet_priv;
- 	struct list_head	list;
- };
---- a/net/core/net-procfs.c
-+++ b/net/core/net-procfs.c
-@@ -263,7 +263,8 @@ static int ptype_seq_show(struct seq_fil
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index d41f966f5866a..6420580f2730b 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3422,7 +3422,6 @@ void set_task_rq_fair(struct sched_entity *se,
+ 	se->avg.last_update_time = n_last_update_time;
+ }
  
- 	if (v == SEQ_START_TOKEN)
- 		seq_puts(seq, "Type Device      Function\n");
--	else if (pt->dev == NULL || dev_net(pt->dev) == seq_file_net(seq)) {
-+	else if ((!pt->af_packet_net || net_eq(pt->af_packet_net, seq_file_net(seq))) &&
-+		 (!pt->dev || net_eq(dev_net(pt->dev), seq_file_net(seq)))) {
- 		if (pt->type == htons(ETH_P_ALL))
- 			seq_puts(seq, "ALL ");
- 		else
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1735,6 +1735,7 @@ static int fanout_add(struct sock *sk, s
- 		match->prot_hook.dev = po->prot_hook.dev;
- 		match->prot_hook.func = packet_rcv_fanout;
- 		match->prot_hook.af_packet_priv = match;
-+		match->prot_hook.af_packet_net = read_pnet(&match->net);
- 		match->prot_hook.id_match = match_fanout_group;
- 		match->max_num_members = args->max_num_members;
- 		list_add(&match->list, &fanout_list);
-@@ -3323,6 +3324,7 @@ static int packet_create(struct net *net
- 		po->prot_hook.func = packet_rcv_spkt;
+-
+ /*
+  * When on migration a sched_entity joins/leaves the PELT hierarchy, we need to
+  * propagate its contribution. The key to this propagation is the invariant
+@@ -3490,7 +3489,6 @@ void set_task_rq_fair(struct sched_entity *se,
+  * XXX: only do this for the part of runnable > running ?
+  *
+  */
+-
+ static inline void
+ update_tg_cfs_util(struct cfs_rq *cfs_rq, struct sched_entity *se, struct cfs_rq *gcfs_rq)
+ {
+@@ -3722,7 +3720,19 @@ update_cfs_rq_load_avg(u64 now, struct cfs_rq *cfs_rq)
  
- 	po->prot_hook.af_packet_priv = sk;
-+	po->prot_hook.af_packet_net = sock_net(sk);
+ 		r = removed_util;
+ 		sub_positive(&sa->util_avg, r);
+-		sa->util_sum = sa->util_avg * divider;
++		sub_positive(&sa->util_sum, r * divider);
++		/*
++		 * Because of rounding, se->util_sum might ends up being +1 more than
++		 * cfs->util_sum. Although this is not a problem by itself, detaching
++		 * a lot of tasks with the rounding problem between 2 updates of
++		 * util_avg (~1ms) can make cfs->util_sum becoming null whereas
++		 * cfs_util_avg is not.
++		 * Check that util_sum is still above its lower bound for the new
++		 * util_avg. Given that period_contrib might have moved since the last
++		 * sync, we are only sure that util_sum must be above or equal to
++		 *    util_avg * minimum possible divider
++		 */
++		sa->util_sum = max_t(u32, sa->util_sum, sa->util_avg * PELT_MIN_DIVIDER);
  
- 	if (proto) {
- 		po->prot_hook.type = proto;
+ 		r = removed_runnable;
+ 		sub_positive(&sa->runnable_avg, r);
+diff --git a/kernel/sched/pelt.h b/kernel/sched/pelt.h
+index e06071bf3472c..c336f5f481bca 100644
+--- a/kernel/sched/pelt.h
++++ b/kernel/sched/pelt.h
+@@ -37,9 +37,11 @@ update_irq_load_avg(struct rq *rq, u64 running)
+ }
+ #endif
+ 
++#define PELT_MIN_DIVIDER	(LOAD_AVG_MAX - 1024)
++
+ static inline u32 get_pelt_divider(struct sched_avg *avg)
+ {
+-	return LOAD_AVG_MAX - 1024 + avg->period_contrib;
++	return PELT_MIN_DIVIDER + avg->period_contrib;
+ }
+ 
+ static inline void cfs_se_util_change(struct sched_avg *avg)
+-- 
+2.34.1
+
 
 
