@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45E1A4A42A3
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2F1D4A4198
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:04:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358777AbiAaLMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:12:42 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43414 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377748AbiAaLKZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:25 -0500
+        id S1358349AbiAaLEw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:04:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43138 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348709AbiAaLDn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:03:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AA5DC06173D;
+        Mon, 31 Jan 2022 03:03:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 592A860ED0;
-        Mon, 31 Jan 2022 11:10:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A9FAC340E8;
-        Mon, 31 Jan 2022 11:10:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A47A60AE3;
+        Mon, 31 Jan 2022 11:03:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE9ADC340E8;
+        Mon, 31 Jan 2022 11:03:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627424;
-        bh=gOB0qW5mpoVbfHMiPHf4l2UoTQFpZUMr9AmBl6RFO6Y=;
+        s=korg; t=1643626981;
+        bh=kvmeKDKq4ruE2gAqLGR7+eCTMNUXOvT8e/qFwT9YNBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=owk8MG7TiyG7I29X/ZuH2EI77poD/jtigbaCwkYFxfIW9k9x90k798dDKsi8Ti+0m
-         QXs5iq8Kd2elwN630KKdK5fSqR2q/b/j5XvGqbKbTE6jbVGMmf9cfScuqaCRciB8eC
-         zUGXbO0uzArm4VAWIwSZKguCk1O6QqXxmWldM+LE=
+        b=LnJE4lAdPX4O+iMt/jVVme2MFOaDVNMU7nVaza3zlj3GrWPymu9nZ+YAawqmNcMEu
+         x4ovotd8qL4jvqCf6KSodVimdPHWs1k6EVc0qIYzVsCPmBcV7FKJ8RlSbrNXDJlw0+
+         EFVBCgShCEZEr/GscXEp7pNowe4Gb4y8FZvy195w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Badhri Jagan Sridharan <badhri@google.com>
-Subject: [PATCH 5.15 062/171] usb: typec: tcpm: Do not disconnect while receiving VBUS off
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.10 006/100] s390/hypfs: include z/VM guests with access control group set
 Date:   Mon, 31 Jan 2022 11:55:27 +0100
-Message-Id: <20220131105232.128608115@linuxfoundation.org>
+Message-Id: <20220131105220.651044036@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Badhri Jagan Sridharan <badhri@google.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-commit 90b8aa9f5b09edae6928c0561f933fec9f7a9987 upstream.
+commit 663d34c8df98740f1e90241e78e456d00b3c6cad upstream.
 
-With some chargers, vbus might momentarily raise above VSAFE5V and fall
-back to 0V before tcpm gets to read port->tcpc->get_vbus. This will
-will report a VBUS off event causing TCPM to transition to
-SNK_UNATTACHED where it should be waiting in either SNK_ATTACH_WAIT
-or SNK_DEBOUNCED state. This patch makes TCPM avoid vbus off events
-while in SNK_ATTACH_WAIT or SNK_DEBOUNCED state.
+Currently if z/VM guest is allowed to retrieve hypervisor performance
+data globally for all guests (privilege class B) the query is formed in a
+way to include all guests but the group name is left empty. This leads to
+that z/VM guests which have access control group set not being included
+in the results (even local vm).
 
-Stub from the spec:
-    "4.5.2.2.4.2 Exiting from AttachWait.SNK State
-    A Sink shall transition to Unattached.SNK when the state of both
-    the CC1 and CC2 pins is SNK.Open for at least tPDDebounce.
-    A DRP shall transition to Unattached.SRC when the state of both
-    the CC1 and CC2 pins is SNK.Open for at least tPDDebounce."
+Change the query group identifier from empty to "any" to retrieve
+information about all guests from any groups (or without a group set).
 
-[23.194131] CC1: 0 -> 0, CC2: 0 -> 5 [state SNK_UNATTACHED, polarity 0, connected]
-[23.201777] state change SNK_UNATTACHED -> SNK_ATTACH_WAIT [rev3 NONE_AMS]
-[23.209949] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev3 NONE_AMS]
-[23.300579] VBUS off
-[23.300668] state change SNK_ATTACH_WAIT -> SNK_UNATTACHED [rev3 NONE_AMS]
-[23.301014] VBUS VSAFE0V
-[23.301111] Start toggling
-
-Fixes: f0690a25a140b8 ("staging: typec: USB Type-C Port Manager (tcpm)")
 Cc: stable@vger.kernel.org
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
-Link: https://lore.kernel.org/r/20220122015520.332507-1-badhri@google.com
+Fixes: 31cb4bd31a48 ("[S390] Hypervisor filesystem (s390_hypfs) for z/VM")
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/hypfs/hypfs_vm.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -5156,7 +5156,8 @@ static void _tcpm_pd_vbus_off(struct tcp
- 	case SNK_TRYWAIT_DEBOUNCE:
- 		break;
- 	case SNK_ATTACH_WAIT:
--		tcpm_set_state(port, SNK_UNATTACHED, 0);
-+	case SNK_DEBOUNCED:
-+		/* Do nothing, as TCPM is still waiting for vbus to reaach VSAFE5V to connect */
- 		break;
+--- a/arch/s390/hypfs/hypfs_vm.c
++++ b/arch/s390/hypfs/hypfs_vm.c
+@@ -20,6 +20,7 @@
  
- 	case SNK_NEGOTIATE_CAPABILITIES:
+ static char local_guest[] = "        ";
+ static char all_guests[] = "*       ";
++static char *all_groups = all_guests;
+ static char *guest_query;
+ 
+ struct diag2fc_data {
+@@ -62,10 +63,11 @@ static int diag2fc(int size, char* query
+ 
+ 	memcpy(parm_list.userid, query, NAME_LEN);
+ 	ASCEBC(parm_list.userid, NAME_LEN);
+-	parm_list.addr = (unsigned long) addr ;
++	memcpy(parm_list.aci_grp, all_groups, NAME_LEN);
++	ASCEBC(parm_list.aci_grp, NAME_LEN);
++	parm_list.addr = (unsigned long)addr;
+ 	parm_list.size = size;
+ 	parm_list.fmt = 0x02;
+-	memset(parm_list.aci_grp, 0x40, NAME_LEN);
+ 	rc = -1;
+ 
+ 	diag_stat_inc(DIAG_STAT_X2FC);
 
 
