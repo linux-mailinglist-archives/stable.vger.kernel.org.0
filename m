@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0C554A4040
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 11:32:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 020AF4A4043
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 11:32:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358196AbiAaKcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 05:32:45 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:42236 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358195AbiAaKco (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:32:44 -0500
+        id S1358206AbiAaKcw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 05:32:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36698 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358202AbiAaKcv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:32:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A870C061714
+        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 02:32:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3CFD9CE10EC
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 10:32:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAC04C340E8;
-        Mon, 31 Jan 2022 10:32:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B01D6134A
+        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 10:32:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AC73C340E8;
+        Mon, 31 Jan 2022 10:32:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643625161;
-        bh=DW6B2IrV1HVRo7sh1Eak+cKCiGvKkaDYT7JoC7pAYg8=;
+        s=korg; t=1643625170;
+        bh=MLql24U1fQVA2bJZcH1z187N825kiDjsFAvmDaWNkVo=;
         h=Subject:To:Cc:From:Date:From;
-        b=XZ54Stix/HvLBj4nX8DcWOAeEyHIBvwsEAynVgIXybokLOUeRZWj5jHm/TZCSbhcI
-         AUewE8Pl+zxw6rvUounwW1Sd+nALHZXBSCq1IDyBsEKq7wW/mYEpXNjbssB8MTsl5u
-         skC21GVLkS8ug2pZKxPMQzG+ugkD4pNjIN4OAzHc=
-Subject: FAILED: patch "[PATCH] loop: don't hold lo_mutex during __loop_clr_fd()" failed to apply to 5.4-stable tree
-To:     penguin-kernel@i-love.sakura.ne.jp, axboe@kernel.dk, hch@lst.de,
+        b=YfuKrAuuurK00VxcNFb95RrFlah3TeKkfpDJyvVlC/6HI8CwZQsB+m8cpAxhcnyvJ
+         BbFk1p71TSE4G+HgA6ux7WzROzfgZD/TiNXpJn5qpOywL3FWG/+ZX3ZfLk/qSZd9iQ
+         NTCB/mXKkVVEG7DUA29jQAJ+btlgjZrfT8rpWFwo=
+Subject: FAILED: patch "[PATCH] loop: make autoclear operation asynchronous" failed to apply to 5.16-stable tree
+To:     penguin-kernel@i-love.sakura.ne.jp, axboe@kernel.dk,
+        hch@infradead.org, hch@lst.de, jack@suse.cz,
         penguin-kernel@I-love.SAKURA.ne.jp,
-        syzbot+63614029dfb79abd4383@syzkaller.appspotmail.com
+        syzbot+643e4ce4b6ad1347d372@syzkaller.appspotmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Jan 2022 11:32:28 +0100
-Message-ID: <164362514822780@kroah.com>
+Date:   Mon, 31 Jan 2022 11:32:36 +0100
+Message-ID: <1643625156194186@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +45,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -52,153 +56,157 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6050fa4c84cc93ae509f5105f585a429dffc5633 Mon Sep 17 00:00:00 2001
+From 322c4293ecc58110227b49d7e47ae37b9b03566f Mon Sep 17 00:00:00 2001
 From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Date: Wed, 24 Nov 2021 19:47:40 +0900
-Subject: [PATCH] loop: don't hold lo_mutex during __loop_clr_fd()
+Date: Mon, 13 Dec 2021 21:55:27 +0900
+Subject: [PATCH] loop: make autoclear operation asynchronous
 
 syzbot is reporting circular locking problem at __loop_clr_fd() [1], for
 commit 87579e9b7d8dc36e ("loop: use worker per cgroup instead of kworker")
-is calling destroy_workqueue() with lo->lo_mutex held.
+is calling destroy_workqueue() with disk->open_mutex held.
 
-Since all functions where lo->lo_state matters are already checking
-lo->lo_state with lo->lo_mutex held (in order to avoid racing with e.g.
-ioctl(LOOP_CTL_REMOVE)), and __loop_clr_fd() can be called from either
-ioctl(LOOP_CLR_FD) xor close(), lo->lo_state == Lo_rundown is considered
-as an exclusive lock for __loop_clr_fd(). Therefore, hold lo->lo_mutex
-inside __loop_clr_fd() only when asserting/updating lo->lo_state.
+This circular dependency cannot be broken unless we call __loop_clr_fd()
+without holding disk->open_mutex. Therefore, defer __loop_clr_fd() from
+lo_release() to a WQ context.
 
-Since ioctl(LOOP_CLR_FD) depends on lo->lo_state == Lo_bound, a valid
-lo->lo_backing_file must have been assigned by ioctl(LOOP_SET_FD) or
-ioctl(LOOP_CONFIGURE). Thus, we can remove lo->lo_backing_file test,
-and convert __loop_clr_fd() into a void function.
-
-Link: https://syzkaller.appspot.com/bug?extid=63614029dfb79abd4383 [1]
-Reported-by: syzbot <syzbot+63614029dfb79abd4383@syzkaller.appspotmail.com>
+Link: https://syzkaller.appspot.com/bug?extid=643e4ce4b6ad1347d372 [1]
+Reported-by: syzbot <syzbot+643e4ce4b6ad1347d372@syzkaller.appspotmail.com>
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Cc: Jan Kara <jack@suse.cz>
+Tested-by: syzbot+643e4ce4b6ad1347d372@syzkaller.appspotmail.com
 Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/8ebe3b2e-8975-7f26-0620-7144a3b8b8cd@i-love.sakura.ne.jp
+Link: https://lore.kernel.org/r/1ed7df28-ebd6-71fb-70e5-1c2972e05ddb@i-love.sakura.ne.jp
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index 0954ea8cf9e3..ba76319b5544 100644
+index ba76319b5544..7f4ea06534c2 100644
 --- a/drivers/block/loop.c
 +++ b/drivers/block/loop.c
-@@ -1082,13 +1082,10 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
+@@ -1082,7 +1082,7 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
  	return error;
  }
  
--static int __loop_clr_fd(struct loop_device *lo, bool release)
-+static void __loop_clr_fd(struct loop_device *lo, bool release)
+-static void __loop_clr_fd(struct loop_device *lo, bool release)
++static void __loop_clr_fd(struct loop_device *lo)
  {
--	struct file *filp = NULL;
-+	struct file *filp;
+ 	struct file *filp;
  	gfp_t gfp = lo->old_gfp_mask;
--	int err = 0;
--	bool partscan = false;
--	int lo_number;
- 	struct loop_worker *pos, *worker;
- 
- 	/*
-@@ -1103,17 +1100,14 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
- 	 * became visible.
- 	 */
- 
-+	/*
-+	 * Since this function is called upon "ioctl(LOOP_CLR_FD)" xor "close()
-+	 * after ioctl(LOOP_CLR_FD)", it is a sign of something going wrong if
-+	 * lo->lo_state has changed while waiting for lo->lo_mutex.
-+	 */
- 	mutex_lock(&lo->lo_mutex);
--	if (WARN_ON_ONCE(lo->lo_state != Lo_rundown)) {
--		err = -ENXIO;
--		goto out_unlock;
--	}
--
--	filp = lo->lo_backing_file;
--	if (filp == NULL) {
--		err = -EINVAL;
--		goto out_unlock;
--	}
-+	BUG_ON(lo->lo_state != Lo_rundown);
-+	mutex_unlock(&lo->lo_mutex);
- 
- 	if (test_bit(QUEUE_FLAG_WC, &lo->lo_queue->queue_flags))
- 		blk_queue_write_cache(lo->lo_queue, false, false);
-@@ -1134,6 +1128,7 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
- 	del_timer_sync(&lo->timer);
- 
- 	spin_lock_irq(&lo->lo_lock);
-+	filp = lo->lo_backing_file;
- 	lo->lo_backing_file = NULL;
- 	spin_unlock_irq(&lo->lo_lock);
- 
-@@ -1153,12 +1148,11 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
- 	module_put(THIS_MODULE);
+@@ -1144,8 +1144,6 @@ static void __loop_clr_fd(struct loop_device *lo, bool release)
+ 	/* let user-space know about this change */
+ 	kobject_uevent(&disk_to_dev(lo->lo_disk)->kobj, KOBJ_CHANGE);
+ 	mapping_set_gfp_mask(filp->f_mapping, gfp);
+-	/* This is safe: open() is still holding a reference. */
+-	module_put(THIS_MODULE);
  	blk_mq_unfreeze_queue(lo->lo_queue);
  
--	partscan = lo->lo_flags & LO_FLAGS_PARTSCAN;
--	lo_number = lo->lo_number;
  	disk_force_media_change(lo->lo_disk, DISK_EVENT_MEDIA_CHANGE);
--out_unlock:
--	mutex_unlock(&lo->lo_mutex);
--	if (partscan) {
-+
-+	if (lo->lo_flags & LO_FLAGS_PARTSCAN) {
-+		int err;
-+
- 		/*
- 		 * open_mutex has been held already in release path, so don't
- 		 * acquire it if this function is called in such case.
-@@ -1174,24 +1168,20 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
- 			mutex_unlock(&lo->lo_disk->open_mutex);
+@@ -1153,44 +1151,52 @@ static void __loop_clr_fd(struct loop_device *lo, bool release)
+ 	if (lo->lo_flags & LO_FLAGS_PARTSCAN) {
+ 		int err;
+ 
+-		/*
+-		 * open_mutex has been held already in release path, so don't
+-		 * acquire it if this function is called in such case.
+-		 *
+-		 * If the reread partition isn't from release path, lo_refcnt
+-		 * must be at least one and it can only become zero when the
+-		 * current holder is released.
+-		 */
+-		if (!release)
+-			mutex_lock(&lo->lo_disk->open_mutex);
++		mutex_lock(&lo->lo_disk->open_mutex);
+ 		err = bdev_disk_changed(lo->lo_disk, false);
+-		if (!release)
+-			mutex_unlock(&lo->lo_disk->open_mutex);
++		mutex_unlock(&lo->lo_disk->open_mutex);
  		if (err)
  			pr_warn("%s: partition scan of loop%d failed (rc=%d)\n",
--				__func__, lo_number, err);
-+				__func__, lo->lo_number, err);
+ 				__func__, lo->lo_number, err);
  		/* Device is gone, no point in returning error */
--		err = 0;
  	}
  
- 	/*
- 	 * lo->lo_state is set to Lo_unbound here after above partscan has
--	 * finished.
--	 *
--	 * There cannot be anybody else entering __loop_clr_fd() as
--	 * lo->lo_backing_file is already cleared and Lo_rundown state
--	 * protects us from all the other places trying to change the 'lo'
--	 * device.
-+	 * finished. There cannot be anybody else entering __loop_clr_fd() as
-+	 * Lo_rundown state protects us from all the other places trying to
-+	 * change the 'lo' device.
- 	 */
--	mutex_lock(&lo->lo_mutex);
+-	/*
+-	 * lo->lo_state is set to Lo_unbound here after above partscan has
+-	 * finished. There cannot be anybody else entering __loop_clr_fd() as
+-	 * Lo_rundown state protects us from all the other places trying to
+-	 * change the 'lo' device.
+-	 */
  	lo->lo_flags = 0;
  	if (!part_shift)
  		lo->lo_disk->flags |= GENHD_FL_NO_PART;
-+	mutex_lock(&lo->lo_mutex);
++
++	fput(filp);
++}
++
++static void loop_rundown_completed(struct loop_device *lo)
++{
+ 	mutex_lock(&lo->lo_mutex);
  	lo->lo_state = Lo_unbound;
  	mutex_unlock(&lo->lo_mutex);
++	module_put(THIS_MODULE);
++}
  
-@@ -1200,9 +1190,7 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
- 	 * lo_mutex triggers a circular lock dependency possibility warning as
- 	 * fput can take open_mutex which is usually taken before lo_mutex.
- 	 */
--	if (filp)
--		fput(filp);
--	return err;
-+	fput(filp);
+-	/*
+-	 * Need not hold lo_mutex to fput backing file. Calling fput holding
+-	 * lo_mutex triggers a circular lock dependency possibility warning as
+-	 * fput can take open_mutex which is usually taken before lo_mutex.
+-	 */
+-	fput(filp);
++static void loop_rundown_workfn(struct work_struct *work)
++{
++	struct loop_device *lo = container_of(work, struct loop_device,
++					      rundown_work);
++	struct block_device *bdev = lo->lo_device;
++	struct gendisk *disk = lo->lo_disk;
++
++	__loop_clr_fd(lo);
++	kobject_put(&bdev->bd_device.kobj);
++	module_put(disk->fops->owner);
++	loop_rundown_completed(lo);
++}
++
++static void loop_schedule_rundown(struct loop_device *lo)
++{
++	struct block_device *bdev = lo->lo_device;
++	struct gendisk *disk = lo->lo_disk;
++
++	__module_get(disk->fops->owner);
++	kobject_get(&bdev->bd_device.kobj);
++	INIT_WORK(&lo->rundown_work, loop_rundown_workfn);
++	queue_work(system_long_wq, &lo->rundown_work);
  }
  
  static int loop_clr_fd(struct loop_device *lo)
-@@ -1234,7 +1222,8 @@ static int loop_clr_fd(struct loop_device *lo)
+@@ -1222,7 +1228,8 @@ static int loop_clr_fd(struct loop_device *lo)
  	lo->lo_state = Lo_rundown;
  	mutex_unlock(&lo->lo_mutex);
  
--	return __loop_clr_fd(lo, false);
-+	__loop_clr_fd(lo, false);
-+	return 0;
+-	__loop_clr_fd(lo, false);
++	__loop_clr_fd(lo);
++	loop_rundown_completed(lo);
+ 	return 0;
  }
  
- static int
+@@ -1747,7 +1754,7 @@ static void lo_release(struct gendisk *disk, fmode_t mode)
+ 		 * In autoclear mode, stop the loop thread
+ 		 * and remove configuration after last close.
+ 		 */
+-		__loop_clr_fd(lo, true);
++		loop_schedule_rundown(lo);
+ 		return;
+ 	} else if (lo->lo_state == Lo_bound) {
+ 		/*
+diff --git a/drivers/block/loop.h b/drivers/block/loop.h
+index 082d4b6bfc6a..918a7a2dc025 100644
+--- a/drivers/block/loop.h
++++ b/drivers/block/loop.h
+@@ -56,6 +56,7 @@ struct loop_device {
+ 	struct gendisk		*lo_disk;
+ 	struct mutex		lo_mutex;
+ 	bool			idr_visible;
++	struct work_struct      rundown_work;
+ };
+ 
+ struct loop_cmd {
 
