@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74FA34A4353
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:21:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E374A429A
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359182AbiAaLU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:20:57 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37112 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376399AbiAaLRV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:17:21 -0500
+        id S1358803AbiAaLMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:12:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45382 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377560AbiAaLKM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E119C061756;
+        Mon, 31 Jan 2022 03:08:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B94E8B82A4C;
-        Mon, 31 Jan 2022 11:17:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D62B7C340E8;
-        Mon, 31 Jan 2022 11:17:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A661B82A5B;
+        Mon, 31 Jan 2022 11:08:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67F2AC340E8;
+        Mon, 31 Jan 2022 11:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627839;
-        bh=+wr5H8fwHIn1wDZLmYPIqd6zjvcF/dsGTEGAYDT40hc=;
+        s=korg; t=1643627301;
+        bh=kuXHwLf6NWkS5tginVu6/Vq6ux7KNLaEYxGBGZly/4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QQCXBjLFOotJ/yZ5S/BUiO+xc97HPAg4MxWx+COM7eEcpM+dnuK/KgY0nQlI7KOQE
-         WNIVZXsx9CbdoYkOQ8/KfBkJuEaGGB0pfZrLA/QG2ncQKB1wgMQs+S6I/yCJHbn5s5
-         SwwbpaD9cbR2nITdso8toS07witAAsXo/po51B0k=
+        b=CQwUelHH3omXkhAsmULpyxKmKWXEaVeG2gGGVJlpuigoxf1vcRV6mhexyiKRyfGSj
+         j9r3fEU7lp8mnCQuXAbikYS5AeMB/JtS0Fs4WSTbXy0GChP6kPVRAT4TY+CiCJ1tt4
+         fHVV/ekOKyV9v0q9o39BEkzGLbscQCoD8pTXWWWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Damjan Marion (damarion)" <damarion@cisco.com>,
-        Chan Edison <edison_chan_gz@hotmail.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.16 041/200] perf/x86/intel: Add a quirk for the calculation of the number of counters on Alder Lake
-Date:   Mon, 31 Jan 2022 11:55:04 +0100
-Message-Id: <20220131105234.941863329@linuxfoundation.org>
+        stable@vger.kernel.org, Like Xu <likexu@tencent.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 040/171] KVM: x86: Update vCPUs runtime CPUID on write to MSR_IA32_XSS
+Date:   Mon, 31 Jan 2022 11:55:05 +0100
+Message-Id: <20220131105231.371891864@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,76 +48,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Like Xu <likexu@tencent.com>
 
-commit 7fa981cad216e9f64f49e22112f610c0bfed91bc upstream.
+commit 4c282e51e4450b94680d6ca3b10f830483b1f243 upstream.
 
-For some Alder Lake machine with all E-cores disabled in a BIOS, the
-below warning may be triggered.
+Do a runtime CPUID update for a vCPU if MSR_IA32_XSS is written, as the
+size in bytes of the XSAVE area is affected by the states enabled in XSS.
 
-[ 2.010766] hw perf events fixed 5 > max(4), clipping!
-
-Current perf code relies on the CPUID leaf 0xA and leaf 7.EDX[15] to
-calculate the number of the counters and follow the below assumption.
-
-For a hybrid configuration, the leaf 7.EDX[15] (X86_FEATURE_HYBRID_CPU)
-is set. The leaf 0xA only enumerate the common counters. Linux perf has
-to manually add the extra GP counters and fixed counters for P-cores.
-For a non-hybrid configuration, the X86_FEATURE_HYBRID_CPU should not
-be set. The leaf 0xA enumerates all counters.
-
-However, that's not the case when all E-cores are disabled in a BIOS.
-Although there are only P-cores in the system, the leaf 7.EDX[15]
-(X86_FEATURE_HYBRID_CPU) is still set. But the leaf 0xA is updated
-to enumerate all counters of P-cores. The inconsistency triggers the
-warning.
-
-Several software ways were considered to handle the inconsistency.
-- Drop the leaf 0xA and leaf 7.EDX[15] CPUID enumeration support.
-  Hardcode the number of counters. This solution may be a problem for
-  virtualization. A hypervisor cannot control the number of counters
-  in a Linux guest via changing the guest CPUID enumeration anymore.
-- Find another CPUID bit that is also updated with E-cores disabled.
-  There may be a problem in the virtualization environment too. Because
-  a hypervisor may disable the feature/CPUID bit.
-- The P-cores have a maximum of 8 GP counters and 4 fixed counters on
-  ADL. The maximum number can be used to detect the case.
-  This solution is implemented in this patch.
-
-Fixes: ee72a94ea4a6 ("perf/x86/intel: Fix fixed counter check warning for some Alder Lake")
-Reported-by: Damjan Marion (damarion) <damarion@cisco.com>
-Reported-by: Chan Edison <edison_chan_gz@hotmail.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Damjan Marion (damarion) <damarion@cisco.com>
+Fixes: 203000993de5 ("kvm: vmx: add MSR logic for XSAVES")
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1641925238-149288-1-git-send-email-kan.liang@linux.intel.com
+Signed-off-by: Like Xu <likexu@tencent.com>
+[sean: split out as a separate patch, adjust Fixes tag]
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220126172226.2298529-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/core.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/x86/kvm/x86.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -6242,6 +6242,19 @@ __init int intel_pmu_init(void)
- 			pmu->num_counters = x86_pmu.num_counters;
- 			pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
- 		}
-+
-+		/*
-+		 * Quirk: For some Alder Lake machine, when all E-cores are disabled in
-+		 * a BIOS, the leaf 0xA will enumerate all counters of P-cores. However,
-+		 * the X86_FEATURE_HYBRID_CPU is still set. The above codes will
-+		 * mistakenly add extra counters for P-cores. Correct the number of
-+		 * counters here.
-+		 */
-+		if ((pmu->num_counters > 8) || (pmu->num_counters_fixed > 4)) {
-+			pmu->num_counters = x86_pmu.num_counters;
-+			pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
-+		}
-+
- 		pmu->max_pebs_events = min_t(unsigned, MAX_PEBS_EVENTS, pmu->num_counters);
- 		pmu->unconstrained = (struct event_constraint)
- 					__EVENT_CONSTRAINT(0, (1ULL << pmu->num_counters) - 1,
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -3453,6 +3453,7 @@ int kvm_set_msr_common(struct kvm_vcpu *
+ 		if (data & ~supported_xss)
+ 			return 1;
+ 		vcpu->arch.ia32_xss = data;
++		kvm_update_cpuid_runtime(vcpu);
+ 		break;
+ 	case MSR_SMI_COUNT:
+ 		if (!msr_info->host_initiated)
 
 
