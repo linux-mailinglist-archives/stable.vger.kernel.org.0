@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D76704A41A2
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37FA74A439E
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234411AbiAaLE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:04:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43180 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358544AbiAaLDr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:03:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8551FC06175A;
-        Mon, 31 Jan 2022 03:03:20 -0800 (PST)
+        id S1376912AbiAaLWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:22:08 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38800 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378643AbiAaLU3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:20:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25C8060EFC;
-        Mon, 31 Jan 2022 11:03:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 105AFC340E8;
-        Mon, 31 Jan 2022 11:03:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAD39B82A5F;
+        Mon, 31 Jan 2022 11:20:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DC4FC340E8;
+        Mon, 31 Jan 2022 11:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626999;
-        bh=amGVSO9RPBdgzcrLD4x0rtA3gTc2dl8NhNyx3VF3Dzg=;
+        s=korg; t=1643628026;
+        bh=H00JqvcwE+aJdMiKSVRw4C4MJbhqvDKHOMD9NAStzEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m+OA2pYT2rUprnSt2ABtLi2vfyIhoFKXq57WHm8z/dL0fXAgHjQCVzFQWApZpG5fj
-         kn2Y3IHFwHN6vEX0cZHQgVW8BgyujfIdA2UIpmfd5YS7aY97gjzDFLIRRTjNlLTCsX
-         9VFIiOZ/g+MKg0EwEdQF2owE1qHapc1T6VKZTEtc=
+        b=ix49I0fSrsyGw+A7mdrIBWarRSpoBKaa4HebnA6zwYCLHPm5dHM2Oq3MwRcOy85Io
+         SesTpYW5aQWK493R1S1aRdE2bHHTQ23b5dFfbZ6ub1abrK04uOArh9sDJU6AaF3Jsa
+         Xiy3xXacFEdkZb4Kp+LFqEQ5loNRp/OoRDFTmLDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslaw Gawin <jaroslawx.gawin@intel.com>,
-        Slawomir Laba <slawomirx.laba@intel.com>,
-        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.10 043/100] i40e: Fix issue when maximum queues is exceeded
-Date:   Mon, 31 Jan 2022 11:56:04 +0100
-Message-Id: <20220131105221.882253685@linuxfoundation.org>
+        stable@vger.kernel.org, Sujit Kautkar <sujitka@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>
+Subject: [PATCH 5.16 102/200] rpmsg: char: Fix race between the release of rpmsg_ctrldev and cdev
+Date:   Mon, 31 Jan 2022 11:56:05 +0100
+Message-Id: <20220131105237.020074925@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,195 +47,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+From: Sujit Kautkar <sujitka@chromium.org>
 
-commit d701658a50a471591094b3eb3961b4926cc8f104 upstream.
+commit b7fb2dad571d1e21173c06cef0bced77b323990a upstream.
 
-Before this patch VF interface vanished when
-maximum queue number was exceeded. Driver tried
-to add next queues even if there was not enough
-space. PF sent incorrect number of queues to
-the VF when there were not enough of them.
+struct rpmsg_ctrldev contains a struct cdev. The current code frees
+the rpmsg_ctrldev struct in rpmsg_ctrldev_release_device(), but the
+cdev is a managed object, therefore its release is not predictable
+and the rpmsg_ctrldev could be freed before the cdev is entirely
+released, as in the backtrace below.
 
-Add an additional condition introduced to check
-available space in 'qp_pile' before proceeding.
-This condition makes it impossible to add queues
-if they number is greater than the number resulting
-from available space.
-Also add the search for free space in PF queue
-pair piles.
+[   93.625603] ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x7c
+[   93.636115] WARNING: CPU: 0 PID: 12 at lib/debugobjects.c:488 debug_print_object+0x13c/0x1b0
+[   93.644799] Modules linked in: veth xt_cgroup xt_MASQUERADE rfcomm algif_hash algif_skcipher af_alg uinput ip6table_nat fuse uvcvideo videobuf2_vmalloc venus_enc venus_dec videobuf2_dma_contig hci_uart btandroid btqca snd_soc_rt5682_i2c bluetooth qcom_spmi_temp_alarm snd_soc_rt5682v
+[   93.715175] CPU: 0 PID: 12 Comm: kworker/0:1 Tainted: G    B             5.4.163-lockdep #26
+[   93.723855] Hardware name: Google Lazor (rev3 - 8) with LTE (DT)
+[   93.730055] Workqueue: events kobject_delayed_cleanup
+[   93.735271] pstate: 60c00009 (nZCv daif +PAN +UAO)
+[   93.740216] pc : debug_print_object+0x13c/0x1b0
+[   93.744890] lr : debug_print_object+0x13c/0x1b0
+[   93.749555] sp : ffffffacf5bc7940
+[   93.752978] x29: ffffffacf5bc7940 x28: dfffffd000000000
+[   93.758448] x27: ffffffacdb11a800 x26: dfffffd000000000
+[   93.763916] x25: ffffffd0734f856c x24: dfffffd000000000
+[   93.769389] x23: 0000000000000000 x22: ffffffd0733c35b0
+[   93.774860] x21: ffffffd0751994a0 x20: ffffffd075ec27c0
+[   93.780338] x19: ffffffd075199100 x18: 00000000000276e0
+[   93.785814] x17: 0000000000000000 x16: dfffffd000000000
+[   93.791291] x15: ffffffffffffffff x14: 6e6968207473696c
+[   93.796768] x13: 0000000000000000 x12: ffffffd075e2b000
+[   93.802244] x11: 0000000000000001 x10: 0000000000000000
+[   93.807723] x9 : d13400dff1921900 x8 : d13400dff1921900
+[   93.813200] x7 : 0000000000000000 x6 : 0000000000000000
+[   93.818676] x5 : 0000000000000080 x4 : 0000000000000000
+[   93.824152] x3 : ffffffd0732a0fa4 x2 : 0000000000000001
+[   93.829628] x1 : ffffffacf5bc7580 x0 : 0000000000000061
+[   93.835104] Call trace:
+[   93.837644]  debug_print_object+0x13c/0x1b0
+[   93.841963]  __debug_check_no_obj_freed+0x25c/0x3c0
+[   93.846987]  debug_check_no_obj_freed+0x18/0x20
+[   93.851669]  slab_free_freelist_hook+0xbc/0x1e4
+[   93.856346]  kfree+0xfc/0x2f4
+[   93.859416]  rpmsg_ctrldev_release_device+0x78/0xb8
+[   93.864445]  device_release+0x84/0x168
+[   93.868310]  kobject_cleanup+0x12c/0x298
+[   93.872356]  kobject_delayed_cleanup+0x10/0x18
+[   93.876948]  process_one_work+0x578/0x92c
+[   93.881086]  worker_thread+0x804/0xcf8
+[   93.884963]  kthread+0x2a8/0x314
+[   93.888303]  ret_from_fork+0x10/0x18
 
-Without this patch VF interfaces are not seen
-when available space for queues has been
-exceeded and following logs appears permanently
-in dmesg:
-"Unable to get VF config (-32)".
-"VF 62 failed opcode 3, retval: -5"
-"Unable to get VF config due to PF error condition, not retrying"
+The cdev_device_add/del() API was created to address this issue (see
+commit '233ed09d7fda ("chardev: add helper function to register char
+devs with a struct device")'), use it instead of cdev add/del().
 
-Fixes: 7daa6bf3294e ("i40e: driver core headers")
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Signed-off-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: c0cdc19f84a4 ("rpmsg: Driver for user space endpoint interface")
+Signed-off-by: Sujit Kautkar <sujitka@chromium.org>
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220110104706.v6.1.Iaac908f3e3149a89190ce006ba166e2d3fd247a3@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e.h             |    1 
- drivers/net/ethernet/intel/i40e/i40e_main.c        |   14 ----
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |   59 +++++++++++++++++++++
- 3 files changed, 61 insertions(+), 13 deletions(-)
+ drivers/rpmsg/rpmsg_char.c |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e.h
-@@ -172,7 +172,6 @@ enum i40e_interrupt_policy {
+--- a/drivers/rpmsg/rpmsg_char.c
++++ b/drivers/rpmsg/rpmsg_char.c
+@@ -459,7 +459,6 @@ static void rpmsg_ctrldev_release_device
  
- struct i40e_lump_tracking {
- 	u16 num_entries;
--	u16 search_hint;
- 	u16 list[0];
- #define I40E_PILE_VALID_BIT  0x8000
- #define I40E_IWARP_IRQ_PILE_ID  (I40E_PILE_VALID_BIT - 2)
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -195,10 +195,6 @@ int i40e_free_virt_mem_d(struct i40e_hw
-  * @id: an owner id to stick on the items assigned
-  *
-  * Returns the base item index of the lump, or negative for error
-- *
-- * The search_hint trick and lack of advanced fit-finding only work
-- * because we're highly likely to have all the same size lump requests.
-- * Linear search time and any fragmentation should be minimal.
-  **/
- static int i40e_get_lump(struct i40e_pf *pf, struct i40e_lump_tracking *pile,
- 			 u16 needed, u16 id)
-@@ -213,8 +209,7 @@ static int i40e_get_lump(struct i40e_pf
- 		return -EINVAL;
- 	}
- 
--	/* start the linear search with an imperfect hint */
--	i = pile->search_hint;
-+	i = 0;
- 	while (i < pile->num_entries) {
- 		/* skip already allocated entries */
- 		if (pile->list[i] & I40E_PILE_VALID_BIT) {
-@@ -233,7 +228,6 @@ static int i40e_get_lump(struct i40e_pf
- 			for (j = 0; j < needed; j++)
- 				pile->list[i+j] = id | I40E_PILE_VALID_BIT;
- 			ret = i;
--			pile->search_hint = i + j;
- 			break;
- 		}
- 
-@@ -256,7 +250,7 @@ static int i40e_put_lump(struct i40e_lum
- {
- 	int valid_id = (id | I40E_PILE_VALID_BIT);
- 	int count = 0;
--	int i;
-+	u16 i;
- 
- 	if (!pile || index >= pile->num_entries)
- 		return -EINVAL;
-@@ -268,8 +262,6 @@ static int i40e_put_lump(struct i40e_lum
- 		count++;
- 	}
- 
--	if (count && index < pile->search_hint)
--		pile->search_hint = index;
- 
- 	return count;
- }
-@@ -11321,7 +11313,6 @@ static int i40e_init_interrupt_scheme(st
- 		return -ENOMEM;
- 
- 	pf->irq_pile->num_entries = vectors;
--	pf->irq_pile->search_hint = 0;
- 
- 	/* track first vector for misc interrupts, ignore return */
- 	(void)i40e_get_lump(pf, pf->irq_pile, 1, I40E_PILE_VALID_BIT - 1);
-@@ -12124,7 +12115,6 @@ static int i40e_sw_init(struct i40e_pf *
- 		goto sw_init_done;
- 	}
- 	pf->qp_pile->num_entries = pf->hw.func_caps.num_tx_qp;
--	pf->qp_pile->search_hint = 0;
- 
- 	pf->tx_timeout_recovery_level = 1;
- 
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -2564,6 +2564,59 @@ error_param:
+ 	ida_simple_remove(&rpmsg_ctrl_ida, dev->id);
+ 	ida_simple_remove(&rpmsg_minor_ida, MINOR(dev->devt));
+-	cdev_del(&ctrldev->cdev);
+ 	kfree(ctrldev);
  }
  
- /**
-+ * i40e_check_enough_queue - find big enough queue number
-+ * @vf: pointer to the VF info
-+ * @needed: the number of items needed
-+ *
-+ * Returns the base item index of the queue, or negative for error
-+ **/
-+static int i40e_check_enough_queue(struct i40e_vf *vf, u16 needed)
-+{
-+	unsigned int  i, cur_queues, more, pool_size;
-+	struct i40e_lump_tracking *pile;
-+	struct i40e_pf *pf = vf->pf;
-+	struct i40e_vsi *vsi;
-+
-+	vsi = pf->vsi[vf->lan_vsi_idx];
-+	cur_queues = vsi->alloc_queue_pairs;
-+
-+	/* if current allocated queues are enough for need */
-+	if (cur_queues >= needed)
-+		return vsi->base_queue;
-+
-+	pile = pf->qp_pile;
-+	if (cur_queues > 0) {
-+		/* if the allocated queues are not zero
-+		 * just check if there are enough queues for more
-+		 * behind the allocated queues.
-+		 */
-+		more = needed - cur_queues;
-+		for (i = vsi->base_queue + cur_queues;
-+			i < pile->num_entries; i++) {
-+			if (pile->list[i] & I40E_PILE_VALID_BIT)
-+				break;
-+
-+			if (more-- == 1)
-+				/* there is enough */
-+				return vsi->base_queue;
-+		}
-+	}
-+
-+	pool_size = 0;
-+	for (i = 0; i < pile->num_entries; i++) {
-+		if (pile->list[i] & I40E_PILE_VALID_BIT) {
-+			pool_size = 0;
-+			continue;
-+		}
-+		if (needed <= ++pool_size)
-+			/* there is enough */
-+			return i;
-+	}
-+
-+	return -ENOMEM;
-+}
-+
-+/**
-  * i40e_vc_request_queues_msg
-  * @vf: pointer to the VF info
-  * @msg: pointer to the msg buffer
-@@ -2597,6 +2650,12 @@ static int i40e_vc_request_queues_msg(st
- 			 req_pairs - cur_pairs,
- 			 pf->queues_left);
- 		vfres->num_queue_pairs = pf->queues_left + cur_pairs;
-+	} else if (i40e_check_enough_queue(vf, req_pairs) < 0) {
-+		dev_warn(&pf->pdev->dev,
-+			 "VF %d requested %d more queues, but there is not enough for it.\n",
-+			 vf->vf_id,
-+			 req_pairs - cur_pairs);
-+		vfres->num_queue_pairs = cur_pairs;
- 	} else {
- 		/* successful request */
- 		vf->num_req_queues = req_pairs;
+@@ -494,19 +493,13 @@ static int rpmsg_chrdev_probe(struct rpm
+ 	dev->id = ret;
+ 	dev_set_name(&ctrldev->dev, "rpmsg_ctrl%d", ret);
+ 
+-	ret = cdev_add(&ctrldev->cdev, dev->devt, 1);
++	ret = cdev_device_add(&ctrldev->cdev, &ctrldev->dev);
+ 	if (ret)
+ 		goto free_ctrl_ida;
+ 
+ 	/* We can now rely on the release function for cleanup */
+ 	dev->release = rpmsg_ctrldev_release_device;
+ 
+-	ret = device_add(dev);
+-	if (ret) {
+-		dev_err(&rpdev->dev, "device_add failed: %d\n", ret);
+-		put_device(dev);
+-	}
+-
+ 	dev_set_drvdata(&rpdev->dev, ctrldev);
+ 
+ 	return ret;
+@@ -532,7 +525,7 @@ static void rpmsg_chrdev_remove(struct r
+ 	if (ret)
+ 		dev_warn(&rpdev->dev, "failed to nuke endpoints: %d\n", ret);
+ 
+-	device_del(&ctrldev->dev);
++	cdev_device_del(&ctrldev->cdev, &ctrldev->dev);
+ 	put_device(&ctrldev->dev);
+ }
+ 
 
 
