@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CFB34A41A4
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:05:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BECCF4A44C1
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:34:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358694AbiAaLE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:04:58 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38394 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358733AbiAaLDu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:03:50 -0500
+        id S1359514AbiAaLc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:32:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49818 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379413AbiAaLaR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:30:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0F84C0617B1;
+        Mon, 31 Jan 2022 03:20:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E61B60F15;
-        Mon, 31 Jan 2022 11:03:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FB7FC340E8;
-        Mon, 31 Jan 2022 11:03:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E56F6114D;
+        Mon, 31 Jan 2022 11:20:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11092C340E8;
+        Mon, 31 Jan 2022 11:20:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627029;
-        bh=Ws3K9zlRqrXyHD/WFYrifz5ik5TGQzIrwTz7hDSe72A=;
+        s=korg; t=1643628023;
+        bh=iR9hY3IqjOE1ue4iMbGK2j5YSp6jRQF+xRAFaUlFEMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TcC63E+Pr6DC4P6x8zjtDtvKpawZW5M/M6pODsOF8SJ3k2vS8421O3fsByT2+cM0y
-         nqzRwrvC/9876k4fYLivhu+YP25oh5QXsg7LN2zJtmzbhM0x4yXwzqeG7Cm6pwq5GZ
-         ycWuRxpklwkIVgrONtH90sTtLRS1CGr23ig1iqV0=
+        b=i8NzApqfXL7mCV7hReO20CswCXnDOK5sUPIMok4FDrx994+mifaBTNUhwGMUgoc8A
+         HUi/TZTEggmmpA2N862pH32362oXLEBQkxRs/dA1BLlIjY+jEYp0CPuh24G0aMzfXM
+         +duntQC4D4ppmnITJgBPllKxYnVHJ9yxc8bbFabY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        Gautham Ananthakrishna <gautham.ananthakrishna@oracle.com>,
-        Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
-        "Theodore Tso" <tytso@mit.edu>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 035/100] jbd2: export jbd2_journal_[grab|put]_journal_head
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.16 093/200] powerpc/32s: Allocate one 256k IBAT instead of two consecutives 128k IBATs
 Date:   Mon, 31 Jan 2022 11:55:56 +0100
-Message-Id: <20220131105221.631074510@linuxfoundation.org>
+Message-Id: <20220131105236.743239680@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +48,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 4cd1103d8c66b2cdb7e64385c274edb0ac5e8887 upstream.
+commit 37eb7ca91b692e8e49e7dd50158349a6c8fb5b09 upstream.
 
-Patch series "ocfs2: fix a deadlock case".
+Today we have the following IBATs allocated:
 
-This fixes a deadlock case in ocfs2.  We firstly export jbd2 symbols
-jbd2_journal_[grab|put]_journal_head as preparation and later use them
-in ocfs2 insread of jbd_[lock|unlock]_bh_journal_head to fix the
-deadlock.
+	---[ Instruction Block Address Translation ]---
+	0: 0xc0000000-0xc03fffff 0x00000000         4M Kernel   x     m
+	1: 0xc0400000-0xc05fffff 0x00400000         2M Kernel   x     m
+	2: 0xc0600000-0xc06fffff 0x00600000         1M Kernel   x     m
+	3: 0xc0700000-0xc077ffff 0x00700000       512K Kernel   x     m
+	4: 0xc0780000-0xc079ffff 0x00780000       128K Kernel   x     m
+	5: 0xc07a0000-0xc07bffff 0x007a0000       128K Kernel   x     m
+	6:         -
+	7:         -
 
-This patch (of 2):
+The two 128K should be a single 256K instead.
 
-This exports symbols jbd2_journal_[grab|put]_journal_head, which will be
-used outside modules, e.g.  ocfs2.
+When _etext is not aligned to 128Kbytes, the system will allocate
+all necessary BATs to the lower 128Kbytes boundary, then allocate
+an additional 128Kbytes BAT for the remaining block.
 
-Link: https://lkml.kernel.org/r/20220121071205.100648-2-joseph.qi@linux.alibaba.com
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: Andreas Dilger <adilger.kernel@dilger.ca>
-Cc: Gautham Ananthakrishna <gautham.ananthakrishna@oracle.com>
-Cc: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Instead, align the top to 128Kbytes so that the function directly
+allocates a 256Kbytes last block:
+
+	---[ Instruction Block Address Translation ]---
+	0: 0xc0000000-0xc03fffff 0x00000000         4M Kernel   x     m
+	1: 0xc0400000-0xc05fffff 0x00400000         2M Kernel   x     m
+	2: 0xc0600000-0xc06fffff 0x00600000         1M Kernel   x     m
+	3: 0xc0700000-0xc077ffff 0x00700000       512K Kernel   x     m
+	4: 0xc0780000-0xc07bffff 0x00780000       256K Kernel   x     m
+	5:         -
+	6:         -
+	7:         -
+
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/ab58b296832b0ec650e2203200e060adbcb2677d.1637930421.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jbd2/journal.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/mm/book3s32/mmu.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -2795,6 +2795,7 @@ struct journal_head *jbd2_journal_grab_j
- 	jbd_unlock_bh_journal_head(bh);
- 	return jh;
- }
-+EXPORT_SYMBOL(jbd2_journal_grab_journal_head);
+--- a/arch/powerpc/mm/book3s32/mmu.c
++++ b/arch/powerpc/mm/book3s32/mmu.c
+@@ -196,18 +196,17 @@ void mmu_mark_initmem_nx(void)
+ 	int nb = mmu_has_feature(MMU_FTR_USE_HIGH_BATS) ? 8 : 4;
+ 	int i;
+ 	unsigned long base = (unsigned long)_stext - PAGE_OFFSET;
+-	unsigned long top = (unsigned long)_etext - PAGE_OFFSET;
++	unsigned long top = ALIGN((unsigned long)_etext - PAGE_OFFSET, SZ_128K);
+ 	unsigned long border = (unsigned long)__init_begin - PAGE_OFFSET;
+ 	unsigned long size;
  
- static void __journal_remove_journal_head(struct buffer_head *bh)
- {
-@@ -2847,6 +2848,7 @@ void jbd2_journal_put_journal_head(struc
- 		jbd_unlock_bh_journal_head(bh);
+-	for (i = 0; i < nb - 1 && base < top && top - base > (128 << 10);) {
++	for (i = 0; i < nb - 1 && base < top;) {
+ 		size = block_size(base, top);
+ 		setibat(i++, PAGE_OFFSET + base, base, size, PAGE_KERNEL_TEXT);
+ 		base += size;
  	}
- }
-+EXPORT_SYMBOL(jbd2_journal_put_journal_head);
- 
- /*
-  * Initialize jbd inode head
+ 	if (base < top) {
+ 		size = block_size(base, top);
+-		size = max(size, 128UL << 10);
+ 		if ((top - base) > size) {
+ 			size <<= 1;
+ 			if (strict_kernel_rwx_enabled() && base + size > border)
 
 
