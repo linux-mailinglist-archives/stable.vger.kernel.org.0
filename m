@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 632AB4A4582
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:42:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AD384A42E4
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:15:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351045AbiAaLmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:42:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51506 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351433AbiAaLft (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:35:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C2D2C07979F;
-        Mon, 31 Jan 2022 03:23:51 -0800 (PST)
+        id S1359724AbiAaLPD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:15:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44196 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376685AbiAaLNI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:13:08 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B15361299;
-        Mon, 31 Jan 2022 11:23:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E101EC340E8;
-        Mon, 31 Jan 2022 11:23:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB9EE61132;
+        Mon, 31 Jan 2022 11:13:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C53DC340E8;
+        Mon, 31 Jan 2022 11:13:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628230;
-        bh=AAFbgHTuVLoosPstvmMwWF1hZ3d/CR6g4fr+HnCPCsk=;
+        s=korg; t=1643627587;
+        bh=MdEWgjRKDfc9GzOB4w6Dt4/YiyXxToHdfVqILfT/0eE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWtXUY+zvy8AWtTgpdxF4JBeq/zhER0DV01WO23Iz1cZU4a2PdhscTsUVSX3ozgGY
-         c/MZAykTHLZKuxl7VZCoXGbbN/09IlOCMBqFnIcWmS62gB8Qa8MVPyoI5nSXVHg+Dq
-         3ymweKgbj1zm4Ls18aOgiVwB959eYfeepfW5a0io=
+        b=AEt6KMey/h4991LyJS0kZtk0r5sCXcfdc6FYbeLk0CGrtO75+ndhh3zWl4VGt92DV
+         ARSzH4cccKedlKb+fEVj3za02aYvP9+9ZX4GlqqnTkXBRpIzUamFib+GjxCLAm+430
+         3mqL79eacfUeKD4Y4jQre03obleHluteR0CqFWF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yuji Ishikawa <yuji2.ishikawa@toshiba.co.jp>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 133/200] net: stmmac: dwmac-visconti: Fix bit definitions for ETHER_CLK_SEL
+        "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
+        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
+        Yanming Liu <yanminglr@gmail.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 131/171] Drivers: hv: balloon: account for vmbus packet header in max_pkt_size
 Date:   Mon, 31 Jan 2022 11:56:36 +0100
-Message-Id: <20220131105238.031813020@linuxfoundation.org>
+Message-Id: <20220131105234.440348179@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,58 +47,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuji Ishikawa <yuji2.ishikawa@toshiba.co.jp>
+From: Yanming Liu <yanminglr@gmail.com>
 
-[ Upstream commit 1ba1a4a90fa416a6f389206416c5f488cf8b1543 ]
+[ Upstream commit 96d9d1fa5cd505078534113308ced0aa56d8da58 ]
 
-just 0 should be used to represent cleared bits
+Commit adae1e931acd ("Drivers: hv: vmbus: Copy packets sent by Hyper-V
+out of the ring buffer") introduced a notion of maximum packet size in
+vmbus channel and used that size to initialize a buffer holding all
+incoming packet along with their vmbus packet header. hv_balloon uses
+the default maximum packet size VMBUS_DEFAULT_MAX_PKT_SIZE which matches
+its maximum message size, however vmbus_open expects this size to also
+include vmbus packet header. This leads to 4096 bytes
+dm_unballoon_request messages being truncated to 4080 bytes. When the
+driver tries to read next packet it starts from a wrong read_index,
+receives garbage and prints a lot of "Unhandled message: type:
+<garbage>" in dmesg.
 
-* ETHER_CLK_SEL_DIV_SEL_20
-* ETHER_CLK_SEL_TX_CLK_EXT_SEL_IN
-* ETHER_CLK_SEL_RX_CLK_EXT_SEL_IN
-* ETHER_CLK_SEL_TX_CLK_O_TX_I
-* ETHER_CLK_SEL_RMII_CLK_SEL_IN
+Allocate the buffer with HV_HYP_PAGE_SIZE more bytes to make room for
+the header.
 
-Fixes: b38dd98ff8d0 ("net: stmmac: Add Toshiba Visconti SoCs glue driver")
-Signed-off-by: Yuji Ishikawa <yuji2.ishikawa@toshiba.co.jp>
-Reviewed-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: adae1e931acd ("Drivers: hv: vmbus: Copy packets sent by Hyper-V out of the ring buffer")
+Suggested-by: Michael Kelley (LINUX) <mikelley@microsoft.com>
+Suggested-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+Signed-off-by: Yanming Liu <yanminglr@gmail.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Reviewed-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+Link: https://lore.kernel.org/r/20220119202052.3006981-1-yanminglr@gmail.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-visconti.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/hv/hv_balloon.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-visconti.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-visconti.c
-index e2e0f977875d7..43a446ceadf7a 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-visconti.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-visconti.c
-@@ -22,21 +22,21 @@
- #define ETHER_CLK_SEL_RMII_CLK_EN BIT(2)
- #define ETHER_CLK_SEL_RMII_CLK_RST BIT(3)
- #define ETHER_CLK_SEL_DIV_SEL_2 BIT(4)
--#define ETHER_CLK_SEL_DIV_SEL_20 BIT(0)
-+#define ETHER_CLK_SEL_DIV_SEL_20 0
- #define ETHER_CLK_SEL_FREQ_SEL_125M	(BIT(9) | BIT(8))
- #define ETHER_CLK_SEL_FREQ_SEL_50M	BIT(9)
- #define ETHER_CLK_SEL_FREQ_SEL_25M	BIT(8)
- #define ETHER_CLK_SEL_FREQ_SEL_2P5M	0
--#define ETHER_CLK_SEL_TX_CLK_EXT_SEL_IN BIT(0)
-+#define ETHER_CLK_SEL_TX_CLK_EXT_SEL_IN 0
- #define ETHER_CLK_SEL_TX_CLK_EXT_SEL_TXC BIT(10)
- #define ETHER_CLK_SEL_TX_CLK_EXT_SEL_DIV BIT(11)
--#define ETHER_CLK_SEL_RX_CLK_EXT_SEL_IN  BIT(0)
-+#define ETHER_CLK_SEL_RX_CLK_EXT_SEL_IN  0
- #define ETHER_CLK_SEL_RX_CLK_EXT_SEL_RXC BIT(12)
- #define ETHER_CLK_SEL_RX_CLK_EXT_SEL_DIV BIT(13)
--#define ETHER_CLK_SEL_TX_CLK_O_TX_I	 BIT(0)
-+#define ETHER_CLK_SEL_TX_CLK_O_TX_I	 0
- #define ETHER_CLK_SEL_TX_CLK_O_RMII_I	 BIT(14)
- #define ETHER_CLK_SEL_TX_O_E_N_IN	 BIT(15)
--#define ETHER_CLK_SEL_RMII_CLK_SEL_IN	 BIT(0)
-+#define ETHER_CLK_SEL_RMII_CLK_SEL_IN	 0
- #define ETHER_CLK_SEL_RMII_CLK_SEL_RX_C	 BIT(16)
+diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+index ca873a3b98dbe..f2d05bff42453 100644
+--- a/drivers/hv/hv_balloon.c
++++ b/drivers/hv/hv_balloon.c
+@@ -1660,6 +1660,13 @@ static int balloon_connect_vsp(struct hv_device *dev)
+ 	unsigned long t;
+ 	int ret;
  
- #define ETHER_CLK_SEL_RX_TX_CLK_EN (ETHER_CLK_SEL_RX_CLK_EN | ETHER_CLK_SEL_TX_CLK_EN)
++	/*
++	 * max_pkt_size should be large enough for one vmbus packet header plus
++	 * our receive buffer size. Hyper-V sends messages up to
++	 * HV_HYP_PAGE_SIZE bytes long on balloon channel.
++	 */
++	dev->channel->max_pkt_size = HV_HYP_PAGE_SIZE * 2;
++
+ 	ret = vmbus_open(dev->channel, dm_ring_size, dm_ring_size, NULL, 0,
+ 			 balloon_onchannelcallback, dev);
+ 	if (ret)
 -- 
 2.34.1
 
