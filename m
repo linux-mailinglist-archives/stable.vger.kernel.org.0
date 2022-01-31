@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B274A4294
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96C694A4359
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:21:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376317AbiAaLM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:12:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45388 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377564AbiAaLKM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CED51C06173B;
-        Mon, 31 Jan 2022 03:08:52 -0800 (PST)
+        id S1359409AbiAaLVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:11 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35518 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377310AbiAaLR7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:17:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C34361139;
-        Mon, 31 Jan 2022 11:08:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42055C340E8;
-        Mon, 31 Jan 2022 11:08:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6D81B82A5C;
+        Mon, 31 Jan 2022 11:17:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECD3DC340EE;
+        Mon, 31 Jan 2022 11:17:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627331;
-        bh=l5n9EoLiSTCIVosUiCFzhvPYXWqO3rq1EB8MKnb1+N0=;
+        s=korg; t=1643627877;
+        bh=3PhrSa9o0GNXbS7Lmn2NAFstnx7nk83jQUk7CopRbo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HapNBTCIMn7iLagp5bh0WvwXNjO3zvHzAxJvUQaJHKeOtbcqYrMlTSPLSJ7n0uZf9
-         8jp43CrJ9ig35YLNLwmUP3dBZkcUXgA8iRa+4hW+QLe7ZQOWjD2iABn873whyskUsq
-         SuGMEl8fXLFfxLtbxhVAKLVi16HVAL1CkdhLzIGI=
+        b=UOzfMaYzVDdp8ZiyHI6BegYZAsh/bCwVYtWtp4ejEB66ngz1G9T82rhTYJmAIUuFa
+         eX5YlLOpYd+qcDOwtm/DqyH/mHX96VpYN/g3EzsXPjBe1ubrxyaXoxox7DH0mRyled
+         kFfm1xURAlN+jlLexpoxahQDalYrJRW9uV3dx8OQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.15 049/171] tty: n_gsm: fix SW flow control encoding/handling
-Date:   Mon, 31 Jan 2022 11:55:14 +0100
-Message-Id: <20220131105231.689275464@linuxfoundation.org>
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.16 052/200] KVM: x86: Move CPUID.(EAX=0x12,ECX=1) mangling to __kvm_update_cpuid_runtime()
+Date:   Mon, 31 Jan 2022 11:55:15 +0100
+Message-Id: <20220131105235.324283439@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,64 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: daniel.starke@siemens.com <daniel.starke@siemens.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit 8838b2af23caf1ff0610caef2795d6668a013b2d upstream.
+commit 5c89be1dd5cfb697614bc13626ba3bd0781aa160 upstream.
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.2.7.3 states that DC1 (XON) and DC3 (XOFF)
-are the control characters defined in ISO/IEC 646. These shall be quoted if
-seen in the data stream to avoid interpretation as flow control characters.
+Full equality check of CPUID data on update (kvm_cpuid_check_equal()) may
+fail for SGX enabled CPUs as CPUID.(EAX=0x12,ECX=1) is currently being
+mangled in kvm_vcpu_after_set_cpuid(). Move it to
+__kvm_update_cpuid_runtime() and split off cpuid_get_supported_xcr0()
+helper  as 'vcpu->arch.guest_supported_xcr0' update needs (logically)
+to stay in kvm_vcpu_after_set_cpuid().
 
-ISO/IEC 646 refers to the set of ISO standards described as the ISO
-7-bit coded character set for information interchange. Its final version
-is also known as ITU T.50.
-See https://www.itu.int/rec/T-REC-T.50-199209-I/en
-
-To abide the standard it is needed to quote DC1 and DC3 correctly if these
-are seen as data bytes and not as control characters. The current
-implementation already tries to enforce this but fails to catch all
-defined cases. 3GPP 27.010 chapter 5.2.7.3 clearly states that the most
-significant bit shall be ignored for DC1 and DC3 handling. The current
-implementation handles only the case with the most significant bit set 0.
-Cases in which DC1 and DC3 have the most significant bit set 1 are left
-unhandled.
-
-This patch fixes this by masking the data bytes with ISO_IEC_646_MASK (only
-the 7 least significant bits set 1) before comparing them with XON
-(a.k.a. DC1) and XOFF (a.k.a. DC3) when testing which byte values need
-quotation via byte stuffing.
-
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
 Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220120101857.2509-1-daniel.starke@siemens.com
+Fixes: feb627e8d6f6 ("KVM: x86: Forbid KVM_SET_CPUID{,2} after KVM_RUN")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20220124103606.2630588-2-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kvm/cpuid.c |   54 +++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 33 insertions(+), 21 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -318,6 +318,7 @@ static struct tty_driver *gsm_tty_driver
- #define GSM1_ESCAPE_BITS	0x20
- #define XON			0x11
- #define XOFF			0x13
-+#define ISO_IEC_646_MASK	0x7F
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -176,10 +176,26 @@ void kvm_update_pv_runtime(struct kvm_vc
+ 		vcpu->arch.pv_cpuid.features = best->eax;
+ }
  
- static const struct tty_port_operations gsm_port_ops;
++/*
++ * Calculate guest's supported XCR0 taking into account guest CPUID data and
++ * supported_xcr0 (comprised of host configuration and KVM_SUPPORTED_XCR0).
++ */
++static u64 cpuid_get_supported_xcr0(struct kvm_cpuid_entry2 *entries, int nent)
++{
++	struct kvm_cpuid_entry2 *best;
++
++	best = cpuid_entry2_find(entries, nent, 0xd, 0);
++	if (!best)
++		return 0;
++
++	return (best->eax | ((u64)best->edx << 32)) & supported_xcr0;
++}
++
+ static void __kvm_update_cpuid_runtime(struct kvm_vcpu *vcpu, struct kvm_cpuid_entry2 *entries,
+ 				       int nent)
+ {
+ 	struct kvm_cpuid_entry2 *best;
++	u64 guest_supported_xcr0 = cpuid_get_supported_xcr0(entries, nent);
  
-@@ -527,7 +528,8 @@ static int gsm_stuff_frame(const u8 *inp
- 	int olen = 0;
- 	while (len--) {
- 		if (*input == GSM1_SOF || *input == GSM1_ESCAPE
--		    || *input == XON || *input == XOFF) {
-+		    || (*input & ISO_IEC_646_MASK) == XON
-+		    || (*input & ISO_IEC_646_MASK) == XOFF) {
- 			*output++ = GSM1_ESCAPE;
- 			*output++ = *input++ ^ GSM1_ESCAPE_BITS;
- 			olen++;
+ 	best = cpuid_entry2_find(entries, nent, 1, 0);
+ 	if (best) {
+@@ -218,6 +234,21 @@ static void __kvm_update_cpuid_runtime(s
+ 					   vcpu->arch.ia32_misc_enable_msr &
+ 					   MSR_IA32_MISC_ENABLE_MWAIT);
+ 	}
++
++	/*
++	 * Bits 127:0 of the allowed SECS.ATTRIBUTES (CPUID.0x12.0x1) enumerate
++	 * the supported XSAVE Feature Request Mask (XFRM), i.e. the enclave's
++	 * requested XCR0 value.  The enclave's XFRM must be a subset of XCRO
++	 * at the time of EENTER, thus adjust the allowed XFRM by the guest's
++	 * supported XCR0.  Similar to XCR0 handling, FP and SSE are forced to
++	 * '1' even on CPUs that don't support XSAVE.
++	 */
++	best = cpuid_entry2_find(entries, nent, 0x12, 0x1);
++	if (best) {
++		best->ecx &= guest_supported_xcr0 & 0xffffffff;
++		best->edx &= guest_supported_xcr0 >> 32;
++		best->ecx |= XFEATURE_MASK_FPSSE;
++	}
+ }
+ 
+ void kvm_update_cpuid_runtime(struct kvm_vcpu *vcpu)
+@@ -241,27 +272,8 @@ static void kvm_vcpu_after_set_cpuid(str
+ 		kvm_apic_set_version(vcpu);
+ 	}
+ 
+-	best = kvm_find_cpuid_entry(vcpu, 0xD, 0);
+-	if (!best)
+-		vcpu->arch.guest_supported_xcr0 = 0;
+-	else
+-		vcpu->arch.guest_supported_xcr0 =
+-			(best->eax | ((u64)best->edx << 32)) & supported_xcr0;
+-
+-	/*
+-	 * Bits 127:0 of the allowed SECS.ATTRIBUTES (CPUID.0x12.0x1) enumerate
+-	 * the supported XSAVE Feature Request Mask (XFRM), i.e. the enclave's
+-	 * requested XCR0 value.  The enclave's XFRM must be a subset of XCRO
+-	 * at the time of EENTER, thus adjust the allowed XFRM by the guest's
+-	 * supported XCR0.  Similar to XCR0 handling, FP and SSE are forced to
+-	 * '1' even on CPUs that don't support XSAVE.
+-	 */
+-	best = kvm_find_cpuid_entry(vcpu, 0x12, 0x1);
+-	if (best) {
+-		best->ecx &= vcpu->arch.guest_supported_xcr0 & 0xffffffff;
+-		best->edx &= vcpu->arch.guest_supported_xcr0 >> 32;
+-		best->ecx |= XFEATURE_MASK_FPSSE;
+-	}
++	vcpu->arch.guest_supported_xcr0 =
++		cpuid_get_supported_xcr0(vcpu->arch.cpuid_entries, vcpu->arch.cpuid_nent);
+ 
+ 	kvm_update_pv_runtime(vcpu);
+ 
 
 
