@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E936D4A4405
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:26:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3CB4A426F
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376288AbiAaLZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:25:27 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41460 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377786AbiAaLXY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:23:24 -0500
+        id S1349291AbiAaLLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44366 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377159AbiAaLJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:09:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B2EC0604C8;
+        Mon, 31 Jan 2022 03:06:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BA3AB82A60;
-        Mon, 31 Jan 2022 11:23:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3C86C340E8;
-        Mon, 31 Jan 2022 11:23:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0B68B82A5C;
+        Mon, 31 Jan 2022 11:06:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F370DC340EF;
+        Mon, 31 Jan 2022 11:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628202;
-        bh=42keL3IE7xfYYTuDFGFSXIoBuVeHfX3O1QQtmA7j5bI=;
+        s=korg; t=1643627184;
+        bh=JJG8FPMAU2MXhrU12vj6pVtNxghJpIL8qz7OMrp+rNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=owGcVUmO3uLI7mFA27T9jiUKgjBQOKPA7OWIYn3Clr3sXJoCfLQlKbe7R1gIoGUqQ
-         jGRZ6/niO5GyX9NnOcHfn/rYfLj5BETw10ACjoLAdz/5rMl42f8KxMS8jDWrfcEIW3
-         S7F1FUDJ203MjLouAIEgq4JPD/v2v5hKJiNdMYeA=
+        b=mjsVgmoH7vgvJnyuW+q31Ta9StpGAWD83p2KwzZZie4FfneblOsBKYP2QKSJWNXpe
+         Oh7yXuXxlI1OVzdlqt4nJdu4nLKcHc3g5TAgc1y9FJnW8KX1i0k8DrvUGQ8BviCriN
+         xybWx9qJ6GMeo5KySxMvLOQ496OjlPgmL482DNNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Lehan <krellan@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 157/200] hwmon: (lm90) Mark alert as broken for MAX6654
-Date:   Mon, 31 Jan 2022 11:57:00 +0100
-Message-Id: <20220131105238.841140778@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+ac94ae5f68b84197f41c@syzkaller.appspotmail.com,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 100/100] block: Fix wrong offset in bio_truncate()
+Date:   Mon, 31 Jan 2022 11:57:01 +0100
+Message-Id: <20220131105223.808036007@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +49,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-[ Upstream commit a53fff96f35763d132a36c620b183fdf11022d7a ]
+commit 3ee859e384d453d6ac68bfd5971f630d9fa46ad3 upstream.
 
-Experiments with MAX6654 show that its alert function is broken,
-similar to other chips supported by the lm90 driver. Mark it accordingly.
+bio_truncate() clears the buffer outside of last block of bdev, however
+current bio_truncate() is using the wrong offset of page. So it can
+return the uninitialized data.
 
-Fixes: 229d495d8189 ("hwmon: (lm90) Add max6654 support to lm90 driver")
-Cc: Josh Lehan <krellan@google.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This happened when both of truncated/corrupted FS and userspace (via
+bdev) are trying to read the last of bdev.
+
+Reported-by: syzbot+ac94ae5f68b84197f41c@syzkaller.appspotmail.com
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/875yqt1c9g.fsf@mail.parknet.co.jp
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/lm90.c | 1 +
- 1 file changed, 1 insertion(+)
+ block/bio.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
-index e4ecf3440d7cf..280ae5f58187b 100644
---- a/drivers/hwmon/lm90.c
-+++ b/drivers/hwmon/lm90.c
-@@ -400,6 +400,7 @@ static const struct lm90_params lm90_params[] = {
- 		.reg_local_ext = MAX6657_REG_R_LOCAL_TEMPL,
- 	},
- 	[max6654] = {
-+		.flags = LM90_HAVE_BROKEN_ALERT,
- 		.alert_alarms = 0x7c,
- 		.max_convrate = 7,
- 		.reg_local_ext = MAX6657_REG_R_LOCAL_TEMPL,
--- 
-2.34.1
-
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -575,7 +575,8 @@ void bio_truncate(struct bio *bio, unsig
+ 				offset = new_size - done;
+ 			else
+ 				offset = 0;
+-			zero_user(bv.bv_page, offset, bv.bv_len - offset);
++			zero_user(bv.bv_page, bv.bv_offset + offset,
++				  bv.bv_len - offset);
+ 			truncated = true;
+ 		}
+ 		done += bv.bv_len;
 
 
