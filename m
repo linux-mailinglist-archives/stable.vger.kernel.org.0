@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85EFF4A41A1
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02B294A4369
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:21:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358522AbiAaLE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:04:56 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38286 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348380AbiAaLDr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:03:47 -0500
+        id S245420AbiAaLVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47178 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377935AbiAaLTU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:19:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 591CCC06136C;
+        Mon, 31 Jan 2022 03:11:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 097CE60B2D;
-        Mon, 31 Jan 2022 11:03:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2003C340EE;
-        Mon, 31 Jan 2022 11:03:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF5256114D;
+        Mon, 31 Jan 2022 11:11:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF1F8C340E8;
+        Mon, 31 Jan 2022 11:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627026;
-        bh=K8uS/L0iTWLq7FlRCD2DFohHBclcjVpDwfvTy1cfNPY=;
+        s=korg; t=1643627510;
+        bh=pNIMdBT1PULgXiQsg0KO4CD5tuN73EGl71YYr1U7v3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ulj/1LH0OJZtY0skTAb9+c3y8cPQkhGSOHFddoKSU5ORTDE5jzjkyB3J2mLBmqIlN
-         GV/V7AzI51DL8C+p/X+tDCbPhrtnRLsqtpEEK/K00NsJ9TUdlqLeqQcCZkidB8crPr
-         cAN0E4t8BVOiGSIjkZHoalNtc4H7cgyCTMzbX4qw=
+        b=TPkJB7t44+WU3v9vMMld5x1OsQTSGes7WN8DeADDRCM/opUG19302qn1pPVn8XnJ1
+         fur77tEai6gVJbyroUxMuET3WLFy9XzGtGdrW6rpivD+fhf1Z5X9l0TUdK1tVxIUGk
+         QA4R72CLwbu6FxRpO0sCCDyx6tiFE9grqYS6Py8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, huangshaobo <huangshaobo6@huawei.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.10 052/100] ARM: 9170/1: fix panic when kasan and kprobe are enabled
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Song Liu <song@kernel.org>, Namhyung Kim <namhyung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 108/171] perf: Fix perf_event_read_local() time
 Date:   Mon, 31 Jan 2022 11:56:13 +0100
-Message-Id: <20220131105222.189561789@linuxfoundation.org>
+Message-Id: <20220131105233.693819642@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,114 +49,575 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sparkhuang <huangshaobo6@huawei.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 8b59b0a53c840921b625378f137e88adfa87647e upstream.
+[ Upstream commit 09f5e7dc7ad705289e1b1ec065439aa3c42951c4 ]
 
-arm32 uses software to simulate the instruction replaced
-by kprobe. some instructions may be simulated by constructing
-assembly functions. therefore, before executing instruction
-simulation, it is necessary to construct assembly function
-execution environment in C language through binding registers.
-after kasan is enabled, the register binding relationship will
-be destroyed, resulting in instruction simulation errors and
-causing kernel panic.
+Time readers that cannot take locks (due to NMI etc..) currently make
+use of perf_event::shadow_ctx_time, which, for that event gives:
 
-the kprobe emulate instruction function is distributed in three
-files: actions-common.c actions-arm.c actions-thumb.c, so disable
-KASAN when compiling these files.
+  time' = now + (time - timestamp)
 
-for example, use kprobe insert on cap_capable+20 after kasan
-enabled, the cap_capable assembly code is as follows:
-<cap_capable>:
-e92d47f0	push	{r4, r5, r6, r7, r8, r9, sl, lr}
-e1a05000	mov	r5, r0
-e280006c	add	r0, r0, #108    ; 0x6c
-e1a04001	mov	r4, r1
-e1a06002	mov	r6, r2
-e59fa090	ldr	sl, [pc, #144]  ;
-ebfc7bf8	bl	c03aa4b4 <__asan_load4>
-e595706c	ldr	r7, [r5, #108]  ; 0x6c
-e2859014	add	r9, r5, #20
-......
-The emulate_ldr assembly code after enabling kasan is as follows:
-c06f1384 <emulate_ldr>:
-e92d47f0	push	{r4, r5, r6, r7, r8, r9, sl, lr}
-e282803c	add	r8, r2, #60     ; 0x3c
-e1a05000	mov	r5, r0
-e7e37855	ubfx	r7, r5, #16, #4
-e1a00008	mov	r0, r8
-e1a09001	mov	r9, r1
-e1a04002	mov	r4, r2
-ebf35462	bl	c03c6530 <__asan_load4>
-e357000f	cmp	r7, #15
-e7e36655	ubfx	r6, r5, #12, #4
-e205a00f	and	sl, r5, #15
-0a000001	beq	c06f13bc <emulate_ldr+0x38>
-e0840107	add	r0, r4, r7, lsl #2
-ebf3545c	bl	c03c6530 <__asan_load4>
-e084010a	add	r0, r4, sl, lsl #2
-ebf3545a	bl	c03c6530 <__asan_load4>
-e2890010	add	r0, r9, #16
-ebf35458	bl	c03c6530 <__asan_load4>
-e5990010	ldr	r0, [r9, #16]
-e12fff30	blx	r0
-e356000f	cm	r6, #15
-1a000014	bne	c06f1430 <emulate_ldr+0xac>
-e1a06000	mov	r6, r0
-e2840040	add	r0, r4, #64     ; 0x40
-......
+or, alternatively arranged:
 
-when running in emulate_ldr to simulate the ldr instruction, panic
-occurred, and the log is as follows:
-Unable to handle kernel NULL pointer dereference at virtual address
-00000090
-pgd = ecb46400
-[00000090] *pgd=2e0fa003, *pmd=00000000
-Internal error: Oops: 206 [#1] SMP ARM
-PC is at cap_capable+0x14/0xb0
-LR is at emulate_ldr+0x50/0xc0
-psr: 600d0293 sp : ecd63af8  ip : 00000004  fp : c0a7c30c
-r10: 00000000  r9 : c30897f4  r8 : ecd63cd4
-r7 : 0000000f  r6 : 0000000a  r5 : e59fa090  r4 : ecd63c98
-r3 : c06ae294  r2 : 00000000  r1 : b7611300  r0 : bf4ec008
-Flags: nZCv  IRQs off  FIQs on  Mode SVC_32  ISA ARM  Segment user
-Control: 32c5387d  Table: 2d546400  DAC: 55555555
-Process bash (pid: 1643, stack limit = 0xecd60190)
-(cap_capable) from (kprobe_handler+0x218/0x340)
-(kprobe_handler) from (kprobe_trap_handler+0x24/0x48)
-(kprobe_trap_handler) from (do_undefinstr+0x13c/0x364)
-(do_undefinstr) from (__und_svc_finish+0x0/0x30)
-(__und_svc_finish) from (cap_capable+0x18/0xb0)
-(cap_capable) from (cap_vm_enough_memory+0x38/0x48)
-(cap_vm_enough_memory) from
-(security_vm_enough_memory_mm+0x48/0x6c)
-(security_vm_enough_memory_mm) from
-(copy_process.constprop.5+0x16b4/0x25c8)
-(copy_process.constprop.5) from (_do_fork+0xe8/0x55c)
-(_do_fork) from (SyS_clone+0x1c/0x24)
-(SyS_clone) from (__sys_trace_return+0x0/0x10)
-Code: 0050a0e1 6c0080e2 0140a0e1 0260a0e1 (f801f0e7)
+  time' = time + (now - timestamp)
 
-Fixes: 35aa1df43283 ("ARM kprobes: instruction single-stepping support")
-Fixes: 421015713b30 ("ARM: 9017/2: Enable KASan for ARM")
-Signed-off-by: huangshaobo <huangshaobo6@huawei.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+IOW, the progression of time since the last time the shadow_ctx_time
+was updated.
+
+There's problems with this:
+
+ A) the shadow_ctx_time is per-event, even though the ctx_time it
+    reflects is obviously per context. The direct concequence of this
+    is that the context needs to iterate all events all the time to
+    keep the shadow_ctx_time in sync.
+
+ B) even with the prior point, the context itself might not be active
+    meaning its time should not advance to begin with.
+
+ C) shadow_ctx_time isn't consistently updated when ctx_time is
+
+There are 3 users of this stuff, that suffer differently from this:
+
+ - calc_timer_values()
+   - perf_output_read()
+   - perf_event_update_userpage()	/* A */
+
+ - perf_event_read_local()		/* A,B */
+
+In particular, perf_output_read() doesn't suffer at all, because it's
+sample driven and hence only relevant when the event is actually
+running.
+
+This same was supposed to be true for perf_event_update_userpage(),
+after all self-monitoring implies the context is active *HOWEVER*, as
+per commit f79256532682 ("perf/core: fix userpage->time_enabled of
+inactive events") this goes wrong when combined with counter
+overcommit, in that case those events that do not get scheduled when
+the context becomes active (task events typically) miss out on the
+EVENT_TIME update and ENABLED time is inflated (for a little while)
+with the time the context was inactive. Once the event gets rotated
+in, this gets corrected, leading to a non-monotonic timeflow.
+
+perf_event_read_local() made things even worse, it can request time at
+any point, suffering all the problems perf_event_update_userpage()
+does and more. Because while perf_event_update_userpage() is limited
+by the context being active, perf_event_read_local() users have no
+such constraint.
+
+Therefore, completely overhaul things and do away with
+perf_event::shadow_ctx_time. Instead have regular context time updates
+keep track of this offset directly and provide perf_event_time_now()
+to complement perf_event_time().
+
+perf_event_time_now() will, in adition to being context wide, also
+take into account if the context is active. For inactive context, it
+will not advance time.
+
+This latter property means the cgroup perf_cgroup_info context needs
+to grow addition state to track this.
+
+Additionally, since all this is strictly per-cpu, we can use barrier()
+to order context activity vs context time.
+
+Fixes: 7d9285e82db5 ("perf/bpf: Extend the perf_event_read_local() interface, a.k.a. "bpf: perf event change needed for subsequent bpf helpers"")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Song Liu <song@kernel.org>
+Tested-by: Namhyung Kim <namhyung@kernel.org>
+Link: https://lkml.kernel.org/r/YcB06DasOBtU0b00@hirez.programming.kicks-ass.net
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/probes/kprobes/Makefile |    3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/perf_event.h |  15 +--
+ kernel/events/core.c       | 246 ++++++++++++++++++++++---------------
+ 2 files changed, 149 insertions(+), 112 deletions(-)
 
---- a/arch/arm/probes/kprobes/Makefile
-+++ b/arch/arm/probes/kprobes/Makefile
-@@ -1,4 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
-+KASAN_SANITIZE_actions-common.o := n
-+KASAN_SANITIZE_actions-arm.o := n
-+KASAN_SANITIZE_actions-thumb.o := n
- obj-$(CONFIG_KPROBES)		+= core.o actions-common.o checkers-common.o
- obj-$(CONFIG_ARM_KPROBES_TEST)	+= test-kprobes.o
- test-kprobes-objs		:= test-core.o
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index ae1f0c8b75623..6cce33e7e7acc 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -680,18 +680,6 @@ struct perf_event {
+ 	u64				total_time_running;
+ 	u64				tstamp;
+ 
+-	/*
+-	 * timestamp shadows the actual context timing but it can
+-	 * be safely used in NMI interrupt context. It reflects the
+-	 * context time as it was when the event was last scheduled in,
+-	 * or when ctx_sched_in failed to schedule the event because we
+-	 * run out of PMC.
+-	 *
+-	 * ctx_time already accounts for ctx->timestamp. Therefore to
+-	 * compute ctx_time for a sample, simply add perf_clock().
+-	 */
+-	u64				shadow_ctx_time;
+-
+ 	struct perf_event_attr		attr;
+ 	u16				header_size;
+ 	u16				id_header_size;
+@@ -838,6 +826,7 @@ struct perf_event_context {
+ 	 */
+ 	u64				time;
+ 	u64				timestamp;
++	u64				timeoffset;
+ 
+ 	/*
+ 	 * These fields let us detect when two contexts have both
+@@ -920,6 +909,8 @@ struct bpf_perf_event_data_kern {
+ struct perf_cgroup_info {
+ 	u64				time;
+ 	u64				timestamp;
++	u64				timeoffset;
++	int				active;
+ };
+ 
+ struct perf_cgroup {
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 0fe6a65bbd58f..0153f8f972834 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -674,6 +674,23 @@ perf_event_set_state(struct perf_event *event, enum perf_event_state state)
+ 	WRITE_ONCE(event->state, state);
+ }
+ 
++/*
++ * UP store-release, load-acquire
++ */
++
++#define __store_release(ptr, val)					\
++do {									\
++	barrier();							\
++	WRITE_ONCE(*(ptr), (val));					\
++} while (0)
++
++#define __load_acquire(ptr)						\
++({									\
++	__unqual_scalar_typeof(*(ptr)) ___p = READ_ONCE(*(ptr));	\
++	barrier();							\
++	___p;								\
++})
++
+ #ifdef CONFIG_CGROUP_PERF
+ 
+ static inline bool
+@@ -719,34 +736,51 @@ static inline u64 perf_cgroup_event_time(struct perf_event *event)
+ 	return t->time;
+ }
+ 
+-static inline void __update_cgrp_time(struct perf_cgroup *cgrp)
++static inline u64 perf_cgroup_event_time_now(struct perf_event *event, u64 now)
+ {
+-	struct perf_cgroup_info *info;
+-	u64 now;
+-
+-	now = perf_clock();
++	struct perf_cgroup_info *t;
+ 
+-	info = this_cpu_ptr(cgrp->info);
++	t = per_cpu_ptr(event->cgrp->info, event->cpu);
++	if (!__load_acquire(&t->active))
++		return t->time;
++	now += READ_ONCE(t->timeoffset);
++	return now;
++}
+ 
+-	info->time += now - info->timestamp;
++static inline void __update_cgrp_time(struct perf_cgroup_info *info, u64 now, bool adv)
++{
++	if (adv)
++		info->time += now - info->timestamp;
+ 	info->timestamp = now;
++	/*
++	 * see update_context_time()
++	 */
++	WRITE_ONCE(info->timeoffset, info->time - info->timestamp);
+ }
+ 
+-static inline void update_cgrp_time_from_cpuctx(struct perf_cpu_context *cpuctx)
++static inline void update_cgrp_time_from_cpuctx(struct perf_cpu_context *cpuctx, bool final)
+ {
+ 	struct perf_cgroup *cgrp = cpuctx->cgrp;
+ 	struct cgroup_subsys_state *css;
++	struct perf_cgroup_info *info;
+ 
+ 	if (cgrp) {
++		u64 now = perf_clock();
++
+ 		for (css = &cgrp->css; css; css = css->parent) {
+ 			cgrp = container_of(css, struct perf_cgroup, css);
+-			__update_cgrp_time(cgrp);
++			info = this_cpu_ptr(cgrp->info);
++
++			__update_cgrp_time(info, now, true);
++			if (final)
++				__store_release(&info->active, 0);
+ 		}
+ 	}
+ }
+ 
+ static inline void update_cgrp_time_from_event(struct perf_event *event)
+ {
++	struct perf_cgroup_info *info;
+ 	struct perf_cgroup *cgrp;
+ 
+ 	/*
+@@ -760,8 +794,10 @@ static inline void update_cgrp_time_from_event(struct perf_event *event)
+ 	/*
+ 	 * Do not update time when cgroup is not active
+ 	 */
+-	if (cgroup_is_descendant(cgrp->css.cgroup, event->cgrp->css.cgroup))
+-		__update_cgrp_time(event->cgrp);
++	if (cgroup_is_descendant(cgrp->css.cgroup, event->cgrp->css.cgroup)) {
++		info = this_cpu_ptr(event->cgrp->info);
++		__update_cgrp_time(info, perf_clock(), true);
++	}
+ }
+ 
+ static inline void
+@@ -785,7 +821,8 @@ perf_cgroup_set_timestamp(struct task_struct *task,
+ 	for (css = &cgrp->css; css; css = css->parent) {
+ 		cgrp = container_of(css, struct perf_cgroup, css);
+ 		info = this_cpu_ptr(cgrp->info);
+-		info->timestamp = ctx->timestamp;
++		__update_cgrp_time(info, ctx->timestamp, false);
++		__store_release(&info->active, 1);
+ 	}
+ }
+ 
+@@ -981,14 +1018,6 @@ out:
+ 	return ret;
+ }
+ 
+-static inline void
+-perf_cgroup_set_shadow_time(struct perf_event *event, u64 now)
+-{
+-	struct perf_cgroup_info *t;
+-	t = per_cpu_ptr(event->cgrp->info, event->cpu);
+-	event->shadow_ctx_time = now - t->timestamp;
+-}
+-
+ static inline void
+ perf_cgroup_event_enable(struct perf_event *event, struct perf_event_context *ctx)
+ {
+@@ -1066,7 +1095,8 @@ static inline void update_cgrp_time_from_event(struct perf_event *event)
+ {
+ }
+ 
+-static inline void update_cgrp_time_from_cpuctx(struct perf_cpu_context *cpuctx)
++static inline void update_cgrp_time_from_cpuctx(struct perf_cpu_context *cpuctx,
++						bool final)
+ {
+ }
+ 
+@@ -1098,12 +1128,12 @@ perf_cgroup_switch(struct task_struct *task, struct task_struct *next)
+ {
+ }
+ 
+-static inline void
+-perf_cgroup_set_shadow_time(struct perf_event *event, u64 now)
++static inline u64 perf_cgroup_event_time(struct perf_event *event)
+ {
++	return 0;
+ }
+ 
+-static inline u64 perf_cgroup_event_time(struct perf_event *event)
++static inline u64 perf_cgroup_event_time_now(struct perf_event *event, u64 now)
+ {
+ 	return 0;
+ }
+@@ -1525,22 +1555,59 @@ static void perf_unpin_context(struct perf_event_context *ctx)
+ /*
+  * Update the record of the current time in a context.
+  */
+-static void update_context_time(struct perf_event_context *ctx)
++static void __update_context_time(struct perf_event_context *ctx, bool adv)
+ {
+ 	u64 now = perf_clock();
+ 
+-	ctx->time += now - ctx->timestamp;
++	if (adv)
++		ctx->time += now - ctx->timestamp;
+ 	ctx->timestamp = now;
++
++	/*
++	 * The above: time' = time + (now - timestamp), can be re-arranged
++	 * into: time` = now + (time - timestamp), which gives a single value
++	 * offset to compute future time without locks on.
++	 *
++	 * See perf_event_time_now(), which can be used from NMI context where
++	 * it's (obviously) not possible to acquire ctx->lock in order to read
++	 * both the above values in a consistent manner.
++	 */
++	WRITE_ONCE(ctx->timeoffset, ctx->time - ctx->timestamp);
++}
++
++static void update_context_time(struct perf_event_context *ctx)
++{
++	__update_context_time(ctx, true);
+ }
+ 
+ static u64 perf_event_time(struct perf_event *event)
+ {
+ 	struct perf_event_context *ctx = event->ctx;
+ 
++	if (unlikely(!ctx))
++		return 0;
++
+ 	if (is_cgroup_event(event))
+ 		return perf_cgroup_event_time(event);
+ 
+-	return ctx ? ctx->time : 0;
++	return ctx->time;
++}
++
++static u64 perf_event_time_now(struct perf_event *event, u64 now)
++{
++	struct perf_event_context *ctx = event->ctx;
++
++	if (unlikely(!ctx))
++		return 0;
++
++	if (is_cgroup_event(event))
++		return perf_cgroup_event_time_now(event, now);
++
++	if (!(__load_acquire(&ctx->is_active) & EVENT_TIME))
++		return ctx->time;
++
++	now += READ_ONCE(ctx->timeoffset);
++	return now;
+ }
+ 
+ static enum event_type_t get_event_type(struct perf_event *event)
+@@ -2346,7 +2413,7 @@ __perf_remove_from_context(struct perf_event *event,
+ 
+ 	if (ctx->is_active & EVENT_TIME) {
+ 		update_context_time(ctx);
+-		update_cgrp_time_from_cpuctx(cpuctx);
++		update_cgrp_time_from_cpuctx(cpuctx, false);
+ 	}
+ 
+ 	event_sched_out(event, cpuctx, ctx);
+@@ -2357,6 +2424,9 @@ __perf_remove_from_context(struct perf_event *event,
+ 	list_del_event(event, ctx);
+ 
+ 	if (!ctx->nr_events && ctx->is_active) {
++		if (ctx == &cpuctx->ctx)
++			update_cgrp_time_from_cpuctx(cpuctx, true);
++
+ 		ctx->is_active = 0;
+ 		ctx->rotate_necessary = 0;
+ 		if (ctx->task) {
+@@ -2478,40 +2548,6 @@ void perf_event_disable_inatomic(struct perf_event *event)
+ 	irq_work_queue(&event->pending);
+ }
+ 
+-static void perf_set_shadow_time(struct perf_event *event,
+-				 struct perf_event_context *ctx)
+-{
+-	/*
+-	 * use the correct time source for the time snapshot
+-	 *
+-	 * We could get by without this by leveraging the
+-	 * fact that to get to this function, the caller
+-	 * has most likely already called update_context_time()
+-	 * and update_cgrp_time_xx() and thus both timestamp
+-	 * are identical (or very close). Given that tstamp is,
+-	 * already adjusted for cgroup, we could say that:
+-	 *    tstamp - ctx->timestamp
+-	 * is equivalent to
+-	 *    tstamp - cgrp->timestamp.
+-	 *
+-	 * Then, in perf_output_read(), the calculation would
+-	 * work with no changes because:
+-	 * - event is guaranteed scheduled in
+-	 * - no scheduled out in between
+-	 * - thus the timestamp would be the same
+-	 *
+-	 * But this is a bit hairy.
+-	 *
+-	 * So instead, we have an explicit cgroup call to remain
+-	 * within the time source all along. We believe it
+-	 * is cleaner and simpler to understand.
+-	 */
+-	if (is_cgroup_event(event))
+-		perf_cgroup_set_shadow_time(event, event->tstamp);
+-	else
+-		event->shadow_ctx_time = event->tstamp - ctx->timestamp;
+-}
+-
+ #define MAX_INTERRUPTS (~0ULL)
+ 
+ static void perf_log_throttle(struct perf_event *event, int enable);
+@@ -2552,8 +2588,6 @@ event_sched_in(struct perf_event *event,
+ 
+ 	perf_pmu_disable(event->pmu);
+ 
+-	perf_set_shadow_time(event, ctx);
+-
+ 	perf_log_itrace_start(event);
+ 
+ 	if (event->pmu->add(event, PERF_EF_START)) {
+@@ -3247,16 +3281,6 @@ static void ctx_sched_out(struct perf_event_context *ctx,
+ 		return;
+ 	}
+ 
+-	ctx->is_active &= ~event_type;
+-	if (!(ctx->is_active & EVENT_ALL))
+-		ctx->is_active = 0;
+-
+-	if (ctx->task) {
+-		WARN_ON_ONCE(cpuctx->task_ctx != ctx);
+-		if (!ctx->is_active)
+-			cpuctx->task_ctx = NULL;
+-	}
+-
+ 	/*
+ 	 * Always update time if it was set; not only when it changes.
+ 	 * Otherwise we can 'forget' to update time for any but the last
+@@ -3270,7 +3294,22 @@ static void ctx_sched_out(struct perf_event_context *ctx,
+ 	if (is_active & EVENT_TIME) {
+ 		/* update (and stop) ctx time */
+ 		update_context_time(ctx);
+-		update_cgrp_time_from_cpuctx(cpuctx);
++		update_cgrp_time_from_cpuctx(cpuctx, ctx == &cpuctx->ctx);
++		/*
++		 * CPU-release for the below ->is_active store,
++		 * see __load_acquire() in perf_event_time_now()
++		 */
++		barrier();
++	}
++
++	ctx->is_active &= ~event_type;
++	if (!(ctx->is_active & EVENT_ALL))
++		ctx->is_active = 0;
++
++	if (ctx->task) {
++		WARN_ON_ONCE(cpuctx->task_ctx != ctx);
++		if (!ctx->is_active)
++			cpuctx->task_ctx = NULL;
+ 	}
+ 
+ 	is_active ^= ctx->is_active; /* changed bits */
+@@ -3707,13 +3746,19 @@ static noinline int visit_groups_merge(struct perf_cpu_context *cpuctx,
+ 	return 0;
+ }
+ 
++/*
++ * Because the userpage is strictly per-event (there is no concept of context,
++ * so there cannot be a context indirection), every userpage must be updated
++ * when context time starts :-(
++ *
++ * IOW, we must not miss EVENT_TIME edges.
++ */
+ static inline bool event_update_userpage(struct perf_event *event)
+ {
+ 	if (likely(!atomic_read(&event->mmap_count)))
+ 		return false;
+ 
+ 	perf_event_update_time(event);
+-	perf_set_shadow_time(event, event->ctx);
+ 	perf_event_update_userpage(event);
+ 
+ 	return true;
+@@ -3797,13 +3842,23 @@ ctx_sched_in(struct perf_event_context *ctx,
+ 	     struct task_struct *task)
+ {
+ 	int is_active = ctx->is_active;
+-	u64 now;
+ 
+ 	lockdep_assert_held(&ctx->lock);
+ 
+ 	if (likely(!ctx->nr_events))
+ 		return;
+ 
++	if (is_active ^ EVENT_TIME) {
++		/* start ctx time */
++		__update_context_time(ctx, false);
++		perf_cgroup_set_timestamp(task, ctx);
++		/*
++		 * CPU-release for the below ->is_active store,
++		 * see __load_acquire() in perf_event_time_now()
++		 */
++		barrier();
++	}
++
+ 	ctx->is_active |= (event_type | EVENT_TIME);
+ 	if (ctx->task) {
+ 		if (!is_active)
+@@ -3814,13 +3869,6 @@ ctx_sched_in(struct perf_event_context *ctx,
+ 
+ 	is_active ^= ctx->is_active; /* changed bits */
+ 
+-	if (is_active & EVENT_TIME) {
+-		/* start ctx time */
+-		now = perf_clock();
+-		ctx->timestamp = now;
+-		perf_cgroup_set_timestamp(task, ctx);
+-	}
+-
+ 	/*
+ 	 * First go through the list and put on any pinned groups
+ 	 * in order to give them the best chance of going on.
+@@ -4414,6 +4462,18 @@ static inline u64 perf_event_count(struct perf_event *event)
+ 	return local64_read(&event->count) + atomic64_read(&event->child_count);
+ }
+ 
++static void calc_timer_values(struct perf_event *event,
++				u64 *now,
++				u64 *enabled,
++				u64 *running)
++{
++	u64 ctx_time;
++
++	*now = perf_clock();
++	ctx_time = perf_event_time_now(event, *now);
++	__perf_update_times(event, ctx_time, enabled, running);
++}
++
+ /*
+  * NMI-safe method to read a local event, that is an event that
+  * is:
+@@ -4473,10 +4533,9 @@ int perf_event_read_local(struct perf_event *event, u64 *value,
+ 
+ 	*value = local64_read(&event->count);
+ 	if (enabled || running) {
+-		u64 now = event->shadow_ctx_time + perf_clock();
+-		u64 __enabled, __running;
++		u64 __enabled, __running, __now;;
+ 
+-		__perf_update_times(event, now, &__enabled, &__running);
++		calc_timer_values(event, &__now, &__enabled, &__running);
+ 		if (enabled)
+ 			*enabled = __enabled;
+ 		if (running)
+@@ -5798,18 +5857,6 @@ static int perf_event_index(struct perf_event *event)
+ 	return event->pmu->event_idx(event);
+ }
+ 
+-static void calc_timer_values(struct perf_event *event,
+-				u64 *now,
+-				u64 *enabled,
+-				u64 *running)
+-{
+-	u64 ctx_time;
+-
+-	*now = perf_clock();
+-	ctx_time = event->shadow_ctx_time + *now;
+-	__perf_update_times(event, ctx_time, enabled, running);
+-}
+-
+ static void perf_event_init_userpage(struct perf_event *event)
+ {
+ 	struct perf_event_mmap_page *userpg;
+@@ -6349,7 +6396,6 @@ accounting:
+ 		ring_buffer_attach(event, rb);
+ 
+ 		perf_event_update_time(event);
+-		perf_set_shadow_time(event, event->ctx);
+ 		perf_event_init_userpage(event);
+ 		perf_event_update_userpage(event);
+ 	} else {
+-- 
+2.34.1
+
 
 
