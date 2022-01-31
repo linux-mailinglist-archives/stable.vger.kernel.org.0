@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63F844A41C2
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:06:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 247304A44CB
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239761AbiAaLF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:05:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42952 "EHLO
+        id S1376673AbiAaLcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:32:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359083AbiAaLET (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:04:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B858C061741;
-        Mon, 31 Jan 2022 03:03:35 -0800 (PST)
+        with ESMTP id S1379429AbiAaLaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:30:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54413C0617BC;
+        Mon, 31 Jan 2022 03:20:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1A9860B98;
-        Mon, 31 Jan 2022 11:03:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF4B4C340EE;
-        Mon, 31 Jan 2022 11:03:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15A28B82A5C;
+        Mon, 31 Jan 2022 11:20:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ED60C340E8;
+        Mon, 31 Jan 2022 11:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627014;
-        bh=MU457nlaBzqUkUiehB3MbrbuxJNSlNvVyeoL3/f57qM=;
+        s=korg; t=1643628038;
+        bh=16Eq/lpWWXdcNk6xXNLp8lLAp5bdW0/R1zVW2JRPpCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dQ1M0W6ykEpC8cGMHUeD4b+myn5Npg3lFveKgJStan3VgITN0Zk6UqoIY8eF7jpwZ
-         HE87ySZKH0/aY6+K/ODU7TLvfsXi1+rr+p1YjsZJ1rOqCGf2wNwAUfoyvsgCkMv7+n
-         yte5mkx0OTcs5uk6b9q5p4sU8omzcF0Rq/+JN4bE=
+        b=w/n4+rnhVmPE6Zw/gQVje07vpSwemmqzkmUqf7vzyO641VMHG+jcyem4+Qx8QXrBK
+         M7Ri0JLiI9R9AcdLvlGKvDoqjfrPjDf/ehwlPVTL++0/NvMKJa6+FLEsXGxlWRbM+l
+         AUa+AlSO2230BkvPPytEZ40aoCwtLEEDesuQ0T30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sujit Kautkar <sujitka@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH 5.10 048/100] rpmsg: char: Fix race between the release of rpmsg_ctrldev and cdev
+        stable@vger.kernel.org, Maksym Yaremchuk <maksymy@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Amit Cohen <amcohen@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 106/200] ipv6_tunnel: Rate limit warning messages
 Date:   Mon, 31 Jan 2022 11:56:09 +0100
-Message-Id: <20220131105222.056104924@linuxfoundation.org>
+Message-Id: <20220131105237.145792058@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,112 +50,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sujit Kautkar <sujitka@chromium.org>
+From: Ido Schimmel <idosch@nvidia.com>
 
-commit b7fb2dad571d1e21173c06cef0bced77b323990a upstream.
+commit 6cee105e7f2ced596373951d9ea08dacc3883c68 upstream.
 
-struct rpmsg_ctrldev contains a struct cdev. The current code frees
-the rpmsg_ctrldev struct in rpmsg_ctrldev_release_device(), but the
-cdev is a managed object, therefore its release is not predictable
-and the rpmsg_ctrldev could be freed before the cdev is entirely
-released, as in the backtrace below.
+The warning messages can be invoked from the data path for every packet
+transmitted through an ip6gre netdev, leading to high CPU utilization.
 
-[   93.625603] ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x7c
-[   93.636115] WARNING: CPU: 0 PID: 12 at lib/debugobjects.c:488 debug_print_object+0x13c/0x1b0
-[   93.644799] Modules linked in: veth xt_cgroup xt_MASQUERADE rfcomm algif_hash algif_skcipher af_alg uinput ip6table_nat fuse uvcvideo videobuf2_vmalloc venus_enc venus_dec videobuf2_dma_contig hci_uart btandroid btqca snd_soc_rt5682_i2c bluetooth qcom_spmi_temp_alarm snd_soc_rt5682v
-[   93.715175] CPU: 0 PID: 12 Comm: kworker/0:1 Tainted: G    B             5.4.163-lockdep #26
-[   93.723855] Hardware name: Google Lazor (rev3 - 8) with LTE (DT)
-[   93.730055] Workqueue: events kobject_delayed_cleanup
-[   93.735271] pstate: 60c00009 (nZCv daif +PAN +UAO)
-[   93.740216] pc : debug_print_object+0x13c/0x1b0
-[   93.744890] lr : debug_print_object+0x13c/0x1b0
-[   93.749555] sp : ffffffacf5bc7940
-[   93.752978] x29: ffffffacf5bc7940 x28: dfffffd000000000
-[   93.758448] x27: ffffffacdb11a800 x26: dfffffd000000000
-[   93.763916] x25: ffffffd0734f856c x24: dfffffd000000000
-[   93.769389] x23: 0000000000000000 x22: ffffffd0733c35b0
-[   93.774860] x21: ffffffd0751994a0 x20: ffffffd075ec27c0
-[   93.780338] x19: ffffffd075199100 x18: 00000000000276e0
-[   93.785814] x17: 0000000000000000 x16: dfffffd000000000
-[   93.791291] x15: ffffffffffffffff x14: 6e6968207473696c
-[   93.796768] x13: 0000000000000000 x12: ffffffd075e2b000
-[   93.802244] x11: 0000000000000001 x10: 0000000000000000
-[   93.807723] x9 : d13400dff1921900 x8 : d13400dff1921900
-[   93.813200] x7 : 0000000000000000 x6 : 0000000000000000
-[   93.818676] x5 : 0000000000000080 x4 : 0000000000000000
-[   93.824152] x3 : ffffffd0732a0fa4 x2 : 0000000000000001
-[   93.829628] x1 : ffffffacf5bc7580 x0 : 0000000000000061
-[   93.835104] Call trace:
-[   93.837644]  debug_print_object+0x13c/0x1b0
-[   93.841963]  __debug_check_no_obj_freed+0x25c/0x3c0
-[   93.846987]  debug_check_no_obj_freed+0x18/0x20
-[   93.851669]  slab_free_freelist_hook+0xbc/0x1e4
-[   93.856346]  kfree+0xfc/0x2f4
-[   93.859416]  rpmsg_ctrldev_release_device+0x78/0xb8
-[   93.864445]  device_release+0x84/0x168
-[   93.868310]  kobject_cleanup+0x12c/0x298
-[   93.872356]  kobject_delayed_cleanup+0x10/0x18
-[   93.876948]  process_one_work+0x578/0x92c
-[   93.881086]  worker_thread+0x804/0xcf8
-[   93.884963]  kthread+0x2a8/0x314
-[   93.888303]  ret_from_fork+0x10/0x18
+Fix that by rate limiting the messages.
 
-The cdev_device_add/del() API was created to address this issue (see
-commit '233ed09d7fda ("chardev: add helper function to register char
-devs with a struct device")'), use it instead of cdev add/del().
-
-Fixes: c0cdc19f84a4 ("rpmsg: Driver for user space endpoint interface")
-Signed-off-by: Sujit Kautkar <sujitka@chromium.org>
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220110104706.v6.1.Iaac908f3e3149a89190ce006ba166e2d3fd247a3@changeid
+Fixes: 09c6bbf090ec ("[IPV6]: Do mandatory IPv6 tunnel endpoint checks in realtime")
+Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
+Tested-by: Maksym Yaremchuk <maksymy@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Amit Cohen <amcohen@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rpmsg/rpmsg_char.c |   11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ net/ipv6/ip6_tunnel.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/rpmsg/rpmsg_char.c
-+++ b/drivers/rpmsg/rpmsg_char.c
-@@ -458,7 +458,6 @@ static void rpmsg_ctrldev_release_device
+--- a/net/ipv6/ip6_tunnel.c
++++ b/net/ipv6/ip6_tunnel.c
+@@ -1036,14 +1036,14 @@ int ip6_tnl_xmit_ctl(struct ip6_tnl *t,
  
- 	ida_simple_remove(&rpmsg_ctrl_ida, dev->id);
- 	ida_simple_remove(&rpmsg_minor_ida, MINOR(dev->devt));
--	cdev_del(&ctrldev->cdev);
- 	kfree(ctrldev);
- }
- 
-@@ -493,19 +492,13 @@ static int rpmsg_chrdev_probe(struct rpm
- 	dev->id = ret;
- 	dev_set_name(&ctrldev->dev, "rpmsg_ctrl%d", ret);
- 
--	ret = cdev_add(&ctrldev->cdev, dev->devt, 1);
-+	ret = cdev_device_add(&ctrldev->cdev, &ctrldev->dev);
- 	if (ret)
- 		goto free_ctrl_ida;
- 
- 	/* We can now rely on the release function for cleanup */
- 	dev->release = rpmsg_ctrldev_release_device;
- 
--	ret = device_add(dev);
--	if (ret) {
--		dev_err(&rpdev->dev, "device_add failed: %d\n", ret);
--		put_device(dev);
--	}
--
- 	dev_set_drvdata(&rpdev->dev, ctrldev);
- 
- 	return ret;
-@@ -531,7 +524,7 @@ static void rpmsg_chrdev_remove(struct r
- 	if (ret)
- 		dev_warn(&rpdev->dev, "failed to nuke endpoints: %d\n", ret);
- 
--	device_del(&ctrldev->dev);
-+	cdev_device_del(&ctrldev->cdev, &ctrldev->dev);
- 	put_device(&ctrldev->dev);
- }
- 
+ 		if (unlikely(!ipv6_chk_addr_and_flags(net, laddr, ldev, false,
+ 						      0, IFA_F_TENTATIVE)))
+-			pr_warn("%s xmit: Local address not yet configured!\n",
+-				p->name);
++			pr_warn_ratelimited("%s xmit: Local address not yet configured!\n",
++					    p->name);
+ 		else if (!(p->flags & IP6_TNL_F_ALLOW_LOCAL_REMOTE) &&
+ 			 !ipv6_addr_is_multicast(raddr) &&
+ 			 unlikely(ipv6_chk_addr_and_flags(net, raddr, ldev,
+ 							  true, 0, IFA_F_TENTATIVE)))
+-			pr_warn("%s xmit: Routing loop! Remote address found on this node!\n",
+-				p->name);
++			pr_warn_ratelimited("%s xmit: Routing loop! Remote address found on this node!\n",
++					    p->name);
+ 		else
+ 			ret = 1;
+ 		rcu_read_unlock();
 
 
