@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C59CA4A4306
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:16:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 726DF4A4528
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:41:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359056AbiAaLQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:16:15 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60584 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359073AbiAaLOi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:14:38 -0500
+        id S1350811AbiAaLgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:36:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51354 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350844AbiAaLfD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:35:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62494C07979E;
+        Mon, 31 Jan 2022 03:23:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 452C0B82A71;
-        Mon, 31 Jan 2022 11:14:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74CE0C340E8;
-        Mon, 31 Jan 2022 11:14:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0120F60B28;
+        Mon, 31 Jan 2022 11:23:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C2F0C340E8;
+        Mon, 31 Jan 2022 11:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627676;
-        bh=ssY7kXE1Ief3LelNhBCJDUqtMCTqLfRPdkAXGYpBN34=;
+        s=korg; t=1643628227;
+        bh=83B0RS1DnVdZj+VKZkF1dGNsghRhMUMNT7KwBhdnqcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZT5nqGfzD5mwKWTp4TI6QT55AM6PJvo6rL6ZZNKkDWcxXrKz98vAWOV2Y/pR3W0Yq
-         yNh3FZUwQAr3rVOU6lvJwU0tWCHvT9wlAuSrmKjp/InFVf/TSp+rZxQzEfvnOngFaM
-         TlBmvPN9aT67PkHzQG5Juh2IJ7hDIzkGe6lt9zPw=
+        b=kPzaoEIJextPTvvAyE7vaWE/YHNabs4FCTXakkHP2+sBnkr+5w8nHFxyvoG3nyc1+
+         7RWm2clJxE8qVqMLbnicEFdNpPCEydLelAyYJBdGw4/sjAZ1WcEN+VborF9dr0W4RA
+         RYFJeNHHdn8agCfwOBNQ2NjtLc+5infvWDiTUALg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Gix <brian.gix@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        syphyr <syphyr@gmail.com>
-Subject: [PATCH 5.15 161/171] Bluetooth: refactor malicious adv data check
-Date:   Mon, 31 Jan 2022 11:57:06 +0100
-Message-Id: <20220131105235.463268057@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        Dany Madden <drt@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 164/200] ibmvnic: dont spin in tasklet
+Date:   Mon, 31 Jan 2022 11:57:07 +0100
+Message-Id: <20220131105239.065797582@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +50,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Gix <brian.gix@intel.com>
+From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 
-commit 899663be5e75dc0174dc8bda0b5e6826edf0b29a upstream.
+[ Upstream commit 48079e7fdd0269d66b1d7d66ae88bd03162464ad ]
 
-Check for out-of-bound read was being performed at the end of while
-num_reports loop, and would fill journal with false positives. Added
-check to beginning of loop processing so that it doesn't get checked
-after ptr has been advanced.
+ibmvnic_tasklet() continuously spins waiting for responses to all
+capability requests. It does this to avoid encountering an error
+during initialization of the vnic. However if there is a bug in the
+VIOS and we do not receive a response to one or more queries the
+tasklet ends up spinning continuously leading to hard lock ups.
 
-Signed-off-by: Brian Gix <brian.gix@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: syphyr <syphyr@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+If we fail to receive a message from the VIOS it is reasonable to
+timeout the login attempt rather than spin indefinitely in the tasklet.
+
+Fixes: 249168ad07cd ("ibmvnic: Make CRQ interrupt tasklet wait for all capabilities crqs")
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Reviewed-by: Dany Madden <drt@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -5782,6 +5782,11 @@ static void hci_le_adv_report_evt(struct
- 		struct hci_ev_le_advertising_info *ev = ptr;
- 		s8 rssi;
- 
-+		if (ptr > (void *)skb_tail_pointer(skb) - sizeof(*ev)) {
-+			bt_dev_err(hdev, "Malicious advertising data.");
-+			break;
-+		}
-+
- 		if (ev->length <= HCI_MAX_AD_LENGTH &&
- 		    ev->data + ev->length <= skb_tail_pointer(skb)) {
- 			rssi = ev->data[ev->length];
-@@ -5793,11 +5798,6 @@ static void hci_le_adv_report_evt(struct
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index acd488310bbce..682a440151a87 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -5491,12 +5491,6 @@ static void ibmvnic_tasklet(struct tasklet_struct *t)
+ 			ibmvnic_handle_crq(crq, adapter);
+ 			crq->generic.first = 0;
  		}
- 
- 		ptr += sizeof(*ev) + ev->length + 1;
 -
--		if (ptr > (void *) skb_tail_pointer(skb) - sizeof(*ev)) {
--			bt_dev_err(hdev, "Malicious advertising data. Stopping processing");
--			break;
--		}
+-		/* remain in tasklet until all
+-		 * capabilities responses are received
+-		 */
+-		if (!adapter->wait_capability)
+-			done = true;
  	}
- 
- 	hci_dev_unlock(hdev);
+ 	/* if capabilities CRQ's were sent in this tasklet, the following
+ 	 * tasklet must wait until all responses are received
+-- 
+2.34.1
+
 
 
