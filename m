@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE18D4A4299
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24DE94A4379
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:22:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349328AbiAaLMc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:12:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44612 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377568AbiAaLKM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C88F0C061401;
-        Mon, 31 Jan 2022 03:09:29 -0800 (PST)
+        id S1359800AbiAaLVg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:36 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:50086 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359270AbiAaLQp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:16:45 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67E2760F96;
-        Mon, 31 Jan 2022 11:09:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C002C340E8;
-        Mon, 31 Jan 2022 11:09:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18B606125A;
+        Mon, 31 Jan 2022 11:16:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F3D5C340E8;
+        Mon, 31 Jan 2022 11:16:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627368;
-        bh=RXJiMghcv4iaFoYHI7dB/1o8hostNGLl4333WgzAptc=;
+        s=korg; t=1643627804;
+        bh=9fgBVNgq6RGY40Q792fEXaIfV/J7zbIly9q8ulp5gc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l0mLmNW1mJ1PuP3GPcPHLWu85X493Ggex1Ba33azSfxYZPThizJKtWQlU02VsK3gq
-         s9hmV8BncrEDTY4vq+HaVwpI4c/f74Yijup6Yluq0JllvUivhhICQhsURNy7UZKQfe
-         H+SLezlmSIStpCRwLLNC50lIat/p5sQqXJFB+7ok=
+        b=pxjazB84qZqLvDB2bDRPmLNaA205aUjijXFCeDo5QzuAZ/sRGsWWGIEilWlNeSo7y
+         DE/h/JvwhRgKdn3SSlQKqKZkcwCuw1OIvTIBYQmfKmx6Eo+/KW/sG/jZTEemuMfxkU
+         N4CyEkdUs+AiOmYDwmeNxjkPLvA3gx8NXsu/S+MQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Dmitry V. Levin" <ldv@altlinux.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 028/171] powerpc/audit: Fix syscall_get_arch()
-Date:   Mon, 31 Jan 2022 11:54:53 +0100
-Message-Id: <20220131105230.972888808@linuxfoundation.org>
+        stable@vger.kernel.org, Yordan Karadzhov <ykaradzhov@vmware.com>,
+        Tom Zanussi <zanussi@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.16 031/200] tracing: Propagate is_signed to expression
+Date:   Mon, 31 Jan 2022 11:54:54 +0100
+Message-Id: <20220131105234.619001978@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,65 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Tom Zanussi <zanussi@kernel.org>
 
-commit 252745240ba0ae774d2f80c5e185ed59fbc4fb41 upstream.
+commit 097f1eefedeab528cecbd35586dfe293853ffb17 upstream.
 
-Commit 770cec16cdc9 ("powerpc/audit: Simplify syscall_get_arch()")
-and commit 898a1ef06ad4 ("powerpc/audit: Avoid unneccessary #ifdef
-in syscall_get_arguments()")
-replaced test_tsk_thread_flag(task, TIF_32BIT)) by is_32bit_task().
+During expression parsing, a new expression field is created which
+should inherit the properties of the operands, such as size and
+is_signed.
 
-But is_32bit_task() applies on current task while be want the test
-done on task 'task'
+is_signed propagation was missing, causing spurious errors with signed
+operands.  Add it in parse_expr() and parse_unary() to fix the problem.
 
-So add a new macro is_tsk_32bit_task() to check any task.
+Link: https://lkml.kernel.org/r/f4dac08742fd7a0920bf80a73c6c44042f5eaa40.1643319703.git.zanussi@kernel.org
 
-Fixes: 770cec16cdc9 ("powerpc/audit: Simplify syscall_get_arch()")
-Fixes: 898a1ef06ad4 ("powerpc/audit: Avoid unneccessary #ifdef in syscall_get_arguments()")
 Cc: stable@vger.kernel.org
-Reported-by: Dmitry V. Levin <ldv@altlinux.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/c55cddb8f65713bf5859ed675d75a50cb37d5995.1642159570.git.christophe.leroy@csgroup.eu
+Fixes: 100719dcef447 ("tracing: Add simple expression support to hist triggers")
+Reported-by: Yordan Karadzhov <ykaradzhov@vmware.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215513
+Signed-off-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/syscall.h     |    4 ++--
- arch/powerpc/include/asm/thread_info.h |    2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ kernel/trace/trace_events_hist.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/powerpc/include/asm/syscall.h
-+++ b/arch/powerpc/include/asm/syscall.h
-@@ -90,7 +90,7 @@ static inline void syscall_get_arguments
- 	unsigned long val, mask = -1UL;
- 	unsigned int n = 6;
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -2487,6 +2487,8 @@ static struct hist_field *parse_unary(st
+ 		(HIST_FIELD_FL_TIMESTAMP | HIST_FIELD_FL_TIMESTAMP_USECS);
+ 	expr->fn = hist_field_unary_minus;
+ 	expr->operands[0] = operand1;
++	expr->size = operand1->size;
++	expr->is_signed = operand1->is_signed;
+ 	expr->operator = FIELD_OP_UNARY_MINUS;
+ 	expr->name = expr_str(expr, 0);
+ 	expr->type = kstrdup_const(operand1->type, GFP_KERNEL);
+@@ -2703,6 +2705,7 @@ static struct hist_field *parse_expr(str
  
--	if (is_32bit_task())
-+	if (is_tsk_32bit_task(task))
- 		mask = 0xffffffff;
+ 		/* The operand sizes should be the same, so just pick one */
+ 		expr->size = operand1->size;
++		expr->is_signed = operand1->is_signed;
  
- 	while (n--) {
-@@ -115,7 +115,7 @@ static inline void syscall_set_arguments
- 
- static inline int syscall_get_arch(struct task_struct *task)
- {
--	if (is_32bit_task())
-+	if (is_tsk_32bit_task(task))
- 		return AUDIT_ARCH_PPC;
- 	else if (IS_ENABLED(CONFIG_CPU_LITTLE_ENDIAN))
- 		return AUDIT_ARCH_PPC64LE;
---- a/arch/powerpc/include/asm/thread_info.h
-+++ b/arch/powerpc/include/asm/thread_info.h
-@@ -165,8 +165,10 @@ static inline bool test_thread_local_fla
- 
- #ifdef CONFIG_COMPAT
- #define is_32bit_task()	(test_thread_flag(TIF_32BIT))
-+#define is_tsk_32bit_task(tsk)	(test_tsk_thread_flag(tsk, TIF_32BIT))
- #else
- #define is_32bit_task()	(IS_ENABLED(CONFIG_PPC32))
-+#define is_tsk_32bit_task(tsk)	(IS_ENABLED(CONFIG_PPC32))
- #endif
- 
- #if defined(CONFIG_PPC64)
+ 		expr->operator = field_op;
+ 		expr->type = kstrdup_const(operand1->type, GFP_KERNEL);
 
 
