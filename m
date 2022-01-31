@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AFAA4A426B
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7465F4A43FB
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:26:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359627AbiAaLLv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:11:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44856 "EHLO
+        id S1378441AbiAaLY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:24:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377130AbiAaLJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:09:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25FF6C0604C5;
-        Mon, 31 Jan 2022 03:06:23 -0800 (PST)
+        with ESMTP id S1376598AbiAaLVu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:21:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD6FAC0797B8;
+        Mon, 31 Jan 2022 03:14:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3DD5B82A65;
-        Mon, 31 Jan 2022 11:06:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16B7FC340EE;
-        Mon, 31 Jan 2022 11:06:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8681E611D8;
+        Mon, 31 Jan 2022 11:14:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F3C4C340E8;
+        Mon, 31 Jan 2022 11:14:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627181;
-        bh=xpJRa1/Hqa4J8TOwr9A3cijO2CHMQKV430HfQznfbS0=;
+        s=korg; t=1643627658;
+        bh=zswzNO2HKzY+6xdUru5NZf7GVc9OVOevY31Jj/qwN88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lFiMa59K9cxN/pzfLs6G1UMLaDL04NRpdofAdrj6sH5rjIu+twCTQ7s+u02C3ZooX
-         d0Eiar52KAg86LHIHX+yFnH+D376HIk+yWMYbnK6T6yWz8RGN/ws6mKrop5QGkEo43
-         qb8I8nMed92rTGUPTSA1I8LwUNig8fC5Yhw1nF7U=
+        b=Sz9fR1IQjzxOxV77c2yPAnw0h4k4dDuhZRf+BuW4qkq/7rGQ86y3Ftnv/JxcaJNu9
+         OMK3kojJOB684HZtV36bu63PY6YwBwPX7VpKFgu6/FBpVkXCk4CNayRc/4inKZt3kx
+         lvkBJbmbKkB2He4YfBFv+2MdtdowWEvJ02twW7Vc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Delalande <colona@arista.com>,
-        Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.10 099/100] fsnotify: invalidate dcache before IN_DELETE event
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 155/171] Revert "ipv6: Honor all IPv6 PIO Valid Lifetime values"
 Date:   Mon, 31 Jan 2022 11:57:00 +0100
-Message-Id: <20220131105223.775234099@linuxfoundation.org>
+Message-Id: <20220131105235.267308908@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,173 +48,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-commit a37d9a17f099072fe4d3a9048b0321978707a918 upstream.
+[ Upstream commit 36268983e90316b37000a005642af42234dabb36 ]
 
-Apparently, there are some applications that use IN_DELETE event as an
-invalidation mechanism and expect that if they try to open a file with
-the name reported with the delete event, that it should not contain the
-content of the deleted file.
+This reverts commit b75326c201242de9495ff98e5d5cff41d7fc0d9d.
 
-Commit 49246466a989 ("fsnotify: move fsnotify_nameremove() hook out of
-d_delete()") moved the fsnotify delete hook before d_delete() so fsnotify
-will have access to a positive dentry.
+This commit breaks Linux compatibility with USGv6 tests. The RFC this
+commit was based on is actually an expired draft: no published RFC
+currently allows the new behaviour it introduced.
 
-This allowed a race where opening the deleted file via cached dentry
-is now possible after receiving the IN_DELETE event.
+Without full IETF endorsement, the flash renumbering scenario this
+patch was supposed to enable is never going to work, as other IPv6
+equipements on the same LAN will keep the 2 hours limit.
 
-To fix the regression, create a new hook fsnotify_delete() that takes
-the unlinked inode as an argument and use a helper d_delete_notify() to
-pin the inode, so we can pass it to fsnotify_delete() after d_delete().
-
-Backporting hint: this regression is from v5.3. Although patch will
-apply with only trivial conflicts to v5.4 and v5.10, it won't build,
-because fsnotify_delete() implementation is different in each of those
-versions (see fsnotify_link()).
-
-A follow up patch will fix the fsnotify_unlink/rmdir() calls in pseudo
-filesystem that do not need to call d_delete().
-
-Link: https://lore.kernel.org/r/20220120215305.282577-1-amir73il@gmail.com
-Reported-by: Ivan Delalande <colona@arista.com>
-Link: https://lore.kernel.org/linux-fsdevel/YeNyzoDM5hP5LtGW@visor/
-Fixes: 49246466a989 ("fsnotify: move fsnotify_nameremove() hook out of d_delete()")
-Cc: stable@vger.kernel.org # v5.3+
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b75326c20124 ("ipv6: Honor all IPv6 PIO Valid Lifetime values")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ioctl.c         |    6 +----
- fs/namei.c               |   10 ++++-----
- include/linux/fsnotify.h |   48 +++++++++++++++++++++++++++++++++++++++++------
- 3 files changed, 49 insertions(+), 15 deletions(-)
+ include/net/addrconf.h |  2 ++
+ net/ipv6/addrconf.c    | 27 ++++++++++++++++++++-------
+ 2 files changed, 22 insertions(+), 7 deletions(-)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -3103,10 +3103,8 @@ static noinline int btrfs_ioctl_snap_des
- 	inode_lock(inode);
- 	err = btrfs_delete_subvolume(dir, dentry);
- 	inode_unlock(inode);
--	if (!err) {
--		fsnotify_rmdir(dir, dentry);
--		d_delete(dentry);
--	}
-+	if (!err)
-+		d_delete_notify(dir, dentry);
+diff --git a/include/net/addrconf.h b/include/net/addrconf.h
+index 78ea3e332688f..e7ce719838b5e 100644
+--- a/include/net/addrconf.h
++++ b/include/net/addrconf.h
+@@ -6,6 +6,8 @@
+ #define RTR_SOLICITATION_INTERVAL	(4*HZ)
+ #define RTR_SOLICITATION_MAX_INTERVAL	(3600*HZ)	/* 1 hour */
  
- out_dput:
- 	dput(dentry);
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -3709,13 +3709,12 @@ int vfs_rmdir(struct inode *dir, struct
- 	dentry->d_inode->i_flags |= S_DEAD;
- 	dont_mount(dentry);
- 	detach_mounts(dentry);
--	fsnotify_rmdir(dir, dentry);
- 
- out:
- 	inode_unlock(dentry->d_inode);
- 	dput(dentry);
- 	if (!error)
--		d_delete(dentry);
-+		d_delete_notify(dir, dentry);
- 	return error;
- }
- EXPORT_SYMBOL(vfs_rmdir);
-@@ -3825,7 +3824,6 @@ int vfs_unlink(struct inode *dir, struct
- 			if (!error) {
- 				dont_mount(dentry);
- 				detach_mounts(dentry);
--				fsnotify_unlink(dir, dentry);
- 			}
- 		}
- 	}
-@@ -3833,9 +3831,11 @@ out:
- 	inode_unlock(target);
- 
- 	/* We don't d_delete() NFS sillyrenamed files--they still exist. */
--	if (!error && !(dentry->d_flags & DCACHE_NFSFS_RENAMED)) {
-+	if (!error && dentry->d_flags & DCACHE_NFSFS_RENAMED) {
-+		fsnotify_unlink(dir, dentry);
-+	} else if (!error) {
- 		fsnotify_link_count(target);
--		d_delete(dentry);
-+		d_delete_notify(dir, dentry);
- 	}
- 
- 	return error;
---- a/include/linux/fsnotify.h
-+++ b/include/linux/fsnotify.h
-@@ -204,16 +204,52 @@ static inline void fsnotify_link(struct
- }
- 
- /*
-+ * fsnotify_delete - @dentry was unlinked and unhashed
-+ *
-+ * Caller must make sure that dentry->d_name is stable.
-+ *
-+ * Note: unlike fsnotify_unlink(), we have to pass also the unlinked inode
-+ * as this may be called after d_delete() and old_dentry may be negative.
-+ */
-+static inline void fsnotify_delete(struct inode *dir, struct inode *inode,
-+				   struct dentry *dentry)
-+{
-+	__u32 mask = FS_DELETE;
++#define MIN_VALID_LIFETIME		(2*3600)	/* 2 hours */
 +
-+	if (S_ISDIR(inode->i_mode))
-+		mask |= FS_ISDIR;
-+
-+	fsnotify_name(dir, mask, inode, &dentry->d_name, 0);
-+}
-+
-+/**
-+ * d_delete_notify - delete a dentry and call fsnotify_delete()
-+ * @dentry: The dentry to delete
-+ *
-+ * This helper is used to guaranty that the unlinked inode cannot be found
-+ * by lookup of this name after fsnotify_delete() event has been delivered.
-+ */
-+static inline void d_delete_notify(struct inode *dir, struct dentry *dentry)
-+{
-+	struct inode *inode = d_inode(dentry);
-+
-+	ihold(inode);
-+	d_delete(dentry);
-+	fsnotify_delete(dir, inode, dentry);
-+	iput(inode);
-+}
-+
-+/*
-  * fsnotify_unlink - 'name' was unlinked
-  *
-  * Caller must make sure that dentry->d_name is stable.
-  */
- static inline void fsnotify_unlink(struct inode *dir, struct dentry *dentry)
+ #define TEMP_VALID_LIFETIME		(7*86400)
+ #define TEMP_PREFERRED_LIFETIME		(86400)
+ #define REGEN_MAX_RETRY			(3)
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 846037e73723f..bf13865426340 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -2587,7 +2587,7 @@ int addrconf_prefix_rcv_add_addr(struct net *net, struct net_device *dev,
+ 				 __u32 valid_lft, u32 prefered_lft)
  {
--	/* Expected to be called before d_delete() */
--	WARN_ON_ONCE(d_is_negative(dentry));
-+	if (WARN_ON_ONCE(d_is_negative(dentry)))
-+		return;
+ 	struct inet6_ifaddr *ifp = ipv6_get_ifaddr(net, addr, dev, 1);
+-	int create = 0;
++	int create = 0, update_lft = 0;
  
--	fsnotify_dirent(dir, dentry, FS_DELETE);
-+	fsnotify_delete(dir, d_inode(dentry), dentry);
- }
+ 	if (!ifp && valid_lft) {
+ 		int max_addresses = in6_dev->cnf.max_addresses;
+@@ -2631,19 +2631,32 @@ int addrconf_prefix_rcv_add_addr(struct net *net, struct net_device *dev,
+ 		unsigned long now;
+ 		u32 stored_lft;
  
- /*
-@@ -233,10 +269,10 @@ static inline void fsnotify_mkdir(struct
-  */
- static inline void fsnotify_rmdir(struct inode *dir, struct dentry *dentry)
- {
--	/* Expected to be called before d_delete() */
--	WARN_ON_ONCE(d_is_negative(dentry));
-+	if (WARN_ON_ONCE(d_is_negative(dentry)))
-+		return;
- 
--	fsnotify_dirent(dir, dentry, FS_DELETE | FS_ISDIR);
-+	fsnotify_delete(dir, d_inode(dentry), dentry);
- }
- 
- /*
+-		/* Update lifetime (RFC4862 5.5.3 e)
+-		 * We deviate from RFC4862 by honoring all Valid Lifetimes to
+-		 * improve the reaction of SLAAC to renumbering events
+-		 * (draft-gont-6man-slaac-renum-06, Section 4.2)
+-		 */
++		/* update lifetime (RFC2462 5.5.3 e) */
+ 		spin_lock_bh(&ifp->lock);
+ 		now = jiffies;
+ 		if (ifp->valid_lft > (now - ifp->tstamp) / HZ)
+ 			stored_lft = ifp->valid_lft - (now - ifp->tstamp) / HZ;
+ 		else
+ 			stored_lft = 0;
+-
+ 		if (!create && stored_lft) {
++			const u32 minimum_lft = min_t(u32,
++				stored_lft, MIN_VALID_LIFETIME);
++			valid_lft = max(valid_lft, minimum_lft);
++
++			/* RFC4862 Section 5.5.3e:
++			 * "Note that the preferred lifetime of the
++			 *  corresponding address is always reset to
++			 *  the Preferred Lifetime in the received
++			 *  Prefix Information option, regardless of
++			 *  whether the valid lifetime is also reset or
++			 *  ignored."
++			 *
++			 * So we should always update prefered_lft here.
++			 */
++			update_lft = 1;
++		}
++
++		if (update_lft) {
+ 			ifp->valid_lft = valid_lft;
+ 			ifp->prefered_lft = prefered_lft;
+ 			ifp->tstamp = now;
+-- 
+2.34.1
+
 
 
