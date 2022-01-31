@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CB014A43D9
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:24:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AFAA4A426B
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343595AbiAaLYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:24:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47306 "EHLO
+        id S1359627AbiAaLLv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:11:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376261AbiAaLVg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:21:36 -0500
+        with ESMTP id S1377130AbiAaLJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:09:43 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC715C0797B3;
-        Mon, 31 Jan 2022 03:14:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25FF6C0604C5;
+        Mon, 31 Jan 2022 03:06:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE806B82A77;
-        Mon, 31 Jan 2022 11:14:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C2FDC340E8;
-        Mon, 31 Jan 2022 11:14:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3DD5B82A65;
+        Mon, 31 Jan 2022 11:06:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16B7FC340EE;
+        Mon, 31 Jan 2022 11:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627654;
-        bh=9dVBKrbhU02MiuWvg/Ym6NPghHGBb13fV1UFCzSdg4I=;
+        s=korg; t=1643627181;
+        bh=xpJRa1/Hqa4J8TOwr9A3cijO2CHMQKV430HfQznfbS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pWdKtEVD16/TvhwHANJlP50UgBPnrMgmihbzMYV5NvC98W5BCkOuho7+9h5+pW1DA
-         EJ8BB9/3ZlyR0usdURE8QrUA7rAde0x48WhPVvdfA4iYBwMJcbPTNxVWg25LGsPDhu
-         vvj8GgeIwTNAwYESkVQ9iB4vCOlXPq2KkuM4Y1GU=
+        b=lFiMa59K9cxN/pzfLs6G1UMLaDL04NRpdofAdrj6sH5rjIu+twCTQ7s+u02C3ZooX
+         d0Eiar52KAg86LHIHX+yFnH+D376HIk+yWMYbnK6T6yWz8RGN/ws6mKrop5QGkEo43
+         qb8I8nMed92rTGUPTSA1I8LwUNig8fC5Yhw1nF7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catherine Sullivan <csully@google.com>,
-        David Awogbemila <awogbemila@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 154/171] gve: Fix GFP flags when allocing pages
-Date:   Mon, 31 Jan 2022 11:56:59 +0100
-Message-Id: <20220131105235.229765300@linuxfoundation.org>
+        stable@vger.kernel.org, Ivan Delalande <colona@arista.com>,
+        Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.10 099/100] fsnotify: invalidate dcache before IN_DELETE event
+Date:   Mon, 31 Jan 2022 11:57:00 +0100
+Message-Id: <20220131105223.775234099@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+References: <20220131105220.424085452@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,97 +47,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catherine Sullivan <csully@google.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-[ Upstream commit a92f7a6feeb3884c69c1c7c1f13bccecb2228ad0 ]
+commit a37d9a17f099072fe4d3a9048b0321978707a918 upstream.
 
-Use GFP_ATOMIC when allocating pages out of the hotpath,
-continue to use GFP_KERNEL when allocating pages during setup.
+Apparently, there are some applications that use IN_DELETE event as an
+invalidation mechanism and expect that if they try to open a file with
+the name reported with the delete event, that it should not contain the
+content of the deleted file.
 
-GFP_KERNEL will allow blocking which allows it to succeed
-more often in a low memory enviornment but in the hotpath we do
-not want to allow the allocation to block.
+Commit 49246466a989 ("fsnotify: move fsnotify_nameremove() hook out of
+d_delete()") moved the fsnotify delete hook before d_delete() so fsnotify
+will have access to a positive dentry.
 
-Fixes: f5cedc84a30d2 ("gve: Add transmit and receive support")
-Signed-off-by: Catherine Sullivan <csully@google.com>
-Signed-off-by: David Awogbemila <awogbemila@google.com>
-Link: https://lore.kernel.org/r/20220126003843.3584521-1-awogbemila@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This allowed a race where opening the deleted file via cached dentry
+is now possible after receiving the IN_DELETE event.
+
+To fix the regression, create a new hook fsnotify_delete() that takes
+the unlinked inode as an argument and use a helper d_delete_notify() to
+pin the inode, so we can pass it to fsnotify_delete() after d_delete().
+
+Backporting hint: this regression is from v5.3. Although patch will
+apply with only trivial conflicts to v5.4 and v5.10, it won't build,
+because fsnotify_delete() implementation is different in each of those
+versions (see fsnotify_link()).
+
+A follow up patch will fix the fsnotify_unlink/rmdir() calls in pseudo
+filesystem that do not need to call d_delete().
+
+Link: https://lore.kernel.org/r/20220120215305.282577-1-amir73il@gmail.com
+Reported-by: Ivan Delalande <colona@arista.com>
+Link: https://lore.kernel.org/linux-fsdevel/YeNyzoDM5hP5LtGW@visor/
+Fixes: 49246466a989 ("fsnotify: move fsnotify_nameremove() hook out of d_delete()")
+Cc: stable@vger.kernel.org # v5.3+
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/google/gve/gve.h        | 2 +-
- drivers/net/ethernet/google/gve/gve_main.c   | 6 +++---
- drivers/net/ethernet/google/gve/gve_rx.c     | 3 ++-
- drivers/net/ethernet/google/gve/gve_rx_dqo.c | 2 +-
- 4 files changed, 7 insertions(+), 6 deletions(-)
+ fs/btrfs/ioctl.c         |    6 +----
+ fs/namei.c               |   10 ++++-----
+ include/linux/fsnotify.h |   48 +++++++++++++++++++++++++++++++++++++++++------
+ 3 files changed, 49 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/ethernet/google/gve/gve.h b/drivers/net/ethernet/google/gve/gve.h
-index c1d4042671f9f..b1273dce4795b 100644
---- a/drivers/net/ethernet/google/gve/gve.h
-+++ b/drivers/net/ethernet/google/gve/gve.h
-@@ -815,7 +815,7 @@ static inline bool gve_is_gqi(struct gve_priv *priv)
- /* buffers */
- int gve_alloc_page(struct gve_priv *priv, struct device *dev,
- 		   struct page **page, dma_addr_t *dma,
--		   enum dma_data_direction);
-+		   enum dma_data_direction, gfp_t gfp_flags);
- void gve_free_page(struct device *dev, struct page *page, dma_addr_t dma,
- 		   enum dma_data_direction);
- /* tx handling */
-diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
-index 959352fceead7..68552848d3888 100644
---- a/drivers/net/ethernet/google/gve/gve_main.c
-+++ b/drivers/net/ethernet/google/gve/gve_main.c
-@@ -746,9 +746,9 @@ static void gve_free_rings(struct gve_priv *priv)
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -3103,10 +3103,8 @@ static noinline int btrfs_ioctl_snap_des
+ 	inode_lock(inode);
+ 	err = btrfs_delete_subvolume(dir, dentry);
+ 	inode_unlock(inode);
+-	if (!err) {
+-		fsnotify_rmdir(dir, dentry);
+-		d_delete(dentry);
+-	}
++	if (!err)
++		d_delete_notify(dir, dentry);
  
- int gve_alloc_page(struct gve_priv *priv, struct device *dev,
- 		   struct page **page, dma_addr_t *dma,
--		   enum dma_data_direction dir)
-+		   enum dma_data_direction dir, gfp_t gfp_flags)
+ out_dput:
+ 	dput(dentry);
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -3709,13 +3709,12 @@ int vfs_rmdir(struct inode *dir, struct
+ 	dentry->d_inode->i_flags |= S_DEAD;
+ 	dont_mount(dentry);
+ 	detach_mounts(dentry);
+-	fsnotify_rmdir(dir, dentry);
+ 
+ out:
+ 	inode_unlock(dentry->d_inode);
+ 	dput(dentry);
+ 	if (!error)
+-		d_delete(dentry);
++		d_delete_notify(dir, dentry);
+ 	return error;
+ }
+ EXPORT_SYMBOL(vfs_rmdir);
+@@ -3825,7 +3824,6 @@ int vfs_unlink(struct inode *dir, struct
+ 			if (!error) {
+ 				dont_mount(dentry);
+ 				detach_mounts(dentry);
+-				fsnotify_unlink(dir, dentry);
+ 			}
+ 		}
+ 	}
+@@ -3833,9 +3831,11 @@ out:
+ 	inode_unlock(target);
+ 
+ 	/* We don't d_delete() NFS sillyrenamed files--they still exist. */
+-	if (!error && !(dentry->d_flags & DCACHE_NFSFS_RENAMED)) {
++	if (!error && dentry->d_flags & DCACHE_NFSFS_RENAMED) {
++		fsnotify_unlink(dir, dentry);
++	} else if (!error) {
+ 		fsnotify_link_count(target);
+-		d_delete(dentry);
++		d_delete_notify(dir, dentry);
+ 	}
+ 
+ 	return error;
+--- a/include/linux/fsnotify.h
++++ b/include/linux/fsnotify.h
+@@ -204,16 +204,52 @@ static inline void fsnotify_link(struct
+ }
+ 
+ /*
++ * fsnotify_delete - @dentry was unlinked and unhashed
++ *
++ * Caller must make sure that dentry->d_name is stable.
++ *
++ * Note: unlike fsnotify_unlink(), we have to pass also the unlinked inode
++ * as this may be called after d_delete() and old_dentry may be negative.
++ */
++static inline void fsnotify_delete(struct inode *dir, struct inode *inode,
++				   struct dentry *dentry)
++{
++	__u32 mask = FS_DELETE;
++
++	if (S_ISDIR(inode->i_mode))
++		mask |= FS_ISDIR;
++
++	fsnotify_name(dir, mask, inode, &dentry->d_name, 0);
++}
++
++/**
++ * d_delete_notify - delete a dentry and call fsnotify_delete()
++ * @dentry: The dentry to delete
++ *
++ * This helper is used to guaranty that the unlinked inode cannot be found
++ * by lookup of this name after fsnotify_delete() event has been delivered.
++ */
++static inline void d_delete_notify(struct inode *dir, struct dentry *dentry)
++{
++	struct inode *inode = d_inode(dentry);
++
++	ihold(inode);
++	d_delete(dentry);
++	fsnotify_delete(dir, inode, dentry);
++	iput(inode);
++}
++
++/*
+  * fsnotify_unlink - 'name' was unlinked
+  *
+  * Caller must make sure that dentry->d_name is stable.
+  */
+ static inline void fsnotify_unlink(struct inode *dir, struct dentry *dentry)
  {
--	*page = alloc_page(GFP_KERNEL);
-+	*page = alloc_page(gfp_flags);
- 	if (!*page) {
- 		priv->page_alloc_fail++;
- 		return -ENOMEM;
-@@ -792,7 +792,7 @@ static int gve_alloc_queue_page_list(struct gve_priv *priv, u32 id,
- 	for (i = 0; i < pages; i++) {
- 		err = gve_alloc_page(priv, &priv->pdev->dev, &qpl->pages[i],
- 				     &qpl->page_buses[i],
--				     gve_qpl_dma_dir(priv, id));
-+				     gve_qpl_dma_dir(priv, id), GFP_KERNEL);
- 		/* caller handles clean up */
- 		if (err)
- 			return -ENOMEM;
-diff --git a/drivers/net/ethernet/google/gve/gve_rx.c b/drivers/net/ethernet/google/gve/gve_rx.c
-index 16169f291ad9f..629d8ed08fc61 100644
---- a/drivers/net/ethernet/google/gve/gve_rx.c
-+++ b/drivers/net/ethernet/google/gve/gve_rx.c
-@@ -79,7 +79,8 @@ static int gve_rx_alloc_buffer(struct gve_priv *priv, struct device *dev,
- 	dma_addr_t dma;
- 	int err;
+-	/* Expected to be called before d_delete() */
+-	WARN_ON_ONCE(d_is_negative(dentry));
++	if (WARN_ON_ONCE(d_is_negative(dentry)))
++		return;
  
--	err = gve_alloc_page(priv, dev, &page, &dma, DMA_FROM_DEVICE);
-+	err = gve_alloc_page(priv, dev, &page, &dma, DMA_FROM_DEVICE,
-+			     GFP_ATOMIC);
- 	if (err)
- 		return err;
+-	fsnotify_dirent(dir, dentry, FS_DELETE);
++	fsnotify_delete(dir, d_inode(dentry), dentry);
+ }
  
-diff --git a/drivers/net/ethernet/google/gve/gve_rx_dqo.c b/drivers/net/ethernet/google/gve/gve_rx_dqo.c
-index 8500621b2cd41..7b18b4fd9e548 100644
---- a/drivers/net/ethernet/google/gve/gve_rx_dqo.c
-+++ b/drivers/net/ethernet/google/gve/gve_rx_dqo.c
-@@ -157,7 +157,7 @@ static int gve_alloc_page_dqo(struct gve_priv *priv,
- 	int err;
+ /*
+@@ -233,10 +269,10 @@ static inline void fsnotify_mkdir(struct
+  */
+ static inline void fsnotify_rmdir(struct inode *dir, struct dentry *dentry)
+ {
+-	/* Expected to be called before d_delete() */
+-	WARN_ON_ONCE(d_is_negative(dentry));
++	if (WARN_ON_ONCE(d_is_negative(dentry)))
++		return;
  
- 	err = gve_alloc_page(priv, &priv->pdev->dev, &buf_state->page_info.page,
--			     &buf_state->addr, DMA_FROM_DEVICE);
-+			     &buf_state->addr, DMA_FROM_DEVICE, GFP_KERNEL);
- 	if (err)
- 		return err;
+-	fsnotify_dirent(dir, dentry, FS_DELETE | FS_ISDIR);
++	fsnotify_delete(dir, d_inode(dentry), dentry);
+ }
  
--- 
-2.34.1
-
+ /*
 
 
