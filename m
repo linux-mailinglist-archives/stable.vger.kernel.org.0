@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 695164A4224
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D344A4495
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:33:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359055AbiAaLK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:10:57 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41462 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245096AbiAaLHC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:07:02 -0500
+        id S240002AbiAaLbW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:31:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48714 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377085AbiAaLZw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:25:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28C57C034014;
+        Mon, 31 Jan 2022 03:15:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AA9B6102A;
-        Mon, 31 Jan 2022 11:07:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 014C7C340E8;
-        Mon, 31 Jan 2022 11:06:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2F2EB82A5F;
+        Mon, 31 Jan 2022 11:15:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 109EDC340E8;
+        Mon, 31 Jan 2022 11:15:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627220;
-        bh=ZcdLGpwrRzM4z270cG3mVxCpval/I4K+QpVb6FH+tZk=;
+        s=korg; t=1643627754;
+        bh=m3LZqmH1nbge2TQOPSDQjTtRd5XlahkS46mn4dWGeJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oVW3//QlpyPkh9Ze0zzydhmJKWkzY4dg1hUuTDV3QXLyBh33g4/GcPa7HNKuvLOH/
-         O5BIyg/9SjyMHwgYVSKb2yQD105TAzN6nF63HxQZXZMGq3uGcdlgBMxIoLSfW5hV30
-         nH+Y5vRSDBXM36t98QXj99VLgpvDbTtjpi9KwarY=
+        b=nFfvVsBAkPVwXiK1I1AMFAYPEXRW1Hpw/6Xht4D+HKRr9UiEL826syh3olJd2rSLJ
+         qCU6NMFfvmVWseNFk3A2N4xbar9TRW3L0PQGhdPJMGMfuZ7Yl/I2hBRtmTgokVr6Ac
+         fTlkv88ZM773vbKR8I4nV64bXRd1MkG3ZiXehWzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 013/171] powerpc32/bpf: Fix codegen for bpf-to-bpf calls
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Fuad Tabba <tabba@google.com>
+Subject: [PATCH 5.16 015/200] KVM: arm64: Use shadow SPSR_EL1 when injecting exceptions on !VHE
 Date:   Mon, 31 Jan 2022 11:54:38 +0100
-Message-Id: <20220131105230.458734217@linuxfoundation.org>
+Message-Id: <20220131105234.075471979@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit fab07611fb2e6a15fac05c4583045ca5582fd826 upstream.
+commit 278583055a237270fac70518275ba877bf9e4013 upstream.
 
-Pad instructions emitted for BPF_CALL so that the number of instructions
-generated does not change for different function addresses. This is
-especially important for calls to other bpf functions, whose address
-will only be known during extra pass.
+Injecting an exception into a guest with non-VHE is risky business.
+Instead of writing in the shadow register for the switch code to
+restore it, we override the CPU register instead. Which gets
+overriden a few instructions later by said restore code.
 
-Fixes: 51c66ad849a703 ("powerpc/bpf: Implement extended BPF on PPC32")
-Cc: stable@vger.kernel.org # v5.13+
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/52d8fe51f7620a6f27f377791564d79d75463576.1641468127.git.naveen.n.rao@linux.vnet.ibm.com
+The result is that although the guest correctly gets the exception,
+it will return to the original context in some random state,
+depending on what was there the first place... Boo.
+
+Fix the issue by writing to the shadow register. The original code
+is absolutely fine on VHE, as the state is already loaded, and writing
+to the shadow register in that case would actually be a bug.
+
+Fixes: bb666c472ca2 ("KVM: arm64: Inject AArch64 exceptions from HYP")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Fuad Tabba <tabba@google.com>
+Link: https://lore.kernel.org/r/20220121184207.423426-1-maz@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/net/bpf_jit_comp32.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/kvm/hyp/exception.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/net/bpf_jit_comp32.c
-+++ b/arch/powerpc/net/bpf_jit_comp32.c
-@@ -191,6 +191,9 @@ void bpf_jit_emit_func_call_rel(u32 *ima
+--- a/arch/arm64/kvm/hyp/exception.c
++++ b/arch/arm64/kvm/hyp/exception.c
+@@ -38,7 +38,10 @@ static inline void __vcpu_write_sys_reg(
  
- 	if (image && rel < 0x2000000 && rel >= -0x2000000) {
- 		PPC_BL_ABS(func);
-+		EMIT(PPC_RAW_NOP());
-+		EMIT(PPC_RAW_NOP());
-+		EMIT(PPC_RAW_NOP());
- 	} else {
- 		/* Load function address into r0 */
- 		EMIT(PPC_RAW_LIS(_R0, IMM_H(func)));
+ static void __vcpu_write_spsr(struct kvm_vcpu *vcpu, u64 val)
+ {
+-	write_sysreg_el1(val, SYS_SPSR);
++	if (has_vhe())
++		write_sysreg_el1(val, SYS_SPSR);
++	else
++		__vcpu_sys_reg(vcpu, SPSR_EL1) = val;
+ }
+ 
+ static void __vcpu_write_spsr_abt(struct kvm_vcpu *vcpu, u64 val)
 
 
