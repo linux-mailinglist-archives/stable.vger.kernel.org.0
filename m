@@ -2,41 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3968C4A4154
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:03:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDAB04A4372
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:21:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358696AbiAaLD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:03:26 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50688 "EHLO
+        id S1359625AbiAaLVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:32 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37606 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358981AbiAaLCi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:02:38 -0500
+        with ESMTP id S1378177AbiAaLTs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:19:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F64BB82A66;
-        Mon, 31 Jan 2022 11:02:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC42EC340EE;
-        Mon, 31 Jan 2022 11:02:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9630B82A61;
+        Mon, 31 Jan 2022 11:19:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 044EEC340E8;
+        Mon, 31 Jan 2022 11:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626956;
-        bh=p9gzYhntkEFFU0kZCVkx2X3WS7L38CrCbtyOn9AY4Z0=;
+        s=korg; t=1643627986;
+        bh=JhNyRXEnciQM5KD9GQGTUIzpN68e3QP+BIvXRa1scdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=btusDWGH9m2g+conM9hL9mJ5ES/M1rwiP+r1kaEPNB9uhkQqz6B5xc6cT7LLyqNjT
-         0Yph1ME1jbZJ+ymaE6h8YiTf5I79XXdZY6tJwIfiWR13oFA7dmTfEFIg4hMZBDHpJq
-         FjfqZSc4b8ZxuEQnAuhZlZbZ8PKi80ElWRm7SazU=
+        b=mrvRgI2UJfvfFnyzns6GQOIDhaCBKR3H91PMaHaRwd78YmWR+leQQ0lDquOc9qr9P
+         wqGiaU68DMC0RsGPTl8ypDVMWB1/mAdPBu6naor2e6sMdhwqIvq9QHUsVrH8GGN85Q
+         AS1fGKN3/LYJmCcG43ispPTk/NkRinzHLT5c2SsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, DocMAX <mail@vacharakis.de>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Subject: [PATCH 5.10 028/100] usb-storage: Add unusual-devs entry for VL817 USB-SATA bridge
-Date:   Mon, 31 Jan 2022 11:55:49 +0100
-Message-Id: <20220131105221.403298633@linuxfoundation.org>
+        stable@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        Gautham Ananthakrishna <gautham.ananthakrishna@oracle.com>,
+        Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
+        "Theodore Tso" <tytso@mit.edu>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.16 087/200] jbd2: export jbd2_journal_[grab|put]_journal_head
+Date:   Mon, 31 Jan 2022 11:55:50 +0100
+Message-Id: <20220131105236.539401298@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Joseph Qi <joseph.qi@linux.alibaba.com>
 
-commit 5b67b315037250a61861119683e7fcb509deea25 upstream.
+commit 4cd1103d8c66b2cdb7e64385c274edb0ac5e8887 upstream.
 
-Two people have reported (and mentioned numerous other reports on the
-web) that VIA's VL817 USB-SATA bridge does not work with the uas
-driver.  Typical log messages are:
+Patch series "ocfs2: fix a deadlock case".
 
-[ 3606.232149] sd 14:0:0:0: [sdg] tag#2 uas_zap_pending 0 uas-tag 1 inflight: CMD
-[ 3606.232154] sd 14:0:0:0: [sdg] tag#2 CDB: Write(16) 8a 00 00 00 00 00 18 0c c9 80 00 00 00 80 00 00
-[ 3606.306257] usb 4-4.4: reset SuperSpeed Plus Gen 2x1 USB device number 11 using xhci_hcd
-[ 3606.328584] scsi host14: uas_eh_device_reset_handler success
+This fixes a deadlock case in ocfs2.  We firstly export jbd2 symbols
+jbd2_journal_[grab|put]_journal_head as preparation and later use them
+in ocfs2 insread of jbd_[lock|unlock]_bh_journal_head to fix the
+deadlock.
 
-Surprisingly, the devices do seem to work okay for some other people.
-The cause of the differing behaviors is not known.
+This patch (of 2):
 
-In the hope of getting the devices to work for the most users, even at
-the possible cost of degraded performance for some, this patch adds an
-unusual_devs entry for the VL817 to block it from binding to the uas
-driver by default.  Users will be able to override this entry by means
-of a module parameter, if they want.
+This exports symbols jbd2_journal_[grab|put]_journal_head, which will be
+used outside modules, e.g.  ocfs2.
 
-CC: <stable@vger.kernel.org>
-Reported-by: DocMAX <mail@vacharakis.de>
-Reported-and-tested-by: Thomas Weißschuh <linux@weissschuh.net>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/Ye8IsK2sjlEv1rqU@rowland.harvard.edu
+Link: https://lkml.kernel.org/r/20220121071205.100648-2-joseph.qi@linux.alibaba.com
+Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: Andreas Dilger <adilger.kernel@dilger.ca>
+Cc: Gautham Ananthakrishna <gautham.ananthakrishna@oracle.com>
+Cc: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_devs.h |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/jbd2/journal.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/storage/unusual_devs.h
-+++ b/drivers/usb/storage/unusual_devs.h
-@@ -2301,6 +2301,16 @@ UNUSUAL_DEV(  0x2027, 0xa001, 0x0000, 0x
- 		USB_SC_DEVICE, USB_PR_DEVICE, usb_stor_euscsi_init,
- 		US_FL_SCM_MULT_TARG ),
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -2970,6 +2970,7 @@ struct journal_head *jbd2_journal_grab_j
+ 	jbd_unlock_bh_journal_head(bh);
+ 	return jh;
+ }
++EXPORT_SYMBOL(jbd2_journal_grab_journal_head);
  
-+/*
-+ * Reported by DocMAX <mail@vacharakis.de>
-+ * and Thomas Weißschuh <linux@weissschuh.net>
-+ */
-+UNUSUAL_DEV( 0x2109, 0x0715, 0x9999, 0x9999,
-+		"VIA Labs, Inc.",
-+		"VL817 SATA Bridge",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
-+
- UNUSUAL_DEV( 0x2116, 0x0320, 0x0001, 0x0001,
- 		"ST",
- 		"2A",
+ static void __journal_remove_journal_head(struct buffer_head *bh)
+ {
+@@ -3022,6 +3023,7 @@ void jbd2_journal_put_journal_head(struc
+ 		jbd_unlock_bh_journal_head(bh);
+ 	}
+ }
++EXPORT_SYMBOL(jbd2_journal_put_journal_head);
+ 
+ /*
+  * Initialize jbd inode head
 
 
