@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 490AC4A4416
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:26:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C654A430B
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:16:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359626AbiAaL0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:26:03 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41794 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378339AbiAaLYC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:24:02 -0500
+        id S1359141AbiAaLQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:16:42 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:48110 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359149AbiAaLOk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:14:40 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A0BFB82A69;
-        Mon, 31 Jan 2022 11:24:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67685C340EE;
-        Mon, 31 Jan 2022 11:23:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7C6160E76;
+        Mon, 31 Jan 2022 11:14:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9110FC340E8;
+        Mon, 31 Jan 2022 11:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628240;
-        bh=5KWzA4AfI8HVUxyFlZgUqfeJSf59g4119hh9HmUO5uQ=;
+        s=korg; t=1643627679;
+        bh=d4NMCRYFez7Dv/xaGO0VoOIytB742aa78WOrxB63pdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=brulv/rzTDO/UvAvDVB1IyeBq/QYsjZ7ePh6NdU8ppJ36G48biRehA+qRu0CBN+gp
-         styOTxheshfHYyAH0BU+qXItnR5Cclt/AgyQ/oZ0JvKleBiOPY4ULBcWyA2KriRrHH
-         Ab7r7WT0cUZaYkRp7BIft414MMuk3aWXDBe182/Y=
+        b=jcsXmGOCy8ioKbJ+l6/U62+bFs+LlwJOEWXLdJhDBr5GjhHr+7K+sv3xZSdcwBCt7
+         GL/JBPQ/2gVCRLR2NtjRDwbJLuC5mD+zPQ8FNfQhRGS2dD1p4UmMaQKBhB7O4PabHW
+         wpz5wiWqk70VRy2Iop9Oh7+PmC/+tLO6bjLmPxy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 136/200] mptcp: allow changing the "backup" bit by endpoint id
-Date:   Mon, 31 Jan 2022 11:56:39 +0100
-Message-Id: <20220131105238.136417203@linuxfoundation.org>
+Subject: [PATCH 5.15 135/171] hwmon: (adt7470) Prevent divide by zero in adt7470_fan_write()
+Date:   Mon, 31 Jan 2022 11:56:40 +0100
+Message-Id: <20220131105234.571572094@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 602837e8479d20d49559b4b97b79d34c0efe7ecb ]
+[ Upstream commit c1ec0cabc36718efc7fe8b4157d41b82d08ec1d2 ]
 
-a non-zero 'id' is sufficient to identify MPTCP endpoints: allow changing
-the value of 'backup' bit by simply specifying the endpoint id.
+The "val" variable is controlled by the user and comes from
+hwmon_attr_store().  The FAN_RPM_TO_PERIOD() macro divides by "val"
+so a zero will crash the system.  Check for that and return -EINVAL.
+Negatives are also invalid so return -EINVAL for those too.
 
-Link: https://github.com/multipath-tcp/mptcp_net-next/issues/158
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: fc958a61ff6d ("hwmon: (adt7470) Convert to devm_hwmon_device_register_with_info API")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/pm_netlink.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/hwmon/adt7470.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
-index 65764c8171b37..d18b13e3e74c6 100644
---- a/net/mptcp/pm_netlink.c
-+++ b/net/mptcp/pm_netlink.c
-@@ -1711,22 +1711,28 @@ next:
+diff --git a/drivers/hwmon/adt7470.c b/drivers/hwmon/adt7470.c
+index d519aca4a9d64..fb6d14d213a18 100644
+--- a/drivers/hwmon/adt7470.c
++++ b/drivers/hwmon/adt7470.c
+@@ -662,6 +662,9 @@ static int adt7470_fan_write(struct device *dev, u32 attr, int channel, long val
+ 	struct adt7470_data *data = dev_get_drvdata(dev);
+ 	int err;
  
- static int mptcp_nl_cmd_set_flags(struct sk_buff *skb, struct genl_info *info)
- {
-+	struct mptcp_pm_addr_entry addr = { .addr = { .family = AF_UNSPEC }, }, *entry;
- 	struct nlattr *attr = info->attrs[MPTCP_PM_ATTR_ADDR];
- 	struct pm_nl_pernet *pernet = genl_info_pm_nl(info);
--	struct mptcp_pm_addr_entry addr, *entry;
- 	struct net *net = sock_net(skb->sk);
--	u8 bkup = 0;
-+	u8 bkup = 0, lookup_by_id = 0;
- 	int ret;
++	if (val <= 0)
++		return -EINVAL;
++
+ 	val = FAN_RPM_TO_PERIOD(val);
+ 	val = clamp_val(val, 1, 65534);
  
--	ret = mptcp_pm_parse_addr(attr, info, true, &addr);
-+	ret = mptcp_pm_parse_addr(attr, info, false, &addr);
- 	if (ret < 0)
- 		return ret;
- 
- 	if (addr.flags & MPTCP_PM_ADDR_FLAG_BACKUP)
- 		bkup = 1;
-+	if (addr.addr.family == AF_UNSPEC) {
-+		lookup_by_id = 1;
-+		if (!addr.addr.id)
-+			return -EOPNOTSUPP;
-+	}
- 
- 	list_for_each_entry(entry, &pernet->local_addr_list, list) {
--		if (addresses_equal(&entry->addr, &addr.addr, true)) {
-+		if ((!lookup_by_id && addresses_equal(&entry->addr, &addr.addr, true)) ||
-+		    (lookup_by_id && entry->addr.id == addr.addr.id)) {
- 			mptcp_nl_addr_backup(net, &entry->addr, bkup);
- 
- 			if (bkup)
 -- 
 2.34.1
 
