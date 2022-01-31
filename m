@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2808A4A4523
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:41:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 043BC4A42F7
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:16:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377568AbiAaLgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:36:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51204 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378561AbiAaLeZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:34:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6717AC0698C2;
-        Mon, 31 Jan 2022 03:22:50 -0800 (PST)
+        id S1376659AbiAaLPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:15:43 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45592 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377186AbiAaLNr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:13:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26D5BB82A66;
-        Mon, 31 Jan 2022 11:22:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42723C340E8;
-        Mon, 31 Jan 2022 11:22:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2180C610B1;
+        Mon, 31 Jan 2022 11:13:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF00AC340E8;
+        Mon, 31 Jan 2022 11:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628167;
-        bh=lTRCL94DPMWIznAA7wVaKBlQOmSr1xSULJkcqcdiaSc=;
+        s=korg; t=1643627626;
+        bh=GrmP2LdJx98ffuqsRwZI2grsuwz4Mem8dZRt3G5Zfcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hGlabOyNJgcn3LVLf3G0uldI7uWgMfwI75qzbB1blcMBk6scLVYs1ZuK8YvsUElNW
-         sS2tFiN7DJVZsUxyOqY9Y362R5PC4yJml/B1n/AP7Kd69XVJHM2/sNtLBHizV7sUFV
-         M6NrzpxDShyaX4KeU0Vmu2uiD2R9sT0Rum+f+S/4=
+        b=nSH2v0l2u+QBMCAkQxhHXcl1M/V3EgQsFuZqxmqqNCed5hF36vZRIlOZbIEC1/Wqw
+         /+uuVByOBqFs+4PCbV/4YucIyRdlCifD3fb15d03HDG7kLUrV80TTk0/MArrXF0RCY
+         BEpVrljmrPimY/c6c0+PZ/r7UV4Dwdrl2yyo/IUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geetha sowjanya <gakula@marvell.com>,
-        Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Danylo Piliaiev <dpiliaiev@igalia.com>,
+        Rob Clark <robdclark@chromium.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 147/200] octeontx2-af: Increase link credit restore polling timeout
-Date:   Mon, 31 Jan 2022 11:56:50 +0100
-Message-Id: <20220131105238.505663336@linuxfoundation.org>
+Subject: [PATCH 5.15 146/171] drm/msm/a6xx: Add missing suspend_count increment
+Date:   Mon, 31 Jan 2022 11:56:51 +0100
+Message-Id: <20220131105234.956756900@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,53 +46,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geetha sowjanya <gakula@marvell.com>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 1581d61b42d985cefe7b71eea67ab3bfcbf34d0f ]
+[ Upstream commit 860a7b2a87b7c743154824d0597b6c3eb3b53154 ]
 
-It's been observed that sometimes link credit restore takes
-a lot of time than the current timeout. This patch increases
-the default timeout value and return the proper error value
-on failure.
-
-Fixes: 1c74b89171c3 ("octeontx2-af: Wait for TX link idle for credits change")
-Signed-off-by: Geetha sowjanya <gakula@marvell.com>
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Danylo Piliaiev <dpiliaiev@igalia.com>
+Fixes: 3ab1c5cc3939 ("drm/msm: Add param for userspace to query suspend count")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20220113163215.215367-1-robdclark@gmail.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/mbox.h    | 1 +
- drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c | 4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/mbox.h b/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
-index 4e79e918a1617..58e2aeebc14f8 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
-@@ -732,6 +732,7 @@ enum nix_af_status {
- 	NIX_AF_ERR_BANDPROF_INVAL_REQ  = -428,
- 	NIX_AF_ERR_CQ_CTX_WRITE_ERR  = -429,
- 	NIX_AF_ERR_AQ_CTX_RETRY_WRITE  = -430,
-+	NIX_AF_ERR_LINK_CREDITS  = -431,
- };
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index 723074aae5b63..b681c45520bbd 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -1557,6 +1557,8 @@ static int a6xx_pm_suspend(struct msm_gpu *gpu)
+ 		for (i = 0; i < gpu->nr_rings; i++)
+ 			a6xx_gpu->shadow[i] = 0;
  
- /* For NIX RX vtag action  */
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-index de6e5a1288640..97fb61915379a 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-@@ -3891,8 +3891,8 @@ nix_config_link_credits(struct rvu *rvu, int blkaddr, int link,
- 			    NIX_AF_TL1X_SW_XOFF(schq), BIT_ULL(0));
- 	}
++	gpu->suspend_count++;
++
+ 	return 0;
+ }
  
--	rc = -EBUSY;
--	poll_tmo = jiffies + usecs_to_jiffies(10000);
-+	rc = NIX_AF_ERR_LINK_CREDITS;
-+	poll_tmo = jiffies + usecs_to_jiffies(200000);
- 	/* Wait for credits to return */
- 	do {
- 		if (time_after(jiffies, poll_tmo))
 -- 
 2.34.1
 
