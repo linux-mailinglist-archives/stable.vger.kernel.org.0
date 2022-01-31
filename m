@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8505A4A429C
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:13:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DBBC4A4356
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:21:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358812AbiAaLMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:12:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44616 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377559AbiAaLKM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:10:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90CF9C061788;
-        Mon, 31 Jan 2022 03:08:37 -0800 (PST)
+        id S1359286AbiAaLVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:21:05 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35162 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376700AbiAaLRn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:17:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FFBD60B28;
-        Mon, 31 Jan 2022 11:08:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C1B1C340E8;
-        Mon, 31 Jan 2022 11:08:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 829C4B82A69;
+        Mon, 31 Jan 2022 11:17:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEE1FC340E8;
+        Mon, 31 Jan 2022 11:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627316;
-        bh=Ezrjp41BQos58bLBn/gP88p9AnpGvwixoOcJrn2JmEI=;
+        s=korg; t=1643627858;
+        bh=lYE0kPtmAxVnvZiILyZXlKVGIUYUal1vKVXiK+ZR2cE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tcM1cp7tKNHQsF+eSRT54nmtWd8BGJ8aKot7pv2xn5n8VDcn2Seq3SRv/IUv8dM42
-         FqaabrkhzsSeJVBKp5ygEsze4VyWVcudUTtOoGzFt6+tknTXRlfK6126zYhrk+B2Fz
-         LUphbRMfuPEo/sQOfBrRwftoaoxboN3sJcsystYA=
+        b=oH5UMKI6+J9bGgGygz/tPE/jByeuI9noOn8IWDP5muIvcuvlXmxHQ5AiqJoFq7nOn
+         1s3rmtmuhxEmKvqnGUsrRiT6R+C9aGQOHna4rI/UJUv5O7xQ+jR9I4ZjsH6lsmF5EC
+         o6P4iC8fCk3iYS3j9y78aM7MoQIjchLTaykhUh30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Mike Snitzer <snitzer@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 044/171] block: add bio_start_io_acct_time() to control start_time
-Date:   Mon, 31 Jan 2022 11:55:09 +0100
-Message-Id: <20220131105231.515669552@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.16 047/200] drm/amd/display: Wrap dcn301_calculate_wm_and_dlg for FPU.
+Date:   Mon, 31 Jan 2022 11:55:10 +0100
+Message-Id: <20220131105235.140761493@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,93 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
 
-commit e45c47d1f94e0cc7b6b079fdb4bcce2995e2adc4 upstream.
+commit 25f1488bdbba63415239ff301fe61a8546140d9f upstream.
 
-bio_start_io_acct_time() interface is like bio_start_io_acct() that
-allows start_time to be passed in. This gives drivers the ability to
-defer starting accounting until after IO is issued (but possibily not
-entirely due to bio splitting).
+Mirrors the logic for dcn30. Cue lots of WARNs and some
+kernel panics without this fix.
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Link: https://lore.kernel.org/r/20220128155841.39644-2-snitzer@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-core.c       |   25 +++++++++++++++++++------
- include/linux/blkdev.h |    1 +
- 2 files changed, 20 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c |   11 +++++++++++
+ drivers/gpu/drm/amd/display/dc/dml/dcn301/dcn301_fpu.c  |    2 +-
+ drivers/gpu/drm/amd/display/dc/dml/dcn301/dcn301_fpu.h  |    2 +-
+ 3 files changed, 13 insertions(+), 2 deletions(-)
 
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -1293,22 +1293,34 @@ void blk_account_io_start(struct request
+--- a/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c
+@@ -1391,6 +1391,17 @@ static void set_wm_ranges(
+ 	pp_smu->nv_funcs.set_wm_ranges(&pp_smu->nv_funcs.pp_smu, &ranges);
  }
  
- static unsigned long __part_start_io_acct(struct block_device *part,
--					  unsigned int sectors, unsigned int op)
-+					  unsigned int sectors, unsigned int op,
-+					  unsigned long start_time)
- {
- 	const int sgrp = op_stat_group(op);
--	unsigned long now = READ_ONCE(jiffies);
- 
- 	part_stat_lock();
--	update_io_ticks(part, now, false);
-+	update_io_ticks(part, start_time, false);
- 	part_stat_inc(part, ios[sgrp]);
- 	part_stat_add(part, sectors[sgrp], sectors);
- 	part_stat_local_inc(part, in_flight[op_is_write(op)]);
- 	part_stat_unlock();
- 
--	return now;
-+	return start_time;
- }
- 
- /**
-+ * bio_start_io_acct_time - start I/O accounting for bio based drivers
-+ * @bio:	bio to start account for
-+ * @start_time:	start time that should be passed back to bio_end_io_acct().
-+ */
-+void bio_start_io_acct_time(struct bio *bio, unsigned long start_time)
++static void dcn301_calculate_wm_and_dlg(
++		struct dc *dc, struct dc_state *context,
++		display_e2e_pipe_params_st *pipes,
++		int pipe_cnt,
++		int vlevel)
 +{
-+	__part_start_io_acct(bio->bi_bdev, bio_sectors(bio),
-+			     bio_op(bio), start_time);
++	DC_FP_START();
++	dcn301_calculate_wm_and_dlg_fp(dc, context, pipes, pipe_cnt, vlevel);
++	DC_FP_END();
 +}
-+EXPORT_SYMBOL_GPL(bio_start_io_acct_time);
 +
-+/**
-  * bio_start_io_acct - start I/O accounting for bio based drivers
-  * @bio:	bio to start account for
-  *
-@@ -1316,14 +1328,15 @@ static unsigned long __part_start_io_acc
-  */
- unsigned long bio_start_io_acct(struct bio *bio)
- {
--	return __part_start_io_acct(bio->bi_bdev, bio_sectors(bio), bio_op(bio));
-+	return __part_start_io_acct(bio->bi_bdev, bio_sectors(bio),
-+				    bio_op(bio), jiffies);
+ static struct resource_funcs dcn301_res_pool_funcs = {
+ 	.destroy = dcn301_destroy_resource_pool,
+ 	.link_enc_create = dcn301_link_encoder_create,
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn301/dcn301_fpu.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn301/dcn301_fpu.c
+@@ -327,7 +327,7 @@ void dcn301_fpu_init_soc_bounding_box(st
+ 		dcn3_01_soc.sr_exit_time_us = bb_info.dram_sr_exit_latency_100ns * 10;
  }
- EXPORT_SYMBOL_GPL(bio_start_io_acct);
  
- unsigned long disk_start_io_acct(struct gendisk *disk, unsigned int sectors,
- 				 unsigned int op)
- {
--	return __part_start_io_acct(disk->part0, sectors, op);
-+	return __part_start_io_acct(disk->part0, sectors, op, jiffies);
- }
- EXPORT_SYMBOL(disk_start_io_acct);
+-void dcn301_calculate_wm_and_dlg(struct dc *dc,
++void dcn301_calculate_wm_and_dlg_fp(struct dc *dc,
+ 		struct dc_state *context,
+ 		display_e2e_pipe_params_st *pipes,
+ 		int pipe_cnt,
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn301/dcn301_fpu.h
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn301/dcn301_fpu.h
+@@ -34,7 +34,7 @@ void dcn301_fpu_set_wm_ranges(int i,
  
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -1947,6 +1947,7 @@ unsigned long disk_start_io_acct(struct
- void disk_end_io_acct(struct gendisk *disk, unsigned int op,
- 		unsigned long start_time);
+ void dcn301_fpu_init_soc_bounding_box(struct bp_soc_bb_info bb_info);
  
-+void bio_start_io_acct_time(struct bio *bio, unsigned long start_time);
- unsigned long bio_start_io_acct(struct bio *bio);
- void bio_end_io_acct_remapped(struct bio *bio, unsigned long start_time,
- 		struct block_device *orig_bdev);
+-void dcn301_calculate_wm_and_dlg(struct dc *dc,
++void dcn301_calculate_wm_and_dlg_fp(struct dc *dc,
+ 		struct dc_state *context,
+ 		display_e2e_pipe_params_st *pipes,
+ 		int pipe_cnt,
 
 
