@@ -2,54 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1862D4A4BF3
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 17:27:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72BA34A4C1C
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 17:29:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380350AbiAaQ05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 11:26:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35784 "EHLO
+        id S1380429AbiAaQ3i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 11:29:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380330AbiAaQ0w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 11:26:52 -0500
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D595C06173B;
-        Mon, 31 Jan 2022 08:26:51 -0800 (PST)
-Received: by mail-ed1-x535.google.com with SMTP id c24so28095160edy.4;
-        Mon, 31 Jan 2022 08:26:51 -0800 (PST)
+        with ESMTP id S1380486AbiAaQ2R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 11:28:17 -0500
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A3DCC061401;
+        Mon, 31 Jan 2022 08:28:16 -0800 (PST)
+Received: by mail-ed1-x532.google.com with SMTP id r10so28040231edt.1;
+        Mon, 31 Jan 2022 08:28:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=AwY1rSHuM6lR8KH0jH1kl90JqbVxGnmUft5540hRLCY=;
-        b=JSZLimqxvV78eQdGZrVUSM/ug924VQcIQmGwPdjeelVdRmUR71pz3y0aLcrR8yCSjy
-         rNCyOTEpY/wuhFUFLXpa8+eOSqvybCqgqgkyhZcS2eQoa4xxn0WTXTE1kLx6LslibDox
-         vrRhMHrcPhKxD3pz10NCEpJ1U7hdQQl/eoi+CQjeC3LDirZZgO8auFDR7ZmQHAU3b9CW
-         BLDz6q4MZumYYCf5IrkDFmcm8loaxmZWXUysz7eCAv6RIT5iNVAkE4lloKPvVlyDyl0h
-         eKhvpH9+VMOBUrQSbKviUNKlAB7edQ+n4yiwnjz8jkrzqkoW6tdX+RTOeih0fY/+c0fd
-         pUtQ==
+        bh=SRGWD5HujtGaIfy6YI6sQxXDCuS1sXnoBeyNAfdeYfw=;
+        b=ChnztWGFCtrmF8AR1r+RxPbBgCvUh0CFlJUcnaF52cf5G1sjhuI7GzfAEFXFuzTQkM
+         JxycPhTVhoZtFs7XinEr+TOKblJu49ps9qXeBjK0ScLdwojro28qNzmRh10OqkWGwHhV
+         vtBa+0kLeIc6limAZBPJAZC9EgPv4VCTLX07epyDEu+yiwKgbL9tsOV0KKnmC5ZnAHvn
+         uH0fE/7Il/g8fhtNHrIh1RMxTB06zccccFG7TUwimrwW0oFiMF4+B9DkJlFQzDG04Sk9
+         CxTtObvrEBHH9Cb9TRsJY4DhJHo9u5ENG96hEs47e66AFhqodn6kekntyKOXZRDPHCEY
+         nqfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=AwY1rSHuM6lR8KH0jH1kl90JqbVxGnmUft5540hRLCY=;
-        b=r1vg671FqmKnacwG/v/xeI8xUaI6HDOBvMIsLwNgTfX3MHcMrt/x7HMPSq4xXegr1b
-         uyLLWmUoykhsuGYhTzaNto+4st0vuU5XaOv3EYen8O4QPRDSfUhtKhF3arKwffPh2lN7
-         IPLxXEnyd2JhwC5+l5a3nc2xnTd4a0wMHRvl5wWnfEV0LfiDirP3bKdxQCcT5UXYlHK0
-         lw1vCo1g4Fdnv8kWmfkpIjd54pzySImoD9CqK0tTmO73A0rAZ0BNh49Q8nSbKCUSg9jr
-         XYbaEt0Qbk8TEFLTb9LDUZU3AxIIDMe5thT3wpPKFxRfDyaSnDq8xCI/2+UTZ/DtGEV+
-         26VQ==
-X-Gm-Message-State: AOAM533d3q3HiFHnQK0rG452K2XYFlA4H9O0FdQsiGl2AgkzvNUfKRe8
-        HDY4u8xR0x3uFGMDLYFQ3sbdOH3e7KjLWV2SD+A=
-X-Google-Smtp-Source: ABdhPJxsX78+TBYmegbl+zF1b04vUK6cR5MHOFkie3rMlu/nf4u8SmJ/qKw623OO4UdFy7ANZ/+hd8psMh/eIAycN4s=
-X-Received: by 2002:a05:6402:4248:: with SMTP id g8mr21292274edb.158.1643646410161;
- Mon, 31 Jan 2022 08:26:50 -0800 (PST)
+        bh=SRGWD5HujtGaIfy6YI6sQxXDCuS1sXnoBeyNAfdeYfw=;
+        b=T1aG/0uPrrDJp4vfq+mKAMaGTA77ov1vzrTLtiNd7XWrQts0QYgbvnBasn/+aUAnr7
+         xkHhvYNXs7uFSMHXS9UGBnsopwN9T65OFxvm2V+RMMnkK27QsPLJE2J46UgvcGnc9i3N
+         QNQfKLkXxujvSS77a+yuvWmdgrF8SFOXf6ye2qIPlyTaha6s8Rbcd+BnJ0OYxo88JKsM
+         csii3ZoeebIDq+uCbBCIC9xrqe2JIBUkcx76ypsac2xGzMWqrPUROFphprxLm9YztLJy
+         yOxAymO/tp8+8E5UaGQQRHou5Qy+1BQ6VnWpSMKK/Fpjp1gTpDyu/hvD6sBNIZYcxv4U
+         X/gg==
+X-Gm-Message-State: AOAM530GuvSnHY2NtfjxNxvwbT7zySvKplP5Vs5XWpQjCetsQP1qh1PI
+        u1zDdFcSfhp7k18lKi4Zp4KlEiet5ALJVlIA3A0=
+X-Google-Smtp-Source: ABdhPJxN6zodTFR1sUdARmDocQ6DqGl7M4lBjebz7UFYoBxZ4kMltyMXUVtIA2lfAdrmFf2GE2DGhFAXGCGauiLOqqI=
+X-Received: by 2002:aa7:d6c5:: with SMTP id x5mr20979293edr.29.1643646494962;
+ Mon, 31 Jan 2022 08:28:14 -0800 (PST)
 MIME-Version: 1.0
-References: <20220131160713.245637-1-marcan@marcan.st> <20220131160713.245637-7-marcan@marcan.st>
-In-Reply-To: <20220131160713.245637-7-marcan@marcan.st>
+References: <20220131160713.245637-1-marcan@marcan.st> <20220131160713.245637-3-marcan@marcan.st>
+In-Reply-To: <20220131160713.245637-3-marcan@marcan.st>
 From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Mon, 31 Jan 2022 18:25:14 +0200
-Message-ID: <CAHp75VdmeepjqAO422v9Hz0YoiGZDTcTLbykxxL-CtRuuOZWPg@mail.gmail.com>
-Subject: Re: [PATCH v4 6/9] brcmfmac: pcie: Fix crashes due to early IRQs
+Date:   Mon, 31 Jan 2022 18:26:39 +0200
+Message-ID: <CAHp75Vd8Yut7fSnyVnr-rYcK22DiZdnfofb+-DCJ6A5M9Y_VDg@mail.gmail.com>
+Subject: Re: [PATCH v4 2/9] brcmfmac: firmware: Allocate space for default
+ boardrev in nvram
 To:     Hector Martin <marcan@marcan.st>
 Cc:     Kalle Valo <kvalo@codeaurora.org>,
         "David S. Miller" <davem@davemloft.net>,
@@ -86,65 +87,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 31, 2022 at 6:08 PM Hector Martin <marcan@marcan.st> wrote:
+On Mon, Jan 31, 2022 at 6:07 PM Hector Martin <marcan@marcan.st> wrote:
 >
-> The driver was enabling IRQs before the message processing was
-> initialized. This could cause IRQs to come in too early and crash the
-> driver. Instead, move the IRQ enable and hostready to a bus preinit
-> function, at which point everything is properly initialized.
+> If boardrev is missing from the NVRAM we add a default one, but this
+> might need more space in the output buffer than was allocated. Ensure
+> we have enough padding for this in the buffer.
 
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-> Fixes: 9e37f045d5e7 ("brcmfmac: Adding PCIe bus layer support.")
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> Fixes: 46f2b38a91b0 ("brcmfmac: insert default boardrev in nvram data if missing")
 > Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Hector Martin <marcan@marcan.st>
 > ---
->  .../wireless/broadcom/brcm80211/brcmfmac/pcie.c  | 16 +++++++++++++---
->  1 file changed, 13 insertions(+), 3 deletions(-)
+>  drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c | 2 ++
+>  1 file changed, 2 insertions(+)
 >
-> diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-> index c25f48db1f60..3ff4997e1c97 100644
-> --- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-> +++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-> @@ -1315,6 +1315,18 @@ static void brcmf_pcie_down(struct device *dev)
->  {
->  }
->
-> +static int brcmf_pcie_preinit(struct device *dev)
-> +{
-> +       struct brcmf_bus *bus_if = dev_get_drvdata(dev);
-> +       struct brcmf_pciedev *buspub = bus_if->bus_priv.pcie;
-> +
-> +       brcmf_dbg(PCIE, "Enter\n");
-> +
-> +       brcmf_pcie_intr_enable(buspub->devinfo);
-> +       brcmf_pcie_hostready(buspub->devinfo);
-> +
-> +       return 0;
-> +}
->
->  static int brcmf_pcie_tx(struct device *dev, struct sk_buff *skb)
->  {
-> @@ -1423,6 +1435,7 @@ static int brcmf_pcie_reset(struct device *dev)
->  }
->
->  static const struct brcmf_bus_ops brcmf_pcie_bus_ops = {
-> +       .preinit = brcmf_pcie_preinit,
->         .txdata = brcmf_pcie_tx,
->         .stop = brcmf_pcie_down,
->         .txctl = brcmf_pcie_tx_ctlpkt,
-> @@ -1795,9 +1808,6 @@ static void brcmf_pcie_setup(struct device *dev, int ret,
->
->         init_waitqueue_head(&devinfo->mbdata_resp_wait);
->
-> -       brcmf_pcie_intr_enable(devinfo);
-> -       brcmf_pcie_hostready(devinfo);
-> -
->         ret = brcmf_attach(&devinfo->pdev->dev);
->         if (ret)
->                 goto fail;
+> diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+> index 0eb13e5df517..1001c8888bfe 100644
+> --- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+> +++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+> @@ -207,6 +207,8 @@ static int brcmf_init_nvram_parser(struct nvram_parser *nvp,
+>                 size = BRCMF_FW_MAX_NVRAM_SIZE;
+>         else
+>                 size = data_len;
+> +       /* Add space for properties we may add */
+> +       size += strlen(BRCMF_FW_DEFAULT_BOARDREV) + 1;
+>         /* Alloc for extra 0 byte + roundup by 4 + length field */
+>         size += 1 + 3 + sizeof(u32);
+>         nvp->nvram = kzalloc(size, GFP_KERNEL);
 > --
 > 2.33.0
 >
