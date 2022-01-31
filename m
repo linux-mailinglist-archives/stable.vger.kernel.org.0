@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E72C64A4411
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:26:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CD8F4A45B4
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:48:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377089AbiAaLZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:25:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47830 "EHLO
+        id S1358750AbiAaLqb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:46:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378245AbiAaLXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:23:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFD3CC061756;
-        Mon, 31 Jan 2022 03:14:47 -0800 (PST)
+        with ESMTP id S1377782AbiAaLlf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:41:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D00C02B76A;
+        Mon, 31 Jan 2022 03:26:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BA0EB82A74;
-        Mon, 31 Jan 2022 11:14:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7CDFC340E8;
-        Mon, 31 Jan 2022 11:14:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32666611E3;
+        Mon, 31 Jan 2022 11:26:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EF6DC36AF6;
+        Mon, 31 Jan 2022 11:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627685;
-        bh=Exd2l5co6Rjj9v95rwrcLjP0ecH68GmgHFV3YrX0Lds=;
+        s=korg; t=1643628363;
+        bh=qNlQ7jXzaiw0lDO8EJIiMrBPH5Y0ncOONj/Rttap/vE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GOfnYvOIgQ6sIJZOFG68zQNasoSMsh0x0N1PcDmOegrv4k0rn4cdlDmxpj166U0+A
-         ogyf7FdusrEz633AKrj4CNsLbeBQcIEAjoCRs1q6HYDH3OQYvfOZN5y700fqANPFAy
-         8Qkt3HDcl0R6eu1Bgh6KgAYlPZK0+wgh6RLFLjuM=
+        b=g2RCAoqxP+uy8b0z564FGgy1++7R+wbnn8WnGmfAWwmkfMhVvzTCBNTCV/hpcWXHH
+         ghDzRKrbL12xilU1ouc9HF3+c8ecnnJSkKWPl571Jh0p7qY+HgNTLZ0LRCJIUjnIS9
+         JOMxnpMD0wmZCKphfMNH1m5hQ3OO6QFDhUd6gb68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sander Vanheule <sander@svanheule.net>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 163/171] irqchip/realtek-rtl: Fix off-by-one in routing
+        stable@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 165/200] net/smc: Transitional solution for clcsock race issue
 Date:   Mon, 31 Jan 2022 11:57:08 +0100
-Message-Id: <20220131105235.524654480@linuxfoundation.org>
+Message-Id: <20220131105239.097172693@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,60 +49,201 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sander Vanheule <sander@svanheule.net>
+From: Wen Gu <guwen@linux.alibaba.com>
 
-commit 91351b5dd0fd494eb2d85e1bb6aca77b067447e0 upstream.
+[ Upstream commit c0bf3d8a943b6f2e912b7c1de03e2ef28e76f760 ]
 
-There is an offset between routing values (1..6) and the connected MIPS
-CPU interrupts (2..7), but no distinction was made between these two
-values.
+We encountered a crash in smc_setsockopt() and it is caused by
+accessing smc->clcsock after clcsock was released.
 
-This issue was previously hidden during testing, because an interrupt
-mapping was used where for each required interrupt another (unused)
-routing was configured, with an offset of +1.
+ BUG: kernel NULL pointer dereference, address: 0000000000000020
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP PTI
+ CPU: 1 PID: 50309 Comm: nginx Kdump: loaded Tainted: G E     5.16.0-rc4+ #53
+ RIP: 0010:smc_setsockopt+0x59/0x280 [smc]
+ Call Trace:
+  <TASK>
+  __sys_setsockopt+0xfc/0x190
+  __x64_sys_setsockopt+0x20/0x30
+  do_syscall_64+0x34/0x90
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f16ba83918e
+  </TASK>
 
-Offset the CPU IRQ numbers by -1 to retrieve the correct routing value.
+This patch tries to fix it by holding clcsock_release_lock and
+checking whether clcsock has already been released before access.
 
-Fixes: 9f3a0f34b84a ("irqchip: Add support for Realtek RTL838x/RTL839x interrupt controller")
-Signed-off-by: Sander Vanheule <sander@svanheule.net>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/177b920aa8d8610615692d0e657e509f363c85ca.1641739718.git.sander@svanheule.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In case that a crash of the same reason happens in smc_getsockopt()
+or smc_switch_to_fallback(), this patch also checkes smc->clcsock
+in them too. And the caller of smc_switch_to_fallback() will identify
+whether fallback succeeds according to the return value.
+
+Fixes: fd57770dd198 ("net/smc: wait for pending work before clcsock release_sock")
+Link: https://lore.kernel.org/lkml/5dd7ffd1-28e2-24cc-9442-1defec27375e@linux.ibm.com/T/
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-realtek-rtl.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/smc/af_smc.c | 63 +++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 51 insertions(+), 12 deletions(-)
 
---- a/drivers/irqchip/irq-realtek-rtl.c
-+++ b/drivers/irqchip/irq-realtek-rtl.c
-@@ -95,7 +95,8 @@ out:
-  * SoC interrupts are cascaded to MIPS CPU interrupts according to the
-  * interrupt-map in the device tree. Each SoC interrupt gets 4 bits for
-  * the CPU interrupt in an Interrupt Routing Register. Max 32 SoC interrupts
-- * thus go into 4 IRRs.
-+ * thus go into 4 IRRs. A routing value of '0' means the interrupt is left
-+ * disconnected. Routing values {1..15} connect to output lines {0..14}.
-  */
- static int __init map_interrupts(struct device_node *node, struct irq_domain *domain)
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 211cd91b6c408..85e077a69c67d 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -566,12 +566,17 @@ static void smc_stat_fallback(struct smc_sock *smc)
+ 	mutex_unlock(&net->smc.mutex_fback_rsn);
+ }
+ 
+-static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
++static int smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
  {
-@@ -134,7 +135,7 @@ static int __init map_interrupts(struct
- 		of_node_put(cpu_ictl);
+ 	wait_queue_head_t *smc_wait = sk_sleep(&smc->sk);
+-	wait_queue_head_t *clc_wait = sk_sleep(smc->clcsock->sk);
++	wait_queue_head_t *clc_wait;
+ 	unsigned long flags;
  
- 		cpu_int = be32_to_cpup(imap + 2);
--		if (cpu_int > 7)
-+		if (cpu_int > 7 || cpu_int < 2)
- 			return -EINVAL;
++	mutex_lock(&smc->clcsock_release_lock);
++	if (!smc->clcsock) {
++		mutex_unlock(&smc->clcsock_release_lock);
++		return -EBADF;
++	}
+ 	smc->use_fallback = true;
+ 	smc->fallback_rsn = reason_code;
+ 	smc_stat_fallback(smc);
+@@ -586,18 +591,30 @@ static void smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
+ 		 * smc socket->wq, which should be removed
+ 		 * to clcsocket->wq during the fallback.
+ 		 */
++		clc_wait = sk_sleep(smc->clcsock->sk);
+ 		spin_lock_irqsave(&smc_wait->lock, flags);
+ 		spin_lock_nested(&clc_wait->lock, SINGLE_DEPTH_NESTING);
+ 		list_splice_init(&smc_wait->head, &clc_wait->head);
+ 		spin_unlock(&clc_wait->lock);
+ 		spin_unlock_irqrestore(&smc_wait->lock, flags);
+ 	}
++	mutex_unlock(&smc->clcsock_release_lock);
++	return 0;
+ }
  
- 		if (!(mips_irqs_set & BIT(cpu_int))) {
-@@ -143,7 +144,8 @@ static int __init map_interrupts(struct
- 			mips_irqs_set |= BIT(cpu_int);
- 		}
+ /* fall back during connect */
+ static int smc_connect_fallback(struct smc_sock *smc, int reason_code)
+ {
+-	smc_switch_to_fallback(smc, reason_code);
++	struct net *net = sock_net(&smc->sk);
++	int rc = 0;
++
++	rc = smc_switch_to_fallback(smc, reason_code);
++	if (rc) { /* fallback fails */
++		this_cpu_inc(net->smc.smc_stats->clnt_hshake_err_cnt);
++		if (smc->sk.sk_state == SMC_INIT)
++			sock_put(&smc->sk); /* passive closing */
++		return rc;
++	}
+ 	smc_copy_sock_settings_to_clc(smc);
+ 	smc->connect_nonblock = 0;
+ 	if (smc->sk.sk_state == SMC_INIT)
+@@ -1514,11 +1531,12 @@ static void smc_listen_decline(struct smc_sock *new_smc, int reason_code,
+ {
+ 	/* RDMA setup failed, switch back to TCP */
+ 	smc_conn_abort(new_smc, local_first);
+-	if (reason_code < 0) { /* error, no fallback possible */
++	if (reason_code < 0 ||
++	    smc_switch_to_fallback(new_smc, reason_code)) {
++		/* error, no fallback possible */
+ 		smc_listen_out_err(new_smc);
+ 		return;
+ 	}
+-	smc_switch_to_fallback(new_smc, reason_code);
+ 	if (reason_code && reason_code != SMC_CLC_DECL_PEERDECL) {
+ 		if (smc_clc_send_decline(new_smc, reason_code, version) < 0) {
+ 			smc_listen_out_err(new_smc);
+@@ -1960,8 +1978,11 @@ static void smc_listen_work(struct work_struct *work)
  
--		regs[(soc_int * 4) / 32] |= cpu_int << (soc_int * 4) % 32;
-+		/* Use routing values (1..6) for CPU interrupts (2..7) */
-+		regs[(soc_int * 4) / 32] |= (cpu_int - 1) << (soc_int * 4) % 32;
- 		imap += 3;
+ 	/* check if peer is smc capable */
+ 	if (!tcp_sk(newclcsock->sk)->syn_smc) {
+-		smc_switch_to_fallback(new_smc, SMC_CLC_DECL_PEERNOSMC);
+-		smc_listen_out_connected(new_smc);
++		rc = smc_switch_to_fallback(new_smc, SMC_CLC_DECL_PEERNOSMC);
++		if (rc)
++			smc_listen_out_err(new_smc);
++		else
++			smc_listen_out_connected(new_smc);
+ 		return;
  	}
  
+@@ -2250,7 +2271,9 @@ static int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 
+ 	if (msg->msg_flags & MSG_FASTOPEN) {
+ 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
+-			smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
++			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
++			if (rc)
++				goto out;
+ 		} else {
+ 			rc = -EINVAL;
+ 			goto out;
+@@ -2443,6 +2466,11 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ 	/* generic setsockopts reaching us here always apply to the
+ 	 * CLC socket
+ 	 */
++	mutex_lock(&smc->clcsock_release_lock);
++	if (!smc->clcsock) {
++		mutex_unlock(&smc->clcsock_release_lock);
++		return -EBADF;
++	}
+ 	if (unlikely(!smc->clcsock->ops->setsockopt))
+ 		rc = -EOPNOTSUPP;
+ 	else
+@@ -2452,6 +2480,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ 		sk->sk_err = smc->clcsock->sk->sk_err;
+ 		sk_error_report(sk);
+ 	}
++	mutex_unlock(&smc->clcsock_release_lock);
+ 
+ 	if (optlen < sizeof(int))
+ 		return -EINVAL;
+@@ -2468,7 +2497,7 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ 	case TCP_FASTOPEN_NO_COOKIE:
+ 		/* option not supported by SMC */
+ 		if (sk->sk_state == SMC_INIT && !smc->connect_nonblock) {
+-			smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
++			rc = smc_switch_to_fallback(smc, SMC_CLC_DECL_OPTUNSUPP);
+ 		} else {
+ 			rc = -EINVAL;
+ 		}
+@@ -2511,13 +2540,23 @@ static int smc_getsockopt(struct socket *sock, int level, int optname,
+ 			  char __user *optval, int __user *optlen)
+ {
+ 	struct smc_sock *smc;
++	int rc;
+ 
+ 	smc = smc_sk(sock->sk);
++	mutex_lock(&smc->clcsock_release_lock);
++	if (!smc->clcsock) {
++		mutex_unlock(&smc->clcsock_release_lock);
++		return -EBADF;
++	}
+ 	/* socket options apply to the CLC socket */
+-	if (unlikely(!smc->clcsock->ops->getsockopt))
++	if (unlikely(!smc->clcsock->ops->getsockopt)) {
++		mutex_unlock(&smc->clcsock_release_lock);
+ 		return -EOPNOTSUPP;
+-	return smc->clcsock->ops->getsockopt(smc->clcsock, level, optname,
+-					     optval, optlen);
++	}
++	rc = smc->clcsock->ops->getsockopt(smc->clcsock, level, optname,
++					   optval, optlen);
++	mutex_unlock(&smc->clcsock_release_lock);
++	return rc;
+ }
+ 
+ static int smc_ioctl(struct socket *sock, unsigned int cmd,
+-- 
+2.34.1
+
 
 
