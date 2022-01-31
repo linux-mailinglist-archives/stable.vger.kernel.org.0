@@ -2,41 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F154A4247
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:11:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 048BF4A44D5
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359436AbiAaLLO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:11:14 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42478 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376428AbiAaLIZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:08:25 -0500
+        id S1377186AbiAaLc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:32:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49860 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378577AbiAaL2s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:28:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 460EFC09427E;
+        Mon, 31 Jan 2022 03:17:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FC1C61035;
-        Mon, 31 Jan 2022 11:08:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A991C340E8;
-        Mon, 31 Jan 2022 11:08:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F333EB82A74;
+        Mon, 31 Jan 2022 11:17:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0E40C340E8;
+        Mon, 31 Jan 2022 11:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627304;
-        bh=cxlwAG8PN2icPtViFxmJzy/czjZCygMgoVfmP6Msmxw=;
+        s=korg; t=1643627845;
+        bh=H8Kqjec3vy20GA6mnXYJLGonJa+G2hoAOvhv1VCBA/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gfIIwEhSz9aFy8liR2/h/eQBAcGqfTlostUPbDpM0cs9MbOlByFU1GM0HjG2GUKvn
-         DmrU47VO1FEzRyP8joGbG3A4DZCD7NTLULhPsz802qi4AmnzXDvREsHbvyqkA5jiM3
-         laZ/m6KbJEiWTsSk/2f3gNxXu9J1XXd84TPO9aTQ=
+        b=TcmtMf6YD8Z2zXPMFheCaA4QexcHABBEsRs6e+Er3Vexg4POinyhK4iwPxRzG6WNw
+         wvNltbG//I3S20HfYtTs3GQlfq8Yhxul8sHqsX+U4ae3UjQK9GeXG8qdHYgHS+RFpT
+         xKxM5TlsZUAXb90uOvuMvifm3TT5JKFgzhwI+wDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Like Xu <likexu@tencent.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 041/171] KVM: x86: Sync the states size with the XCR0/IA32_XSS at, any time
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Simon Ser <contact@emersion.fr>,
+        Pekka Paalanen <pekka.paalanen@collabora.co.uk>,
+        Daniel Stone <daniels@collabora.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        dri-devel@lists.freedesktop.org,
+        Manasi Navare <manasi.d.navare@intel.com>
+Subject: [PATCH 5.16 043/200] drm/atomic: Add the crtc to affected crtc only if uapi.enable = true
 Date:   Mon, 31 Jan 2022 11:55:06 +0100
-Message-Id: <20220131105231.415485841@linuxfoundation.org>
+Message-Id: <20220131105235.001695685@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Like Xu <likexu@tencent.com>
+From: Manasi Navare <manasi.d.navare@intel.com>
 
-commit 05a9e065059e566f218f8778c4d17ee75db56c55 upstream.
+commit 5ec1cebd59300ddd26dbaa96c17c508764eef911 upstream.
 
-XCR0 is reset to 1 by RESET but not INIT and IA32_XSS is zeroed by
-both RESET and INIT. The kvm_set_msr_common()'s handling of MSR_IA32_XSS
-also needs to update kvm_update_cpuid_runtime(). In the above cases, the
-size in bytes of the XSAVE area containing all states enabled by XCR0 or
-(XCRO | IA32_XSS) needs to be updated.
+In case of a modeset where a mode gets split across multiple CRTCs
+in the driver specific implementation (bigjoiner in i915) we wrongly count
+the affected CRTCs based on the drm_crtc_mask and indicate the stolen CRTC as
+an affected CRTC in atomic_check_only().
+This triggers a warning since affected CRTCs doent match requested CRTC.
 
-For simplicity and consistency, existing helpers are used to write values
-and call kvm_update_cpuid_runtime(), and it's not exactly a fast path.
+To fix this in such bigjoiner configurations, we should only
+increment affected crtcs if that CRTC is enabled in UAPI not
+if it is just used internally in the driver to split the mode.
 
-Fixes: a554d207dc46 ("KVM: X86: Processor States following Reset or INIT")
-Cc: stable@vger.kernel.org
-Signed-off-by: Like Xu <likexu@tencent.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220126172226.2298529-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+v3: Add the same uapi crtc_state->enable check in requested
+crtc calc (Ville)
+
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Simon Ser <contact@emersion.fr>
+Cc: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Cc: Daniel Stone <daniels@collabora.com>
+Cc: Daniel Vetter <daniel.vetter@intel.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.11+
+Fixes: 919c2299a893 ("drm/i915: Enable bigjoiner")
+Signed-off-by: Manasi Navare <manasi.d.navare@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211004115913.23889-1-manasi.d.navare@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_atomic.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -10990,8 +10990,8 @@ void kvm_vcpu_reset(struct kvm_vcpu *vcp
+--- a/drivers/gpu/drm/drm_atomic.c
++++ b/drivers/gpu/drm/drm_atomic.c
+@@ -1310,8 +1310,10 @@ int drm_atomic_check_only(struct drm_ato
  
- 		vcpu->arch.msr_misc_features_enables = 0;
+ 	DRM_DEBUG_ATOMIC("checking %p\n", state);
  
--		vcpu->arch.xcr0 = XFEATURE_MASK_FP;
--		vcpu->arch.ia32_xss = 0;
-+		__kvm_set_xcr(vcpu, 0, XFEATURE_MASK_FP);
-+		__kvm_set_msr(vcpu, MSR_IA32_XSS, 0, true);
+-	for_each_new_crtc_in_state(state, crtc, new_crtc_state, i)
+-		requested_crtc |= drm_crtc_mask(crtc);
++	for_each_new_crtc_in_state(state, crtc, new_crtc_state, i) {
++		if (new_crtc_state->enable)
++			requested_crtc |= drm_crtc_mask(crtc);
++	}
+ 
+ 	for_each_oldnew_plane_in_state(state, plane, old_plane_state, new_plane_state, i) {
+ 		ret = drm_atomic_plane_check(old_plane_state, new_plane_state);
+@@ -1360,8 +1362,10 @@ int drm_atomic_check_only(struct drm_ato
+ 		}
  	}
  
- 	memset(vcpu->arch.regs, 0, sizeof(vcpu->arch.regs));
+-	for_each_new_crtc_in_state(state, crtc, new_crtc_state, i)
+-		affected_crtc |= drm_crtc_mask(crtc);
++	for_each_new_crtc_in_state(state, crtc, new_crtc_state, i) {
++		if (new_crtc_state->enable)
++			affected_crtc |= drm_crtc_mask(crtc);
++	}
+ 
+ 	/*
+ 	 * For commits that allow modesets drivers can add other CRTCs to the
 
 
