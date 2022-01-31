@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7C934A4038
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 11:31:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F9AD4A403D
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 11:32:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236232AbiAaKbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 05:31:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36258 "EHLO
+        id S1358194AbiAaKce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 05:32:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358169AbiAaKa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:30:59 -0500
+        with ESMTP id S1345599AbiAaKcd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:32:33 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55A4EC06173B
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 02:30:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC08FC061714
+        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 02:32:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BE2F5CE1102
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 10:30:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CA40C340E8;
-        Mon, 31 Jan 2022 10:30:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 266F3CE10F0
+        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 10:32:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1D83C340E8;
+        Mon, 31 Jan 2022 10:32:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643625056;
-        bh=2+FRd11AjT69hatMx4vra91k58GNNOnBL+Rzej5jW9c=;
+        s=korg; t=1643625149;
+        bh=QgZuUE/FX1by2jEQQ4ZEDPuXFHBXeIyEpQc77xCZzzw=;
         h=Subject:To:Cc:From:Date:From;
-        b=cO9ASWjx/PemQj9g1TWls9tMjRtNglsXt1ioKZ6Q8znnDboagiA8eT4Y6GZu8P6C1
-         kRkRJxwUxm3PeVZxE97zqaeCxvJaMYuQ8/1v9ZqPQYF1tjMBOBMGqfwD71gflQe3Qw
-         LeBG2gT6CsqmMS/ojJFNsyBOJH4XDus4TTnICiiM=
-Subject: FAILED: patch "[PATCH] io_uring: fix UAF due to missing POLLFREE handling" failed to apply to 5.16-stable tree
-To:     asml.silence@gmail.com, axboe@kernel.dk, ebiggers@google.com
+        b=KT3bKjD0BZ4QpjDyumhlBSRUZJRNKV0qwZRNnsC6ywlNQTU/H2QEMgHVqcy/mn/UE
+         0r185JD68I3O6FFdDXv/DjkR95BIXJtz4FuK4hGyfN9/y2HteVP/HHXZDDsx0L9Wrv
+         B2P71J9ZFSuoOPbEDzE6uNdwR9+tEVjKiAB7anMo=
+Subject: FAILED: patch "[PATCH] loop: don't hold lo_mutex during __loop_clr_fd()" failed to apply to 5.16-stable tree
+To:     penguin-kernel@i-love.sakura.ne.jp, axboe@kernel.dk, hch@lst.de,
+        penguin-kernel@I-love.SAKURA.ne.jp,
+        syzbot+63614029dfb79abd4383@syzkaller.appspotmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 31 Jan 2022 11:30:39 +0100
-Message-ID: <164362503914181@kroah.com>
+Date:   Mon, 31 Jan 2022 11:32:26 +0100
+Message-ID: <16436251461061@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -53,112 +55,153 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 791f3465c4afde02d7f16cf7424ca87070b69396 Mon Sep 17 00:00:00 2001
-From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Fri, 14 Jan 2022 11:59:10 +0000
-Subject: [PATCH] io_uring: fix UAF due to missing POLLFREE handling
+From 6050fa4c84cc93ae509f5105f585a429dffc5633 Mon Sep 17 00:00:00 2001
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Date: Wed, 24 Nov 2021 19:47:40 +0900
+Subject: [PATCH] loop: don't hold lo_mutex during __loop_clr_fd()
 
-Fixes a problem described in 50252e4b5e989
-("aio: fix use-after-free due to missing POLLFREE handling")
-and copies the approach used there.
+syzbot is reporting circular locking problem at __loop_clr_fd() [1], for
+commit 87579e9b7d8dc36e ("loop: use worker per cgroup instead of kworker")
+is calling destroy_workqueue() with lo->lo_mutex held.
 
-In short, we have to forcibly eject a poll entry when we meet POLLFREE.
-We can't rely on io_poll_get_ownership() as can't wait for potentially
-running tw handlers, so we use the fact that wqs are RCU freed. See
-Eric's patch and comments for more details.
+Since all functions where lo->lo_state matters are already checking
+lo->lo_state with lo->lo_mutex held (in order to avoid racing with e.g.
+ioctl(LOOP_CTL_REMOVE)), and __loop_clr_fd() can be called from either
+ioctl(LOOP_CLR_FD) xor close(), lo->lo_state == Lo_rundown is considered
+as an exclusive lock for __loop_clr_fd(). Therefore, hold lo->lo_mutex
+inside __loop_clr_fd() only when asserting/updating lo->lo_state.
 
-Reported-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20211209010455.42744-6-ebiggers@kernel.org
-Reported-and-tested-by: syzbot+5426c7ed6868c705ca14@syzkaller.appspotmail.com
-Fixes: 221c5eb233823 ("io_uring: add support for IORING_OP_POLL")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/4ed56b6f548f7ea337603a82315750449412748a.1642161259.git.asml.silence@gmail.com
-[axboe: drop non-functional change from patch]
+Since ioctl(LOOP_CLR_FD) depends on lo->lo_state == Lo_bound, a valid
+lo->lo_backing_file must have been assigned by ioctl(LOOP_SET_FD) or
+ioctl(LOOP_CONFIGURE). Thus, we can remove lo->lo_backing_file test,
+and convert __loop_clr_fd() into a void function.
+
+Link: https://syzkaller.appspot.com/bug?extid=63614029dfb79abd4383 [1]
+Reported-by: syzbot <syzbot+63614029dfb79abd4383@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/8ebe3b2e-8975-7f26-0620-7144a3b8b8cd@i-love.sakura.ne.jp
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index fa3277844d2e..422d6de48688 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5462,12 +5462,14 @@ static void io_init_poll_iocb(struct io_poll_iocb *poll, __poll_t events,
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 0954ea8cf9e3..ba76319b5544 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1082,13 +1082,10 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
+ 	return error;
+ }
  
- static inline void io_poll_remove_entry(struct io_poll_iocb *poll)
+-static int __loop_clr_fd(struct loop_device *lo, bool release)
++static void __loop_clr_fd(struct loop_device *lo, bool release)
  {
--	struct wait_queue_head *head = poll->head;
-+	struct wait_queue_head *head = smp_load_acquire(&poll->head);
+-	struct file *filp = NULL;
++	struct file *filp;
+ 	gfp_t gfp = lo->old_gfp_mask;
+-	int err = 0;
+-	bool partscan = false;
+-	int lo_number;
+ 	struct loop_worker *pos, *worker;
  
--	spin_lock_irq(&head->lock);
--	list_del_init(&poll->wait.entry);
--	poll->head = NULL;
--	spin_unlock_irq(&head->lock);
-+	if (head) {
-+		spin_lock_irq(&head->lock);
-+		list_del_init(&poll->wait.entry);
-+		poll->head = NULL;
-+		spin_unlock_irq(&head->lock);
-+	}
- }
+ 	/*
+@@ -1103,17 +1100,14 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
+ 	 * became visible.
+ 	 */
  
- static void io_poll_remove_entries(struct io_kiocb *req)
-@@ -5475,10 +5477,26 @@ static void io_poll_remove_entries(struct io_kiocb *req)
- 	struct io_poll_iocb *poll = io_poll_get_single(req);
- 	struct io_poll_iocb *poll_double = io_poll_get_double(req);
- 
--	if (poll->head)
--		io_poll_remove_entry(poll);
--	if (poll_double && poll_double->head)
 +	/*
-+	 * While we hold the waitqueue lock and the waitqueue is nonempty,
-+	 * wake_up_pollfree() will wait for us.  However, taking the waitqueue
-+	 * lock in the first place can race with the waitqueue being freed.
-+	 *
-+	 * We solve this as eventpoll does: by taking advantage of the fact that
-+	 * all users of wake_up_pollfree() will RCU-delay the actual free.  If
-+	 * we enter rcu_read_lock() and see that the pointer to the queue is
-+	 * non-NULL, we can then lock it without the memory being freed out from
-+	 * under us.
-+	 *
-+	 * Keep holding rcu_read_lock() as long as we hold the queue lock, in
-+	 * case the caller deletes the entry from the queue, leaving it empty.
-+	 * In that case, only RCU prevents the queue memory from being freed.
++	 * Since this function is called upon "ioctl(LOOP_CLR_FD)" xor "close()
++	 * after ioctl(LOOP_CLR_FD)", it is a sign of something going wrong if
++	 * lo->lo_state has changed while waiting for lo->lo_mutex.
 +	 */
-+	rcu_read_lock();
-+	io_poll_remove_entry(poll);
-+	if (poll_double)
- 		io_poll_remove_entry(poll_double);
-+	rcu_read_unlock();
+ 	mutex_lock(&lo->lo_mutex);
+-	if (WARN_ON_ONCE(lo->lo_state != Lo_rundown)) {
+-		err = -ENXIO;
+-		goto out_unlock;
+-	}
+-
+-	filp = lo->lo_backing_file;
+-	if (filp == NULL) {
+-		err = -EINVAL;
+-		goto out_unlock;
+-	}
++	BUG_ON(lo->lo_state != Lo_rundown);
++	mutex_unlock(&lo->lo_mutex);
+ 
+ 	if (test_bit(QUEUE_FLAG_WC, &lo->lo_queue->queue_flags))
+ 		blk_queue_write_cache(lo->lo_queue, false, false);
+@@ -1134,6 +1128,7 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
+ 	del_timer_sync(&lo->timer);
+ 
+ 	spin_lock_irq(&lo->lo_lock);
++	filp = lo->lo_backing_file;
+ 	lo->lo_backing_file = NULL;
+ 	spin_unlock_irq(&lo->lo_lock);
+ 
+@@ -1153,12 +1148,11 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
+ 	module_put(THIS_MODULE);
+ 	blk_mq_unfreeze_queue(lo->lo_queue);
+ 
+-	partscan = lo->lo_flags & LO_FLAGS_PARTSCAN;
+-	lo_number = lo->lo_number;
+ 	disk_force_media_change(lo->lo_disk, DISK_EVENT_MEDIA_CHANGE);
+-out_unlock:
+-	mutex_unlock(&lo->lo_mutex);
+-	if (partscan) {
++
++	if (lo->lo_flags & LO_FLAGS_PARTSCAN) {
++		int err;
++
+ 		/*
+ 		 * open_mutex has been held already in release path, so don't
+ 		 * acquire it if this function is called in such case.
+@@ -1174,24 +1168,20 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
+ 			mutex_unlock(&lo->lo_disk->open_mutex);
+ 		if (err)
+ 			pr_warn("%s: partition scan of loop%d failed (rc=%d)\n",
+-				__func__, lo_number, err);
++				__func__, lo->lo_number, err);
+ 		/* Device is gone, no point in returning error */
+-		err = 0;
+ 	}
+ 
+ 	/*
+ 	 * lo->lo_state is set to Lo_unbound here after above partscan has
+-	 * finished.
+-	 *
+-	 * There cannot be anybody else entering __loop_clr_fd() as
+-	 * lo->lo_backing_file is already cleared and Lo_rundown state
+-	 * protects us from all the other places trying to change the 'lo'
+-	 * device.
++	 * finished. There cannot be anybody else entering __loop_clr_fd() as
++	 * Lo_rundown state protects us from all the other places trying to
++	 * change the 'lo' device.
+ 	 */
+-	mutex_lock(&lo->lo_mutex);
+ 	lo->lo_flags = 0;
+ 	if (!part_shift)
+ 		lo->lo_disk->flags |= GENHD_FL_NO_PART;
++	mutex_lock(&lo->lo_mutex);
+ 	lo->lo_state = Lo_unbound;
+ 	mutex_unlock(&lo->lo_mutex);
+ 
+@@ -1200,9 +1190,7 @@ static int __loop_clr_fd(struct loop_device *lo, bool release)
+ 	 * lo_mutex triggers a circular lock dependency possibility warning as
+ 	 * fput can take open_mutex which is usually taken before lo_mutex.
+ 	 */
+-	if (filp)
+-		fput(filp);
+-	return err;
++	fput(filp);
  }
  
- /*
-@@ -5618,6 +5636,30 @@ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- 						 wait);
- 	__poll_t mask = key_to_poll(key);
+ static int loop_clr_fd(struct loop_device *lo)
+@@ -1234,7 +1222,8 @@ static int loop_clr_fd(struct loop_device *lo)
+ 	lo->lo_state = Lo_rundown;
+ 	mutex_unlock(&lo->lo_mutex);
  
-+	if (unlikely(mask & POLLFREE)) {
-+		io_poll_mark_cancelled(req);
-+		/* we have to kick tw in case it's not already */
-+		io_poll_execute(req, 0);
-+
-+		/*
-+		 * If the waitqueue is being freed early but someone is already
-+		 * holds ownership over it, we have to tear down the request as
-+		 * best we can. That means immediately removing the request from
-+		 * its waitqueue and preventing all further accesses to the
-+		 * waitqueue via the request.
-+		 */
-+		list_del_init(&poll->wait.entry);
-+
-+		/*
-+		 * Careful: this *must* be the last step, since as soon
-+		 * as req->head is NULL'ed out, the request can be
-+		 * completed and freed, since aio_poll_complete_work()
-+		 * will no longer need to take the waitqueue lock.
-+		 */
-+		smp_store_release(&poll->head, NULL);
-+		return 1;
-+	}
-+
- 	/* for instances that support it check for an event match first */
- 	if (mask && !(mask & poll->events))
- 		return 0;
+-	return __loop_clr_fd(lo, false);
++	__loop_clr_fd(lo, false);
++	return 0;
+ }
+ 
+ static int
 
