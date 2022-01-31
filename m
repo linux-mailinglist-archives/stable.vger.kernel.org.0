@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 123DF4A4125
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:02:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70C104A40D5
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:00:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358740AbiAaLCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:02:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43136 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358755AbiAaLBT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:01:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86460C061392;
-        Mon, 31 Jan 2022 03:00:01 -0800 (PST)
+        id S1358521AbiAaLAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:00:36 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60416 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358344AbiAaLAC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:00:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52EC2B82A57;
-        Mon, 31 Jan 2022 11:00:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86F54C340E8;
-        Mon, 31 Jan 2022 10:59:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C16C960B2D;
+        Mon, 31 Jan 2022 11:00:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A00CAC340E8;
+        Mon, 31 Jan 2022 11:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626799;
-        bh=0EFvWCyzPTR972W2aSbT7/hxxvBhl8DPD0Oj9l1LhLE=;
+        s=korg; t=1643626802;
+        bh=JlOr/yvP2mLTO7wY47UB0HAcHZzuT6BggfEUvoJDg5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uKfRVeCJJD9AyjlCrGHqSzHUOysIOhn8Xsd+gMnfn6YFBCbcfdhcFY6WyVcCIoohp
-         QU3Amm8JRZzm+63k2MSBmtOD5zL32Wc4OIz5CD95HfpqlaO+Gcqxr3fCZrw1YenIEp
-         /mikEq9Ib1jzWsmZiCrUPxfHw9FmmrF2ViLiJa+U=
+        b=AkWIjIxAF7rV2Q7fR+qBtAt3drvM81Ici5MMoIUN4lbVzWNPHxdObDfjs55G42eVL
+         DYrNUhp24bg83Uwd4BU3SBfsDIaldf+JnRtrYe9f3WLce9hEUsHyvTK2vuF5nejDJE
+         gIDtSJvR4XESv/E4CC6oGbEr0ytI4dQUodwp5p2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 36/64] hwmon: (lm90) Mark alert as broken for MAX6680
-Date:   Mon, 31 Jan 2022 11:56:21 +0100
-Message-Id: <20220131105216.900187278@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Subject: [PATCH 5.4 45/64] drm/msm/dsi: invalid parameter check in msm_dsi_phy_enable
+Date:   Mon, 31 Jan 2022 11:56:30 +0100
+Message-Id: <20220131105217.201443004@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105215.644174521@linuxfoundation.org>
 References: <20220131105215.644174521@linuxfoundation.org>
@@ -47,32 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: José Expósito <jose.exposito89@gmail.com>
 
-commit 94746b0ba479743355e0d3cc1cb9cfe3011fb8be upstream.
+commit 5e761a2287234bc402ba7ef07129f5103bcd775c upstream.
 
-Experiments with MAX6680 and MAX6681 show that the alert function of those
-chips is broken, similar to other chips supported by the lm90 driver.
-Mark it accordingly.
+The function performs a check on the "phy" input parameter, however, it
+is used before the check.
 
-Fixes: 4667bcb8d8fc ("hwmon: (lm90) Introduce chip parameter structure")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Initialize the "dev" variable after the sanity check to avoid a possible
+NULL pointer dereference.
+
+Fixes: 5c8290284402b ("drm/msm/dsi: Split PHY drivers to separate files")
+Addresses-Coverity-ID: 1493860 ("Null pointer dereference")
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20220116181844.7400-1-jose.exposito89@gmail.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/lm90.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/dsi/phy/dsi_phy.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/hwmon/lm90.c
-+++ b/drivers/hwmon/lm90.c
-@@ -418,7 +418,7 @@ static const struct lm90_params lm90_par
- 	},
- 	[max6680] = {
- 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_CRIT
--		  | LM90_HAVE_CRIT_ALRM_SWP,
-+		  | LM90_HAVE_CRIT_ALRM_SWP | LM90_HAVE_BROKEN_ALERT,
- 		.alert_alarms = 0x7c,
- 		.max_convrate = 7,
- 	},
+--- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
++++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy.c
+@@ -665,12 +665,14 @@ void __exit msm_dsi_phy_driver_unregiste
+ int msm_dsi_phy_enable(struct msm_dsi_phy *phy, int src_pll_id,
+ 			struct msm_dsi_phy_clk_request *clk_req)
+ {
+-	struct device *dev = &phy->pdev->dev;
++	struct device *dev;
+ 	int ret;
+ 
+ 	if (!phy || !phy->cfg->ops.enable)
+ 		return -EINVAL;
+ 
++	dev = &phy->pdev->dev;
++
+ 	ret = dsi_phy_enable_resource(phy);
+ 	if (ret) {
+ 		DRM_DEV_ERROR(dev, "%s: resource enable failed, %d\n",
 
 
