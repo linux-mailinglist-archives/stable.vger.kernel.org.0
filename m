@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5527F4A413C
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:03:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDF844A4283
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348658AbiAaLDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:03:21 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49522 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358835AbiAaLBx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:01:53 -0500
+        id S1359830AbiAaLMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:12:13 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42912 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377357AbiAaLJ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:09:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A04C0B82A57;
-        Mon, 31 Jan 2022 11:01:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E09FAC340E8;
-        Mon, 31 Jan 2022 11:01:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6889060E76;
+        Mon, 31 Jan 2022 11:09:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FF0FC340E8;
+        Mon, 31 Jan 2022 11:09:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626911;
-        bh=/sgwyjPGk2ekIOjkWWWkrHy58bJWv7F+ny5Cg039Gyo=;
+        s=korg; t=1643627396;
+        bh=Xg9f6CFllZYrzcO1n0gxcgeybqgoqA71gctmrnJvsx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mo4sX6JV2TyPTm0hz14WHbsdFOj4JZhaX6NtgPUMVHSIv1pGuaA+TnyUFrzGuuXih
-         M+qmGyv77iFLzo5TdjHguCt1dX3ESEIb0imx8HdRfXN5Pq8sJ89btoxlG+pYEbzfk6
-         mMchDUOMV2U7UD020Lh1gPzkCAYx932Zc9DyNiBs=
+        b=nyf7ZE1gMIWJgxubvO6ZHNRJtUvx+3/tZNIsQTeLkr+fw9c0ZSOoZKdYWw91eAIZ7
+         jX5j3nxfHW6E4lHxYkt8UppWISA2p75Vg1yLaATdJueDf3dV0E+hEe3Hk2PCa09Rwx
+         OxLw5O9EiE0q97GjTzWN+aSyhFnkmy2U+7IEMCNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.10 015/100] ceph: properly put ceph_string reference after async create attempt
+        stable@vger.kernel.org, Ailin Xu <ailin.xu@intel.com>,
+        Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.15 071/171] x86/cpu: Add Xeon Icelake-D to list of CPUs that support PPIN
 Date:   Mon, 31 Jan 2022 11:55:36 +0100
-Message-Id: <20220131105220.973722937@linuxfoundation.org>
+Message-Id: <20220131105232.439940276@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Tony Luck <tony.luck@intel.com>
 
-commit 932a9b5870d38b87ba0a9923c804b1af7d3605b9 upstream.
+commit e464121f2d40eabc7d11823fb26db807ce945df4 upstream.
 
-The reference acquired by try_prep_async_create is currently leaked.
-Ensure we put it.
+Missed adding the Icelake-D CPU to the list. It uses the same MSRs
+to control and read the inventory number as all the other models.
 
-Cc: stable@vger.kernel.org
-Fixes: 9a8d03ca2e2c ("ceph: attempt to do async create when possible")
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Fixes: dc6b025de95b ("x86/mce: Add Xeon Icelake to list of CPUs that support PPIN")
+Reported-by: Ailin Xu <ailin.xu@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220121174743.1875294-2-tony.luck@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/file.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kernel/cpu/mce/intel.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -743,8 +743,10 @@ retry:
- 				restore_deleg_ino(dir, req->r_deleg_ino);
- 				ceph_mdsc_put_request(req);
- 				try_async = false;
-+				ceph_put_string(rcu_dereference_raw(lo.pool_ns));
- 				goto retry;
- 			}
-+			ceph_put_string(rcu_dereference_raw(lo.pool_ns));
- 			goto out_req;
- 		}
- 	}
+--- a/arch/x86/kernel/cpu/mce/intel.c
++++ b/arch/x86/kernel/cpu/mce/intel.c
+@@ -486,6 +486,7 @@ static void intel_ppin_init(struct cpuin
+ 	case INTEL_FAM6_BROADWELL_X:
+ 	case INTEL_FAM6_SKYLAKE_X:
+ 	case INTEL_FAM6_ICELAKE_X:
++	case INTEL_FAM6_ICELAKE_D:
+ 	case INTEL_FAM6_SAPPHIRERAPIDS_X:
+ 	case INTEL_FAM6_XEON_PHI_KNL:
+ 	case INTEL_FAM6_XEON_PHI_KNM:
 
 
