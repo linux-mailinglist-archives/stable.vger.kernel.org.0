@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2523F4A43CE
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:24:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97AD04A43E7
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:25:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349498AbiAaLYH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:24:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47084 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378713AbiAaLUh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:20:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53A84C061749;
-        Mon, 31 Jan 2022 03:13:41 -0800 (PST)
+        id S1350279AbiAaLYu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:24:50 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:55766 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377349AbiAaLWq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:22:46 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E783661163;
-        Mon, 31 Jan 2022 11:13:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC9EAC340E8;
-        Mon, 31 Jan 2022 11:13:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 548C460B98;
+        Mon, 31 Jan 2022 11:22:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 186D7C340E8;
+        Mon, 31 Jan 2022 11:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627620;
-        bh=rPxomZGLw2T0AeFweigh+gNKt3+WX6XmgfGi+QBKnqY=;
+        s=korg; t=1643628164;
+        bh=snsD1HBDq0IUrhswABMiH7ZQhyb/2bTDJidnpoFqPzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CvFYE6hwEQbFuzfsPiTgh33vxgoB0Fn2kza/5J1Kbl+s/2UzOwo9xPw0Jqrz2Bm6M
-         VlFSH9lzAH7pJf5aL8EXf/PKigFNSf+ysAUJXec8sdvApdUiDh/fwM0r6KBzuyiEO2
-         2lW+ttYY+fNePX2xP2D0Rs9AkzHp7B/c7gNvTqtw=
+        b=AQjHL1rc2c9gifPicgBFdly6H8ygfUfQS1kGfJcsP44oIQvDiKtyrw6ikWOpkdTN+
+         iHdG9y791BLBxw+VNTj5HW3EIJHZSasT8LQnYm32HlgGLjQZ5fJ6wZIrqzU4pqcz0c
+         kB+FPaNkWZmLirCohxhg8EkAPzyBoUOEuN1gCuBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        stable@vger.kernel.org, Geetha sowjanya <gakula@marvell.com>,
+        Subbaraya Sundeep <sbhatta@marvell.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 144/171] drm/msm/hdmi: Fix missing put_device() call in msm_hdmi_get_phy
+Subject: [PATCH 5.16 146/200] octeontx2-pf: cn10k: Ensure valid pointers are freed to aura
 Date:   Mon, 31 Jan 2022 11:56:49 +0100
-Message-Id: <20220131105234.881065829@linuxfoundation.org>
+Message-Id: <20220131105238.475690592@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
-References: <20220131105229.959216821@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,45 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Geetha sowjanya <gakula@marvell.com>
 
-[ Upstream commit 774fe0cd838d1b1419d41ab4ea0613c80d4ecbd7 ]
+[ Upstream commit c5d731c54a17677939bd59ee8be4ed74d7485ba4 ]
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the error handling path.
+While freeing SQB pointers to aura, driver first memcpy to
+target address and then triggers lmtst operation to free pointer
+to the aura. We need to ensure(by adding dmb barrier)that memcpy
+is finished before pointers are freed to the aura. This patch also
+adds the missing sq context structure entry in debugfs.
 
-Fixes: e00012b256d4 ("drm/msm/hdmi: Make HDMI core get its PHY")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20220107085026.23831-1-linmq006@gmail.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: ef6c8da71eaf ("octeontx2-pf: cn10K: Reserve LMTST lines per core")
+Signed-off-by: Geetha sowjanya <gakula@marvell.com>
+Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
+Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/hdmi/hdmi.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c  | 2 ++
+ drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/hdmi/hdmi.c b/drivers/gpu/drm/msm/hdmi/hdmi.c
-index 737453b6e5966..94f948ef279d1 100644
---- a/drivers/gpu/drm/msm/hdmi/hdmi.c
-+++ b/drivers/gpu/drm/msm/hdmi/hdmi.c
-@@ -97,10 +97,15 @@ static int msm_hdmi_get_phy(struct hdmi *hdmi)
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
+index a09a507369ac3..d1eddb769a419 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
+@@ -1224,6 +1224,8 @@ static void print_nix_cn10k_sq_ctx(struct seq_file *m,
+ 	seq_printf(m, "W3: head_offset\t\t\t%d\nW3: smenq_next_sqb_vld\t\t%d\n\n",
+ 		   sq_ctx->head_offset, sq_ctx->smenq_next_sqb_vld);
  
- 	of_node_put(phy_node);
- 
--	if (!phy_pdev || !hdmi->phy) {
-+	if (!phy_pdev) {
- 		DRM_DEV_ERROR(&pdev->dev, "phy driver is not ready\n");
- 		return -EPROBE_DEFER;
++	seq_printf(m, "W3: smq_next_sq_vld\t\t%d\nW3: smq_pend\t\t\t%d\n",
++		   sq_ctx->smq_next_sq_vld, sq_ctx->smq_pend);
+ 	seq_printf(m, "W4: next_sqb \t\t\t%llx\n\n", sq_ctx->next_sqb);
+ 	seq_printf(m, "W5: tail_sqb \t\t\t%llx\n\n", sq_ctx->tail_sqb);
+ 	seq_printf(m, "W6: smenq_sqb \t\t\t%llx\n\n", sq_ctx->smenq_sqb);
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
+index 61e52812983fa..14509fc64cce9 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
+@@ -603,6 +603,7 @@ static inline void __cn10k_aura_freeptr(struct otx2_nic *pfvf, u64 aura,
+ 			size++;
+ 		tar_addr |=  ((size - 1) & 0x7) << 4;
  	}
-+	if (!hdmi->phy) {
-+		DRM_DEV_ERROR(&pdev->dev, "phy driver is not ready\n");
-+		put_device(&phy_pdev->dev);
-+		return -EPROBE_DEFER;
-+	}
- 
- 	hdmi->phy_dev = get_device(&phy_pdev->dev);
- 
++	dma_wmb();
+ 	memcpy((u64 *)lmt_info->lmt_addr, ptrs, sizeof(u64) * num_ptrs);
+ 	/* Perform LMTST flush */
+ 	cn10k_lmt_flush(val, tar_addr);
 -- 
 2.34.1
 
