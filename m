@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA6BC4A44E3
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA05D4A4280
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:12:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377028AbiAaLcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:32:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48346 "EHLO
+        id S1359782AbiAaLMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:12:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350901AbiAaL0k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:26:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67C1EC08ED70;
-        Mon, 31 Jan 2022 03:16:09 -0800 (PST)
+        with ESMTP id S1377310AbiAaLJz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:09:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD073C0604D7;
+        Mon, 31 Jan 2022 03:07:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33892B82A60;
-        Mon, 31 Jan 2022 11:16:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FA31C340EE;
-        Mon, 31 Jan 2022 11:16:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B57060FE1;
+        Mon, 31 Jan 2022 11:07:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35F0DC340E8;
+        Mon, 31 Jan 2022 11:07:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627767;
-        bh=mSPsDwVGe2ggIIrr8GuSkvCuU4GuWcD6DNl1KssB0Kg=;
+        s=korg; t=1643627235;
+        bh=Qaq1eYmEKuHp4EfSym8gVoXa+XNpJfoIhWl2rY8NBjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZ/xzjo0cDasD2QqKJuw0ihXSyX09ASfQRAk7ZDXmc/tWa4bUosUFDJz01bWfjbo1
-         /fccq54LC9KPJx1bKVydo2VPqJ+T4AXpezWF8HBANvNyKi3AHGyvnYkydNTxFj6BQK
-         A2qbhMCeFjaA4X3XuQ0SXsxQLkDC9ZDJZ7jzf1SM=
+        b=KJMyLzFgYUVWIHJ7hlXBfj6b2nr/4IktKqV+iy6MeN481B17wJCP6k4qoEFIv++gC
+         OdiBMM/bdnd1+UbrHYyO8PUs6ICYN6Tk5bnD+NBDv4FdCKIWHEx6txWXY/qelfi9iB
+         2q52EVO8qVpz3ssynHQ7hsDKEGBZhbcWI0St2G2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carsten Otte <cotte@de.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.16 019/200] s390/nmi: handle guarded storage validity failures for KVM guests
-Date:   Mon, 31 Jan 2022 11:54:42 +0100
-Message-Id: <20220131105234.207279728@linuxfoundation.org>
+        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.15 018/171] udf: Fix NULL ptr deref when converting from inline format
+Date:   Mon, 31 Jan 2022 11:54:43 +0100
+Message-Id: <20220131105230.629229924@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,57 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 1ea1d6a847d2b1d17fefd9196664b95f052a0775 upstream.
+commit 7fc3b7c2981bbd1047916ade327beccb90994eee upstream.
 
-machine check validity bits reflect the state of the machine check. If a
-guest does not make use of guarded storage, the validity bit might be
-off. We can not use the host CR bit to decide if the validity bit must
-be on. So ignore "invalid" guarded storage controls for KVM guests in
-the host and rely on the machine check being forwarded to the guest.  If
-no other errors happen from a host perspective everything is fine and no
-process must be killed and the host can continue to run.
+udf_expand_file_adinicb() calls directly ->writepage to write data
+expanded into a page. This however misses to setup inode for writeback
+properly and so we can crash on inode->i_wb dereference when submitting
+page for IO like:
 
-Cc: stable@vger.kernel.org
-Fixes: c929500d7a5a ("s390/nmi: s390: New low level handling for machine check happening in guest")
-Reported-by: Carsten Otte <cotte@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Tested-by: Carsten Otte <cotte@de.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+  BUG: kernel NULL pointer dereference, address: 0000000000000158
+  #PF: supervisor read access in kernel mode
+...
+  <TASK>
+  __folio_start_writeback+0x2ac/0x350
+  __block_write_full_page+0x37d/0x490
+  udf_expand_file_adinicb+0x255/0x400 [udf]
+  udf_file_write_iter+0xbe/0x1b0 [udf]
+  new_sync_write+0x125/0x1c0
+  vfs_write+0x28e/0x400
+
+Fix the problem by marking the page dirty and going through the standard
+writeback path to write the page. Strictly speaking we would not even
+have to write the page but we want to catch e.g. ENOSPC errors early.
+
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+CC: stable@vger.kernel.org
+Fixes: 52ebea749aae ("writeback: make backing_dev_info host cgroup-specific bdi_writebacks")
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/nmi.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ fs/udf/inode.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/arch/s390/kernel/nmi.c
-+++ b/arch/s390/kernel/nmi.c
-@@ -316,11 +316,21 @@ static int notrace s390_validate_registe
- 	if (cr2.gse) {
- 		if (!mci.gs) {
- 			/*
--			 * Guarded storage register can't be restored and
--			 * the current processes uses guarded storage.
--			 * It has to be terminated.
-+			 * 2 cases:
-+			 * - machine check in kernel or userspace
-+			 * - machine check while running SIE (KVM guest)
-+			 * For kernel or userspace the userspace values of
-+			 * guarded storage control can not be recreated, the
-+			 * process must be terminated.
-+			 * For SIE the guest values of guarded storage can not
-+			 * be recreated. This is either due to a bug or due to
-+			 * GS being disabled in the guest. The guest will be
-+			 * notified by KVM code and the guests machine check
-+			 * handling must take care of this.  The host values
-+			 * are saved by KVM and are not affected.
- 			 */
--			kill_task = 1;
-+			if (!test_cpu_flag(CIF_MCCK_GUEST))
-+				kill_task = 1;
- 		} else {
- 			load_gs_cb((struct gs_cb *)mcesa->guarded_storage_save_area);
- 		}
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -258,10 +258,6 @@ int udf_expand_file_adinicb(struct inode
+ 	char *kaddr;
+ 	struct udf_inode_info *iinfo = UDF_I(inode);
+ 	int err;
+-	struct writeback_control udf_wbc = {
+-		.sync_mode = WB_SYNC_NONE,
+-		.nr_to_write = 1,
+-	};
+ 
+ 	WARN_ON_ONCE(!inode_is_locked(inode));
+ 	if (!iinfo->i_lenAlloc) {
+@@ -305,8 +301,10 @@ int udf_expand_file_adinicb(struct inode
+ 		iinfo->i_alloc_type = ICBTAG_FLAG_AD_LONG;
+ 	/* from now on we have normal address_space methods */
+ 	inode->i_data.a_ops = &udf_aops;
++	set_page_dirty(page);
++	unlock_page(page);
+ 	up_write(&iinfo->i_data_sem);
+-	err = inode->i_data.a_ops->writepage(page, &udf_wbc);
++	err = filemap_fdatawrite(inode->i_mapping);
+ 	if (err) {
+ 		/* Restore everything back so that we don't lose data... */
+ 		lock_page(page);
 
 
