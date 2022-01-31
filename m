@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18FCA4A4589
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:42:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C190C4A442C
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:27:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236970AbiAaLm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:42:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52598 "EHLO
+        id S1359084AbiAaL1F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:27:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240459AbiAaLkW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:40:22 -0500
+        with ESMTP id S1359148AbiAaLZD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:25:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4189DC034613;
-        Mon, 31 Jan 2022 03:25:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9318AC08EAC8;
+        Mon, 31 Jan 2022 03:15:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04C15B82A74;
-        Mon, 31 Jan 2022 11:25:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26C99C340E8;
-        Mon, 31 Jan 2022 11:25:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52D82B82A5F;
+        Mon, 31 Jan 2022 11:15:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97BA3C340E8;
+        Mon, 31 Jan 2022 11:15:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628347;
-        bh=GCvIH/oJjBW/EhQKy4afOvfc/4c+zPQYSjPhbyL4AIs=;
+        s=korg; t=1643627731;
+        bh=JYdwXVjLD3x1rCvNs/UGJbi7gDiPUI4GZnEf8WfRi5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D6tyqyspCP1MeC9vBPFsSyY/C0k9nLoseY+zuRiruAHvqzR0F+eFVuDWEgoTUqQng
-         D4Gs8x7Qi1PByLpLpFNrB34LzhCzvIydP0sKBwoybLTyRS3cQKZBiaCxP1pHmOIvct
-         LI5Np1pXgvl5YOBfbSDcDX2QEx7zInGDCsCOl2+Y=
+        b=R2OM3qz+B2eYVAN3e0LVBzckNl9CdNacLXLjPg7diva6Y+IcmvathDoYlZXSgUZwF
+         jcNbN6MPDjfQxJBK++7R5v1JkdVSXyFFG1E6qgr23NrkvN4r0SLuHkzHat1i3bqHk9
+         p0EVwKjg3zx9z5QBaNM4qjWcLGhJzj+z0XDlOhYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 170/200] drm/msm/dpu: invalid parameter check in dpu_setup_dspp_pcc
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Robert Hancock <robert.hancock@calian.com>
+Subject: [PATCH 5.15 168/171] usb: dwc3: xilinx: fix uninitialized return value
 Date:   Mon, 31 Jan 2022 11:57:13 +0100
-Message-Id: <20220131105239.275458113@linuxfoundation.org>
+Message-Id: <20220131105235.700071067@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-References: <20220131105233.561926043@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,51 +47,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit 170b22234d5495f5e0844246e23f004639ee89ba ]
+commit b470947c3672f7eb7c4c271d510383d896831cc2 upstream.
 
-The function performs a check on the "ctx" input parameter, however, it
-is used before the check.
+A previous patch to skip part of the initialization when a USB3 PHY was
+not present could result in the return value being uninitialized in that
+case, causing spurious probe failures. Initialize ret to 0 to avoid this.
 
-Initialize the "base" variable after the sanity check to avoid a
-possible NULL pointer dereference.
-
-Fixes: 4259ff7ae509e ("drm/msm/dpu: add support for pcc color block in dpu driver")
-Addresses-Coverity-ID: 1493866 ("Null pointer dereference")
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Link: https://lore.kernel.org/r/20220109192431.135949-1-jose.exposito89@gmail.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9678f3361afc ("usb: dwc3: xilinx: Skip resets and USB3 register settings for USB2.0 mode")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Link: https://lore.kernel.org/r/20220127221500.177021-1-robert.hancock@calian.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/dwc3-xilinx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c
-index a98e964c3b6fa..355894a3b48c3 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_dspp.c
-@@ -26,9 +26,16 @@ static void dpu_setup_dspp_pcc(struct dpu_hw_dspp *ctx,
- 		struct dpu_hw_pcc_cfg *cfg)
- {
+--- a/drivers/usb/dwc3/dwc3-xilinx.c
++++ b/drivers/usb/dwc3/dwc3-xilinx.c
+@@ -99,7 +99,7 @@ static int dwc3_xlnx_init_zynqmp(struct
+ 	struct device		*dev = priv_data->dev;
+ 	struct reset_control	*crst, *hibrst, *apbrst;
+ 	struct phy		*usb3_phy;
+-	int			ret;
++	int			ret = 0;
+ 	u32			reg;
  
--	u32 base = ctx->cap->sblk->pcc.base;
-+	u32 base;
- 
--	if (!ctx || !base) {
-+	if (!ctx) {
-+		DRM_ERROR("invalid ctx %pK\n", ctx);
-+		return;
-+	}
-+
-+	base = ctx->cap->sblk->pcc.base;
-+
-+	if (!base) {
- 		DRM_ERROR("invalid ctx %pK pcc base 0x%x\n", ctx, base);
- 		return;
- 	}
--- 
-2.34.1
-
+ 	usb3_phy = devm_phy_optional_get(dev, "usb3-phy");
 
 
