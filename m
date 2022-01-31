@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B47364A41DA
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:07:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 209FB4A431A
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:17:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358881AbiAaLGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:06:53 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52684 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348750AbiAaLEw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:04:52 -0500
+        id S1359806AbiAaLRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:17:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45686 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359820AbiAaLPH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:15:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30B8BC061774;
+        Mon, 31 Jan 2022 03:11:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7740DB82A59;
-        Mon, 31 Jan 2022 11:04:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31BE8C340E8;
-        Mon, 31 Jan 2022 11:04:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C55D6610B1;
+        Mon, 31 Jan 2022 11:11:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EBACC340E8;
+        Mon, 31 Jan 2022 11:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643627090;
-        bh=Zy/7wJoEBkcy3hAg4JIzp40lgboP5C93DThdpp8EI0w=;
+        s=korg; t=1643627477;
+        bh=8pC7zi+x+Nwfp2vVMr81Kz8GvyFvgdehqb2HvP18y6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kkdL/Y8C5n7J3f3adbd701pSXWzzW0OqG87RxEyciiw3ftpriWcHn1sJ7vzve+p3y
-         V3JTx5KdOUjyH1CMJtBcNC3VZ+WWmNEV2DxiSO/00HsBUwh+1M72TcGcmNQbu3DkKp
-         NoAiQST1UGOYDjYNf/mZEl4txK2KgdhgViAHsiNg=
+        b=zTb0qxmJUxx0L3CcBlcgWHz6tLTBSOfAQNCIG2+PoOrMoxrUPOT7rI9fPY8C98qUN
+         D7N3cgyThCuGAHmiAIdr+8e7wHqrkFJC3pi643cceANcPTagoXF+1pphcAOZqHTuCm
+         X5EqemSCyS7rDwrewsZZHQuRTFam1G0uVGfOlFJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yazen Ghannam <yazen.ghannam@amd.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.10 038/100] x86/MCE/AMD: Allow thresholding interface updates after init
-Date:   Mon, 31 Jan 2022 11:55:59 +0100
-Message-Id: <20220131105221.726260203@linuxfoundation.org>
+        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 095/171] net-procfs: show net devices bound packet types
+Date:   Mon, 31 Jan 2022 11:56:00 +0100
+Message-Id: <20220131105233.252404337@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105229.959216821@linuxfoundation.org>
+References: <20220131105229.959216821@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +47,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yazen Ghannam <yazen.ghannam@amd.com>
+From: Jianguo Wu <wujianguo@chinatelecom.cn>
 
-commit 1f52b0aba6fd37653416375cb8a1ca673acf8d5f upstream.
+commit 1d10f8a1f40b965d449e8f2d5ed7b96a7c138b77 upstream.
 
-Changes to the AMD Thresholding sysfs code prevents sysfs writes from
-updating the underlying registers once CPU init is completed, i.e.
-"threshold_banks" is set.
+After commit:7866a621043f ("dev: add per net_device packet type chains"),
+we can not get packet types that are bound to a specified net device by
+/proc/net/ptype, this patch fix the regression.
 
-Allow the registers to be updated if the thresholding interface is
-already initialized or if in the init path. Use the "set_lvt_off" value
-to indicate if running in the init path, since this value is only set
-during init.
+Run "tcpdump -i ens192 udp -nns0" Before and after apply this patch:
 
-Fixes: a037f3ca0ea0 ("x86/mce/amd: Make threshold bank setting hotplug robust")
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220117161328.19148-1-yazen.ghannam@amd.com
+Before:
+  [root@localhost ~]# cat /proc/net/ptype
+  Type Device      Function
+  0800          ip_rcv
+  0806          arp_rcv
+  86dd          ipv6_rcv
+
+After:
+  [root@localhost ~]# cat /proc/net/ptype
+  Type Device      Function
+  ALL  ens192   tpacket_rcv
+  0800          ip_rcv
+  0806          arp_rcv
+  86dd          ipv6_rcv
+
+v1 -> v2:
+  - fix the regression rather than adding new /proc API as
+    suggested by Stephen Hemminger.
+
+Fixes: 7866a621043f ("dev: add per net_device packet type chains")
+Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/mce/amd.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/net-procfs.c |   35 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 32 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/cpu/mce/amd.c
-+++ b/arch/x86/kernel/cpu/mce/amd.c
-@@ -387,7 +387,7 @@ static void threshold_restart_bank(void
- 	u32 hi, lo;
+--- a/net/core/net-procfs.c
++++ b/net/core/net-procfs.c
+@@ -190,12 +190,23 @@ static const struct seq_operations softn
+ 	.show  = softnet_seq_show,
+ };
  
- 	/* sysfs write might race against an offline operation */
--	if (this_cpu_read(threshold_banks))
-+	if (!this_cpu_read(threshold_banks) && !tr->set_lvt_off)
- 		return;
+-static void *ptype_get_idx(loff_t pos)
++static void *ptype_get_idx(struct seq_file *seq, loff_t pos)
+ {
++	struct list_head *ptype_list = NULL;
+ 	struct packet_type *pt = NULL;
++	struct net_device *dev;
+ 	loff_t i = 0;
+ 	int t;
  
- 	rdmsr(tr->b->address, lo, hi);
++	for_each_netdev_rcu(seq_file_net(seq), dev) {
++		ptype_list = &dev->ptype_all;
++		list_for_each_entry_rcu(pt, ptype_list, list) {
++			if (i == pos)
++				return pt;
++			++i;
++		}
++	}
++
+ 	list_for_each_entry_rcu(pt, &ptype_all, list) {
+ 		if (i == pos)
+ 			return pt;
+@@ -216,22 +227,40 @@ static void *ptype_seq_start(struct seq_
+ 	__acquires(RCU)
+ {
+ 	rcu_read_lock();
+-	return *pos ? ptype_get_idx(*pos - 1) : SEQ_START_TOKEN;
++	return *pos ? ptype_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ }
+ 
+ static void *ptype_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
++	struct net_device *dev;
+ 	struct packet_type *pt;
+ 	struct list_head *nxt;
+ 	int hash;
+ 
+ 	++*pos;
+ 	if (v == SEQ_START_TOKEN)
+-		return ptype_get_idx(0);
++		return ptype_get_idx(seq, 0);
+ 
+ 	pt = v;
+ 	nxt = pt->list.next;
++	if (pt->dev) {
++		if (nxt != &pt->dev->ptype_all)
++			goto found;
++
++		dev = pt->dev;
++		for_each_netdev_continue_rcu(seq_file_net(seq), dev) {
++			if (!list_empty(&dev->ptype_all)) {
++				nxt = dev->ptype_all.next;
++				goto found;
++			}
++		}
++
++		nxt = ptype_all.next;
++		goto ptype_all;
++	}
++
+ 	if (pt->type == htons(ETH_P_ALL)) {
++ptype_all:
+ 		if (nxt != &ptype_all)
+ 			goto found;
+ 		hash = 0;
 
 
