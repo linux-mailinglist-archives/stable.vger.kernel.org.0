@@ -2,253 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 122E14A4F4C
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 20:19:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0E0C4A4F4F
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 20:20:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244352AbiAaTTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 14:19:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47768 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244349AbiAaTTQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 14:19:16 -0500
-Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34E39C06173B
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 11:19:16 -0800 (PST)
-Received: by mail-yb1-xb32.google.com with SMTP id g14so43602708ybs.8
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 11:19:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=qwzRzEwuqw6nEEp+LR5bpH0X1lKdQy168fe8lxN1IKM=;
-        b=zJubMy7thZhS/EBI1H83EKRih8gg4scNwu2xIsSa1blElYQCDoBQ1Txv7GlSx/hm4/
-         TsuQsRPX6pZKfaPkaL1aGkrBaKrliP4sb7FzPMRTRhtjMIhA4G1Aw5Tl1XAn5r6JoRDm
-         kkHFmmvTRitOnkoqQ6wmvY9Dv3RPoiYHNegXprdNQd1PBr88hoHuy8vDwwVc96lgKjRc
-         xpSzEp2i7jmqxnEtorFSK/MEoFaVBJZc3/FY+xwKAhvQpttEjPwoRxk+hw0RkR1r7+ps
-         NshXAWKPuDna/T4iHP4wP9KZ6xQqu/VSbqmp3bEvt2z6abpHnQl1lyusSMRj2lsOeGLE
-         /IxA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=qwzRzEwuqw6nEEp+LR5bpH0X1lKdQy168fe8lxN1IKM=;
-        b=DRKzAZ1h5m0x3nTXLR3FsSsOkl6+HOgE5FtGaV+OErGNJa8oDEUaG71iFZK8Ri44+q
-         1ZGUsjM+iJSnP5wwhgCNXC1TfUBbU189Qv01DVf+tTQCyk0sUow7TIB0YbQY395R9GEp
-         UjWfseUMJnEsxkaH5ihPdK/eEt61tclITaAospavrSwdKkCcwQXYD08VU/OBeM+3YLE1
-         Ht5+CyG5IPM5n9mkUEvIfdtk1c8dG5OKoa+cspgHOFcEHNOhitNclA6Kfjhh4BbLshyk
-         Bz3dMVHjPxg77JO7iVTuf0WuCq1yPIzhKK2HatSt2QqBwORjC1KPH7fRetKIX9C57hQl
-         9n4Q==
-X-Gm-Message-State: AOAM532B6oFZOqvy+xWoT2elM7HYwuX35APXTgUWsjv1M7b9TTAQq0ES
-        Boeo2/02WN5wIN9cv1eyCDc7wToIjhj2IoFQM9n2vw==
-X-Google-Smtp-Source: ABdhPJyYnNwdAU1m/B6iTqafIETaENwmrGumtargwR6xtWgbQcDpkU4yxkaq1OqtXMiP3jVJiuheTfBUgoSe4i8Szz8=
-X-Received: by 2002:a25:b13:: with SMTP id 19mr28937432ybl.684.1643656755203;
- Mon, 31 Jan 2022 11:19:15 -0800 (PST)
-MIME-Version: 1.0
-References: <20220131105233.561926043@linuxfoundation.org>
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 1 Feb 2022 00:49:03 +0530
-Message-ID: <CA+G9fYusQ2Y5_QZ_f+V3D_aGNbcNgf7PdU13BoX9oMoQvv2q-g@mail.gmail.com>
-Subject: Re: [PATCH 5.16 000/200] 5.16.5-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S244384AbiAaTU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 14:20:26 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31468 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235454AbiAaTU0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 14:20:26 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20VHcgTC016494;
+        Mon, 31 Jan 2022 19:20:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=aDTwYpmcoZyK+955pUPN/Okv23O0tyd1fhGzfHXBoHw=;
+ b=ULr8gzad6YLNEVXV69QxgoHQNB1lapemssaqADHK52oVygqkLEFfIwamFYZF4WSxlcjw
+ pFg2pf6DY6DYnepECEazRKm50afEzdlYmtbUJrsONHM6yxuoI2HIJQgQ1wWrunNsoKYz
+ qRZJaV22AqsE+6C0O34D0UGA28FaBg5/Uav17QGRtgN/A678+ViBCuDUITFDPAfYp6GG
+ it/buhoJPymOA81ozwJM8yNkfpwOj8k5YxpDnyz4+1dWRmtePc2TMM/pRgDNN0jgdvUC
+ HCBJUbDZmgcte3JQnrdpP7/l856leKiQCYRjh4GKNpvVWrUR2x0D0zduLBME+LueAVnv EQ== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dx98uh5qp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 31 Jan 2022 19:20:20 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20VJ8PH3010151;
+        Mon, 31 Jan 2022 19:20:18 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04ams.nl.ibm.com with ESMTP id 3dvw79eg5x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 31 Jan 2022 19:20:18 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20VJATKU49217880
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 31 Jan 2022 19:10:29 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2429D11C05B;
+        Mon, 31 Jan 2022 19:20:16 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4C91A11C058;
+        Mon, 31 Jan 2022 19:20:15 +0000 (GMT)
+Received: from sig-9-65-69-222.ibm.com (unknown [9.65.69.222])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 31 Jan 2022 19:20:15 +0000 (GMT)
+Message-ID: <09c63b7bfb7e58702f7dcfc71a2e79b866ad9e7d.camel@linux.ibm.com>
+Subject: Re: [PATCH] ima: Allow template selection with ima_template[_fmt]=
+ after ima_hash=
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>
+Cc:     linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, guozihua@huawei.com,
+        stable@vger.kernel.org
+Date:   Mon, 31 Jan 2022 14:20:14 -0500
+In-Reply-To: <20220131171139.3024883-1-roberto.sassu@huawei.com>
+References: <20220131171139.3024883-1-roberto.sassu@huawei.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: CHQAydc0mmQnMNRBhdQQRiFTKY874JrU
+X-Proofpoint-GUID: CHQAydc0mmQnMNRBhdQQRiFTKY874JrU
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-31_07,2022-01-31_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ phishscore=0 impostorscore=0 malwarescore=0 mlxlogscore=999 bulkscore=0
+ adultscore=0 priorityscore=1501 mlxscore=0 lowpriorityscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2201310124
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 31 Jan 2022 at 16:46, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.16.5 release.
-> There are 200 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 02 Feb 2022 10:51:59 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.16.5-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.16.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Mon, 2022-01-31 at 18:11 +0100, Roberto Sassu wrote:
+> Commit c2426d2ad5027 ("ima: added support for new kernel cmdline parameter
+> ima_template_fmt") introduced an additional check on the ima_template
+> variable to avoid multiple template selection.
+> 
+> Unfortunately, ima_template could be also set by the setup function of the
+> ima_hash= parameter, when it calls ima_template_desc_current(). This causes
+> attempts to choose a new template with ima_template= or with
+> ima_template_fmt=, after ima_hash=, to be ignored.
+> 
+> Achieve the goal of the commit mentioned with the new static variable
+> template_setup_done, so that template selection requests after ima_hash=
+> are not ignored.
+> 
+> Finally, call ima_init_template_list(), if not already done, to initialize
+> the list of templates before lookup_template_desc() is called.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: c2426d2ad5027 ("ima: added support for new kernel cmdline parameter ima_template_fmt")
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Thanks, Roberto.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 
-## Build
-* kernel: 5.16.5-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.16.y
-* git commit: 04f8430582e6a2a7bb728d05119e2d66bd3c819a
-* git describe: v5.16.4-201-g04f8430582e6
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.16.y/build/v5.16=
-.4-201-g04f8430582e6
+Mimi
 
-## Test Regressions (compared to v5.16.4-187-g950d978a980e)
-No test regressions found.
-
-## Metric Regressions (compared to v5.16.4-187-g950d978a980e)
-No metric regressions found.
-
-## Test Fixes (compared to v5.16.4-187-g950d978a980e)
-No test fixes found.
-
-## Metric Fixes (compared to v5.16.4-187-g950d978a980e)
-No metric fixes found.
-
-## Test result summary
-total: 84643, pass: 72410, fail: 848, skip: 10560, xfail: 825
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 259 total, 259 passed, 0 failed
-* arm64: 37 total, 37 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 36 total, 36 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 34 total, 34 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 52 total, 48 passed, 4 failed
-* riscv: 24 total, 20 passed, 4 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 37 total, 37 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* prep-inline
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
