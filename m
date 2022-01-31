@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 906AE4A449F
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:33:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 138964A45AF
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:48:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350847AbiAaLbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:31:48 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:58088 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376519AbiAaLZd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:25:33 -0500
+        id S1344131AbiAaLqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:46:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52582 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347966AbiAaLkU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:40:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D0ABC02B74F;
+        Mon, 31 Jan 2022 03:25:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FB0861310;
-        Mon, 31 Jan 2022 11:25:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EEB5C340E8;
-        Mon, 31 Jan 2022 11:25:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2052612DE;
+        Mon, 31 Jan 2022 11:25:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73843C340E8;
+        Mon, 31 Jan 2022 11:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643628331;
-        bh=i9mSXskbJPYxio2loBDl5juLFgVWZimkJbikOWCTuj0=;
+        s=korg; t=1643628335;
+        bh=2xzL8Ftr/S5iP2Y9dkrb08xfKDdPckbKShVNwmsT17k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DCDODNMRasbmKihTZ2MdtPc9Yd6LIwyJSGRLov5h9KKG7jD1PVqa4O1LwqbXAoi4i
-         0yUdS3IdTXPjUvXdoPKDZzsZ9nK6b2Rc2h/GdILwt4RHv4S5tTKhJqTedz9CkE04PZ
-         hDTm+/r8tQLz0dwtJn7OdK2ZmXXcJ8Q6W77celiY=
+        b=fSyzHouFV+UG0fbYiCSmUH+Y28mSd/g4k68U1De/6U4yCButZVNNM1Z9QG2TizWbM
+         cmXcWuh/NYmjAlNdJZP2MpThZv4UoPJMWXtP9JYjyv45GNEBLRyuMosQG/gm/r2+aQ
+         y/BPzNzgu78XNTDl5vmveue+3Z6Jm5F9kAFBjBYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.16 197/200] KVM: nVMX: Rename vmcs_to_field_offset{,_table}
-Date:   Mon, 31 Jan 2022 11:57:40 +0100
-Message-Id: <20220131105240.157986155@linuxfoundation.org>
+Subject: [PATCH 5.16 198/200] KVM: nVMX: Implement evmcs_field_offset() suitable for handle_vmread()
+Date:   Mon, 31 Jan 2022 11:57:41 +0100
+Message-Id: <20220131105240.190536836@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
 References: <20220131105233.561926043@linuxfoundation.org>
@@ -47,96 +49,111 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit 2423a4c0d17418eca1ba1e3f48684cb2ab7523d5 upstream.
+commit 892a42c10ddb945d3a4dcf07dccdf9cb98b21548 upstream.
 
-vmcs_to_field_offset{,_table} may sound misleading as VMCS is an opaque
-blob which is not supposed to be accessed directly. In fact,
-vmcs_to_field_offset{,_table} are related to KVM defined VMCS12 structure.
+In preparation to allowing reads from Enlightened VMCS from
+handle_vmread(), implement evmcs_field_offset() to get the correct
+read offset. get_evmcs_offset(), which is being used by KVM-on-Hyper-V,
+is almost what's needed but a few things need to be adjusted. First,
+WARN_ON() is unacceptable for handle_vmread() as any field can (in
+theory) be supplied by the guest and not all fields are defined in
+eVMCS v1. Second, we need to handle 'holes' in eVMCS (missing fields).
+It also sounds like a good idea to WARN_ON() if such fields are ever
+accessed by KVM-on-Hyper-V.
 
-Rename vmcs_field_to_offset() to get_vmcs12_field_offset() for clarity.
+Implement dedicated evmcs_field_offset() helper.
 
 No functional change intended.
 
-Reviewed-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220112170134.1904308-4-vkuznets@redhat.com>
+Message-Id: <20220112170134.1904308-5-vkuznets@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c |    6 +++---
- arch/x86/kvm/vmx/vmcs12.c |    4 ++--
- arch/x86/kvm/vmx/vmcs12.h |    6 +++---
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ arch/x86/kvm/vmx/evmcs.c |    3 +--
+ arch/x86/kvm/vmx/evmcs.h |   32 ++++++++++++++++++++++++--------
+ 2 files changed, 25 insertions(+), 10 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -5086,7 +5086,7 @@ static int handle_vmread(struct kvm_vcpu
- 	/* Decode instruction info and find the field to read */
- 	field = kvm_register_read(vcpu, (((instr_info) >> 28) & 0xf));
+--- a/arch/x86/kvm/vmx/evmcs.c
++++ b/arch/x86/kvm/vmx/evmcs.c
+@@ -12,8 +12,6 @@
  
--	offset = vmcs_field_to_offset(field);
-+	offset = get_vmcs12_field_offset(field);
- 	if (offset < 0)
- 		return nested_vmx_fail(vcpu, VMXERR_UNSUPPORTED_VMCS_COMPONENT);
+ DEFINE_STATIC_KEY_FALSE(enable_evmcs);
  
-@@ -5189,7 +5189,7 @@ static int handle_vmwrite(struct kvm_vcp
- 
- 	field = kvm_register_read(vcpu, (((instr_info) >> 28) & 0xf));
- 
--	offset = vmcs_field_to_offset(field);
-+	offset = get_vmcs12_field_offset(field);
- 	if (offset < 0)
- 		return nested_vmx_fail(vcpu, VMXERR_UNSUPPORTED_VMCS_COMPONENT);
- 
-@@ -6435,7 +6435,7 @@ static u64 nested_vmx_calc_vmcs_enum_msr
- 	max_idx = 0;
- 	for (i = 0; i < nr_vmcs12_fields; i++) {
- 		/* The vmcs12 table is very, very sparsely populated. */
--		if (!vmcs_field_to_offset_table[i])
-+		if (!vmcs12_field_offsets[i])
- 			continue;
- 
- 		idx = vmcs_field_index(VMCS12_IDX_TO_ENC(i));
---- a/arch/x86/kvm/vmx/vmcs12.c
-+++ b/arch/x86/kvm/vmx/vmcs12.c
-@@ -8,7 +8,7 @@
- 	FIELD(number, name),						\
- 	[ROL16(number##_HIGH, 6)] = VMCS12_OFFSET(name) + sizeof(u32)
- 
--const unsigned short vmcs_field_to_offset_table[] = {
-+const unsigned short vmcs12_field_offsets[] = {
- 	FIELD(VIRTUAL_PROCESSOR_ID, virtual_processor_id),
- 	FIELD(POSTED_INTR_NV, posted_intr_nv),
- 	FIELD(GUEST_ES_SELECTOR, guest_es_selector),
-@@ -151,4 +151,4 @@ const unsigned short vmcs_field_to_offse
- 	FIELD(HOST_RSP, host_rsp),
- 	FIELD(HOST_RIP, host_rip),
+-#if IS_ENABLED(CONFIG_HYPERV)
+-
+ #define EVMCS1_OFFSET(x) offsetof(struct hv_enlightened_vmcs, x)
+ #define EVMCS1_FIELD(number, name, clean_field)[ROL16(number, 6)] = \
+ 		{EVMCS1_OFFSET(name), clean_field}
+@@ -296,6 +294,7 @@ const struct evmcs_field vmcs_field_to_e
  };
--const unsigned int nr_vmcs12_fields = ARRAY_SIZE(vmcs_field_to_offset_table);
-+const unsigned int nr_vmcs12_fields = ARRAY_SIZE(vmcs12_field_offsets);
---- a/arch/x86/kvm/vmx/vmcs12.h
-+++ b/arch/x86/kvm/vmx/vmcs12.h
-@@ -361,10 +361,10 @@ static inline void vmx_check_vmcs12_offs
- 	CHECK_OFFSET(guest_pml_index, 996);
+ const unsigned int nr_evmcs_1_fields = ARRAY_SIZE(vmcs_field_to_evmcs_1);
+ 
++#if IS_ENABLED(CONFIG_HYPERV)
+ __init void evmcs_sanitize_exec_ctrls(struct vmcs_config *vmcs_conf)
+ {
+ 	vmcs_conf->pin_based_exec_ctrl &= ~EVMCS1_UNSUPPORTED_PINCTRL;
+--- a/arch/x86/kvm/vmx/evmcs.h
++++ b/arch/x86/kvm/vmx/evmcs.h
+@@ -63,8 +63,6 @@ DECLARE_STATIC_KEY_FALSE(enable_evmcs);
+ #define EVMCS1_UNSUPPORTED_VMENTRY_CTRL (VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL)
+ #define EVMCS1_UNSUPPORTED_VMFUNC (VMX_VMFUNC_EPTP_SWITCHING)
+ 
+-#if IS_ENABLED(CONFIG_HYPERV)
+-
+ struct evmcs_field {
+ 	u16 offset;
+ 	u16 clean_field;
+@@ -73,26 +71,44 @@ struct evmcs_field {
+ extern const struct evmcs_field vmcs_field_to_evmcs_1[];
+ extern const unsigned int nr_evmcs_1_fields;
+ 
+-static __always_inline int get_evmcs_offset(unsigned long field,
+-					    u16 *clean_field)
++static __always_inline int evmcs_field_offset(unsigned long field,
++					      u16 *clean_field)
+ {
+ 	unsigned int index = ROL16(field, 6);
+ 	const struct evmcs_field *evmcs_field;
+ 
+-	if (unlikely(index >= nr_evmcs_1_fields)) {
+-		WARN_ONCE(1, "KVM: accessing unsupported EVMCS field %lx\n",
+-			  field);
++	if (unlikely(index >= nr_evmcs_1_fields))
+ 		return -ENOENT;
+-	}
+ 
+ 	evmcs_field = &vmcs_field_to_evmcs_1[index];
+ 
++	/*
++	 * Use offset=0 to detect holes in eVMCS. This offset belongs to
++	 * 'revision_id' but this field has no encoding and is supposed to
++	 * be accessed directly.
++	 */
++	if (unlikely(!evmcs_field->offset))
++		return -ENOENT;
++
+ 	if (clean_field)
+ 		*clean_field = evmcs_field->clean_field;
+ 
+ 	return evmcs_field->offset;
  }
  
--extern const unsigned short vmcs_field_to_offset_table[];
-+extern const unsigned short vmcs12_field_offsets[];
- extern const unsigned int nr_vmcs12_fields;
- 
--static inline short vmcs_field_to_offset(unsigned long field)
-+static inline short get_vmcs12_field_offset(unsigned long field)
++#if IS_ENABLED(CONFIG_HYPERV)
++
++static __always_inline int get_evmcs_offset(unsigned long field,
++					    u16 *clean_field)
++{
++	int offset = evmcs_field_offset(field, clean_field);
++
++	WARN_ONCE(offset < 0, "KVM: accessing unsupported EVMCS field %lx\n",
++		  field);
++
++	return offset;
++}
++
+ static __always_inline void evmcs_write64(unsigned long field, u64 value)
  {
- 	unsigned short offset;
- 	unsigned int index;
-@@ -377,7 +377,7 @@ static inline short vmcs_field_to_offset
- 		return -ENOENT;
- 
- 	index = array_index_nospec(index, nr_vmcs12_fields);
--	offset = vmcs_field_to_offset_table[index];
-+	offset = vmcs12_field_offsets[index];
- 	if (offset == 0)
- 		return -ENOENT;
- 	return offset;
+ 	u16 clean_field;
 
 
