@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2F1D4A4198
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:04:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D0D74A44C8
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:35:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358349AbiAaLEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:04:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43138 "EHLO
+        id S1359787AbiAaLck (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:32:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348709AbiAaLDn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:03:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AA5DC06173D;
-        Mon, 31 Jan 2022 03:03:02 -0800 (PST)
+        with ESMTP id S1379409AbiAaLaR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:30:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAD97C0617AF;
+        Mon, 31 Jan 2022 03:20:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A47A60AE3;
-        Mon, 31 Jan 2022 11:03:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE9ADC340E8;
-        Mon, 31 Jan 2022 11:03:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B805B82A5D;
+        Mon, 31 Jan 2022 11:20:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13FA9C340E8;
+        Mon, 31 Jan 2022 11:20:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626981;
-        bh=kvmeKDKq4ruE2gAqLGR7+eCTMNUXOvT8e/qFwT9YNBE=;
+        s=korg; t=1643628014;
+        bh=dBu42MrnqeKGNNg7unlA+oZ+dotkMkyhoERN96fJpAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LnJE4lAdPX4O+iMt/jVVme2MFOaDVNMU7nVaza3zlj3GrWPymu9nZ+YAawqmNcMEu
-         x4ovotd8qL4jvqCf6KSodVimdPHWs1k6EVc0qIYzVsCPmBcV7FKJ8RlSbrNXDJlw0+
-         EFVBCgShCEZEr/GscXEp7pNowe4Gb4y8FZvy195w=
+        b=z10GHwLZAy8aWX2TyBP7bXtkTZSliyGkyQUqfXq7g5fWWwdTTM5t1e/KBK1cHG55c
+         ktNgM76KhmKrV51sGiwpNj0zyTUN+Q9Dw1xvhPgWjQ+TlCMv5qUnRU0NbhBliqNMlm
+         R/ABg4XVIhFKVGUvOpqOmHZ8IEww8ANo0nDj4txU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.10 006/100] s390/hypfs: include z/VM guests with access control group set
+        stable@vger.kernel.org, Bud Brown <bubrown@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Mike Snitzer <snitzer@redhat.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.16 064/200] dm: properly fix redundant bio-based IO accounting
 Date:   Mon, 31 Jan 2022 11:55:27 +0100
-Message-Id: <20220131105220.651044036@linuxfoundation.org>
+Message-Id: <20220131105235.725751726@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-References: <20220131105220.424085452@linuxfoundation.org>
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131105233.561926043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +48,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit 663d34c8df98740f1e90241e78e456d00b3c6cad upstream.
+commit b879f915bc48a18d4f4462729192435bb0f17052 upstream.
 
-Currently if z/VM guest is allowed to retrieve hypervisor performance
-data globally for all guests (privilege class B) the query is formed in a
-way to include all guests but the group name is left empty. This leads to
-that z/VM guests which have access control group set not being included
-in the results (even local vm).
+Record the start_time for a bio but defer the starting block core's IO
+accounting until after IO is submitted using bio_start_io_acct_time().
 
-Change the query group identifier from empty to "any" to retrieve
-information about all guests from any groups (or without a group set).
+This approach avoids the need to mess around with any of the
+individual IO stats in response to a bio_split() that follows bio
+submission.
 
+Reported-by: Bud Brown <bubrown@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Cc: stable@vger.kernel.org
-Fixes: 31cb4bd31a48 ("[S390] Hypervisor filesystem (s390_hypfs) for z/VM")
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Depends-on: e45c47d1f94e ("block: add bio_start_io_acct_time() to control start_time")
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Link: https://lore.kernel.org/r/20220128155841.39644-4-snitzer@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/hypfs/hypfs_vm.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/md/dm.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/s390/hypfs/hypfs_vm.c
-+++ b/arch/s390/hypfs/hypfs_vm.c
-@@ -20,6 +20,7 @@
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -489,7 +489,7 @@ static void start_io_acct(struct dm_io *
+ 	struct mapped_device *md = io->md;
+ 	struct bio *bio = io->orig_bio;
  
- static char local_guest[] = "        ";
- static char all_guests[] = "*       ";
-+static char *all_groups = all_guests;
- static char *guest_query;
+-	io->start_time = bio_start_io_acct(bio);
++	bio_start_io_acct_time(bio, io->start_time);
+ 	if (unlikely(dm_stats_used(&md->stats)))
+ 		dm_stats_account_io(&md->stats, bio_data_dir(bio),
+ 				    bio->bi_iter.bi_sector, bio_sectors(bio),
+@@ -535,7 +535,7 @@ static struct dm_io *alloc_io(struct map
+ 	io->md = md;
+ 	spin_lock_init(&io->endio_lock);
  
- struct diag2fc_data {
-@@ -62,10 +63,11 @@ static int diag2fc(int size, char* query
+-	start_io_acct(io);
++	io->start_time = jiffies;
  
- 	memcpy(parm_list.userid, query, NAME_LEN);
- 	ASCEBC(parm_list.userid, NAME_LEN);
--	parm_list.addr = (unsigned long) addr ;
-+	memcpy(parm_list.aci_grp, all_groups, NAME_LEN);
-+	ASCEBC(parm_list.aci_grp, NAME_LEN);
-+	parm_list.addr = (unsigned long)addr;
- 	parm_list.size = size;
- 	parm_list.fmt = 0x02;
--	memset(parm_list.aci_grp, 0x40, NAME_LEN);
- 	rc = -1;
+ 	return io;
+ }
+@@ -1550,6 +1550,7 @@ static void __split_and_process_bio(stru
+ 			submit_bio_noacct(bio);
+ 		}
+ 	}
++	start_io_acct(ci.io);
  
- 	diag_stat_inc(DIAG_STAT_X2FC);
+ 	/* drop the extra reference count */
+ 	dm_io_dec_pending(ci.io, errno_to_blk_status(error));
 
 
