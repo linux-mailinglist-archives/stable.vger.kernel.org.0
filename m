@@ -2,147 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D1DF4A517F
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 22:34:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E9654A51E4
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 22:52:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241365AbiAaVe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 16:34:57 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47854 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379942AbiAaVe4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 16:34:56 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0D7EB82C8D;
-        Mon, 31 Jan 2022 21:34:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8A9FC340E8;
-        Mon, 31 Jan 2022 21:34:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1643664894;
-        bh=OE8esjYg7OYehxbI4YHjYDGmj8EIEBZYtw1oYW3B/vc=;
-        h=Date:To:From:Subject:From;
-        b=GokFLadv22YVi8Uq4J8rdyi5OVqidAhqUov6QXJ37/o+1oLPMtOl1+ccIYSb9uSFI
-         192mPu7zelFYk7X1CdxXA1Fngsi5OaJoNaFcnitO6iDMr1STuzU42VhfDcgY9/M+i4
-         p4ncdzbOZ93SplKNUE+WNwHFKii0Cbag3Y3Nhu+o=
-Received: by hp1 (sSMTP sendmail emulation); Mon, 31 Jan 2022 13:34:52 -0800
-Date:   Mon, 31 Jan 2022 13:34:52 -0800
-To:     mm-commits@vger.kernel.org, ziy@nvidia.com, will@kernel.org,
-        weixugc@google.com, stable@vger.kernel.org,
-        songmuchun@bytedance.com, rppt@kernel.org, rientjes@google.com,
-        pjt@google.com, mingo@redhat.com, jirislaby@kernel.org,
-        hughd@google.com, hpa@zytor.com, gthelen@google.com,
-        dave.hansen@linux.intel.com, anshuman.khandual@arm.com,
-        aneesh.kumar@linux.ibm.com, pasha.tatashin@soleen.com
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-debug_vm_pgtable-remove-pte-entry-from-the-page-table.patch added to -mm tree
-Message-Id: <20220131213452.E8A9FC340E8@smtp.kernel.org>
+        id S1350892AbiAaVwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 16:52:44 -0500
+Received: from pop31.abv.bg ([194.153.145.221]:52612 "EHLO pop31.abv.bg"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1376500AbiAaVwo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 Jan 2022 16:52:44 -0500
+X-Greylist: delayed 514 seconds by postgrey-1.27 at vger.kernel.org; Mon, 31 Jan 2022 16:52:42 EST
+Received: from smtp.abv.bg (localhost [127.0.0.1])
+        by pop31.abv.bg (Postfix) with ESMTP id 698A3180AA91;
+        Mon, 31 Jan 2022 23:43:58 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=abv.bg; s=smtp-out;
+        t=1643665438; bh=iWjdHNIDwdz1nE3eZyu9fh57i4nneBCZfkedFsbdT+w=;
+        h=Subject:From:In-Reply-To:Date:Cc:References:To:From;
+        b=R2VKrYYtGHF5MBJ0WVuFEY2D3T94n180PVbGEOfvGkBFfz1KZb7Bp5EKbjept1XSo
+         t+iP1ccWRlHWkZkWf8kmIHuzmJkzkt2i0DLZIaJ2/Rk6+U2lB6eGf/8rWv3HmeM7de
+         oSCn2EQAWStyRxZHge4JZBAd2hsll1GeL3F3eDo0=
+X-HELO: smtpclient.apple
+Authentication-Results: smtp.abv.bg; auth=pass (plain) smtp.auth=gvalkov@abv.bg
+Received: from 212-39-89-254.ip.btc-net.bg (HELO smtpclient.apple) (212.39.89.254)
+ by smtp.abv.bg (qpsmtpd/0.96) with ESMTPSA (ECDHE-RSA-AES256-GCM-SHA384 encrypted); Mon, 31 Jan 2022 23:43:58 +0200
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 14.0 \(3654.120.0.1.13\))
+Subject: Re: ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+From:   Georgi Valkov <gvalkov@abv.bg>
+In-Reply-To: <6108f260-36bf-0059-ccb9-8189f4a2d0c1@siemens.com>
+Date:   Mon, 31 Jan 2022 23:43:52 +0200
+Cc:     Jakub Kicinski <kuba@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>, davem@davemloft.net,
+        mhabets@solarflare.com, luc.vanoostenryck@gmail.com,
+        snelson@pensando.io, mst@redhat.com, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        corsac@corsac.net, matti.vuorela@bitfactor.fi,
+        stable@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <FF6FFC1F-0AE9-4253-B55E-755BB90C4DBA@abv.bg>
+References: <B60B8A4B-92A0-49B3-805D-809A2433B46C@abv.bg>
+ <20210720122215.54abaf53@cakuba>
+ <5D0CFF83-439B-4A10-A276-D2D17B037704@abv.bg> <YPa4ZelG2k8Z826E@kroah.com>
+ <C6AA954F-8382-461D-835F-E5CA03363D84@abv.bg> <YPbHoScEo8ZJyox6@kroah.com>
+ <AEC79E3B-FA7F-4A36-95CE-B6D0F3063DF8@abv.bg>
+ <80a13e9b-e026-1238-39ed-32deb5ff17b0@siemens.com>
+ <20220131092726.3864b19f@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <6108f260-36bf-0059-ccb9-8189f4a2d0c1@siemens.com>
+To:     Jan Kiszka <jan.kiszka@siemens.com>
+X-Mailer: Apple Mail (2.3654.120.0.1.13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/debug_vm_pgtable: remove pte entry from the page table
-has been added to the -mm tree.  Its filename is
-     mm-debug_vm_pgtable-remove-pte-entry-from-the-page-table.patch
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-debug_vm_pgtable-remove-pte-entry-from-the-page-table.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-debug_vm_pgtable-remove-pte-entry-from-the-page-table.patch
+> On 2022-01-31, at 7:35 PM, Jan Kiszka <jan.kiszka@siemens.com> wrote:
+>=20
+> On 31.01.22 18:27, Jakub Kicinski wrote:
+>> On Mon, 31 Jan 2022 10:45:23 +0100 Jan Kiszka wrote:
+>>> On 20.07.21 15:12, Georgi Valkov wrote:
+>>>> Thank you, Greg!
+>>>>=20
+>>>> git send-email =
+drivers/net/0001-ipheth-fix-EOVERFLOW-in-ipheth_rcvbulk_callback.patch
+>>>> ...
+>>>> Result: OK
+>>>>=20
+>>>> I hope I got right. I added most of the e-mail addresses, and also =
+tried adding Message-Id.
+>>>> I have not received the e-mail yet, so I cannot confirm if it =
+worked or not.
+>>>>  =20
+>>>=20
+>>> What happened here afterwards?
+>>>=20
+>>> I just found out the hard way that this patch is still not in =
+mainline
+>>> but really needed.
+>> I have not seen the repost :(
+>=20
+> Would it help if I do that on behalf of Georgi? Meanwhile, I can add a =
+tested-by to it, after almost a full working day with it applied.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Yes, please do it! The faster it gets mainline, the more people will =
+benefit from the fix. As far as I recall, some months ago someone asked =
+me to submit the patch using git mail or something like that, which I =
+did for the first time. It command reported success, but I did not get =
+any replays since then from anyone. I intended to resubmit it the =
+following week, but got overwhelmed by tasks, and the time passed. =
+Meanwhile I still keep the patch in GitHub/httpstorm/openwrt, brach =
+gvalkov. No changes are required since the original e-mail, so it can be =
+submitted to mainline.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+There is another issue with my iPhone 7 Plus, which is unrelated to this =
+patch:
+If an iPhone is tethered to a MacBook, the next time it gets connected =
+to an OpenWRT router the USB Ethernet interface appears, but there is no =
+communication. Hence I would assume this unrelated issue also has to be =
+fixed in another patch. I can confirm that in this state macOS and =
+Windows are able to use USB tethering, only OpenWRT is affected. So far =
+I found the following workarounds:
+* reboot the phone or run:
+* usbreset 002/002 && /etc/init.d/usbmuxd restart
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+The same happens if the phone reboots due to extreme cold temperatures =
+while tethered. Finally there is also a bug or possible =
+hardware/baseband fault in my phone where every few days the modem =
+reboots: the LTE icon disappears for a few seconds, and tethering is =
+turned off. Either way, running the commands mentioned above re-enable =
+tethering and restore the communication instantly. It would be nice if a =
+watchdog is integrated in ipheth to trigger recovery automatically.
 
-------------------------------------------------------
-From: Pasha Tatashin <pasha.tatashin@soleen.com>
-Subject: mm/debug_vm_pgtable: remove pte entry from the page table
-
-Patch series "page table check fixes and cleanups", v5.
+Georgi Valkov
 
 
-This patch (of 4):
-
-The pte entry that is used in pte_advanced_tests() is never removed from
-the page table at the end of the test.
-
-The issue is detected by page_table_check, to repro compile kernel with
-the following configs:
-
-CONFIG_DEBUG_VM_PGTABLE=y
-CONFIG_PAGE_TABLE_CHECK=y
-CONFIG_PAGE_TABLE_CHECK_ENFORCED=y
-
-During the boot the following BUG is printed:
-
-[    2.262821] debug_vm_pgtable: [debug_vm_pgtable         ]: Validating
-               architecture page table helpers
-[    2.276826] ------------[ cut here ]------------
-[    2.280426] kernel BUG at mm/page_table_check.c:162!
-[    2.284118] invalid opcode: 0000 [#1] PREEMPT SMP PTI
-[    2.287787] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
-               5.16.0-11413-g2c271fe77d52 #3
-[    2.293226] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
-               BIOS rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org
-               04/01/2014
-...
-
-The entry should be properly removed from the page table before the page
-is released to the free list.
-
-Link: https://lkml.kernel.org/r/20220131203249.2832273-1-pasha.tatashin@soleen.com
-Link: https://lkml.kernel.org/r/20220131203249.2832273-2-pasha.tatashin@soleen.com
-Fixes: a5c3b9ffb0f4 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
-Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
-Reviewed-by: Zi Yan <ziy@nvidia.com>
-Tested-by: Zi Yan <ziy@nvidia.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Cc: Paul Turner <pjt@google.com>
-Cc: Wei Xu <weixugc@google.com>
-Cc: Greg Thelen <gthelen@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: <stable@vger.kernel.org>	[5.9+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/debug_vm_pgtable.c |    2 ++
- 1 file changed, 2 insertions(+)
-
---- a/mm/debug_vm_pgtable.c~mm-debug_vm_pgtable-remove-pte-entry-from-the-page-table
-+++ a/mm/debug_vm_pgtable.c
-@@ -171,6 +171,8 @@ static void __init pte_advanced_tests(st
- 	ptep_test_and_clear_young(args->vma, args->vaddr, args->ptep);
- 	pte = ptep_get(args->ptep);
- 	WARN_ON(pte_young(pte));
-+
-+	ptep_get_and_clear_full(args->mm, args->vaddr, args->ptep, 1);
- }
- 
- static void __init pte_savedwrite_tests(struct pgtable_debug_args *args)
-_
-
-Patches currently in -mm which might be from pasha.tatashin@soleen.com are
-
-mm-debug_vm_pgtable-remove-pte-entry-from-the-page-table.patch
-mm-page_table_check-use-unsigned-long-for-page-counters-and-cleanup.patch
-mm-khugepaged-unify-collapse-pmd-clear-flush-and-free.patch
-mm-page_table_check-check-entries-at-pmd-levels.patch
+> Jan
+>=20
+> --=20
+> Siemens AG, Technology
+> Competence Center Embedded Linux
+>=20
 
