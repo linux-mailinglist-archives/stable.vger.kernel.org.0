@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DBFF4A40C8
-	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:00:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 123DF4A4125
+	for <lists+stable@lfdr.de>; Mon, 31 Jan 2022 12:02:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358383AbiAaLAH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 06:00:07 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:60570 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358417AbiAaK7i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 05:59:38 -0500
+        id S1358740AbiAaLCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 06:02:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43136 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358755AbiAaLBT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 06:01:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86460C061392;
+        Mon, 31 Jan 2022 03:00:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8884760AF6;
-        Mon, 31 Jan 2022 10:59:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4481DC340E8;
-        Mon, 31 Jan 2022 10:59:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52EC2B82A57;
+        Mon, 31 Jan 2022 11:00:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86F54C340E8;
+        Mon, 31 Jan 2022 10:59:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643626774;
-        bh=3XIa/muwBTvvKBs3bdBiG2V3lDx1LVelKRjXVwnkQCc=;
+        s=korg; t=1643626799;
+        bh=0EFvWCyzPTR972W2aSbT7/hxxvBhl8DPD0Oj9l1LhLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZVv5WGyvNc5BcOkw49C29NtI/LS8t+EC9rX10+uNGRUAkMuatbAYIgGs/gV3iMiHw
-         JySnrZoqKtoXAIVx/YugQY9mQIEMjHe0sWOF1cTfww8i/XVNE+8kWh8LiNWbN+SoCg
-         kF12dM1YPD2YueoNZGjuqoDbvsE+9TxsQrNxySO8=
+        b=uKfRVeCJJD9AyjlCrGHqSzHUOysIOhn8Xsd+gMnfn6YFBCbcfdhcFY6WyVcCIoohp
+         QU3Amm8JRZzm+63k2MSBmtOD5zL32Wc4OIz5CD95HfpqlaO+Gcqxr3fCZrw1YenIEp
+         /mikEq9Ib1jzWsmZiCrUPxfHw9FmmrF2ViLiJa+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Congyu Liu <liu3101@purdue.edu>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 34/64] net: fix information leakage in /proc/net/ptype
-Date:   Mon, 31 Jan 2022 11:56:19 +0100
-Message-Id: <20220131105216.838034920@linuxfoundation.org>
+Subject: [PATCH 5.4 36/64] hwmon: (lm90) Mark alert as broken for MAX6680
+Date:   Mon, 31 Jan 2022 11:56:21 +0100
+Message-Id: <20220131105216.900187278@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220131105215.644174521@linuxfoundation.org>
 References: <20220131105215.644174521@linuxfoundation.org>
@@ -45,70 +47,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Congyu Liu <liu3101@purdue.edu>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 47934e06b65637c88a762d9c98329ae6e3238888 upstream.
+commit 94746b0ba479743355e0d3cc1cb9cfe3011fb8be upstream.
 
-In one net namespace, after creating a packet socket without binding
-it to a device, users in other net namespaces can observe the new
-`packet_type` added by this packet socket by reading `/proc/net/ptype`
-file. This is minor information leakage as packet socket is
-namespace aware.
+Experiments with MAX6680 and MAX6681 show that the alert function of those
+chips is broken, similar to other chips supported by the lm90 driver.
+Mark it accordingly.
 
-Add a net pointer in `packet_type` to keep the net namespace of
-of corresponding packet socket. In `ptype_seq_show`, this net pointer
-must be checked when it is not NULL.
-
-Fixes: 2feb27dbe00c ("[NETNS]: Minor information leak via /proc/net/ptype file.")
-Signed-off-by: Congyu Liu <liu3101@purdue.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4667bcb8d8fc ("hwmon: (lm90) Introduce chip parameter structure")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netdevice.h |    1 +
- net/core/net-procfs.c     |    3 ++-
- net/packet/af_packet.c    |    2 ++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/hwmon/lm90.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -2397,6 +2397,7 @@ struct packet_type {
- 					      struct net_device *);
- 	bool			(*id_match)(struct packet_type *ptype,
- 					    struct sock *sk);
-+	struct net		*af_packet_net;
- 	void			*af_packet_priv;
- 	struct list_head	list;
- };
---- a/net/core/net-procfs.c
-+++ b/net/core/net-procfs.c
-@@ -252,7 +252,8 @@ static int ptype_seq_show(struct seq_fil
- 
- 	if (v == SEQ_START_TOKEN)
- 		seq_puts(seq, "Type Device      Function\n");
--	else if (pt->dev == NULL || dev_net(pt->dev) == seq_file_net(seq)) {
-+	else if ((!pt->af_packet_net || net_eq(pt->af_packet_net, seq_file_net(seq))) &&
-+		 (!pt->dev || net_eq(dev_net(pt->dev), seq_file_net(seq)))) {
- 		if (pt->type == htons(ETH_P_ALL))
- 			seq_puts(seq, "ALL ");
- 		else
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1715,6 +1715,7 @@ static int fanout_add(struct sock *sk, u
- 		match->prot_hook.dev = po->prot_hook.dev;
- 		match->prot_hook.func = packet_rcv_fanout;
- 		match->prot_hook.af_packet_priv = match;
-+		match->prot_hook.af_packet_net = read_pnet(&match->net);
- 		match->prot_hook.id_match = match_fanout_group;
- 		list_add(&match->list, &fanout_list);
- 	}
-@@ -3294,6 +3295,7 @@ static int packet_create(struct net *net
- 		po->prot_hook.func = packet_rcv_spkt;
- 
- 	po->prot_hook.af_packet_priv = sk;
-+	po->prot_hook.af_packet_net = sock_net(sk);
- 
- 	if (proto) {
- 		po->prot_hook.type = proto;
+--- a/drivers/hwmon/lm90.c
++++ b/drivers/hwmon/lm90.c
+@@ -418,7 +418,7 @@ static const struct lm90_params lm90_par
+ 	},
+ 	[max6680] = {
+ 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_CRIT
+-		  | LM90_HAVE_CRIT_ALRM_SWP,
++		  | LM90_HAVE_CRIT_ALRM_SWP | LM90_HAVE_BROKEN_ALERT,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 7,
+ 	},
 
 
