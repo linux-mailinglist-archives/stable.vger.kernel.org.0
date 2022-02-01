@@ -2,186 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2CAA4A54F7
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 03:01:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20B6E4A5526
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 03:11:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232720AbiBACBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 21:01:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54930 "EHLO
+        id S232194AbiBACLl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 21:11:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232745AbiBACAR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 21:00:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC931C06177A;
-        Mon, 31 Jan 2022 18:00:04 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57F606126B;
-        Tue,  1 Feb 2022 02:00:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B874AC3410F;
-        Tue,  1 Feb 2022 02:00:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643680803;
-        bh=3PdNMUFDL2c1SaDDgYYpUoeisb94BFr3OOxDIdhXXC0=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=P3hFMTo6e331awHrxQmjo08WyXCAMcYy6uoJONB3oRzw+Cta+lFj5utaQOeElGZL4
-         nWMl+08Ia3mHljCGJCNLNzXR3ohGkxK6tfQBxWuV3lBr4uUEmRnD5AdJThagnF/gsk
-         62B2XJAW/mT9Tlp5tHxgAmXOCkJGOt9QvRyUotZJ4EiaMaelFIN6uZDuyOnQCvBm2J
-         D7Aq7kuP2c8Aa618tkQNIgyO/TVux4kFia6T+x5omkuhZj94Yyh70q5z4CNJibFRM4
-         dgrRSA0Ebi7amcF3/d3Z5g7X5rsKn8t5G9wRW3ord76iZgoXddkoxIRTs0KjobvN9D
-         /yMEk9KeajqVA==
-Message-ID: <234f8cb0-8f9c-0caf-c169-cf9355b33075@kernel.org>
-Date:   Mon, 31 Jan 2022 18:00:01 -0800
+        with ESMTP id S232077AbiBACLl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 21:11:41 -0500
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C55C061714
+        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 18:11:41 -0800 (PST)
+Received: by mail-pl1-x629.google.com with SMTP id d18so14196496plg.2
+        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 18:11:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=OE/hmbYUiRzOEZOdiVxzZ63cg7adVlv7X9FtbP2QTts=;
+        b=Ir+nVib2CfvDLT+s7jbbRu8x4A8C+BdSQnZXufXoksyS3aGloaROyMnCY8chujeg45
+         fidad1mZV9zqWRboOo1UlDgXR20z+6BlLIkHB204umnTmWga8YqMYWCt8+t9hxahmuYg
+         hCbVqzDKe+DVZ1wzVefqX0qp5/+hPEg3iCVK1kQ5Z3iLS7HqJ49lkgqMlLiFwAclUzx4
+         /Ua7JGBbNo7RKvXso8Mowsqb2FkCUS42rx5fIUgy8t+CEeZ5V60P6XMVdyNKXlRcmgJE
+         b7HxtscgJlay7HX2DAA7JL5PsFur9bDzlOoAuPlGmudz1VGAHOzOyBVXmS3iJks4EPhk
+         awYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=OE/hmbYUiRzOEZOdiVxzZ63cg7adVlv7X9FtbP2QTts=;
+        b=UkN/7mL/Md+eUyKTVkHnyTifxnFAG3jgJ7UDkfpkKA1J2rBDIhqpAiYKoYsEu9rcst
+         QtRziMu1o2sT+b3t+lhU5o/Fx43z5xsGdm3IGib+Jni3/A/M/v0AkvSdPFTFCFOK343X
+         tQfb3zQ5bemNiT7MiuLH0RDO+16GV8PN0fYAMKWAncEBIUbOlJZa82v7u5z19+MhQFTf
+         wMMxb2/DFXmFyIPKenZOlDI6njKmeuGbihBLAnVWk23DX1Q4Uh4F/IRhm7gYWAXYzU7v
+         1ejOvDvyC6cdAWzsYTR64NCqP7KcE7M4Uac78X/IwtiqBSRaS9zQ2rF6c843L2mo7Iqs
+         5xOA==
+X-Gm-Message-State: AOAM533omlFCJTOx8Cu65C465Oic531nf5B6VQA+8ny6KITei81A8XGr
+        kqIfEnx65IGisnVAIvm/l/J2SPzc61Ghhxya
+X-Google-Smtp-Source: ABdhPJzDXqZ5qwtvO31r1EKmO2Jla8mE4OuHogHCfoVaYt7OaY+yiZKTgz60rhMQrkWhdt6sFmqdiA==
+X-Received: by 2002:a17:90a:548:: with SMTP id h8mr6561614pjf.109.1643681500603;
+        Mon, 31 Jan 2022 18:11:40 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s14sm19056929pfk.65.2022.01.31.18.11.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 Jan 2022 18:11:40 -0800 (PST)
+Message-ID: <61f896dc.1c69fb81.abe4.29c2@mx.google.com>
+Date:   Mon, 31 Jan 2022 18:11:40 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH] exec: Force single empty string when argv is empty
-Content-Language: en-US
-To:     Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     Ariadne Conill <ariadne@dereferenced.org>,
-        Michael Kerrisk <mtk.manpages@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Rich Felker <dalias@libc.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org,
-        Linux API <linux-api@vger.kernel.org>
-References: <20220201000947.2453721-1-keescook@chromium.org>
-From:   Andy Lutomirski <luto@kernel.org>
-In-Reply-To: <20220201000947.2453721-1-keescook@chromium.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.299-27-g83c2cbe7b956
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y baseline: 82 runs,
+ 1 regressions (v4.9.299-27-g83c2cbe7b956)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/31/22 16:09, Kees Cook wrote:
-> Quoting[1] Ariadne Conill:
-> 
-> "In several other operating systems, it is a hard requirement that the
-> second argument to execve(2) be the name of a program, thus prohibiting
-> a scenario where argc < 1. POSIX 2017 also recommends this behaviour,
-> but it is not an explicit requirement[2]:
-> 
->      The argument arg0 should point to a filename string that is
->      associated with the process being started by one of the exec
->      functions.
-> ...
-> Interestingly, Michael Kerrisk opened an issue about this in 2008[3],
-> but there was no consensus to support fixing this issue then.
-> Hopefully now that CVE-2021-4034 shows practical exploitative use[4]
-> of this bug in a shellcode, we can reconsider.
-> 
-> This issue is being tracked in the KSPP issue tracker[5]."
-> 
-> While the initial code searches[6][7] turned up what appeared to be
-> mostly corner case tests, trying to that just reject argv == NULL
-> (or an immediately terminated pointer list) quickly started tripping[8]
-> existing userspace programs.
-> 
-> The next best approach is forcing a single empty string into argv and
-> adjusting argc to match. The number of programs depending on argc == 0
-> seems a smaller set than those calling execve with a NULL argv.
-> 
-> Account for the additional stack space in bprm_stack_limits(). Inject an
-> empty string when argc == 0 (and set argc = 1). Warn about the case so
-> userspace has some notice about the change:
-> 
->      process './argc0' launched './argc0' with NULL argv: empty string added
-> 
-> Additionally WARN() and reject NULL argv usage for kernel threads.
-> 
-> [1] https://lore.kernel.org/lkml/20220127000724.15106-1-ariadne@dereferenced.org/
-> [2] https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
-> [3] https://bugzilla.kernel.org/show_bug.cgi?id=8408
-> [4] https://www.qualys.com/2022/01/25/cve-2021-4034/pwnkit.txt
-> [5] https://github.com/KSPP/linux/issues/176
-> [6] https://codesearch.debian.net/search?q=execve%5C+*%5C%28%5B%5E%2C%5D%2B%2C+*NULL&literal=0
-> [7] https://codesearch.debian.net/search?q=execlp%3F%5Cs*%5C%28%5B%5E%2C%5D%2B%2C%5Cs*NULL&literal=0
-> [8] https://lore.kernel.org/lkml/20220131144352.GE16385@xsang-OptiPlex-9020/
+stable-rc/linux-4.9.y baseline: 82 runs, 1 regressions (v4.9.299-27-g83c2cb=
+e7b956)
 
-Acked-by: Andy Lutomirski <luto@kernel.org>
+Regressions Summary
+-------------------
 
-and cc-ing linux-api.
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-I agree that this should be done regardless of any security context change.
 
-> 
-> Reported-by: Ariadne Conill <ariadne@dereferenced.org>
-> Reported-by: Michael Kerrisk <mtk.manpages@gmail.com>
-> Cc: Matthew Wilcox <willy@infradead.org>
-> Cc: Christian Brauner <brauner@kernel.org>
-> Cc: Rich Felker <dalias@libc.org>
-> Cc: Eric Biederman <ebiederm@xmission.com>
-> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> Cc: linux-fsdevel@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> ---
->   fs/exec.c | 26 +++++++++++++++++++++++++-
->   1 file changed, 25 insertions(+), 1 deletion(-)
-> 
-> diff --git a/fs/exec.c b/fs/exec.c
-> index 79f2c9483302..bbf3aadf7ce1 100644
-> --- a/fs/exec.c
-> +++ b/fs/exec.c
-> @@ -495,8 +495,14 @@ static int bprm_stack_limits(struct linux_binprm *bprm)
->   	 * the stack. They aren't stored until much later when we can't
->   	 * signal to the parent that the child has run out of stack space.
->   	 * Instead, calculate it here so it's possible to fail gracefully.
-> +	 *
-> +	 * In the case of argc = 0, make sure there is space for adding a
-> +	 * empty string (which will bump argc to 1), to ensure confused
-> +	 * userspace programs don't start processing from argv[1], thinking
-> +	 * argc can never be 0, to keep them from walking envp by accident.
-> +	 * See do_execveat_common().
->   	 */
-> -	ptr_size = (bprm->argc + bprm->envc) * sizeof(void *);
-> +	ptr_size = (min(bprm->argc, 1) + bprm->envc) * sizeof(void *);
->   	if (limit <= ptr_size)
->   		return -E2BIG;
->   	limit -= ptr_size;
-> @@ -1897,6 +1903,9 @@ static int do_execveat_common(int fd, struct filename *filename,
->   	}
->   
->   	retval = count(argv, MAX_ARG_STRINGS);
-> +	if (retval == 0)
-> +		pr_warn_once("process '%s' launched '%s' with NULL argv: empty string added\n",
-> +			     current->comm, bprm->filename);
->   	if (retval < 0)
->   		goto out_free;
->   	bprm->argc = retval;
-> @@ -1923,6 +1932,19 @@ static int do_execveat_common(int fd, struct filename *filename,
->   	if (retval < 0)
->   		goto out_free;
->   
-> +	/*
-> +	 * When argv is empty, add an empty string ("") as argv[0] to
-> +	 * ensure confused userspace programs that start processing
-> +	 * from argv[1] won't end up walking envp. See also
-> +	 * bprm_stack_limits().
-> +	 */
-> +	if (bprm->argc == 0) {
-> +		retval = copy_string_kernel("", bprm);
-> +		if (retval < 0)
-> +			goto out_free;
-> +		bprm->argc = 1;
-> +	}
-> +
->   	retval = bprm_execve(bprm, fd, filename, flags);
->   out_free:
->   	free_bprm(bprm);
-> @@ -1951,6 +1973,8 @@ int kernel_execve(const char *kernel_filename,
->   	}
->   
->   	retval = count_strings_kernel(argv);
-> +	if (WARN_ON_ONCE(retval == 0))
-> +		retval = -EINVAL;
->   	if (retval < 0)
->   		goto out_free;
->   	bprm->argc = retval;
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.299-27-g83c2cbe7b956/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.299-27-g83c2cbe7b956
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      83c2cbe7b9564fe37c9314ef59e643716c83ffc9 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f861824af87046fa5d6f05
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.299=
+-27-g83c2cbe7b956/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.299=
+-27-g83c2cbe7b956/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61f861824af8704=
+6fa5d6f0b
+        failing since 28 days (last pass: v4.9.295, first fail: v4.9.295-14=
+-g584e15b1cb05)
+        2 lines
+
+    2022-01-31T22:23:43.418735  [   20.037536] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-01-31T22:23:43.461324  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/129
+    2022-01-31T22:23:43.470470  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
