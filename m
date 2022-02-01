@@ -2,104 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 566714A5BEC
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 13:11:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ECBD4A5C3D
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 13:28:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235516AbiBAMLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 07:11:15 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:53580 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237805AbiBAMLO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 07:11:14 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id DB5481F383;
-        Tue,  1 Feb 2022 12:11:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1643717473; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=waTSXVBuauKX5YnIa/Qo7/CVnbpIOue+UFyeuExs0gY=;
-        b=hNJhJH1i2ZicjCdh5dcouWfJ4t3wurHaTB8N9eASUJgI+bv1w9u0NDFacQILWhK69y7sE+
-        R1CydIbT1KdbAlXKRW4gwb1yZa7pdwYZUBj8bMNIs+aGgce+a4fvnGmEYnb4+LL3ccXnW5
-        od8ZYIZ/FhWRGt97afnwYV1pLqFTYRw=
-Received: from suse.cz (unknown [10.100.201.86])
+        id S238072AbiBAM2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 07:28:02 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:58702 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237630AbiBAM2A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 07:28:00 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id C426EA3B85;
-        Tue,  1 Feb 2022 12:11:13 +0000 (UTC)
-Date:   Tue, 1 Feb 2022 13:11:13 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>
-Subject: Re: [PATCH v1] drivers/base/memory: add memory block to memory group
- after registration succeeded
-Message-ID: <YfkjYZK5EsYjg57Z@dhcp22.suse.cz>
-References: <20220128144540.153902-1-david@redhat.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0192F61524;
+        Tue,  1 Feb 2022 12:27:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD77EC340EB;
+        Tue,  1 Feb 2022 12:27:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643718462;
+        bh=JbkAYC/M1v6wy+velggKtiIsj1hfd2OT5WgmxqSpRmo=;
+        h=Subject:From:In-Reply-To:References:To:Cc:Date:From;
+        b=MvrZsek1b6VXbur1sjrSrW9r5HERM81Yh71gmHzYA9DzrL4MGX45gsGNTkUS2FCCv
+         Uk2LK0Ly8BTw9MdkDWc4CANUy0x8xK8FNWg81k3HA9UKjOvX1WLvFe8aEXIyUoE7HO
+         zZQCBOKH1AV1a6C7Jw/xokCSENcxjaOIJ3glevudARnyyvtU2lD/EFlCVy0kDGicoH
+         ke6CONaBXhJ+yYQ9hBO01aWYGgUG5sdtY2z7T+Sr8xJQGgdLRpGd1j7CSRuikONVLZ
+         7CE1k1DuL0yLZeoo6CtFFia21ojZFhRFUaXQP0SxiPfyP2RaUR1q6Pu4ECPsrxZinZ
+         iana8DFBgKVqQ==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220128144540.153902-1-david@redhat.com>
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v4 1/9] brcmfmac: pcie: Release firmwares in the
+ brcmf_pcie_setup error path
+From:   Kalle Valo <kvalo@kernel.org>
+In-Reply-To: <20220131160713.245637-2-marcan@marcan.st>
+References: <20220131160713.245637-2-marcan@marcan.st>
+To:     Hector Martin <marcan@marcan.st>
+Cc:     Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Len Brown <lenb@kernel.org>,
+        Arend van Spriel <aspriel@gmail.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        Hante Meuleman <hante.meuleman@broadcom.com>,
+        Wright Feng <wright.feng@infineon.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Hector Martin <marcan@marcan.st>,
+        Sven Peter <sven@svenpeter.dev>,
+        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        Mark Kettenis <kettenis@openbsd.org>,
+        =?utf-8?b?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
+        Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "John W. Linville" <linville@tuxdriver.com>,
+        "brian m. carlson" <sandals@crustytoothpaste.net>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-acpi@vger.kernel.org, brcm80211-dev-list.pdl@broadcom.com,
+        SHA-cyfmac-dev-list@infineon.com,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        stable@vger.kernel.org
+User-Agent: pwcli/0.1.0-git (https://github.com/kvalo/pwcli/) Python/3.7.3
+Message-ID: <164371845418.16633.10070643455446160726.kvalo@kernel.org>
+Date:   Tue,  1 Feb 2022 12:27:35 +0000 (UTC)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri 28-01-22 15:45:40, David Hildenbrand wrote:
-> If register_memory() fails, we freed the memory block but already added
-> the memory block to the group list, not good. Let's defer adding the
-> block to the memory group to after registering the memory block device.
-> 
-> We do handle it properly during unregister_memory(), but that's not
-> called when the registration fails.
-> 
-> Fixes: 028fc57a1c36 ("drivers/base/memory: introduce "memory groups" to logically group memory blocks")
-> Cc: stable@vger.kernel.org # v5.15+
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Oscar Salvador <osalvador@suse.de>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+Hector Martin <marcan@marcan.st> wrote:
 
-Acked-by: Michal Hocko <mhocko@suse.com>
-
-Thanks!
-
-> ---
->  drivers/base/memory.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+> This avoids leaking memory if brcmf_chip_get_raminfo fails. Note that
+> the CLM blob is released in the device remove path.
 > 
-> diff --git a/drivers/base/memory.c b/drivers/base/memory.c
-> index 365cd4a7f239..60c38f9cf1a7 100644
-> --- a/drivers/base/memory.c
-> +++ b/drivers/base/memory.c
-> @@ -663,14 +663,16 @@ static int init_memory_block(unsigned long block_id, unsigned long state,
->  	mem->nr_vmemmap_pages = nr_vmemmap_pages;
->  	INIT_LIST_HEAD(&mem->group_next);
->  
-> +	ret = register_memory(mem);
-> +	if (ret)
-> +		return ret;
-> +
->  	if (group) {
->  		mem->group = group;
->  		list_add(&mem->group_next, &group->memory_blocks);
->  	}
->  
-> -	ret = register_memory(mem);
-> -
-> -	return ret;
-> +	return 0;
->  }
->  
->  static int add_memory_block(unsigned long base_section_nr)
-> -- 
-> 2.34.1
+> Fixes: 82f93cf46d60 ("brcmfmac: get chip's default RAM info during PCIe setup")
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Hector Martin <marcan@marcan.st>
+> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+
+8 patches applied to wireless-next.git, thanks.
+
+5e90f0f3ead0 brcmfmac: pcie: Release firmwares in the brcmf_pcie_setup error path
+d19d8e3ba256 brcmfmac: firmware: Allocate space for default boardrev in nvram
+6d766d8cb505 brcmfmac: pcie: Declare missing firmware files in pcie.c
+9466987f2467 brcmfmac: pcie: Replace brcmf_pcie_copy_mem_todev with memcpy_toio
+b50255c83b91 brcmfmac: pcie: Fix crashes due to early IRQs
+9cf6d7f2c554 brcmfmac: of: Use devm_kstrdup for board_type & check for errors
+e7191182adc5 brcmfmac: fwil: Constify iovar name arguments
+b4bb8469e90e brcmfmac: pcie: Read the console on init and shutdown
 
 -- 
-Michal Hocko
-SUSE Labs
+https://patchwork.kernel.org/project/linux-wireless/patch/20220131160713.245637-2-marcan@marcan.st/
+
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+
