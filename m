@@ -2,129 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E1D4A55DF
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 05:22:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D32184A55E1
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 05:24:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233133AbiBAEWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 Jan 2022 23:22:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57768 "EHLO
+        id S232989AbiBAEYf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 Jan 2022 23:24:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233001AbiBAEWA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 23:22:00 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74DEFC061714
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 20:22:00 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id g15-20020a17090a67cf00b001b7d5b6bedaso1197681pjm.4
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 20:22:00 -0800 (PST)
+        with ESMTP id S232890AbiBAEYf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 Jan 2022 23:24:35 -0500
+Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A786DC061714;
+        Mon, 31 Jan 2022 20:24:34 -0800 (PST)
+Received: by mail-ot1-x336.google.com with SMTP id q14-20020a05683022ce00b005a6162a1620so2300957otc.0;
+        Mon, 31 Jan 2022 20:24:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=hjzKM/4jNNnVIOfCGI6a5iitt2qnl4dAYIOVh9SKO1o=;
-        b=LTT7BN4ZTFU7ZxX7lK9dE/thZJwXiY7HaypV91UO80lgnoOoR2lRg1+gspVBRYKmP4
-         uOMaeniy5ZbjI0lRwHdpmffP13O6vB4KUUB/Lk31yFAeV6WLd4Z/22RiC15ObQ443yES
-         LqAUk6PIYgxDi4gHbLYFpFflmuU7USwZyPmFYkfyDsEYKbCF1InTltJSkaC2HZ2oAsjy
-         eBUv71fEWZhdrlRr6aufGElQdcEhotW4wKfNFfg8lOVVJ79FDSwFM9PEpzbzasYDWF8m
-         cYVgjZUDEOcRMcXFKMQwkOznpeixVx8mrO4WHYOBsx4PAmoFfmWP5cCOXlgdUpmwskUu
-         8XUA==
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=J2FSCvL9AByrl09RrrZCC1Y0RN5Yn3jPxKlhgmQAMoo=;
+        b=Iiz36oWh/dj5IAWq/9JscPY84toob59o9C0uM5zvrIH5FaMbcsg264C20ZaHW1WQGq
+         sa3SCRTwtHC5CvwISTGfALkHUQgiHwyI/KOKeaid6IWaDGaQjfa4JI24AIfVW1BainiV
+         kbiYXURs8AxdSRiE5OrtpAf6mian57EdfW7a68Y5Z9qmfbjXFFeOZqeUNd+LaXSKdSeP
+         sUzHUoJXH4tt++qhXUfafA1MIwdw5zguNEfaKVwX9M6k9S8+aTVNHApWxZE1cE19o2mg
+         J7ozNdw/0KbaiqBxBh9LSoLfQf/Heb2UKWZ0P3fcL2Tvc/eLLoITqNfM7TriJlr0Kf0N
+         st0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=hjzKM/4jNNnVIOfCGI6a5iitt2qnl4dAYIOVh9SKO1o=;
-        b=V/AXbM3ly3navSWFg4vseMaPsuIW+cF9iKNBE2mgU/9g5gfpROoZ6HBpPOmSXNG2QV
-         qYRpnR/QIq53I317gQ4rw/Snnh27cGaQ3fHuAaVkTfDj9Tg7Y4ZrXwtnyF8p3Fy2GE+6
-         0KzzW2yDHLxeW5R48oEIPXPirGQTvqD/DMvwcBdfAULGiwq/F9gzi4i0VpI2Vk2HbaWw
-         8gqHsBpaxlqJhKeQOpetpj0o2nKMGXqM90RVg8c/jmWyzzqf+cps2lB62Jaq5m5iFfGF
-         4C29T30YpbtOkp4bnQ9i2ieZNdMNc2Cfx27V9jaoR+/75/QuKy6H+SvvBo3A4YnDqLr/
-         9wMQ==
-X-Gm-Message-State: AOAM530C5IFIXy+nxI5gvCyScJ3XeTdMdW2zCk7Ty0HWKyj6z5IVn+Fe
-        cHlS0KzoFAsEh4E0QLqd46aouXjOxnhNR9kl
-X-Google-Smtp-Source: ABdhPJxJHV3resbQAN4mFGVnuJxZ1kg93BWhfCzC3o+mO4+GGmJyQkeNwLGMtJmAJxLpDIL9BnfUFw==
-X-Received: by 2002:a17:903:404b:: with SMTP id n11mr11369446pla.129.1643689319312;
-        Mon, 31 Jan 2022 20:21:59 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j23sm4183796pgb.75.2022.01.31.20.21.58
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=J2FSCvL9AByrl09RrrZCC1Y0RN5Yn3jPxKlhgmQAMoo=;
+        b=7cNEky8Ub08GachFmjQv2sJp1OgRwGwb8uZxa980FArfkuJGZnKyEIKPpJOa1TepKv
+         wawUPIHCjALpcSmLg36uN+zLUI5Fe2wxSCg+bSR7Yv1tWIW+7dO91gMoSW6zVFZvhMdy
+         J//FH1fxMoG1hGL402+9LQR3T0f3qIVanXYznLFrCDFMym9C74fMIW9IyDzim7pDqBkn
+         utJNM7XBdpcpNBH+oQP4F9LYGVGirN5RTIGHHw2hEhDlm0uBRHPlQVWIXEnrXQOYYUMf
+         0tGUSyoG2gER8EoGXlOxq/GVmrQxJuU/T9dG2N7736EcNLMaCSvZVdVVzSMfhLEYq5dQ
+         zdhA==
+X-Gm-Message-State: AOAM532YilKsyb45uEqP9K4yISipkePXqdfKL3GRLlBGMVQfNCAgFF2F
+        fFbRVpEqf8HfiNIF2VxuQ9o=
+X-Google-Smtp-Source: ABdhPJxxZauLqmstap04wwcoIvgoaUOm5NfpIMM82zP9/q0o0lX4IqG0Q6j2MYdTjxU4TXG/TWeY/w==
+X-Received: by 2002:a05:6830:34a3:: with SMTP id c35mr11821982otu.113.1643689473925;
+        Mon, 31 Jan 2022 20:24:33 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id a19sm12993551otf.27.2022.01.31.20.24.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Jan 2022 20:21:59 -0800 (PST)
-Message-ID: <61f8b567.1c69fb81.a2349.b3a3@mx.google.com>
-Date:   Mon, 31 Jan 2022 20:21:59 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 31 Jan 2022 20:24:33 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Mon, 31 Jan 2022 20:24:31 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com
+Subject: Re: [PATCH 5.4 00/64] 5.4.176-rc1 review
+Message-ID: <20220201042431.GA2556037@roeck-us.net>
+References: <20220131105215.644174521@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.15.18-172-g39741c5e5973
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-5.15.y
-Subject: stable-rc/linux-5.15.y baseline: 136 runs,
- 1 regressions (v5.15.18-172-g39741c5e5973)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220131105215.644174521@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.15.y baseline: 136 runs, 1 regressions (v5.15.18-172-g397=
-41c5e5973)
+On Mon, Jan 31, 2022 at 11:55:45AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.176 release.
+> There are 64 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 02 Feb 2022 10:51:59 +0000.
+> Anything received after that time might be too late.
+> 
 
-Regressions Summary
--------------------
+Build results:
+	total: 159 pass: 159 fail: 0
+Qemu test results:
+	total: 449 pass: 449 fail: 0
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
-nel/v5.15.18-172-g39741c5e5973/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.15.y
-  Describe: v5.15.18-172-g39741c5e5973
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      39741c5e5973d935ea274c740a2f63118b5d19f6 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61f87e0ee5c5c526355d6f05
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-8-172-g39741c5e5973/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-be=
-agle-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-8-172-g39741c5e5973/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-be=
-agle-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61f87e0ee5c5c526355d6=
-f06
-        failing since 11 days (last pass: v5.15.14-70-g9cb47c4d3cbf, first =
-fail: v5.15.16) =
-
- =20
+Guenter
