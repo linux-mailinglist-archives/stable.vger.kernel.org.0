@@ -2,108 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 186CF4A5BD8
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 13:06:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B41CF4A5BE9
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 13:10:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237713AbiBAMGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 07:06:01 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:60462 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237585AbiBAMF7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 07:05:59 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 45F051C0B81; Tue,  1 Feb 2022 13:05:58 +0100 (CET)
-Date:   Tue, 1 Feb 2022 13:05:57 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com
-Subject: Re: [PATCH 5.10 000/100] 5.10.96-rc1 review
-Message-ID: <20220201120557.GA549@duo.ucw.cz>
-References: <20220131105220.424085452@linuxfoundation.org>
+        id S237789AbiBAMKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 07:10:52 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:59134 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237799AbiBAMKv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 07:10:51 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 739D6212CC;
+        Tue,  1 Feb 2022 12:10:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1643717450; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=u81yjtGgwbF764LyCgpsfndB5V+V815DjFHEVDCtnLk=;
+        b=gOTYVS85sYoQl61zNk8ZPC6pAokZuK2Dx+EIIepx2g7fHcUNYuGWmgeYr3dnYXM24BmPe9
+        +CdVFfiqf/L5o9jExG1tHnHhmQeJmN/vHo4evxcxs9ef5LmimGnb01OaxodO3armhAL7Vp
+        p8xfHfsb4Sj1cJbBDMgTdSvXfiKBxvk=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 5BBFDA3B8B;
+        Tue,  1 Feb 2022 12:10:50 +0000 (UTC)
+Date:   Tue, 1 Feb 2022 13:10:50 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Oscar Salvador <osalvador@suse.de>
+Subject: Re: [PATCH v1] drivers/base/memory: add memory block to memory group
+ after registration succeeded
+Message-ID: <YfkjSj59otaREsfi@dhcp22.suse.cz>
+References: <20220128144540.153902-1-david@redhat.com>
+ <20220131170123.42d7f46ecea0da1cb1579113@linux-foundation.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20220131170123.42d7f46ecea0da1cb1579113@linux-foundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon 31-01-22 17:01:23, Andrew Morton wrote:
+> On Fri, 28 Jan 2022 15:45:40 +0100 David Hildenbrand <david@redhat.com> wrote:
+> 
+> > If register_memory() fails, we freed the memory block but already added
+> > the memory block to the group list, not good. Let's defer adding the
+> > block to the memory group to after registering the memory block device.
+> > 
+> > We do handle it properly during unregister_memory(), but that's not
+> > called when the registration fails.
+> > 
+> 
+> I guess this has never been known to happen.  So I queued the fix for
+> 5.18-rc1, cc:stable.
 
---huq684BweRXVnRxX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I do not think this is worth stable backporting. Chances of a failure
+are pretty small and I am not aware of any existing report.
 
-Hi!
-
-> This is the start of the stable review cycle for the 5.10.96 release.
-> There are 100 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
-> Responses should be made by Wed, 02 Feb 2022 10:51:59 +0000.
-> Anything received after that time might be too late.
->=20
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.96=
--rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git=
- linux-5.10.y
-> and the diffstat can be found below.
-
-It seems we have boot problem on x86 qemu:
-
-https://lava.ciplatform.org/scheduler/job/616782
-
-
-[    0.183194] APIC: Switch to symmetric I/O mode setup
-[    0.187399] ..TIMER: vector=3D0x30 apic1=3D0 pin1=3D2 apic2=3D-1 pin2=3D=
--1
-[    0.200659] ..MP-BIOS bug: 8254 timer not connected to IO-APIC
-[    0.200984] ...trying to set up timer (IRQ0) through the 8259A ...
-[    0.201309] ..... (found apic 0 pin 2) ...
-[    0.214131] ....... failed.
-[    0.214303] ...trying to set up timer as Virtual Wire IRQ...
-[    0.227212] ..... failed.
-[    0.227390] ...trying to set up timer as ExtINT IRQ...
-[    1.287247] ..... failed :(.
-[    1.287584] Kernel panic - not syncing: IO-APIC + timer doesn't work!  B=
-oot with apic=3Ddebug and send a report.  Then try booting with the 'noapic=
-' option.
-[    1.288043] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.10.96-rc1+ #1
-[    1.288231] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS =
-1.12.0-1 04/01/2014
-[    1.288582] Call Trace:
-
-Other than that we have only the usual gmp.h failures.
-
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/4=
-59895032
-
-I'll re-trigger the x86 qemu test, but it looks like real problem to me.
-
-Best regards,
-								Pavel
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---huq684BweRXVnRxX
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYfkiJQAKCRAw5/Bqldv6
-8n5AAJ9Vs2ZjiNv3VnRV6DLpWeNApOGjQQCeOUW/Aae6c5nuWxykrs8cjme32xs=
-=Tufm
------END PGP SIGNATURE-----
-
---huq684BweRXVnRxX--
+-- 
+Michal Hocko
+SUSE Labs
