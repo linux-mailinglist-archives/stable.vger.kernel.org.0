@@ -2,89 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 086B94A6228
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 18:18:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA2B44A62C0
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 18:42:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240924AbiBARSC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 12:18:02 -0500
-Received: from nef2.ens.fr ([129.199.96.40]:54513 "EHLO nef.ens.fr"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S240981AbiBARSB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Feb 2022 12:18:01 -0500
-X-ENS-nef-client:   129.199.1.22 ( name = clipper-gw.ens.fr )
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ens.fr; s=default;
-        t=1643735880; bh=HP2hfOu/xEREZTYBSfGb6sZ0yN0dsgbdS1i5x+3P+B0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Oyid24yOA8lQWnde2rQ5MZZdaMg4SB6C0hDQ86GHkcjDg/RW7KQIvsA5uJF9OSPQV
-         DiWmmrs/caCrogJ3jkO9crN5Qye1l0MfJqfeCaMWpF4wtWVxquzwaiCYnrO06Wxtb5
-         NBbUmBhkgQpBe0xFq6yy4ogzZdtfHDCh+Bi9hSsM=
-Received: from clipper.ens.fr (clipper-gw.ens.fr [129.199.1.22])
-          by nef.ens.fr (8.14.4/1.01.28121999) with ESMTP id 211HHxHN015886
-          ; Tue, 1 Feb 2022 18:17:59 +0100
-Received: from  optiplex-7.sg.lan using smtps by clipper.ens.fr (8.14.4/jb-1.1)
-       id 211HHtQg094754 ; Tue, 1 Feb 2022 18:17:59 +0100 (authenticated user gbertholon)
-X-ENS-Received:  (maths.r-prg.net.univ-paris7.fr [81.194.27.158])
-From:   Guillaume Bertholon <guillaume.bertholon@ens.fr>
-To:     gregkh@linuxfoundation.org
-Cc:     stable@vger.kernel.org,
-        Guillaume Bertholon <guillaume.bertholon@ens.fr>
-Subject: [PATCH stable 4.4] KVM: x86: Fix misplaced backport of "work around leak of uninitialized stack contents"
-Date:   Tue,  1 Feb 2022 18:17:51 +0100
-Message-Id: <1643735871-15065-1-git-send-email-guillaume.bertholon@ens.fr>
-X-Mailer: git-send-email 2.7.4
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.4.3 (nef.ens.fr [129.199.96.32]); Tue, 01 Feb 2022 18:18:00 +0100 (CET)
+        id S241616AbiBARm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 12:42:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41808 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241625AbiBARm2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 12:42:28 -0500
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1550C06173B
+        for <stable@vger.kernel.org>; Tue,  1 Feb 2022 09:42:28 -0800 (PST)
+Received: by mail-pg1-x52c.google.com with SMTP id h23so15945478pgk.11
+        for <stable@vger.kernel.org>; Tue, 01 Feb 2022 09:42:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=vhbsaPXRN6qpaH3EcTlj1lw/CnHxtLDmESfLBYeglk4=;
+        b=JiI+EQwQF/vGpxyGR7FNFez5SYbz8GUAZo+cQDbg0T7HyMMU3KdVLF9QlYLoPiA3O1
+         rHgOJpMlf0yGkgfwiQN7AcFYsM7YwGe2QhzVgEPO/2n82ihgi2lS9rzfkClJ18LGoLru
+         5YMAU0z7lnBX7f2BGI+Vaoni4c4WGUABWZdaMfMKVIcZwcY3ZGc7KXmx+uTIB1VICedH
+         5xieFezgfwX9j/kt9x1/2/dRCKdHwNLjD/0W1AzSV368A9Hg/lCShXarsgneLdOHE4Ep
+         FRnozFvbH6iSzXLTyQql/qyV9XpvYzJC7nTz3uhNlMeMUn6jyhkIRzNS3V8J9j35R/5b
+         5jKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=vhbsaPXRN6qpaH3EcTlj1lw/CnHxtLDmESfLBYeglk4=;
+        b=xLq3VxS/dFv0hjrlchDDR3rLOOe/I52dW6aHYBJ+TLuaCeKJhAfcbUAfXxdMqdvDbN
+         2rzV7X1U0uvRpdQ/gLNSFhRh5yGnxL71ZLrAr1lS11l7Q5a+u6G0KEtPGqWm/PKGhhLy
+         +ZAbnJul4fs20Qz5dsr9j9FsdyuhtM7pbZyc/LXLPO+inlVOUtiGs0mOPMXB6rm4TapK
+         FV6hTG13W8lQE/LtkFQj0fCzoG6ecTEYevL88gBsvoUYWfUhNAQwN0+1rcQW9NknpJs8
+         XsUF71h3r3UqtjIJS5mxj7yuzF6K7SXKRolaO4bjpdWXaUJs3c2evyGOLtQ9DLWd/Ch1
+         rVRg==
+X-Gm-Message-State: AOAM532Dwb4u+naNRdaSdlgQtmsRO7ajdAmM1AmRLp9VZ0bp6WAYaV+u
+        1orIE1hhBNBPv5XiSmWW9sEk41mcsD27oU7m
+X-Google-Smtp-Source: ABdhPJyZG21nlfoFoOb1m8IxFyKhbltCaZYe4GNSNdULuZ+mTOxj2+MdiD/ecW0qEPVnrhjGL8VutA==
+X-Received: by 2002:a63:24a:: with SMTP id 71mr11888824pgc.300.1643737348089;
+        Tue, 01 Feb 2022 09:42:28 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u37sm8159391pga.2.2022.02.01.09.42.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Feb 2022 09:42:27 -0800 (PST)
+Message-ID: <61f97103.1c69fb81.22ce.4a7f@mx.google.com>
+Date:   Tue, 01 Feb 2022 09:42:27 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.301-21-g4b4eb3554fea
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/4.4
+Subject: stable-rc/queue/4.4 baseline: 118 runs,
+ 2 regressions (v4.4.301-21-g4b4eb3554fea)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The upstream commit 541ab2aeb282 ("KVM: x86: work around leak of
-uninitialized stack contents") resets `exception` in the function
-`kvm_write_guest_virt_system`.
-However, its backported version in stable (commit ba7f1c934f2e
-("KVM: x86: work around leak of uninitialized stack contents")) applied
-the change in `emulator_write_std` instead.
+stable-rc/queue/4.4 baseline: 118 runs, 2 regressions (v4.4.301-21-g4b4eb35=
+54fea)
 
-This patch moves the memset instruction back to
-`kvm_write_guest_virt_system`.
+Regressions Summary
+-------------------
 
-Fixes: ba7f1c934f2e ("KVM: x86: work around leak of uninitialized stack contents")
-Signed-off-by: Guillaume Bertholon <guillaume.bertholon@ens.fr>
----
- arch/x86/kvm/x86.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+platform         | arch   | lab           | compiler | defconfig           =
+| regressions
+-----------------+--------+---------------+----------+---------------------=
++------------
+panda            | arm    | lab-collabora | gcc-10   | omap2plus_defconfig =
+| 1          =
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 8dce61c..9101002 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -4417,13 +4417,6 @@ static int emulator_write_std(struct x86_emulate_ctxt *ctxt, gva_t addr, void *v
- 	if (!system && kvm_x86_ops->get_cpl(vcpu) == 3)
- 		access |= PFERR_USER_MASK;
+qemu_x86_64-uefi | x86_64 | lab-collabora | gcc-10   | x86_64_defconfig    =
+| 1          =
 
--	/*
--	 * FIXME: this should call handle_emulation_failure if X86EMUL_IO_NEEDED
--	 * is returned, but our callers are not ready for that and they blindly
--	 * call kvm_inject_page_fault.  Ensure that they at least do not leak
--	 * uninitialized kernel stack memory into cr2 and error code.
--	 */
--	memset(exception, 0, sizeof(*exception));
- 	return kvm_write_guest_virt_helper(addr, val, bytes, vcpu,
- 					   access, exception);
- }
-@@ -4431,6 +4424,13 @@ static int emulator_write_std(struct x86_emulate_ctxt *ctxt, gva_t addr, void *v
- int kvm_write_guest_virt_system(struct kvm_vcpu *vcpu, gva_t addr, void *val,
- 				unsigned int bytes, struct x86_exception *exception)
- {
-+	/*
-+	 * FIXME: this should call handle_emulation_failure if X86EMUL_IO_NEEDED
-+	 * is returned, but our callers are not ready for that and they blindly
-+	 * call kvm_inject_page_fault.  Ensure that they at least do not leak
-+	 * uninitialized kernel stack memory into cr2 and error code.
-+	 */
-+	memset(exception, 0, sizeof(*exception));
- 	return kvm_write_guest_virt_helper(addr, val, bytes, vcpu,
- 					   PFERR_WRITE_MASK, exception);
- }
---
-2.7.4
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.301-21-g4b4eb3554fea/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.301-21-g4b4eb3554fea
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4b4eb3554feaad045459f8fc34992e584c4349a3 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch   | lab           | compiler | defconfig           =
+| regressions
+-----------------+--------+---------------+----------+---------------------=
++------------
+panda            | arm    | lab-collabora | gcc-10   | omap2plus_defconfig =
+| 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f9399c8ebcf92f0b5d6f10
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.301-2=
+1-g4b4eb3554fea/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.301-2=
+1-g4b4eb3554fea/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61f9399c8ebcf92=
+f0b5d6f16
+        new failure (last pass: v4.4.301-21-gf1b3a01fec55)
+        2 lines
+
+    2022-02-01T13:45:44.168100  [   18.956115] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-02-01T13:45:44.219811  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/123
+    2022-02-01T13:45:44.229104  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
+    2022-02-01T13:45:44.250605  [   19.039184] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =
+
+
+
+platform         | arch   | lab           | compiler | defconfig           =
+| regressions
+-----------------+--------+---------------+----------+---------------------=
++------------
+qemu_x86_64-uefi | x86_64 | lab-collabora | gcc-10   | x86_64_defconfig    =
+| 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f948378da9d3f9e85d6efb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.301-2=
+1-g4b4eb3554fea/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu_=
+x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.301-2=
+1-g4b4eb3554fea/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu_=
+x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61f948378da9d3f9e85d6=
+efc
+        new failure (last pass: v4.4.301-21-gf1b3a01fec55) =
+
+ =20
