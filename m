@@ -2,96 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEE054A59E7
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 11:22:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C0214A5A1F
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 11:36:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235170AbiBAKWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 05:22:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53382 "EHLO
+        id S236696AbiBAKg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 05:36:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232712AbiBAKWY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 05:22:24 -0500
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB76DC06173B
-        for <stable@vger.kernel.org>; Tue,  1 Feb 2022 02:22:22 -0800 (PST)
-Received: by mail-pf1-x432.google.com with SMTP id n32so15419900pfv.11
-        for <stable@vger.kernel.org>; Tue, 01 Feb 2022 02:22:22 -0800 (PST)
+        with ESMTP id S236708AbiBAKg5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 05:36:57 -0500
+Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E911AC061401
+        for <stable@vger.kernel.org>; Tue,  1 Feb 2022 02:36:56 -0800 (PST)
+Received: by mail-oi1-x233.google.com with SMTP id 4so7912964oil.11
+        for <stable@vger.kernel.org>; Tue, 01 Feb 2022 02:36:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=heitbaum.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=CaMzrp6CD4pfO3e5Ep+eXwdfnB7JTyIu6P8uVnKFFrU=;
-        b=N1oMf5jw9LrwWQqfKsvprnVPewxZi/NS23yhShpDQrHhyP4UqzhPdVOcrPSFLXxXIH
-         62JXGjyJCiU2eBsVqTUZYoC7bvfprbX4GDY+hFEGwYJwDodhkzXRRV1S4bkwZhrcV1Vj
-         NtOoJdDCMQSDaRdqTkfNxtPDhTueWaSTAr240=
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=thQSKAMpg3vonVejk+upRRfxFVRMJlvDC8QT1+vvLTE=;
+        b=BjysRH1/UjWKl4SwTWns+a3iySdYESImlXYI7dzIfcW5U3YKan1zfT4PIm9Yg1CO+i
+         UeBzRv66NeNKkAxDGEvzfZAO0hDDWZu37G4sPsJ0qidfgez8DuvVdkYwSyJc/ruD4Unm
+         v10dtEg3+JZQA08R+oq5qhyMzzEa33iBiE/uo=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=CaMzrp6CD4pfO3e5Ep+eXwdfnB7JTyIu6P8uVnKFFrU=;
-        b=nZ4VgolWyzStdow3PzkcHowmQPgga8R7g4kDfDJvk08WZnR1jj+shgqOW7OT/DrgB6
-         Zirqh4dm74AqGIhlAoBIgbbZ/19+Kgs/PLv1jU4J1Xduc8Vb7gyM9ZtoZOw6B3FcHigP
-         a76nk7VKJ5ix0cS6lmaOvxp2HUnsZp/bRUExsSj0PpMZTi0aU5bXQWJ5/oc9ZV1xTsoD
-         VsYVZWNwJicvyZ/f7QWWHuRuoPdVP3U5LZU/6haikZbZVAaAFXYYqxEioFCFZVBRv9pT
-         COiIXQQYJpv9twdh/WzxiPdC8VBAiDnv5Qd5YbqktssfxaGqDQu5UPHDSci5jES0YPKt
-         eNfw==
-X-Gm-Message-State: AOAM531QHiouqBcGQ2IYwPpvl7UjZY7BA1PNVeIzxxoybn1oUcfM5D8B
-        l1s/4nEMObHJ/D0umFmmTDAuFw==
-X-Google-Smtp-Source: ABdhPJwpqj5Cjaud7YJwIt2CFU4GZOe/GYVTB6r+TfkTtxWPKJ5Lduqatqn4YkysEWKcyD10QGxLHw==
-X-Received: by 2002:a63:e302:: with SMTP id f2mr20232686pgh.451.1643710942130;
-        Tue, 01 Feb 2022 02:22:22 -0800 (PST)
-Received: from d7a09e6e3461 ([203.221.136.13])
-        by smtp.gmail.com with ESMTPSA id b22sm22471758pfl.121.2022.02.01.02.22.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Feb 2022 02:22:21 -0800 (PST)
-Date:   Tue, 1 Feb 2022 10:22:12 +0000
-From:   Rudi Heitbaum <rudi@heitbaum.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com
-Subject: Re: [PATCH 5.16 000/200] 5.16.5-rc1 review
-Message-ID: <20220201102212.GA26@d7a09e6e3461>
-References: <20220131105233.561926043@linuxfoundation.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=thQSKAMpg3vonVejk+upRRfxFVRMJlvDC8QT1+vvLTE=;
+        b=HXcIY+DIj6z8MMpSXAyT02HT0ASPGB8jYU7STyD9hTlMINxScnQba7NShaYFjiArDu
+         JUd5j+2G239BBF9KUCiST/ePZJZ98Nv2my0gcGLHapSmlnsXOmtogzf0D+Hv0bDxtbbY
+         SLA9Uxgr4jA3benqmsumhhD2BukwOFylDhYoOX+0mjj8PELLlZEr6LovhJ1eVnry3dum
+         PgOBzm44DkrlVwblvtilx2jO0xMXiooyW0bBGvrv5msKJzkeEvggysoDr6zy2hjF5d5X
+         0dUq14q3UvLUBJSfRCRUMwcjqWtxC9lOn9PSUfx+5J1RO4HQaGIETSjKMzZsycSWLp+G
+         awzA==
+X-Gm-Message-State: AOAM530JYs7GkoadnSMTjeeykVD311deOSO1oE8wHJ+r9WldEiM9hR8X
+        gVRVP6J4dI8xWSxn3U/pZqZjlGhh5eKhYuJibj+tWw==
+X-Google-Smtp-Source: ABdhPJyRYjaTjIpRbmzrzjkG0kQCosoH7kxsVtTm5JDqQlhuefr1UAJQF2kq5O9RD6DgxMJ94sRyCMJm8h5u3PghwEM=
+X-Received: by 2002:a54:4803:: with SMTP id j3mr745297oij.279.1643711816234;
+ Tue, 01 Feb 2022 02:36:56 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
+References: <20220131210552.482606-1-daniel.vetter@ffwll.ch>
+ <20220131210552.482606-4-daniel.vetter@ffwll.ch> <9c22b709-cbcf-6a29-a45e-5a57ba0b9c14@gmx.de>
+In-Reply-To: <9c22b709-cbcf-6a29-a45e-5a57ba0b9c14@gmx.de>
+From:   Daniel Vetter <daniel.vetter@ffwll.ch>
+Date:   Tue, 1 Feb 2022 11:36:44 +0100
+Message-ID: <CAKMK7uGvOVe8kkJCTkQBEFw+3i2iAMANsyG9vGqZkcROZ9he4A@mail.gmail.com>
+Subject: Re: [PATCH 03/21] fbcon: Restore fbcon scrolling acceleration
+To:     Helge Deller <deller@gmx.de>
+Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
+        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        linux-fbdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Claudio Suarez <cssk@net-c.es>,
+        Dave Airlie <airlied@gmail.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Pavel Machek <pavel@ucw.cz>, Sam Ravnborg <sam@ravnborg.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Sven Schnelle <svens@stackframe.org>,
+        Gerd Hoffmann <kraxel@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 31, 2022 at 11:54:23AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.5 release.
-> There are 200 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 02 Feb 2022 10:51:59 +0000.
-> Anything received after that time might be too late.
+On Tue, Feb 1, 2022 at 11:16 AM Helge Deller <deller@gmx.de> wrote:
+>
+> On 1/31/22 22:05, Daniel Vetter wrote:
+> > This functionally undoes 39aead8373b3 ("fbcon: Disable accelerated
+> > scrolling"), but behind the FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
+> > option.
+>
+> you have two trivial copy-n-paste errors in this patch which still prevent the
+> console acceleration.
 
-Hi Greg,
+Duh :-(
 
-5.16.5-rc1 tested.
+But before we dig into details I think the big picture would be
+better. I honestly don't like the #ifdef pile here that much. I wonder
+whether your approach, also with GETVX/YRES adjusted somehow, wouldn't
+look cleaner? Like I said in the cover letter I got mostly distracted
+with fbcon locking last week, not really with this one here at all, so
+maybe going with your 4 (or 2 if we squash them like I did here)
+patches is neater?
 
-Run tested on:
-- Allwinner H6 (Tanix TX6)
-- Intel Tiger Lake x86_64 (nuc11 i7-1165G7)
+Cheers, Daniel
 
-In addition - build tested on:
-- Allwinner A64
-- Allwinner H3
-- Allwinner H5
-- NXP iMX6
-- NXP iMX8
-- Qualcomm Dragonboard
-- Rockchip RK3288
-- Rockchip RK3328
-- Rockchip RK3399pro
-- Samsung Exynos
+>
+> > diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
+> > index 2ff90061c7f3..39dc18a5de86 100644
+> > --- a/drivers/video/fbdev/core/fbcon.c
+> > +++ b/drivers/video/fbdev/core/fbcon.c
+> > @@ -1125,13 +1125,15 @@ static void fbcon_init(struct vc_data *vc, int init)
+> >
+> >       ops->graphics = 0;
+> >
+> > -     /*
+> > -      * No more hw acceleration for fbcon.
+> > -      *
+> > -      * FIXME: Garbage collect all the now dead code after sufficient time
+> > -      * has passed.
+> > -      */
+> > +#ifdef CONFIG_FRAMEBUFFER_CONSOLE_ROTATION
+>
+> should be:
+> #ifdef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
+>
+>
+> > +     if ((info->flags & FBINFO_HWACCEL_COPYAREA) &&
+> > +         !(info->flags & FBINFO_HWACCEL_DISABLED))
+> > +             p->scrollmode = SCROLL_MOVE;
+> > +     else /* default to something safe */
+> > +             p->scrollmode = SCROLL_REDRAW;
+> > +#else
+> >       p->scrollmode = SCROLL_REDRAW;
+> > +#endif
+> >
+> >       /*
+> >        *  ++guenther: console.c:vc_allocate() relies on initializing
+> > @@ -1971,15 +1973,49 @@ static void updatescrollmode(struct fbcon_display *p,
+> >  {
+> >       struct fbcon_ops *ops = info->fbcon_par;
+> >       int fh = vc->vc_font.height;
+> > +     int cap = info->flags;
+> > +     u16 t = 0;
+> > +     int ypan = FBCON_SWAP(ops->rotate, info->fix.ypanstep,
+> > +                           info->fix.xpanstep);
+> > +     int ywrap = FBCON_SWAP(ops->rotate, info->fix.ywrapstep, t);
+> >       int yres = FBCON_SWAP(ops->rotate, info->var.yres, info->var.xres);
+> >       int vyres = FBCON_SWAP(ops->rotate, info->var.yres_virtual,
+> >                                  info->var.xres_virtual);
+> > +     int good_pan = (cap & FBINFO_HWACCEL_YPAN) &&
+> > +             divides(ypan, vc->vc_font.height) && vyres > yres;
+> > +     int good_wrap = (cap & FBINFO_HWACCEL_YWRAP) &&
+> > +             divides(ywrap, vc->vc_font.height) &&
+> > +             divides(vc->vc_font.height, vyres) &&
+> > +             divides(vc->vc_font.height, yres);
+> > +     int reading_fast = cap & FBINFO_READS_FAST;
+> > +     int fast_copyarea = (cap & FBINFO_HWACCEL_COPYAREA) &&
+> > +             !(cap & FBINFO_HWACCEL_DISABLED);
+> > +     int fast_imageblit = (cap & FBINFO_HWACCEL_IMAGEBLIT) &&
+> > +             !(cap & FBINFO_HWACCEL_DISABLED);
+> >
+> >       p->vrows = vyres/fh;
+> >       if (yres > (fh * (vc->vc_rows + 1)))
+> >               p->vrows -= (yres - (fh * vc->vc_rows)) / fh;
+> >       if ((yres % fh) && (vyres % fh < yres % fh))
+> >               p->vrows--;
+> > +
+> > +     if (good_wrap || good_pan) {
+> > +             if (reading_fast || fast_copyarea)
+> > +                     p->scrollmode = good_wrap ?
+> > +                             SCROLL_WRAP_MOVE : SCROLL_PAN_MOVE;
+> > +             else
+> > +                     p->scrollmode = good_wrap ? SCROLL_REDRAW :
+> > +                             SCROLL_PAN_REDRAW;
+> > +     } else {
+> > +             if (reading_fast || (fast_copyarea && !fast_imageblit))
+> > +                     p->scrollmode = SCROLL_MOVE;
+> > +             else
+> > +                     p->scrollmode = SCROLL_REDRAW;
+> > +     }
+> > +
+> > +#ifndef CONFIG_FRAMEBUFFER_CONSOLE_ROTATION
+>
+> same here... it needs to be:
+> #ifdef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
+>
+>
+> > +     p->scrollmode = SCROLL_REDRAW;
+> > +#endif
+> >  }
+> >
+> >  #define PITCH(w) (((w) + 7) >> 3)
+> >
+>
+> still reviewing the other patches...
+>
+> Helge
 
-Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
---
-Rudi
+
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
