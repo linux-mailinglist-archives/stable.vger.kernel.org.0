@@ -2,163 +2,283 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD4964A615E
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 17:30:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 380844A61A6
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 17:56:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241092AbiBAQat (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 11:30:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53380 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241088AbiBAQas (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 11:30:48 -0500
-Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49F55C06173B
-        for <stable@vger.kernel.org>; Tue,  1 Feb 2022 08:30:48 -0800 (PST)
-Received: by mail-oi1-x231.google.com with SMTP id 4so9884303oil.11
-        for <stable@vger.kernel.org>; Tue, 01 Feb 2022 08:30:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=SmoAfGUcv3WuX5MTMsQtLDuakLAcJhTCCEdC4MKfCJU=;
-        b=hE0dHoYE2FXofMs4e1RcU8c6vfA8rv8R3XWFaQ0os1A+wPd9bM/1RxDIdOUGSJs44C
-         IbvTPs4DM04VagcMezxMBUFH8mDLy9QtjjQblNkO/XUP+kEMmcvVuSs6Ghbzv6BTRJkJ
-         xLtV9OHhTOddvn0QXAX7viusKmGqEOG1wVJo8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=SmoAfGUcv3WuX5MTMsQtLDuakLAcJhTCCEdC4MKfCJU=;
-        b=ZctAD1NEkfYz3edAmn+13+1E0W1GfEbnJUzn7I21E2iwof5MR4LHgjq1SLB0g11sXY
-         ppxsBcB4snGwryda2bd28s2O+XHBoltSNvULxqZiQ0wmLGlpyS0LkJhWso35E+n6/2KX
-         DqDkk6/t1KJ07Yh4FtgLxFS+9dalcLMPjk+kGsOk9CX5R/1+h0bcKdz/Ue8DG1bAzipA
-         VdJtlPIcwtQU4dAckfhYK+JXFikaBIppjDu4UwDKDfvyawMKPGle0c9ihpzkQdMxTWbA
-         wo0bev8idGY4v0JglSPZWfywI22XG8zcrJLbTil+gTkC0q6haAXaW7OQR5s/fJLYidC/
-         sbeA==
-X-Gm-Message-State: AOAM533SMk5zhHvitNrwelro+7a0LpwvgB02Vqa3FQYN2lPYoWviPJzd
-        EOOvMqIcrWGYKa3BBSBX9NN5FxAUVjO0R6+p3tSaHw==
-X-Google-Smtp-Source: ABdhPJz3JayTHVyC51m4kdAPGDzLvlPbnDnx2e6c/T0JZ7beOtPGbdiv2N+Jc7yrinJz0jrqaKDfzGNAZgBoR3v4+Ao=
-X-Received: by 2002:a54:4803:: with SMTP id j3mr1774572oij.279.1643733047225;
- Tue, 01 Feb 2022 08:30:47 -0800 (PST)
+        id S237039AbiBAQ4g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 11:56:36 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42404 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229861AbiBAQ4g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 11:56:36 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 715AA60AFF;
+        Tue,  1 Feb 2022 16:56:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46C29C340F0;
+        Tue,  1 Feb 2022 16:56:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643734594;
+        bh=ndMBIcfDkjQjfvbW+806aGc1LHv7c0k0qL3S5Avw86U=;
+        h=From:To:Cc:Subject:Date:From;
+        b=G4zbF/hA2BkcR7YlYDicO1Xpsc2S1XTjfFpzX40DIF8LkJyW6n2bN5NhfzcZcZZds
+         vuFRci2fnfkyTaf62pdUghO4YOAKBsxed9nLK24nZZRE1b+HJSjrmncZyFaeAD4BYY
+         uoxj/uhl7sy+EIYSVRxI8JYxrJqzIb3xPXvM/0JY=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.4.176
+Date:   Tue,  1 Feb 2022 17:56:30 +0100
+Message-Id: <1643734590118249@kroah.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-References: <20220131210552.482606-1-daniel.vetter@ffwll.ch>
- <20220131210552.482606-4-daniel.vetter@ffwll.ch> <9c22b709-cbcf-6a29-a45e-5a57ba0b9c14@gmx.de>
- <CAKMK7uGvOVe8kkJCTkQBEFw+3i2iAMANsyG9vGqZkcROZ9he4A@mail.gmail.com>
- <63018892-68e8-01b6-1e8f-853892e15c97@gmx.de> <CAKMK7uHPn77GA12fFjmvkRUDQXSBkbYK5X=rJp8sfO_xarys_g@mail.gmail.com>
- <313c4c72-364b-1d61-09c1-e4a83cbefe6a@gmx.de>
-In-Reply-To: <313c4c72-364b-1d61-09c1-e4a83cbefe6a@gmx.de>
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-Date:   Tue, 1 Feb 2022 17:30:36 +0100
-Message-ID: <CAKMK7uE5A6+s6=yaCUsKN0XrMAESLKNwz2_bJR9YL3S7YeDzMw@mail.gmail.com>
-Subject: Re: [PATCH 03/21] fbcon: Restore fbcon scrolling acceleration
-To:     Helge Deller <deller@gmx.de>
-Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
-        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        linux-fbdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Claudio Suarez <cssk@net-c.es>,
-        Dave Airlie <airlied@gmail.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Pavel Machek <pavel@ucw.cz>, Sam Ravnborg <sam@ravnborg.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Sven Schnelle <svens@stackframe.org>,
-        Gerd Hoffmann <kraxel@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 1, 2022 at 3:52 PM Helge Deller <deller@gmx.de> wrote:
->
-> On 2/1/22 14:45, Daniel Vetter wrote:
-> > On Tue, Feb 1, 2022 at 12:01 PM Helge Deller <deller@gmx.de> wrote:
-> >> On 2/1/22 11:36, Daniel Vetter wrote:
-> >>> On Tue, Feb 1, 2022 at 11:16 AM Helge Deller <deller@gmx.de> wrote:
-> >>>>
-> >>>> On 1/31/22 22:05, Daniel Vetter wrote:
-> >>>>> This functionally undoes 39aead8373b3 ("fbcon: Disable accelerated
-> >>>>> scrolling"), but behind the FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
-> >>>>> option.
-> >>>>
-> >>>> you have two trivial copy-n-paste errors in this patch which still prevent the
-> >>>> console acceleration.
-> >>>
-> >>> Duh :-(
-> >>>
-> >>> But before we dig into details I think the big picture would be
-> >>> better. I honestly don't like the #ifdef pile here that much.
-> >>
-> >> Me neither.
-> >> The ifdefs give a better separation, but prevents that the compiler
-> >> checks the various paths when building.
-> >>
-> >>> I wonder whether your approach, also with GETVX/YRES adjusted
-> >>> somehow, wouldn't look cleaner?
-> >> I think so.
-> >> You wouldn't even need to touch GETVX/YRES because the compiler
-> >> will optimize/reduce it from
-> >>
-> >> #define GETVYRES(s,i) ({                           \
-> >>         (s == SCROLL_REDRAW || s == SCROLL_MOVE) ? \
-> >>         (i)->var.yres : (i)->var.yres_virtual; })
-> >>
-> >> to just become:
-> >>
-> >> #define GETVYRES(s,i) ((i)->var.yres)
-> >
-> > Yeah, but you need to roll out your helper to all the callsites. But
-> > since you #ifdef out info->scrollmode we should catch them all I
-> > guess.
->
-> Right. That was the only reason why I ifdef'ed it out.
-> Technically we don't need that ifdef.
->
-> >>> Like I said in the cover letter I got mostly distracted with fbcon
-> >>> locking last week, not really with this one here at all, so maybe
-> >>> going with your 4 (or 2 if we squash them like I did here) patches is
-> >>> neater?
-> >>
-> >> The benefit of my patch series was, that it could be easily backported first,
-> >> and then cleaned up afterwards. Even a small additional backport patch to disable
-> >> the fbcon acceleration for DRM in the old releases would be easy.
-> >> But I'm not insisting on backporting the patches, if we find good way forward.
-> >>
-> >> So, either with the 4 (or 2) patches would be OK for me (or even your approach).
-> >
-> > The idea behind the squash was that it's then impossible to backport
-> > without the Kconfig,
->
-> Yes, my proposal was to simply revert the 2 patches and immediatly send
-> the Kconfig patch to disable it again.
->
-> > and so we'll only enable this code when people
-> > intentionally want it. Maybe I'm too paranoid?
->
-> I think you are too paranoid :-)
-> If all patches incl. the Kconfig patch are backported then people shouldn't
-> do it wrong.
->
-> > Anyway, you feel like finishing off your approach? Or should I send
-> > out v2 of this with the issues fixed you spotted? Like I said either
-> > is fine with me.
->
-> Ok, then let me try to finish my approach until tomorrow, and then you
-> check if you can and want to add your locking and other patches on top of it.
-> In the end I leave the decision which approach to take to you.
-> Ok?
+I'm announcing the release of the 5.4.176 kernel.
 
-Sounds good, and yeah rough idea is that the maintainers + revert +
-Kconfig should go in for rc3 or rc4 if we hit another bump, and the
-locking stuff then in for -next (since it needs a backmerge and is
-defo tricky stuff).
+All users of the 5.4 kernel series must upgrade.
 
-Cheers, Daniel
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+The updated 5.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Documentation/devicetree/bindings/net/can/tcan4x5x.txt    |    2 
+ Makefile                                                  |    2 
+ arch/arm64/kernel/process.c                               |   39 ++--
+ arch/powerpc/kernel/Makefile                              |    1 
+ arch/powerpc/lib/Makefile                                 |    3 
+ arch/s390/hypfs/hypfs_vm.c                                |    6 
+ block/bio.c                                               |    3 
+ drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c              |    4 
+ drivers/gpu/drm/msm/dsi/dsi.c                             |    7 
+ drivers/gpu/drm/msm/dsi/phy/dsi_phy.c                     |    4 
+ drivers/gpu/drm/msm/hdmi/hdmi.c                           |    7 
+ drivers/gpu/drm/msm/msm_drv.c                             |    2 
+ drivers/hwmon/lm90.c                                      |    7 
+ drivers/mtd/nand/raw/mpc5121_nfc.c                        |    1 
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c |    3 
+ drivers/net/ethernet/ibm/ibmvnic.c                        |  112 ++++++++------
+ drivers/net/ethernet/intel/i40e/i40e.h                    |    9 -
+ drivers/net/ethernet/intel/i40e/i40e_debugfs.c            |    2 
+ drivers/net/ethernet/intel/i40e/i40e_main.c               |   44 ++---
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c        |   59 +++++++
+ drivers/net/hamradio/yam.c                                |    4 
+ drivers/net/phy/broadcom.c                                |    1 
+ drivers/net/phy/phy_device.c                              |    6 
+ drivers/net/phy/phylink.c                                 |    5 
+ drivers/rpmsg/rpmsg_char.c                                |   22 --
+ drivers/s390/scsi/zfcp_fc.c                               |   13 +
+ drivers/scsi/bnx2fc/bnx2fc_fcoe.c                         |   20 --
+ drivers/tty/n_gsm.c                                       |    4 
+ drivers/tty/serial/8250/8250_of.c                         |   11 +
+ drivers/tty/serial/8250/8250_pci.c                        |  100 ++++++++++++
+ drivers/tty/serial/stm32-usart.c                          |    2 
+ drivers/usb/common/ulpi.c                                 |    7 
+ drivers/usb/core/hcd.c                                    |   14 +
+ drivers/usb/core/urb.c                                    |   12 +
+ drivers/usb/gadget/function/f_sourcesink.c                |    1 
+ drivers/usb/storage/unusual_devs.h                        |   10 +
+ drivers/usb/typec/tcpm/tcpm.c                             |    3 
+ drivers/usb/typec/ucsi/ucsi_ccg.c                         |    2 
+ fs/btrfs/ioctl.c                                          |    6 
+ fs/configfs/dir.c                                         |    6 
+ fs/devpts/inode.c                                         |    2 
+ fs/namei.c                                                |   10 -
+ fs/nfs/dir.c                                              |   22 ++
+ fs/nfsd/nfsctl.c                                          |    5 
+ fs/udf/inode.c                                            |    9 -
+ include/linux/fsnotify.h                                  |   48 +++++-
+ include/linux/netdevice.h                                 |    1 
+ include/net/ip.h                                          |   21 +-
+ include/net/ip6_fib.h                                     |    2 
+ include/net/route.h                                       |    2 
+ kernel/power/wakelock.c                                   |   11 -
+ kernel/trace/trace.c                                      |    3 
+ kernel/trace/trace_events_hist.c                          |    1 
+ net/bluetooth/hci_event.c                                 |   10 -
+ net/core/net-procfs.c                                     |   38 ++++
+ net/ipv4/ip_output.c                                      |   11 +
+ net/ipv4/ping.c                                           |    3 
+ net/ipv4/raw.c                                            |    5 
+ net/ipv6/ip6_fib.c                                        |   23 +-
+ net/ipv6/ip6_tunnel.c                                     |    8 -
+ net/ipv6/route.c                                          |    2 
+ net/netfilter/nf_conntrack_core.c                         |    8 -
+ net/netfilter/nft_payload.c                               |    3 
+ net/packet/af_packet.c                                    |    2 
+ net/rxrpc/call_event.c                                    |    8 -
+ net/rxrpc/output.c                                        |    2 
+ net/sunrpc/rpc_pipe.c                                     |    4 
+ 67 files changed, 585 insertions(+), 245 deletions(-)
+
+Alan Stern (2):
+      usb-storage: Add unusual-devs entry for VL817 USB-SATA bridge
+      USB: core: Fix hang in usb_kill_urb by adding memory barriers
+
+Amir Goldstein (2):
+      fsnotify: fix fsnotify hooks in pseudo filesystems
+      fsnotify: invalidate dcache before IN_DELETE event
+
+Badhri Jagan Sridharan (1):
+      usb: typec: tcpm: Do not disconnect while receiving VBUS off
+
+Brian Gix (1):
+      Bluetooth: refactor malicious adv data check
+
+Cameron Williams (1):
+      tty: Add support for Brainboxes UC cards.
+
+Christophe Leroy (1):
+      powerpc/32: Fix boot failure with GCC latent entropy plugin
+
+Congyu Liu (1):
+      net: fix information leakage in /proc/net/ptype
+
+D Scott Phillips (1):
+      arm64: errata: Fix exec handling in erratum 1418040 workaround
+
+David Howells (1):
+      rxrpc: Adjust retransmission backoff
+
+Eric Dumazet (5):
+      ipv4: avoid using shared IP generator for connected sockets
+      ipv6: annotate accesses to fn->fn_sernum
+      ipv4: raw: lock the socket in raw_bind()
+      ipv4: tcp: send zero IPID in SYNACK messages
+      ipv4: remove sparse error in ip_neigh_gw4()
+
+Florian Westphal (1):
+      netfilter: conntrack: don't increment invalid counter on NF_REPEAT
+
+Geert Uytterhoeven (1):
+      mtd: rawnand: mpc5121: Remove unused variable in ads5121_select_chip()
+
+Greg Kroah-Hartman (2):
+      PM: wakeup: simplify the output logic of pm_show_wakelocks()
+      Linux 5.4.176
+
+Guenter Roeck (4):
+      hwmon: (lm90) Mark alert as broken for MAX6646/6647/6649
+      hwmon: (lm90) Mark alert as broken for MAX6680
+      hwmon: (lm90) Reduce maximum conversion rate for G781
+      hwmon: (lm90) Mark alert as broken for MAX6654
+
+Hangyu Hua (1):
+      yam: fix a memory leak in yam_siocdevprivate()
+
+Ido Schimmel (1):
+      ipv6_tunnel: Rate limit warning messages
+
+Jan Kara (2):
+      udf: Restore i_lenAlloc when inode expansion fails
+      udf: Fix NULL ptr deref when converting from inline format
+
+Jedrzej Jagielski (2):
+      i40e: Increase delay to 1 s after global EMP reset
+      i40e: Fix issue when maximum queues is exceeded
+
+Jianguo Wu (1):
+      net-procfs: show net devices bound packet types
+
+Joe Damato (1):
+      i40e: fix unsigned stat widths
+
+John Meneghini (1):
+      scsi: bnx2fc: Flush destroy_work queue before calling bnx2fc_interface_put()
+
+Jon Hunter (1):
+      usb: common: ulpi: Fix crash in ulpi_match()
+
+José Expósito (1):
+      drm/msm/dsi: invalid parameter check in msm_dsi_phy_enable
+
+Lucas Stach (1):
+      drm/etnaviv: relax submit size limits
+
+Marc Kleine-Budde (1):
+      dt-bindings: can: tcan4x5x: fix mram-cfg RX FIFO config
+
+Marek Behún (2):
+      net: sfp: ignore disabled SFP node
+      phylib: fix potential use-after-free
+
+Matthias Kaehlcke (1):
+      rpmsg: char: Fix race between the release of rpmsg_eptdev and cdev
+
+Miaoqian Lin (2):
+      drm/msm/dsi: Fix missing put_device() call in dsi_get_phy
+      drm/msm/hdmi: Fix missing put_device() call in msm_hdmi_get_phy
+
+OGAWA Hirofumi (1):
+      block: Fix wrong offset in bio_truncate()
+
+Pablo Neira Ayuso (1):
+      netfilter: nft_payload: do not update layer 4 checksum when mangling fragments
+
+Pavankumar Kondeti (1):
+      usb: gadget: f_sourcesink: Fix isoc transfer for USB_SPEED_SUPER_PLUS
+
+Robert Hancock (2):
+      serial: 8250: of: Fix mapped region size when using reg-offset property
+      net: phy: broadcom: hook up soft_reset for BCM54616S
+
+Sing-Han Chen (1):
+      ucsi_ccg: Check DEV_INT bit only when starting CCG4
+
+Steffen Maier (1):
+      scsi: zfcp: Fix failed recovery on gone remote port with non-NPIV FCP devices
+
+Sujit Kautkar (1):
+      rpmsg: char: Fix race between the release of rpmsg_ctrldev and cdev
+
+Sukadev Bhattiprolu (2):
+      ibmvnic: init ->running_cap_crqs early
+      ibmvnic: don't spin in tasklet
+
+Sylwester Dziedziuch (1):
+      i40e: Fix queues reservation for XDP
+
+Tom Zanussi (1):
+      tracing: Don't inc err_log entry count if entry allocation fails
+
+Trond Myklebust (4):
+      NFSv4: Handle case where the lookup of a directory fails
+      NFSv4: nfs_atomic_open() can race when looking up a non-regular file
+      NFS: Ensure the server has an up to date ctime before hardlinking
+      NFS: Ensure the server has an up to date ctime before renaming
+
+Valentin Caron (1):
+      serial: stm32: fix software flow control transfer
+
+Vasily Gorbik (1):
+      s390/hypfs: include z/VM guests with access control group set
+
+Xianting Tian (1):
+      drm/msm: Fix wrong size calculation
+
+Xiaoke Wang (1):
+      tracing/histogram: Fix a potential memory leak for kstrdup()
+
+Xin Long (1):
+      ping: fix the sk_bound_dev_if match in ping_lookup
+
+Yufeng Mo (1):
+      net: hns3: handle empty unknown interrupt for VF
+
+daniel.starke@siemens.com (1):
+      tty: n_gsm: fix SW flow control encoding/handling
+
