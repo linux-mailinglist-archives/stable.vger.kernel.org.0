@@ -2,83 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 557214A5E37
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 15:26:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FC064A5E2B
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 15:25:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239225AbiBAO0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 09:26:37 -0500
-Received: from nef2.ens.fr ([129.199.96.40]:51997 "EHLO nef.ens.fr"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S239209AbiBAO0h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Feb 2022 09:26:37 -0500
-X-ENS-nef-client:   129.199.1.22 ( name = clipper-gw.ens.fr )
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ens.fr; s=default;
-        t=1643725594; bh=rMbD/p+V5OOxRJjg+z2/EXmNq1sqnJ9dWhwaiY/rVss=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z0kQcK46ligBMbQ+Wne7TDkhSce4fWjM8WYkIwXMz/6/PkaVRxL7jOEyqMgkCZB/f
-         lJeKZMqJOY5SBs6KVy0pyVyZsQ8OEue15ipq3eEYWNLWUTzfToadtzBEPqlx1A0nTW
-         +aOcVHfbgT7QUHmk1esu1QkfU6Xl+apTNVqwNhz8=
-Received: from clipper.ens.fr (clipper-gw.ens.fr [129.199.1.22])
-          by nef.ens.fr (8.14.4/1.01.28121999) with ESMTP id 211EQYip025295
-          ; Tue, 1 Feb 2022 15:26:34 +0100
-Received: from  optiplex-7.sg.lan using smtps by clipper.ens.fr (8.14.4/jb-1.1)
-       id 211EQRw4028881 ; Tue, 1 Feb 2022 15:26:34 +0100 (authenticated user gbertholon)
-X-ENS-Received:  (maths.r-prg.net.univ-paris7.fr [81.194.27.158])
-From:   Guillaume Bertholon <guillaume.bertholon@ens.fr>
-To:     gregkh@linuxfoundation.org
-Cc:     guillaume.bertholon@ens.fr, stable@vger.kernel.org
-Subject: [PATCH stable 4.4] Bluetooth: MGMT: Fix misplaced BT_HS check
-Date:   Tue,  1 Feb 2022 15:24:50 +0100
-Message-Id: <1643725490-5917-1-git-send-email-guillaume.bertholon@ens.fr>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <YfUqikHXokp75E00@kroah.com>
-References: <YfUqikHXokp75E00@kroah.com>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.4.3 (nef.ens.fr [129.199.96.32]); Tue, 01 Feb 2022 15:26:34 +0100 (CET)
+        id S239212AbiBAOZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 09:25:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52386 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239185AbiBAOZU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 09:25:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57618C061714;
+        Tue,  1 Feb 2022 06:25:20 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98B7BB8013C;
+        Tue,  1 Feb 2022 14:25:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A3D2C340EB;
+        Tue,  1 Feb 2022 14:25:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643725516;
+        bh=wHIeeX9U5AwcjNo/guzOtcE27pXsW5eq/T0M+mw+YDc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Y1MNdRppEWVwnLr3TFvtLN7X/DBujdUvqy1mxoROshVIpCQXwHIA2a6R2Hc8X7gLF
+         ufgGZfAjlGx+BiTtUw/7glBlyUDvk3sumQtgjtBqdOJwS7+K/8/hQUfoceSUFs1yod
+         c2Y/LKqoY0Q7754U6kNwZOc2vbdH55Rf3zQgY9zo=
+Date:   Tue, 1 Feb 2022 15:25:13 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com
+Subject: Re: [PATCH 5.15 000/171] 5.15.19-rc1 review
+Message-ID: <YflCyZEtKTqyGKzX@kroah.com>
+References: <20220131105229.959216821@linuxfoundation.org>
+ <20220201042743.GC2556037@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220201042743.GC2556037@roeck-us.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The upstream commit b560a208cda0 ("Bluetooth: MGMT: Fix not checking if
-BT_HS is enabled") inserted a new check in the `set_hs` function.
-However, its backported version in stable (commit 5abe9f99f512
-("Bluetooth: MGMT: Fix not checking if BT_HS is enabled")),
-added the check in `set_link_security` instead.
+On Mon, Jan 31, 2022 at 08:27:43PM -0800, Guenter Roeck wrote:
+> On Mon, Jan 31, 2022 at 11:54:25AM +0100, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.15.19 release.
+> > There are 171 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Wed, 02 Feb 2022 10:51:59 +0000.
+> > Anything received after that time might be too late.
+> > 
+> 
+> Build results:
+> 	total: 156 pass: 155 fail: 1
+> Failed builds:
+> 	powerpc:ppc32_allmodconfig
+> Qemu test results:
+> 	total: 488 pass: 488 fail: 0
+> 
+> The build failure is not new; I did not build powerpc:ppc32_allmodconfig
+> before. The build error is:
+> 
+> drivers/mtd/nand/raw/mpc5121_nfc.c: In function 'ads5121_select_chip':
+> drivers/mtd/nand/raw/mpc5121_nfc.c:294:26: error: unused variable 'mtd'
+> 
+> Fix is upstream commit 33a0da68fb07 ("mtd: rawnand: mpc5121: Remove unused
+> variable in ads5121_select_chip()") which needs to be applied to v5.15.y
+> and v5.16.y.
 
-This patch restores the intent of the upstream commit by moving back the
-BT_HS check to `set_hs`.
+Thanks, I'll go queue that up now.
 
-Fixes: 5abe9f99f512 ("Bluetooth: MGMT: Fix not checking if BT_HS is enabled")
-Signed-off-by: Guillaume Bertholon <guillaume.bertholon@ens.fr>
----
- net/bluetooth/mgmt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index 4a95c89..621329c 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -2285,10 +2285,6 @@ static int set_link_security(struct sock *sk, struct hci_dev *hdev, void *data,
-
- 	BT_DBG("request for %s", hdev->name);
-
--	if (!IS_ENABLED(CONFIG_BT_HS))
--		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_HS,
--				       MGMT_STATUS_NOT_SUPPORTED);
--
- 	status = mgmt_bredr_support(hdev);
- 	if (status)
- 		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_LINK_SECURITY,
-@@ -2438,6 +2434,10 @@ static int set_hs(struct sock *sk, struct hci_dev *hdev, void *data, u16 len)
-
- 	BT_DBG("request for %s", hdev->name);
-
-+	if (!IS_ENABLED(CONFIG_BT_HS))
-+		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_HS,
-+				       MGMT_STATUS_NOT_SUPPORTED);
-+
- 	status = mgmt_bredr_support(hdev);
- 	if (status)
- 		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_HS, status);
---
-2.7.4
-
+greg k-h
