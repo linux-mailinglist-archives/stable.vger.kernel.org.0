@@ -2,117 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D2254A5B95
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 12:53:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 186CF4A5BD8
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 13:06:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237352AbiBALxK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 06:53:10 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:52272 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237264AbiBALxK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 06:53:10 -0500
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 1DDB31F380;
-        Tue,  1 Feb 2022 11:53:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1643716389; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=bKWdxJm1aizvOTawWPnEDJmR2Y7TBDt6ifomyzqcN3U=;
-        b=JsVa7xOKinMdBQ2dLSWBEL70hxx2nhGvRYyqCUfe/9fC7amV1JPMNXcylqTjwsawYLDQkP
-        Urj2fv2NpkEUZ/azXRTl7O29FPyouVgQF0oUnc9VDFHAd1Mz6s9CUnjNcs4XLUAmObnNzG
-        HDg+Rk0TX3U6VNc5UNUqZUG/PWAmI9E=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1643716389;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=bKWdxJm1aizvOTawWPnEDJmR2Y7TBDt6ifomyzqcN3U=;
-        b=gAOUiQr87aGh6xLZYWq+mBZu/X72SNXM/Foo/SLuFcNM02BXEufxp5jm7eU3NlT/SsUJE4
-        sb81jD18lZqMh8BQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id E2F1913D67;
-        Tue,  1 Feb 2022 11:53:08 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id pUNKNiQf+WG5PQAAMHmgww
-        (envelope-from <tzimmermann@suse.de>); Tue, 01 Feb 2022 11:53:08 +0000
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-To:     daniel@ffwll.ch, airlied@linux.ie, mripard@kernel.org,
-        maarten.lankhorst@linux.intel.com
-Cc:     dri-devel@lists.freedesktop.org,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org
-Subject: [PATCH v2] drm/fb-helper: Mark screen buffers in system memory with FB_VIRTFB
-Date:   Tue,  1 Feb 2022 12:53:05 +0100
-Message-Id: <20220201115305.9333-1-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.34.1
+        id S237713AbiBAMGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 07:06:01 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:60462 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237585AbiBAMF7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 07:05:59 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 45F051C0B81; Tue,  1 Feb 2022 13:05:58 +0100 (CET)
+Date:   Tue, 1 Feb 2022 13:05:57 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com
+Subject: Re: [PATCH 5.10 000/100] 5.10.96-rc1 review
+Message-ID: <20220201120557.GA549@duo.ucw.cz>
+References: <20220131105220.424085452@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
+Content-Disposition: inline
+In-Reply-To: <20220131105220.424085452@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Mark screen buffers in system memory with FB_VIRTFB. Otherwise, fbdev
-deferred I/O marks mmap'ed areas of system memory with VM_IO. (There's
-an inverse relation ship between the two flags.)
 
-For shadow buffers, also set the FB_READS_FAST hint.
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-v2:
-	* updated commit description (Daniel)
-	* added Fixes tag
+Hi!
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Fixes: d536540f304c ("drm/fb-helper: Add generic fbdev emulation .fb_probe function")
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v4.19+
----
- drivers/gpu/drm/drm_fb_helper.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+> This is the start of the stable review cycle for the 5.10.96 release.
+> There are 100 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+> Responses should be made by Wed, 02 Feb 2022 10:51:59 +0000.
+> Anything received after that time might be too late.
+>=20
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.96=
+-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git=
+ linux-5.10.y
+> and the diffstat can be found below.
 
-diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index ed43b987d306..f15127a32f7a 100644
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -2346,6 +2346,7 @@ static int drm_fb_helper_generic_probe(struct drm_fb_helper *fb_helper,
- 	fbi->fbops = &drm_fbdev_fb_ops;
- 	fbi->screen_size = sizes->surface_height * fb->pitches[0];
- 	fbi->fix.smem_len = fbi->screen_size;
-+	fbi->flags = FBINFO_DEFAULT;
- 
- 	drm_fb_helper_fill_info(fbi, fb_helper, sizes);
- 
-@@ -2353,19 +2354,21 @@ static int drm_fb_helper_generic_probe(struct drm_fb_helper *fb_helper,
- 		fbi->screen_buffer = vzalloc(fbi->screen_size);
- 		if (!fbi->screen_buffer)
- 			return -ENOMEM;
-+		fbi->flags |= FBINFO_VIRTFB | FBINFO_READS_FAST;
- 
- 		fbi->fbdefio = &drm_fbdev_defio;
--
- 		fb_deferred_io_init(fbi);
- 	} else {
- 		/* buffer is mapped for HW framebuffer */
- 		ret = drm_client_buffer_vmap(fb_helper->buffer, &map);
- 		if (ret)
- 			return ret;
--		if (map.is_iomem)
-+		if (map.is_iomem) {
- 			fbi->screen_base = map.vaddr_iomem;
--		else
-+		} else {
- 			fbi->screen_buffer = map.vaddr;
-+			fbi->flags |= FBINFO_VIRTFB;
-+		}
- 
- 		/*
- 		 * Shamelessly leak the physical address to user-space. As
--- 
-2.34.1
+It seems we have boot problem on x86 qemu:
 
+https://lava.ciplatform.org/scheduler/job/616782
+
+
+[    0.183194] APIC: Switch to symmetric I/O mode setup
+[    0.187399] ..TIMER: vector=3D0x30 apic1=3D0 pin1=3D2 apic2=3D-1 pin2=3D=
+-1
+[    0.200659] ..MP-BIOS bug: 8254 timer not connected to IO-APIC
+[    0.200984] ...trying to set up timer (IRQ0) through the 8259A ...
+[    0.201309] ..... (found apic 0 pin 2) ...
+[    0.214131] ....... failed.
+[    0.214303] ...trying to set up timer as Virtual Wire IRQ...
+[    0.227212] ..... failed.
+[    0.227390] ...trying to set up timer as ExtINT IRQ...
+[    1.287247] ..... failed :(.
+[    1.287584] Kernel panic - not syncing: IO-APIC + timer doesn't work!  B=
+oot with apic=3Ddebug and send a report.  Then try booting with the 'noapic=
+' option.
+[    1.288043] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.10.96-rc1+ #1
+[    1.288231] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS =
+1.12.0-1 04/01/2014
+[    1.288582] Call Trace:
+
+Other than that we have only the usual gmp.h failures.
+
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/4=
+59895032
+
+I'll re-trigger the x86 qemu test, but it looks like real problem to me.
+
+Best regards,
+								Pavel
+
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--huq684BweRXVnRxX
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYfkiJQAKCRAw5/Bqldv6
+8n5AAJ9Vs2ZjiNv3VnRV6DLpWeNApOGjQQCeOUW/Aae6c5nuWxykrs8cjme32xs=
+=Tufm
+-----END PGP SIGNATURE-----
+
+--huq684BweRXVnRxX--
