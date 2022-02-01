@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D5D94A636F
+	by mail.lfdr.de (Postfix) with ESMTP id D76BA4A6370
 	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 19:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236472AbiBASRK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 13:17:10 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:50914 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234643AbiBASRK (ORCPT
+        id S235354AbiBASRL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 13:17:11 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56438 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236138AbiBASRK (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 13:17:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9C636CE1A60;
-        Tue,  1 Feb 2022 18:17:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 644CCC340EC;
-        Tue,  1 Feb 2022 18:17:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DED461464;
+        Tue,  1 Feb 2022 18:17:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37BFBC340EC;
+        Tue,  1 Feb 2022 18:17:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643739426;
-        bh=33h7VBUyIm5zQzYADCSmeBzNWKBmBLqu5CMgNceDrso=;
+        s=korg; t=1643739429;
+        bh=kXypGRT995K2TldK3CnDmAxVvB2BMkpZEaUm521hT8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWm6xbVexhKhoCn95YLz5/IoW7Jph3pwUJafo98l1rad5hluqPcCkRFNo2QAaShxM
-         DK3GNGsGIoULYunI3qlraMPtu0oWjZqIko30ybpYmb23P+0KNBxX3fytPv7c/wufYW
-         XPtgHCM61WqhmN5g05WFEsc7geRKmZCJd2bm9Ju4=
+        b=XIs3kqO5i53S447szItw/qerALfORxO1PiVkce93kUpU0Go5U+946wvFKsfVk3lTA
+         y4zcIW0rmamJOOaa73IdyQ1vv/nt00ahbJpECOrESWxsSMTowKD5cvYSVsgzGxfibf
+         QfaJrHKBEx4gLV04bA6zkncY2ZFeF5n1Bnv3IVe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+76629376e06e2c2ad626@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 12/25] USB: core: Fix hang in usb_kill_urb by adding memory barriers
-Date:   Tue,  1 Feb 2022 19:16:36 +0100
-Message-Id: <20220201180822.549390207@linuxfoundation.org>
+        stable@vger.kernel.org, Guangwu Zhang <guazhang@redhat.com>,
+        Maurizio Lombardi <mlombard@redhat.com>,
+        John Meneghini <jmeneghi@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.4 13/25] scsi: bnx2fc: Flush destroy_work queue before calling bnx2fc_interface_put()
+Date:   Tue,  1 Feb 2022 19:16:37 +0100
+Message-Id: <20220201180822.580318904@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220201180822.148370751@linuxfoundation.org>
 References: <20220201180822.148370751@linuxfoundation.org>
@@ -44,128 +46,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: John Meneghini <jmeneghi@redhat.com>
 
-commit 26fbe9772b8c459687930511444ce443011f86bf upstream.
+commit 847f9ea4c5186fdb7b84297e3eeed9e340e83fce upstream.
 
-The syzbot fuzzer has identified a bug in which processes hang waiting
-for usb_kill_urb() to return.  It turns out the issue is not unlinking
-the URB; that works just fine.  Rather, the problem arises when the
-wakeup notification that the URB has completed is not received.
+The bnx2fc_destroy() functions are removing the interface before calling
+destroy_work. This results multiple WARNings from sysfs_remove_group() as
+the controller rport device attributes are removed too early.
 
-The reason is memory-access ordering on SMP systems.  In outline form,
-usb_kill_urb() and __usb_hcd_giveback_urb() operating concurrently on
-different CPUs perform the following actions:
+Replace the fcoe_port's destroy_work queue. It's not needed.
 
-CPU 0					CPU 1
-----------------------------		---------------------------------
-usb_kill_urb():				__usb_hcd_giveback_urb():
-  ...					  ...
-  atomic_inc(&urb->reject);		  atomic_dec(&urb->use_count);
-  ...					  ...
-  wait_event(usb_kill_urb_queue,
-	atomic_read(&urb->use_count) == 0);
-					  if (atomic_read(&urb->reject))
-						wake_up(&usb_kill_urb_queue);
+The problem is easily reproducible with the following steps.
 
-Confining your attention to urb->reject and urb->use_count, you can
-see that the overall pattern of accesses on CPU 0 is:
+Example:
 
-	write urb->reject, then read urb->use_count;
+  $ dmesg -w &
+  $ systemctl enable --now fcoe
+  $ fipvlan -s -c ens2f1
+  $ fcoeadm -d ens2f1.802
+  [  583.464488] host2: libfc: Link down on port (7500a1)
+  [  583.472651] bnx2fc: 7500a1 - rport not created Yet!!
+  [  583.490468] ------------[ cut here ]------------
+  [  583.538725] sysfs group 'power' not found for kobject 'rport-2:0-0'
+  [  583.568814] WARNING: CPU: 3 PID: 192 at fs/sysfs/group.c:279 sysfs_remove_group+0x6f/0x80
+  [  583.607130] Modules linked in: dm_service_time 8021q garp mrp stp llc bnx2fc cnic uio rpcsec_gss_krb5 auth_rpcgss nfsv4 ...
+  [  583.942994] CPU: 3 PID: 192 Comm: kworker/3:2 Kdump: loaded Not tainted 5.14.0-39.el9.x86_64 #1
+  [  583.984105] Hardware name: HP ProLiant DL120 G7, BIOS J01 07/01/2013
+  [  584.016535] Workqueue: fc_wq_2 fc_rport_final_delete [scsi_transport_fc]
+  [  584.050691] RIP: 0010:sysfs_remove_group+0x6f/0x80
+  [  584.074725] Code: ff 5b 48 89 ef 5d 41 5c e9 ee c0 ff ff 48 89 ef e8 f6 b8 ff ff eb d1 49 8b 14 24 48 8b 33 48 c7 c7 ...
+  [  584.162586] RSP: 0018:ffffb567c15afdc0 EFLAGS: 00010282
+  [  584.188225] RAX: 0000000000000000 RBX: ffffffff8eec4220 RCX: 0000000000000000
+  [  584.221053] RDX: ffff8c1586ce84c0 RSI: ffff8c1586cd7cc0 RDI: ffff8c1586cd7cc0
+  [  584.255089] RBP: 0000000000000000 R08: 0000000000000000 R09: ffffb567c15afc00
+  [  584.287954] R10: ffffb567c15afbf8 R11: ffffffff8fbe7f28 R12: ffff8c1486326400
+  [  584.322356] R13: ffff8c1486326480 R14: ffff8c1483a4a000 R15: 0000000000000004
+  [  584.355379] FS:  0000000000000000(0000) GS:ffff8c1586cc0000(0000) knlGS:0000000000000000
+  [  584.394419] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [  584.421123] CR2: 00007fe95a6f7840 CR3: 0000000107674002 CR4: 00000000000606e0
+  [  584.454888] Call Trace:
+  [  584.466108]  device_del+0xb2/0x3e0
+  [  584.481701]  device_unregister+0x13/0x60
+  [  584.501306]  bsg_unregister_queue+0x5b/0x80
+  [  584.522029]  bsg_remove_queue+0x1c/0x40
+  [  584.541884]  fc_rport_final_delete+0xf3/0x1d0 [scsi_transport_fc]
+  [  584.573823]  process_one_work+0x1e3/0x3b0
+  [  584.592396]  worker_thread+0x50/0x3b0
+  [  584.609256]  ? rescuer_thread+0x370/0x370
+  [  584.628877]  kthread+0x149/0x170
+  [  584.643673]  ? set_kthread_struct+0x40/0x40
+  [  584.662909]  ret_from_fork+0x22/0x30
+  [  584.680002] ---[ end trace 53575ecefa942ece ]---
 
-whereas the overall pattern of accesses on CPU 1 is:
-
-	write urb->use_count, then read urb->reject.
-
-This pattern is referred to in memory-model circles as SB (for "Store
-Buffering"), and it is well known that without suitable enforcement of
-the desired order of accesses -- in the form of memory barriers -- it
-is entirely possible for one or both CPUs to execute their reads ahead
-of their writes.  The end result will be that sometimes CPU 0 sees the
-old un-decremented value of urb->use_count while CPU 1 sees the old
-un-incremented value of urb->reject.  Consequently CPU 0 ends up on
-the wait queue and never gets woken up, leading to the observed hang
-in usb_kill_urb().
-
-The same pattern of accesses occurs in usb_poison_urb() and the
-failure pathway of usb_hcd_submit_urb().
-
-The problem is fixed by adding suitable memory barriers.  To provide
-proper memory-access ordering in the SB pattern, a full barrier is
-required on both CPUs.  The atomic_inc() and atomic_dec() accesses
-themselves don't provide any memory ordering, but since they are
-present, we can use the optimized smp_mb__after_atomic() memory
-barrier in the various routines to obtain the desired effect.
-
-This patch adds the necessary memory barriers.
-
-CC: <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+76629376e06e2c2ad626@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/Ye8K0QYee0Q0Nna2@rowland.harvard.edu
+Link: https://lore.kernel.org/r/20220115040044.1013475-1-jmeneghi@redhat.com
+Fixes: 0cbf32e1681d ("[SCSI] bnx2fc: Avoid calling bnx2fc_if_destroy with unnecessary locks")
+Tested-by: Guangwu Zhang <guazhang@redhat.com>
+Co-developed-by: Maurizio Lombardi <mlombard@redhat.com>
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Signed-off-by: John Meneghini <jmeneghi@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hcd.c |   14 ++++++++++++++
- drivers/usb/core/urb.c |   12 ++++++++++++
- 2 files changed, 26 insertions(+)
+ drivers/scsi/bnx2fc/bnx2fc_fcoe.c |   20 +++++---------------
+ 1 file changed, 5 insertions(+), 15 deletions(-)
 
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -1642,6 +1642,13 @@ int usb_hcd_submit_urb (struct urb *urb,
- 		urb->hcpriv = NULL;
- 		INIT_LIST_HEAD(&urb->urb_list);
- 		atomic_dec(&urb->use_count);
-+		/*
-+		 * Order the write of urb->use_count above before the read
-+		 * of urb->reject below.  Pairs with the memory barriers in
-+		 * usb_kill_urb() and usb_poison_urb().
-+		 */
-+		smp_mb__after_atomic();
-+
- 		atomic_dec(&urb->dev->urbnum);
- 		if (atomic_read(&urb->reject))
- 			wake_up(&usb_kill_urb_queue);
-@@ -1751,6 +1758,13 @@ static void __usb_hcd_giveback_urb(struc
+--- a/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
++++ b/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
+@@ -79,7 +79,7 @@ static int bnx2fc_bind_pcidev(struct bnx
+ static void bnx2fc_unbind_pcidev(struct bnx2fc_hba *hba);
+ static struct fc_lport *bnx2fc_if_create(struct bnx2fc_interface *interface,
+ 				  struct device *parent, int npiv);
+-static void bnx2fc_destroy_work(struct work_struct *work);
++static void bnx2fc_port_destroy(struct fcoe_port *port);
  
- 	usb_anchor_resume_wakeups(anchor);
- 	atomic_dec(&urb->use_count);
-+	/*
-+	 * Order the write of urb->use_count above before the read
-+	 * of urb->reject below.  Pairs with the memory barriers in
-+	 * usb_kill_urb() and usb_poison_urb().
-+	 */
-+	smp_mb__after_atomic();
-+
- 	if (unlikely(atomic_read(&urb->reject)))
- 		wake_up(&usb_kill_urb_queue);
- 	usb_put_urb(urb);
---- a/drivers/usb/core/urb.c
-+++ b/drivers/usb/core/urb.c
-@@ -686,6 +686,12 @@ void usb_kill_urb(struct urb *urb)
- 	if (!(urb && urb->dev && urb->ep))
+ static struct bnx2fc_hba *bnx2fc_hba_lookup(struct net_device *phys_dev);
+ static struct bnx2fc_interface *bnx2fc_interface_lookup(struct net_device
+@@ -855,9 +855,6 @@ static void bnx2fc_indicate_netevent(voi
+ 				__bnx2fc_destroy(interface);
+ 		}
+ 		mutex_unlock(&bnx2fc_dev_lock);
+-
+-		/* Ensure ALL destroy work has been completed before return */
+-		flush_workqueue(bnx2fc_wq);
  		return;
- 	atomic_inc(&urb->reject);
-+	/*
-+	 * Order the write of urb->reject above before the read
-+	 * of urb->use_count below.  Pairs with the barriers in
-+	 * __usb_hcd_giveback_urb() and usb_hcd_submit_urb().
-+	 */
-+	smp_mb__after_atomic();
  
- 	usb_hcd_unlink_urb(urb, -ENOENT);
- 	wait_event(usb_kill_urb_queue, atomic_read(&urb->use_count) == 0);
-@@ -727,6 +733,12 @@ void usb_poison_urb(struct urb *urb)
- 	if (!urb)
- 		return;
- 	atomic_inc(&urb->reject);
-+	/*
-+	 * Order the write of urb->reject above before the read
-+	 * of urb->use_count below.  Pairs with the barriers in
-+	 * __usb_hcd_giveback_urb() and usb_hcd_submit_urb().
-+	 */
-+	smp_mb__after_atomic();
+ 	default:
+@@ -1148,8 +1145,8 @@ static int bnx2fc_vport_destroy(struct f
+ 	mutex_unlock(&n_port->lp_mutex);
+ 	bnx2fc_free_vport(interface->hba, port->lport);
+ 	bnx2fc_port_shutdown(port->lport);
++	bnx2fc_port_destroy(port);
+ 	bnx2fc_interface_put(interface);
+-	queue_work(bnx2fc_wq, &port->destroy_work);
+ 	return 0;
+ }
  
- 	if (!urb->dev || !urb->ep)
- 		return;
+@@ -1457,7 +1454,6 @@ static struct fc_lport *bnx2fc_if_create
+ 	port->lport = lport;
+ 	port->priv = interface;
+ 	port->get_netdev = bnx2fc_netdev;
+-	INIT_WORK(&port->destroy_work, bnx2fc_destroy_work);
+ 
+ 	/* Configure fcoe_port */
+ 	rc = bnx2fc_lport_config(lport);
+@@ -1582,8 +1578,8 @@ static void __bnx2fc_destroy(struct bnx2
+ 	bnx2fc_interface_cleanup(interface);
+ 	bnx2fc_stop(interface);
+ 	list_del(&interface->list);
++	bnx2fc_port_destroy(port);
+ 	bnx2fc_interface_put(interface);
+-	queue_work(bnx2fc_wq, &port->destroy_work);
+ }
+ 
+ /**
+@@ -1624,15 +1620,12 @@ netdev_err:
+ 	return rc;
+ }
+ 
+-static void bnx2fc_destroy_work(struct work_struct *work)
++static void bnx2fc_port_destroy(struct fcoe_port *port)
+ {
+-	struct fcoe_port *port;
+ 	struct fc_lport *lport;
+ 
+-	port = container_of(work, struct fcoe_port, destroy_work);
+ 	lport = port->lport;
+-
+-	BNX2FC_HBA_DBG(lport, "Entered bnx2fc_destroy_work\n");
++	BNX2FC_HBA_DBG(lport, "Entered %s, destroying lport %p\n", __func__, lport);
+ 
+ 	bnx2fc_if_destroy(lport);
+ }
+@@ -2469,9 +2462,6 @@ static void bnx2fc_ulp_exit(struct cnic_
+ 			__bnx2fc_destroy(interface);
+ 	mutex_unlock(&bnx2fc_dev_lock);
+ 
+-	/* Ensure ALL destroy work has been completed before return */
+-	flush_workqueue(bnx2fc_wq);
+-
+ 	bnx2fc_ulp_stop(hba);
+ 	/* unregister cnic device */
+ 	if (test_and_clear_bit(BNX2FC_CNIC_REGISTERED, &hba->reg_with_cnic))
 
 
