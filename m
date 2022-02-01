@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB3844A6378
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 19:17:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 896034A6379
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 19:17:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237328AbiBASRX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 13:17:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49946 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241864AbiBASRW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 13:17:22 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7C9CC06173E;
-        Tue,  1 Feb 2022 10:17:22 -0800 (PST)
+        id S237188AbiBASRY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 13:17:24 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56668 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233343AbiBASRX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 13:17:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 17B24CE1A67;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21C6B614A6;
+        Tue,  1 Feb 2022 18:17:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00D59C36AE2;
         Tue,  1 Feb 2022 18:17:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7BC1C340F0;
-        Tue,  1 Feb 2022 18:17:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643739439;
-        bh=H4fJ8W7e1YBjjMdcZHnOa2WOCTlG9kCx0mvZtTLxUmQ=;
+        s=korg; t=1643739442;
+        bh=axx0hirfpuLP7ciyUX3JOUDGdTEjVsMD+NDMyWTIHy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hz3ctjTUPcLmf4cjLgWcfUb0BYj6XB094H+/roM3svK8WFfmHOifYHs63x4oBSFda
-         XClGl9xPkHCi9A0uj+8CVojx1m62e3HHlQ5AynABL2LA5GBzYGtcvxU4zBFmp61wfo
-         L0xCN7wRuRAPM2e233pM++OHtMeKNnyJ151nwr58=
+        b=sd7SNj1wlfZcQKzmupw4pIKMKwHkA/1ogc4BxgtHXBKIZc2h9pypFcKm55/8DW009
+         JNp0K7ikiz3kSPVxKopiwz8SlLkTp2yq62NTJydxrMrwEObL8LyGWM8WvHS4vnQ0J9
+         IVEZYlYnFBKgSPwzSSVUcoovdz+NTIUgDP/k64Yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>, Ray Che <xijiache@gmail.com>,
-        Willy Tarreau <w@1wt.eu>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 16/25] ipv4: avoid using shared IP generator for connected sockets
-Date:   Tue,  1 Feb 2022 19:16:40 +0100
-Message-Id: <20220201180822.677134289@linuxfoundation.org>
+        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 17/25] net-procfs: show net devices bound packet types
+Date:   Tue,  1 Feb 2022 19:16:41 +0100
+Message-Id: <20220201180822.707270379@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220201180822.148370751@linuxfoundation.org>
 References: <20220201180822.148370751@linuxfoundation.org>
@@ -48,65 +44,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jianguo Wu <wujianguo@chinatelecom.cn>
 
-commit 23f57406b82de51809d5812afd96f210f8b627f3 upstream.
+commit 1d10f8a1f40b965d449e8f2d5ed7b96a7c138b77 upstream.
 
-ip_select_ident_segs() has been very conservative about using
-the connected socket private generator only for packets with IP_DF
-set, claiming it was needed for some VJ compression implementations.
+After commit:7866a621043f ("dev: add per net_device packet type chains"),
+we can not get packet types that are bound to a specified net device by
+/proc/net/ptype, this patch fix the regression.
 
-As mentioned in this referenced document, this can be abused.
-(Ref: Off-Path TCP Exploits of the Mixed IPID Assignment)
+Run "tcpdump -i ens192 udp -nns0" Before and after apply this patch:
 
-Before switching to pure random IPID generation and possibly hurt
-some workloads, lets use the private inet socket generator.
+Before:
+  [root@localhost ~]# cat /proc/net/ptype
+  Type Device      Function
+  0800          ip_rcv
+  0806          arp_rcv
+  86dd          ipv6_rcv
 
-Not only this will remove one vulnerability, this will also
-improve performance of TCP flows using pmtudisc==IP_PMTUDISC_DONT
+After:
+  [root@localhost ~]# cat /proc/net/ptype
+  Type Device      Function
+  ALL  ens192   tpacket_rcv
+  0800          ip_rcv
+  0806          arp_rcv
+  86dd          ipv6_rcv
 
-Fixes: 73f156a6e8c1 ("inetpeer: get rid of ip_id_count")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Reported-by: Ray Che <xijiache@gmail.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+v1 -> v2:
+  - fix the regression rather than adding new /proc API as
+    suggested by Stephen Hemminger.
+
+Fixes: 7866a621043f ("dev: add per net_device packet type chains")
+Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/ip.h |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ net/core/net-procfs.c |   35 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 32 insertions(+), 3 deletions(-)
 
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -353,19 +353,18 @@ static inline void ip_select_ident_segs(
- {
- 	struct iphdr *iph = ip_hdr(skb);
+--- a/net/core/net-procfs.c
++++ b/net/core/net-procfs.c
+@@ -207,12 +207,23 @@ static const struct file_operations soft
+ 	.release = seq_release,
+ };
  
-+	/* We had many attacks based on IPID, use the private
-+	 * generator as much as we can.
-+	 */
-+	if (sk && inet_sk(sk)->inet_daddr) {
-+		iph->id = htons(inet_sk(sk)->inet_id);
-+		inet_sk(sk)->inet_id += segs;
-+		return;
+-static void *ptype_get_idx(loff_t pos)
++static void *ptype_get_idx(struct seq_file *seq, loff_t pos)
+ {
++	struct list_head *ptype_list = NULL;
+ 	struct packet_type *pt = NULL;
++	struct net_device *dev;
+ 	loff_t i = 0;
+ 	int t;
+ 
++	for_each_netdev_rcu(seq_file_net(seq), dev) {
++		ptype_list = &dev->ptype_all;
++		list_for_each_entry_rcu(pt, ptype_list, list) {
++			if (i == pos)
++				return pt;
++			++i;
++		}
 +	}
- 	if ((iph->frag_off & htons(IP_DF)) && !skb->ignore_df) {
--		/* This is only to work around buggy Windows95/2000
--		 * VJ compression implementations.  If the ID field
--		 * does not change, they drop every other packet in
--		 * a TCP stream using header compression.
--		 */
--		if (sk && inet_sk(sk)->inet_daddr) {
--			iph->id = htons(inet_sk(sk)->inet_id);
--			inet_sk(sk)->inet_id += segs;
--		} else {
--			iph->id = 0;
--		}
-+		iph->id = 0;
- 	} else {
-+		/* Unfortunately we need the big hammer to get a suitable IPID */
- 		__ip_select_ident(net, iph, segs);
- 	}
++
+ 	list_for_each_entry_rcu(pt, &ptype_all, list) {
+ 		if (i == pos)
+ 			return pt;
+@@ -233,22 +244,40 @@ static void *ptype_seq_start(struct seq_
+ 	__acquires(RCU)
+ {
+ 	rcu_read_lock();
+-	return *pos ? ptype_get_idx(*pos - 1) : SEQ_START_TOKEN;
++	return *pos ? ptype_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
  }
+ 
+ static void *ptype_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
++	struct net_device *dev;
+ 	struct packet_type *pt;
+ 	struct list_head *nxt;
+ 	int hash;
+ 
+ 	++*pos;
+ 	if (v == SEQ_START_TOKEN)
+-		return ptype_get_idx(0);
++		return ptype_get_idx(seq, 0);
+ 
+ 	pt = v;
+ 	nxt = pt->list.next;
++	if (pt->dev) {
++		if (nxt != &pt->dev->ptype_all)
++			goto found;
++
++		dev = pt->dev;
++		for_each_netdev_continue_rcu(seq_file_net(seq), dev) {
++			if (!list_empty(&dev->ptype_all)) {
++				nxt = dev->ptype_all.next;
++				goto found;
++			}
++		}
++
++		nxt = ptype_all.next;
++		goto ptype_all;
++	}
++
+ 	if (pt->type == htons(ETH_P_ALL)) {
++ptype_all:
+ 		if (nxt != &ptype_all)
+ 			goto found;
+ 		hash = 0;
 
 
