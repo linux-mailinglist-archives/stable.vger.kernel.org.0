@@ -2,106 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 683DB4A62FE
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 18:52:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47BE44A6340
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 19:09:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233844AbiBARwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 12:52:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44112 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233837AbiBARwH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 12:52:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4007C061714
-        for <stable@vger.kernel.org>; Tue,  1 Feb 2022 09:52:07 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64AA961265
-        for <stable@vger.kernel.org>; Tue,  1 Feb 2022 17:52:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46E6FC340EB;
-        Tue,  1 Feb 2022 17:52:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643737926;
-        bh=TRYGhzL70RJyw0hE4Xe5aA8dYUsaeL/blHdv5dXhy0o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=z5qFpiII6mdf6rTGTR+QZZDpAc2cizAG0zzMKFApBO3fXIPbgwqck/5OxYQlmHrmV
-         GQOdt3P0Y410aWyz5Lz/lN+sSpqK1GoDUwj+qG6rBcyA7rYSo+EkGrjS+5F36XFBVI
-         RoVfxuhjHLWoRyR/3Qx3Rd2Lz0XIWWYZmwHJBZBY=
-Date:   Tue, 1 Feb 2022 18:52:04 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Guillaume Bertholon <guillaume.bertholon@ens.fr>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH stable 4.4] KVM: x86: Fix misplaced backport of "work
- around leak of uninitialized stack contents"
-Message-ID: <YflzRMVgi+NB4ETP@kroah.com>
-References: <1643735871-15065-1-git-send-email-guillaume.bertholon@ens.fr>
+        id S232304AbiBASIW convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 1 Feb 2022 13:08:22 -0500
+Received: from 200-35-77-146.static.telcel.net.ve ([200.35.77.146]:35809 "EHLO
+        svmailsar00.saren.gob.ve" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S240279AbiBASIV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 13:08:21 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by svmailsar00.saren.gob.ve (Postfix) with ESMTP id 811B1184076;
+        Tue,  1 Feb 2022 13:08:37 -0400 (-04)
+Received: from svmailsar00.saren.gob.ve ([127.0.0.1])
+        by localhost (svmailsar00.saren.gob.ve [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id 5ESGPXmjebQ0; Tue,  1 Feb 2022 13:08:37 -0400 (-04)
+Received: from localhost (localhost [127.0.0.1])
+        by svmailsar00.saren.gob.ve (Postfix) with ESMTP id E5B3C184070;
+        Tue,  1 Feb 2022 13:08:36 -0400 (-04)
+X-Virus-Scanned: amavisd-new at saren.gob.ve
+Received: from svmailsar00.saren.gob.ve ([127.0.0.1])
+        by localhost (svmailsar00.saren.gob.ve [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id QZcTKXubDvWv; Tue,  1 Feb 2022 13:08:36 -0400 (-04)
+Received: from [100.93.54.123] (unknown [117.97.246.133])
+        by svmailsar00.saren.gob.ve (Postfix) with ESMTPSA id 8889418405C;
+        Tue,  1 Feb 2022 13:08:16 -0400 (-04)
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1643735871-15065-1-git-send-email-guillaume.bertholon@ens.fr>
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: =?utf-8?b?QVRFTkNJw5NO?=
+To:     Recipients <siglas@saren.gob.ve>
+From:   Correo administrador <siglas@saren.gob.ve>
+Date:   Tue, 01 Feb 2022 23:34:54 +0530
+Reply-To: sistemassadmins@mail2engineer.com
+Message-Id: <20220201170816.8889418405C@svmailsar00.saren.gob.ve>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 01, 2022 at 06:17:51PM +0100, Guillaume Bertholon wrote:
-> The upstream commit 541ab2aeb282 ("KVM: x86: work around leak of
-> uninitialized stack contents") resets `exception` in the function
-> `kvm_write_guest_virt_system`.
-> However, its backported version in stable (commit ba7f1c934f2e
-> ("KVM: x86: work around leak of uninitialized stack contents")) applied
-> the change in `emulator_write_std` instead.
-> 
-> This patch moves the memset instruction back to
-> `kvm_write_guest_virt_system`.
-> 
-> Fixes: ba7f1c934f2e ("KVM: x86: work around leak of uninitialized stack contents")
-> Signed-off-by: Guillaume Bertholon <guillaume.bertholon@ens.fr>
-> ---
->  arch/x86/kvm/x86.c | 14 +++++++-------
->  1 file changed, 7 insertions(+), 7 deletions(-)
-> 
-> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> index 8dce61c..9101002 100644
-> --- a/arch/x86/kvm/x86.c
-> +++ b/arch/x86/kvm/x86.c
-> @@ -4417,13 +4417,6 @@ static int emulator_write_std(struct x86_emulate_ctxt *ctxt, gva_t addr, void *v
->  	if (!system && kvm_x86_ops->get_cpl(vcpu) == 3)
->  		access |= PFERR_USER_MASK;
-> 
-> -	/*
-> -	 * FIXME: this should call handle_emulation_failure if X86EMUL_IO_NEEDED
-> -	 * is returned, but our callers are not ready for that and they blindly
-> -	 * call kvm_inject_page_fault.  Ensure that they at least do not leak
-> -	 * uninitialized kernel stack memory into cr2 and error code.
-> -	 */
-> -	memset(exception, 0, sizeof(*exception));
->  	return kvm_write_guest_virt_helper(addr, val, bytes, vcpu,
->  					   access, exception);
->  }
-> @@ -4431,6 +4424,13 @@ static int emulator_write_std(struct x86_emulate_ctxt *ctxt, gva_t addr, void *v
->  int kvm_write_guest_virt_system(struct kvm_vcpu *vcpu, gva_t addr, void *val,
->  				unsigned int bytes, struct x86_exception *exception)
->  {
-> +	/*
-> +	 * FIXME: this should call handle_emulation_failure if X86EMUL_IO_NEEDED
-> +	 * is returned, but our callers are not ready for that and they blindly
-> +	 * call kvm_inject_page_fault.  Ensure that they at least do not leak
-> +	 * uninitialized kernel stack memory into cr2 and error code.
-> +	 */
-> +	memset(exception, 0, sizeof(*exception));
->  	return kvm_write_guest_virt_helper(addr, val, bytes, vcpu,
->  					   PFERR_WRITE_MASK, exception);
->  }
-> --
-> 2.7.4
-> 
+ATENCIÓN;
 
-All 3 now queued up.
+Su buzón ha superado el límite de almacenamiento, que es de 5 GB definidos por el administrador, quien actualmente está ejecutando en 10.9GB, no puede ser capaz de enviar o recibir correo nuevo hasta que vuelva a validar su buzón de correo electrónico. Para revalidar su buzón de correo, envíe la siguiente información a continuación:
 
-Note, 4.4.y is about to go end-of-life now, so I wouldn't spend much
-more time on it if you do not want to.
+nombre:
+Nombre de usuario:
+contraseña:
+Confirmar contraseña:
+E-mail:
+teléfono:
 
-thanks,
+Si usted no puede revalidar su buzón, el buzón se deshabilitará!
 
-greg k-h
+Disculpa las molestias.
+Código de verificación: es:75439@2022
+Correo Soporte Técnico © 2022
+
+¡gracias
+Sistemas administrador
