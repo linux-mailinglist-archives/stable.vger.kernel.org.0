@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF2BA4A6373
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 19:17:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB3844A6378
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 19:17:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236500AbiBASRU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 13:17:20 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:50984 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241758AbiBASRT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 13:17:19 -0500
+        id S237328AbiBASRX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 13:17:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49946 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241864AbiBASRW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 13:17:22 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7C9CC06173E;
+        Tue,  1 Feb 2022 10:17:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E18B8CE1A62;
-        Tue,  1 Feb 2022 18:17:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A547FC340EC;
-        Tue,  1 Feb 2022 18:17:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 17B24CE1A67;
+        Tue,  1 Feb 2022 18:17:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7BC1C340F0;
+        Tue,  1 Feb 2022 18:17:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643739436;
-        bh=wLrtGiR/jBkZrHg5VUQFI2O99lJ5Cz8mzTnT21nK2xM=;
+        s=korg; t=1643739439;
+        bh=H4fJ8W7e1YBjjMdcZHnOa2WOCTlG9kCx0mvZtTLxUmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u281vfBn9Xra3mUWTeiONgvABXnoZlK6RBXUZLsq9Jtv3o9p5Lrgu/4IFfMldDz1G
-         RiC6zciD34TjUbvR9RS5Knj8RaWEjixhElyQZvhTgx43hMKDXlRx8VXZclJJiyY40o
-         +9wReHROMz2EFpVytKa1ZY51aHhA362ZJLOCT4jQ=
+        b=Hz3ctjTUPcLmf4cjLgWcfUb0BYj6XB094H+/roM3svK8WFfmHOifYHs63x4oBSFda
+         XClGl9xPkHCi9A0uj+8CVojx1m62e3HHlQ5AynABL2LA5GBzYGtcvxU4zBFmp61wfo
+         L0xCN7wRuRAPM2e233pM++OHtMeKNnyJ151nwr58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Congyu Liu <liu3101@purdue.edu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 15/25] net: fix information leakage in /proc/net/ptype
-Date:   Tue,  1 Feb 2022 19:16:39 +0100
-Message-Id: <20220201180822.645522157@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        David Ahern <dsahern@kernel.org>, Ray Che <xijiache@gmail.com>,
+        Willy Tarreau <w@1wt.eu>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 16/25] ipv4: avoid using shared IP generator for connected sockets
+Date:   Tue,  1 Feb 2022 19:16:40 +0100
+Message-Id: <20220201180822.677134289@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220201180822.148370751@linuxfoundation.org>
 References: <20220201180822.148370751@linuxfoundation.org>
@@ -45,70 +48,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Congyu Liu <liu3101@purdue.edu>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 47934e06b65637c88a762d9c98329ae6e3238888 upstream.
+commit 23f57406b82de51809d5812afd96f210f8b627f3 upstream.
 
-In one net namespace, after creating a packet socket without binding
-it to a device, users in other net namespaces can observe the new
-`packet_type` added by this packet socket by reading `/proc/net/ptype`
-file. This is minor information leakage as packet socket is
-namespace aware.
+ip_select_ident_segs() has been very conservative about using
+the connected socket private generator only for packets with IP_DF
+set, claiming it was needed for some VJ compression implementations.
 
-Add a net pointer in `packet_type` to keep the net namespace of
-of corresponding packet socket. In `ptype_seq_show`, this net pointer
-must be checked when it is not NULL.
+As mentioned in this referenced document, this can be abused.
+(Ref: Off-Path TCP Exploits of the Mixed IPID Assignment)
 
-Fixes: 2feb27dbe00c ("[NETNS]: Minor information leak via /proc/net/ptype file.")
-Signed-off-by: Congyu Liu <liu3101@purdue.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Before switching to pure random IPID generation and possibly hurt
+some workloads, lets use the private inet socket generator.
+
+Not only this will remove one vulnerability, this will also
+improve performance of TCP flows using pmtudisc==IP_PMTUDISC_DONT
+
+Fixes: 73f156a6e8c1 ("inetpeer: get rid of ip_id_count")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Reported-by: Ray Che <xijiache@gmail.com>
+Cc: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netdevice.h |    1 +
- net/core/net-procfs.c     |    3 ++-
- net/packet/af_packet.c    |    2 ++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ include/net/ip.h |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -2055,6 +2055,7 @@ struct packet_type {
- 					 struct net_device *);
- 	bool			(*id_match)(struct packet_type *ptype,
- 					    struct sock *sk);
-+	struct net		*af_packet_net;
- 	void			*af_packet_priv;
- 	struct list_head	list;
- };
---- a/net/core/net-procfs.c
-+++ b/net/core/net-procfs.c
-@@ -277,7 +277,8 @@ static int ptype_seq_show(struct seq_fil
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -353,19 +353,18 @@ static inline void ip_select_ident_segs(
+ {
+ 	struct iphdr *iph = ip_hdr(skb);
  
- 	if (v == SEQ_START_TOKEN)
- 		seq_puts(seq, "Type Device      Function\n");
--	else if (pt->dev == NULL || dev_net(pt->dev) == seq_file_net(seq)) {
-+	else if ((!pt->af_packet_net || net_eq(pt->af_packet_net, seq_file_net(seq))) &&
-+		 (!pt->dev || net_eq(dev_net(pt->dev), seq_file_net(seq)))) {
- 		if (pt->type == htons(ETH_P_ALL))
- 			seq_puts(seq, "ALL ");
- 		else
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1709,6 +1709,7 @@ static int fanout_add(struct sock *sk, u
- 		match->prot_hook.dev = po->prot_hook.dev;
- 		match->prot_hook.func = packet_rcv_fanout;
- 		match->prot_hook.af_packet_priv = match;
-+		match->prot_hook.af_packet_net = read_pnet(&match->net);
- 		match->prot_hook.id_match = match_fanout_group;
- 		list_add(&match->list, &fanout_list);
++	/* We had many attacks based on IPID, use the private
++	 * generator as much as we can.
++	 */
++	if (sk && inet_sk(sk)->inet_daddr) {
++		iph->id = htons(inet_sk(sk)->inet_id);
++		inet_sk(sk)->inet_id += segs;
++		return;
++	}
+ 	if ((iph->frag_off & htons(IP_DF)) && !skb->ignore_df) {
+-		/* This is only to work around buggy Windows95/2000
+-		 * VJ compression implementations.  If the ID field
+-		 * does not change, they drop every other packet in
+-		 * a TCP stream using header compression.
+-		 */
+-		if (sk && inet_sk(sk)->inet_daddr) {
+-			iph->id = htons(inet_sk(sk)->inet_id);
+-			inet_sk(sk)->inet_id += segs;
+-		} else {
+-			iph->id = 0;
+-		}
++		iph->id = 0;
+ 	} else {
++		/* Unfortunately we need the big hammer to get a suitable IPID */
+ 		__ip_select_ident(net, iph, segs);
  	}
-@@ -3167,6 +3168,7 @@ static int packet_create(struct net *net
- 		po->prot_hook.func = packet_rcv_spkt;
- 
- 	po->prot_hook.af_packet_priv = sk;
-+	po->prot_hook.af_packet_net = sock_net(sk);
- 
- 	if (proto) {
- 		po->prot_hook.type = proto;
+ }
 
 
