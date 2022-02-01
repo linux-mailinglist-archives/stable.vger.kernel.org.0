@@ -2,134 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED3F34A5762
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 07:54:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 161BB4A5786
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 08:12:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234450AbiBAGyO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 01:54:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34732 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233800AbiBAGyO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 01:54:14 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A34CC061714
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 22:54:14 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id z10-20020a17090acb0a00b001b520826011so1696545pjt.5
-        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 22:54:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=D3GPspi+rlry77BHDkrC8nRC6tbp4S6kmhUln1lYVXg=;
-        b=DDfTkeH7WxIv5IaiQkSnGDxRqLVb1llo0oO4CS6r07KcgN2o8YgAm1Bc5u7An5k9Yh
-         Qsjoay3H7aOYZg+cLBl8C6F7JpVfT2O2/jfOxOV/b3Ko+8NdueKnYfgAA72LdDEVIbUv
-         OMv6w7F1UaPNrdZgUE13s9UuZBjngYqHVFuUSZXJrzFgHugtZ1JET+rDOqGEPBw3KIh4
-         6LVlm3a1MdsnJYLh/rtB8E8+wOX3r5GklW5V+nGwr+bTEkNg6AR0HTJ+UtK6sFJzAnBj
-         y+viGlcsmVwYzVWHAmd+WLmAUjFaAJl4WEE0mnhjsx7B3YTf+wnng14hqBdCSMAmLN/0
-         1Tmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=D3GPspi+rlry77BHDkrC8nRC6tbp4S6kmhUln1lYVXg=;
-        b=0atavFCJTT6g1WTSStWrBEs5dO6/nTUBdTY405E4NLVV9jgR2pDzN5FAozwnNGUNmd
-         WPXhfnYkz6Huy0jpi9bWGZ/woF3q6RJ0MCfQV7ZUUEsrarMMWnatA6A4mCQ9VZh4pXFj
-         ZhRscxGSXvBtVEHnishpxFo2e03KFINmdlhL2QL1s0EmqWZaJNGWIRHugySHxEO5MlgE
-         1rKsN6lNoG0nvepZKwzVuvGnT7gAeO48PxQL84iIisxMZAsroiNLozx5xL1iqD73lcU7
-         ZZhIfUfV1lhPA/B2NCz5CmR+5+FUin7eAHVBcoscOwtwSOdL1LVPLdxqP0+FzqmeCNji
-         Iv7Q==
-X-Gm-Message-State: AOAM533tPXDavNhgZbomgRaAzZ9LpKOy4XXUlNuIpCu7DA1utzAtgwzt
-        7ZFsnDc+qo8mUUUtDSEcT7lTQVDOIbpuwe4E
-X-Google-Smtp-Source: ABdhPJx05ub9JalAjOXj0Ih/eGB5Klitbf+djPHHAUr2IE177TfEYOmGNlDQ5m+m63rtoaq5CqXMTg==
-X-Received: by 2002:a17:90b:3b8d:: with SMTP id pc13mr735011pjb.54.1643698453807;
-        Mon, 31 Jan 2022 22:54:13 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 8sm1386430pji.4.2022.01.31.22.54.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Jan 2022 22:54:13 -0800 (PST)
-Message-ID: <61f8d915.1c69fb81.3db0f.4785@mx.google.com>
-Date:   Mon, 31 Jan 2022 22:54:13 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.301-21-g9a634735145a
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 71 runs,
- 1 regressions (v4.4.301-21-g9a634735145a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S231911AbiBAHMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 02:12:10 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:60416 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230420AbiBAHMJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 02:12:09 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 98B4C21123;
+        Tue,  1 Feb 2022 07:12:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1643699528; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=e5pD/uyOwT+fedUBHy30mmqQQ/tiB8vLKqaMblLPE4c=;
+        b=LJZAXPRKUz7u/m1675ly31YhkgZUyGmM++COT5l+I3BYdijN0y9CFdzvW81HaQibiKAKNs
+        tzvMthLe/OJRxWwmsr8QOg4aNgd4lJAu8PPwkHYG54Fo7jHaUkzwxOjDH0pFqk8APO4W7z
+        hiiXZq6WITtRCrcZ2U32etwl2SxlYpE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1643699528;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=e5pD/uyOwT+fedUBHy30mmqQQ/tiB8vLKqaMblLPE4c=;
+        b=pRjGTbt27b62yWSDQPxoQJlHNAHrM7cbpA+qM2kJYNix6Kmi3QYHSRjtfBlqUu6LuS5yEi
+        Bom8ceSSw/AA6rDQ==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id 8BD9FA3B84;
+        Tue,  1 Feb 2022 07:12:08 +0000 (UTC)
+Date:   Tue, 01 Feb 2022 08:12:08 +0100
+Message-ID: <s5hy22v83hz.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Jonas Hahnfeld <hahnjo@hahnjo.de>
+Cc:     Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+        alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
+        Jukka Heikintalo <heikintalo.jukka@gmail.com>,
+        =?UTF-8?B?UGF3ZcWC?= Susicki <pawel.susicki@gmail.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] ALSA: usb-audio: Correct quirk for VF0770
+In-Reply-To: <20220131183516.61191-1-hahnjo@hahnjo.de>
+References: <20220131183516.61191-1-hahnjo@hahnjo.de>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 71 runs, 1 regressions (v4.4.301-21-g9a634735=
-145a)
+On Mon, 31 Jan 2022 19:35:16 +0100,
+Jonas Hahnfeld wrote:
+> 
+> This device provides both audio and video. The original quirk added in
+> commit 48827e1d6af5 ("ALSA: usb-audio: Add quirk for VF0770") used
+> USB_DEVICE to match the vendor and product ID. Depending on module order,
+> if snd-usb-audio was asked first, it would match the entire device and
+> uvcvideo wouldn't get to see it. Change the matching to USB_AUDIO_DEVICE
+> to restore uvcvideo matching in all cases.
+> 
+> Fixes: 48827e1d6af5 ("ALSA: usb-audio: Add quirk for VF0770")
+> Reported-by: Jukka Heikintalo <heikintalo.jukka@gmail.com>
+> Tested-by: Jukka Heikintalo <heikintalo.jukka@gmail.com>
+> Reported-by: Paweł Susicki <pawel.susicki@gmail.com>
+> Tested-by: Paweł Susicki <pawel.susicki@gmail.com>
+> Cc: <stable@vger.kernel.org> # 5.4, 5.10, 5.14, 5.15
+> Signed-off-by: Jonas Hahnfeld <hahnjo@hahnjo.de>
 
-Regressions Summary
--------------------
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.301-21-g9a634735145a/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.301-21-g9a634735145a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9a634735145a79d988148becf900bdb12644b8d3 =
+Thanks, applied now.
 
 
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61f89f90a4266b68315d6eeb
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.301-2=
-1-g9a634735145a/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.301-2=
-1-g9a634735145a/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61f89f90a4266b6=
-8315d6ef1
-        new failure (last pass: v4.4.301-19-gee241a8478be8)
-        2 lines
-
-    2022-02-01T02:48:28.458232  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/121
-    2022-02-01T02:48:28.467242  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+Takashi
