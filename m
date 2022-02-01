@@ -2,87 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 749C84A590A
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 10:17:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 297B34A590D
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 10:18:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231163AbiBAJRz convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 1 Feb 2022 04:17:55 -0500
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.85.151]:39334 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230264AbiBAJRy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 04:17:54 -0500
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-140-GeVL98cmMJWo6_nFsA2gAQ-1; Tue, 01 Feb 2022 09:17:48 +0000
-X-MC-Unique: GeVL98cmMJWo6_nFsA2gAQ-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.28; Tue, 1 Feb 2022 09:17:47 +0000
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.028; Tue, 1 Feb 2022 09:17:47 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Kees Cook' <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-CC:     Ariadne Conill <ariadne@dereferenced.org>,
-        Michael Kerrisk <mtk.manpages@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        "Christian Brauner" <brauner@kernel.org>,
-        Rich Felker <dalias@libc.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>
-Subject: RE: [PATCH] exec: Force single empty string when argv is empty
-Thread-Topic: [PATCH] exec: Force single empty string when argv is empty
-Thread-Index: AQHYFwALh17Nc4lWIEewOStTbNpbHKx+aiLA
-Date:   Tue, 1 Feb 2022 09:17:47 +0000
-Message-ID: <78959c88715049a4be00fc75bb333d3a@AcuMS.aculab.com>
-References: <20220201000947.2453721-1-keescook@chromium.org>
-In-Reply-To: <20220201000947.2453721-1-keescook@chromium.org>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S235897AbiBAJS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 04:18:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38880 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234633AbiBAJS4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 04:18:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6DEFC061714;
+        Tue,  1 Feb 2022 01:18:56 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FCE3614C6;
+        Tue,  1 Feb 2022 09:18:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFA35C340EB;
+        Tue,  1 Feb 2022 09:18:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643707135;
+        bh=R7Ti4uI3G/j3QMxStgzavS8hxG9gK9/HB64jBoOyH+c=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JY8uiUMJ50ExSA+zhYSdE5dUQIQcWq+phdwVS+CGN4E3CVU6Ocvb32R1+vBZWoDhL
+         hPzU3zjqhiG/S7n41F/buQJcp4vwJfR6ujdkmGeKCZ9d/Lx7UfJhqTWmr9yCQzGz+t
+         YK2BtrIy7dqxkPVPAr4qr20cZU6VstbxRtaFJfEg=
+Date:   Tue, 1 Feb 2022 10:18:52 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Antony Antony <antony.antony@secunet.com>
+Cc:     Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Eyal Birger <eyal.birger@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] xfrm: fix the if_id check in changelink
+Message-ID: <Yfj6/PtvOlqwkM4r@kroah.com>
+References: <20220126215937.GA31158@duo.ucw.cz>
+ <ca25f9904d2a4acebdc02b1c054aaeab25d99cc5.1643698195.git.antony.antony@secunet.com>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ca25f9904d2a4acebdc02b1c054aaeab25d99cc5.1643698195.git.antony.antony@secunet.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook
-> Sent: 01 February 2022 00:10
-...
-> While the initial code searches[6][7] turned up what appeared to be
-> mostly corner case tests, trying to that just reject argv == NULL
-> (or an immediately terminated pointer list) quickly started tripping[8]
-> existing userspace programs.
+On Tue, Feb 01, 2022 at 07:51:57AM +0100, Antony Antony wrote:
+> if_id will be always 0, because it was not yet initialized.
 > 
-> The next best approach is forcing a single empty string into argv and
-> adjusting argc to match. The number of programs depending on argc == 0
-> seems a smaller set than those calling execve with a NULL argv.
+> Fixes: 8dce43919566 ("xfrm: interface with if_id 0 should return error")
+> Reported-by: Pavel Machek <pavel@denx.de>
+> Signed-off-by: Antony Antony <antony.antony@secunet.com>
+> ---
+>  net/xfrm/xfrm_interface.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Has anyone considered using the pathname for argv[0]?
-So converting:
-	execl(path, NULL);
-into:
-	execl(path, path, NULL);
 
-I've not spotted any such suggestion.
+<formletter>
 
-	David
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+</formletter>
