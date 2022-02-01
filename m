@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2FD64A638C
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 19:18:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B09F44A638E
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 19:18:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241731AbiBASSL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 13:18:11 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:51354 "EHLO
+        id S241886AbiBASSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 13:18:15 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:51372 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242051AbiBASSA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 13:18:00 -0500
+        with ESMTP id S241873AbiBASSD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 13:18:03 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4E11BCE1A62;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5E3CDCE1A66;
+        Tue,  1 Feb 2022 18:18:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FD4CC340EC;
         Tue,  1 Feb 2022 18:17:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AC0DC340ED;
-        Tue,  1 Feb 2022 18:17:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643739477;
-        bh=llYpXRNgCDL02EcSmVcoB724PH/9gJDPbx2yGxcQE2A=;
+        s=korg; t=1643739480;
+        bh=j+IhRbq4Cs2X1+PpGGO88TqMrMllX3nejWDyhD2ZKVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IlGBQIPwXgvh+Ih0dFacZELm7M9r4aqM9aT66NmJs8wTTS0lsF2vQSPlyfFXxZtTU
-         h01ta51n3G8CJ9Y/RkWVfzP0safy8lNnSFd74ZBsDhpMFnmMTqfJMKxsvp63xO0eNS
-         x2F5daftYTghdZOgpp4omxDiA3CgfeE7YplSUbgg=
+        b=r7xZlgLU5yPVuxZZI1Cg0hCMTcHMBMmjyuz6n4wTesCf5ovvPj7zrFZft/e/9/Riv
+         67pz7CmSAY2UF361R96WE1ZGnLJpOPR4xmoskCSRmoACnmjE4IgGXDMrxWBWPrrB68
+         o1YEWyIH/s0Zrw9DOxgI2zQUGZMrLC9aAdQ6wmTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.4 04/25] scsi: zfcp: Fix failed recovery on gone remote port with non-NPIV FCP devices
-Date:   Tue,  1 Feb 2022 19:16:28 +0100
-Message-Id: <20220201180822.300315007@linuxfoundation.org>
+        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.4 05/25] udf: Restore i_lenAlloc when inode expansion fails
+Date:   Tue,  1 Feb 2022 19:16:29 +0100
+Message-Id: <20220201180822.337788155@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220201180822.148370751@linuxfoundation.org>
 References: <20220201180822.148370751@linuxfoundation.org>
@@ -45,111 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Maier <maier@linux.ibm.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 8c9db6679be4348b8aae108e11d4be2f83976e30 upstream.
+commit ea8569194b43f0f01f0a84c689388542c7254a1f upstream.
 
-Suppose we have an environment with a number of non-NPIV FCP devices
-(virtual HBAs / FCP devices / zfcp "adapter"s) sharing the same physical
-FCP channel (HBA port) and its I_T nexus. Plus a number of storage target
-ports zoned to such shared channel. Now one target port logs out of the
-fabric causing an RSCN. Zfcp reacts with an ADISC ELS and subsequent port
-recovery depending on the ADISC result. This happens on all such FCP
-devices (in different Linux images) concurrently as they all receive a copy
-of this RSCN. In the following we look at one of those FCP devices.
+When we fail to expand inode from inline format to a normal format, we
+restore inode to contain the original inline formatting but we forgot to
+set i_lenAlloc back. The mismatch between i_lenAlloc and i_size was then
+causing further problems such as warnings and lost data down the line.
 
-Requests other than FSF_QTCB_FCP_CMND can be slow until they get a
-response.
-
-Depending on which requests are affected by slow responses, there are
-different recovery outcomes. Here we want to fix failed recoveries on port
-or adapter level by avoiding recovery requests that can be slow.
-
-We need the cached N_Port_ID for the remote port "link" test with ADISC.
-Just before sending the ADISC, we now intentionally forget the old cached
-N_Port_ID. The idea is that on receiving an RSCN for a port, we have to
-assume that any cached information about this port is stale.  This forces a
-fresh new GID_PN [FC-GS] nameserver lookup on any subsequent recovery for
-the same port. Since we typically can still communicate with the nameserver
-efficiently, we now reach steady state quicker: Either the nameserver still
-does not know about the port so we stop recovery, or the nameserver already
-knows the port potentially with a new N_Port_ID and we can successfully and
-quickly perform open port recovery.  For the one case, where ADISC returns
-successfully, we re-initialize port->d_id because that case does not
-involve any port recovery.
-
-This also solves a problem if the storage WWPN quickly logs into the fabric
-again but with a different N_Port_ID. Such as on virtual WWPN takeover
-during target NPIV failover.
-[https://www.redbooks.ibm.com/abstracts/redp5477.html] In that case the
-RSCN from the storage FDISC was ignored by zfcp and we could not
-successfully recover the failover. On some later failback on the storage,
-we could have been lucky if the virtual WWPN got the same old N_Port_ID
-from the SAN switch as we still had cached.  Then the related RSCN
-triggered a successful port reopen recovery.  However, there is no
-guarantee to get the same N_Port_ID on NPIV FDISC.
-
-Even though NPIV-enabled FCP devices are not affected by this problem, this
-code change optimizes recovery time for gone remote ports as a side effect.
-The timely drop of cached N_Port_IDs prevents unnecessary slow open port
-attempts.
-
-While the problem might have been in code before v2.6.32 commit
-799b76d09aee ("[SCSI] zfcp: Decouple gid_pn requests from erp") this fix
-depends on the gid_pn_work introduced with that commit, so we mark it as
-culprit to satisfy fix dependencies.
-
-Note: Point-to-point remote port is already handled separately and gets its
-N_Port_ID from the cached peer_d_id. So resetting port->d_id in general
-does not affect PtP.
-
-Link: https://lore.kernel.org/r/20220118165803.3667947-1-maier@linux.ibm.com
-Fixes: 799b76d09aee ("[SCSI] zfcp: Decouple gid_pn requests from erp")
-Cc: <stable@vger.kernel.org> #2.6.32+
-Suggested-by: Benjamin Block <bblock@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+CC: stable@vger.kernel.org
+Fixes: 7e49b6f2480c ("udf: Convert UDF to new truncate calling sequence")
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/scsi/zfcp_fc.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ fs/udf/inode.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/s390/scsi/zfcp_fc.c
-+++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -518,6 +518,8 @@ static void zfcp_fc_adisc_handler(void *
- 		goto out;
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -320,6 +320,7 @@ int udf_expand_file_adinicb(struct inode
+ 		unlock_page(page);
+ 		iinfo->i_alloc_type = ICBTAG_FLAG_AD_IN_ICB;
+ 		inode->i_data.a_ops = &udf_adinicb_aops;
++		iinfo->i_lenAlloc = inode->i_size;
+ 		up_write(&iinfo->i_data_sem);
  	}
- 
-+	/* re-init to undo drop from zfcp_fc_adisc() */
-+	port->d_id = ntoh24(adisc_resp->adisc_port_id);
- 	/* port is good, unblock rport without going through erp */
- 	zfcp_scsi_schedule_rport_register(port);
-  out:
-@@ -531,6 +533,7 @@ static int zfcp_fc_adisc(struct zfcp_por
- 	struct zfcp_fc_req *fc_req;
- 	struct zfcp_adapter *adapter = port->adapter;
- 	struct Scsi_Host *shost = adapter->scsi_host;
-+	u32 d_id;
- 	int ret;
- 
- 	fc_req = kmem_cache_zalloc(zfcp_fc_req_cache, GFP_ATOMIC);
-@@ -555,7 +558,15 @@ static int zfcp_fc_adisc(struct zfcp_por
- 	fc_req->u.adisc.req.adisc_cmd = ELS_ADISC;
- 	hton24(fc_req->u.adisc.req.adisc_port_id, fc_host_port_id(shost));
- 
--	ret = zfcp_fsf_send_els(adapter, port->d_id, &fc_req->ct_els,
-+	d_id = port->d_id; /* remember as destination for send els below */
-+	/*
-+	 * Force fresh GID_PN lookup on next port recovery.
-+	 * Must happen after request setup and before sending request,
-+	 * to prevent race with port->d_id re-init in zfcp_fc_adisc_handler().
-+	 */
-+	port->d_id = 0;
-+
-+	ret = zfcp_fsf_send_els(adapter, d_id, &fc_req->ct_els,
- 				ZFCP_FC_CTELS_TMO);
- 	if (ret)
- 		kmem_cache_free(zfcp_fc_req_cache, fc_req);
+ 	page_cache_release(page);
 
 
