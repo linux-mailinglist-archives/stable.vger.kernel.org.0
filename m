@@ -2,190 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF1CE4A59CF
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 11:18:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEE054A59E7
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 11:22:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236455AbiBAKSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 05:18:14 -0500
-Received: from mout.gmx.net ([212.227.17.22]:38569 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232572AbiBAKSO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Feb 2022 05:18:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1643710667;
-        bh=wmREK8PFq/vdn0l0vClE+30BQLaE2yxdPYhw57Lv93s=;
-        h=X-UI-Sender-Class:Date:Subject:From:To:Cc:References:In-Reply-To;
-        b=Z0WOLlz8BCqYtm9aPUCUPXil71JwcDLuhZNZHd7FHSTjquWIqTyuK7Nxr9bXKMr5M
-         n7y7YVN+Gut/WezgN3lhFBOckPb49UQegA/8OQfYWC8aD15Eo/caFD+yl3rjwiqe4h
-         oY1qTfesL9tHu5G/xB+F+phh6OqPL2vFOHQ+mwnU=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.20.60] ([92.116.146.124]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MaJ81-1mkzgl3Fkj-00WIVJ; Tue, 01
- Feb 2022 11:17:46 +0100
-Message-ID: <98bf57d3-de0f-7f0e-21ce-360f661f4e25@gmx.de>
-Date:   Tue, 1 Feb 2022 11:17:44 +0100
+        id S235170AbiBAKWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 05:22:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53382 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232712AbiBAKWY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 05:22:24 -0500
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB76DC06173B
+        for <stable@vger.kernel.org>; Tue,  1 Feb 2022 02:22:22 -0800 (PST)
+Received: by mail-pf1-x432.google.com with SMTP id n32so15419900pfv.11
+        for <stable@vger.kernel.org>; Tue, 01 Feb 2022 02:22:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=heitbaum.com; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=CaMzrp6CD4pfO3e5Ep+eXwdfnB7JTyIu6P8uVnKFFrU=;
+        b=N1oMf5jw9LrwWQqfKsvprnVPewxZi/NS23yhShpDQrHhyP4UqzhPdVOcrPSFLXxXIH
+         62JXGjyJCiU2eBsVqTUZYoC7bvfprbX4GDY+hFEGwYJwDodhkzXRRV1S4bkwZhrcV1Vj
+         NtOoJdDCMQSDaRdqTkfNxtPDhTueWaSTAr240=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=CaMzrp6CD4pfO3e5Ep+eXwdfnB7JTyIu6P8uVnKFFrU=;
+        b=nZ4VgolWyzStdow3PzkcHowmQPgga8R7g4kDfDJvk08WZnR1jj+shgqOW7OT/DrgB6
+         Zirqh4dm74AqGIhlAoBIgbbZ/19+Kgs/PLv1jU4J1Xduc8Vb7gyM9ZtoZOw6B3FcHigP
+         a76nk7VKJ5ix0cS6lmaOvxp2HUnsZp/bRUExsSj0PpMZTi0aU5bXQWJ5/oc9ZV1xTsoD
+         VsYVZWNwJicvyZ/f7QWWHuRuoPdVP3U5LZU/6haikZbZVAaAFXYYqxEioFCFZVBRv9pT
+         COiIXQQYJpv9twdh/WzxiPdC8VBAiDnv5Qd5YbqktssfxaGqDQu5UPHDSci5jES0YPKt
+         eNfw==
+X-Gm-Message-State: AOAM531QHiouqBcGQ2IYwPpvl7UjZY7BA1PNVeIzxxoybn1oUcfM5D8B
+        l1s/4nEMObHJ/D0umFmmTDAuFw==
+X-Google-Smtp-Source: ABdhPJwpqj5Cjaud7YJwIt2CFU4GZOe/GYVTB6r+TfkTtxWPKJ5Lduqatqn4YkysEWKcyD10QGxLHw==
+X-Received: by 2002:a63:e302:: with SMTP id f2mr20232686pgh.451.1643710942130;
+        Tue, 01 Feb 2022 02:22:22 -0800 (PST)
+Received: from d7a09e6e3461 ([203.221.136.13])
+        by smtp.gmail.com with ESMTPSA id b22sm22471758pfl.121.2022.02.01.02.22.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Feb 2022 02:22:21 -0800 (PST)
+Date:   Tue, 1 Feb 2022 10:22:12 +0000
+From:   Rudi Heitbaum <rudi@heitbaum.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com
+Subject: Re: [PATCH 5.16 000/200] 5.16.5-rc1 review
+Message-ID: <20220201102212.GA26@d7a09e6e3461>
+References: <20220131105233.561926043@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH 03/21] fbcon: Restore fbcon scrolling acceleration
-Content-Language: en-US
-From:   Helge Deller <deller@gmx.de>
-To:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        DRI Development <dri-devel@lists.freedesktop.org>
-Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        linux-fbdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Claudio Suarez <cssk@net-c.es>,
-        Dave Airlie <airlied@gmail.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Pavel Machek <pavel@ucw.cz>, Sam Ravnborg <sam@ravnborg.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Sven Schnelle <svens@stackframe.org>,
-        Gerd Hoffmann <kraxel@redhat.com>
-References: <20220131210552.482606-1-daniel.vetter@ffwll.ch>
- <20220131210552.482606-4-daniel.vetter@ffwll.ch>
- <9c22b709-cbcf-6a29-a45e-5a57ba0b9c14@gmx.de>
-In-Reply-To: <9c22b709-cbcf-6a29-a45e-5a57ba0b9c14@gmx.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:BLEyQfaZyNddFkNU0iveVjwX+bqyCCzVzYZsG8dus0NPeKpzvO4
- XUbCXA6kU8gOWMxNdCqVD8Dl6yj+eh5kaJ1hB66nR3wiTU1PBmihCXPgud0F+nPZUgKrgD1
- iAgcqrAu2Uqo1Ldj8aR6HnTUupZzfhVPTpdd5dRPQo7LzSY/wh2w2odvcuiXKjD4SnOVL8j
- SiVVTKVwz9mxlCvDBA+eA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:nGL3C+F5Hog=:p8wqV+ZdqkrUkg+IP+YS7s
- +DxdKrHEQqv9JTrY9VpF/UKWI+QQPfrPOI/idsnfOAv7u8gg0z78MZk3wVy92ksSPzZuvje7p
- r+WusT7JH7K+b1BMwsmOi2Mfr5JowHH72hYqDg6Mf8lSIdKzIkVfClu8jsC0LB4fpBMN07Bg4
- LKbqU1zssh6LApc8HtmSbnYkGtPvpVwv24uAUCvrG5gOTXQAqniM3aVG+1DoVHy7a4iP6ansv
- ytcJ1EPNAROjVjNM+M5fI8jYGVhM/41/c8hnqdOaxIHUCRb5eg7RSeBNbBJ1IXYmY0p2AjMXf
- RcLfcBhmeznw57AMTfqxXdnbdXS++R2Ctx8rIQtLkTXS3+8FXDrRr3s7VhzwgIKi13wUeNqgH
- YvlfLgKEFhjYSpL4SwhaTY7MWoQAf/HmLkQyYNRUrY5Cn8nMujGYsgIJybx9DLZhHWNqxjsOn
- BCccG235GotdHBHRHBH/F/+mW0obBJd3WN26OjJwtmxJ6DgUEMzJGbXxpP6T2tuxwVBRxWxIt
- Nxznf04GB5E5Pjbtl4pOx2ViFpqDFXZ/AGNtsIJtEla25rXJfPK/8mBL8tj/FhmXP82WJEBvp
- 5BfmMfciVmfu/hXPI7P2NF0mCIC74BG3w6rhJtKKy86OLm21ubJuFyeg9O/chPH4yziQGxMAv
- v1fwe2MfrvZ8dxOwaVsqmyG8GGppAo4GjXvT27IdyaoHkIqN7f4+xjHiPSCp3VrWQAvbKlVLj
- A7uxf0/0siWyXkueRPt+0cMhN8O2fXYM2jLaNwa5XMESWT0vSGixO1OoGpz7CQAdR3lptlxiZ
- OtktLj9Xmn8Kbt6vt26WIkFa/fGP4D/2EXhIaO7tzEgl0cEHCe03OJ75dLY6n0blPrVaq33gS
- KEDiHJfPJF34hQIBGXUEm+Sx+92pMpUyrHW//MLImEdh12W86FEeRQmY1HQ+lKBDIr+LJ+nUq
- d4DyemULDb2R4n07yJ572JdzPjfKgKL+MA3jlhe77R7sDRufmbbKU/PPvVLM+AvcWRKBsl3/m
- 2nP0gQx0nZZ9jvbXEjwYmg68DpDN/1THUAIKOqEakmu8xis8rx1SEjHjtvJQZjbxpvUb+Eoh2
- 36I9IRwtzdcy74=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220131105233.561926043@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/1/22 11:16, Helge Deller wrote:
-> On 1/31/22 22:05, Daniel Vetter wrote:
->> This functionally undoes 39aead8373b3 ("fbcon: Disable accelerated
->> scrolling"), but behind the FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
->> option.
->
-> you have two trivial copy-n-paste errors in this patch which still preve=
-nt the
-> console acceleration.
->
->> diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/cor=
-e/fbcon.c
->> index 2ff90061c7f3..39dc18a5de86 100644
->> --- a/drivers/video/fbdev/core/fbcon.c
->> +++ b/drivers/video/fbdev/core/fbcon.c
->> @@ -1125,13 +1125,15 @@ static void fbcon_init(struct vc_data *vc, int =
-init)
->>
->>  	ops->graphics =3D 0;
->>
->> -	/*
->> -	 * No more hw acceleration for fbcon.
->> -	 *
->> -	 * FIXME: Garbage collect all the now dead code after sufficient time
->> -	 * has passed.
->> -	 */
->> +#ifdef CONFIG_FRAMEBUFFER_CONSOLE_ROTATION
->
-> should be:
-> #ifdef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
->
->
->> +	if ((info->flags & FBINFO_HWACCEL_COPYAREA) &&
->> +	    !(info->flags & FBINFO_HWACCEL_DISABLED))
->> +		p->scrollmode =3D SCROLL_MOVE;
->> +	else /* default to something safe */
->> +		p->scrollmode =3D SCROLL_REDRAW;
->> +#else
->>  	p->scrollmode =3D SCROLL_REDRAW;
->> +#endif
->>
->>  	/*
->>  	 *  ++guenther: console.c:vc_allocate() relies on initializing
->> @@ -1971,15 +1973,49 @@ static void updatescrollmode(struct fbcon_displ=
-ay *p,
->>  {
->>  	struct fbcon_ops *ops =3D info->fbcon_par;
->>  	int fh =3D vc->vc_font.height;
->> +	int cap =3D info->flags;
->> +	u16 t =3D 0;
->> +	int ypan =3D FBCON_SWAP(ops->rotate, info->fix.ypanstep,
->> +			      info->fix.xpanstep);
->> +	int ywrap =3D FBCON_SWAP(ops->rotate, info->fix.ywrapstep, t);
->>  	int yres =3D FBCON_SWAP(ops->rotate, info->var.yres, info->var.xres);
->>  	int vyres =3D FBCON_SWAP(ops->rotate, info->var.yres_virtual,
->>  				   info->var.xres_virtual);
->> +	int good_pan =3D (cap & FBINFO_HWACCEL_YPAN) &&
->> +		divides(ypan, vc->vc_font.height) && vyres > yres;
->> +	int good_wrap =3D (cap & FBINFO_HWACCEL_YWRAP) &&
->> +		divides(ywrap, vc->vc_font.height) &&
->> +		divides(vc->vc_font.height, vyres) &&
->> +		divides(vc->vc_font.height, yres);
->> +	int reading_fast =3D cap & FBINFO_READS_FAST;
->> +	int fast_copyarea =3D (cap & FBINFO_HWACCEL_COPYAREA) &&
->> +		!(cap & FBINFO_HWACCEL_DISABLED);
->> +	int fast_imageblit =3D (cap & FBINFO_HWACCEL_IMAGEBLIT) &&
->> +		!(cap & FBINFO_HWACCEL_DISABLED);
->>
->>  	p->vrows =3D vyres/fh;
->>  	if (yres > (fh * (vc->vc_rows + 1)))
->>  		p->vrows -=3D (yres - (fh * vc->vc_rows)) / fh;
->>  	if ((yres % fh) && (vyres % fh < yres % fh))
->>  		p->vrows--;
->> +
->> +	if (good_wrap || good_pan) {
->> +		if (reading_fast || fast_copyarea)
->> +			p->scrollmode =3D good_wrap ?
->> +				SCROLL_WRAP_MOVE : SCROLL_PAN_MOVE;
->> +		else
->> +			p->scrollmode =3D good_wrap ? SCROLL_REDRAW :
->> +				SCROLL_PAN_REDRAW;
->> +	} else {
->> +		if (reading_fast || (fast_copyarea && !fast_imageblit))
->> +			p->scrollmode =3D SCROLL_MOVE;
->> +		else
->> +			p->scrollmode =3D SCROLL_REDRAW;
->> +	}
->> +
->> +#ifndef CONFIG_FRAMEBUFFER_CONSOLE_ROTATION
->
-> same here... it needs to be:
-> #ifdef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
+On Mon, Jan 31, 2022 at 11:54:23AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.5 release.
+> There are 200 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 02 Feb 2022 10:51:59 +0000.
+> Anything received after that time might be too late.
 
-actually:
-#ifndef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
+Hi Greg,
 
->
->
->> +	p->scrollmode =3D SCROLL_REDRAW;
->> +#endif
->>  }
->>
->>  #define PITCH(w) (((w) + 7) >> 3)
->>
->
-> still reviewing the other patches...
->
-> Helge
->
+5.16.5-rc1 tested.
 
+Run tested on:
+- Allwinner H6 (Tanix TX6)
+- Intel Tiger Lake x86_64 (nuc11 i7-1165G7)
+
+In addition - build tested on:
+- Allwinner A64
+- Allwinner H3
+- Allwinner H5
+- NXP iMX6
+- NXP iMX8
+- Qualcomm Dragonboard
+- Rockchip RK3288
+- Rockchip RK3328
+- Rockchip RK3399pro
+- Samsung Exynos
+
+Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
+--
+Rudi
