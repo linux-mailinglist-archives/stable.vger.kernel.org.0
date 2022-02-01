@@ -2,92 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCF4C4A5770
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 08:02:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED3F34A5762
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 07:54:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234522AbiBAHCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 02:02:18 -0500
-Received: from a.mx.secunet.com ([62.96.220.36]:37918 "EHLO a.mx.secunet.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234514AbiBAHCR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Feb 2022 02:02:17 -0500
-X-Greylist: delayed 605 seconds by postgrey-1.27 at vger.kernel.org; Tue, 01 Feb 2022 02:02:17 EST
-Received: from localhost (localhost [127.0.0.1])
-        by a.mx.secunet.com (Postfix) with ESMTP id E8AD82052E;
-        Tue,  1 Feb 2022 07:52:10 +0100 (CET)
-X-Virus-Scanned: by secunet
-Received: from a.mx.secunet.com ([127.0.0.1])
-        by localhost (a.mx.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id H0gHnvcPIx3j; Tue,  1 Feb 2022 07:52:10 +0100 (CET)
-Received: from mailout1.secunet.com (mailout1.secunet.com [62.96.220.44])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by a.mx.secunet.com (Postfix) with ESMTPS id 78E66204A4;
-        Tue,  1 Feb 2022 07:52:10 +0100 (CET)
-Received: from cas-essen-02.secunet.de (unknown [10.53.40.202])
-        by mailout1.secunet.com (Postfix) with ESMTP id 7120580004A;
-        Tue,  1 Feb 2022 07:52:10 +0100 (CET)
-Received: from mbx-essen-02.secunet.de (10.53.40.198) by
- cas-essen-02.secunet.de (10.53.40.202) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Tue, 1 Feb 2022 07:52:10 +0100
-Received: from moon.secunet.de (172.18.149.1) by mbx-essen-02.secunet.de
- (10.53.40.198) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.17; Tue, 1 Feb
- 2022 07:52:09 +0100
-Date:   Tue, 1 Feb 2022 07:51:57 +0100
-From:   Antony Antony <antony.antony@secunet.com>
-To:     Steffen Klassert <steffen.klassert@secunet.com>
-CC:     Herbert Xu <herbert@gondor.apana.org.au>,
-        Eyal Birger <eyal.birger@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Jakub Kicinski" <kuba@kernel.org>, <netdev@vger.kernel.org>,
-        <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Antony Antony <antony.antony@secunet.com>
-Subject: [PATCH] xfrm: fix the if_id check in changelink
-Message-ID: <ca25f9904d2a4acebdc02b1c054aaeab25d99cc5.1643698195.git.antony.antony@secunet.com>
-Reply-To: <antony.antony@secunet.com>
-References: <20220126215937.GA31158@duo.ucw.cz>
+        id S234450AbiBAGyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 01:54:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34732 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233800AbiBAGyO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 01:54:14 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A34CC061714
+        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 22:54:14 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id z10-20020a17090acb0a00b001b520826011so1696545pjt.5
+        for <stable@vger.kernel.org>; Mon, 31 Jan 2022 22:54:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=D3GPspi+rlry77BHDkrC8nRC6tbp4S6kmhUln1lYVXg=;
+        b=DDfTkeH7WxIv5IaiQkSnGDxRqLVb1llo0oO4CS6r07KcgN2o8YgAm1Bc5u7An5k9Yh
+         Qsjoay3H7aOYZg+cLBl8C6F7JpVfT2O2/jfOxOV/b3Ko+8NdueKnYfgAA72LdDEVIbUv
+         OMv6w7F1UaPNrdZgUE13s9UuZBjngYqHVFuUSZXJrzFgHugtZ1JET+rDOqGEPBw3KIh4
+         6LVlm3a1MdsnJYLh/rtB8E8+wOX3r5GklW5V+nGwr+bTEkNg6AR0HTJ+UtK6sFJzAnBj
+         y+viGlcsmVwYzVWHAmd+WLmAUjFaAJl4WEE0mnhjsx7B3YTf+wnng14hqBdCSMAmLN/0
+         1Tmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=D3GPspi+rlry77BHDkrC8nRC6tbp4S6kmhUln1lYVXg=;
+        b=0atavFCJTT6g1WTSStWrBEs5dO6/nTUBdTY405E4NLVV9jgR2pDzN5FAozwnNGUNmd
+         WPXhfnYkz6Huy0jpi9bWGZ/woF3q6RJ0MCfQV7ZUUEsrarMMWnatA6A4mCQ9VZh4pXFj
+         ZhRscxGSXvBtVEHnishpxFo2e03KFINmdlhL2QL1s0EmqWZaJNGWIRHugySHxEO5MlgE
+         1rKsN6lNoG0nvepZKwzVuvGnT7gAeO48PxQL84iIisxMZAsroiNLozx5xL1iqD73lcU7
+         ZZhIfUfV1lhPA/B2NCz5CmR+5+FUin7eAHVBcoscOwtwSOdL1LVPLdxqP0+FzqmeCNji
+         Iv7Q==
+X-Gm-Message-State: AOAM533tPXDavNhgZbomgRaAzZ9LpKOy4XXUlNuIpCu7DA1utzAtgwzt
+        7ZFsnDc+qo8mUUUtDSEcT7lTQVDOIbpuwe4E
+X-Google-Smtp-Source: ABdhPJx05ub9JalAjOXj0Ih/eGB5Klitbf+djPHHAUr2IE177TfEYOmGNlDQ5m+m63rtoaq5CqXMTg==
+X-Received: by 2002:a17:90b:3b8d:: with SMTP id pc13mr735011pjb.54.1643698453807;
+        Mon, 31 Jan 2022 22:54:13 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 8sm1386430pji.4.2022.01.31.22.54.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 Jan 2022 22:54:13 -0800 (PST)
+Message-ID: <61f8d915.1c69fb81.3db0f.4785@mx.google.com>
+Date:   Mon, 31 Jan 2022 22:54:13 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20220126215937.GA31158@duo.ucw.cz>
-Organization: secunet
-X-ClientProxiedBy: cas-essen-02.secunet.de (10.53.40.202) To
- mbx-essen-02.secunet.de (10.53.40.198)
-X-EXCLAIMER-MD-CONFIG: 2c86f778-e09b-4440-8b15-867914633a10
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.301-21-g9a634735145a
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/4.4
+Subject: stable-rc/queue/4.4 baseline: 71 runs,
+ 1 regressions (v4.4.301-21-g9a634735145a)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-if_id will be always 0, because it was not yet initialized.
+stable-rc/queue/4.4 baseline: 71 runs, 1 regressions (v4.4.301-21-g9a634735=
+145a)
 
-Fixes: 8dce43919566 ("xfrm: interface with if_id 0 should return error")
-Reported-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Antony Antony <antony.antony@secunet.com>
+Regressions Summary
+-------------------
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
- net/xfrm/xfrm_interface.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
-index 57448fc519fc..4e3c62d1ad9e 100644
---- a/net/xfrm/xfrm_interface.c
-+++ b/net/xfrm/xfrm_interface.c
-@@ -673,12 +673,12 @@ static int xfrmi_changelink(struct net_device *dev, struct nlattr *tb[],
- 	struct net *net = xi->net;
- 	struct xfrm_if_parms p = {};
 
-+	xfrmi_netlink_parms(data, &p);
- 	if (!p.if_id) {
- 		NL_SET_ERR_MSG(extack, "if_id must be non zero");
- 		return -EINVAL;
- 	}
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.301-21-g9a634735145a/plan/baseline/
 
--	xfrmi_netlink_parms(data, &p);
- 	xi = xfrmi_locate(net, &p);
- 	if (!xi) {
- 		xi = netdev_priv(dev);
---
-2.30.2
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.301-21-g9a634735145a
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9a634735145a79d988148becf900bdb12644b8d3 =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f89f90a4266b68315d6eeb
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.301-2=
+1-g9a634735145a/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.301-2=
+1-g9a634735145a/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61f89f90a4266b6=
+8315d6ef1
+        new failure (last pass: v4.4.301-19-gee241a8478be8)
+        2 lines
+
+    2022-02-01T02:48:28.458232  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/121
+    2022-02-01T02:48:28.467242  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
