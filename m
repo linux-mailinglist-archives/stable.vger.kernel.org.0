@@ -2,89 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 127134A60D4
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 16:57:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D754A6113
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 17:11:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240743AbiBAP5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 10:57:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45816 "EHLO
+        id S240867AbiBAQLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 11:11:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240742AbiBAP5T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 10:57:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C208DC061714
-        for <stable@vger.kernel.org>; Tue,  1 Feb 2022 07:57:18 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7CAB3B82EBC
-        for <stable@vger.kernel.org>; Tue,  1 Feb 2022 15:57:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A160C340F2;
-        Tue,  1 Feb 2022 15:57:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643731036;
-        bh=VnWhYXoSublRCB+1wcOOpYhqio7frWE6T8zFex0MlxI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qyDH9x0rAubhmtN+jqn8UpfmWNRQjRyIlv/UFEuCuh9GuA2OHYdkAPqz0cB5XeWFu
-         iuGD9pJ8JpxZvoPuGMTh3S/Dm6/MLjWcSPQcGao0BrsJf8fQV9LsLXRe3mvNM6bt9x
-         S2+RY+ikcfmg1mE3+k9AhRSxqfQeypflHTZ3d9Qee9dPrXFjNJU28yZzU7WEJPbmx0
-         UJUxMAvMdJW5wyvHWhpl1l56v38bf3uwHB7yB1MJKwhfxjVK+oUhMHkxpcNEiKNmGR
-         TByrObquwXvGdofawh93oteISlUvrCxv/msUK0SvXHNRW5ZZ1A3M1BE+Cv16R1Jvsy
-         pbCavoMmzQNRQ==
-From:   Mark Brown <broonie@kernel.org>
-To:     Liam Girdwood <lgirdwood@gmail.com>
-Cc:     alsa-devel@alsa-project.org, Mark Brown <broonie@kernel.org>,
-        stable@vger.kernel.org
-Subject: [PATCH v1 4/4] ASoC: ops: Fix stereo change notifications in snd_soc_put_xr_sx()
-Date:   Tue,  1 Feb 2022 15:56:29 +0000
-Message-Id: <20220201155629.120510-5-broonie@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20220201155629.120510-1-broonie@kernel.org>
-References: <20220201155629.120510-1-broonie@kernel.org>
+        with ESMTP id S240889AbiBAQLk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 11:11:40 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B33C061714
+        for <stable@vger.kernel.org>; Tue,  1 Feb 2022 08:11:40 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id r59so17541366pjg.4
+        for <stable@vger.kernel.org>; Tue, 01 Feb 2022 08:11:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=N02a2NmClloOhkqBJZlLZl1YqkAhiNGJF46vOjTsFJc=;
+        b=WV7U0+QHF2jEkA5GIPYO4poEa602IrdI7Pr65446HRj+Q0ZYkg2gfXp1od5m63s1m5
+         Ss0o5XEvpH3w5wgsAnupuPJdJEp7cDjSV2jzhUidxVPFbUTRVpmuBg4k5CvKgFdGR2R2
+         N3e16hJp6ggLSBMBSYuptGm2cgwTizRhyYbVXZtG1VxGrMTDaBBPrxMiS2S0rT9CUZAI
+         Gq1J60CXjnvi9eM+1nycgXSFTzUrfFHMw8UV1uiN1lQt7DsFoH75xwlv3xXzaSvwPfQM
+         9RZS20b1qqW0hvIZnRNpmo/xpNR63d6+DDPv0pazKtq6oig+1crAP3THdmOFag4Be7zf
+         dRtg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=N02a2NmClloOhkqBJZlLZl1YqkAhiNGJF46vOjTsFJc=;
+        b=uj0FeBey376zGTIyk42cuSjqOtRuIQz9YrBESJqz0dicqFafXCR5zf3LknqXDZn9em
+         I+4FB2pOzAhKMWIpI0GRweS8MQbYkGcbJdIFXKK9aEkPlpI5enmVNO5OFrw9VAoHa8/i
+         EbB8LgBDRrOsccm0l/t991xmaZd7SBmIW2pM7w2X53Dk8HuoOjMmLOf57B+xR2CRvTAA
+         q1xUOlzdfS2yvFxkj0NLaSJu9GIycAnrDrl0G78Vt/abMlaSkJP+Ph69afpmX+e8F2wf
+         pNXT+2hpM6eSwldyLJoozTddJlIPbJg4uz0uDoD2jNFVRzXXZCEIFGJPdR7PqUeNsLoM
+         P5zA==
+X-Gm-Message-State: AOAM5331dvt+47dUHOcotW3AaO/P4S36dd8inQFn3hoi1hQ+3ZK5/DrR
+        oYw94EGjYAFUUnM4gUcF7ITilXDYxgawIaZ7
+X-Google-Smtp-Source: ABdhPJyZF7WRuokgClp8XXSl90SmbrzhdjCXkx/e0hl+DQhiAjmgrHNTOeY8GNKPjuvkIP1PCAEs7A==
+X-Received: by 2002:a17:90b:4c8e:: with SMTP id my14mr3092274pjb.243.1643731899949;
+        Tue, 01 Feb 2022 08:11:39 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k16sm23848841pfu.140.2022.02.01.08.11.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Feb 2022 08:11:39 -0800 (PST)
+Message-ID: <61f95bbb.1c69fb81.99b8d.e029@mx.google.com>
+Date:   Tue, 01 Feb 2022 08:11:39 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1062; h=from:subject; bh=VnWhYXoSublRCB+1wcOOpYhqio7frWE6T8zFex0MlxI=; b=owEBbQGS/pANAwAKASTWi3JdVIfQAcsmYgBh+VgsLu4zMn5YXRfnMlkoi6j6z/SZ9Iy/LLhl7L29 4B/A656JATMEAAEKAB0WIQSt5miqZ1cYtZ/in+ok1otyXVSH0AUCYflYLAAKCRAk1otyXVSH0IpLB/ 9YQ+9hIYFMiyjlW9PEgtBYLZh8roYtm/kwoGkde9MmPGlh7SxACNvDW/Chh0tEcFkERC0XxyTW3z0S OvzjU+KECDOtlqXho/YTAWdX5dpdVE7TS7xsTH6GHKylJzjDpTjvrEgKpY6NIg0F2SEPkXDZM8eUwl VyWeOXCmlgLqJ86E6+2uwRhvRELkU+KNrrp7cYyiD5OQzvGHyEBa59lyqwO2dhrU9FT8cIO8YNDtgj WkrtJIPqOB65fEltw+w7bC6ylNb7iV0YiAZStnC97dJpM0UoEPxCxASL0ND4+FkKODl2VOe1k/8/Wv 369Vu1zpxlhWaS+cIpKUOQRF79LbcS
-X-Developer-Key: i=broonie@kernel.org; a=openpgp; fpr=3F2568AAC26998F9E813A1C5C3F436CA30F5D8EB
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.175-63-g06a1c9d6fcbb
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 176 runs,
+ 4 regressions (v5.4.175-63-g06a1c9d6fcbb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When writing out a stereo control we discard the change notification from
-the first channel, meaning that events are only generated based on changes
-to the second channel. Ensure that we report a change if either channel
-has changed.
+stable-rc/queue/5.4 baseline: 176 runs, 4 regressions (v5.4.175-63-g06a1c9d=
+6fcbb)
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
----
- sound/soc/soc-ops.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+Regressions Summary
+-------------------
 
-diff --git a/sound/soc/soc-ops.c b/sound/soc/soc-ops.c
-index fefd4f34cbc1..6b922d12afb5 100644
---- a/sound/soc/soc-ops.c
-+++ b/sound/soc/soc-ops.c
-@@ -874,6 +874,7 @@ int snd_soc_put_xr_sx(struct snd_kcontrol *kcontrol,
- 	unsigned long mask = (1UL<<mc->nbits)-1;
- 	long max = mc->max;
- 	long val = ucontrol->value.integer.value[0];
-+	int ret = 0;
- 	unsigned int i;
- 
- 	if (invert)
-@@ -886,9 +887,11 @@ int snd_soc_put_xr_sx(struct snd_kcontrol *kcontrol,
- 							regmask, regval);
- 		if (err < 0)
- 			return err;
-+		if (err > 0)
-+			ret = err;
- 	}
- 
--	return 0;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(snd_soc_put_xr_sx);
- 
--- 
-2.30.2
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.175-63-g06a1c9d6fcbb/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.175-63-g06a1c9d6fcbb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      06a1c9d6fcbb947c26006f098fa69c10955beea7 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f9272f6c9402803d5d6efe
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
+3-g06a1c9d6fcbb/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
+3-g06a1c9d6fcbb/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61f9272f6c9402803d5d6=
+eff
+        failing since 47 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f926f9c1e4f884405d6efe
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
+3-g06a1c9d6fcbb/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
+3-g06a1c9d6fcbb/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61f926f9c1e4f884405d6=
+eff
+        failing since 47 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f926ef8adcfea9425d6f40
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
+3-g06a1c9d6fcbb/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
+3-g06a1c9d6fcbb/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61f926ef8adcfea9425d6=
+f41
+        failing since 47 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f926f55ed7c829f95d6eed
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
+3-g06a1c9d6fcbb/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.175-6=
+3-g06a1c9d6fcbb/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61f926f55ed7c829f95d6=
+eee
+        failing since 47 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
