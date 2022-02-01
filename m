@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64E124A6397
-	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 19:18:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 012944A6369
+	for <lists+stable@lfdr.de>; Tue,  1 Feb 2022 19:17:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242083AbiBASSo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 13:18:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50268 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242120AbiBASSU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 13:18:20 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 119C2C061760;
-        Tue,  1 Feb 2022 10:18:16 -0800 (PST)
+        id S235363AbiBASRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 13:17:07 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56296 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234424AbiBASRB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 13:17:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5FC63CE1A6A;
-        Tue,  1 Feb 2022 18:18:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ACA9C340ED;
-        Tue,  1 Feb 2022 18:18:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DD8C61418;
+        Tue,  1 Feb 2022 18:17:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E72AC340EC;
+        Tue,  1 Feb 2022 18:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643739492;
-        bh=ZeDUeqjVFY5hR5gcDoPLSCYZkaeoS06bacBxe8SFSYo=;
+        s=korg; t=1643739420;
+        bh=L8zZDxhrh4UHMsvji51RGgp50rdq0IiMFZy+Kf18rns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fOg9g1fxz5wS29UBYDCs6ukykE9CCgtyl2TrmZ3zz6CKc9XMYig3jMlLpbyp3FIzn
-         SH1YKwntg7asPfXPhxNf//GSPMbHjIOFh2DO5jxo2s4hhxd1DDw0/bFkrl+rkIvAoL
-         vo+abUD1dcCHdvTog48ipaCtFG/Rs5YEA0z6tjoc=
+        b=nkvhYE/s+fMk4kqW0FRdmi4jJoT/rkAucoCwPcOXwnrBr7kVc2gyVXuFipkyWSseS
+         u2Kk83fOyWjvXmL0ORB8xw7nnHTW/UrPsBSy+zS9Iex29lgLPIzCP7n242BQ5MfB6l
+         oJp/WBPXkKESn2lAPeKXjX7TQ8rIqqCFPcv9MTuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 4.4 09/25] tty: n_gsm: fix SW flow control encoding/handling
-Date:   Tue,  1 Feb 2022 19:16:33 +0100
-Message-Id: <20220201180822.457026587@linuxfoundation.org>
+        stable@vger.kernel.org, Cameron Williams <cang1@live.co.uk>
+Subject: [PATCH 4.4 10/25] tty: Add support for Brainboxes UC cards.
+Date:   Tue,  1 Feb 2022 19:16:34 +0100
+Message-Id: <20220201180822.487981953@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220201180822.148370751@linuxfoundation.org>
 References: <20220201180822.148370751@linuxfoundation.org>
@@ -46,64 +43,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: daniel.starke@siemens.com <daniel.starke@siemens.com>
+From: Cameron Williams <cang1@live.co.uk>
 
-commit 8838b2af23caf1ff0610caef2795d6668a013b2d upstream.
+commit 152d1afa834c84530828ee031cf07a00e0fc0b8c upstream.
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.2.7.3 states that DC1 (XON) and DC3 (XOFF)
-are the control characters defined in ISO/IEC 646. These shall be quoted if
-seen in the data stream to avoid interpretation as flow control characters.
+This commit adds support for the some of the Brainboxes PCI range of
+cards, including the UC-101, UC-235/246, UC-257, UC-268, UC-275/279,
+UC-302, UC-310, UC-313, UC-320/324, UC-346, UC-357, UC-368
+and UC-420/431.
 
-ISO/IEC 646 refers to the set of ISO standards described as the ISO
-7-bit coded character set for information interchange. Its final version
-is also known as ITU T.50.
-See https://www.itu.int/rec/T-REC-T.50-199209-I/en
-
-To abide the standard it is needed to quote DC1 and DC3 correctly if these
-are seen as data bytes and not as control characters. The current
-implementation already tries to enforce this but fails to catch all
-defined cases. 3GPP 27.010 chapter 5.2.7.3 clearly states that the most
-significant bit shall be ignored for DC1 and DC3 handling. The current
-implementation handles only the case with the most significant bit set 0.
-Cases in which DC1 and DC3 have the most significant bit set 1 are left
-unhandled.
-
-This patch fixes this by masking the data bytes with ISO_IEC_646_MASK (only
-the 7 least significant bits set 1) before comparing them with XON
-(a.k.a. DC1) and XOFF (a.k.a. DC3) when testing which byte values need
-quotation via byte stuffing.
-
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220120101857.2509-1-daniel.starke@siemens.com
+Signed-off-by: Cameron Williams <cang1@live.co.uk>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/AM5PR0202MB2564688493F7DD9B9C610827C45E9@AM5PR0202MB2564.eurprd02.prod.outlook.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_pci.c |  100 ++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 98 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -329,6 +329,7 @@ static struct tty_driver *gsm_tty_driver
- #define GSM1_ESCAPE_BITS	0x20
- #define XON			0x11
- #define XOFF			0x13
-+#define ISO_IEC_646_MASK	0x7F
- 
- static const struct tty_port_operations gsm_port_ops;
- 
-@@ -547,7 +548,8 @@ static int gsm_stuff_frame(const u8 *inp
- 	int olen = 0;
- 	while (len--) {
- 		if (*input == GSM1_SOF || *input == GSM1_ESCAPE
--		    || *input == XON || *input == XOFF) {
-+		    || (*input & ISO_IEC_646_MASK) == XON
-+		    || (*input & ISO_IEC_646_MASK) == XOFF) {
- 			*output++ = GSM1_ESCAPE;
- 			*output++ = *input++ ^ GSM1_ESCAPE_BITS;
- 			olen++;
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -5404,8 +5404,30 @@ static struct pci_device_id serial_pci_t
+ 	{	PCI_VENDOR_ID_INTASHIELD, PCI_DEVICE_ID_INTASHIELD_IS400,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,    /* 135a.0dc0 */
+ 		pbn_b2_4_115200 },
++	/* Brainboxes Devices */
+ 	/*
+-	 * BrainBoxes UC-260
++	* Brainboxes UC-101
++	*/
++	{       PCI_VENDOR_ID_INTASHIELD, 0x0BA1,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b2_2_115200 },
++	/*
++	 * Brainboxes UC-235/246
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x0AA1,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b2_1_115200 },
++	/*
++	 * Brainboxes UC-257
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x0861,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b2_2_115200 },
++	/*
++	 * Brainboxes UC-260/271/701/756
+ 	 */
+ 	{	PCI_VENDOR_ID_INTASHIELD, 0x0D21,
+ 		PCI_ANY_ID, PCI_ANY_ID,
+@@ -5413,7 +5435,81 @@ static struct pci_device_id serial_pci_t
+ 		pbn_b2_4_115200 },
+ 	{	PCI_VENDOR_ID_INTASHIELD, 0x0E34,
+ 		PCI_ANY_ID, PCI_ANY_ID,
+-		 PCI_CLASS_COMMUNICATION_MULTISERIAL << 8, 0xffff00,
++		PCI_CLASS_COMMUNICATION_MULTISERIAL << 8, 0xffff00,
++		pbn_b2_4_115200 },
++	/*
++	 * Brainboxes UC-268
++	 */
++	{       PCI_VENDOR_ID_INTASHIELD, 0x0841,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b2_4_115200 },
++	/*
++	 * Brainboxes UC-275/279
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x0881,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b2_8_115200 },
++	/*
++	 * Brainboxes UC-302
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x08E1,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b2_2_115200 },
++	/*
++	 * Brainboxes UC-310
++	 */
++	{       PCI_VENDOR_ID_INTASHIELD, 0x08C1,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b2_2_115200 },
++	/*
++	 * Brainboxes UC-313
++	 */
++	{       PCI_VENDOR_ID_INTASHIELD, 0x08A3,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b2_2_115200 },
++	/*
++	 * Brainboxes UC-320/324
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x0A61,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b2_1_115200 },
++	/*
++	 * Brainboxes UC-346
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x0B02,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b2_4_115200 },
++	/*
++	 * Brainboxes UC-357
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x0A81,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b2_2_115200 },
++	{	PCI_VENDOR_ID_INTASHIELD, 0x0A83,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b2_2_115200 },
++	/*
++	 * Brainboxes UC-368
++	 */
++	{	PCI_VENDOR_ID_INTASHIELD, 0x0C41,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
++		pbn_b2_4_115200 },
++	/*
++	 * Brainboxes UC-420/431
++	 */
++	{       PCI_VENDOR_ID_INTASHIELD, 0x0921,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0,
+ 		pbn_b2_4_115200 },
+ 	/*
+ 	 * Perle PCI-RAS cards
 
 
