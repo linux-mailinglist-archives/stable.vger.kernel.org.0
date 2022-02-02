@@ -2,161 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B358B4A697B
-	for <lists+stable@lfdr.de>; Wed,  2 Feb 2022 02:09:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D28D24A69BF
+	for <lists+stable@lfdr.de>; Wed,  2 Feb 2022 02:58:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243438AbiBBBJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Feb 2022 20:09:38 -0500
-Received: from mga03.intel.com ([134.134.136.65]:20659 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229994AbiBBBJh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Feb 2022 20:09:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1643764177; x=1675300177;
-  h=date:from:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=MncgW0s2mjle1dcrbBYq+e1VuG06s9XtGiZ5lRotZOE=;
-  b=iyRf2SHeBXd844FiywVw216DLi7ygtRNAISw6TwyfoYQtfr4ZPBZ1qFW
-   qNVhPW6JuEhak8Bc8HFG7+zObMgfGCZzCpXNbe51FCOSeH+q6zLMjZMRp
-   MGZwYY1znSpa7H8IzlOIrJCLX9QLHsdbUEKK7/6Kum4KBPCnzZOJwca9t
-   eCKBr8fuLrHTcrCWWoWWTCPyRCeSgMFUsF1RRVCxZTAd6kq3sle2pHDtj
-   zunL0nvoA4mXFMQtkKsqWmIgpqhtS8oiOLCxUzoFtRHoY0eFpEPzgZs1G
-   p4i+h3H7ArBSaA9rx/OORsY+Ek1fC4zwBuDQ0+BN8/7kYyaQnUWqwej29
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10245"; a="247779277"
-X-IronPort-AV: E=Sophos;i="5.88,335,1635231600"; 
-   d="scan'208";a="247779277"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Feb 2022 17:09:37 -0800
-X-IronPort-AV: E=Sophos;i="5.88,335,1635231600"; 
-   d="scan'208";a="676296027"
-Received: from ekebedex-mobl1.amr.corp.intel.com ([10.251.14.93])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Feb 2022 17:09:37 -0800
-Date:   Tue, 1 Feb 2022 17:09:36 -0800 (PST)
-From:   Mat Martineau <mathew.j.martineau@linux.intel.com>
-To:     mptcp@lists.linux.dev, pabeni@redhat.com
-cc:     stable@vger.kernel.org
-Subject: Re: [PATCH mptcp-stable] mptcp: fix msk traversal in
- mptcp_nl_cmd_set_flags()
-In-Reply-To: <20220202004032.208848-1-mathew.j.martineau@linux.intel.com>
-Message-ID: <366acfc7-cab7-8f9a-e1cc-3d7f57fecbf8@linux.intel.com>
-References: <20220202004032.208848-1-mathew.j.martineau@linux.intel.com>
+        id S242737AbiBBB63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Feb 2022 20:58:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42684 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232709AbiBBB63 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Feb 2022 20:58:29 -0500
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DF9FC061714
+        for <stable@vger.kernel.org>; Tue,  1 Feb 2022 17:58:29 -0800 (PST)
+Received: by mail-pg1-x532.google.com with SMTP id r137so1325381pgr.7
+        for <stable@vger.kernel.org>; Tue, 01 Feb 2022 17:58:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=d+AmNOWQqvmC+g9XlT9xISkpAN6NOqUlJWlO32YO76A=;
+        b=kv71t1E+3VbXhZsvks+1fR1ZePrSyT6VVQiTILuGeaNvL2+hRvDIBKRoSZ13zzpWJe
+         qYkgzA4edtrOgPAKpjan/9KNThaRORheoq1t4Sm/zi6rDlf4H+Y871n1ojFtpqDaRoBU
+         E/Fk5sNldLxVXpvh1xPbj91IuGa7v3rMuXGFQufiXvW2kVYXHzn7df2SR9hoysKbmdjj
+         mFLq94lknmVStutibQlsCbA/xaWa+aXouT4Q0vsq55/Rzq6q0WqCdTUaltJXcNe1Z5fX
+         YU4+pnnO0y4BhIi7gZjINCQgFSoXmQGZg8Y4jdfhggThOQ1qtAHjT2Yklb5O2UPhXiU1
+         Af/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=d+AmNOWQqvmC+g9XlT9xISkpAN6NOqUlJWlO32YO76A=;
+        b=ehec6YwYjaN0BDH1bTNoUGaT14IeGKRWbAIpLw7X5/L47M3AtIe9cqW4LYGpyk2Cyx
+         QjTvKlh9a9z/PADSSHv8zIZnAOfhLpgy9x6j7LF3oLURK4Luj0F0BnmWAGaDmGeG5xpD
+         IkqyMXIGeRwb3CvAT1KAiV3S9+sgRi796YJ2Hz1Ix6RXJMjDqb6tuVHBaTFKaNEzZsIf
+         mR/SDejAB8vOFKONgXqhXvR+mgM9zT2LzbAFIejdQ8XwGuYmOhIigKf7LmorMN2HPT/0
+         VJpsWNookrYNO9i1xNd7UXNguVU1ycabteyf4kV0Aps5WY839BJutAW9KEm9fxOAYuJn
+         aS2w==
+X-Gm-Message-State: AOAM531rVpDJdudOW+0EaaFVExZZCKwJi8CHvWCj4aAwwAtP7r/rWE4D
+        8bJmkzYO35tukvxQmR8HjRlsYxMRGKv3hetk
+X-Google-Smtp-Source: ABdhPJySEq1fj24dfdejQ2268yEncVPUyadNclZstUZR+BCZJWUPJXdii1Ci6pPeEecB3dxTBCfRHA==
+X-Received: by 2002:a62:3686:: with SMTP id d128mr27643958pfa.63.1643767108458;
+        Tue, 01 Feb 2022 17:58:28 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t9sm3845555pjg.44.2022.02.01.17.58.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Feb 2022 17:58:28 -0800 (PST)
+Message-ID: <61f9e544.1c69fb81.5625c.b176@mx.google.com>
+Date:   Tue, 01 Feb 2022 17:58:28 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.301-25-g6565be02586d
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/4.4
+Subject: stable-rc/queue/4.4 baseline: 120 runs,
+ 1 regressions (v4.4.301-25-g6565be02586d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 1 Feb 2022, Mat Martineau wrote:
+stable-rc/queue/4.4 baseline: 120 runs, 1 regressions (v4.4.301-25-g6565be0=
+2586d)
 
-> commit 8e9eacad7ec7a9cbf262649ebf1fa6e6f6cc7d82 upstream.
->
-> The upstream commit had to handle a lookup_by_id variable that is only
-> present in 5.17. This version of the patch removes that variable, so the
-> __lookup_addr() function only handles the lookup as it is implemented in
-> 5.15 and 5.16. It also removes one 'const' keyword to prevent a warning
-> due to differing const-ness in the 5.17 version of addresses_equal().
->
-> The MPTCP endpoint list is under RCU protection, guarded by the
-> pernet spinlock. mptcp_nl_cmd_set_flags() traverses the list
-> without acquiring the spin-lock nor under the RCU critical section.
->
-> This change addresses the issue performing the lookup and the endpoint
-> update under the pernet spinlock.
->
-> Fixes: 0f9f696a502e ("mptcp: add set_flags command in PM netlink")
-> Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-> ---
->
-> Paolo, can I add an ack or signoff tag from you?
->
-> The upstream commit (8e9eacad7ec7) was queued for the 5.16 and 5.15
-> stable trees, which brought along a few extra patches that didn't belong
-> in stable. I asked Greg to drop those patches from his queue, and this
-> particular commit required manual changes as described above (related to
-> the lookup_by_id variable that's new in 5.16).
->
-> This patch will not apply to the export branch. I confirmed that it
-> applies, builds, and runs on both the 5.16.5 and 5.15.19 branches. Self
-> tests succeed too.
->
-> When I send to the stable list, I'll also include these tags:
-> Cc: <stable@vger.kernel.org> # 5.15.x
-> Cc: <stable@vger.kernel.org> # 5.16.x
+Regressions Summary
+-------------------
 
-So... this wasn't supposed to go to stable@vger.kernel.org yet. git 
-send-email picked up the cc lines that I had moved out of the commit 
-message. Sorry about that.
-
--Mat
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
 
->
->
-> ---
-> net/mptcp/pm_netlink.c | 34 +++++++++++++++++++++++++---------
-> 1 file changed, 25 insertions(+), 9 deletions(-)
->
-> diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
-> index 65764c8171b3..5d305fafd0e9 100644
-> --- a/net/mptcp/pm_netlink.c
-> +++ b/net/mptcp/pm_netlink.c
-> @@ -459,6 +459,18 @@ static unsigned int fill_remote_addresses_vec(struct mptcp_sock *msk, bool fullm
-> 	return i;
-> }
->
-> +static struct mptcp_pm_addr_entry *
-> +__lookup_addr(struct pm_nl_pernet *pernet, struct mptcp_addr_info *info)
-> +{
-> +	struct mptcp_pm_addr_entry *entry;
-> +
-> +	list_for_each_entry(entry, &pernet->local_addr_list, list) {
-> +		if (addresses_equal(&entry->addr, info, true))
-> +			return entry;
-> +	}
-> +	return NULL;
-> +}
-> +
-> static void mptcp_pm_create_subflow_or_signal_addr(struct mptcp_sock *msk)
-> {
-> 	struct sock *sk = (struct sock *)msk;
-> @@ -1725,17 +1737,21 @@ static int mptcp_nl_cmd_set_flags(struct sk_buff *skb, struct genl_info *info)
-> 	if (addr.flags & MPTCP_PM_ADDR_FLAG_BACKUP)
-> 		bkup = 1;
->
-> -	list_for_each_entry(entry, &pernet->local_addr_list, list) {
-> -		if (addresses_equal(&entry->addr, &addr.addr, true)) {
-> -			mptcp_nl_addr_backup(net, &entry->addr, bkup);
-> -
-> -			if (bkup)
-> -				entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
-> -			else
-> -				entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
-> -		}
-> +	spin_lock_bh(&pernet->lock);
-> +	entry = __lookup_addr(pernet, &addr.addr);
-> +	if (!entry) {
-> +		spin_unlock_bh(&pernet->lock);
-> +		return -EINVAL;
-> 	}
->
-> +	if (bkup)
-> +		entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
-> +	else
-> +		entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
-> +	addr = *entry;
-> +	spin_unlock_bh(&pernet->lock);
-> +
-> +	mptcp_nl_addr_backup(net, &addr.addr, bkup);
-> 	return 0;
-> }
->
-> -- 
-> 2.35.1
->
->
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.301-25-g6565be02586d/plan/baseline/
 
---
-Mat Martineau
-Intel
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.301-25-g6565be02586d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6565be02586d18eafffc443ddc84eff2ea35a9a3 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f9ad816bd4792a465d6f0b
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.301-2=
+5-g6565be02586d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.301-2=
+5-g6565be02586d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61f9ad816bd4792=
+a465d6f11
+        failing since 0 day (last pass: v4.4.301-21-gf1b3a01fec55, first fa=
+il: v4.4.301-21-g4b4eb3554fea)
+        2 lines
+
+    2022-02-01T22:00:12.956712  [   19.136047] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-02-01T22:00:13.007441  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/118
+    2022-02-01T22:00:13.016810  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
