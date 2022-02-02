@@ -2,224 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9799A4A7702
-	for <lists+stable@lfdr.de>; Wed,  2 Feb 2022 18:44:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CF734A770C
+	for <lists+stable@lfdr.de>; Wed,  2 Feb 2022 18:44:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235257AbiBBRnt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Feb 2022 12:43:49 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:56434 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231680AbiBBRnt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Feb 2022 12:43:49 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ACAA61821
-        for <stable@vger.kernel.org>; Wed,  2 Feb 2022 17:43:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB794C004E1;
-        Wed,  2 Feb 2022 17:43:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643823828;
-        bh=HDK5HBWXE03ixC11xzjtv8HZwe9/h2FkjdD92Cfr7A0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GI5eJds9Dk5m9TGg3luWrEgTDVg4/jPwzpanIlhSVdd29TZ5V88TUHLjGEFo3TTJ7
-         T2seSPx1rF7LRf+n6prcYY9JoDEV4ZVp+QU/gPmYSrLYo2moiBMMbVoVUeAvYZArgs
-         QTQTt+WKY1XrYggV0G716bgcKcxhT6iQ0awYLjpY=
-Date:   Wed, 2 Feb 2022 18:43:45 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Wolfgang Walter <linux@stwm.de>
-Cc:     stable@vger.kernel.org
-Subject: Re: 5.15.17: general protection fault when loading iwlwifi as module
- and no firmware available
-Message-ID: <YfrC0cIceum+M8n3@kroah.com>
-References: <099995b11936073c8d6b7a28c07ccd95@stwm.de>
- <YflV56eA7Y7tr01u@kroah.com>
- <2a95df6a3e9c929f51cd1c7942a0ea03@stwm.de>
+        id S1346331AbiBBRob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Feb 2022 12:44:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59086 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346329AbiBBRo3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Feb 2022 12:44:29 -0500
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32C0AC06173E
+        for <stable@vger.kernel.org>; Wed,  2 Feb 2022 09:44:28 -0800 (PST)
+Received: by mail-lf1-x12b.google.com with SMTP id n8so608101lfq.4
+        for <stable@vger.kernel.org>; Wed, 02 Feb 2022 09:44:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=SKHGp3IZTNDGs1UXssMYvHffCV6Qwe0NnGDvJ02DSIU=;
+        b=RKDpe5CLtb/CIOEcm/F1Wm4cAD42bV2H6g1sJD1JeQPpOA6NtJvalfmXR5PJ01nagC
+         u7FgEme+IWXhnEF/XF1RCDaaeIkwuGC0b1oc/2HFfXskUYfW0w1N9B0EDpL6YXEXZoAo
+         /UCd0OKtcSUKbiydk586E5GNxkOPh39K6wRC7rOSayk0MQi4agLhYrqXmM9qeo2y3pNL
+         1AJxsHNUnz4M3PYcvzjCRues/79HPirMOp+ovnpzfoNloag8xlxfyVjBCmDJQ6B2/myW
+         36llNOMUayEygCWZV4QHe8BHgmt+y+k5c7RUBX+WRY00dwVhR1NwnPxymSW7/bsBwHuA
+         8XGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=SKHGp3IZTNDGs1UXssMYvHffCV6Qwe0NnGDvJ02DSIU=;
+        b=mMzl/EyytPU4Eqy3prOAPobq3CsY22xcgjYUSBdGWLKnfuhxZKbOP3bCl3bM/RQJK8
+         zJU6Tik8VLAb26y2yN69GG2cm7Kuk8Ep+fl5FWdzRz1KyDMAvfCi6GdrmgQyZMenxV3P
+         QQ8oLs41SJXetiLwSxhq5M/J4KvBo+lDKz7WD2y7ba7ILsHCHZyKU8F/sRp2MAE/tMjj
+         7baDw2m79/hIKvDGvy/mlMMmhcNqZJXCYXJdoQa0SNmc8LhSgn6z3iDcZ2zyfNoQwbKD
+         j6jHblPNc3S979AE/r/sqKwWXLIQPf4JoJ3aAs+TSxD7T4F/VojFvswuzWXbNEOylXeD
+         JjEQ==
+X-Gm-Message-State: AOAM531zSL8/YcjsgaGVfjFqLqTFegj6sXrmG64eOm1LIUH4WbcAuW10
+        +mMjrOmeI3hjCIqdRovZK/9OumbWOzDMA0PhAID8yt3RAbY=
+X-Google-Smtp-Source: ABdhPJx0YTWPb/jNgD7u6P5r6UZ+8PU58yKq7kLZMfs8B16sWgFhDwOLJYS0HSsIkb4w4wa9wcuaaGm6S0gZZThMy48=
+X-Received: by 2002:a05:6512:441:: with SMTP id y1mr23314010lfk.315.1643823866351;
+ Wed, 02 Feb 2022 09:44:26 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2a95df6a3e9c929f51cd1c7942a0ea03@stwm.de>
+References: <20220126025739.2014888-1-jannh@google.com> <87czk5l2i6.fsf@email.froward.int.ebiederm.org>
+In-Reply-To: <87czk5l2i6.fsf@email.froward.int.ebiederm.org>
+From:   Jann Horn <jannh@google.com>
+Date:   Wed, 2 Feb 2022 18:43:59 +0100
+Message-ID: <CAG48ez3byq=Cn4xGt5HmLBy9fWBapX9RdF-9JOaAus=rDR2TYQ@mail.gmail.com>
+Subject: Re: [PATCH] coredump: Also dump first pages of non-executable ELF libraries
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Bill Messmer <wmessmer@microsoft.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Randy Dunlap <rdunlap@infradead.org>, stable@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 02, 2022 at 03:44:48PM +0100, Wolfgang Walter wrote:
-> Am 2022-02-01 16:46, schrieb Greg KH:
-> > On Tue, Feb 01, 2022 at 04:31:29PM +0100, Wolfgang Walter wrote:
-> > > Hello,
-> > > 
-> > > we found a regression in 5.15.17. When iwlwifi is loaded as a module
-> > > and it
-> > > cannot load a firmware it crashes:
-> > > 
-> > > ===================================================================
-> > > Jan 28 19:05:01 kistchen kernel: [    5.415151] Intel(R) Wireless WiFi
-> > > driver for Linux
-> > > Jan 28 19:05:01 kistchen kernel: [    5.425600] iwlwifi
-> > > 0000:04:00.0: Direct
-> > > firmware load for iwlwifi-3160-17.ucode failed with error -2
-> > > Jan 28 19:05:01 kistchen kernel: [    5.425616] iwlwifi
-> > > 0000:04:00.0: no
-> > > suitable firmware found!
-> > > Jan 28 19:05:01 kistchen kernel: [    5.425704] iwlwifi 0000:04:00.0:
-> > > iwlwifi-3160-17 is required
-> > > Jan 28 19:05:01 kistchen kernel: [    5.425786] iwlwifi
-> > > 0000:04:00.0: check
-> > > git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
-> > > Jan 28 19:05:01 kistchen kernel: [    5.426226] general protection
-> > > fault,
-> > > probably for non-canonical address 0xd8e6d895001008: 0000 [#1]
-> > > PREEMPT SMP
-> > > PTI
-> > > Jan 28 19:05:01 kistchen kernel: [    5.426324] CPU: 1 PID: 45 Comm:
-> > > kworker/1:1 Not tainted 5.15.17-aladebian64.all+1.2 #1
-> > > Jan 28 19:05:01 kistchen kernel: [    5.426411] Hardware name: ZOTAC
-> > > XXXXXX/XXXXXX, BIOS B301P017 04/06/2016
-> > > Jan 28 19:05:01 kistchen kernel: [    5.426493] Workqueue: events
-> > > request_firmware_work_func
-> > > Jan 28 19:05:01 kistchen kernel: [    5.426587] RIP:
-> > > 0010:kfree+0x61/0x170
-> > > Jan 28 19:05:01 kistchen kernel: [    5.426670] Code: 80 48 01 e8 0f
-> > > 82 21
-> > > 01 00 00 48 c7 c2 00 00 00 80 48 2b 15 01 f8 ee 00 48 01 d0 48 c1 e8
-> > > 0c 48
-> > > c1 e0 06 48 03 05 df f7 ee 00 <48> 8b 50 08 48 8d 4a ff 83 e2 01 48
-> > > 0f 45 c1
-> > > 48 8b 48 08 48 8d 51
-> > > Jan 28 19:05:01 kistchen kernel: [    5.426772] RSP:
-> > > 0018:ffffa54e002b3ce8
-> > > EFLAGS: 00010007
-> > > Jan 28 19:05:01 kistchen kernel: [    5.426853] RAX:
-> > > 00d8e6d895001000 RBX:
-> > > 0000000000000206 RCX: 0000000000000000
-> > > Jan 28 19:05:01 kistchen kernel: [    5.426937] RDX:
-> > > 00007425c0000000 RSI:
-> > > ffffffffc0fd6ea6 RDI: 36415f5f0004000f
-> > > Jan 28 19:05:01 kistchen kernel: [    5.427019] RBP:
-> > > 36415f5f0004000f R08:
-> > > ffffffffa80427c0 R09: ffffa54e002b3be0
-> > > Jan 28 19:05:01 kistchen kernel: [    5.427102] R10:
-> > > 0000000000000000 R11:
-> > > 0000000000000000 R12: ffff8bdae10e6ab8
-> > > Jan 28 19:05:01 kistchen kernel: [    5.427184] R13:
-> > > ffff8bdae10e6800 R14:
-> > > ffff8bdac256c400 R15: ffff8bdc37cb5905
-> > > Jan 28 19:05:01 kistchen kernel: [    5.427267] FS:
-> > > 0000000000000000(0000)
-> > > GS:ffff8bdc37c80000(0000) knlGS:0000000000000000
-> > > Jan 28 19:05:01 kistchen kernel: [    5.427354] CS:  0010 DS: 0000
-> > > ES: 0000
-> > > CR0: 0000000080050033
-> > > Jan 28 19:05:01 kistchen kernel: [    5.427446] CR2:
-> > > 00007f934935c6f4 CR3:
-> > > 00000001077e2000 CR4: 00000000001006e0
-> > > Jan 28 19:05:01 kistchen kernel: [    5.427541] Call Trace:
-> > > Jan 28 19:05:01 kistchen kernel: [    5.427630]  <TASK>
-> > > Jan 28 19:05:01 kistchen kernel: [    5.427727]
-> > > iwl_dealloc_ucode+0x36/0x110 [iwlwifi]
-> > > Jan 28 19:05:01 kistchen kernel: [    5.427873]
-> > > iwl_req_fw_callback+0x2d1/0x2330 [iwlwifi]
-> > > Jan 28 19:05:01 kistchen kernel: [    5.428006]  ?
-> > > ___cache_free+0x31/0x4b0
-> > > Jan 28 19:05:01 kistchen kernel: [    5.428108]  ?
-> > > _request_firmware+0x3ff/0x780
-> > > Jan 28 19:05:01 kistchen kernel: [    5.428205]  ? kfree+0xa9/0x170
-> > > Jan 28 19:05:01 kistchen kernel: [    5.428298]  ?
-> > > _request_firmware+0x3ff/0x780
-> > > Jan 28 19:05:01 kistchen kernel: [    5.428391]
-> > > request_firmware_work_func+0x4d/0x90
-> > > Jan 28 19:05:01 kistchen kernel: [    5.428486]
-> > > process_one_work+0x1e8/0x3c0
-> > > Jan 28 19:05:01 kistchen kernel: [    5.428581]
-> > > worker_thread+0x50/0x3b0
-> > > Jan 28 19:05:01 kistchen kernel: [    5.428672]  ?
-> > > process_one_work+0x3c0/0x3c0
-> > > Jan 28 19:05:01 kistchen kernel: [    5.428763]  kthread+0x141/0x170
-> > > Jan 28 19:05:01 kistchen kernel: [    5.428856]  ?
-> > > set_kthread_struct+0x40/0x40
-> > > Jan 28 19:05:01 kistchen kernel: [    5.428948]
-> > > ret_from_fork+0x22/0x30
-> > > Jan 28 19:05:01 kistchen kernel: [    5.429044]  </TASK>
-> > > Jan 28 19:05:01 kistchen kernel: [    5.429130] Modules linked in:
-> > > ums_realtek(+) iwlwifi(+) snd_hda_intel uas usb_storage
-> > > snd_intel_dspcfg
-> > > sha512_ssse3 ttm snd_intel_sdw_acpi snd_hda_codec snd_hda_core
-> > > sha512_generic aesni_intel(+) drm_kms_helper snd_hwdep crypto_simd
-> > > intel_xhci_usb_role_switch cryptd sg roles cec snd_pcm intel_cstate
-> > > snd_timer mei_txe at24 snd iTCO_wdt rc_core cfg80211 intel_pmc_bxt
-> > > pcspkr
-> > > soundcore ctr iTCO_vendor_support mei i2c_algo_bit watchdog drbg
-> > > ansi_cprng
-> > > ecdh_generic(+) rfkill ecc pwm_lpss_platform pwm_lpss
-> > > intel_int0002_vgpio
-> > > button drm fuse configfs ip_tables x_tables autofs4 ext4
-> > > crc32c_generic
-> > > crc16 mbcache jbd2 sd_mod t10_pi crc_t10dif crct10dif_generic ahci
-> > > libahci
-> > > xhci_pci sdhci_pci cqhci crct10dif_pclmul crct10dif_common libata
-> > > r8169
-> > > i2c_i801 crc32_pclmul xhci_hcd realtek mdio_devres crc32c_intel
-> > > i2c_smbus
-> > > lpc_ich sdhci libphy scsi_mod usbcore usb_common scsi_common
-> > > mmc_core fan
-> > > i2c_hid_acpi i2c_hid video hid
-> > > Jan 28 19:05:01 kistchen kernel: [    5.429595] ---[ end trace
-> > > aea59d2f4abcc392 ]---
-> > > Jan 28 19:05:01 kistchen kernel: [    5.429688] RIP:
-> > > 0010:kfree+0x61/0x170
-> > > Jan 28 19:05:01 kistchen kernel: [    5.429783] Code: 80 48 01 e8 0f
-> > > 82 21
-> > > 01 00 00 48 c7 c2 00 00 00 80 48 2b 15 01 f8 ee 00 48 01 d0 48 c1 e8
-> > > 0c 48
-> > > c1 e0 06 48 03 05 df f7 ee 00 <48> 8b 50 08 48 8d 4a ff 83 e2 01 48
-> > > 0f 45 c1
-> > > 48 8b 48 08 48 8d 51
-> > > Jan 28 19:05:01 kistchen kernel: [    5.429920] RSP:
-> > > 0018:ffffa54e002b3ce8
-> > > EFLAGS: 00010007
-> > > Jan 28 19:05:01 kistchen kernel: [    5.430012] RAX:
-> > > 00d8e6d895001000 RBX:
-> > > 0000000000000206 RCX: 0000000000000000
-> > > Jan 28 19:05:01 kistchen kernel: [    5.430107] RDX:
-> > > 00007425c0000000 RSI:
-> > > ffffffffc0fd6ea6 RDI: 36415f5f0004000f
-> > > Jan 28 19:05:01 kistchen kernel: [    5.430201] RBP:
-> > > 36415f5f0004000f R08:
-> > > ffffffffa80427c0 R09: ffffa54e002b3be0
-> > > Jan 28 19:05:01 kistchen kernel: [    5.430296] R10:
-> > > 0000000000000000 R11:
-> > > 0000000000000000 R12: ffff8bdae10e6ab8
-> > > Jan 28 19:05:01 kistchen kernel: [    5.430392] R13:
-> > > ffff8bdae10e6800 R14:
-> > > ffff8bdac256c400 R15: ffff8bdc37cb5905
-> > > Jan 28 19:05:01 kistchen kernel: [    5.430489] FS:
-> > > 0000000000000000(0000)
-> > > GS:ffff8bdc37c80000(0000) knlGS:0000000000000000
-> > > Jan 28 19:05:01 kistchen kernel: [    5.430603] CS:  0010 DS: 0000
-> > > ES: 0000
-> > > CR0: 0000000080050033
-> > > Jan 28 19:05:01 kistchen kernel: [    5.430700] CR2:
-> > > 00007f934935c6f4 CR3:
-> > > 00000001077e2000 CR4: 00000000001006e0
-> > > ===================================================================
-> > > 
-> > > Providing a firmware file (or blacklisting iwlwifi of course) fixes
-> > > ist.
-> > > 5.15.16 does not crash.
-> > 
-> > Can you do 'git bisect' to track down the offending commit?
-> > 
-> > And does 5.16.y work for you?  How about 5.17-rc2?
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> I tested 5.17-rc2. It also shows the above general protection fault:
+On Wed, Feb 2, 2022 at 4:19 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+>
+> Jann Horn <jannh@google.com> writes:
+>
+> > When I rewrote the VMA dumping logic for coredumps, I changed it to
+> > recognize ELF library mappings based on the file being executable instead
+> > of the mapping having an ELF header. But turns out, distros ship many ELF
+> > libraries as non-executable, so the heuristic goes wrong...
+> >
+> > Restore the old behavior where FILTER(ELF_HEADERS) dumps the first page of
+> > any offset-0 readable mapping that starts with the ELF magic.
+> >
+> > This fix is technically layer-breaking a bit, because it checks for
+> > something ELF-specific in fs/coredump.c; but since we probably want to
+> > share this between standard ELF and FDPIC ELF anyway, I guess it's fine?
+> > And this also keeps the change small for backporting.
+>
+> In light of the conflict with my other changes, and in light of the pain
+> of calling get_user.
+>
+> Is there any reason why the doesn't unconditionally dump all headers?
+> Something like the diff below?
+>
+> I looked in the history and the code was filtering for ELF headers
+> there already.  I am just thinking this feels like a good idea
+> regardless of the file format to help verify the file on-disk
+> is the file we think was mapped.
 
-Great!  Please contact the authors of the commit you found, and the
-wireless developer mailing list and they can work to resolve this.
-
-thanks,
-
-greg k-h
+Yeah, I guess that's reasonable. The main difference will probably be
+that the starting pages of some font files, locale files and python
+libraries will also be logged.
