@@ -2,149 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5ABD4A7692
-	for <lists+stable@lfdr.de>; Wed,  2 Feb 2022 18:12:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9799A4A7702
+	for <lists+stable@lfdr.de>; Wed,  2 Feb 2022 18:44:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346156AbiBBRMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Feb 2022 12:12:20 -0500
-Received: from brightrain.aerifal.cx ([216.12.86.13]:60136 "EHLO
-        brightrain.aerifal.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346155AbiBBRMU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Feb 2022 12:12:20 -0500
-Date:   Wed, 2 Feb 2022 12:12:19 -0500
-From:   Rich Felker <dalias@libc.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Ariadne Conill <ariadne@dereferenced.org>,
-        Michael Kerrisk <mtk.manpages@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] exec: Force single empty string when argv is empty
-Message-ID: <20220202171218.GQ7074@brightrain.aerifal.cx>
-References: <20220201000947.2453721-1-keescook@chromium.org>
- <20220201145324.GA29634@brightrain.aerifal.cx>
- <1A24DA4E-2B15-4A95-B2A1-F5F963E0CD6F@chromium.org>
+        id S235257AbiBBRnt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Feb 2022 12:43:49 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56434 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231680AbiBBRnt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Feb 2022 12:43:49 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ACAA61821
+        for <stable@vger.kernel.org>; Wed,  2 Feb 2022 17:43:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB794C004E1;
+        Wed,  2 Feb 2022 17:43:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643823828;
+        bh=HDK5HBWXE03ixC11xzjtv8HZwe9/h2FkjdD92Cfr7A0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GI5eJds9Dk5m9TGg3luWrEgTDVg4/jPwzpanIlhSVdd29TZ5V88TUHLjGEFo3TTJ7
+         T2seSPx1rF7LRf+n6prcYY9JoDEV4ZVp+QU/gPmYSrLYo2moiBMMbVoVUeAvYZArgs
+         QTQTt+WKY1XrYggV0G716bgcKcxhT6iQ0awYLjpY=
+Date:   Wed, 2 Feb 2022 18:43:45 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Wolfgang Walter <linux@stwm.de>
+Cc:     stable@vger.kernel.org
+Subject: Re: 5.15.17: general protection fault when loading iwlwifi as module
+ and no firmware available
+Message-ID: <YfrC0cIceum+M8n3@kroah.com>
+References: <099995b11936073c8d6b7a28c07ccd95@stwm.de>
+ <YflV56eA7Y7tr01u@kroah.com>
+ <2a95df6a3e9c929f51cd1c7942a0ea03@stwm.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1A24DA4E-2B15-4A95-B2A1-F5F963E0CD6F@chromium.org>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+In-Reply-To: <2a95df6a3e9c929f51cd1c7942a0ea03@stwm.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 02, 2022 at 07:50:42AM -0800, Kees Cook wrote:
+On Wed, Feb 02, 2022 at 03:44:48PM +0100, Wolfgang Walter wrote:
+> Am 2022-02-01 16:46, schrieb Greg KH:
+> > On Tue, Feb 01, 2022 at 04:31:29PM +0100, Wolfgang Walter wrote:
+> > > Hello,
+> > > 
+> > > we found a regression in 5.15.17. When iwlwifi is loaded as a module
+> > > and it
+> > > cannot load a firmware it crashes:
+> > > 
+> > > ===================================================================
+> > > Jan 28 19:05:01 kistchen kernel: [    5.415151] Intel(R) Wireless WiFi
+> > > driver for Linux
+> > > Jan 28 19:05:01 kistchen kernel: [    5.425600] iwlwifi
+> > > 0000:04:00.0: Direct
+> > > firmware load for iwlwifi-3160-17.ucode failed with error -2
+> > > Jan 28 19:05:01 kistchen kernel: [    5.425616] iwlwifi
+> > > 0000:04:00.0: no
+> > > suitable firmware found!
+> > > Jan 28 19:05:01 kistchen kernel: [    5.425704] iwlwifi 0000:04:00.0:
+> > > iwlwifi-3160-17 is required
+> > > Jan 28 19:05:01 kistchen kernel: [    5.425786] iwlwifi
+> > > 0000:04:00.0: check
+> > > git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+> > > Jan 28 19:05:01 kistchen kernel: [    5.426226] general protection
+> > > fault,
+> > > probably for non-canonical address 0xd8e6d895001008: 0000 [#1]
+> > > PREEMPT SMP
+> > > PTI
+> > > Jan 28 19:05:01 kistchen kernel: [    5.426324] CPU: 1 PID: 45 Comm:
+> > > kworker/1:1 Not tainted 5.15.17-aladebian64.all+1.2 #1
+> > > Jan 28 19:05:01 kistchen kernel: [    5.426411] Hardware name: ZOTAC
+> > > XXXXXX/XXXXXX, BIOS B301P017 04/06/2016
+> > > Jan 28 19:05:01 kistchen kernel: [    5.426493] Workqueue: events
+> > > request_firmware_work_func
+> > > Jan 28 19:05:01 kistchen kernel: [    5.426587] RIP:
+> > > 0010:kfree+0x61/0x170
+> > > Jan 28 19:05:01 kistchen kernel: [    5.426670] Code: 80 48 01 e8 0f
+> > > 82 21
+> > > 01 00 00 48 c7 c2 00 00 00 80 48 2b 15 01 f8 ee 00 48 01 d0 48 c1 e8
+> > > 0c 48
+> > > c1 e0 06 48 03 05 df f7 ee 00 <48> 8b 50 08 48 8d 4a ff 83 e2 01 48
+> > > 0f 45 c1
+> > > 48 8b 48 08 48 8d 51
+> > > Jan 28 19:05:01 kistchen kernel: [    5.426772] RSP:
+> > > 0018:ffffa54e002b3ce8
+> > > EFLAGS: 00010007
+> > > Jan 28 19:05:01 kistchen kernel: [    5.426853] RAX:
+> > > 00d8e6d895001000 RBX:
+> > > 0000000000000206 RCX: 0000000000000000
+> > > Jan 28 19:05:01 kistchen kernel: [    5.426937] RDX:
+> > > 00007425c0000000 RSI:
+> > > ffffffffc0fd6ea6 RDI: 36415f5f0004000f
+> > > Jan 28 19:05:01 kistchen kernel: [    5.427019] RBP:
+> > > 36415f5f0004000f R08:
+> > > ffffffffa80427c0 R09: ffffa54e002b3be0
+> > > Jan 28 19:05:01 kistchen kernel: [    5.427102] R10:
+> > > 0000000000000000 R11:
+> > > 0000000000000000 R12: ffff8bdae10e6ab8
+> > > Jan 28 19:05:01 kistchen kernel: [    5.427184] R13:
+> > > ffff8bdae10e6800 R14:
+> > > ffff8bdac256c400 R15: ffff8bdc37cb5905
+> > > Jan 28 19:05:01 kistchen kernel: [    5.427267] FS:
+> > > 0000000000000000(0000)
+> > > GS:ffff8bdc37c80000(0000) knlGS:0000000000000000
+> > > Jan 28 19:05:01 kistchen kernel: [    5.427354] CS:  0010 DS: 0000
+> > > ES: 0000
+> > > CR0: 0000000080050033
+> > > Jan 28 19:05:01 kistchen kernel: [    5.427446] CR2:
+> > > 00007f934935c6f4 CR3:
+> > > 00000001077e2000 CR4: 00000000001006e0
+> > > Jan 28 19:05:01 kistchen kernel: [    5.427541] Call Trace:
+> > > Jan 28 19:05:01 kistchen kernel: [    5.427630]  <TASK>
+> > > Jan 28 19:05:01 kistchen kernel: [    5.427727]
+> > > iwl_dealloc_ucode+0x36/0x110 [iwlwifi]
+> > > Jan 28 19:05:01 kistchen kernel: [    5.427873]
+> > > iwl_req_fw_callback+0x2d1/0x2330 [iwlwifi]
+> > > Jan 28 19:05:01 kistchen kernel: [    5.428006]  ?
+> > > ___cache_free+0x31/0x4b0
+> > > Jan 28 19:05:01 kistchen kernel: [    5.428108]  ?
+> > > _request_firmware+0x3ff/0x780
+> > > Jan 28 19:05:01 kistchen kernel: [    5.428205]  ? kfree+0xa9/0x170
+> > > Jan 28 19:05:01 kistchen kernel: [    5.428298]  ?
+> > > _request_firmware+0x3ff/0x780
+> > > Jan 28 19:05:01 kistchen kernel: [    5.428391]
+> > > request_firmware_work_func+0x4d/0x90
+> > > Jan 28 19:05:01 kistchen kernel: [    5.428486]
+> > > process_one_work+0x1e8/0x3c0
+> > > Jan 28 19:05:01 kistchen kernel: [    5.428581]
+> > > worker_thread+0x50/0x3b0
+> > > Jan 28 19:05:01 kistchen kernel: [    5.428672]  ?
+> > > process_one_work+0x3c0/0x3c0
+> > > Jan 28 19:05:01 kistchen kernel: [    5.428763]  kthread+0x141/0x170
+> > > Jan 28 19:05:01 kistchen kernel: [    5.428856]  ?
+> > > set_kthread_struct+0x40/0x40
+> > > Jan 28 19:05:01 kistchen kernel: [    5.428948]
+> > > ret_from_fork+0x22/0x30
+> > > Jan 28 19:05:01 kistchen kernel: [    5.429044]  </TASK>
+> > > Jan 28 19:05:01 kistchen kernel: [    5.429130] Modules linked in:
+> > > ums_realtek(+) iwlwifi(+) snd_hda_intel uas usb_storage
+> > > snd_intel_dspcfg
+> > > sha512_ssse3 ttm snd_intel_sdw_acpi snd_hda_codec snd_hda_core
+> > > sha512_generic aesni_intel(+) drm_kms_helper snd_hwdep crypto_simd
+> > > intel_xhci_usb_role_switch cryptd sg roles cec snd_pcm intel_cstate
+> > > snd_timer mei_txe at24 snd iTCO_wdt rc_core cfg80211 intel_pmc_bxt
+> > > pcspkr
+> > > soundcore ctr iTCO_vendor_support mei i2c_algo_bit watchdog drbg
+> > > ansi_cprng
+> > > ecdh_generic(+) rfkill ecc pwm_lpss_platform pwm_lpss
+> > > intel_int0002_vgpio
+> > > button drm fuse configfs ip_tables x_tables autofs4 ext4
+> > > crc32c_generic
+> > > crc16 mbcache jbd2 sd_mod t10_pi crc_t10dif crct10dif_generic ahci
+> > > libahci
+> > > xhci_pci sdhci_pci cqhci crct10dif_pclmul crct10dif_common libata
+> > > r8169
+> > > i2c_i801 crc32_pclmul xhci_hcd realtek mdio_devres crc32c_intel
+> > > i2c_smbus
+> > > lpc_ich sdhci libphy scsi_mod usbcore usb_common scsi_common
+> > > mmc_core fan
+> > > i2c_hid_acpi i2c_hid video hid
+> > > Jan 28 19:05:01 kistchen kernel: [    5.429595] ---[ end trace
+> > > aea59d2f4abcc392 ]---
+> > > Jan 28 19:05:01 kistchen kernel: [    5.429688] RIP:
+> > > 0010:kfree+0x61/0x170
+> > > Jan 28 19:05:01 kistchen kernel: [    5.429783] Code: 80 48 01 e8 0f
+> > > 82 21
+> > > 01 00 00 48 c7 c2 00 00 00 80 48 2b 15 01 f8 ee 00 48 01 d0 48 c1 e8
+> > > 0c 48
+> > > c1 e0 06 48 03 05 df f7 ee 00 <48> 8b 50 08 48 8d 4a ff 83 e2 01 48
+> > > 0f 45 c1
+> > > 48 8b 48 08 48 8d 51
+> > > Jan 28 19:05:01 kistchen kernel: [    5.429920] RSP:
+> > > 0018:ffffa54e002b3ce8
+> > > EFLAGS: 00010007
+> > > Jan 28 19:05:01 kistchen kernel: [    5.430012] RAX:
+> > > 00d8e6d895001000 RBX:
+> > > 0000000000000206 RCX: 0000000000000000
+> > > Jan 28 19:05:01 kistchen kernel: [    5.430107] RDX:
+> > > 00007425c0000000 RSI:
+> > > ffffffffc0fd6ea6 RDI: 36415f5f0004000f
+> > > Jan 28 19:05:01 kistchen kernel: [    5.430201] RBP:
+> > > 36415f5f0004000f R08:
+> > > ffffffffa80427c0 R09: ffffa54e002b3be0
+> > > Jan 28 19:05:01 kistchen kernel: [    5.430296] R10:
+> > > 0000000000000000 R11:
+> > > 0000000000000000 R12: ffff8bdae10e6ab8
+> > > Jan 28 19:05:01 kistchen kernel: [    5.430392] R13:
+> > > ffff8bdae10e6800 R14:
+> > > ffff8bdac256c400 R15: ffff8bdc37cb5905
+> > > Jan 28 19:05:01 kistchen kernel: [    5.430489] FS:
+> > > 0000000000000000(0000)
+> > > GS:ffff8bdc37c80000(0000) knlGS:0000000000000000
+> > > Jan 28 19:05:01 kistchen kernel: [    5.430603] CS:  0010 DS: 0000
+> > > ES: 0000
+> > > CR0: 0000000080050033
+> > > Jan 28 19:05:01 kistchen kernel: [    5.430700] CR2:
+> > > 00007f934935c6f4 CR3:
+> > > 00000001077e2000 CR4: 00000000001006e0
+> > > ===================================================================
+> > > 
+> > > Providing a firmware file (or blacklisting iwlwifi of course) fixes
+> > > ist.
+> > > 5.15.16 does not crash.
+> > 
+> > Can you do 'git bisect' to track down the offending commit?
+> > 
+> > And does 5.16.y work for you?  How about 5.17-rc2?
+> > 
+> > thanks,
+> > 
+> > greg k-h
 > 
-> 
-> On February 1, 2022 6:53:25 AM PST, Rich Felker <dalias@libc.org> wrote:
-> >On Mon, Jan 31, 2022 at 04:09:47PM -0800, Kees Cook wrote:
-> >> Quoting[1] Ariadne Conill:
-> >> 
-> >> "In several other operating systems, it is a hard requirement that the
-> >> second argument to execve(2) be the name of a program, thus prohibiting
-> >> a scenario where argc < 1. POSIX 2017 also recommends this behaviour,
-> >> but it is not an explicit requirement[2]:
-> >> 
-> >>     The argument arg0 should point to a filename string that is
-> >>     associated with the process being started by one of the exec
-> >>     functions.
-> >> ....
-> >> Interestingly, Michael Kerrisk opened an issue about this in 2008[3],
-> >> but there was no consensus to support fixing this issue then.
-> >> Hopefully now that CVE-2021-4034 shows practical exploitative use[4]
-> >> of this bug in a shellcode, we can reconsider.
-> >> 
-> >> This issue is being tracked in the KSPP issue tracker[5]."
-> >> 
-> >> While the initial code searches[6][7] turned up what appeared to be
-> >> mostly corner case tests, trying to that just reject argv == NULL
-> >> (or an immediately terminated pointer list) quickly started tripping[8]
-> >> existing userspace programs.
-> >> 
-> >> The next best approach is forcing a single empty string into argv and
-> >> adjusting argc to match. The number of programs depending on argc == 0
-> >> seems a smaller set than those calling execve with a NULL argv.
-> >> 
-> >> Account for the additional stack space in bprm_stack_limits(). Inject an
-> >> empty string when argc == 0 (and set argc = 1). Warn about the case so
-> >> userspace has some notice about the change:
-> >> 
-> >>     process './argc0' launched './argc0' with NULL argv: empty string added
-> >> 
-> >> Additionally WARN() and reject NULL argv usage for kernel threads.
-> >> 
-> >> [1] https://lore.kernel.org/lkml/20220127000724.15106-1-ariadne@dereferenced.org/
-> >> [2] https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
-> >> [3] https://bugzilla.kernel.org/show_bug.cgi?id=8408
-> >> [4] https://www.qualys.com/2022/01/25/cve-2021-4034/pwnkit.txt
-> >> [5] https://github.com/KSPP/linux/issues/176
-> >> [6] https://codesearch.debian.net/search?q=execve%5C+*%5C%28%5B%5E%2C%5D%2B%2C+*NULL&literal=0
-> >> [7] https://codesearch.debian.net/search?q=execlp%3F%5Cs*%5C%28%5B%5E%2C%5D%2B%2C%5Cs*NULL&literal=0
-> >> [8] https://lore.kernel.org/lkml/20220131144352.GE16385@xsang-OptiPlex-9020/
-> >> 
-> >> Reported-by: Ariadne Conill <ariadne@dereferenced.org>
-> >> Reported-by: Michael Kerrisk <mtk.manpages@gmail.com>
-> >> Cc: Matthew Wilcox <willy@infradead.org>
-> >> Cc: Christian Brauner <brauner@kernel.org>
-> >> Cc: Rich Felker <dalias@libc.org>
-> >> Cc: Eric Biederman <ebiederm@xmission.com>
-> >> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> >> Cc: linux-fsdevel@vger.kernel.org
-> >> Cc: stable@vger.kernel.org
-> >> Signed-off-by: Kees Cook <keescook@chromium.org>
-> >> ---
-> >>  fs/exec.c | 26 +++++++++++++++++++++++++-
-> >>  1 file changed, 25 insertions(+), 1 deletion(-)
-> >> 
-> >> diff --git a/fs/exec.c b/fs/exec.c
-> >> index 79f2c9483302..bbf3aadf7ce1 100644
-> >> --- a/fs/exec.c
-> >> +++ b/fs/exec.c
-> >> @@ -495,8 +495,14 @@ static int bprm_stack_limits(struct linux_binprm *bprm)
-> >>  	 * the stack. They aren't stored until much later when we can't
-> >>  	 * signal to the parent that the child has run out of stack space.
-> >>  	 * Instead, calculate it here so it's possible to fail gracefully.
-> >> +	 *
-> >> +	 * In the case of argc = 0, make sure there is space for adding a
-> >> +	 * empty string (which will bump argc to 1), to ensure confused
-> >> +	 * userspace programs don't start processing from argv[1], thinking
-> >> +	 * argc can never be 0, to keep them from walking envp by accident.
-> >> +	 * See do_execveat_common().
-> >>  	 */
-> >> -	ptr_size = (bprm->argc + bprm->envc) * sizeof(void *);
-> >> +	ptr_size = (min(bprm->argc, 1) + bprm->envc) * sizeof(void *);
-> >
-> >From #musl:
-> >
-> ><mixi> kees: shouldn't the min(bprm->argc, 1) be max(...) in your patch?
-> 
-> Fix has already been sent, yup.
-> 
-> >I'm pretty sure without fixing that, you're introducing a giant vuln
-> >here.
-> 
-> I wouldn't say "giant", but yes, it weakened a defense in depth for
-> avoiding high stack utilization.
+> I tested 5.17-rc2. It also shows the above general protection fault:
 
-I thought it was deciding the amount of memory to allocate/reserve for
-the arg slots, but based on the comment it looks like it's just a way
-to fail early rather than making the new process image fault later if
-they don't fit.
+Great!  Please contact the authors of the commit you found, and the
+wireless developer mailing list and they can work to resolve this.
 
-> > I believe this is the second time a patch attempting to fix this
-> >non-vuln has proposed adding a new vuln...
-> 
-> Mistakes happen, and that's why there is review and testing. Thank
-> you for being part of the review process! :)
+thanks,
 
-I know, and I'm sorry for being a bit hostile over it, and for jumping
-the gun about the severity. I just get frustrated when I see a rush to
-make changes over an incidental part of a popularized vuln, with
-disproportionate weight on "doing something" and not enough on being
-careful.
-
-Rich
+greg k-h
