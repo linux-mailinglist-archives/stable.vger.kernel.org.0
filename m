@@ -1,109 +1,122 @@
 Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
-Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 325A14A6B4B
-	for <lists+stable@lfdr.de>; Wed,  2 Feb 2022 06:20:20 +0100 (CET)
+Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
+	by mail.lfdr.de (Postfix) with ESMTP id 449B24A6B8E
+	for <lists+stable@lfdr.de>; Wed,  2 Feb 2022 06:45:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238552AbiBBFUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Feb 2022 00:20:18 -0500
-Received: from vmicros1.altlinux.org ([194.107.17.57]:49816 "EHLO
-        vmicros1.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230087AbiBBFUR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Feb 2022 00:20:17 -0500
-Received: from imap.altlinux.org (imap.altlinux.org [194.107.17.38])
-        by vmicros1.altlinux.org (Postfix) with ESMTP id BC8EC72C8FA;
-        Wed,  2 Feb 2022 08:20:14 +0300 (MSK)
-Received: from altlinux.org (sole.flsd.net [185.75.180.6])
-        by imap.altlinux.org (Postfix) with ESMTPSA id 862D44A46F0;
-        Wed,  2 Feb 2022 08:20:14 +0300 (MSK)
-Date:   Wed, 2 Feb 2022 08:20:14 +0300
-From:   Vitaly Chikunov <vt@altlinux.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     keyrings@vger.kernel.org, Jarkko Sakkinen <jarkko@kernel.org>,
-        David Howells <dhowells@redhat.com>,
-        linux-crypto@vger.kernel.org, linux-integrity@vger.kernel.org,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Gilad Ben-Yossef <gilad@benyossef.com>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Mimi Zohar <zohar@linux.ibm.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] KEYS: asymmetric: enforce that sig algo matches key
- algo
-Message-ID: <20220202052014.fflcmgpykwbfzdt4@altlinux.org>
-References: <20220201003414.55380-1-ebiggers@kernel.org>
- <20220201003414.55380-2-ebiggers@kernel.org>
- <20220202025230.hrfochvm3uyuh2wm@altlinux.org>
- <Yfn2KZgjuFRSJzSj@sol.localdomain>
+        id S233170AbiBBFpu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Feb 2022 00:45:50 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:53279 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231137AbiBBFpu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Feb 2022 00:45:50 -0500
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 9A13F5C018C;
+        Wed,  2 Feb 2022 00:37:44 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Wed, 02 Feb 2022 00:37:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm3; bh=YBRLObE7oipno8N9HWdhc5q6vesbsr/OWaH1CA
+        K/aQk=; b=kYgirHHwKXkRaJd44UTsTqARSODCa8xP8kayvLKbKkXuh70HSlZOhH
+        0QzZkvc52VKCBZeH2VyNAa1IBpygH70XbBRKkeg+4GWSz0o/gpRU/34vUPZ48x56
+        glG64uXfFdoyAUICldbLXd2xkCWv6cANWTiO1mkhiQFEoNNkoZmXpHlbAScxq8bN
+        h+LqL5cOHDB25WalPkKUpuUHh2rutp7sijFgz8pX2xC4HORcLU0wVxOPtHbqeXTZ
+        7cdaP929qodETW/qy5ytlZgeC7NSIuhfTw/4fkPHs84vk15GDdKw6HBY96eZBJBE
+        sShqmqIj+vVLYKnSRGTjCuhGNosQQMJw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=YBRLObE7oipno8N9H
+        Wdhc5q6vesbsr/OWaH1CAK/aQk=; b=IQPSlmwfP1gxWY8xeEZDy6XcnT19SU4qr
+        ODJhL2mRy7b8/CjxhN5+/oJLEwyoKm18ej7vJ8doYXhLesynP2ctdrazdLZ+C85l
+        Da3+go/4+J7CtxysB0X5jaZ6QpJPdgKXJjikLvG3dgQYnN56kptu4ncIGiPyM55c
+        lVUrtepd9X2zEp+t+tk84pczsdZDlwUVX7ae7xPenHWfhFLzkAxMfo+FSAqDkaJx
+        MhoS5yoU5ztIQSG7BecYWfoOziqH+YCbvCwbfbBhjxSysiGiDjd94xho/gOpvoZk
+        ghVeYOYEw7MXqRqegduacVwdJvPflkvOinB0GzsBYtzYVenlGDX/A==
+X-ME-Sender: <xms:qBj6YZCRoxqoZ_CTNbZi0-BIH0KdZYkeMRTbCmE7CtfUs55lLgJBQA>
+    <xme:qBj6YXh2IqW4n4NX8kQCBP8_MIfrRFYbaHEF5ShRIJjwGfdR2YZKNEr6ZKr1t4p97
+    zUGYGq4l2JHFg>
+X-ME-Received: <xmr:qBj6YUmZHIQg4d477IRP2VXDo2EuH5ecj7AVgsu5LXfy_2SECYxvhVTFp356EXZ0aGnGVjbuqBAOQH-sIgAuZgeaw7waH5z9>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrgeeggdekudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:qBj6YTxGFNQP2N21oRUoK87AttmPf2SJGAdl44gaC3wF9rV2Pl2vPw>
+    <xmx:qBj6YeSTT4e4H54KKsXjn29GmOvotPwe0vHBIfbGEA2VWWTiIvtakA>
+    <xmx:qBj6YWZs16oSiWy_Y-oLI_clQuXYr4HmYPV8WDlTIqSuyq8-zgr0sQ>
+    <xmx:qBj6YdF6WKtCA_HKbthmQE3_y2y2KLNzGN_agNrRs22k3WQNvnjYKA>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 2 Feb 2022 00:37:43 -0500 (EST)
+Date:   Wed, 2 Feb 2022 06:37:39 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Mat Martineau <mathew.j.martineau@linux.intel.com>
+Cc:     mptcp@lists.linux.dev, pabeni@redhat.com, stable@vger.kernel.org
+Subject: Re: [PATCH mptcp-stable] mptcp: fix msk traversal in
+ mptcp_nl_cmd_set_flags()
+Message-ID: <YfoYo7wQGVpkM464@kroah.com>
+References: <20220202004032.208848-1-mathew.j.martineau@linux.intel.com>
+ <366acfc7-cab7-8f9a-e1cc-3d7f57fecbf8@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Yfn2KZgjuFRSJzSj@sol.localdomain>
+In-Reply-To: <366acfc7-cab7-8f9a-e1cc-3d7f57fecbf8@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 01, 2022 at 07:10:33PM -0800, Eric Biggers wrote:
-> On Wed, Feb 02, 2022 at 05:52:30AM +0300, Vitaly Chikunov wrote:
-> > Eric,
+On Tue, Feb 01, 2022 at 05:09:36PM -0800, Mat Martineau wrote:
+> On Tue, 1 Feb 2022, Mat Martineau wrote:
+> 
+> > commit 8e9eacad7ec7a9cbf262649ebf1fa6e6f6cc7d82 upstream.
 > > 
-> > On Mon, Jan 31, 2022 at 04:34:13PM -0800, Eric Biggers wrote:
-> > > From: Eric Biggers <ebiggers@google.com>
-> > > 
-> > > Most callers of public_key_verify_signature(), including most indirect
-> > > callers via verify_signature() as well as pkcs7_verify_sig_chain(),
-> > > don't check that public_key_signature::pkey_algo matches
-> > > public_key::pkey_algo.  These should always match.
+> > The upstream commit had to handle a lookup_by_id variable that is only
+> > present in 5.17. This version of the patch removes that variable, so the
+> > __lookup_addr() function only handles the lookup as it is implemented in
+> > 5.15 and 5.16. It also removes one 'const' keyword to prevent a warning
+> > due to differing const-ness in the 5.17 version of addresses_equal().
 > > 
-> > Why should they match?
-> 
-> For the reasons I explain in the rest of the commit message.  To summarize: to
-> have a valid signature verification scheme the algorithm must be fixed by the
-> key, and not attacker-controlled.
-> 
+> > The MPTCP endpoint list is under RCU protection, guarded by the
+> > pernet spinlock. mptcp_nl_cmd_set_flags() traverses the list
+> > without acquiring the spin-lock nor under the RCU critical section.
 > > 
-> > public_key_signature is the data prepared to verify the cert's
-> > signature. The cert's signature algorithm could be different from the
-> > public key algorithm defined in the cert itself. They should match only
-> > for self-signed certs. For example, you should be able to sign RSA
-> > public key with ECDSA signature and vice versa. Or 256-bit EC-RDSA with
-> > 512-bit EC-RDSA. This check will prevent this.
-> 
-> That has nothing to do with this patch, as this patch is only dealing with the
-> signature.  A cert's public key algorithm can be different, and that is fine.
-
-You are right and I was mistaken about that (obscured by keyctl
-pkey_verify error and self-signed keys verification). Then it's all
-good!
-
-I also tested these patches to work well with rsa-ecdsa and ecrdsa
-certificates using keyctl restrict_keyring.
-
-Thanks,
-
-> 
-> > > diff --git a/crypto/asymmetric_keys/public_key.c b/crypto/asymmetric_keys/public_key.c
-> > > index 4fefb219bfdc8..aba7113d86c76 100644
-> > > --- a/crypto/asymmetric_keys/public_key.c
-> > > +++ b/crypto/asymmetric_keys/public_key.c
-> > > @@ -325,6 +325,21 @@ int public_key_verify_signature(const struct public_key *pkey,
-> > >  	BUG_ON(!sig);
-> > >  	BUG_ON(!sig->s);
-> > >  
-> > > +	/*
-> > > +	 * The signature's claimed public key algorithm *must* match the key's
-> > > +	 * actual public key algorithm.
-> > > +	 *
-> > > +	 * Small exception: ECDSA signatures don't specify the curve, but ECDSA
-> > > +	 * keys do.  So the strings can mismatch slightly in that case:
-> > > +	 * "ecdsa-nist-*" for the key, but "ecdsa" for the signature.
-> > > +	 */
-> > > +	if (!sig->pkey_algo)
-> > > +		return -EINVAL;
+> > This change addresses the issue performing the lookup and the endpoint
+> > update under the pernet spinlock.
 > > 
-> > This seem incorrect too, as sig->pkey_algo could be NULL for direct
-> > signature verification calls. For example, for keyctl pkey_verify.
+> > Fixes: 0f9f696a502e ("mptcp: add set_flags command in PM netlink")
+> > Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+> > ---
+> > 
+> > Paolo, can I add an ack or signoff tag from you?
+> > 
+> > The upstream commit (8e9eacad7ec7) was queued for the 5.16 and 5.15
+> > stable trees, which brought along a few extra patches that didn't belong
+> > in stable. I asked Greg to drop those patches from his queue, and this
+> > particular commit required manual changes as described above (related to
+> > the lookup_by_id variable that's new in 5.16).
+> > 
+> > This patch will not apply to the export branch. I confirmed that it
+> > applies, builds, and runs on both the 5.16.5 and 5.15.19 branches. Self
+> > tests succeed too.
+> > 
+> > When I send to the stable list, I'll also include these tags:
+> > Cc: <stable@vger.kernel.org> # 5.15.x
+> > Cc: <stable@vger.kernel.org> # 5.16.x
 > 
-> We can make it optional if some callers aren't providing it.  Of course, such
-> callers wouldn't be able to verify ECDSA signatures.
-> 
-> - Eric
+> So... this wasn't supposed to go to stable@vger.kernel.org yet. git
+> send-email picked up the cc lines that I had moved out of the commit
+> message. Sorry about that.
+
+There's nothing wrong with us seeing it as kernel development should be
+done in public :)
+
+thanks,
+
+greg k-h
