@@ -2,263 +2,230 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B43D14A6C46
-	for <lists+stable@lfdr.de>; Wed,  2 Feb 2022 08:23:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB6404A6C86
+	for <lists+stable@lfdr.de>; Wed,  2 Feb 2022 08:53:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232937AbiBBHXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Feb 2022 02:23:39 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:34832 "EHLO
+        id S230084AbiBBHxi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Feb 2022 02:53:38 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:42093 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229813AbiBBHXi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Feb 2022 02:23:38 -0500
+        by vger.kernel.org with ESMTP id S229566AbiBBHxh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Feb 2022 02:53:37 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1643786617;
+        s=mimecast20190719; t=1643788417;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=lS6VclXUcneOjC3oStQbwdBD5or1Egv5MK+etEu+Ej4=;
-        b=DGdXidtWUnLN2TfdsEoP08ldmfJIMqw+xl/KqtRCJPArzpGTE9kzLqLez28xqthK+lZJPu
-        ST61uKLlEIatuKkkGRUKahy/S4FJaljJyb6PbcQuDOL83RDL2nh2o8Nsu3cmkGUgE21pdI
-        wpAKtwq4KI6B6aor0Zr4EeyAyu34DHQ=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=ahLZvwyQc+eq7iT2ckS4SaxX0jenWhcUInGDk16hsUk=;
+        b=F8nncVBDV3WOwqXPNiYvWjWTld5dbo4chuMeLo7+2A+VaH8jDFz8x65k3xKtwa9lk3Qqgb
+        Sk0k/u+qhYxTgiFMkEsmZLzkTLuyGUOUA29S1hmybO8EH/1YUftP8t+usgW6ZPa6n0mTlE
+        4iRXlRi6UoLcrDuSeRI5LThYIvqisGY=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-271-CAm_PN-LMbOZ2zHRWqjFgw-1; Wed, 02 Feb 2022 02:23:36 -0500
-X-MC-Unique: CAm_PN-LMbOZ2zHRWqjFgw-1
-Received: by mail-ej1-f70.google.com with SMTP id q21-20020a17090622d500b006bb15a59a68so5763472eja.18
-        for <stable@vger.kernel.org>; Tue, 01 Feb 2022 23:23:36 -0800 (PST)
+ us-mta-157-LJxe5e9eP9CqQWIjpA6lgw-1; Wed, 02 Feb 2022 02:53:36 -0500
+X-MC-Unique: LJxe5e9eP9CqQWIjpA6lgw-1
+Received: by mail-wr1-f72.google.com with SMTP id i25-20020adfaad9000000b001e01f5804abso3917032wrc.2
+        for <stable@vger.kernel.org>; Tue, 01 Feb 2022 23:53:36 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
+         :content-language:to:cc:references:from:organization:in-reply-to
          :content-transfer-encoding;
-        bh=lS6VclXUcneOjC3oStQbwdBD5or1Egv5MK+etEu+Ej4=;
-        b=o81rkeZE6RI00acHP6yHjjl3q0HKhxu/HUJm0VVmIvMNpqLSB1z9ngajSICPpTADV/
-         Gem412+SYpqwLOWbeZsl837A6QIDt2L7tHugx8dmS42JKNXpx8DJ46beR++jc/Qvhvyc
-         bj5ZJJAzsrTrjtGrCw1DESxPfRcatKg8yFeAJalD88oLVV+wsTfz6pwfWpaT/ytMaz26
-         HSMzA2Z6TuErJFRmjWqz/qIiNj/JHj4EtiG7ChLT2SnJ8hjebd7keLk7jFBErzlZbAtE
-         0R9Gi4JRjU48K7c9OqLyb7rbWyseT9TRqN9iUQLY4bIJzEUdM5hAEwV+nl5TqWgKXYVu
-         NQiw==
-X-Gm-Message-State: AOAM5333ycYAIECRF9UtyB6TSUHJN9ynuXaex9LML7C6T12L/mMhIClh
-        6Xd5m3uk9H866VlNkGe4YudXeaY3s4W5jx3PbUhKNDlJXPYqYKxPDw4thOkI+Ts3TCsx81FtQgE
-        npJaSjWtghgKO0tIi
-X-Received: by 2002:a17:906:6a19:: with SMTP id qw25mr24349260ejc.558.1643786614740;
-        Tue, 01 Feb 2022 23:23:34 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzagIl3d9kQo4OnIQYwllq35vwl2W8Kb/G1VNqSRNdeleQrKWx8UmZQ09Ky+iZpOYp6/cz01Q==
-X-Received: by 2002:a17:906:6a19:: with SMTP id qw25mr24349241ejc.558.1643786614459;
-        Tue, 01 Feb 2022 23:23:34 -0800 (PST)
-Received: from ?IPV6:2001:b07:6468:f312:63a7:c72e:ea0e:6045? ([2001:b07:6468:f312:63a7:c72e:ea0e:6045])
-        by smtp.googlemail.com with ESMTPSA id h15sm15530665ejg.144.2022.02.01.23.23.33
+        bh=ahLZvwyQc+eq7iT2ckS4SaxX0jenWhcUInGDk16hsUk=;
+        b=5/3GUX8XYHY8C2K9P8aK4MclFrowO1pKPhl4QxOlmt3OqlD9qYi7yCKuEocc5jilsm
+         0ORQwptruziuH9EjG7oaTKSOXRa7XvH5m6C3Z+yyqMiWMkeHomVJ0ZY0HhzTW9k3cFkQ
+         KlywhKfgHrM+bL2xIBMmLRfIjqiIV8HWFyQ2gb8vhlgO3KnFOi+kLn6c+3dNdEcyuMKM
+         bp8LAB+TOJwy6QKDn8i6qzTQ55XJS5ARKbkoLqcERNvQuOybgTEcBx3DkdpfY0t4raU3
+         Nh52iEQycc3IO/ZT6tX9j9xIBpiAuHl6k6p+1Z0qFiso6oGXFZ2hMrwrj21OV+XnXjbB
+         HosQ==
+X-Gm-Message-State: AOAM531j5DwW9rim2O9SHzDAObzDzy9PIJ2TcYFg+vVBUfD5IE3dytTf
+        o2BdznsKgXI/rpVFSzgEXog00sjWzh3pXAqQbDF9SrB5KqFod/S0LG+49+uQUvVSKSPu547ImAw
+        QL/xPsQxbQFQrw1ZG
+X-Received: by 2002:adf:e98c:: with SMTP id h12mr24083595wrm.427.1643788415010;
+        Tue, 01 Feb 2022 23:53:35 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyoqkANgdoBjA+ezl3iQlMQsRbKOO1h93LK8yljYv53yeSpDYTzqvHM9Sn2oHATCFxr5RIdyA==
+X-Received: by 2002:adf:e98c:: with SMTP id h12mr24083580wrm.427.1643788414696;
+        Tue, 01 Feb 2022 23:53:34 -0800 (PST)
+Received: from ?IPV6:2003:cb:c709:f800:a55c:e484:3cd9:3632? (p200300cbc709f800a55ce4843cd93632.dip0.t-ipconnect.de. [2003:cb:c709:f800:a55c:e484:3cd9:3632])
+        by smtp.gmail.com with ESMTPSA id a6sm16426117wrx.101.2022.02.01.23.53.33
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 01 Feb 2022 23:23:33 -0800 (PST)
-Message-ID: <817092d5-5af2-126d-7e1b-0dce2b82d7a5@redhat.com>
-Date:   Wed, 2 Feb 2022 08:23:31 +0100
+        Tue, 01 Feb 2022 23:53:34 -0800 (PST)
+Message-ID: <eef6fe68-1501-b07c-acc9-287e76c65420@redhat.com>
+Date:   Wed, 2 Feb 2022 08:53:33 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 5.10] KVM: x86: Forcibly leave nested virt when SMM state
- is toggled
+ Thunderbird/91.4.0
+Subject: Re: [v3 PATCH] fs/proc: task_mmu.c: don't read mapcount for migration
+ entry
 Content-Language: en-US
-To:     Tadeusz Struk <tadeusz.struk@linaro.org>, stable@vger.kernel.org
-Cc:     Sean Christopherson <seanjc@google.com>, x86@kernel.org,
-        kvm@vger.kernel.org
-References: <20220201230427.2311393-1-tadeusz.struk@linaro.org>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <20220201230427.2311393-1-tadeusz.struk@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To:     Yang Shi <shy828301@gmail.com>, kirill.shutemov@linux.intel.com,
+        jannh@google.com, willy@infradead.org, akpm@linux-foundation.org
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20220201223837.790617-1-shy828301@gmail.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20220201223837.790617-1-shy828301@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/2/22 00:04, Tadeusz Struk wrote:
-> From: Sean Christopherson <seanjc@google.com>
+On 01.02.22 23:38, Yang Shi wrote:
+> The syzbot reported the below BUG:
 > 
-> Commit f7e570780efc5cec9b2ed1e0472a7da14e864fdb upstream.
+> kernel BUG at include/linux/page-flags.h:785!
+> invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+> CPU: 1 PID: 4392 Comm: syz-executor560 Not tainted 5.16.0-rc6-syzkaller #0
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+> RIP: 0010:PageDoubleMap include/linux/page-flags.h:785 [inline]
+> RIP: 0010:__page_mapcount+0x2d2/0x350 mm/util.c:744
+> Code: e8 d3 16 d1 ff 48 c7 c6 c0 00 b6 89 48 89 ef e8 94 4e 04 00 0f 0b e8 bd 16 d1 ff 48 c7 c6 60 01 b6 89 48 89 ef e8 7e 4e 04 00 <0f> 0b e8 a7 16 d1 ff 48 c7 c6 a0 01 b6 89 4c 89 f7 e8 68 4e 04 00
+> RSP: 0018:ffffc90002b6f7b8 EFLAGS: 00010293
+> RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+> RDX: ffff888019619d00 RSI: ffffffff81a68c12 RDI: 0000000000000003
+> RBP: ffffea0001bdc2c0 R08: 0000000000000029 R09: 00000000ffffffff
+> R10: ffffffff8903e29f R11: 00000000ffffffff R12: 00000000ffffffff
+> R13: 00000000ffffea00 R14: ffffc90002b6fb30 R15: ffffea0001bd8001
+> FS:  00007faa2aefd700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 00007fff7e663318 CR3: 0000000018c6e000 CR4: 00000000003506e0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> Call Trace:
+>  <TASK>
+>  page_mapcount include/linux/mm.h:837 [inline]
+>  smaps_account+0x470/0xb10 fs/proc/task_mmu.c:466
+>  smaps_pte_entry fs/proc/task_mmu.c:538 [inline]
+>  smaps_pte_range+0x611/0x1250 fs/proc/task_mmu.c:601
+>  walk_pmd_range mm/pagewalk.c:128 [inline]
+>  walk_pud_range mm/pagewalk.c:205 [inline]
+>  walk_p4d_range mm/pagewalk.c:240 [inline]
+>  walk_pgd_range mm/pagewalk.c:277 [inline]
+>  __walk_page_range+0xe23/0x1ea0 mm/pagewalk.c:379
+>  walk_page_vma+0x277/0x350 mm/pagewalk.c:530
+>  smap_gather_stats.part.0+0x148/0x260 fs/proc/task_mmu.c:768
+>  smap_gather_stats fs/proc/task_mmu.c:741 [inline]
+>  show_smap+0xc6/0x440 fs/proc/task_mmu.c:822
+>  seq_read_iter+0xbb0/0x1240 fs/seq_file.c:272
+>  seq_read+0x3e0/0x5b0 fs/seq_file.c:162
+>  vfs_read+0x1b5/0x600 fs/read_write.c:479
+>  ksys_read+0x12d/0x250 fs/read_write.c:619
+>  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+>  do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+>  entry_SYSCALL_64_after_hwframe+0x44/0xae
+> RIP: 0033:0x7faa2af6c969
+> Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 11 15 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+> RSP: 002b:00007faa2aefd288 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+> RAX: ffffffffffffffda RBX: 00007faa2aff4418 RCX: 00007faa2af6c969
+> RDX: 0000000000002025 RSI: 0000000020000100 RDI: 0000000000000003
+> RBP: 00007faa2aff4410 R08: 00007faa2aefd700 R09: 0000000000000000
+> R10: 00007faa2aefd700 R11: 0000000000000246 R12: 00007faa2afc20ac
+> R13: 00007fff7e6632bf R14: 00007faa2aefd400 R15: 0000000000022000
+>  </TASK>
+> Modules linked in:
+> ---[ end trace 24ec93ff95e4ac3d ]---
+> RIP: 0010:PageDoubleMap include/linux/page-flags.h:785 [inline]
+> RIP: 0010:__page_mapcount+0x2d2/0x350 mm/util.c:744
+> Code: e8 d3 16 d1 ff 48 c7 c6 c0 00 b6 89 48 89 ef e8 94 4e 04 00 0f 0b e8 bd 16 d1 ff 48 c7 c6 60 01 b6 89 48 89 ef e8 7e 4e 04 00 <0f> 0b e8 a7 16 d1 ff 48 c7 c6 a0 01 b6 89 4c 89 f7 e8 68 4e 04 00
+> RSP: 0018:ffffc90002b6f7b8 EFLAGS: 00010293
+> RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+> RDX: ffff888019619d00 RSI: ffffffff81a68c12 RDI: 0000000000000003
+> RBP: ffffea0001bdc2c0 R08: 0000000000000029 R09: 00000000ffffffff
+> R10: ffffffff8903e29f R11: 00000000ffffffff R12: 00000000ffffffff
+> R13: 00000000ffffea00 R14: ffffc90002b6fb30 R15: ffffea0001bd8001
+> FS:  00007faa2aefd700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 00007fff7e663318 CR3: 0000000018c6e000 CR4: 00000000003506e0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 > 
-> Please apply it to 5.10.y. It fixes the following syzbot issue:
-> Link: https://syzkaller.appspot.com/bug?id=c46ee6f22a68171154cdd9217216b2a02cf4b71c
+> The reproducer was trying to reading /proc/$PID/smaps when calling
+> MADV_FREE at the mean time.  MADV_FREE may split THPs if it is called
+> for partial THP.  It may trigger the below race:
 > 
-> Forcibly leave nested virtualization operation if userspace toggles SMM
-> state via KVM_SET_VCPU_EVENTS or KVM_SYNC_X86_EVENTS.  If userspace
-> forces the vCPU out of SMM while it's post-VMXON and then injects an SMI,
-> vmx_enter_smm() will overwrite vmx->nested.smm.vmxon and end up with both
-> vmxon=false and smm.vmxon=false, but all other nVMX state allocated.
+>          CPU A                         CPU B
+>          -----                         -----
+> smaps walk:                      MADV_FREE:
+> page_mapcount()
+>   PageCompound()
+>                                  split_huge_page()
+>   page = compound_head(page)
+>   PageDoubleMap(page)
 > 
-> Don't attempt to gracefully handle the transition as (a) most transitions
-> are nonsencial, e.g. forcing SMM while L2 is running, (b) there isn't
-> sufficient information to handle all transitions, e.g. SVM wants access
-> to the SMRAM save state, and (c) KVM_SET_VCPU_EVENTS must precede
-> KVM_SET_NESTED_STATE during state restore as the latter disallows putting
-> the vCPU into L2 if SMM is active, and disallows tagging the vCPU as
-> being post-VMXON in SMM if SMM is not active.
+> When calling PageDoubleMap() this page is not a tail page of THP anymore
+> so the BUG is triggered.
 > 
-> Abuse of KVM_SET_VCPU_EVENTS manifests as a WARN and memory leak in nVMX
-> due to failure to free vmcs01's shadow VMCS, but the bug goes far beyond
-> just a memory leak, e.g. toggling SMM on while L2 is active puts the vCPU
-> in an architecturally impossible state.
+> This could be fixed by elevated refcount of the page before calling
+> mapcount, but it prevents from counting migration entries, and it seems
+> overkilling because the race just could happen when PMD is split so all
+> PTE entries of tail pages are actually migration entries, and
+> smaps_account() does treat migration entries as mapcount == 1 as Kirill
+> pointed out.
 > 
->    WARNING: CPU: 0 PID: 3606 at free_loaded_vmcs arch/x86/kvm/vmx/vmx.c:2665 [inline]
->    WARNING: CPU: 0 PID: 3606 at free_loaded_vmcs+0x158/0x1a0 arch/x86/kvm/vmx/vmx.c:2656
->    Modules linked in:
->    CPU: 1 PID: 3606 Comm: syz-executor725 Not tainted 5.17.0-rc1-syzkaller #0
->    Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
->    RIP: 0010:free_loaded_vmcs arch/x86/kvm/vmx/vmx.c:2665 [inline]
->    RIP: 0010:free_loaded_vmcs+0x158/0x1a0 arch/x86/kvm/vmx/vmx.c:2656
->    Code: <0f> 0b eb b3 e8 8f 4d 9f 00 e9 f7 fe ff ff 48 89 df e8 92 4d 9f 00
->    Call Trace:
->     <TASK>
->     kvm_arch_vcpu_destroy+0x72/0x2f0 arch/x86/kvm/x86.c:11123
->     kvm_vcpu_destroy arch/x86/kvm/../../../virt/kvm/kvm_main.c:441 [inline]
->     kvm_destroy_vcpus+0x11f/0x290 arch/x86/kvm/../../../virt/kvm/kvm_main.c:460
->     kvm_free_vcpus arch/x86/kvm/x86.c:11564 [inline]
->     kvm_arch_destroy_vm+0x2e8/0x470 arch/x86/kvm/x86.c:11676
->     kvm_destroy_vm arch/x86/kvm/../../../virt/kvm/kvm_main.c:1217 [inline]
->     kvm_put_kvm+0x4fa/0xb00 arch/x86/kvm/../../../virt/kvm/kvm_main.c:1250
->     kvm_vm_release+0x3f/0x50 arch/x86/kvm/../../../virt/kvm/kvm_main.c:1273
->     __fput+0x286/0x9f0 fs/file_table.c:311
->     task_work_run+0xdd/0x1a0 kernel/task_work.c:164
->     exit_task_work include/linux/task_work.h:32 [inline]
->     do_exit+0xb29/0x2a30 kernel/exit.c:806
->     do_group_exit+0xd2/0x2f0 kernel/exit.c:935
->     get_signal+0x4b0/0x28c0 kernel/signal.c:2862
->     arch_do_signal_or_restart+0x2a9/0x1c40 arch/x86/kernel/signal.c:868
->     handle_signal_work kernel/entry/common.c:148 [inline]
->     exit_to_user_mode_loop kernel/entry/common.c:172 [inline]
->     exit_to_user_mode_prepare+0x17d/0x290 kernel/entry/common.c:207
->     __syscall_exit_to_user_mode_work kernel/entry/common.c:289 [inline]
->     syscall_exit_to_user_mode+0x19/0x60 kernel/entry/common.c:300
->     do_syscall_64+0x42/0xb0 arch/x86/entry/common.c:86
->     entry_SYSCALL_64_after_hwframe+0x44/0xae
->     </TASK>
+> Add a new parameter for smaps_account() to tell this entry is migration
+> entry then skip calling page_mapcount().  Don't skip getting mapcount for
+> device private entries since they do track references with mapcount.
 > 
-> Cc: Sean Christopherson <seanjc@google.com>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Pagemap also has the similar issue although it was not reported.  Fixed
+> it as well.
+> 
+> Fixes: e9b61f19858a ("thp: reintroduce split_huge_page()")
+> Reported-by: syzbot+1f52b3a18d5633fa7f82@syzkaller.appspotmail.com
+> Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+> Cc: Jann Horn <jannh@google.com>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Cc: David Hildenbrand <david@redhat.com>
 > Cc: <stable@vger.kernel.org>
-> Cc: <x86@kernel.org>
-> Cc: <kvm@vger.kernel.org>
-> 
-> Backported-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> Signed-off-by: Yang Shi <shy828301@gmail.com>
 > ---
->   arch/x86/include/asm/kvm_host.h |  1 +
->   arch/x86/kvm/svm/nested.c       | 10 ++++++++--
->   arch/x86/kvm/svm/svm.c          |  2 +-
->   arch/x86/kvm/svm/svm.h          |  2 +-
->   arch/x86/kvm/vmx/nested.c       |  1 +
->   arch/x86/kvm/x86.c              |  2 ++
->   6 files changed, 14 insertions(+), 4 deletions(-)
+> v3: * Fixed the fix tag, the one used by v2 was not accurate
+>     * Added comment about the risk calling page_mapcount() per David
+>     * Fix pagemap
 > 
-> diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-> index b1cd8334db11..078494401046 100644
-> --- a/arch/x86/include/asm/kvm_host.h
-> +++ b/arch/x86/include/asm/kvm_host.h
-> @@ -1285,6 +1285,7 @@ struct kvm_x86_ops {
->   };
->   
->   struct kvm_x86_nested_ops {
-> +	void (*leave_nested)(struct kvm_vcpu *vcpu);
->   	int (*check_events)(struct kvm_vcpu *vcpu);
->   	bool (*hv_timer_pending)(struct kvm_vcpu *vcpu);
->   	int (*get_state)(struct kvm_vcpu *vcpu,
-> diff --git a/arch/x86/kvm/svm/nested.c b/arch/x86/kvm/svm/nested.c
-> index f0946872f5e6..23910e6a3f01 100644
-> --- a/arch/x86/kvm/svm/nested.c
-> +++ b/arch/x86/kvm/svm/nested.c
-> @@ -783,8 +783,10 @@ void svm_free_nested(struct vcpu_svm *svm)
->   /*
->    * Forcibly leave nested mode in order to be able to reset the VCPU later on.
->    */
-> -void svm_leave_nested(struct vcpu_svm *svm)
-> +void svm_leave_nested(struct kvm_vcpu *vcpu)
->   {
-> +	struct vcpu_svm *svm = to_svm(vcpu);
-> +
->   	if (is_guest_mode(&svm->vcpu)) {
->   		struct vmcb *hsave = svm->nested.hsave;
->   		struct vmcb *vmcb = svm->vmcb;
-> @@ -1185,7 +1187,7 @@ static int svm_set_nested_state(struct kvm_vcpu *vcpu,
->   		return -EINVAL;
->   
->   	if (!(kvm_state->flags & KVM_STATE_NESTED_GUEST_MODE)) {
-> -		svm_leave_nested(svm);
-> +		svm_leave_nested(vcpu);
->   		svm_set_gif(svm, !!(kvm_state->flags & KVM_STATE_NESTED_GIF_SET));
->   		return 0;
->   	}
-> @@ -1238,6 +1240,9 @@ static int svm_set_nested_state(struct kvm_vcpu *vcpu,
->   	copy_vmcb_control_area(&hsave->control, &svm->vmcb->control);
->   	hsave->save = *save;
->   
-> +	if (is_guest_mode(vcpu))
-> +		svm_leave_nested(vcpu);
-> +
->   	svm->nested.vmcb12_gpa = kvm_state->hdr.svm.vmcb_pa;
->   	load_nested_vmcb_control(svm, ctl);
->   	nested_prepare_vmcb_control(svm);
-> @@ -1252,6 +1257,7 @@ static int svm_set_nested_state(struct kvm_vcpu *vcpu,
->   }
->   
->   struct kvm_x86_nested_ops svm_nested_ops = {
-> +	.leave_nested = svm_leave_nested,
->   	.check_events = svm_check_nested_events,
->   	.get_nested_state_pages = svm_get_nested_state_pages,
->   	.get_state = svm_get_nested_state,
-> diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-> index 5e1d7396a6b8..b4f4ce5ace6b 100644
-> --- a/arch/x86/kvm/svm/svm.c
-> +++ b/arch/x86/kvm/svm/svm.c
-> @@ -279,7 +279,7 @@ int svm_set_efer(struct kvm_vcpu *vcpu, u64 efer)
->   
->   	if ((old_efer & EFER_SVME) != (efer & EFER_SVME)) {
->   		if (!(efer & EFER_SVME)) {
-> -			svm_leave_nested(svm);
-> +			svm_leave_nested(vcpu);
->   			svm_set_gif(svm, true);
->   
->   			/*
-> diff --git a/arch/x86/kvm/svm/svm.h b/arch/x86/kvm/svm/svm.h
-> index be74e22b82ea..2c007241fbf5 100644
-> --- a/arch/x86/kvm/svm/svm.h
-> +++ b/arch/x86/kvm/svm/svm.h
-> @@ -393,7 +393,7 @@ static inline bool nested_exit_on_nmi(struct vcpu_svm *svm)
->   
->   int enter_svm_guest_mode(struct vcpu_svm *svm, u64 vmcb_gpa,
->   			 struct vmcb *nested_vmcb);
-> -void svm_leave_nested(struct vcpu_svm *svm);
-> +void svm_leave_nested(struct kvm_vcpu *vcpu);
->   void svm_free_nested(struct vcpu_svm *svm);
->   int svm_allocate_nested(struct vcpu_svm *svm);
->   int nested_svm_vmrun(struct vcpu_svm *svm);
-> diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-> index d5f24a2f3e91..6a4b91b77cde 100644
-> --- a/arch/x86/kvm/vmx/nested.c
-> +++ b/arch/x86/kvm/vmx/nested.c
-> @@ -6614,6 +6614,7 @@ __init int nested_vmx_hardware_setup(int (*exit_handlers[])(struct kvm_vcpu *))
->   }
->   
->   struct kvm_x86_nested_ops vmx_nested_ops = {
-> +	.leave_nested = vmx_leave_nested,
->   	.check_events = vmx_check_nested_events,
->   	.hv_timer_pending = nested_vmx_preemption_timer_pending,
->   	.get_state = vmx_get_nested_state,
-> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> index b885063dc393..ab31745c04d0 100644
-> --- a/arch/x86/kvm/x86.c
-> +++ b/arch/x86/kvm/x86.c
-> @@ -4390,6 +4390,8 @@ static int kvm_vcpu_ioctl_x86_set_vcpu_events(struct kvm_vcpu *vcpu,
->   				vcpu->arch.hflags |= HF_SMM_MASK;
->   			else
->   				vcpu->arch.hflags &= ~HF_SMM_MASK;
-> +
-> +			kvm_x86_ops.nested_ops->leave_nested(vcpu);
->   			kvm_smm_changed(vcpu);
->   		}
->   
+> v2: * Added proper fix tag per Jann Horn
+>     * Rebased to the latest linus's tree
+> 
+>  fs/proc/task_mmu.c | 38 ++++++++++++++++++++++++++++++--------
+>  1 file changed, 30 insertions(+), 8 deletions(-)
+> 
+> diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+> index 18f8c3acbb85..d753eda6020c 100644
+> --- a/fs/proc/task_mmu.c
+> +++ b/fs/proc/task_mmu.c
+> @@ -440,7 +440,8 @@ static void smaps_page_accumulate(struct mem_size_stats *mss,
+>  }
+>  
+>  static void smaps_account(struct mem_size_stats *mss, struct page *page,
+> -		bool compound, bool young, bool dirty, bool locked)
+> +		bool compound, bool young, bool dirty, bool locked,
+> +		bool migration)
+>  {
+>  	int i, nr = compound ? compound_nr(page) : 1;
+>  	unsigned long size = nr * PAGE_SIZE;
+> @@ -467,8 +468,15 @@ static void smaps_account(struct mem_size_stats *mss, struct page *page,
+>  	 * page_count(page) == 1 guarantees the page is mapped exactly once.
+>  	 * If any subpage of the compound page mapped with PTE it would elevate
+>  	 * page_count().
+> +	 *
+> +	 * The page_mapcount() is called to get a snapshot of the mapcount.
+> +	 * Without holding the page lock this snapshot can be slightly wrong as
+> +	 * we cannot always read the mapcount atomically.  It is not safe to
+> +	 * call page_mapcount() even with PTL held if the page is not mapped,
+> +	 * especially for migration entries.  Treated regular migration entries
+> +	 * as mapcount == 1.
 
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Minor nit: s/Treated/Treat/
 
-Paolo
+Thanks!
+
+Acked-by: David Hildenbrand <david@redhat.com>
+
+-- 
+Thanks,
+
+David / dhildenb
 
