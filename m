@@ -2,117 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B21E34A7B89
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 00:13:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 732804A7BF4
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 00:55:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348037AbiBBXMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Feb 2022 18:12:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49648 "EHLO
+        id S232679AbiBBXyt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Feb 2022 18:54:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237249AbiBBXMu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Feb 2022 18:12:50 -0500
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0C9AC06173D
-        for <stable@vger.kernel.org>; Wed,  2 Feb 2022 15:12:49 -0800 (PST)
-Received: by mail-lf1-x134.google.com with SMTP id k13so2139257lfg.9
-        for <stable@vger.kernel.org>; Wed, 02 Feb 2022 15:12:49 -0800 (PST)
+        with ESMTP id S1348153AbiBBXyt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Feb 2022 18:54:49 -0500
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89CE1C061714
+        for <stable@vger.kernel.org>; Wed,  2 Feb 2022 15:54:48 -0800 (PST)
+Received: by mail-pl1-x62e.google.com with SMTP id d1so654951plh.10
+        for <stable@vger.kernel.org>; Wed, 02 Feb 2022 15:54:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kxLZoNp/4LQPZ5USv0kT/ANrlVIeVswz1mwyMInuRpk=;
-        b=Q2moWDCWxi4BS8PPyCaJoqnrPIZQcruQgJjzpamHlvHl8nfkZnrnUwhlebZjL4Qlid
-         AZFzASi+lGjNRFfFNjvPEAV2OO1mxc2n/gPx8V0KnqP5u6M4wJHDfXsL1tbK3dOCogdZ
-         v5sFcJe1cu9GkyUnxpnJ3HA3l8dpy1RjXvbvrK8Z/rAK9aOYhuhE66KFBdjyjDKqfZlT
-         +wq0XncRggDytCxIhnPTtZSQBB8unOSP4gvw0dAqmb2KU9UablWXiH0mbP3wrGYlLrXp
-         3dsxxtU1+Z++ZC+wI7jM2kRxCYui1ckWsccWdwkq3TdAX9Dv2DXTOhZ2rgkBuiM3VxZa
-         mdNw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=1z+YmJTKWwky8f7gZ+UFU+Izr6GWrp+JMrUR/8oRmPI=;
+        b=2RvE7i9qXjfKlbQ3M2UxnbJX5gnOjbadtak8J56ooixkIkyJ7JtZQbi4xWhezWhmYt
+         PO9+NlYozHBHae7Qgi+InsXLr5ey9ucEHNRQLaEpjLVUILdrULffSWK/KmCRfgzG6Wg5
+         CsTR213tW3+Y5+DhdeHAHDMBlylQIJ02WH40TJGVVZpZ//3mJAYI2Vf3V3iRywH9CQlj
+         1lbGcn0eeD6IIDNmNcoHzuBOvSZHTfdHhkkQaUptvp3JqFGDUodPzCmA/cmCkHZhc2Zy
+         79MynmNORfORe0aSbiVulMC/PltOHhCnbUFxwYqCu6UiBficbxg5M3MRGyOh1zSRWeo/
+         mAvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kxLZoNp/4LQPZ5USv0kT/ANrlVIeVswz1mwyMInuRpk=;
-        b=cJPlsYLJ3OlZVCie+vGkLC9fYbvenhtvzoH1q0J5e8mG7iYIGG0YNXERXOkhMvDn4p
-         Tck7JALxO/YSUgDx2gIpFyaroQWDq6d5HXH5jl0evFyiAoHsgLeseEZPaaNQPGFBad5M
-         YkTH3rPiydRNgocLRSK+UQaJqdrDCsu3xB0DyXXTNlsKs9Z2OfkaDFr+LT5LlDaN9Tpg
-         lZE/z04wrPCew0+jK3bmj0MxRXGk9cq9QOGX26h2GPwgnVxmOjMdOu2PbpqA3OVFSaCY
-         Zcyvu4EmlTZKvN7ppLeRHbRuIAuDFp1rDv8uZizNmqndrYoIZb84+TDcxCk34e0xc3an
-         1yrQ==
-X-Gm-Message-State: AOAM533Pls5BIbuZpNiseo15RJxZwolOElS/qZjSAiBqLaz8qxr+3rDK
-        sSIarTs8ViayiFa/9JJ/mIjacoiKM7IniX022r+wzg==
-X-Google-Smtp-Source: ABdhPJwi69J10B5BJjANF390JZYBG3ldtIxVMDaHUe2bQC7/YKzyMziklWm0E/V2hAP0KIVpwrcww6mql102RTB9yMQ=
-X-Received: by 2002:ac2:5510:: with SMTP id j16mr24302186lfk.240.1643843567939;
- Wed, 02 Feb 2022 15:12:47 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=1z+YmJTKWwky8f7gZ+UFU+Izr6GWrp+JMrUR/8oRmPI=;
+        b=U4bdCprZ7rgAdZ6+ULISV3jJrn6t4zA8h9TY8BPrOtKRhm6SF8/7Z3wA1rlKp5XMWP
+         T5g1FdBDHMmMd+mnUX4QUhcQNB0b3hgPrZgHzgVVJX1mBOMgzg/468tDQROnH3kQjVnE
+         SeHO0E2jkQV2pDkzT+8CcZ249BnTKk4NLPsi+nawmqjfOwvO6xFhkKBnixI2JvbwYgmp
+         YAbmAJvKeLQxhBk7n0L7Z6gJJoy7W6EUAqRVNlalnwEqZY0SQGrm3HxrfqfKNbGBYaCA
+         YZA0mWlLC9N/6DOLY3LWcZ1OcN6OMZW5gcyiXGsQt3DRWDbz/PEv6IefvnZ7UENB7ynT
+         Fsrg==
+X-Gm-Message-State: AOAM531gK6YWN6Vw6RXn7ZAyvUF3GABnj4pDWoBoDDIhKdGtGf/LQeAI
+        LaXRL9e32nUwwWctsyr+B6jmyrH+QRX2qhDH
+X-Google-Smtp-Source: ABdhPJy3WLXbKUwdpsa2UhEEpi+jeKMMQhH84UeVuGbLeOp6gPTlvIa+jEN8xWJnbwVQ3HcFmz6e1g==
+X-Received: by 2002:a17:902:f683:: with SMTP id l3mr32593005plg.39.1643846087939;
+        Wed, 02 Feb 2022 15:54:47 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f12sm24181981pgg.35.2022.02.02.15.54.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Feb 2022 15:54:47 -0800 (PST)
+Message-ID: <61fb19c7.1c69fb81.523f2.0d15@mx.google.com>
+Date:   Wed, 02 Feb 2022 15:54:47 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220202230515.2931333-1-nathan@kernel.org>
-In-Reply-To: <20220202230515.2931333-1-nathan@kernel.org>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Wed, 2 Feb 2022 15:12:35 -0800
-Message-ID: <CAKwvOdkQ__2A3NohrcJgF+JABSDnSyEKzD97qVa4cpM==GPONQ@mail.gmail.com>
-Subject: Re: [PATCH v2] Makefile.extrawarn: Move -Wunaligned-access to W=1
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, linux-kbuild@vger.kernel.org,
-        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.299-25-g9408ca1c7f0a
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 134 runs,
+ 1 regressions (v4.9.299-25-g9408ca1c7f0a)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 2, 2022 at 3:07 PM Nathan Chancellor <nathan@kernel.org> wrote:
->
-> -Wunaligned-access is a new warning in clang that is default enabled for
-> arm and arm64 under certain circumstances within the clang frontend (see
-> LLVM commit below). On v5.17-rc2, an ARCH=arm allmodconfig build shows
-> 1284 total/70 unique instances of this warning (most of the instances
-> are in header files), which is quite noisy.
->
-> To keep a normal build green through CONFIG_WERROR, only show this
-> warning with W=1, which will allow automated build systems to catch new
-> instances of the warning so that the total number can be driven down to
-> zero eventually since catching unaligned accesses at compile time would
-> be generally useful.
->
-> Cc: stable@vger.kernel.org
-> Link: https://github.com/llvm/llvm-project/commit/35737df4dcd28534bd3090157c224c19b501278a
-> Link: https://github.com/ClangBuiltLinux/linux/issues/1569
-> Link: https://github.com/ClangBuiltLinux/linux/issues/1576
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+stable-rc/queue/4.9 baseline: 134 runs, 1 regressions (v4.9.299-25-g9408ca1=
+c7f0a)
 
-Thanks to you and Arnd for working out whether this is important to
-pursue. Sounds like it is.
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Regressions Summary
+-------------------
 
-> ---
->
-> v1 -> v2: https://lore.kernel.org/r/20220201232229.2992968-1-nathan@kernel.org/
->
-> * Move to W=1 instead of W=2 so that new instances are caught (Arnd).
-> * Add links to the ClangBuiltLinux issue tracker.
->
->  scripts/Makefile.extrawarn | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/scripts/Makefile.extrawarn b/scripts/Makefile.extrawarn
-> index d53825503874..8be892887d71 100644
-> --- a/scripts/Makefile.extrawarn
-> +++ b/scripts/Makefile.extrawarn
-> @@ -51,6 +51,7 @@ KBUILD_CFLAGS += -Wno-sign-compare
->  KBUILD_CFLAGS += -Wno-format-zero-length
->  KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
->  KBUILD_CFLAGS += -Wno-tautological-constant-out-of-range-compare
-> +KBUILD_CFLAGS += $(call cc-disable-warning, unaligned-access)
->  endif
->
->  endif
->
-> base-commit: 26291c54e111ff6ba87a164d85d4a4e134b7315c
-> --
-> 2.35.1
->
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
 
--- 
-Thanks,
-~Nick Desaulniers
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.299-25-g9408ca1c7f0a/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.299-25-g9408ca1c7f0a
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9408ca1c7f0a9aabf795acd68f6cad7e3decaf12 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61fae3700c16d8d4cb5d6f09
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.299-2=
+5-g9408ca1c7f0a/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.299-2=
+5-g9408ca1c7f0a/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61fae3700c16d8d=
+4cb5d6f0f
+        failing since 1 day (last pass: v4.9.299-13-g3de150ae8483, first fa=
+il: v4.9.299-25-g8ae76dc07a67)
+        2 lines
+
+    2022-02-02T20:02:37.206274  [   20.130584] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-02-02T20:02:37.250101  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/116
+    2022-02-02T20:02:37.259550  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
