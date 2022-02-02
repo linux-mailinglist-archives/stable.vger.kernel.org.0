@@ -2,95 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BE574A7096
-	for <lists+stable@lfdr.de>; Wed,  2 Feb 2022 13:19:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDDFB4A70F7
+	for <lists+stable@lfdr.de>; Wed,  2 Feb 2022 13:41:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239807AbiBBMS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Feb 2022 07:18:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40020 "EHLO
+        id S240128AbiBBMly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Feb 2022 07:41:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231149AbiBBMS4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Feb 2022 07:18:56 -0500
-Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAE93C06173B
-        for <stable@vger.kernel.org>; Wed,  2 Feb 2022 04:18:56 -0800 (PST)
-Received: by mail-io1-xd29.google.com with SMTP id w7so25175234ioj.5
-        for <stable@vger.kernel.org>; Wed, 02 Feb 2022 04:18:56 -0800 (PST)
+        with ESMTP id S234582AbiBBMlx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Feb 2022 07:41:53 -0500
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2703FC061714
+        for <stable@vger.kernel.org>; Wed,  2 Feb 2022 04:41:53 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id h21so38142682wrb.8
+        for <stable@vger.kernel.org>; Wed, 02 Feb 2022 04:41:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sladewatkins.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=LOC5Tmt30CzfizoN0oFEa1A1Kpqnj7J/tOCH5xgA11A=;
-        b=BK0eVWCi6zVAxAoWn+TTVnFYs3/368brae62p5lIgfRfQrMGXmYCkPIQu+VsRUJUqm
-         QTqO8WFCslWOr/eA1S1yqXiMTsJCaRurIUmsiiGWoai+rdYlSCUR7AvqgoyQNRgf/vVo
-         u91ECzzBOlrPBP9w9Q61/QuNk8N6tKK3wRWJ0V5KmZMTMEtmvJ78HCkczjWlPh2NK6xG
-         /me9IZbnf5Q1EdTNaiaywYbnP1yp+8OofKHe5xlYMLrBThSjxZv9tZmfcq6ACu936gxz
-         Is6Tf0grVg5XuFVPGdSPNN0RU0RzSsccsUYy91o2NasnJRhjPVIzOWmkVoTfpUWFsFQq
-         WJtw==
+        d=android.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=w12hfnlUx4/pOCh1W8YlWAwS7+a2yvj3EoaEijgezAA=;
+        b=Tu6DsDY6f0SCgtjaCV+etroECR6ZauaPdFYRPuXyo8S0p/A6A5HPN+Wso2VvjQ37l8
+         JUw+p6YPwPOPW8nVTKYmcYsr64N8YsWsQi2Dxc/8Ia/9D4IgVYaSLCIl6TER8KwIufSY
+         2mA6vE0lMwrflR1jlRwSKRo9a/zO1cyWztEejpzpfhxEvG+iZxDx49uguXSjEojeY7yP
+         IPfFP/riy/lPcqSBKtEsZ4GH9k5x7/uzs0D+AS8jXoOwhnzYFuovMJTTln+v/NT1QCzY
+         2AKxqeGy030ABeWZiumumlwg8eQQ72sP3aOiI07N4MdL40GmyZOtl6i5kweew/UOyMd0
+         Lf1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=LOC5Tmt30CzfizoN0oFEa1A1Kpqnj7J/tOCH5xgA11A=;
-        b=fuHjXQx3WFhwX0RSpCogysxCGpeXPmDKGc46yNWa51gN3s1tovO8B28fV/Nwxiu+KX
-         qi9TsbUNPkebbyfdFMbrDquWqyKtHHyMs7+2zeRUk12/gxlx9FUBi1KXXCsKo3b2VaPf
-         Axw9uo1YZrB3cpfqnfY2Rier0Xm4DhUF1OJcgTbx+FxnSSfX9tbFT9KGhbgUSHYhUenJ
-         /V42VMetx60OqeNHxj2xR0USeMdjg48Cmv2KCk7XVN9223ZoFCdXSYAWCyDOSMdSPunr
-         BsCwSD/VcCl2JDWhfmmMRdGNYW0YHU7FNFB/4niXw+KRI1x7SY8245/CRbDxo3EeM7NQ
-         +APg==
-X-Gm-Message-State: AOAM532TF9g/JFrvOdI7/Qa4SRKIo3w0LC9xfTt6PZGSf4naXhS37zH7
-        oKHw+Ub3aBvs4+yM5XfRmijad0Vm+GDW+FCWMIz28g==
-X-Google-Smtp-Source: ABdhPJyb1kFQxJHRrVuLsNuntWdAPEvnx8N/ef0qqZfNV2gBpb0KXb5vZzrRPFnl76obquwgkBIYpLZ19n/4LNQC/Y8=
-X-Received: by 2002:a05:6602:2a48:: with SMTP id k8mr1867911iov.147.1643804336224;
- Wed, 02 Feb 2022 04:18:56 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=w12hfnlUx4/pOCh1W8YlWAwS7+a2yvj3EoaEijgezAA=;
+        b=0zcVbx/7Qpai9ldstruueQEgF5Uw5LU+TE2Sth7l+8jHkakUc4Kc+Y7SzdFfvvemgC
+         jMi80MDgkZTkhJV9tojz/57kzVMCeV2PRtiAUyzdxsHzyDHyzX4zaeV/K6HM8lfSr/NI
+         pA/SMgaBvubwDulOCwmb+e4dymnQzjED/wImRXwb5oWDGvGfnpJ7ROoxFNFlA9SczhCr
+         C+JtReDeQr1dfIqXSQgPDG3/9i+sdMQK3cenH7l5xY+6zbQ6hCpL/fgPpbIFbNG2zh2p
+         9BwgDnFJ/KLihxp1wFUQ0FXAOFCp9dWxaJ8iiTPDbwy9tNmjsnUWuTp2TfLwr0rPHtof
+         Lp+A==
+X-Gm-Message-State: AOAM531tyj1wh92CRm0N+upHnolkhasnhY3GW0B//ILM5owpSLfh7qg1
+        2rJ0rks6Bw2QMcC7VNhqCYkBzQ==
+X-Google-Smtp-Source: ABdhPJzPvVXT7H31WWFqYWDpIQRnZRhuZ+64ysq1TgJQl7mPMweafbgxdMdWEGs9cIT/3aH8BgEhiQ==
+X-Received: by 2002:a5d:4e81:: with SMTP id e1mr25500537wru.513.1643805711803;
+        Wed, 02 Feb 2022 04:41:51 -0800 (PST)
+Received: from google.com ([2a00:79e0:d:210:4fc2:8dd5:e6cc:1f2a])
+        by smtp.gmail.com with ESMTPSA id a1sm17882833wrf.42.2022.02.02.04.41.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Feb 2022 04:41:51 -0800 (PST)
+Date:   Wed, 2 Feb 2022 12:41:49 +0000
+From:   Alessio Balsini <balsini@android.com>
+To:     Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Cc:     Alessio Balsini <balsini@android.com>, stable@vger.kernel.org,
+        gregkh@linuxfoundation.org, lee.jones@linaro.org,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: Re: [PATCH 4.14] bpf: fix truncated jump targets on heavy expansions
+Message-ID: <Yfp8DeOdtlyEGG1W@google.com>
+References: <20220201170544.293476-1-balsini@android.com>
+ <YfmHThlq0pv2TOjf@mussarela>
 MIME-Version: 1.0
-References: <20220201180822.148370751@linuxfoundation.org>
-In-Reply-To: <20220201180822.148370751@linuxfoundation.org>
-From:   Slade Watkins <slade@sladewatkins.com>
-Date:   Wed, 2 Feb 2022 07:18:45 -0500
-Message-ID: <CA+pv=HNFGcink5ppTNPW8wmmbP_86emZxebDqHURme9CwkSWLg@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/25] 4.4.302-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YfmHThlq0pv2TOjf@mussarela>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 1, 2022 at 1:17 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> NOTE!  This is the proposed LAST 4.4.y kernel release to happen under
-> the rules of the normal stable kernel releases.  After this one, it will
-> be marked End-Of-Life as it has been 6 years and you really should know
-> better by now and have moved to a newer kernel tree.  After this one, no
-> more security fixes will be backported and you will end up with an
-> insecure system over time.
->
-> --------------------------
->
-> This is the start of the stable review cycle for the 4.4.302 release.
-> There are 25 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 03 Feb 2022 18:08:10 +0000.
-> Anything received after that time might be too late.
->
+Hi Thadeu,
 
-First time testing the kernel like this, but I was able to compile and
-boot on my x86_64 test system with no regressions.
+On Tue, Feb 01, 2022 at 04:17:34PM -0300, Thadeu Lima de Souza Cascardo wrote:
+> 
+> Hi, Alessio.
+> 
+> This matches the backport I had prepared, but didn't manage to submit in time.
+> 
+> Thanks.
+> Acked-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+> 
 
-Tested-by: Slade Watkins <slade@sladewatkins.com>
+Argh! I wish I spotted your backport in the Ubuntu kernel patchworks
+earlier. :)
+I tested this change with LTP's bpf_map01 and bpf_prog[1-4].
+Can we consider this ready for being queued up?
 
-(Feel free to let me know if I can't send my Tested-by to you.)
-
-All the best,
-Slade
-
---
-Slade Watkins <slade@sladewatkins.com>
+Thanks,
+Alessio
