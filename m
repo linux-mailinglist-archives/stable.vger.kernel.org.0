@@ -2,91 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5353D4A86E9
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 15:48:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DBF04A86F3
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 15:49:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349256AbiBCOri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 09:47:38 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:59559 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1351539AbiBCOrg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 09:47:36 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 7963C5C00F8;
-        Thu,  3 Feb 2022 09:47:35 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Thu, 03 Feb 2022 09:47:35 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm3; bh=8RilFMFgcYZizxfInLg37PRVQ+ik9YYAaT2RHv
-        RrSyk=; b=IqD/cGGypnGuVnRz6DR0VCIu+ZpHbFNsxK7oNZVL9MpvU389T7OsDX
-        Wi6cRgcy3o0Xoimw+0glR8evt9bParPCZiw2loLdAkAWLv14gyic+IRAIu9+uxHm
-        m+ppQxYiLEt/l8iElYX30k5i1XJJD/y55qSnJ+IXqcUcbCgsy2quThnZou31hwyh
-        l//GRrvvNTEps+WFNpMuT7Ru9HQr514fbPYW//occnwru+vYQLZ6YmlydCb3sceS
-        H8/Xzr9tPljzjF4CC7Hu4iSFwsnBcJvM+KI95i7cxLgTeCb3aMmMoGCeOpdWXRB6
-        crVwT8DkzR6aSFAD+L4qto6hDHEN+AGw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=8RilFMFgcYZizxfIn
-        Lg37PRVQ+ik9YYAaT2RHvRrSyk=; b=P8KMSyn+LvPwKLqov8sR1178VDQN7wqtU
-        cqDE/GU9Br/k9JrIEtN9C+HasR6Ij4HcPOxI5YP42SfOOGnTPAFtaI01ROEtDwNU
-        ODKW/2cPkeqU/VReDCv1bP2SFt5qhnIIvRCVCOAbtUKbYjr4qnXd9Ucz5H+Ho/Ns
-        XBnVOJ3cMc6iqnc8Tgp8F2e5d0YquAFnE6wZD1gU+V6lbw5xTx/Eky8dwX6IMgOD
-        JaAO1Q5k1HC5g3Ja0CrtuTBqR/sLn/X+yvqx2HlAQNchYSbePweWa4oIVR4trGwU
-        8trvnZFoi+PsOMMZNS1A8QyO59Pq+v7ILJC1aDwNqbn1I5FklcAYA==
-X-ME-Sender: <xms:B-v7Ycwfo_21WJdw44wTEbtkfzl_7d677G-hP1IGFXYH1sBt-KcwSg>
-    <xme:B-v7YQTuCw0lLClgzHi2YbgulUUBVXqt60ktkm0KVSPaFKovrkk8_f2YkeRPMN3qS
-    X1UcGZI6R6kbA>
-X-ME-Received: <xmr:B-v7YeVH_CCMGatDzgexHQcfhoRT4av28VHol8iztRgHEzkRBzZnMzq4aIS4F0sDxUbrYuhkTe9mXSV5PhO5HfYFGx0Phzwy>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrgeejgdeijecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:B-v7YajGAdYY4oioHUW2ESLEy0gBAPCyH9mCU64YM--BRwBH4z4gdg>
-    <xmx:B-v7YeBJYMZGGNgSnx9DHO5BGAlz6AqBMM5Nlmh3TwLjQA_8ug3xMg>
-    <xmx:B-v7YbJQxdSKccsNxSpWyvGakMPq4oUUGkAjvGOcBbMDcSrYmLwvMQ>
-    <xmx:B-v7YR9CzvSAaC22dqjZskD72QHrWN-ILj-zNIGS7ZmC4ffrgry4UA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 3 Feb 2022 09:47:34 -0500 (EST)
-Date:   Thu, 3 Feb 2022 15:47:32 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Florian Westphal <fw@strlen.de>
-Cc:     stable@vger.kernel.org, pablo@netfilter.org
-Subject: Re: 4.19.y stable request: nat soft lockup fix
-Message-ID: <YfvrBLwOOo5d/ZvX@kroah.com>
-References: <Yfqb6BKXBqrkMkBa@strlen.de>
+        id S234535AbiBCOtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 09:49:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34068 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234290AbiBCOtg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 09:49:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0C7FC061714;
+        Thu,  3 Feb 2022 06:49:36 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 624DC61A59;
+        Thu,  3 Feb 2022 14:49:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 659F7C340E4;
+        Thu,  3 Feb 2022 14:49:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643899775;
+        bh=nBs8x83HOyc90AXXdJAiJ28Z/9QQ+iZ+wHguEiy9lbA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Gt0ZMon045DzkMA/0uwsOIqFumU1zpGVCqNpCJDGV08lBXSmcxVtvIb6hiCDsP762
+         8CdbApLvUb51MvX5JiQFAi7PwBsEi1BrGIhAiNHJomoP+8kZXL5yUo15sMmYIsQ6dB
+         rnZdqJC5OUeWIdnxe3PfM1RyzzPQGBQqZIsbp/gM=
+Date:   Thu, 3 Feb 2022 15:49:28 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Lukas Wunner <lukas@wunner.de>
+Cc:     Bjorn Helgaas <helgaas@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Joseph Bao <joseph.bao@intel.com>
+Subject: Re: [PATCH 5.16 0873/1039] PCI: pciehp: Use
+ down_read/write_nested(reset_lock) to fix lockdep errors
+Message-ID: <YfvreKic+pYli+YK@kroah.com>
+References: <20220124184154.642601971@linuxfoundation.org>
+ <20220125122323.GA1597465@bhelgaas>
+ <Ye/wPpOrCfmKYCEj@kroah.com>
+ <20220202193613.GB18800@wunner.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Yfqb6BKXBqrkMkBa@strlen.de>
+In-Reply-To: <20220202193613.GB18800@wunner.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 02, 2022 at 03:57:44PM +0100, Florian Westphal wrote:
-> Sasha, Greg,
+On Wed, Feb 02, 2022 at 08:36:13PM +0100, Lukas Wunner wrote:
+> On Tue, Jan 25, 2022 at 01:42:38PM +0100, Greg Kroah-Hartman wrote:
+> > On Tue, Jan 25, 2022 at 06:23:23AM -0600, Bjorn Helgaas wrote:
+> > > On Mon, Jan 24, 2022 at 07:44:22PM +0100, Greg Kroah-Hartman wrote:
+> > > > From: Hans de Goede <hdegoede@redhat.com>
+> > > > 
+> > > > commit 085a9f43433f30cbe8a1ade62d9d7827c3217f4d upstream.
+> > > 
+> > > I would hold off on backporting the pciehp changes until we resolve
+> > > this regression in v5.17-rc1:
+> > > 
+> > >   https://bugzilla.kernel.org/show_bug.cgi?id=215525
+> > 
+> > Thanks, I will drop it from all queues now.  If it gets resolved, please
+> > email stable@vger and we will be glad to add it back, along with the
+> > fix.
 > 
-> Could you queue following two commits for 4.19.y tree?
+> This turned out not to be an actual regression.  According to Bjorn,
+> "it was arguably a bug that it *did* work before", see:
 > 
-> 6ed5943f8735e2b778d92ea4d9805c0a1d89bc2b
-> netfilter: nat: remove l4 protocol port rovers
+> https://lore.kernel.org/linux-pci/20220202164308.GA17822@bhelgaas/
 > 
-> a504b703bb1da526a01593da0e4be2af9d9f5fa8
-> netfilter: nat: limit port clash resolution attempts
+> Also, the culprit was not pciehp, but rather a change to _OSC handling
+> for VMD devices in commit 04b12ef163d1.
 > 
-> This resolves softlockup when most of the ephemeral ports
-> are in use.
+> Thus, please consider re-adding these upstream commits to the stable queues:
 > 
-> Its also needed on older kernels but unfortunately they
-> won't apply as-is. We will try to get modified backports
-> for older releases and forward them to stable@ later.
+>   085a9f43433f30cbe8a1ade62d9d7827c3217f4d  (5.16, 5.15, 5.10)
+
+Already in the 5.10.94 5.15.17 5.16.3 releases :)
+
+>   23584c1ed3e15a6f4bfab8dc5a88d94ab929ee12  (5.16, 5.15, 5.10, 5.4)
 
 Now queued up, thanks.
 
