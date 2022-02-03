@@ -2,104 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 271F94A8F63
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:53:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 083144A8F62
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:53:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232547AbiBCUwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:52:25 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:52632 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229473AbiBCUwY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:52:24 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 6317B1C0B79; Thu,  3 Feb 2022 21:52:23 +0100 (CET)
-Date:   Thu, 3 Feb 2022 21:52:23 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jeremy Kerr <jk@ozlabs.org>,
-        Matthew Garrett <mjg59@srcf.ucam.org>,
-        Aditya Garg <gargaditya08@live.com>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: Re: [PATCH 5.10 011/100] efi: runtime: avoid EFIv2 runtime services
- on Apple x86 machines
-Message-ID: <20220203205223.GA19153@duo.ucw.cz>
-References: <20220131105220.424085452@linuxfoundation.org>
- <20220131105220.835281614@linuxfoundation.org>
+        id S233383AbiBCUwl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:52:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34700 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229473AbiBCUwk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:52:40 -0500
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC15C061714
+        for <stable@vger.kernel.org>; Thu,  3 Feb 2022 12:52:40 -0800 (PST)
+Received: by mail-pl1-x62c.google.com with SMTP id c9so3248228plg.11
+        for <stable@vger.kernel.org>; Thu, 03 Feb 2022 12:52:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=r0qjNwjYbB8CZG2VrnGdwmG4sE+eZFqNq89osQnkFeM=;
+        b=TEe/9RBJ36K8Iq4xRiTlrxkgAKluc55XHF7kDjZmsj15Oj/+2HSx88pztobaLr+JkB
+         rh9f8F0UTEaPD+GQYTTqji6rd9AviN2vR8gqhiGrw+AL89gZ7mcDHHTvRqvcNojAIJj1
+         1jtLuew9lCLO5OwfqsmLd9IptBuGgPkxFTwpkGYviXAzT7jUE979VxKC3vuNEUGMfxYf
+         dOrjcljQy1QQwNs+R+h7WqF5my7KLrISlBKZW1nyigMu4KgmtLGNyb/jXRKwZqI74XoU
+         rVDKuR7ZthMtvsOSOzxI9iSAdN+6BjxO0++10Fsuv0AKgaE0ngg8qnOVzuuYkwOXijCx
+         8Gbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=r0qjNwjYbB8CZG2VrnGdwmG4sE+eZFqNq89osQnkFeM=;
+        b=qhzmFT3N5ftiesIfQ0TTgw+gIUp2M/z0CB2NGH3e2KFbozRgVqsH/iQqn304H4NEyl
+         UEn6ukPVSXmmiHKw6NbKzO3gmgCrT1iN4gueenTPTzSlcE96lTwF27u9vysxMvmQyL/e
+         pbNDK9Q/kf4e5iWPbaX2ic9qyTWLi0LlxVKYKgZ6m4Xkekr+V713LUtGJ1QJBNGIhUaA
+         i0XtelHw8w3zuXXqsYsyizbTIbynEfhPYbkBuMDwSmqkUV08pLfxOJlSBp6Lzelovk3c
+         dsFnugppe19zjf5VjfihzjWJ/KJaG5YaqzrHmN88VvhhLrcekX0+FoW6GSasENVWfD+q
+         AkqA==
+X-Gm-Message-State: AOAM530Kz8lLAcdIP/GP76D3vQ8XCU3Uscw2J4QXmAQNwnT7DO4CZ7eE
+        /XpQOuAbrrBeBd0MS1DS9ntJaFf2WMgBGfj/
+X-Google-Smtp-Source: ABdhPJwfGLXzC2fFq4tPtgM3V87lKjyyqhEbKHZa2FFA1p1tee2M1+Us0Cag/a35QC3mz2/M8cYOxg==
+X-Received: by 2002:a17:902:8490:: with SMTP id c16mr36976334plo.129.1643921560224;
+        Thu, 03 Feb 2022 12:52:40 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g22sm27257807pfc.177.2022.02.03.12.52.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Feb 2022 12:52:39 -0800 (PST)
+Message-ID: <61fc4097.1c69fb81.ae378.50cc@mx.google.com>
+Date:   Thu, 03 Feb 2022 12:52:39 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
-Content-Disposition: inline
-In-Reply-To: <20220131105220.835281614@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.176-1-g5b3899c531c6
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 150 runs,
+ 4 regressions (v5.4.176-1-g5b3899c531c6)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.4 baseline: 150 runs, 4 regressions (v5.4.176-1-g5b3899c5=
+31c6)
 
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Regressions Summary
+-------------------
 
-Hi!
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-> Aditya reports [0] that his recent MacbookPro crashes in the firmware
-> when using the variable services at runtime. The culprit appears to be a
-> call to QueryVariableInfo(), which we did not use to call on Apple x86
-> machines in the past as they only upgraded from EFI v1.10 to EFI v2.40
-> firmware fairly recently, and QueryVariableInfo() (along with
-> UpdateCapsule() et al) was added in EFI v2.00.
->=20
-> The only runtime service introduced in EFI v2.00 that we actually use in
-> Linux is QueryVariableInfo(), as the capsule based ones are optional,
-> generally not used at runtime (all the LVFS/fwupd firmware update
-> infrastructure uses helper EFI programs that invoke capsule update at
-> boot time, not runtime), and not implemented by Apple machines in the
-> first place. QueryVariableInfo() is used to 'safely' set variables,
-> i.e., only when there is enough space. This prevents machines with buggy
-> firmwares from corrupting their NVRAMs when they run out of space.
->=20
-> Given that Apple machines have been using EFI v1.10 services only for
-> the longest time (the EFI v2.0 spec was released in 2006, and Linux
-> support for the newly introduced runtime services was added in 2011, but
-> the MacbookPro12,1 released in 2015 still claims to be EFI v1.10 only),
-> let's avoid the EFI v2.0 ones on all Apple x86 machines.
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-So Apple x86 machines claim they support EFI v2 but really don't?
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-> +++ b/drivers/firmware/efi/efi.c
-> @@ -719,6 +719,13 @@ void __init efi_systab_report_header(con
->  		systab_hdr->revision >> 16,
->  		systab_hdr->revision & 0xffff,
->  		vendor);
-> +
-> +	if (IS_ENABLED(CONFIG_X86_64) &&
-> +	    systab_hdr->revision > EFI_1_10_SYSTEM_TABLE_REVISION &&
-> +	    !strcmp(vendor, "Apple")) {
-> +		pr_info("Apple Mac detected, using EFI v1.10 runtime services only\n");
-> +		efi.runtime_version =3D EFI_1_10_SYSTEM_TABLE_REVISION;
-> +	}
->  }
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-This problem is not 64-bit specific, right? Should it depend on
-CONFIG_X86, instead?
 
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.176-1-g5b3899c531c6/plan/baseline/
 
---7AUc2qLy4jB3hD7Z
-Content-Type: application/pgp-signature; name="signature.asc"
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.176-1-g5b3899c531c6
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5b3899c531c6a94be7a1792da2c25b3e8a3ff0d4 =
 
------BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYfxAhwAKCRAw5/Bqldv6
-8msJAJ9YUK6hbmRnGSAZkOrAk3efCqjCMACgkSvffri+H6ZcNVutTAGrx7CZ0LI=
-=lKcG
------END PGP SIGNATURE-----
 
---7AUc2qLy4jB3hD7Z--
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61fc0da7a08e1a63e15d6ef6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.176-1=
+-g5b3899c531c6/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.176-1=
+-g5b3899c531c6/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61fc0da7a08e1a63e15d6=
+ef7
+        failing since 49 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61fc0a372f23c98ca05d6eeb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.176-1=
+-g5b3899c531c6/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-=
+virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.176-1=
+-g5b3899c531c6/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-=
+virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61fc0a372f23c98ca05d6=
+eec
+        failing since 49 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61fc0da8a08e1a63e15d6ef9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.176-1=
+-g5b3899c531c6/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.176-1=
+-g5b3899c531c6/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61fc0da8a08e1a63e15d6=
+efa
+        failing since 49 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61fc0a382f23c98ca05d6eee
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.176-1=
+-g5b3899c531c6/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-=
+virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.176-1=
+-g5b3899c531c6/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-=
+virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61fc0a382f23c98ca05d6=
+eef
+        failing since 49 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
