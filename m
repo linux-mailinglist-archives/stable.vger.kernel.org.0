@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC9BC4A8F2D
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:42:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CF4D4A8EA1
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:39:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354201AbiBCUmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:42:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59104 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355762AbiBCUjF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:39:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7A23C061763;
-        Thu,  3 Feb 2022 12:36:10 -0800 (PST)
+        id S1354519AbiBCUiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:38:17 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38380 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354503AbiBCUgP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:36:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71C6660AE2;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3FF0BB835B3;
+        Thu,  3 Feb 2022 20:36:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 523B2C340EB;
         Thu,  3 Feb 2022 20:36:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ACF4C340F0;
-        Thu,  3 Feb 2022 20:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920569;
-        bh=kKxYwxXYIqJL/cwj+OvZGUQdnsYR479T9nmwdoZseuA=;
+        s=k20201202; t=1643920572;
+        bh=v8lP6EEDA/v9fJnTYb2UloIEPhnQ0fkNOq4kTJaU4l4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UEnw+WiT2L3qxhI+PwRaV+A9mTQ8BcNWAIqMajSGQU4ZL6qlt+qDOlpdjBdx2B9af
-         ou/AuW+r7Jb1AyJjaBBQZ8zH8hcQ+PVu32NH8o92FQ/RUeLpiRe+zWOKZ+Amnt8lZU
-         FnvmtoI++9C9IWtvEiYnyc/4680TgQ2BhmYo95CBk5LFwAaRrtxDpoVhfCoGpcyuwu
-         TdyITO10V6FGlI54Iba4tnuBKuCho3AhX9UlJgagPrJ5l2TCr2PEMi268VClxXSF1X
-         c14ngr01MDXw66yxphSKxeBmMOZZJdEDaj2fxGK4rDApWOIhN78grF4rs85ebbeh+L
-         z7mZf8i6eCYBA==
+        b=rRYuPCsWvanyTxL4i9H2Nlfaelk794BfvoYG6Zw6y0+UFlD+HewShv1dMq26x9Vzx
+         TSrels+uRF0dgaswSsNk+0tBU7sjYD/EAYszr1535r3gMrSfoV1vlH45n2DMsj8y7y
+         SmBDbnY3PI30/8JehGEFbebDagnDaKjMrBUR5HyK1Njwr7xtcyJLR6kst5sEn2XPFb
+         rY4rbfhp6SYYr2AdbLjCiahtHMJD6lAha1La3ks5z3PpTgtAZ/1nIeHUxXnTN7tI/6
+         imWxREtK3g5bDHixZU98wC6biaHbO2EsAybzXdz5n6CLBKczKv0hjOZOiFPpkm3i+p
+         jxF/nnKWwdynA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, hminas@synopsys.com,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 14/15] usb: dwc2: gadget: don't try to disable ep0 in dwc2_hsotg_suspend
-Date:   Thu,  3 Feb 2022 15:35:44 -0500
-Message-Id: <20220203203545.3879-14-sashal@kernel.org>
+Cc:     Jisheng Zhang <jszhang@kernel.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, peppe.cavallaro@st.com,
+        alexandre.torgue@foss.st.com, joabreu@synopsys.com,
+        kuba@kernel.org, mcoquelin.stm32@gmail.com, mripard@kernel.org,
+        wens@csie.org, netdev@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.4 15/15] net: stmmac: dwmac-sun8i: use return val of readl_poll_timeout()
+Date:   Thu,  3 Feb 2022 15:35:45 -0500
+Message-Id: <20220203203545.3879-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203203545.3879-1-sashal@kernel.org>
 References: <20220203203545.3879-1-sashal@kernel.org>
@@ -52,48 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Jisheng Zhang <jszhang@kernel.org>
 
-[ Upstream commit ac55d163855924aa5af9f1560977da8f346963c8 ]
+[ Upstream commit 9e0db41e7a0b6f1271cbcfb16dbf5b8641b4e440 ]
 
-Calling dwc2_hsotg_ep_disable on ep0 (in/out) will lead to the following
-logs before returning -EINVAL:
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
+When readl_poll_timeout() timeout, we'd better directly use its return
+value.
 
-To avoid these two logs while suspending, start disabling the endpoint
-from the index 1, as done in dwc2_hsotg_udc_stop:
+Before this patch:
+[    2.145528] dwmac-sun8i: probe of 4500000.ethernet failed with error -14
 
-	/* all endpoints should be shutdown */
-	for (ep = 1; ep < hsotg->num_of_eps; ep++) {
-		if (hsotg->eps_in[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_in[ep]->ep);
-		if (hsotg->eps_out[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_out[ep]->ep);
-	}
+After this patch:
+[    2.138520] dwmac-sun8i: probe of 4500000.ethernet failed with error -110
 
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20211207130101.270314-1-amelie.delaunay@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c | 2 +-
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index 249e8e6aa9282..379bbf27c7ce8 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -4979,7 +4979,7 @@ int dwc2_hsotg_suspend(struct dwc2_hsotg *hsotg)
- 		hsotg->gadget.speed = USB_SPEED_UNKNOWN;
- 		spin_unlock_irqrestore(&hsotg->lock, flags);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
+index 2f6258ca95155..7c73d296b940d 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
+@@ -718,7 +718,7 @@ static int sun8i_dwmac_reset(struct stmmac_priv *priv)
  
--		for (ep = 0; ep < hsotg->num_of_eps; ep++) {
-+		for (ep = 1; ep < hsotg->num_of_eps; ep++) {
- 			if (hsotg->eps_in[ep])
- 				dwc2_hsotg_ep_disable_lock(&hsotg->eps_in[ep]->ep);
- 			if (hsotg->eps_out[ep])
+ 	if (err) {
+ 		dev_err(priv->device, "EMAC reset timeout\n");
+-		return -EFAULT;
++		return err;
+ 	}
+ 	return 0;
+ }
 -- 
 2.34.1
 
