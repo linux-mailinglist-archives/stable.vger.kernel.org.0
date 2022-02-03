@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FBBB4A8E93
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:38:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9944D4A8EB4
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:39:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355531AbiBCUiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:38:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57960 "EHLO
+        id S1355588AbiBCUin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:38:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355503AbiBCUf4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:35:56 -0500
+        with ESMTP id S1354828AbiBCUgn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:36:43 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90C74C061401;
-        Thu,  3 Feb 2022 12:34:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E49BC061748;
+        Thu,  3 Feb 2022 12:34:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3078161B0D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E515161B68;
+        Thu,  3 Feb 2022 20:34:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 222D5C36AE3;
         Thu,  3 Feb 2022 20:34:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBCE1C340EB;
-        Thu,  3 Feb 2022 20:34:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920493;
-        bh=mYXwYZjv48YdTVJBj6NFznd2NYDFoaanaF1gYz+8OA8=;
+        s=k20201202; t=1643920495;
+        bh=IpJaUgCby7BfLwA8UIjAkqWSIcHsUn66qeLSJKTrifk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fQWlU0GBGx8ySkhRV51MDtz/LcPIjjeWYibvnt05o8A0ZMEd0OVQaAFs5TWYQ/QBY
-         zEEdwJUBdhG5bydERDyqzo+KjIGKX2N1lRTTRvpXCr0DuK0fGpHhkljcnV7hWQBgfN
-         sSL/Q0HQxO95jF6Hf3ExDJKzKy3TaZPXkIf55JZC5iXMQNeovZ99gq6tyf353qlaMQ
-         q67q6Y1G21PKlIlFk51zf6AQ7g3k8XUtm0M5WDrQYMLre/o4zHBcwywIcaqz0jldY6
-         AUarhZ5sCV84fghY1W2EDxLw1EZftS9mjzBBAAhC1mJBZoi4P2loXwu78HZQ97Aat9
-         u7ddkXX21LQPA==
+        b=UVLxOrvkv0p3TnfMY/fZl8mzUmu1Z8Ro3FevTv4yv2aW82TclSCKBRLXI5+eeC4p3
+         YnGlb41NcJg9sNS/Sqx0mExbi0ujApfuFk5FuIqYd5rP2fWwWki0Fi5wu6JD+yZ38s
+         L4j6LGQMA/VTJapASiRvQA2Sr8BHyyKHU3FRfcMPYRexdKEcUWX/yHZctp5aWVLCOF
+         tCxwl5GQMpN9uzj2Ot/o3JM8a61M7MBisTweO1B9sCwsaR3dQrrSYnEtEy960BnQm5
+         BOU9niRL0twBUYtucMNBL6OauUbFyIIbwGC1RF2BfW7KoIyGzYNTbsx9s+O7qcu+VW
+         DfWwQp8wHc6Qw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        rtm@csail.mit.edu, Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, anna.schumaker@netapp.com,
-        linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 04/25] NFSv4.1: Fix uninitialised variable in devicenotify
-Date:   Thu,  3 Feb 2022 15:34:25 -0500
-Message-Id: <20220203203447.3570-4-sashal@kernel.org>
+Cc:     Florian Westphal <fw@strlen.de>, Yi Chen <yiche@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>, kadlec@netfilter.org,
+        davem@davemloft.net, kuba@kernel.org,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 05/25] netfilter: nf_conntrack_netbios_ns: fix helper module alias
+Date:   Thu,  3 Feb 2022 15:34:26 -0500
+Message-Id: <20220203203447.3570-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203203447.3570-1-sashal@kernel.org>
 References: <20220203203447.3570-1-sashal@kernel.org>
@@ -51,104 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit b05bf5c63b326ce1da84ef42498d8e0e292e694c ]
+[ Upstream commit 0e906607b9c5ee22312c9af4d8adb45c617ea38a ]
 
-When decode_devicenotify_args() exits with no entries, we need to
-ensure that the struct cb_devicenotifyargs is initialised to
-{ 0, NULL } in order to avoid problems in
-nfs4_callback_devicenotify().
+The helper gets registered as 'netbios-ns', not netbios_ns.
+Intentionally not adding a fixes-tag because i don't want this to go to
+stable. This wasn't noticed for a very long time so no so no need to risk
+regressions.
 
-Reported-by: <rtm@csail.mit.edu>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Reported-by: Yi Chen <yiche@redhat.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/callback.h      |  2 +-
- fs/nfs/callback_proc.c |  2 +-
- fs/nfs/callback_xdr.c  | 18 +++++++++---------
- 3 files changed, 11 insertions(+), 11 deletions(-)
+ net/netfilter/nf_conntrack_netbios_ns.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/callback.h b/fs/nfs/callback.h
-index 6a2033131c068..ccd4f245cae24 100644
---- a/fs/nfs/callback.h
-+++ b/fs/nfs/callback.h
-@@ -170,7 +170,7 @@ struct cb_devicenotifyitem {
- };
+diff --git a/net/netfilter/nf_conntrack_netbios_ns.c b/net/netfilter/nf_conntrack_netbios_ns.c
+index 7f19ee2596090..55415f011943d 100644
+--- a/net/netfilter/nf_conntrack_netbios_ns.c
++++ b/net/netfilter/nf_conntrack_netbios_ns.c
+@@ -20,13 +20,14 @@
+ #include <net/netfilter/nf_conntrack_helper.h>
+ #include <net/netfilter/nf_conntrack_expect.h>
  
- struct cb_devicenotifyargs {
--	int				 ndevs;
-+	uint32_t			 ndevs;
- 	struct cb_devicenotifyitem	 *devs;
- };
++#define HELPER_NAME	"netbios-ns"
+ #define NMBD_PORT	137
  
-diff --git a/fs/nfs/callback_proc.c b/fs/nfs/callback_proc.c
-index be546ece383f5..b44219ce60b86 100644
---- a/fs/nfs/callback_proc.c
-+++ b/fs/nfs/callback_proc.c
-@@ -353,7 +353,7 @@ __be32 nfs4_callback_devicenotify(void *argp, void *resp,
- 				  struct cb_process_state *cps)
- {
- 	struct cb_devicenotifyargs *args = argp;
--	int i;
-+	uint32_t i;
- 	__be32 res = 0;
- 	struct nfs_client *clp = cps->clp;
- 	struct nfs_server *server = NULL;
-diff --git a/fs/nfs/callback_xdr.c b/fs/nfs/callback_xdr.c
-index 79ff172eb1c81..1725079a05276 100644
---- a/fs/nfs/callback_xdr.c
-+++ b/fs/nfs/callback_xdr.c
-@@ -259,11 +259,9 @@ __be32 decode_devicenotify_args(struct svc_rqst *rqstp,
- 				void *argp)
- {
- 	struct cb_devicenotifyargs *args = argp;
-+	uint32_t tmp, n, i;
- 	__be32 *p;
- 	__be32 status = 0;
--	u32 tmp;
--	int n, i;
--	args->ndevs = 0;
+ MODULE_AUTHOR("Patrick McHardy <kaber@trash.net>");
+ MODULE_DESCRIPTION("NetBIOS name service broadcast connection tracking helper");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("ip_conntrack_netbios_ns");
+-MODULE_ALIAS_NFCT_HELPER("netbios_ns");
++MODULE_ALIAS_NFCT_HELPER(HELPER_NAME);
  
- 	/* Num of device notifications */
- 	p = xdr_inline_decode(xdr, sizeof(uint32_t));
-@@ -272,7 +270,7 @@ __be32 decode_devicenotify_args(struct svc_rqst *rqstp,
- 		goto out;
- 	}
- 	n = ntohl(*p++);
--	if (n <= 0)
-+	if (n == 0)
- 		goto out;
- 	if (n > ULONG_MAX / sizeof(*args->devs)) {
- 		status = htonl(NFS4ERR_BADXDR);
-@@ -331,19 +329,21 @@ __be32 decode_devicenotify_args(struct svc_rqst *rqstp,
- 			dev->cbd_immediate = 0;
- 		}
- 
--		args->ndevs++;
--
- 		dprintk("%s: type %d layout 0x%x immediate %d\n",
- 			__func__, dev->cbd_notify_type, dev->cbd_layout_type,
- 			dev->cbd_immediate);
- 	}
-+	args->ndevs = n;
-+	dprintk("%s: ndevs %d\n", __func__, args->ndevs);
-+	return 0;
-+err:
-+	kfree(args->devs);
- out:
-+	args->devs = NULL;
-+	args->ndevs = 0;
- 	dprintk("%s: status %d ndevs %d\n",
- 		__func__, ntohl(status), args->ndevs);
- 	return status;
--err:
--	kfree(args->devs);
--	goto out;
+ static unsigned int timeout __read_mostly = 3;
+ module_param(timeout, uint, 0400);
+@@ -44,7 +45,7 @@ static int netbios_ns_help(struct sk_buff *skb, unsigned int protoff,
  }
  
- static __be32 decode_sessionid(struct xdr_stream *xdr,
+ static struct nf_conntrack_helper helper __read_mostly = {
+-	.name			= "netbios-ns",
++	.name			= HELPER_NAME,
+ 	.tuple.src.l3num	= NFPROTO_IPV4,
+ 	.tuple.src.u.udp.port	= cpu_to_be16(NMBD_PORT),
+ 	.tuple.dst.protonum	= IPPROTO_UDP,
 -- 
 2.34.1
 
