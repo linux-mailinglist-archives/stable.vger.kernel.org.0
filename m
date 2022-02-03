@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4052C4A8DF2
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:34:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0D3D4A8DF8
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:34:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354784AbiBCUeM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:34:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57934 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354405AbiBCUdC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:33:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DF4CC0613FF;
-        Thu,  3 Feb 2022 12:32:57 -0800 (PST)
+        id S241558AbiBCUeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:34:13 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38986 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354778AbiBCUc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:32:58 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35B33B835B4;
-        Thu,  3 Feb 2022 20:32:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27E41C36AE3;
-        Thu,  3 Feb 2022 20:32:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BCE161A5C;
+        Thu,  3 Feb 2022 20:32:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3993C36AE5;
+        Thu,  3 Feb 2022 20:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920376;
-        bh=LZ/Ng8GaZeAuzefv9xIp1LyLk8VNTsIYnLOZI240d4A=;
+        s=k20201202; t=1643920377;
+        bh=C8dHEA5Be/M4HwoHN9qOTlysc8sgv88UKMWgUlc+Z6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNgEiaKxYHegaxoOJqgEpBW0RJ+uOCcbvPG9qPIhijRv4wlxX2H67x2F67ZJeEBp/
-         x8PUp7VjRx7bIszlW4A88Z7xLAXaf1BE3Vqbwdx/gdkY6c8TTK23SVqfw3Zxht96XD
-         fiuaMZU86r9ZKzVxbUbSSopXgPe53drAKdou3e3LkTp6sRbdfsqJo+S5eQOfGZEpou
-         ffbyb+ryjIn7Bp5aWo5FKZnNtKnjH+qHxK7ndlcCVq0XIi0q89sGwD7yZDJS2+P+3l
-         qW4Iauo1+c8Tyl338G4eaaU3fTCqM8+o2QB+Bsoc9MmOC0d7IRzpw+CjEjmsPWP1aD
-         /B7ecnJiw3QCg==
+        b=dKWJvKwKHaaOL1XzcvKFr/y/whEtw9PIJuMaTOfDS2RpfIy9L986eTcV4OwdwRnR1
+         4tMSPtoODYqzR9hWGwV2rKv/U7LfwQXeZNzIoM0iwhvnhBLJnG8ePRe131dxbsC1Ih
+         5jwFKO9p/tlO5GU1l5NfYYdENi+TVTvGANzU7JY9pdQ28RFjy9lqgaIObndufrYdkb
+         d63Uz+5h9UY19cKrYgREJNnpeP/ibQal2tnw92FXxx7XJP71Z0XXfVlPWQxKO76xvR
+         fxYRnOn9WoSslKb59OOcPBuIPdHnRxpM9d6JNEAaAPKun9KLXFzpnbpfjrhNgzum5j
+         1NQlo296LiVKw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Olga Kornievskaia <kolga@netapp.com>,
@@ -38,9 +35,9 @@ Cc:     Olga Kornievskaia <kolga@netapp.com>,
         Sasha Levin <sashal@kernel.org>,
         trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
         linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 06/41] NFSv4 remove zero number of fs_locations entries error check
-Date:   Thu,  3 Feb 2022 15:32:10 -0500
-Message-Id: <20220203203245.3007-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 07/41] NFSv4 store server support for fs_location attribute
+Date:   Thu,  3 Feb 2022 15:32:11 -0500
+Message-Id: <20220203203245.3007-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203203245.3007-1-sashal@kernel.org>
 References: <20220203203245.3007-1-sashal@kernel.org>
@@ -54,46 +51,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit 90e12a3191040bd3854d3e236c35921e4e92a044 ]
+[ Upstream commit 8a59bb93b7e3cca389af44781a429ac12ac49be6 ]
 
-Remove the check for the zero length fs_locations reply in the
-xdr decoding, and instead check for that in the migration code.
+Define and store if server returns it supports fs_locations attribute
+as a capability.
 
 Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 3 +++
- fs/nfs/nfs4xdr.c   | 2 --
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ fs/nfs/nfs4proc.c         | 2 ++
+ include/linux/nfs_fs_sb.h | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index f22818a80c2c7..acc1cd3e63a48 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -2105,6 +2105,9 @@ static int nfs4_try_migration(struct nfs_server *server, const struct cred *cred
- 	}
- 
- 	result = -NFS4ERR_NXIO;
-+	if (!locations->nlocations)
-+		goto out;
-+
- 	if (!(locations->fattr.valid & NFS_ATTR_FATTR_V4_LOCATIONS)) {
- 		dprintk("<-- %s: No fs_locations data, migration skipped\n",
- 			__func__);
-diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
-index 5e886518f2d45..2a1bf0a72d5bf 100644
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -3693,8 +3693,6 @@ static int decode_attr_fs_locations(struct xdr_stream *xdr, uint32_t *bitmap, st
- 	if (unlikely(!p))
- 		goto out_eio;
- 	n = be32_to_cpup(p);
--	if (n <= 0)
--		goto out_eio;
- 	for (res->nlocations = 0; res->nlocations < n; res->nlocations++) {
- 		u32 m;
- 		struct nfs4_fs_location *loc;
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 443eab71c9a9e..367a1b99b7550 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -3894,6 +3894,8 @@ static int _nfs4_server_capabilities(struct nfs_server *server, struct nfs_fh *f
+ 		if (res.attr_bitmask[2] & FATTR4_WORD2_SECURITY_LABEL)
+ 			server->caps |= NFS_CAP_SECURITY_LABEL;
+ #endif
++		if (res.attr_bitmask[0] & FATTR4_WORD0_FS_LOCATIONS)
++			server->caps |= NFS_CAP_FS_LOCATIONS;
+ 		if (!(res.attr_bitmask[0] & FATTR4_WORD0_FILEID))
+ 			server->fattr_valid &= ~NFS_ATTR_FATTR_FILEID;
+ 		if (!(res.attr_bitmask[1] & FATTR4_WORD1_MODE))
+diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
+index 2a9acbfe00f0f..9a6e70ccde56e 100644
+--- a/include/linux/nfs_fs_sb.h
++++ b/include/linux/nfs_fs_sb.h
+@@ -287,5 +287,5 @@ struct nfs_server {
+ #define NFS_CAP_COPY_NOTIFY	(1U << 27)
+ #define NFS_CAP_XATTR		(1U << 28)
+ #define NFS_CAP_READ_PLUS	(1U << 29)
+-
++#define NFS_CAP_FS_LOCATIONS	(1U << 30)
+ #endif
 -- 
 2.34.1
 
