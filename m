@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 897E84A8F29
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:42:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A39E4A8EDE
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:39:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234350AbiBCUmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:42:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59118 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356044AbiBCUk7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:40:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B065C0613E3;
-        Thu,  3 Feb 2022 12:37:00 -0800 (PST)
+        id S1354461AbiBCUjV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:39:21 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39050 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355084AbiBCUhG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:37:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56FF360A77;
-        Thu,  3 Feb 2022 20:37:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAA6BC340F0;
-        Thu,  3 Feb 2022 20:36:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88526B835BE;
+        Thu,  3 Feb 2022 20:37:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 610A4C340E8;
+        Thu,  3 Feb 2022 20:37:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920619;
-        bh=J0oY2ELlrWXgd10fbeUVF1lyKQTWa7uQM3TycUZkb1k=;
+        s=k20201202; t=1643920623;
+        bh=M+7Y0vn+BxRton0UAEjJx00c6EcBPBpbms0IRen0pFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEUR+89R6QzFcM4YUA81VnO2Z5NO9sncV6j3LqwqBxND+kJup1ENdZsVncux7PbJM
-         s5tGIx23CdtVIqiEYnHH5yxjbDs8WgVutJ6bHiLtA8fP53gEkQh2CfWviL+i/MXN93
-         w0vurP2mNIWCPIxMcFaQr56w6jsA7EHBiG4U/CZhcH5t2G7RN6TYz4cyC/G77uoDTo
-         QwDZmWnpsWNhXr1ELqKIbi4kOcJq7XBTQEqe2guUEriNz5hw7PGnwPeEXG1r6YLsmZ
-         5v2OBg8wZoiDYV2I+Z/ZbEOVeYcMqarpu0WIoVSa1RVIpthr6WGtPaeNPhqa8GZ7lQ
-         iHP7md/B03u+A==
+        b=CKtd15nMNuRtXDSVw1TpyJbbjhnUrfU7Gl8R+050vLavekGBEiyGR9SSQ/8Op1IY5
+         VbtW5T86vd9SV85Kprg21aeNZZ5sx9CX5AMhVneZNPRpXspz5C7BaZoIOrUZvj0HsZ
+         1f9A7JUOCeHQO4kaKXfJNodnTF6nu6sFIeTxjimwje384wLYj1qZ+Kd9TrWzZTDlkm
+         SYM5ejlsvGq2iP8YcN84GMmGPSkCqEqVBDzRjFl/BLqVU9tK5THRSyKOTzcB/uEpdy
+         MMQK+FicRhNRMZ41yKy/0s6cTSE+oye0hTRDO0Hlg+NTB3C9CdD2FB/SLemnwUy0zh
+         7a4BtWuvhRw6A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Olga Kornievskaia <kolga@netapp.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>,
-        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
-        linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 5/7] NFSv4 expose nfs_parse_server_name function
-Date:   Thu,  3 Feb 2022 15:36:49 -0500
-Message-Id: <20220203203651.5158-5-sashal@kernel.org>
+Cc:     ZouMingzhe <mingzhe.zou@easystack.cn>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 6/7] scsi: target: iscsi: Make sure the np under each tpg is unique
+Date:   Thu,  3 Feb 2022 15:36:50 -0500
+Message-Id: <20220203203651.5158-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203203651.5158-1-sashal@kernel.org>
 References: <20220203203651.5158-1-sashal@kernel.org>
@@ -52,48 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: ZouMingzhe <mingzhe.zou@easystack.cn>
 
-[ Upstream commit f5b27cc6761e27ee6387a24df1a99ca77b360fea ]
+[ Upstream commit a861790afaa8b6369eee8a88c5d5d73f5799c0c6 ]
 
-Make nfs_parse_server_name available outside of nfs4namespace.c.
+iscsit_tpg_check_network_portal() has nested for_each loops and is supposed
+to return true when a match is found. However, the tpg loop will still
+continue after existing the tpg_np loop. If this tpg_np is not the last the
+match value will be changed.
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Break the outer loop after finding a match and make sure the np under each
+tpg is unique.
+
+Link: https://lore.kernel.org/r/20220111054742.19582-1-mingzhe.zou@easystack.cn
+Signed-off-by: ZouMingzhe <mingzhe.zou@easystack.cn>
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4_fs.h       | 3 ++-
- fs/nfs/nfs4namespace.c | 4 ++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/target/iscsi/iscsi_target_tpg.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/nfs/nfs4_fs.h b/fs/nfs/nfs4_fs.h
-index c719389381dc4..0b867d7c02992 100644
---- a/fs/nfs/nfs4_fs.h
-+++ b/fs/nfs/nfs4_fs.h
-@@ -241,7 +241,8 @@ struct vfsmount *nfs4_submount(struct nfs_server *, struct dentry *,
- 			       struct nfs_fh *, struct nfs_fattr *);
- int nfs4_replace_transport(struct nfs_server *server,
- 				const struct nfs4_fs_locations *locations);
--
-+size_t nfs_parse_server_name(char *string, size_t len, struct sockaddr *sa,
-+			     size_t salen, struct net *net);
- /* nfs4proc.c */
- extern int nfs4_handle_exception(struct nfs_server *, int, struct nfs4_exception *);
- extern int nfs4_call_sync(struct rpc_clnt *, struct nfs_server *,
-diff --git a/fs/nfs/nfs4namespace.c b/fs/nfs/nfs4namespace.c
-index d8b040bd9814d..2b1921bb5348b 100644
---- a/fs/nfs/nfs4namespace.c
-+++ b/fs/nfs/nfs4namespace.c
-@@ -120,8 +120,8 @@ static int nfs4_validate_fspath(struct dentry *dentry,
- 	return 0;
- }
- 
--static size_t nfs_parse_server_name(char *string, size_t len,
--		struct sockaddr *sa, size_t salen, struct net *net)
-+size_t nfs_parse_server_name(char *string, size_t len, struct sockaddr *sa,
-+			     size_t salen, struct net *net)
- {
- 	ssize_t ret;
+diff --git a/drivers/target/iscsi/iscsi_target_tpg.c b/drivers/target/iscsi/iscsi_target_tpg.c
+index 761b065a40bb3..b2a76ecb5789c 100644
+--- a/drivers/target/iscsi/iscsi_target_tpg.c
++++ b/drivers/target/iscsi/iscsi_target_tpg.c
+@@ -452,6 +452,9 @@ static bool iscsit_tpg_check_network_portal(
+ 				break;
+ 		}
+ 		spin_unlock(&tpg->tpg_np_lock);
++
++		if (match)
++			break;
+ 	}
+ 	spin_unlock(&tiqn->tiqn_tpg_lock);
  
 -- 
 2.34.1
