@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67EB54A8DB4
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:32:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 496744A8DBA
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:32:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354735AbiBCUcv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:32:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57712 "EHLO
+        id S1354534AbiBCUcp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:32:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354538AbiBCUbs (ORCPT
+        with ESMTP id S1354535AbiBCUbs (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:31:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9DFC061795;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3EECC061796;
         Thu,  3 Feb 2022 12:31:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6033EB835AA;
-        Thu,  3 Feb 2022 20:31:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EEFFC340E8;
-        Thu,  3 Feb 2022 20:31:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 544FC61A6A;
+        Thu,  3 Feb 2022 20:31:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C40C2C340F3;
+        Thu,  3 Feb 2022 20:31:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920300;
-        bh=gr4hxJsFwjXa6Hnqo/BSb8MBYbytSgyQNkmjcvloyLA=;
+        s=k20201202; t=1643920301;
+        bh=E/9jBRbIyyEtc+13I+rJm5xa1JZLQM7ZW8OBG5cbk8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iAH5XvKpopFp6Rt3Sn2AqDNPfk/PoAsa/pNm4pD3Mt1WkiNVxPetMRlihhu66BSCT
-         cbwPu8EWdbHnh7AevW2jCQbqFQYqeZMv1nwZCEYIGORhIoWjMCsgO21ThhAcjmv3RO
-         wkwOsJhypF2Z0WepfaJiB73y7/uRVId1pAFmt9S1+H03a2ikoUbNwhb2ZtmqqQNy5C
-         lhPL/Zrdw6G966GxUQCfNKeHWmn3WDsoXhLFqz97R41FDS6erWjmDWBaLkUtzZ1ab3
-         A+7vroCi1jj8oMNqrYdWF32ZVkLxQ01cOpogrDJRB3L/2BEbtg3R4BS0LR44KTcN6a
-         ohZrn7u8PvAnw==
+        b=XlYMsQFquu/XpCa93XXMAa8BJNGOcWhHcGusvAMmPorNEzTZLu12/U5Pg3eLtcWVu
+         A3vKTTG+j+5a03xfexgD1vO6zrlun+IMRoAbEX0cpaK5bU76Xkt5LJdjVSzg+NIh9s
+         K3HsTaxE/V6FloREdgz35WrOFqih8UxL5y48QwCEzgs4I1EsmUFRArls2h7LjIN0L5
+         YuZRPY8VnAlcR2Wum3WgZh0B3/tk4S8cCZMJf8dgPMThyeZMda+QEjRPEoqim5K7+r
+         JBZImMZi9SVMZ/o2GOonH4+qXDKOkQjeOlbeOs5lPS7BYMQT7D+7wtvCkfl4MlVxxr
+         MppV3FQKFZ+BQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Clark <james.clark@arm.com>,
-        Ruben Ayrapetyan <Ruben.Ayrapetyan@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        acme@kernel.org, linux-perf-users@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 42/52] perf: Always wake the parent event
-Date:   Thu,  3 Feb 2022 15:29:36 -0500
-Message-Id: <20220203202947.2304-42-sashal@kernel.org>
+Cc:     Wu Zheng <wu.zheng@intel.com>, Ye Jinhe <jinhe.ye@intel.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
+        sagi@grimberg.me, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.16 43/52] nvme-pci: add the IGNORE_DEV_SUBNQN quirk for Intel P4500/P4600 SSDs
+Date:   Thu,  3 Feb 2022 15:29:37 -0500
+Message-Id: <20220203202947.2304-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203202947.2304-1-sashal@kernel.org>
 References: <20220203202947.2304-1-sashal@kernel.org>
@@ -52,94 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Clark <james.clark@arm.com>
+From: Wu Zheng <wu.zheng@intel.com>
 
-[ Upstream commit 961c39121759ad09a89598ec4ccdd34ae0468a19 ]
+[ Upstream commit 25e58af4be412d59e056da65cc1cefbd89185bd2 ]
 
-When using per-process mode and event inheritance is set to true,
-forked processes will create a new perf events via inherit_event() ->
-perf_event_alloc(). But these events will not have ring buffers
-assigned to them. Any call to wakeup will be dropped if it's called on
-an event with no ring buffer assigned because that's the object that
-holds the wakeup list.
+The Intel P4500/P4600 SSDs do not report a subsystem NQN despite claiming
+compliance to a standards version where reporting one is required.
 
-If the child event is disabled due to a call to
-perf_aux_output_begin() or perf_aux_output_end(), the wakeup is
-dropped leaving userspace hanging forever on the poll.
+Add the IGNORE_DEV_SUBNQN quirk to not fail the initialization of a
+second such SSDs in a system.
 
-Normally the event is explicitly re-enabled by userspace after it
-wakes up to read the aux data, but in this case it does not get woken
-up so the event remains disabled.
-
-This can be reproduced when using Arm SPE and 'stress' which forks once
-before running the workload. By looking at the list of aux buffers read,
-it's apparent that they stop after the fork:
-
-  perf record -e arm_spe// -vvv -- stress -c 1
-
-With this patch applied they continue to be printed. This behaviour
-doesn't happen when using systemwide or per-cpu mode.
-
-Reported-by: Ruben Ayrapetyan <Ruben.Ayrapetyan@arm.com>
-Signed-off-by: James Clark <james.clark@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20211206113840.130802-2-james.clark@arm.com
+Signed-off-by: Zheng Wu <wu.zheng@intel.com>
+Signed-off-by: Ye Jinhe <jinhe.ye@intel.com>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/nvme/host/pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 63f0414666438..0b0655f4d0126 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -5934,6 +5934,8 @@ static void ring_buffer_attach(struct perf_event *event,
- 	struct perf_buffer *old_rb = NULL;
- 	unsigned long flags;
- 
-+	WARN_ON_ONCE(event->parent);
-+
- 	if (event->rb) {
- 		/*
- 		 * Should be impossible, we set this when removing
-@@ -5991,6 +5993,9 @@ static void ring_buffer_wakeup(struct perf_event *event)
- {
- 	struct perf_buffer *rb;
- 
-+	if (event->parent)
-+		event = event->parent;
-+
- 	rcu_read_lock();
- 	rb = rcu_dereference(event->rb);
- 	if (rb) {
-@@ -6004,6 +6009,9 @@ struct perf_buffer *ring_buffer_get(struct perf_event *event)
- {
- 	struct perf_buffer *rb;
- 
-+	if (event->parent)
-+		event = event->parent;
-+
- 	rcu_read_lock();
- 	rb = rcu_dereference(event->rb);
- 	if (rb) {
-@@ -6703,7 +6711,7 @@ static unsigned long perf_prepare_sample_aux(struct perf_event *event,
- 	if (WARN_ON_ONCE(READ_ONCE(sampler->oncpu) != smp_processor_id()))
- 		goto out;
- 
--	rb = ring_buffer_get(sampler->parent ? sampler->parent : sampler);
-+	rb = ring_buffer_get(sampler);
- 	if (!rb)
- 		goto out;
- 
-@@ -6769,7 +6777,7 @@ static void perf_aux_sample_output(struct perf_event *event,
- 	if (WARN_ON_ONCE(!sampler || !data->aux_size))
- 		return;
- 
--	rb = ring_buffer_get(sampler->parent ? sampler->parent : sampler);
-+	rb = ring_buffer_get(sampler);
- 	if (!rb)
- 		return;
- 
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index ca2ee806d74b6..953ea3d5d4bfb 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3326,7 +3326,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 				NVME_QUIRK_DEALLOCATE_ZEROES, },
+ 	{ PCI_VDEVICE(INTEL, 0x0a54),	/* Intel P4500/P4600 */
+ 		.driver_data = NVME_QUIRK_STRIPE_SIZE |
+-				NVME_QUIRK_DEALLOCATE_ZEROES, },
++				NVME_QUIRK_DEALLOCATE_ZEROES |
++				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+ 	{ PCI_VDEVICE(INTEL, 0x0a55),	/* Dell Express Flash P4600 */
+ 		.driver_data = NVME_QUIRK_STRIPE_SIZE |
+ 				NVME_QUIRK_DEALLOCATE_ZEROES, },
 -- 
 2.34.1
 
