@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E1A4A8E2F
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:35:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C3B84A8E04
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:35:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355273AbiBCUfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:35:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57496 "EHLO
+        id S1354185AbiBCUfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:35:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354098AbiBCUdn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:33:43 -0500
+        with ESMTP id S233705AbiBCUdo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:33:44 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5BCDC061793;
-        Thu,  3 Feb 2022 12:33:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1BD8C061795;
+        Thu,  3 Feb 2022 12:33:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 52A1A61A04;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 934CD61B0F;
+        Thu,  3 Feb 2022 20:33:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49982C340F4;
         Thu,  3 Feb 2022 20:33:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 940DEC340EF;
-        Thu,  3 Feb 2022 20:33:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920387;
-        bh=0y/IZM+9R7R9WIPYSINAAR4GixoHnxscFamQq446Yng=;
+        s=k20201202; t=1643920389;
+        bh=1M2WJ0LX7TAAjDwL4gYcineyz/ebR0L2eize8IzicgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BzvcUENgy1RX49AMRjkBaQ58+LAQ2sGsNadUiVU5bUonneUmXpU0UxJZvvHE/+a8r
-         i8+I/mHssKMCjNZ2cNPP3u+o8eGVY7wtP5EcW3FA0ZAMfTTigsaYj5eZkvdTQs9vuq
-         r80P6vZWKtPzol+0HD96jIXa3omTaFhkkz8qZ9ffphO30yU2SAHFSddI74obXVPCiY
-         VrZw4M7rFNIbNGC1vYJp58KxtwcAdmyMxa/Qw/p+8T1q4kTNjinzlEE3Dxf074drqb
-         RslYz4ihLKDoyV4qL4LzyB0ihbKW7zK5qAFcFT2IuFjh118YGwv9FAQtsr8IjpbiU1
-         Ja0WVwKf6Faug==
+        b=mqsm890PtTB2zTkn5hDD+KrahHHK6b7ucCvUAOMmVdrtk2sG2IxdJWkjeppBEKEB4
+         K0h4xdkviQDr+V0P5vWg3q3+EzfXN+B+lJx8wKN7S3AEbAQfGk9Eki34xmTSros66s
+         pZ+TnLDdWuOsXHJnO+BqV75/yik6EBzVJp7yn/npUXLnRtiCfdT15DsRg1d9E5HN3T
+         lVbusa2jlISPsAnlyJtw8scK6L/HVLdbBTfu8xXkb9gOVHSZYwj++m5jiERNNS2Pbr
+         j4hFlFKZEyVuGAfsjqwXTNaxaQbfOaNDhCBcpdLTgu2mvbV0JyDvJ2vktvjCLu/6zo
+         COUS+PHUGJa+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>,
-        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
-        chuck.lever@oracle.com, davem@davemloft.net, kuba@kernel.org,
-        linux-nfs@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 13/41] sunrpc: Fix potential race conditions in rpc_sysfs_xprt_state_change()
-Date:   Thu,  3 Feb 2022 15:32:17 -0500
-Message-Id: <20220203203245.3007-13-sashal@kernel.org>
+Cc:     Sander Vanheule <sander@svanheule.net>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        tglx@linutronix.de
+Subject: [PATCH AUTOSEL 5.15 14/41] irqchip/realtek-rtl: Service all pending interrupts
+Date:   Thu,  3 Feb 2022 15:32:18 -0500
+Message-Id: <20220203203245.3007-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203203245.3007-1-sashal@kernel.org>
 References: <20220203203245.3007-1-sashal@kernel.org>
@@ -52,68 +50,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anna Schumaker <Anna.Schumaker@Netapp.com>
+From: Sander Vanheule <sander@svanheule.net>
 
-[ Upstream commit 1a48db3fef499f615b56093947ec4b0d3d8e3021 ]
+[ Upstream commit 960dd884ddf5621ae6284cd3a42724500a97ae4c ]
 
-We need to use test_and_set_bit() when changing xprt state flags to
-avoid potentially getting xps->xps_nactive out of sync.
+Instead of only servicing the lowest pending interrupt line, make sure
+all pending SoC interrupts are serviced before exiting the chained
+handler. This adds a small overhead if only one interrupt is pending,
+but should prevent rapid re-triggering of the handler.
 
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sander Vanheule <sander@svanheule.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/5082ad3cb8b4eedf55075561b93eff6570299fe1.1641739718.git.sander@svanheule.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/sysfs.c | 35 +++++++++++++++++++----------------
- 1 file changed, 19 insertions(+), 16 deletions(-)
+ drivers/irqchip/irq-realtek-rtl.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/sysfs.c b/net/sunrpc/sysfs.c
-index 379cf0e4d965b..326a31422a3c1 100644
---- a/net/sunrpc/sysfs.c
-+++ b/net/sunrpc/sysfs.c
-@@ -305,25 +305,28 @@ static ssize_t rpc_sysfs_xprt_state_change(struct kobject *kobj,
- 		goto release_tasks;
+diff --git a/drivers/irqchip/irq-realtek-rtl.c b/drivers/irqchip/irq-realtek-rtl.c
+index fd9f275592d29..1500278fa82d5 100644
+--- a/drivers/irqchip/irq-realtek-rtl.c
++++ b/drivers/irqchip/irq-realtek-rtl.c
+@@ -76,16 +76,20 @@ static void realtek_irq_dispatch(struct irq_desc *desc)
+ {
+ 	struct irq_chip *chip = irq_desc_get_chip(desc);
+ 	struct irq_domain *domain;
+-	unsigned int pending;
++	unsigned long pending;
++	unsigned int soc_int;
+ 
+ 	chained_irq_enter(chip, desc);
+ 	pending = readl(REG(RTL_ICTL_GIMR)) & readl(REG(RTL_ICTL_GISR));
++
+ 	if (unlikely(!pending)) {
+ 		spurious_interrupt();
+ 		goto out;
  	}
- 	if (offline) {
--		set_bit(XPRT_OFFLINE, &xprt->state);
--		spin_lock(&xps->xps_lock);
--		xps->xps_nactive--;
--		spin_unlock(&xps->xps_lock);
-+		if (!test_and_set_bit(XPRT_OFFLINE, &xprt->state)) {
-+			spin_lock(&xps->xps_lock);
-+			xps->xps_nactive--;
-+			spin_unlock(&xps->xps_lock);
-+		}
- 	} else if (online) {
--		clear_bit(XPRT_OFFLINE, &xprt->state);
--		spin_lock(&xps->xps_lock);
--		xps->xps_nactive++;
--		spin_unlock(&xps->xps_lock);
-+		if (test_and_clear_bit(XPRT_OFFLINE, &xprt->state)) {
-+			spin_lock(&xps->xps_lock);
-+			xps->xps_nactive++;
-+			spin_unlock(&xps->xps_lock);
-+		}
- 	} else if (remove) {
- 		if (test_bit(XPRT_OFFLINE, &xprt->state)) {
--			set_bit(XPRT_REMOVE, &xprt->state);
--			xprt_force_disconnect(xprt);
--			if (test_bit(XPRT_CONNECTED, &xprt->state)) {
--				if (!xprt->sending.qlen &&
--				    !xprt->pending.qlen &&
--				    !xprt->backlog.qlen &&
--				    !atomic_long_read(&xprt->queuelen))
--					rpc_xprt_switch_remove_xprt(xps, xprt);
-+			if (!test_and_set_bit(XPRT_REMOVE, &xprt->state)) {
-+				xprt_force_disconnect(xprt);
-+				if (test_bit(XPRT_CONNECTED, &xprt->state)) {
-+					if (!xprt->sending.qlen &&
-+					    !xprt->pending.qlen &&
-+					    !xprt->backlog.qlen &&
-+					    !atomic_long_read(&xprt->queuelen))
-+						rpc_xprt_switch_remove_xprt(xps, xprt);
-+				}
- 			}
- 		} else {
- 			count = -EINVAL;
++
+ 	domain = irq_desc_get_handler_data(desc);
+-	generic_handle_domain_irq(domain, __ffs(pending));
++	for_each_set_bit(soc_int, &pending, 32)
++		generic_handle_domain_irq(domain, soc_int);
+ 
+ out:
+ 	chained_irq_exit(chip, desc);
 -- 
 2.34.1
 
