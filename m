@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A70394A8D9C
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:32:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEC744A8DB9
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:32:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354391AbiBCUby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:31:54 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34354 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354212AbiBCUbO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:31:14 -0500
+        id S1354348AbiBCUcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:32:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57604 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354501AbiBCUbr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:31:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCB7AC06175D;
+        Thu,  3 Feb 2022 12:31:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1895CB835A4;
-        Thu,  3 Feb 2022 20:31:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D7CFC340E8;
-        Thu,  3 Feb 2022 20:31:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52BE761A5C;
+        Thu,  3 Feb 2022 20:31:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81919C340E8;
+        Thu,  3 Feb 2022 20:31:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920271;
-        bh=WoggJfzxZcsMjHbc6cnyNwotPtNHvkZ1EEsQdBd98pI=;
+        s=k20201202; t=1643920275;
+        bh=cfXOxnZgcPdfoYQeHM0c0yyXmHPUq5UCgsWsGd9TXlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JzeXohw1OAujYRIx3j/FOaGx7WYwkKHztNReDLfCkyp8en+iWm/bvTY8xjSQr5308
-         CwzG7Fz0sNWiPSB8jq2atSaILyd2isTsGNKRTkko++yb+Wsti8l4paq4U00kMgiAVB
-         C3sGpn5PgN9HVXBViW2sncoAuthZsDU+HFYkiRvX9gy6JvcJi7Q584TjkMQ/kdx9pi
-         NfVbxocdwRKYOzBRHM3TenhT9HSbgqS1EwbrkWtSmj4Aw/y5h/iZMynuQLZmnMx9xo
-         24/d7PBZ9+K/2sFns9BG9v6JBWQvNt5vXcQBu/j4ABR8RywGk1Vit/n2fXWWn6hfhq
-         l3QHhPWvAQHNA==
+        b=HBdMEAYyY9/WblwtthYrRq5u0G3IL5xpzCL1izPZsbmJlCpbglHNWzlvnnln0PPPN
+         BtjE7/omMxmsIZ0tqpL5zHRMLkxKZVZ7EGcbrRl1jYogC5V1MXZg/ts4BzlCSSGvQX
+         mKAI14eQdOOID2LBN/alyJfLp+WbzklfIol/Zha1ha8WOz2P7utes5P9XKNW6n2sNG
+         CGF3/3+nwiy0tEmD6aOTTxMV4QvLl6WHalS1/5xwfQ/dUGXPfE+Bx7G5I+eFJZQYnh
+         lZwI5reHZlqfnWaO+F+chwJLd+J6PN6Jiqqfnntgw85PeAUHCOQZH+Yn0Jc+wCD7Rt
+         tdZ4IR4wOkBdg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Kiwoong Kim <kwmad.kim@samsung.com>,
-        Bart Van Assche <bvanassche@acm.org>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
-        beanhuo@micron.com, avri.altman@wdc.com, daejun7.park@samsung.com,
-        adrian.hunter@intel.com, cang@codeaurora.org,
-        asutoshd@codeaurora.org, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 32/52] scsi: ufs: Use generic error code in ufshcd_set_dev_pwr_mode()
-Date:   Thu,  3 Feb 2022 15:29:26 -0500
-Message-Id: <20220203202947.2304-32-sashal@kernel.org>
+        bvanassche@acm.org, Avri.Altman@wdc.com, beanhuo@micron.com,
+        gustavoars@kernel.org, cang@codeaurora.org, caleb@connolly.tech,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 33/52] scsi: ufs: Treat link loss as fatal error
+Date:   Thu,  3 Feb 2022 15:29:27 -0500
+Message-Id: <20220203202947.2304-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203202947.2304-1-sashal@kernel.org>
 References: <20220203202947.2304-1-sashal@kernel.org>
@@ -53,51 +55,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kiwoong Kim <kwmad.kim@samsung.com>
 
-[ Upstream commit ad6c8a426446873febc98140d81d5353f8c0825b ]
+[ Upstream commit c99b9b2301492b665b6e51ba6c06ec362eddcd10 ]
 
-The return value of ufshcd_set_dev_pwr_mode() is passed to device PM
-core. However, the function currently returns a SCSI result which the PM
-core doesn't understand.  This might lead to unexpected behaviors in
-userland; a platform reset was observed in Android.
+This event is raised when link is lost as specified in UFSHCI spec and that
+means communication is not possible. Thus initializing UFS interface needs
+to be done.
 
-Use a generic error code for SSU failures.
+Make UFS driver considers Link Lost as fatal in the INT_FATAL_ERRORS
+mask. This will trigger a host reset whenever a link lost interrupt occurs.
 
-Link: https://lore.kernel.org/r/1642743182-54098-1-git-send-email-kwmad.kim@samsung.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lore.kernel.org/r/1642743475-54275-1-git-send-email-kwmad.kim@samsung.com
 Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshci.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index c94377aa82739..ec7d7e01231d7 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -8587,7 +8587,7 @@ static void ufshcd_hba_exit(struct ufs_hba *hba)
-  * @pwr_mode: device power mode to set
-  *
-  * Returns 0 if requested power mode is set successfully
-- * Returns non-zero if failed to set the requested power mode
-+ * Returns < 0 if failed to set the requested power mode
-  */
- static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
- 				     enum ufs_dev_pwr_mode pwr_mode)
-@@ -8641,8 +8641,11 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
- 		sdev_printk(KERN_WARNING, sdp,
- 			    "START_STOP failed for power mode: %d, result %x\n",
- 			    pwr_mode, ret);
--		if (ret > 0 && scsi_sense_valid(&sshdr))
--			scsi_print_sense_hdr(sdp, NULL, &sshdr);
-+		if (ret > 0) {
-+			if (scsi_sense_valid(&sshdr))
-+				scsi_print_sense_hdr(sdp, NULL, &sshdr);
-+			ret = -EIO;
-+		}
- 	}
+diff --git a/drivers/scsi/ufs/ufshci.h b/drivers/scsi/ufs/ufshci.h
+index 6a295c88d850f..a7ff0e5b54946 100644
+--- a/drivers/scsi/ufs/ufshci.h
++++ b/drivers/scsi/ufs/ufshci.h
+@@ -142,7 +142,8 @@ static inline u32 ufshci_version(u32 major, u32 minor)
+ #define INT_FATAL_ERRORS	(DEVICE_FATAL_ERROR |\
+ 				CONTROLLER_FATAL_ERROR |\
+ 				SYSTEM_BUS_FATAL_ERROR |\
+-				CRYPTO_ENGINE_FATAL_ERROR)
++				CRYPTO_ENGINE_FATAL_ERROR |\
++				UIC_LINK_LOST)
  
- 	if (!ret)
+ /* HCS - Host Controller Status 30h */
+ #define DEVICE_PRESENT				0x1
 -- 
 2.34.1
 
