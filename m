@@ -2,153 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CE2C4A9093
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 23:19:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00E264A9096
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 23:20:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350718AbiBCWTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 17:19:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55204 "EHLO
+        id S1355767AbiBCWUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 17:20:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229910AbiBCWTN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 17:19:13 -0500
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA9EC061714;
-        Thu,  3 Feb 2022 14:19:13 -0800 (PST)
-Received: by mail-ej1-x633.google.com with SMTP id j2so12918778ejk.6;
-        Thu, 03 Feb 2022 14:19:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=GOu/1THglDVeJl3U7MMSrfyxTvyCi8aFtyQJKOPt1yo=;
-        b=Bkxytx1rYCwS7T3hdaz6quufzPxCnjE+wsE5ldbaUW5t8fCGwpg505DKUwCU7oEcWu
-         6Apaly4e9E/MpN0+MVpfHbPNW4lCkJUnWXeIkflNFURTUP5FGMGs+B/8rb5G8hK748L+
-         7x9qH2FoOoewr/gQQoNh+LNcw+eZv21u3BKkhYK6YQwGSu5TulCA7ZLace6IcmTfnI/L
-         tnJlip18l6nXRLWAnzbn+iDSG63aeQH0NPEn/XSoVbSb2PkhE5MGs8exnVYgn5Uxb1k/
-         gbHmrmSLGke6jdHWI8B0KagLzMm+Ytgpi1QW+JJJKbEzT/lEnCL35tiQJaWea8VmWcOm
-         7xNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=GOu/1THglDVeJl3U7MMSrfyxTvyCi8aFtyQJKOPt1yo=;
-        b=YrC7ojW6Lg0IeKrhyqiLX7a4LQsRbwxlZ+jFvx49teaj40BqtLUV/yHZT9QVsUwBfU
-         Yy2iDIUpUKNil1AmzCbczGMDGSGNeQQellEeurdQ/Z7ip5Mlzolnt6fZ3iajMk1RfeZF
-         vFpzReHtvoz/utEYFh1w9YGI6JBArudycQlPRvhhx3i+XkVPY/0k4kUxNqtvbXVbtfDF
-         CDUN2lFo5MoIAei4/leh9JHcwFsKAffK5CNjDtOTyikHQeo7aBqaGQe0UpzvN2i6o5Gy
-         NOfb9ldm98edPJlDkkEUyNYKnpNOU9pAzujOWwXWfE9b0R5uBIAcVxLA5zxYCuJclR5G
-         hMHQ==
-X-Gm-Message-State: AOAM531DBCpm+tf+5QsFH2Rg6F/LM550Aazzbn9NqeZZDUPcliCOWz40
-        PLR/yGBpHI7WwsRe7Gf1pnQl6sz6ljY+GKzo06uG2XcMagU=
-X-Google-Smtp-Source: ABdhPJxI8SMxBz0kZoZ/OkQC6HVudR43k5HUeEvEqSyhCy3Q02/zu7na+zZTa14XBq/mhwevczEjO49BPLpith+IgMs=
-X-Received: by 2002:a17:907:6e1a:: with SMTP id sd26mr22848ejc.270.1643926751588;
- Thu, 03 Feb 2022 14:19:11 -0800 (PST)
-MIME-Version: 1.0
-References: <20220203182641.824731-1-shy828301@gmail.com> <20220203141226.d510a9fe3fb1f55fc75926e5@linux-foundation.org>
-In-Reply-To: <20220203141226.d510a9fe3fb1f55fc75926e5@linux-foundation.org>
-From:   Yang Shi <shy828301@gmail.com>
-Date:   Thu, 3 Feb 2022 14:18:56 -0800
-Message-ID: <CAHbLzkpb2Bs8buDOAGCt7hpjy2824HfK3RsTHM+gbzmZ1wvKRA@mail.gmail.com>
-Subject: Re: [v4 PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Jann Horn <jannh@google.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Linux MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        with ESMTP id S229910AbiBCWUP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 17:20:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2300C061714;
+        Thu,  3 Feb 2022 14:20:14 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4798EB835DB;
+        Thu,  3 Feb 2022 22:20:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0C12C340E8;
+        Thu,  3 Feb 2022 22:20:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1643926812;
+        bh=i4v7hZDD9ywDByBUn1XanxjIvJKlM913PCZVLBQ0JJo=;
+        h=Date:To:From:Subject:From;
+        b=bumKYSZfnjOS16K4zws6nKGUEODGVfuQBhiig7Y9/CuzeBWLk0eLEQ3hHKeDGa3dm
+         CzDIf3FwQvauo7sic/f1TuHqCR1Fj+uIsltbXwc69RGtWaqsOpjW0D+4g8oLIyiGew
+         LsGee9fbT67Uh+sNmamUwCRabNiM16r56mEYq9wo=
+Received: by hp1 (sSMTP sendmail emulation); Thu, 03 Feb 2022 14:20:10 -0800
+Date:   Thu, 03 Feb 2022 14:20:10 -0800
+To:     mm-commits@vger.kernel.org, vbabka@suse.cz, stable@vger.kernel.org,
+        riel@surriel.com, mhocko@suse.com, hughd@google.com,
+        mgorman@suse.de, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-vmscan-remove-deadlock-due-to-throttling-failing-to-make-progress.patch added to -mm tree
+Message-Id: <20220203222010.D0C12C340E8@smtp.kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 3, 2022 at 2:12 PM Andrew Morton <akpm@linux-foundation.org> wrote:
->
-> On Thu,  3 Feb 2022 10:26:41 -0800 Yang Shi <shy828301@gmail.com> wrote:
->
-> > v4: * s/Treated/Treat per David
-> >     * Collected acked-by tag from David
-> > v3: * Fixed the fix tag, the one used by v2 was not accurate
-> >     * Added comment about the risk calling page_mapcount() per David
-> >     * Fix pagemap
-> > v2: * Added proper fix tag per Jann Horn
-> >     * Rebased to the latest linus's tree
->
-> The v2->v4 delta shows changes which aren't described above?
 
-They are.
+The patch titled
+     Subject: mm: vmscan: remove deadlock due to throttling failing to make progress
+has been added to the -mm tree.  Its filename is
+     mm-vmscan-remove-deadlock-due-to-throttling-failing-to-make-progress.patch
 
-v4: * s/Treated/Treat per David
-      * Collected acked-by tag from David
-v3: * Fixed the fix tag, the one used by v2 was not accurate
-      * Added comment about the risk calling page_mapcount() per David
-      * Fix pagemap
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-vmscan-remove-deadlock-due-to-throttling-failing-to-make-progress.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-vmscan-remove-deadlock-due-to-throttling-failing-to-make-progress.patch
 
->
-> --- a/fs/proc/task_mmu.c~fs-proc-task_mmuc-dont-read-mapcount-for-migration-entry-v4
-> +++ a/fs/proc/task_mmu.c
-> @@ -469,9 +469,12 @@ static void smaps_account(struct mem_siz
->          * If any subpage of the compound page mapped with PTE it would elevate
->          * page_count().
->          *
-> -        * Treated regular migration entries as mapcount == 1 without reading
-> -        * mapcount since calling page_mapcount() for migration entries is
-> -        * racy against THP splitting.
-> +        * The page_mapcount() is called to get a snapshot of the mapcount.
-> +        * Without holding the page lock this snapshot can be slightly wrong as
-> +        * we cannot always read the mapcount atomically.  It is not safe to
-> +        * call page_mapcount() even with PTL held if the page is not mapped,
-> +        * especially for migration entries.  Treat regular migration entries
-> +        * as mapcount == 1.
->          */
->         if ((page_count(page) == 1) || migration) {
->                 smaps_page_accumulate(mss, page, size, size << PSS_SHIFT, dirty,
-> @@ -1393,6 +1396,7 @@ static pagemap_entry_t pte_to_pagemap_en
->  {
->         u64 frame = 0, flags = 0;
->         struct page *page = NULL;
-> +       bool migration = false;
->
->         if (pte_present(pte)) {
->                 if (pm->show_pfn)
-> @@ -1414,13 +1418,14 @@ static pagemap_entry_t pte_to_pagemap_en
->                         frame = swp_type(entry) |
->                                 (swp_offset(entry) << MAX_SWAPFILES_SHIFT);
->                 flags |= PM_SWAP;
-> +               migration = is_migration_entry(entry);
->                 if (is_pfn_swap_entry(entry))
->                         page = pfn_swap_entry_to_page(entry);
->         }
->
->         if (page && !PageAnon(page))
->                 flags |= PM_FILE;
-> -       if (page && page_mapcount(page) == 1)
-> +       if (page && !migration && page_mapcount(page) == 1)
->                 flags |= PM_MMAP_EXCLUSIVE;
->         if (vma->vm_flags & VM_SOFTDIRTY)
->                 flags |= PM_SOFT_DIRTY;
-> @@ -1436,6 +1441,7 @@ static int pagemap_pmd_range(pmd_t *pmdp
->         spinlock_t *ptl;
->         pte_t *pte, *orig_pte;
->         int err = 0;
-> +       bool migration = false;
->
->  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
->         ptl = pmd_trans_huge_lock(pmdp, vma);
-> @@ -1476,11 +1482,12 @@ static int pagemap_pmd_range(pmd_t *pmdp
->                         if (pmd_swp_uffd_wp(pmd))
->                                 flags |= PM_UFFD_WP;
->                         VM_BUG_ON(!is_pmd_migration_entry(pmd));
-> +                       migration = is_migration_entry(entry);
->                         page = pfn_swap_entry_to_page(entry);
->                 }
->  #endif
->
-> -               if (page && page_mapcount(page) == 1)
-> +               if (page && !migration && page_mapcount(page) == 1)
->                         flags |= PM_MMAP_EXCLUSIVE;
->
->                 for (; addr != end; addr += PAGE_SIZE) {
-> _
->
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Mel Gorman <mgorman@suse.de>
+Subject: mm: vmscan: remove deadlock due to throttling failing to make progress
+
+A soft lockup bug in kcompactd was reported in a private bugzilla with
+the following visible in dmesg;
+
+[15980.045209][   C33] watchdog: BUG: soft lockup - CPU#33 stuck for 26s! [kcompactd0:479]
+[16008.044989][   C33] watchdog: BUG: soft lockup - CPU#33 stuck for 52s! [kcompactd0:479]
+[16036.044768][   C33] watchdog: BUG: soft lockup - CPU#33 stuck for 78s! [kcompactd0:479]
+[16064.044548][   C33] watchdog: BUG: soft lockup - CPU#33 stuck for 104s! [kcompactd0:479]
+
+The machine had 256G of RAM with no swap and an earlier failed allocation
+indicated that node 0 where kcompactd was run was potentially
+unreclaimable;
+
+Node 0 active_anon:29355112kB inactive_anon:2913528kB active_file:0kB
+  inactive_file:0kB unevictable:64kB isolated(anon):0kB isolated(file):0kB
+  mapped:8kB dirty:0kB writeback:0kB shmem:26780kB shmem_thp:
+  0kB shmem_pmdmapped: 0kB anon_thp: 23480320kB writeback_tmp:0kB
+  kernel_stack:2272kB pagetables:24500kB all_unreclaimable? yes
+
+Vlastimil Babka investigated a crash dump and found that a task migrating pages
+was trying to drain PCP lists;
+
+PID: 52922  TASK: ffff969f820e5000  CPU: 19  COMMAND: "kworker/u128:3"
+ #0 [ffffaf4e4f4c3848] __schedule at ffffffffb840116d
+ #1 [ffffaf4e4f4c3908] schedule at ffffffffb8401e81
+ #2 [ffffaf4e4f4c3918] schedule_timeout at ffffffffb84066e8
+ #3 [ffffaf4e4f4c3990] wait_for_completion at ffffffffb8403072
+ #4 [ffffaf4e4f4c39d0] __flush_work at ffffffffb7ac3e4d
+ #5 [ffffaf4e4f4c3a48] __drain_all_pages at ffffffffb7cb707c
+ #6 [ffffaf4e4f4c3a80] __alloc_pages_slowpath.constprop.114 at ffffffffb7cbd9dd
+ #7 [ffffaf4e4f4c3b60] __alloc_pages at ffffffffb7cbe4f5
+ #8 [ffffaf4e4f4c3bc0] alloc_migration_target at ffffffffb7cf329c
+ #9 [ffffaf4e4f4c3bf0] migrate_pages at ffffffffb7cf6d15
+ 10 [ffffaf4e4f4c3cb0] migrate_to_node at ffffffffb7cdb5aa
+ 11 [ffffaf4e4f4c3da8] do_migrate_pages at ffffffffb7cdcf26
+ 12 [ffffaf4e4f4c3e88] cpuset_migrate_mm_workfn at ffffffffb7b859d2
+ 13 [ffffaf4e4f4c3e98] process_one_work at ffffffffb7ac45f3
+ 14 [ffffaf4e4f4c3ed8] worker_thread at ffffffffb7ac47fd
+ 15 [ffffaf4e4f4c3f10] kthread at ffffffffb7acbdc6
+ 16 [ffffaf4e4f4c3f50] ret_from_fork at ffffffffb7a047e2
+
+This failure is specific to CONFIG_PREEMPT=n builds.  The root of the
+problem is that kcompact0 is not rescheduling on a CPU while a task that
+has isolated a large number of the pages from the LRU is waiting on
+kcompact0 to reschedule so the pages can be released.  While
+shrink_inactive_list() only loops once around too_many_isolated, reclaim
+can continue without rescheduling if sc->skipped_deactivate == 1 which
+could happen if there was no file LRU and the inactive anon list was not
+low.
+
+Link: https://lkml.kernel.org/r/20220203100326.GD3301@suse.de
+Fixes: d818fca1cac3 ("mm/vmscan: throttle reclaim and compaction when too may pages are isolated")
+Signed-off-by: Mel Gorman <mgorman@suse.de>
+Debugged-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/vmscan.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+--- a/mm/vmscan.c~mm-vmscan-remove-deadlock-due-to-throttling-failing-to-make-progress
++++ a/mm/vmscan.c
+@@ -1066,8 +1066,10 @@ void reclaim_throttle(pg_data_t *pgdat,
+ 	 * forward progress (e.g. journalling workqueues or kthreads).
+ 	 */
+ 	if (!current_is_kswapd() &&
+-	    current->flags & (PF_IO_WORKER|PF_KTHREAD))
++	    current->flags & (PF_IO_WORKER|PF_KTHREAD)) {
++		cond_resched();
+ 		return;
++	}
+ 
+ 	/*
+ 	 * These figures are pulled out of thin air.
+_
+
+Patches currently in -mm which might be from mgorman@suse.de are
+
+mm-vmscan-remove-deadlock-due-to-throttling-failing-to-make-progress.patch
+
