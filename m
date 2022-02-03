@@ -2,137 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4551D4A8952
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 18:09:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 399674A8953
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 18:09:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233690AbiBCRJV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 12:09:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38272 "EHLO
+        id S1352521AbiBCRJf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 12:09:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230439AbiBCRJU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 12:09:20 -0500
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E3FBC061714
-        for <stable@vger.kernel.org>; Thu,  3 Feb 2022 09:09:20 -0800 (PST)
-Received: by mail-pg1-x52f.google.com with SMTP id q132so2770975pgq.7
-        for <stable@vger.kernel.org>; Thu, 03 Feb 2022 09:09:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=+AO9rJvO2crPn/KYYgtBPm++9YLmNLyLO7E8iffPQKk=;
-        b=zMloaTBxZjSeXKszb1iHTgDrJWQKuV3ZKPkCpHVanAnOcVC5S9Mr2jHQHokC9oPPkn
-         Jojg/Bxp/WJewrELKiVfI/xI5Ku9RsHGdyHI4YEhVtpda7n22LUSZad+zRs9aeoVVvab
-         1qlIvA6/M4twUgv/HKHuD71Ve2bMxeS1TwLyQDs1hhpsoEtp1RRP9Xuwo063cfhSV+8H
-         3KCPpq6sAs8Emk+OsMMD3GVw3sT4Ysjz257Iw4BSg/3xJb9MJXZYFEBsupqBkME4sL5q
-         XPBbjDbKWWg4WE5P1N8AzAl3rGNYWfoqaJX3a1YBC6cSi/kF2Qe/g1stoQCyp1TZmfUH
-         VoPA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=+AO9rJvO2crPn/KYYgtBPm++9YLmNLyLO7E8iffPQKk=;
-        b=8LG/1RTkG4OX8gSQZOXUh/Y7JYBhF0HakGqtjODvdi4cnjiEpAtUkZGpcqgJKAT7rc
-         fT0znXu/0YoYdkMEZPcM6D9lDymPCpctgY1vg04gHrwhpx1sjrOJI5P1vxRnneKxsYug
-         Vr34jdbrBWoi+GIzZw1pAdPSajzoeZhew9HBsgeDVZH8ZAnVphlDs9G3X9Hrhv5HvNaQ
-         qa7fmsw4l1szm/UHo57BfqB5sQOs1g/Cwv+aORav6j2AfDLdI1rweuJcfKuFr0bAsFnb
-         0qwRDapjvHC0CrPnLmTSDLu+jlDIH/U0sBQzf4Df3Mva4cUXgrxp/gx+Hq5d8XfzlWk3
-         AxbQ==
-X-Gm-Message-State: AOAM532450g9cWbUosznHMJW04r2kaOkUPR9qaohTNEwoYI/iWcuwXMt
-        2VUqaA7UJqILVd8p1tgnVoDMrRlZ5WiVq26f
-X-Google-Smtp-Source: ABdhPJwXY/cVa5dhLia0nbQrkS4C0IQ1SuCGxcTHKXVpZxTJhwzftm/haOsRGqkC0dgrvTuBcpQZJQ==
-X-Received: by 2002:aa7:8695:: with SMTP id d21mr35338416pfo.36.1643908159862;
-        Thu, 03 Feb 2022 09:09:19 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z1sm26839049pfh.137.2022.02.03.09.09.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Feb 2022 09:09:19 -0800 (PST)
-Message-ID: <61fc0c3f.1c69fb81.54794.2831@mx.google.com>
-Date:   Thu, 03 Feb 2022 09:09:19 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S236960AbiBCRJe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 12:09:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A60E1C061714;
+        Thu,  3 Feb 2022 09:09:34 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26099B8350E;
+        Thu,  3 Feb 2022 17:09:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83E18C340E8;
+        Thu,  3 Feb 2022 17:09:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643908171;
+        bh=lw506HOrYlGmJA6MjUljcsQtm/9VJ1py1ZAa57fuLK0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=YxbDCrkX3gkzHafUpB2M8wBBLlWW9Hfml70NSQFstCd4V0iVKQO8QUW6OD6hewWV2
+         fF2Kjx6y/nQGOLpNGqjpmrzNSS8SIva0qXLUsp28JLnxVew7Ikn1S2HKfaYRqG6Cno
+         e0co+ToS2LMjS7b7hiR/Mo4r1LSA61cmxFhPzPjQTKiRWG7X5nUvDfb5EgD+82yUGm
+         F1wbLg1Pr1kDy2BNHVmn/EEe1Y60yY+o+O67HjXmFV9QMAky5vMm27uA+aFzPQzvZq
+         vbplvEoe7m1YjKhQwzMegw5NI3gXijKiKaFihG6Ynsg2ZnHaLn7M4DuvJwjh2UyhjW
+         DAt2tauffj5NQ==
+Date:   Thu, 3 Feb 2022 10:09:27 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Sekhar Nori <nsekhar@ti.com>
+Cc:     Bartosz Golaszewski <brgl@bgdev.pl>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] ARM: davinci: da850-evm: Avoid NULL pointer dereference
+Message-ID: <YfwMR5EigHpfIDa7@dev-arch.archlinux-ax161>
+References: <20211223222141.1253092-1-nathan@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.227-45-g64c20ab4d0e4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 126 runs,
- 1 regressions (v4.19.227-45-g64c20ab4d0e4)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211223222141.1253092-1-nathan@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 126 runs, 1 regressions (v4.19.227-45-g64c20=
-ab4d0e4)
+On Thu, Dec 23, 2021 at 03:21:41PM -0700, Nathan Chancellor wrote:
+> With newer versions of GCC, there is a panic in da850_evm_config_emac()
+> when booting multi_v5_defconfig in QEMU under the palmetto-bmc machine:
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 00000020
+> pgd = (ptrval)
+> [00000020] *pgd=00000000
+> Internal error: Oops: 5 [#1] PREEMPT ARM
+> Modules linked in:
+> CPU: 0 PID: 1 Comm: swapper Not tainted 5.15.0 #1
+> Hardware name: Generic DT based system
+> PC is at da850_evm_config_emac+0x1c/0x120
+> LR is at do_one_initcall+0x50/0x1e0
+> 
+> The emac_pdata pointer in soc_info is NULL because davinci_soc_info only
+> gets populated on davinci machines but da850_evm_config_emac() is called
+> on all machines via device_initcall().
+> 
+> Move the rmii_en assignment below the machine check so that it is only
+> dereferenced when running on a supported SoC.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: bae105879f2f ("davinci: DA850/OMAP-L138 EVM: implement autodetect of RMII PHY")
+> Link: https://lore.kernel.org/r/YcS4xVWs6bQlQSPC@archlinux-ax161/
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> ---
+>  arch/arm/mach-davinci/board-da850-evm.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
+> index 428012687a80..7f7f6bae21c2 100644
+> --- a/arch/arm/mach-davinci/board-da850-evm.c
+> +++ b/arch/arm/mach-davinci/board-da850-evm.c
+> @@ -1101,11 +1101,13 @@ static int __init da850_evm_config_emac(void)
+>  	int ret;
+>  	u32 val;
+>  	struct davinci_soc_info *soc_info = &davinci_soc_info;
+> -	u8 rmii_en = soc_info->emac_pdata->rmii_en;
+> +	u8 rmii_en;
+>  
+>  	if (!machine_is_davinci_da850_evm())
+>  		return 0;
+>  
+> +	rmii_en = soc_info->emac_pdata->rmii_en;
+> +
+>  	cfg_chip3_base = DA8XX_SYSCFG0_VIRT(DA8XX_CFGCHIP3_REG);
+>  
+>  	val = __raw_readl(cfg_chip3_base);
+> 
+> base-commit: a7904a538933c525096ca2ccde1e60d0ee62c08e
+> -- 
+> 2.34.1
+> 
+> 
 
-Regressions Summary
--------------------
+Could someone pick this patch up? This is still broken on mainline and
+-next.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.227-45-g64c20ab4d0e4/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.227-45-g64c20ab4d0e4
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      64c20ab4d0e4a401d43d1e989a2a0b198218b1af =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61fbd18fa89faf8bb95d6f1b
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.227=
--45-g64c20ab4d0e4/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.227=
--45-g64c20ab4d0e4/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61fbd18fa89faf8=
-bb95d6f21
-        failing since 1 day (last pass: v4.19.227-45-g1749fce68f74, first f=
-ail: v4.19.227-45-g388e07a2599d)
-        2 lines
-
-    2022-02-03T12:58:40.858964  <8>[   21.464385] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-02-03T12:58:40.911242  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/97
-    2022-02-03T12:58:40.919743  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+Cheers,
+Nathan
