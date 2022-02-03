@@ -2,95 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF5384A8ED8
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:39:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A1B64A8F4F
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:46:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355790AbiBCUjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:39:10 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43340 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355097AbiBCUhG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:37:06 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F0E260C7D;
-        Thu,  3 Feb 2022 20:37:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7628C340F0;
-        Thu,  3 Feb 2022 20:37:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920624;
-        bh=js+fuAM4/WE8FT7Gl8fPuy4DPVo7Bz7KVm+bzuIfYAM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ugfd+oeupTvIqjhGBTAUjsccNsPf6h78Wtb+aUcMFU3ecH8HatUDn1NBD88tyzOVj
-         IPO3sRtH+bb8wn5X6Ia3jCELPbCo5+/uSoA7ulX84SNQU7wvck6WrJax3LJZFyy5rQ
-         hYrJGlB5YGfwrk7uz7ti2YHQmXr1YlkoX7Oh0WDEjT4vhw1Yvi1aDPmF7ZzlbYcflh
-         1n6nGjwaAJcS8s7nHSUmLFisRIvxk5aq4I5xXIzFFw35m8tr896JqRGflPlSxJ2YiZ
-         rrHrv3qeJfy9dH9WnKAViJ2rBP/n+AcVUt1uq9Lm/mu6WohHlPHVymJlFdRKvhT5Xa
-         KOqPqekp4UP2Q==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, hminas@synopsys.com,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 7/7] usb: dwc2: gadget: don't try to disable ep0 in dwc2_hsotg_suspend
-Date:   Thu,  3 Feb 2022 15:36:51 -0500
-Message-Id: <20220203203651.5158-7-sashal@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220203203651.5158-1-sashal@kernel.org>
-References: <20220203203651.5158-1-sashal@kernel.org>
+        id S231268AbiBCUql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:46:41 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:52126 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354785AbiBCUpU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:45:20 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id B59FD1C0B79; Thu,  3 Feb 2022 21:45:18 +0100 (CET)
+Date:   Thu, 3 Feb 2022 21:45:18 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        syzbot+5ca851459ed04c778d1d@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>
+Subject: Re: [PATCH 4.14 2/2] can: bcm: fix UAF of bcm op
+Message-ID: <20220203204518.GA18824@duo.ucw.cz>
+References: <20220127180256.764665162@linuxfoundation.org>
+ <20220127180256.840826051@linuxfoundation.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
+Content-Disposition: inline
+In-Reply-To: <20220127180256.840826051@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-[ Upstream commit ac55d163855924aa5af9f1560977da8f346963c8 ]
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Calling dwc2_hsotg_ep_disable on ep0 (in/out) will lead to the following
-logs before returning -EINVAL:
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
+Hi!
 
-To avoid these two logs while suspending, start disabling the endpoint
-from the index 1, as done in dwc2_hsotg_udc_stop:
 
-	/* all endpoints should be shutdown */
-	for (ep = 1; ep < hsotg->num_of_eps; ep++) {
-		if (hsotg->eps_in[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_in[ep]->ep);
-		if (hsotg->eps_out[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_out[ep]->ep);
-	}
+> From: Ziyang Xuan <william.xuanziyang@huawei.com>
+>=20
+> Stopping tasklet and hrtimer rely on the active state of tasklet and
+> hrtimer sequentially in bcm_remove_op(), the op object will be freed
+> if they are all unactive. Assume the hrtimer timeout is short, the
+> hrtimer cb has been excuted after tasklet conditional judgment which
+> must be false after last round tasklet_kill() and before condition
+> hrtimer_active(), it is false when execute to hrtimer_active(). Bug
+> is triggerd, because the stopping action is end and the op object
+> will be freed, but the tasklet is scheduled. The resources of the op
+> object will occur UAF bug.
+>=20
+> Move hrtimer_cancel() behind tasklet_kill() and switch 'while () {...}'
+> to 'do {...} while ()' to fix the op UAF problem.
 
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20211207130101.270314-1-amelie.delaunay@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/usb/dwc2/gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I don't see this commit in mainline or next kernels. What is going on
+here? Is it one of those "only needed in -stable" things? Or do we
+still need to fix it in the mainline?
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index e7ad3ae4ea6bd..65bcbbad6d545 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -3979,7 +3979,7 @@ int dwc2_hsotg_suspend(struct dwc2_hsotg *hsotg)
- 		hsotg->gadget.speed = USB_SPEED_UNKNOWN;
- 		spin_unlock_irqrestore(&hsotg->lock, flags);
- 
--		for (ep = 0; ep < hsotg->num_of_eps; ep++) {
-+		for (ep = 1; ep < hsotg->num_of_eps; ep++) {
- 			if (hsotg->eps_in[ep])
- 				dwc2_hsotg_ep_disable(&hsotg->eps_in[ep]->ep);
- 			if (hsotg->eps_out[ep])
--- 
-2.34.1
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
+--9jxsPFA5p3P2qPhR
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYfw+3gAKCRAw5/Bqldv6
+8uKwAJ0UfJMChXRoN1yhcxHknUTIq0A2DQCfT0NdPdj4mxrex8j1U/PlZy106Og=
+=ijM2
+-----END PGP SIGNATURE-----
+
+--9jxsPFA5p3P2qPhR--
