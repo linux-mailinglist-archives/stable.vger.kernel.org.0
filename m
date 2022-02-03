@@ -2,52 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 589094A8F2B
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:42:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9251A4A8EA6
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:39:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234570AbiBCUmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:42:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59340 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355823AbiBCUjy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:39:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE1D8C0611FD;
-        Thu,  3 Feb 2022 12:36:32 -0800 (PST)
+        id S1354746AbiBCUik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:38:40 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38720 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354764AbiBCUgk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:36:40 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 419EE608C4;
-        Thu,  3 Feb 2022 20:36:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02D32C340E8;
-        Thu,  3 Feb 2022 20:36:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99A9EB83503;
+        Thu,  3 Feb 2022 20:36:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81881C340E8;
+        Thu,  3 Feb 2022 20:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920591;
-        bh=lP/9XNjr06Zs66IlC10yUo62yXsw8hTcr3FXGl4Gv0I=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQZqN49UBdxGrEJVsrKmsCtTExZdhgmSm8ya8bwq8F0MA66O9d3D89H4QlAen/viM
-         RcXp8JOpqFzSOEL4vkPbI5+WUJshI2/Ne12ah6YDsLRAv+qg3k/rNYAjqDrMT8Z2NL
-         xWL3+05+ZrSxCoRnaIhO52JvImm1buJaSQnFPBudV0HpdaUHqikhQIBIQbgyHbsaKj
-         sczaRQCXIr6In/1rFtXrG/PXNLvGsGAgHCKcVjePpCORXy+U07Ziquus+ts+XbVvQZ
-         rDmkFhdL103fVUe3ZaNR13quIWagFVJYK+vT1//yt76dxqxrtnCcCiX65DumadlZC+
-         4pPqcGP05JJww==
+        s=k20201202; t=1643920596;
+        bh=27snDcMHmdboqii2MmwxWugX1Q1BDnFqJRQ8YQ86qqM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ObvoW2+Nus3Y/ldBEBv4g2n143WQs87QjfhQZHOrDrA9IR/n6l6S4+0wgaayeeQ8A
+         SyN3NAXAWmWHhEfwJ1ukDvEzo1bVJdSUPDVpGGk/CqyhEIvq+9nJcbHXrugzZwE+L8
+         UkO9VPuTw+IizlUNcc8KNVJUYtgrG/et+3OO724SRrxzlvK1t9sNg+tb+zlKvri/F8
+         xF86Thw4628s0MLTEvoLftgyKtgPSGnOZja+9Hcm7MFFqrjjwTHCTPOY49q0zBmQPc
+         WV4MZ16ZUwFeKi1dEyU7dY/IzoXjbg1xmB3TK9x2FWAbTE1+yQBDPAp+bnPRZjcO+K
+         0aZbBDJHBkYuA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jisheng Zhang <jszhang@kernel.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, peppe.cavallaro@st.com,
-        alexandre.torgue@foss.st.com, joabreu@synopsys.com,
-        kuba@kernel.org, mripard@kernel.org, wens@csie.org,
-        mcoquelin.stm32@gmail.com, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
-        linux-stm32@st-md-mailman.stormreply.com
-Subject: [PATCH AUTOSEL 4.19 10/10] net: stmmac: dwmac-sun8i: use return val of readl_poll_timeout()
-Date:   Thu,  3 Feb 2022 15:36:13 -0500
-Message-Id: <20220203203613.4165-10-sashal@kernel.org>
+Cc:     Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>,
+        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
+        linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 1/9] NFSv4 only print the label when its queried
+Date:   Thu,  3 Feb 2022 15:36:25 -0500
+Message-Id: <20220203203633.4685-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220203203613.4165-1-sashal@kernel.org>
-References: <20220203203613.4165-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,40 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit 9e0db41e7a0b6f1271cbcfb16dbf5b8641b4e440 ]
+[ Upstream commit 2c52c8376db7160a1dd8a681c61c9258405ef143 ]
 
-When readl_poll_timeout() timeout, we'd better directly use its return
-value.
+When the bitmask of the attributes doesn't include the security label,
+don't bother printing it. Since the label might not be null terminated,
+adjust the printing format accordingly.
 
-Before this patch:
-[    2.145528] dwmac-sun8i: probe of 4500000.ethernet failed with error -14
-
-After this patch:
-[    2.138520] dwmac-sun8i: probe of 4500000.ethernet failed with error -110
-
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs4xdr.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-index 4382deaeb570d..0137cba2cb54b 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-@@ -712,7 +712,7 @@ static int sun8i_dwmac_reset(struct stmmac_priv *priv)
- 
- 	if (err) {
- 		dev_err(priv->device, "EMAC reset timeout\n");
--		return -EFAULT;
-+		return err;
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index 3cd04c98da6bc..99facb5f186fd 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -4272,10 +4272,11 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
+ 		} else
+ 			printk(KERN_WARNING "%s: label too long (%u)!\n",
+ 					__func__, len);
++		if (label && label->label)
++			dprintk("%s: label=%.*s, len=%d, PI=%d, LFS=%d\n",
++				__func__, label->len, (char *)label->label,
++				label->len, label->pi, label->lfs);
  	}
- 	return 0;
- }
+-	if (label && label->label)
+-		dprintk("%s: label=%s, len=%d, PI=%d, LFS=%d\n", __func__,
+-			(char *)label->label, label->len, label->pi, label->lfs);
+ 	return status;
+ 
+ out_overflow:
 -- 
 2.34.1
 
