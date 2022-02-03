@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85BA54A8E6F
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:37:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA5A04A8ED6
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:39:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355183AbiBCUhP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:37:15 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37450 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355199AbiBCUfF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:35:05 -0500
+        id S1355168AbiBCUjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:39:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59128 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355153AbiBCUhH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:37:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED99C06178C;
+        Thu,  3 Feb 2022 12:35:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 569C6B835A6;
-        Thu,  3 Feb 2022 20:35:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3E47C340F1;
-        Thu,  3 Feb 2022 20:35:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBE15B835B1;
+        Thu,  3 Feb 2022 20:35:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3B83C340EF;
+        Thu,  3 Feb 2022 20:35:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920503;
-        bh=HIPORMFuV//Hr3CiBeB8KOpD7vvvwHqgFISVkSXSIQY=;
+        s=k20201202; t=1643920504;
+        bh=UAB7gaH3NgMrAcDUBNS5Abh/HcDIdCVCCYEvBt09frA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/YtVDkvxPEroQj9CGt5OSFHllWHVhHRpS7xUrWvKqqOv+NImh/F1dJScqsuF/QF+
-         /XQd8tBgZYohmcEk282Mjuhd8n1P8jln5r+8EpQKzb5mh/RXK9IQcvU5bG0DnFv42l
-         t0FpDXgp8Vz+AyM5leXtCiy3ie80/6/Ujyb0uwdW27dbFf6DtTvNvVVALqm12hUT9j
-         ysHJmThJ1udOxTiIns5SiFK08D4LiKYCMee7A4hsYs9dpj8OjghtvC01F3ez3KTiSz
-         g0EMJq5boXBeyYqFDUhhJgT+SJMkY/nbB5zuKmEObDTVuugMRC5hfKjFtGV6Qyl5Hz
-         lqtPeO+V90XCA==
+        b=d/7xE2Y9Fthr5dBoIzh8HMs2XpuQwpJT27N/27gcSksMlvW0U2z6oGeIkIJmpemBb
+         +/33rEG6e7dOAS5kRwBsCtvyXR885mAEvv+uN0z0FvgfKlW38vHYt+HTYDT3USZ+pT
+         ODka3aJ7fqHIHV1cgnjV2w6JltH9XkgT7am4TLlaHNHvpRvAEQenXq0+KVmGK5SsMG
+         xna5hSujy1NSXGORY11Gmr9pIG9HKwYYtOb22k+KXkQpJg/sofEm7WmCfaIhACAMkg
+         5euOzWWa2Oigrdrw9HN/oOh4vKhxs+GYcPckDvmGahijObVglFmV1T28ICLWgoLZxM
+         pi50wo+aBXErg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Raymond Jay Golo <rjgolo@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sasha Levin <sashal@kernel.org>,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 10/25] drm: panel-orientation-quirks: Add quirk for the 1Netbook OneXPlayer
-Date:   Thu,  3 Feb 2022 15:34:31 -0500
-Message-Id: <20220203203447.3570-10-sashal@kernel.org>
+Cc:     Victor Nogueira <victor@mojatatu.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, jhs@mojatatu.com,
+        xiyou.wangcong@gmail.com, jiri@resnulli.us, kuba@kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 11/25] net: sched: Clarify error message when qdisc kind is unknown
+Date:   Thu,  3 Feb 2022 15:34:32 -0500
+Message-Id: <20220203203447.3570-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203203447.3570-1-sashal@kernel.org>
 References: <20220203203447.3570-1-sashal@kernel.org>
@@ -50,51 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raymond Jay Golo <rjgolo@gmail.com>
+From: Victor Nogueira <victor@mojatatu.com>
 
-[ Upstream commit d3cbc6e323c9299d10c8d2e4127c77c7d05d07b1 ]
+[ Upstream commit 973bf8fdd12f0e70ea351c018e68edd377a836d1 ]
 
-The 1Netbook OneXPlayer uses a panel which has been mounted
-90 degrees rotated. Add a quirk for this.
+When adding a tc rule with a qdisc kind that is not supported or not
+compiled into the kernel, the kernel emits the following error: "Error:
+Specified qdisc not found.". Found via tdc testing when ETS qdisc was not
+compiled in and it was not obvious right away what the message meant
+without looking at the kernel code.
 
-Signed-off-by: Raymond Jay Golo <rjgolo@gmail.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220113000619.90988-1-rjgolo@gmail.com
+Change the error message to be more explicit and say the qdisc kind is
+unknown.
+
+Signed-off-by: Victor Nogueira <victor@mojatatu.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ net/sched/sch_api.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 9d1bd8f491ad7..448c2f2d803a6 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -115,6 +115,12 @@ static const struct drm_dmi_panel_orientation_data lcd1280x1920_rightside_up = {
- 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
- };
+diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
+index 7b24582a8a164..6758968e79327 100644
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -1204,7 +1204,7 @@ static struct Qdisc *qdisc_create(struct net_device *dev,
  
-+static const struct drm_dmi_panel_orientation_data lcd1600x2560_leftside_up = {
-+	.width = 1600,
-+	.height = 2560,
-+	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
-+};
-+
- static const struct dmi_system_id orientation_data[] = {
- 	{	/* Acer One 10 (S1003) */
- 		.matches = {
-@@ -261,6 +267,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Default string"),
- 		},
- 		.driver_data = (void *)&onegx1_pro,
-+	}, {	/* OneXPlayer */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ONE-NETBOOK TECHNOLOGY CO., LTD."),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "ONE XPLAYER"),
-+		},
-+		.driver_data = (void *)&lcd1600x2560_leftside_up,
- 	}, {	/* Samsung GalaxyBook 10.6 */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
+ 	err = -ENOENT;
+ 	if (!ops) {
+-		NL_SET_ERR_MSG(extack, "Specified qdisc not found");
++		NL_SET_ERR_MSG(extack, "Specified qdisc kind is unknown");
+ 		goto err_out;
+ 	}
+ 
 -- 
 2.34.1
 
