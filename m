@@ -2,137 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A0D24A913D
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 00:38:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 523924A915C
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 01:02:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244278AbiBCXi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 18:38:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44436 "EHLO
+        id S244642AbiBDAA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 19:00:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229532AbiBCXi1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 18:38:27 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF824C061714
-        for <stable@vger.kernel.org>; Thu,  3 Feb 2022 15:38:26 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id y17so3596583plg.7
-        for <stable@vger.kernel.org>; Thu, 03 Feb 2022 15:38:26 -0800 (PST)
+        with ESMTP id S234431AbiBDAA1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 19:00:27 -0500
+Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94D25C06173B
+        for <stable@vger.kernel.org>; Thu,  3 Feb 2022 16:00:27 -0800 (PST)
+Received: by mail-lj1-x22b.google.com with SMTP id z20so6245588ljo.6
+        for <stable@vger.kernel.org>; Thu, 03 Feb 2022 16:00:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=id07sJN0ydbT/yk7AemsOF2HRPY/xYI6uOutK18ycgc=;
-        b=CxCsB2CTB3PutV9HAnxYELWGABcET3bCK1ui5v4YTDFoyp/38OBCkftHTP/0BFolv6
-         +a+kx2nOqDKXMtIEq7XbRUfV6SLwSheYOm7x0QpHgKV0ircke71PSYUYGq1zdwbe5L6K
-         0I3U2W6tLAdiqDUGRQcCcM1ks39mhS0T8ORdMtrC2jro0oBJE9RIuNsj5RzFMDqLJoRg
-         FX4iBWxzRMBcQ9RvSGux+KCxRT3WPfTIjumM5gPE+VeCQz+rKmtgujDjOTCH1VF9+ffg
-         ESBTT9BbNgnHGSJ1VLqldJvLjVX1lsfdqNfFcEULvx8GhCSU6+OMm8H0rPjdOA+Anyk9
-         u8sw==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=W6vWO5phbqbJOK15XWRuJznkX1ivVtRshDIXGjGnpb4=;
+        b=O8w4WotJ2b6rKmKKBJUWufCSv8dzfdHoarzVcOzZdSr+s/PqUwLyF3Ue2tY/unRIz2
+         t8ScfVaD++YGalUdIVCUijauCnQxT2Mi26HFXWtPcjhBkU/TVYHOxnr3tl4N2OGO+Yzk
+         IYURFJ2SWm7yedjm+OHMjip0qE7cQcTs5iUiaWTI/sImxJIq4tcF/BJN0aCYjL1vSwIM
+         RHLlA6mde4MueRj/hCeQCZwH3riRVeC/F4XnG2hp0lSgf3KXJJzpD2OQNb3uLhbTvuvH
+         /SWuQvQKnSfBpeuhsfmzTs3/rzdpHv3m9h0wwbaUJMzkg60K5QzAfDUsbsJgpL2GrV++
+         lIQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=id07sJN0ydbT/yk7AemsOF2HRPY/xYI6uOutK18ycgc=;
-        b=CTz8nJo8a6FFZT1XEwqM/hNqyXTdOXYP9fE8ww8N9SUQanozqNoR8S+Xm7z/z8eWkS
-         zDbjXEr64lEZgcNlILJrM8v1LNAdacARrozMiYimAqts6untSwNdwVmPXrl2N30aF9Uq
-         vsMDeaW8x9WBTgECzLyv4EKWzEASkjc589LY+HQbrb94VN4CepylitqUU/8gsw5uZQiL
-         8AkFoPX1yNK6Hgu+KUJ6wui6yNLWtEZ0sZFthIGRzSQ0FuHOQusDr+9k8RuUF0JpisAE
-         z3pUTT+szfudTJjBi+hCRiRxS2q+s1HfPsFbllh9b4l9WYqjLx79p1dZdcOIhJXARoPI
-         S5DA==
-X-Gm-Message-State: AOAM5334rxWwSky+qT7cp/iGFNAxz4hxkPap3sG1rq4lryF3uwQ0T1Oq
-        412IiS762mKjvlCU6h+/43sN0RF1rkQj6+So
-X-Google-Smtp-Source: ABdhPJyMaD2y7oIuYqzTIhj5tPp4vVw8S4lOQu/BpkHlkGYRAUIlhk2qqmDlojI7nxd1EJ9fGlen0A==
-X-Received: by 2002:a17:903:2310:: with SMTP id d16mr329648plh.20.1643931506201;
-        Thu, 03 Feb 2022 15:38:26 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k13sm112679pfc.176.2022.02.03.15.38.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Feb 2022 15:38:25 -0800 (PST)
-Message-ID: <61fc6771.1c69fb81.27356.086f@mx.google.com>
-Date:   Thu, 03 Feb 2022 15:38:25 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=W6vWO5phbqbJOK15XWRuJznkX1ivVtRshDIXGjGnpb4=;
+        b=rDx9+eJ/CxAX6781qoV4WeGFFNx0nsNITNYWj5h0g/Dgc8Wkziu/UJmtn3Zm8QJsv+
+         Q2YRK1Gq9p7BMOpKEVdiRndafXstyV8z0uqhWipyIO+6MKf+mXwWZELit8cK8n1Lh3Ea
+         bUoslCL5oPODrQsqaURq62Nu+b9nobjtlDIVm8AkwjBNk3UAh+YubyMnaHINSw1n+J8h
+         /aDfgsdDo2Cz1Fi/Npil81Hqo23gswlus2E7LV9+B3ZY1QkPZO3fg1IaX2vnIDmF8paz
+         GRShySDBCNQxZ351RLH1tr9Cc0m4rTGlZoiI4rIIdDB3cqEBjYThLW6gUw2b27yUPh1m
+         X+3A==
+X-Gm-Message-State: AOAM5339+12VeOmjQghBK41byNXKIOIC3w3MuCJABsqPDnockBp8aTeo
+        Ht3FwVqinE29Yd0i4VJ+U7jeV1E6yXPlIyXWQ09ZJQ==
+X-Google-Smtp-Source: ABdhPJwqnKLO1BWi4vxnVtC5ADx5qhgj0i+dCH1oMioRtJ0A+yCanphIAmcv0oK4faOF84+sxzP6HgxOzGH15JBCK84=
+X-Received: by 2002:a05:651c:1249:: with SMTP id h9mr234541ljh.375.1643932825587;
+ Thu, 03 Feb 2022 16:00:25 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.227-48-g5372ecaaa6cf
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 113 runs,
- 1 regressions (v4.19.227-48-g5372ecaaa6cf)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20220126025739.2014888-1-jannh@google.com> <87czk5l2i6.fsf@email.froward.int.ebiederm.org>
+ <CAG48ez3byq=Cn4xGt5HmLBy9fWBapX9RdF-9JOaAus=rDR2TYQ@mail.gmail.com>
+In-Reply-To: <CAG48ez3byq=Cn4xGt5HmLBy9fWBapX9RdF-9JOaAus=rDR2TYQ@mail.gmail.com>
+From:   Jann Horn <jannh@google.com>
+Date:   Fri, 4 Feb 2022 00:59:59 +0100
+Message-ID: <CAG48ez1RzO8KrbAv_9kwRCyjS7E3K+adJzdqV6uLqKPoyQmPnw@mail.gmail.com>
+Subject: Re: [PATCH] coredump: Also dump first pages of non-executable ELF libraries
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Bill Messmer <wmessmer@microsoft.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Randy Dunlap <rdunlap@infradead.org>, stable@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 113 runs, 1 regressions (v4.19.227-48-g5372e=
-caaa6cf)
+On Wed, Feb 2, 2022 at 6:43 PM Jann Horn <jannh@google.com> wrote:
+>
+> On Wed, Feb 2, 2022 at 4:19 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+> >
+> > Jann Horn <jannh@google.com> writes:
+> >
+> > > When I rewrote the VMA dumping logic for coredumps, I changed it to
+> > > recognize ELF library mappings based on the file being executable instead
+> > > of the mapping having an ELF header. But turns out, distros ship many ELF
+> > > libraries as non-executable, so the heuristic goes wrong...
+> > >
+> > > Restore the old behavior where FILTER(ELF_HEADERS) dumps the first page of
+> > > any offset-0 readable mapping that starts with the ELF magic.
+> > >
+> > > This fix is technically layer-breaking a bit, because it checks for
+> > > something ELF-specific in fs/coredump.c; but since we probably want to
+> > > share this between standard ELF and FDPIC ELF anyway, I guess it's fine?
+> > > And this also keeps the change small for backporting.
+> >
+> > In light of the conflict with my other changes, and in light of the pain
+> > of calling get_user.
+> >
+> > Is there any reason why the doesn't unconditionally dump all headers?
+> > Something like the diff below?
+> >
+> > I looked in the history and the code was filtering for ELF headers
+> > there already.  I am just thinking this feels like a good idea
+> > regardless of the file format to help verify the file on-disk
+> > is the file we think was mapped.
+>
+> Yeah, I guess that's reasonable. The main difference will probably be
+> that the starting pages of some font files, locale files and python
+> libraries will also be logged.
 
-Regressions Summary
--------------------
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.227-48-g5372ecaaa6cf/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.227-48-g5372ecaaa6cf
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5372ecaaa6cfa9c843ad0979d6e927cdfbae2ec4 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61fc3166a2a6f191e05d6f03
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.227=
--48-g5372ecaaa6cf/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.227=
--48-g5372ecaaa6cf/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61fc3166a2a6f19=
-1e05d6f09
-        failing since 1 day (last pass: v4.19.227-45-g1749fce68f74, first f=
-ail: v4.19.227-45-g388e07a2599d)
-        2 lines
-
-    2022-02-03T19:47:30.955184  <8>[   21.146789] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-02-03T19:47:30.999283  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/111
-    2022-02-03T19:47:31.008544  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+Are you planning to turn that into a proper patch and take it through
+your tree, or something like that? If so, we should tell akpm to take
+this one back out...
