@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C0B54A8E26
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:35:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95AC84A8E49
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:36:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354679AbiBCUfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:35:14 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:39910 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354519AbiBCUdr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:33:47 -0500
+        id S1354270AbiBCUgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:36:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58196 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243188AbiBCUeI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:34:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DB3BC06175A;
+        Thu,  3 Feb 2022 12:33:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BAB061B14;
-        Thu,  3 Feb 2022 20:33:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A73ABC340EB;
-        Thu,  3 Feb 2022 20:33:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3AC561B16;
+        Thu,  3 Feb 2022 20:33:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECBB1C340E8;
+        Thu,  3 Feb 2022 20:33:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920426;
-        bh=5NI6v6ENI4LJ8+7Sal+JkNeHTLytWYu+LXR+N9wM5j8=;
+        s=k20201202; t=1643920431;
+        bh=guK3INTiect6vAz3XA7kTRmCWn7LkN7OxWWdegn2POE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VSMWQHwcAyy3+gwr1CS59AdxsCdqrnGF1TadE/oOKHXhIQWNd5JVbcQ8503FtZgGt
-         LQUwuZc2gt3ZELBi8xoFVMentfMUcwF/llZFzX305tPvm4foMUY2KWdOPF30LsNSur
-         FKmkFHvD7DQScrAHhp84zNCSS/2kr9mW4iS+WhiGm0FOSiKhGhM5JoJRyCRK72kZl6
-         gE2ClGrGJEaTA+WDMBdR7E6J94TMCiv0J/FroNqtpqiBFXNGfTQZL7BkGmzrJRSVXQ
-         +g1NNUC0C/Suux7INk362yk3l28v1xPC/rB4ArlxpgAr5thwbUsyeyJt5TCGlr63oW
-         LUU6mBlFYjTBg==
+        b=LsY1DOhG2rUDfd3skkOC9MQQKwC+t5T7NfphBPzsjBrFsRH9jaLMadYtQ0hZsZ11l
+         EMveI5NVSyVlHYIIOcYCf+BAdl1df5kdK9R1DIp6/7qZUCuNllxxsH2Jc5WXL29qx7
+         3CX0rwHa+cG77IQl0boaEvXY0b9s+oVmL+3MNQ2mJJ0vmAoVfNNHK4n6Msgbte/zF7
+         1V1Mw5QR1MSX9HOTZg0RnCiMuAVnXGKJjsbz4luT0HB+qcdYY7NVs1UumG+4F73FDr
+         9Gd0sa3Q1SZ0Ggcn4M9IpjRp4drh9FZT4IEzlNIvh3xnIv6s1TWnVmVxMALal2Y1C+
+         Xx1DnbZ8W8pmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Garry <john.garry@huawei.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+Cc:     Kiwoong Kim <kwmad.kim@samsung.com>,
+        Bart Van Assche <bvanassche@acm.org>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jinpu.wang@cloud.ionos.com,
-        jejb@linux.ibm.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 28/41] scsi: pm8001: Fix bogus FW crash for maxcpus=1
-Date:   Thu,  3 Feb 2022 15:32:32 -0500
-Message-Id: <20220203203245.3007-28-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        beanhuo@micron.com, avri.altman@wdc.com, daejun7.park@samsung.com,
+        adrian.hunter@intel.com, cang@codeaurora.org,
+        asutoshd@codeaurora.org, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 29/41] scsi: ufs: Use generic error code in ufshcd_set_dev_pwr_mode()
+Date:   Thu,  3 Feb 2022 15:32:33 -0500
+Message-Id: <20220203203245.3007-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203203245.3007-1-sashal@kernel.org>
 References: <20220203203245.3007-1-sashal@kernel.org>
@@ -49,82 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Kiwoong Kim <kwmad.kim@samsung.com>
 
-[ Upstream commit 62afb379a0fee7e9c2f9f68e1abeb85ceddf51b9 ]
+[ Upstream commit ad6c8a426446873febc98140d81d5353f8c0825b ]
 
-According to the comment in check_fw_ready() we should not check the
-IOP1_READY field in register SCRATCH_PAD_1 for 8008 or 8009 controllers.
+The return value of ufshcd_set_dev_pwr_mode() is passed to device PM
+core. However, the function currently returns a SCSI result which the PM
+core doesn't understand.  This might lead to unexpected behaviors in
+userland; a platform reset was observed in Android.
 
-However we check this very field in process_oq() for processing the highest
-index interrupt vector. The highest interrupt vector is checked as the FW
-is programmed to signal fatal errors through this irq.
+Use a generic error code for SSU failures.
 
-Change that function to not check IOP1_READY for those mentioned
-controllers, but do check ILA_READY in both cases.
-
-The reason I assume that this was not hit earlier was because we always
-allocated 64 MSI(X), and just did not pass the vector index check in
-process_oq(), i.e.  the handler never ran for vector index 63.
-
-Link: https://lore.kernel.org/r/1642508105-95432-1-git-send-email-john.garry@huawei.com
-Tested-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
+Link: https://lore.kernel.org/r/1642743182-54098-1-git-send-email-kwmad.kim@samsung.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm80xx_hwi.c | 16 ++++++++++++++--
- drivers/scsi/pm8001/pm80xx_hwi.h |  6 +++++-
- 2 files changed, 19 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index ed02e1aaf868c..ed13e0e044b74 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -4154,10 +4154,22 @@ static int process_oq(struct pm8001_hba_info *pm8001_ha, u8 vec)
- 	u32 ret = MPI_IO_STATUS_FAIL;
- 	u32 regval;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index ae7bdd8703198..f489954e46321 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -8473,7 +8473,7 @@ static void ufshcd_hba_exit(struct ufs_hba *hba)
+  * @pwr_mode: device power mode to set
+  *
+  * Returns 0 if requested power mode is set successfully
+- * Returns non-zero if failed to set the requested power mode
++ * Returns < 0 if failed to set the requested power mode
+  */
+ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
+ 				     enum ufs_dev_pwr_mode pwr_mode)
+@@ -8527,8 +8527,11 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
+ 		sdev_printk(KERN_WARNING, sdp,
+ 			    "START_STOP failed for power mode: %d, result %x\n",
+ 			    pwr_mode, ret);
+-		if (ret > 0 && scsi_sense_valid(&sshdr))
+-			scsi_print_sense_hdr(sdp, NULL, &sshdr);
++		if (ret > 0) {
++			if (scsi_sense_valid(&sshdr))
++				scsi_print_sense_hdr(sdp, NULL, &sshdr);
++			ret = -EIO;
++		}
+ 	}
  
-+	/*
-+	 * Fatal errors are programmed to be signalled in irq vector
-+	 * pm8001_ha->max_q_num - 1 through pm8001_ha->main_cfg_tbl.pm80xx_tbl.
-+	 * fatal_err_interrupt
-+	 */
- 	if (vec == (pm8001_ha->max_q_num - 1)) {
-+		u32 mipsall_ready;
-+
-+		if (pm8001_ha->chip_id == chip_8008 ||
-+		    pm8001_ha->chip_id == chip_8009)
-+			mipsall_ready = SCRATCH_PAD_MIPSALL_READY_8PORT;
-+		else
-+			mipsall_ready = SCRATCH_PAD_MIPSALL_READY_16PORT;
-+
- 		regval = pm8001_cr32(pm8001_ha, 0, MSGU_SCRATCH_PAD_1);
--		if ((regval & SCRATCH_PAD_MIPSALL_READY) !=
--					SCRATCH_PAD_MIPSALL_READY) {
-+		if ((regval & mipsall_ready) != mipsall_ready) {
- 			pm8001_ha->controller_fatal_error = true;
- 			pm8001_dbg(pm8001_ha, FAIL,
- 				   "Firmware Fatal error! Regval:0x%x\n",
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.h b/drivers/scsi/pm8001/pm80xx_hwi.h
-index c7e5d93bea924..c41ed039c92ac 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.h
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.h
-@@ -1405,8 +1405,12 @@ typedef struct SASProtocolTimerConfig SASProtocolTimerConfig_t;
- #define SCRATCH_PAD_BOOT_LOAD_SUCCESS	0x0
- #define SCRATCH_PAD_IOP0_READY		0xC00
- #define SCRATCH_PAD_IOP1_READY		0x3000
--#define SCRATCH_PAD_MIPSALL_READY	(SCRATCH_PAD_IOP1_READY | \
-+#define SCRATCH_PAD_MIPSALL_READY_16PORT	(SCRATCH_PAD_IOP1_READY | \
- 					SCRATCH_PAD_IOP0_READY | \
-+					SCRATCH_PAD_ILA_READY | \
-+					SCRATCH_PAD_RAAE_READY)
-+#define SCRATCH_PAD_MIPSALL_READY_8PORT	(SCRATCH_PAD_IOP0_READY | \
-+					SCRATCH_PAD_ILA_READY | \
- 					SCRATCH_PAD_RAAE_READY)
- 
- /* boot loader state */
+ 	if (!ret)
 -- 
 2.34.1
 
