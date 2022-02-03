@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD2E04A8E78
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:37:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF4244A8EB2
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:39:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355248AbiBCUhc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:37:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57710 "EHLO
+        id S1354900AbiBCUig (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:38:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354693AbiBCUf3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:35:29 -0500
+        with ESMTP id S1355442AbiBCUfw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:35:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5A13C0613AC;
-        Thu,  3 Feb 2022 12:34:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE939C0613BB;
+        Thu,  3 Feb 2022 12:34:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56FF361B03;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABFD561A73;
+        Thu,  3 Feb 2022 20:34:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D8A3C36AE7;
         Thu,  3 Feb 2022 20:34:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06718C340E8;
-        Thu,  3 Feb 2022 20:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920483;
-        bh=ux248V0POPKjdJUJNtyaDAVvogc5sUitZJw1c/YZlj0=;
+        s=k20201202; t=1643920485;
+        bh=VxEQX6Dno7ifn5D1jOKQHelxxxyFWN1e7zDI/DHZSJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tBLxWYOG3BWZwvjgoPrbvTaPqv0OKQRwZol4ZLL7m2c2XCxQmgIj35l/xWcOYDbM0
-         0Qm7dagjb3/FTKsYSQSA72EGZdJt/e6mTOKT5nPRDYoKUZOJ4lJ1qqSfmTs26POYxU
-         NhuVkVZinBwQm9P42Tz78ibgAaJ85mduZfZnz+4IcV88p/NRTlAHt/GejRJHuZPiHP
-         aEvsQsg6HKDxEA5q4NSLZsb10G5jORpY2BnZwkl4t/Wq6eQycn3ZbpgB4PjJ0h81LI
-         +S6EyrqtA8E8XA2X8eHzZ01E4Ewx4Ztf+CW7QVTe83zwuuqLMJp2u+8g+hNf3YKELh
-         5xCIg1HuQKysA==
+        b=Jos3s3uLYW3xdlYmDAhx36DlnRU2ogmYBvIr61sJjMzxMMTR7eYOmTNkfigZZ/bdm
+         6Y5nNjFt/pIY9UULMajsVhV50dEIMilNI5TzK7cZn+Ha9YCr2wZdQTpK9X9QnhaX8s
+         WKbuNJ9GKMYa2aKfoXvhF/p+ylnXYF9tjbxA7IIpgWvi3VuBvnwSXkQZnzNC789mf9
+         npYiIwarU5q6WhM7JQazrcAYYaN3Y5Glh498Ns4ZVDP4ghxl8f4GgcrB0jWFGLOpCl
+         Fu24iuhDr3UTp9vezfTLsAz7JvyLZEUEa4lCMTG06MmAER0J/monuq64ARalRbmZfl
+         ha58cfGXe9J+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jisheng Zhang <jszhang@kernel.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, peppe.cavallaro@st.com,
-        alexandre.torgue@foss.st.com, joabreu@synopsys.com,
-        kuba@kernel.org, mripard@kernel.org, wens@csie.org,
-        mcoquelin.stm32@gmail.com, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
-        linux-stm32@st-md-mailman.stormreply.com
-Subject: [PATCH AUTOSEL 5.15 40/41] net: stmmac: dwmac-sun8i: use return val of readl_poll_timeout()
-Date:   Thu,  3 Feb 2022 15:32:44 -0500
-Message-Id: <20220203203245.3007-40-sashal@kernel.org>
+Cc:     Mike Snitzer <snitzer@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 41/41] block: add bio_start_io_acct_time() to control start_time
+Date:   Thu,  3 Feb 2022 15:32:45 -0500
+Message-Id: <20220203203245.3007-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203203245.3007-1-sashal@kernel.org>
 References: <20220203203245.3007-1-sashal@kernel.org>
@@ -56,40 +50,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Mike Snitzer <snitzer@redhat.com>
 
-[ Upstream commit 9e0db41e7a0b6f1271cbcfb16dbf5b8641b4e440 ]
+[ Upstream commit e45c47d1f94e0cc7b6b079fdb4bcce2995e2adc4 ]
 
-When readl_poll_timeout() timeout, we'd better directly use its return
-value.
+bio_start_io_acct_time() interface is like bio_start_io_acct() that
+allows start_time to be passed in. This gives drivers the ability to
+defer starting accounting until after IO is issued (but possibily not
+entirely due to bio splitting).
 
-Before this patch:
-[    2.145528] dwmac-sun8i: probe of 4500000.ethernet failed with error -14
-
-After this patch:
-[    2.138520] dwmac-sun8i: probe of 4500000.ethernet failed with error -110
-
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Link: https://lore.kernel.org/r/20220128155841.39644-2-snitzer@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-core.c       | 25 +++++++++++++++++++------
+ include/linux/blkdev.h |  1 +
+ 2 files changed, 20 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-index 4422baeed3d89..13fbb68158c66 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-@@ -756,7 +756,7 @@ static int sun8i_dwmac_reset(struct stmmac_priv *priv)
- 
- 	if (err) {
- 		dev_err(priv->device, "EMAC reset timeout\n");
--		return -EFAULT;
-+		return err;
- 	}
- 	return 0;
+diff --git a/block/blk-core.c b/block/blk-core.c
+index c2d912d0c976c..d42a0f3ff7361 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -1293,20 +1293,32 @@ void blk_account_io_start(struct request *rq)
  }
+ 
+ static unsigned long __part_start_io_acct(struct block_device *part,
+-					  unsigned int sectors, unsigned int op)
++					  unsigned int sectors, unsigned int op,
++					  unsigned long start_time)
+ {
+ 	const int sgrp = op_stat_group(op);
+-	unsigned long now = READ_ONCE(jiffies);
+ 
+ 	part_stat_lock();
+-	update_io_ticks(part, now, false);
++	update_io_ticks(part, start_time, false);
+ 	part_stat_inc(part, ios[sgrp]);
+ 	part_stat_add(part, sectors[sgrp], sectors);
+ 	part_stat_local_inc(part, in_flight[op_is_write(op)]);
+ 	part_stat_unlock();
+ 
+-	return now;
++	return start_time;
++}
++
++/**
++ * bio_start_io_acct_time - start I/O accounting for bio based drivers
++ * @bio:	bio to start account for
++ * @start_time:	start time that should be passed back to bio_end_io_acct().
++ */
++void bio_start_io_acct_time(struct bio *bio, unsigned long start_time)
++{
++	__part_start_io_acct(bio->bi_bdev, bio_sectors(bio),
++			     bio_op(bio), start_time);
+ }
++EXPORT_SYMBOL_GPL(bio_start_io_acct_time);
+ 
+ /**
+  * bio_start_io_acct - start I/O accounting for bio based drivers
+@@ -1316,14 +1328,15 @@ static unsigned long __part_start_io_acct(struct block_device *part,
+  */
+ unsigned long bio_start_io_acct(struct bio *bio)
+ {
+-	return __part_start_io_acct(bio->bi_bdev, bio_sectors(bio), bio_op(bio));
++	return __part_start_io_acct(bio->bi_bdev, bio_sectors(bio),
++				    bio_op(bio), jiffies);
+ }
+ EXPORT_SYMBOL_GPL(bio_start_io_acct);
+ 
+ unsigned long disk_start_io_acct(struct gendisk *disk, unsigned int sectors,
+ 				 unsigned int op)
+ {
+-	return __part_start_io_acct(disk->part0, sectors, op);
++	return __part_start_io_acct(disk->part0, sectors, op, jiffies);
+ }
+ EXPORT_SYMBOL(disk_start_io_acct);
+ 
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 0a9fdcbbab83d..be8e7a55d803c 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -1947,6 +1947,7 @@ unsigned long disk_start_io_acct(struct gendisk *disk, unsigned int sectors,
+ void disk_end_io_acct(struct gendisk *disk, unsigned int op,
+ 		unsigned long start_time);
+ 
++void bio_start_io_acct_time(struct bio *bio, unsigned long start_time);
+ unsigned long bio_start_io_acct(struct bio *bio);
+ void bio_end_io_acct_remapped(struct bio *bio, unsigned long start_time,
+ 		struct block_device *orig_bdev);
 -- 
 2.34.1
 
