@@ -2,46 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF3D4A8E81
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:37:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F42184A8EFF
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:42:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355286AbiBCUhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:37:41 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37968 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355323AbiBCUfj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:35:39 -0500
+        id S1355542AbiBCUkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:40:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59370 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355516AbiBCUh4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:37:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AABF4C0613A0;
+        Thu,  3 Feb 2022 12:35:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B933EB835B8;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71713B83556;
+        Thu,  3 Feb 2022 20:35:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D4FEC36AE3;
         Thu,  3 Feb 2022 20:35:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 861D6C340E8;
-        Thu,  3 Feb 2022 20:35:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920536;
-        bh=e7++UKLnpHgdLY0wud0yHtptEMp6tU2m8lqkAWd9MCU=;
+        s=k20201202; t=1643920538;
+        bh=ojmiylI0YjC8wN3pyGRx1nGh82RjVji27PqBngnvtws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q7F/q9p6Fxk1XKxgFbXtPbtXkuBhK1bVm8ebXRcEh0zQWqhXjuQN89SMQNzrFj/Dj
-         Ni9xuBJIYnUEnApWLJhmd86wImXIX3ZMxKzKRPVihCJGYMRnFSFuCaazCw/eHIAND/
-         9xLFtGQ+5CUoOmleKdA9AQvCwcBBIdH/yoY8xqUoHRjCKqO1LaAB7gh/GzecvFXMwk
-         9oSgnrK9j2uHGuxhHQadOCFLDoK+5DZa92uPXi5qOY5QI2eCDEU/ktAVvyylgLrHP+
-         hqh5rBMMJH255Ap7i3U+yIcaCkZF0Q2VKqxLYkOpRjjISqFIhGZBL6uIwzGjzl3BEN
-         r9d8e1iOdyvrQ==
+        b=uuZK9sj+zDwjmXh/vZl2HguYO4i+hlMZJJr7iDHgB0qvL3bhCRGAtdK4F+qS/guOc
+         w7y3EIZTgJ9/g1tO1tIBsEerzMSvLHwOUmYJFw0gp7snVwcC9IRZLAZuNrrUpiO2Ci
+         kUmIZSta6T2jsVqqY6ytKJ95pxAUc8LsJ4bvfcaKChM6UArLFNi/sPNws9lavIHjt0
+         uijCjvV8DksJaNKaxPaG74MlbJtjeYte+q20kPW/fN9aGNfv90XhSreB2DMN4zYGyc
+         SotAKg2qVohoMV8UT+mwAHgNp/6Mn6dpfwswMeDAVK0n/OMiPnJ5lYcO0ZIg81y/eQ
+         tMcRzxOXtAWIw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Lee Jones <lee.jones@linaro.org>,
+Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        pavel@ucw.cz, len.brown@intel.com, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 20/25] PM: wakeup: simplify the output logic of pm_show_wakelocks()
-Date:   Thu,  3 Feb 2022 15:34:41 -0500
-Message-Id: <20220203203447.3570-20-sashal@kernel.org>
+        len.brown@intel.com, pavel@ucw.cz, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 21/25] PM: hibernate: Remove register_nosave_region_late()
+Date:   Thu,  3 Feb 2022 15:34:42 -0500
+Message-Id: <20220203203447.3570-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203203447.3570-1-sashal@kernel.org>
 References: <20220203203447.3570-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,55 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit c9d967b2ce40d71e968eb839f36c936b8a9cf1ea ]
+[ Upstream commit 33569ef3c754a82010f266b7b938a66a3ccf90a4 ]
 
-The buffer handling in pm_show_wakelocks() is tricky, and hopefully
-correct.  Ensure it really is correct by using sysfs_emit_at() which
-handles all of the tricky string handling logic in a PAGE_SIZE buffer
-for us automatically as this is a sysfs file being read from.
+It is an unused wrapper forcing kmalloc allocation for registering
+nosave regions. Also, rename __register_nosave_region() to
+register_nosave_region() now that there is no need for disambiguation.
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/wakelock.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ include/linux/suspend.h | 11 +----------
+ kernel/power/snapshot.c | 21 +++++++--------------
+ 2 files changed, 8 insertions(+), 24 deletions(-)
 
-diff --git a/kernel/power/wakelock.c b/kernel/power/wakelock.c
-index 105df4dfc7839..52571dcad768b 100644
---- a/kernel/power/wakelock.c
-+++ b/kernel/power/wakelock.c
-@@ -39,23 +39,20 @@ ssize_t pm_show_wakelocks(char *buf, bool show_active)
+diff --git a/include/linux/suspend.h b/include/linux/suspend.h
+index 8af13ba60c7e4..c1310c571d805 100644
+--- a/include/linux/suspend.h
++++ b/include/linux/suspend.h
+@@ -430,15 +430,7 @@ struct platform_hibernation_ops {
+ 
+ #ifdef CONFIG_HIBERNATION
+ /* kernel/power/snapshot.c */
+-extern void __register_nosave_region(unsigned long b, unsigned long e, int km);
+-static inline void __init register_nosave_region(unsigned long b, unsigned long e)
+-{
+-	__register_nosave_region(b, e, 0);
+-}
+-static inline void __init register_nosave_region_late(unsigned long b, unsigned long e)
+-{
+-	__register_nosave_region(b, e, 1);
+-}
++extern void register_nosave_region(unsigned long b, unsigned long e);
+ extern int swsusp_page_is_forbidden(struct page *);
+ extern void swsusp_set_page_free(struct page *);
+ extern void swsusp_unset_page_free(struct page *);
+@@ -457,7 +449,6 @@ int pfn_is_nosave(unsigned long pfn);
+ int hibernate_quiet_exec(int (*func)(void *data), void *data);
+ #else /* CONFIG_HIBERNATION */
+ static inline void register_nosave_region(unsigned long b, unsigned long e) {}
+-static inline void register_nosave_region_late(unsigned long b, unsigned long e) {}
+ static inline int swsusp_page_is_forbidden(struct page *p) { return 0; }
+ static inline void swsusp_set_page_free(struct page *p) {}
+ static inline void swsusp_unset_page_free(struct page *p) {}
+diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
+index 46b1804c1ddf7..1da013f50059a 100644
+--- a/kernel/power/snapshot.c
++++ b/kernel/power/snapshot.c
+@@ -944,8 +944,7 @@ static void memory_bm_recycle(struct memory_bitmap *bm)
+  * Register a range of page frames the contents of which should not be saved
+  * during hibernation (to be used in the early initialization code).
+  */
+-void __init __register_nosave_region(unsigned long start_pfn,
+-				     unsigned long end_pfn, int use_kmalloc)
++void __init register_nosave_region(unsigned long start_pfn, unsigned long end_pfn)
  {
- 	struct rb_node *node;
- 	struct wakelock *wl;
--	char *str = buf;
--	char *end = buf + PAGE_SIZE;
-+	int len = 0;
+ 	struct nosave_region *region;
  
- 	mutex_lock(&wakelocks_lock);
- 
- 	for (node = rb_first(&wakelocks_tree); node; node = rb_next(node)) {
- 		wl = rb_entry(node, struct wakelock, node);
- 		if (wl->ws->active == show_active)
--			str += scnprintf(str, end - str, "%s ", wl->name);
-+			len += sysfs_emit_at(buf, len, "%s ", wl->name);
+@@ -961,18 +960,12 @@ void __init __register_nosave_region(unsigned long start_pfn,
+ 			goto Report;
+ 		}
  	}
--	if (str > buf)
--		str--;
- 
--	str += scnprintf(str, end - str, "\n");
-+	len += sysfs_emit_at(buf, len, "\n");
- 
- 	mutex_unlock(&wakelocks_lock);
--	return (str - buf);
-+	return len;
- }
- 
- #if CONFIG_PM_WAKELOCKS_LIMIT > 0
+-	if (use_kmalloc) {
+-		/* During init, this shouldn't fail */
+-		region = kmalloc(sizeof(struct nosave_region), GFP_KERNEL);
+-		BUG_ON(!region);
+-	} else {
+-		/* This allocation cannot fail */
+-		region = memblock_alloc(sizeof(struct nosave_region),
+-					SMP_CACHE_BYTES);
+-		if (!region)
+-			panic("%s: Failed to allocate %zu bytes\n", __func__,
+-			      sizeof(struct nosave_region));
+-	}
++	/* This allocation cannot fail */
++	region = memblock_alloc(sizeof(struct nosave_region),
++				SMP_CACHE_BYTES);
++	if (!region)
++		panic("%s: Failed to allocate %zu bytes\n", __func__,
++		      sizeof(struct nosave_region));
+ 	region->start_pfn = start_pfn;
+ 	region->end_pfn = end_pfn;
+ 	list_add_tail(&region->list, &nosave_regions);
 -- 
 2.34.1
 
