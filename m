@@ -2,57 +2,228 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8C584A83E2
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 13:34:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8A8C4A83E4
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 13:34:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233435AbiBCMeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 07:34:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59424 "EHLO
+        id S1344533AbiBCMeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 07:34:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230213AbiBCMeB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 07:34:01 -0500
+        with ESMTP id S230213AbiBCMeG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 07:34:06 -0500
 Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [IPv6:2a0a:51c0:0:12e:520::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0B5EC061714;
-        Thu,  3 Feb 2022 04:34:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3057DC061714;
+        Thu,  3 Feb 2022 04:34:06 -0800 (PST)
 Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
         (envelope-from <fw@breakpoint.cc>)
-        id 1nFbJH-0000Ty-Ia; Thu, 03 Feb 2022 13:33:59 +0100
+        id 1nFbJL-0000U9-R1; Thu, 03 Feb 2022 13:34:03 +0100
 From:   Florian Westphal <fw@strlen.de>
 To:     <stable@vger.kernel.org>
-Cc:     <netfilter-devel@vger.kernel.org>, Florian Westphal <fw@strlen.de>
-Subject: [PATCH 4.9.y 0/2] netfilter: nat fix soft lockup when most ports are used
-Date:   Thu,  3 Feb 2022 13:32:53 +0100
-Message-Id: <20220203123255.18974-1-fw@strlen.de>
+Cc:     <netfilter-devel@vger.kernel.org>, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.9.y 1/2] netfilter: nat: remove l4 protocol port rovers
+Date:   Thu,  3 Feb 2022 13:32:54 +0100
+Message-Id: <20220203123255.18974-2-fw@strlen.de>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220203123255.18974-1-fw@strlen.de>
+References: <20220203123255.18974-1-fw@strlen.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-First patch removes old rovers, they are inherently racy
-and cause packet drops/delays.
+commit 6ed5943f8735e2b778d92ea4d9805c0a1d89bc2b upstream.
 
-Second patch avoids iterating entire range of ports: It takes way
-too long when most tuples are in use.
+This is a leftover from days where single-cpu systems were common:
+Store last port used to resolve a clash to use it as a starting point when
+the next conflict needs to be resolved.
 
-First patch is slightly mangled: nf_nat_proto_udplite.c doesn't exist
-anymore upstream and nf_nat_proto_common.c needs minor adjustment
-in context.
+When we have parallel attempt to connect to same address:port pair,
+its likely that both cores end up computing the same "available" port,
+as both use same starting port, and newly used ports won't become
+visible to other cores until the conntrack gets confirmed later.
 
-Florian Westphal (2):
-  netfilter: nat: remove l4 protocol port rovers
-  netfilter: nat: limit port clash resolution attempts
+One of the cores then has to drop the packet at insertion time because
+the chosen new tuple turns out to be in use after all.
 
- include/net/netfilter/nf_nat_l4proto.h |  2 +-
- net/netfilter/nf_nat_proto_common.c    | 36 ++++++++++++++++++--------
- net/netfilter/nf_nat_proto_dccp.c      |  5 +---
- net/netfilter/nf_nat_proto_sctp.c      |  5 +---
- net/netfilter/nf_nat_proto_tcp.c       |  5 +---
- net/netfilter/nf_nat_proto_udp.c       |  5 +---
- net/netfilter/nf_nat_proto_udplite.c   |  5 +---
- 7 files changed, 31 insertions(+), 32 deletions(-)
+Lets simplify this: remove port rover and use a pseudo-random starting
+point.
 
+Note that this doesn't make netfilter default to 'fully random' mode;
+the 'rover' was only used if NAT could not reuse source port as-is.
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+---
+ include/net/netfilter/nf_nat_l4proto.h | 2 +-
+ net/netfilter/nf_nat_proto_common.c    | 7 ++-----
+ net/netfilter/nf_nat_proto_dccp.c      | 5 +----
+ net/netfilter/nf_nat_proto_sctp.c      | 5 +----
+ net/netfilter/nf_nat_proto_tcp.c       | 5 +----
+ net/netfilter/nf_nat_proto_udp.c       | 5 +----
+ net/netfilter/nf_nat_proto_udplite.c   | 5 +----
+ 7 files changed, 8 insertions(+), 26 deletions(-)
+
+diff --git a/include/net/netfilter/nf_nat_l4proto.h b/include/net/netfilter/nf_nat_l4proto.h
+index 12f4cc841b6e..630f0f5c3fa3 100644
+--- a/include/net/netfilter/nf_nat_l4proto.h
++++ b/include/net/netfilter/nf_nat_l4proto.h
+@@ -64,7 +64,7 @@ void nf_nat_l4proto_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 				 struct nf_conntrack_tuple *tuple,
+ 				 const struct nf_nat_range *range,
+ 				 enum nf_nat_manip_type maniptype,
+-				 const struct nf_conn *ct, u16 *rover);
++				 const struct nf_conn *ct);
+ 
+ int nf_nat_l4proto_nlattr_to_range(struct nlattr *tb[],
+ 				   struct nf_nat_range *range);
+diff --git a/net/netfilter/nf_nat_proto_common.c b/net/netfilter/nf_nat_proto_common.c
+index 7d7466dbf663..ac57e47aded2 100644
+--- a/net/netfilter/nf_nat_proto_common.c
++++ b/net/netfilter/nf_nat_proto_common.c
+@@ -38,8 +38,7 @@ void nf_nat_l4proto_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 				 struct nf_conntrack_tuple *tuple,
+ 				 const struct nf_nat_range *range,
+ 				 enum nf_nat_manip_type maniptype,
+-				 const struct nf_conn *ct,
+-				 u16 *rover)
++				 const struct nf_conn *ct)
+ {
+ 	unsigned int range_size, min, max, i;
+ 	__be16 *portptr;
+@@ -84,15 +83,13 @@ void nf_nat_l4proto_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 	} else if (range->flags & NF_NAT_RANGE_PROTO_RANDOM_FULLY) {
+ 		off = prandom_u32();
+ 	} else {
+-		off = *rover;
++		off = prandom_u32();
+ 	}
+ 
+ 	for (i = 0; ; ++off) {
+ 		*portptr = htons(min + off % range_size);
+ 		if (++i != range_size && nf_nat_used_tuple(tuple, ct))
+ 			continue;
+-		if (!(range->flags & NF_NAT_RANGE_PROTO_RANDOM_ALL))
+-			*rover = off;
+ 		return;
+ 	}
+ }
+diff --git a/net/netfilter/nf_nat_proto_dccp.c b/net/netfilter/nf_nat_proto_dccp.c
+index 15c47b246d0d..e7d27c083393 100644
+--- a/net/netfilter/nf_nat_proto_dccp.c
++++ b/net/netfilter/nf_nat_proto_dccp.c
+@@ -20,8 +20,6 @@
+ #include <net/netfilter/nf_nat_l3proto.h>
+ #include <net/netfilter/nf_nat_l4proto.h>
+ 
+-static u_int16_t dccp_port_rover;
+-
+ static void
+ dccp_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		  struct nf_conntrack_tuple *tuple,
+@@ -29,8 +27,7 @@ dccp_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		  enum nf_nat_manip_type maniptype,
+ 		  const struct nf_conn *ct)
+ {
+-	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct,
+-				    &dccp_port_rover);
++	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct);
+ }
+ 
+ static bool
+diff --git a/net/netfilter/nf_nat_proto_sctp.c b/net/netfilter/nf_nat_proto_sctp.c
+index cbc7ade1487b..b839373716e8 100644
+--- a/net/netfilter/nf_nat_proto_sctp.c
++++ b/net/netfilter/nf_nat_proto_sctp.c
+@@ -14,8 +14,6 @@
+ 
+ #include <net/netfilter/nf_nat_l4proto.h>
+ 
+-static u_int16_t nf_sctp_port_rover;
+-
+ static void
+ sctp_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		  struct nf_conntrack_tuple *tuple,
+@@ -23,8 +21,7 @@ sctp_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		  enum nf_nat_manip_type maniptype,
+ 		  const struct nf_conn *ct)
+ {
+-	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct,
+-				    &nf_sctp_port_rover);
++	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct);
+ }
+ 
+ static bool
+diff --git a/net/netfilter/nf_nat_proto_tcp.c b/net/netfilter/nf_nat_proto_tcp.c
+index 4f8820fc5148..882e79c6df73 100644
+--- a/net/netfilter/nf_nat_proto_tcp.c
++++ b/net/netfilter/nf_nat_proto_tcp.c
+@@ -18,8 +18,6 @@
+ #include <net/netfilter/nf_nat_l4proto.h>
+ #include <net/netfilter/nf_nat_core.h>
+ 
+-static u16 tcp_port_rover;
+-
+ static void
+ tcp_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		 struct nf_conntrack_tuple *tuple,
+@@ -27,8 +25,7 @@ tcp_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		 enum nf_nat_manip_type maniptype,
+ 		 const struct nf_conn *ct)
+ {
+-	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct,
+-				    &tcp_port_rover);
++	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct);
+ }
+ 
+ static bool
+diff --git a/net/netfilter/nf_nat_proto_udp.c b/net/netfilter/nf_nat_proto_udp.c
+index b1e627227b6e..ed91bdd8857c 100644
+--- a/net/netfilter/nf_nat_proto_udp.c
++++ b/net/netfilter/nf_nat_proto_udp.c
+@@ -17,8 +17,6 @@
+ #include <net/netfilter/nf_nat_l3proto.h>
+ #include <net/netfilter/nf_nat_l4proto.h>
+ 
+-static u16 udp_port_rover;
+-
+ static void
+ udp_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		 struct nf_conntrack_tuple *tuple,
+@@ -26,8 +24,7 @@ udp_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		 enum nf_nat_manip_type maniptype,
+ 		 const struct nf_conn *ct)
+ {
+-	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct,
+-				    &udp_port_rover);
++	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct);
+ }
+ 
+ static bool
+diff --git a/net/netfilter/nf_nat_proto_udplite.c b/net/netfilter/nf_nat_proto_udplite.c
+index 58340c97bd83..8be265378de9 100644
+--- a/net/netfilter/nf_nat_proto_udplite.c
++++ b/net/netfilter/nf_nat_proto_udplite.c
+@@ -17,8 +17,6 @@
+ #include <net/netfilter/nf_nat_l3proto.h>
+ #include <net/netfilter/nf_nat_l4proto.h>
+ 
+-static u16 udplite_port_rover;
+-
+ static void
+ udplite_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		     struct nf_conntrack_tuple *tuple,
+@@ -26,8 +24,7 @@ udplite_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		     enum nf_nat_manip_type maniptype,
+ 		     const struct nf_conn *ct)
+ {
+-	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct,
+-				    &udplite_port_rover);
++	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct);
+ }
+ 
+ static bool
 -- 
 2.34.1
 
