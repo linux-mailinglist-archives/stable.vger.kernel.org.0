@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61B9E4A8EBC
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:39:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BB9A4A8F0F
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:42:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354982AbiBCUiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:38:55 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43206 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354990AbiBCUg6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:36:58 -0500
+        id S1345985AbiBCUmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:42:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59100 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356033AbiBCUk6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:40:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5835FC061160;
+        Thu,  3 Feb 2022 12:36:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91CF060ACB;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC5C360C5F;
+        Thu,  3 Feb 2022 20:36:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80AB7C340E8;
         Thu,  3 Feb 2022 20:36:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFE53C340F2;
-        Thu,  3 Feb 2022 20:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920617;
-        bh=5H7ZWdZ/Wp1Y3BFdLHd5wftiDtn0QwxHwepFUjOJhtU=;
+        s=k20201202; t=1643920618;
+        bh=b8fL2XaRMWu5qFtd651cHRo05HAtGXpuzwwU+BnIfXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZoEAzh7YGywCYqdnYZMncrREXaP042nq1pkoRNKgr6wU0ka+ALFzaXwtP7ier3oWS
-         jG0BGvLIucz7F6C9EMLKP+On9dwT8PoofMkFSytX4qkTpeMcsFOKrONHvKaUJSydtw
-         4CBLccUlx4CxK9ILmx4NK2iN/9KXAEbje7WLuC3jDlKpl8h7KjQBvp+2UwHrtGto4f
-         J3VOMm4jnXv/WNI5AgfvUa/ZhsuJf8I2NMq2q01cHOQp5zlwctKtMWrBgyf3zBLjvE
-         zc77sdw1HyxrVPUt9jIiZFOnxnW6aFpLs1KSa+jGWm4fUw5t5mbocZo3I/2l3sPWyB
-         1UuZjHs+XWQiQ==
+        b=eTzQdVdOfJk79q5Qq8zeT7kIox26Kr9+PXxb2UIHpW1krJI2eQEsO+ZuxatUvpH7H
+         UvvA/PNQFSILVvjF2I8AV2yAQOiQBMfKyHjc2x+W7j8/1nnWoxwutBRNfKSJT2Tzo0
+         WLtnvH1OLO4zpPoTz/ufI/h3e71E2f7xwLDkTZ8ueKFzc5D0B3cVh01wmRVhKBarUA
+         MMEveJuRFrThRDjLlVDxxRdvJVZynYAClcqV7ZHhjXUiCDgoTm2zjoQ8tkLUovSS4e
+         bYh47aflOIPNYAYgVm81J1DFGd8oCwwW5y+AK04ES8U+lamgiz7KVKJlgmZHE4AOOY
+         M222zDteVzH+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Westphal <fw@strlen.de>, Yi Chen <yiche@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>, kadlec@netfilter.org,
-        davem@davemloft.net, kuba@kernel.org,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 3/7] netfilter: nf_conntrack_netbios_ns: fix helper module alias
-Date:   Thu,  3 Feb 2022 15:36:47 -0500
-Message-Id: <20220203203651.5158-3-sashal@kernel.org>
+Cc:     Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>,
+        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
+        linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 4/7] NFSv4 remove zero number of fs_locations entries error check
+Date:   Thu,  3 Feb 2022 15:36:48 -0500
+Message-Id: <20220203203651.5158-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203203651.5158-1-sashal@kernel.org>
 References: <20220203203651.5158-1-sashal@kernel.org>
@@ -50,52 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit 0e906607b9c5ee22312c9af4d8adb45c617ea38a ]
+[ Upstream commit 90e12a3191040bd3854d3e236c35921e4e92a044 ]
 
-The helper gets registered as 'netbios-ns', not netbios_ns.
-Intentionally not adding a fixes-tag because i don't want this to go to
-stable. This wasn't noticed for a very long time so no so no need to risk
-regressions.
+Remove the check for the zero length fs_locations reply in the
+xdr decoding, and instead check for that in the migration code.
 
-Reported-by: Yi Chen <yiche@redhat.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_netbios_ns.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/nfs/nfs4state.c | 3 +++
+ fs/nfs/nfs4xdr.c   | 2 --
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_netbios_ns.c b/net/netfilter/nf_conntrack_netbios_ns.c
-index 4c8f30a3d6d27..1c429f2186eaf 100644
---- a/net/netfilter/nf_conntrack_netbios_ns.c
-+++ b/net/netfilter/nf_conntrack_netbios_ns.c
-@@ -24,13 +24,14 @@
- #include <net/netfilter/nf_conntrack_helper.h>
- #include <net/netfilter/nf_conntrack_expect.h>
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index 4e63daeef6339..466c07bd06295 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -1985,6 +1985,9 @@ static int nfs4_try_migration(struct nfs_server *server, struct rpc_cred *cred)
+ 	}
  
-+#define HELPER_NAME	"netbios-ns"
- #define NMBD_PORT	137
- 
- MODULE_AUTHOR("Patrick McHardy <kaber@trash.net>");
- MODULE_DESCRIPTION("NetBIOS name service broadcast connection tracking helper");
- MODULE_LICENSE("GPL");
- MODULE_ALIAS("ip_conntrack_netbios_ns");
--MODULE_ALIAS_NFCT_HELPER("netbios_ns");
-+MODULE_ALIAS_NFCT_HELPER(HELPER_NAME);
- 
- static unsigned int timeout __read_mostly = 3;
- module_param(timeout, uint, S_IRUSR);
-@@ -47,7 +48,7 @@ static int netbios_ns_help(struct sk_buff *skb, unsigned int protoff,
- }
- 
- static struct nf_conntrack_helper helper __read_mostly = {
--	.name			= "netbios-ns",
-+	.name			= HELPER_NAME,
- 	.tuple.src.l3num	= NFPROTO_IPV4,
- 	.tuple.src.u.udp.port	= cpu_to_be16(NMBD_PORT),
- 	.tuple.dst.protonum	= IPPROTO_UDP,
+ 	result = -NFS4ERR_NXIO;
++	if (!locations->nlocations)
++		goto out;
++
+ 	if (!(locations->fattr.valid & NFS_ATTR_FATTR_V4_LOCATIONS)) {
+ 		dprintk("<-- %s: No fs_locations data, migration skipped\n",
+ 			__func__);
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index 29dbb14b6fd11..b50c97c6aecb3 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -3633,8 +3633,6 @@ static int decode_attr_fs_locations(struct xdr_stream *xdr, uint32_t *bitmap, st
+ 	if (unlikely(!p))
+ 		goto out_overflow;
+ 	n = be32_to_cpup(p);
+-	if (n <= 0)
+-		goto out_eio;
+ 	for (res->nlocations = 0; res->nlocations < n; res->nlocations++) {
+ 		u32 m;
+ 		struct nfs4_fs_location *loc;
 -- 
 2.34.1
 
