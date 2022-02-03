@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE8354A8D80
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:31:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECEBB4A8D5F
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:30:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354238AbiBCUbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:31:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57616 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354214AbiBCUaw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:30:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D876C061768;
-        Thu,  3 Feb 2022 12:30:22 -0800 (PST)
+        id S1354260AbiBCUa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:30:56 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33602 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354290AbiBCUaf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:30:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F98561A69;
-        Thu,  3 Feb 2022 20:30:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9427FC36AE2;
-        Thu,  3 Feb 2022 20:30:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B441BB83556;
+        Thu,  3 Feb 2022 20:30:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BC51C340F1;
+        Thu,  3 Feb 2022 20:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920221;
-        bh=sJ6+mzYe74c4klAocmWr1wXKcpylYLufUpLD0y2wM5s=;
+        s=k20201202; t=1643920233;
+        bh=PgnNCRpAxiyodWJyZyyGogYzjGJ0Rm0cnQHlJk9t4W0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=efVnIiaiPPtN3BHDdeiMg3JZ9yCvIx9ykBM8oIASgDqASuQfZ9GjYxeXEWlUtC9Af
-         jQ21/IckphuH1fjEfs671W1DoVyRsXdwsBKsgvNDz05ZuD0gSrGC6pJnW5UYMMLtL8
-         SxlPHZQ1MeqX80vEMJK8EEeCdhaNrfIO4xS1G0CngEImBv3LHLEdBVKnuDgmNNW0sj
-         X2v4GfSva+UTpTx6qD+/X+vCqFlwzoRE0Rb7+BX4tD8yQA8pLm0kvaHO5TEcooR334
-         cIp6ZLb/Am7sSin9C96fZwyihrvvjAsTAi/zeE8W97xrawMYeb9Q4h5O0xTJ56e8qP
-         pBtaEP+r7OX+Q==
+        b=X1uXczWkcaNHHmRm9IpIdILI2yqMOH8rMa0MYwoh79JInTbpzfASPfJKRKXPmR+CI
+         21LSGFLuFgPI5ekYRNOZMbFE7fGaZWrKfWCMJG+scF96ihRRovIoD6Aa4SbOdtxhJY
+         a5Hh1AAYPO2WXT0xsEl4i8gTQEXDTxMaBldY+XHo4NPRbaQPdlnQWrzhKOPPy52G+W
+         H/Zsi5GgU3pbXOiKnLCJpmHsTWLA1R7YqfC54hEYEssm+vFev+LX7zm1T3j5owH9La
+         tsM/wAWKu48XlqX9WL86YnxvtPosX2RcB+3t0KxzwI7BOUBue4EaIL1a5xUJvC9oSp
+         6RpTiuwBHHW1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Victor Nogueira <victor@mojatatu.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, jhs@mojatatu.com,
-        xiyou.wangcong@gmail.com, jiri@resnulli.us, kuba@kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 21/52] net: sched: Clarify error message when qdisc kind is unknown
-Date:   Thu,  3 Feb 2022 15:29:15 -0500
-Message-Id: <20220203202947.2304-21-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Maxime Bizon <mbizon@freebox.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, aneesh.kumar@linux.ibm.com,
+        akpm@linux-foundation.org, joel@jms.id.au, npiggin@gmail.com,
+        geert@linux-m68k.org, shorne@gmail.com, anshuman.khandual@arm.com,
+        palmerdabbelt@google.com, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.16 22/52] powerpc/fixmap: Fix VM debug warning on unmap
+Date:   Thu,  3 Feb 2022 15:29:16 -0500
+Message-Id: <20220203202947.2304-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203202947.2304-1-sashal@kernel.org>
 References: <20220203202947.2304-1-sashal@kernel.org>
@@ -52,39 +51,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Victor Nogueira <victor@mojatatu.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 973bf8fdd12f0e70ea351c018e68edd377a836d1 ]
+[ Upstream commit aec982603aa8cc0a21143681feb5f60ecc69d718 ]
 
-When adding a tc rule with a qdisc kind that is not supported or not
-compiled into the kernel, the kernel emits the following error: "Error:
-Specified qdisc not found.". Found via tdc testing when ETS qdisc was not
-compiled in and it was not obvious right away what the message meant
-without looking at the kernel code.
+Unmapping a fixmap entry is done by calling __set_fixmap()
+with FIXMAP_PAGE_CLEAR as flags.
 
-Change the error message to be more explicit and say the qdisc kind is
-unknown.
+Today, powerpc __set_fixmap() calls map_kernel_page().
 
-Signed-off-by: Victor Nogueira <victor@mojatatu.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+map_kernel_page() is not happy when called a second time
+for the same page.
+
+	WARNING: CPU: 0 PID: 1 at arch/powerpc/mm/pgtable.c:194 set_pte_at+0xc/0x1e8
+	CPU: 0 PID: 1 Comm: swapper Not tainted 5.16.0-rc3-s3k-dev-01993-g350ff07feb7d-dirty #682
+	NIP:  c0017cd4 LR: c00187f0 CTR: 00000010
+	REGS: e1011d50 TRAP: 0700   Not tainted  (5.16.0-rc3-s3k-dev-01993-g350ff07feb7d-dirty)
+	MSR:  00029032 <EE,ME,IR,DR,RI>  CR: 42000208  XER: 00000000
+
+	GPR00: c0165fec e1011e10 c14c0000 c0ee2550 ff800000 c0f3d000 00000000 c001686c
+	GPR08: 00001000 b00045a9 00000001 c0f58460 c0f50000 00000000 c0007e10 00000000
+	GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+	GPR24: 00000000 00000000 c0ee2550 00000000 c0f57000 00000ff8 00000000 ff800000
+	NIP [c0017cd4] set_pte_at+0xc/0x1e8
+	LR [c00187f0] map_kernel_page+0x9c/0x100
+	Call Trace:
+	[e1011e10] [c0736c68] vsnprintf+0x358/0x6c8 (unreliable)
+	[e1011e30] [c0165fec] __set_fixmap+0x30/0x44
+	[e1011e40] [c0c13bdc] early_iounmap+0x11c/0x170
+	[e1011e70] [c0c06cb0] ioremap_legacy_serial_console+0x88/0xc0
+	[e1011e90] [c0c03634] do_one_initcall+0x80/0x178
+	[e1011ef0] [c0c0385c] kernel_init_freeable+0xb4/0x250
+	[e1011f20] [c0007e34] kernel_init+0x24/0x140
+	[e1011f30] [c0016268] ret_from_kernel_thread+0x5c/0x64
+	Instruction dump:
+	7fe3fb78 48019689 80010014 7c630034 83e1000c 5463d97e 7c0803a6 38210010
+	4e800020 81250000 712a0001 41820008 <0fe00000> 9421ffe0 93e1001c 48000030
+
+Implement unmap_kernel_page() which clears an existing pte.
+
+Reported-by: Maxime Bizon <mbizon@freebox.fr>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Tested-by: Maxime Bizon <mbizon@freebox.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/b0b752f6f6ecc60653e873f385c6f0dce4e9ab6a.1638789098.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_api.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/book3s/32/pgtable.h | 1 +
+ arch/powerpc/include/asm/book3s/64/pgtable.h | 2 ++
+ arch/powerpc/include/asm/fixmap.h            | 6 ++++--
+ arch/powerpc/include/asm/nohash/32/pgtable.h | 1 +
+ arch/powerpc/include/asm/nohash/64/pgtable.h | 1 +
+ arch/powerpc/mm/pgtable.c                    | 9 +++++++++
+ 6 files changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
-index 910a36ed56343..e4a7ce5c79f4f 100644
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -1204,7 +1204,7 @@ static struct Qdisc *qdisc_create(struct net_device *dev,
+diff --git a/arch/powerpc/include/asm/book3s/32/pgtable.h b/arch/powerpc/include/asm/book3s/32/pgtable.h
+index 609c80f671943..f8b94f78403f1 100644
+--- a/arch/powerpc/include/asm/book3s/32/pgtable.h
++++ b/arch/powerpc/include/asm/book3s/32/pgtable.h
+@@ -178,6 +178,7 @@ static inline bool pte_user(pte_t pte)
+ #ifndef __ASSEMBLY__
  
- 	err = -ENOENT;
- 	if (!ops) {
--		NL_SET_ERR_MSG(extack, "Specified qdisc not found");
-+		NL_SET_ERR_MSG(extack, "Specified qdisc kind is unknown");
- 		goto err_out;
- 	}
+ int map_kernel_page(unsigned long va, phys_addr_t pa, pgprot_t prot);
++void unmap_kernel_page(unsigned long va);
  
+ #endif /* !__ASSEMBLY__ */
+ 
+diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
+index 33e073d6b0c41..875730d5af408 100644
+--- a/arch/powerpc/include/asm/book3s/64/pgtable.h
++++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
+@@ -1082,6 +1082,8 @@ static inline int map_kernel_page(unsigned long ea, unsigned long pa, pgprot_t p
+ 	return hash__map_kernel_page(ea, pa, prot);
+ }
+ 
++void unmap_kernel_page(unsigned long va);
++
+ static inline int __meminit vmemmap_create_mapping(unsigned long start,
+ 						   unsigned long page_size,
+ 						   unsigned long phys)
+diff --git a/arch/powerpc/include/asm/fixmap.h b/arch/powerpc/include/asm/fixmap.h
+index 947b5b9c44241..a832aeafe5601 100644
+--- a/arch/powerpc/include/asm/fixmap.h
++++ b/arch/powerpc/include/asm/fixmap.h
+@@ -111,8 +111,10 @@ static inline void __set_fixmap(enum fixed_addresses idx,
+ 		BUILD_BUG_ON(idx >= __end_of_fixed_addresses);
+ 	else if (WARN_ON(idx >= __end_of_fixed_addresses))
+ 		return;
+-
+-	map_kernel_page(__fix_to_virt(idx), phys, flags);
++	if (pgprot_val(flags))
++		map_kernel_page(__fix_to_virt(idx), phys, flags);
++	else
++		unmap_kernel_page(__fix_to_virt(idx));
+ }
+ 
+ #define __early_set_fixmap	__set_fixmap
+diff --git a/arch/powerpc/include/asm/nohash/32/pgtable.h b/arch/powerpc/include/asm/nohash/32/pgtable.h
+index b67742e2a9b22..d959c2a73fbf4 100644
+--- a/arch/powerpc/include/asm/nohash/32/pgtable.h
++++ b/arch/powerpc/include/asm/nohash/32/pgtable.h
+@@ -64,6 +64,7 @@ extern int icache_44x_need_flush;
+ #ifndef __ASSEMBLY__
+ 
+ int map_kernel_page(unsigned long va, phys_addr_t pa, pgprot_t prot);
++void unmap_kernel_page(unsigned long va);
+ 
+ #endif /* !__ASSEMBLY__ */
+ 
+diff --git a/arch/powerpc/include/asm/nohash/64/pgtable.h b/arch/powerpc/include/asm/nohash/64/pgtable.h
+index 9d2905a474103..2225991c69b55 100644
+--- a/arch/powerpc/include/asm/nohash/64/pgtable.h
++++ b/arch/powerpc/include/asm/nohash/64/pgtable.h
+@@ -308,6 +308,7 @@ static inline void __ptep_set_access_flags(struct vm_area_struct *vma,
+ #define __swp_entry_to_pte(x)		__pte((x).val)
+ 
+ int map_kernel_page(unsigned long ea, unsigned long pa, pgprot_t prot);
++void unmap_kernel_page(unsigned long va);
+ extern int __meminit vmemmap_create_mapping(unsigned long start,
+ 					    unsigned long page_size,
+ 					    unsigned long phys);
+diff --git a/arch/powerpc/mm/pgtable.c b/arch/powerpc/mm/pgtable.c
+index ce94823831442..b7385e637e3e3 100644
+--- a/arch/powerpc/mm/pgtable.c
++++ b/arch/powerpc/mm/pgtable.c
+@@ -203,6 +203,15 @@ void set_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep,
+ 	__set_pte_at(mm, addr, ptep, pte, 0);
+ }
+ 
++void unmap_kernel_page(unsigned long va)
++{
++	pmd_t *pmdp = pmd_off_k(va);
++	pte_t *ptep = pte_offset_kernel(pmdp, va);
++
++	pte_clear(&init_mm, va, ptep);
++	flush_tlb_kernel_range(va, va + PAGE_SIZE);
++}
++
+ /*
+  * This is called when relaxing access to a PTE. It's also called in the page
+  * fault path when we don't hit any of the major fault cases, ie, a minor
 -- 
 2.34.1
 
