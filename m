@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F0D74A8D4F
+	by mail.lfdr.de (Postfix) with ESMTP id E4C414A8D50
 	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:30:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354138AbiBCUaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1354142AbiBCUaG (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 3 Feb 2022 15:30:06 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33054 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354117AbiBCUaE (ORCPT
+Received: from dfw.source.kernel.org ([139.178.84.217]:35446 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354121AbiBCUaE (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:30:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 332A7B835A7;
-        Thu,  3 Feb 2022 20:30:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23793C340F0;
-        Thu,  3 Feb 2022 20:30:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1242761A94;
+        Thu,  3 Feb 2022 20:30:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E583C340EF;
+        Thu,  3 Feb 2022 20:30:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920202;
-        bh=01qhbpbzi9zTKTLBiqQl76Ns3a+R6Qym8QX6U2G65A0=;
+        s=k20201202; t=1643920203;
+        bh=HXnNm6mwzS+bCFc9d1VT6vJ6HYKUrgR+hVfGKlNwGIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UYRjpWLbzP21Fayc2kW5+daD+eesGXl6q91baqGBTFBASizuetMpieDzPBH6MuSR3
-         YcRLdVQ8dA8YoCDWWZOYMmxqAW/gebe0C6SiNw5L1z0ixCBeL6fH/K9DwPb64ZwbUP
-         uNxfUtf724KSa7pU1RAxTDFR5HOlCWkogfIVGVQas+TTLdItF5vvENy+3Cf8FgUAoG
-         R9rjxEnsyoWSxmgqUKj3Ekz6vuU5Puh7pq5xOR2JY2h38gdK/CenbnLxymQj4agCii
-         Wx4BsCcYKKgpz7vOYdXScVMiN4CJAWZnvDZ9Jcdv7hep8I3pbBv2H8xVn4vojND4Cc
-         Qjw0eFxYZgEcw==
+        b=qJcKf82+kNCQ0lZdlq0/KngmfiWylQHCXfpyg1o4GqwX/giIayzdD7j/U2VKLB6bG
+         jX77SWE3HtWH6vAdXfCaoWdzDA4EKWAEySGyhYAhTnGR6oR+kOgsXLZFsWi0Wx/Hew
+         bQbpYUz0sLc0il1Ao2R8KqAabFRParXx+NmlDsnPUnibQja1oN++OuTGzzq3NHPxFH
+         xDp7s4ilBqC7v8+e7xwmmLCuI4uNFhLHZ6tNtmiwVJphpF9LoAdvVxHdKfpiXB9eLg
+         +KJb3vy+tgNyi7LEAukYlNuY+0ilXNsbH4n/ETjBhjjUxyJ7ObN/Bh8mL9Zl+B7Erc
+         VB59NDKGszE6Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Olga Kornievskaia <kolga@netapp.com>,
@@ -35,9 +35,9 @@ Cc:     Olga Kornievskaia <kolga@netapp.com>,
         Sasha Levin <sashal@kernel.org>,
         trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
         linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 09/52] NFSv4 expose nfs_parse_server_name function
-Date:   Thu,  3 Feb 2022 15:29:03 -0500
-Message-Id: <20220203202947.2304-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.16 10/52] NFSv4 handle port presence in fs_location server string
+Date:   Thu,  3 Feb 2022 15:29:04 -0500
+Message-Id: <20220203202947.2304-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203202947.2304-1-sashal@kernel.org>
 References: <20220203202947.2304-1-sashal@kernel.org>
@@ -51,47 +51,82 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit f5b27cc6761e27ee6387a24df1a99ca77b360fea ]
+[ Upstream commit a8d54baba7c65db2d3278873def61f8d3753d766 ]
 
-Make nfs_parse_server_name available outside of nfs4namespace.c.
+An fs_location attribute returns a string that can be ipv4, ipv6,
+or DNS name. An ip location can have a port appended to it and if
+no port is present a default port needs to be set. If rpc_pton()
+fails to parse, try calling rpc_uaddr2socaddr() that can convert
+an universal address.
 
 Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4_fs.h       | 3 ++-
- fs/nfs/nfs4namespace.c | 4 ++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ fs/nfs/nfs4_fs.h       |  2 +-
+ fs/nfs/nfs4namespace.c | 17 +++++++++++------
+ 2 files changed, 12 insertions(+), 7 deletions(-)
 
 diff --git a/fs/nfs/nfs4_fs.h b/fs/nfs/nfs4_fs.h
-index 2402a3d8ba997..734ac09becf73 100644
+index 734ac09becf73..85c5d08dfa9cc 100644
 --- a/fs/nfs/nfs4_fs.h
 +++ b/fs/nfs/nfs4_fs.h
-@@ -280,7 +280,8 @@ struct rpc_clnt *nfs4_negotiate_security(struct rpc_clnt *, struct inode *,
- int nfs4_submount(struct fs_context *, struct nfs_server *);
+@@ -281,7 +281,7 @@ int nfs4_submount(struct fs_context *, struct nfs_server *);
  int nfs4_replace_transport(struct nfs_server *server,
  				const struct nfs4_fs_locations *locations);
--
-+size_t nfs_parse_server_name(char *string, size_t len, struct sockaddr *sa,
-+			     size_t salen, struct net *net);
+ size_t nfs_parse_server_name(char *string, size_t len, struct sockaddr *sa,
+-			     size_t salen, struct net *net);
++			     size_t salen, struct net *net, int port);
  /* nfs4proc.c */
  extern int nfs4_handle_exception(struct nfs_server *, int, struct nfs4_exception *);
  extern int nfs4_async_handle_error(struct rpc_task *task,
 diff --git a/fs/nfs/nfs4namespace.c b/fs/nfs/nfs4namespace.c
-index 873342308dc0d..f1ed4f60a7f33 100644
+index f1ed4f60a7f33..3680c8da510c9 100644
 --- a/fs/nfs/nfs4namespace.c
 +++ b/fs/nfs/nfs4namespace.c
-@@ -164,8 +164,8 @@ static int nfs4_validate_fspath(struct dentry *dentry,
- 	return 0;
+@@ -165,15 +165,20 @@ static int nfs4_validate_fspath(struct dentry *dentry,
  }
  
--static size_t nfs_parse_server_name(char *string, size_t len,
--		struct sockaddr *sa, size_t salen, struct net *net)
-+size_t nfs_parse_server_name(char *string, size_t len, struct sockaddr *sa,
-+			     size_t salen, struct net *net)
+ size_t nfs_parse_server_name(char *string, size_t len, struct sockaddr *sa,
+-			     size_t salen, struct net *net)
++			     size_t salen, struct net *net, int port)
  {
  	ssize_t ret;
  
+ 	ret = rpc_pton(net, string, len, sa, salen);
+ 	if (ret == 0) {
+-		ret = nfs_dns_resolve_name(net, string, len, sa, salen);
+-		if (ret < 0)
+-			ret = 0;
++		ret = rpc_uaddr2sockaddr(net, string, len, sa, salen);
++		if (ret == 0) {
++			ret = nfs_dns_resolve_name(net, string, len, sa, salen);
++			if (ret < 0)
++				ret = 0;
++		}
++	} else if (port) {
++		rpc_set_port(sa, port);
+ 	}
+ 	return ret;
+ }
+@@ -328,7 +333,7 @@ static int try_location(struct fs_context *fc,
+ 			nfs_parse_server_name(buf->data, buf->len,
+ 					      &ctx->nfs_server.address,
+ 					      sizeof(ctx->nfs_server._address),
+-					      fc->net_ns);
++					      fc->net_ns, 0);
+ 		if (ctx->nfs_server.addrlen == 0)
+ 			continue;
+ 
+@@ -496,7 +501,7 @@ static int nfs4_try_replacing_one_location(struct nfs_server *server,
+ 			continue;
+ 
+ 		salen = nfs_parse_server_name(buf->data, buf->len,
+-						sap, addr_bufsize, net);
++						sap, addr_bufsize, net, 0);
+ 		if (salen == 0)
+ 			continue;
+ 		rpc_set_port(sap, NFS_PORT);
 -- 
 2.34.1
 
