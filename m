@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 888A34A8EF7
-	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:42:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43BC54A8EF3
+	for <lists+stable@lfdr.de>; Thu,  3 Feb 2022 21:42:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355368AbiBCUjv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 15:39:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58196 "EHLO
+        id S1355843AbiBCUj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 15:39:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355412AbiBCUhy (ORCPT
+        with ESMTP id S1355434AbiBCUhy (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 15:37:54 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95E6CC061392;
-        Thu,  3 Feb 2022 12:35:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6BEFC061777;
+        Thu,  3 Feb 2022 12:35:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 385DEB835B2;
-        Thu,  3 Feb 2022 20:35:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D606EC340EF;
-        Thu,  3 Feb 2022 20:35:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E5BAB835AE;
+        Thu,  3 Feb 2022 20:35:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71177C340EB;
+        Thu,  3 Feb 2022 20:35:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643920527;
-        bh=4hgg5iMrujXJmneoAXhbKFclV2q+lP2+TNvZMESW15U=;
+        s=k20201202; t=1643920529;
+        bh=DliUIAbOhT7PflrHsH2KMRlmp6VOx0lJtRmJdkFXJXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFCmEhfnDtPOPkeMkCeSHWMj38dKTIyO9oq/4j+bAnU5tcXXogcUgDmYY7F/d0zKC
-         U/Ysoywk8cQSGT5FRXRw177e2DROU7oXWNSNWoc7/QtOizdLnJlyAc+ufAOs8WCheN
-         Iqma2mg+L+g3+C1Uc6fvBlPeAxHRkyLXZPWPhSh9rYXa82ZIJn9OMAgGeIzQRmo+pn
-         NN+AhMufr8GVP0qOduRXQ+5i8LevUPk9zdHfq12G8DuJlxc/RyaHJLUZKSXxHEByk/
-         otZHJuZ9DS4fL0nTZbreQ/+CeoggmTebjrlK5RZCPHpHIee8QDVWV/wreE7b03zEub
-         CvMaYwe14TzXA==
+        b=EnTU++28LZcJzeXHvhm3u+QLMmiKPvBVyzT3uNP2L6PeKpOYqzLhQSJCey7IjAA5k
+         jjoMCtG2pOf1QpO/LOhOV4KcvZPMk/b109aameyeqQZpxUU6XA6UDiv+SwZOAhODAN
+         uk50HJ43XYqrI6eHEv008f4QWr1IGjCD9v+K/MSV6CLb4GVk85p+RpjaTy1MGKQe3c
+         MjZa09oAqvVDK+wrIC7Tqfu8to6PR1TQgXmOt//eTurH++SyXX1z6SLYdN/cT6dzXG
+         1GQZaODuDOk13do1U6RAeIt0Ctx+6XHVad0xavCzGbqDQJ2VFhcw9iLDCmalnuRMB/
+         IbKDflbyr3KmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
+Cc:     John Garry <john.garry@huawei.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jhasan@marvell.com,
-        GR-QLogic-Storage-Upstream@marvell.com, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 16/25] scsi: qedf: Fix refcount issue when LOGO is received during TMF
-Date:   Thu,  3 Feb 2022 15:34:37 -0500
-Message-Id: <20220203203447.3570-16-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jinpu.wang@cloud.ionos.com,
+        jejb@linux.ibm.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 17/25] scsi: pm8001: Fix bogus FW crash for maxcpus=1
+Date:   Thu,  3 Feb 2022 15:34:38 -0500
+Message-Id: <20220203203447.3570-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220203203447.3570-1-sashal@kernel.org>
 References: <20220203203447.3570-1-sashal@kernel.org>
@@ -53,70 +52,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit 5239ab63f17cee643bd4bf6addfedebaa7d4f41e ]
+[ Upstream commit 62afb379a0fee7e9c2f9f68e1abeb85ceddf51b9 ]
 
-Hung task call trace was seen during LOGO processing.
+According to the comment in check_fw_ready() we should not check the
+IOP1_READY field in register SCRATCH_PAD_1 for 8008 or 8009 controllers.
 
-[  974.309060] [0000:00:00.0]:[qedf_eh_device_reset:868]: 1:0:2:0: LUN RESET Issued...
-[  974.309065] [0000:00:00.0]:[qedf_initiate_tmf:2422]: tm_flags 0x10 sc_cmd 00000000c16b930f op = 0x2a target_id = 0x2 lun=0
-[  974.309178] [0000:00:00.0]:[qedf_initiate_tmf:2431]: portid=016900 tm_flags =LUN RESET
-[  974.309222] [0000:00:00.0]:[qedf_initiate_tmf:2438]: orig io_req = 00000000ec78df8f xid = 0x180 ref_cnt = 1.
-[  974.309625] host1: rport 016900: Received LOGO request while in state Ready
-[  974.309627] host1: rport 016900: Delete port
-[  974.309642] host1: rport 016900: work event 3
-[  974.309644] host1: rport 016900: lld callback ev 3
-[  974.313243] [0000:61:00.2]:[qedf_execute_tmf:2383]:1: fcport is uploading, not executing flush.
-[  974.313295] [0000:61:00.2]:[qedf_execute_tmf:2400]:1: task mgmt command success...
-[  984.031088] INFO: task jbd2/dm-15-8:7645 blocked for more than 120 seconds.
-[  984.031136]       Not tainted 4.18.0-305.el8.x86_64 #1
+However we check this very field in process_oq() for processing the highest
+index interrupt vector. The highest interrupt vector is checked as the FW
+is programmed to signal fatal errors through this irq.
 
-[  984.031166] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[  984.031209] jbd2/dm-15-8    D    0  7645      2 0x80004080
-[  984.031212] Call Trace:
-[  984.031222]  __schedule+0x2c4/0x700
-[  984.031230]  ? unfreeze_partials.isra.83+0x16e/0x1a0
-[  984.031233]  ? bit_wait_timeout+0x90/0x90
-[  984.031235]  schedule+0x38/0xa0
-[  984.031238]  io_schedule+0x12/0x40
-[  984.031240]  bit_wait_io+0xd/0x50
-[  984.031243]  __wait_on_bit+0x6c/0x80
-[  984.031248]  ? free_buffer_head+0x21/0x50
-[  984.031251]  out_of_line_wait_on_bit+0x91/0xb0
-[  984.031257]  ? init_wait_var_entry+0x50/0x50
-[  984.031268]  jbd2_journal_commit_transaction+0x112e/0x19f0 [jbd2]
-[  984.031280]  kjournald2+0xbd/0x270 [jbd2]
-[  984.031284]  ? finish_wait+0x80/0x80
-[  984.031291]  ? commit_timeout+0x10/0x10 [jbd2]
-[  984.031294]  kthread+0x116/0x130
-[  984.031300]  ? kthread_flush_work_fn+0x10/0x10
-[  984.031305]  ret_from_fork+0x1f/0x40
+Change that function to not check IOP1_READY for those mentioned
+controllers, but do check ILA_READY in both cases.
 
-There was a ref count issue when LOGO is received during TMF. This leads to
-one of the I/Os hanging with the driver. Fix the ref count.
+The reason I assume that this was not hit earlier was because we always
+allocated 64 MSI(X), and just did not pass the vector index check in
+process_oq(), i.e.  the handler never ran for vector index 63.
 
-Link: https://lore.kernel.org/r/20220117135311.6256-3-njavali@marvell.com
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Link: https://lore.kernel.org/r/1642508105-95432-1-git-send-email-john.garry@huawei.com
+Tested-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf_io.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/pm8001/pm80xx_hwi.c | 16 ++++++++++++++--
+ drivers/scsi/pm8001/pm80xx_hwi.h |  6 +++++-
+ 2 files changed, 19 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qedf/qedf_io.c b/drivers/scsi/qedf/qedf_io.c
-index 63f99f4eeed97..472374d83cede 100644
---- a/drivers/scsi/qedf/qedf_io.c
-+++ b/drivers/scsi/qedf/qedf_io.c
-@@ -2268,6 +2268,7 @@ int qedf_initiate_cleanup(struct qedf_ioreq *io_req,
- 	    io_req->tm_flags == FCP_TMF_TGT_RESET) {
- 		clear_bit(QEDF_CMD_OUTSTANDING, &io_req->flags);
- 		io_req->sc_cmd = NULL;
-+		kref_put(&io_req->refcount, qedf_release_cmd);
- 		complete(&io_req->tm_done);
- 	}
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index a203a4fc2674a..b22a8ab754faa 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -4057,10 +4057,22 @@ static int process_oq(struct pm8001_hba_info *pm8001_ha, u8 vec)
+ 	unsigned long flags;
+ 	u32 regval;
  
++	/*
++	 * Fatal errors are programmed to be signalled in irq vector
++	 * pm8001_ha->max_q_num - 1 through pm8001_ha->main_cfg_tbl.pm80xx_tbl.
++	 * fatal_err_interrupt
++	 */
+ 	if (vec == (pm8001_ha->max_q_num - 1)) {
++		u32 mipsall_ready;
++
++		if (pm8001_ha->chip_id == chip_8008 ||
++		    pm8001_ha->chip_id == chip_8009)
++			mipsall_ready = SCRATCH_PAD_MIPSALL_READY_8PORT;
++		else
++			mipsall_ready = SCRATCH_PAD_MIPSALL_READY_16PORT;
++
+ 		regval = pm8001_cr32(pm8001_ha, 0, MSGU_SCRATCH_PAD_1);
+-		if ((regval & SCRATCH_PAD_MIPSALL_READY) !=
+-					SCRATCH_PAD_MIPSALL_READY) {
++		if ((regval & mipsall_ready) != mipsall_ready) {
+ 			pm8001_ha->controller_fatal_error = true;
+ 			pm8001_dbg(pm8001_ha, FAIL,
+ 				   "Firmware Fatal error! Regval:0x%x\n",
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.h b/drivers/scsi/pm8001/pm80xx_hwi.h
+index 701951a0f715b..0dfe9034f7e7f 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.h
++++ b/drivers/scsi/pm8001/pm80xx_hwi.h
+@@ -1391,8 +1391,12 @@ typedef struct SASProtocolTimerConfig SASProtocolTimerConfig_t;
+ #define SCRATCH_PAD_BOOT_LOAD_SUCCESS	0x0
+ #define SCRATCH_PAD_IOP0_READY		0xC00
+ #define SCRATCH_PAD_IOP1_READY		0x3000
+-#define SCRATCH_PAD_MIPSALL_READY	(SCRATCH_PAD_IOP1_READY | \
++#define SCRATCH_PAD_MIPSALL_READY_16PORT	(SCRATCH_PAD_IOP1_READY | \
+ 					SCRATCH_PAD_IOP0_READY | \
++					SCRATCH_PAD_ILA_READY | \
++					SCRATCH_PAD_RAAE_READY)
++#define SCRATCH_PAD_MIPSALL_READY_8PORT	(SCRATCH_PAD_IOP0_READY | \
++					SCRATCH_PAD_ILA_READY | \
+ 					SCRATCH_PAD_RAAE_READY)
+ 
+ /* boot loader state */
 -- 
 2.34.1
 
