@@ -2,32 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DF4E4A9625
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:23:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA8984A95DF
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:20:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357409AbiBDJXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:23:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60630 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357554AbiBDJWW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:22:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50BC2C061777;
-        Fri,  4 Feb 2022 01:22:22 -0800 (PST)
+        id S244152AbiBDJUt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:20:49 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40016 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356576AbiBDJUh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:20:37 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DA2BB836F5;
-        Fri,  4 Feb 2022 09:22:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5556DC004E1;
-        Fri,  4 Feb 2022 09:22:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F3AE615E3;
+        Fri,  4 Feb 2022 09:20:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0522C004E1;
+        Fri,  4 Feb 2022 09:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966540;
-        bh=penmrp4zrZH2irsB7ocveGnycO9Fjfbz+W0k28rbUS8=;
+        s=korg; t=1643966435;
+        bh=SiOTYl4HAbhjx6akmKnFtzuK+pK0LowwAHkRI2cD5fY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7TA2XU6w/lWpAxHbxCxwIGgy/Bb/GMIAMLeuwHIZJhcC+rOZMgknou59GEa9nE5D
-         e59AGLvRXORhQ4vLcw+YyC5c3HyHMhiSCrSZFeXHflEemuQ+ENgT0lTHk9DpJh2zjy
-         tPkbVKXTSaU7ROqM6rufvBw7jNtqD4ldmv7TnVrc=
+        b=2wS98hxrT4/HnO8Wrp0qf86rHvcAkaWCpGTLjPcrjtMyHcPcz80o0HQh7VjUbLMou
+         dkJ5oEBqGx4a8SYlx/YHhpRx2BZhqojSp3V5GGAsv1MHEKfo0oEaLf8Pk6y1Jo/Fgb
+         BfAF8qpwN9j/kHvXwSIcfJI3cuMruQCYD0FIgbSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -39,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Eric Biggers <ebiggers@google.com>,
         Johannes Weiner <hannes@cmpxchg.org>,
         Eric Biggers <ebiggers@kernel.org>
-Subject: [PATCH 5.10 07/25] psi: Fix uaf issue when psi trigger is destroyed while being polled
-Date:   Fri,  4 Feb 2022 10:20:14 +0100
-Message-Id: <20220204091914.528444186@linuxfoundation.org>
+Subject: [PATCH 5.4 02/10] psi: Fix uaf issue when psi trigger is destroyed while being polled
+Date:   Fri,  4 Feb 2022 10:20:15 +0100
+Message-Id: <20220204091912.407481190@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091914.280602669@linuxfoundation.org>
-References: <20220204091914.280602669@linuxfoundation.org>
+In-Reply-To: <20220204091912.329106021@linuxfoundation.org>
+References: <20220204091912.329106021@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -78,8 +75,8 @@ Reviewed-by: Eric Biggers <ebiggers@google.com>
 Acked-by: Johannes Weiner <hannes@cmpxchg.org>
 Cc: stable@vger.kernel.org
 Link: https://lore.kernel.org/r/20220111232309.1786347-1-surenb@google.com
-[surenb: backported to 5.10 kernel]
-CC: stable@vger.kernel.org # 5.10
+[surenb: backported to 5.4 kernel]
+CC: stable@vger.kernel.org # 5.4
 Signed-off-by: Suren Baghdasaryan <surenb@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
@@ -92,7 +89,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/Documentation/accounting/psi.rst
 +++ b/Documentation/accounting/psi.rst
-@@ -92,7 +92,8 @@ Triggers can be set on more than one psi
+@@ -90,7 +90,8 @@ Triggers can be set on more than one psi
  for the same psi metric can be specified. However for each trigger a separate
  file descriptor is required to be able to poll it separately from others,
  therefore for each trigger a separate open() syscall should be made even
@@ -104,7 +101,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  psi metric and deactivates upon exit from the stall state. While system is
 --- a/include/linux/psi.h
 +++ b/include/linux/psi.h
-@@ -33,7 +33,7 @@ void cgroup_move_task(struct task_struct
+@@ -31,7 +31,7 @@ void cgroup_move_task(struct task_struct
  
  struct psi_trigger *psi_trigger_create(struct psi_group *group,
  			char *buf, size_t nbytes, enum psi_res res);
@@ -115,7 +112,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			poll_table *wait);
 --- a/include/linux/psi_types.h
 +++ b/include/linux/psi_types.h
-@@ -128,9 +128,6 @@ struct psi_trigger {
+@@ -120,9 +120,6 @@ struct psi_trigger {
  	 * events to one per window
  	 */
  	u64 last_event_time;
@@ -127,7 +124,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  struct psi_group {
 --- a/kernel/cgroup/cgroup.c
 +++ b/kernel/cgroup/cgroup.c
-@@ -3601,6 +3601,12 @@ static ssize_t cgroup_pressure_write(str
+@@ -3659,6 +3659,12 @@ static ssize_t cgroup_pressure_write(str
  	cgroup_get(cgrp);
  	cgroup_kn_unlock(of->kn);
  
@@ -140,7 +137,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	psi = cgroup_ino(cgrp) == 1 ? &psi_system : &cgrp->psi;
  	new = psi_trigger_create(psi, buf, nbytes, res);
  	if (IS_ERR(new)) {
-@@ -3608,8 +3614,7 @@ static ssize_t cgroup_pressure_write(str
+@@ -3666,8 +3672,7 @@ static ssize_t cgroup_pressure_write(str
  		return PTR_ERR(new);
  	}
  
@@ -150,7 +147,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	cgroup_put(cgrp);
  
  	return nbytes;
-@@ -3644,7 +3649,7 @@ static __poll_t cgroup_pressure_poll(str
+@@ -3702,7 +3707,7 @@ static __poll_t cgroup_pressure_poll(str
  
  static void cgroup_pressure_release(struct kernfs_open_file *of)
  {
@@ -161,7 +158,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/kernel/sched/psi.c
 +++ b/kernel/sched/psi.c
-@@ -1116,7 +1116,6 @@ struct psi_trigger *psi_trigger_create(s
+@@ -1046,7 +1046,6 @@ struct psi_trigger *psi_trigger_create(s
  	t->event = 0;
  	t->last_event_time = 0;
  	init_waitqueue_head(&t->event_wait);
@@ -169,7 +166,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	mutex_lock(&group->trigger_lock);
  
-@@ -1145,15 +1144,19 @@ struct psi_trigger *psi_trigger_create(s
+@@ -1079,15 +1078,19 @@ struct psi_trigger *psi_trigger_create(s
  	return t;
  }
  
@@ -179,7 +176,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 -	struct psi_trigger *t = container_of(ref, struct psi_trigger, refcount);
 -	struct psi_group *group = t->group;
 +	struct psi_group *group;
- 	struct task_struct *task_to_destroy = NULL;
+ 	struct kthread_worker *kworker_to_destroy = NULL;
  
 -	if (static_branch_likely(&psi_disabled))
 +	/*
@@ -193,20 +190,20 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	/*
  	 * Wakeup waiters to stop polling. Can happen if cgroup is deleted
  	 * from under a polling process.
-@@ -1189,9 +1192,9 @@ static void psi_trigger_destroy(struct k
+@@ -1122,9 +1125,9 @@ static void psi_trigger_destroy(struct k
  	mutex_unlock(&group->trigger_lock);
  
  	/*
 -	 * Wait for both *trigger_ptr from psi_trigger_replace and
--	 * poll_task RCUs to complete their read-side critical sections
--	 * before destroying the trigger and optionally the poll_task
+-	 * poll_kworker RCUs to complete their read-side critical sections
+-	 * before destroying the trigger and optionally the poll_kworker
 +	 * Wait for psi_schedule_poll_work RCU to complete its read-side
 +	 * critical section before destroying the trigger and optionally the
 +	 * poll_task.
  	 */
  	synchronize_rcu();
  	/*
-@@ -1208,18 +1211,6 @@ static void psi_trigger_destroy(struct k
+@@ -1146,18 +1149,6 @@ static void psi_trigger_destroy(struct k
  	kfree(t);
  }
  
@@ -225,7 +222,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  __poll_t psi_trigger_poll(void **trigger_ptr,
  				struct file *file, poll_table *wait)
  {
-@@ -1229,24 +1220,15 @@ __poll_t psi_trigger_poll(void **trigger
+@@ -1167,24 +1158,15 @@ __poll_t psi_trigger_poll(void **trigger
  	if (static_branch_likely(&psi_disabled))
  		return DEFAULT_POLLMASK | EPOLLERR | EPOLLPRI;
  
@@ -252,7 +249,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	return ret;
  }
  
-@@ -1270,14 +1252,24 @@ static ssize_t psi_write(struct file *fi
+@@ -1208,14 +1190,24 @@ static ssize_t psi_write(struct file *fi
  
  	buf[buf_size - 1] = '\0';
  
@@ -282,7 +279,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	mutex_unlock(&seq->lock);
  
  	return nbytes;
-@@ -1312,7 +1304,7 @@ static int psi_fop_release(struct inode
+@@ -1250,7 +1242,7 @@ static int psi_fop_release(struct inode
  {
  	struct seq_file *seq = file->private_data;
  
