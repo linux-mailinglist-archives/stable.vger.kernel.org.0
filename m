@@ -2,91 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34A064A9570
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 09:47:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2304A9572
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 09:48:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231247AbiBDIrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 03:47:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52570 "EHLO
+        id S232721AbiBDIs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 03:48:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230513AbiBDIrE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 03:47:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB518C061714
-        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 00:47:04 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D58460F16
-        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 08:47:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8627C004E1;
-        Fri,  4 Feb 2022 08:47:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643964423;
-        bh=X3fZbEv8G7DF14ybADZhQna6yjOrw+3Hagh2ZawgI00=;
-        h=Subject:To:Cc:From:Date:From;
-        b=Plhp+dcDx5ekW9/UrJhQWsQF+899B+mKGNpW2kSrJ4xuOwYPk4muc7P7UlAe/VDGX
-         hGX6E3o2v7taevflOhAt8dI9JlVJ64DzWs9UEu3N9oh7Klj29tN63v4B0ortAM/mQ9
-         OFze5kT4nmzVgnYncZCXNBEE5W73Q/2WDi+nqTkQ=
-Subject: FAILED: patch "[PATCH] bpf: Fix possible race in inc_misses_counter" failed to apply to 5.15-stable tree
-To:     hefengqing@huawei.com, ast@kernel.org, john.fastabend@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Feb 2022 09:47:00 +0100
-Message-ID: <164396442065149@kroah.com>
+        with ESMTP id S230513AbiBDIs2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 03:48:28 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBA93C061714
+        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 00:48:28 -0800 (PST)
+Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1nFuGW-0006hE-PR; Fri, 04 Feb 2022 09:48:24 +0100
+Message-ID: <f0e5b970-5982-313b-8c75-b839086ce100@leemhuis.info>
+Date:   Fri, 4 Feb 2022 09:48:24 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: Regression/boot failure on 5.16.3
+Content-Language: en-BS
+To:     Jason Self <jason@bluehome.net>, stable@vger.kernel.org
+References: <20220203161959.3edf1d6e@valencia>
+From:   Thorsten Leemhuis <linux@leemhuis.info>
+Cc:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>
+In-Reply-To: <20220203161959.3edf1d6e@valencia>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;linux@leemhuis.info;1643964508;b6182172;
+X-HE-SMSGID: 1nFuGW-0006hE-PR
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+[TLDR: I'm adding this regression to regzbot, the Linux kernel
+regression tracking bot; most text you find below is compiled from a few
+templates paragraphs some of you might have seen already.]
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Hi, this is your Linux kernel regression tracker speaking.
 
-thanks,
+Adding the regression mailing list to the list of recipients, as it
+should be in the loop for all regressions, as explained here:
+https://www.kernel.org/doc/html/latest/admin-guide/reporting-issues.html
 
-greg k-h
+On 04.02.22 01:19, Jason Self wrote:
+> The computer (amd64) fails to boot. The init was stuck at the
+> synchronization of the time through the network. This began between
+> 5.16.2 (good) and 5.16.3 (bad.) This continues on 5.16.4 and 5.16.5.
+> Git bisect revealed the following. In this case the nonfree firmwre is
+> not present on the system. Blacklisting the iwflwifi module works as a
+> workaround for now.
+> 
+> 6b5ad4bd0d78fef6bbe0ecdf96e09237c9c52cc1 is the first bad commit
+> commit 6b5ad4bd0d78fef6bbe0ecdf96e09237c9c52cc1
+> Author: Johannes Berg <johannes.berg@intel.com>
+> Date:   Fri Dec 10 11:12:42 2021 +0200
 
------------------- original commit in Linus's tree ------------------
+To be sure this issue doesn't fall through the cracks unnoticed, I'm
+adding it to regzbot, my Linux kernel regression tracking bot:
 
-From 0e3135d3bfa5dfb658145238d2bc723a8e30c3a3 Mon Sep 17 00:00:00 2001
-From: He Fengqing <hefengqing@huawei.com>
-Date: Sat, 22 Jan 2022 10:29:36 +0000
-Subject: [PATCH] bpf: Fix possible race in inc_misses_counter
+#regzbot ^introduced 6b5ad4bd0d78fef6bbe0ecdf96e09237c9c52cc1
+#regzbot title net: iwlwifi: system fails to boot since 5.16.3
+#regzbot ignore-activity
 
-It seems inc_misses_counter() suffers from same issue fixed in
-the commit d979617aa84d ("bpf: Fixes possible race in update_prog_stats()
-for 32bit arches"):
-As it can run while interrupts are enabled, it could
-be re-entered and the u64_stats syncp could be mangled.
+Reminder: when fixing the issue, please add a 'Link:' tag with the URL
+to the report (the parent of this mail) using the kernel.org redirector,
+as explained in 'Documentation/process/submitting-patches.rst'. Regzbot
+then will automatically mark the regression as resolved once the fix
+lands in the appropriate tree. For more details about regzbot see footer.
 
-Fixes: 9ed9e9ba2337 ("bpf: Count the number of times recursion was prevented")
-Signed-off-by: He Fengqing <hefengqing@huawei.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/r/20220122102936.1219518-1-hefengqing@huawei.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Sending this to everyone that got the initial report, to make all aware
+of the tracking. I also hope that messages like this motivate people to
+directly get at least the regression mailing list and ideally even
+regzbot involved when dealing with regressions, as messages like this
+wouldn't be needed then.
 
-diff --git a/kernel/bpf/trampoline.c b/kernel/bpf/trampoline.c
-index 4b6974a195c1..5e7edf913060 100644
---- a/kernel/bpf/trampoline.c
-+++ b/kernel/bpf/trampoline.c
-@@ -550,11 +550,12 @@ static __always_inline u64 notrace bpf_prog_start_time(void)
- static void notrace inc_misses_counter(struct bpf_prog *prog)
- {
- 	struct bpf_prog_stats *stats;
-+	unsigned int flags;
- 
- 	stats = this_cpu_ptr(prog->stats);
--	u64_stats_update_begin(&stats->syncp);
-+	flags = u64_stats_update_begin_irqsave(&stats->syncp);
- 	u64_stats_inc(&stats->misses);
--	u64_stats_update_end(&stats->syncp);
-+	u64_stats_update_end_irqrestore(&stats->syncp, flags);
- }
- 
- /* The logic is similar to bpf_prog_run(), but with an explicit
+Don't worry, I'll send further messages wrt to this regression just to
+the lists (with a tag in the subject so people can filter them away), as
+long as they are intended just for regzbot. With a bit of luck no such
+messages will be needed anyway.
 
+Ciao, Thorsten (wearing his 'Linux kernel regression tracker' hat)
+
+P.S.: As a Linux kernel regression tracker I'm getting a lot of reports
+on my table. I can only look briefly into most of them. Unfortunately
+therefore I sometimes will get things wrong or miss something important.
+I hope that's not the case here; if you think it is, don't hesitate to
+tell me about it in a public reply, that's in everyone's interest.
+
+BTW, I have no personal interest in this issue, which is tracked using
+regzbot, my Linux kernel regression tracking bot
+(https://linux-regtracking.leemhuis.info/regzbot/). I'm only posting
+this mail to get things rolling again and hence don't need to be CC on
+all further activities wrt to this regression.
+
+
+>     iwlwifi: fix leaks/bad data after failed firmware load
+>     
+>     [ Upstream commit ab07506b0454bea606095951e19e72c282bfbb42 ]
+>     
+>     If firmware load fails after having loaded some parts of the
+>     firmware, e.g. the IML image, then this would leak. For the
+>     host command list we'd end up running into a WARN on the next
+>     attempt to load another firmware image.
+>     
+>     Fix this by calling iwl_dealloc_ucode() on failures, and make
+>     that also clear the data so we start fresh on the next round.
+>     
+>     Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+>     Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+>     Link:
+>     https://lore.kernel.org/r/iwlwifi.20211210110539.1f742f0eb58a.I1315f22f6aa632d94ae2069f85e1bca5e734dce0@changeid
+>     Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+>     Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+>  drivers/net/wireless/intel/iwlwifi/iwl-drv.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+
+---
+Additional information about regzbot:
+
+If you want to know more about regzbot, check out its web-interface, the
+getting start guide, and/or the references documentation:
+
+https://linux-regtracking.leemhuis.info/regzbot/
+https://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md
+https://gitlab.com/knurd42/regzbot/-/blob/main/docs/reference.md
+
+The last two documents will explain how you can interact with regzbot
+yourself if your want to.
+
+Hint for reporters: when reporting a regression it's in your interest to
+tell #regzbot about it in the report, as that will ensure the regression
+gets on the radar of regzbot and the regression tracker. That's in your
+interest, as they will make sure the report won't fall through the
+cracks unnoticed.
+
+Hint for developers: you normally don't need to care about regzbot once
+it's involved. Fix the issue as you normally would, just remember to
+include a 'Link:' tag to the report in the commit message, as explained
+in Documentation/process/submitting-patches.rst
+That aspect was recently was made more explicit in commit 1f57bd42b77c:
+https://git.kernel.org/linus/1f57bd42b77c
