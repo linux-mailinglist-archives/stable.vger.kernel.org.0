@@ -2,103 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A140F4A94DA
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 09:05:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A4E34A9515
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 09:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244292AbiBDIF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 03:05:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43082 "EHLO
+        id S1348306AbiBDI1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 03:27:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230138AbiBDIF1 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Fri, 4 Feb 2022 03:05:27 -0500
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F007C061714
-        for <Stable@vger.kernel.org>; Fri,  4 Feb 2022 00:05:27 -0800 (PST)
-Received: by mail-pg1-x543.google.com with SMTP id f8so4424203pgf.8
-        for <Stable@vger.kernel.org>; Fri, 04 Feb 2022 00:05:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=c5+oKL89+Al8opwNLgJ+ACvlbdVu/5l2SU8tvvvRvuM=;
-        b=iSfpbFcoPO2vvq8Il6FxpdisbYqRU8/losrvZ3Mjbz5l89gCYwRVNVKHEXl0i65VZ8
-         M6BxLNqe4yObMv+Xcap2nlOtDSbkW/Qn+hUG0D+TMgV7EMk6DClPiMmYCs4QECtA+SvQ
-         stoL3jOKBzwyObntYxoooLuXNgCfYsynrERAaKjNqOOeA3SXHKp04kA//KewzzeINonN
-         PCKl2h+Kd0haxjO/10gyUDGc5mu0Mq86mR0KXzFs80AQLkH7daXuEAwgn0BprdauMGqd
-         KgrN1/tSSnsriSCuhu4IAm8nW8sy/n5q/5vdjofBOW9pPt0DS0sB8aaiPNru/MB7PHU3
-         TeAw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=c5+oKL89+Al8opwNLgJ+ACvlbdVu/5l2SU8tvvvRvuM=;
-        b=NZrMdksutpfQgeJLvQZeu/ErX+3A02y0D6Lz9ymXFVBHRgqpI+bsN/FN6ELB1ot98y
-         VLT4Q/mtC4LusuUi6BuL3Jrr0R4rThRUQXHfo2qtjusFXGo8TW9ZNnafu4M8ctfnAPYe
-         Wt/wT3W+dKG47yy7MI8kerLiCwjdQGVXRshhnbFlGVv1WMejZsO2e0ZRBN0Lztc42/s4
-         mH432Hza2dGVD9tR+YFykYkcDJ9dCwOJeOAqfogdnxJ4dj2vpyusTD59HwkMLYSCfQGD
-         BSoPM0JjZUUyenpMiAfWShsaAE2SrdI9sg1T2uNgoujeKiLV7IiY0TPrzTCUZ/HFwILw
-         Sa/A==
-X-Gm-Message-State: AOAM5311E/Jwc2ti0zjcmDJFsUjwjMXDJxMAt1ESLQUuNAT9gRk8HQbr
-        rdjT/+OxcQAUEfDWfsTBOoUqmDbMyScmPDfobew=
-X-Google-Smtp-Source: ABdhPJz9MYh0uzHuzCp+NXvolHYf4BenRRMoejQ2BdWTZML0aSxIrRuPOEVx9j7Mt8o9KpzJBiCEW15o9CDQO+7oUSA=
-X-Received: by 2002:a63:89:: with SMTP id 131mr1478798pga.253.1643961926534;
- Fri, 04 Feb 2022 00:05:26 -0800 (PST)
+        with ESMTP id S238709AbiBDI1q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 03:27:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BDC6C061714
+        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 00:27:46 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EC5F60C22
+        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 08:27:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46785C004E1;
+        Fri,  4 Feb 2022 08:27:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643963265;
+        bh=84bni2Jwf7z0HkVTpMX0jZR0WAEnfQqYIpjDplvyD2I=;
+        h=Subject:To:Cc:From:Date:From;
+        b=FtUPoUhHlnGjniMyjv8GeOCVmekEzLfw9LNWLFASQW9FrimVC0oayrYjLVBUaqQi2
+         1fg236P3D4yWd1nRUjhPVfIAKVIEuJ3UGY+bRCFSfwBmNaZUCVOmGKrLPSnEvyLRKE
+         lizqTbpgxUj0U6GiizRlIFn/YYM0S21LJkqux+qM=
+Subject: FAILED: patch "[PATCH] cgroup-v1: Require capabilities to set release_agent" failed to apply to 4.14-stable tree
+To:     ebiederm@xmission.com, tabitha.c.sable@gmail.com, tj@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 04 Feb 2022 09:27:33 +0100
+Message-ID: <164396325312716@kroah.com>
 MIME-Version: 1.0
-Sender: komizongo2017@gmail.com
-Received: by 2002:a05:6a10:fe0f:0:0:0:0 with HTTP; Fri, 4 Feb 2022 00:05:25
- -0800 (PST)
-From:   komi zongo <komizongo2020@gmail.com>
-Date:   Fri, 4 Feb 2022 08:05:25 +0000
-X-Google-Sender-Auth: IiPkPj0G37wktoO5qEu2csZXiOk
-Message-ID: <CAPoO6Jon5ZGb4dgz5rSasx_+UNxqGHa8DcwM-mQfq4Th=rbCZA@mail.gmail.com>
-Subject: Very Very Urgent.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I NEED TRUST.
 
-Hope you are in good health with your family.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I am Mr.Komi Zongo.  I work as the Foreign Operations Manager with
-one of the international banks here in Burkina Faso. Although the
-world is a very small place and hard place to meet people because you
-don't know who to trust or believe, as I have developed trust in you
-after my fasting and praying,  I made up my mind to confide this
-confidential business suggestion to you.
+thanks,
 
-There is an overdue unclaimed sum of Ten Million Five Hundred Thousand
-United States Dollars ($10,500,000.00) in my bank, belonging to one of
-our dead foreign customers. There were no beneficiaries stated
-concerning these funds. Therefore, your request as a foreigner is
-necessary to apply for the claim and release of the fund smoothly into
-your reliable bank account  as the Foreign Business Partner to the
-deceased.
+greg k-h
 
-On the transfer of this fund in your account, you will take 40% as
-your share from the total fund, 5% will be shared to Charitable
-Organizations while Motherless Babies homes, disabled helpless as the
-balance of 55% will be for me. If you are really sure of your
-integrity, trustworthy, and confidentiality, reply urgently and to
-prove that, include your particulars as follows.
+------------------ original commit in Linus's tree ------------------
 
-Please get back to me through this Email Address komizongo2020@gmail.com
+From 24f6008564183aa120d07c03d9289519c2fe02af Mon Sep 17 00:00:00 2001
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+Date: Thu, 20 Jan 2022 11:04:01 -0600
+Subject: [PATCH] cgroup-v1: Require capabilities to set release_agent
 
-please fill in your personal information as indicated below and as
-soon as i receive this information below i will forward you a text of an
-application which you will fill and send to the bank for the claim of the
-fund as i will direct you on what to do.
+The cgroup release_agent is called with call_usermodehelper.  The function
+call_usermodehelper starts the release_agent with a full set fo capabilities.
+Therefore require capabilities when setting the release_agaent.
 
-Your name in full.......................... ........
-Your country....................... ..................
-Your age........................... ....................
-Your cell phone......................... ...........
-Your occupation.................... ...............
-Your sex........................... ....................
-Your marital status........................ .......
-Your id card or passport...........................
+Reported-by: Tabitha Sable <tabitha.c.sable@gmail.com>
+Tested-by: Tabitha Sable <tabitha.c.sable@gmail.com>
+Fixes: 81a6a5cdd2c5 ("Task Control Groups: automatic userspace notification of idle cgroups")
+Cc: stable@vger.kernel.org # v2.6.24+
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 
-Best Regards,
+diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
+index 41e0837a5a0b..0e877dbcfeea 100644
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -549,6 +549,14 @@ static ssize_t cgroup_release_agent_write(struct kernfs_open_file *of,
+ 
+ 	BUILD_BUG_ON(sizeof(cgrp->root->release_agent_path) < PATH_MAX);
+ 
++	/*
++	 * Release agent gets called with all capabilities,
++	 * require capabilities to set release agent.
++	 */
++	if ((of->file->f_cred->user_ns != &init_user_ns) ||
++	    !capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	cgrp = cgroup_kn_lock_live(of->kn, false);
+ 	if (!cgrp)
+ 		return -ENODEV;
+@@ -954,6 +962,12 @@ int cgroup1_parse_param(struct fs_context *fc, struct fs_parameter *param)
+ 		/* Specifying two release agents is forbidden */
+ 		if (ctx->release_agent)
+ 			return invalfc(fc, "release_agent respecified");
++		/*
++		 * Release agent gets called with all capabilities,
++		 * require capabilities to set release agent.
++		 */
++		if ((fc->user_ns != &init_user_ns) || !capable(CAP_SYS_ADMIN))
++			return invalfc(fc, "Setting release_agent not allowed");
+ 		ctx->release_agent = param->string;
+ 		param->string = NULL;
+ 		break;
 
-Mr.Komi Zongo.
