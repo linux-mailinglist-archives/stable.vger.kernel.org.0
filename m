@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 072B94A9528
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 09:34:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DC924A9529
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 09:34:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233521AbiBDIeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 03:34:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49554 "EHLO
+        id S241554AbiBDIeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 03:34:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231459AbiBDIeB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 03:34:01 -0500
+        with ESMTP id S231459AbiBDIeI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 03:34:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAEB5C061714
-        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 00:33:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ADFAC061714
+        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 00:34:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 536FF6102D
-        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 08:33:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11566C004E1;
-        Fri,  4 Feb 2022 08:33:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AAFC60FFA
+        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 08:34:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C839C004E1;
+        Fri,  4 Feb 2022 08:34:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643963638;
-        bh=uetgDF2jwVEAS3qc6uiRtLbZhfARkLyMnH37mV45qTg=;
+        s=korg; t=1643963647;
+        bh=Xgw+U+zWb6ISc9KoWnKI3l+enrWSoJXUurnUbtdNwvk=;
         h=Subject:To:Cc:From:Date:From;
-        b=Z1XrpdJ1fSuLECOUJj/e3t/ygnEE6DzaqeHv5E93JqN1HpsmOFkZV6aTTnP0qIP0R
-         75EcnC2VEwlSLQASCyD4VZ+YHlLGXzaxqyXh6kJXFCunst5MeAc10uXAOlgnYo9I/6
-         Iir7QxoSuWepAkd7qDZQGYtoGmxkCRWfjpqNhkhA=
-Subject: FAILED: patch "[PATCH] net/mlx5e: IPsec: Fix crypto offload for non TCP/UDP" failed to apply to 5.10-stable tree
+        b=f1Bgs3QJ4IpMQV14FGwfl81zduHUVJAzHqyPTZr4j8uoVqhNVkvlhc9B1UAMmW72N
+         Zva/42xrxLM1Qa50vzerMP7rOhrrtjp1EQo8NgElKLoMVVNj+BP2wh+6a2iNjGK3mJ
+         +zU9tj9tgKRrDAgC43eZtNLl0XzpQkEs8UOToWfA=
+Subject: FAILED: patch "[PATCH] net/mlx5e: IPsec: Fix crypto offload for non TCP/UDP" failed to apply to 5.15-stable tree
 To:     raeds@nvidia.com, maord@nvidia.com, saeedm@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Feb 2022 09:33:55 +0100
-Message-ID: <164396363555170@kroah.com>
+Date:   Fri, 04 Feb 2022 09:33:56 +0100
+Message-ID: <164396363649116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
