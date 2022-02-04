@@ -2,50 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73AB64A9657
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:25:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AEF94A967A
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:26:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357631AbiBDJYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:24:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32918 "EHLO
+        id S1357681AbiBDJ01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:26:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357535AbiBDJX7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:23:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3821C061753;
-        Fri,  4 Feb 2022 01:23:59 -0800 (PST)
+        with ESMTP id S1357979AbiBDJY7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:24:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CA65C06173D;
+        Fri,  4 Feb 2022 01:24:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54DEB61602;
-        Fri,  4 Feb 2022 09:23:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB70FC004E1;
-        Fri,  4 Feb 2022 09:23:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 299C4B836F3;
+        Fri,  4 Feb 2022 09:24:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54167C004E1;
+        Fri,  4 Feb 2022 09:24:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966638;
-        bh=LmrbcHvcX9oIGN9xKCE/bc6nuizkuV8gy2HnJpudulg=;
+        s=korg; t=1643966697;
+        bh=tTUbBlWGxGlAA/M3iRfxvQhYj3pYTSvQpKE+09KRzqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DJ7e0+cFDc1MG2tKCwkmO3YDSCdX9m5TlF13HtYCUAUAz4P18BPo0J2xFdiTyUGeh
-         vb/mEFbHJfg16JdoZn1zHId0n8PrvPmoa8ReBKYxQFi6wjStvsVjxekOzoi4uVyDeq
-         ZIiADyGNZXl4pWFoRzcpKOChi+A4Xlpt2XdJ5tog=
+        b=KvnL2MEPwtFGcuvkPgqgW91Rx4YkzWvVyHv6DR2QjpH8a8+JDJBczYInsIWEXojvz
+         nhWxu3kGLmSF06ugtRvtW4rsisTJI8qH1t8Bad1+LkduGDJYktMS40o7s9NIL8HI8Y
+         Vy8e4DYHJFd1sjtlYdrpa4biVZVdtx8X08T9P2Go=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Minchan Kim <minchan@google.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Will McVicker <willmcvicker@google.com>
-Subject: [PATCH 5.15 07/32] Revert "mm/gup: small refactoring: simplify try_grab_page()"
-Date:   Fri,  4 Feb 2022 10:22:17 +0100
-Message-Id: <20220204091915.496267001@linuxfoundation.org>
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.16 11/43] lockd: fix failure to cleanup client locks
+Date:   Fri,  4 Feb 2022 10:22:18 +0100
+Message-Id: <20220204091917.547635687@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
-References: <20220204091915.247906930@linuxfoundation.org>
+In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
+References: <20220204091917.166033635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,96 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hubbard <jhubbard@nvidia.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-commit c36c04c2e132fc39f6b658bf607aed4425427fd7 upstream.
+commit d19a7af73b5ecaac8168712d18be72b9db166768 upstream.
 
-This reverts commit 54d516b1d62ff8f17cee2da06e5e4706a0d00b8a
+In my testing, we're sometimes hitting the request->fl_flags & FL_EXISTS
+case in posix_lock_inode, presumably just by random luck since we're not
+actually initializing fl_flags here.
 
-That commit did a refactoring that effectively combined fast and slow
-gup paths (again).  And that was again incorrect, for two reasons:
+This probably didn't matter before commit 7f024fcd5c97 ("Keep read and
+write fds with each nlm_file") since we wouldn't previously unlock
+unless we knew there were locks.
 
- a) Fast gup and slow gup get reference counts on pages in different
-    ways and with different goals: see Linus' writeup in commit
-    cd1adf1b63a1 ("Revert "mm/gup: remove try_get_page(), call
-    try_get_compound_head() directly""), and
+But now it causes lockd to give up on removing more locks.
 
- b) try_grab_compound_head() also has a specific check for
-    "FOLL_LONGTERM && !is_pinned(page)", that assumes that the caller
-    can fall back to slow gup. This resulted in new failures, as
-    recently report by Will McVicker [1].
+We could just initialize fl_flags, but really it seems dubious to be
+calling vfs_lock_file with random values in some of the fields.
 
-But (a) has problems too, even though they may not have been reported
-yet.  So just revert this.
-
-Link: https://lore.kernel.org/r/20220131203504.3458775-1-willmcvicker@google.com [1]
-Fixes: 54d516b1d62f ("mm/gup: small refactoring: simplify try_grab_page()")
-Reported-and-tested-by: Will McVicker <willmcvicker@google.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Minchan Kim <minchan@google.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: stable@vger.kernel.org # 5.15
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 7f024fcd5c97 ("Keep read and write fds with each nlm_file")
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+[ cel: fixed checkpatch.pl nit ]
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/gup.c |   35 ++++++++++++++++++++++++++++++-----
- 1 file changed, 30 insertions(+), 5 deletions(-)
+ fs/lockd/svcsubs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -124,8 +124,8 @@ static inline struct page *try_get_compo
-  * considered failure, and furthermore, a likely bug in the caller, so a warning
-  * is also emitted.
-  */
--struct page *try_grab_compound_head(struct page *page,
--				    int refs, unsigned int flags)
-+__maybe_unused struct page *try_grab_compound_head(struct page *page,
-+						   int refs, unsigned int flags)
+--- a/fs/lockd/svcsubs.c
++++ b/fs/lockd/svcsubs.c
+@@ -180,6 +180,7 @@ static int nlm_unlock_files(struct nlm_f
  {
- 	if (flags & FOLL_GET)
- 		return try_get_compound_head(page, refs);
-@@ -208,10 +208,35 @@ static void put_compound_head(struct pag
-  */
- bool __must_check try_grab_page(struct page *page, unsigned int flags)
- {
--	if (!(flags & (FOLL_GET | FOLL_PIN)))
--		return true;
-+	WARN_ON_ONCE((flags & (FOLL_GET | FOLL_PIN)) == (FOLL_GET | FOLL_PIN));
+ 	struct file_lock lock;
  
--	return try_grab_compound_head(page, 1, flags);
-+	if (flags & FOLL_GET)
-+		return try_get_page(page);
-+	else if (flags & FOLL_PIN) {
-+		int refs = 1;
-+
-+		page = compound_head(page);
-+
-+		if (WARN_ON_ONCE(page_ref_count(page) <= 0))
-+			return false;
-+
-+		if (hpage_pincount_available(page))
-+			hpage_pincount_add(page, 1);
-+		else
-+			refs = GUP_PIN_COUNTING_BIAS;
-+
-+		/*
-+		 * Similar to try_grab_compound_head(): even if using the
-+		 * hpage_pincount_add/_sub() routines, be sure to
-+		 * *also* increment the normal page refcount field at least
-+		 * once, so that the page really is pinned.
-+		 */
-+		page_ref_add(page, refs);
-+
-+		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_ACQUIRED, 1);
-+	}
-+
-+	return true;
- }
- 
- /**
++	locks_init_lock(&lock);
+ 	lock.fl_type  = F_UNLCK;
+ 	lock.fl_start = 0;
+ 	lock.fl_end   = OFFSET_MAX;
 
 
