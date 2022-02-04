@@ -2,94 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6C994A92CE
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 04:42:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66FCA4A92F2
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 05:09:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245044AbiBDDm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 22:42:28 -0500
-Received: from mx0b-00069f02.pphosted.com ([205.220.177.32]:50814 "EHLO
-        mx0b-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232345AbiBDDmX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 22:42:23 -0500
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 2141hSM6012591;
-        Fri, 4 Feb 2022 03:42:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-transfer-encoding;
- s=corp-2021-07-09; bh=HmE0xb3hH+aUxstiJvmsRUlkplpk3vjpuANukSi698U=;
- b=SienoCq14327GkafJdN0uIN3IvsCWSlGyOG+2ayvxSOGk/dzDDO/NeEol1Obj02QoxL6
- Ao8yyvMNz+uGdr3QS9pMihsSyhDzvA2Wl2LWnaAJQr0iIaDN9tTloMMIh4dxLWrRt9zU
- kqiL5FVRq3ZQBTfa7//nji+nLGrx55AhqrGLmrU75gHA2rHdTOe6meCY38ksiMt574qi
- AKjdrT9dunspS+PTBZScwlKBR9wWLT+lsgcOPdsbmkf/RCO5jFukcyxZhzkGVcQc6TWS
- GvuA0PGaAIMcPMhLbXkswUv0CzUuUClrx+FDQwPeWHtYPLNMqTwDAwVcYWDm3TREJzgw pA== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3e0hevsjxd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 04 Feb 2022 03:42:13 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 2143fVM8172178;
-        Fri, 4 Feb 2022 03:42:12 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-        by userp3030.oracle.com with ESMTP id 3dvtq6mfkf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 04 Feb 2022 03:42:12 +0000
-Received: from userp3030.oracle.com (userp3030.oracle.com [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 2143gBA0173900;
-        Fri, 4 Feb 2022 03:42:11 GMT
-Received: from ca-mkp.mkp.ca.oracle.com (ca-mkp.ca.oracle.com [10.156.108.201])
-        by userp3030.oracle.com with ESMTP id 3dvtq6mfjq-1;
-        Fri, 04 Feb 2022 03:42:11 +0000
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-To:     linux-block@vger.kernel.org, axboe@kernel.dk
-Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Dmitry Monakhov <dmonakhov@openvz.org>, stable@vger.kernel.org,
-        Dmitry Ivanov <dmitry.ivanov2@hpe.com>,
-        Alexey Lyashkov <alexey.lyashkov@hpe.com>
-Subject: [PATCH] block: bio-integrity: Advance seed correctly for larger interval sizes
-Date:   Thu,  3 Feb 2022 22:42:09 -0500
-Message-Id: <20220204034209.4193-1-martin.petersen@oracle.com>
-X-Mailer: git-send-email 2.32.0
+        id S1356917AbiBDEJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 23:09:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47930 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356912AbiBDEJo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 23:09:44 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37D92C061714
+        for <stable@vger.kernel.org>; Thu,  3 Feb 2022 20:09:44 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id m7so4387940pjk.0
+        for <stable@vger.kernel.org>; Thu, 03 Feb 2022 20:09:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:in-reply-to:references:subject:message-id:date
+         :mime-version:content-transfer-encoding;
+        bh=Kh68bqIfR96bGqEsQD6t0ccLQCu/ga/B0iJH9ZRx6zQ=;
+        b=aW6FCzwLzX1tJes3DN/wYTMmXMywRu7H//4nGgGPdDbXmYhuACnm9kSYeMId4jVEPl
+         vgf3XsBpwWFb3XUdHS/n6oumA4XjQjGKqydlVmo+Xtqrsz0R6d9qkjI4QtR7lM+wXEZx
+         KUgajNf+110tXuwka+YgdEjwh+ntpTb5agKFfxmDMxPfEybaxyUXqOE0+d/O/HVtmGJh
+         3Gx/8L6+kI30LfJ/l6qLb7tz88SzENY3S00MJ8+7ANtRSvoSBj3XA+GJk/0sBCaeDYhE
+         wF9ZFom/GbfmyunRiK/o2P4FO+4DrJc9nIurFAJ5LgQZXPRSf0iO/Q/+tQhGPqFvXWBA
+         zZ7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
+         :message-id:date:mime-version:content-transfer-encoding;
+        bh=Kh68bqIfR96bGqEsQD6t0ccLQCu/ga/B0iJH9ZRx6zQ=;
+        b=BtzYjaLA/SboENoGt16Ey/UG4s9V+O6d0nXVyO3H+aRjYmUz7JP9wkr3VDwL6GhxDn
+         DLjApQ/AECBTTRE4cC4C6s1I3Kn1VD0sU1PuOmkAlF+cuv/FOCxav8Fv+gPAHw0+2I5+
+         OuUgmfUp/3Q6vBFTYH4f5zdg/E099HaodPHuuMDZrVNBeKcxrHF6QazmRqh4AT/yIHpI
+         w++dfjHpJDkgsPV18wg32Azrm174YQ+cg+Dt9Z5VufSFtEDrQxFgeX3GbFx7lCEFCVly
+         T2iCSqyXBfUu8BugUgcR8WtHo6DTu2JZzm8Qs5umfAaZpswbXG3JtG9NMY9OqnX+NS+/
+         GXYw==
+X-Gm-Message-State: AOAM531tFHOhuTUQgM1zEebltDbotMW/KBpoJLN2x3Fhf4xkYxknONFD
+        QImqCH9M9GD1ivmNOCohcSJ9bQ==
+X-Google-Smtp-Source: ABdhPJwfiI1eIEL3VdvFW5NMTqjZKtPcFWlmo2jedeKQ1D7v1nQGivCZU3HMFeLmQB/exMNLktzSKw==
+X-Received: by 2002:a17:90a:4e89:: with SMTP id o9mr1057365pjh.132.1643947783585;
+        Thu, 03 Feb 2022 20:09:43 -0800 (PST)
+Received: from [192.168.1.116] ([66.219.217.159])
+        by smtp.gmail.com with ESMTPSA id s12sm515884pfd.112.2022.02.03.20.09.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Feb 2022 20:09:43 -0800 (PST)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     linux-block@vger.kernel.org,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc:     Dmitry Monakhov <dmonakhov@openvz.org>, stable@vger.kernel.org,
+        Alexey Lyashkov <alexey.lyashkov@hpe.com>,
+        Dmitry Ivanov <dmitry.ivanov2@hpe.com>
+In-Reply-To: <20220204034209.4193-1-martin.petersen@oracle.com>
+References: <20220204034209.4193-1-martin.petersen@oracle.com>
+Subject: Re: [PATCH] block: bio-integrity: Advance seed correctly for larger interval sizes
+Message-Id: <164394778292.433581.8274625002734886779.b4-ty@kernel.dk>
+Date:   Thu, 03 Feb 2022 21:09:42 -0700
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-GUID: TKgKzsopAs0l1_zIylS2G8x9VO6VNAze
-X-Proofpoint-ORIG-GUID: TKgKzsopAs0l1_zIylS2G8x9VO6VNAze
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 309a62fa3a9e ("bio-integrity: bio_integrity_advance must update
-integrity seed") added code to update the integrity seed value when
-advancing a bio. However, it failed to take into account that the
-integrity interval might be larger than the 512-byte block layer
-sector size. This broke bio splitting on PI devices with 4KB logical
-blocks.
+On Thu, 3 Feb 2022 22:42:09 -0500, Martin K. Petersen wrote:
+> Commit 309a62fa3a9e ("bio-integrity: bio_integrity_advance must update
+> integrity seed") added code to update the integrity seed value when
+> advancing a bio. However, it failed to take into account that the
+> integrity interval might be larger than the 512-byte block layer
+> sector size. This broke bio splitting on PI devices with 4KB logical
+> blocks.
+> 
+> [...]
 
-The seed value should be advanced by bio_integrity_intervals() and not
-the number of sectors.
+Applied, thanks!
 
-Cc: Dmitry Monakhov <dmonakhov@openvz.org>
-Cc: stable@vger.kernel.org
-Fixes: 309a62fa3a9e ("bio-integrity: bio_integrity_advance must update integrity seed")
-Tested-by: Dmitry Ivanov <dmitry.ivanov2@hpe.com>
-Reported-by: Alexey Lyashkov <alexey.lyashkov@hpe.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
----
- block/bio-integrity.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+[1/1] block: bio-integrity: Advance seed correctly for larger interval sizes
+      commit: b13e0c71856817fca67159b11abac350e41289f5
 
-diff --git a/block/bio-integrity.c b/block/bio-integrity.c
-index d25114715459..0827b19820c5 100644
---- a/block/bio-integrity.c
-+++ b/block/bio-integrity.c
-@@ -373,7 +373,7 @@ void bio_integrity_advance(struct bio *bio, unsigned int bytes_done)
- 	struct blk_integrity *bi = blk_get_integrity(bio->bi_bdev->bd_disk);
- 	unsigned bytes = bio_integrity_bytes(bi, bytes_done >> 9);
- 
--	bip->bip_iter.bi_sector += bytes_done >> 9;
-+	bip->bip_iter.bi_sector += bio_integrity_intervals(bi, bytes_done >> 9);
- 	bvec_iter_advance(bip->bip_vec, &bip->bip_iter, bytes);
- }
- 
+Best regards,
 -- 
-2.32.0
+Jens Axboe
+
 
