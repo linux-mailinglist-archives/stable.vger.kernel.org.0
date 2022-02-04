@@ -2,100 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E24C4A9516
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 09:27:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39F474A9517
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 09:29:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352060AbiBDI1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 03:27:50 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43576 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238709AbiBDI1s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 03:27:48 -0500
+        id S1355872AbiBDI3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 03:29:33 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58576 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238709AbiBDI3d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 03:29:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD84B60F79
-        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 08:27:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A6D2C004E1;
-        Fri,  4 Feb 2022 08:27:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E06DBB83551;
+        Fri,  4 Feb 2022 08:29:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16867C004E1;
+        Fri,  4 Feb 2022 08:29:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643963268;
-        bh=6m4429M0p+bXPYJBqDFaCDdLW3DBRg+GVDN2joIlKjg=;
-        h=Subject:To:Cc:From:Date:From;
-        b=OhXxk1vkiKbenPT44kvqa+ruQJnnZLXD51mx6CiDYWjLeyuO3qzByi/CxlZQRrVPK
-         9OKjNT8Oa3E1dgIWONJlnlfVGGwJDI20hq2pD2PiQQ8UwW/p6lxW1oR14A207PKxzq
-         JGwkN5U4SeQMFvmba6Y9OfndKBu8bQ/YAqm6KmUc=
-Subject: FAILED: patch "[PATCH] cgroup-v1: Require capabilities to set release_agent" failed to apply to 4.19-stable tree
-To:     ebiederm@xmission.com, tabitha.c.sable@gmail.com, tj@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Feb 2022 09:27:34 +0100
-Message-ID: <164396325425597@kroah.com>
+        s=korg; t=1643963370;
+        bh=hV0XVIpJv8RfsccFVgtd6nr6963RmT/8SgaEKOgrUGM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CkacnUzIMgDRFphD+YHfn9mQpier5IfJsqoe/Ygn0PfYfp0gBV6K82RfCBDhpo6Yf
+         jFMWFZUT0aez4ocdBJ8E1XmVV5KqFjpylE3tFFbmBR9NWg5qIny6U61rAl1sqHtTzR
+         eJuabVpShJszWnFnRlPjlTWmMQJuv4chuWqlEs8k=
+Date:   Fri, 4 Feb 2022 09:29:27 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Lee Jones <lee.jones@linaro.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        rafael@kernel.org, pavel@ucw.cz, len.brown@intel.com,
+        linux-pm@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.16 36/52] PM: wakeup: simplify the output logic
+ of pm_show_wakelocks()
+Message-ID: <Yfzj56RiMMd79M26@kroah.com>
+References: <20220203202947.2304-1-sashal@kernel.org>
+ <20220203202947.2304-36-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220203202947.2304-36-sashal@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Feb 03, 2022 at 03:29:30PM -0500, Sasha Levin wrote:
+> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> [ Upstream commit c9d967b2ce40d71e968eb839f36c936b8a9cf1ea ]
+> 
+> The buffer handling in pm_show_wakelocks() is tricky, and hopefully
+> correct.  Ensure it really is correct by using sysfs_emit_at() which
+> handles all of the tricky string handling logic in a PAGE_SIZE buffer
+> for us automatically as this is a sysfs file being read from.
+> 
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Reviewed-by: Lee Jones <lee.jones@linaro.org>
+> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  kernel/power/wakelock.c | 11 ++++-------
+>  1 file changed, 4 insertions(+), 7 deletions(-)
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+This is already in a stable release, so no need to add it again.
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 24f6008564183aa120d07c03d9289519c2fe02af Mon Sep 17 00:00:00 2001
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Thu, 20 Jan 2022 11:04:01 -0600
-Subject: [PATCH] cgroup-v1: Require capabilities to set release_agent
-
-The cgroup release_agent is called with call_usermodehelper.  The function
-call_usermodehelper starts the release_agent with a full set fo capabilities.
-Therefore require capabilities when setting the release_agaent.
-
-Reported-by: Tabitha Sable <tabitha.c.sable@gmail.com>
-Tested-by: Tabitha Sable <tabitha.c.sable@gmail.com>
-Fixes: 81a6a5cdd2c5 ("Task Control Groups: automatic userspace notification of idle cgroups")
-Cc: stable@vger.kernel.org # v2.6.24+
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-
-diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
-index 41e0837a5a0b..0e877dbcfeea 100644
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -549,6 +549,14 @@ static ssize_t cgroup_release_agent_write(struct kernfs_open_file *of,
- 
- 	BUILD_BUG_ON(sizeof(cgrp->root->release_agent_path) < PATH_MAX);
- 
-+	/*
-+	 * Release agent gets called with all capabilities,
-+	 * require capabilities to set release agent.
-+	 */
-+	if ((of->file->f_cred->user_ns != &init_user_ns) ||
-+	    !capable(CAP_SYS_ADMIN))
-+		return -EPERM;
-+
- 	cgrp = cgroup_kn_lock_live(of->kn, false);
- 	if (!cgrp)
- 		return -ENODEV;
-@@ -954,6 +962,12 @@ int cgroup1_parse_param(struct fs_context *fc, struct fs_parameter *param)
- 		/* Specifying two release agents is forbidden */
- 		if (ctx->release_agent)
- 			return invalfc(fc, "release_agent respecified");
-+		/*
-+		 * Release agent gets called with all capabilities,
-+		 * require capabilities to set release agent.
-+		 */
-+		if ((fc->user_ns != &init_user_ns) || !capable(CAP_SYS_ADMIN))
-+			return invalfc(fc, "Setting release_agent not allowed");
- 		ctx->release_agent = param->string;
- 		param->string = NULL;
- 		break;
-
