@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0937A4A9691
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:27:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C8444A9665
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:25:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357921AbiBDJ1R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:27:17 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44736 "EHLO
+        id S1357805AbiBDJZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:25:40 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43464 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358146AbiBDJZt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:25:49 -0500
+        with ESMTP id S1357810AbiBDJYW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:24:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D85A0615ED;
-        Fri,  4 Feb 2022 09:25:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CB2FC004E1;
-        Fri,  4 Feb 2022 09:25:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE9F1616B0;
+        Fri,  4 Feb 2022 09:24:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AADDBC340ED;
+        Fri,  4 Feb 2022 09:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966748;
-        bh=419SQMNUJTad//hSB8VlDwF9adSrpO28yi8oXMmav/c=;
+        s=korg; t=1643966661;
+        bh=r2AEvg0dJtsDUBsrPtvCkwyCzdKV51w5osYdpLkgFY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GY1s2z/VYpebiOHdeYLuya6dQXoIHoNRfSacXEzdoaOj5t9ja7KX/wn0eK8Rr6zL1
-         5yviVTFZoLwsW4BAE5T8FwYSFSYLwHmmXNczwe9TIQ2tKaAbw+duGN5GiUPLO3pD7Q
-         7gQRN16NVPMw1BayYyTyR53ERj5meveSmyNu552Y=
+        b=I9Db7MooKZBUtuYbRbOMBdq4DwkFC0OGLGcoe6kdS7UM92DnPL12CMcqUK7YKF8wn
+         fC1j3MPMadyAItGAyx7TWzmX1r8pdNMe5WAAqQzFHgKWbrFOgIwuPiCc4cjphHt54X
+         7Z1JBea/aHiisvewgmB1igcsZvw8qSoJOEToM6v8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khalid Manaa <khalidm@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.16 26/43] net/mlx5e: Fix broken SKB allocation in HW-GRO
+        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
+        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Karen Sornek <karen.sornek@intel.com>,
+        Gurucharan G <gurucharanx.g@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.15 23/32] i40e: Fix reset path while removing the driver
 Date:   Fri,  4 Feb 2022 10:22:33 +0100
-Message-Id: <20220204091918.021305558@linuxfoundation.org>
+Message-Id: <20220204091916.015219196@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
-References: <20220204091917.166033635@linuxfoundation.org>
+In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
+References: <20220204091915.247906930@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,103 +47,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khalid Manaa <khalidm@nvidia.com>
+From: Karen Sornek <karen.sornek@intel.com>
 
-commit 7957837b816f11eecb9146235bb0715478f4c81f upstream.
+commit 6533e558c6505e94c3e0ed4281ed5e31ec985f4d upstream.
 
-In case the HW doesn't perform header-data split, it will write the whole
-packet into the data buffer in the WQ, in this case the SHAMPO CQE handler
-couldn't use the header entry to build the SKB, instead it should allocate
-a new memory to build the SKB using the function:
-mlx5e_skb_from_cqe_mpwrq_nonlinear.
+Fix the crash in kernel while dereferencing the NULL pointer,
+when the driver is unloaded and simultaneously the VSI rings
+are being stopped.
 
-Fixes: f97d5c2a453e ("net/mlx5e: Add handle SHAMPO cqe support")
-Signed-off-by: Khalid Manaa <khalidm@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+The hardware requires 50msec in order to finish RX queues
+disable. For this purpose the driver spins in mdelay function
+for the operation to be completed.
+
+For example changing number of queues which requires reset would
+fail in the following call stack:
+
+1) i40e_prep_for_reset
+2) i40e_pf_quiesce_all_vsi
+3) i40e_quiesce_vsi
+4) i40e_vsi_close
+5) i40e_down
+6) i40e_vsi_stop_rings
+7) i40e_vsi_control_rx -> disable requires the delay of 50msecs
+8) continue back in i40e_down function where
+   i40e_clean_tx_ring(vsi->tx_rings[i]) is going to crash
+
+When the driver was spinning vsi_release called
+i40e_vsi_free_arrays where the vsi->tx_rings resources
+were freed and the pointer was set to NULL.
+
+Fixes: 5b6d4a7f20b0 ("i40e: Fix crash during removing i40e driver")
+Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
+Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Signed-off-by: Karen Sornek <karen.sornek@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_rx.c |   26 +++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e.h      |    1 +
+ drivers/net/ethernet/intel/i40e/i40e_main.c |   19 ++++++++++++++++++-
+ 2 files changed, 19 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
-@@ -1866,7 +1866,7 @@ mlx5e_skb_from_cqe_mpwrq_linear(struct m
- 	return skb;
- }
- 
--static void
-+static struct sk_buff *
- mlx5e_skb_from_cqe_shampo(struct mlx5e_rq *rq, struct mlx5e_mpw_info *wi,
- 			  struct mlx5_cqe64 *cqe, u16 header_index)
+--- a/drivers/net/ethernet/intel/i40e/i40e.h
++++ b/drivers/net/ethernet/intel/i40e/i40e.h
+@@ -144,6 +144,7 @@ enum i40e_state_t {
+ 	__I40E_VIRTCHNL_OP_PENDING,
+ 	__I40E_RECOVERY_MODE,
+ 	__I40E_VF_RESETS_DISABLED,	/* disable resets during i40e_remove */
++	__I40E_IN_REMOVE,
+ 	__I40E_VFS_RELEASING,
+ 	/* This must be last as it determines the size of the BITMAP */
+ 	__I40E_STATE_SIZE__,
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -10863,6 +10863,9 @@ static void i40e_reset_and_rebuild(struc
+ 				   bool lock_acquired)
  {
-@@ -1890,7 +1890,7 @@ mlx5e_skb_from_cqe_shampo(struct mlx5e_r
- 		skb = mlx5e_build_linear_skb(rq, hdr, frag_size, rx_headroom, head_size);
+ 	int ret;
++
++	if (test_bit(__I40E_IN_REMOVE, pf->state))
++		return;
+ 	/* Now we wait for GRST to settle out.
+ 	 * We don't have to delete the VEBs or VSIs from the hw switch
+ 	 * because the reset will make them disappear.
+@@ -12222,6 +12225,8 @@ int i40e_reconfig_rss_queues(struct i40e
  
- 		if (unlikely(!skb))
--			return;
-+			return NULL;
+ 		vsi->req_queue_pairs = queue_count;
+ 		i40e_prep_for_reset(pf);
++		if (test_bit(__I40E_IN_REMOVE, pf->state))
++			return pf->alloc_rss_size;
  
- 		/* queue up for recycling/reuse */
- 		page_ref_inc(head->page);
-@@ -1902,7 +1902,7 @@ mlx5e_skb_from_cqe_shampo(struct mlx5e_r
- 				     ALIGN(head_size, sizeof(long)));
- 		if (unlikely(!skb)) {
- 			rq->stats->buff_alloc_err++;
--			return;
-+			return NULL;
- 		}
+ 		pf->alloc_rss_size = new_rss_size;
  
- 		prefetchw(skb->data);
-@@ -1913,9 +1913,7 @@ mlx5e_skb_from_cqe_shampo(struct mlx5e_r
- 		skb->tail += head_size;
- 		skb->len  += head_size;
- 	}
--	rq->hw_gro_data->skb = skb;
--	NAPI_GRO_CB(skb)->count = 1;
--	skb_shinfo(skb)->gso_size = mpwrq_get_cqe_byte_cnt(cqe) - head_size;
-+	return skb;
+@@ -13048,6 +13053,10 @@ static int i40e_xdp_setup(struct i40e_vs
+ 	if (need_reset)
+ 		i40e_prep_for_reset(pf);
+ 
++	/* VSI shall be deleted in a moment, just return EINVAL */
++	if (test_bit(__I40E_IN_REMOVE, pf->state))
++		return -EINVAL;
++
+ 	old_prog = xchg(&vsi->xdp_prog, prog);
+ 
+ 	if (need_reset) {
+@@ -15938,8 +15947,13 @@ static void i40e_remove(struct pci_dev *
+ 	i40e_write_rx_ctl(hw, I40E_PFQF_HENA(0), 0);
+ 	i40e_write_rx_ctl(hw, I40E_PFQF_HENA(1), 0);
+ 
+-	while (test_bit(__I40E_RESET_RECOVERY_PENDING, pf->state))
++	/* Grab __I40E_RESET_RECOVERY_PENDING and set __I40E_IN_REMOVE
++	 * flags, once they are set, i40e_rebuild should not be called as
++	 * i40e_prep_for_reset always returns early.
++	 */
++	while (test_and_set_bit(__I40E_RESET_RECOVERY_PENDING, pf->state))
+ 		usleep_range(1000, 2000);
++	set_bit(__I40E_IN_REMOVE, pf->state);
+ 
+ 	if (pf->flags & I40E_FLAG_SRIOV_ENABLED) {
+ 		set_bit(__I40E_VF_RESETS_DISABLED, pf->state);
+@@ -16138,6 +16152,9 @@ static void i40e_pci_error_reset_done(st
+ {
+ 	struct i40e_pf *pf = pci_get_drvdata(pdev);
+ 
++	if (test_bit(__I40E_IN_REMOVE, pf->state))
++		return;
++
+ 	i40e_reset_and_rebuild(pf, false, false);
  }
  
- static void
-@@ -1975,6 +1973,7 @@ static void mlx5e_handle_rx_cqe_mpwrq_sh
- 	u32 cqe_bcnt		= mpwrq_get_cqe_byte_cnt(cqe);
- 	u16 wqe_id		= be16_to_cpu(cqe->wqe_id);
- 	u32 page_idx		= wqe_offset >> PAGE_SHIFT;
-+	u16 head_size		= cqe->shampo.header_size;
- 	struct sk_buff **skb	= &rq->hw_gro_data->skb;
- 	bool flush		= cqe->shampo.flush;
- 	bool match		= cqe->shampo.match;
-@@ -2007,9 +2006,16 @@ static void mlx5e_handle_rx_cqe_mpwrq_sh
- 	}
- 
- 	if (!*skb) {
--		mlx5e_skb_from_cqe_shampo(rq, wi, cqe, header_index);
-+		if (likely(head_size))
-+			*skb = mlx5e_skb_from_cqe_shampo(rq, wi, cqe, header_index);
-+		else
-+			*skb = mlx5e_skb_from_cqe_mpwrq_nonlinear(rq, wi, cqe_bcnt, data_offset,
-+								  page_idx);
- 		if (unlikely(!*skb))
- 			goto free_hd_entry;
-+
-+		NAPI_GRO_CB(*skb)->count = 1;
-+		skb_shinfo(*skb)->gso_size = cqe_bcnt - head_size;
- 	} else {
- 		NAPI_GRO_CB(*skb)->count++;
- 		if (NAPI_GRO_CB(*skb)->count == 2 &&
-@@ -2023,8 +2029,10 @@ static void mlx5e_handle_rx_cqe_mpwrq_sh
- 		}
- 	}
- 
--	di = &wi->umr.dma_info[page_idx];
--	mlx5e_fill_skb_data(*skb, rq, di, data_bcnt, data_offset);
-+	if (likely(head_size)) {
-+		di = &wi->umr.dma_info[page_idx];
-+		mlx5e_fill_skb_data(*skb, rq, di, data_bcnt, data_offset);
-+	}
- 
- 	mlx5e_shampo_complete_rx_cqe(rq, cqe, cqe_bcnt, *skb);
- 	if (flush)
 
 
