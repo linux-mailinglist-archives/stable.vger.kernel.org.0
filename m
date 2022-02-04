@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDB7A4A9660
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:25:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 226A74A96B8
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:28:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357859AbiBDJZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:25:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60994 "EHLO
+        id S239721AbiBDJ25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:28:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357595AbiBDJYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:24:30 -0500
+        with ESMTP id S1357591AbiBDJ1I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:27:08 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB1AFC06177A;
-        Fri,  4 Feb 2022 01:24:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96502C061394;
+        Fri,  4 Feb 2022 01:26:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D34AB836B9;
-        Fri,  4 Feb 2022 09:24:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59540C004E1;
-        Fri,  4 Feb 2022 09:24:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 570ECB836F0;
+        Fri,  4 Feb 2022 09:26:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ECADC340ED;
+        Fri,  4 Feb 2022 09:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966668;
-        bh=fSmrUO2QO2mxwW/Q3DVpy091GpVKvail29v4IS7R+dU=;
+        s=korg; t=1643966781;
+        bh=iaE1IqOh0EjTj9ysylMCuepe6iN/kPDrrbFWOLuRBw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oDS/m2KrhsYSLT6KbhBQGxzz8YyppL2bPL3sG6kHTnagRbfeKoBqHi/DarBbZJpcd
-         gKtXOgmaIykGmkSx0a/CrWqt2R6p0npf6eo8Zr9F1LBZdQuPKt6Kf/DYBHEOssjX4V
-         SsMdEXHGe4GxZBBvUYdxC3IsuyfDTK3pzO7CVqqU=
+        b=G+KEVi3R4ycgyEZEtZ8aCMBY20VHSaUPJGdh0a9srQgkWt+llCFoSvpD0M9e4H3Do
+         wB7up5pDqkTdDUsHzehn8zqDSzdsHVOGA4olwToXHbYTMpqrWrpOceHxA6CX8SMDcG
+         XiXpK847YucSFNDfULzvwmdMmrkZKRZmUQ38elOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        stable@vger.kernel.org, Georgi Valkov <gvalkov@abv.bg>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 25/32] net: amd-xgbe: Fix skb data length underflow
-Date:   Fri,  4 Feb 2022 10:22:35 +0100
-Message-Id: <20220204091916.090850152@linuxfoundation.org>
+Subject: [PATCH 5.16 29/43] ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+Date:   Fri,  4 Feb 2022 10:22:36 +0100
+Message-Id: <20220204091918.110218109@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
-References: <20220204091915.247906930@linuxfoundation.org>
+In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
+References: <20220204091917.166033635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,55 +48,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Georgi Valkov <gvalkov@abv.bg>
 
-commit 5aac9108a180fc06e28d4e7fb00247ce603b72ee upstream.
+commit 63e4b45c82ed1bde979da7052229a4229ce9cabf upstream.
 
-There will be BUG_ON() triggered in include/linux/skbuff.h leading to
-intermittent kernel panic, when the skb length underflow is detected.
+When rx_buf is allocated we need to account for IPHETH_IP_ALIGN,
+which reduces the usable size by 2 bytes. Otherwise we have 1512
+bytes usable instead of 1514, and if we receive more than 1512
+bytes, ipheth_rcvbulk_callback is called with status -EOVERFLOW,
+after which the driver malfunctiones and all communication stops.
 
-Fix this by dropping the packet if such length underflows are seen
-because of inconsistencies in the hardware descriptors.
+Resolves ipheth 2-1:4.2: ipheth_rcvbulk_callback: urb status: -75
 
-Fixes: 622c36f143fc ("amd-xgbe: Fix jumbo MTU processing on newer hardware")
-Suggested-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lore.kernel.org/r/20220127092003.2812745-1-Shyam-sundar.S-k@amd.com
+Fixes: f33d9e2b48a3 ("usbnet: ipheth: fix connectivity with iOS 14")
+Signed-off-by: Georgi Valkov <gvalkov@abv.bg>
+Tested-by: Jan Kiszka <jan.kiszka@siemens.com>
+Link: https://lore.kernel.org/all/B60B8A4B-92A0-49B3-805D-809A2433B46C@abv.bg/
+Link: https://lore.kernel.org/all/24851bd2769434a5fc24730dce8e8a984c5a4505.1643699778.git.jan.kiszka@siemens.com/
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/net/usb/ipheth.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-@@ -2557,6 +2557,14 @@ read_again:
- 			buf2_len = xgbe_rx_buf2_len(rdata, packet, len);
- 			len += buf2_len;
+--- a/drivers/net/usb/ipheth.c
++++ b/drivers/net/usb/ipheth.c
+@@ -121,7 +121,7 @@ static int ipheth_alloc_urbs(struct iphe
+ 	if (tx_buf == NULL)
+ 		goto free_rx_urb;
  
-+			if (buf2_len > rdata->rx.buf.dma_len) {
-+				/* Hardware inconsistency within the descriptors
-+				 * that has resulted in a length underflow.
-+				 */
-+				error = 1;
-+				goto skip_data;
-+			}
-+
- 			if (!skb) {
- 				skb = xgbe_create_skb(pdata, napi, rdata,
- 						      buf1_len);
-@@ -2586,8 +2594,10 @@ skip_data:
- 		if (!last || context_next)
- 			goto read_again;
+-	rx_buf = usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE,
++	rx_buf = usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN,
+ 				    GFP_KERNEL, &rx_urb->transfer_dma);
+ 	if (rx_buf == NULL)
+ 		goto free_tx_buf;
+@@ -146,7 +146,7 @@ error_nomem:
  
--		if (!skb)
-+		if (!skb || error) {
-+			dev_kfree_skb(skb);
- 			goto next_packet;
-+		}
+ static void ipheth_free_urbs(struct ipheth_device *iphone)
+ {
+-	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->rx_buf,
++	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN, iphone->rx_buf,
+ 			  iphone->rx_urb->transfer_dma);
+ 	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->tx_buf,
+ 			  iphone->tx_urb->transfer_dma);
+@@ -317,7 +317,7 @@ static int ipheth_rx_submit(struct iphet
  
- 		/* Be sure we don't exceed the configured MTU */
- 		max_len = netdev->mtu + ETH_HLEN;
+ 	usb_fill_bulk_urb(dev->rx_urb, udev,
+ 			  usb_rcvbulkpipe(udev, dev->bulk_in),
+-			  dev->rx_buf, IPHETH_BUF_SIZE,
++			  dev->rx_buf, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN,
+ 			  ipheth_rcvbulk_callback,
+ 			  dev);
+ 	dev->rx_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
 
 
