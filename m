@@ -2,91 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AABB4A9E6A
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 18:57:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69F094A9E6B
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 18:57:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377201AbiBDR5L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 12:57:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38704 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231603AbiBDR5K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 12:57:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B339C061714;
-        Fri,  4 Feb 2022 09:57:10 -0800 (PST)
+        id S1377210AbiBDR5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 12:57:16 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37762 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377200AbiBDR5P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 12:57:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C638B8386E;
-        Fri,  4 Feb 2022 17:57:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA326C340E9;
-        Fri,  4 Feb 2022 17:57:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B38D6B8386D;
+        Fri,  4 Feb 2022 17:57:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16FF6C340EB;
+        Fri,  4 Feb 2022 17:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1643997428;
-        bh=D1pLLIbAAt2KQpwLnzj66vfNlI8SvQaQIa3Kfuug6OQ=;
+        s=korg; t=1643997432;
+        bh=aD+SvPJUMV8qlmZmYGtEKh2tOLxDc46bz5C2+qUebYM=;
         h=Date:To:From:In-Reply-To:Subject:From;
-        b=bbYy4YgyVo9Y8dwGWdyZQuOjT/0svZfvuTTJRLbVT6L72QntPieBiJ6vajDaUFQdE
-         KAOoLZsvsUiytCnmbfEAQpQz04JrEc80MQ1rwAIrj8adK4XSKeCImPi+jV0uC7p7u3
-         +xi2OecCJ12p9SbjnwQ8bhjYPI8Ag2xwenPjEXKs=
-Received: by hp1 (sSMTP sendmail emulation); Fri, 04 Feb 2022 09:57:06 -0800
-Date:   Fri, 04 Feb 2022 09:57:06 -0800
-To:     zealci@zte.com.cn, vvs@virtuozzo.com, unixbhaskar@gmail.com,
-        stable@vger.kernel.org, shakeelb@google.com, rdunlap@infradead.org,
-        manfred@colorfullife.com, dbueso@suse.de, cgel.zte@gmail.com,
-        arnd@arndb.de, chi.minghao@zte.com.cn, akpm@linux-foundation.org,
-        linux-mm@kvack.org, mm-commits@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org
+        b=z6lz9jL0Z2vmS7oQYoe1lxU7nQfgvYuB7ZEU4D4yUFNiPyzbibRtOwkafWimg5dxG
+         Efwf78BJdLhVmPquk2tJBwE898Ghdx7gin1W8zduMU5aTOcISqp5grE358E2qWqQ0F
+         BIc/JOcXTL1AWdABd3uCu+veUjNxVmCmkYCbDjjo=
+Received: by hp1 (sSMTP sendmail emulation); Fri, 04 Feb 2022 09:57:10 -0800
+Date:   Fri, 04 Feb 2022 09:57:10 -0800
+To:     stable@vger.kernel.org, osalvador@suse.de, david@redhat.com,
+        catalin.marinas@arm.com, lang.yu@amd.com,
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
 In-Reply-To: <20220203204836.88dcebe504f440686cc63a60@linux-foundation.org>
-Subject: [patch 07/10] ipc/sem: do not sleep with a spin lock held
-Message-Id: <20220204175706.AA326C340E9@smtp.kernel.org>
+Subject: [patch 08/10] mm/kmemleak: avoid scanning potential huge holes
+Message-Id: <20220204175711.16FF6C340EB@smtp.kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minghao Chi <chi.minghao@zte.com.cn>
-Subject: ipc/sem: do not sleep with a spin lock held
+From: Lang Yu <lang.yu@amd.com>
+Subject: mm/kmemleak: avoid scanning potential huge holes
 
-We can't call kvfree() with a spin lock held, so defer it.
+When using devm_request_free_mem_region() and devm_memremap_pages() to add
+ZONE_DEVICE memory, if requested free mem region's end pfn were huge(e.g.,
+0x400000000), the node_end_pfn() will be also huge (see
+move_pfn_range_to_zone()).  Thus it creates a huge hole between
+node_start_pfn() and node_end_pfn().
 
-Link: https://lkml.kernel.org/r/20211223031207.556189-1-chi.minghao@zte.com.cn
-Fixes: fc37a3b8b438 ("[PATCH] ipc sem: use kvmalloc for sem_undo allocation")
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Manfred Spraul <manfred@colorfullife.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Yang Guang <cgel.zte@gmail.com>
-Cc: Davidlohr Bueso <dbueso@suse.de>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Bhaskar Chowdhury <unixbhaskar@gmail.com>
-Cc: Vasily Averin <vvs@virtuozzo.com>
+We found on some AMD APUs, amdkfd requested such a free mem region and
+created a huge hole.  In such a case, following code snippet was just
+doing busy test_bit() looping on the huge hole.
+
+for (pfn = start_pfn; pfn < end_pfn; pfn++) {
+	struct page *page = pfn_to_online_page(pfn);
+		if (!page)
+			continue;
+	...
+}
+
+So we got a soft lockup:
+
+watchdog: BUG: soft lockup - CPU#6 stuck for 26s! [bash:1221]
+CPU: 6 PID: 1221 Comm: bash Not tainted 5.15.0-custom #1
+RIP: 0010:pfn_to_online_page+0x5/0xd0
+Call Trace:
+  ? kmemleak_scan+0x16a/0x440
+  kmemleak_write+0x306/0x3a0
+  ? common_file_perm+0x72/0x170
+  full_proxy_write+0x5c/0x90
+  vfs_write+0xb9/0x260
+  ksys_write+0x67/0xe0
+  __x64_sys_write+0x1a/0x20
+  do_syscall_64+0x3b/0xc0
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+I did some tests with the patch.
+
+(1) amdgpu module unloaded
+
+before the patch:
+
+real    0m0.976s
+user    0m0.000s
+sys     0m0.968s
+
+after the patch:
+
+real    0m0.981s
+user    0m0.000s
+sys     0m0.973s
+
+(2) amdgpu module loaded
+
+before the patch:
+
+real    0m35.365s
+user    0m0.000s
+sys     0m35.354s
+
+after the patch:
+
+real    0m1.049s
+user    0m0.000s
+sys     0m1.042s
+
+Link: https://lkml.kernel.org/r/20211108140029.721144-1-lang.yu@amd.com
+Signed-off-by: Lang Yu <lang.yu@amd.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- ipc/sem.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/kmemleak.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/ipc/sem.c~ipc-sem-do-not-sleep-with-a-spin-lock-held
-+++ a/ipc/sem.c
-@@ -1964,6 +1964,7 @@ static struct sem_undo *find_alloc_undo(
+--- a/mm/kmemleak.c~mm-kmemleak-avoid-scanning-potential-huge-holes
++++ a/mm/kmemleak.c
+@@ -1410,7 +1410,8 @@ static void kmemleak_scan(void)
+ {
+ 	unsigned long flags;
+ 	struct kmemleak_object *object;
+-	int i;
++	struct zone *zone;
++	int __maybe_unused i;
+ 	int new_leaks = 0;
+ 
+ 	jiffies_last_scan = jiffies;
+@@ -1450,9 +1451,9 @@ static void kmemleak_scan(void)
+ 	 * Struct page scanning for each node.
  	 */
- 	un = lookup_undo(ulp, semid);
- 	if (un) {
-+		spin_unlock(&ulp->lock);
- 		kvfree(new);
- 		goto success;
- 	}
-@@ -1976,9 +1977,8 @@ static struct sem_undo *find_alloc_undo(
- 	ipc_assert_locked_object(&sma->sem_perm);
- 	list_add(&new->list_id, &sma->list_id);
- 	un = new;
--
--success:
- 	spin_unlock(&ulp->lock);
-+success:
- 	sem_unlock(sma, -1);
- out:
- 	return un;
+ 	get_online_mems();
+-	for_each_online_node(i) {
+-		unsigned long start_pfn = node_start_pfn(i);
+-		unsigned long end_pfn = node_end_pfn(i);
++	for_each_populated_zone(zone) {
++		unsigned long start_pfn = zone->zone_start_pfn;
++		unsigned long end_pfn = zone_end_pfn(zone);
+ 		unsigned long pfn;
+ 
+ 		for (pfn = start_pfn; pfn < end_pfn; pfn++) {
+@@ -1461,8 +1462,8 @@ static void kmemleak_scan(void)
+ 			if (!page)
+ 				continue;
+ 
+-			/* only scan pages belonging to this node */
+-			if (page_to_nid(page) != i)
++			/* only scan pages belonging to this zone */
++			if (page_zone(page) != zone)
+ 				continue;
+ 			/* only scan if page is in use */
+ 			if (page_count(page) == 0)
 _
