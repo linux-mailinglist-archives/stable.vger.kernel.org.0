@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED9E24A9550
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 09:40:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4494A9552
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 09:40:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241180AbiBDIkX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 03:40:23 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49026 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233838AbiBDIkW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 03:40:22 -0500
+        id S1353046AbiBDIkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 03:40:32 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:39244 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357147AbiBDIkb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 03:40:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F6336102C
-        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 08:40:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61E10C004E1;
-        Fri,  4 Feb 2022 08:40:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 474FCCE1B31
+        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 08:40:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 175C4C004E1;
+        Fri,  4 Feb 2022 08:40:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643964022;
-        bh=Dv2xzAzJ+t+SiCejh1561F+fYN+PQRILa04NSwumdvs=;
+        s=korg; t=1643964028;
+        bh=RKltPBFoDdY87xvwUvxHsLV9zxMrrxMAjAkq+Ap22Dc=;
         h=Subject:To:Cc:From:Date:From;
-        b=jtd+afaK4E6OhNKKF2acbUTynJx1IpFBZRGs4866LfNqhCXJcxcthYvKCo/xMNg/s
-         kXhtdrzBKjypQDvB/fQPjfV5gzsnhrHKltZBppOv8Ca7uCiItMd51UQIIa/BQ15BLR
-         DwAmBps7OCa/DJN6ATkBjVNmchkyAg+Tvx/ZFrcw=
-Subject: FAILED: patch "[PATCH] i40e: Fix reset path while removing the driver" failed to apply to 4.19-stable tree
+        b=U1ERHxJJJbs5palYPahGs08hozzrUN24vEjJGMD9co6Yc0/UKcGceEabm/Sofwryx
+         /cmtllaAtsO74nTkkbVbl0NaaHou9rXb4SBSMCzVj4wC9+3xFzFepriZvVPWNXXkIG
+         5M+uCox6/G7TEiRi7OCSINhcGyOsr7ra2uAYIr8k=
+Subject: FAILED: patch "[PATCH] i40e: Fix reset path while removing the driver" failed to apply to 5.4-stable tree
 To:     karen.sornek@intel.com, anthony.l.nguyen@intel.com,
         gurucharanx.g@intel.com, slawomirx.laba@intel.com,
         sylwesterx.dziedziuch@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Feb 2022 09:40:11 +0100
-Message-ID: <1643964011196116@kroah.com>
+Date:   Fri, 04 Feb 2022 09:40:12 +0100
+Message-ID: <1643964012135122@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +41,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
