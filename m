@@ -2,86 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FB254A9439
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 08:00:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E77EB4A948E
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 08:26:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237419AbiBDHAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 02:00:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57058 "EHLO
+        id S1351169AbiBDH0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 02:26:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232696AbiBDHAa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 02:00:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08B2EC061714
-        for <stable@vger.kernel.org>; Thu,  3 Feb 2022 23:00:30 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6747461BE6
-        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 07:00:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED4FCC004E1;
-        Fri,  4 Feb 2022 07:00:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643958027;
-        bh=qpl6QABk45G6hmm43d7xYtFt7hYo/1gNJlnm6FlD5Ks=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WjWIBjU+g1YNICSIHVckA+OE7IHNmA7JCSGbTSY3Pukr0LOxcPtkIh6RSzfTEFRMh
-         Rl/qATkKKoBXdvEKvNW759tthDKR3oDQdpgeXaopyS0fdwYe6yzV9Bud6MPiVRlVMB
-         mygSIcFYECERg8gpzjb52VZBKKwhw/EctbnZU1L4=
-Date:   Fri, 4 Feb 2022 08:00:17 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jason Self <jason@bluehome.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: Regression/boot failure on 5.16.3
-Message-ID: <YfzPAUa2WlxiNLqe@kroah.com>
-References: <20220203161959.3edf1d6e@valencia>
+        with ESMTP id S1351607AbiBDH0a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 02:26:30 -0500
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0377C061714
+        for <stable@vger.kernel.org>; Thu,  3 Feb 2022 23:26:29 -0800 (PST)
+Received: by mail-lf1-x12c.google.com with SMTP id x23so11063908lfc.0
+        for <stable@vger.kernel.org>; Thu, 03 Feb 2022 23:26:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=/rL+TycpMQLfB5P4Zn9xgGfUWg8yPCNTwrE46ZNldMM=;
+        b=Bl9gn94wmJOGpNWVVCQHT51nIG3sy+xM8olFaE0NpcNP6JH+2luil+fV1QjWWMqT9h
+         qmTZmUKlIzRP9juFzluJCmh4znPb5+EbFQBf1BC9JcMgq95/Fsfx0YTj2QUCqjKzrah6
+         BWnEuUGvwqFEmV0bZg4kMDpsbcH6qIOGOliTa78fAKYwofDcFoQ8Me36Yukk90XyEQ+0
+         2zyKET4vh1Qq1kRSjcMx4k2hEJBiY04rWtbfgLsBE/wN59AtjLvVD/HZKIEYMbBhAurK
+         udhS2BnEzFV7216cWOZ9QY+hb+ba+7mvCLRAWxDxSREbLnpFclZtblvKa1Gv+dojOU4q
+         FI0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=/rL+TycpMQLfB5P4Zn9xgGfUWg8yPCNTwrE46ZNldMM=;
+        b=tB6QytBnR/3K0a5JTvnsd+j5zIeTA986o6uXdkWD6RHdWg8I1yV3mBQcBi2Ro2LqxP
+         JHjiJfkyfGpxcMcKqBOqNeKwoHrLH5S9xiHG4MF9/rjtMID6zJXWkkR+6T6ZAiy612mr
+         tIOutgNlI/oR6gBO+WHZgOKv+yO43K1q90jixP10bQNQMZixa1QOc5ITSmxw38U9CVuD
+         IgZglWvT06pahGZIyqsZi6KEBjdm57pcU9X+xVGadsRGUQnJJbmVx3xZiA5q+/l6Z86Q
+         hXovAtau0ulgttE4LiGzVIy3DtxmdrEfnMhPXfs5TAvAsnfL9tuUKwspU/aouflIIpcA
+         kXBQ==
+X-Gm-Message-State: AOAM532Hl6VO0dex1d3qmCSVj0PS3nXrxWpH2cPmGBL+KhFcH7w22d1a
+        JB99hWXA5MEmmzdCyEmFeTn+3vawtImwnomqjL4=
+X-Google-Smtp-Source: ABdhPJyqsv/mjjlwkd/By237aRy4CrbFoX87YmQYjaQnCkkHaYC3YZpPy+FvXYW9Binn0dzp++ux4yBpsrcidZUQSm8=
+X-Received: by 2002:a05:6512:200a:: with SMTP id a10mr1458958lfb.494.1643959587676;
+ Thu, 03 Feb 2022 23:26:27 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220203161959.3edf1d6e@valencia>
+Received: by 2002:a05:6512:224e:0:0:0:0 with HTTP; Thu, 3 Feb 2022 23:26:26
+ -0800 (PST)
+Reply-To: dravasmith27@gmail.com
+From:   Dr Ava Smith <raqsacrx@gmail.com>
+Date:   Thu, 3 Feb 2022 23:26:26 -0800
+Message-ID: <CAP7=Wk5Yx6wHicBoP5sihDSu6vqZN=7TEjksdRqG7JNrFt6S-w@mail.gmail.com>
+Subject: GREETINGS FROM DR AVA SMITH
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 03, 2022 at 04:19:59PM -0800, Jason Self wrote:
-> The computer (amd64) fails to boot. The init was stuck at the
-> synchronization of the time through the network. This began between
-> 5.16.2 (good) and 5.16.3 (bad.) This continues on 5.16.4 and 5.16.5.
-> Git bisect revealed the following. In this case the nonfree firmwre is
-> not present on the system. Blacklisting the iwflwifi module works as a
-> workaround for now.
-> 
-> 6b5ad4bd0d78fef6bbe0ecdf96e09237c9c52cc1 is the first bad commit
-> commit 6b5ad4bd0d78fef6bbe0ecdf96e09237c9c52cc1
-> Author: Johannes Berg <johannes.berg@intel.com>
-> Date:   Fri Dec 10 11:12:42 2021 +0200
-> 
->     iwlwifi: fix leaks/bad data after failed firmware load
->     
->     [ Upstream commit ab07506b0454bea606095951e19e72c282bfbb42 ]
->     
->     If firmware load fails after having loaded some parts of the
->     firmware, e.g. the IML image, then this would leak. For the
->     host command list we'd end up running into a WARN on the next
->     attempt to load another firmware image.
->     
->     Fix this by calling iwl_dealloc_ucode() on failures, and make
->     that also clear the data so we start fresh on the next round.
->     
->     Signed-off-by: Johannes Berg <johannes.berg@intel.com>
->     Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
->     Link:
->     https://lore.kernel.org/r/iwlwifi.20211210110539.1f742f0eb58a.I1315f22f6aa632d94ae2069f85e1bca5e734dce0@changeid
->     Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
->     Signed-off-by: Sasha Levin <sashal@kernel.org>
-> 
->  drivers/net/wireless/intel/iwlwifi/iwl-drv.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-
-Please cc: the authors of this commit, and the upstream wireless
-developers so they can help you out here as I think the same issue shows
-up in 5.17-rc2, right?
-
-thanks,
-
-greg k-h
+-- 
+Hello Dear,
+how are you today?hope you are fine
+My name is Dr Ava Smith ,Am an English and French nationalities.
+I will give you pictures and more details about me as soon as i hear from you
+Thanks
+Ava
