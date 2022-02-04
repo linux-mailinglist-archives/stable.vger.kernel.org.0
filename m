@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D1944A9684
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:26:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 686994A9689
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:27:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358022AbiBDJ0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:26:49 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44274 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358064AbiBDJZO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:25:14 -0500
+        id S1357696AbiBDJ1D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:27:03 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:53354 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358092AbiBDJZS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:25:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 127C2616AD;
-        Fri,  4 Feb 2022 09:25:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC4C7C340EF;
-        Fri,  4 Feb 2022 09:25:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE969B836E9;
+        Fri,  4 Feb 2022 09:25:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 034ABC004E1;
+        Fri,  4 Feb 2022 09:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966713;
-        bh=VXigYRW5rsIpfXUUUjWJOkU9kJ0Hj9Zg+9vR2xZfuw4=;
+        s=korg; t=1643966716;
+        bh=mXHryGW09fA1yrZtSbOXLAiQQeihs2gSPyR7qHrk/wI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkgEl2eBdIG4UQDyThh44QNFP3GQQwFI2QJC+McG567JHQdTbfApgtrvBsU0XAAud
-         D25yX6e7ji6ZGbthPC7qBzSd8BLxLWme0v+B2RuyjI0xZAZY/xjA8yz4cxskADjrk5
-         MB7XuF33aPkCWG3k9qPihT2W64eUyrOcMgWTRUI8=
+        b=mBr9pvfFc9PXFcbbmrH5ZkFl7dWaHDU4mRqlK3XwvxUKes/3303TSsmWwOwEBJKww
+         xuKLKr0jQKYpR8LA3XBeVnog6O6asitK3D2LvYd0XpQ5Dl/60C3rYm10ni0CP6eB+4
+         BFmEZNkXQTcIKFn+9bIFYMoadF01q91YcF8mImcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Vlad Buslov <vladbu@nvidia.com>, Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.16 16/43] net/mlx5: Bridge, ensure dev_name is null-terminated
-Date:   Fri,  4 Feb 2022 10:22:23 +0100
-Message-Id: <20220204091917.705724162@linuxfoundation.org>
+        stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.16 17/43] net/mlx5e: Fix handling of wrong devices during bond netevent
+Date:   Fri,  4 Feb 2022 10:22:24 +0100
+Message-Id: <20220204091917.741575256@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
 References: <20220204091917.166033635@linuxfoundation.org>
@@ -45,55 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@nvidia.com>
+From: Maor Dickman <maord@nvidia.com>
 
-commit 350d9a823734b5a7e767cddc3bdde5f0bcbb7ff4 upstream.
+commit ec41332e02bd0acf1f24206867bb6a02f5877a62 upstream.
 
-Even though net_device->name is guaranteed to be null-terminated string of
-size<=IFNAMSIZ, the test robot complains that return value of netdev_name()
-can be larger:
+Current implementation of bond netevent handler only check if
+the handled netdev is VF representor and it missing a check if
+the VF representor is on the same phys device of the bond handling
+the netevent.
 
-In file included from include/trace/define_trace.h:102,
-                    from drivers/net/ethernet/mellanox/mlx5/core/esw/diag/bridge_tracepoint.h:113,
-                    from drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c:12:
-   drivers/net/ethernet/mellanox/mlx5/core/esw/diag/bridge_tracepoint.h: In function 'trace_event_raw_event_mlx5_esw_bridge_fdb_template':
->> drivers/net/ethernet/mellanox/mlx5/core/esw/diag/bridge_tracepoint.h:24:29: warning: 'strncpy' output may be truncated copying 16 bytes from a string of length 20 [-Wstringop-truncation]
-      24 |                             strncpy(__entry->dev_name,
-         |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~
-      25 |                                     netdev_name(fdb->dev),
-         |                                     ~~~~~~~~~~~~~~~~~~~~~~
-      26 |                                     IFNAMSIZ);
-         |                                     ~~~~~~~~~
+Fix by adding the missing check and optimizing the check if
+the netdev is VF representor so it will not access uninitialized
+private data and crashes.
 
-This is caused by the fact that default value of IFNAMSIZ is 16, while
-placeholder value that is returned by netdev_name() for unnamed net devices
-is larger than that.
+BUG: kernel NULL pointer dereference, address: 000000000000036c
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP NOPTI
+Workqueue: eth3bond0 bond_mii_monitor [bonding]
+RIP: 0010:mlx5e_is_uplink_rep+0xc/0x50 [mlx5_core]
+RSP: 0018:ffff88812d69fd60 EFLAGS: 00010282
+RAX: 0000000000000000 RBX: ffff8881cf800000 RCX: 0000000000000000
+RDX: ffff88812d69fe10 RSI: 000000000000001b RDI: ffff8881cf800880
+RBP: ffff8881cf800000 R08: 00000445cabccf2b R09: 0000000000000008
+R10: 0000000000000004 R11: 0000000000000008 R12: ffff88812d69fe10
+R13: 00000000fffffffe R14: ffff88820c0f9000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffff88846fb00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000000000036c CR3: 0000000103d80006 CR4: 0000000000370ea0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ mlx5e_eswitch_uplink_rep+0x31/0x40 [mlx5_core]
+ mlx5e_rep_is_lag_netdev+0x94/0xc0 [mlx5_core]
+ mlx5e_rep_esw_bond_netevent+0xeb/0x3d0 [mlx5_core]
+ raw_notifier_call_chain+0x41/0x60
+ call_netdevice_notifiers_info+0x34/0x80
+ netdev_lower_state_changed+0x4e/0xa0
+ bond_mii_monitor+0x56b/0x640 [bonding]
+ process_one_work+0x1b9/0x390
+ worker_thread+0x4d/0x3d0
+ ? rescuer_thread+0x350/0x350
+ kthread+0x124/0x150
+ ? set_kthread_struct+0x40/0x40
+ ret_from_fork+0x1f/0x30
 
-The offending code is in a tracing function that is only called for mlx5
-representors, so there is no straightforward way to reproduce the issue but
-let's fix it for correctness sake by replacing strncpy() with strscpy() to
-ensure that resulting string is always null-terminated.
-
-Fixes: 9724fd5d9c2a ("net/mlx5: Bridge, add tracepoints")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
+Fixes: 7e51891a237f ("net/mlx5e: Use netdev events to set/del egress acl forward-to-vport rule")
+Signed-off-by: Maor Dickman <maord@nvidia.com>
 Reviewed-by: Roi Dayan <roid@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/esw/diag/bridge_tracepoint.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/rep/bond.c |   32 +++++++-----------
+ 1 file changed, 14 insertions(+), 18 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/esw/diag/bridge_tracepoint.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/diag/bridge_tracepoint.h
-@@ -21,7 +21,7 @@ DECLARE_EVENT_CLASS(mlx5_esw_bridge_fdb_
- 			    __field(unsigned int, used)
- 			    ),
- 		    TP_fast_assign(
--			    strncpy(__entry->dev_name,
-+			    strscpy(__entry->dev_name,
- 				    netdev_name(fdb->dev),
- 				    IFNAMSIZ);
- 			    memcpy(__entry->addr, fdb->key.addr, ETH_ALEN);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bond.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bond.c
+@@ -183,18 +183,7 @@ void mlx5e_rep_bond_unslave(struct mlx5_
+ 
+ static bool mlx5e_rep_is_lag_netdev(struct net_device *netdev)
+ {
+-	struct mlx5e_rep_priv *rpriv;
+-	struct mlx5e_priv *priv;
+-
+-	/* A given netdev is not a representor or not a slave of LAG configuration */
+-	if (!mlx5e_eswitch_rep(netdev) || !netif_is_lag_port(netdev))
+-		return false;
+-
+-	priv = netdev_priv(netdev);
+-	rpriv = priv->ppriv;
+-
+-	/* Egress acl forward to vport is supported only non-uplink representor */
+-	return rpriv->rep->vport != MLX5_VPORT_UPLINK;
++	return netif_is_lag_port(netdev) && mlx5e_eswitch_vf_rep(netdev);
+ }
+ 
+ static void mlx5e_rep_changelowerstate_event(struct net_device *netdev, void *ptr)
+@@ -210,9 +199,6 @@ static void mlx5e_rep_changelowerstate_e
+ 	u16 fwd_vport_num;
+ 	int err;
+ 
+-	if (!mlx5e_rep_is_lag_netdev(netdev))
+-		return;
+-
+ 	info = ptr;
+ 	lag_info = info->lower_state_info;
+ 	/* This is not an event of a representor becoming active slave */
+@@ -266,9 +252,6 @@ static void mlx5e_rep_changeupper_event(
+ 	struct net_device *lag_dev;
+ 	struct mlx5e_priv *priv;
+ 
+-	if (!mlx5e_rep_is_lag_netdev(netdev))
+-		return;
+-
+ 	priv = netdev_priv(netdev);
+ 	rpriv = priv->ppriv;
+ 	lag_dev = info->upper_dev;
+@@ -293,6 +276,19 @@ static int mlx5e_rep_esw_bond_netevent(s
+ 				       unsigned long event, void *ptr)
+ {
+ 	struct net_device *netdev = netdev_notifier_info_to_dev(ptr);
++	struct mlx5e_rep_priv *rpriv;
++	struct mlx5e_rep_bond *bond;
++	struct mlx5e_priv *priv;
++
++	if (!mlx5e_rep_is_lag_netdev(netdev))
++		return NOTIFY_DONE;
++
++	bond = container_of(nb, struct mlx5e_rep_bond, nb);
++	priv = netdev_priv(netdev);
++	rpriv = mlx5_eswitch_get_uplink_priv(priv->mdev->priv.eswitch, REP_ETH);
++	/* Verify VF representor is on the same device of the bond handling the netevent. */
++	if (rpriv->uplink_priv.bond != bond)
++		return NOTIFY_DONE;
+ 
+ 	switch (event) {
+ 	case NETDEV_CHANGELOWERSTATE:
 
 
