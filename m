@@ -2,95 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8562D4AA3A1
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 23:55:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2098B4AA3DF
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 00:01:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350902AbiBDWzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 17:55:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33134 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243759AbiBDWzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 17:55:50 -0500
-Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59696C061354
-        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 14:55:49 -0800 (PST)
-Received: by mail-oi1-x234.google.com with SMTP id m9so10178617oia.12
-        for <stable@vger.kernel.org>; Fri, 04 Feb 2022 14:55:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxtx.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=lYzVe5193qn8COmgg7fpEZ/q4OPCD4XcodMJr96TYww=;
-        b=gjgQO2f9qIpYD3Bjd72bgOKUZO/uN5+Xa/kUtlUNC6j73fRBDycuStIjX4URSYdw9t
-         g1P9/agrVthOq8PD9jKOdiTHvPH6HzMwEzXW1CC0SszmIyr4lwTfgkmg5PPwmO15ZoZY
-         TEES0S7p9Kht0RadfXMfydtz4JoKga1XPyXXI=
+        id S1356908AbiBDXBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 18:01:38 -0500
+Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:36732
+        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S245192AbiBDXBi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 18:01:38 -0500
+Received: from mail-il1-f197.google.com (mail-il1-f197.google.com [209.85.166.197])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 4359940039
+        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 23:01:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1644015697;
+        bh=9lqnKWWeY7ck0N4RCu24NCmh00+Npqj5crjtpsswZLI=;
+        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+         Content-Type:In-Reply-To;
+        b=YQOGrUxS3azwsK86LknBbwZr/FoM2ZdPovhc6WIp4MFXhZJQ7tKH4zNMLJPb7oXcX
+         FGu3snd0JlKe0vCy+pnAzLDwQlvsZklLkIRloeduYKfuzEqhDUJvCU2RuoVqoe6hJU
+         n3Kbe+NEUf+ksTE7YwaDTWrUZsDmsv086ujo6fadRAaQMb5o0vf1twLWadQnC9Ay74
+         1wo/d5e38sBN5IAefhW3OS0qi3MjlGWczXpqH62PkgE26OTFNu6L/691uffCkzkB3Y
+         vyEHnztKdMCeqItY6c6521X6Y69IYuiJ3ra+egFPyKOdB4oe/PzMP587cd8fsxwJx4
+         WGKbmKfMCFenA==
+Received: by mail-il1-f197.google.com with SMTP id 20-20020a056e020cb400b002b93016fbccso5097955ilg.4
+        for <stable@vger.kernel.org>; Fri, 04 Feb 2022 15:01:37 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=lYzVe5193qn8COmgg7fpEZ/q4OPCD4XcodMJr96TYww=;
-        b=iVHV+KTz5t7AiTDtBmIkT0LnjTal15Kf3fM429eJrDVHDvjD3A9OsVAHjjYXmfPBNR
-         asZBhN40mjamj8JDjuL/cNTNxhYqckIg0ZB9P/kfKegDSkTxI8fzLyIYQm6NQcj8/gNb
-         8UkU65kPZwGvt+MtY0CuxAPSqCVB3FGA8YUfNs2ejfGpsh5b4fnDSHDBF50Vi79oy18a
-         xuBReddmH/BqrhmLYYRRq3Fb9tC3gQSDsRcRXPEE74OmOkBsijhswqDI/tRnd0O74kA2
-         mVFSyhM8Q0x8TortWkWYmancgCmu0zJBGKxPZyU2HF1o/YmjHjEf2CIuYAIdTsyFNnsH
-         titg==
-X-Gm-Message-State: AOAM531GhXB1b6hF/l0480iJR5l/NhGv244VThebNuk6OEItRGQLRL5N
-        //yebQtT3T+lXFjlsJtaG+w3Fg==
-X-Google-Smtp-Source: ABdhPJymPvUu/qD68FpoKjiJxlky7nwkfLz/KZeSyYusKniBG6V0DKE2jLTPexRUby7viQBzmR7dEw==
-X-Received: by 2002:a05:6808:159e:: with SMTP id t30mr620412oiw.132.1644015348581;
-        Fri, 04 Feb 2022 14:55:48 -0800 (PST)
-Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
-        by smtp.gmail.com with ESMTPSA id e26sm1348221oiy.16.2022.02.04.14.55.47
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=9lqnKWWeY7ck0N4RCu24NCmh00+Npqj5crjtpsswZLI=;
+        b=fG/7sHniwEGuDGp+6ayxnAjD59Orqq7O1ipKm0NoMTUoIA+LyqmyfBlPCP/Yooq6Bq
+         GzvJFg6cTOTXimsQzvHEoJ8mmcpyCOukjYEEmC0Ws36we3tDtIuFxDM2b/AGAUfKJ21n
+         S/Cf9lO3LbyRMbTaTpBKo2KhX9rl+vFsBOtSRKdVxgp+vFdPCldxWS5JxV/9q/M0ds+w
+         mAuluUWfKI78yzQpHSXZ3TsDcCl7xt/O/QTUAZX1DuV2neYr+LOOvgVdpqO9Y6LgE3T/
+         R5Hm70cxIFxbRaqpF+75nm8p8YguhVHcda8iA2owVYHVfPWef+jN8aXxDH46la+C/PeT
+         7gTg==
+X-Gm-Message-State: AOAM533qNa/YiVQVjWPvEr3xUOKU1y60zfaVxAj9hcV+oeCDnZ0uyCvn
+        PoTqGeNSwWVCn0sTMWFY6cjcgn7SJHsrozbDWzuoC2AVGK+rp/waXGupo9KvziqhIhmuKq/rgT9
+        JEyNSLa4+FIhbWdHYy74wl1b2RrOrlRLYpA==
+X-Received: by 2002:a05:6638:3399:: with SMTP id h25mr650203jav.166.1644015696044;
+        Fri, 04 Feb 2022 15:01:36 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzTuofHZlwZ1cYjHU/l2TfOuPfjBnS6ABivT4GOI8HYntDU6F/03yNCBtDFBIhUSTXue1rNcA==
+X-Received: by 2002:a05:6638:3399:: with SMTP id h25mr650188jav.166.1644015695820;
+        Fri, 04 Feb 2022 15:01:35 -0800 (PST)
+Received: from xps13.dannf (c-71-196-238-11.hsd1.co.comcast.net. [71.196.238.11])
+        by smtp.gmail.com with ESMTPSA id l13sm1624266ilj.24.2022.02.04.15.01.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Feb 2022 14:55:48 -0800 (PST)
-Date:   Fri, 4 Feb 2022 16:55:46 -0600
-From:   Justin Forbes <jmforbes@linuxtx.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.16 00/43] 5.16.6-rc1 review
-Message-ID: <Yf2u8q6YcFKOYdYL@fedora64.linuxtx.org>
-References: <20220204091917.166033635@linuxfoundation.org>
+        Fri, 04 Feb 2022 15:01:34 -0800 (PST)
+Date:   Fri, 4 Feb 2022 16:01:32 -0700
+From:   dann frazier <dann.frazier@canonical.com>
+To:     Rob Herring <robh@kernel.org>
+Cc:     Toan Le <toan@os.amperecomputing.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andrew Murray <amurray@thegoodpenguin.co.uk>,
+        =?iso-8859-1?Q?St=E9phane?= Graber <stgraber@ubuntu.com>,
+        stable@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI: xgene: Fix IB window setup
+Message-ID: <Yf2wTLjmcRj+AbDv@xps13.dannf>
+References: <20211129173637.303201-1-robh@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
-X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
-        lindbergh.monkeyblade.net
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211129173637.303201-1-robh@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 04, 2022 at 10:22:07AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.6 release.
-> There are 43 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 06 Feb 2022 09:19:05 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.6-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Mon, Nov 29, 2021 at 11:36:37AM -0600, Rob Herring wrote:
+> Commit 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
+> broke PCI support on XGene. The cause is the IB resources are now sorted
+> in address order instead of being in DT dma-ranges order. The result is
+> which inbound registers are used for each region are swapped. I don't
+> know the details about this h/w, but it appears that IB region 0
+> registers can't handle a size greater than 4GB. In any case, limiting
+> the size for region 0 is enough to get back to the original assignment
+> of dma-ranges to regions.
 
-Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
-s390x, x86_64), and boot tested x86_64. No regressions noted.
+hey Rob!
 
-Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+I've been seeing a panic on HP Moonshoot m400 cartridges (X-Gene1) -
+only during network installs - that I also bisected down to commit
+6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup"). I was
+hoping that this patch that fixed the issue on Stéphane's X-Gene2
+system would also fix my issue, but no luck. In fact, it seems to just
+makes it fail differently. Reverting both patches is required to get a
+v5.17-rc kernel to boot.
+
+I've collected the following logs - let me know if anything else would
+be useful.
+
+1) v5.17-rc2+ (unmodified):
+   http://dannf.org/bugs/m400-no-reverts.log
+   Note that the mlx4 driver fails initialization.
+
+2) v5.17-rc2+, w/o the commit that fixed Stéphane's system:
+   http://dannf.org/bugs/m400-xgene2-fix-reverted.log
+   Note the mlx4 MSI-X timeout, and later panic.
+
+3) v5.17-rc2+, w/ both commits reverted (works)
+   http://dannf.org/bugs/m400-both-reverted.log
+
+   -dann
