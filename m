@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 176404A95ED
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:21:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC8754A9603
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:22:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357345AbiBDJVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:21:08 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40376 "EHLO
+        id S1357435AbiBDJV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:21:59 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41052 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357371AbiBDJVC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:21:02 -0500
+        with ESMTP id S1357460AbiBDJVf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:21:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41BD1615C6;
-        Fri,  4 Feb 2022 09:21:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10EE1C004E1;
-        Fri,  4 Feb 2022 09:21:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDE43615A5;
+        Fri,  4 Feb 2022 09:21:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D956C004E1;
+        Fri,  4 Feb 2022 09:21:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966461;
-        bh=8NajeQp6ilUXadJKo2K571oXpd6t9H5urZJb5mZn+Y8=;
+        s=korg; t=1643966494;
+        bh=iaE1IqOh0EjTj9ysylMCuepe6iN/kPDrrbFWOLuRBw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yywlq7NN6dJbe5GrIUmYuhSy43htTX4KoGX1AW68qImp/8GWJ8E1qXncsaZMV6rL0
-         YoEtEYajae4DKzdZtgoMzvLT38mGmSgPIaCmkgJztAByV1AAK58QEKFtoYs7/TtbEQ
-         5yKh7Z8+xlL70sKQSjIgxmT5kleX6jOdbVBlDQEU=
+        b=F18zXtQE3L8MHnGDNjXA1Z3UaDH/wTM2reJFWA9//DJ9GNJlIiUzVs6m53eBNdHHw
+         YsV78MDQSpwW3eDUaZTS7pjDdYkExF37ZBvUmqmtpM1xwPPPM6deh5L0YEjM4CGtnz
+         MhX7hpLaxNDh0vdFxeV6xkyjUtBn/xJIjHkMGy9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org, Georgi Valkov <gvalkov@abv.bg>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 10/10] af_packet: fix data-race in packet_setsockopt / packet_setsockopt
-Date:   Fri,  4 Feb 2022 10:20:23 +0100
-Message-Id: <20220204091912.655153755@linuxfoundation.org>
+Subject: [PATCH 5.10 17/25] ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+Date:   Fri,  4 Feb 2022 10:20:24 +0100
+Message-Id: <20220204091914.844079408@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091912.329106021@linuxfoundation.org>
-References: <20220204091912.329106021@linuxfoundation.org>
+In-Reply-To: <20220204091914.280602669@linuxfoundation.org>
+References: <20220204091914.280602669@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,80 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Georgi Valkov <gvalkov@abv.bg>
 
-commit e42e70ad6ae2ae511a6143d2e8da929366e58bd9 upstream.
+commit 63e4b45c82ed1bde979da7052229a4229ce9cabf upstream.
 
-When packet_setsockopt( PACKET_FANOUT_DATA ) reads po->fanout,
-no lock is held, meaning that another thread can change po->fanout.
+When rx_buf is allocated we need to account for IPHETH_IP_ALIGN,
+which reduces the usable size by 2 bytes. Otherwise we have 1512
+bytes usable instead of 1514, and if we receive more than 1512
+bytes, ipheth_rcvbulk_callback is called with status -EOVERFLOW,
+after which the driver malfunctiones and all communication stops.
 
-Given that po->fanout can only be set once during the socket lifetime
-(it is only cleared from fanout_release()), we can use
-READ_ONCE()/WRITE_ONCE() to document the race.
+Resolves ipheth 2-1:4.2: ipheth_rcvbulk_callback: urb status: -75
 
-BUG: KCSAN: data-race in packet_setsockopt / packet_setsockopt
-
-write to 0xffff88813ae8e300 of 8 bytes by task 14653 on cpu 0:
- fanout_add net/packet/af_packet.c:1791 [inline]
- packet_setsockopt+0x22fe/0x24a0 net/packet/af_packet.c:3931
- __sys_setsockopt+0x209/0x2a0 net/socket.c:2180
- __do_sys_setsockopt net/socket.c:2191 [inline]
- __se_sys_setsockopt net/socket.c:2188 [inline]
- __x64_sys_setsockopt+0x62/0x70 net/socket.c:2188
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-read to 0xffff88813ae8e300 of 8 bytes by task 14654 on cpu 1:
- packet_setsockopt+0x691/0x24a0 net/packet/af_packet.c:3935
- __sys_setsockopt+0x209/0x2a0 net/socket.c:2180
- __do_sys_setsockopt net/socket.c:2191 [inline]
- __se_sys_setsockopt net/socket.c:2188 [inline]
- __x64_sys_setsockopt+0x62/0x70 net/socket.c:2188
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x0000000000000000 -> 0xffff888106f8c000
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 14654 Comm: syz-executor.3 Not tainted 5.16.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 47dceb8ecdc1 ("packet: add classic BPF fanout mode")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20220201022358.330621-1-eric.dumazet@gmail.com
+Fixes: f33d9e2b48a3 ("usbnet: ipheth: fix connectivity with iOS 14")
+Signed-off-by: Georgi Valkov <gvalkov@abv.bg>
+Tested-by: Jan Kiszka <jan.kiszka@siemens.com>
+Link: https://lore.kernel.org/all/B60B8A4B-92A0-49B3-805D-809A2433B46C@abv.bg/
+Link: https://lore.kernel.org/all/24851bd2769434a5fc24730dce8e8a984c5a4505.1643699778.git.jan.kiszka@siemens.com/
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/packet/af_packet.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/usb/ipheth.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1729,7 +1729,10 @@ static int fanout_add(struct sock *sk, u
- 		err = -ENOSPC;
- 		if (refcount_read(&match->sk_ref) < PACKET_FANOUT_MAX) {
- 			__dev_remove_pack(&po->prot_hook);
--			po->fanout = match;
-+
-+			/* Paired with packet_setsockopt(PACKET_FANOUT_DATA) */
-+			WRITE_ONCE(po->fanout, match);
-+
- 			po->rollover = rollover;
- 			rollover = NULL;
- 			refcount_set(&match->sk_ref, refcount_read(&match->sk_ref) + 1);
-@@ -3876,7 +3879,8 @@ packet_setsockopt(struct socket *sock, i
- 	}
- 	case PACKET_FANOUT_DATA:
- 	{
--		if (!po->fanout)
-+		/* Paired with the WRITE_ONCE() in fanout_add() */
-+		if (!READ_ONCE(po->fanout))
- 			return -EINVAL;
+--- a/drivers/net/usb/ipheth.c
++++ b/drivers/net/usb/ipheth.c
+@@ -121,7 +121,7 @@ static int ipheth_alloc_urbs(struct iphe
+ 	if (tx_buf == NULL)
+ 		goto free_rx_urb;
  
- 		return fanout_set_data(po, optval, optlen);
+-	rx_buf = usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE,
++	rx_buf = usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN,
+ 				    GFP_KERNEL, &rx_urb->transfer_dma);
+ 	if (rx_buf == NULL)
+ 		goto free_tx_buf;
+@@ -146,7 +146,7 @@ error_nomem:
+ 
+ static void ipheth_free_urbs(struct ipheth_device *iphone)
+ {
+-	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->rx_buf,
++	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN, iphone->rx_buf,
+ 			  iphone->rx_urb->transfer_dma);
+ 	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->tx_buf,
+ 			  iphone->tx_urb->transfer_dma);
+@@ -317,7 +317,7 @@ static int ipheth_rx_submit(struct iphet
+ 
+ 	usb_fill_bulk_urb(dev->rx_urb, udev,
+ 			  usb_rcvbulkpipe(udev, dev->bulk_in),
+-			  dev->rx_buf, IPHETH_BUF_SIZE,
++			  dev->rx_buf, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN,
+ 			  ipheth_rcvbulk_callback,
+ 			  dev);
+ 	dev->rx_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
 
 
