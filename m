@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A9EA4A95E8
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:20:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0FCB4A9601
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:22:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357320AbiBDJU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:20:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60458 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357328AbiBDJU4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:20:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2477CC06173D;
-        Fri,  4 Feb 2022 01:20:56 -0800 (PST)
+        id S1357333AbiBDJV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:21:56 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50672 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357417AbiBDJVa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:21:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5EB8615F4;
-        Fri,  4 Feb 2022 09:20:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B019C004E1;
-        Fri,  4 Feb 2022 09:20:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC71BB836E9;
+        Fri,  4 Feb 2022 09:21:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4DEEC004E1;
+        Fri,  4 Feb 2022 09:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966455;
-        bh=Buyr2y4TEqLxbZmnYSPF0uitMkHzi9EYfbtbFaPM5As=;
+        s=korg; t=1643966487;
+        bh=FAjeDFHv7D9J2c8F4j6IzyeX2v7R5BW6Uj33dBF69mE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zc2asGB4NPIpzDr3ShJthHwBGDpaQ0ACGBzxl5pg59IYkFmSK+HQ+M4iX4wv2NrhB
-         E3qS83WhyC7sTfWSTnJTbSbLPmt540bP1F6bCPOUE0h8auuRtI7Oh3hjvAQVBvKfd4
-         XoLIugsBAG62mcaLT0m/RjCj+tTdsfTlOXWr7DpM=
+        b=EbPFYiP5fV+bJeXrMgiUjPBFRwXJoq2JSWuD1hf6AMwwrkrHun5IKIrkHJ2/TdG84
+         7yK0lFoqepXpRpPq+1sSUjTXKdI6+AEzeohIhjfkXQAsD/7/mteLR7gf9fYdS7yw8/
+         0WdNBLamBk1zger64x3AaZPPTJDeEcvqXOHw9XIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 08/10] rtnetlink: make sure to refresh master_dev/m_ops in __rtnl_newlink()
-Date:   Fri,  4 Feb 2022 10:20:21 +0100
-Message-Id: <20220204091912.593539145@linuxfoundation.org>
+        stable@vger.kernel.org, Maher Sanalla <msanalla@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.10 15/25] net/mlx5: Use del_timer_sync in fw reset flow of halting poll
+Date:   Fri,  4 Feb 2022 10:20:22 +0100
+Message-Id: <20220204091914.782500118@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091912.329106021@linuxfoundation.org>
-References: <20220204091912.329106021@linuxfoundation.org>
+In-Reply-To: <20220204091914.280602669@linuxfoundation.org>
+References: <20220204091914.280602669@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Maher Sanalla <msanalla@nvidia.com>
 
-commit c6f6f2444bdbe0079e41914a35081530d0409963 upstream.
+commit 3c5193a87b0fea090aa3f769d020337662d87b5e upstream.
 
-While looking at one unrelated syzbot bug, I found the replay logic
-in __rtnl_newlink() to potentially trigger use-after-free.
+Substitute del_timer() with del_timer_sync() in fw reset polling
+deactivation flow, in order to prevent a race condition which occurs
+when del_timer() is called and timer is deactivated while another
+process is handling the timer interrupt. A situation that led to
+the following call trace:
+	RIP: 0010:run_timer_softirq+0x137/0x420
+	<IRQ>
+	recalibrate_cpu_khz+0x10/0x10
+	ktime_get+0x3e/0xa0
+	? sched_clock_cpu+0xb/0xc0
+	__do_softirq+0xf5/0x2ea
+	irq_exit_rcu+0xc1/0xf0
+	sysvec_apic_timer_interrupt+0x9e/0xc0
+	asm_sysvec_apic_timer_interrupt+0x12/0x20
+	</IRQ>
 
-It is better to clear master_dev and m_ops inside the loop,
-in case we have to replay it.
-
-Fixes: ba7d49b1f0f8 ("rtnetlink: provide api for getting and setting slave info")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Jiri Pirko <jiri@nvidia.com>
-Link: https://lore.kernel.org/r/20220201012106.216495-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 38b9f903f22b ("net/mlx5: Handle sync reset request event")
+Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/rtnetlink.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -3022,8 +3022,8 @@ static int __rtnl_newlink(struct sk_buff
- 	struct nlattr *slave_attr[RTNL_SLAVE_MAX_TYPE + 1];
- 	unsigned char name_assign_type = NET_NAME_USER;
- 	struct nlattr *linkinfo[IFLA_INFO_MAX + 1];
--	const struct rtnl_link_ops *m_ops = NULL;
--	struct net_device *master_dev = NULL;
-+	const struct rtnl_link_ops *m_ops;
-+	struct net_device *master_dev;
- 	struct net *net = sock_net(skb->sk);
- 	const struct rtnl_link_ops *ops;
- 	struct nlattr *tb[IFLA_MAX + 1];
-@@ -3063,6 +3063,8 @@ replay:
- 			dev = NULL;
- 	}
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
+@@ -131,7 +131,7 @@ static void mlx5_stop_sync_reset_poll(st
+ {
+ 	struct mlx5_fw_reset *fw_reset = dev->priv.fw_reset;
  
-+	master_dev = NULL;
-+	m_ops = NULL;
- 	if (dev) {
- 		master_dev = netdev_master_upper_dev_get(dev);
- 		if (master_dev)
+-	del_timer(&fw_reset->timer);
++	del_timer_sync(&fw_reset->timer);
+ }
+ 
+ static void mlx5_sync_reset_clear_reset_requested(struct mlx5_core_dev *dev, bool poll_health)
 
 
