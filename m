@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 362034A968D
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:27:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0A634A9670
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:26:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357833AbiBDJ1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:27:09 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53538 "EHLO
+        id S1357661AbiBDJZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:25:58 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:53032 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357808AbiBDJZl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:25:41 -0500
+        with ESMTP id S1357734AbiBDJYt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:24:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB0E0B836EF;
-        Fri,  4 Feb 2022 09:25:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8442C340EF;
-        Fri,  4 Feb 2022 09:25:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89AF1B836ED;
+        Fri,  4 Feb 2022 09:24:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96763C340F0;
+        Fri,  4 Feb 2022 09:24:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966738;
-        bh=i1By24VIoY2lC/wDQNa/L9E+AUs3H7fv9iax0aywOIY=;
+        s=korg; t=1643966687;
+        bh=iaE1IqOh0EjTj9ysylMCuepe6iN/kPDrrbFWOLuRBw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X8jWDtJSssEH5+1KqnHgZ3MIpLrsdinnI6tNdAYI31dmcGJcdOzfqV4+qN/q20+fj
-         0rDZzslNjzL4cO/GhreqlTvglLpSQRwpx3QcwQPoUzBldShgpkxxwXGPmrenIzwToW
-         xK0xM9plw2kEHqlXUvcrgeokNd4AULgEpFA9f3Fg=
+        b=V9JjXEs4uzuFweWk87hqdGaVflQfdGzAj2ml4MKVgBpeoXi8ElK59sjn7hWSJa76u
+         4eUExb0ZOTI0ZD8G8VSAH9b8douA2acUzps8rj0Yjd+pQHQ6mBgae8Uge1poEuci9j
+         LUq0hHBiiuZLAXdDukbDnrZ0W40rW9plkmUzhC5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@nvidia.com>,
-        Vlad Buslov <vladbu@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.16 23/43] net/mlx5: Bridge, Fix devlink deadlock on net namespace deletion
-Date:   Fri,  4 Feb 2022 10:22:30 +0100
-Message-Id: <20220204091917.928693824@linuxfoundation.org>
+        stable@vger.kernel.org, Georgi Valkov <gvalkov@abv.bg>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 21/32] ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+Date:   Fri,  4 Feb 2022 10:22:31 +0100
+Message-Id: <20220204091915.950075882@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
-References: <20220204091917.166033635@linuxfoundation.org>
+In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
+References: <20220204091915.247906930@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,82 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@nvidia.com>
+From: Georgi Valkov <gvalkov@abv.bg>
 
-commit 880b517691908fb753019b9b27cd082e7617debd upstream.
+commit 63e4b45c82ed1bde979da7052229a4229ce9cabf upstream.
 
-When changing mode to switchdev, rep bridge init registered to netdevice
-notifier holds the devlink lock and then takes pernet_ops_rwsem.
-At that time deleting a netns holds pernet_ops_rwsem and then takes
-the devlink lock.
+When rx_buf is allocated we need to account for IPHETH_IP_ALIGN,
+which reduces the usable size by 2 bytes. Otherwise we have 1512
+bytes usable instead of 1514, and if we receive more than 1512
+bytes, ipheth_rcvbulk_callback is called with status -EOVERFLOW,
+after which the driver malfunctiones and all communication stops.
 
-Example sequence is:
-$ ip netns add foo
-$ devlink dev eswitch set pci/0000:00:08.0 mode switchdev &
-$ ip netns del foo
+Resolves ipheth 2-1:4.2: ipheth_rcvbulk_callback: urb status: -75
 
-deleting netns trace:
-
-[ 1185.365555]  ? devlink_pernet_pre_exit+0x74/0x1c0
-[ 1185.368331]  ? mutex_lock_io_nested+0x13f0/0x13f0
-[ 1185.370984]  ? xt_find_table+0x40/0x100
-[ 1185.373244]  ? __mutex_lock+0x24a/0x15a0
-[ 1185.375494]  ? net_generic+0xa0/0x1c0
-[ 1185.376844]  ? wait_for_completion_io+0x280/0x280
-[ 1185.377767]  ? devlink_pernet_pre_exit+0x74/0x1c0
-[ 1185.378686]  devlink_pernet_pre_exit+0x74/0x1c0
-[ 1185.379579]  ? devlink_nl_cmd_get_dumpit+0x3a0/0x3a0
-[ 1185.380557]  ? xt_find_table+0xda/0x100
-[ 1185.381367]  cleanup_net+0x372/0x8e0
-
-changing mode to switchdev trace:
-
-[ 1185.411267]  down_write+0x13a/0x150
-[ 1185.412029]  ? down_write_killable+0x180/0x180
-[ 1185.413005]  register_netdevice_notifier+0x1e/0x210
-[ 1185.414000]  mlx5e_rep_bridge_init+0x181/0x360 [mlx5_core]
-[ 1185.415243]  mlx5e_uplink_rep_enable+0x269/0x480 [mlx5_core]
-[ 1185.416464]  ? mlx5e_uplink_rep_disable+0x210/0x210 [mlx5_core]
-[ 1185.417749]  mlx5e_attach_netdev+0x232/0x400 [mlx5_core]
-[ 1185.418906]  mlx5e_netdev_attach_profile+0x15b/0x1e0 [mlx5_core]
-[ 1185.420172]  mlx5e_netdev_change_profile+0x15a/0x1d0 [mlx5_core]
-[ 1185.421459]  mlx5e_vport_rep_load+0x557/0x780 [mlx5_core]
-[ 1185.422624]  ? mlx5e_stats_grp_vport_rep_num_stats+0x10/0x10 [mlx5_core]
-[ 1185.424006]  mlx5_esw_offloads_rep_load+0xdb/0x190 [mlx5_core]
-[ 1185.425277]  esw_offloads_enable+0xd74/0x14a0 [mlx5_core]
-
-Fix this by registering rep bridges for per net netdev notifier
-instead of global one, which operats on the net namespace without holding
-the pernet_ops_rwsem.
-
-Fixes: 19e9bfa044f3 ("net/mlx5: Bridge, add offload infrastructure")
-Signed-off-by: Roi Dayan <roid@nvidia.com>
-Reviewed-by: Vlad Buslov <vladbu@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: f33d9e2b48a3 ("usbnet: ipheth: fix connectivity with iOS 14")
+Signed-off-by: Georgi Valkov <gvalkov@abv.bg>
+Tested-by: Jan Kiszka <jan.kiszka@siemens.com>
+Link: https://lore.kernel.org/all/B60B8A4B-92A0-49B3-805D-809A2433B46C@abv.bg/
+Link: https://lore.kernel.org/all/24851bd2769434a5fc24730dce8e8a984c5a4505.1643699778.git.jan.kiszka@siemens.com/
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/ipheth.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c
-@@ -491,7 +491,7 @@ void mlx5e_rep_bridge_init(struct mlx5e_
- 	}
+--- a/drivers/net/usb/ipheth.c
++++ b/drivers/net/usb/ipheth.c
+@@ -121,7 +121,7 @@ static int ipheth_alloc_urbs(struct iphe
+ 	if (tx_buf == NULL)
+ 		goto free_rx_urb;
  
- 	br_offloads->netdev_nb.notifier_call = mlx5_esw_bridge_switchdev_port_event;
--	err = register_netdevice_notifier(&br_offloads->netdev_nb);
-+	err = register_netdevice_notifier_net(&init_net, &br_offloads->netdev_nb);
- 	if (err) {
- 		esw_warn(mdev, "Failed to register bridge offloads netdevice notifier (err=%d)\n",
- 			 err);
-@@ -526,7 +526,7 @@ void mlx5e_rep_bridge_cleanup(struct mlx
- 		return;
+-	rx_buf = usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE,
++	rx_buf = usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN,
+ 				    GFP_KERNEL, &rx_urb->transfer_dma);
+ 	if (rx_buf == NULL)
+ 		goto free_tx_buf;
+@@ -146,7 +146,7 @@ error_nomem:
  
- 	cancel_delayed_work_sync(&br_offloads->update_work);
--	unregister_netdevice_notifier(&br_offloads->netdev_nb);
-+	unregister_netdevice_notifier_net(&init_net, &br_offloads->netdev_nb);
- 	unregister_switchdev_blocking_notifier(&br_offloads->nb_blk);
- 	unregister_switchdev_notifier(&br_offloads->nb);
- 	destroy_workqueue(br_offloads->wq);
+ static void ipheth_free_urbs(struct ipheth_device *iphone)
+ {
+-	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->rx_buf,
++	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN, iphone->rx_buf,
+ 			  iphone->rx_urb->transfer_dma);
+ 	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->tx_buf,
+ 			  iphone->tx_urb->transfer_dma);
+@@ -317,7 +317,7 @@ static int ipheth_rx_submit(struct iphet
+ 
+ 	usb_fill_bulk_urb(dev->rx_urb, udev,
+ 			  usb_rcvbulkpipe(udev, dev->bulk_in),
+-			  dev->rx_buf, IPHETH_BUF_SIZE,
++			  dev->rx_buf, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN,
+ 			  ipheth_rcvbulk_callback,
+ 			  dev);
+ 	dev->rx_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
 
 
