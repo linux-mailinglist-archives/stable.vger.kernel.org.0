@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F37A94A962F
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:23:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C1F24A96A6
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:28:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234143AbiBDJX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:23:58 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52016 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357809AbiBDJXG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:23:06 -0500
+        id S1358302AbiBDJ2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:28:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33008 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358305AbiBDJ00 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:26:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ACEDC06175F;
+        Fri,  4 Feb 2022 01:26:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0174B836B9;
-        Fri,  4 Feb 2022 09:23:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1981C004E1;
-        Fri,  4 Feb 2022 09:23:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23545B836F9;
+        Fri,  4 Feb 2022 09:25:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E09EC004E1;
+        Fri,  4 Feb 2022 09:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966583;
-        bh=4KnP9f2BG2N0gQWpClCCaBlbp1tyU3Pjw2Z1LPrgmQ8=;
+        s=korg; t=1643966757;
+        bh=wsDPVvMJ3fihSgGDbISGT78IhKQRNro2j33j6ziBLu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nw3vkuh8LQpryVQJvapvB1VKd70Rlc/diKfHVozmJ3jXJteEAU0s5d3ZS3owm13aR
-         nEbgrJgIT5H9cVnqydC5TOtIuSm3AdjS1yRlkLlTOXeIRE86TuSjNTU7a7iuCJF3DH
-         4clXFU43GN1TGYmBBCm42uV9yC38OvftHBiy03lk=
+        b=gpBU6Bp5c5v9ungTrQTH5476TjZXJ5vG/EU0s1toXSuxFZK9UdDAInix0sGYq2YP5
+         n06c+1A/HgrhvCK2MrvTVDKTYhgdwwLKf/UDJmEmXqn/f9DhFxRyFLk9fbfWVsOy5n
+         EGnuXpRDPylSaQVXCBFjfPLwHibaQ1VlNTCoMwgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joseph Bao <joseph.bao@intel.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Stuart Hayes <stuart.w.hayes@gmail.com>
-Subject: [PATCH 5.15 01/32] PCI: pciehp: Fix infinite loop in IRQ handler upon power fault
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 04/43] net: ipa: prevent concurrent replenish
 Date:   Fri,  4 Feb 2022 10:22:11 +0100
-Message-Id: <20220204091915.298182626@linuxfoundation.org>
+Message-Id: <20220204091917.334430355@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
-References: <20220204091915.247906930@linuxfoundation.org>
+In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
+References: <20220204091917.166033635@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,76 +47,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Alex Elder <elder@linaro.org>
 
-commit 23584c1ed3e15a6f4bfab8dc5a88d94ab929ee12 upstream.
+commit 998c0bd2b3715244da7639cc4e6a2062cb79c3f4 upstream.
 
-The Power Fault Detected bit in the Slot Status register differs from
-all other hotplug events in that it is sticky:  It can only be cleared
-after turning off slot power.  Per PCIe r5.0, sec. 6.7.1.8:
+We have seen cases where an endpoint RX completion interrupt arrives
+while replenishing for the endpoint is underway.  This causes another
+instance of replenishing to begin as part of completing the receive
+transaction.  If this occurs it can lead to transaction corruption.
 
-  If a power controller detects a main power fault on the hot-plug slot,
-  it must automatically set its internal main power fault latch [...].
-  The main power fault latch is cleared when software turns off power to
-  the hot-plug slot.
+Use a new flag to ensure only one replenish instance for an endpoint
+executes at a time.
 
-The stickiness used to cause interrupt storms and infinite loops which
-were fixed in 2009 by commits 5651c48cfafe ("PCI pciehp: fix power fault
-interrupt storm problem") and 99f0169c17f3 ("PCI: pciehp: enable
-software notification on empty slots").
-
-Unfortunately in 2020 the infinite loop issue was inadvertently
-reintroduced by commit 8edf5332c393 ("PCI: pciehp: Fix MSI interrupt
-race"):  The hardirq handler pciehp_isr() clears the PFD bit until
-pciehp's power_fault_detected flag is set.  That happens in the IRQ
-thread pciehp_ist(), which never learns of the event because the hardirq
-handler is stuck in an infinite loop.  Fix by setting the
-power_fault_detected flag already in the hardirq handler.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214989
-Link: https://lore.kernel.org/linux-pci/DM8PR11MB5702255A6A92F735D90A4446868B9@DM8PR11MB5702.namprd11.prod.outlook.com
-Fixes: 8edf5332c393 ("PCI: pciehp: Fix MSI interrupt race")
-Link: https://lore.kernel.org/r/66eaeef31d4997ceea357ad93259f290ededecfd.1637187226.git.lukas@wunner.de
-Reported-by: Joseph Bao <joseph.bao@intel.com>
-Tested-by: Joseph Bao <joseph.bao@intel.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org # v4.19+
-Cc: Stuart Hayes <stuart.w.hayes@gmail.com>
+Fixes: 84f9bd12d46db ("soc: qcom: ipa: IPA endpoints")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/hotplug/pciehp_hpc.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ipa/ipa_endpoint.c |   13 +++++++++++++
+ drivers/net/ipa/ipa_endpoint.h |    2 ++
+ 2 files changed, 15 insertions(+)
 
---- a/drivers/pci/hotplug/pciehp_hpc.c
-+++ b/drivers/pci/hotplug/pciehp_hpc.c
-@@ -642,6 +642,8 @@ read_status:
- 	 */
- 	if (ctrl->power_fault_detected)
- 		status &= ~PCI_EXP_SLTSTA_PFD;
-+	else if (status & PCI_EXP_SLTSTA_PFD)
-+		ctrl->power_fault_detected = true;
- 
- 	events |= status;
- 	if (!events) {
-@@ -651,7 +653,7 @@ read_status:
+--- a/drivers/net/ipa/ipa_endpoint.c
++++ b/drivers/net/ipa/ipa_endpoint.c
+@@ -1075,15 +1075,27 @@ static void ipa_endpoint_replenish(struc
+ 		return;
  	}
  
- 	if (status) {
--		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, events);
-+		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, status);
++	/* If already active, just update the backlog */
++	if (test_and_set_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags)) {
++		if (add_one)
++			atomic_inc(&endpoint->replenish_backlog);
++		return;
++	}
++
+ 	while (atomic_dec_not_zero(&endpoint->replenish_backlog))
+ 		if (ipa_endpoint_replenish_one(endpoint))
+ 			goto try_again_later;
++
++	clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
++
+ 	if (add_one)
+ 		atomic_inc(&endpoint->replenish_backlog);
  
- 		/*
- 		 * In MSI mode, all event bits must be zero before the port
-@@ -725,8 +727,7 @@ static irqreturn_t pciehp_ist(int irq, v
- 	}
+ 	return;
  
- 	/* Check Power Fault Detected */
--	if ((events & PCI_EXP_SLTSTA_PFD) && !ctrl->power_fault_detected) {
--		ctrl->power_fault_detected = 1;
-+	if (events & PCI_EXP_SLTSTA_PFD) {
- 		ctrl_err(ctrl, "Slot(%s): Power fault\n", slot_name(ctrl));
- 		pciehp_set_indicators(ctrl, PCI_EXP_SLTCTL_PWR_IND_OFF,
- 				      PCI_EXP_SLTCTL_ATTN_IND_ON);
+ try_again_later:
++	clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
++
+ 	/* The last one didn't succeed, so fix the backlog */
+ 	delta = add_one ? 2 : 1;
+ 	backlog = atomic_add_return(delta, &endpoint->replenish_backlog);
+@@ -1666,6 +1678,7 @@ static void ipa_endpoint_setup_one(struc
+ 		 * backlog is the same as the maximum outstanding TREs.
+ 		 */
+ 		clear_bit(IPA_REPLENISH_ENABLED, endpoint->replenish_flags);
++		clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
+ 		atomic_set(&endpoint->replenish_saved,
+ 			   gsi_channel_tre_max(gsi, endpoint->channel_id));
+ 		atomic_set(&endpoint->replenish_backlog, 0);
+--- a/drivers/net/ipa/ipa_endpoint.h
++++ b/drivers/net/ipa/ipa_endpoint.h
+@@ -44,10 +44,12 @@ enum ipa_endpoint_name {
+  * enum ipa_replenish_flag:	RX buffer replenish flags
+  *
+  * @IPA_REPLENISH_ENABLED:	Whether receive buffer replenishing is enabled
++ * @IPA_REPLENISH_ACTIVE:	Whether replenishing is underway
+  * @IPA_REPLENISH_COUNT:	Number of defined replenish flags
+  */
+ enum ipa_replenish_flag {
+ 	IPA_REPLENISH_ENABLED,
++	IPA_REPLENISH_ACTIVE,
+ 	IPA_REPLENISH_COUNT,	/* Number of flags (must be last) */
+ };
+ 
 
 
