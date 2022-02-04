@@ -2,86 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66FCA4A92F2
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 05:09:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DBF84A9323
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 05:49:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356917AbiBDEJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 23:09:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47930 "EHLO
+        id S234345AbiBDEtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 23:49:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356912AbiBDEJo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 23:09:44 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37D92C061714
-        for <stable@vger.kernel.org>; Thu,  3 Feb 2022 20:09:44 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id m7so4387940pjk.0
-        for <stable@vger.kernel.org>; Thu, 03 Feb 2022 20:09:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:in-reply-to:references:subject:message-id:date
-         :mime-version:content-transfer-encoding;
-        bh=Kh68bqIfR96bGqEsQD6t0ccLQCu/ga/B0iJH9ZRx6zQ=;
-        b=aW6FCzwLzX1tJes3DN/wYTMmXMywRu7H//4nGgGPdDbXmYhuACnm9kSYeMId4jVEPl
-         vgf3XsBpwWFb3XUdHS/n6oumA4XjQjGKqydlVmo+Xtqrsz0R6d9qkjI4QtR7lM+wXEZx
-         KUgajNf+110tXuwka+YgdEjwh+ntpTb5agKFfxmDMxPfEybaxyUXqOE0+d/O/HVtmGJh
-         3Gx/8L6+kI30LfJ/l6qLb7tz88SzENY3S00MJ8+7ANtRSvoSBj3XA+GJk/0sBCaeDYhE
-         wF9ZFom/GbfmyunRiK/o2P4FO+4DrJc9nIurFAJ5LgQZXPRSf0iO/Q/+tQhGPqFvXWBA
-         zZ7Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
-         :message-id:date:mime-version:content-transfer-encoding;
-        bh=Kh68bqIfR96bGqEsQD6t0ccLQCu/ga/B0iJH9ZRx6zQ=;
-        b=BtzYjaLA/SboENoGt16Ey/UG4s9V+O6d0nXVyO3H+aRjYmUz7JP9wkr3VDwL6GhxDn
-         DLjApQ/AECBTTRE4cC4C6s1I3Kn1VD0sU1PuOmkAlF+cuv/FOCxav8Fv+gPAHw0+2I5+
-         OuUgmfUp/3Q6vBFTYH4f5zdg/E099HaodPHuuMDZrVNBeKcxrHF6QazmRqh4AT/yIHpI
-         w++dfjHpJDkgsPV18wg32Azrm174YQ+cg+Dt9Z5VufSFtEDrQxFgeX3GbFx7lCEFCVly
-         T2iCSqyXBfUu8BugUgcR8WtHo6DTu2JZzm8Qs5umfAaZpswbXG3JtG9NMY9OqnX+NS+/
-         GXYw==
-X-Gm-Message-State: AOAM531tFHOhuTUQgM1zEebltDbotMW/KBpoJLN2x3Fhf4xkYxknONFD
-        QImqCH9M9GD1ivmNOCohcSJ9bQ==
-X-Google-Smtp-Source: ABdhPJwfiI1eIEL3VdvFW5NMTqjZKtPcFWlmo2jedeKQ1D7v1nQGivCZU3HMFeLmQB/exMNLktzSKw==
-X-Received: by 2002:a17:90a:4e89:: with SMTP id o9mr1057365pjh.132.1643947783585;
-        Thu, 03 Feb 2022 20:09:43 -0800 (PST)
-Received: from [192.168.1.116] ([66.219.217.159])
-        by smtp.gmail.com with ESMTPSA id s12sm515884pfd.112.2022.02.03.20.09.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Feb 2022 20:09:43 -0800 (PST)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     linux-block@vger.kernel.org,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc:     Dmitry Monakhov <dmonakhov@openvz.org>, stable@vger.kernel.org,
-        Alexey Lyashkov <alexey.lyashkov@hpe.com>,
-        Dmitry Ivanov <dmitry.ivanov2@hpe.com>
-In-Reply-To: <20220204034209.4193-1-martin.petersen@oracle.com>
-References: <20220204034209.4193-1-martin.petersen@oracle.com>
-Subject: Re: [PATCH] block: bio-integrity: Advance seed correctly for larger interval sizes
-Message-Id: <164394778292.433581.8274625002734886779.b4-ty@kernel.dk>
-Date:   Thu, 03 Feb 2022 21:09:42 -0700
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S230404AbiBDEtP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 23:49:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85A9BC061714;
+        Thu,  3 Feb 2022 20:49:15 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 530AEB83669;
+        Fri,  4 Feb 2022 04:49:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75F58C004E1;
+        Fri,  4 Feb 2022 04:49:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1643950153;
+        bh=T6HZzuF9kGoCDs+xTHJbPxAXenTBHTFYjDOPtEfogn0=;
+        h=Date:To:From:In-Reply-To:Subject:From;
+        b=pRtMXnfQgDH4cec97TvEXBzcUrEgQdiqZrqQg/QlHoigq+4M++UcCfiip4dbAqczf
+         ntmVRfvP+eM6ebJOTyUZPypJz7poKn/nOZhBPWSRvsZ96MZe31sCrSDBxd0sP+05vE
+         wR15nCGANM54UIPLffV7Bwf8KhLvEileBO4Hrk0w=
+Received: by hp1 (sSMTP sendmail emulation); Thu, 03 Feb 2022 20:49:10 -0800
+Date:   Thu, 03 Feb 2022 20:49:10 -0800
+To:     ziy@nvidia.com, will@kernel.org, weixugc@google.com,
+        stable@vger.kernel.org, songmuchun@bytedance.com, rppt@kernel.org,
+        rientjes@google.com, pjt@google.com, mingo@redhat.com,
+        jirislaby@kernel.org, hughd@google.com, hpa@zytor.com,
+        gthelen@google.com, dave.hansen@linux.intel.com,
+        anshuman.khandual@arm.com, aneesh.kumar@linux.ibm.com,
+        pasha.tatashin@soleen.com, akpm@linux-foundation.org,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+In-Reply-To: <20220203204836.88dcebe504f440686cc63a60@linux-foundation.org>
+Subject: [patch 02/10] mm/debug_vm_pgtable: remove pte entry from the page table
+Message-Id: <20220204044911.75F58C004E1@smtp.kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 3 Feb 2022 22:42:09 -0500, Martin K. Petersen wrote:
-> Commit 309a62fa3a9e ("bio-integrity: bio_integrity_advance must update
-> integrity seed") added code to update the integrity seed value when
-> advancing a bio. However, it failed to take into account that the
-> integrity interval might be larger than the 512-byte block layer
-> sector size. This broke bio splitting on PI devices with 4KB logical
-> blocks.
-> 
-> [...]
+From: Pasha Tatashin <pasha.tatashin@soleen.com>
+Subject: mm/debug_vm_pgtable: remove pte entry from the page table
 
-Applied, thanks!
-
-[1/1] block: bio-integrity: Advance seed correctly for larger interval sizes
-      commit: b13e0c71856817fca67159b11abac350e41289f5
-
-Best regards,
--- 
-Jens Axboe
+Patch series "page table check fixes and cleanups", v5.
 
 
+This patch (of 4):
+
+The pte entry that is used in pte_advanced_tests() is never removed from
+the page table at the end of the test.
+
+The issue is detected by page_table_check, to repro compile kernel with
+the following configs:
+
+CONFIG_DEBUG_VM_PGTABLE=y
+CONFIG_PAGE_TABLE_CHECK=y
+CONFIG_PAGE_TABLE_CHECK_ENFORCED=y
+
+During the boot the following BUG is printed:
+
+[    2.262821] debug_vm_pgtable: [debug_vm_pgtable         ]: Validating
+               architecture page table helpers
+[    2.276826] ------------[ cut here ]------------
+[    2.280426] kernel BUG at mm/page_table_check.c:162!
+[    2.284118] invalid opcode: 0000 [#1] PREEMPT SMP PTI
+[    2.287787] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
+               5.16.0-11413-g2c271fe77d52 #3
+[    2.293226] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+               BIOS rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org
+               04/01/2014
+...
+
+The entry should be properly removed from the page table before the page
+is released to the free list.
+
+Link: https://lkml.kernel.org/r/20220131203249.2832273-1-pasha.tatashin@soleen.com
+Link: https://lkml.kernel.org/r/20220131203249.2832273-2-pasha.tatashin@soleen.com
+Fixes: a5c3b9ffb0f4 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
+Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
+Tested-by: Zi Yan <ziy@nvidia.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Paul Turner <pjt@google.com>
+Cc: Wei Xu <weixugc@google.com>
+Cc: Greg Thelen <gthelen@google.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: <stable@vger.kernel.org>	[5.9+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/debug_vm_pgtable.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/mm/debug_vm_pgtable.c~mm-debug_vm_pgtable-remove-pte-entry-from-the-page-table
++++ a/mm/debug_vm_pgtable.c
+@@ -171,6 +171,8 @@ static void __init pte_advanced_tests(st
+ 	ptep_test_and_clear_young(args->vma, args->vaddr, args->ptep);
+ 	pte = ptep_get(args->ptep);
+ 	WARN_ON(pte_young(pte));
++
++	ptep_get_and_clear_full(args->mm, args->vaddr, args->ptep, 1);
+ }
+ 
+ static void __init pte_savedwrite_tests(struct pgtable_debug_args *args)
+_
