@@ -2,128 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A4254A915E
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 01:03:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B503E4A918A
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 01:20:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239672AbiBDACv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Feb 2022 19:02:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49872 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230428AbiBDACu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Feb 2022 19:02:50 -0500
-Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0948C061714
-        for <stable@vger.kernel.org>; Thu,  3 Feb 2022 16:02:50 -0800 (PST)
-Received: by mail-pg1-x536.google.com with SMTP id v3so3652785pgc.1
-        for <stable@vger.kernel.org>; Thu, 03 Feb 2022 16:02:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=SrssV0NoUBQ/nojnyHZtHBGHUSluP2j0g0Tr80DCdMQ=;
-        b=GBYfDUt48RDRlNgYIJlxk5Qz+G1q3nZcURY5dJpCa7UsPBiiwXGWub5PaM7/8GIUWu
-         MtCXen14iFIgc9qA20N5PLKBOJ/8Uo8cRo39NFPZr5ugqD/+zZdJ/1o8esEXt4tnn8Bd
-         zotAgPYZ10lpo+Uuq/FYkkEhgP24qnZsTFBTBPxEROaXZlvodi1C7jGOfbPyVZ3MtAGj
-         QZ+WdQHG39wR8K2e/zA3bwqSvQOgl72FmCsC6wCOJ2xalXheN+Svp0qtCwQQE4/8ZHdR
-         z8T6ZrXrPI3U1mG3NSBYyjizfsR/GgW/hs4cI3tVwbdvIzwT0PMoAqkLko9VzFvXnL6d
-         vZUQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=SrssV0NoUBQ/nojnyHZtHBGHUSluP2j0g0Tr80DCdMQ=;
-        b=DkcDRpeVv/Bzv3NI8MqcAPmZLDY7+CObikksxWXPjkBrK0tKYJY1UtJe+xdw3Ld3z3
-         5W6eJJLu/h3HT//jDy05MTkv2Mqx7OSqiOHlmYQ2rdZrilDc/70H8BQsmbi071vpfLla
-         xuHnBMkqM8j8A4YV4dPij4NxjzmlyEb7sQjUKC1SnkCdQ6oi5AtCrtxxYwpmmJrakeC/
-         0k2Ld00l+bzZslnMED/AnnN9FDq/YDaUQ09ccBYryhGXWdRScT1K2SHJLSb2y+T9hUrg
-         2D8rjlohY+OCys77i58vHbp9H4KNsNyML25qGdXekLjDQ9cOsDcjIUrUhR7jw3YdF9rx
-         FCjw==
-X-Gm-Message-State: AOAM5313Pyha1rAyMFO7j+ouJKZSm7yvtGTRD2eVSPoT2l7NwyIlOpEn
-        Dc7BX4BaonkbkE6hLhYlHjQlRsxG/7Pf04iC
-X-Google-Smtp-Source: ABdhPJxAN9Do7srsrIITFive4xR8ea6CdWY/IkmckHONVELfeiLvrixihqklVqNo444F82fQayfpfg==
-X-Received: by 2002:a05:6a00:2386:: with SMTP id f6mr483015pfc.37.1643932969988;
-        Thu, 03 Feb 2022 16:02:49 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x12sm134788pgp.25.2022.02.03.16.02.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Feb 2022 16:02:49 -0800 (PST)
-Message-ID: <61fc6d29.1c69fb81.5264b.09d3@mx.google.com>
-Date:   Thu, 03 Feb 2022 16:02:49 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1349242AbiBDAUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Feb 2022 19:20:01 -0500
+Received: from bluehome.net ([96.66.250.149]:41852 "EHLO bluehome.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S245100AbiBDAUA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Feb 2022 19:20:00 -0500
+Received: from valencia (valencia.lan [10.0.0.17])
+        by bluehome.net (Postfix) with ESMTPSA id 636094B40587
+        for <stable@vger.kernel.org>; Thu,  3 Feb 2022 16:20:00 -0800 (PST)
+Date:   Thu, 3 Feb 2022 16:19:59 -0800
+From:   Jason Self <jason@bluehome.net>
+To:     stable@vger.kernel.org
+Subject: Regression/boot failure on 5.16.3
+Message-ID: <20220203161959.3edf1d6e@valencia>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.15.19-5-g71c43a5f536b
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/5.15
-Subject: stable-rc/queue/5.15 baseline: 122 runs,
- 1 regressions (v5.15.19-5-g71c43a5f536b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ boundary="Sig_/2zjER3HsKi.Ll0jT2UCnaSS"; protocol="application/pgp-signature"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 122 runs, 1 regressions (v5.15.19-5-g71c43a5=
-f536b)
+--Sig_/2zjER3HsKi.Ll0jT2UCnaSS
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Regressions Summary
--------------------
+The computer (amd64) fails to boot. The init was stuck at the
+synchronization of the time through the network. This began between
+5.16.2 (good) and 5.16.3 (bad.) This continues on 5.16.4 and 5.16.5.
+Git bisect revealed the following. In this case the nonfree firmwre is
+not present on the system. Blacklisting the iwflwifi module works as a
+workaround for now.
 
-platform                     | arch  | lab          | compiler | defconfig =
-| regressions
------------------------------+-------+--------------+----------+-----------=
-+------------
-meson-g12b-a311d-khadas-vim3 | arm64 | lab-baylibre | gcc-10   | defconfig =
-| 1          =
+6b5ad4bd0d78fef6bbe0ecdf96e09237c9c52cc1 is the first bad commit
+commit 6b5ad4bd0d78fef6bbe0ecdf96e09237c9c52cc1
+Author: Johannes Berg <johannes.berg@intel.com>
+Date:   Fri Dec 10 11:12:42 2021 +0200
 
+    iwlwifi: fix leaks/bad data after failed firmware load
+   =20
+    [ Upstream commit ab07506b0454bea606095951e19e72c282bfbb42 ]
+   =20
+    If firmware load fails after having loaded some parts of the
+    firmware, e.g. the IML image, then this would leak. For the
+    host command list we'd end up running into a WARN on the next
+    attempt to load another firmware image.
+   =20
+    Fix this by calling iwl_dealloc_ucode() on failures, and make
+    that also clear the data so we start fresh on the next round.
+   =20
+    Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+    Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+    Link:
+    https://lore.kernel.org/r/iwlwifi.20211210110539.1f742f0eb58a.I1315f22f=
+6aa632d94ae2069f85e1bca5e734dce0@changeid
+    Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+    Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.19-5-g71c43a5f536b/plan/baseline/
+ drivers/net/wireless/intel/iwlwifi/iwl-drv.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.19-5-g71c43a5f536b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      71c43a5f536b432e25fd2576234dfbb0d5cb2a46 =
+--Sig_/2zjER3HsKi.Ll0jT2UCnaSS
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
 
+-----BEGIN PGP SIGNATURE-----
 
+iQIzBAEBCgAdFiEE9hGpCP+hZcaZWE7UnQ2zG1RaMZgFAmH8cS8ACgkQnQ2zG1Ra
+MZiVchAAkA5anv4xBCvH+Vo18cZ/GFfHPU4VDJp0Ep7csd+EABzQfknwwk6WhnP9
+F3jlWWXRwjlKuitGXsIcWBe0kVY+tww0x1dXOqRtPRIex1VAdE/YtRPcbsnKbA3Q
+krUKzx5nzt+a+wKaP5KSXHDu8LW9pyH8w9HmIpw0dPhBxNsUe+dJkZYyGPUGNRoZ
+NjdJYEXJaoMh0nXErrBTwzcsIOjcUbGaAkgbL44C64KRGuJw58/uLuGMxC1f2bys
+/5EfNsAac+fUrb0eiELY6PnynQ1EA/GBy7hINAaTboptwm3DV8b+MS/cmBmj7WHA
+8Q4J54boujgWYsdLrLgAmw/tjSaOnP+sV93z6+HiChcdaMboiuhd0cjkaiNjLYF5
+JFZbFZCnNVDWR2/D312vTsLa2XsTUtjTWbWZnqVinX47E/zo2GQfAwJzatY6iDAs
+bEDngFQxa9kp2NTJLWxxxmU8GtD+18qJMl5F0BMaQLunY/+TJmyjjuUpttOBa00c
+9GNr3GvFXZhRijlE5XHjDnQqJqxB2QZec2/6oTCFonPOu75plIteAQZxt292yB/r
+u6Zkwv+lff0LEeGSDdTrNSAw3yHsm7impk8EKOy2Be0egaHEff3a/ttyxRRyCDJo
+dapVWiGPnI6SL9MLOVTBEqWNYj3piYZKVSTmAU2M+bUit32x83k=
+=ZoLH
+-----END PGP SIGNATURE-----
 
-Test Regressions
----------------- =
-
-
-
-platform                     | arch  | lab          | compiler | defconfig =
-| regressions
------------------------------+-------+--------------+----------+-----------=
-+------------
-meson-g12b-a311d-khadas-vim3 | arm64 | lab-baylibre | gcc-10   | defconfig =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61fc394f22f5fb4fc75d6ee8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.19-=
-5-g71c43a5f536b/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-g12b-a31=
-1d-khadas-vim3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.19-=
-5-g71c43a5f536b/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-g12b-a31=
-1d-khadas-vim3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61fc394f22f5fb4fc75d6=
-ee9
-        new failure (last pass: v5.15.18-171-gdc96588f50a2) =
-
- =20
+--Sig_/2zjER3HsKi.Ll0jT2UCnaSS--
