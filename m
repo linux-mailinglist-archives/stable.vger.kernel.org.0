@@ -2,106 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3B964A96C6
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:29:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EEB64A96F1
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:37:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358440AbiBDJ3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:29:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33172 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358201AbiBDJ1R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:27:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C43A9C0613B0;
-        Fri,  4 Feb 2022 01:26:41 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CE93617CB;
-        Fri,  4 Feb 2022 09:26:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE24FC004E1;
-        Fri,  4 Feb 2022 09:26:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966800;
-        bh=IrH3Lq742IEwdP6JdFAIufJs3bG7n3Dw3Q/CAabNvN8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/2udK2YXekoS+5iq2NB51aPywb6DCg1/bb1WRmzT7Jl7gluVaxrdYlE2bsucjeAC
-         uwFP+fkZoJsX7+KvZbIJwxovGP7GIkeuaKYa1oSH68sD7zrQv0a0KjhLiFzkFAyTFv
-         fGRlnIzzMdMp3V0BXgqHet9qNuKEZ4D/GUmibMOM=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Talal Ahmad <talalahmad@google.com>,
-        Arjun Roy <arjunroy@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 43/43] tcp: add missing tcp_skb_can_collapse() test in tcp_shift_skb_data()
-Date:   Fri,  4 Feb 2022 10:22:50 +0100
-Message-Id: <20220204091918.568507348@linuxfoundation.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
-References: <20220204091917.166033635@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S236491AbiBDJhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:37:37 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:60026 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236039AbiBDJhh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:37:37 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 027111C0B79; Fri,  4 Feb 2022 10:37:36 +0100 (CET)
+Date:   Fri, 4 Feb 2022 10:37:35 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Marco Elver <elver@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: Re: [PATCH 5.10 08/25] perf: Rework perf_event_exit_event()
+Message-ID: <20220204093734.GA27857@amd>
+References: <20220204091914.280602669@linuxfoundation.org>
+ <20220204091914.560626177@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
+Content-Disposition: inline
+In-Reply-To: <20220204091914.560626177@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
 
-commit b67985be400969578d4d4b17299714c0e5d2c07b upstream.
+--KsGdsel6WgEHnImy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-tcp_shift_skb_data() might collapse three packets into a larger one.
+Hi!
 
-P_A, P_B, P_C  -> P_ABC
+> From: Peter Zijlstra <peterz@infradead.org>
+>=20
+> commit ef54c1a476aef7eef26fe13ea10dc090952c00f8 upstream.
+>=20
+> Make perf_event_exit_event() more robust, such that we can use it from
+> other contexts. Specifically the up and coming remove_on_exec.
 
-Historically, it used a single tcp_skb_can_collapse_to(P_A) call,
-because it was enough.
+Do we need this in 5.10? AFAICT the remove_on_exec work is not queued
+for 5.10, and this patch is buggy and needs following one to fix it
+up.
 
-In commit 85712484110d ("tcp: coalesce/collapse must respect MPTCP extensions"),
-this call was replaced by a call to tcp_skb_can_collapse(P_A, P_B)
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-But the now needed test over P_C has been missed.
+--KsGdsel6WgEHnImy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-This probably broke MPTCP.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Then later, commit 9b65b17db723 ("net: avoid double accounting for pure zerocopy skbs")
-added an extra condition to tcp_skb_can_collapse(), but the missing call
-from tcp_shift_skb_data() is also breaking TCP zerocopy, because P_A and P_C
-might have different skb_zcopy_pure() status.
+iEYEARECAAYFAmH8894ACgkQMOfwapXb+vKK7ACfSNtFyXrTWRJ+yDREXewFddJN
+OHwAn1yKQXsGWjcSAHf3tokavGz9cqIb
+=bzKq
+-----END PGP SIGNATURE-----
 
-Fixes: 85712484110d ("tcp: coalesce/collapse must respect MPTCP extensions")
-Fixes: 9b65b17db723 ("net: avoid double accounting for pure zerocopy skbs")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Cc: Talal Ahmad <talalahmad@google.com>
-Cc: Arjun Roy <arjunroy@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Link: https://lore.kernel.org/r/20220201184640.756716-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/tcp_input.c |    2 ++
- 1 file changed, 2 insertions(+)
-
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -1660,6 +1660,8 @@ static struct sk_buff *tcp_shift_skb_dat
- 	    (mss != tcp_skb_seglen(skb)))
- 		goto out;
- 
-+	if (!tcp_skb_can_collapse(prev, skb))
-+		goto out;
- 	len = skb->len;
- 	pcount = tcp_skb_pcount(skb);
- 	if (tcp_skb_shift(prev, skb, pcount, len))
-
-
+--KsGdsel6WgEHnImy--
