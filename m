@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5ADB4A9693
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:27:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3DCB4A969B
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:27:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357720AbiBDJ1R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:27:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60910 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358184AbiBDJZu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:25:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A69A9C06177C;
-        Fri,  4 Feb 2022 01:25:28 -0800 (PST)
+        id S1349797AbiBDJ13 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:27:29 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44842 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357970AbiBDJZz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:25:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63F20B836F5;
-        Fri,  4 Feb 2022 09:25:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7762AC004E1;
-        Fri,  4 Feb 2022 09:25:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FDEF616CA;
+        Fri,  4 Feb 2022 09:25:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18729C004E1;
+        Fri,  4 Feb 2022 09:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966726;
-        bh=v8kwjDF6yTQarvxN50HM4f0CfMsheFvPdVt58nR4qJ8=;
+        s=korg; t=1643966754;
+        bh=wDWmQp90kgCrwgiLNL+U3qc/fKgK7nB1VdZ628Ja/X0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbh3mfF0psUfphvI+lreGg+Txa4zPHOxlPUZIpVhQrZrFzgV53AysGCGPuJnQweqm
-         iQXbGRenVIZaqhTAMHf0/iJoy9Sa5Md5AeRR9Rhbmn/AAfQ/YVlv4aIBFSVVHaRyp/
-         aWcuNgQrmP6gEYGWlqWBzVs/2+kjj2WpQqwWc+m0=
+        b=oMx2divX1FbZST/Tw+nNN/g2csyFK/NVJyDVAmgm2c5+8sf2oe5PgCxWfVQV7Sp4t
+         M5dFLFLN3gqTHcxnkm3+NkY9pa0E4NpayYWRTvdPaSLJvRYycNAfMo99ibCVvAC+gv
+         ThMGA0Dy2zj94/LhKPT+N/dslvMNmVcJNzOxExhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Geliang Tang <geliang.tang@suse.com>
-Subject: [PATCH 5.16 02/43] selftests: mptcp: fix ipv6 routing setup
-Date:   Fri,  4 Feb 2022 10:22:09 +0100
-Message-Id: <20220204091917.247977288@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 03/43] net: ipa: use a bitmap for endpoint replenish_enabled
+Date:   Fri,  4 Feb 2022 10:22:10 +0100
+Message-Id: <20220204091917.294616582@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
 References: <20220204091917.166033635@linuxfoundation.org>
@@ -49,55 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Alex Elder <elder@linaro.org>
 
-commit 9846921dba4936d92f7608315b5d1e0a8ec3a538 upstream.
+commit c1aaa01dbf4cef95af3e04a5a43986c290e06ea3 upstream.
 
-MPJ ipv6 selftests currently lack per link route to the server
-net. Additionally, ipv6 subflows endpoints are created without any
-interface specified. The end-result is that in ipv6 self-tests
-subflows are created all on the same link, leading to expected delays
-and sporadic self-tests failures.
+Define a new replenish_flags bitmap to contain Boolean flags
+associated with an endpoint's replenishing state.  Replace the
+replenish_enabled field with a flag in that bitmap.  This is to
+prepare for the next patch, which adds another flag.
 
-Fix the issue by adding the missing setup bits.
-
-Fixes: 523514ed0a99 ("selftests: mptcp: add ADD_ADDR IPv6 test cases")
-Reported-and-tested-by: Geliang Tang <geliang.tang@suse.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/mptcp/mptcp_join.sh |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ipa/ipa_endpoint.c |    8 ++++----
+ drivers/net/ipa/ipa_endpoint.h |   15 +++++++++++++--
+ 2 files changed, 17 insertions(+), 6 deletions(-)
 
---- a/tools/testing/selftests/net/mptcp/mptcp_join.sh
-+++ b/tools/testing/selftests/net/mptcp/mptcp_join.sh
-@@ -75,6 +75,7 @@ init()
+--- a/drivers/net/ipa/ipa_endpoint.c
++++ b/drivers/net/ipa/ipa_endpoint.c
+@@ -1069,7 +1069,7 @@ static void ipa_endpoint_replenish(struc
+ 	u32 backlog;
+ 	int delta;
  
- 		# let $ns2 reach any $ns1 address from any interface
- 		ip -net "$ns2" route add default via 10.0.$i.1 dev ns2eth$i metric 10$i
-+		ip -net "$ns2" route add default via dead:beef:$i::1 dev ns2eth$i metric 10$i
- 	done
+-	if (!endpoint->replenish_enabled) {
++	if (!test_bit(IPA_REPLENISH_ENABLED, endpoint->replenish_flags)) {
+ 		if (add_one)
+ 			atomic_inc(&endpoint->replenish_saved);
+ 		return;
+@@ -1106,7 +1106,7 @@ static void ipa_endpoint_replenish_enabl
+ 	u32 max_backlog;
+ 	u32 saved;
+ 
+-	endpoint->replenish_enabled = true;
++	set_bit(IPA_REPLENISH_ENABLED, endpoint->replenish_flags);
+ 	while ((saved = atomic_xchg(&endpoint->replenish_saved, 0)))
+ 		atomic_add(saved, &endpoint->replenish_backlog);
+ 
+@@ -1120,7 +1120,7 @@ static void ipa_endpoint_replenish_disab
+ {
+ 	u32 backlog;
+ 
+-	endpoint->replenish_enabled = false;
++	clear_bit(IPA_REPLENISH_ENABLED, endpoint->replenish_flags);
+ 	while ((backlog = atomic_xchg(&endpoint->replenish_backlog, 0)))
+ 		atomic_add(backlog, &endpoint->replenish_saved);
  }
+@@ -1665,7 +1665,7 @@ static void ipa_endpoint_setup_one(struc
+ 		/* RX transactions require a single TRE, so the maximum
+ 		 * backlog is the same as the maximum outstanding TREs.
+ 		 */
+-		endpoint->replenish_enabled = false;
++		clear_bit(IPA_REPLENISH_ENABLED, endpoint->replenish_flags);
+ 		atomic_set(&endpoint->replenish_saved,
+ 			   gsi_channel_tre_max(gsi, endpoint->channel_id));
+ 		atomic_set(&endpoint->replenish_backlog, 0);
+--- a/drivers/net/ipa/ipa_endpoint.h
++++ b/drivers/net/ipa/ipa_endpoint.h
+@@ -41,6 +41,17 @@ enum ipa_endpoint_name {
+ #define IPA_ENDPOINT_MAX		32	/* Max supported by driver */
  
-@@ -1386,7 +1387,7 @@ ipv6_tests()
- 	reset
- 	ip netns exec $ns1 ./pm_nl_ctl limits 0 1
- 	ip netns exec $ns2 ./pm_nl_ctl limits 0 1
--	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 flags subflow
-+	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 dev ns2eth3 flags subflow
- 	run_tests $ns1 $ns2 dead:beef:1::1 0 0 0 slow
- 	chk_join_nr "single subflow IPv6" 1 1 1
+ /**
++ * enum ipa_replenish_flag:	RX buffer replenish flags
++ *
++ * @IPA_REPLENISH_ENABLED:	Whether receive buffer replenishing is enabled
++ * @IPA_REPLENISH_COUNT:	Number of defined replenish flags
++ */
++enum ipa_replenish_flag {
++	IPA_REPLENISH_ENABLED,
++	IPA_REPLENISH_COUNT,	/* Number of flags (must be last) */
++};
++
++/**
+  * struct ipa_endpoint - IPA endpoint information
+  * @ipa:		IPA pointer
+  * @ee_id:		Execution environmnent endpoint is associated with
+@@ -51,7 +62,7 @@ enum ipa_endpoint_name {
+  * @trans_tre_max:	Maximum number of TRE descriptors per transaction
+  * @evt_ring_id:	GSI event ring used by the endpoint
+  * @netdev:		Network device pointer, if endpoint uses one
+- * @replenish_enabled:	Whether receive buffer replenishing is enabled
++ * @replenish_flags:	Replenishing state flags
+  * @replenish_ready:	Number of replenish transactions without doorbell
+  * @replenish_saved:	Replenish requests held while disabled
+  * @replenish_backlog:	Number of buffers needed to fill hardware queue
+@@ -72,7 +83,7 @@ struct ipa_endpoint {
+ 	struct net_device *netdev;
  
-@@ -1421,7 +1422,7 @@ ipv6_tests()
- 	ip netns exec $ns1 ./pm_nl_ctl limits 0 2
- 	ip netns exec $ns1 ./pm_nl_ctl add dead:beef:2::1 flags signal
- 	ip netns exec $ns2 ./pm_nl_ctl limits 1 2
--	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 flags subflow
-+	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 dev ns2eth3 flags subflow
- 	run_tests $ns1 $ns2 dead:beef:1::1 0 -1 -1 slow
- 	chk_join_nr "remove subflow and signal IPv6" 2 2 2
- 	chk_add_nr 1 1
+ 	/* Receive buffer replenishing for RX endpoints */
+-	bool replenish_enabled;
++	DECLARE_BITMAP(replenish_flags, IPA_REPLENISH_COUNT);
+ 	u32 replenish_ready;
+ 	atomic_t replenish_saved;
+ 	atomic_t replenish_backlog;
 
 
