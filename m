@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AE054A9545
+	by mail.lfdr.de (Postfix) with ESMTP id C9AF74A9546
 	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 09:37:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238381AbiBDIhm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 03:37:42 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48030 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238217AbiBDIhm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 03:37:42 -0500
+        id S245119AbiBDIht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 03:37:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50468 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238217AbiBDIht (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 03:37:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23BCBC061714
+        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 00:37:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0632B610A3
-        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 08:37:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4C50C004E1;
-        Fri,  4 Feb 2022 08:37:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4E71B82FE8
+        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 08:37:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9625C004E1;
+        Fri,  4 Feb 2022 08:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643963861;
-        bh=DGICHjCxLvD238SBScaPq3OtSk6cP6MzChc7k+v337g=;
+        s=korg; t=1643963866;
+        bh=tiKzgXCZXI9Xq5jQMBdGdDFk1nAyCnlTePJnaIGsnh0=;
         h=Subject:To:Cc:From:Date:From;
-        b=uNWvSFJYcv/1wGEfKnX33XdpvJ8k67i5h7A7U7bbyN8/Xuq7YfpMEUaFY9REqJTeu
-         eRi5sdwQpVJ6QaX4LfGoijIpyFsv7TqX5X4N3IfSN1Grgvci8c4vt9THpAMDhwp4RE
-         CY/zipyli/ScfEBaGLSH55zK7zCivb7pz4lIdSkc=
-Subject: FAILED: patch "[PATCH] net/mlx5e: Avoid field-overflowing memcpy()" failed to apply to 4.19-stable tree
+        b=BO1GJzPJgy0YsaVWH0Cmtp8EE+p/huW3XfxlOHrwV1iFD4K1VF1djrdgmknVT9MDn
+         eGAo0N9vqbxPFAabzjK7VMWT/pugeQ6n1thliUL7l7diUPFMbuJasEq2Q2JxBm1fEN
+         zE+DK2ECRdj+/sRalMhgBQ91TMAp9fDEYWl+R5ws=
+Subject: FAILED: patch "[PATCH] net/mlx5e: Avoid field-overflowing memcpy()" failed to apply to 5.4-stable tree
 To:     keescook@chromium.org, saeedm@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Feb 2022 09:37:38 +0100
-Message-ID: <164396385823798@kroah.com>
+Date:   Fri, 04 Feb 2022 09:37:43 +0100
+Message-ID: <164396386371206@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
