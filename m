@@ -2,73 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB1E24A9DED
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 18:43:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 891974A9E45
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 18:48:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235391AbiBDRn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 12:43:58 -0500
-Received: from mout.gmx.net ([212.227.15.19]:43873 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230087AbiBDRn6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Feb 2022 12:43:58 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1643996637;
-        bh=U/c32utP3ktSCsK73GoR8A5dbuyq12FfNbI2MiDifL4=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
-        b=ZjgEQN8eM/8Vkwiz/vFaUad4TkIAh/1g52MNysYOILYOVozCOzd7um+BsuIj1fDUi
-         tma+w2sVXGXOHQjyiEhkxgZaFad4KygWl6khXAG86EZ2EtAN+UzqJsBfBGMOqqrJal
-         r0OnqvGINZl0gM7USoiiP+yx/5HNlvzLfVTEnpww=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.100.20] ([46.142.34.248]) by mail.gmx.net (mrgmx004
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1M4axg-1nFUOQ3mcg-001hoU; Fri, 04
- Feb 2022 18:43:56 +0100
-Message-ID: <08956dbc-d882-220f-9006-54a01aa41ef9@gmx.de>
-Date:   Fri, 4 Feb 2022 18:43:56 +0100
+        id S1377074AbiBDRsH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 12:48:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36588 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241900AbiBDRsG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 12:48:06 -0500
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B67F0C061714;
+        Fri,  4 Feb 2022 09:48:06 -0800 (PST)
+Received: by mail-pl1-x62d.google.com with SMTP id x11so5767143plg.6;
+        Fri, 04 Feb 2022 09:48:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=4Y2bzdSGviXq60UAJUwPl6VNHemh5FsztTQ19e+AzIM=;
+        b=gWlIZuD5AXuFcp67d+7phWRqrAVSGOkXgZObWSfD+qThKjUPbQCZgZqKSUrZk4qkLT
+         cuMo7HHFyngVG5l5Z8QRHupNW3YbI57o5HiVyDL/jW7yWl18hobBfYuFxHCU8rTQOR/L
+         BShL98Gd/fQg6pAn+BOauj1Qfh+IjDASyc3smt7p0T9eTw0z2WZCaSDqFmHhscKXRvIc
+         D8PIVwfZajnvN4R5jDhM8bhSZ1yWHBsyVuXgZ6Y3/VqM1TYsF+kXssNNGc8pMhC6o78r
+         STwm0Pqq+45z0QpyCWZJcWRcTcLaosjdu50X7ToLbb6oV4gjUIJw11j88MUgExjjHdFD
+         HLQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=4Y2bzdSGviXq60UAJUwPl6VNHemh5FsztTQ19e+AzIM=;
+        b=NBPWvlx2HfklgsSy8H5hYyRqHeSJpWTGBvyHiPiJNBHG0oGHxMdGPHZ01ri9RBjR2u
+         7X7BXtviIXvATpVcW/360bJvxrHvg46iXrfc1/7stiK7qaOClA0PRthLJ+84vXxtRxO0
+         pkcuKfgvpV2q41Jtg56VL+OVk5tY8xsQ57QLV32HdSKaUok12Uh2Tg1FkDaLEroUTaVv
+         pvtPynVtGMwLc8LkUxD6qpMsRsLifoxZtbFes0hOxEYXiCCZ9BGOgeMO5/WwGKZjszME
+         8FZ3AVcKWMdXR4Xmcjl5Eys+tdk1yLMYHxLgUTUmataSRirLQbFbDZcyLFilfcuSm3MU
+         DuAw==
+X-Gm-Message-State: AOAM533MjMn4ugZK4Ohgl8iSII7GaKBwY1S9+Au7WYIeGKe3siHsZHry
+        80BXRYUmlm3aC1snD0IxER0=
+X-Google-Smtp-Source: ABdhPJwOkW1NsAfaZTcVsoKEZ1fDF+2WkGefCHlRQDhTYvBLTKlohSZxwn8rGxcK+OlsZqzGyRS1HA==
+X-Received: by 2002:a17:902:6b83:: with SMTP id p3mr4113682plk.55.1643996886147;
+        Fri, 04 Feb 2022 09:48:06 -0800 (PST)
+Received: from [10.230.2.160] ([192.19.161.250])
+        by smtp.gmail.com with ESMTPSA id j8sm3546451pfc.48.2022.02.04.09.48.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 04 Feb 2022 09:48:05 -0800 (PST)
+Message-ID: <f4a3aac7-169f-0089-26e7-eef193bd5d29@gmail.com>
+Date:   Fri, 4 Feb 2022 09:48:03 -0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
  Thunderbird/91.5.0
-From:   Ronald Warsow <rwarsow@gmx.de>
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Content-Language: de-DE
-Subject: Re: [PATCH 5.16 00/43] 5.16.6-rc1 review
+Subject: Re: [PATCH 5.15 00/32] 5.15.20-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220204091915.247906930@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: V03:K1:7hKSxxMKkbBQipIIB+Ej7VWcKB2PVSV0ar70A57y/j03SbU7pkX
- ucBXZNZA06bKbT3E+2T9b4wnkS1Z2t22aWYw1qsgKf9aLwYvr67653IXbh9nUKu14bGoaIe
- ch0FVdOchZWisNPYOq03zIWwaure88bgZPNlbONuuEEQDYgXt5GV9xsdfe1S6Ehpbj8JYFF
- NnkApp5XhtgbPiX4+ZpBA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:EtLJI7msm2Y=:YCyGqRkCExfu5nsmdGrLtG
- DXkAbr3ZUcvO/8qGcYHB38re/TlbqDF9iSMjNusVW+aa/7CWWUn6HVIJu0VZko/vgvpB/DI6s
- S9TBcdyV0pqPNPAc0xCIX39o3BiFAF4olRS4qKDfhb3B1mEDbCFEGoRSxdyaszZmlmiIhhdkn
- wOtrWKA82/JM2qSMEJNuNTfWFhN8Lhj60puI64YB5Oe9mfQq0uSiqdXYnBGosPvjLeaNBRlWr
- 53uChPSW3F96issM2cDrlZe/4kBS8oBqslN9fq7TQzYRXjpPLsfF8PmUfeL5SJyzXuPQZH4zr
- VAwe8+q8ErC6Cl6YjqroH6bDYidDSSCd1cet/6GU6r71TDCV5GpIFEwbZUEnicIvjH05Bvb6q
- XmZs3FIFPwb64KHj8yRMBCL00md+t324K1peFJsme9Ev8K01MUP+o+IQ7qmn+k0EoOCnpn1it
- B7Leh68BH852tlnqDX4teIyq9BkjpgJPpPtr1Pl8cTiwHfdWI7HQfxWHPcAtUmxos21P8vd9W
- QemztYmtTOOrUeNyrrQy+ZRYYGt5I9ZGWpkNAE0xXp7/S0x3NcV7HjeMPkPg83/Ni2Sp5d9pq
- MqfGk5/7Z24h8wh2z+PUSzly8QnQxtemYHdl/i2kebJUJ9LJmm8h9Z0jH93O0SAHmQkDYuxTE
- VHZXU8679AmXlRlWXDEf21xuBiutFA/OdHgs3ROlSnIvJpuMmcsrAAaPGiHyN5K9dmN81XHur
- xSUMOgxfAG8TtGtvOPS40CajjVeU99CWZgtSRqMEYlFjxb/EzxmkJhkzTWg9LpN9hKW223Gnz
- /tfoA0lAPwkEMRKmXyD6xqv3SXq+k942JXIaSAZNYOpwRyX7NM2ZJXhsgMSZcQjr6i4XShXkk
- BypXWyhr5vEj1R4CRTBgykYgLLOrQLh3u7slUdp9lHud/etr2Fvs+ygtpaUBx7zrWpw6llr3z
- tg8if24FvzmikC+E+M7MgDhgMHs0vj5YT+jbM8Hr6C+3o6ii+nzTS3O/P0MX8pxzDa2+8bPjS
- cJRZT3DStklIJ7buWUegEt0yKhEMI86OGDBKXhyszfQ0NqCJh+7fO7LfkOsXBcn1FUEzLKUM8
- C//FD9KvO2occE=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hallo Greg
 
-5.16.6-rc1
 
-compiles, boots and runs on my x86_64
-(Intel i5-11400, Fedora 35)
+On 2/4/2022 1:22 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.20 release.
+> There are 32 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 06 Feb 2022 09:19:05 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.20-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Thanks
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-Tested-by: Ronald Warsow <rwarsow@gmx.de>
-regards
-Ronald
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
