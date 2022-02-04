@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C0844A960E
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:22:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74A6D4A9611
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:22:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239285AbiBDJWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:22:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60710 "EHLO
+        id S1357514AbiBDJWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:22:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357509AbiBDJVn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:21:43 -0500
+        with ESMTP id S1357549AbiBDJVs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:21:48 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BD35C061751;
-        Fri,  4 Feb 2022 01:21:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DB76C06176E;
+        Fri,  4 Feb 2022 01:21:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC68AB836EF;
-        Fri,  4 Feb 2022 09:21:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AB67C004E1;
-        Fri,  4 Feb 2022 09:21:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38D31B836ED;
+        Fri,  4 Feb 2022 09:21:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7547DC004E1;
+        Fri,  4 Feb 2022 09:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966500;
-        bh=qOJ6whip6kE3To8wzXTaEVKxv041YSfcDKIcXA478C0=;
+        s=korg; t=1643966507;
+        bh=QxDpZTI1T/K786gFZQxlq1ZSoTSFEF/Vn8/D4xcS44c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XBnACFGs3XAOEW8a8qCbWIT7YclBO9g3tXa98psrSj4HzmzD9qDILTU5pEgXYGEt+
-         o8dVvxwwr1cTvfJc4aLglO8V+PWiRtbXpYrqNlf7XaSziY/KZHmOZYQrnjynCMMrPc
-         l7QgdaijPMN9Wo66T40+ZwFyy/wb/ApdmXi6atzI=
+        b=URPHy5IoTX2oI7bxOzQTf3yjKRCC9jG62/PjrOEuVPZMxk0a7H+5Z/0I2bzjbBbiT
+         MUhtlAPnaCVlBDT+hoA7scMDIgBKi74ZuihiP3/uQjpDyvloHooqPFyxXtV5JlBaSi
+         c78r17kPmkWf+pg5UX6mmSGYCApHYohp1+nPafK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 19/25] net: amd-xgbe: Fix skb data length underflow
-Date:   Fri,  4 Feb 2022 10:20:26 +0100
-Message-Id: <20220204091914.902444262@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Mathias Krause <minipli@grsecurity.net>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.10 20/25] fanotify: Fix stale file descriptor in copy_event_to_user()
+Date:   Fri,  4 Feb 2022 10:20:27 +0100
+Message-Id: <20220204091914.933296036@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220204091914.280602669@linuxfoundation.org>
 References: <20220204091914.280602669@linuxfoundation.org>
@@ -48,55 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 5aac9108a180fc06e28d4e7fb00247ce603b72ee upstream.
+commit ee12595147ac1fbfb5bcb23837e26dd58d94b15d upstream.
 
-There will be BUG_ON() triggered in include/linux/skbuff.h leading to
-intermittent kernel panic, when the skb length underflow is detected.
+This code calls fd_install() which gives the userspace access to the fd.
+Then if copy_info_records_to_user() fails it calls put_unused_fd(fd) but
+that will not release it and leads to a stale entry in the file
+descriptor table.
 
-Fix this by dropping the packet if such length underflows are seen
-because of inconsistencies in the hardware descriptors.
+Generally you can't trust the fd after a call to fd_install().  The fix
+is to delay the fd_install() until everything else has succeeded.
 
-Fixes: 622c36f143fc ("amd-xgbe: Fix jumbo MTU processing on newer hardware")
-Suggested-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lore.kernel.org/r/20220127092003.2812745-1-Shyam-sundar.S-k@amd.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fortunately it requires CAP_SYS_ADMIN to reach this code so the security
+impact is less.
+
+Fixes: f644bc449b37 ("fanotify: fix copy_event_to_user() fid error clean up")
+Link: https://lore.kernel.org/r/20220128195656.GA26981@kili
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Mathias Krause <minipli@grsecurity.net>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/notify/fanotify/fanotify_user.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-@@ -2559,6 +2559,14 @@ read_again:
- 			buf2_len = xgbe_rx_buf2_len(rdata, packet, len);
- 			len += buf2_len;
+--- a/fs/notify/fanotify/fanotify_user.c
++++ b/fs/notify/fanotify/fanotify_user.c
+@@ -366,9 +366,6 @@ static ssize_t copy_event_to_user(struct
+ 	if (fanotify_is_perm_event(event->mask))
+ 		FANOTIFY_PERM(event)->fd = fd;
  
-+			if (buf2_len > rdata->rx.buf.dma_len) {
-+				/* Hardware inconsistency within the descriptors
-+				 * that has resulted in a length underflow.
-+				 */
-+				error = 1;
-+				goto skip_data;
-+			}
+-	if (f)
+-		fd_install(fd, f);
+-
+ 	/* Event info records order is: dir fid + name, child fid */
+ 	if (fanotify_event_dir_fh_len(event)) {
+ 		info_type = info->name_len ? FAN_EVENT_INFO_TYPE_DFID_NAME :
+@@ -432,6 +429,9 @@ static ssize_t copy_event_to_user(struct
+ 		count -= ret;
+ 	}
+ 
++	if (f)
++		fd_install(fd, f);
 +
- 			if (!skb) {
- 				skb = xgbe_create_skb(pdata, napi, rdata,
- 						      buf1_len);
-@@ -2588,8 +2596,10 @@ skip_data:
- 		if (!last || context_next)
- 			goto read_again;
+ 	return metadata.event_len;
  
--		if (!skb)
-+		if (!skb || error) {
-+			dev_kfree_skb(skb);
- 			goto next_packet;
-+		}
- 
- 		/* Be sure we don't exceed the configured MTU */
- 		max_len = netdev->mtu + ETH_HLEN;
+ out_close_fd:
 
 
