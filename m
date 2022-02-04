@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 226A74A96B8
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:28:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 690654A9661
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:25:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239721AbiBDJ25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:28:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33338 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357591AbiBDJ1I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:27:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96502C061394;
-        Fri,  4 Feb 2022 01:26:23 -0800 (PST)
+        id S1357699AbiBDJZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:25:21 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43630 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357554AbiBDJYc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:24:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 570ECB836F0;
-        Fri,  4 Feb 2022 09:26:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ECADC340ED;
-        Fri,  4 Feb 2022 09:26:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18809616DB;
+        Fri,  4 Feb 2022 09:24:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D06A3C340EF;
+        Fri,  4 Feb 2022 09:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966781;
-        bh=iaE1IqOh0EjTj9ysylMCuepe6iN/kPDrrbFWOLuRBw8=;
+        s=korg; t=1643966671;
+        bh=ZzMj6G9e6/gWX7cJeYR8I7KvzFa61O0cT2/d4KYtnsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G+KEVi3R4ycgyEZEtZ8aCMBY20VHSaUPJGdh0a9srQgkWt+llCFoSvpD0M9e4H3Do
-         wB7up5pDqkTdDUsHzehn8zqDSzdsHVOGA4olwToXHbYTMpqrWrpOceHxA6CX8SMDcG
-         XiXpK847YucSFNDfULzvwmdMmrkZKRZmUQ38elOk=
+        b=LmIs9LcNmIDEgis9fGmzfKwy0n7j5DYhqFCFDz33xnobrg0dUqKiqNpKDbau/A1c5
+         SgbxKLocC9PPpGzH7IG9I2EYMsJRMypcr/L5lPDonE23P8ArBtv84OVf0D57S0WFwQ
+         eXgxUAIKFGwIOVkrO/5SE5LIx2FX2yWl/EJnY84s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Georgi Valkov <gvalkov@abv.bg>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 29/43] ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Mathias Krause <minipli@grsecurity.net>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.15 26/32] fanotify: Fix stale file descriptor in copy_event_to_user()
 Date:   Fri,  4 Feb 2022 10:22:36 +0100
-Message-Id: <20220204091918.110218109@linuxfoundation.org>
+Message-Id: <20220204091916.121063674@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
-References: <20220204091917.166033635@linuxfoundation.org>
+In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
+References: <20220204091915.247906930@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,57 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Georgi Valkov <gvalkov@abv.bg>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 63e4b45c82ed1bde979da7052229a4229ce9cabf upstream.
+commit ee12595147ac1fbfb5bcb23837e26dd58d94b15d upstream.
 
-When rx_buf is allocated we need to account for IPHETH_IP_ALIGN,
-which reduces the usable size by 2 bytes. Otherwise we have 1512
-bytes usable instead of 1514, and if we receive more than 1512
-bytes, ipheth_rcvbulk_callback is called with status -EOVERFLOW,
-after which the driver malfunctiones and all communication stops.
+This code calls fd_install() which gives the userspace access to the fd.
+Then if copy_info_records_to_user() fails it calls put_unused_fd(fd) but
+that will not release it and leads to a stale entry in the file
+descriptor table.
 
-Resolves ipheth 2-1:4.2: ipheth_rcvbulk_callback: urb status: -75
+Generally you can't trust the fd after a call to fd_install().  The fix
+is to delay the fd_install() until everything else has succeeded.
 
-Fixes: f33d9e2b48a3 ("usbnet: ipheth: fix connectivity with iOS 14")
-Signed-off-by: Georgi Valkov <gvalkov@abv.bg>
-Tested-by: Jan Kiszka <jan.kiszka@siemens.com>
-Link: https://lore.kernel.org/all/B60B8A4B-92A0-49B3-805D-809A2433B46C@abv.bg/
-Link: https://lore.kernel.org/all/24851bd2769434a5fc24730dce8e8a984c5a4505.1643699778.git.jan.kiszka@siemens.com/
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fortunately it requires CAP_SYS_ADMIN to reach this code so the security
+impact is less.
+
+Fixes: f644bc449b37 ("fanotify: fix copy_event_to_user() fid error clean up")
+Link: https://lore.kernel.org/r/20220128195656.GA26981@kili
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Mathias Krause <minipli@grsecurity.net>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/ipheth.c |    6 +++---
+ fs/notify/fanotify/fanotify_user.c |    6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/usb/ipheth.c
-+++ b/drivers/net/usb/ipheth.c
-@@ -121,7 +121,7 @@ static int ipheth_alloc_urbs(struct iphe
- 	if (tx_buf == NULL)
- 		goto free_rx_urb;
+--- a/fs/notify/fanotify/fanotify_user.c
++++ b/fs/notify/fanotify/fanotify_user.c
+@@ -611,9 +611,6 @@ static ssize_t copy_event_to_user(struct
+ 	if (fanotify_is_perm_event(event->mask))
+ 		FANOTIFY_PERM(event)->fd = fd;
  
--	rx_buf = usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE,
-+	rx_buf = usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN,
- 				    GFP_KERNEL, &rx_urb->transfer_dma);
- 	if (rx_buf == NULL)
- 		goto free_tx_buf;
-@@ -146,7 +146,7 @@ error_nomem:
+-	if (f)
+-		fd_install(fd, f);
+-
+ 	if (info_mode) {
+ 		ret = copy_info_records_to_user(event, info, info_mode, pidfd,
+ 						buf, count);
+@@ -621,6 +618,9 @@ static ssize_t copy_event_to_user(struct
+ 			goto out_close_fd;
+ 	}
  
- static void ipheth_free_urbs(struct ipheth_device *iphone)
- {
--	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->rx_buf,
-+	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN, iphone->rx_buf,
- 			  iphone->rx_urb->transfer_dma);
- 	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->tx_buf,
- 			  iphone->tx_urb->transfer_dma);
-@@ -317,7 +317,7 @@ static int ipheth_rx_submit(struct iphet
++	if (f)
++		fd_install(fd, f);
++
+ 	return metadata.event_len;
  
- 	usb_fill_bulk_urb(dev->rx_urb, udev,
- 			  usb_rcvbulkpipe(udev, dev->bulk_in),
--			  dev->rx_buf, IPHETH_BUF_SIZE,
-+			  dev->rx_buf, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN,
- 			  ipheth_rcvbulk_callback,
- 			  dev);
- 	dev->rx_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+ out_close_fd:
 
 
