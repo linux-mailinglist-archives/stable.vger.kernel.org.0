@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69BDD4A95E4
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:20:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE5B4A95FC
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:21:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357299AbiBDJUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:20:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60412 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354004AbiBDJUt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:20:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F82C061714;
-        Fri,  4 Feb 2022 01:20:49 -0800 (PST)
+        id S1357487AbiBDJVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:21:41 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50622 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357496AbiBDJVX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:21:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2600F615A5;
-        Fri,  4 Feb 2022 09:20:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06301C004E1;
-        Fri,  4 Feb 2022 09:20:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00A0FB836EF;
+        Fri,  4 Feb 2022 09:21:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B46FC004E1;
+        Fri,  4 Feb 2022 09:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966448;
-        bh=YWoW/7v5KkKae/MNw/dQ5LSHtZkTGL4gFL1Eye8gEeg=;
+        s=korg; t=1643966480;
+        bh=6WAZVQB1k7CL70Rc41o0FuDqh/twC+HshTlA9IRPVac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUXjI7y6Bc/L0z7J9BJKN+vmxDh3Ib8spfc8KPiEoSON8Irb4o4j2KPR88AX9YHdP
-         JZna7icWjUKFvMf6+44L9XVFV6B6qRAee3yuJE7SN6VSb5jf6ZPe6g4NzJKsOGeeNo
-         Bi6EbFmch4vc3XoWfPXMK0P7zY4WqYwizibwO8oA=
+        b=BxfFHmUcOkcMcR8jEfF8rw/l+qJyZLOkYZZPp1yXVxCjdsob43U+TMj9/gbdl4RUP
+         cE3Rv1zlEz/FZu+KeOeVPFZLnVRMPN8xx1m+dgA0LIqKwvugzOYL+UNbS0D02IG0Ap
+         GxN1Qoj3YNsYsP1OGfBAPnw2f8kgGXP9dsaDXHAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 06/10] net: amd-xgbe: Fix skb data length underflow
-Date:   Fri,  4 Feb 2022 10:20:19 +0100
-Message-Id: <20220204091912.532370181@linuxfoundation.org>
+        stable@vger.kernel.org, Tabitha Sable <tabitha.c.sable@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.10 13/25] cgroup-v1: Require capabilities to set release_agent
+Date:   Fri,  4 Feb 2022 10:20:20 +0100
+Message-Id: <20220204091914.718640241@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091912.329106021@linuxfoundation.org>
-References: <20220204091912.329106021@linuxfoundation.org>
+In-Reply-To: <20220204091914.280602669@linuxfoundation.org>
+References: <20220204091914.280602669@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,55 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit 5aac9108a180fc06e28d4e7fb00247ce603b72ee upstream.
+commit 24f6008564183aa120d07c03d9289519c2fe02af upstream.
 
-There will be BUG_ON() triggered in include/linux/skbuff.h leading to
-intermittent kernel panic, when the skb length underflow is detected.
+The cgroup release_agent is called with call_usermodehelper.  The function
+call_usermodehelper starts the release_agent with a full set fo capabilities.
+Therefore require capabilities when setting the release_agaent.
 
-Fix this by dropping the packet if such length underflows are seen
-because of inconsistencies in the hardware descriptors.
-
-Fixes: 622c36f143fc ("amd-xgbe: Fix jumbo MTU processing on newer hardware")
-Suggested-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lore.kernel.org/r/20220127092003.2812745-1-Shyam-sundar.S-k@amd.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Tabitha Sable <tabitha.c.sable@gmail.com>
+Tested-by: Tabitha Sable <tabitha.c.sable@gmail.com>
+Fixes: 81a6a5cdd2c5 ("Task Control Groups: automatic userspace notification of idle cgroups")
+Cc: stable@vger.kernel.org # v2.6.24+
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ kernel/cgroup/cgroup-v1.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-@@ -2767,6 +2767,14 @@ read_again:
- 			buf2_len = xgbe_rx_buf2_len(rdata, packet, len);
- 			len += buf2_len;
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -545,6 +545,14 @@ static ssize_t cgroup_release_agent_writ
  
-+			if (buf2_len > rdata->rx.buf.dma_len) {
-+				/* Hardware inconsistency within the descriptors
-+				 * that has resulted in a length underflow.
-+				 */
-+				error = 1;
-+				goto skip_data;
-+			}
+ 	BUILD_BUG_ON(sizeof(cgrp->root->release_agent_path) < PATH_MAX);
+ 
++	/*
++	 * Release agent gets called with all capabilities,
++	 * require capabilities to set release agent.
++	 */
++	if ((of->file->f_cred->user_ns != &init_user_ns) ||
++	    !capable(CAP_SYS_ADMIN))
++		return -EPERM;
 +
- 			if (!skb) {
- 				skb = xgbe_create_skb(pdata, napi, rdata,
- 						      buf1_len);
-@@ -2796,8 +2804,10 @@ skip_data:
- 		if (!last || context_next)
- 			goto read_again;
- 
--		if (!skb)
-+		if (!skb || error) {
-+			dev_kfree_skb(skb);
- 			goto next_packet;
-+		}
- 
- 		/* Be sure we don't exceed the configured MTU */
- 		max_len = netdev->mtu + ETH_HLEN;
+ 	cgrp = cgroup_kn_lock_live(of->kn, false);
+ 	if (!cgrp)
+ 		return -ENODEV;
+@@ -958,6 +966,12 @@ int cgroup1_parse_param(struct fs_contex
+ 		/* Specifying two release agents is forbidden */
+ 		if (ctx->release_agent)
+ 			return invalfc(fc, "release_agent respecified");
++		/*
++		 * Release agent gets called with all capabilities,
++		 * require capabilities to set release agent.
++		 */
++		if ((fc->user_ns != &init_user_ns) || !capable(CAP_SYS_ADMIN))
++			return invalfc(fc, "Setting release_agent not allowed");
+ 		ctx->release_agent = param->string;
+ 		param->string = NULL;
+ 		break;
 
 
