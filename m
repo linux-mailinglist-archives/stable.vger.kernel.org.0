@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 646AA4A95E6
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:20:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CC944A95FF
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:22:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357334AbiBDJU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:20:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60450 "EHLO
+        id S1357415AbiBDJV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:21:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357341AbiBDJUz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:20:55 -0500
+        with ESMTP id S1357425AbiBDJV3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:21:29 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F55AC061749;
-        Fri,  4 Feb 2022 01:20:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F8F3C061769;
+        Fri,  4 Feb 2022 01:21:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0263B836EA;
-        Fri,  4 Feb 2022 09:20:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D158C004E1;
-        Fri,  4 Feb 2022 09:20:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D12AB836EE;
+        Fri,  4 Feb 2022 09:21:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EF58C004E1;
+        Fri,  4 Feb 2022 09:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966451;
-        bh=gl5fvLmz/9CmwlUdjxsSDEnwJhcmo9Bg7jWVIjpcaYo=;
+        s=korg; t=1643966484;
+        bh=mXHryGW09fA1yrZtSbOXLAiQQeihs2gSPyR7qHrk/wI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bwjC64sBdllL+MqIKb7ebQGvNQ0y4aaMhbrTn1ZSgzWLOEtyQ6W/eoGcICxw+8X1v
-         IYy7ADaaQMNi/PkMX89/dalVcXvmSijPG+59uUU9Reki7awzFvKJm4DZj7v+v1LH1O
-         3OL1nQKbg7qkaNJEIZMVcUI7ecUwrPWoK5UDnZwI=
+        b=mFQDoHAXbqg5nA/XCAP1ntNS4tefvvXx1YvGSDPXCI7FAuI6AfqHY8FxwDQ5ao9tp
+         U4zTUVOn6g2dV9UnEc3A9FAxTAoEay39iZp/wcvp0IQ6mTemFaRENt7U0PKl+GgzMi
+         7k6r++oVI04Bpcp09/0ENNNjDqTZ9TE8fUMepa2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Vlad Buslov <vladbu@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 07/10] net: sched: fix use-after-free in tc_new_tfilter()
-Date:   Fri,  4 Feb 2022 10:20:20 +0100
-Message-Id: <20220204091912.563536303@linuxfoundation.org>
+        stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.10 14/25] net/mlx5e: Fix handling of wrong devices during bond netevent
+Date:   Fri,  4 Feb 2022 10:20:21 +0100
+Message-Id: <20220204091914.749913501@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091912.329106021@linuxfoundation.org>
-References: <20220204091912.329106021@linuxfoundation.org>
+In-Reply-To: <20220204091914.280602669@linuxfoundation.org>
+References: <20220204091914.280602669@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,259 +47,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Maor Dickman <maord@nvidia.com>
 
-commit 04c2a47ffb13c29778e2a14e414ad4cb5a5db4b5 upstream.
+commit ec41332e02bd0acf1f24206867bb6a02f5877a62 upstream.
 
-Whenever tc_new_tfilter() jumps back to replay: label,
-we need to make sure @q and @chain local variables are cleared again,
-or risk use-after-free as in [1]
+Current implementation of bond netevent handler only check if
+the handled netdev is VF representor and it missing a check if
+the VF representor is on the same phys device of the bond handling
+the netevent.
 
-For consistency, apply the same fix in tc_ctl_chain()
+Fix by adding the missing check and optimizing the check if
+the netdev is VF representor so it will not access uninitialized
+private data and crashes.
 
-BUG: KASAN: use-after-free in mini_qdisc_pair_swap+0x1b9/0x1f0 net/sched/sch_generic.c:1581
-Write of size 8 at addr ffff8880985c4b08 by task syz-executor.4/1945
-
-CPU: 0 PID: 1945 Comm: syz-executor.4 Not tainted 5.17.0-rc1-syzkaller-00495-gff58831fa02d #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+BUG: kernel NULL pointer dereference, address: 000000000000036c
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP NOPTI
+Workqueue: eth3bond0 bond_mii_monitor [bonding]
+RIP: 0010:mlx5e_is_uplink_rep+0xc/0x50 [mlx5_core]
+RSP: 0018:ffff88812d69fd60 EFLAGS: 00010282
+RAX: 0000000000000000 RBX: ffff8881cf800000 RCX: 0000000000000000
+RDX: ffff88812d69fe10 RSI: 000000000000001b RDI: ffff8881cf800880
+RBP: ffff8881cf800000 R08: 00000445cabccf2b R09: 0000000000000008
+R10: 0000000000000004 R11: 0000000000000008 R12: ffff88812d69fe10
+R13: 00000000fffffffe R14: ffff88820c0f9000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffff88846fb00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000000000036c CR3: 0000000103d80006 CR4: 0000000000370ea0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0x8d/0x336 mm/kasan/report.c:255
- __kasan_report mm/kasan/report.c:442 [inline]
- kasan_report.cold+0x83/0xdf mm/kasan/report.c:459
- mini_qdisc_pair_swap+0x1b9/0x1f0 net/sched/sch_generic.c:1581
- tcf_chain_head_change_item net/sched/cls_api.c:372 [inline]
- tcf_chain0_head_change.isra.0+0xb9/0x120 net/sched/cls_api.c:386
- tcf_chain_tp_insert net/sched/cls_api.c:1657 [inline]
- tcf_chain_tp_insert_unique net/sched/cls_api.c:1707 [inline]
- tc_new_tfilter+0x1e67/0x2350 net/sched/cls_api.c:2086
- rtnetlink_rcv_msg+0x80d/0xb80 net/core/rtnetlink.c:5583
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2494
- netlink_unicast_kernel net/netlink/af_netlink.c:1317 [inline]
- netlink_unicast+0x539/0x7e0 net/netlink/af_netlink.c:1343
- netlink_sendmsg+0x904/0xe00 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:705 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:725
- ____sys_sendmsg+0x331/0x810 net/socket.c:2413
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2467
- __sys_sendmmsg+0x195/0x470 net/socket.c:2553
- __do_sys_sendmmsg net/socket.c:2582 [inline]
- __se_sys_sendmmsg net/socket.c:2579 [inline]
- __x64_sys_sendmmsg+0x99/0x100 net/socket.c:2579
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f2647172059
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f2645aa5168 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
-RAX: ffffffffffffffda RBX: 00007f2647285100 RCX: 00007f2647172059
-RDX: 040000000000009f RSI: 00000000200002c0 RDI: 0000000000000006
-RBP: 00007f26471cc08d R08: 0000000000000000 R09: 0000000000000000
-R10: 9e00000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007fffb3f7f02f R14: 00007f2645aa5300 R15: 0000000000022000
- </TASK>
+ mlx5e_eswitch_uplink_rep+0x31/0x40 [mlx5_core]
+ mlx5e_rep_is_lag_netdev+0x94/0xc0 [mlx5_core]
+ mlx5e_rep_esw_bond_netevent+0xeb/0x3d0 [mlx5_core]
+ raw_notifier_call_chain+0x41/0x60
+ call_netdevice_notifiers_info+0x34/0x80
+ netdev_lower_state_changed+0x4e/0xa0
+ bond_mii_monitor+0x56b/0x640 [bonding]
+ process_one_work+0x1b9/0x390
+ worker_thread+0x4d/0x3d0
+ ? rescuer_thread+0x350/0x350
+ kthread+0x124/0x150
+ ? set_kthread_struct+0x40/0x40
+ ret_from_fork+0x1f/0x30
 
-Allocated by task 1944:
- kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
- kasan_set_track mm/kasan/common.c:45 [inline]
- set_alloc_info mm/kasan/common.c:436 [inline]
- ____kasan_kmalloc mm/kasan/common.c:515 [inline]
- ____kasan_kmalloc mm/kasan/common.c:474 [inline]
- __kasan_kmalloc+0xa9/0xd0 mm/kasan/common.c:524
- kmalloc_node include/linux/slab.h:604 [inline]
- kzalloc_node include/linux/slab.h:726 [inline]
- qdisc_alloc+0xac/0xa10 net/sched/sch_generic.c:941
- qdisc_create.constprop.0+0xce/0x10f0 net/sched/sch_api.c:1211
- tc_modify_qdisc+0x4c5/0x1980 net/sched/sch_api.c:1660
- rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5592
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2494
- netlink_unicast_kernel net/netlink/af_netlink.c:1317 [inline]
- netlink_unicast+0x539/0x7e0 net/netlink/af_netlink.c:1343
- netlink_sendmsg+0x904/0xe00 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:705 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:725
- ____sys_sendmsg+0x331/0x810 net/socket.c:2413
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2467
- __sys_sendmmsg+0x195/0x470 net/socket.c:2553
- __do_sys_sendmmsg net/socket.c:2582 [inline]
- __se_sys_sendmmsg net/socket.c:2579 [inline]
- __x64_sys_sendmmsg+0x99/0x100 net/socket.c:2579
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Freed by task 3609:
- kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
- kasan_set_track+0x21/0x30 mm/kasan/common.c:45
- kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
- ____kasan_slab_free mm/kasan/common.c:366 [inline]
- ____kasan_slab_free+0x130/0x160 mm/kasan/common.c:328
- kasan_slab_free include/linux/kasan.h:236 [inline]
- slab_free_hook mm/slub.c:1728 [inline]
- slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1754
- slab_free mm/slub.c:3509 [inline]
- kfree+0xcb/0x280 mm/slub.c:4562
- rcu_do_batch kernel/rcu/tree.c:2527 [inline]
- rcu_core+0x7b8/0x1540 kernel/rcu/tree.c:2778
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
-
-Last potentially related work creation:
- kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
- __kasan_record_aux_stack+0xbe/0xd0 mm/kasan/generic.c:348
- __call_rcu kernel/rcu/tree.c:3026 [inline]
- call_rcu+0xb1/0x740 kernel/rcu/tree.c:3106
- qdisc_put_unlocked+0x6f/0x90 net/sched/sch_generic.c:1109
- tcf_block_release+0x86/0x90 net/sched/cls_api.c:1238
- tc_new_tfilter+0xc0d/0x2350 net/sched/cls_api.c:2148
- rtnetlink_rcv_msg+0x80d/0xb80 net/core/rtnetlink.c:5583
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2494
- netlink_unicast_kernel net/netlink/af_netlink.c:1317 [inline]
- netlink_unicast+0x539/0x7e0 net/netlink/af_netlink.c:1343
- netlink_sendmsg+0x904/0xe00 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:705 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:725
- ____sys_sendmsg+0x331/0x810 net/socket.c:2413
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2467
- __sys_sendmmsg+0x195/0x470 net/socket.c:2553
- __do_sys_sendmmsg net/socket.c:2582 [inline]
- __se_sys_sendmmsg net/socket.c:2579 [inline]
- __x64_sys_sendmmsg+0x99/0x100 net/socket.c:2579
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The buggy address belongs to the object at ffff8880985c4800
- which belongs to the cache kmalloc-1k of size 1024
-The buggy address is located 776 bytes inside of
- 1024-byte region [ffff8880985c4800, ffff8880985c4c00)
-The buggy address belongs to the page:
-page:ffffea0002617000 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x985c0
-head:ffffea0002617000 order:3 compound_mapcount:0 compound_pincount:0
-flags: 0xfff00000010200(slab|head|node=0|zone=1|lastcpupid=0x7ff)
-raw: 00fff00000010200 0000000000000000 dead000000000122 ffff888010c41dc0
-raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-page_owner tracks the page as allocated
-page last allocated via order 3, migratetype Unmovable, gfp_mask 0x1d20c0(__GFP_IO|__GFP_FS|__GFP_NOWARN|__GFP_NORETRY|__GFP_COMP|__GFP_NOMEMALLOC|__GFP_HARDWALL), pid 1941, ts 1038999441284, free_ts 1033444432829
- prep_new_page mm/page_alloc.c:2434 [inline]
- get_page_from_freelist+0xa72/0x2f50 mm/page_alloc.c:4165
- __alloc_pages+0x1b2/0x500 mm/page_alloc.c:5389
- alloc_pages+0x1aa/0x310 mm/mempolicy.c:2271
- alloc_slab_page mm/slub.c:1799 [inline]
- allocate_slab mm/slub.c:1944 [inline]
- new_slab+0x28a/0x3b0 mm/slub.c:2004
- ___slab_alloc+0x87c/0xe90 mm/slub.c:3018
- __slab_alloc.constprop.0+0x4d/0xa0 mm/slub.c:3105
- slab_alloc_node mm/slub.c:3196 [inline]
- slab_alloc mm/slub.c:3238 [inline]
- __kmalloc+0x2fb/0x340 mm/slub.c:4420
- kmalloc include/linux/slab.h:586 [inline]
- kzalloc include/linux/slab.h:715 [inline]
- __register_sysctl_table+0x112/0x1090 fs/proc/proc_sysctl.c:1335
- neigh_sysctl_register+0x2c8/0x5e0 net/core/neighbour.c:3787
- devinet_sysctl_register+0xb1/0x230 net/ipv4/devinet.c:2618
- inetdev_init+0x286/0x580 net/ipv4/devinet.c:278
- inetdev_event+0xa8a/0x15d0 net/ipv4/devinet.c:1532
- notifier_call_chain+0xb5/0x200 kernel/notifier.c:84
- call_netdevice_notifiers_info+0xb5/0x130 net/core/dev.c:1919
- call_netdevice_notifiers_extack net/core/dev.c:1931 [inline]
- call_netdevice_notifiers net/core/dev.c:1945 [inline]
- register_netdevice+0x1073/0x1500 net/core/dev.c:9698
- veth_newlink+0x59c/0xa90 drivers/net/veth.c:1722
-page last free stack trace:
- reset_page_owner include/linux/page_owner.h:24 [inline]
- free_pages_prepare mm/page_alloc.c:1352 [inline]
- free_pcp_prepare+0x374/0x870 mm/page_alloc.c:1404
- free_unref_page_prepare mm/page_alloc.c:3325 [inline]
- free_unref_page+0x19/0x690 mm/page_alloc.c:3404
- release_pages+0x748/0x1220 mm/swap.c:956
- tlb_batch_pages_flush mm/mmu_gather.c:50 [inline]
- tlb_flush_mmu_free mm/mmu_gather.c:243 [inline]
- tlb_flush_mmu+0xe9/0x6b0 mm/mmu_gather.c:250
- zap_pte_range mm/memory.c:1441 [inline]
- zap_pmd_range mm/memory.c:1490 [inline]
- zap_pud_range mm/memory.c:1519 [inline]
- zap_p4d_range mm/memory.c:1540 [inline]
- unmap_page_range+0x1d1d/0x2a30 mm/memory.c:1561
- unmap_single_vma+0x198/0x310 mm/memory.c:1606
- unmap_vmas+0x16b/0x2f0 mm/memory.c:1638
- exit_mmap+0x201/0x670 mm/mmap.c:3178
- __mmput+0x122/0x4b0 kernel/fork.c:1114
- mmput+0x56/0x60 kernel/fork.c:1135
- exit_mm kernel/exit.c:507 [inline]
- do_exit+0xa3c/0x2a30 kernel/exit.c:793
- do_group_exit+0xd2/0x2f0 kernel/exit.c:935
- __do_sys_exit_group kernel/exit.c:946 [inline]
- __se_sys_exit_group kernel/exit.c:944 [inline]
- __x64_sys_exit_group+0x3a/0x50 kernel/exit.c:944
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Memory state around the buggy address:
- ffff8880985c4a00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff8880985c4a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
->ffff8880985c4b00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                      ^
- ffff8880985c4b80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff8880985c4c00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-
-Fixes: 470502de5bdb ("net: sched: unlock rules update API")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Vlad Buslov <vladbu@mellanox.com>
-Cc: Jiri Pirko <jiri@mellanox.com>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20220131172018.3704490-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 7e51891a237f ("net/mlx5e: Use netdev events to set/del egress acl forward-to-vport rule")
+Signed-off-by: Maor Dickman <maord@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_api.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/rep/bond.c |   32 +++++++-----------
+ 1 file changed, 14 insertions(+), 18 deletions(-)
 
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -1928,9 +1928,9 @@ static int tc_new_tfilter(struct sk_buff
- 	bool prio_allocate;
- 	u32 parent;
- 	u32 chain_index;
--	struct Qdisc *q = NULL;
-+	struct Qdisc *q;
- 	struct tcf_chain_info chain_info;
--	struct tcf_chain *chain = NULL;
-+	struct tcf_chain *chain;
- 	struct tcf_block *block;
- 	struct tcf_proto *tp;
- 	unsigned long cl;
-@@ -1958,6 +1958,8 @@ replay:
- 	tp = NULL;
- 	cl = 0;
- 	block = NULL;
-+	q = NULL;
-+	chain = NULL;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bond.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bond.c
+@@ -183,18 +183,7 @@ void mlx5e_rep_bond_unslave(struct mlx5_
  
- 	if (prio == 0) {
- 		/* If no priority is provided by the user,
-@@ -2764,8 +2766,8 @@ static int tc_ctl_chain(struct sk_buff *
- 	struct tcmsg *t;
- 	u32 parent;
- 	u32 chain_index;
--	struct Qdisc *q = NULL;
--	struct tcf_chain *chain = NULL;
-+	struct Qdisc *q;
-+	struct tcf_chain *chain;
- 	struct tcf_block *block;
- 	unsigned long cl;
+ static bool mlx5e_rep_is_lag_netdev(struct net_device *netdev)
+ {
+-	struct mlx5e_rep_priv *rpriv;
+-	struct mlx5e_priv *priv;
+-
+-	/* A given netdev is not a representor or not a slave of LAG configuration */
+-	if (!mlx5e_eswitch_rep(netdev) || !netif_is_lag_port(netdev))
+-		return false;
+-
+-	priv = netdev_priv(netdev);
+-	rpriv = priv->ppriv;
+-
+-	/* Egress acl forward to vport is supported only non-uplink representor */
+-	return rpriv->rep->vport != MLX5_VPORT_UPLINK;
++	return netif_is_lag_port(netdev) && mlx5e_eswitch_vf_rep(netdev);
+ }
+ 
+ static void mlx5e_rep_changelowerstate_event(struct net_device *netdev, void *ptr)
+@@ -210,9 +199,6 @@ static void mlx5e_rep_changelowerstate_e
+ 	u16 fwd_vport_num;
  	int err;
-@@ -2775,6 +2777,7 @@ static int tc_ctl_chain(struct sk_buff *
- 		return -EPERM;
  
- replay:
-+	q = NULL;
- 	err = nlmsg_parse_deprecated(n, sizeof(*t), tca, TCA_MAX,
- 				     rtm_tca_policy, extack);
- 	if (err < 0)
+-	if (!mlx5e_rep_is_lag_netdev(netdev))
+-		return;
+-
+ 	info = ptr;
+ 	lag_info = info->lower_state_info;
+ 	/* This is not an event of a representor becoming active slave */
+@@ -266,9 +252,6 @@ static void mlx5e_rep_changeupper_event(
+ 	struct net_device *lag_dev;
+ 	struct mlx5e_priv *priv;
+ 
+-	if (!mlx5e_rep_is_lag_netdev(netdev))
+-		return;
+-
+ 	priv = netdev_priv(netdev);
+ 	rpriv = priv->ppriv;
+ 	lag_dev = info->upper_dev;
+@@ -293,6 +276,19 @@ static int mlx5e_rep_esw_bond_netevent(s
+ 				       unsigned long event, void *ptr)
+ {
+ 	struct net_device *netdev = netdev_notifier_info_to_dev(ptr);
++	struct mlx5e_rep_priv *rpriv;
++	struct mlx5e_rep_bond *bond;
++	struct mlx5e_priv *priv;
++
++	if (!mlx5e_rep_is_lag_netdev(netdev))
++		return NOTIFY_DONE;
++
++	bond = container_of(nb, struct mlx5e_rep_bond, nb);
++	priv = netdev_priv(netdev);
++	rpriv = mlx5_eswitch_get_uplink_priv(priv->mdev->priv.eswitch, REP_ETH);
++	/* Verify VF representor is on the same device of the bond handling the netevent. */
++	if (rpriv->uplink_priv.bond != bond)
++		return NOTIFY_DONE;
+ 
+ 	switch (event) {
+ 	case NETDEV_CHANGELOWERSTATE:
 
 
