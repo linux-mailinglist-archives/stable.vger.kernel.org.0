@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A7CA4A96C2
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:29:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A23A4A96C4
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:29:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358629AbiBDJ3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:29:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33352 "EHLO
+        id S1357808AbiBDJ3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:29:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358426AbiBDJ1N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:27:13 -0500
+        with ESMTP id S1357892AbiBDJ1Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:27:16 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFC92C0613A6;
-        Fri,  4 Feb 2022 01:26:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9864C0613AB;
+        Fri,  4 Feb 2022 01:26:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87F3CB836B9;
-        Fri,  4 Feb 2022 09:26:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2066C004E1;
-        Fri,  4 Feb 2022 09:26:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85B39B836EE;
+        Fri,  4 Feb 2022 09:26:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C073BC004E1;
+        Fri,  4 Feb 2022 09:26:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966794;
-        bh=scvV+3Xpz4HcfVsrw8J0YHGJhvIXGTnL6nKF3kBBbEs=;
+        s=korg; t=1643966797;
+        bh=FfufDGP0vbrB1uqDzoCXWRh1tSI+gT7AO7hV+VpPMYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zVLpw4xe2hOCHMpSefey3hvZAaa48WFp+1A5VIV2IYJ7qkaEWrMJlURtxP9gT28cP
-         SRSkuCBIVQTXjKf/lrnNkcD8/MBrmzBfZZemhyu9agcn3ZoGH1BA2QhgJvWYemJJBt
-         nGAuG+YUIpn2MN5GTt1D1lHlkQkblid3RkWMc5TI=
+        b=uppvAPa3OfxNHXDdXhXk3hqLxadu661GiM1YghAJq/tPiC7RnL9UQnU9ZSCyNl7Nx
+         uknYVcO47eIQO0vF4HmOQuS/c0jgpI44axg2r2J9DreqJvQ2LpGSTEhUk1lUAAOw6H
+         MPCdjgb1jKzIdSC2XZ2xqZH8U2B6U+5RgCiaoH8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Talal Ahmad <talalahmad@google.com>,
+        Arjun Roy <arjunroy@google.com>,
         Willem de Bruijn <willemb@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 41/43] af_packet: fix data-race in packet_setsockopt / packet_setsockopt
-Date:   Fri,  4 Feb 2022 10:22:48 +0100
-Message-Id: <20220204091918.496128137@linuxfoundation.org>
+Subject: [PATCH 5.16 42/43] tcp: fix mem under-charging with zerocopy sendmsg()
+Date:   Fri,  4 Feb 2022 10:22:49 +0100
+Message-Id: <20220204091918.536012051@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
 References: <20220204091917.166033635@linuxfoundation.org>
@@ -51,78 +53,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-commit e42e70ad6ae2ae511a6143d2e8da929366e58bd9 upstream.
+commit 479f5547239d970d3833f15f54a6481fffdb91ec upstream.
 
-When packet_setsockopt( PACKET_FANOUT_DATA ) reads po->fanout,
-no lock is held, meaning that another thread can change po->fanout.
+We got reports of following warning in inet_sock_destruct()
 
-Given that po->fanout can only be set once during the socket lifetime
-(it is only cleared from fanout_release()), we can use
-READ_ONCE()/WRITE_ONCE() to document the race.
+	WARN_ON(sk_forward_alloc_get(sk));
 
-BUG: KCSAN: data-race in packet_setsockopt / packet_setsockopt
+Whenever we add a non zero-copy fragment to a pure zerocopy skb,
+we have to anticipate that whole skb->truesize will be uncharged
+when skb is finally freed.
 
-write to 0xffff88813ae8e300 of 8 bytes by task 14653 on cpu 0:
- fanout_add net/packet/af_packet.c:1791 [inline]
- packet_setsockopt+0x22fe/0x24a0 net/packet/af_packet.c:3931
- __sys_setsockopt+0x209/0x2a0 net/socket.c:2180
- __do_sys_setsockopt net/socket.c:2191 [inline]
- __se_sys_setsockopt net/socket.c:2188 [inline]
- __x64_sys_setsockopt+0x62/0x70 net/socket.c:2188
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+skb->data_len is the payload length. But the memory truesize
+estimated by __zerocopy_sg_from_iter() is page aligned.
 
-read to 0xffff88813ae8e300 of 8 bytes by task 14654 on cpu 1:
- packet_setsockopt+0x691/0x24a0 net/packet/af_packet.c:3935
- __sys_setsockopt+0x209/0x2a0 net/socket.c:2180
- __do_sys_setsockopt net/socket.c:2191 [inline]
- __se_sys_setsockopt net/socket.c:2188 [inline]
- __x64_sys_setsockopt+0x62/0x70 net/socket.c:2188
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x0000000000000000 -> 0xffff888106f8c000
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 14654 Comm: syz-executor.3 Not tainted 5.16.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 47dceb8ecdc1 ("packet: add classic BPF fanout mode")
+Fixes: 9b65b17db723 ("net: avoid double accounting for pure zerocopy skbs")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Talal Ahmad <talalahmad@google.com>
+Cc: Arjun Roy <arjunroy@google.com>
 Cc: Willem de Bruijn <willemb@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20220201022358.330621-1-eric.dumazet@gmail.com
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Link: https://lore.kernel.org/r/20220201065254.680532-1-eric.dumazet@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/packet/af_packet.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/ipv4/tcp.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1788,7 +1788,10 @@ static int fanout_add(struct sock *sk, s
- 		err = -ENOSPC;
- 		if (refcount_read(&match->sk_ref) < match->max_num_members) {
- 			__dev_remove_pack(&po->prot_hook);
--			po->fanout = match;
-+
-+			/* Paired with packet_setsockopt(PACKET_FANOUT_DATA) */
-+			WRITE_ONCE(po->fanout, match);
-+
- 			po->rollover = rollover;
- 			rollover = NULL;
- 			refcount_set(&match->sk_ref, refcount_read(&match->sk_ref) + 1);
-@@ -3941,7 +3944,8 @@ packet_setsockopt(struct socket *sock, i
- 	}
- 	case PACKET_FANOUT_DATA:
- 	{
--		if (!po->fanout)
-+		/* Paired with the WRITE_ONCE() in fanout_add() */
-+		if (!READ_ONCE(po->fanout))
- 			return -EINVAL;
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1321,10 +1321,13 @@ new_segment:
  
- 		return fanout_set_data(po, optval, optlen);
+ 			/* skb changing from pure zc to mixed, must charge zc */
+ 			if (unlikely(skb_zcopy_pure(skb))) {
+-				if (!sk_wmem_schedule(sk, skb->data_len))
++				u32 extra = skb->truesize -
++					    SKB_TRUESIZE(skb_end_offset(skb));
++
++				if (!sk_wmem_schedule(sk, extra))
+ 					goto wait_for_space;
+ 
+-				sk_mem_charge(sk, skb->data_len);
++				sk_mem_charge(sk, extra);
+ 				skb_shinfo(skb)->flags &= ~SKBFL_PURE_ZEROCOPY;
+ 			}
+ 
 
 
