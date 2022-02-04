@@ -2,94 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 167554AA45D
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 00:31:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7B1D4AA48B
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 00:42:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240215AbiBDXa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 18:30:59 -0500
-Received: from new1-smtp.messagingengine.com ([66.111.4.221]:49799 "EHLO
-        new1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234948AbiBDXa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 18:30:59 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id D6305580223;
-        Fri,  4 Feb 2022 18:30:58 -0500 (EST)
-Received: from imap49 ([10.202.2.99])
-  by compute2.internal (MEProxy); Fri, 04 Feb 2022 18:30:58 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        sladewatkins.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to; s=fm1; bh=/Gar/Fx++ay0RV
-        7YJePn9xaoNkH+lcUDzbM2SCj8VPM=; b=zI7xkMv7IDW7GjQ3VH4et4ijNaPCEQ
-        MZz6wJ90AFGrI6L8QTazBX6nKgNJc8of2qoDmk3EzXpzHOP2TqmbCXD2B/OZqGze
-        eyOftaCl4p78lAYXGYjk3242AgoaSFBjTufHNoyFvNF9rBNApGPYWlmL6aAshmNM
-        evSHHS/vpbB2GiYk91hH1LiKHM8drPPbA2TIskHyHxtL3Yo/Lz1K5XWshISDMbcR
-        iPTgm9DEEQ8gTBw52L8BYLtxXFP25VWPA4EIdhn31eP6zdtstccKgzLZWggF5CYP
-        gC41yQsq1+x9roAl4jLn/6GbhhWwpCNoYNNN7zMF9XXgjbW4UzH5043w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/Gar/Fx++ay0RV7YJ
-        ePn9xaoNkH+lcUDzbM2SCj8VPM=; b=fi8Gt0PFzyGaFrSZ85prlTi+nzsdwCdNr
-        BDxM6I6Ros2E/nbf2pulaSWc9VnndptwnEUFGdvTaJ6s5zGg/3Rl3/s5H6rQPRfd
-        IDHhmuBdo4VDQenaZBXSMskMCreVtqIEpYFiSWrC0QI5pWqqTUQP8s4K9JWMLjEy
-        nw0p+dJLbWJ6eXDYMAIj/L76hC9q3SIYqAuFcW/0PAQesubJc/qJzdQbutOA752d
-        05a57QEOmmRKyVAVpGmnTE7clSFLKxhCVFn971GmPsb6OdoeY1ZmSiIGJSKFdmmY
-        +HoV/0FjAtY4Z3w2zOyt2K2ShEIsM2z4qqtQfuc3Hk56OTcuPdHPQ==
-X-ME-Sender: <xms:Mrf9YY2cszxsmmpgBXdmPe4Uk0aPbzSaFO0T7WQhl6e4maCUDao-9A>
-    <xme:Mrf9YTFyEhfL9m7MOlvq7fkthdtAj-j8onEN8c6t6gYnY5SKV_n7-6XEBOnl4hDea
-    de59FW5_u3fzjigoTw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrhedtgddutdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefofgggkfgjfhffhffvufgtsehttdertderredtnecuhfhrohhmpedfufhlrggu
-    vgcuhggrthhkihhnshdfuceoshhlrgguvgesshhlrgguvgifrghtkhhinhhsrdgtohhmqe
-    enucggtffrrghtthgvrhhnpeeuieffteejieetgfevteelheevudehteeihffhteehtdet
-    leegtedtvdevvddugeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehslhgruggvsehslhgruggvfigrthhkihhnshdrtghomh
-X-ME-Proxy: <xmx:Mrf9YQ79_h972gLe2YFcd2aO5BZ5dZa_4R50bpPkZt5fYzOaZPELqA>
-    <xmx:Mrf9YR2_t2jgJ1OeifWKhB_byRPQSSJjJINJBVMGHmTI67lNdksj6w>
-    <xmx:Mrf9YbEx8DzpyZ9p-bThyERMSNiyFScJG-TFuaY-xq05pTSuZDOiHg>
-    <xmx:Mrf9YT-S-s2JwfUqMAeFfiXuYtFrr1x9LuEv5ZZtHDNyyNAJsaFLgXLao3woNwpC>
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 3006FF6007E; Fri,  4 Feb 2022 18:30:58 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.5.0-alpha0-4586-g104bd556f9-fm-20220203.002-g104bd556
-Mime-Version: 1.0
-Message-Id: <a30a737c-aa03-475f-afc1-a51ba01c7c37@www.fastmail.com>
-In-Reply-To: <20220204091914.280602669@linuxfoundation.org>
-References: <20220204091914.280602669@linuxfoundation.org>
-Date:   Fri, 04 Feb 2022 18:30:37 -0500
-From:   "Slade Watkins" <slade@sladewatkins.com>
-To:     "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        akpm@linux-foundation.org, "Guenter Roeck" <linux@roeck-us.net>,
+        id S233635AbiBDXl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 18:41:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47460 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229446AbiBDXl7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 18:41:59 -0500
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8163AD2E9593;
+        Fri,  4 Feb 2022 15:41:55 -0800 (PST)
+Received: by mail-oi1-x229.google.com with SMTP id m10so10383796oie.2;
+        Fri, 04 Feb 2022 15:41:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=pYG4wmk/hkyJhyn3f7GrGpM1zSwfY2NrMgkQsh0N4TY=;
+        b=lXBJAgoA/3d+110DRlLXgJHcnsHHaglb5YHWoUdUWW2gs0j32f848HQwTcPt5c+ZCP
+         3AKYegYlpU7VZWcB5Ixh5/A8xOzOf6TqioQOBMj/rXiTm0CxaL050e/GTODOh9LOw7bG
+         qv11aCO4TArIv7D7Dr1Mt1BVBH1bYLyVG0VGldSLOPZoDZVQP9xRJKFE9j34qad6yKFE
+         glUJ4oTaAYmt7AaWKU6RuRMNCjN7pQxvuIFB3kQNdTWRf2Urdvn+gnvrk2E+TCzk+OPj
+         6hFpBEDIUGajimM//R+nlpqPYzdwGvffh8kN5uv/Z1zkPcoxY0AthwL0omL1qZyWqol2
+         a77Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=pYG4wmk/hkyJhyn3f7GrGpM1zSwfY2NrMgkQsh0N4TY=;
+        b=Ev87xnMICqGp5RKhgGm1BNb/YcQihisGs3CVqz8ylMTn1gi6BdQtmBV8T3n/8jutak
+         U6cfA8hWnKSxzZT7rNLcEBKvOJ5Y8Lv0i7GUmotQbq6DSdMYuQkERYvTawGiXjm6Mfo0
+         3B5zZ7H8J9QTkwaNkrXyS9yts0PkF7s8vHSiFktniaV/JJ7E9JnYqHe+a6C1yIWNT68n
+         xGjRB3t6sCME0GTmLq64Vp/anaSxvjWALkIvg79PG+tmoKlED+Zs0SbDSNsP5YSHDTFZ
+         cEcWLrtJNqj2Jjm0DLkxLDgD0ommE3WUg8TTbymfXHMZQnWxxL+5UUV7Qq2/Bu+1P5Ov
+         I7SA==
+X-Gm-Message-State: AOAM53084+bcTT/9KXaTv3CchxUSLCfdD8I8SRTP+EmAmMi50JHreNGX
+        l9mRI9Mh000FvKq/aO8OVwc=
+X-Google-Smtp-Source: ABdhPJyTi2+uson0JzHtwkNVxrCDKCNUbzOJJ8Q9D4npSYHHcdzu6rdvXz8Kg83EK416xmaDWioLVg==
+X-Received: by 2002:a05:6808:ecd:: with SMTP id q13mr2087339oiv.72.1644018114908;
+        Fri, 04 Feb 2022 15:41:54 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id ek4sm1102162oab.23.2022.02.04.15.41.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Feb 2022 15:41:54 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Fri, 4 Feb 2022 15:41:52 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
         shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, "Pavel Machek" <pavel@denx.de>,
-        "Jon Hunter" <jonathanh@nvidia.com>,
-        "Florian Fainelli" <f.fainelli@gmail.com>,
-        sudipm.mukherjee@gmail.com
-Subject: Re: [PATCH 5.10 00/25] 5.10.97-rc1 review
-Content-Type: text/plain
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.16 00/43] 5.16.6-rc1 review
+Message-ID: <20220204234152.GA691909@roeck-us.net>
+References: <20220204091917.166033635@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
+        lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 4, 2022, at 4:20 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.97 release.
-> There are 25 patches in this series, all will be posted as a response
+On Fri, Feb 04, 2022 at 10:22:07AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.6 release.
+> There are 43 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->
+> 
 > Responses should be made by Sun, 06 Feb 2022 09:19:05 +0000.
 > Anything received after that time might be too late.
+> 
 
-I was able to compile and boot on my x86_64 test system without any errors or regressions.
+Build results:
+	total: 155 pass: 155 fail: 0
+Qemu test results:
+	total: 488 pass: 488 fail: 0
 
-Tested-by: Slade Watkins <slade@sladewatkins.com>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-Thanks,
-Slade
+Guenter
