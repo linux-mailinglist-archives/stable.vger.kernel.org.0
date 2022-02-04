@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48C9C4A967D
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:26:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A15E4A965A
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:25:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358351AbiBDJ0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:26:36 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44088 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357988AbiBDJZB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:25:01 -0500
+        id S1357922AbiBDJYr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:24:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33170 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357739AbiBDJYG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:24:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BEC8C061765;
+        Fri,  4 Feb 2022 01:24:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA6A9615C6;
-        Fri,  4 Feb 2022 09:25:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B31F7C004E1;
-        Fri,  4 Feb 2022 09:24:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8F4E616A4;
+        Fri,  4 Feb 2022 09:24:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58669C340F2;
+        Fri,  4 Feb 2022 09:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966700;
-        bh=DK7KqKjGWNf9gjmFefzafwrONuqBU3cBkmhqoOB/3bM=;
+        s=korg; t=1643966645;
+        bh=b1aaZmEkpsr6AC1Fgfj2kfSj0T+Vlhtiyi8ifmsfxa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FJI3PPvYoc0BblEHXnwBY0jGzG2fumi+CK7JARehOoQn0l2JEeEUxoBzaTE07KpUU
-         IyAtuSuYBte899YJ338lUzUUYgzzH80NAT7wo1H9z8DzuQwL/PG3GK9kHGTJTvVKxS
-         iBzWEptCgOxhE+t+MOe+/qQ+36qgZTfQ1KTtul2g=
+        b=JkPjMjphaouZ7UspvUnrxeEHO23gP8L5r9o+LXz5C2eU9DpIgA3NXMUb2XGG6zrk0
+         VKsdJkjhCNXhkRsTWYnVZiv7gYag1NrYgI5OILSJGDtVr9/d3aYqRz8ULrUsVDRtLW
+         SOfDrpx3WYGMlj/h9cQg3cGA0plBXoGKgXGUOVt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raed Salem <raeds@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.16 12/43] net/mlx5e: IPsec: Fix crypto offload for non TCP/UDP encapsulated traffic
+        stable@vger.kernel.org, Jonathan Woithe <jwoithe@just42.net>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.15 09/32] lockd: fix server crash on reboot of client holding lock
 Date:   Fri,  4 Feb 2022 10:22:19 +0100
-Message-Id: <20220204091917.581050256@linuxfoundation.org>
+Message-Id: <20220204091915.567321545@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
-References: <20220204091917.166033635@linuxfoundation.org>
+In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
+References: <20220204091915.247906930@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +48,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raed Salem <raeds@nvidia.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-commit 5352859b3bfa0ca188b2f1d2c1436fddc781e3b6 upstream.
+commit 6e7f90d163afa8fc2efd6ae318e7c20156a5621f upstream.
 
-IPsec crypto offload always set the ethernet segment checksum flags with
-the inner L4 header checksum flag enabled for encapsulated IPsec offloaded
-packet regardless of the encapsulated L4 header type, and even if it
-doesn't exists in the first place, this breaks non TCP/UDP traffic as
-such.
+I thought I was iterating over the array when actually the iteration is
+over the values contained in the array?
 
-Set the inner L4 checksum flag only when the encapsulated L4 header
-protocol is TCP/UDP using software parser swp_inner_l4_offset field as
-indication.
+Ugh, keep it simple.
 
-Fixes: 5cfb540ef27b ("net/mlx5e: Set IPsec WAs only in IP's non checksum partial case.")
-Signed-off-by: Raed Salem <raeds@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Symptoms were a null deference in vfs_lock_file() when an NFSv3 client
+that previously held a lock came back up and sent a notify.
+
+Reported-by: Jonathan Woithe <jwoithe@just42.net>
+Fixes: 7f024fcd5c97 ("Keep read and write fds with each nlm_file")
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.h |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/lockd/svcsubs.c |   17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.h
-@@ -131,14 +131,17 @@ static inline bool
- mlx5e_ipsec_txwqe_build_eseg_csum(struct mlx5e_txqsq *sq, struct sk_buff *skb,
- 				  struct mlx5_wqe_eth_seg *eseg)
+--- a/fs/lockd/svcsubs.c
++++ b/fs/lockd/svcsubs.c
+@@ -179,19 +179,20 @@ nlm_delete_file(struct nlm_file *file)
+ static int nlm_unlock_files(struct nlm_file *file)
  {
--	struct xfrm_offload *xo = xfrm_offload(skb);
-+	u8 inner_ipproto;
+ 	struct file_lock lock;
+-	struct file *f;
  
- 	if (!mlx5e_ipsec_eseg_meta(eseg))
- 		return false;
+ 	lock.fl_type  = F_UNLCK;
+ 	lock.fl_start = 0;
+ 	lock.fl_end   = OFFSET_MAX;
+-	for (f = file->f_file[0]; f <= file->f_file[1]; f++) {
+-		if (f && vfs_lock_file(f, F_SETLK, &lock, NULL) < 0) {
+-			pr_warn("lockd: unlock failure in %s:%d\n",
+-				__FILE__, __LINE__);
+-			return 1;
+-		}
+-	}
++	if (file->f_file[O_RDONLY] &&
++	    vfs_lock_file(file->f_file[O_RDONLY], F_SETLK, &lock, NULL))
++		goto out_err;
++	if (file->f_file[O_WRONLY] &&
++	    vfs_lock_file(file->f_file[O_WRONLY], F_SETLK, &lock, NULL))
++		goto out_err;
+ 	return 0;
++out_err:
++	pr_warn("lockd: unlock failure in %s:%d\n", __FILE__, __LINE__);
++	return 1;
+ }
  
- 	eseg->cs_flags = MLX5_ETH_WQE_L3_CSUM;
--	if (xo->inner_ipproto) {
--		eseg->cs_flags |= MLX5_ETH_WQE_L4_INNER_CSUM | MLX5_ETH_WQE_L3_INNER_CSUM;
-+	inner_ipproto = xfrm_offload(skb)->inner_ipproto;
-+	if (inner_ipproto) {
-+		eseg->cs_flags |= MLX5_ETH_WQE_L3_INNER_CSUM;
-+		if (inner_ipproto == IPPROTO_TCP || inner_ipproto == IPPROTO_UDP)
-+			eseg->cs_flags |= MLX5_ETH_WQE_L4_INNER_CSUM;
- 	} else if (likely(skb->ip_summed == CHECKSUM_PARTIAL)) {
- 		eseg->cs_flags |= MLX5_ETH_WQE_L4_CSUM;
- 		sq->stats->csum_partial_inner++;
+ /*
 
 
