@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 686994A9689
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:27:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B2CB4A9645
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:24:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357696AbiBDJ1D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:27:03 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53354 "EHLO
+        id S235758AbiBDJYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:24:17 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52158 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358092AbiBDJZS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:25:18 -0500
+        with ESMTP id S1357554AbiBDJXV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:23:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE969B836E9;
-        Fri,  4 Feb 2022 09:25:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 034ABC004E1;
-        Fri,  4 Feb 2022 09:25:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58549B836ED;
+        Fri,  4 Feb 2022 09:23:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8731FC004E1;
+        Fri,  4 Feb 2022 09:23:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966716;
+        s=korg; t=1643966599;
         bh=mXHryGW09fA1yrZtSbOXLAiQQeihs2gSPyR7qHrk/wI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBr9pvfFc9PXFcbbmrH5ZkFl7dWaHDU4mRqlK3XwvxUKes/3303TSsmWwOwEBJKww
-         xuKLKr0jQKYpR8LA3XBeVnog6O6asitK3D2LvYd0XpQ5Dl/60C3rYm10ni0CP6eB+4
-         BFmEZNkXQTcIKFn+9bIFYMoadF01q91YcF8mImcM=
+        b=FvSWJ+7dSCR79kkHT2uJIErrxH3jVVdnIdhGO4bjUn2hH8IpKfODOlaijJX5nj0j3
+         keyg2Sf5zt+wPGYXAOTGpg1wupM7zknlYUxbBCVptofBY9+tZ4g9KcJi0pJs4Jc/Xm
+         tNEIDwrogIhyYUYTKZ/8gtW4Bxm/Ox8e22WOux4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
         Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.16 17/43] net/mlx5e: Fix handling of wrong devices during bond netevent
+Subject: [PATCH 5.15 14/32] net/mlx5e: Fix handling of wrong devices during bond netevent
 Date:   Fri,  4 Feb 2022 10:22:24 +0100
-Message-Id: <20220204091917.741575256@linuxfoundation.org>
+Message-Id: <20220204091915.732532366@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
-References: <20220204091917.166033635@linuxfoundation.org>
+In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
+References: <20220204091915.247906930@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
