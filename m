@@ -2,156 +2,277 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69F094A9E6B
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 18:57:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 700EC4A9E6C
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 18:57:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377210AbiBDR5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 12:57:16 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37762 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377200AbiBDR5P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 12:57:15 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B38D6B8386D;
-        Fri,  4 Feb 2022 17:57:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16FF6C340EB;
-        Fri,  4 Feb 2022 17:57:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1643997432;
-        bh=aD+SvPJUMV8qlmZmYGtEKh2tOLxDc46bz5C2+qUebYM=;
-        h=Date:To:From:In-Reply-To:Subject:From;
-        b=z6lz9jL0Z2vmS7oQYoe1lxU7nQfgvYuB7ZEU4D4yUFNiPyzbibRtOwkafWimg5dxG
-         Efwf78BJdLhVmPquk2tJBwE898Ghdx7gin1W8zduMU5aTOcISqp5grE358E2qWqQ0F
-         BIc/JOcXTL1AWdABd3uCu+veUjNxVmCmkYCbDjjo=
-Received: by hp1 (sSMTP sendmail emulation); Fri, 04 Feb 2022 09:57:10 -0800
-Date:   Fri, 04 Feb 2022 09:57:10 -0800
-To:     stable@vger.kernel.org, osalvador@suse.de, david@redhat.com,
-        catalin.marinas@arm.com, lang.yu@amd.com,
-        akpm@linux-foundation.org, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-In-Reply-To: <20220203204836.88dcebe504f440686cc63a60@linux-foundation.org>
-Subject: [patch 08/10] mm/kmemleak: avoid scanning potential huge holes
-Message-Id: <20220204175711.16FF6C340EB@smtp.kernel.org>
+        id S1377213AbiBDR5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 12:57:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38826 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377200AbiBDR5n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 12:57:43 -0500
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AC9DC061714
+        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 09:57:43 -0800 (PST)
+Received: by mail-pf1-x42c.google.com with SMTP id e6so5727768pfc.7
+        for <stable@vger.kernel.org>; Fri, 04 Feb 2022 09:57:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=JsA9OHqdvtsFs1G/qs0nz2mtx/MOMmhPHjgMqkKSQKQ=;
+        b=37BG9ng/oTf6kyyiUVjT1zil8pA+6mnuDfn+rHXz/p/c1l8bSrSzMy8fd8PtDSke1a
+         OxjD/FWMv4bqEEqO2D68XWhVMdANd7eCgTmmHmQUcne+ms35PQhIsAK8FpXvBIJJ5xpD
+         D61Q8qfAQsKgRg78MVLw1CgOC2m8i41UlBkNpaBihuSAz7+o17vGNGfv6Uh/B61n4LZC
+         k+q5/T88NYmVhS/2op3WEdQGXf35WyBPlv8T40tQFKXXaMW3sqg12zAzrr1gO58dzDsk
+         8EbDkkZoQs92re+ygOcirDM4pK8fxTWhHPHP2gcdjFSQKXlWUhNmS10b+Dt7HKImmmjy
+         brdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=JsA9OHqdvtsFs1G/qs0nz2mtx/MOMmhPHjgMqkKSQKQ=;
+        b=Jfbyz9G63n+gRnLjBZmLAxcJ537b+ttIJsClFSmdCZThmlYAj53R6Yjnab7/a6RM6d
+         5G0tOhg+R7Z5t/LVB3J4AGCHiO5A/Q327JsSxCDLTrhBTbmKMaa7HfADQVQubE5ygV9I
+         VLhXj0FpBLYtQ1tEuplslw/+Ss/1Kb+ASq9ONuFDrWk5V0od+UFwI1BalnwWYEUvNEqm
+         Y3S8vgXnymJFx131bn00uirc/tTLM11emS59Q21ycKeysgMKH5hmgUvPu3JcGyyocltR
+         CpaPXLOzPa/oi0G51Pj8C7J2nIDBPtWzVg6rDAgjRk12uCc8Fz+H8AeogACcPGJdd01Y
+         OH+Q==
+X-Gm-Message-State: AOAM533xBDPiwLENSXoNvxKhnitNGKVzhEEpShgfLto5UpAvk8q5LJVF
+        5xC+Mol4Zg62fHxZTByLRLskaBuEyKEDxmey
+X-Google-Smtp-Source: ABdhPJz4cgmk4W1Gdg+t5twS5/ZzPVcwqTLRx6hGrgWMxRcFWFgCjL2Qitufq6n57WYZtk5Sf1sANA==
+X-Received: by 2002:a63:2a46:: with SMTP id q67mr103674pgq.595.1643997462742;
+        Fri, 04 Feb 2022 09:57:42 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id x23sm3491079pfh.216.2022.02.04.09.57.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Feb 2022 09:57:42 -0800 (PST)
+Message-ID: <61fd6916.1c69fb81.bc073.8ec6@mx.google.com>
+Date:   Fri, 04 Feb 2022 09:57:42 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.176-11-gdb9bfa6e8ef5
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y baseline: 125 runs,
+ 5 regressions (v5.4.176-11-gdb9bfa6e8ef5)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lang Yu <lang.yu@amd.com>
-Subject: mm/kmemleak: avoid scanning potential huge holes
+stable-rc/linux-5.4.y baseline: 125 runs, 5 regressions (v5.4.176-11-gdb9bf=
+a6e8ef5)
 
-When using devm_request_free_mem_region() and devm_memremap_pages() to add
-ZONE_DEVICE memory, if requested free mem region's end pfn were huge(e.g.,
-0x400000000), the node_end_pfn() will be also huge (see
-move_pfn_range_to_zone()).  Thus it creates a huge hole between
-node_start_pfn() and node_end_pfn().
+Regressions Summary
+-------------------
 
-We found on some AMD APUs, amdkfd requested such a free mem region and
-created a huge hole.  In such a case, following code snippet was just
-doing busy test_bit() looping on the huge hole.
+platform                 | arch  | lab          | compiler | defconfig     =
+     | regressions
+-------------------------+-------+--------------+----------+---------------=
+-----+------------
+hifive-unleashed-a00     | riscv | lab-baylibre | gcc-10   | defconfig     =
+     | 1          =
 
-for (pfn = start_pfn; pfn < end_pfn; pfn++) {
-	struct page *page = pfn_to_online_page(pfn);
-		if (!page)
-			continue;
-	...
-}
+qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
+nfig | 1          =
 
-So we got a soft lockup:
+qemu_arm-virt-gicv2-uefi | arm   | lab-broonie  | gcc-10   | multi_v7_defco=
+nfig | 1          =
 
-watchdog: BUG: soft lockup - CPU#6 stuck for 26s! [bash:1221]
-CPU: 6 PID: 1221 Comm: bash Not tainted 5.15.0-custom #1
-RIP: 0010:pfn_to_online_page+0x5/0xd0
-Call Trace:
-  ? kmemleak_scan+0x16a/0x440
-  kmemleak_write+0x306/0x3a0
-  ? common_file_perm+0x72/0x170
-  full_proxy_write+0x5c/0x90
-  vfs_write+0xb9/0x260
-  ksys_write+0x67/0xe0
-  __x64_sys_write+0x1a/0x20
-  do_syscall_64+0x3b/0xc0
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
+qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
+nfig | 1          =
 
-I did some tests with the patch.
+qemu_arm-virt-gicv3-uefi | arm   | lab-broonie  | gcc-10   | multi_v7_defco=
+nfig | 1          =
 
-(1) amdgpu module unloaded
 
-before the patch:
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.176-11-gdb9bfa6e8ef5/plan/baseline/
 
-real    0m0.976s
-user    0m0.000s
-sys     0m0.968s
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.176-11-gdb9bfa6e8ef5
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      db9bfa6e8ef56c7c343bcb51031ea93db5f8d157 =
 
-after the patch:
 
-real    0m0.981s
-user    0m0.000s
-sys     0m0.973s
 
-(2) amdgpu module loaded
+Test Regressions
+---------------- =
 
-before the patch:
 
-real    0m35.365s
-user    0m0.000s
-sys     0m35.354s
 
-after the patch:
+platform                 | arch  | lab          | compiler | defconfig     =
+     | regressions
+-------------------------+-------+--------------+----------+---------------=
+-----+------------
+hifive-unleashed-a00     | riscv | lab-baylibre | gcc-10   | defconfig     =
+     | 1          =
 
-real    0m1.049s
-user    0m0.000s
-sys     0m1.042s
 
-Link: https://lkml.kernel.org/r/20211108140029.721144-1-lang.yu@amd.com
-Signed-off-by: Lang Yu <lang.yu@amd.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+  Details:     https://kernelci.org/test/plan/id/61fd2d0f49181929225d6f0d
 
- mm/kmemleak.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.176=
+-11-gdb9bfa6e8ef5/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unlea=
+shed-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.176=
+-11-gdb9bfa6e8ef5/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unlea=
+shed-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/riscv/rootfs.cpio.gz =
 
---- a/mm/kmemleak.c~mm-kmemleak-avoid-scanning-potential-huge-holes
-+++ a/mm/kmemleak.c
-@@ -1410,7 +1410,8 @@ static void kmemleak_scan(void)
- {
- 	unsigned long flags;
- 	struct kmemleak_object *object;
--	int i;
-+	struct zone *zone;
-+	int __maybe_unused i;
- 	int new_leaks = 0;
- 
- 	jiffies_last_scan = jiffies;
-@@ -1450,9 +1451,9 @@ static void kmemleak_scan(void)
- 	 * Struct page scanning for each node.
- 	 */
- 	get_online_mems();
--	for_each_online_node(i) {
--		unsigned long start_pfn = node_start_pfn(i);
--		unsigned long end_pfn = node_end_pfn(i);
-+	for_each_populated_zone(zone) {
-+		unsigned long start_pfn = zone->zone_start_pfn;
-+		unsigned long end_pfn = zone_end_pfn(zone);
- 		unsigned long pfn;
- 
- 		for (pfn = start_pfn; pfn < end_pfn; pfn++) {
-@@ -1461,8 +1462,8 @@ static void kmemleak_scan(void)
- 			if (!page)
- 				continue;
- 
--			/* only scan pages belonging to this node */
--			if (page_to_nid(page) != i)
-+			/* only scan pages belonging to this zone */
-+			if (page_zone(page) != zone)
- 				continue;
- 			/* only scan if page is in use */
- 			if (page_count(page) == 0)
-_
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61fd2d0f49181929225d6=
+f0e
+        failing since 14 days (last pass: v5.4.171-35-g6a507169a5ff, first =
+fail: v5.4.173) =
+
+ =
+
+
+
+platform                 | arch  | lab          | compiler | defconfig     =
+     | regressions
+-------------------------+-------+--------------+----------+---------------=
+-----+------------
+qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61fd2eadb378afff995d6f81
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.176=
+-11-gdb9bfa6e8ef5/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.176=
+-11-gdb9bfa6e8ef5/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61fd2eadb378afff995d6=
+f82
+        failing since 50 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =
+
+
+
+platform                 | arch  | lab          | compiler | defconfig     =
+     | regressions
+-------------------------+-------+--------------+----------+---------------=
+-----+------------
+qemu_arm-virt-gicv2-uefi | arm   | lab-broonie  | gcc-10   | multi_v7_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61fd2e8122eb43ba875d6f57
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.176=
+-11-gdb9bfa6e8ef5/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
+rm-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.176=
+-11-gdb9bfa6e8ef5/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
+rm-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61fd2e8122eb43ba875d6=
+f58
+        failing since 50 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =
+
+
+
+platform                 | arch  | lab          | compiler | defconfig     =
+     | regressions
+-------------------------+-------+--------------+----------+---------------=
+-----+------------
+qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61fd2e8859662ff85e5d6f0a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.176=
+-11-gdb9bfa6e8ef5/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.176=
+-11-gdb9bfa6e8ef5/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61fd2e8859662ff85e5d6=
+f0b
+        failing since 50 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =
+
+
+
+platform                 | arch  | lab          | compiler | defconfig     =
+     | regressions
+-------------------------+-------+--------------+----------+---------------=
+-----+------------
+qemu_arm-virt-gicv3-uefi | arm   | lab-broonie  | gcc-10   | multi_v7_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61fd2e8022eb43ba875d6f54
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.176=
+-11-gdb9bfa6e8ef5/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
+rm-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.176=
+-11-gdb9bfa6e8ef5/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
+rm-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61fd2e8022eb43ba875d6=
+f55
+        failing since 50 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =20
