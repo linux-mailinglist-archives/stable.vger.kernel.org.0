@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3182A4A96B2
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:28:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79CF64A966D
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:26:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358538AbiBDJ2h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:28:37 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:54436 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358074AbiBDJ05 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:26:57 -0500
+        id S1357899AbiBDJZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:25:51 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43806 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357907AbiBDJYo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:24:44 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96E3CB836EA;
-        Fri,  4 Feb 2022 09:26:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92DF8C340ED;
-        Fri,  4 Feb 2022 09:26:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DA1D612C8;
+        Fri,  4 Feb 2022 09:24:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20D12C004E1;
+        Fri,  4 Feb 2022 09:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966815;
-        bh=RvwOnjJX5/yL2LBe52BFHiUhmabHjJ/rk3lPSN3zUmw=;
+        s=korg; t=1643966684;
+        bh=mPjX16zNpAn7LOPJg7nzi8nM1zws5ngvx/rWuXKPNwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mDvdSBi/laQwkV5POG2BZujR6OQwAkgidyE8qw2JZS2RQw624Bt5/dOzJokC79taD
-         X65Yr+7tUVsmuOMi7XCTZODsI5OljdbjHevoCc+q1N0FHxivlirg8tu/X3QWzCEAef
-         1YMYzicKizNpFfe7qK6P4KthsETfPkqPe0DuzdyI=
+        b=WB1e9oI/XO93yp067SmmVugLNYkJjrl+sm0Cllj2nr2gWdBg6oPJcVBVabdFDt6eH
+         NGuQs39juKQD+S7EKm5Knxp/Eg/HgyP1ag1OMHB7iX0hcC7CxgJtPUVd0x8jKhtrrv
+         v5lbuuEov+38BkCiWXqcGCnDl3C/1nnpImhcr+1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 33/43] net: amd-xgbe: Fix skb data length underflow
+        stable@vger.kernel.org, Sasha Neftin <sasha.neftin@intel.com>,
+        Nechama Kraus <nechamax.kraus@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.15 30/32] e1000e: Handshake with CSME starts from ADL platforms
 Date:   Fri,  4 Feb 2022 10:22:40 +0100
-Message-Id: <20220204091918.247372279@linuxfoundation.org>
+Message-Id: <20220204091916.244764690@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
-References: <20220204091917.166033635@linuxfoundation.org>
+In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
+References: <20220204091915.247906930@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-commit 5aac9108a180fc06e28d4e7fb00247ce603b72ee upstream.
+commit cad014b7b5a6897d8c4fad13e2888978bfb7a53f upstream.
 
-There will be BUG_ON() triggered in include/linux/skbuff.h leading to
-intermittent kernel panic, when the skb length underflow is detected.
+Handshake with CSME/AMT on none provisioned platforms during S0ix flow
+is not supported on TGL platform and can cause to HW unit hang. Update
+the handshake with CSME flow to start from the ADL platform.
 
-Fix this by dropping the packet if such length underflows are seen
-because of inconsistencies in the hardware descriptors.
-
-Fixes: 622c36f143fc ("amd-xgbe: Fix jumbo MTU processing on newer hardware")
-Suggested-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lore.kernel.org/r/20220127092003.2812745-1-Shyam-sundar.S-k@amd.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 3e55d231716e ("e1000e: Add handshake with the CSME to support S0ix")
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Nechama Kraus <nechamax.kraus@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e1000e/netdev.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-@@ -2555,6 +2555,14 @@ read_again:
- 			buf2_len = xgbe_rx_buf2_len(rdata, packet, len);
- 			len += buf2_len;
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -6346,7 +6346,8 @@ static void e1000e_s0ix_entry_flow(struc
+ 	u32 mac_data;
+ 	u16 phy_data;
  
-+			if (buf2_len > rdata->rx.buf.dma_len) {
-+				/* Hardware inconsistency within the descriptors
-+				 * that has resulted in a length underflow.
-+				 */
-+				error = 1;
-+				goto skip_data;
-+			}
-+
- 			if (!skb) {
- 				skb = xgbe_create_skb(pdata, napi, rdata,
- 						      buf1_len);
-@@ -2584,8 +2592,10 @@ skip_data:
- 		if (!last || context_next)
- 			goto read_again;
+-	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID) {
++	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
++	    hw->mac.type >= e1000_pch_adp) {
+ 		/* Request ME configure the device for S0ix */
+ 		mac_data = er32(H2ME);
+ 		mac_data |= E1000_H2ME_START_DPG;
+@@ -6495,7 +6496,8 @@ static void e1000e_s0ix_exit_flow(struct
+ 	u16 phy_data;
+ 	u32 i = 0;
  
--		if (!skb)
-+		if (!skb || error) {
-+			dev_kfree_skb(skb);
- 			goto next_packet;
-+		}
- 
- 		/* Be sure we don't exceed the configured MTU */
- 		max_len = netdev->mtu + ETH_HLEN;
+-	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID) {
++	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
++	    hw->mac.type >= e1000_pch_adp) {
+ 		/* Request ME unconfigure the device from S0ix */
+ 		mac_data = er32(H2ME);
+ 		mac_data &= ~E1000_H2ME_START_DPG;
 
 
