@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C8444A9665
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:25:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2677B4A9697
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:27:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357805AbiBDJZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:25:40 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43464 "EHLO
+        id S1358170AbiBDJ1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:27:18 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43806 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357810AbiBDJYW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:24:22 -0500
+        with ESMTP id S1358198AbiBDJZw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:25:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE9F1616B0;
-        Fri,  4 Feb 2022 09:24:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AADDBC340ED;
-        Fri,  4 Feb 2022 09:24:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EEDA5617B5;
+        Fri,  4 Feb 2022 09:25:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08387C004E1;
+        Fri,  4 Feb 2022 09:25:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966661;
-        bh=r2AEvg0dJtsDUBsrPtvCkwyCzdKV51w5osYdpLkgFY0=;
+        s=korg; t=1643966751;
+        bh=gAiEkRCmxoxeR1wsBoW65hMxfhjyd5QKm8WnZv5DEoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I9Db7MooKZBUtuYbRbOMBdq4DwkFC0OGLGcoe6kdS7UM92DnPL12CMcqUK7YKF8wn
-         fC1j3MPMadyAItGAyx7TWzmX1r8pdNMe5WAAqQzFHgKWbrFOgIwuPiCc4cjphHt54X
-         7Z1JBea/aHiisvewgmB1igcsZvw8qSoJOEToM6v8=
+        b=yP8bmKUzQIG4BY+lXge4xr4uCygXTTz1lzbq4uWM1d9GN366DRvC/jPLArhHgnEJO
+         qwGL6weYLqYxKi9J3N807IWdAXcMBX0mBAm9fJYe6C1NGZ8lUOpkOdwrCzm1ogLlNd
+         +mgFPqQ6h5+S6/rgeuIWkFHOAWnCFn1fpgwJfGyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
-        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
-        Karen Sornek <karen.sornek@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.15 23/32] i40e: Fix reset path while removing the driver
-Date:   Fri,  4 Feb 2022 10:22:33 +0100
-Message-Id: <20220204091916.015219196@linuxfoundation.org>
+        stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.16 27/43] net/mlx5: E-Switch, Fix uninitialized variable modact
+Date:   Fri,  4 Feb 2022 10:22:34 +0100
+Message-Id: <20220204091918.050742976@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
-References: <20220204091915.247906930@linuxfoundation.org>
+In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
+References: <20220204091917.166033635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,113 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karen Sornek <karen.sornek@intel.com>
+From: Maor Dickman <maord@nvidia.com>
 
-commit 6533e558c6505e94c3e0ed4281ed5e31ec985f4d upstream.
+commit d8e5883d694bb053b19c4142a2d1f43a34f6fe2c upstream.
 
-Fix the crash in kernel while dereferencing the NULL pointer,
-when the driver is unloaded and simultaneously the VSI rings
-are being stopped.
+The variable modact is not initialized before used in command
+modify header allocation which can cause command to fail.
 
-The hardware requires 50msec in order to finish RX queues
-disable. For this purpose the driver spins in mdelay function
-for the operation to be completed.
+Fix by initializing modact with zeros.
 
-For example changing number of queues which requires reset would
-fail in the following call stack:
-
-1) i40e_prep_for_reset
-2) i40e_pf_quiesce_all_vsi
-3) i40e_quiesce_vsi
-4) i40e_vsi_close
-5) i40e_down
-6) i40e_vsi_stop_rings
-7) i40e_vsi_control_rx -> disable requires the delay of 50msecs
-8) continue back in i40e_down function where
-   i40e_clean_tx_ring(vsi->tx_rings[i]) is going to crash
-
-When the driver was spinning vsi_release called
-i40e_vsi_free_arrays where the vsi->tx_rings resources
-were freed and the pointer was set to NULL.
-
-Fixes: 5b6d4a7f20b0 ("i40e: Fix crash during removing i40e driver")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-Signed-off-by: Karen Sornek <karen.sornek@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Addresses-Coverity: ("Uninitialized scalar variable")
+Fixes: 8f1e0b97cc70 ("net/mlx5: E-Switch, Mark miss packets with new chain id mapping")
+Signed-off-by: Maor Dickman <maord@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e.h      |    1 +
- drivers/net/ethernet/intel/i40e/i40e_main.c |   19 ++++++++++++++++++-
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e.h
-@@ -144,6 +144,7 @@ enum i40e_state_t {
- 	__I40E_VIRTCHNL_OP_PENDING,
- 	__I40E_RECOVERY_MODE,
- 	__I40E_VF_RESETS_DISABLED,	/* disable resets during i40e_remove */
-+	__I40E_IN_REMOVE,
- 	__I40E_VFS_RELEASING,
- 	/* This must be last as it determines the size of the BITMAP */
- 	__I40E_STATE_SIZE__,
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -10863,6 +10863,9 @@ static void i40e_reset_and_rebuild(struc
- 				   bool lock_acquired)
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
+@@ -212,7 +212,7 @@ static int
+ create_chain_restore(struct fs_chain *chain)
  {
- 	int ret;
-+
-+	if (test_bit(__I40E_IN_REMOVE, pf->state))
-+		return;
- 	/* Now we wait for GRST to settle out.
- 	 * We don't have to delete the VEBs or VSIs from the hw switch
- 	 * because the reset will make them disappear.
-@@ -12222,6 +12225,8 @@ int i40e_reconfig_rss_queues(struct i40e
- 
- 		vsi->req_queue_pairs = queue_count;
- 		i40e_prep_for_reset(pf);
-+		if (test_bit(__I40E_IN_REMOVE, pf->state))
-+			return pf->alloc_rss_size;
- 
- 		pf->alloc_rss_size = new_rss_size;
- 
-@@ -13048,6 +13053,10 @@ static int i40e_xdp_setup(struct i40e_vs
- 	if (need_reset)
- 		i40e_prep_for_reset(pf);
- 
-+	/* VSI shall be deleted in a moment, just return EINVAL */
-+	if (test_bit(__I40E_IN_REMOVE, pf->state))
-+		return -EINVAL;
-+
- 	old_prog = xchg(&vsi->xdp_prog, prog);
- 
- 	if (need_reset) {
-@@ -15938,8 +15947,13 @@ static void i40e_remove(struct pci_dev *
- 	i40e_write_rx_ctl(hw, I40E_PFQF_HENA(0), 0);
- 	i40e_write_rx_ctl(hw, I40E_PFQF_HENA(1), 0);
- 
--	while (test_bit(__I40E_RESET_RECOVERY_PENDING, pf->state))
-+	/* Grab __I40E_RESET_RECOVERY_PENDING and set __I40E_IN_REMOVE
-+	 * flags, once they are set, i40e_rebuild should not be called as
-+	 * i40e_prep_for_reset always returns early.
-+	 */
-+	while (test_and_set_bit(__I40E_RESET_RECOVERY_PENDING, pf->state))
- 		usleep_range(1000, 2000);
-+	set_bit(__I40E_IN_REMOVE, pf->state);
- 
- 	if (pf->flags & I40E_FLAG_SRIOV_ENABLED) {
- 		set_bit(__I40E_VF_RESETS_DISABLED, pf->state);
-@@ -16138,6 +16152,9 @@ static void i40e_pci_error_reset_done(st
- {
- 	struct i40e_pf *pf = pci_get_drvdata(pdev);
- 
-+	if (test_bit(__I40E_IN_REMOVE, pf->state))
-+		return;
-+
- 	i40e_reset_and_rebuild(pf, false, false);
- }
- 
+ 	struct mlx5_eswitch *esw = chain->chains->dev->priv.eswitch;
+-	char modact[MLX5_UN_SZ_BYTES(set_add_copy_action_in_auto)];
++	u8 modact[MLX5_UN_SZ_BYTES(set_add_copy_action_in_auto)] = {};
+ 	struct mlx5_fs_chains *chains = chain->chains;
+ 	enum mlx5e_tc_attr_to_reg chain_to_reg;
+ 	struct mlx5_modify_hdr *mod_hdr;
 
 
