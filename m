@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 713C24A96A0
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:27:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69E214A9648
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:24:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357387AbiBDJ1g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:27:36 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53830 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357513AbiBDJ0D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:26:03 -0500
+        id S1346314AbiBDJYj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:24:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32920 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357531AbiBDJX7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:23:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4A52C061751;
+        Fri,  4 Feb 2022 01:23:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C471B836F7;
-        Fri,  4 Feb 2022 09:26:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87B39C004E1;
-        Fri,  4 Feb 2022 09:26:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 610E9B836EA;
+        Fri,  4 Feb 2022 09:23:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66789C004E1;
+        Fri,  4 Feb 2022 09:23:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966761;
-        bh=y7kUMDzkk7KxDwnhmT+pG870mIhhFOi4y36sO8vIdTI=;
+        s=korg; t=1643966619;
+        bh=+oZvMD9AMkNurmINvNaniI2N5vd3IeWpBeB50CWq3EY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fA6yhIOE4XU0GBiC3yO4/FVpcZsmIv5BthZ8/6UY/h2lFce210QtP/cXMy6LDF6tX
-         WKB5TuIYPBdaWEdtKlodDzK3pus0a+BVw0fQDaCW1rdBBC6yLa0Jj2mzV+D8TSAI9J
-         /vaOuZ7MG1Zgi49Segvcgg0BzkKaWs/1i3+Az6Q0=
+        b=b1547bn1I6R2D+PYsViTGrdb8/em5iCQSU15tF5lHEj2nKG8tGBbH37yzpiB6fuDm
+         zR1WaAwUavb8BVBQYcveWZPjsKzJOSSfngPx1/GPid1Zz61LI1/bEfDrBZftRAjzBV
+         L97C+E/3DSyQnw5iw810pIHIUTWTBEt+/s7ZR9Sg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Stapelberg <michael+drm@stapelberg.ch>,
-        Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 5.16 05/43] drm/vc4: hdmi: Make sure the device is powered with CEC
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Geliang Tang <geliang.tang@suse.com>
+Subject: [PATCH 5.15 02/32] selftests: mptcp: fix ipv6 routing setup
 Date:   Fri,  4 Feb 2022 10:22:12 +0100
-Message-Id: <20220204091917.363327130@linuxfoundation.org>
+Message-Id: <20220204091915.330086969@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
-References: <20220204091917.166033635@linuxfoundation.org>
+In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
+References: <20220204091915.247906930@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,95 +49,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Paolo Abeni <pabeni@redhat.com>
 
-Commit 20b0dfa86bef0e80b41b0e5ac38b92f23b6f27f9 upstream.
+commit 9846921dba4936d92f7608315b5d1e0a8ec3a538 upstream.
 
-The original commit depended on a rework commit (724fc856c09e ("drm/vc4:
-hdmi: Split the CEC disable / enable functions in two")) that
-(rightfully) didn't reach stable.
+MPJ ipv6 selftests currently lack per link route to the server
+net. Additionally, ipv6 subflows endpoints are created without any
+interface specified. The end-result is that in ipv6 self-tests
+subflows are created all on the same link, leading to expected delays
+and sporadic self-tests failures.
 
-However, probably because the context changed, when the patch was
-applied to stable the pm_runtime_put called got moved to the end of the
-vc4_hdmi_cec_adap_enable function (that would have become
-vc4_hdmi_cec_disable with the rework) to vc4_hdmi_cec_init.
+Fix the issue by adding the missing setup bits.
 
-This means that at probe time, we now drop our reference to the clocks
-and power domains and thus end up with a CPU hang when the CPU tries to
-access registers.
-
-The call to pm_runtime_resume_and_get() is also problematic since the
-.adap_enable CEC hook is called both to enable and to disable the
-controller. That means that we'll now call pm_runtime_resume_and_get()
-at disable time as well, messing with the reference counting.
-
-The behaviour we should have though would be to have
-pm_runtime_resume_and_get() called when the CEC controller is enabled,
-and pm_runtime_put when it's disabled.
-
-We need to move things around a bit to behave that way, but it aligns
-stable with upstream.
-
-Cc: <stable@vger.kernel.org> # 5.10.x
-Cc: <stable@vger.kernel.org> # 5.15.x
-Cc: <stable@vger.kernel.org> # 5.16.x
-Reported-by: Michael Stapelberg <michael+drm@stapelberg.ch>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Fixes: 523514ed0a99 ("selftests: mptcp: add ADD_ADDR IPv6 test cases")
+Reported-and-tested-by: Geliang Tang <geliang.tang@suse.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c |   25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ tools/testing/selftests/net/mptcp/mptcp_join.sh |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/vc4/vc4_hdmi.c
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -1739,18 +1739,18 @@ static int vc4_hdmi_cec_adap_enable(stru
- 	u32 val;
- 	int ret;
+--- a/tools/testing/selftests/net/mptcp/mptcp_join.sh
++++ b/tools/testing/selftests/net/mptcp/mptcp_join.sh
+@@ -75,6 +75,7 @@ init()
  
--	ret = pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev);
--	if (ret)
--		return ret;
-+	if (enable) {
-+		ret = pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev);
-+		if (ret)
-+			return ret;
- 
--	val = HDMI_READ(HDMI_CEC_CNTRL_5);
--	val &= ~(VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET |
--		 VC4_HDMI_CEC_CNT_TO_4700_US_MASK |
--		 VC4_HDMI_CEC_CNT_TO_4500_US_MASK);
--	val |= ((4700 / usecs) << VC4_HDMI_CEC_CNT_TO_4700_US_SHIFT) |
--	       ((4500 / usecs) << VC4_HDMI_CEC_CNT_TO_4500_US_SHIFT);
-+		val = HDMI_READ(HDMI_CEC_CNTRL_5);
-+		val &= ~(VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET |
-+			 VC4_HDMI_CEC_CNT_TO_4700_US_MASK |
-+			 VC4_HDMI_CEC_CNT_TO_4500_US_MASK);
-+		val |= ((4700 / usecs) << VC4_HDMI_CEC_CNT_TO_4700_US_SHIFT) |
-+			((4500 / usecs) << VC4_HDMI_CEC_CNT_TO_4500_US_SHIFT);
- 
--	if (enable) {
- 		HDMI_WRITE(HDMI_CEC_CNTRL_5, val |
- 			   VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET);
- 		HDMI_WRITE(HDMI_CEC_CNTRL_5, val);
-@@ -1778,7 +1778,10 @@ static int vc4_hdmi_cec_adap_enable(stru
- 			HDMI_WRITE(HDMI_CEC_CPU_MASK_SET, VC4_HDMI_CPU_CEC);
- 		HDMI_WRITE(HDMI_CEC_CNTRL_5, val |
- 			   VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET);
-+
-+		pm_runtime_put(&vc4_hdmi->pdev->dev);
- 	}
-+
- 	return 0;
+ 		# let $ns2 reach any $ns1 address from any interface
+ 		ip -net "$ns2" route add default via 10.0.$i.1 dev ns2eth$i metric 10$i
++		ip -net "$ns2" route add default via dead:beef:$i::1 dev ns2eth$i metric 10$i
+ 	done
  }
  
-@@ -1889,8 +1892,6 @@ static int vc4_hdmi_cec_init(struct vc4_
- 	if (ret < 0)
- 		goto err_remove_handlers;
+@@ -1383,7 +1384,7 @@ ipv6_tests()
+ 	reset
+ 	ip netns exec $ns1 ./pm_nl_ctl limits 0 1
+ 	ip netns exec $ns2 ./pm_nl_ctl limits 0 1
+-	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 flags subflow
++	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 dev ns2eth3 flags subflow
+ 	run_tests $ns1 $ns2 dead:beef:1::1 0 0 0 slow
+ 	chk_join_nr "single subflow IPv6" 1 1 1
  
--	pm_runtime_put(&vc4_hdmi->pdev->dev);
--
- 	return 0;
- 
- err_remove_handlers:
+@@ -1418,7 +1419,7 @@ ipv6_tests()
+ 	ip netns exec $ns1 ./pm_nl_ctl limits 0 2
+ 	ip netns exec $ns1 ./pm_nl_ctl add dead:beef:2::1 flags signal
+ 	ip netns exec $ns2 ./pm_nl_ctl limits 1 2
+-	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 flags subflow
++	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 dev ns2eth3 flags subflow
+ 	run_tests $ns1 $ns2 dead:beef:1::1 0 -1 -1 slow
+ 	chk_join_nr "remove subflow and signal IPv6" 2 2 2
+ 	chk_add_nr 1 1
 
 
