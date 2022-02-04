@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F20A4A964C
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:25:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48C9C4A967D
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:26:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236937AbiBDJYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:24:47 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52578 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357717AbiBDJYE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:24:04 -0500
+        id S1358351AbiBDJ0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:26:36 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44088 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357988AbiBDJZB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:25:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30C47B836EA;
-        Fri,  4 Feb 2022 09:24:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35AC8C004E1;
-        Fri,  4 Feb 2022 09:24:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA6A9615C6;
+        Fri,  4 Feb 2022 09:25:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B31F7C004E1;
+        Fri,  4 Feb 2022 09:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966641;
-        bh=uIOOkmegQVgIMxeGdS22TVAxE7p78mJf/iAIGcpiIjA=;
+        s=korg; t=1643966700;
+        bh=DK7KqKjGWNf9gjmFefzafwrONuqBU3cBkmhqoOB/3bM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cxg1GZ+BMQkWiviVjnCso0RYp3QxB2B1lmppUghybB7uIDeCtcHCcxNl1Hfs0ZZPJ
-         ez5QUQ2VnaWlz+PPWUAgZPVu1tU0kkQUdkHz+wJyF1IRKx1VmHZShIaU5wzBDzFIrc
-         FmweimEfLBOYge0I+J91x8Wpa2l8zEq2xdars12I=
+        b=FJI3PPvYoc0BblEHXnwBY0jGzG2fumi+CK7JARehOoQn0l2JEeEUxoBzaTE07KpUU
+         IyAtuSuYBte899YJ338lUzUUYgzzH80NAT7wo1H9z8DzuQwL/PG3GK9kHGTJTvVKxS
+         iBzWEptCgOxhE+t+MOe+/qQ+36qgZTfQ1KTtul2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Fritz <chf.fritz@googlemail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.15 08/32] ovl: dont fail copy up if no fileattr support on upper
-Date:   Fri,  4 Feb 2022 10:22:18 +0100
-Message-Id: <20220204091915.535966495@linuxfoundation.org>
+        stable@vger.kernel.org, Raed Salem <raeds@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.16 12/43] net/mlx5e: IPsec: Fix crypto offload for non TCP/UDP encapsulated traffic
+Date:   Fri,  4 Feb 2022 10:22:19 +0100
+Message-Id: <20220204091917.581050256@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
-References: <20220204091915.247906930@linuxfoundation.org>
+In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
+References: <20220204091917.166033635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Raed Salem <raeds@nvidia.com>
 
-commit 94fd19752b28aa66c98e7991734af91dfc529f8f upstream.
+commit 5352859b3bfa0ca188b2f1d2c1436fddc781e3b6 upstream.
 
-Christoph Fritz is reporting that failure to copy up fileattr when upper
-doesn't support fileattr or xattr results in a regression.
+IPsec crypto offload always set the ethernet segment checksum flags with
+the inner L4 header checksum flag enabled for encapsulated IPsec offloaded
+packet regardless of the encapsulated L4 header type, and even if it
+doesn't exists in the first place, this breaks non TCP/UDP traffic as
+such.
 
-Return success in these failure cases; this reverts overlayfs to the old
-behavior.
+Set the inner L4 checksum flag only when the encapsulated L4 header
+protocol is TCP/UDP using software parser swp_inner_l4_offset field as
+indication.
 
-Add a pr_warn_once() in these cases to still let the user know about the
-copy up failures.
-
-Reported-by: Christoph Fritz <chf.fritz@googlemail.com>
-Fixes: 72db82115d2b ("ovl: copy up sync/noatime fileattr flags")
-Cc: <stable@vger.kernel.org> # v5.15
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 5cfb540ef27b ("net/mlx5e: Set IPsec WAs only in IP's non checksum partial case.")
+Signed-off-by: Raed Salem <raeds@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/overlayfs/copy_up.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.h |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/overlayfs/copy_up.c
-+++ b/fs/overlayfs/copy_up.c
-@@ -157,7 +157,9 @@ static int ovl_copy_fileattr(struct inod
- 	 */
- 	if (oldfa.flags & OVL_PROT_FS_FLAGS_MASK) {
- 		err = ovl_set_protattr(inode, new->dentry, &oldfa);
--		if (err)
-+		if (err == -EPERM)
-+			pr_warn_once("copying fileattr: no xattr on upper\n");
-+		else if (err)
- 			return err;
- 	}
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.h
+@@ -131,14 +131,17 @@ static inline bool
+ mlx5e_ipsec_txwqe_build_eseg_csum(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+ 				  struct mlx5_wqe_eth_seg *eseg)
+ {
+-	struct xfrm_offload *xo = xfrm_offload(skb);
++	u8 inner_ipproto;
  
-@@ -167,6 +169,14 @@ static int ovl_copy_fileattr(struct inod
+ 	if (!mlx5e_ipsec_eseg_meta(eseg))
+ 		return false;
  
- 	err = ovl_real_fileattr_get(new, &newfa);
- 	if (err) {
-+		/*
-+		 * Returning an error if upper doesn't support fileattr will
-+		 * result in a regression, so revert to the old behavior.
-+		 */
-+		if (err == -ENOTTY || err == -EINVAL) {
-+			pr_warn_once("copying fileattr: no support on upper\n");
-+			return 0;
-+		}
- 		pr_warn("failed to retrieve upper fileattr (%pd2, err=%i)\n",
- 			new, err);
- 		return err;
+ 	eseg->cs_flags = MLX5_ETH_WQE_L3_CSUM;
+-	if (xo->inner_ipproto) {
+-		eseg->cs_flags |= MLX5_ETH_WQE_L4_INNER_CSUM | MLX5_ETH_WQE_L3_INNER_CSUM;
++	inner_ipproto = xfrm_offload(skb)->inner_ipproto;
++	if (inner_ipproto) {
++		eseg->cs_flags |= MLX5_ETH_WQE_L3_INNER_CSUM;
++		if (inner_ipproto == IPPROTO_TCP || inner_ipproto == IPPROTO_UDP)
++			eseg->cs_flags |= MLX5_ETH_WQE_L4_INNER_CSUM;
+ 	} else if (likely(skb->ip_summed == CHECKSUM_PARTIAL)) {
+ 		eseg->cs_flags |= MLX5_ETH_WQE_L4_CSUM;
+ 		sq->stats->csum_partial_inner++;
 
 
