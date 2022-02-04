@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA8984A95DF
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:20:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F8464A9624
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:23:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244152AbiBDJUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:20:49 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40016 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356576AbiBDJUh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:20:37 -0500
+        id S1357429AbiBDJXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:23:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60928 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357434AbiBDJWY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:22:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CBC4C061768;
+        Fri,  4 Feb 2022 01:22:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F3AE615E3;
-        Fri,  4 Feb 2022 09:20:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0522C004E1;
-        Fri,  4 Feb 2022 09:20:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D78CB615C6;
+        Fri,  4 Feb 2022 09:22:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F917C004E1;
+        Fri,  4 Feb 2022 09:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966435;
-        bh=SiOTYl4HAbhjx6akmKnFtzuK+pK0LowwAHkRI2cD5fY=;
+        s=korg; t=1643966543;
+        bh=BaI0hfJd/rGtZze9o9YgtkFOcrtctxZCV+DtA+iaZ6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2wS98hxrT4/HnO8Wrp0qf86rHvcAkaWCpGTLjPcrjtMyHcPcz80o0HQh7VjUbLMou
-         dkJ5oEBqGx4a8SYlx/YHhpRx2BZhqojSp3V5GGAsv1MHEKfo0oEaLf8Pk6y1Jo/Fgb
-         BfAF8qpwN9j/kHvXwSIcfJI3cuMruQCYD0FIgbSM=
+        b=aCgoWumMoh2xbuqwIIJpjbDoJtX8a7qvywKXgvFqE1N297ovvVKNLBvixCtuEy6iO
+         BgNPf7b0IvgNuFZYC9q9oooMLPOzRvRI6cmSubIV6XiOTYMc6/7iTCIQxroZYiu+ps
+         cCgAE1UzB8Y5GKWwiqGSYdd6ojLhlk7J6kgt9Dzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Suren Baghdasaryan <surenb@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Eric Biggers <ebiggers@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Eric Biggers <ebiggers@kernel.org>
-Subject: [PATCH 5.4 02/10] psi: Fix uaf issue when psi trigger is destroyed while being polled
+        stable@vger.kernel.org, Marco Elver <elver@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.10 08/25] perf: Rework perf_event_exit_event()
 Date:   Fri,  4 Feb 2022 10:20:15 +0100
-Message-Id: <20220204091912.407481190@linuxfoundation.org>
+Message-Id: <20220204091914.560626177@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091912.329106021@linuxfoundation.org>
-References: <20220204091912.329106021@linuxfoundation.org>
+In-Reply-To: <20220204091914.280602669@linuxfoundation.org>
+References: <20220204091914.280602669@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,243 +47,265 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suren Baghdasaryan <surenb@google.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit a06247c6804f1a7c86a2e5398a4c1f1db1471848 upstream.
+commit ef54c1a476aef7eef26fe13ea10dc090952c00f8 upstream.
 
-With write operation on psi files replacing old trigger with a new one,
-the lifetime of its waitqueue is totally arbitrary. Overwriting an
-existing trigger causes its waitqueue to be freed and pending poll()
-will stumble on trigger->event_wait which was destroyed.
-Fix this by disallowing to redefine an existing psi trigger. If a write
-operation is used on a file descriptor with an already existing psi
-trigger, the operation will fail with EBUSY error.
-Also bypass a check for psi_disabled in the psi_trigger_destroy as the
-flag can be flipped after the trigger is created, leading to a memory
-leak.
+Make perf_event_exit_event() more robust, such that we can use it from
+other contexts. Specifically the up and coming remove_on_exec.
 
-Fixes: 0e94682b73bf ("psi: introduce psi monitor")
-Reported-by: syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Analyzed-by: Eric Biggers <ebiggers@kernel.org>
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+For this to work we need to address a few issues. Remove_on_exec will
+not destroy the entire context, so we cannot rely on TASK_TOMBSTONE to
+disable event_function_call() and we thus have to use
+perf_remove_from_context().
+
+When using perf_remove_from_context(), there's two races to consider.
+The first is against close(), where we can have concurrent tear-down
+of the event. The second is against child_list iteration, which should
+not find a half baked event.
+
+To address this, teach perf_remove_from_context() to special case
+!ctx->is_active and about DETACH_CHILD.
+
+[ elver@google.com: fix racing parent/child exit in sync_child_event(). ]
+Signed-off-by: Marco Elver <elver@google.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220111232309.1786347-1-surenb@google.com
-[surenb: backported to 5.4 kernel]
-CC: stable@vger.kernel.org # 5.4
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Link: https://lkml.kernel.org/r/20210408103605.1676875-2-elver@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/accounting/psi.rst |    3 +
- include/linux/psi.h              |    2 -
- include/linux/psi_types.h        |    3 -
- kernel/cgroup/cgroup.c           |   11 ++++--
- kernel/sched/psi.c               |   66 +++++++++++++++++----------------------
- 5 files changed, 40 insertions(+), 45 deletions(-)
+ include/linux/perf_event.h |    1 
+ kernel/events/core.c       |  144 +++++++++++++++++++++++++--------------------
+ 2 files changed, 81 insertions(+), 64 deletions(-)
 
---- a/Documentation/accounting/psi.rst
-+++ b/Documentation/accounting/psi.rst
-@@ -90,7 +90,8 @@ Triggers can be set on more than one psi
- for the same psi metric can be specified. However for each trigger a separate
- file descriptor is required to be able to poll it separately from others,
- therefore for each trigger a separate open() syscall should be made even
--when opening the same psi interface file.
-+when opening the same psi interface file. Write operations to a file descriptor
-+with an already existing psi trigger will fail with EBUSY.
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -607,6 +607,7 @@ struct swevent_hlist {
+ #define PERF_ATTACH_TASK_DATA	0x08
+ #define PERF_ATTACH_ITRACE	0x10
+ #define PERF_ATTACH_SCHED_CB	0x20
++#define PERF_ATTACH_CHILD	0x40
  
- Monitors activate only when system enters stall state for the monitored
- psi metric and deactivates upon exit from the stall state. While system is
---- a/include/linux/psi.h
-+++ b/include/linux/psi.h
-@@ -31,7 +31,7 @@ void cgroup_move_task(struct task_struct
+ struct perf_cgroup;
+ struct perf_buffer;
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -2276,6 +2276,26 @@ out:
+ 	perf_event__header_size(leader);
+ }
  
- struct psi_trigger *psi_trigger_create(struct psi_group *group,
- 			char *buf, size_t nbytes, enum psi_res res);
--void psi_trigger_replace(void **trigger_ptr, struct psi_trigger *t);
-+void psi_trigger_destroy(struct psi_trigger *t);
- 
- __poll_t psi_trigger_poll(void **trigger_ptr, struct file *file,
- 			poll_table *wait);
---- a/include/linux/psi_types.h
-+++ b/include/linux/psi_types.h
-@@ -120,9 +120,6 @@ struct psi_trigger {
- 	 * events to one per window
- 	 */
- 	u64 last_event_time;
--
--	/* Refcounting to prevent premature destruction */
--	struct kref refcount;
- };
- 
- struct psi_group {
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -3659,6 +3659,12 @@ static ssize_t cgroup_pressure_write(str
- 	cgroup_get(cgrp);
- 	cgroup_kn_unlock(of->kn);
- 
-+	/* Allow only one trigger per file descriptor */
-+	if (of->priv) {
-+		cgroup_put(cgrp);
-+		return -EBUSY;
-+	}
++static void sync_child_event(struct perf_event *child_event);
 +
- 	psi = cgroup_ino(cgrp) == 1 ? &psi_system : &cgrp->psi;
- 	new = psi_trigger_create(psi, buf, nbytes, res);
- 	if (IS_ERR(new)) {
-@@ -3666,8 +3672,7 @@ static ssize_t cgroup_pressure_write(str
- 		return PTR_ERR(new);
- 	}
++static void perf_child_detach(struct perf_event *event)
++{
++	struct perf_event *parent_event = event->parent;
++
++	if (!(event->attach_state & PERF_ATTACH_CHILD))
++		return;
++
++	event->attach_state &= ~PERF_ATTACH_CHILD;
++
++	if (WARN_ON_ONCE(!parent_event))
++		return;
++
++	lockdep_assert_held(&parent_event->child_mutex);
++
++	sync_child_event(event);
++	list_del_init(&event->child_list);
++}
++
+ static bool is_orphaned_event(struct perf_event *event)
+ {
+ 	return event->state == PERF_EVENT_STATE_DEAD;
+@@ -2383,6 +2403,7 @@ group_sched_out(struct perf_event *group
+ }
  
--	psi_trigger_replace(&of->priv, new);
+ #define DETACH_GROUP	0x01UL
++#define DETACH_CHILD	0x02UL
+ 
+ /*
+  * Cross CPU call to remove a performance event
+@@ -2406,6 +2427,8 @@ __perf_remove_from_context(struct perf_e
+ 	event_sched_out(event, cpuctx, ctx);
+ 	if (flags & DETACH_GROUP)
+ 		perf_group_detach(event);
++	if (flags & DETACH_CHILD)
++		perf_child_detach(event);
+ 	list_del_event(event, ctx);
+ 
+ 	if (!ctx->nr_events && ctx->is_active) {
+@@ -2437,25 +2460,21 @@ static void perf_remove_from_context(str
+ 
+ 	lockdep_assert_held(&ctx->mutex);
+ 
+-	event_function_call(event, __perf_remove_from_context, (void *)flags);
 -
-+	smp_store_release(&of->priv, new);
- 	cgroup_put(cgrp);
- 
- 	return nbytes;
-@@ -3702,7 +3707,7 @@ static __poll_t cgroup_pressure_poll(str
- 
- static void cgroup_pressure_release(struct kernfs_open_file *of)
- {
--	psi_trigger_replace(&of->priv, NULL);
-+	psi_trigger_destroy(of->priv);
- }
- #endif /* CONFIG_PSI */
- 
---- a/kernel/sched/psi.c
-+++ b/kernel/sched/psi.c
-@@ -1046,7 +1046,6 @@ struct psi_trigger *psi_trigger_create(s
- 	t->event = 0;
- 	t->last_event_time = 0;
- 	init_waitqueue_head(&t->event_wait);
--	kref_init(&t->refcount);
- 
- 	mutex_lock(&group->trigger_lock);
- 
-@@ -1079,15 +1078,19 @@ struct psi_trigger *psi_trigger_create(s
- 	return t;
- }
- 
--static void psi_trigger_destroy(struct kref *ref)
-+void psi_trigger_destroy(struct psi_trigger *t)
- {
--	struct psi_trigger *t = container_of(ref, struct psi_trigger, refcount);
--	struct psi_group *group = t->group;
-+	struct psi_group *group;
- 	struct kthread_worker *kworker_to_destroy = NULL;
- 
--	if (static_branch_likely(&psi_disabled))
-+	/*
-+	 * We do not check psi_disabled since it might have been disabled after
-+	 * the trigger got created.
+ 	/*
+-	 * The above event_function_call() can NO-OP when it hits
+-	 * TASK_TOMBSTONE. In that case we must already have been detached
+-	 * from the context (by perf_event_exit_event()) but the grouping
+-	 * might still be in-tact.
+-	 */
+-	WARN_ON_ONCE(event->attach_state & PERF_ATTACH_CONTEXT);
+-	if ((flags & DETACH_GROUP) &&
+-	    (event->attach_state & PERF_ATTACH_GROUP)) {
+-		/*
+-		 * Since in that case we cannot possibly be scheduled, simply
+-		 * detach now.
+-		 */
+-		raw_spin_lock_irq(&ctx->lock);
+-		perf_group_detach(event);
++	 * Because of perf_event_exit_task(), perf_remove_from_context() ought
++	 * to work in the face of TASK_TOMBSTONE, unlike every other
++	 * event_function_call() user.
 +	 */
-+	if (!t)
- 		return;
++	raw_spin_lock_irq(&ctx->lock);
++	if (!ctx->is_active) {
++		__perf_remove_from_context(event, __get_cpu_context(ctx),
++					   ctx, (void *)flags);
+ 		raw_spin_unlock_irq(&ctx->lock);
++		return;
+ 	}
++	raw_spin_unlock_irq(&ctx->lock);
++
++	event_function_call(event, __perf_remove_from_context, (void *)flags);
+ }
  
-+	group = t->group;
- 	/*
- 	 * Wakeup waiters to stop polling. Can happen if cgroup is deleted
- 	 * from under a polling process.
-@@ -1122,9 +1125,9 @@ static void psi_trigger_destroy(struct k
- 	mutex_unlock(&group->trigger_lock);
+ /*
+@@ -12330,14 +12349,17 @@ void perf_pmu_migrate_context(struct pmu
+ }
+ EXPORT_SYMBOL_GPL(perf_pmu_migrate_context);
+ 
+-static void sync_child_event(struct perf_event *child_event,
+-			       struct task_struct *child)
++static void sync_child_event(struct perf_event *child_event)
+ {
+ 	struct perf_event *parent_event = child_event->parent;
+ 	u64 child_val;
+ 
+-	if (child_event->attr.inherit_stat)
+-		perf_event_read_event(child_event, child);
++	if (child_event->attr.inherit_stat) {
++		struct task_struct *task = child_event->ctx->task;
++
++		if (task && task != TASK_TOMBSTONE)
++			perf_event_read_event(child_event, task);
++	}
+ 
+ 	child_val = perf_event_count(child_event);
+ 
+@@ -12352,60 +12374,53 @@ static void sync_child_event(struct perf
+ }
+ 
+ static void
+-perf_event_exit_event(struct perf_event *child_event,
+-		      struct perf_event_context *child_ctx,
+-		      struct task_struct *child)
++perf_event_exit_event(struct perf_event *event, struct perf_event_context *ctx)
+ {
+-	struct perf_event *parent_event = child_event->parent;
++	struct perf_event *parent_event = event->parent;
++	unsigned long detach_flags = 0;
+ 
+-	/*
+-	 * Do not destroy the 'original' grouping; because of the context
+-	 * switch optimization the original events could've ended up in a
+-	 * random child task.
+-	 *
+-	 * If we were to destroy the original group, all group related
+-	 * operations would cease to function properly after this random
+-	 * child dies.
+-	 *
+-	 * Do destroy all inherited groups, we don't care about those
+-	 * and being thorough is better.
+-	 */
+-	raw_spin_lock_irq(&child_ctx->lock);
+-	WARN_ON_ONCE(child_ctx->is_active);
++	if (parent_event) {
++		/*
++		 * Do not destroy the 'original' grouping; because of the
++		 * context switch optimization the original events could've
++		 * ended up in a random child task.
++		 *
++		 * If we were to destroy the original group, all group related
++		 * operations would cease to function properly after this
++		 * random child dies.
++		 *
++		 * Do destroy all inherited groups, we don't care about those
++		 * and being thorough is better.
++		 */
++		detach_flags = DETACH_GROUP | DETACH_CHILD;
++		mutex_lock(&parent_event->child_mutex);
++	}
+ 
+-	if (parent_event)
+-		perf_group_detach(child_event);
+-	list_del_event(child_event, child_ctx);
+-	perf_event_set_state(child_event, PERF_EVENT_STATE_EXIT); /* is_event_hup() */
+-	raw_spin_unlock_irq(&child_ctx->lock);
++	perf_remove_from_context(event, detach_flags);
++
++	raw_spin_lock_irq(&ctx->lock);
++	if (event->state > PERF_EVENT_STATE_EXIT)
++		perf_event_set_state(event, PERF_EVENT_STATE_EXIT);
++	raw_spin_unlock_irq(&ctx->lock);
  
  	/*
--	 * Wait for both *trigger_ptr from psi_trigger_replace and
--	 * poll_kworker RCUs to complete their read-side critical sections
--	 * before destroying the trigger and optionally the poll_kworker
-+	 * Wait for psi_schedule_poll_work RCU to complete its read-side
-+	 * critical section before destroying the trigger and optionally the
-+	 * poll_task.
+-	 * Parent events are governed by their filedesc, retain them.
++	 * Child events can be freed.
  	 */
- 	synchronize_rcu();
+-	if (!parent_event) {
+-		perf_event_wakeup(child_event);
++	if (parent_event) {
++		mutex_unlock(&parent_event->child_mutex);
++		/*
++		 * Kick perf_poll() for is_event_hup();
++		 */
++		perf_event_wakeup(parent_event);
++		free_event(event);
++		put_event(parent_event);
+ 		return;
+ 	}
+-	/*
+-	 * Child events can be cleaned up.
+-	 */
+-
+-	sync_child_event(child_event, child);
+ 
  	/*
-@@ -1146,18 +1149,6 @@ static void psi_trigger_destroy(struct k
- 	kfree(t);
+-	 * Remove this event from the parent's list
+-	 */
+-	WARN_ON_ONCE(parent_event->ctx->parent_ctx);
+-	mutex_lock(&parent_event->child_mutex);
+-	list_del_init(&child_event->child_list);
+-	mutex_unlock(&parent_event->child_mutex);
+-
+-	/*
+-	 * Kick perf_poll() for is_event_hup().
++	 * Parent events are governed by their filedesc, retain them.
+ 	 */
+-	perf_event_wakeup(parent_event);
+-	free_event(child_event);
+-	put_event(parent_event);
++	perf_event_wakeup(event);
  }
  
--void psi_trigger_replace(void **trigger_ptr, struct psi_trigger *new)
--{
--	struct psi_trigger *old = *trigger_ptr;
--
--	if (static_branch_likely(&psi_disabled))
--		return;
--
--	rcu_assign_pointer(*trigger_ptr, new);
--	if (old)
--		kref_put(&old->refcount, psi_trigger_destroy);
--}
--
- __poll_t psi_trigger_poll(void **trigger_ptr,
- 				struct file *file, poll_table *wait)
- {
-@@ -1167,24 +1158,15 @@ __poll_t psi_trigger_poll(void **trigger
- 	if (static_branch_likely(&psi_disabled))
- 		return DEFAULT_POLLMASK | EPOLLERR | EPOLLPRI;
+ static void perf_event_exit_task_context(struct task_struct *child, int ctxn)
+@@ -12462,7 +12477,7 @@ static void perf_event_exit_task_context
+ 	perf_event_task(child, child_ctx, 0);
  
--	rcu_read_lock();
--
--	t = rcu_dereference(*(void __rcu __force **)trigger_ptr);
--	if (!t) {
--		rcu_read_unlock();
-+	t = smp_load_acquire(trigger_ptr);
-+	if (!t)
- 		return DEFAULT_POLLMASK | EPOLLERR | EPOLLPRI;
--	}
--	kref_get(&t->refcount);
--
--	rcu_read_unlock();
+ 	list_for_each_entry_safe(child_event, next, &child_ctx->event_list, event_entry)
+-		perf_event_exit_event(child_event, child_ctx, child);
++		perf_event_exit_event(child_event, child_ctx);
  
- 	poll_wait(file, &t->event_wait, wait);
+ 	mutex_unlock(&child_ctx->mutex);
  
- 	if (cmpxchg(&t->event, 1, 0) == 1)
- 		ret |= EPOLLPRI;
+@@ -12722,6 +12737,7 @@ inherit_event(struct perf_event *parent_
+ 	 */
+ 	raw_spin_lock_irqsave(&child_ctx->lock, flags);
+ 	add_event_to_ctx(child_event, child_ctx);
++	child_event->attach_state |= PERF_ATTACH_CHILD;
+ 	raw_spin_unlock_irqrestore(&child_ctx->lock, flags);
  
--	kref_put(&t->refcount, psi_trigger_destroy);
--
- 	return ret;
- }
- 
-@@ -1208,14 +1190,24 @@ static ssize_t psi_write(struct file *fi
- 
- 	buf[buf_size - 1] = '\0';
- 
--	new = psi_trigger_create(&psi_system, buf, nbytes, res);
--	if (IS_ERR(new))
--		return PTR_ERR(new);
--
- 	seq = file->private_data;
-+
- 	/* Take seq->lock to protect seq->private from concurrent writes */
- 	mutex_lock(&seq->lock);
--	psi_trigger_replace(&seq->private, new);
-+
-+	/* Allow only one trigger per file descriptor */
-+	if (seq->private) {
-+		mutex_unlock(&seq->lock);
-+		return -EBUSY;
-+	}
-+
-+	new = psi_trigger_create(&psi_system, buf, nbytes, res);
-+	if (IS_ERR(new)) {
-+		mutex_unlock(&seq->lock);
-+		return PTR_ERR(new);
-+	}
-+
-+	smp_store_release(&seq->private, new);
- 	mutex_unlock(&seq->lock);
- 
- 	return nbytes;
-@@ -1250,7 +1242,7 @@ static int psi_fop_release(struct inode
- {
- 	struct seq_file *seq = file->private_data;
- 
--	psi_trigger_replace(&seq->private, NULL);
-+	psi_trigger_destroy(seq->private);
- 	return single_release(inode, file);
- }
- 
+ 	/*
 
 
