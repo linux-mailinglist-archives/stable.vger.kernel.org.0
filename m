@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1020B4A95EA
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:21:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95CA74A9605
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:22:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357338AbiBDJVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:21:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60478 "EHLO
+        id S1357450AbiBDJWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:22:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357355AbiBDJU7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:20:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E936C061741;
-        Fri,  4 Feb 2022 01:20:59 -0800 (PST)
+        with ESMTP id S1357453AbiBDJVe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:21:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F656C061401;
+        Fri,  4 Feb 2022 01:21:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC70D615DC;
-        Fri,  4 Feb 2022 09:20:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82921C004E1;
-        Fri,  4 Feb 2022 09:20:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 47E52B836EC;
+        Fri,  4 Feb 2022 09:21:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D739C004E1;
+        Fri,  4 Feb 2022 09:21:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966458;
-        bh=pe+rjSYtf6W6CfYVu9AZX/jgeU3hf3dspXjjWJn5qaM=;
+        s=korg; t=1643966491;
+        bh=t6fosH+/jo0oyk3kX5RJYCWAgBNoLIkcuTpouivDE3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QWvcOwnZHW6Q7WPppg4+pmfsxlfsgNA7qoYx/+l9ZkWRztIuUlNGqsiW+jJ2Pjk8U
-         /1LU89LniRwRYBK/vBQ1mKhE/tEadLwcDiHgaq+3RsObt5MNcte2U/ptp+Dg2ONORV
-         h1H0r/h/HlZ8b9Ue9eQxB4OolXx7Zg3HMX2c4qiE=
+        b=w4X6R4zdwaRWCPk7Q8xOtCXiduOiMqI2VYUPHPList7nq0c3KGulx7eYQUHtvP5Oe
+         SF6mCeovVSYtNrMHUphXTPAjBsgRnoUa12chZompe4cestSKRhvHLISKfaLRbz5V1L
+         Hl8ClXGJyqBoDZtmojec7hBK/TaHB8oRUcwhdcIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianchen Ding <dtcccc@linux.alibaba.com>,
-        Waiman Long <longman@redhat.com>, Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.4 09/10] cpuset: Fix the bug that subpart_cpus updated wrongly in update_cpumask()
-Date:   Fri,  4 Feb 2022 10:20:22 +0100
-Message-Id: <20220204091912.624395230@linuxfoundation.org>
+        stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.10 16/25] net/mlx5: E-Switch, Fix uninitialized variable modact
+Date:   Fri,  4 Feb 2022 10:20:23 +0100
+Message-Id: <20220204091914.813309593@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091912.329106021@linuxfoundation.org>
-References: <20220204091912.329106021@linuxfoundation.org>
+In-Reply-To: <20220204091914.280602669@linuxfoundation.org>
+References: <20220204091914.280602669@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,34 +47,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianchen Ding <dtcccc@linux.alibaba.com>
+From: Maor Dickman <maord@nvidia.com>
 
-commit c80d401c52a2d1baf2a5afeb06f0ffe678e56d23 upstream.
+commit d8e5883d694bb053b19c4142a2d1f43a34f6fe2c upstream.
 
-subparts_cpus should be limited as a subset of cpus_allowed, but it is
-updated wrongly by using cpumask_andnot(). Use cpumask_and() instead to
-fix it.
+The variable modact is not initialized before used in command
+modify header allocation which can cause command to fail.
 
-Fixes: ee8dde0cd2ce ("cpuset: Add new v2 cpuset.sched.partition flag")
-Signed-off-by: Tianchen Ding <dtcccc@linux.alibaba.com>
-Reviewed-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Fix by initializing modact with zeros.
+
+Addresses-Coverity: ("Uninitialized scalar variable")
+Fixes: 8f1e0b97cc70 ("net/mlx5: E-Switch, Mark miss packets with new chain id mapping")
+Signed-off-by: Maor Dickman <maord@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cpuset.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -1558,8 +1558,7 @@ static int update_cpumask(struct cpuset
- 	 * Make sure that subparts_cpus is a subset of cpus_allowed.
- 	 */
- 	if (cs->nr_subparts_cpus) {
--		cpumask_andnot(cs->subparts_cpus, cs->subparts_cpus,
--			       cs->cpus_allowed);
-+		cpumask_and(cs->subparts_cpus, cs->subparts_cpus, cs->cpus_allowed);
- 		cs->nr_subparts_cpus = cpumask_weight(cs->subparts_cpus);
- 	}
- 	spin_unlock_irq(&callback_lock);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
+@@ -292,7 +292,7 @@ static int
+ create_chain_restore(struct fs_chain *chain)
+ {
+ 	struct mlx5_eswitch *esw = chain->chains->dev->priv.eswitch;
+-	char modact[MLX5_UN_SZ_BYTES(set_add_copy_action_in_auto)];
++	u8 modact[MLX5_UN_SZ_BYTES(set_add_copy_action_in_auto)] = {};
+ 	struct mlx5_fs_chains *chains = chain->chains;
+ 	enum mlx5e_tc_attr_to_reg chain_to_reg;
+ 	struct mlx5_modify_hdr *mod_hdr;
 
 
