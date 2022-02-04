@@ -2,211 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB1124A9655
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F37A94A962F
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:23:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357561AbiBDJYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:24:51 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43266 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357758AbiBDJYJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:24:09 -0500
+        id S234143AbiBDJX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:23:58 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52016 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357809AbiBDJXG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:23:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B569661602;
-        Fri,  4 Feb 2022 09:24:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FD2BC340ED;
-        Fri,  4 Feb 2022 09:24:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0174B836B9;
+        Fri,  4 Feb 2022 09:23:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1981C004E1;
+        Fri,  4 Feb 2022 09:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966648;
-        bh=tJCUhrtbHvXGJ9kQay9NRqcVwBesRb5TmNZukQ68IqE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=t2yQJU3ZUpp9g9JpHWKWFXqfJj1CcOo+/bGANV7sRFZomCPeBa52reLcDGpu2vaAD
-         +kFWCScs7VPSgsGHL2j9Pfng1G7NyDnsvw8e2Z6IzgNuhnBPPi7IuhGFYVM+I5wgma
-         Ve4HDxVw2XOT+2m14aVNiKhSCsK84f/zg1/kXFVQ=
+        s=korg; t=1643966583;
+        bh=4KnP9f2BG2N0gQWpClCCaBlbp1tyU3Pjw2Z1LPrgmQ8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Nw3vkuh8LQpryVQJvapvB1VKd70Rlc/diKfHVozmJ3jXJteEAU0s5d3ZS3owm13aR
+         nEbgrJgIT5H9cVnqydC5TOtIuSm3AdjS1yRlkLlTOXeIRE86TuSjNTU7a7iuCJF3DH
+         4clXFU43GN1TGYmBBCm42uV9yC38OvftHBiy03lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.15 00/32] 5.15.20-rc1 review
-Date:   Fri,  4 Feb 2022 10:22:10 +0100
-Message-Id: <20220204091915.247906930@linuxfoundation.org>
+        stable@vger.kernel.org, Joseph Bao <joseph.bao@intel.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Stuart Hayes <stuart.w.hayes@gmail.com>
+Subject: [PATCH 5.15 01/32] PCI: pciehp: Fix infinite loop in IRQ handler upon power fault
+Date:   Fri,  4 Feb 2022 10:22:11 +0100
+Message-Id: <20220204091915.298182626@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-MIME-Version: 1.0
+In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
+References: <20220204091915.247906930@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.20-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.15.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.15.20-rc1
-X-KernelTest-Deadline: 2022-02-06T09:19+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.15.20 release.
-There are 32 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Lukas Wunner <lukas@wunner.de>
 
-Responses should be made by Sun, 06 Feb 2022 09:19:05 +0000.
-Anything received after that time might be too late.
+commit 23584c1ed3e15a6f4bfab8dc5a88d94ab929ee12 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.20-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-and the diffstat can be found below.
+The Power Fault Detected bit in the Slot Status register differs from
+all other hotplug events in that it is sticky:  It can only be cleared
+after turning off slot power.  Per PCIe r5.0, sec. 6.7.1.8:
 
-thanks,
+  If a power controller detects a main power fault on the hot-plug slot,
+  it must automatically set its internal main power fault latch [...].
+  The main power fault latch is cleared when software turns off power to
+  the hot-plug slot.
 
-greg k-h
+The stickiness used to cause interrupt storms and infinite loops which
+were fixed in 2009 by commits 5651c48cfafe ("PCI pciehp: fix power fault
+interrupt storm problem") and 99f0169c17f3 ("PCI: pciehp: enable
+software notification on empty slots").
 
--------------
-Pseudo-Shortlog of commits:
+Unfortunately in 2020 the infinite loop issue was inadvertently
+reintroduced by commit 8edf5332c393 ("PCI: pciehp: Fix MSI interrupt
+race"):  The hardirq handler pciehp_isr() clears the PFD bit until
+pciehp's power_fault_detected flag is set.  That happens in the IRQ
+thread pciehp_ist(), which never learns of the event because the hardirq
+handler is stuck in an infinite loop.  Fix by setting the
+power_fault_detected flag already in the hardirq handler.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.15.20-rc1
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214989
+Link: https://lore.kernel.org/linux-pci/DM8PR11MB5702255A6A92F735D90A4446868B9@DM8PR11MB5702.namprd11.prod.outlook.com
+Fixes: 8edf5332c393 ("PCI: pciehp: Fix MSI interrupt race")
+Link: https://lore.kernel.org/r/66eaeef31d4997ceea357ad93259f290ededecfd.1637187226.git.lukas@wunner.de
+Reported-by: Joseph Bao <joseph.bao@intel.com>
+Tested-by: Joseph Bao <joseph.bao@intel.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org # v4.19+
+Cc: Stuart Hayes <stuart.w.hayes@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/pci/hotplug/pciehp_hpc.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-Eric Dumazet <edumazet@google.com>
-    tcp: add missing tcp_skb_can_collapse() test in tcp_shift_skb_data()
-
-Eric Dumazet <edumazet@google.com>
-    af_packet: fix data-race in packet_setsockopt / packet_setsockopt
-
-Sasha Neftin <sasha.neftin@intel.com>
-    e1000e: Handshake with CSME starts from ADL platforms
-
-Tianchen Ding <dtcccc@linux.alibaba.com>
-    cpuset: Fix the bug that subpart_cpus updated wrongly in update_cpumask()
-
-Eric Dumazet <edumazet@google.com>
-    rtnetlink: make sure to refresh master_dev/m_ops in __rtnl_newlink()
-
-Eric Dumazet <edumazet@google.com>
-    net: sched: fix use-after-free in tc_new_tfilter()
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    fanotify: Fix stale file descriptor in copy_event_to_user()
-
-Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-    net: amd-xgbe: Fix skb data length underflow
-
-Raju Rangoju <Raju.Rangoju@amd.com>
-    net: amd-xgbe: ensure to reset the tx_timer_active flag
-
-Karen Sornek <karen.sornek@intel.com>
-    i40e: Fix reset path while removing the driver
-
-Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-    i40e: Fix reset bw limit when DCB enabled with 1 TC
-
-Georgi Valkov <gvalkov@abv.bg>
-    ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
-
-Maor Dickman <maord@nvidia.com>
-    net/mlx5: E-Switch, Fix uninitialized variable modact
-
-Roi Dayan <roid@nvidia.com>
-    net/mlx5: Bridge, Fix devlink deadlock on net namespace deletion
-
-Maxim Mikityanskiy <maximmi@nvidia.com>
-    net/mlx5e: Don't treat small ceil values as unlimited in HTB offload
-
-Dima Chumak <dchumak@nvidia.com>
-    net/mlx5: Fix offloading with ESWITCH_IPV4_TTL_MODIFY_ENABLE
-
-Gal Pressman <gal@nvidia.com>
-    net/mlx5e: Fix module EEPROM query
-
-Maher Sanalla <msanalla@nvidia.com>
-    net/mlx5: Use del_timer_sync in fw reset flow of halting poll
-
-Maor Dickman <maord@nvidia.com>
-    net/mlx5e: Fix handling of wrong devices during bond netevent
-
-Vlad Buslov <vladbu@nvidia.com>
-    net/mlx5: Bridge, ensure dev_name is null-terminated
-
-Vlad Buslov <vladbu@nvidia.com>
-    net/mlx5: Bridge, take rtnl lock in init error handler
-
-Raed Salem <raeds@nvidia.com>
-    net/mlx5e: IPsec: Fix tunnel mode crypto offload for non TCP/UDP traffic
-
-J. Bruce Fields <bfields@redhat.com>
-    lockd: fix failure to cleanup client locks
-
-J. Bruce Fields <bfields@redhat.com>
-    lockd: fix server crash on reboot of client holding lock
-
-Miklos Szeredi <mszeredi@redhat.com>
-    ovl: don't fail copy up if no fileattr support on upper
-
-John Hubbard <jhubbard@nvidia.com>
-    Revert "mm/gup: small refactoring: simplify try_grab_page()"
-
-Eric W. Biederman <ebiederm@xmission.com>
-    cgroup-v1: Require capabilities to set release_agent
-
-Maxime Ripard <maxime@cerno.tech>
-    drm/vc4: hdmi: Make sure the device is powered with CEC
-
-Alex Elder <elder@linaro.org>
-    net: ipa: prevent concurrent replenish
-
-Alex Elder <elder@linaro.org>
-    net: ipa: use a bitmap for endpoint replenish_enabled
-
-Paolo Abeni <pabeni@redhat.com>
-    selftests: mptcp: fix ipv6 routing setup
-
-Lukas Wunner <lukas@wunner.de>
-    PCI: pciehp: Fix infinite loop in IRQ handler upon power fault
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +--
- drivers/gpu/drm/vc4/vc4_hdmi.c                     | 25 ++++++++--------
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c           | 14 ++++++++-
- drivers/net/ethernet/intel/e1000e/netdev.c         |  6 ++--
- drivers/net/ethernet/intel/i40e/i40e.h             |  1 +
- drivers/net/ethernet/intel/i40e/i40e_main.c        | 31 +++++++++++++++++--
- drivers/net/ethernet/mellanox/mlx5/core/en/qos.c   |  3 +-
- .../net/ethernet/mellanox/mlx5/core/en/rep/bond.c  | 32 +++++++++-----------
- .../ethernet/mellanox/mlx5/core/en/rep/bridge.c    |  6 ++--
- .../mellanox/mlx5/core/en_accel/ipsec_rxtx.c       | 13 ++++++--
- .../net/ethernet/mellanox/mlx5/core/esw/bridge.c   |  4 +++
- .../mlx5/core/esw/diag/bridge_tracepoint.h         |  2 +-
- drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c |  2 +-
- .../ethernet/mellanox/mlx5/core/lib/fs_chains.c    |  9 +++---
- drivers/net/ethernet/mellanox/mlx5/core/port.c     |  9 +++---
- drivers/net/ipa/ipa_endpoint.c                     | 21 ++++++++++---
- drivers/net/ipa/ipa_endpoint.h                     | 17 +++++++++--
- drivers/net/usb/ipheth.c                           |  6 ++--
- drivers/pci/hotplug/pciehp_hpc.c                   |  7 +++--
- fs/lockd/svcsubs.c                                 | 18 ++++++-----
- fs/notify/fanotify/fanotify_user.c                 |  6 ++--
- fs/overlayfs/copy_up.c                             | 12 +++++++-
- kernel/cgroup/cgroup-v1.c                          | 14 +++++++++
- kernel/cgroup/cpuset.c                             |  3 +-
- mm/gup.c                                           | 35 ++++++++++++++++++----
- net/core/rtnetlink.c                               |  6 ++--
- net/ipv4/tcp_input.c                               |  2 ++
- net/packet/af_packet.c                             |  8 +++--
- net/sched/cls_api.c                                | 11 ++++---
- tools/testing/selftests/net/mptcp/mptcp_join.sh    |  5 ++--
- 30 files changed, 239 insertions(+), 93 deletions(-)
+--- a/drivers/pci/hotplug/pciehp_hpc.c
++++ b/drivers/pci/hotplug/pciehp_hpc.c
+@@ -642,6 +642,8 @@ read_status:
+ 	 */
+ 	if (ctrl->power_fault_detected)
+ 		status &= ~PCI_EXP_SLTSTA_PFD;
++	else if (status & PCI_EXP_SLTSTA_PFD)
++		ctrl->power_fault_detected = true;
+ 
+ 	events |= status;
+ 	if (!events) {
+@@ -651,7 +653,7 @@ read_status:
+ 	}
+ 
+ 	if (status) {
+-		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, events);
++		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, status);
+ 
+ 		/*
+ 		 * In MSI mode, all event bits must be zero before the port
+@@ -725,8 +727,7 @@ static irqreturn_t pciehp_ist(int irq, v
+ 	}
+ 
+ 	/* Check Power Fault Detected */
+-	if ((events & PCI_EXP_SLTSTA_PFD) && !ctrl->power_fault_detected) {
+-		ctrl->power_fault_detected = 1;
++	if (events & PCI_EXP_SLTSTA_PFD) {
+ 		ctrl_err(ctrl, "Slot(%s): Power fault\n", slot_name(ctrl));
+ 		pciehp_set_indicators(ctrl, PCI_EXP_SLTCTL_PWR_IND_OFF,
+ 				      PCI_EXP_SLTCTL_ATTN_IND_ON);
 
 
