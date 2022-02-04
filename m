@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B84424A9649
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:24:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC81C4A969E
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:27:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357879AbiBDJYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:24:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60910 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357552AbiBDJYA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:24:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E968C061756;
-        Fri,  4 Feb 2022 01:24:00 -0800 (PST)
+        id S1357931AbiBDJ1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:27:40 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:53900 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358238AbiBDJ0K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:26:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3576AB836E9;
-        Fri,  4 Feb 2022 09:23:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FCE7C340ED;
-        Fri,  4 Feb 2022 09:23:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24376B836EB;
+        Fri,  4 Feb 2022 09:26:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E05E8C004E1;
+        Fri,  4 Feb 2022 09:26:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966629;
-        bh=wsDPVvMJ3fihSgGDbISGT78IhKQRNro2j33j6ziBLu4=;
+        s=korg; t=1643966767;
+        bh=LmrbcHvcX9oIGN9xKCE/bc6nuizkuV8gy2HnJpudulg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jrlYvKf8iVqxO/4Nv+xUycCoAQSst0biifWmVk8Kp+09sw06/1ljdR5jeg6+fDk0U
-         S56/wXDVViBtmt5Mqvit4/bzD5K+T2av15yqcfPO03iIa5mKnN1+b1BxB9NyeBbrW8
-         qMaXJFEBbF45qjOTfbwmibOS47dkuFkA5ACIfzeA=
+        b=un7xrTQIsoTTwbz29bbDHaVGSMvGPuTaLhPUhcOAAMD4y05/4QxFOFFuETLthf+Cb
+         jQ99247yl3RpbIq27MYa4elVdKUy/A9SZKJUMO8I0Y5VNEYJILVPJLUkPSv1tPE/iY
+         Q+wwbCw2tUq8KQovaOx8R53SdGkMLAlSyJIIzJNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 04/32] net: ipa: prevent concurrent replenish
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Minchan Kim <minchan@google.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Will McVicker <willmcvicker@google.com>
+Subject: [PATCH 5.16 07/43] Revert "mm/gup: small refactoring: simplify try_grab_page()"
 Date:   Fri,  4 Feb 2022 10:22:14 +0100
-Message-Id: <20220204091915.389958277@linuxfoundation.org>
+Message-Id: <20220204091917.424405756@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
-References: <20220204091915.247906930@linuxfoundation.org>
+In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
+References: <20220204091917.166033635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,79 +51,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: John Hubbard <jhubbard@nvidia.com>
 
-commit 998c0bd2b3715244da7639cc4e6a2062cb79c3f4 upstream.
+commit c36c04c2e132fc39f6b658bf607aed4425427fd7 upstream.
 
-We have seen cases where an endpoint RX completion interrupt arrives
-while replenishing for the endpoint is underway.  This causes another
-instance of replenishing to begin as part of completing the receive
-transaction.  If this occurs it can lead to transaction corruption.
+This reverts commit 54d516b1d62ff8f17cee2da06e5e4706a0d00b8a
 
-Use a new flag to ensure only one replenish instance for an endpoint
-executes at a time.
+That commit did a refactoring that effectively combined fast and slow
+gup paths (again).  And that was again incorrect, for two reasons:
 
-Fixes: 84f9bd12d46db ("soc: qcom: ipa: IPA endpoints")
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ a) Fast gup and slow gup get reference counts on pages in different
+    ways and with different goals: see Linus' writeup in commit
+    cd1adf1b63a1 ("Revert "mm/gup: remove try_get_page(), call
+    try_get_compound_head() directly""), and
+
+ b) try_grab_compound_head() also has a specific check for
+    "FOLL_LONGTERM && !is_pinned(page)", that assumes that the caller
+    can fall back to slow gup. This resulted in new failures, as
+    recently report by Will McVicker [1].
+
+But (a) has problems too, even though they may not have been reported
+yet.  So just revert this.
+
+Link: https://lore.kernel.org/r/20220131203504.3458775-1-willmcvicker@google.com [1]
+Fixes: 54d516b1d62f ("mm/gup: small refactoring: simplify try_grab_page()")
+Reported-and-tested-by: Will McVicker <willmcvicker@google.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Minchan Kim <minchan@google.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: stable@vger.kernel.org # 5.15
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipa/ipa_endpoint.c |   13 +++++++++++++
- drivers/net/ipa/ipa_endpoint.h |    2 ++
- 2 files changed, 15 insertions(+)
+ mm/gup.c |   35 ++++++++++++++++++++++++++++++-----
+ 1 file changed, 30 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ipa/ipa_endpoint.c
-+++ b/drivers/net/ipa/ipa_endpoint.c
-@@ -1075,15 +1075,27 @@ static void ipa_endpoint_replenish(struc
- 		return;
- 	}
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -124,8 +124,8 @@ static inline struct page *try_get_compo
+  * considered failure, and furthermore, a likely bug in the caller, so a warning
+  * is also emitted.
+  */
+-struct page *try_grab_compound_head(struct page *page,
+-				    int refs, unsigned int flags)
++__maybe_unused struct page *try_grab_compound_head(struct page *page,
++						   int refs, unsigned int flags)
+ {
+ 	if (flags & FOLL_GET)
+ 		return try_get_compound_head(page, refs);
+@@ -208,10 +208,35 @@ static void put_compound_head(struct pag
+  */
+ bool __must_check try_grab_page(struct page *page, unsigned int flags)
+ {
+-	if (!(flags & (FOLL_GET | FOLL_PIN)))
+-		return true;
++	WARN_ON_ONCE((flags & (FOLL_GET | FOLL_PIN)) == (FOLL_GET | FOLL_PIN));
  
-+	/* If already active, just update the backlog */
-+	if (test_and_set_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags)) {
-+		if (add_one)
-+			atomic_inc(&endpoint->replenish_backlog);
-+		return;
+-	return try_grab_compound_head(page, 1, flags);
++	if (flags & FOLL_GET)
++		return try_get_page(page);
++	else if (flags & FOLL_PIN) {
++		int refs = 1;
++
++		page = compound_head(page);
++
++		if (WARN_ON_ONCE(page_ref_count(page) <= 0))
++			return false;
++
++		if (hpage_pincount_available(page))
++			hpage_pincount_add(page, 1);
++		else
++			refs = GUP_PIN_COUNTING_BIAS;
++
++		/*
++		 * Similar to try_grab_compound_head(): even if using the
++		 * hpage_pincount_add/_sub() routines, be sure to
++		 * *also* increment the normal page refcount field at least
++		 * once, so that the page really is pinned.
++		 */
++		page_ref_add(page, refs);
++
++		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_ACQUIRED, 1);
 +	}
 +
- 	while (atomic_dec_not_zero(&endpoint->replenish_backlog))
- 		if (ipa_endpoint_replenish_one(endpoint))
- 			goto try_again_later;
-+
-+	clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
-+
- 	if (add_one)
- 		atomic_inc(&endpoint->replenish_backlog);
++	return true;
+ }
  
- 	return;
- 
- try_again_later:
-+	clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
-+
- 	/* The last one didn't succeed, so fix the backlog */
- 	delta = add_one ? 2 : 1;
- 	backlog = atomic_add_return(delta, &endpoint->replenish_backlog);
-@@ -1666,6 +1678,7 @@ static void ipa_endpoint_setup_one(struc
- 		 * backlog is the same as the maximum outstanding TREs.
- 		 */
- 		clear_bit(IPA_REPLENISH_ENABLED, endpoint->replenish_flags);
-+		clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
- 		atomic_set(&endpoint->replenish_saved,
- 			   gsi_channel_tre_max(gsi, endpoint->channel_id));
- 		atomic_set(&endpoint->replenish_backlog, 0);
---- a/drivers/net/ipa/ipa_endpoint.h
-+++ b/drivers/net/ipa/ipa_endpoint.h
-@@ -44,10 +44,12 @@ enum ipa_endpoint_name {
-  * enum ipa_replenish_flag:	RX buffer replenish flags
-  *
-  * @IPA_REPLENISH_ENABLED:	Whether receive buffer replenishing is enabled
-+ * @IPA_REPLENISH_ACTIVE:	Whether replenishing is underway
-  * @IPA_REPLENISH_COUNT:	Number of defined replenish flags
-  */
- enum ipa_replenish_flag {
- 	IPA_REPLENISH_ENABLED,
-+	IPA_REPLENISH_ACTIVE,
- 	IPA_REPLENISH_COUNT,	/* Number of flags (must be last) */
- };
- 
+ /**
 
 
