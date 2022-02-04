@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79CF64A966D
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:26:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 133974A96CF
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:30:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357899AbiBDJZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:25:51 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43806 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357907AbiBDJYo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:24:44 -0500
+        id S1358046AbiBDJaE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:30:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33258 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358034AbiBDJ2W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:28:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 149CBC061340;
+        Fri,  4 Feb 2022 01:27:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DA1D612C8;
-        Fri,  4 Feb 2022 09:24:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20D12C004E1;
-        Fri,  4 Feb 2022 09:24:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAB25B836EE;
+        Fri,  4 Feb 2022 09:26:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3991C004E1;
+        Fri,  4 Feb 2022 09:26:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966684;
-        bh=mPjX16zNpAn7LOPJg7nzi8nM1zws5ngvx/rWuXKPNwQ=;
+        s=korg; t=1643966818;
+        bh=u95f1E3cPlDrVSm0z4hyvD5olgUXo83F6mv+pe0hmvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WB1e9oI/XO93yp067SmmVugLNYkJjrl+sm0Cllj2nr2gWdBg6oPJcVBVabdFDt6eH
-         NGuQs39juKQD+S7EKm5Knxp/Eg/HgyP1ag1OMHB7iX0hcC7CxgJtPUVd0x8jKhtrrv
-         v5lbuuEov+38BkCiWXqcGCnDl3C/1nnpImhcr+1k=
+        b=q8ui5L3TEu2rsCurl2sOISdsVpwFEmnekwzAPGJEyteoJjBqdFVCyM5gT0G3XQd1K
+         hlhhdsdl+/nc+47eKDmubnJs5U6vVxSaj6rR1+695j0IMCZ+ZrWl2h6ZB9IjRGFTCx
+         31Gp0gzjmWufSWrHL84FV/mZKn7UYZyKBL8IaKY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Neftin <sasha.neftin@intel.com>,
-        Nechama Kraus <nechamax.kraus@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.15 30/32] e1000e: Handshake with CSME starts from ADL platforms
-Date:   Fri,  4 Feb 2022 10:22:40 +0100
-Message-Id: <20220204091916.244764690@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Mathias Krause <minipli@grsecurity.net>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.16 34/43] fanotify: Fix stale file descriptor in copy_event_to_user()
+Date:   Fri,  4 Feb 2022 10:22:41 +0100
+Message-Id: <20220204091918.278563230@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
-References: <20220204091915.247906930@linuxfoundation.org>
+In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
+References: <20220204091917.166033635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Neftin <sasha.neftin@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit cad014b7b5a6897d8c4fad13e2888978bfb7a53f upstream.
+commit ee12595147ac1fbfb5bcb23837e26dd58d94b15d upstream.
 
-Handshake with CSME/AMT on none provisioned platforms during S0ix flow
-is not supported on TGL platform and can cause to HW unit hang. Update
-the handshake with CSME flow to start from the ADL platform.
+This code calls fd_install() which gives the userspace access to the fd.
+Then if copy_info_records_to_user() fails it calls put_unused_fd(fd) but
+that will not release it and leads to a stale entry in the file
+descriptor table.
 
-Fixes: 3e55d231716e ("e1000e: Add handshake with the CSME to support S0ix")
-Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Nechama Kraus <nechamax.kraus@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Generally you can't trust the fd after a call to fd_install().  The fix
+is to delay the fd_install() until everything else has succeeded.
+
+Fortunately it requires CAP_SYS_ADMIN to reach this code so the security
+impact is less.
+
+Fixes: f644bc449b37 ("fanotify: fix copy_event_to_user() fid error clean up")
+Link: https://lore.kernel.org/r/20220128195656.GA26981@kili
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Mathias Krause <minipli@grsecurity.net>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/notify/fanotify/fanotify_user.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -6346,7 +6346,8 @@ static void e1000e_s0ix_entry_flow(struc
- 	u32 mac_data;
- 	u16 phy_data;
+--- a/fs/notify/fanotify/fanotify_user.c
++++ b/fs/notify/fanotify/fanotify_user.c
+@@ -656,9 +656,6 @@ static ssize_t copy_event_to_user(struct
+ 	if (fanotify_is_perm_event(event->mask))
+ 		FANOTIFY_PERM(event)->fd = fd;
  
--	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID) {
-+	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
-+	    hw->mac.type >= e1000_pch_adp) {
- 		/* Request ME configure the device for S0ix */
- 		mac_data = er32(H2ME);
- 		mac_data |= E1000_H2ME_START_DPG;
-@@ -6495,7 +6496,8 @@ static void e1000e_s0ix_exit_flow(struct
- 	u16 phy_data;
- 	u32 i = 0;
+-	if (f)
+-		fd_install(fd, f);
+-
+ 	if (info_mode) {
+ 		ret = copy_info_records_to_user(event, info, info_mode, pidfd,
+ 						buf, count);
+@@ -666,6 +663,9 @@ static ssize_t copy_event_to_user(struct
+ 			goto out_close_fd;
+ 	}
  
--	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID) {
-+	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
-+	    hw->mac.type >= e1000_pch_adp) {
- 		/* Request ME unconfigure the device from S0ix */
- 		mac_data = er32(H2ME);
- 		mac_data &= ~E1000_H2ME_START_DPG;
++	if (f)
++		fd_install(fd, f);
++
+ 	return metadata.event_len;
+ 
+ out_close_fd:
 
 
