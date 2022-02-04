@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 560C74A96BF
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:29:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A7CA4A96C2
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:29:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358161AbiBDJ3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:29:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33368 "EHLO
+        id S1358629AbiBDJ3L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:29:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358183AbiBDJ1M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:27:12 -0500
+        with ESMTP id S1358426AbiBDJ1N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:27:13 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A699C0613A0;
-        Fri,  4 Feb 2022 01:26:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFC92C0613A6;
+        Fri,  4 Feb 2022 01:26:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65186B817E5;
-        Fri,  4 Feb 2022 09:26:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A00BAC004E1;
-        Fri,  4 Feb 2022 09:26:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87F3CB836B9;
+        Fri,  4 Feb 2022 09:26:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2066C004E1;
+        Fri,  4 Feb 2022 09:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966791;
-        bh=YMYuQnPuONb4tfoxDPPHXVTTN65rWcYcJS4YmBhYkt4=;
+        s=korg; t=1643966794;
+        bh=scvV+3Xpz4HcfVsrw8J0YHGJhvIXGTnL6nKF3kBBbEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z1OuLAwm00uXOyXnN4A9WjBh4BwwH/WSGsrejhTYMrNL/X22fpP0ytsLCzLPXu3nw
-         VCyPk50GTT6QvHiMJkTCX57cTbETefyCvUEDNHvDJNsCGkBWFLXVrSMys4urVm5pPQ
-         byOV7LT3rrbPZ4EsU2pRFF46Sqn4WQhM+JKkRKlE=
+        b=zVLpw4xe2hOCHMpSefey3hvZAaa48WFp+1A5VIV2IYJ7qkaEWrMJlURtxP9gT28cP
+         SRSkuCBIVQTXjKf/lrnNkcD8/MBrmzBfZZemhyu9agcn3ZoGH1BA2QhgJvWYemJJBt
+         nGAuG+YUIpn2MN5GTt1D1lHlkQkblid3RkWMc5TI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Neftin <sasha.neftin@intel.com>,
-        Nechama Kraus <nechamax.kraus@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.16 40/43] e1000e: Handshake with CSME starts from ADL platforms
-Date:   Fri,  4 Feb 2022 10:22:47 +0100
-Message-Id: <20220204091918.466644099@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.16 41/43] af_packet: fix data-race in packet_setsockopt / packet_setsockopt
+Date:   Fri,  4 Feb 2022 10:22:48 +0100
+Message-Id: <20220204091918.496128137@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
 References: <20220204091917.166033635@linuxfoundation.org>
@@ -48,44 +49,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Neftin <sasha.neftin@intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit cad014b7b5a6897d8c4fad13e2888978bfb7a53f upstream.
+commit e42e70ad6ae2ae511a6143d2e8da929366e58bd9 upstream.
 
-Handshake with CSME/AMT on none provisioned platforms during S0ix flow
-is not supported on TGL platform and can cause to HW unit hang. Update
-the handshake with CSME flow to start from the ADL platform.
+When packet_setsockopt( PACKET_FANOUT_DATA ) reads po->fanout,
+no lock is held, meaning that another thread can change po->fanout.
 
-Fixes: 3e55d231716e ("e1000e: Add handshake with the CSME to support S0ix")
-Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Nechama Kraus <nechamax.kraus@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Given that po->fanout can only be set once during the socket lifetime
+(it is only cleared from fanout_release()), we can use
+READ_ONCE()/WRITE_ONCE() to document the race.
+
+BUG: KCSAN: data-race in packet_setsockopt / packet_setsockopt
+
+write to 0xffff88813ae8e300 of 8 bytes by task 14653 on cpu 0:
+ fanout_add net/packet/af_packet.c:1791 [inline]
+ packet_setsockopt+0x22fe/0x24a0 net/packet/af_packet.c:3931
+ __sys_setsockopt+0x209/0x2a0 net/socket.c:2180
+ __do_sys_setsockopt net/socket.c:2191 [inline]
+ __se_sys_setsockopt net/socket.c:2188 [inline]
+ __x64_sys_setsockopt+0x62/0x70 net/socket.c:2188
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffff88813ae8e300 of 8 bytes by task 14654 on cpu 1:
+ packet_setsockopt+0x691/0x24a0 net/packet/af_packet.c:3935
+ __sys_setsockopt+0x209/0x2a0 net/socket.c:2180
+ __do_sys_setsockopt net/socket.c:2191 [inline]
+ __se_sys_setsockopt net/socket.c:2188 [inline]
+ __x64_sys_setsockopt+0x62/0x70 net/socket.c:2188
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0x0000000000000000 -> 0xffff888106f8c000
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 14654 Comm: syz-executor.3 Not tainted 5.16.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 47dceb8ecdc1 ("packet: add classic BPF fanout mode")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20220201022358.330621-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/packet/af_packet.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -6345,7 +6345,8 @@ static void e1000e_s0ix_entry_flow(struc
- 	u32 mac_data;
- 	u16 phy_data;
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -1788,7 +1788,10 @@ static int fanout_add(struct sock *sk, s
+ 		err = -ENOSPC;
+ 		if (refcount_read(&match->sk_ref) < match->max_num_members) {
+ 			__dev_remove_pack(&po->prot_hook);
+-			po->fanout = match;
++
++			/* Paired with packet_setsockopt(PACKET_FANOUT_DATA) */
++			WRITE_ONCE(po->fanout, match);
++
+ 			po->rollover = rollover;
+ 			rollover = NULL;
+ 			refcount_set(&match->sk_ref, refcount_read(&match->sk_ref) + 1);
+@@ -3941,7 +3944,8 @@ packet_setsockopt(struct socket *sock, i
+ 	}
+ 	case PACKET_FANOUT_DATA:
+ 	{
+-		if (!po->fanout)
++		/* Paired with the WRITE_ONCE() in fanout_add() */
++		if (!READ_ONCE(po->fanout))
+ 			return -EINVAL;
  
--	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID) {
-+	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
-+	    hw->mac.type >= e1000_pch_adp) {
- 		/* Request ME configure the device for S0ix */
- 		mac_data = er32(H2ME);
- 		mac_data |= E1000_H2ME_START_DPG;
-@@ -6494,7 +6495,8 @@ static void e1000e_s0ix_exit_flow(struct
- 	u16 phy_data;
- 	u32 i = 0;
- 
--	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID) {
-+	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
-+	    hw->mac.type >= e1000_pch_adp) {
- 		/* Request ME unconfigure the device from S0ix */
- 		mac_data = er32(H2ME);
- 		mac_data &= ~E1000_H2ME_START_DPG;
+ 		return fanout_set_data(po, optval, optlen);
 
 
