@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E214A9648
-	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:24:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 596DF4A96A9
+	for <lists+stable@lfdr.de>; Fri,  4 Feb 2022 10:28:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346314AbiBDJYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 04:24:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32920 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357531AbiBDJX7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:23:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4A52C061751;
-        Fri,  4 Feb 2022 01:23:59 -0800 (PST)
+        id S1357384AbiBDJ1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 04:27:47 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:53094 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357659AbiBDJ0G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 04:26:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 610E9B836EA;
-        Fri,  4 Feb 2022 09:23:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66789C004E1;
-        Fri,  4 Feb 2022 09:23:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96446B836F8;
+        Fri,  4 Feb 2022 09:26:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA43FC004E1;
+        Fri,  4 Feb 2022 09:26:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643966619;
-        bh=+oZvMD9AMkNurmINvNaniI2N5vd3IeWpBeB50CWq3EY=;
+        s=korg; t=1643966764;
+        bh=aWaycIVeAhO1p4ZgtcI+rJ4obhF3IJc4kVHZVcCnsLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b1547bn1I6R2D+PYsViTGrdb8/em5iCQSU15tF5lHEj2nKG8tGBbH37yzpiB6fuDm
-         zR1WaAwUavb8BVBQYcveWZPjsKzJOSSfngPx1/GPid1Zz61LI1/bEfDrBZftRAjzBV
-         L97C+E/3DSyQnw5iw810pIHIUTWTBEt+/s7ZR9Sg=
+        b=pqI4KgdGHNaBBlrGyX9Me+BAeZ0HckijPy8Z2Kq9DLvfbJ1PPj0aZf5chzKubKzPk
+         sPbjI3+9xr1myqwxoTXetaQbVTPr77IXii15OfwLpL2/7jGKMYXkmde7+O3qcgG9k0
+         4L0kiWvxTCmL1hVEmkKFoGRRUh7gzJgqSZwZ4OdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Geliang Tang <geliang.tang@suse.com>
-Subject: [PATCH 5.15 02/32] selftests: mptcp: fix ipv6 routing setup
-Date:   Fri,  4 Feb 2022 10:22:12 +0100
-Message-Id: <20220204091915.330086969@linuxfoundation.org>
+        stable@vger.kernel.org, Tabitha Sable <tabitha.c.sable@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.16 06/43] cgroup-v1: Require capabilities to set release_agent
+Date:   Fri,  4 Feb 2022 10:22:13 +0100
+Message-Id: <20220204091917.394618030@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
-References: <20220204091915.247906930@linuxfoundation.org>
+In-Reply-To: <20220204091917.166033635@linuxfoundation.org>
+References: <20220204091917.166033635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,55 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit 9846921dba4936d92f7608315b5d1e0a8ec3a538 upstream.
+commit 24f6008564183aa120d07c03d9289519c2fe02af upstream.
 
-MPJ ipv6 selftests currently lack per link route to the server
-net. Additionally, ipv6 subflows endpoints are created without any
-interface specified. The end-result is that in ipv6 self-tests
-subflows are created all on the same link, leading to expected delays
-and sporadic self-tests failures.
+The cgroup release_agent is called with call_usermodehelper.  The function
+call_usermodehelper starts the release_agent with a full set fo capabilities.
+Therefore require capabilities when setting the release_agaent.
 
-Fix the issue by adding the missing setup bits.
-
-Fixes: 523514ed0a99 ("selftests: mptcp: add ADD_ADDR IPv6 test cases")
-Reported-and-tested-by: Geliang Tang <geliang.tang@suse.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Tabitha Sable <tabitha.c.sable@gmail.com>
+Tested-by: Tabitha Sable <tabitha.c.sable@gmail.com>
+Fixes: 81a6a5cdd2c5 ("Task Control Groups: automatic userspace notification of idle cgroups")
+Cc: stable@vger.kernel.org # v2.6.24+
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/mptcp/mptcp_join.sh |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/cgroup/cgroup-v1.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/tools/testing/selftests/net/mptcp/mptcp_join.sh
-+++ b/tools/testing/selftests/net/mptcp/mptcp_join.sh
-@@ -75,6 +75,7 @@ init()
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -549,6 +549,14 @@ static ssize_t cgroup_release_agent_writ
  
- 		# let $ns2 reach any $ns1 address from any interface
- 		ip -net "$ns2" route add default via 10.0.$i.1 dev ns2eth$i metric 10$i
-+		ip -net "$ns2" route add default via dead:beef:$i::1 dev ns2eth$i metric 10$i
- 	done
- }
+ 	BUILD_BUG_ON(sizeof(cgrp->root->release_agent_path) < PATH_MAX);
  
-@@ -1383,7 +1384,7 @@ ipv6_tests()
- 	reset
- 	ip netns exec $ns1 ./pm_nl_ctl limits 0 1
- 	ip netns exec $ns2 ./pm_nl_ctl limits 0 1
--	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 flags subflow
-+	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 dev ns2eth3 flags subflow
- 	run_tests $ns1 $ns2 dead:beef:1::1 0 0 0 slow
- 	chk_join_nr "single subflow IPv6" 1 1 1
- 
-@@ -1418,7 +1419,7 @@ ipv6_tests()
- 	ip netns exec $ns1 ./pm_nl_ctl limits 0 2
- 	ip netns exec $ns1 ./pm_nl_ctl add dead:beef:2::1 flags signal
- 	ip netns exec $ns2 ./pm_nl_ctl limits 1 2
--	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 flags subflow
-+	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 dev ns2eth3 flags subflow
- 	run_tests $ns1 $ns2 dead:beef:1::1 0 -1 -1 slow
- 	chk_join_nr "remove subflow and signal IPv6" 2 2 2
- 	chk_add_nr 1 1
++	/*
++	 * Release agent gets called with all capabilities,
++	 * require capabilities to set release agent.
++	 */
++	if ((of->file->f_cred->user_ns != &init_user_ns) ||
++	    !capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	cgrp = cgroup_kn_lock_live(of->kn, false);
+ 	if (!cgrp)
+ 		return -ENODEV;
+@@ -954,6 +962,12 @@ int cgroup1_parse_param(struct fs_contex
+ 		/* Specifying two release agents is forbidden */
+ 		if (ctx->release_agent)
+ 			return invalfc(fc, "release_agent respecified");
++		/*
++		 * Release agent gets called with all capabilities,
++		 * require capabilities to set release agent.
++		 */
++		if ((fc->user_ns != &init_user_ns) || !capable(CAP_SYS_ADMIN))
++			return invalfc(fc, "Setting release_agent not allowed");
+ 		ctx->release_agent = param->string;
+ 		param->string = NULL;
+ 		break;
 
 
