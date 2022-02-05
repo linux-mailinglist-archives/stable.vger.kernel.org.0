@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DC1F4AA733
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 07:51:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19D514AA73E
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 08:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378347AbiBEGvv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 01:51:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47666 "EHLO
+        id S1379547AbiBEHB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 02:01:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234002AbiBEGvu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 01:51:50 -0500
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77160C061346
-        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 22:51:49 -0800 (PST)
-Received: by mail-yb1-xb29.google.com with SMTP id 124so24397247ybw.6
-        for <stable@vger.kernel.org>; Fri, 04 Feb 2022 22:51:49 -0800 (PST)
+        with ESMTP id S1379537AbiBEHB4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 02:01:56 -0500
+Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53821C061346
+        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 23:01:55 -0800 (PST)
+Received: by mail-yb1-xb2e.google.com with SMTP id y6so10354932ybc.5
+        for <stable@vger.kernel.org>; Fri, 04 Feb 2022 23:01:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=AfdtRuh+2hET7DIozfvJbH9tYRwZdSLV1MatljKLXvU=;
-        b=cdFyXrDxnYUOmi5ROhNVnm6Qww6T54XH5uClc6mXWP1J5Q7hPyTdW6+8Ock9jwCmDH
-         WKEilaaWuBtg+RWEVB1cPKY9yQOUu2AmsLX2lzw+bo2fbC67Ax0kb0+A4QbxK1ujHJ9/
-         6Ay1pLicu9BVYjBD71j4HBKJOn6YdkD3aVQo7U0/H7ADR+NIYcbyWpkMSvJLOkV2wfZC
-         nOx/pHrVzdfJLJqqiIR+xzKhSz0lJx0IdqRCrNFxa8tEMkdSqDGRUNC+MrhyjoWvTzgK
-         NLC99BuOaGwb7TbUTG0Zr4MyJXTMkE2ZHcwfh8aDmeX2dq4kaqyQbNFHgTNRW9L1qQOI
-         NLfw==
+        bh=5GMBi+gkxjCw1wEOJS7/XrFS7/0JirqIvwhhHXkV+vc=;
+        b=eeayCM+VPZEVrrSQALMhfbBHR+OdJnicusq0jnua17xWUhHhQfshy9aAnYOS8eEF/v
+         bAwAHyXf0iSJnNDtShvKaYcqqhffBttWNkPJIwK8TfC5ZOURfAjYIA7vGC1Qixrw6dio
+         ppN5Tx30nlEPWcEPt3YyFgsymaBvFnj/4sG0SG0e+dTfldoDY8WzTczRXHB23R+lRTjx
+         B/VxAqgYaciKaS6U9x2/abgpC2I0rgbBoHdu+MHUZDv5zsAyefPpgbEumwTKB7JST49x
+         V66JeuGaY0VY+p6V5zte2laIStp8HJrfyvsAtlaWx/lG7bF70Z3LD9YcrU6BhRIGJFlE
+         0umw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=AfdtRuh+2hET7DIozfvJbH9tYRwZdSLV1MatljKLXvU=;
-        b=cA6chttD0vJZU06vdhEBCgNtkmegRFPdCg3mAww8Lvow/eWUbN8ljnz/88kak7vvuy
-         97utKytXjYH6prdWAEVS6z4SpV8iy9qOSVh6QnHu9h7O8738Bqqe+O0wCcveM1CMehZN
-         JV81uubN11WOxqYg+6yWfF/bKd0KudgEdc3+2AQ/jNWDVKp1VU0dtAx6tJckZ0J6vILL
-         y9k7zGeA2FzUTvZdeD4X1GXZVzxFRN42kNMPJucBhBRM0cj7qR8qRArf6Iz9RTfv4R7w
-         sFce0WVzOjQ5e0ZdCy+NxQANHZoNP6csehP24LJT2Fs26/J0JwvfJ/EN0Dt2KmQ0PK/G
-         viIg==
-X-Gm-Message-State: AOAM5324ZWq9ncrz73BpokZ2kiQz1CNNw/UtWo/898LQZkmRjGMI8d5C
-        V8RZoGRY523itp9wLlR4vfQOXErmi46uhOOgBgNodw==
-X-Google-Smtp-Source: ABdhPJy2VLSDTxVYpEPs+Bln+VIVYOyoA/HSzfiHMuj+Bp5j1LmQzdxbFXy19mY2Bee5C7A9DSOAqrGQFAqfQ5DT1W0=
-X-Received: by 2002:a25:49c5:: with SMTP id w188mr2454565yba.200.1644043908430;
- Fri, 04 Feb 2022 22:51:48 -0800 (PST)
+        bh=5GMBi+gkxjCw1wEOJS7/XrFS7/0JirqIvwhhHXkV+vc=;
+        b=gWY9I7xsdMx6NhBz7CNt6Ak+3fv3CRkID7WzVWRBHuVCWEaTuBj1y0GWN9Ieu7gB4E
+         EYops6rxtRXKtGRIDpqjLupMFQxwAef3v4DOspwzqu/yQWcFQti9bTWDFT1lf+y/JRXD
+         SOta0UHXlVQwPMLsKhxnvpUI1n4jIzTm7Yj4S+/+4vHXMon0lTvd5gP0yvDjcOePI70K
+         wXPfYHa1gp4URC6vUNNeBFIJMjEboL0xW27fHAxC1FW4XK9vCmTumwK54waMgY1ib0B/
+         NkrYc7/3c7kX4ptZxBrZe1zXP+nbBVzBH/3empbAQrqosPLpxReGC0InsqNdmSbRYxpm
+         vsrw==
+X-Gm-Message-State: AOAM5304QtK+iv4GAkkKqpg10r1VN1DdwOM1arG1jcgwiHRwuMo19OfL
+        iJSFIw5UbXR52gepvsbHsYDPmP59WHKbgV1jpVad8Q==
+X-Google-Smtp-Source: ABdhPJys2pkhAa3B+povPTwmD0YWBSUizsHYHJB3XGuFKby5uRaIk0zw2U/+ebrZxZS2RgQLMRieZiF4k7UFYq+e5Ls=
+X-Received: by 2002:a25:97c4:: with SMTP id j4mr2667748ybo.108.1644044514366;
+ Fri, 04 Feb 2022 23:01:54 -0800 (PST)
 MIME-Version: 1.0
-References: <20220204091915.247906930@linuxfoundation.org>
-In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
+References: <20220204091914.280602669@linuxfoundation.org>
+In-Reply-To: <20220204091914.280602669@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 5 Feb 2022 12:21:37 +0530
-Message-ID: <CA+G9fYskqJgYwp_m5uvDOYkY7JZqatdoDmVVPhYSbTszvcfi9w@mail.gmail.com>
-Subject: Re: [PATCH 5.15 00/32] 5.15.20-rc1 review
+Date:   Sat, 5 Feb 2022 12:31:43 +0530
+Message-ID: <CA+G9fYuuDJh=zwZVb8Z8E1g6OpfxRJ0trzQei0a-hChTtRViMw@mail.gmail.com>
+Subject: Re: [PATCH 5.10 00/25] 5.10.97-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
@@ -61,7 +61,7 @@ Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,11 +69,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 4 Feb 2022 at 14:54, Greg Kroah-Hartman
+On Fri, 4 Feb 2022 at 14:52, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.15.20 release.
-> There are 32 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.10.97 release.
+> There are 25 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -82,10 +82,10 @@ On Fri, 4 Feb 2022 at 14:54, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.15.20-rc1.gz
+5.10.97-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.15.y
+-rc.git linux-5.10.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -98,53 +98,51 @@ No regressions on arm64, arm, x86_64, and i386.
 Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 ## Build
-* kernel: 5.15.20-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.15.y
-* git commit: 61f904d1d62716d179a70419e910118621910751
-* git describe: v5.15.19-34-g61f904d1d627
+* kernel: 5.10.97-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.10.y
+* git commit: 847fbfddce327344933153bb39a4379b080bede7
+* git describe: v5.10.96-26-g847fbfddce32
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
-.19-34-g61f904d1d627
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
+.96-26-g847fbfddce32
 
-## Test Regressions (compared to v5.15.19)
+## Test Regressions (compared to v5.10.96)
 No test regressions found.
 
-## Metric regressions (compared to v5.15.19)
+## Metric regressions (compared to v5.10.96)
 No metric regressions found.
 
-## Test fixes (compared to v5.15.19)
+## Test fixes (compared to v5.10.96)
 No test fixes found.
 
-## Metric fixes (compared to v5.15.19)
+## Metric fixes (compared to v5.10.96)
 No metric fixes found.
 
 ## Test result summary
-total: 104639, pass: 89348, fail: 1149, skip: 13256, xfail: 886
+total: 98319, pass: 84375, fail: 545, skip: 12496, xfail: 903
 
 ## Build Summary
 * arc: 10 total, 10 passed, 0 failed
-* arm: 263 total, 261 passed, 2 failed
-* arm64: 42 total, 39 passed, 3 failed
+* arm: 259 total, 259 passed, 0 failed
+* arm64: 37 total, 37 passed, 0 failed
 * dragonboard-410c: 1 total, 1 passed, 0 failed
 * hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 40 total, 37 passed, 3 failed
+* i386: 36 total, 36 passed, 0 failed
 * juno-r2: 1 total, 1 passed, 0 failed
-* mips: 37 total, 35 passed, 2 failed
-* parisc: 14 total, 14 passed, 0 failed
-* powerpc: 56 total, 50 passed, 6 failed
-* riscv: 28 total, 22 passed, 6 failed
-* s390: 22 total, 20 passed, 2 failed
-* sh: 26 total, 24 passed, 2 failed
-* sparc: 14 total, 14 passed, 0 failed
+* mips: 34 total, 34 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 52 total, 46 passed, 6 failed
+* riscv: 24 total, 22 passed, 2 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
 * x15: 1 total, 1 passed, 0 failed
 * x86: 1 total, 1 passed, 0 failed
-* x86_64: 42 total, 39 passed, 3 failed
+* x86_64: 37 total, 37 passed, 0 failed
 
 ## Test suites summary
 * fwts
-* igt-gpu-tools
 * kselftest-android
 * kselftest-arm64
 * kselftest-bpf
@@ -170,7 +168,6 @@ total: 104639, pass: 89348, fail: 1149, skip: 13256, xfail: 886
 * kselftest-kvm
 * kselftest-lib
 * kselftest-livepatch
-* kselftest-lkdtm
 * kselftest-membarrier
 * kselftest-memfd
 * kselftest-memory-hotplug
