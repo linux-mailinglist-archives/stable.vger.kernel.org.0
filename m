@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED5214AA8DF
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 13:57:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE2F44AA8E0
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 13:57:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379874AbiBEM5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 07:57:52 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51726 "EHLO
+        id S1379877AbiBEM5y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 07:57:54 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:51746 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236027AbiBEM5u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 07:57:50 -0500
+        with ESMTP id S236027AbiBEM5y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 07:57:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08A41B80B8A
-        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 12:57:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29966C340E8;
-        Sat,  5 Feb 2022 12:57:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64512B80B86
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 12:57:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DD26C340E8;
+        Sat,  5 Feb 2022 12:57:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644065868;
-        bh=Mbvh9f753zDg93GUmAPOXWDZZMcuAUWfwaMnFk7+oiw=;
+        s=korg; t=1644065872;
+        bh=rik4cMzHP9CUhCi7k/ysBoBCdw468BjInDOJ436gLhg=;
         h=Subject:To:Cc:From:Date:From;
-        b=tbuW4B9GSGQoUnZNkeHPouIfk866tfIYLwJPYr/O0qlpBU5KuCWynLorbSFa/mYsG
-         ccqJKIawnEWqg3Ad4kJilufyHoe1e43xuKXRvRxjwQSSsts4ZDe+k0zPGxMP2q8FU4
-         GiEt78AVCf3RpYx9hCxleH5yuuhERdoVA5RgNQ2w=
-Subject: FAILED: patch "[PATCH] spi: uniphier: Fix a bug that doesn't point to private data" failed to apply to 5.10-stable tree
+        b=A7DmVAV7CSJhkP+mTIYSKLMn9rxKo0p0hYScp3wY1XF0uXa0ZhlcVg7HmxjGWTMES
+         w2hzKibRivi3XosYekf2EwHTtfkIe++yRsvrU5kA8F2hgLi7A5iYztmR5/2qwdxe+b
+         YGCEm3IaHk4F8y3BaWlrO/cuYsQAu4CTkCP8FmWI=
+Subject: FAILED: patch "[PATCH] spi: uniphier: Fix a bug that doesn't point to private data" failed to apply to 5.4-stable tree
 To:     hayashi.kunihiko@socionext.com, broonie@kernel.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 05 Feb 2022 13:57:38 +0100
-Message-ID: <1644065858236151@kroah.com>
+Message-ID: <164406585846247@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
