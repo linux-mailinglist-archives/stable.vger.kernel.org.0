@@ -2,207 +2,1468 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 094E34AA8A1
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 13:15:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC66F4AA89B
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 13:15:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379817AbiBEMPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 07:15:48 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:50118 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379800AbiBEMPZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 07:15:25 -0500
+        id S1379801AbiBEMP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 07:15:26 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:36256 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379782AbiBEMPY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 07:15:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B12C60DF0;
-        Sat,  5 Feb 2022 12:15:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0098AC340E8;
-        Sat,  5 Feb 2022 12:15:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE858B80ACB;
+        Sat,  5 Feb 2022 12:15:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86FEBC340E8;
+        Sat,  5 Feb 2022 12:15:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644063324;
-        bh=0ioLUtrKdBwkxRXSk+AnJy4wIx5hjKnuaD3I6nEPO5k=;
-        h=From:To:Cc:Subject:Date:From;
-        b=L1nrMQVIgI8MNwG25EwIckpTY9E9iN4dfMGD+mhUGluPhsewbIsY8iL/KItjxYtng
-         xpfsLY6I0iYfnnQAklY7dQURw5NdKr0VuYIM34esas/m1WrUxpInRppS6NtVzflVOJ
-         j3Z/Xqhi2T8DCU182LcQPq9oUghubyehCwZos3kk=
+        s=korg; t=1644063321;
+        bh=K61MYdaunepubIlyAIYuTK1qLjH3pQu1/vErngEzxXI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=OVFW8Q5pga0OP3Kj/8sqivCPaagpZ7MlKadJpvCSaVOUSDGM89kDIJLddLqfGRAxb
+         BMfuYpT9BT5ZT1kdhN1qURIdg38HjIXGaXuU92ThxG5tDv7kWtiHFTDPEtVtIJqlYC
+         I8St4m7c+YXQzinkvLQxqKOfg5VaP8WXj5yALQDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.16.6
-Date:   Sat,  5 Feb 2022 13:15:09 +0100
-Message-Id: <164406330924779@kroah.com>
+Subject: Re: Linux 5.16.6
+Date:   Sat,  5 Feb 2022 13:15:10 +0100
+Message-Id: <1644063309959@kroah.com>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <164406330924779@kroah.com>
+References: <164406330924779@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.16.6 kernel.
-
-All users of the 5.16 kernel series must upgrade.
-
-The updated 5.16.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.16.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                                             |    2 
- drivers/gpu/drm/vc4/vc4_hdmi.c                                       |   25 ++--
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c                             |   14 ++
- drivers/net/ethernet/intel/e1000e/netdev.c                           |    6 -
- drivers/net/ethernet/intel/i40e/i40e.h                               |    1 
- drivers/net/ethernet/intel/i40e/i40e_main.c                          |   31 +++++
- drivers/net/ethernet/mellanox/mlx5/core/en.h                         |    6 -
- drivers/net/ethernet/mellanox/mlx5/core/en/qos.c                     |    3 
- drivers/net/ethernet/mellanox/mlx5/core/en/rep/bond.c                |   32 ++----
- drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c              |    6 -
- drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h                    |    5 
- drivers/net/ethernet/mellanox/mlx5/core/en/xdp.c                     |    4 
- drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.c        |   13 ++
- drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.h        |    9 +
- drivers/net/ethernet/mellanox/mlx5/core/en_rx.c                      |   30 +++--
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c                      |   15 ++
- drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c                 |    4 
- drivers/net/ethernet/mellanox/mlx5/core/esw/diag/bridge_tracepoint.h |    2 
- drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c                   |    2 
- drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c              |    9 -
- drivers/net/ethernet/mellanox/mlx5/core/port.c                       |    9 -
- drivers/net/ipa/ipa_endpoint.c                                       |   21 +++-
- drivers/net/ipa/ipa_endpoint.h                                       |   17 ++-
- drivers/net/ipa/ipa_power.c                                          |   52 ++++++++++
- drivers/net/ipa/ipa_power.h                                          |    7 +
- drivers/net/ipa/ipa_uc.c                                             |    5 
- drivers/net/phy/at803x.c                                             |   26 ++---
- drivers/net/usb/ipheth.c                                             |    6 -
- drivers/pci/hotplug/pciehp_hpc.c                                     |    7 -
- fs/lockd/svcsubs.c                                                   |   18 +--
- fs/notify/fanotify/fanotify_user.c                                   |    6 -
- fs/overlayfs/copy_up.c                                               |   16 ++-
- kernel/bpf/trampoline.c                                              |    5 
- kernel/cgroup/cgroup-v1.c                                            |   14 ++
- kernel/cgroup/cpuset.c                                               |    3 
- mm/gup.c                                                             |   35 +++++-
- net/core/rtnetlink.c                                                 |    6 -
- net/ipv4/tcp.c                                                       |    7 -
- net/ipv4/tcp_input.c                                                 |    2 
- net/packet/af_packet.c                                               |    8 +
- net/sched/cls_api.c                                                  |   11 +-
- tools/testing/selftests/net/mptcp/mptcp_join.sh                      |    5 
- 42 files changed, 375 insertions(+), 130 deletions(-)
-
-Alex Elder (3):
-      net: ipa: use a bitmap for endpoint replenish_enabled
-      net: ipa: prevent concurrent replenish
-      net: ipa: request IPA register values be retained
-
-Christoph Fritz (1):
-      ovl: fix NULL pointer dereference in copy up warning
-
-Dan Carpenter (1):
-      fanotify: Fix stale file descriptor in copy_event_to_user()
-
-Dima Chumak (1):
-      net/mlx5: Fix offloading with ESWITCH_IPV4_TTL_MODIFY_ENABLE
-
-Eric Dumazet (5):
-      net: sched: fix use-after-free in tc_new_tfilter()
-      rtnetlink: make sure to refresh master_dev/m_ops in __rtnl_newlink()
-      af_packet: fix data-race in packet_setsockopt / packet_setsockopt
-      tcp: fix mem under-charging with zerocopy sendmsg()
-      tcp: add missing tcp_skb_can_collapse() test in tcp_shift_skb_data()
-
-Eric W. Biederman (1):
-      cgroup-v1: Require capabilities to set release_agent
-
-Gal Pressman (1):
-      net/mlx5e: Fix module EEPROM query
-
-Georgi Valkov (1):
-      ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
-
-Greg Kroah-Hartman (1):
-      Linux 5.16.6
-
-He Fengqing (1):
-      bpf: Fix possible race in inc_misses_counter
-
-J. Bruce Fields (2):
-      lockd: fix server crash on reboot of client holding lock
-      lockd: fix failure to cleanup client locks
-
-Jedrzej Jagielski (1):
-      i40e: Fix reset bw limit when DCB enabled with 1 TC
-
-John Hubbard (1):
-      Revert "mm/gup: small refactoring: simplify try_grab_page()"
-
-Jonathan McDowell (1):
-      net: phy: Fix qca8081 with speeds lower than 2.5Gb/s
-
-Karen Sornek (1):
-      i40e: Fix reset path while removing the driver
-
-Kees Cook (1):
-      net/mlx5e: Avoid field-overflowing memcpy()
-
-Khalid Manaa (2):
-      net/mlx5e: Fix wrong calculation of header index in HW_GRO
-      net/mlx5e: Fix broken SKB allocation in HW-GRO
-
-Lukas Wunner (1):
-      PCI: pciehp: Fix infinite loop in IRQ handler upon power fault
-
-Maher Sanalla (1):
-      net/mlx5: Use del_timer_sync in fw reset flow of halting poll
-
-Maor Dickman (2):
-      net/mlx5e: Fix handling of wrong devices during bond netevent
-      net/mlx5: E-Switch, Fix uninitialized variable modact
-
-Maxim Mikityanskiy (1):
-      net/mlx5e: Don't treat small ceil values as unlimited in HTB offload
-
-Maxime Ripard (1):
-      drm/vc4: hdmi: Make sure the device is powered with CEC
-
-Miklos Szeredi (1):
-      ovl: don't fail copy up if no fileattr support on upper
-
-Paolo Abeni (1):
-      selftests: mptcp: fix ipv6 routing setup
-
-Raed Salem (2):
-      net/mlx5e: IPsec: Fix crypto offload for non TCP/UDP encapsulated traffic
-      net/mlx5e: IPsec: Fix tunnel mode crypto offload for non TCP/UDP traffic
-
-Raju Rangoju (1):
-      net: amd-xgbe: ensure to reset the tx_timer_active flag
-
-Roi Dayan (4):
-      net/mlx5e: TC, Reject rules with drop and modify hdr action
-      net/mlx5e: TC, Reject rules with forward and drop actions
-      net/mlx5: Bridge, Fix devlink deadlock on net namespace deletion
-      net/mlx5e: Avoid implicit modify hdr for decap drop rule
-
-Sasha Neftin (1):
-      e1000e: Handshake with CSME starts from ADL platforms
-
-Shyam Sundar S K (1):
-      net: amd-xgbe: Fix skb data length underflow
-
-Tianchen Ding (1):
-      cpuset: Fix the bug that subpart_cpus updated wrongly in update_cpumask()
-
-Vlad Buslov (2):
-      net/mlx5: Bridge, take rtnl lock in init error handler
-      net/mlx5: Bridge, ensure dev_name is null-terminated
-
+diff --git a/Makefile b/Makefile
+index 2f0e5c3d9e2a..2d7b7fe5cbad 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 16
+-SUBLEVEL = 5
++SUBLEVEL = 6
+ EXTRAVERSION =
+ NAME = Gobble Gobble
+ 
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index 8465914892fa..e6aad838065b 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -1739,18 +1739,18 @@ static int vc4_hdmi_cec_adap_enable(struct cec_adapter *adap, bool enable)
+ 	u32 val;
+ 	int ret;
+ 
+-	ret = pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev);
+-	if (ret)
+-		return ret;
++	if (enable) {
++		ret = pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev);
++		if (ret)
++			return ret;
+ 
+-	val = HDMI_READ(HDMI_CEC_CNTRL_5);
+-	val &= ~(VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET |
+-		 VC4_HDMI_CEC_CNT_TO_4700_US_MASK |
+-		 VC4_HDMI_CEC_CNT_TO_4500_US_MASK);
+-	val |= ((4700 / usecs) << VC4_HDMI_CEC_CNT_TO_4700_US_SHIFT) |
+-	       ((4500 / usecs) << VC4_HDMI_CEC_CNT_TO_4500_US_SHIFT);
++		val = HDMI_READ(HDMI_CEC_CNTRL_5);
++		val &= ~(VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET |
++			 VC4_HDMI_CEC_CNT_TO_4700_US_MASK |
++			 VC4_HDMI_CEC_CNT_TO_4500_US_MASK);
++		val |= ((4700 / usecs) << VC4_HDMI_CEC_CNT_TO_4700_US_SHIFT) |
++			((4500 / usecs) << VC4_HDMI_CEC_CNT_TO_4500_US_SHIFT);
+ 
+-	if (enable) {
+ 		HDMI_WRITE(HDMI_CEC_CNTRL_5, val |
+ 			   VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET);
+ 		HDMI_WRITE(HDMI_CEC_CNTRL_5, val);
+@@ -1778,7 +1778,10 @@ static int vc4_hdmi_cec_adap_enable(struct cec_adapter *adap, bool enable)
+ 			HDMI_WRITE(HDMI_CEC_CPU_MASK_SET, VC4_HDMI_CPU_CEC);
+ 		HDMI_WRITE(HDMI_CEC_CNTRL_5, val |
+ 			   VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET);
++
++		pm_runtime_put(&vc4_hdmi->pdev->dev);
+ 	}
++
+ 	return 0;
+ }
+ 
+@@ -1889,8 +1892,6 @@ static int vc4_hdmi_cec_init(struct vc4_hdmi *vc4_hdmi)
+ 	if (ret < 0)
+ 		goto err_remove_handlers;
+ 
+-	pm_runtime_put(&vc4_hdmi->pdev->dev);
+-
+ 	return 0;
+ 
+ err_remove_handlers:
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
+index 30d24d19f40d..7086d0e1e455 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
+@@ -721,7 +721,9 @@ static void xgbe_stop_timers(struct xgbe_prv_data *pdata)
+ 		if (!channel->tx_ring)
+ 			break;
+ 
++		/* Deactivate the Tx timer */
+ 		del_timer_sync(&channel->tx_timer);
++		channel->tx_timer_active = 0;
+ 	}
+ }
+ 
+@@ -2553,6 +2555,14 @@ static int xgbe_rx_poll(struct xgbe_channel *channel, int budget)
+ 			buf2_len = xgbe_rx_buf2_len(rdata, packet, len);
+ 			len += buf2_len;
+ 
++			if (buf2_len > rdata->rx.buf.dma_len) {
++				/* Hardware inconsistency within the descriptors
++				 * that has resulted in a length underflow.
++				 */
++				error = 1;
++				goto skip_data;
++			}
++
+ 			if (!skb) {
+ 				skb = xgbe_create_skb(pdata, napi, rdata,
+ 						      buf1_len);
+@@ -2582,8 +2592,10 @@ static int xgbe_rx_poll(struct xgbe_channel *channel, int budget)
+ 		if (!last || context_next)
+ 			goto read_again;
+ 
+-		if (!skb)
++		if (!skb || error) {
++			dev_kfree_skb(skb);
+ 			goto next_packet;
++		}
+ 
+ 		/* Be sure we don't exceed the configured MTU */
+ 		max_len = netdev->mtu + ETH_HLEN;
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index 44e2dc8328a2..85391ebf8714 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -6345,7 +6345,8 @@ static void e1000e_s0ix_entry_flow(struct e1000_adapter *adapter)
+ 	u32 mac_data;
+ 	u16 phy_data;
+ 
+-	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID) {
++	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
++	    hw->mac.type >= e1000_pch_adp) {
+ 		/* Request ME configure the device for S0ix */
+ 		mac_data = er32(H2ME);
+ 		mac_data |= E1000_H2ME_START_DPG;
+@@ -6494,7 +6495,8 @@ static void e1000e_s0ix_exit_flow(struct e1000_adapter *adapter)
+ 	u16 phy_data;
+ 	u32 i = 0;
+ 
+-	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID) {
++	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID &&
++	    hw->mac.type >= e1000_pch_adp) {
+ 		/* Request ME unconfigure the device from S0ix */
+ 		mac_data = er32(H2ME);
+ 		mac_data &= ~E1000_H2ME_START_DPG;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e.h b/drivers/net/ethernet/intel/i40e/i40e.h
+index 2e02cc68cd3f..80c5cecaf2b5 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e.h
++++ b/drivers/net/ethernet/intel/i40e/i40e.h
+@@ -144,6 +144,7 @@ enum i40e_state_t {
+ 	__I40E_VIRTCHNL_OP_PENDING,
+ 	__I40E_RECOVERY_MODE,
+ 	__I40E_VF_RESETS_DISABLED,	/* disable resets during i40e_remove */
++	__I40E_IN_REMOVE,
+ 	__I40E_VFS_RELEASING,
+ 	/* This must be last as it determines the size of the BITMAP */
+ 	__I40E_STATE_SIZE__,
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index f605c0205e4e..d3af1457fa0d 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -5372,7 +5372,15 @@ static int i40e_vsi_configure_bw_alloc(struct i40e_vsi *vsi, u8 enabled_tc,
+ 	/* There is no need to reset BW when mqprio mode is on.  */
+ 	if (pf->flags & I40E_FLAG_TC_MQPRIO)
+ 		return 0;
+-	if (!vsi->mqprio_qopt.qopt.hw && !(pf->flags & I40E_FLAG_DCB_ENABLED)) {
++
++	if (!vsi->mqprio_qopt.qopt.hw) {
++		if (pf->flags & I40E_FLAG_DCB_ENABLED)
++			goto skip_reset;
++
++		if (IS_ENABLED(CONFIG_I40E_DCB) &&
++		    i40e_dcb_hw_get_num_tc(&pf->hw) == 1)
++			goto skip_reset;
++
+ 		ret = i40e_set_bw_limit(vsi, vsi->seid, 0);
+ 		if (ret)
+ 			dev_info(&pf->pdev->dev,
+@@ -5380,6 +5388,8 @@ static int i40e_vsi_configure_bw_alloc(struct i40e_vsi *vsi, u8 enabled_tc,
+ 				 vsi->seid);
+ 		return ret;
+ 	}
++
++skip_reset:
+ 	memset(&bw_data, 0, sizeof(bw_data));
+ 	bw_data.tc_valid_bits = enabled_tc;
+ 	for (i = 0; i < I40E_MAX_TRAFFIC_CLASS; i++)
+@@ -10853,6 +10863,9 @@ static void i40e_reset_and_rebuild(struct i40e_pf *pf, bool reinit,
+ 				   bool lock_acquired)
+ {
+ 	int ret;
++
++	if (test_bit(__I40E_IN_REMOVE, pf->state))
++		return;
+ 	/* Now we wait for GRST to settle out.
+ 	 * We don't have to delete the VEBs or VSIs from the hw switch
+ 	 * because the reset will make them disappear.
+@@ -12212,6 +12225,8 @@ int i40e_reconfig_rss_queues(struct i40e_pf *pf, int queue_count)
+ 
+ 		vsi->req_queue_pairs = queue_count;
+ 		i40e_prep_for_reset(pf);
++		if (test_bit(__I40E_IN_REMOVE, pf->state))
++			return pf->alloc_rss_size;
+ 
+ 		pf->alloc_rss_size = new_rss_size;
+ 
+@@ -13038,6 +13053,10 @@ static int i40e_xdp_setup(struct i40e_vsi *vsi, struct bpf_prog *prog,
+ 	if (need_reset)
+ 		i40e_prep_for_reset(pf);
+ 
++	/* VSI shall be deleted in a moment, just return EINVAL */
++	if (test_bit(__I40E_IN_REMOVE, pf->state))
++		return -EINVAL;
++
+ 	old_prog = xchg(&vsi->xdp_prog, prog);
+ 
+ 	if (need_reset) {
+@@ -15928,8 +15947,13 @@ static void i40e_remove(struct pci_dev *pdev)
+ 	i40e_write_rx_ctl(hw, I40E_PFQF_HENA(0), 0);
+ 	i40e_write_rx_ctl(hw, I40E_PFQF_HENA(1), 0);
+ 
+-	while (test_bit(__I40E_RESET_RECOVERY_PENDING, pf->state))
++	/* Grab __I40E_RESET_RECOVERY_PENDING and set __I40E_IN_REMOVE
++	 * flags, once they are set, i40e_rebuild should not be called as
++	 * i40e_prep_for_reset always returns early.
++	 */
++	while (test_and_set_bit(__I40E_RESET_RECOVERY_PENDING, pf->state))
+ 		usleep_range(1000, 2000);
++	set_bit(__I40E_IN_REMOVE, pf->state);
+ 
+ 	if (pf->flags & I40E_FLAG_SRIOV_ENABLED) {
+ 		set_bit(__I40E_VF_RESETS_DISABLED, pf->state);
+@@ -16128,6 +16152,9 @@ static void i40e_pci_error_reset_done(struct pci_dev *pdev)
+ {
+ 	struct i40e_pf *pf = pci_get_drvdata(pdev);
+ 
++	if (test_bit(__I40E_IN_REMOVE, pf->state))
++		return;
++
+ 	i40e_reset_and_rebuild(pf, false, false);
+ }
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+index b47a0d3ef22f..0952a58adad1 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+@@ -225,7 +225,7 @@ static inline int mlx5e_get_max_num_channels(struct mlx5_core_dev *mdev)
+ struct mlx5e_tx_wqe {
+ 	struct mlx5_wqe_ctrl_seg ctrl;
+ 	struct mlx5_wqe_eth_seg  eth;
+-	struct mlx5_wqe_data_seg data[0];
++	struct mlx5_wqe_data_seg data[];
+ };
+ 
+ struct mlx5e_rx_wqe_ll {
+@@ -242,8 +242,8 @@ struct mlx5e_umr_wqe {
+ 	struct mlx5_wqe_umr_ctrl_seg   uctrl;
+ 	struct mlx5_mkey_seg           mkc;
+ 	union {
+-		struct mlx5_mtt inline_mtts[0];
+-		struct mlx5_klm inline_klms[0];
++		DECLARE_FLEX_ARRAY(struct mlx5_mtt, inline_mtts);
++		DECLARE_FLEX_ARRAY(struct mlx5_klm, inline_klms);
+ 	};
+ };
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/qos.c b/drivers/net/ethernet/mellanox/mlx5/core/en/qos.c
+index 50977f01a050..2c2a4ca4da30 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/qos.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/qos.c
+@@ -569,7 +569,8 @@ static int mlx5e_htb_convert_rate(struct mlx5e_priv *priv, u64 rate,
+ 
+ static void mlx5e_htb_convert_ceil(struct mlx5e_priv *priv, u64 ceil, u32 *max_average_bw)
+ {
+-	*max_average_bw = div_u64(ceil, BYTES_IN_MBIT);
++	/* Hardware treats 0 as "unlimited", set at least 1. */
++	*max_average_bw = max_t(u32, div_u64(ceil, BYTES_IN_MBIT), 1);
+ 
+ 	qos_dbg(priv->mdev, "Convert: ceil %llu -> max_average_bw %u\n",
+ 		ceil, *max_average_bw);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bond.c b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bond.c
+index 9c076aa20306..b6f5c1bcdbcd 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bond.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bond.c
+@@ -183,18 +183,7 @@ void mlx5e_rep_bond_unslave(struct mlx5_eswitch *esw,
+ 
+ static bool mlx5e_rep_is_lag_netdev(struct net_device *netdev)
+ {
+-	struct mlx5e_rep_priv *rpriv;
+-	struct mlx5e_priv *priv;
+-
+-	/* A given netdev is not a representor or not a slave of LAG configuration */
+-	if (!mlx5e_eswitch_rep(netdev) || !netif_is_lag_port(netdev))
+-		return false;
+-
+-	priv = netdev_priv(netdev);
+-	rpriv = priv->ppriv;
+-
+-	/* Egress acl forward to vport is supported only non-uplink representor */
+-	return rpriv->rep->vport != MLX5_VPORT_UPLINK;
++	return netif_is_lag_port(netdev) && mlx5e_eswitch_vf_rep(netdev);
+ }
+ 
+ static void mlx5e_rep_changelowerstate_event(struct net_device *netdev, void *ptr)
+@@ -210,9 +199,6 @@ static void mlx5e_rep_changelowerstate_event(struct net_device *netdev, void *pt
+ 	u16 fwd_vport_num;
+ 	int err;
+ 
+-	if (!mlx5e_rep_is_lag_netdev(netdev))
+-		return;
+-
+ 	info = ptr;
+ 	lag_info = info->lower_state_info;
+ 	/* This is not an event of a representor becoming active slave */
+@@ -266,9 +252,6 @@ static void mlx5e_rep_changeupper_event(struct net_device *netdev, void *ptr)
+ 	struct net_device *lag_dev;
+ 	struct mlx5e_priv *priv;
+ 
+-	if (!mlx5e_rep_is_lag_netdev(netdev))
+-		return;
+-
+ 	priv = netdev_priv(netdev);
+ 	rpriv = priv->ppriv;
+ 	lag_dev = info->upper_dev;
+@@ -293,6 +276,19 @@ static int mlx5e_rep_esw_bond_netevent(struct notifier_block *nb,
+ 				       unsigned long event, void *ptr)
+ {
+ 	struct net_device *netdev = netdev_notifier_info_to_dev(ptr);
++	struct mlx5e_rep_priv *rpriv;
++	struct mlx5e_rep_bond *bond;
++	struct mlx5e_priv *priv;
++
++	if (!mlx5e_rep_is_lag_netdev(netdev))
++		return NOTIFY_DONE;
++
++	bond = container_of(nb, struct mlx5e_rep_bond, nb);
++	priv = netdev_priv(netdev);
++	rpriv = mlx5_eswitch_get_uplink_priv(priv->mdev->priv.eswitch, REP_ETH);
++	/* Verify VF representor is on the same device of the bond handling the netevent. */
++	if (rpriv->uplink_priv.bond != bond)
++		return NOTIFY_DONE;
+ 
+ 	switch (event) {
+ 	case NETDEV_CHANGELOWERSTATE:
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c
+index c6d2f8c78db7..48dc121b2cb4 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c
+@@ -491,7 +491,7 @@ void mlx5e_rep_bridge_init(struct mlx5e_priv *priv)
+ 	}
+ 
+ 	br_offloads->netdev_nb.notifier_call = mlx5_esw_bridge_switchdev_port_event;
+-	err = register_netdevice_notifier(&br_offloads->netdev_nb);
++	err = register_netdevice_notifier_net(&init_net, &br_offloads->netdev_nb);
+ 	if (err) {
+ 		esw_warn(mdev, "Failed to register bridge offloads netdevice notifier (err=%d)\n",
+ 			 err);
+@@ -509,7 +509,9 @@ void mlx5e_rep_bridge_init(struct mlx5e_priv *priv)
+ err_register_swdev:
+ 	destroy_workqueue(br_offloads->wq);
+ err_alloc_wq:
++	rtnl_lock();
+ 	mlx5_esw_bridge_cleanup(esw);
++	rtnl_unlock();
+ }
+ 
+ void mlx5e_rep_bridge_cleanup(struct mlx5e_priv *priv)
+@@ -524,7 +526,7 @@ void mlx5e_rep_bridge_cleanup(struct mlx5e_priv *priv)
+ 		return;
+ 
+ 	cancel_delayed_work_sync(&br_offloads->update_work);
+-	unregister_netdevice_notifier(&br_offloads->netdev_nb);
++	unregister_netdevice_notifier_net(&init_net, &br_offloads->netdev_nb);
+ 	unregister_switchdev_blocking_notifier(&br_offloads->nb_blk);
+ 	unregister_switchdev_notifier(&br_offloads->nb);
+ 	destroy_workqueue(br_offloads->wq);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
+index 4cdf8e5b24c2..b789af07829c 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
+@@ -167,6 +167,11 @@ static inline u16 mlx5e_txqsq_get_next_pi(struct mlx5e_txqsq *sq, u16 size)
+ 	return pi;
+ }
+ 
++static inline u16 mlx5e_shampo_get_cqe_header_index(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe)
++{
++	return be16_to_cpu(cqe->shampo.header_entry_index) & (rq->mpwqe.shampo->hd_per_wq - 1);
++}
++
+ struct mlx5e_shampo_umr {
+ 	u16 len;
+ };
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/xdp.c b/drivers/net/ethernet/mellanox/mlx5/core/en/xdp.c
+index 2f0df5cc1a2d..efae2444c26f 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/xdp.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/xdp.c
+@@ -341,8 +341,10 @@ mlx5e_xmit_xdp_frame(struct mlx5e_xdpsq *sq, struct mlx5e_xmit_data *xdptxd,
+ 
+ 	/* copy the inline part if required */
+ 	if (sq->min_inline_mode != MLX5_INLINE_MODE_NONE) {
+-		memcpy(eseg->inline_hdr.start, xdptxd->data, MLX5E_XDP_MIN_INLINE);
++		memcpy(eseg->inline_hdr.start, xdptxd->data, sizeof(eseg->inline_hdr.start));
+ 		eseg->inline_hdr.sz = cpu_to_be16(MLX5E_XDP_MIN_INLINE);
++		memcpy(dseg, xdptxd->data + sizeof(eseg->inline_hdr.start),
++		       MLX5E_XDP_MIN_INLINE - sizeof(eseg->inline_hdr.start));
+ 		dma_len  -= MLX5E_XDP_MIN_INLINE;
+ 		dma_addr += MLX5E_XDP_MIN_INLINE;
+ 		dseg++;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.c
+index 2db9573a3fe6..b56fea142c24 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.c
+@@ -157,11 +157,20 @@ static void mlx5e_ipsec_set_swp(struct sk_buff *skb,
+ 	/* Tunnel mode */
+ 	if (mode == XFRM_MODE_TUNNEL) {
+ 		eseg->swp_inner_l3_offset = skb_inner_network_offset(skb) / 2;
+-		eseg->swp_inner_l4_offset = skb_inner_transport_offset(skb) / 2;
+ 		if (xo->proto == IPPROTO_IPV6)
+ 			eseg->swp_flags |= MLX5_ETH_WQE_SWP_INNER_L3_IPV6;
+-		if (inner_ip_hdr(skb)->protocol == IPPROTO_UDP)
++
++		switch (xo->inner_ipproto) {
++		case IPPROTO_UDP:
+ 			eseg->swp_flags |= MLX5_ETH_WQE_SWP_INNER_L4_UDP;
++			fallthrough;
++		case IPPROTO_TCP:
++			/* IP | ESP | IP | [TCP | UDP] */
++			eseg->swp_inner_l4_offset = skb_inner_transport_offset(skb) / 2;
++			break;
++		default:
++			break;
++		}
+ 		return;
+ 	}
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.h b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.h
+index b98db50c3418..428881e0adcb 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ipsec_rxtx.h
+@@ -131,14 +131,17 @@ static inline bool
+ mlx5e_ipsec_txwqe_build_eseg_csum(struct mlx5e_txqsq *sq, struct sk_buff *skb,
+ 				  struct mlx5_wqe_eth_seg *eseg)
+ {
+-	struct xfrm_offload *xo = xfrm_offload(skb);
++	u8 inner_ipproto;
+ 
+ 	if (!mlx5e_ipsec_eseg_meta(eseg))
+ 		return false;
+ 
+ 	eseg->cs_flags = MLX5_ETH_WQE_L3_CSUM;
+-	if (xo->inner_ipproto) {
+-		eseg->cs_flags |= MLX5_ETH_WQE_L4_INNER_CSUM | MLX5_ETH_WQE_L3_INNER_CSUM;
++	inner_ipproto = xfrm_offload(skb)->inner_ipproto;
++	if (inner_ipproto) {
++		eseg->cs_flags |= MLX5_ETH_WQE_L3_INNER_CSUM;
++		if (inner_ipproto == IPPROTO_TCP || inner_ipproto == IPPROTO_UDP)
++			eseg->cs_flags |= MLX5_ETH_WQE_L4_INNER_CSUM;
+ 	} else if (likely(skb->ip_summed == CHECKSUM_PARTIAL)) {
+ 		eseg->cs_flags |= MLX5_ETH_WQE_L4_CSUM;
+ 		sq->stats->csum_partial_inner++;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
+index dfc6604b9538..bf25d0aa74c3 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
+@@ -1116,7 +1116,7 @@ static void mlx5e_shampo_update_ipv6_udp_hdr(struct mlx5e_rq *rq, struct ipv6hdr
+ static void mlx5e_shampo_update_fin_psh_flags(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe,
+ 					      struct tcphdr *skb_tcp_hd)
+ {
+-	u16 header_index = be16_to_cpu(cqe->shampo.header_entry_index);
++	u16 header_index = mlx5e_shampo_get_cqe_header_index(rq, cqe);
+ 	struct tcphdr *last_tcp_hd;
+ 	void *last_hd_addr;
+ 
+@@ -1866,7 +1866,7 @@ mlx5e_skb_from_cqe_mpwrq_linear(struct mlx5e_rq *rq, struct mlx5e_mpw_info *wi,
+ 	return skb;
+ }
+ 
+-static void
++static struct sk_buff *
+ mlx5e_skb_from_cqe_shampo(struct mlx5e_rq *rq, struct mlx5e_mpw_info *wi,
+ 			  struct mlx5_cqe64 *cqe, u16 header_index)
+ {
+@@ -1890,7 +1890,7 @@ mlx5e_skb_from_cqe_shampo(struct mlx5e_rq *rq, struct mlx5e_mpw_info *wi,
+ 		skb = mlx5e_build_linear_skb(rq, hdr, frag_size, rx_headroom, head_size);
+ 
+ 		if (unlikely(!skb))
+-			return;
++			return NULL;
+ 
+ 		/* queue up for recycling/reuse */
+ 		page_ref_inc(head->page);
+@@ -1902,7 +1902,7 @@ mlx5e_skb_from_cqe_shampo(struct mlx5e_rq *rq, struct mlx5e_mpw_info *wi,
+ 				     ALIGN(head_size, sizeof(long)));
+ 		if (unlikely(!skb)) {
+ 			rq->stats->buff_alloc_err++;
+-			return;
++			return NULL;
+ 		}
+ 
+ 		prefetchw(skb->data);
+@@ -1913,9 +1913,7 @@ mlx5e_skb_from_cqe_shampo(struct mlx5e_rq *rq, struct mlx5e_mpw_info *wi,
+ 		skb->tail += head_size;
+ 		skb->len  += head_size;
+ 	}
+-	rq->hw_gro_data->skb = skb;
+-	NAPI_GRO_CB(skb)->count = 1;
+-	skb_shinfo(skb)->gso_size = mpwrq_get_cqe_byte_cnt(cqe) - head_size;
++	return skb;
+ }
+ 
+ static void
+@@ -1968,13 +1966,14 @@ mlx5e_free_rx_shampo_hd_entry(struct mlx5e_rq *rq, u16 header_index)
+ static void mlx5e_handle_rx_cqe_mpwrq_shampo(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe)
+ {
+ 	u16 data_bcnt		= mpwrq_get_cqe_byte_cnt(cqe) - cqe->shampo.header_size;
+-	u16 header_index	= be16_to_cpu(cqe->shampo.header_entry_index);
++	u16 header_index	= mlx5e_shampo_get_cqe_header_index(rq, cqe);
+ 	u32 wqe_offset		= be32_to_cpu(cqe->shampo.data_offset);
+ 	u16 cstrides		= mpwrq_get_cqe_consumed_strides(cqe);
+ 	u32 data_offset		= wqe_offset & (PAGE_SIZE - 1);
+ 	u32 cqe_bcnt		= mpwrq_get_cqe_byte_cnt(cqe);
+ 	u16 wqe_id		= be16_to_cpu(cqe->wqe_id);
+ 	u32 page_idx		= wqe_offset >> PAGE_SHIFT;
++	u16 head_size		= cqe->shampo.header_size;
+ 	struct sk_buff **skb	= &rq->hw_gro_data->skb;
+ 	bool flush		= cqe->shampo.flush;
+ 	bool match		= cqe->shampo.match;
+@@ -2007,9 +2006,16 @@ static void mlx5e_handle_rx_cqe_mpwrq_shampo(struct mlx5e_rq *rq, struct mlx5_cq
+ 	}
+ 
+ 	if (!*skb) {
+-		mlx5e_skb_from_cqe_shampo(rq, wi, cqe, header_index);
++		if (likely(head_size))
++			*skb = mlx5e_skb_from_cqe_shampo(rq, wi, cqe, header_index);
++		else
++			*skb = mlx5e_skb_from_cqe_mpwrq_nonlinear(rq, wi, cqe_bcnt, data_offset,
++								  page_idx);
+ 		if (unlikely(!*skb))
+ 			goto free_hd_entry;
++
++		NAPI_GRO_CB(*skb)->count = 1;
++		skb_shinfo(*skb)->gso_size = cqe_bcnt - head_size;
+ 	} else {
+ 		NAPI_GRO_CB(*skb)->count++;
+ 		if (NAPI_GRO_CB(*skb)->count == 2 &&
+@@ -2023,8 +2029,10 @@ static void mlx5e_handle_rx_cqe_mpwrq_shampo(struct mlx5e_rq *rq, struct mlx5_cq
+ 		}
+ 	}
+ 
+-	di = &wi->umr.dma_info[page_idx];
+-	mlx5e_fill_skb_data(*skb, rq, di, data_bcnt, data_offset);
++	if (likely(head_size)) {
++		di = &wi->umr.dma_info[page_idx];
++		mlx5e_fill_skb_data(*skb, rq, di, data_bcnt, data_offset);
++	}
+ 
+ 	mlx5e_shampo_complete_rx_cqe(rq, cqe, cqe_bcnt, *skb);
+ 	if (flush)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index 9b3adaccc9be..eae37934cdf7 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -1425,7 +1425,8 @@ mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
+ 		if (err)
+ 			goto err_out;
+ 
+-		if (!attr->chain && esw_attr->int_port) {
++		if (!attr->chain && esw_attr->int_port &&
++		    attr->action & MLX5_FLOW_CONTEXT_ACTION_FWD_DEST) {
+ 			/* If decap route device is internal port, change the
+ 			 * source vport value in reg_c0 back to uplink just in
+ 			 * case the rule performs goto chain > 0. If we have a miss
+@@ -3420,6 +3421,18 @@ actions_match_supported(struct mlx5e_priv *priv,
+ 		return false;
+ 	}
+ 
++	if (!(~actions &
++	      (MLX5_FLOW_CONTEXT_ACTION_FWD_DEST | MLX5_FLOW_CONTEXT_ACTION_DROP))) {
++		NL_SET_ERR_MSG_MOD(extack, "Rule cannot support forward+drop action");
++		return false;
++	}
++
++	if (actions & MLX5_FLOW_CONTEXT_ACTION_MOD_HDR &&
++	    actions & MLX5_FLOW_CONTEXT_ACTION_DROP) {
++		NL_SET_ERR_MSG_MOD(extack, "Drop with modify header action is not supported");
++		return false;
++	}
++
+ 	if (actions & MLX5_FLOW_CONTEXT_ACTION_MOD_HDR &&
+ 	    !modify_header_match_supported(priv, &parse_attr->spec, flow_action,
+ 					   actions, ct_flow, ct_clear, extack))
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c
+index f690f430f40f..05e08cec5a8c 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c
+@@ -1574,6 +1574,8 @@ struct mlx5_esw_bridge_offloads *mlx5_esw_bridge_init(struct mlx5_eswitch *esw)
+ {
+ 	struct mlx5_esw_bridge_offloads *br_offloads;
+ 
++	ASSERT_RTNL();
++
+ 	br_offloads = kvzalloc(sizeof(*br_offloads), GFP_KERNEL);
+ 	if (!br_offloads)
+ 		return ERR_PTR(-ENOMEM);
+@@ -1590,6 +1592,8 @@ void mlx5_esw_bridge_cleanup(struct mlx5_eswitch *esw)
+ {
+ 	struct mlx5_esw_bridge_offloads *br_offloads = esw->br_offloads;
+ 
++	ASSERT_RTNL();
++
+ 	if (!br_offloads)
+ 		return;
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/diag/bridge_tracepoint.h b/drivers/net/ethernet/mellanox/mlx5/core/esw/diag/bridge_tracepoint.h
+index 3401188e0a60..51ac24e6ec3c 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/esw/diag/bridge_tracepoint.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/diag/bridge_tracepoint.h
+@@ -21,7 +21,7 @@ DECLARE_EVENT_CLASS(mlx5_esw_bridge_fdb_template,
+ 			    __field(unsigned int, used)
+ 			    ),
+ 		    TP_fast_assign(
+-			    strncpy(__entry->dev_name,
++			    strscpy(__entry->dev_name,
+ 				    netdev_name(fdb->dev),
+ 				    IFNAMSIZ);
+ 			    memcpy(__entry->addr, fdb->key.addr, ETH_ALEN);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c b/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
+index 0b0234f9d694..84dbe46d5ede 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
+@@ -132,7 +132,7 @@ static void mlx5_stop_sync_reset_poll(struct mlx5_core_dev *dev)
+ {
+ 	struct mlx5_fw_reset *fw_reset = dev->priv.fw_reset;
+ 
+-	del_timer(&fw_reset->timer);
++	del_timer_sync(&fw_reset->timer);
+ }
+ 
+ static void mlx5_sync_reset_clear_reset_requested(struct mlx5_core_dev *dev, bool poll_health)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
+index d5e47630e284..df58cba37930 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
+@@ -121,12 +121,13 @@ u32 mlx5_chains_get_nf_ft_chain(struct mlx5_fs_chains *chains)
+ 
+ u32 mlx5_chains_get_prio_range(struct mlx5_fs_chains *chains)
+ {
+-	if (!mlx5_chains_prios_supported(chains))
+-		return 1;
+-
+ 	if (mlx5_chains_ignore_flow_level_supported(chains))
+ 		return UINT_MAX;
+ 
++	if (!chains->dev->priv.eswitch ||
++	    chains->dev->priv.eswitch->mode != MLX5_ESWITCH_OFFLOADS)
++		return 1;
++
+ 	/* We should get here only for eswitch case */
+ 	return FDB_TC_MAX_PRIO;
+ }
+@@ -211,7 +212,7 @@ static int
+ create_chain_restore(struct fs_chain *chain)
+ {
+ 	struct mlx5_eswitch *esw = chain->chains->dev->priv.eswitch;
+-	char modact[MLX5_UN_SZ_BYTES(set_add_copy_action_in_auto)];
++	u8 modact[MLX5_UN_SZ_BYTES(set_add_copy_action_in_auto)] = {};
+ 	struct mlx5_fs_chains *chains = chain->chains;
+ 	enum mlx5e_tc_attr_to_reg chain_to_reg;
+ 	struct mlx5_modify_hdr *mod_hdr;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/port.c b/drivers/net/ethernet/mellanox/mlx5/core/port.c
+index 1ef2b6a848c1..7b16a1188aab 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/port.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/port.c
+@@ -406,23 +406,24 @@ int mlx5_query_module_eeprom(struct mlx5_core_dev *dev,
+ 
+ 	switch (module_id) {
+ 	case MLX5_MODULE_ID_SFP:
+-		mlx5_sfp_eeprom_params_set(&query.i2c_address, &query.page, &query.offset);
++		mlx5_sfp_eeprom_params_set(&query.i2c_address, &query.page, &offset);
+ 		break;
+ 	case MLX5_MODULE_ID_QSFP:
+ 	case MLX5_MODULE_ID_QSFP_PLUS:
+ 	case MLX5_MODULE_ID_QSFP28:
+-		mlx5_qsfp_eeprom_params_set(&query.i2c_address, &query.page, &query.offset);
++		mlx5_qsfp_eeprom_params_set(&query.i2c_address, &query.page, &offset);
+ 		break;
+ 	default:
+ 		mlx5_core_err(dev, "Module ID not recognized: 0x%x\n", module_id);
+ 		return -EINVAL;
+ 	}
+ 
+-	if (query.offset + size > MLX5_EEPROM_PAGE_LENGTH)
++	if (offset + size > MLX5_EEPROM_PAGE_LENGTH)
+ 		/* Cross pages read, read until offset 256 in low page */
+-		size -= offset + size - MLX5_EEPROM_PAGE_LENGTH;
++		size = MLX5_EEPROM_PAGE_LENGTH - offset;
+ 
+ 	query.size = size;
++	query.offset = offset;
+ 
+ 	return mlx5_query_mcia(dev, &query, data);
+ }
+diff --git a/drivers/net/ipa/ipa_endpoint.c b/drivers/net/ipa/ipa_endpoint.c
+index c8f90cb1ee8f..87e42db1b61e 100644
+--- a/drivers/net/ipa/ipa_endpoint.c
++++ b/drivers/net/ipa/ipa_endpoint.c
+@@ -1069,21 +1069,33 @@ static void ipa_endpoint_replenish(struct ipa_endpoint *endpoint, bool add_one)
+ 	u32 backlog;
+ 	int delta;
+ 
+-	if (!endpoint->replenish_enabled) {
++	if (!test_bit(IPA_REPLENISH_ENABLED, endpoint->replenish_flags)) {
+ 		if (add_one)
+ 			atomic_inc(&endpoint->replenish_saved);
+ 		return;
+ 	}
+ 
++	/* If already active, just update the backlog */
++	if (test_and_set_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags)) {
++		if (add_one)
++			atomic_inc(&endpoint->replenish_backlog);
++		return;
++	}
++
+ 	while (atomic_dec_not_zero(&endpoint->replenish_backlog))
+ 		if (ipa_endpoint_replenish_one(endpoint))
+ 			goto try_again_later;
++
++	clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
++
+ 	if (add_one)
+ 		atomic_inc(&endpoint->replenish_backlog);
+ 
+ 	return;
+ 
+ try_again_later:
++	clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
++
+ 	/* The last one didn't succeed, so fix the backlog */
+ 	delta = add_one ? 2 : 1;
+ 	backlog = atomic_add_return(delta, &endpoint->replenish_backlog);
+@@ -1106,7 +1118,7 @@ static void ipa_endpoint_replenish_enable(struct ipa_endpoint *endpoint)
+ 	u32 max_backlog;
+ 	u32 saved;
+ 
+-	endpoint->replenish_enabled = true;
++	set_bit(IPA_REPLENISH_ENABLED, endpoint->replenish_flags);
+ 	while ((saved = atomic_xchg(&endpoint->replenish_saved, 0)))
+ 		atomic_add(saved, &endpoint->replenish_backlog);
+ 
+@@ -1120,7 +1132,7 @@ static void ipa_endpoint_replenish_disable(struct ipa_endpoint *endpoint)
+ {
+ 	u32 backlog;
+ 
+-	endpoint->replenish_enabled = false;
++	clear_bit(IPA_REPLENISH_ENABLED, endpoint->replenish_flags);
+ 	while ((backlog = atomic_xchg(&endpoint->replenish_backlog, 0)))
+ 		atomic_add(backlog, &endpoint->replenish_saved);
+ }
+@@ -1665,7 +1677,8 @@ static void ipa_endpoint_setup_one(struct ipa_endpoint *endpoint)
+ 		/* RX transactions require a single TRE, so the maximum
+ 		 * backlog is the same as the maximum outstanding TREs.
+ 		 */
+-		endpoint->replenish_enabled = false;
++		clear_bit(IPA_REPLENISH_ENABLED, endpoint->replenish_flags);
++		clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
+ 		atomic_set(&endpoint->replenish_saved,
+ 			   gsi_channel_tre_max(gsi, endpoint->channel_id));
+ 		atomic_set(&endpoint->replenish_backlog, 0);
+diff --git a/drivers/net/ipa/ipa_endpoint.h b/drivers/net/ipa/ipa_endpoint.h
+index 0a859d10312d..0313cdc607de 100644
+--- a/drivers/net/ipa/ipa_endpoint.h
++++ b/drivers/net/ipa/ipa_endpoint.h
+@@ -40,6 +40,19 @@ enum ipa_endpoint_name {
+ 
+ #define IPA_ENDPOINT_MAX		32	/* Max supported by driver */
+ 
++/**
++ * enum ipa_replenish_flag:	RX buffer replenish flags
++ *
++ * @IPA_REPLENISH_ENABLED:	Whether receive buffer replenishing is enabled
++ * @IPA_REPLENISH_ACTIVE:	Whether replenishing is underway
++ * @IPA_REPLENISH_COUNT:	Number of defined replenish flags
++ */
++enum ipa_replenish_flag {
++	IPA_REPLENISH_ENABLED,
++	IPA_REPLENISH_ACTIVE,
++	IPA_REPLENISH_COUNT,	/* Number of flags (must be last) */
++};
++
+ /**
+  * struct ipa_endpoint - IPA endpoint information
+  * @ipa:		IPA pointer
+@@ -51,7 +64,7 @@ enum ipa_endpoint_name {
+  * @trans_tre_max:	Maximum number of TRE descriptors per transaction
+  * @evt_ring_id:	GSI event ring used by the endpoint
+  * @netdev:		Network device pointer, if endpoint uses one
+- * @replenish_enabled:	Whether receive buffer replenishing is enabled
++ * @replenish_flags:	Replenishing state flags
+  * @replenish_ready:	Number of replenish transactions without doorbell
+  * @replenish_saved:	Replenish requests held while disabled
+  * @replenish_backlog:	Number of buffers needed to fill hardware queue
+@@ -72,7 +85,7 @@ struct ipa_endpoint {
+ 	struct net_device *netdev;
+ 
+ 	/* Receive buffer replenishing for RX endpoints */
+-	bool replenish_enabled;
++	DECLARE_BITMAP(replenish_flags, IPA_REPLENISH_COUNT);
+ 	u32 replenish_ready;
+ 	atomic_t replenish_saved;
+ 	atomic_t replenish_backlog;
+diff --git a/drivers/net/ipa/ipa_power.c b/drivers/net/ipa/ipa_power.c
+index b1c6c0fcb654..f2989aac47a6 100644
+--- a/drivers/net/ipa/ipa_power.c
++++ b/drivers/net/ipa/ipa_power.c
+@@ -11,6 +11,8 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/bitops.h>
+ 
++#include "linux/soc/qcom/qcom_aoss.h"
++
+ #include "ipa.h"
+ #include "ipa_power.h"
+ #include "ipa_endpoint.h"
+@@ -64,6 +66,7 @@ enum ipa_power_flag {
+  * struct ipa_power - IPA power management information
+  * @dev:		IPA device pointer
+  * @core:		IPA core clock
++ * @qmp:		QMP handle for AOSS communication
+  * @spinlock:		Protects modem TX queue enable/disable
+  * @flags:		Boolean state flags
+  * @interconnect_count:	Number of elements in interconnect[]
+@@ -72,6 +75,7 @@ enum ipa_power_flag {
+ struct ipa_power {
+ 	struct device *dev;
+ 	struct clk *core;
++	struct qmp *qmp;
+ 	spinlock_t spinlock;	/* used with STOPPED/STARTED power flags */
+ 	DECLARE_BITMAP(flags, IPA_POWER_FLAG_COUNT);
+ 	u32 interconnect_count;
+@@ -382,6 +386,47 @@ void ipa_power_modem_queue_active(struct ipa *ipa)
+ 	clear_bit(IPA_POWER_FLAG_STARTED, ipa->power->flags);
+ }
+ 
++static int ipa_power_retention_init(struct ipa_power *power)
++{
++	struct qmp *qmp = qmp_get(power->dev);
++
++	if (IS_ERR(qmp)) {
++		if (PTR_ERR(qmp) == -EPROBE_DEFER)
++			return -EPROBE_DEFER;
++
++		/* We assume any other error means it's not defined/needed */
++		qmp = NULL;
++	}
++	power->qmp = qmp;
++
++	return 0;
++}
++
++static void ipa_power_retention_exit(struct ipa_power *power)
++{
++	qmp_put(power->qmp);
++	power->qmp = NULL;
++}
++
++/* Control register retention on power collapse */
++void ipa_power_retention(struct ipa *ipa, bool enable)
++{
++	static const char fmt[] = "{ class: bcm, res: ipa_pc, val: %c }";
++	struct ipa_power *power = ipa->power;
++	char buf[36];	/* Exactly enough for fmt[]; size a multiple of 4 */
++	int ret;
++
++	if (!power->qmp)
++		return;		/* Not needed on this platform */
++
++	(void)snprintf(buf, sizeof(buf), fmt, enable ? '1' : '0');
++
++	ret = qmp_send(power->qmp, buf, sizeof(buf));
++	if (ret)
++		dev_err(power->dev, "error %d sending QMP %sable request\n",
++			ret, enable ? "en" : "dis");
++}
++
+ int ipa_power_setup(struct ipa *ipa)
+ {
+ 	int ret;
+@@ -438,12 +483,18 @@ ipa_power_init(struct device *dev, const struct ipa_power_data *data)
+ 	if (ret)
+ 		goto err_kfree;
+ 
++	ret = ipa_power_retention_init(power);
++	if (ret)
++		goto err_interconnect_exit;
++
+ 	pm_runtime_set_autosuspend_delay(dev, IPA_AUTOSUSPEND_DELAY);
+ 	pm_runtime_use_autosuspend(dev);
+ 	pm_runtime_enable(dev);
+ 
+ 	return power;
+ 
++err_interconnect_exit:
++	ipa_interconnect_exit(power);
+ err_kfree:
+ 	kfree(power);
+ err_clk_put:
+@@ -460,6 +511,7 @@ void ipa_power_exit(struct ipa_power *power)
+ 
+ 	pm_runtime_disable(dev);
+ 	pm_runtime_dont_use_autosuspend(dev);
++	ipa_power_retention_exit(power);
+ 	ipa_interconnect_exit(power);
+ 	kfree(power);
+ 	clk_put(clk);
+diff --git a/drivers/net/ipa/ipa_power.h b/drivers/net/ipa/ipa_power.h
+index 2151805d7fbb..6f84f057a209 100644
+--- a/drivers/net/ipa/ipa_power.h
++++ b/drivers/net/ipa/ipa_power.h
+@@ -40,6 +40,13 @@ void ipa_power_modem_queue_wake(struct ipa *ipa);
+  */
+ void ipa_power_modem_queue_active(struct ipa *ipa);
+ 
++/**
++ * ipa_power_retention() - Control register retention on power collapse
++ * @ipa:	IPA pointer
++ * @enable:	Whether retention should be enabled or disabled
++ */
++void ipa_power_retention(struct ipa *ipa, bool enable);
++
+ /**
+  * ipa_power_setup() - Set up IPA power management
+  * @ipa:	IPA pointer
+diff --git a/drivers/net/ipa/ipa_uc.c b/drivers/net/ipa/ipa_uc.c
+index 856e55a080a7..fe11910518d9 100644
+--- a/drivers/net/ipa/ipa_uc.c
++++ b/drivers/net/ipa/ipa_uc.c
+@@ -11,6 +11,7 @@
+ 
+ #include "ipa.h"
+ #include "ipa_uc.h"
++#include "ipa_power.h"
+ 
+ /**
+  * DOC:  The IPA embedded microcontroller
+@@ -154,6 +155,7 @@ static void ipa_uc_response_hdlr(struct ipa *ipa, enum ipa_irq_id irq_id)
+ 	case IPA_UC_RESPONSE_INIT_COMPLETED:
+ 		if (ipa->uc_powered) {
+ 			ipa->uc_loaded = true;
++			ipa_power_retention(ipa, true);
+ 			pm_runtime_mark_last_busy(dev);
+ 			(void)pm_runtime_put_autosuspend(dev);
+ 			ipa->uc_powered = false;
+@@ -184,6 +186,9 @@ void ipa_uc_deconfig(struct ipa *ipa)
+ 
+ 	ipa_interrupt_remove(ipa->interrupt, IPA_IRQ_UC_1);
+ 	ipa_interrupt_remove(ipa->interrupt, IPA_IRQ_UC_0);
++	if (ipa->uc_loaded)
++		ipa_power_retention(ipa, false);
++
+ 	if (!ipa->uc_powered)
+ 		return;
+ 
+diff --git a/drivers/net/phy/at803x.c b/drivers/net/phy/at803x.c
+index dae95d9a07e8..32eeed672861 100644
+--- a/drivers/net/phy/at803x.c
++++ b/drivers/net/phy/at803x.c
+@@ -1688,19 +1688,19 @@ static int qca808x_read_status(struct phy_device *phydev)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	if (phydev->link && phydev->speed == SPEED_2500)
+-		phydev->interface = PHY_INTERFACE_MODE_2500BASEX;
+-	else
+-		phydev->interface = PHY_INTERFACE_MODE_SMII;
+-
+-	/* generate seed as a lower random value to make PHY linked as SLAVE easily,
+-	 * except for master/slave configuration fault detected.
+-	 * the reason for not putting this code into the function link_change_notify is
+-	 * the corner case where the link partner is also the qca8081 PHY and the seed
+-	 * value is configured as the same value, the link can't be up and no link change
+-	 * occurs.
+-	 */
+-	if (!phydev->link) {
++	if (phydev->link) {
++		if (phydev->speed == SPEED_2500)
++			phydev->interface = PHY_INTERFACE_MODE_2500BASEX;
++		else
++			phydev->interface = PHY_INTERFACE_MODE_SGMII;
++	} else {
++		/* generate seed as a lower random value to make PHY linked as SLAVE easily,
++		 * except for master/slave configuration fault detected.
++		 * the reason for not putting this code into the function link_change_notify is
++		 * the corner case where the link partner is also the qca8081 PHY and the seed
++		 * value is configured as the same value, the link can't be up and no link change
++		 * occurs.
++		 */
+ 		if (phydev->master_slave_state == MASTER_SLAVE_STATE_ERR) {
+ 			qca808x_phy_ms_seed_enable(phydev, false);
+ 		} else {
+diff --git a/drivers/net/usb/ipheth.c b/drivers/net/usb/ipheth.c
+index cd33955df0b6..6a769df0b421 100644
+--- a/drivers/net/usb/ipheth.c
++++ b/drivers/net/usb/ipheth.c
+@@ -121,7 +121,7 @@ static int ipheth_alloc_urbs(struct ipheth_device *iphone)
+ 	if (tx_buf == NULL)
+ 		goto free_rx_urb;
+ 
+-	rx_buf = usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE,
++	rx_buf = usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN,
+ 				    GFP_KERNEL, &rx_urb->transfer_dma);
+ 	if (rx_buf == NULL)
+ 		goto free_tx_buf;
+@@ -146,7 +146,7 @@ static int ipheth_alloc_urbs(struct ipheth_device *iphone)
+ 
+ static void ipheth_free_urbs(struct ipheth_device *iphone)
+ {
+-	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->rx_buf,
++	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN, iphone->rx_buf,
+ 			  iphone->rx_urb->transfer_dma);
+ 	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->tx_buf,
+ 			  iphone->tx_urb->transfer_dma);
+@@ -317,7 +317,7 @@ static int ipheth_rx_submit(struct ipheth_device *dev, gfp_t mem_flags)
+ 
+ 	usb_fill_bulk_urb(dev->rx_urb, udev,
+ 			  usb_rcvbulkpipe(udev, dev->bulk_in),
+-			  dev->rx_buf, IPHETH_BUF_SIZE,
++			  dev->rx_buf, IPHETH_BUF_SIZE + IPHETH_IP_ALIGN,
+ 			  ipheth_rcvbulk_callback,
+ 			  dev);
+ 	dev->rx_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+diff --git a/drivers/pci/hotplug/pciehp_hpc.c b/drivers/pci/hotplug/pciehp_hpc.c
+index 963fb50528da..1d3108e6c128 100644
+--- a/drivers/pci/hotplug/pciehp_hpc.c
++++ b/drivers/pci/hotplug/pciehp_hpc.c
+@@ -642,6 +642,8 @@ static irqreturn_t pciehp_isr(int irq, void *dev_id)
+ 	 */
+ 	if (ctrl->power_fault_detected)
+ 		status &= ~PCI_EXP_SLTSTA_PFD;
++	else if (status & PCI_EXP_SLTSTA_PFD)
++		ctrl->power_fault_detected = true;
+ 
+ 	events |= status;
+ 	if (!events) {
+@@ -651,7 +653,7 @@ static irqreturn_t pciehp_isr(int irq, void *dev_id)
+ 	}
+ 
+ 	if (status) {
+-		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, events);
++		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, status);
+ 
+ 		/*
+ 		 * In MSI mode, all event bits must be zero before the port
+@@ -725,8 +727,7 @@ static irqreturn_t pciehp_ist(int irq, void *dev_id)
+ 	}
+ 
+ 	/* Check Power Fault Detected */
+-	if ((events & PCI_EXP_SLTSTA_PFD) && !ctrl->power_fault_detected) {
+-		ctrl->power_fault_detected = 1;
++	if (events & PCI_EXP_SLTSTA_PFD) {
+ 		ctrl_err(ctrl, "Slot(%s): Power fault\n", slot_name(ctrl));
+ 		pciehp_set_indicators(ctrl, PCI_EXP_SLTCTL_PWR_IND_OFF,
+ 				      PCI_EXP_SLTCTL_ATTN_IND_ON);
+diff --git a/fs/lockd/svcsubs.c b/fs/lockd/svcsubs.c
+index cb3a7512c33e..0a22a2faf552 100644
+--- a/fs/lockd/svcsubs.c
++++ b/fs/lockd/svcsubs.c
+@@ -179,19 +179,21 @@ nlm_delete_file(struct nlm_file *file)
+ static int nlm_unlock_files(struct nlm_file *file)
+ {
+ 	struct file_lock lock;
+-	struct file *f;
+ 
++	locks_init_lock(&lock);
+ 	lock.fl_type  = F_UNLCK;
+ 	lock.fl_start = 0;
+ 	lock.fl_end   = OFFSET_MAX;
+-	for (f = file->f_file[0]; f <= file->f_file[1]; f++) {
+-		if (f && vfs_lock_file(f, F_SETLK, &lock, NULL) < 0) {
+-			pr_warn("lockd: unlock failure in %s:%d\n",
+-				__FILE__, __LINE__);
+-			return 1;
+-		}
+-	}
++	if (file->f_file[O_RDONLY] &&
++	    vfs_lock_file(file->f_file[O_RDONLY], F_SETLK, &lock, NULL))
++		goto out_err;
++	if (file->f_file[O_WRONLY] &&
++	    vfs_lock_file(file->f_file[O_WRONLY], F_SETLK, &lock, NULL))
++		goto out_err;
+ 	return 0;
++out_err:
++	pr_warn("lockd: unlock failure in %s:%d\n", __FILE__, __LINE__);
++	return 1;
+ }
+ 
+ /*
+diff --git a/fs/notify/fanotify/fanotify_user.c b/fs/notify/fanotify/fanotify_user.c
+index 559bc1e9926d..f98a737ee863 100644
+--- a/fs/notify/fanotify/fanotify_user.c
++++ b/fs/notify/fanotify/fanotify_user.c
+@@ -656,9 +656,6 @@ static ssize_t copy_event_to_user(struct fsnotify_group *group,
+ 	if (fanotify_is_perm_event(event->mask))
+ 		FANOTIFY_PERM(event)->fd = fd;
+ 
+-	if (f)
+-		fd_install(fd, f);
+-
+ 	if (info_mode) {
+ 		ret = copy_info_records_to_user(event, info, info_mode, pidfd,
+ 						buf, count);
+@@ -666,6 +663,9 @@ static ssize_t copy_event_to_user(struct fsnotify_group *group,
+ 			goto out_close_fd;
+ 	}
+ 
++	if (f)
++		fd_install(fd, f);
++
+ 	return metadata.event_len;
+ 
+ out_close_fd:
+diff --git a/fs/overlayfs/copy_up.c b/fs/overlayfs/copy_up.c
+index b193d08a3dc3..e040970408d4 100644
+--- a/fs/overlayfs/copy_up.c
++++ b/fs/overlayfs/copy_up.c
+@@ -145,7 +145,7 @@ static int ovl_copy_fileattr(struct inode *inode, struct path *old,
+ 		if (err == -ENOTTY || err == -EINVAL)
+ 			return 0;
+ 		pr_warn("failed to retrieve lower fileattr (%pd2, err=%i)\n",
+-			old, err);
++			old->dentry, err);
+ 		return err;
+ 	}
+ 
+@@ -157,7 +157,9 @@ static int ovl_copy_fileattr(struct inode *inode, struct path *old,
+ 	 */
+ 	if (oldfa.flags & OVL_PROT_FS_FLAGS_MASK) {
+ 		err = ovl_set_protattr(inode, new->dentry, &oldfa);
+-		if (err)
++		if (err == -EPERM)
++			pr_warn_once("copying fileattr: no xattr on upper\n");
++		else if (err)
+ 			return err;
+ 	}
+ 
+@@ -167,8 +169,16 @@ static int ovl_copy_fileattr(struct inode *inode, struct path *old,
+ 
+ 	err = ovl_real_fileattr_get(new, &newfa);
+ 	if (err) {
++		/*
++		 * Returning an error if upper doesn't support fileattr will
++		 * result in a regression, so revert to the old behavior.
++		 */
++		if (err == -ENOTTY || err == -EINVAL) {
++			pr_warn_once("copying fileattr: no support on upper\n");
++			return 0;
++		}
+ 		pr_warn("failed to retrieve upper fileattr (%pd2, err=%i)\n",
+-			new, err);
++			new->dentry, err);
+ 		return err;
+ 	}
+ 
+diff --git a/kernel/bpf/trampoline.c b/kernel/bpf/trampoline.c
+index e98de5e73ba5..507d06590579 100644
+--- a/kernel/bpf/trampoline.c
++++ b/kernel/bpf/trampoline.c
+@@ -542,11 +542,12 @@ static __always_inline u64 notrace bpf_prog_start_time(void)
+ static void notrace inc_misses_counter(struct bpf_prog *prog)
+ {
+ 	struct bpf_prog_stats *stats;
++	unsigned int flags;
+ 
+ 	stats = this_cpu_ptr(prog->stats);
+-	u64_stats_update_begin(&stats->syncp);
++	flags = u64_stats_update_begin_irqsave(&stats->syncp);
+ 	u64_stats_inc(&stats->misses);
+-	u64_stats_update_end(&stats->syncp);
++	u64_stats_update_end_irqrestore(&stats->syncp, flags);
+ }
+ 
+ /* The logic is similar to bpf_prog_run(), but with an explicit
+diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
+index 41e0837a5a0b..0e877dbcfeea 100644
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -549,6 +549,14 @@ static ssize_t cgroup_release_agent_write(struct kernfs_open_file *of,
+ 
+ 	BUILD_BUG_ON(sizeof(cgrp->root->release_agent_path) < PATH_MAX);
+ 
++	/*
++	 * Release agent gets called with all capabilities,
++	 * require capabilities to set release agent.
++	 */
++	if ((of->file->f_cred->user_ns != &init_user_ns) ||
++	    !capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	cgrp = cgroup_kn_lock_live(of->kn, false);
+ 	if (!cgrp)
+ 		return -ENODEV;
+@@ -954,6 +962,12 @@ int cgroup1_parse_param(struct fs_context *fc, struct fs_parameter *param)
+ 		/* Specifying two release agents is forbidden */
+ 		if (ctx->release_agent)
+ 			return invalfc(fc, "release_agent respecified");
++		/*
++		 * Release agent gets called with all capabilities,
++		 * require capabilities to set release agent.
++		 */
++		if ((fc->user_ns != &init_user_ns) || !capable(CAP_SYS_ADMIN))
++			return invalfc(fc, "Setting release_agent not allowed");
+ 		ctx->release_agent = param->string;
+ 		param->string = NULL;
+ 		break;
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index d0e163a02099..ff8f2f522eb5 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -1615,8 +1615,7 @@ static int update_cpumask(struct cpuset *cs, struct cpuset *trialcs,
+ 	 * Make sure that subparts_cpus is a subset of cpus_allowed.
+ 	 */
+ 	if (cs->nr_subparts_cpus) {
+-		cpumask_andnot(cs->subparts_cpus, cs->subparts_cpus,
+-			       cs->cpus_allowed);
++		cpumask_and(cs->subparts_cpus, cs->subparts_cpus, cs->cpus_allowed);
+ 		cs->nr_subparts_cpus = cpumask_weight(cs->subparts_cpus);
+ 	}
+ 	spin_unlock_irq(&callback_lock);
+diff --git a/mm/gup.c b/mm/gup.c
+index 2c51e9748a6a..37087529bb95 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -124,8 +124,8 @@ static inline struct page *try_get_compound_head(struct page *page, int refs)
+  * considered failure, and furthermore, a likely bug in the caller, so a warning
+  * is also emitted.
+  */
+-struct page *try_grab_compound_head(struct page *page,
+-				    int refs, unsigned int flags)
++__maybe_unused struct page *try_grab_compound_head(struct page *page,
++						   int refs, unsigned int flags)
+ {
+ 	if (flags & FOLL_GET)
+ 		return try_get_compound_head(page, refs);
+@@ -208,10 +208,35 @@ static void put_compound_head(struct page *page, int refs, unsigned int flags)
+  */
+ bool __must_check try_grab_page(struct page *page, unsigned int flags)
+ {
+-	if (!(flags & (FOLL_GET | FOLL_PIN)))
+-		return true;
++	WARN_ON_ONCE((flags & (FOLL_GET | FOLL_PIN)) == (FOLL_GET | FOLL_PIN));
+ 
+-	return try_grab_compound_head(page, 1, flags);
++	if (flags & FOLL_GET)
++		return try_get_page(page);
++	else if (flags & FOLL_PIN) {
++		int refs = 1;
++
++		page = compound_head(page);
++
++		if (WARN_ON_ONCE(page_ref_count(page) <= 0))
++			return false;
++
++		if (hpage_pincount_available(page))
++			hpage_pincount_add(page, 1);
++		else
++			refs = GUP_PIN_COUNTING_BIAS;
++
++		/*
++		 * Similar to try_grab_compound_head(): even if using the
++		 * hpage_pincount_add/_sub() routines, be sure to
++		 * *also* increment the normal page refcount field at least
++		 * once, so that the page really is pinned.
++		 */
++		page_ref_add(page, refs);
++
++		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_ACQUIRED, 1);
++	}
++
++	return true;
+ }
+ 
+ /**
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 2af8aeeadadf..abab13633f84 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -3254,8 +3254,8 @@ static int __rtnl_newlink(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	struct nlattr *slave_attr[RTNL_SLAVE_MAX_TYPE + 1];
+ 	unsigned char name_assign_type = NET_NAME_USER;
+ 	struct nlattr *linkinfo[IFLA_INFO_MAX + 1];
+-	const struct rtnl_link_ops *m_ops = NULL;
+-	struct net_device *master_dev = NULL;
++	const struct rtnl_link_ops *m_ops;
++	struct net_device *master_dev;
+ 	struct net *net = sock_net(skb->sk);
+ 	const struct rtnl_link_ops *ops;
+ 	struct nlattr *tb[IFLA_MAX + 1];
+@@ -3293,6 +3293,8 @@ static int __rtnl_newlink(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	else
+ 		dev = NULL;
+ 
++	master_dev = NULL;
++	m_ops = NULL;
+ 	if (dev) {
+ 		master_dev = netdev_master_upper_dev_get(dev);
+ 		if (master_dev)
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 2bb28bfd83bf..94cbba9fb12b 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1321,10 +1321,13 @@ int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)
+ 
+ 			/* skb changing from pure zc to mixed, must charge zc */
+ 			if (unlikely(skb_zcopy_pure(skb))) {
+-				if (!sk_wmem_schedule(sk, skb->data_len))
++				u32 extra = skb->truesize -
++					    SKB_TRUESIZE(skb_end_offset(skb));
++
++				if (!sk_wmem_schedule(sk, extra))
+ 					goto wait_for_space;
+ 
+-				sk_mem_charge(sk, skb->data_len);
++				sk_mem_charge(sk, extra);
+ 				skb_shinfo(skb)->flags &= ~SKBFL_PURE_ZEROCOPY;
+ 			}
+ 
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 0ce46849ec3d..2b8e84d246bd 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -1660,6 +1660,8 @@ static struct sk_buff *tcp_shift_skb_data(struct sock *sk, struct sk_buff *skb,
+ 	    (mss != tcp_skb_seglen(skb)))
+ 		goto out;
+ 
++	if (!tcp_skb_can_collapse(prev, skb))
++		goto out;
+ 	len = skb->len;
+ 	pcount = tcp_skb_pcount(skb);
+ 	if (tcp_skb_shift(prev, skb, pcount, len))
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index 43eef5c712c1..fe9b4c04744a 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -1788,7 +1788,10 @@ static int fanout_add(struct sock *sk, struct fanout_args *args)
+ 		err = -ENOSPC;
+ 		if (refcount_read(&match->sk_ref) < match->max_num_members) {
+ 			__dev_remove_pack(&po->prot_hook);
+-			po->fanout = match;
++
++			/* Paired with packet_setsockopt(PACKET_FANOUT_DATA) */
++			WRITE_ONCE(po->fanout, match);
++
+ 			po->rollover = rollover;
+ 			rollover = NULL;
+ 			refcount_set(&match->sk_ref, refcount_read(&match->sk_ref) + 1);
+@@ -3941,7 +3944,8 @@ packet_setsockopt(struct socket *sock, int level, int optname, sockptr_t optval,
+ 	}
+ 	case PACKET_FANOUT_DATA:
+ 	{
+-		if (!po->fanout)
++		/* Paired with the WRITE_ONCE() in fanout_add() */
++		if (!READ_ONCE(po->fanout))
+ 			return -EINVAL;
+ 
+ 		return fanout_set_data(po, optval, optlen);
+diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
+index cc9409aa755e..56dba8519d7c 100644
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -1945,9 +1945,9 @@ static int tc_new_tfilter(struct sk_buff *skb, struct nlmsghdr *n,
+ 	bool prio_allocate;
+ 	u32 parent;
+ 	u32 chain_index;
+-	struct Qdisc *q = NULL;
++	struct Qdisc *q;
+ 	struct tcf_chain_info chain_info;
+-	struct tcf_chain *chain = NULL;
++	struct tcf_chain *chain;
+ 	struct tcf_block *block;
+ 	struct tcf_proto *tp;
+ 	unsigned long cl;
+@@ -1976,6 +1976,8 @@ static int tc_new_tfilter(struct sk_buff *skb, struct nlmsghdr *n,
+ 	tp = NULL;
+ 	cl = 0;
+ 	block = NULL;
++	q = NULL;
++	chain = NULL;
+ 	flags = 0;
+ 
+ 	if (prio == 0) {
+@@ -2798,8 +2800,8 @@ static int tc_ctl_chain(struct sk_buff *skb, struct nlmsghdr *n,
+ 	struct tcmsg *t;
+ 	u32 parent;
+ 	u32 chain_index;
+-	struct Qdisc *q = NULL;
+-	struct tcf_chain *chain = NULL;
++	struct Qdisc *q;
++	struct tcf_chain *chain;
+ 	struct tcf_block *block;
+ 	unsigned long cl;
+ 	int err;
+@@ -2809,6 +2811,7 @@ static int tc_ctl_chain(struct sk_buff *skb, struct nlmsghdr *n,
+ 		return -EPERM;
+ 
+ replay:
++	q = NULL;
+ 	err = nlmsg_parse_deprecated(n, sizeof(*t), tca, TCA_MAX,
+ 				     rtm_tca_policy, extack);
+ 	if (err < 0)
+diff --git a/tools/testing/selftests/net/mptcp/mptcp_join.sh b/tools/testing/selftests/net/mptcp/mptcp_join.sh
+index 7ef639a9d4a6..f06dc9dfe15e 100755
+--- a/tools/testing/selftests/net/mptcp/mptcp_join.sh
++++ b/tools/testing/selftests/net/mptcp/mptcp_join.sh
+@@ -75,6 +75,7 @@ init()
+ 
+ 		# let $ns2 reach any $ns1 address from any interface
+ 		ip -net "$ns2" route add default via 10.0.$i.1 dev ns2eth$i metric 10$i
++		ip -net "$ns2" route add default via dead:beef:$i::1 dev ns2eth$i metric 10$i
+ 	done
+ }
+ 
+@@ -1386,7 +1387,7 @@ ipv6_tests()
+ 	reset
+ 	ip netns exec $ns1 ./pm_nl_ctl limits 0 1
+ 	ip netns exec $ns2 ./pm_nl_ctl limits 0 1
+-	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 flags subflow
++	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 dev ns2eth3 flags subflow
+ 	run_tests $ns1 $ns2 dead:beef:1::1 0 0 0 slow
+ 	chk_join_nr "single subflow IPv6" 1 1 1
+ 
+@@ -1421,7 +1422,7 @@ ipv6_tests()
+ 	ip netns exec $ns1 ./pm_nl_ctl limits 0 2
+ 	ip netns exec $ns1 ./pm_nl_ctl add dead:beef:2::1 flags signal
+ 	ip netns exec $ns2 ./pm_nl_ctl limits 1 2
+-	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 flags subflow
++	ip netns exec $ns2 ./pm_nl_ctl add dead:beef:3::2 dev ns2eth3 flags subflow
+ 	run_tests $ns1 $ns2 dead:beef:1::1 0 -1 -1 slow
+ 	chk_join_nr "remove subflow and signal IPv6" 2 2 2
+ 	chk_add_nr 1 1
