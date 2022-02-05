@@ -2,244 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5B084AA885
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 13:04:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EA7A4AA891
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 13:15:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235134AbiBEMEF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 07:04:05 -0500
-Received: from mail.ispras.ru ([83.149.199.84]:58392 "EHLO mail.ispras.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234560AbiBEMEE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 5 Feb 2022 07:04:04 -0500
-Received: from [10.10.2.52] (unknown [10.10.2.52])
-        by mail.ispras.ru (Postfix) with ESMTPSA id 118DC40D3BFF;
-        Sat,  5 Feb 2022 12:04:03 +0000 (UTC)
-Subject: Re: [PATCH 5.10 12/25] drm/vc4: hdmi: Make sure the device is powered
- with CEC
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Michael Stapelberg <michael+drm@stapelberg.ch>,
-        Maxime Ripard <maxime@cerno.tech>
-References: <20220204091914.280602669@linuxfoundation.org>
- <20220204091914.688259001@linuxfoundation.org>
- <91a59ee1-cca4-8d0c-4f86-388434eb5a39@ispras.ru> <Yf5lNIJnvhP4ajam@kroah.com>
-From:   Alexey Khoroshilov <khoroshilov@ispras.ru>
-Autocrypt: addr=khoroshilov@ispras.ru; prefer-encrypt=mutual; keydata=
- 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
- kK2E04Fb+Zk1eJvHYRc=
-Message-ID: <3bfd9b5e-fa3b-047c-044a-051e28b2e863@ispras.ru>
-Date:   Sat, 5 Feb 2022 15:04:02 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S232479AbiBEMPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 07:15:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37010 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379040AbiBEMPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 07:15:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B35C061346;
+        Sat,  5 Feb 2022 04:14:59 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A417B80ACB;
+        Sat,  5 Feb 2022 12:14:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E231C340E8;
+        Sat,  5 Feb 2022 12:14:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1644063296;
+        bh=1IKoIMeNa5YUBp2eOHtz5AE2Ja+TqsIHdACHpiYxOl0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ZC9o5qwlv4y+PyacjCYZtUzD8VdO13aK3L2Z5UaCCagfaElqKU7T+BCPxKfgVGSaM
+         xGLaXfRSkD316KbVQMZ2wgh7GI4FjHnYzp8WkQL3VLccSbN4Z0jprzusBWWwF1FSmm
+         in639QLpdrqyq9Ba6D9z0EFrsxXVSPgk0+Zpbtyo=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.4.177
+Date:   Sat,  5 Feb 2022 13:14:52 +0100
+Message-Id: <164406329313858@kroah.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-In-Reply-To: <Yf5lNIJnvhP4ajam@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: ru-RU
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
+X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
+        lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05.02.2022 14:53, Greg Kroah-Hartman wrote:
-> On Sat, Feb 05, 2022 at 02:40:37PM +0300, Alexey Khoroshilov wrote:
->> On 04.02.2022 12:20, Greg Kroah-Hartman wrote:
->>> From: Maxime Ripard <maxime@cerno.tech>
->>>
->>> Commit 20b0dfa86bef0e80b41b0e5ac38b92f23b6f27f9 upstream.
->>>
->>> The original commit depended on a rework commit (724fc856c09e ("drm/vc4:
->>> hdmi: Split the CEC disable / enable functions in two")) that
->>> (rightfully) didn't reach stable.
->>>
->>> However, probably because the context changed, when the patch was
->>> applied to stable the pm_runtime_put called got moved to the end of the
->>> vc4_hdmi_cec_adap_enable function (that would have become
->>> vc4_hdmi_cec_disable with the rework) to vc4_hdmi_cec_init.
->>>
->>> This means that at probe time, we now drop our reference to the clocks
->>> and power domains and thus end up with a CPU hang when the CPU tries to
->>> access registers.
->>>
->>> The call to pm_runtime_resume_and_get() is also problematic since the
->>> .adap_enable CEC hook is called both to enable and to disable the
->>> controller. That means that we'll now call pm_runtime_resume_and_get()
->>> at disable time as well, messing with the reference counting.
->>>
->>> The behaviour we should have though would be to have
->>> pm_runtime_resume_and_get() called when the CEC controller is enabled,
->>> and pm_runtime_put when it's disabled.
->>>
->>> We need to move things around a bit to behave that way, but it aligns
->>> stable with upstream.
->>>
->>> Cc: <stable@vger.kernel.org> # 5.10.x
->>> Cc: <stable@vger.kernel.org> # 5.15.x
->>> Cc: <stable@vger.kernel.org> # 5.16.x
->>> Reported-by: Michael Stapelberg <michael+drm@stapelberg.ch>
->>> Signed-off-by: Maxime Ripard <maxime@cerno.tech>
->>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>> ---
->>>  drivers/gpu/drm/vc4/vc4_hdmi.c |   27 ++++++++++++++-------------
->>>  1 file changed, 14 insertions(+), 13 deletions(-)
->>>
->>> --- a/drivers/gpu/drm/vc4/vc4_hdmi.c
->>> +++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
->>> @@ -1402,18 +1402,18 @@ static int vc4_hdmi_cec_adap_enable(stru
->>>  	u32 val;
->>>  	int ret;
->>>  
->>> -	ret = pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev);
->>> -	if (ret)
->>> -		return ret;
->>> -
->>> -	val = HDMI_READ(HDMI_CEC_CNTRL_5);
->>> -	val &= ~(VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET |
->>> -		 VC4_HDMI_CEC_CNT_TO_4700_US_MASK |
->>> -		 VC4_HDMI_CEC_CNT_TO_4500_US_MASK);
->>> -	val |= ((4700 / usecs) << VC4_HDMI_CEC_CNT_TO_4700_US_SHIFT) |
->>> -	       ((4500 / usecs) << VC4_HDMI_CEC_CNT_TO_4500_US_SHIFT);
->>> -
->>>  	if (enable) {
->>> +		ret = pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev);
->>> +		if (ret)
->>> +			return ret;
->>> +
->>> +		val = HDMI_READ(HDMI_CEC_CNTRL_5);
->>> +		val &= ~(VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET |
->>> +			 VC4_HDMI_CEC_CNT_TO_4700_US_MASK |
->>> +			 VC4_HDMI_CEC_CNT_TO_4500_US_MASK);
->>> +		val |= ((4700 / usecs) << VC4_HDMI_CEC_CNT_TO_4700_US_SHIFT) |
->>> +			((4500 / usecs) << VC4_HDMI_CEC_CNT_TO_4500_US_SHIFT);
->>> +
->>>  		HDMI_WRITE(HDMI_CEC_CNTRL_5, val |
->>>  			   VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET);
->>>  		HDMI_WRITE(HDMI_CEC_CNTRL_5, val);
->>> @@ -1439,7 +1439,10 @@ static int vc4_hdmi_cec_adap_enable(stru
->>>  		HDMI_WRITE(HDMI_CEC_CPU_MASK_SET, VC4_HDMI_CPU_CEC);
->>>  		HDMI_WRITE(
+I'm announcing the release of the 5.4.177 kernel.
 
+All users of the 5.4 kernel series must upgrade.
 
-, val |
->>>  			   VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET);
->>> +
->>> +		pm_runtime_put(&vc4_hdmi->pdev->dev);
->>>  	}
->>> +
->>>  	return 0;
->>>  }
->>>  
->>> @@ -1531,8 +1534,6 @@ static int vc4_hdmi_cec_init(struct vc4_
->>>  	if (ret < 0)
->>>  		goto err_delete_cec_adap;
->>>  
->>> -	pm_runtime_put(&vc4_hdmi->pdev->dev);
->>> -
->>>  	return 0;
->>>  
->>>  err_delete_cec_adap:
->>>
->>>
->>
->> The patch has moved initialization of val local variable into if
->> (enable) branch. But the variable is used in in the else branch as well.
->> As a result we write of its initialized value here:
->>
->>     HDMI_WRITE(HDMI_CEC_CNTRL_5, val |
->>          VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET);
->>
->> Found by Linux Verification Center (linuxtesting.org) with SVACE.
->>
->> static
->> int vc4_hdmi_cec_adap_enable(struct cec_adapter *adap, bool enable)
->> {
->>   struct vc4_hdmi *vc4_hdmi = cec_get_drvdata(adap);
->>   /* clock period in microseconds */
->>   const u32 usecs = 1000000 / CEC_CLOCK_FREQ;
->>   u32 val;
->>   int ret;
->>
->>   if (enable) {
->>     ret = pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev);
->>     if (ret)
->>       return ret;
->>
->>     val = HDMI_READ(HDMI_CEC_CNTRL_5);
->>     .....
->>
->>   } else {
->>     HDMI_WRITE(HDMI_CEC_CPU_MASK_SET, VC4_HDMI_CPU_CEC);
->>     HDMI_WRITE(HDMI_CEC_CNTRL_5, val |  <------------------ UNINIT VALUE
->>          VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET);
->>
->>     pm_runtime_put(&vc4_hdmi->pdev->dev);
->>   }
->>
->>   return 0;
->> }
-> 
-> So what does this mean?  That this backport is incorrect and should be
-> dropped?  Or that the original commit was wrong?  Or something else?
-> 
-> confused,
-> 
-> greg k-h
-> 
+The updated 5.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-As far as I can see, the upstream commit was correct and the problem is
-in the backport. I would suggest to fix it like this:
+thanks,
 
-   } else {
-     HDMI_WRITE(HDMI_CEC_CPU_MASK_SET, VC4_HDMI_CPU_CEC);
--     HDMI_WRITE(HDMI_CEC_CNTRL_5, val
-+     HDMI_WRITE(HDMI_CEC_CNTRL_5, HDMI_READ(HDMI_CEC_CNTRL_5)
-          VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET);
+greg k-h
 
-     pm_runtime_put(&vc4_hdmi->pdev->dev);
-   }
+------------
 
-But I would left it to comment someone who knows this code better.
+ Documentation/accounting/psi.rst         |    3 -
+ Makefile                                 |    2 
+ drivers/net/ethernet/amd/xgbe/xgbe-drv.c |   14 ++++++
+ drivers/net/usb/ipheth.c                 |    6 +-
+ drivers/pci/hotplug/pciehp_hpc.c         |    7 +--
+ include/linux/psi.h                      |    2 
+ include/linux/psi_types.h                |    3 -
+ kernel/cgroup/cgroup-v1.c                |   14 ++++++
+ kernel/cgroup/cgroup.c                   |   11 +++--
+ kernel/cgroup/cpuset.c                   |    3 -
+ kernel/sched/psi.c                       |   66 +++++++++++++------------------
+ net/core/rtnetlink.c                     |    6 +-
+ net/packet/af_packet.c                   |    8 ++-
+ net/sched/cls_api.c                      |   11 +++--
+ 14 files changed, 93 insertions(+), 63 deletions(-)
 
---
-Best regards,
-Alexey Khoroshilov
-Linux Verification Center, ISPRAS
+Eric Dumazet (3):
+      net: sched: fix use-after-free in tc_new_tfilter()
+      rtnetlink: make sure to refresh master_dev/m_ops in __rtnl_newlink()
+      af_packet: fix data-race in packet_setsockopt / packet_setsockopt
+
+Eric W. Biederman (1):
+      cgroup-v1: Require capabilities to set release_agent
+
+Georgi Valkov (1):
+      ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+
+Greg Kroah-Hartman (1):
+      Linux 5.4.177
+
+Lukas Wunner (1):
+      PCI: pciehp: Fix infinite loop in IRQ handler upon power fault
+
+Raju Rangoju (1):
+      net: amd-xgbe: ensure to reset the tx_timer_active flag
+
+Shyam Sundar S K (1):
+      net: amd-xgbe: Fix skb data length underflow
+
+Suren Baghdasaryan (1):
+      psi: Fix uaf issue when psi trigger is destroyed while being polled
+
+Tianchen Ding (1):
+      cpuset: Fix the bug that subpart_cpus updated wrongly in update_cpumask()
+
