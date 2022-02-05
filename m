@@ -2,115 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE4FD4AA8D6
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 13:48:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D95604AA8D8
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 13:53:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379859AbiBEMsl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 07:48:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44920 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233550AbiBEMsl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 07:48:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6E31C061346;
-        Sat,  5 Feb 2022 04:48:40 -0800 (PST)
+        id S234545AbiBEMxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 07:53:47 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43652 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233550AbiBEMxr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 07:53:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4205160E0B;
-        Sat,  5 Feb 2022 12:48:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05748C340E8;
-        Sat,  5 Feb 2022 12:48:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DF6660E9C
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 12:53:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 012CFC340E8;
+        Sat,  5 Feb 2022 12:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644065319;
-        bh=EbzIvH3DHALdK99fPQJAohdRconWYIor1ltDGqBnVRw=;
+        s=korg; t=1644065626;
+        bh=mgVuFp59P5KDidEYoE+6Qb0k+hrrX7gcWguKx/3smAw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=W+49/S2/5xhBwjD6PUDX09s9GcXW04tsBQMAcwbIsujWRXLGA9KgeUZoYLBXlmmRP
-         1Y7fYgPHuJj/ROUva7BhlgekQtl1SsS9D2QOEH/WoE49V4eUm9+mfG3XYVdLRqi4Qu
-         EtR9gucwKYZPCer7jog6GohjOkKZV3TwpMJj6HhI=
-Date:   Sat, 5 Feb 2022 13:48:36 +0100
+        b=RGLcKjjm4uWLDUDkDcA7/vDDOg4SEHJDy1qIFmrC9Ipfj2rBEiPhJ7JIxmVR9Dq+H
+         m9U/akRp7ctlHZea5SPS8qylMPDYKV9En3B7umHxQcBt2ObhJXWh6zKdL7WlGutOwk
+         CywnDV8ezs3SnQR8ZEBacpMdGarMFoKxKOk+cWvc=
+Date:   Sat, 5 Feb 2022 13:53:43 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     Siarhei Volkau <lis8215@gmail.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>, linux-mips@vger.kernel.org,
-        linux-clk@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v3 1/1] clk: jz4725b: fix mmc0 clock gating
-Message-ID: <Yf5yJKWAfxfQUVHU@kroah.com>
-References: <4FSS6R.0A48V2ZMZD7X1@crapouillou.net>
- <20220205094531.676371-1-lis8215@gmail.com>
- <20220205094531.676371-2-lis8215@gmail.com>
- <Yf5KlvxlRwM9JsZr@kroah.com>
- <FDZT6R.4ATV1Z4FNCP21@crapouillou.net>
+To:     Mario Kleiner <mario.kleiner.de@gmail.com>
+Cc:     stable <stable@vger.kernel.org>,
+        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
+        <ville.syrjala@linux.intel.com>,
+        Uma Shankar <uma.shankar@intel.com>
+Subject: Re: drm/i915: Disable DSB usage for now -- Backport to 5.15-stable
+Message-ID: <Yf5zVwOF3wWXe/z7@kroah.com>
+References: <CAEsyxyjjsOugaA4VOpayCVNGCtHoZsyBpadLeDoVVUNDsBLW-Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <FDZT6R.4ATV1Z4FNCP21@crapouillou.net>
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
-X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
-        lindbergh.monkeyblade.net
+In-Reply-To: <CAEsyxyjjsOugaA4VOpayCVNGCtHoZsyBpadLeDoVVUNDsBLW-Q@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Feb 05, 2022 at 12:15:15PM +0000, Paul Cercueil wrote:
-> Hi Greg,
+On Sat, Feb 05, 2022 at 05:38:56AM +0100, Mario Kleiner wrote:
+> Upstream commit id in Linux 5.17-rc:
+> 99510e1afb4863a225207146bd988064c5fd0629 ("drm/i915: Disable DSB usage
+> for now").
 > 
-> Le sam., févr. 5 2022 at 10:59:50 +0100, Greg KH
-> <gregkh@linuxfoundation.org> a écrit :
-> > On Sat, Feb 05, 2022 at 12:45:31PM +0300, Siarhei Volkau wrote:
-> > >  The mmc0 clock gate bit was mistakenly assigned to "i2s" clock.
-> > >  You can find that the same bit is assigned to "mmc0" too.
-> > >  It leads to mmc0 hang for a long time after any sound activity
-> > >  also it  prevented PM_SLEEP to work properly.
-> > >  I guess it was introduced by copy-paste from jz4740 driver
-> > >  where it is really controls I2S clock gate.
-> > > 
-> > >  Fixes: 226dfa4726eb ("clk: Add Ingenic jz4725b CGU driver")
-> > >  Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
-> > >  Tested-by: Siarhei Volkau <lis8215@gmail.com>
-> > >  Reviewed-by: Paul Cercueil <paul@crapouillou.net>
-> > >  ---
-> > >   drivers/clk/ingenic/jz4725b-cgu.c | 3 +--
-> > >   1 file changed, 1 insertion(+), 2 deletions(-)
-> > > 
-> > >  diff --git a/drivers/clk/ingenic/jz4725b-cgu.c
-> > > b/drivers/clk/ingenic/jz4725b-cgu.c
-> > >  index 744d136..15d6179 100644
-> > >  --- a/drivers/clk/ingenic/jz4725b-cgu.c
-> > >  +++ b/drivers/clk/ingenic/jz4725b-cgu.c
-> > >  @@ -139,11 +139,10 @@ static const struct ingenic_cgu_clk_info
-> > > jz4725b_cgu_clocks[] = {
-> > >   	},
-> > > 
-> > >   	[JZ4725B_CLK_I2S] = {
-> > >  -		"i2s", CGU_CLK_MUX | CGU_CLK_DIV | CGU_CLK_GATE,
-> > >  +		"i2s", CGU_CLK_MUX | CGU_CLK_DIV,
-> > >   		.parents = { JZ4725B_CLK_EXT, JZ4725B_CLK_PLL_HALF, -1, -1 },
-> > >   		.mux = { CGU_REG_CPCCR, 31, 1 },
-> > >   		.div = { CGU_REG_I2SCDR, 0, 1, 9, -1, -1, -1 },
-> > >  -		.gate = { CGU_REG_CLKGR, 6 },
-> > >   	},
-> > > 
-> > >   	[JZ4725B_CLK_SPI] = {
-> > >  --
-> > >  2.35.1
-> > > 
-> > 
-> > <formletter>
-> > 
-> > This is not the correct way to submit patches for inclusion in the
-> > stable kernel tree.  Please read:
-> > https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> > for how to do this properly.
-> > 
-> > </formletter>
+> I'd like to nominate that patch for application to the 5.15-stable
+> tree. It applies trivially after dropping the  ...
 > 
-> What's wrong with this patch exactly? It looks good to me.
+> .has_pxp = 1, \
+> 
+> ... line of context. That line of context was introduced by the
+> unrelated feature introduced later by
+> 6f8e203897144e59de00ed910982af3d7c3e4a7f ("drm/i915/pxp: enable PXP
+> for integrated Gen12"), so can be safely dropped.
+> 
+> Disabling use of the DSB for GAMMA_LUT updates should fix corrupted
+> display colors on Intel Tigerlake, Rocketlake, DG-1 and Alderlake-S
+> Generation 12 graphics. Good explanation is in the upstream commit,
+> but for reference here the bug report which led to the bug diagnosis
+> and fix:
+> 
+> https://gitlab.freedesktop.org/drm/intel/-/issues/3916
+> 
+> This would make high color precision and HDR display modes usable on
+> Gen 12 graphics with Linux 5.51-stable.
 
-No "Cc: stable@..." in the signed-off-by area.
+Now queued up (also for 5.16.y)
 
+thanks,
+
+greg k-h
