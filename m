@@ -2,142 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AD8A4AAC94
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 21:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B620C4AACA5
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 22:13:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352676AbiBEU7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 15:59:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48134 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241545AbiBEU7W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 15:59:22 -0500
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58022C061348
-        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 12:59:21 -0800 (PST)
-Received: by mail-pf1-x42b.google.com with SMTP id c194so8169656pfb.12
-        for <stable@vger.kernel.org>; Sat, 05 Feb 2022 12:59:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=4piMMq0JtbcL70se/qgNwQJn4uYrRo9hxWhvQdMKH5A=;
-        b=cXvnLr6VM+AUmbM/6hxrdiAmAnz9FGEKSqVn4bvRwNyomOdnygCs/gemq4tAFmClQl
-         yc5GS1KHyC9OUaK2sgi+WIelMDXb6OCI0TAZzQjdeWdsZ9m7W46sQ0vsYzZuerzwTa7+
-         qcjsoaN3mLieCpKuNdvqiwCuyaY2YF7dx6+zSC9ZdiL8x79ls6Vq+hNv58VZE+yHyQUW
-         90yZh6DaLtL4Ws37DB/76jcsVhmw3W7MjO627NRiv68KOl1U6lpYM0ODPvFXhrd9YZn4
-         OfQFsLpZTk7phmEqaVEhh2T0KlGwhQecvz3h2TKQXzttoma8BlxUtZAqNCPyJYwXkd42
-         Rr2g==
+        id S1381450AbiBEVNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 16:13:15 -0500
+Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:49904
+        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1381435AbiBEVNN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 16:13:13 -0500
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com [209.85.128.69])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 9522F3FE41
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 21:13:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1644095592;
+        bh=nz2Z4bFotqetThuLUskNVZCWGhwv1YrdlfnjDQe5gQs=;
+        h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+         To:Cc:Content-Type;
+        b=ZfGZr5d7UNrKaYE8J/335FCG7X3AGj8/BL5vJk8vHv8kmLrZd9PrDi5ydaS+xqf02
+         LT4LY1HE28nHpO1bqhwfe3f1AsyX6Z/DBA3ZmAl5x/lHKaruz/GD0v63j4d2CjcCSi
+         PToIwzEJUmnNr9RgwfvE5ntzUQrzvFVrAwygcXR/5j+UOIVfWvaDcb1l5RIL0BFLPi
+         xU+6JE2pMdhjCvmH+lSFyUTrmdUq9ie1ELfS03sVcz5n7r77vIzCU4zCPglaM5705t
+         ZmsJRXllRVb4UtrP3oW94VYQlxRblI7eUsvAWU+UTrkTCxil0uT4T8MVmTB1VxImwU
+         slh4Cc9EegECQ==
+Received: by mail-wm1-f69.google.com with SMTP id i8-20020a1c3b08000000b0037bb9f6feeeso285063wma.5
+        for <stable@vger.kernel.org>; Sat, 05 Feb 2022 13:13:12 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=4piMMq0JtbcL70se/qgNwQJn4uYrRo9hxWhvQdMKH5A=;
-        b=leMlehtmqd0eb9HHinja7eQzPGZ3vdldOv/7IKHg9SPTr1N9k48y9oYAyKhzre9OSC
-         OggRDM69bHsiybZEVFd1S5nykpMIalfyVWbWYADFG9VPiwpxHDhDZwL2xm7kzw15kxJM
-         AClLeBX7IPCZZwDTFDRZqlAaqQZ500jeudXX6nLKNPtwUjSMs2KdydX5IvZT04Ai8pGt
-         bLLJpxDbnXjaDHzn9YtDZokQc+dc5nrT4OWy6wMmrFSOLILDNyuVSaT846045aaenCd8
-         9ry78cVKpxDSq/nZyqKZXWpNO/CNFiUgX2iUP5azzQGJRNJeJP6GvMRGGkHH7WTSAeDt
-         TBpA==
-X-Gm-Message-State: AOAM533E18I8fDOnuDC5emcc5yDyS40RCgcbFzvREmP5s6SM8L8k33Wd
-        cyPsJP4hBzbMh3FOrG45BCsZTXC729NyaO64
-X-Google-Smtp-Source: ABdhPJyIxX9Fm4qJmjKyoO9kCnacij+ckWn5zoxFVz3EBXUMl+5uHfSe2TJveV9fcvqIj5zLZFwY9g==
-X-Received: by 2002:a63:6b43:: with SMTP id g64mr4025659pgc.396.1644094760624;
-        Sat, 05 Feb 2022 12:59:20 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g20sm7165813pfj.196.2022.02.05.12.59.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Feb 2022 12:59:20 -0800 (PST)
-Message-ID: <61fee528.1c69fb81.6959f.247a@mx.google.com>
-Date:   Sat, 05 Feb 2022 12:59:20 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=nz2Z4bFotqetThuLUskNVZCWGhwv1YrdlfnjDQe5gQs=;
+        b=vS2bsh55ysW7+HNA7nM+hLg9EV1wl0wCkarQICn+deoBHAAYt0HS8mm3aDaOFHN60S
+         BO1stjQdtDfGic4K5s/iXELOFvMAokIJVzfmm3Tdeza+vJZPz4fwIoK0KohXUsAKILam
+         nPbIKsO9dnaSXQtCBj7lbjUBOZJ4hBBl3eJedEotv+Qaak2SnW1VLpuC3qXdQXv6vuQE
+         XreYw0ehqRTNJI3PRaORZBY6tPenEf4qdIxFFxjs5mYX6qUlTlHmoXnJFQB1FmL3JIJl
+         AMr0acJaRIrUKcWYs4z+rpvw69IywrWKRfCTCOvGXG5A/KCQGcPdgeN50/ZxXBqSLrAN
+         4sCg==
+X-Gm-Message-State: AOAM531oSqdR2vAnDKWv1kfmydO3Mia2USWTGL8dAhdAKOncAifLDNpi
+        VJYNDyly5rtDgjx/utUS86fDgjBcxtzUmbrf+cQB+rWv+hrBLvwMVgjYkl7B+31XNORDEx/ZO8l
+        Lq99fXGlsJzwEix5j7LwXtT2+I+LtpHdeOQQfSVfZ9zzjTitsMQ==
+X-Received: by 2002:a05:6000:1707:: with SMTP id n7mr4286320wrc.234.1644095590469;
+        Sat, 05 Feb 2022 13:13:10 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx0O5lMWQqmnSzmHWQqbnIIH10oDMuf24v+GRzu1vHjjMNiBTdjAaypokB3rE4ZxL9Iq0Fr05Wxc5BZQWT7mig=
+X-Received: by 2002:a05:6000:1707:: with SMTP id n7mr4286310wrc.234.1644095590242;
+ Sat, 05 Feb 2022 13:13:10 -0800 (PST)
 MIME-Version: 1.0
+References: <20211129173637.303201-1-robh@kernel.org> <Yf2wTLjmcRj+AbDv@xps13.dannf>
+ <CAL_Jsq+4b4Yy8rJGJv9j9j_TCm6mTAkW5fzcDuuW-jOoiZ2GLg@mail.gmail.com>
+In-Reply-To: <CAL_Jsq+4b4Yy8rJGJv9j9j_TCm6mTAkW5fzcDuuW-jOoiZ2GLg@mail.gmail.com>
+From:   dann frazier <dann.frazier@canonical.com>
+Date:   Sat, 5 Feb 2022 14:12:57 -0700
+Message-ID: <CALdTtnuK+D7gNbEDgHbrc29pFFCR3XYAHqrK3=X_hQxUx-Seow@mail.gmail.com>
+Subject: Re: [PATCH] PCI: xgene: Fix IB window setup
+To:     Rob Herring <robh@kernel.org>
+Cc:     Toan Le <toan@os.amperecomputing.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andrew Murray <amurray@thegoodpenguin.co.uk>,
+        =?UTF-8?Q?St=C3=A9phane_Graber?= <stgraber@ubuntu.com>,
+        stable <stable@vger.kernel.org>, PCI <linux-pci@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.227-62-gcd8bdac92abc
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 130 runs,
- 1 regressions (v4.19.227-62-gcd8bdac92abc)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
-X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
-        lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 130 runs, 1 regressions (v4.19.227-62-gcd8bd=
-ac92abc)
+On Sat, Feb 5, 2022 at 9:05 AM Rob Herring <robh@kernel.org> wrote:
+>
+> On Fri, Feb 4, 2022 at 5:01 PM dann frazier <dann.frazier@canonical.com> =
+wrote:
+> >
+> > On Mon, Nov 29, 2021 at 11:36:37AM -0600, Rob Herring wrote:
+> > > Commit 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
+> > > broke PCI support on XGene. The cause is the IB resources are now sor=
+ted
+> > > in address order instead of being in DT dma-ranges order. The result =
+is
+> > > which inbound registers are used for each region are swapped. I don't
+> > > know the details about this h/w, but it appears that IB region 0
+> > > registers can't handle a size greater than 4GB. In any case, limiting
+> > > the size for region 0 is enough to get back to the original assignmen=
+t
+> > > of dma-ranges to regions.
+> >
+> > hey Rob!
+> >
+> > I've been seeing a panic on HP Moonshoot m400 cartridges (X-Gene1) -
+> > only during network installs - that I also bisected down to commit
+> > 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup"). I was
+> > hoping that this patch that fixed the issue on St=C3=A9phane's X-Gene2
+> > system would also fix my issue, but no luck. In fact, it seems to just
+> > makes it fail differently. Reverting both patches is required to get a
+> > v5.17-rc kernel to boot.
+> >
+> > I've collected the following logs - let me know if anything else would
+> > be useful.
+> >
+> > 1) v5.17-rc2+ (unmodified):
+> >    http://dannf.org/bugs/m400-no-reverts.log
+> >    Note that the mlx4 driver fails initialization.
+> >
+> > 2) v5.17-rc2+, w/o the commit that fixed St=C3=A9phane's system:
+> >    http://dannf.org/bugs/m400-xgene2-fix-reverted.log
+> >    Note the mlx4 MSI-X timeout, and later panic.
+> >
+> > 3) v5.17-rc2+, w/ both commits reverted (works)
+> >    http://dannf.org/bugs/m400-both-reverted.log
+>
+> The ranges and dma-ranges addresses don't appear to match up with any
+> upstream dts files. Can you send me the DT?
 
-Regressions Summary
--------------------
+Sure: http://dannf.org/bugs/fdt
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ -dann
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.227-62-gcd8bdac92abc/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.227-62-gcd8bdac92abc
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      cd8bdac92abc1b0852935e242a8714ac5537d012 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61feaa977661ebb4bf5d6ef7
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.227=
--62-gcd8bdac92abc/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.227=
--62-gcd8bdac92abc/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61feaa977661ebb=
-4bf5d6efd
-        failing since 3 days (last pass: v4.19.227-45-g1749fce68f74, first =
-fail: v4.19.227-45-g388e07a2599d)
-        2 lines
-
-    2022-02-05T16:49:02.881136  <8>[   21.151885] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-02-05T16:49:02.926563  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/97
-    2022-02-05T16:49:02.935614  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+> Otherwise, we're going to need some debugging added to
+> xgene_pcie_setup_ib_reg() to see if the register setup changed. I can
+> come up with something next week.
+>
+> Rob
