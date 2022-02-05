@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EDC74AA8DB
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 13:56:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1791C4AA8DC
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 13:56:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379873AbiBEM4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 07:56:42 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51306 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379874AbiBEM4m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 07:56:42 -0500
+        id S233550AbiBEM4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 07:56:52 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45002 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379874AbiBEM4t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 07:56:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A347EB80B86
-        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 12:56:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D432AC340E8;
-        Sat,  5 Feb 2022 12:56:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93D4860EA9
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 12:56:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E11DC340E8;
+        Sat,  5 Feb 2022 12:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644065800;
-        bh=EoxH26Srhfr0IpzdQSy17pyQ7o2sWBWdsqqn4qURb0k=;
+        s=korg; t=1644065809;
+        bh=nV9mcA1IdExeXP+LKY8OwyeQB2vqHdZqL3/YW/4Jl+M=;
         h=Subject:To:Cc:From:Date:From;
-        b=GxOWthLZ40ICqaKX7Ssc476jUhvWHfl7ffDmge59/TaZ3lE4cuauMZ/IAzI7QVXcL
-         pj5jaSLk1ah7ebVnKvv/WDvo3ClL5sQrjr+g7T8IpDLvE7e4u31QrHA91D3h6aPCOf
-         rfG8FdBgCQa80tZzdloIkgdgr53f4Swc7qW0c7LU=
-Subject: FAILED: patch "[PATCH] spi: stm32-qspi: Update spi registering" failed to apply to 5.10-stable tree
+        b=n5dAGshpfqGdtPyE0LTfsn8meDuF77lxkcA2WJ15R5uim3WZYOyn5It0GQleNQqXh
+         2r3S2oBcqcreN4X5pVsAto7z5WNxDvY4rz4b1mWaqeYz4ZS3+Ch2554+s4s9mvTW3w
+         nbCm3dRE4ModMK/52GugNGFO35se5cgK8sWRUeRo=
+Subject: FAILED: patch "[PATCH] spi: stm32-qspi: Update spi registering" failed to apply to 5.4-stable tree
 To:     patrice.chotard@foss.st.com, broonie@kernel.org, lukas@wunner.de,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 05 Feb 2022 13:56:37 +0100
-Message-ID: <164406579724262@kroah.com>
+Date:   Sat, 05 Feb 2022 13:56:38 +0100
+Message-ID: <164406579817225@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
