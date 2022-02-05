@@ -2,44 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EFE14AA8F7
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:04:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 324D04AA8FD
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:06:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377636AbiBENEe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 08:04:34 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:54354 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346507AbiBENEd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:04:33 -0500
+        id S1379871AbiBENGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 08:06:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49172 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233802AbiBENGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:06:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 304D3C061346
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 05:06:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C82FBB80925
-        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 13:04:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC40CC340E8;
-        Sat,  5 Feb 2022 13:04:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C197F60EB7
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 13:06:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9819BC340E8;
+        Sat,  5 Feb 2022 13:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644066271;
-        bh=QutvUMNIRkdKhxJZ4rjmlfKi9sDo/VQB5IhA+kpZHwA=;
+        s=korg; t=1644066406;
+        bh=P8ljGIFEpo8wCkTNPU0GbcT4Rk9WIVjQ4Izcbr0hh/g=;
         h=Subject:To:Cc:From:Date:From;
-        b=BNfLSLd6je95nK8JxSCgkd1XTc4kptb1YHyEvTpp0WLLB2um5z0h9xXpNqVRZVGKX
-         +7TVv9HO6+Z4u33swUZFJ15+GfBN/I46b5wJKEMbU+Vx/FJ5k0yuKMk1d+q8cL0Hu/
-         IGu2MvMb2wdRd/l1jk2IX9nj6Gh69mAE5cEar65E=
-Subject: FAILED: patch "[PATCH] btrfs: fix use-after-free after failure to create a snapshot" failed to apply to 5.10-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com
+        b=OSOMQmeDM0iSPrSRCDGSva+H5gxe4CP1tzxbLBJsu280jMP3EF4YUqpC3pzPMbLYt
+         a4K7haXCpKoVCeYXubvx/IU60vh37gVhnQAkuYjGXi1eiDTF8E08wp+29eaOds2RPM
+         ZeRBCSZlVp5M8TysJ8D/fnzre1+Vg/heibNJZDmg=
+Subject: FAILED: patch "[PATCH] drm/amd/display: Update watermark values for DCN301" failed to apply to 5.15-stable tree
+To:     agustin.gutierrez@amd.com, alexander.deucher@amd.com,
+        zhan.liu@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 05 Feb 2022 14:04:28 +0100
-Message-ID: <164406626811753@kroah.com>
+Date:   Sat, 05 Feb 2022 14:06:35 +0100
+Message-ID: <164406639593104@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
+X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
+        lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -50,125 +60,66 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 28b21c558a3753171097193b6f6602a94169093a Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Fri, 21 Jan 2022 15:44:39 +0000
-Subject: [PATCH] btrfs: fix use-after-free after failure to create a snapshot
+From 2d8ae25d233767171942a9fba5fd8f4a620996be Mon Sep 17 00:00:00 2001
+From: Agustin Gutierrez <agustin.gutierrez@amd.com>
+Date: Fri, 28 Jan 2022 17:51:53 -0500
+Subject: [PATCH] drm/amd/display: Update watermark values for DCN301
 
-At ioctl.c:create_snapshot(), we allocate a pending snapshot structure and
-then attach it to the transaction's list of pending snapshots. After that
-we call btrfs_commit_transaction(), and if that returns an error we jump
-to 'fail' label, where we kfree() the pending snapshot structure. This can
-result in a later use-after-free of the pending snapshot:
+[Why]
+There is underflow / visual corruption DCN301, for high
+bandwidth MST DSC configurations such as 2x1440p144 or 2x4k60.
 
-1) We allocated the pending snapshot and added it to the transaction's
-   list of pending snapshots;
+[How]
+Use up-to-date watermark values for DCN301.
 
-2) We call btrfs_commit_transaction(), and it fails either at the first
-   call to btrfs_run_delayed_refs() or btrfs_start_dirty_block_groups().
-   In both cases, we don't abort the transaction and we release our
-   transaction handle. We jump to the 'fail' label and free the pending
-   snapshot structure. We return with the pending snapshot still in the
-   transaction's list;
+Reviewed-by: Zhan Liu <zhan.liu@amd.com>
+Signed-off-by: Agustin Gutierrez <agustin.gutierrez@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 
-3) Another task commits the transaction. This time there's no error at
-   all, and then during the transaction commit it accesses a pointer
-   to the pending snapshot structure that the snapshot creation task
-   has already freed, resulting in a user-after-free.
-
-This issue could actually be detected by smatch, which produced the
-following warning:
-
-  fs/btrfs/ioctl.c:843 create_snapshot() warn: '&pending_snapshot->list' not removed from list
-
-So fix this by not having the snapshot creation ioctl directly add the
-pending snapshot to the transaction's list. Instead add the pending
-snapshot to the transaction handle, and then at btrfs_commit_transaction()
-we add the snapshot to the list only when we can guarantee that any error
-returned after that point will result in a transaction abort, in which
-case the ioctl code can safely free the pending snapshot and no one can
-access it anymore.
-
-CC: stable@vger.kernel.org # 5.10+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index eef5b300b9a9..90c11ddff6e5 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -805,10 +805,7 @@ static int create_snapshot(struct btrfs_root *root, struct inode *dir,
- 		goto fail;
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn301/vg_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn301/vg_clk_mgr.c
+index 48005def1164..bc4ddc36fe58 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn301/vg_clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn301/vg_clk_mgr.c
+@@ -570,32 +570,32 @@ static struct wm_table lpddr5_wm_table = {
+ 			.wm_inst = WM_A,
+ 			.wm_type = WM_TYPE_PSTATE_CHG,
+ 			.pstate_latency_us = 11.65333,
+-			.sr_exit_time_us = 7.95,
+-			.sr_enter_plus_exit_time_us = 9,
++			.sr_exit_time_us = 13.5,
++			.sr_enter_plus_exit_time_us = 16.5,
+ 			.valid = true,
+ 		},
+ 		{
+ 			.wm_inst = WM_B,
+ 			.wm_type = WM_TYPE_PSTATE_CHG,
+ 			.pstate_latency_us = 11.65333,
+-			.sr_exit_time_us = 9.82,
+-			.sr_enter_plus_exit_time_us = 11.196,
++			.sr_exit_time_us = 13.5,
++			.sr_enter_plus_exit_time_us = 16.5,
+ 			.valid = true,
+ 		},
+ 		{
+ 			.wm_inst = WM_C,
+ 			.wm_type = WM_TYPE_PSTATE_CHG,
+ 			.pstate_latency_us = 11.65333,
+-			.sr_exit_time_us = 9.89,
+-			.sr_enter_plus_exit_time_us = 11.24,
++			.sr_exit_time_us = 13.5,
++			.sr_enter_plus_exit_time_us = 16.5,
+ 			.valid = true,
+ 		},
+ 		{
+ 			.wm_inst = WM_D,
+ 			.wm_type = WM_TYPE_PSTATE_CHG,
+ 			.pstate_latency_us = 11.65333,
+-			.sr_exit_time_us = 9.748,
+-			.sr_enter_plus_exit_time_us = 11.102,
++			.sr_exit_time_us = 13.5,
++			.sr_enter_plus_exit_time_us = 16.5,
+ 			.valid = true,
+ 		},
  	}
- 
--	spin_lock(&fs_info->trans_lock);
--	list_add(&pending_snapshot->list,
--		 &trans->transaction->pending_snapshots);
--	spin_unlock(&fs_info->trans_lock);
-+	trans->pending_snapshot = pending_snapshot;
- 
- 	ret = btrfs_commit_transaction(trans);
- 	if (ret)
-diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
-index 03de89b45f27..c43bbc7f623e 100644
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -2000,6 +2000,27 @@ static inline void btrfs_wait_delalloc_flush(struct btrfs_fs_info *fs_info)
- 		btrfs_wait_ordered_roots(fs_info, U64_MAX, 0, (u64)-1);
- }
- 
-+/*
-+ * Add a pending snapshot associated with the given transaction handle to the
-+ * respective handle. This must be called after the transaction commit started
-+ * and while holding fs_info->trans_lock.
-+ * This serves to guarantee a caller of btrfs_commit_transaction() that it can
-+ * safely free the pending snapshot pointer in case btrfs_commit_transaction()
-+ * returns an error.
-+ */
-+static void add_pending_snapshot(struct btrfs_trans_handle *trans)
-+{
-+	struct btrfs_transaction *cur_trans = trans->transaction;
-+
-+	if (!trans->pending_snapshot)
-+		return;
-+
-+	lockdep_assert_held(&trans->fs_info->trans_lock);
-+	ASSERT(cur_trans->state >= TRANS_STATE_COMMIT_START);
-+
-+	list_add(&trans->pending_snapshot->list, &cur_trans->pending_snapshots);
-+}
-+
- int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
- {
- 	struct btrfs_fs_info *fs_info = trans->fs_info;
-@@ -2073,6 +2094,8 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
- 	if (cur_trans->state >= TRANS_STATE_COMMIT_START) {
- 		enum btrfs_trans_state want_state = TRANS_STATE_COMPLETED;
- 
-+		add_pending_snapshot(trans);
-+
- 		spin_unlock(&fs_info->trans_lock);
- 		refcount_inc(&cur_trans->use_count);
- 
-@@ -2163,6 +2186,7 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
- 	 * COMMIT_DOING so make sure to wait for num_writers to == 1 again.
- 	 */
- 	spin_lock(&fs_info->trans_lock);
-+	add_pending_snapshot(trans);
- 	cur_trans->state = TRANS_STATE_COMMIT_DOING;
- 	spin_unlock(&fs_info->trans_lock);
- 	wait_event(cur_trans->writer_wait,
-diff --git a/fs/btrfs/transaction.h b/fs/btrfs/transaction.h
-index 1852ed9de7fd..9402d8d94484 100644
---- a/fs/btrfs/transaction.h
-+++ b/fs/btrfs/transaction.h
-@@ -123,6 +123,8 @@ struct btrfs_trans_handle {
- 	struct btrfs_transaction *transaction;
- 	struct btrfs_block_rsv *block_rsv;
- 	struct btrfs_block_rsv *orig_rsv;
-+	/* Set by a task that wants to create a snapshot. */
-+	struct btrfs_pending_snapshot *pending_snapshot;
- 	refcount_t use_count;
- 	unsigned int type;
- 	/*
 
