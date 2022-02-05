@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B16184AA902
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:07:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD6E74AA90A
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:11:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379923AbiBENHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 08:07:46 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:50458 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379896AbiBENHn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:07:43 -0500
+        id S233802AbiBENLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 08:11:12 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56836 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232557AbiBENLM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:11:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A4BB60EB7
-        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 13:07:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16842C340EF;
-        Sat,  5 Feb 2022 13:07:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C1D4B80925
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 13:11:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42444C340E8;
+        Sat,  5 Feb 2022 13:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644066462;
-        bh=hgZUQUjR3XUg6ps1U9/0wwTp/EXCAj7bnPgey6OI+cQ=;
+        s=korg; t=1644066669;
+        bh=MKsioazBT3uwPa9swLTI6W+MIVYTgrXU/EYFm7gS7dE=;
         h=Subject:To:Cc:From:Date:From;
-        b=lN4j4/r/fqPzKVU324ngeo0qxZQlz7wzRKZpdqngv0jjtmsy062juQM7SuDTqvtSb
-         Bzxh30ZJ0SjcMGQRbBeed0Tv7qktWsgWsE4Z8XOKVv/CVL5/065R+YD/XqCK5iilUU
-         QvQQ5P12XGfZuk68seV2NschtM0DKCIimp1CGfP4=
-Subject: FAILED: patch "[PATCH] drm/amd/display: revert "Reset fifo after enable otg"" failed to apply to 5.10-stable tree
-To:     Zhan.Liu@amd.com, Charlene.Liu@amd.com, alexander.deucher@amd.com,
-        daniel.wheeler@amd.com, stylon.wang@amd.com
+        b=qOMBopdTaoXmSYayEjI+VnmMC7jRFcpI4bV+uldZvNxq564jjBe9oK95g+Zc0gN/G
+         nWIcQZ07ukqgmubYWx24S/ehS7RyF35HmCmTIZ8FEe2KSQoGNYIvYlKw8eRwC8UAd0
+         fWL7IaQspe5+6kqKVgPINVsdLXjJwOhZ+cpbuCMQ=
+Subject: FAILED: patch "[PATCH] IB/hfi1: Fix alloc failure with larger txqueuelen" failed to apply to 5.10-stable tree
+To:     mike.marciniszyn@cornelisnetworks.com,
+        dennis.dalessandro@cornelisnetworks.com, jgg@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 05 Feb 2022 14:07:29 +0100
-Message-ID: <164406644933165@kroah.com>
+Date:   Sat, 05 Feb 2022 14:11:07 +0100
+Message-ID: <16440666672524@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,127 +51,185 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 49a6ebb95d04bdaa5d57313a380c44249cf02100 Mon Sep 17 00:00:00 2001
-From: Zhan Liu <Zhan.Liu@amd.com>
-Date: Fri, 28 Jan 2022 22:03:59 +0800
-Subject: [PATCH] drm/amd/display: revert "Reset fifo after enable otg"
+From b1151b74ff68cc83c2a8e1a618efe7d056e4f237 Mon Sep 17 00:00:00 2001
+From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Date: Sat, 15 Jan 2022 18:02:34 -0500
+Subject: [PATCH] IB/hfi1: Fix alloc failure with larger txqueuelen
 
-[Why]
-This change causes regression, that prevents some systems
-from lighting up internal displays.
+The following allocation with large txqueuelen will result in the
+following warning:
 
-[How]
-Revert this patch until a new solution is ready.
+  Call Trace:
+   __alloc_pages_nodemask+0x283/0x2c0
+   kmalloc_large_node+0x3c/0xa0
+   __kmalloc_node+0x22a/0x2f0
+   hfi1_ipoib_txreq_init+0x19f/0x330 [hfi1]
+   hfi1_ipoib_setup_rn+0xd3/0x1a0 [hfi1]
+   rdma_init_netdev+0x5a/0x80 [ib_core]
+   ipoib_intf_init+0x6c/0x350 [ib_ipoib]
+   ipoib_intf_alloc+0x5c/0xc0 [ib_ipoib]
+   ipoib_add_one+0xbe/0x300 [ib_ipoib]
+   add_client_context+0x12c/0x1a0 [ib_core]
+   ib_register_client+0x147/0x190 [ib_core]
+   ipoib_init_module+0xdd/0x132 [ib_ipoib]
+   do_one_initcall+0x46/0x1c3
+   do_init_module+0x5a/0x220
+   load_module+0x14c5/0x17f0
+   __do_sys_init_module+0x13b/0x180
+   do_syscall_64+0x5b/0x1a0
+   entry_SYSCALL_64_after_hwframe+0x65/0xca
 
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
-Acked-by: Stylon Wang <stylon.wang@amd.com>
-Signed-off-by: Zhan Liu <Zhan.Liu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+For ipoib, the txqueuelen is modified with the module parameter
+send_queue_size.
+
+Fix by changing to use kv versions of the same allocator to handle the
+large allocations.  The allocation embeds a hdr struct that is dma mapped.
+Change that struct to a pointer to a kzalloced struct.
+
 Cc: stable@vger.kernel.org
+Fixes: d99dc602e2a5 ("IB/hfi1: Add functions to transmit datagram ipoib packets")
+Link: https://lore.kernel.org/r/1642287756-182313-3-git-send-email-mike.marciniszyn@cornelisnetworks.com
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
-index f3ff141b706a..26ec69bb5db9 100644
---- a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
-@@ -1608,11 +1608,6 @@ static enum dc_status apply_single_controller_ctx_to_hw(
- 			pipe_ctx->stream_res.stream_enc,
- 			pipe_ctx->stream_res.tg->inst);
+diff --git a/drivers/infiniband/hw/hfi1/ipoib.h b/drivers/infiniband/hw/hfi1/ipoib.h
+index 909122934246..aec60d4888eb 100644
+--- a/drivers/infiniband/hw/hfi1/ipoib.h
++++ b/drivers/infiniband/hw/hfi1/ipoib.h
+@@ -55,7 +55,7 @@ union hfi1_ipoib_flow {
+  */
+ struct ipoib_txreq {
+ 	struct sdma_txreq           txreq;
+-	struct hfi1_sdma_header     sdma_hdr;
++	struct hfi1_sdma_header     *sdma_hdr;
+ 	int                         sdma_status;
+ 	int                         complete;
+ 	struct hfi1_ipoib_dev_priv *priv;
+diff --git a/drivers/infiniband/hw/hfi1/ipoib_tx.c b/drivers/infiniband/hw/hfi1/ipoib_tx.c
+index bf62956c8667..d6bbdb8fcb50 100644
+--- a/drivers/infiniband/hw/hfi1/ipoib_tx.c
++++ b/drivers/infiniband/hw/hfi1/ipoib_tx.c
+@@ -122,7 +122,7 @@ static void hfi1_ipoib_free_tx(struct ipoib_txreq *tx, int budget)
+ 		dd_dev_warn(priv->dd,
+ 			    "%s: Status = 0x%x pbc 0x%llx txq = %d sde = %d\n",
+ 			    __func__, tx->sdma_status,
+-			    le64_to_cpu(tx->sdma_hdr.pbc), tx->txq->q_idx,
++			    le64_to_cpu(tx->sdma_hdr->pbc), tx->txq->q_idx,
+ 			    tx->txq->sde->this_idx);
+ 	}
  
--	if (dc_is_embedded_signal(pipe_ctx->stream->signal) &&
--		pipe_ctx->stream_res.stream_enc->funcs->reset_fifo)
--		pipe_ctx->stream_res.stream_enc->funcs->reset_fifo(
--			pipe_ctx->stream_res.stream_enc);
--
- 	if (dc_is_dp_signal(pipe_ctx->stream->signal))
- 		dp_source_sequence_trace(link, DPCD_SOURCE_SEQ_AFTER_CONNECT_DIG_FE_OTG);
+@@ -231,7 +231,7 @@ static int hfi1_ipoib_build_tx_desc(struct ipoib_txreq *tx,
+ {
+ 	struct hfi1_devdata *dd = txp->dd;
+ 	struct sdma_txreq *txreq = &tx->txreq;
+-	struct hfi1_sdma_header *sdma_hdr = &tx->sdma_hdr;
++	struct hfi1_sdma_header *sdma_hdr = tx->sdma_hdr;
+ 	u16 pkt_bytes =
+ 		sizeof(sdma_hdr->pbc) + (txp->hdr_dwords << 2) + tx->skb->len;
+ 	int ret;
+@@ -256,7 +256,7 @@ static void hfi1_ipoib_build_ib_tx_headers(struct ipoib_txreq *tx,
+ 					   struct ipoib_txparms *txp)
+ {
+ 	struct hfi1_ipoib_dev_priv *priv = tx->txq->priv;
+-	struct hfi1_sdma_header *sdma_hdr = &tx->sdma_hdr;
++	struct hfi1_sdma_header *sdma_hdr = tx->sdma_hdr;
+ 	struct sk_buff *skb = tx->skb;
+ 	struct hfi1_pportdata *ppd = ppd_from_ibp(txp->ibp);
+ 	struct rdma_ah_attr *ah_attr = txp->ah_attr;
+@@ -483,7 +483,7 @@ static int hfi1_ipoib_send_dma_single(struct net_device *dev,
+ 	if (likely(!ret)) {
+ tx_ok:
+ 		trace_sdma_output_ibhdr(txq->priv->dd,
+-					&tx->sdma_hdr.hdr,
++					&tx->sdma_hdr->hdr,
+ 					ib_is_sc5(txp->flow.sc5));
+ 		hfi1_ipoib_check_queue_depth(txq);
+ 		return NETDEV_TX_OK;
+@@ -547,7 +547,7 @@ static int hfi1_ipoib_send_dma_list(struct net_device *dev,
+ 	hfi1_ipoib_check_queue_depth(txq);
  
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.c
-index bf4436d7aaab..b0c08ee6bc2c 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.c
-@@ -902,19 +902,6 @@ void enc1_stream_encoder_stop_dp_info_packets(
+ 	trace_sdma_output_ibhdr(txq->priv->dd,
+-				&tx->sdma_hdr.hdr,
++				&tx->sdma_hdr->hdr,
+ 				ib_is_sc5(txp->flow.sc5));
  
- }
+ 	if (!netdev_xmit_more())
+@@ -683,7 +683,8 @@ int hfi1_ipoib_txreq_init(struct hfi1_ipoib_dev_priv *priv)
+ {
+ 	struct net_device *dev = priv->netdev;
+ 	u32 tx_ring_size, tx_item_size;
+-	int i;
++	struct hfi1_ipoib_circ_buf *tx_ring;
++	int i, j;
  
--void enc1_stream_encoder_reset_fifo(
--	struct stream_encoder *enc)
--{
--	struct dcn10_stream_encoder *enc1 = DCN10STRENC_FROM_STRENC(enc);
--
--	/* set DIG_START to 0x1 to reset FIFO */
--	REG_UPDATE(DIG_FE_CNTL, DIG_START, 1);
--	udelay(100);
--
--	/* write 0 to take the FIFO out of reset */
--	REG_UPDATE(DIG_FE_CNTL, DIG_START, 0);
--}
--
- void enc1_stream_encoder_dp_blank(
- 	struct dc_link *link,
- 	struct stream_encoder *enc)
-@@ -1600,8 +1587,6 @@ static const struct stream_encoder_funcs dcn10_str_enc_funcs = {
- 		enc1_stream_encoder_send_immediate_sdp_message,
- 	.stop_dp_info_packets =
- 		enc1_stream_encoder_stop_dp_info_packets,
--	.reset_fifo =
--		enc1_stream_encoder_reset_fifo,
- 	.dp_blank =
- 		enc1_stream_encoder_dp_blank,
- 	.dp_unblank =
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.h b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.h
-index a146a41f68e9..687d7e4bf7ca 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.h
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_stream_encoder.h
-@@ -626,9 +626,6 @@ void enc1_stream_encoder_send_immediate_sdp_message(
- void enc1_stream_encoder_stop_dp_info_packets(
- 	struct stream_encoder *enc);
+ 	/*
+ 	 * Ring holds 1 less than tx_ring_size
+@@ -701,7 +702,9 @@ int hfi1_ipoib_txreq_init(struct hfi1_ipoib_dev_priv *priv)
  
--void enc1_stream_encoder_reset_fifo(
--	struct stream_encoder *enc);
--
- void enc1_stream_encoder_dp_blank(
- 	struct dc_link *link,
- 	struct stream_encoder *enc);
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_stream_encoder.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_stream_encoder.c
-index 8a70f92795c2..aab25ca8343a 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_stream_encoder.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_stream_encoder.c
-@@ -593,8 +593,6 @@ static const struct stream_encoder_funcs dcn20_str_enc_funcs = {
- 		enc1_stream_encoder_send_immediate_sdp_message,
- 	.stop_dp_info_packets =
- 		enc1_stream_encoder_stop_dp_info_packets,
--	.reset_fifo =
--		enc1_stream_encoder_reset_fifo,
- 	.dp_blank =
- 		enc1_stream_encoder_dp_blank,
- 	.dp_unblank =
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dio_stream_encoder.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dio_stream_encoder.c
-index 8daa12730bc1..a04ca4a98392 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dio_stream_encoder.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dio_stream_encoder.c
-@@ -789,8 +789,6 @@ static const struct stream_encoder_funcs dcn30_str_enc_funcs = {
- 		enc3_stream_encoder_update_dp_info_packets,
- 	.stop_dp_info_packets =
- 		enc1_stream_encoder_stop_dp_info_packets,
--	.reset_fifo =
--		enc1_stream_encoder_reset_fifo,
- 	.dp_blank =
- 		enc1_stream_encoder_dp_blank,
- 	.dp_unblank =
-diff --git a/drivers/gpu/drm/amd/display/dc/inc/hw/stream_encoder.h b/drivers/gpu/drm/amd/display/dc/inc/hw/stream_encoder.h
-index 073f8b667eff..c88e113b94d1 100644
---- a/drivers/gpu/drm/amd/display/dc/inc/hw/stream_encoder.h
-+++ b/drivers/gpu/drm/amd/display/dc/inc/hw/stream_encoder.h
-@@ -164,10 +164,6 @@ struct stream_encoder_funcs {
- 	void (*stop_dp_info_packets)(
- 		struct stream_encoder *enc);
+ 	for (i = 0; i < dev->num_tx_queues; i++) {
+ 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
++		struct ipoib_txreq *tx;
  
--	void (*reset_fifo)(
--		struct stream_encoder *enc
--	);
--
- 	void (*dp_blank)(
- 		struct dc_link *link,
- 		struct stream_encoder *enc);
++		tx_ring = &txq->tx_ring;
+ 		iowait_init(&txq->wait,
+ 			    0,
+ 			    hfi1_ipoib_flush_txq,
+@@ -725,14 +728,19 @@ int hfi1_ipoib_txreq_init(struct hfi1_ipoib_dev_priv *priv)
+ 					     priv->dd->node);
+ 
+ 		txq->tx_ring.items =
+-			kcalloc_node(tx_ring_size, tx_item_size,
+-				     GFP_KERNEL, priv->dd->node);
++			kvzalloc_node(array_size(tx_ring_size, tx_item_size),
++				      GFP_KERNEL, priv->dd->node);
+ 		if (!txq->tx_ring.items)
+ 			goto free_txqs;
+ 
+ 		txq->tx_ring.max_items = tx_ring_size;
+ 		txq->tx_ring.shift = ilog2(tx_item_size);
+ 		txq->tx_ring.avail = hfi1_ipoib_ring_hwat(txq);
++		tx_ring = &txq->tx_ring;
++		for (j = 0; j < tx_ring_size; j++)
++			hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr =
++				kzalloc_node(sizeof(*tx->sdma_hdr),
++					     GFP_KERNEL, priv->dd->node);
+ 
+ 		netif_tx_napi_add(dev, &txq->napi,
+ 				  hfi1_ipoib_poll_tx_ring,
+@@ -746,7 +754,10 @@ int hfi1_ipoib_txreq_init(struct hfi1_ipoib_dev_priv *priv)
+ 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
+ 
+ 		netif_napi_del(&txq->napi);
+-		kfree(txq->tx_ring.items);
++		tx_ring = &txq->tx_ring;
++		for (j = 0; j < tx_ring_size; j++)
++			kfree(hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr);
++		kvfree(tx_ring->items);
+ 	}
+ 
+ 	kfree(priv->txqs);
+@@ -780,17 +791,20 @@ static void hfi1_ipoib_drain_tx_list(struct hfi1_ipoib_txq *txq)
+ 
+ void hfi1_ipoib_txreq_deinit(struct hfi1_ipoib_dev_priv *priv)
+ {
+-	int i;
++	int i, j;
+ 
+ 	for (i = 0; i < priv->netdev->num_tx_queues; i++) {
+ 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
++		struct hfi1_ipoib_circ_buf *tx_ring = &txq->tx_ring;
+ 
+ 		iowait_cancel_work(&txq->wait);
+ 		iowait_sdma_drain(&txq->wait);
+ 		hfi1_ipoib_drain_tx_list(txq);
+ 		netif_napi_del(&txq->napi);
+ 		hfi1_ipoib_drain_tx_ring(txq);
+-		kfree(txq->tx_ring.items);
++		for (j = 0; j < tx_ring->max_items; j++)
++			kfree(hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr);
++		kvfree(tx_ring->items);
+ 	}
+ 
+ 	kfree(priv->txqs);
 
