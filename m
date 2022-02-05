@@ -2,54 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 878624AA90B
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:11:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EADE64AA90D
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:12:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351622AbiBENLV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 08:11:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50366 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232557AbiBENLU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:11:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98AEEC061346
-        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 05:11:19 -0800 (PST)
+        id S1353307AbiBENM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 08:12:28 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57184 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232557AbiBENM2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:12:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32DFB60EB9
-        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 13:11:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F403C340E8;
-        Sat,  5 Feb 2022 13:11:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3E65B80B47
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 13:12:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B61EEC340E9;
+        Sat,  5 Feb 2022 13:12:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644066678;
-        bh=uwY6hNfbrb0Vo4Eyz2H06iWWok2h7E3/p1DIGoVM8JA=;
+        s=korg; t=1644066746;
+        bh=wyqPC7HQb8qYVSvgGfjwIXvMDZcxMthNv/Lbrprd7AQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=U3bp60wYLzya9mfjrB6AR0clC4X0syTfQIS4ACdUMwVjD+xb/bZzdACJSwmJQlsxQ
-         uD7zOOH03Fsoq3+y5cjy5LYrTZJ9DrIVv2wO1im0qaMahn9xnJIXBpMeDDpFLuGWWF
-         6F9hErzM4daL1Qmch67wAZlKRkLoeowTcvuGuIeE=
-Subject: FAILED: patch "[PATCH] IB/hfi1: Fix alloc failure with larger txqueuelen" failed to apply to 5.15-stable tree
-To:     mike.marciniszyn@cornelisnetworks.com,
-        dennis.dalessandro@cornelisnetworks.com, jgg@nvidia.com
+        b=vW4m5OFEcpJOkMAZGz7pnAPegAlhk1fEmvRmNL65tvSQcNoS5K5pQFEt5pTdPlxrB
+         0y/XhhTjqCFiIXCSZ5QHOI7ZhcgMF2UCX5yMY/X2ik8ErMeu7S2M3ImpVi9EpFaDPN
+         ljIQKTmLOI3f+8Rsqu8I+2uJEWMHiVYD5Yabfic8=
+Subject: FAILED: patch "[PATCH] Revert "fbcon: Disable accelerated scrolling"" failed to apply to 5.10-stable tree
+To:     deller@gmx.de, daniel.vetter@ffwll.ch, geert@linux-m68k.org,
+        svens@stackframe.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 05 Feb 2022 14:11:07 +0100
-Message-ID: <1644066667128169@kroah.com>
+Date:   Sat, 05 Feb 2022 14:12:23 +0100
+Message-ID: <1644066743887@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
-X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
-        lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,185 +51,194 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b1151b74ff68cc83c2a8e1a618efe7d056e4f237 Mon Sep 17 00:00:00 2001
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Date: Sat, 15 Jan 2022 18:02:34 -0500
-Subject: [PATCH] IB/hfi1: Fix alloc failure with larger txqueuelen
+From 87ab9f6b7417349aa197a6c7098d4fdd4beebb74 Mon Sep 17 00:00:00 2001
+From: Helge Deller <deller@gmx.de>
+Date: Wed, 2 Feb 2022 14:55:30 +0100
+Subject: [PATCH] Revert "fbcon: Disable accelerated scrolling"
 
-The following allocation with large txqueuelen will result in the
-following warning:
+This reverts commit 39aead8373b3c20bb5965c024dfb51a94e526151.
 
-  Call Trace:
-   __alloc_pages_nodemask+0x283/0x2c0
-   kmalloc_large_node+0x3c/0xa0
-   __kmalloc_node+0x22a/0x2f0
-   hfi1_ipoib_txreq_init+0x19f/0x330 [hfi1]
-   hfi1_ipoib_setup_rn+0xd3/0x1a0 [hfi1]
-   rdma_init_netdev+0x5a/0x80 [ib_core]
-   ipoib_intf_init+0x6c/0x350 [ib_ipoib]
-   ipoib_intf_alloc+0x5c/0xc0 [ib_ipoib]
-   ipoib_add_one+0xbe/0x300 [ib_ipoib]
-   add_client_context+0x12c/0x1a0 [ib_core]
-   ib_register_client+0x147/0x190 [ib_core]
-   ipoib_init_module+0xdd/0x132 [ib_ipoib]
-   do_one_initcall+0x46/0x1c3
-   do_init_module+0x5a/0x220
-   load_module+0x14c5/0x17f0
-   __do_sys_init_module+0x13b/0x180
-   do_syscall_64+0x5b/0x1a0
-   entry_SYSCALL_64_after_hwframe+0x65/0xca
+Revert the first (of 2) commits which disabled scrolling acceleration in
+fbcon/fbdev.  It introduced a regression for fbdev-supported graphic cards
+because of the performance penalty by doing screen scrolling by software
+instead of using the existing graphic card 2D hardware acceleration.
 
-For ipoib, the txqueuelen is modified with the module parameter
-send_queue_size.
+Console scrolling acceleration was disabled by dropping code which
+checked at runtime the driver hardware capabilities for the
+BINFO_HWACCEL_COPYAREA or FBINFO_HWACCEL_FILLRECT flags and if set, it
+enabled scrollmode SCROLL_MOVE which uses hardware acceleration to move
+screen contents.  After dropping those checks scrollmode was hard-wired
+to SCROLL_REDRAW instead, which forces all graphic cards to redraw every
+character at the new screen position when scrolling.
 
-Fix by changing to use kv versions of the same allocator to handle the
-large allocations.  The allocation embeds a hdr struct that is dma mapped.
-Change that struct to a pointer to a kzalloced struct.
+This change effectively disabled all hardware-based scrolling acceleration for
+ALL drivers, because now all kind of 2D hardware acceleration (bitblt,
+fillrect) in the drivers isn't used any longer.
 
-Cc: stable@vger.kernel.org
-Fixes: d99dc602e2a5 ("IB/hfi1: Add functions to transmit datagram ipoib packets")
-Link: https://lore.kernel.org/r/1642287756-182313-3-git-send-email-mike.marciniszyn@cornelisnetworks.com
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+The original commit message mentions that only 3 DRM drivers (nouveau, omapdrm
+and gma500) used hardware acceleration in the past and thus code for checking
+and using scrolling acceleration is obsolete.
 
-diff --git a/drivers/infiniband/hw/hfi1/ipoib.h b/drivers/infiniband/hw/hfi1/ipoib.h
-index 909122934246..aec60d4888eb 100644
---- a/drivers/infiniband/hw/hfi1/ipoib.h
-+++ b/drivers/infiniband/hw/hfi1/ipoib.h
-@@ -55,7 +55,7 @@ union hfi1_ipoib_flow {
-  */
- struct ipoib_txreq {
- 	struct sdma_txreq           txreq;
--	struct hfi1_sdma_header     sdma_hdr;
-+	struct hfi1_sdma_header     *sdma_hdr;
- 	int                         sdma_status;
- 	int                         complete;
- 	struct hfi1_ipoib_dev_priv *priv;
-diff --git a/drivers/infiniband/hw/hfi1/ipoib_tx.c b/drivers/infiniband/hw/hfi1/ipoib_tx.c
-index bf62956c8667..d6bbdb8fcb50 100644
---- a/drivers/infiniband/hw/hfi1/ipoib_tx.c
-+++ b/drivers/infiniband/hw/hfi1/ipoib_tx.c
-@@ -122,7 +122,7 @@ static void hfi1_ipoib_free_tx(struct ipoib_txreq *tx, int budget)
- 		dd_dev_warn(priv->dd,
- 			    "%s: Status = 0x%x pbc 0x%llx txq = %d sde = %d\n",
- 			    __func__, tx->sdma_status,
--			    le64_to_cpu(tx->sdma_hdr.pbc), tx->txq->q_idx,
-+			    le64_to_cpu(tx->sdma_hdr->pbc), tx->txq->q_idx,
- 			    tx->txq->sde->this_idx);
- 	}
+This statement is NOT TRUE, because beside the DRM drivers there are around 35
+other fbdev drivers which depend on fbdev/fbcon and still provide hardware
+acceleration for fbdev/fbcon.
+
+The original commit message also states that syzbot found lots of bugs in fbcon
+and thus it's "often the solution to just delete code and remove features".
+This is true, and the bugs - which actually affected all users of fbcon,
+including DRM - were fixed, or code was dropped like e.g. the support for
+software scrollback in vgacon (commit 973c096f6a85).
+
+So to further analyze which bugs were found by syzbot, I've looked through all
+patches in drivers/video which were tagged with syzbot or syzkaller back to
+year 2005. The vast majority fixed the reported issues on a higher level, e.g.
+when screen is to be resized, or when font size is to be changed. The few ones
+which touched driver code fixed a real driver bug, e.g. by adding a check.
+
+But NONE of those patches touched code of either the SCROLL_MOVE or the
+SCROLL_REDRAW case.
+
+That means, there was no real reason why SCROLL_MOVE had to be ripped-out and
+just SCROLL_REDRAW had to be used instead. The only reason I can imagine so far
+was that SCROLL_MOVE wasn't used by DRM and as such it was assumed that it
+could go away. That argument completely missed the fact that SCROLL_MOVE is
+still heavily used by fbdev (non-DRM) drivers.
+
+Some people mention that using memcpy() instead of the hardware acceleration is
+pretty much the same speed. But that's not true, at least not for older graphic
+cards and machines where we see speed decreases by factor 10 and more and thus
+this change leads to console responsiveness way worse than before.
+
+That's why the original commit is to be reverted. By reverting we
+reintroduce hardware-based scrolling acceleration and fix the
+performance regression for fbdev drivers.
+
+There isn't any impact on DRM when reverting those patches.
+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Sven Schnelle <svens@stackframe.org>
+Cc: stable@vger.kernel.org # v5.10+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220202135531.92183-3-deller@gmx.de
+
+diff --git a/Documentation/gpu/todo.rst b/Documentation/gpu/todo.rst
+index 29506815d24a..a1212b5b3026 100644
+--- a/Documentation/gpu/todo.rst
++++ b/Documentation/gpu/todo.rst
+@@ -300,27 +300,6 @@ Contact: Daniel Vetter, Noralf Tronnes
  
-@@ -231,7 +231,7 @@ static int hfi1_ipoib_build_tx_desc(struct ipoib_txreq *tx,
- {
- 	struct hfi1_devdata *dd = txp->dd;
- 	struct sdma_txreq *txreq = &tx->txreq;
--	struct hfi1_sdma_header *sdma_hdr = &tx->sdma_hdr;
-+	struct hfi1_sdma_header *sdma_hdr = tx->sdma_hdr;
- 	u16 pkt_bytes =
- 		sizeof(sdma_hdr->pbc) + (txp->hdr_dwords << 2) + tx->skb->len;
- 	int ret;
-@@ -256,7 +256,7 @@ static void hfi1_ipoib_build_ib_tx_headers(struct ipoib_txreq *tx,
- 					   struct ipoib_txparms *txp)
- {
- 	struct hfi1_ipoib_dev_priv *priv = tx->txq->priv;
--	struct hfi1_sdma_header *sdma_hdr = &tx->sdma_hdr;
-+	struct hfi1_sdma_header *sdma_hdr = tx->sdma_hdr;
- 	struct sk_buff *skb = tx->skb;
- 	struct hfi1_pportdata *ppd = ppd_from_ibp(txp->ibp);
- 	struct rdma_ah_attr *ah_attr = txp->ah_attr;
-@@ -483,7 +483,7 @@ static int hfi1_ipoib_send_dma_single(struct net_device *dev,
- 	if (likely(!ret)) {
- tx_ok:
- 		trace_sdma_output_ibhdr(txq->priv->dd,
--					&tx->sdma_hdr.hdr,
-+					&tx->sdma_hdr->hdr,
- 					ib_is_sc5(txp->flow.sc5));
- 		hfi1_ipoib_check_queue_depth(txq);
- 		return NETDEV_TX_OK;
-@@ -547,7 +547,7 @@ static int hfi1_ipoib_send_dma_list(struct net_device *dev,
- 	hfi1_ipoib_check_queue_depth(txq);
+ Level: Advanced
  
- 	trace_sdma_output_ibhdr(txq->priv->dd,
--				&tx->sdma_hdr.hdr,
-+				&tx->sdma_hdr->hdr,
- 				ib_is_sc5(txp->flow.sc5));
+-Garbage collect fbdev scrolling acceleration
+---------------------------------------------
+-
+-Scroll acceleration is disabled in fbcon by hard-wiring p->scrollmode =
+-SCROLL_REDRAW. There's a ton of code this will allow us to remove:
+-
+-- lots of code in fbcon.c
+-
+-- a bunch of the hooks in fbcon_ops, maybe the remaining hooks could be called
+-  directly instead of the function table (with a switch on p->rotate)
+-
+-- fb_copyarea is unused after this, and can be deleted from all drivers
+-
+-Note that not all acceleration code can be deleted, since clearing and cursor
+-support is still accelerated, which might be good candidates for further
+-deletion projects.
+-
+-Contact: Daniel Vetter
+-
+-Level: Intermediate
+-
+ idr_init_base()
+ ---------------
  
- 	if (!netdev_xmit_more())
-@@ -683,7 +683,8 @@ int hfi1_ipoib_txreq_init(struct hfi1_ipoib_dev_priv *priv)
- {
- 	struct net_device *dev = priv->netdev;
- 	u32 tx_ring_size, tx_item_size;
--	int i;
-+	struct hfi1_ipoib_circ_buf *tx_ring;
-+	int i, j;
+diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
+index fc34caddf9cf..0cc2a36b674a 100644
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -1025,7 +1025,7 @@ static void fbcon_init(struct vc_data *vc, int init)
+ 	struct vc_data *svc = *default_mode;
+ 	struct fbcon_display *t, *p = &fb_display[vc->vc_num];
+ 	int logo = 1, new_rows, new_cols, rows, cols;
+-	int ret;
++	int cap, ret;
+ 
+ 	if (WARN_ON(info_idx == -1))
+ 	    return;
+@@ -1034,6 +1034,7 @@ static void fbcon_init(struct vc_data *vc, int init)
+ 		con2fb_map[vc->vc_num] = info_idx;
+ 
+ 	info = registered_fb[con2fb_map[vc->vc_num]];
++	cap = info->flags;
+ 
+ 	if (logo_shown < 0 && console_loglevel <= CONSOLE_LOGLEVEL_QUIET)
+ 		logo_shown = FBCON_LOGO_DONTSHOW;
+@@ -1135,13 +1136,11 @@ static void fbcon_init(struct vc_data *vc, int init)
+ 
+ 	ops->graphics = 0;
+ 
+-	/*
+-	 * No more hw acceleration for fbcon.
+-	 *
+-	 * FIXME: Garbage collect all the now dead code after sufficient time
+-	 * has passed.
+-	 */
+-	p->scrollmode = SCROLL_REDRAW;
++	if ((cap & FBINFO_HWACCEL_COPYAREA) &&
++	    !(cap & FBINFO_HWACCEL_DISABLED))
++		p->scrollmode = SCROLL_MOVE;
++	else /* default to something safe */
++		p->scrollmode = SCROLL_REDRAW;
  
  	/*
- 	 * Ring holds 1 less than tx_ring_size
-@@ -701,7 +702,9 @@ int hfi1_ipoib_txreq_init(struct hfi1_ipoib_dev_priv *priv)
- 
- 	for (i = 0; i < dev->num_tx_queues; i++) {
- 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
-+		struct ipoib_txreq *tx;
- 
-+		tx_ring = &txq->tx_ring;
- 		iowait_init(&txq->wait,
- 			    0,
- 			    hfi1_ipoib_flush_txq,
-@@ -725,14 +728,19 @@ int hfi1_ipoib_txreq_init(struct hfi1_ipoib_dev_priv *priv)
- 					     priv->dd->node);
- 
- 		txq->tx_ring.items =
--			kcalloc_node(tx_ring_size, tx_item_size,
--				     GFP_KERNEL, priv->dd->node);
-+			kvzalloc_node(array_size(tx_ring_size, tx_item_size),
-+				      GFP_KERNEL, priv->dd->node);
- 		if (!txq->tx_ring.items)
- 			goto free_txqs;
- 
- 		txq->tx_ring.max_items = tx_ring_size;
- 		txq->tx_ring.shift = ilog2(tx_item_size);
- 		txq->tx_ring.avail = hfi1_ipoib_ring_hwat(txq);
-+		tx_ring = &txq->tx_ring;
-+		for (j = 0; j < tx_ring_size; j++)
-+			hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr =
-+				kzalloc_node(sizeof(*tx->sdma_hdr),
-+					     GFP_KERNEL, priv->dd->node);
- 
- 		netif_tx_napi_add(dev, &txq->napi,
- 				  hfi1_ipoib_poll_tx_ring,
-@@ -746,7 +754,10 @@ int hfi1_ipoib_txreq_init(struct hfi1_ipoib_dev_priv *priv)
- 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
- 
- 		netif_napi_del(&txq->napi);
--		kfree(txq->tx_ring.items);
-+		tx_ring = &txq->tx_ring;
-+		for (j = 0; j < tx_ring_size; j++)
-+			kfree(hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr);
-+		kvfree(tx_ring->items);
- 	}
- 
- 	kfree(priv->txqs);
-@@ -780,17 +791,20 @@ static void hfi1_ipoib_drain_tx_list(struct hfi1_ipoib_txq *txq)
- 
- void hfi1_ipoib_txreq_deinit(struct hfi1_ipoib_dev_priv *priv)
+ 	 *  ++guenther: console.c:vc_allocate() relies on initializing
+@@ -1953,15 +1952,45 @@ static void updatescrollmode(struct fbcon_display *p,
  {
--	int i;
-+	int i, j;
+ 	struct fbcon_ops *ops = info->fbcon_par;
+ 	int fh = vc->vc_font.height;
++	int cap = info->flags;
++	u16 t = 0;
++	int ypan = FBCON_SWAP(ops->rotate, info->fix.ypanstep,
++				  info->fix.xpanstep);
++	int ywrap = FBCON_SWAP(ops->rotate, info->fix.ywrapstep, t);
+ 	int yres = FBCON_SWAP(ops->rotate, info->var.yres, info->var.xres);
+ 	int vyres = FBCON_SWAP(ops->rotate, info->var.yres_virtual,
+ 				   info->var.xres_virtual);
++	int good_pan = (cap & FBINFO_HWACCEL_YPAN) &&
++		divides(ypan, vc->vc_font.height) && vyres > yres;
++	int good_wrap = (cap & FBINFO_HWACCEL_YWRAP) &&
++		divides(ywrap, vc->vc_font.height) &&
++		divides(vc->vc_font.height, vyres) &&
++		divides(vc->vc_font.height, yres);
++	int reading_fast = cap & FBINFO_READS_FAST;
++	int fast_copyarea = (cap & FBINFO_HWACCEL_COPYAREA) &&
++		!(cap & FBINFO_HWACCEL_DISABLED);
++	int fast_imageblit = (cap & FBINFO_HWACCEL_IMAGEBLIT) &&
++		!(cap & FBINFO_HWACCEL_DISABLED);
  
- 	for (i = 0; i < priv->netdev->num_tx_queues; i++) {
- 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
-+		struct hfi1_ipoib_circ_buf *tx_ring = &txq->tx_ring;
+ 	p->vrows = vyres/fh;
+ 	if (yres > (fh * (vc->vc_rows + 1)))
+ 		p->vrows -= (yres - (fh * vc->vc_rows)) / fh;
+ 	if ((yres % fh) && (vyres % fh < yres % fh))
+ 		p->vrows--;
++
++	if (good_wrap || good_pan) {
++		if (reading_fast || fast_copyarea)
++			p->scrollmode = good_wrap ?
++				SCROLL_WRAP_MOVE : SCROLL_PAN_MOVE;
++		else
++			p->scrollmode = good_wrap ? SCROLL_REDRAW :
++				SCROLL_PAN_REDRAW;
++	} else {
++		if (reading_fast || (fast_copyarea && !fast_imageblit))
++			p->scrollmode = SCROLL_MOVE;
++		else
++			p->scrollmode = SCROLL_REDRAW;
++	}
+ }
  
- 		iowait_cancel_work(&txq->wait);
- 		iowait_sdma_drain(&txq->wait);
- 		hfi1_ipoib_drain_tx_list(txq);
- 		netif_napi_del(&txq->napi);
- 		hfi1_ipoib_drain_tx_ring(txq);
--		kfree(txq->tx_ring.items);
-+		for (j = 0; j < tx_ring->max_items; j++)
-+			kfree(hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr);
-+		kvfree(tx_ring->items);
- 	}
- 
- 	kfree(priv->txqs);
+ #define PITCH(w) (((w) + 7) >> 3)
 
