@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 858654AA938
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:55:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E8004AA937
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:55:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351909AbiBENzY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 08:55:24 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49078 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232918AbiBENzX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:55:23 -0500
+        id S1344849AbiBENzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 08:55:17 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:43016 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232918AbiBENzR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:55:17 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A8B160EE1
-        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 13:55:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09A93C340E8;
-        Sat,  5 Feb 2022 13:55:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33735B80BD1
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 13:55:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F129C340E8;
+        Sat,  5 Feb 2022 13:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644069322;
-        bh=ezc246glzkgtlepKP1jhTmMBY46/mPmWYjeBQKbDaBc=;
+        s=korg; t=1644069315;
+        bh=EJlEexKNj7h8VXsWbGEM/nIAX0ce8cTmnCbAohA19xA=;
         h=Subject:To:Cc:From:Date:From;
-        b=YUjsoVQZaAbIJaH6sDhm1zrbv0YgZMKNxus/f9APjFl9jtofbni2NqM9lwZrjGVjv
-         Jz6MaFm/k0aLAJq07irzHha0U38YHhaelNDJDtryQ832z9m50ugdxRoaRfeG7E+7d6
-         0/lxYzNJ2y8yehMQ/6w1OjTk02E0Yi0jbrxhBMWI=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: fix a potential GPU hang on cyan skillfish" failed to apply to 5.15-stable tree
+        b=CU+M9i4R49lZ+2x7eH6dPfRcon55v0FwlmidxMBBuz11tTYtqAxsfm9aWj+acHDZC
+         BSNNu+W6871voyKagr/DnvZIhErxL1t8ITjkmJIIpneX6/fn8gJdBnWHxFEWazwZ8t
+         rSfc9lhJY4DdusxTNfOXpYAp6PY8ptPIFP+/Ac2s=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: fix a potential GPU hang on cyan skillfish" failed to apply to 5.10-stable tree
 To:     Lang.Yu@amd.com, alexander.deucher@amd.com, lijo.lazar@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 05 Feb 2022 14:55:11 +0100
-Message-ID: <164406931193100@kroah.com>
+Message-ID: <164406931156163@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
