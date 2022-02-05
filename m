@@ -2,146 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C32E94AAC44
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 20:27:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C6A4AAC53
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 20:45:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243609AbiBET1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 14:27:46 -0500
-Received: from mail.baikalelectronics.com ([87.245.175.226]:41530 "EHLO
-        mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233594AbiBET1p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 14:27:45 -0500
-Received: from mail.baikalelectronics.ru (unknown [192.168.51.25])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 848C18001D4C;
-        Sat,  5 Feb 2022 22:27:44 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.baikalelectronics.ru 848C18001D4C
+        id S234370AbiBETp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 14:45:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59872 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233594AbiBETp1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 14:45:27 -0500
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CB1FC061348
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 11:45:26 -0800 (PST)
+Received: by mail-pl1-x631.google.com with SMTP id c9so8026393plg.11
+        for <stable@vger.kernel.org>; Sat, 05 Feb 2022 11:45:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baikalelectronics.ru; s=mail; t=1644089264;
-        bh=6d946YNSYy9lBn5l3Uo3PEpFMtGbZ/0eghbBZieAOzA=;
-        h=Date:From:To:Subject:References:In-Reply-To:From;
-        b=GrKRvH4A0mai9uO5s4cQr3hPcxRI1x5S/VZ7OEHjULRZwhJsFHxcSiJT7ZMCtGQ0V
-         oMaR0kqw/ltKKRr3tU1Vm9jEnVdJ4dml0HrCG68gz71mDX7DqRY4m7mxFtVsL2Tlk/
-         HCfv/wij7Y4tO4qdLQoYnPtU4z0ZvVjMIbuB094U=
-Received: from mobilestation (192.168.168.10) by mail (192.168.51.25) with
- Microsoft SMTP Server (TLS) id 15.0.1395.4; Sat, 5 Feb 2022 22:27:29 +0300
-Date:   Sat, 5 Feb 2022 22:27:43 +0300
-From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
-To:     Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        <stable@vger.kernel.org>
-Subject: Re: [PATCH net v2] net: phy: marvell: Fix RGMII Tx/Rx delays setting
- in 88e1121-compatible PHYs
-Message-ID: <20220205192743.vzjkxrnwq3tbufme@mobilestation>
-References: <96759fee7240fd095cb9cc1f6eaf2d9113b57cf0.camel@baikalelectronics.ru>
- <20220205190814.20282-1-Pavel.Parkhomenko@baikalelectronics.ru>
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ytOBQRxlISBfStHkHibhSqWJbCtMh5pEy4ierajvxJs=;
+        b=ukwFz/7BJk5+42ry5AQvKq9eGSYRaDiTW7iLWP9zFJcQthpJlPeGr+536vXg4z5k3F
+         fm2xKdgGVLlbPSCZttKSrgJa1awgpqnZd6GgxlajYUv8aWXXglqjxQGu7IC9eDWjNVwb
+         0+bcgtZgeOtW9nre1qeHrC2CbeG3uvPL9vs+Yt8UlsLzgBCwytc/AWbubE8VJft/RWol
+         vVFEh7KkMrJXFLxRJiN5wjGyb73XSkFGl+QhTGGv45JUh1iqZyiGGlmaNsUXTf4TxRC8
+         MUTzL896NbMN0uLhelXFhdO+h3suK3h9inm5VRiuqJPNDtLtDVk9IZWz75iB87SZ4Ds1
+         Bnwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ytOBQRxlISBfStHkHibhSqWJbCtMh5pEy4ierajvxJs=;
+        b=UVxLds1slo70pIbwqFb1lsokd0GIK/f3xJviDgguAy4TWI5BkzSfk9pkAFBKxmyMzd
+         Z+IAZvyM98xXH62qjTgALRpRVUhSbV5ZBF+RGev1/wuQesaQdIEsWAcYwcy3MxYLz90Q
+         INR9RUkzyzaCViu9YZyg5Mk5zFCiQk4kDyLK6EXuryka7VdhraB9vxMC6JQIFmCHokVY
+         DFgnlOKkkWjmKxaix9ltcv1kbSBsjn9jG2xvwRSbGsQB7fjGurCGh7vTdnwxbGGj7YgT
+         FUw0Q2LN/BdXAQQ1OJL0T3FOi1AmY5tpRVQPKJ43eudEkgFo0qeQbcSmhbfq4fnTXFDK
+         IMTg==
+X-Gm-Message-State: AOAM530FuTsPUaK4HqPT7Efv3FzxV/T7k7s2dEQ4DYc56fEpXNLxt/zl
+        gAVc89vfrSqUAvca1gP7hCKsGc0jSP1n+UNF
+X-Google-Smtp-Source: ABdhPJy4sIi71Ke4igux6lcHdFck9rWDt/GLFtyGrho6619wirQL6CbV6A8BBvl1Z5OI5jqBkrkldA==
+X-Received: by 2002:a17:90a:c8b:: with SMTP id v11mr5856850pja.50.1644090325448;
+        Sat, 05 Feb 2022 11:45:25 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id mw14sm6186367pjb.6.2022.02.05.11.45.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 05 Feb 2022 11:45:25 -0800 (PST)
+Message-ID: <61fed3d5.1c69fb81.56ebf.f598@mx.google.com>
+Date:   Sat, 05 Feb 2022 11:45:25 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20220205190814.20282-1-Pavel.Parkhomenko@baikalelectronics.ru>
-X-ClientProxiedBy: MAIL.baikal.int (192.168.51.25) To mail (192.168.51.25)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.96-46-gf063d5e33f46
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 120 runs,
+ 1 regressions (v5.10.96-46-gf063d5e33f46)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
+        lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Folks,
+stable-rc/queue/5.10 baseline: 120 runs, 1 regressions (v5.10.96-46-gf063d5=
+e33f46)
 
-Ah, sorry for the noise. A wrong version of the patch was by mistake sent to
-you, Russel, and to the netdev stable list only. Please just ignore
-it. There is another patch, which we are going to re-send shortly to
-all the required addressee.
+Regressions Summary
+-------------------
 
--Serge
+platform            | arch  | lab          | compiler | defconfig | regress=
+ions
+--------------------+-------+--------------+----------+-----------+--------=
+----
+r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
+    =
 
-On Sat, Feb 05, 2022 at 10:08:14PM +0300, Pavel Parkhomenko wrote:
-> It is mandatory for a software to issue a reset upon modifying RGMII
-> Receive Timing Control and RGMII Transmit Timing Control bit fields of MAC
-> Specific Control register 2 (page 2, register 21) otherwise the changes
-> won't be perceived by the PHY (the same is applicable for a lot of other
-> registers). Not setting the RGMII delays on the platforms that imply it'
-> being done on the PHY side will consequently cause the traffic loss. We
-> discovered that the denoted soft-reset is missing in the
-> m88e1121_config_aneg() method for the case if the RGMII delays are
-> modified but the MDIx polarity isn't changed or the auto-negotiation is
-> left enabled, thus causing the traffic loss on our platform with Marvell
-> Alaska 88E1510 installed. Let's fix that by issuing the soft-reset if the
-> delays have been actually set in the m88e1121_config_aneg_rgmii_delays()
-> method.
-> 
-> Fixes: d6ab93364734 ("net: phy: marvell: Avoid unnecessary soft reset")
-> Signed-off-by: Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>
-> Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-> Reviewed-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-> Cc: stable@vger.kernel.org
-> 
-> ---
-> 
-> Link: https://lore.kernel.org/netdev/96759fee7240fd095cb9cc1f6eaf2d9113b57cf0.camel@baikalelectronics.ru/
-> Changelog v2:
-> - Add "net" suffix into the PATCH-clause of the subject.
-> - Cc the patch to the stable tree list.
-> - Rebase onto the latset netdev/net branch with the top commit
-> ---
->  drivers/net/phy/marvell.c | 21 ++++++++++++++-------
->  1 file changed, 14 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
-> index fa71fb7a66b5..4b8f822f8c51 100644
-> --- a/drivers/net/phy/marvell.c
-> +++ b/drivers/net/phy/marvell.c
-> @@ -553,9 +553,9 @@ static int m88e1121_config_aneg_rgmii_delays(struct phy_device *phydev)
->  	else
->  		mscr = 0;
->  
-> -	return phy_modify_paged(phydev, MII_MARVELL_MSCR_PAGE,
-> -				MII_88E1121_PHY_MSCR_REG,
-> -				MII_88E1121_PHY_MSCR_DELAY_MASK, mscr);
-> +	return phy_modify_paged_changed(phydev, MII_MARVELL_MSCR_PAGE,
-> +					MII_88E1121_PHY_MSCR_REG,
-> +					MII_88E1121_PHY_MSCR_DELAY_MASK, mscr);
->  }
->  
->  static int m88e1121_config_aneg(struct phy_device *phydev)
-> @@ -569,11 +569,13 @@ static int m88e1121_config_aneg(struct phy_device *phydev)
->  			return err;
->  	}
->  
-> +	changed = err;
-> +
->  	err = marvell_set_polarity(phydev, phydev->mdix_ctrl);
->  	if (err < 0)
->  		return err;
->  
-> -	changed = err;
-> +	changed |= err;
->  
->  	err = genphy_config_aneg(phydev);
->  	if (err < 0)
-> @@ -1211,17 +1213,22 @@ static int m88e1510_config_init(struct phy_device *phydev)
->  
->  static int m88e1118_config_aneg(struct phy_device *phydev)
->  {
-> +	int changed = 0;
->  	int err;
->  
-> -	err = genphy_soft_reset(phydev);
-> +	err = marvell_set_polarity(phydev, phydev->mdix_ctrl);
->  	if (err < 0)
->  		return err;
->  
-> -	err = marvell_set_polarity(phydev, phydev->mdix_ctrl);
-> +	changed = err;
-> +
-> +	err = genphy_config_aneg(phydev);
->  	if (err < 0)
->  		return err;
->  
-> -	err = genphy_config_aneg(phydev);
-> +	if (phydev->autoneg != AUTONEG_ENABLE || changed)
-> +		return genphy_soft_reset(phydev);
-> +
->  	return 0;
->  }
->  
-> -- 
-> 2.34.1
-> 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.96-46-gf063d5e33f46/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.96-46-gf063d5e33f46
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f063d5e33f467addeab889abda9a740fc6a2fcea =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch  | lab          | compiler | defconfig | regress=
+ions
+--------------------+-------+--------------+----------+-----------+--------=
+----
+r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/61fe9d378dd40ec09f5d6f63
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.96-=
+46-gf063d5e33f46/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salv=
+ator-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.96-=
+46-gf063d5e33f46/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salv=
+ator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61fe9d378dd40ec09f5d6=
+f64
+        new failure (last pass: v5.10.96-12-g0ed6af8f5e3b) =
+
+ =20
