@@ -2,44 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 644EC4AA91A
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:24:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C29454AA91F
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:28:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235929AbiBENYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 08:24:38 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:32880 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230516AbiBENYh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:24:37 -0500
+        id S238089AbiBEN2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 08:28:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54288 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233952AbiBEN2m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:28:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03527C061346
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 05:28:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92034B80B47
-        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 13:24:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAAD7C340E8;
-        Sat,  5 Feb 2022 13:24:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92DB060EDC
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 13:28:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4713FC340E8;
+        Sat,  5 Feb 2022 13:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644067475;
-        bh=pc+6OA3YWZvn/7foPqQSzTRhAu+30HLkLpAn4ysxV1I=;
+        s=korg; t=1644067720;
+        bh=ZIjrs+K7oJclIa+t6TLQTJ6OanMLLTkvJB6XvQ5b9cU=;
         h=Subject:To:Cc:From:Date:From;
-        b=fIUfEQB27835F4ujyUTJn71+NgZI9KqagAHLo/CLuJ4YxRWxSJTrrWh2adKvo6Vyu
-         sXQlGrNQeVbenqaRAx/djGSqsdXfOgT3tpqduEC7mrMRECPjX9vLWQsD+Q7sx+esHW
-         JkpO3lzzmVEFU7C6CU7iKVfm9zcjP2GIX7JzHeaI=
-Subject: FAILED: patch "[PATCH] btrfs: don't start transaction for scrub if the fs is mounted" failed to apply to 5.4-stable tree
-To:     wqu@suse.com, dsterba@suse.com
+        b=2WH5sNWnW6DwwN7uagz8LeFJFWpfhm1KjOshun7BzKmr9VZkvt66zAam3/Hv9dv72
+         vMomGbKYye3CYMr9Oh0LPJq2J0jmz3bZ5+ib+dySjg6buif6OyfRgPXcLr/015cVMD
+         IPUssrc4kCY5k9SKsCaH2MFR3izRNkj3+JtrHY04=
+Subject: FAILED: patch "[PATCH] btrfs: tree-checker: check item_size for inode_item" failed to apply to 5.16-stable tree
+To:     l@damenly.su, dsterba@suse.com, wenqingliu0120@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 05 Feb 2022 14:24:32 +0100
-Message-ID: <16440674724173@kroah.com>
+Date:   Sat, 05 Feb 2022 14:28:37 +0100
+Message-ID: <1644067717134219@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,HEXHASH_WORD,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
+        lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -50,83 +59,111 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2d192fc4c1abeb0d04d1c8cd54405ff4a0b0255b Mon Sep 17 00:00:00 2001
-From: Qu Wenruo <wqu@suse.com>
-Date: Thu, 16 Dec 2021 19:47:35 +0800
-Subject: [PATCH] btrfs: don't start transaction for scrub if the fs is mounted
- read-only
+From 0c982944af27d131d3b74242f3528169f66950ad Mon Sep 17 00:00:00 2001
+From: Su Yue <l@damenly.su>
+Date: Fri, 21 Jan 2022 17:33:34 +0800
+Subject: [PATCH] btrfs: tree-checker: check item_size for inode_item
 
-[BUG]
-The following super simple script would crash btrfs at unmount time, if
-CONFIG_BTRFS_ASSERT() is set.
+while mounting the crafted image, out-of-bounds access happens:
 
- mkfs.btrfs -f $dev
- mount $dev $mnt
- xfs_io -f -c "pwrite 0 4k" $mnt/file
- umount $mnt
- mount -r ro $dev $mnt
- btrfs scrub start -Br $mnt
- umount $mnt
+  [350.429619] UBSAN: array-index-out-of-bounds in fs/btrfs/struct-funcs.c:161:1
+  [350.429636] index 1048096 is out of range for type 'page *[16]'
+  [350.429650] CPU: 0 PID: 9 Comm: kworker/u8:1 Not tainted 5.16.0-rc4 #1
+  [350.429652] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+  [350.429653] Workqueue: btrfs-endio-meta btrfs_work_helper [btrfs]
+  [350.429772] Call Trace:
+  [350.429774]  <TASK>
+  [350.429776]  dump_stack_lvl+0x47/0x5c
+  [350.429780]  ubsan_epilogue+0x5/0x50
+  [350.429786]  __ubsan_handle_out_of_bounds+0x66/0x70
+  [350.429791]  btrfs_get_16+0xfd/0x120 [btrfs]
+  [350.429832]  check_leaf+0x754/0x1a40 [btrfs]
+  [350.429874]  ? filemap_read+0x34a/0x390
+  [350.429878]  ? load_balance+0x175/0xfc0
+  [350.429881]  validate_extent_buffer+0x244/0x310 [btrfs]
+  [350.429911]  btrfs_validate_metadata_buffer+0xf8/0x100 [btrfs]
+  [350.429935]  end_bio_extent_readpage+0x3af/0x850 [btrfs]
+  [350.429969]  ? newidle_balance+0x259/0x480
+  [350.429972]  end_workqueue_fn+0x29/0x40 [btrfs]
+  [350.429995]  btrfs_work_helper+0x71/0x330 [btrfs]
+  [350.430030]  ? __schedule+0x2fb/0xa40
+  [350.430033]  process_one_work+0x1f6/0x400
+  [350.430035]  ? process_one_work+0x400/0x400
+  [350.430036]  worker_thread+0x2d/0x3d0
+  [350.430037]  ? process_one_work+0x400/0x400
+  [350.430038]  kthread+0x165/0x190
+  [350.430041]  ? set_kthread_struct+0x40/0x40
+  [350.430043]  ret_from_fork+0x1f/0x30
+  [350.430047]  </TASK>
+  [350.430077] BTRFS warning (device loop0): bad eb member start: ptr 0xffe20f4e start 20975616 member offset 4293005178 size 2
 
-This will trigger the following ASSERT() introduced by commit
-0a31daa4b602 ("btrfs: add assertion for empty list of transactions at
-late stage of umount").
+check_leaf() is checking the leaf:
 
-That patch is definitely not the cause, it just makes enough noise for
-developers.
+  corrupt leaf: root=4 block=29396992 slot=1, bad key order, prev (16140901064495857664 1 0) current (1 204 12582912)
+  leaf 29396992 items 6 free space 3565 generation 6 owner DEV_TREE
+  leaf 29396992 flags 0x1(WRITTEN) backref revision 1
+  fs uuid a62e00e8-e94e-4200-8217-12444de93c2e
+  chunk uuid cecbd0f7-9ca0-441e-ae9f-f782f9732bd8
+	  item 0 key (16140901064495857664 INODE_ITEM 0) itemoff 3955 itemsize 40
+		  generation 0 transid 0 size 0 nbytes 17592186044416
+		  block group 0 mode 52667 links 33 uid 0 gid 2104132511 rdev 94223634821136
+		  sequence 100305 flags 0x2409000(none)
+		  atime 0.0 (1970-01-01 08:00:00)
+		  ctime 2973280098083405823.4294967295 (-269783007-01-01 21:37:03)
+		  mtime 18446744071572723616.4026825121 (1902-04-16 12:40:00)
+		  otime 9249929404488876031.4294967295 (622322949-04-16 04:25:58)
+	  item 1 key (1 DEV_EXTENT 12582912) itemoff 3907 itemsize 48
+		  dev extent chunk_tree 3
+		  chunk_objectid 256 chunk_offset 12582912 length 8388608
+		  chunk_tree_uuid cecbd0f7-9ca0-441e-ae9f-f782f9732bd8
 
-[CAUSE]
-We will start transaction for the following call chain during scrub:
+The corrupted leaf of device tree has an inode item. The leaf passed
+checksum and others checks in validate_extent_buffer until check_leaf_item().
+Because of the key type BTRFS_INODE_ITEM, check_inode_item() is called even we
+are in the device tree. Since the
+item offset + sizeof(struct btrfs_inode_item) > eb->len, out-of-bounds access
+is triggered.
 
-  scrub_enumerate_chunks()
-  |- btrfs_inc_block_group_ro()
-     |- btrfs_join_transaction()
+The item end vs leaf boundary check has been done before
+check_leaf_item(), so fix it by checking item size in check_inode_item()
+before access of the inode item in extent buffer.
 
-However for RO mount, there is no running transaction at all, thus
-btrfs_join_transaction() will start a new transaction.
+Other check functions except check_dev_item() in check_leaf_item()
+have their item size checks.
+The commit for check_dev_item() is followed.
 
-Furthermore, since it's read-only mount, btrfs_sync_fs() will not call
-btrfs_commit_super() to commit the new but empty transaction.
+No regression observed during running fstests.
 
-And leads to the ASSERT().
-
-The bug has been there for a long time. Only the new ASSERT() makes it
-noisy enough to be noticed.
-
-[FIX]
-For read-only scrub on read-only mount, there is no need to start a
-transaction nor to allocate new chunks in btrfs_inc_block_group_ro().
-
-Just do extra read-only mount check in btrfs_inc_block_group_ro(), and
-if it's read-only, skip all chunk allocation and go inc_block_group_ro()
-directly.
-
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=215299
+CC: stable@vger.kernel.org # 5.10+
+CC: Wenqing Liu <wenqingliu0120@gmail.com>
+Signed-off-by: Su Yue <l@damenly.su>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-index 1db24e6d6d90..68feabc83a27 100644
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -2544,6 +2544,19 @@ int btrfs_inc_block_group_ro(struct btrfs_block_group *cache,
+diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
+index 72e1c942197d..a819eb5e264a 100644
+--- a/fs/btrfs/tree-checker.c
++++ b/fs/btrfs/tree-checker.c
+@@ -1007,6 +1007,7 @@ static int check_inode_item(struct extent_buffer *leaf,
+ 	struct btrfs_inode_item *iitem;
+ 	u64 super_gen = btrfs_super_generation(fs_info->super_copy);
+ 	u32 valid_mask = (S_IFMT | S_ISUID | S_ISGID | S_ISVTX | 0777);
++	const u32 item_size = btrfs_item_size(leaf, slot);
+ 	u32 mode;
  	int ret;
- 	bool dirty_bg_running;
+ 	u32 flags;
+@@ -1016,6 +1017,12 @@ static int check_inode_item(struct extent_buffer *leaf,
+ 	if (unlikely(ret < 0))
+ 		return ret;
  
-+	/*
-+	 * This can only happen when we are doing read-only scrub on read-only
-+	 * mount.
-+	 * In that case we should not start a new transaction on read-only fs.
-+	 * Thus here we skip all chunk allocations.
-+	 */
-+	if (sb_rdonly(fs_info->sb)) {
-+		mutex_lock(&fs_info->ro_block_group_mutex);
-+		ret = inc_block_group_ro(cache, 0);
-+		mutex_unlock(&fs_info->ro_block_group_mutex);
-+		return ret;
++	if (unlikely(item_size != sizeof(*iitem))) {
++		generic_err(leaf, slot, "invalid item size: has %u expect %zu",
++			    item_size, sizeof(*iitem));
++		return -EUCLEAN;
 +	}
 +
- 	do {
- 		trans = btrfs_join_transaction(root);
- 		if (IS_ERR(trans))
+ 	iitem = btrfs_item_ptr(leaf, slot, struct btrfs_inode_item);
+ 
+ 	/* Here we use super block generation + 1 to handle log tree */
 
