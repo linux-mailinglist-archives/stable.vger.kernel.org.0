@@ -2,425 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5454C4AA90E
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:12:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 854924AA912
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:15:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358672AbiBENMk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 08:12:40 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53044 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232557AbiBENMk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:12:40 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FA2560EB9
-        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 13:12:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E973CC340E8;
-        Sat,  5 Feb 2022 13:12:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644066759;
-        bh=t+BWICsauOw8BkG5OgtaniXRqmz003zZDcp129MQeTE=;
-        h=Subject:To:Cc:From:Date:From;
-        b=NYFPNhjSDeo5uZz+S810exSnzYAFuzAO5+QMhnNT2ku/gWUnnCadKULJhkQO5h27N
-         mw2A4j3LtI5PRwg7d9ycy/GwPUqc6LIbh8VmpXYkvo0uuZktJRI9YJVZ7TdjUY56Ax
-         8D1lmWuVog2kxaaSwm3AzJp+nHgOUxGozvaCHNG4=
-Subject: FAILED: patch "[PATCH] fbcon: Add option to enable legacy hardware acceleration" failed to apply to 5.10-stable tree
-To:     deller@gmx.de, daniel.vetter@ffwll.ch
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 05 Feb 2022 14:12:36 +0100
-Message-ID: <164406675642209@kroah.com>
+        id S239069AbiBENP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 08:15:26 -0500
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:41353 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232557AbiBENPZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:15:25 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id E8D605C00DF;
+        Sat,  5 Feb 2022 08:15:24 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Sat, 05 Feb 2022 08:15:24 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm3; bh=nEfsi3e9hJGhRVn/s3Xkclcuo+lsriGkX7loXU
+        3CYmM=; b=FnM9DhAa5TXFN3xNSI4O1qas+HzuL0rsCF/nSAS8fuRAxBmxa8MAyP
+        5HRZl05y4rOVGEMnZRWx2wndaPWYWmdx1raVIQaYY+WUCGKKzTfrKinjk8kPfKa6
+        3FGlnAxfOSyF/8vuIOX8kkTn0lzhXerB3q4dd7HyejW5pWaorZvlarVtEOVWY0XG
+        m+pJww9MQembKoVMa2E0o+20m7I4Kql2svCvRv7d4GdJ3PtwxXuwZC7vSee+gGEl
+        2Lofskbcvu2oYMPTbIXVPbDSidn/PYgCu7BdFa9Qn2MMZ66vt8BuaeiPf7sLb6Th
+        z+uFqVXROdduuZQSCxuoSAlu2KZS+Weg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=nEfsi3e9hJGhRVn/s
+        3Xkclcuo+lsriGkX7loXU3CYmM=; b=d7I9d8Td55gDVdwDyP5yETfYV2OWPVKPF
+        vff/dPoFi/B0jb+ThTc1p0pWXxHKttDs0mAm4rJIXnFVlgX1ZTanJ1ST+vXL2ggP
+        wThddAzsKCSWiDfHOwDpOuoRiiYDAsGg5eCePciBM61S0AyrHcawfzF9k0xqENBd
+        Sb3WiAcCzhOby5T+v7Ui4ljrL7njXrENFTM/nTE0Jcc78spy+85s2zAXJMjpIyON
+        mE+ECD0letZg2DvLPgV892y7HbZWgXZ8774A7VN5+iCr+eJgjZxj/NV9UkaRRdeL
+        UZdaQTXxTgdhoJ2ZOrJBWiRgQupwjY8HcPgXFTdPdJoxgWnHxULiA==
+X-ME-Sender: <xms:bHj-YeEKJ7e4eU44jR3blAKQsiQn_QzliPEhAP2zYuDKafCI8FQ5Zg>
+    <xme:bHj-YfXjx3wksdiajqehU7p5MGvZ-Nz5VK42Lh9nmzo7WYCgA2A05T_YkIYgQenPe
+    gblE7J_lE1rOQ>
+X-ME-Received: <xmr:bHj-YYKFJkuE2gZ58a_5aFo9708p_INaaw1cGzFygCrAhx9y2dsFoD8DGwOBgJ6FqOU4GW2CJ-Iroq7kA2cDr6nhw6vOTyST>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrhedugdeglecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:bHj-YYEQFbD_UTymjua3OkZJ4yeffV7-rYSbtrQPmKos1GHJhlXQJg>
+    <xmx:bHj-YUWx-zaeDJcdGrofrBSaeq_Al2NfG7mPtR5gPsKoqyvxRSz3sw>
+    <xmx:bHj-YbMU8UwEc1RxP9oYjVH9PpgUKt2s_5m7mB3GYNvV33B3kyho1w>
+    <xmx:bHj-YWLqYMiaz6RlCnBV1BSYztkzNGaG721d0GCzvcmci3Asj4Xq8g>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
+ 5 Feb 2022 08:15:24 -0500 (EST)
+Date:   Sat, 5 Feb 2022 14:15:22 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Mat Martineau <mathew.j.martineau@linux.intel.com>
+Cc:     stable@vger.kernel.org, mptcp@lists.linux.dev,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: Re: [PATCH] mptcp: fix msk traversal in mptcp_nl_cmd_set_flags()
+Message-ID: <Yf54auq4qLWyJ562@kroah.com>
+References: <20220205010231.189151-1-mathew.j.martineau@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220205010231.189151-1-mathew.j.martineau@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Feb 04, 2022 at 05:02:31PM -0800, Mat Martineau wrote:
+> commit 8e9eacad7ec7a9cbf262649ebf1fa6e6f6cc7d82 upstream.
+> 
+> The upstream commit had to handle a lookup_by_id variable that is only
+> present in 5.17. This version of the patch removes that variable, so the
+> __lookup_addr() function only handles the lookup as it is implemented in
+> 5.15 and 5.16. It also removes one 'const' keyword to prevent a warning
+> due to differing const-ness in the 5.17 version of addresses_equal().
+> 
+> The MPTCP endpoint list is under RCU protection, guarded by the
+> pernet spinlock. mptcp_nl_cmd_set_flags() traverses the list
+> without acquiring the spin-lock nor under the RCU critical section.
+> 
+> This change addresses the issue performing the lookup and the endpoint
+> update under the pernet spinlock.
+> 
+> Cc: <stable@vger.kernel.org> # 5.15.x
+> Cc: <stable@vger.kernel.org> # 5.16.x
+> Fixes: 0f9f696a502e ("mptcp: add set_flags command in PM netlink")
+> Acked-by: Paolo Abeni <pabeni@redhat.com>
+> Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+> ---
+>  net/mptcp/pm_netlink.c | 34 +++++++++++++++++++++++++---------
+>  1 file changed, 25 insertions(+), 9 deletions(-)
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From a3f781a9d6114c1d1e01defb7aa234dec45d2a5f Mon Sep 17 00:00:00 2001
-From: Helge Deller <deller@gmx.de>
-Date: Wed, 2 Feb 2022 14:55:31 +0100
-Subject: [PATCH] fbcon: Add option to enable legacy hardware acceleration
-
-Add a config option CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION to
-enable bitblt and fillrect hardware acceleration in the framebuffer
-console. If disabled, such acceleration will not be used, even if it is
-supported by the graphics hardware driver.
-
-If you plan to use DRM as your main graphics output system, you should
-disable this option since it will prevent compiling in code which isn't
-used later on when DRM takes over.
-
-For all other configurations, e.g. if none of your graphic cards support
-DRM (yet), DRM isn't available for your architecture, or you can't be
-sure that the graphic card in the target system will support DRM, you
-most likely want to enable this option.
-
-In the non-accelerated case (e.g. when DRM is used), the inlined
-fb_scrollmode() function is hardcoded to return SCROLL_REDRAW and as such the
-compiler is able to optimize much unneccesary code away.
-
-In this v3 patch version I additionally changed the GETVYRES() and GETVXRES()
-macros to take a pointer to the fbcon_display struct. This fixes the build when
-console rotation is enabled and helps the compiler again to optimize out code.
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220202135531.92183-4-deller@gmx.de
-
-diff --git a/drivers/video/console/Kconfig b/drivers/video/console/Kconfig
-index 840d9813b0bc..fcc46380e7c9 100644
---- a/drivers/video/console/Kconfig
-+++ b/drivers/video/console/Kconfig
-@@ -78,6 +78,26 @@ config FRAMEBUFFER_CONSOLE
- 	help
- 	  Low-level framebuffer-based console driver.
- 
-+config FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
-+	bool "Enable legacy fbcon hardware acceleration code"
-+	depends on FRAMEBUFFER_CONSOLE
-+	default y if PARISC
-+	default n
-+	help
-+	  This option enables the fbcon (framebuffer text-based) hardware
-+	  acceleration for graphics drivers which were written for the fbdev
-+	  graphics interface.
-+
-+	  On modern machines, on mainstream machines (like x86-64) or when
-+	  using a modern Linux distribution those fbdev drivers usually aren't used.
-+	  So enabling this option wouldn't have any effect, which is why you want
-+	  to disable this option on such newer machines.
-+
-+	  If you compile this kernel for older machines which still require the
-+	  fbdev drivers, you may want to say Y.
-+
-+	  If unsure, select n.
-+
- config FRAMEBUFFER_CONSOLE_DETECT_PRIMARY
-        bool "Map the console to the primary display device"
-        depends on FRAMEBUFFER_CONSOLE
-diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
-index 0cc2a36b674a..f36829eeb5a9 100644
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -1136,11 +1136,13 @@ static void fbcon_init(struct vc_data *vc, int init)
- 
- 	ops->graphics = 0;
- 
-+#ifdef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
- 	if ((cap & FBINFO_HWACCEL_COPYAREA) &&
- 	    !(cap & FBINFO_HWACCEL_DISABLED))
- 		p->scrollmode = SCROLL_MOVE;
- 	else /* default to something safe */
- 		p->scrollmode = SCROLL_REDRAW;
-+#endif
- 
- 	/*
- 	 *  ++guenther: console.c:vc_allocate() relies on initializing
-@@ -1705,7 +1707,7 @@ static bool fbcon_scroll(struct vc_data *vc, unsigned int t, unsigned int b,
- 			count = vc->vc_rows;
- 		if (logo_shown >= 0)
- 			goto redraw_up;
--		switch (p->scrollmode) {
-+		switch (fb_scrollmode(p)) {
- 		case SCROLL_MOVE:
- 			fbcon_redraw_blit(vc, info, p, t, b - t - count,
- 				     count);
-@@ -1795,7 +1797,7 @@ static bool fbcon_scroll(struct vc_data *vc, unsigned int t, unsigned int b,
- 			count = vc->vc_rows;
- 		if (logo_shown >= 0)
- 			goto redraw_down;
--		switch (p->scrollmode) {
-+		switch (fb_scrollmode(p)) {
- 		case SCROLL_MOVE:
- 			fbcon_redraw_blit(vc, info, p, b - 1, b - t - count,
- 				     -count);
-@@ -1946,12 +1948,12 @@ static void fbcon_bmove_rec(struct vc_data *vc, struct fbcon_display *p, int sy,
- 		   height, width);
- }
- 
--static void updatescrollmode(struct fbcon_display *p,
-+static void updatescrollmode_accel(struct fbcon_display *p,
- 					struct fb_info *info,
- 					struct vc_data *vc)
- {
-+#ifdef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
- 	struct fbcon_ops *ops = info->fbcon_par;
--	int fh = vc->vc_font.height;
- 	int cap = info->flags;
- 	u16 t = 0;
- 	int ypan = FBCON_SWAP(ops->rotate, info->fix.ypanstep,
-@@ -1972,12 +1974,6 @@ static void updatescrollmode(struct fbcon_display *p,
- 	int fast_imageblit = (cap & FBINFO_HWACCEL_IMAGEBLIT) &&
- 		!(cap & FBINFO_HWACCEL_DISABLED);
- 
--	p->vrows = vyres/fh;
--	if (yres > (fh * (vc->vc_rows + 1)))
--		p->vrows -= (yres - (fh * vc->vc_rows)) / fh;
--	if ((yres % fh) && (vyres % fh < yres % fh))
--		p->vrows--;
--
- 	if (good_wrap || good_pan) {
- 		if (reading_fast || fast_copyarea)
- 			p->scrollmode = good_wrap ?
-@@ -1991,6 +1987,27 @@ static void updatescrollmode(struct fbcon_display *p,
- 		else
- 			p->scrollmode = SCROLL_REDRAW;
- 	}
-+#endif
-+}
-+
-+static void updatescrollmode(struct fbcon_display *p,
-+					struct fb_info *info,
-+					struct vc_data *vc)
-+{
-+	struct fbcon_ops *ops = info->fbcon_par;
-+	int fh = vc->vc_font.height;
-+	int yres = FBCON_SWAP(ops->rotate, info->var.yres, info->var.xres);
-+	int vyres = FBCON_SWAP(ops->rotate, info->var.yres_virtual,
-+				   info->var.xres_virtual);
-+
-+	p->vrows = vyres/fh;
-+	if (yres > (fh * (vc->vc_rows + 1)))
-+		p->vrows -= (yres - (fh * vc->vc_rows)) / fh;
-+	if ((yres % fh) && (vyres % fh < yres % fh))
-+		p->vrows--;
-+
-+	/* update scrollmode in case hardware acceleration is used */
-+	updatescrollmode_accel(p, info, vc);
- }
- 
- #define PITCH(w) (((w) + 7) >> 3)
-@@ -2148,7 +2165,7 @@ static int fbcon_switch(struct vc_data *vc)
- 
- 	updatescrollmode(p, info, vc);
- 
--	switch (p->scrollmode) {
-+	switch (fb_scrollmode(p)) {
- 	case SCROLL_WRAP_MOVE:
- 		scrollback_phys_max = p->vrows - vc->vc_rows;
- 		break;
-diff --git a/drivers/video/fbdev/core/fbcon.h b/drivers/video/fbdev/core/fbcon.h
-index 5246d0f2574b..969d41ecede5 100644
---- a/drivers/video/fbdev/core/fbcon.h
-+++ b/drivers/video/fbdev/core/fbcon.h
-@@ -29,7 +29,9 @@ struct fbcon_display {
-     /* Filled in by the low-level console driver */
-     const u_char *fontdata;
-     int userfont;                   /* != 0 if fontdata kmalloc()ed */
--    u_short scrollmode;             /* Scroll Method */
-+#ifdef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
-+    u_short scrollmode;             /* Scroll Method, use fb_scrollmode() */
-+#endif
-     u_short inverse;                /* != 0 text black on white as default */
-     short yscroll;                  /* Hardware scrolling */
-     int vrows;                      /* number of virtual rows */
-@@ -208,6 +210,17 @@ static inline int attr_col_ec(int shift, struct vc_data *vc,
- #define SCROLL_REDRAW	   0x004
- #define SCROLL_PAN_REDRAW  0x005
- 
-+static inline u_short fb_scrollmode(struct fbcon_display *fb)
-+{
-+#ifdef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
-+	return fb->scrollmode;
-+#else
-+	/* hardcoded to SCROLL_REDRAW if acceleration was disabled. */
-+	return SCROLL_REDRAW;
-+#endif
-+}
-+
-+
- #ifdef CONFIG_FB_TILEBLITTING
- extern void fbcon_set_tileops(struct vc_data *vc, struct fb_info *info);
- #endif
-diff --git a/drivers/video/fbdev/core/fbcon_ccw.c b/drivers/video/fbdev/core/fbcon_ccw.c
-index 9cd2c4b05c32..2789ace79634 100644
---- a/drivers/video/fbdev/core/fbcon_ccw.c
-+++ b/drivers/video/fbdev/core/fbcon_ccw.c
-@@ -65,7 +65,7 @@ static void ccw_bmove(struct vc_data *vc, struct fb_info *info, int sy,
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	struct fb_copyarea area;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
- 
- 	area.sx = sy * vc->vc_font.height;
- 	area.sy = vyres - ((sx + width) * vc->vc_font.width);
-@@ -83,7 +83,7 @@ static void ccw_clear(struct vc_data *vc, struct fb_info *info, int sy,
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	struct fb_fillrect region;
- 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
- 
- 	region.color = attr_bgcol_ec(bgshift,vc,info);
- 	region.dx = sy * vc->vc_font.height;
-@@ -140,7 +140,7 @@ static void ccw_putcs(struct vc_data *vc, struct fb_info *info,
- 	u32 cnt, pitch, size;
- 	u32 attribute = get_attribute(info, scr_readw(s));
- 	u8 *dst, *buf = NULL;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
- 
- 	if (!ops->fontbuffer)
- 		return;
-@@ -229,7 +229,7 @@ static void ccw_cursor(struct vc_data *vc, struct fb_info *info, int mode,
- 	int attribute, use_sw = vc->vc_cursor_type & CUR_SW;
- 	int err = 1, dx, dy;
- 	char *src;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
- 
- 	if (!ops->fontbuffer)
- 		return;
-@@ -387,7 +387,7 @@ static int ccw_update_start(struct fb_info *info)
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	u32 yoffset;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
- 	int err;
- 
- 	yoffset = (vyres - info->var.yres) - ops->var.xoffset;
-diff --git a/drivers/video/fbdev/core/fbcon_cw.c b/drivers/video/fbdev/core/fbcon_cw.c
-index 88d89fad3f05..86a254c1b2b7 100644
---- a/drivers/video/fbdev/core/fbcon_cw.c
-+++ b/drivers/video/fbdev/core/fbcon_cw.c
-@@ -50,7 +50,7 @@ static void cw_bmove(struct vc_data *vc, struct fb_info *info, int sy,
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	struct fb_copyarea area;
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	area.sx = vxres - ((sy + height) * vc->vc_font.height);
- 	area.sy = sx * vc->vc_font.width;
-@@ -68,7 +68,7 @@ static void cw_clear(struct vc_data *vc, struct fb_info *info, int sy,
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	struct fb_fillrect region;
- 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	region.color = attr_bgcol_ec(bgshift,vc,info);
- 	region.dx = vxres - ((sy + height) * vc->vc_font.height);
-@@ -125,7 +125,7 @@ static void cw_putcs(struct vc_data *vc, struct fb_info *info,
- 	u32 cnt, pitch, size;
- 	u32 attribute = get_attribute(info, scr_readw(s));
- 	u8 *dst, *buf = NULL;
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	if (!ops->fontbuffer)
- 		return;
-@@ -212,7 +212,7 @@ static void cw_cursor(struct vc_data *vc, struct fb_info *info, int mode,
- 	int attribute, use_sw = vc->vc_cursor_type & CUR_SW;
- 	int err = 1, dx, dy;
- 	char *src;
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	if (!ops->fontbuffer)
- 		return;
-@@ -369,7 +369,7 @@ static void cw_cursor(struct vc_data *vc, struct fb_info *info, int mode,
- static int cw_update_start(struct fb_info *info)
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 	u32 xoffset;
- 	int err;
- 
-diff --git a/drivers/video/fbdev/core/fbcon_rotate.h b/drivers/video/fbdev/core/fbcon_rotate.h
-index e233444cda66..01cbe303b8a2 100644
---- a/drivers/video/fbdev/core/fbcon_rotate.h
-+++ b/drivers/video/fbdev/core/fbcon_rotate.h
-@@ -12,11 +12,11 @@
- #define _FBCON_ROTATE_H
- 
- #define GETVYRES(s,i) ({                           \
--        (s == SCROLL_REDRAW || s == SCROLL_MOVE) ? \
-+        (fb_scrollmode(s) == SCROLL_REDRAW || fb_scrollmode(s) == SCROLL_MOVE) ? \
-         (i)->var.yres : (i)->var.yres_virtual; })
- 
- #define GETVXRES(s,i) ({                           \
--        (s == SCROLL_REDRAW || s == SCROLL_MOVE || !(i)->fix.xpanstep) ? \
-+        (fb_scrollmode(s) == SCROLL_REDRAW || fb_scrollmode(s) == SCROLL_MOVE || !(i)->fix.xpanstep) ? \
-         (i)->var.xres : (i)->var.xres_virtual; })
- 
- 
-diff --git a/drivers/video/fbdev/core/fbcon_ud.c b/drivers/video/fbdev/core/fbcon_ud.c
-index 8d5e66b1bdfb..23bc045769d0 100644
---- a/drivers/video/fbdev/core/fbcon_ud.c
-+++ b/drivers/video/fbdev/core/fbcon_ud.c
-@@ -50,8 +50,8 @@ static void ud_bmove(struct vc_data *vc, struct fb_info *info, int sy,
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	struct fb_copyarea area;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	area.sy = vyres - ((sy + height) * vc->vc_font.height);
- 	area.sx = vxres - ((sx + width) * vc->vc_font.width);
-@@ -69,8 +69,8 @@ static void ud_clear(struct vc_data *vc, struct fb_info *info, int sy,
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	struct fb_fillrect region;
- 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	region.color = attr_bgcol_ec(bgshift,vc,info);
- 	region.dy = vyres - ((sy + height) * vc->vc_font.height);
-@@ -162,8 +162,8 @@ static void ud_putcs(struct vc_data *vc, struct fb_info *info,
- 	u32 mod = vc->vc_font.width % 8, cnt, pitch, size;
- 	u32 attribute = get_attribute(info, scr_readw(s));
- 	u8 *dst, *buf = NULL;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	if (!ops->fontbuffer)
- 		return;
-@@ -259,8 +259,8 @@ static void ud_cursor(struct vc_data *vc, struct fb_info *info, int mode,
- 	int attribute, use_sw = vc->vc_cursor_type & CUR_SW;
- 	int err = 1, dx, dy;
- 	char *src;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	if (!ops->fontbuffer)
- 		return;
-@@ -410,8 +410,8 @@ static int ud_update_start(struct fb_info *info)
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	int xoffset, yoffset;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 	int err;
- 
- 	xoffset = vxres - info->var.xres - ops->var.xoffset;
-
