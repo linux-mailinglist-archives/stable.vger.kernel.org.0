@@ -2,129 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B6AF4AA53A
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 02:02:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D47964AA559
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 02:38:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241639AbiBEBCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 20:02:37 -0500
-Received: from mga04.intel.com ([192.55.52.120]:3577 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233537AbiBEBCh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Feb 2022 20:02:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644022957; x=1675558957;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=xkyVW7E/+O7tWkj/9uNn3xGmnPUBci6DZeRuJO3bhE0=;
-  b=bGL/Km8tyjNS+bp5TX/DfqHR0C0TivoBMbaeuJoO7d4L1EqgIbPTYDmB
-   nN2c4qeErWKg138eYAGGpgee0uOIlITZxNNatwZ0nzYDB5be8RNu48DaC
-   uTbtTj5u1xBst/v6tOTH+St9UqAgNHg/TaOLjFT2x8quL+ms2sPjBMMga
-   Iz0JnHeSvRLMUPLLixjDaAGidk7ZYclKQg1P9F5Yl7glCHEtZ6uGuqtdL
-   lkUN7PQ40ykIUNF9JhPh42GnNuU7O4CqV3iEF1Q+BFnBJVviNPDg3MnK5
-   7wCXl20ok8a9G4ufii6oKjVVCBLrkoWYlhcXl2o01blxQIXM+zzC8Hkjn
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10248"; a="247303919"
-X-IronPort-AV: E=Sophos;i="5.88,344,1635231600"; 
-   d="scan'208";a="247303919"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2022 17:02:37 -0800
-X-IronPort-AV: E=Sophos;i="5.88,344,1635231600"; 
-   d="scan'208";a="535690177"
-Received: from mjmartin-desk2.amr.corp.intel.com (HELO mjmartin-desk2.intel.com) ([10.212.231.200])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2022 17:02:36 -0800
-From:   Mat Martineau <mathew.j.martineau@linux.intel.com>
-To:     stable@vger.kernel.org
-Cc:     Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        mptcp@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH] mptcp: fix msk traversal in mptcp_nl_cmd_set_flags()
-Date:   Fri,  4 Feb 2022 17:02:31 -0800
-Message-Id: <20220205010231.189151-1-mathew.j.martineau@linux.intel.com>
-X-Mailer: git-send-email 2.35.1
+        id S230309AbiBEBiy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 20:38:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58768 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378888AbiBEBiy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 20:38:54 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A40F8C061347
+        for <stable@vger.kernel.org>; Fri,  4 Feb 2022 17:38:52 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id v4so1363901pjh.2
+        for <stable@vger.kernel.org>; Fri, 04 Feb 2022 17:38:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=MA7V18Af7JMkGZ9oe2f8NpWbpf5Pf2CxDZqgZ+912es=;
+        b=VRGyRIeP41YIWE2ETD0nG8Sw+b2e0xAgt7GcNjENvS7PgAwz3xlzFS14IOhcRUnAa1
+         Vt6MEnMcWP9RvefkEIGyZ99MIj5L5TJia0SKt2BjZzycoBy+xxpynQHrn+v+BY59MhL0
+         Dk5hwEWSRfFUGjy+UbF5CKgwd/b3H2XrGa4M0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=MA7V18Af7JMkGZ9oe2f8NpWbpf5Pf2CxDZqgZ+912es=;
+        b=yo5X3hPKbnqZKKL3Nltquluvsn/m+uSfKXaa0E5aGiBbyKtk5c3POzmZpWl+YNYBz3
+         mtTSP4W4qWvOHz/x6olB/uLfvn4BgnNVbT2Q5F/ED5ROlBi9/rcQ4W/ZQCJYbtfxYF5h
+         nEXy1cB+zmEn2v8VLpcKPt2bzBRNccHxTAdaWKAv3kSIvqMAWDsP6CKnnXjgyrtJRMO6
+         mSIbPu/riVFKAlCWRttsstM264ZCj6MXZGOzMiKcvRI0SEXMAsrgkoWGbIc0Xv+kvqj/
+         29WIspn+yCMykSU1qQ2sRpwO75xhcLfqmKso1swlfuIKVLsDRMAs9Ps3HShQBCm8pkqI
+         NnsQ==
+X-Gm-Message-State: AOAM5332U7mAzw0B3CQrvNC9bc9RzJfNhV0GXY3DYEDtZ/+hUVXFte3M
+        YrYyUZnzFcEOsdSTdOEn2JAVW7E/2Jr6Kg==
+X-Google-Smtp-Source: ABdhPJxKoRxYw29M3XV8L9Ky8wDWUNlkXyJpF0Q1bH1Rb+NMN3smndw5L50QOjq4XIdijw+bpkdNbA==
+X-Received: by 2002:a17:902:8a91:: with SMTP id p17mr5893133plo.74.1644025131907;
+        Fri, 04 Feb 2022 17:38:51 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id 16sm13931560pje.34.2022.02.04.17.38.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Feb 2022 17:38:51 -0800 (PST)
+Date:   Fri, 4 Feb 2022 17:38:50 -0800
+From:   Kees Cook <keescook@chromium.org>
+To:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>
+Cc:     Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        dri-devel@lists.freedesktop.org, stable@vger.kernel.org,
+        "Gustavo A . R . Silva" <gustavoars@kernel.org>,
+        Uma Shankar <uma.shankar@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
+        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH v2] drm/dp: Fix off-by-one in register cache size
+Message-ID: <202202041738.9C2835B@keescook>
+References: <20220105173310.2420598-1-keescook@chromium.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220105173310.2420598-1-keescook@chromium.org>
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
+X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
+        lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 8e9eacad7ec7a9cbf262649ebf1fa6e6f6cc7d82 upstream.
+Ping. This is a OOB read fix. Can something send this to Linus please?
 
-The upstream commit had to handle a lookup_by_id variable that is only
-present in 5.17. This version of the patch removes that variable, so the
-__lookup_addr() function only handles the lookup as it is implemented in
-5.15 and 5.16. It also removes one 'const' keyword to prevent a warning
-due to differing const-ness in the 5.17 version of addresses_equal().
+-Kees
 
-The MPTCP endpoint list is under RCU protection, guarded by the
-pernet spinlock. mptcp_nl_cmd_set_flags() traverses the list
-without acquiring the spin-lock nor under the RCU critical section.
+On Wed, Jan 05, 2022 at 09:33:10AM -0800, Kees Cook wrote:
+> The pcon_dsc_dpcd array holds 13 registers (0x92 through 0x9E). Fix the
+> math to calculate the max size. Found from a -Warray-bounds build:
+> 
+> drivers/gpu/drm/drm_dp_helper.c: In function 'drm_dp_pcon_dsc_bpp_incr':
+> drivers/gpu/drm/drm_dp_helper.c:3130:28: error: array subscript 12 is outside array bounds of 'const u8[12]' {aka 'const unsigned char[12]'} [-Werror=array-bounds]
+>  3130 |         buf = pcon_dsc_dpcd[DP_PCON_DSC_BPP_INCR - DP_PCON_DSC_ENCODER];
+>       |               ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> drivers/gpu/drm/drm_dp_helper.c:3126:39: note: while referencing 'pcon_dsc_dpcd'
+>  3126 | int drm_dp_pcon_dsc_bpp_incr(const u8 pcon_dsc_dpcd[DP_PCON_DSC_ENCODER_CAP_SIZE])
+>       |                              ~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> 
+> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Cc: Maxime Ripard <mripard@kernel.org>
+> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: David Airlie <airlied@linux.ie>
+> Cc: Daniel Vetter <daniel@ffwll.ch>
+> Cc: dri-devel@lists.freedesktop.org
+> Fixes: e2e16da398d9 ("drm/dp_helper: Add support for Configuring DSC for HDMI2.1 Pcon")
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+> Link: https://lore.kernel.org/lkml/20211214001849.GA62559@embeddedor/
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
+> v1: https://lore.kernel.org/lkml/20211203084333.3105038-1-keescook@chromium.org/
+> v2:
+>  - add reviewed-by
+>  - add cc:stable
+> ---
+>  include/drm/drm_dp_helper.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/include/drm/drm_dp_helper.h b/include/drm/drm_dp_helper.h
+> index 30359e434c3f..472dac376284 100644
+> --- a/include/drm/drm_dp_helper.h
+> +++ b/include/drm/drm_dp_helper.h
+> @@ -456,7 +456,7 @@ struct drm_panel;
+>  #define DP_FEC_CAPABILITY_1			0x091   /* 2.0 */
+>  
+>  /* DP-HDMI2.1 PCON DSC ENCODER SUPPORT */
+> -#define DP_PCON_DSC_ENCODER_CAP_SIZE        0xC	/* 0x9E - 0x92 */
+> +#define DP_PCON_DSC_ENCODER_CAP_SIZE        0xD	/* 0x92 through 0x9E */
+>  #define DP_PCON_DSC_ENCODER                 0x092
+>  # define DP_PCON_DSC_ENCODER_SUPPORTED      (1 << 0)
+>  # define DP_PCON_DSC_PPS_ENC_OVERRIDE       (1 << 1)
+> -- 
+> 2.30.2
+> 
 
-This change addresses the issue performing the lookup and the endpoint
-update under the pernet spinlock.
-
-Cc: <stable@vger.kernel.org> # 5.15.x
-Cc: <stable@vger.kernel.org> # 5.16.x
-Fixes: 0f9f696a502e ("mptcp: add set_flags command in PM netlink")
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
----
- net/mptcp/pm_netlink.c | 34 +++++++++++++++++++++++++---------
- 1 file changed, 25 insertions(+), 9 deletions(-)
-
-diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
-index 65764c8171b3..5d305fafd0e9 100644
---- a/net/mptcp/pm_netlink.c
-+++ b/net/mptcp/pm_netlink.c
-@@ -459,6 +459,18 @@ static unsigned int fill_remote_addresses_vec(struct mptcp_sock *msk, bool fullm
- 	return i;
- }
- 
-+static struct mptcp_pm_addr_entry *
-+__lookup_addr(struct pm_nl_pernet *pernet, struct mptcp_addr_info *info)
-+{
-+	struct mptcp_pm_addr_entry *entry;
-+
-+	list_for_each_entry(entry, &pernet->local_addr_list, list) {
-+		if (addresses_equal(&entry->addr, info, true))
-+			return entry;
-+	}
-+	return NULL;
-+}
-+
- static void mptcp_pm_create_subflow_or_signal_addr(struct mptcp_sock *msk)
- {
- 	struct sock *sk = (struct sock *)msk;
-@@ -1725,17 +1737,21 @@ static int mptcp_nl_cmd_set_flags(struct sk_buff *skb, struct genl_info *info)
- 	if (addr.flags & MPTCP_PM_ADDR_FLAG_BACKUP)
- 		bkup = 1;
- 
--	list_for_each_entry(entry, &pernet->local_addr_list, list) {
--		if (addresses_equal(&entry->addr, &addr.addr, true)) {
--			mptcp_nl_addr_backup(net, &entry->addr, bkup);
--
--			if (bkup)
--				entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
--			else
--				entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
--		}
-+	spin_lock_bh(&pernet->lock);
-+	entry = __lookup_addr(pernet, &addr.addr);
-+	if (!entry) {
-+		spin_unlock_bh(&pernet->lock);
-+		return -EINVAL;
- 	}
- 
-+	if (bkup)
-+		entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
-+	else
-+		entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
-+	addr = *entry;
-+	spin_unlock_bh(&pernet->lock);
-+
-+	mptcp_nl_addr_backup(net, &addr.addr, bkup);
- 	return 0;
- }
- 
 -- 
-2.35.1
-
+Kees Cook
