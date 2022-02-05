@@ -2,54 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 324D04AA8FD
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:06:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F4244AA8FC
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 14:06:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379871AbiBENGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 08:06:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49172 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233802AbiBENGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:06:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 304D3C061346
-        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 05:06:47 -0800 (PST)
+        id S1346507AbiBENGj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 08:06:39 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:50046 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233802AbiBENGi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 08:06:38 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C197F60EB7
-        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 13:06:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9819BC340E8;
-        Sat,  5 Feb 2022 13:06:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F7E360EB7
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 13:06:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CB86C340E8;
+        Sat,  5 Feb 2022 13:06:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644066406;
-        bh=P8ljGIFEpo8wCkTNPU0GbcT4Rk9WIVjQ4Izcbr0hh/g=;
+        s=korg; t=1644066398;
+        bh=dYIbzRXwZ7b07TMblJ/ioI4S5XnJNRU4KqJABWmff0s=;
         h=Subject:To:Cc:From:Date:From;
-        b=OSOMQmeDM0iSPrSRCDGSva+H5gxe4CP1tzxbLBJsu280jMP3EF4YUqpC3pzPMbLYt
-         a4K7haXCpKoVCeYXubvx/IU60vh37gVhnQAkuYjGXi1eiDTF8E08wp+29eaOds2RPM
-         ZeRBCSZlVp5M8TysJ8D/fnzre1+Vg/heibNJZDmg=
-Subject: FAILED: patch "[PATCH] drm/amd/display: Update watermark values for DCN301" failed to apply to 5.15-stable tree
+        b=IVCgUndewrb2t85Epls/JtY2xTjljrSIEdC+qAcHzW4/8KINqslJMBHVHDpXK3g0d
+         gmgT89JFZ3w7JhD4ep87AoO3XaYWfCI51knDYOZzDUwANGBQbJEyQZfMLNGZCwVvAh
+         UwZtyk62gmP+wV60uC5UATlw2XrSUl11rFrooIWo=
+Subject: FAILED: patch "[PATCH] drm/amd/display: Update watermark values for DCN301" failed to apply to 5.10-stable tree
 To:     agustin.gutierrez@amd.com, alexander.deucher@amd.com,
         zhan.liu@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 05 Feb 2022 14:06:35 +0100
-Message-ID: <164406639593104@kroah.com>
+Message-ID: <16440663957466@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
-X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
-        lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
