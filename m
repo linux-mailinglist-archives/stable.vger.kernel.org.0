@@ -2,97 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 771774AA4F7
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 01:18:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B6AF4AA53A
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 02:02:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245366AbiBEASy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Feb 2022 19:18:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58524 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234296AbiBEASx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Feb 2022 19:18:53 -0500
-Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC994DF8E3C4;
-        Fri,  4 Feb 2022 16:18:49 -0800 (PST)
-Received: by mail-il1-x134.google.com with SMTP id z18so6256403ilp.3;
-        Fri, 04 Feb 2022 16:18:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=2RZuu+Iw1+YItKLtEPrw6IZI9pvOpPTzzhbgPTW7ZLU=;
-        b=U5KJzhCGn6ysyzcHc4dUFOy3fSYe1NSDMUe8wRp5/784Xxmgas0Ofhgf4IPE4LSLtY
-         DtSL8CoWzjtSz5NwOPh5/L+g8JhGukGciryy7PBuVbxxWnwGX173F/Ku7hStLm4kOpGy
-         iHHiA2bfJI9ImpLMCcqh/o/pDPiX7BAHisgyXn6vdEIgEhkJxPseX85iTvuRf21jTQrR
-         ITn9qVXYTAwLxVrq7BW3cBpsNB4JPW9NqEjzC9/7+DzXREODVhmRz3uKsVGf4wNjmMlS
-         W76JSDN8qsB36mXk1i7i8QVFfBLnDuI47LqkHOSEXK/XCaFqC5YugeCYwFo+zkO6YHti
-         +ywQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=2RZuu+Iw1+YItKLtEPrw6IZI9pvOpPTzzhbgPTW7ZLU=;
-        b=J8/FpW++N/47I3ylzxWb568jJyUVP3kyjPM8s+cCN9teY6sTtStYqI0aaxdLCEYhYA
-         rNwbMtpuPBHE8zZ5ri9jTs7hq2IZj/vpktNZmhI6mc32WNEpfl49XK433x5yHAb2J1GC
-         GPbeOeRB+O869fv9Dl7a4/A8PZ/n3htpOgke/vAiBx4ePXIoAnokVQWbbxgxqJu4e3Cp
-         V6r1h/u639aN36dQGR8nQkInp3sExByX1j301EvkOLX/uEsm5or0ZnlZomn6vOzbWUpq
-         1+HCTmc42s+YJQIk8rI7eEH8rwBdRfyNfgpURdA+Fc0/uxig26runIRwVdT8cMlSU/AZ
-         lbfg==
-X-Gm-Message-State: AOAM533QFKeN98AZRzr+E9zzxh/5n11TU7P4yD0bOuwKt/uEueFtnaNd
-        wx2STnIfyViDcffyam/Er65aot9j2y3gk1fE/uLnnQ==
-X-Google-Smtp-Source: ABdhPJwA7ajKw5rcNAainwKf0EbOYtimZNs8j7tjZ3nBqoxL2qfhVux93mHRSXhc4vc8UmQ2l97AOg==
-X-Received: by 2002:a05:6e02:12e6:: with SMTP id l6mr802828iln.10.1644020328721;
-        Fri, 04 Feb 2022 16:18:48 -0800 (PST)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id k14sm1796728ilv.74.2022.02.04.16.18.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Feb 2022 16:18:47 -0800 (PST)
-Message-ID: <61fdc267.1c69fb81.dcd7c.9a08@mx.google.com>
-Date:   Fri, 04 Feb 2022 16:18:47 -0800 (PST)
-X-Google-Original-Date: Sat, 05 Feb 2022 00:18:46 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20220204091915.247906930@linuxfoundation.org>
-Subject: RE: [PATCH 5.15 00/32] 5.15.20-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
-X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
-        lindbergh.monkeyblade.net
+        id S241639AbiBEBCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Feb 2022 20:02:37 -0500
+Received: from mga04.intel.com ([192.55.52.120]:3577 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233537AbiBEBCh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Feb 2022 20:02:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644022957; x=1675558957;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=xkyVW7E/+O7tWkj/9uNn3xGmnPUBci6DZeRuJO3bhE0=;
+  b=bGL/Km8tyjNS+bp5TX/DfqHR0C0TivoBMbaeuJoO7d4L1EqgIbPTYDmB
+   nN2c4qeErWKg138eYAGGpgee0uOIlITZxNNatwZ0nzYDB5be8RNu48DaC
+   uTbtTj5u1xBst/v6tOTH+St9UqAgNHg/TaOLjFT2x8quL+ms2sPjBMMga
+   Iz0JnHeSvRLMUPLLixjDaAGidk7ZYclKQg1P9F5Yl7glCHEtZ6uGuqtdL
+   lkUN7PQ40ykIUNF9JhPh42GnNuU7O4CqV3iEF1Q+BFnBJVviNPDg3MnK5
+   7wCXl20ok8a9G4ufii6oKjVVCBLrkoWYlhcXl2o01blxQIXM+zzC8Hkjn
+   A==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10248"; a="247303919"
+X-IronPort-AV: E=Sophos;i="5.88,344,1635231600"; 
+   d="scan'208";a="247303919"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2022 17:02:37 -0800
+X-IronPort-AV: E=Sophos;i="5.88,344,1635231600"; 
+   d="scan'208";a="535690177"
+Received: from mjmartin-desk2.amr.corp.intel.com (HELO mjmartin-desk2.intel.com) ([10.212.231.200])
+  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2022 17:02:36 -0800
+From:   Mat Martineau <mathew.j.martineau@linux.intel.com>
+To:     stable@vger.kernel.org
+Cc:     Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        mptcp@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH] mptcp: fix msk traversal in mptcp_nl_cmd_set_flags()
+Date:   Fri,  4 Feb 2022 17:02:31 -0800
+Message-Id: <20220205010231.189151-1-mathew.j.martineau@linux.intel.com>
+X-Mailer: git-send-email 2.35.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri,  4 Feb 2022 10:22:10 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.15.20 release.
-> There are 32 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 06 Feb 2022 09:19:05 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.20-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+commit 8e9eacad7ec7a9cbf262649ebf1fa6e6f6cc7d82 upstream.
 
-5.15.20-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+The upstream commit had to handle a lookup_by_id variable that is only
+present in 5.17. This version of the patch removes that variable, so the
+__lookup_addr() function only handles the lookup as it is implemented in
+5.15 and 5.16. It also removes one 'const' keyword to prevent a warning
+due to differing const-ness in the 5.17 version of addresses_equal().
+
+The MPTCP endpoint list is under RCU protection, guarded by the
+pernet spinlock. mptcp_nl_cmd_set_flags() traverses the list
+without acquiring the spin-lock nor under the RCU critical section.
+
+This change addresses the issue performing the lookup and the endpoint
+update under the pernet spinlock.
+
+Cc: <stable@vger.kernel.org> # 5.15.x
+Cc: <stable@vger.kernel.org> # 5.16.x
+Fixes: 0f9f696a502e ("mptcp: add set_flags command in PM netlink")
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+---
+ net/mptcp/pm_netlink.c | 34 +++++++++++++++++++++++++---------
+ 1 file changed, 25 insertions(+), 9 deletions(-)
+
+diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
+index 65764c8171b3..5d305fafd0e9 100644
+--- a/net/mptcp/pm_netlink.c
++++ b/net/mptcp/pm_netlink.c
+@@ -459,6 +459,18 @@ static unsigned int fill_remote_addresses_vec(struct mptcp_sock *msk, bool fullm
+ 	return i;
+ }
+ 
++static struct mptcp_pm_addr_entry *
++__lookup_addr(struct pm_nl_pernet *pernet, struct mptcp_addr_info *info)
++{
++	struct mptcp_pm_addr_entry *entry;
++
++	list_for_each_entry(entry, &pernet->local_addr_list, list) {
++		if (addresses_equal(&entry->addr, info, true))
++			return entry;
++	}
++	return NULL;
++}
++
+ static void mptcp_pm_create_subflow_or_signal_addr(struct mptcp_sock *msk)
+ {
+ 	struct sock *sk = (struct sock *)msk;
+@@ -1725,17 +1737,21 @@ static int mptcp_nl_cmd_set_flags(struct sk_buff *skb, struct genl_info *info)
+ 	if (addr.flags & MPTCP_PM_ADDR_FLAG_BACKUP)
+ 		bkup = 1;
+ 
+-	list_for_each_entry(entry, &pernet->local_addr_list, list) {
+-		if (addresses_equal(&entry->addr, &addr.addr, true)) {
+-			mptcp_nl_addr_backup(net, &entry->addr, bkup);
+-
+-			if (bkup)
+-				entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
+-			else
+-				entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
+-		}
++	spin_lock_bh(&pernet->lock);
++	entry = __lookup_addr(pernet, &addr.addr);
++	if (!entry) {
++		spin_unlock_bh(&pernet->lock);
++		return -EINVAL;
+ 	}
+ 
++	if (bkup)
++		entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
++	else
++		entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
++	addr = *entry;
++	spin_unlock_bh(&pernet->lock);
++
++	mptcp_nl_addr_backup(net, &addr.addr, bkup);
+ 	return 0;
+ }
+ 
+-- 
+2.35.1
 
