@@ -2,96 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 316174AAAFA
-	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 19:41:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B34D4AAB07
+	for <lists+stable@lfdr.de>; Sat,  5 Feb 2022 19:47:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348405AbiBESlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Feb 2022 13:41:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42634 "EHLO
+        id S234716AbiBESrG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Feb 2022 13:47:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231970AbiBESlM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 13:41:12 -0500
-Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B53FEC061348;
-        Sat,  5 Feb 2022 10:41:10 -0800 (PST)
-Received: by mail-oi1-x230.google.com with SMTP id y23so12518967oia.13;
-        Sat, 05 Feb 2022 10:41:10 -0800 (PST)
+        with ESMTP id S229906AbiBESrF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Feb 2022 13:47:05 -0500
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42A53C061348
+        for <stable@vger.kernel.org>; Sat,  5 Feb 2022 10:47:03 -0800 (PST)
+Received: by mail-pj1-x102b.google.com with SMTP id y9so1256661pjf.1
+        for <stable@vger.kernel.org>; Sat, 05 Feb 2022 10:47:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=B9Bm+yAr31loFfVFxMsXKKX2xve88jnXA1e2Yt1FPUc=;
-        b=ZqSkArklkvjjwFEwFqEVIgp3BmpyM7LLTf38xfEGQZ67ur3c/ro2jou4WS0PlLgv0D
-         34HIZhzM1DqTdi3nRPwDu4DgIK/c1lDunPeWE/aMV5Jr/qtdTPwpPN8PuZYMFld1vAxz
-         k9Z+nW627BzxzMmfNkJip3v0mwBSr6MUe3JFc7QOqG8+ETRejLmSuyFs1VCJQTeB9DOb
-         5XltNMm7qpabAXlLVG8xrIDw25p1tCcqomu4rAHw7pePJpUeKRatWJmbCsDDvGTXLE9d
-         Ggsf+8mg1UIkf8jXrC8ziOjQqDk04vHVcR/fLYlP42uN7iSu6A/DtGFP/XnJsIDK/TVd
-         U61Q==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=TogfhCl4GaRy/hr1nHh5TTtzA/NeGrW8+KleLSPgZlU=;
+        b=z4382J6IVb9z2cuv377xLmIkEUoH0+vtvm6CLQkTDbI5W8CcB0INqDGQnJsD1TCNMg
+         giWjFysi2W6URakyZEmi0zZnraMcS6w96FIFJTENx1Vc5e39AN+T+h/iFypQXePhiyYd
+         dBC1OFdYiDmh8WA3S5/s2ICnULSFL5dxETpIjhUCMqMEQz55GWTpoVKqFq8KaNgZHItR
+         kZ3iLcE5gZAA54mmRZlk3iVRXaLXaUz0yO9f13PSXoJEdtqTjqN9u5nCI3f9eeBI/vWF
+         3jPrYWWDAZUl8r9/dZDdUtSYsbj4uVB3c4ORumUixL0HK8CyEuBT1ytVLL4KLu0xsHvk
+         jOIA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=B9Bm+yAr31loFfVFxMsXKKX2xve88jnXA1e2Yt1FPUc=;
-        b=NUcM0ABimHCFEWM+FvHpt6MHp2juXPbyPnGVLkzbe3ky69E6rigXcPgxR5Qrzt7Ldu
-         Cm8ry6yxDt9F8b4sQXnHVMHJIYnulHkz/5uQ0V2U9wXe3jAPRA5+ZBQTKC3a1FcFL8oE
-         oj+poBhQQWZj8ta6aS39vFIHqRC2P8Tim8+fzPM1ajmwaT5JU9ubG89iX/mf0qm0VMjb
-         s9pG8MjNz3va/P1gBsZSi1LQB4NLAGzmrWi6kUqnBIznDfSi9Te7fzT6GNRBE8yIuCsz
-         LmOqJn/xu7acpC3d3+Cg4pFuHJ2/7zCKq/G5WaYcO9haGYI4fw27tJ2XKMAcnTAFUbtI
-         lgJg==
-X-Gm-Message-State: AOAM5323vYbJ4uNaBKci+ajVLjqqc87nIpyvfmLCVp0kjbtCNNYKCCEB
-        MP+Z3B0za/4pAejhR/Kcac4hIHOwT4hY1g==
-X-Google-Smtp-Source: ABdhPJxI6P/fJrYExhnyx36u814hvLBgT6Wks0Zc4QF3GZiy9rt43MZbqvZbYbZWudV944md/ydkYA==
-X-Received: by 2002:a05:6808:1206:: with SMTP id a6mr1058871oil.279.1644086470111;
-        Sat, 05 Feb 2022 10:41:10 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id bi41sm2015506oib.39.2022.02.05.10.41.09
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=TogfhCl4GaRy/hr1nHh5TTtzA/NeGrW8+KleLSPgZlU=;
+        b=GNT8hgYAULA31/oNlV5EYD5CspVpTKi1TSFnk2HAGPGmaHbdUh4lbM17w5jRjr9TiV
+         mcOX4FY7GuLLol0qsW7Q1eIGBzSqffUl8xSLv1DspbzdWQnvgYnmFuMulSyHfwVhVbQC
+         IiZbUfeO0t5xkOOFYMnEUq5ljekdFlNQ4Z1aZwMpmr4y6dgk3J+mUDy9cIATSzAToCrV
+         54pOqDouQQUXoBoImNcSz1bZG9rK4MpgA2Is6EqZSQ3zts6XfqYo0fy5bL67/4lXlALe
+         imQCHQaEIEzOF/ZThT9i54TupXL1PojJKc9YpDH7RMPKfwnMzYoULRb9a3SwpwkRNfxG
+         PGtA==
+X-Gm-Message-State: AOAM533SwXrpdKJ+Zucc8U2b2jahVD7DPvJIVtolqcC3dcZ+h8i+xtbb
+        iWDcHIJgMTfCKe6NY4l+a0XYBsOjlY1gh3AX
+X-Google-Smtp-Source: ABdhPJzJR913XXDFlJHxyilfRHBvZU4jlBaOR/iVapDKYAWLRVu+2lTEtUMyneZk4ocrGb9bF00yMw==
+X-Received: by 2002:a17:903:1209:: with SMTP id l9mr9106864plh.124.1644086822658;
+        Sat, 05 Feb 2022 10:47:02 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l26sm4369975pgm.73.2022.02.05.10.47.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Feb 2022 10:41:09 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Sat, 5 Feb 2022 10:41:08 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Michael Stapelberg <michael+drm@stapelberg.ch>,
-        Maxime Ripard <maxime@cerno.tech>
-Subject: Re: [PATCH 5.15 05/32] drm/vc4: hdmi: Make sure the device is
- powered with CEC
-Message-ID: <20220205184108.GA3084817@roeck-us.net>
-References: <20220204091915.247906930@linuxfoundation.org>
- <20220204091915.421812582@linuxfoundation.org>
- <20220205171238.GA3073350@roeck-us.net>
- <Yf66Y2/N0nh9tMxT@kroah.com>
+        Sat, 05 Feb 2022 10:47:02 -0800 (PST)
+Message-ID: <61fec626.1c69fb81.ce3fe.b196@mx.google.com>
+Date:   Sat, 05 Feb 2022 10:47:02 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yf66Y2/N0nh9tMxT@kroah.com>
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.97
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-5.10.y
+Subject: stable/linux-5.10.y baseline: 158 runs, 1 regressions (v5.10.97)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+stable/linux-5.10.y baseline: 158 runs, 1 regressions (v5.10.97)
 
-On Sat, Feb 05, 2022 at 06:56:51PM +0100, Greg Kroah-Hartman wrote:
-[ ... ]
-> 
-> Yeah, something is really wrong here.  I'm going to go revert this for
-> now and push out a new set of releases with that fixed.
+Regressions Summary
+-------------------
 
-If you pull a release for that, can you possibly revert 9de2b9286a6
-("ASoC: mediatek: Check for error clk pointer") as well ? It does not
-realy fix anything but breaks pretty much all Mediatek systems using
-the mtk-scpsys driver. I sent a revert request
-	https://lore.kernel.org/lkml/20220205014755.699603-1-linux@roeck-us.net/
-but the it looks like the submitter keeps defending their patch. In the
-current state, pretty much all stable release starting with v4.19.y won't
-work for affected systems due to this patch.
+platform        | arch  | lab          | compiler | defconfig | regressions
+----------------+-------+--------------+----------+-----------+------------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
 
-Thanks,
-Guenter
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
+/v5.10.97/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.10.y
+  Describe: v5.10.97
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      c8ed22bd97d47b7803173c4e2bd3cfd52693cf7f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig | regressions
+----------------+-------+--------------+----------+-----------+------------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61fe903786679a5d6c5d6efc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.97/a=
+rm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.97/a=
+rm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61fe903786679a5d6c5d6=
+efd
+        new failure (last pass: v5.10.96) =
+
+ =20
