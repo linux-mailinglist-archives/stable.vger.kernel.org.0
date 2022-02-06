@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9194A4AAF33
-	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:43:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F7984AAF34
+	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:44:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235742AbiBFMn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Feb 2022 07:43:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55768 "EHLO
+        id S235749AbiBFMoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Feb 2022 07:44:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229647AbiBFMn4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:43:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A64FC06173B
-        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 04:43:55 -0800 (PST)
+        with ESMTP id S229647AbiBFMoE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:44:04 -0500
+X-Greylist: delayed 2060 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 06 Feb 2022 04:44:03 PST
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E624C06173B
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 04:44:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3A5FB80B6D
-        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 12:43:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D292AC340E9;
-        Sun,  6 Feb 2022 12:43:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B133C60EBC
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 12:44:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D610C340E9;
+        Sun,  6 Feb 2022 12:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644151432;
-        bh=TGMg6y6C5VoClLIuFYZo0yJdE9n9hnUNN6rydOnBJNM=;
+        s=korg; t=1644151442;
+        bh=P5BsJaF797d3PQXIFZs65WK0Vs9baO9lA8P2IQLdjFA=;
         h=Subject:To:Cc:From:Date:From;
-        b=H91vgjfPvs2XM5LsRnReitwWfVsvvALyNdji8SjRyFeulXg8YU1g1ZZK/VWXXCWjv
-         QRJ4k0SgkhFQwlTC6C+CeSpTucK/1+3VzTfAJSGTEFZLnJjhqOzj/pJvYvuScZznYR
-         L9BTjeC75NtvBXAVioIUXgpPatFFIiZHJ3WpvBPo=
-Subject: FAILED: patch "[PATCH] net/smc: Forward wakeup to smc socket waitqueue after" failed to apply to 5.10-stable tree
+        b=QkrXKtLDGKfjqWQ+Ugg1Qpr9pwfvXBhTAXSzmx7DaaUfSsriMCVulCYgR/WXLK6GV
+         PhDaaNAXGaVYhKXFiBGa2YW1NNMtVOTXH/KKIeBjcR5FxXpeb+VBkImoYp4q22lEk6
+         tNK3ZWsxVVoZBmy9QhgsCAWejrwlQ3u2uyB54pn0=
+Subject: FAILED: patch "[PATCH] net/smc: Forward wakeup to smc socket waitqueue after" failed to apply to 5.4-stable tree
 To:     guwen@linux.alibaba.com, davem@davemloft.net, kgraul@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 06 Feb 2022 13:43:49 +0100
-Message-ID: <1644151429170104@kroah.com>
+Date:   Sun, 06 Feb 2022 13:43:51 +0100
+Message-ID: <164415143110826@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
