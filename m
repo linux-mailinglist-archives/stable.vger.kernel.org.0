@@ -2,112 +2,245 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62E944AB0F3
-	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 18:32:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3ABB4AB119
+	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 18:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241455AbiBFRcr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Feb 2022 12:32:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33166 "EHLO
+        id S231302AbiBFR5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Feb 2022 12:57:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230187AbiBFRcq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 12:32:46 -0500
-Received: from mail-oo1-xc29.google.com (mail-oo1-xc29.google.com [IPv6:2607:f8b0:4864:20::c29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4550C06173B;
-        Sun,  6 Feb 2022 09:32:45 -0800 (PST)
-Received: by mail-oo1-xc29.google.com with SMTP id t75-20020a4a3e4e000000b002e9c0821d78so11212012oot.4;
-        Sun, 06 Feb 2022 09:32:45 -0800 (PST)
+        with ESMTP id S229967AbiBFR5B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 12:57:01 -0500
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC601C06173B
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 09:56:59 -0800 (PST)
+Received: by mail-pj1-x1036.google.com with SMTP id on2so2315852pjb.4
+        for <stable@vger.kernel.org>; Sun, 06 Feb 2022 09:56:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=QjHen6OmxYmZmraosC3kIdd7lHywcpDr7IMXtC6KPtk=;
-        b=RewyujGZgeFv48JLa5eXek4Te5TO+ekg9lL6MPdVdzfA36Jy6YRQEjTLJg12tgfxU0
-         kOBukbSGKuwzkAeFYIY/PfAxjw/RWaLmxKXCOqOghmU4m6YjCDJPNzqOwnjpDhSJ2Tq6
-         cBJTujVC2ZExRh4iHRy1dFqlNUa4SP1MQ3BvgjTf2teXMBZ1ekG/EdbH6s/v2I6kXN1o
-         twHOuSxWnR5e4T4mwQYcd7l/bCFn02nTWqtfVorJb4YiwrbqbTthjlfiBsw2kd08wxT7
-         Sht993jbaGl/888LJLXg2sFdn7ewna0pE/1ZBAcRSD73+ok2OciQMLN83Jos+1MKsbSm
-         KQzQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=1LNyIoI4PI0E6e7RR539c9t6B0ZPaNmSeETqnMWoJa4=;
+        b=mkCunh7FWz9ZbdQ7cbj2rwI2JkZtJN0VNImG+3qW8KFiNC/9SKrgf89Qm41+13uZUM
+         uOoeBCznRt880tLvjSYXIwtk60OQelmiVNbuuj5tihOBQqoPFIphKqfeZBp4mRKu3A/m
+         ZlBqFJSYXl0RUgoetrcYELGVVmi/adX5hYOarw6kZCWciU+r4loeyAVv7cFP1/clsa3P
+         LYL6S4xoBmrrLNzg0LQDE72bxOcZjKvYVfxUwIrCirt684uBNKRo0U3hA0FfqKJ6rVRk
+         NSYORH99fUnrwxLOolcqebtQzQUJOYR98jcmiY1AfYvl2E/qP/guxzlwFEm/MAV7dVdN
+         FwIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
-         :subject:content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=QjHen6OmxYmZmraosC3kIdd7lHywcpDr7IMXtC6KPtk=;
-        b=5Eu1h/Cp+dq0XH2C9T5DR4bnBtLE0AS0d6gO9/gy9GxtpeEzSqIGcEHJDe1luut85F
-         Lau3c1S9vKN05wWNuGWGcrmNNBywRgCjvNm26OxtXayH2ZgKdF7SiK92FsHQe3r6ogiq
-         stlEkNxsaPdJH2gcKfncnKDXnYd1SyZdGJkAfnOmNRKBYOzXFMtrsI84Y9w6bEEUuPMk
-         KxD0VynpSMHhLzw8beU+X9XgH60tLDrWlzHLhCv6BwCxJRgBOTh1drP4wDIJq292uhQr
-         LOrSljzbixDuQT68GMlqSu/8RJ7cV1OJ9L9lpzBFcBdk3zFSAO2wwhlOmn63hHzOvzlZ
-         Rs7g==
-X-Gm-Message-State: AOAM533c4MjN7fl3lRtivEcdVgtJgVA6GiElgwMLbhSG27i0anmQP+v0
-        zriOR4sM8wuJJkymj6RtxUwOGHP2OIlCcQ==
-X-Google-Smtp-Source: ABdhPJyJtywanNHbmDYLjsoy4PXeZvvmggx0s3aSm4sZ5s+9vd8L72cu2rkjdxBBP5Atf+7vxyEwOQ==
-X-Received: by 2002:a05:6870:9484:: with SMTP id w4mr3149910oal.335.1644168765102;
-        Sun, 06 Feb 2022 09:32:45 -0800 (PST)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id d7sm2998029otf.66.2022.02.06.09.32.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 06 Feb 2022 09:32:44 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <5309198e-8ed0-4deb-6cd3-bd35732ed9b5@roeck-us.net>
-Date:   Sun, 6 Feb 2022 09:32:42 -0800
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=1LNyIoI4PI0E6e7RR539c9t6B0ZPaNmSeETqnMWoJa4=;
+        b=zPLwoMsoi9e09Vhz9z9jLvFkK6yRRo6G5DmcVdjV8c9dv/8E8r7R0K7yqyIxUogH+l
+         EQvdZ9xmRoWqaFINFkPtbA1OnOjCseWLQsqltWe+nEJC1ysUgUXnVPwC6TdoozJXghHX
+         doJqEUfJZc3tGU8xMlWJNGaApITkV1BElFLi7r/Cky7DcQLGhZYhr5cHpyBiQwVtF5At
+         K2rjOq7dYokVCRvFkI++tsILByMfZtTSy9z15BBDrIOAGgyzfAQ3UABS/zvNUGdI64p9
+         cWe07nmx/mo1wdlFVLxpODhGUJKgRiAa2ZCRSxjfQayqbyhfce2uHUbO1KL64SoHCG/z
+         WV3g==
+X-Gm-Message-State: AOAM5322SO5UsVboUrtCxEm1sxBxCW81F9ToktbIJb76ZPKDWpUx46n6
+        3/qfxbbwol6kFX1HEajSVefe6l9iJXUtannI
+X-Google-Smtp-Source: ABdhPJyUl4nebVBdMXRPunS5aSa9o56U8rBdg7eln0wcrFEQtgvuj38YH48INNAjpSLL5RXNLGcHDA==
+X-Received: by 2002:a17:903:110c:: with SMTP id n12mr12897793plh.163.1644170218998;
+        Sun, 06 Feb 2022 09:56:58 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y42sm9316609pfa.5.2022.02.06.09.56.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 06 Feb 2022 09:56:58 -0800 (PST)
+Message-ID: <62000bea.1c69fb81.be92.7ecc@mx.google.com>
+Date:   Sun, 06 Feb 2022 09:56:58 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 5.15 05/32] drm/vc4: hdmi: Make sure the device is powered
- with CEC
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Michael Stapelberg <michael+drm@stapelberg.ch>,
-        Maxime Ripard <maxime@cerno.tech>
-References: <20220204091915.247906930@linuxfoundation.org>
- <20220204091915.421812582@linuxfoundation.org>
- <20220205171238.GA3073350@roeck-us.net> <Yf66Y2/N0nh9tMxT@kroah.com>
- <20220205184108.GA3084817@roeck-us.net> <Yf+6gxmQnlbngqwm@kroah.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <Yf+6gxmQnlbngqwm@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.177-40-g908d8dc7229b
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 139 runs,
+ 4 regressions (v5.4.177-40-g908d8dc7229b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/6/22 04:09, Greg Kroah-Hartman wrote:
-> On Sat, Feb 05, 2022 at 10:41:08AM -0800, Guenter Roeck wrote:
->> Hi Greg,
->>
->> On Sat, Feb 05, 2022 at 06:56:51PM +0100, Greg Kroah-Hartman wrote:
->> [ ... ]
->>>
->>> Yeah, something is really wrong here.  I'm going to go revert this for
->>> now and push out a new set of releases with that fixed.
->>
->> If you pull a release for that, can you possibly revert 9de2b9286a6
->> ("ASoC: mediatek: Check for error clk pointer") as well ? It does not
->> realy fix anything but breaks pretty much all Mediatek systems using
->> the mtk-scpsys driver. I sent a revert request
->> 	https://lore.kernel.org/lkml/20220205014755.699603-1-linux@roeck-us.net/
->> but the it looks like the submitter keeps defending their patch. In the
->> current state, pretty much all stable release starting with v4.19.y won't
->> work for affected systems due to this patch.
-> 
-> I don't see anyone objecting to the revert in that thread (or any
-> responses at all.)  I'll queue up a revert for the next round of
-> releases until this all gets worked out.
-> 
+stable-rc/queue/5.4 baseline: 139 runs, 4 regressions (v5.4.177-40-g908d8dc=
+7229b)
 
-The discussion isn't easy to find, or at least I only found it
-after writing the revert. It is at
+Regressions Summary
+-------------------
 
-https://lore.kernel.org/all/trinity-2a727d96-0335-4d03-8f30-e22a0e10112d-1643363480085@3c-app-gmx-bap33/
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-Guenter
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.177-40-g908d8dc7229b/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.177-40-g908d8dc7229b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      908d8dc7229bb2aecdd541561db5e5ae91e29c38 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61ffd563923127232b5d6f01
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
+0-g908d8dc7229b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
+0-g908d8dc7229b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61ffd563923127232b5d6=
+f02
+        failing since 52 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61ffd575923127232b5d6f0f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
+0-g908d8dc7229b/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
+0-g908d8dc7229b/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61ffd575923127232b5d6=
+f10
+        failing since 52 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61ffd5653f5a8ce0fb5d6eee
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
+0-g908d8dc7229b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
+0-g908d8dc7229b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61ffd5653f5a8ce0fb5d6=
+eef
+        failing since 52 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61ffd58969285365be5d6efb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
+0-g908d8dc7229b/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
+0-g908d8dc7229b/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61ffd58969285365be5d6=
+efc
+        failing since 52 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
