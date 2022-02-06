@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBEF94AAF3E
-	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:48:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 396304AAF3F
+	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:48:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233221AbiBFMs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Feb 2022 07:48:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57064 "EHLO
+        id S235866AbiBFMsj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Feb 2022 07:48:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229647AbiBFMs3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:48:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2891DC06173B
-        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 04:48:28 -0800 (PST)
+        with ESMTP id S229647AbiBFMsj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:48:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F39C1C06173B
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 04:48:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B996360F79
-        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 12:48:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B42AC340E9;
-        Sun,  6 Feb 2022 12:48:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3755B80E04
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 12:48:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA8D5C340E9;
+        Sun,  6 Feb 2022 12:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644151707;
-        bh=++WAjQiO4jKn3JqYgtr2ymnERF/FVuCppjyRjypQddU=;
+        s=korg; t=1644151715;
+        bh=7NDD1tkPoPlrt4V5JkymO8h/CKf645wDULhTljjk/lw=;
         h=Subject:To:Cc:From:Date:From;
-        b=soyqC9rvIjQF0OpjMrNaJ2HcF55szP8+VmRMnZNneu6Gfj5OkXWooRvMv590RfrAC
-         +ihjQCUxjdRGVLT6KL3fw7K2t3G9oxOOVLtSaJinzCIiCfMCdoXwA9KC4QTk7ouUnJ
-         IT9PVzhhr3iSse/lKFisR4wnkHT4AYxfVlUGUwUM=
-Subject: FAILED: patch "[PATCH] ASoC: rt5682: Fix deadlock on resume" failed to apply to 5.10-stable tree
+        b=JUZ5jA1D75bcTrHFYlrl04xZ/7CDXAA4Gqj/arRHFv0TUaXKkXiZ8pnnvE7wxtUaQ
+         oH/stIBFn89KWAMmSj8N81MGEsKdfz4ZUVnPxqW3lY6cg05cXJUghHthOGNXw1VXsO
+         Noo4ydA+5nS2OUSrBsDLI/fLL6j664XQQetY2GiY=
+Subject: FAILED: patch "[PATCH] ASoC: rt5682: Fix deadlock on resume" failed to apply to 5.15-stable tree
 To:     peter.ujfalusi@linux.intel.com, broonie@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 06 Feb 2022 13:48:23 +0100
-Message-ID: <1644151703193161@kroah.com>
+Date:   Sun, 06 Feb 2022 13:48:24 +0100
+Message-ID: <164415170439246@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
