@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E33D4AAF28
-	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:23:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9604AAF29
+	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:23:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235515AbiBFMXk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Feb 2022 07:23:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50722 "EHLO
+        id S235520AbiBFMX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Feb 2022 07:23:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229647AbiBFMXj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:23:39 -0500
+        with ESMTP id S229647AbiBFMX5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:23:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92992C06173B
-        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 04:23:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7124FC06173B
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 04:23:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0CEDDB8095C
-        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 12:23:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 463C5C340E9;
-        Sun,  6 Feb 2022 12:23:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C322B8095C
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 12:23:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B143EC340F1;
+        Sun,  6 Feb 2022 12:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644150214;
-        bh=AEIQRoT7uDa95Zlv9sV5spIjHdrdOYPvZqQFbuSV4Mw=;
+        s=korg; t=1644150232;
+        bh=FRdU295C/2waPv5GRYDF5VB09rQMR5QxSq3N9+Ee720=;
         h=Subject:To:Cc:From:Date:From;
-        b=CR0sYpH8ipl7tE2Lf9HdKYUwMbfDnGHO5K+2dr9/Kd/6NJKNTuAzb5zPlPjJDEQ72
-         oHsDncNYfakGPxTcWIHnmswXKo1IkyOYxRLMJAb534e0KFrhEFDWNU94bOjsdzyheO
-         AiSUvC2nJaiBTjv0GCDVhUroMLiksUkpHGZvzE6o=
-Subject: FAILED: patch "[PATCH] KVM: arm64: Workaround Cortex-A510's single-step and PAC trap" failed to apply to 5.15-stable tree
-To:     james.morse@arm.com, maz@kernel.org
+        b=Pj3zCLsFPeT8eyxoDmanLWxiVDTt0nR2u3V302cIhdQAcgMVN/Pytbnc30TSsVLd7
+         SuGtB524SZUPe/gx8mI4iEAzA74CI2ZgaCuER7pbcqhuNRsekmdVg1q51f+nkPIfoH
+         LQKa7Xic2pz1JxzQlaNk/3kNnKlzg4nM2h9JxPlQ=
+Subject: FAILED: patch "[PATCH] arm64: Add Cortex-A510 CPU part definition" failed to apply to 5.15-stable tree
+To:     anshuman.khandual@arm.com, catalin.marinas@arm.com,
+        mathieu.poirier@linaro.org, suzuki.poulose@arm.com, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 06 Feb 2022 13:23:24 +0100
-Message-ID: <164415020456246@kroah.com>
+Date:   Sun, 06 Feb 2022 13:23:49 +0100
+Message-ID: <164415022937107@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,142 +60,42 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1dd498e5e26ad71e3e9130daf72cfb6a693fee03 Mon Sep 17 00:00:00 2001
-From: James Morse <james.morse@arm.com>
-Date: Thu, 27 Jan 2022 12:20:52 +0000
-Subject: [PATCH] KVM: arm64: Workaround Cortex-A510's single-step and PAC trap
- errata
+From 53960faf2b731dd2f9ed6e1334634b8ba6286850 Mon Sep 17 00:00:00 2001
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Date: Tue, 25 Jan 2022 19:50:31 +0530
+Subject: [PATCH] arm64: Add Cortex-A510 CPU part definition
 
-Cortex-A510's erratum #2077057 causes SPSR_EL2 to be corrupted when
-single-stepping authenticated ERET instructions. A single step is
-expected, but a pointer authentication trap is taken instead. The
-erratum causes SPSR_EL1 to be copied to SPSR_EL2, which could allow
-EL1 to cause a return to EL2 with a guest controlled ELR_EL2.
+Add the CPU Partnumbers for the new Arm designs.
 
-Because the conditions require an ERET into active-not-pending state,
-this is only a problem for the EL2 when EL2 is stepping EL1. In this case
-the previous SPSR_EL2 value is preserved in struct kvm_vcpu, and can be
-restored.
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Suzuki Poulose <suzuki.poulose@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Link: https://lore.kernel.org/r/1643120437-14352-2-git-send-email-anshuman.khandual@arm.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 
-Cc: stable@vger.kernel.org # 53960faf2b73: arm64: Add Cortex-A510 CPU part definition
-Cc: stable@vger.kernel.org
-Signed-off-by: James Morse <james.morse@arm.com>
-[maz: fixup cpucaps ordering]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220127122052.1584324-5-james.morse@arm.com
-
-diff --git a/Documentation/arm64/silicon-errata.rst b/Documentation/arm64/silicon-errata.rst
-index 0ec7b7f1524b..ea281dd75517 100644
---- a/Documentation/arm64/silicon-errata.rst
-+++ b/Documentation/arm64/silicon-errata.rst
-@@ -100,6 +100,8 @@ stable kernels.
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A510     | #2051678        | ARM64_ERRATUM_2051678       |
- +----------------+-----------------+-----------------+-----------------------------+
-+| ARM            | Cortex-A510     | #2077057        | ARM64_ERRATUM_2077057       |
-++----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A710     | #2119858        | ARM64_ERRATUM_2119858       |
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A710     | #2054223        | ARM64_ERRATUM_2054223       |
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index f2b5a4abef21..cbcd42decb2a 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -680,6 +680,22 @@ config ARM64_ERRATUM_2051678
+diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
+index 19b8441aa8f2..e8fdc10395b6 100644
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -73,6 +73,7 @@
+ #define ARM_CPU_PART_CORTEX_A76		0xD0B
+ #define ARM_CPU_PART_NEOVERSE_N1	0xD0C
+ #define ARM_CPU_PART_CORTEX_A77		0xD0D
++#define ARM_CPU_PART_CORTEX_A510	0xD46
+ #define ARM_CPU_PART_CORTEX_A710	0xD47
+ #define ARM_CPU_PART_NEOVERSE_N2	0xD49
  
- 	  If unsure, say Y.
- 
-+config ARM64_ERRATUM_2077057
-+	bool "Cortex-A510: 2077057: workaround software-step corrupting SPSR_EL2"
-+	help
-+	  This option adds the workaround for ARM Cortex-A510 erratum 2077057.
-+	  Affected Cortex-A510 may corrupt SPSR_EL2 when the a step exception is
-+	  expected, but a Pointer Authentication trap is taken instead. The
-+	  erratum causes SPSR_EL1 to be copied to SPSR_EL2, which could allow
-+	  EL1 to cause a return to EL2 with a guest controlled ELR_EL2.
-+
-+	  This can only happen when EL2 is stepping EL1.
-+
-+	  When these conditions occur, the SPSR_EL2 value is unchanged from the
-+	  previous guest entry, and can be restored from the in-memory copy.
-+
-+	  If unsure, say Y.
-+
- config ARM64_ERRATUM_2119858
- 	bool "Cortex-A710/X2: 2119858: workaround TRBE overwriting trace data in FILL mode"
- 	default y
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index 066098198c24..b217941713a8 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -600,6 +600,14 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
- 		CAP_MIDR_RANGE_LIST(trbe_write_out_of_range_cpus),
- 	},
- #endif
-+#ifdef CONFIG_ARM64_ERRATUM_2077057
-+	{
-+		.desc = "ARM erratum 2077057",
-+		.capability = ARM64_WORKAROUND_2077057,
-+		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
-+		ERRATA_MIDR_REV_RANGE(MIDR_CORTEX_A510, 0, 0, 2),
-+	},
-+#endif
- #ifdef CONFIG_ARM64_ERRATUM_2064142
- 	{
- 		.desc = "ARM erratum 2064142",
-diff --git a/arch/arm64/kvm/hyp/include/hyp/switch.h b/arch/arm64/kvm/hyp/include/hyp/switch.h
-index 331dd10821df..701cfb964905 100644
---- a/arch/arm64/kvm/hyp/include/hyp/switch.h
-+++ b/arch/arm64/kvm/hyp/include/hyp/switch.h
-@@ -402,6 +402,24 @@ static inline bool kvm_hyp_handle_exit(struct kvm_vcpu *vcpu, u64 *exit_code)
- 	return false;
- }
- 
-+static inline void synchronize_vcpu_pstate(struct kvm_vcpu *vcpu, u64 *exit_code)
-+{
-+	/*
-+	 * Check for the conditions of Cortex-A510's #2077057. When these occur
-+	 * SPSR_EL2 can't be trusted, but isn't needed either as it is
-+	 * unchanged from the value in vcpu_gp_regs(vcpu)->pstate.
-+	 * Are we single-stepping the guest, and took a PAC exception from the
-+	 * active-not-pending state?
-+	 */
-+	if (cpus_have_final_cap(ARM64_WORKAROUND_2077057)		&&
-+	    vcpu->guest_debug & KVM_GUESTDBG_SINGLESTEP			&&
-+	    *vcpu_cpsr(vcpu) & DBG_SPSR_SS				&&
-+	    ESR_ELx_EC(read_sysreg_el2(SYS_ESR)) == ESR_ELx_EC_PAC)
-+		write_sysreg_el2(*vcpu_cpsr(vcpu), SYS_SPSR);
-+
-+	vcpu->arch.ctxt.regs.pstate = read_sysreg_el2(SYS_SPSR);
-+}
-+
- /*
-  * Return true when we were able to fixup the guest exit and should return to
-  * the guest, false when we should restore the host state and return to the
-@@ -413,7 +431,7 @@ static inline bool fixup_guest_exit(struct kvm_vcpu *vcpu, u64 *exit_code)
- 	 * Save PSTATE early so that we can evaluate the vcpu mode
- 	 * early on.
- 	 */
--	vcpu->arch.ctxt.regs.pstate = read_sysreg_el2(SYS_SPSR);
-+	synchronize_vcpu_pstate(vcpu, exit_code);
- 
- 	/*
- 	 * Check whether we want to repaint the state one way or
-diff --git a/arch/arm64/tools/cpucaps b/arch/arm64/tools/cpucaps
-index e7719e8f18de..9c65b1e25a96 100644
---- a/arch/arm64/tools/cpucaps
-+++ b/arch/arm64/tools/cpucaps
-@@ -55,9 +55,10 @@ WORKAROUND_1418040
- WORKAROUND_1463225
- WORKAROUND_1508412
- WORKAROUND_1542419
--WORKAROUND_2064142
--WORKAROUND_2038923
- WORKAROUND_1902691
-+WORKAROUND_2038923
-+WORKAROUND_2064142
-+WORKAROUND_2077057
- WORKAROUND_TRBE_OVERWRITE_FILL_MODE
- WORKAROUND_TSB_FLUSH_FAILURE
- WORKAROUND_TRBE_WRITE_OUT_OF_RANGE
+@@ -115,6 +116,7 @@
+ #define MIDR_CORTEX_A76	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A76)
+ #define MIDR_NEOVERSE_N1 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_N1)
+ #define MIDR_CORTEX_A77	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A77)
++#define MIDR_CORTEX_A510 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A510)
+ #define MIDR_CORTEX_A710 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A710)
+ #define MIDR_NEOVERSE_N2 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_N2)
+ #define MIDR_THUNDERX	MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX)
 
