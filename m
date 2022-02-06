@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 070C64AAF37
-	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:45:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE5534AAF38
+	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:46:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235786AbiBFMpg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Feb 2022 07:45:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56222 "EHLO
+        id S235809AbiBFMqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Feb 2022 07:46:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229647AbiBFMpf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:45:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF886C06173B
-        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 04:45:34 -0800 (PST)
+        with ESMTP id S229647AbiBFMqD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:46:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD4D5C06173B
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 04:46:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4462460F6A
-        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 12:45:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB3DFC340E9;
-        Sun,  6 Feb 2022 12:45:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8609B80E06
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 12:45:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB0C5C340E9;
+        Sun,  6 Feb 2022 12:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644151533;
-        bh=SoLFSpMOXP1gjj7USSbRTRZlsld2tgiHZi4UyZIRDvo=;
+        s=korg; t=1644151558;
+        bh=4Tqu/mOyu057UfwMtMJNYnZc8FL8oYQNl9m+IaPC+H8=;
         h=Subject:To:Cc:From:Date:From;
-        b=tyQv05d0M10dYPIAHTLGKQCQ+B4fPwKBavnUttcdOwYjuT4u9Ne5oCmoBrrOrfVRb
-         z8Wcok88LHM4WouMsDmFXzg3tnw8o0kuJOICYajSBxWRhyNe3D4IhwbQdSTs58vztk
-         ssKzwuFZxyP/lzMc1gb+0w4Tw7K6J5KAODiI0alM=
-Subject: FAILED: patch "[PATCH] net: stmmac: dump gmac4 DMA registers correctly" failed to apply to 4.19-stable tree
-To:     camelg@axis.com, kuba@kernel.org
+        b=TrSQE+azx5A3CRJ6sFPlrOS/hk0xx7v5I+Uy+4M6/ZCNYFuLmJ9C/65W+sAormgW+
+         cIyAGeXX0SANEGUyi2ssD40pv22kiiUdO925Rwuy9iN425B+HCax0yfpP+VZnK9gHe
+         v5w/fxgeAU1p3HRVY8c6QVd2YT1pNt2P95OcGOQE=
+Subject: FAILED: patch "[PATCH] net: stmmac: ensure PTP time register reads are consistent" failed to apply to 4.9-stable tree
+To:     yannick.vignon@nxp.com, kuba@kernel.org, rmk+kernel@armlinux.org.uk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 06 Feb 2022 13:45:22 +0100
-Message-ID: <1644151522140180@kroah.com>
+Date:   Sun, 06 Feb 2022 13:45:55 +0100
+Message-ID: <1644151555236209@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,94 +59,54 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7af037c39b600bac2c716dd1228e8ddbe149573f Mon Sep 17 00:00:00 2001
-From: Camel Guo <camelg@axis.com>
-Date: Mon, 31 Jan 2022 09:38:40 +0100
-Subject: [PATCH] net: stmmac: dump gmac4 DMA registers correctly
+From 80d4609008e6d696a279e39ae7458c916fcd44c1 Mon Sep 17 00:00:00 2001
+From: Yannick Vignon <yannick.vignon@nxp.com>
+Date: Thu, 3 Feb 2022 17:00:25 +0100
+Subject: [PATCH] net: stmmac: ensure PTP time register reads are consistent
 
-Unlike gmac100, gmac1000, gmac4 has 27 DMA registers and they are
-located at DMA_CHAN_BASE_ADDR (0x1100). In order for ethtool to dump
-gmac4 DMA registers correctly, this commit checks if a net_device has
-gmac4 and uses different logic to dump its DMA registers.
+Even if protected from preemption and interrupts, a small time window
+remains when the 2 register reads could return inconsistent values,
+each time the "seconds" register changes. This could lead to an about
+1-second error in the reported time.
 
-This fixes the following KASAN warning, which can normally be triggered
-by a command similar like "ethtool -d eth0":
+Add logic to ensure the "seconds" and "nanoseconds" values are consistent.
 
-BUG: KASAN: vmalloc-out-of-bounds in dwmac4_dump_dma_regs+0x6d4/0xb30
-Write of size 4 at addr ffffffc010177100 by task ethtool/1839
- kasan_report+0x200/0x21c
- __asan_report_store4_noabort+0x34/0x60
- dwmac4_dump_dma_regs+0x6d4/0xb30
- stmmac_ethtool_gregs+0x110/0x204
- ethtool_get_regs+0x200/0x4b0
- dev_ethtool+0x1dac/0x3800
- dev_ioctl+0x7c0/0xb50
- sock_ioctl+0x298/0x6c4
- ...
-
-Fixes: fbf68229ffe7 ("net: stmmac: unify registers dumps methods")
-Signed-off-by: Camel Guo <camelg@axis.com>
-Link: https://lore.kernel.org/r/20220131083841.3346801-1-camel.guo@axis.com
+Fixes: 92ba6888510c ("stmmac: add the support for PTP hw clock driver")
+Signed-off-by: Yannick Vignon <yannick.vignon@nxp.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20220203160025.750632-1-yannick.vignon@oss.nxp.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h b/drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h
-index 1914ad698cab..acd70b9a3173 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h
-@@ -150,6 +150,7 @@
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
+index 074e2cdfb0fa..a7ec9f4d46ce 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
+@@ -145,15 +145,20 @@ static int adjust_systime(void __iomem *ioaddr, u32 sec, u32 nsec,
  
- #define NUM_DWMAC100_DMA_REGS	9
- #define NUM_DWMAC1000_DMA_REGS	23
-+#define NUM_DWMAC4_DMA_REGS	27
- 
- void dwmac_enable_dma_transmission(void __iomem *ioaddr);
- void dwmac_enable_dma_irq(void __iomem *ioaddr, u32 chan, bool rx, bool tx);
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-index 164dff5ec32e..abfb3cd5958d 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-@@ -21,10 +21,18 @@
- #include "dwxgmac2.h"
- 
- #define REG_SPACE_SIZE	0x1060
-+#define GMAC4_REG_SPACE_SIZE	0x116C
- #define MAC100_ETHTOOL_NAME	"st_mac100"
- #define GMAC_ETHTOOL_NAME	"st_gmac"
- #define XGMAC_ETHTOOL_NAME	"st_xgmac"
- 
-+/* Same as DMA_CHAN_BASE_ADDR defined in dwmac4_dma.h
-+ *
-+ * It is here because dwmac_dma.h and dwmac4_dam.h can not be included at the
-+ * same time due to the conflicting macro names.
-+ */
-+#define GMAC4_DMA_CHAN_BASE_ADDR  0x00001100
+ static void get_systime(void __iomem *ioaddr, u64 *systime)
+ {
+-	u64 ns;
+-
+-	/* Get the TSSS value */
+-	ns = readl(ioaddr + PTP_STNSR);
+-	/* Get the TSS and convert sec time value to nanosecond */
+-	ns += readl(ioaddr + PTP_STSR) * 1000000000ULL;
++	u64 ns, sec0, sec1;
 +
- #define ETHTOOL_DMA_OFFSET	55
++	/* Get the TSS value */
++	sec1 = readl_relaxed(ioaddr + PTP_STSR);
++	do {
++		sec0 = sec1;
++		/* Get the TSSS value */
++		ns = readl_relaxed(ioaddr + PTP_STNSR);
++		/* Get the TSS value */
++		sec1 = readl_relaxed(ioaddr + PTP_STSR);
++	} while (sec0 != sec1);
  
- struct stmmac_stats {
-@@ -434,6 +442,8 @@ static int stmmac_ethtool_get_regs_len(struct net_device *dev)
- 
- 	if (priv->plat->has_xgmac)
- 		return XGMAC_REGSIZE * 4;
-+	else if (priv->plat->has_gmac4)
-+		return GMAC4_REG_SPACE_SIZE;
- 	return REG_SPACE_SIZE;
+ 	if (systime)
+-		*systime = ns;
++		*systime = ns + (sec1 * 1000000000ULL);
  }
  
-@@ -446,8 +456,13 @@ static void stmmac_ethtool_gregs(struct net_device *dev,
- 	stmmac_dump_mac_regs(priv, priv->hw, reg_space);
- 	stmmac_dump_dma_regs(priv, priv->ioaddr, reg_space);
- 
--	if (!priv->plat->has_xgmac) {
--		/* Copy DMA registers to where ethtool expects them */
-+	/* Copy DMA registers to where ethtool expects them */
-+	if (priv->plat->has_gmac4) {
-+		/* GMAC4 dumps its DMA registers at its DMA_CHAN_BASE_ADDR */
-+		memcpy(&reg_space[ETHTOOL_DMA_OFFSET],
-+		       &reg_space[GMAC4_DMA_CHAN_BASE_ADDR / 4],
-+		       NUM_DWMAC4_DMA_REGS * 4);
-+	} else if (!priv->plat->has_xgmac) {
- 		memcpy(&reg_space[ETHTOOL_DMA_OFFSET],
- 		       &reg_space[DMA_BUS_MODE / 4],
- 		       NUM_DWMAC1000_DMA_REGS * 4);
+ static void get_ptptime(void __iomem *ptpaddr, u64 *ptp_time)
 
