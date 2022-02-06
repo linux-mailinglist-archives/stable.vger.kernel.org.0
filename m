@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 347C34AAF42
-	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:51:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C1FE4AAF43
+	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:51:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235878AbiBFMvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Feb 2022 07:51:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57726 "EHLO
+        id S235892AbiBFMvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Feb 2022 07:51:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229647AbiBFMvF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:51:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3403C06173B
-        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 04:51:04 -0800 (PST)
+        with ESMTP id S229647AbiBFMvQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:51:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 435F3C06173B
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 04:51:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 49FA460F08
-        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 12:51:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB9FCC340E9;
-        Sun,  6 Feb 2022 12:51:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09B55B80E04
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 12:51:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14011C340E9;
+        Sun,  6 Feb 2022 12:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644151863;
-        bh=UQxrClW2EcpI0IHmuX5XeDcK6AchCFZc3NiCy9asi+w=;
+        s=korg; t=1644151872;
+        bh=TJcuSb7kpbboXMOV5c1VlbM4Dwq6jJSC8UGjKnAyhIw=;
         h=Subject:To:Cc:From:Date:From;
-        b=jdDb4Q3PXD370QdCc8mZpHQduXr6aUJJ/iR17YhSTWhijXQephiMwW4SNx72FDn1M
-         qCziN+d2WMof5WNjZ3fWO09iVxKfWCwX/ShatLJNneCaiW0Dq80fEJDVjAffbnflqA
-         3W3JNfvxfW6qzzBkVD1Ql2IkczBeUXqWa7EFTHas=
-Subject: FAILED: patch "[PATCH] pinctrl: intel: fix unexpected interrupt" failed to apply to 5.4-stable tree
+        b=Qv5LCWUoKzRzKm2qL+Vn95xfJhmr40DrLi+HjiteDw9TgIHPkrhoMC1LDzLu+tzUg
+         mQW+13IVLT782g3ZNdsNc+5siuGfdgpmuO3XK4t0H2+LtLwZvdadZvHDbs0lpuN3X4
+         fwxrWNMhyTyKqJPwSZRl/XJU5JLwb0OG5YckfYSk=
+Subject: FAILED: patch "[PATCH] pinctrl: intel: fix unexpected interrupt" failed to apply to 4.19-stable tree
 To:     lb@semihalf.com, andriy.shevchenko@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 06 Feb 2022 13:51:00 +0100
-Message-ID: <164415186022654@kroah.com>
+Date:   Sun, 06 Feb 2022 13:51:01 +0100
+Message-ID: <164415186119815@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
