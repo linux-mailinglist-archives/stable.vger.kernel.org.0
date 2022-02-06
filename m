@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 850EB4AAF27
-	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:23:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E33D4AAF28
+	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:23:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235510AbiBFMXc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Feb 2022 07:23:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50682 "EHLO
+        id S235515AbiBFMXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Feb 2022 07:23:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229647AbiBFMXb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:23:31 -0500
+        with ESMTP id S229647AbiBFMXj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:23:39 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52459C06173B
-        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 04:23:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92992C06173B
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 04:23:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B09D1B8095C
-        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 12:23:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB9A2C340E9;
-        Sun,  6 Feb 2022 12:23:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0CEDDB8095C
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 12:23:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 463C5C340E9;
+        Sun,  6 Feb 2022 12:23:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644150206;
-        bh=MvDQuiEtrgFdJgW3yjzNssMgepRTsFSimyh+0RG03pA=;
+        s=korg; t=1644150214;
+        bh=AEIQRoT7uDa95Zlv9sV5spIjHdrdOYPvZqQFbuSV4Mw=;
         h=Subject:To:Cc:From:Date:From;
-        b=JEtYg+YCBPSK+9dVgclU/+HEXiW/RZbwu985ubl8WXLXHgzSnuW15i6B+dMj4/Tjw
-         SbSuKbVC/BXi+ia7MKoG0z+n0lfcqWQf76b1EyXeLpidjgTS0wCBb6kbIFt1ok7HKD
-         wtAP5RdyTHI4iP8ztMPiJdaWlXG6MY/4Zgya9inA=
-Subject: FAILED: patch "[PATCH] KVM: arm64: Workaround Cortex-A510's single-step and PAC trap" failed to apply to 5.16-stable tree
+        b=CR0sYpH8ipl7tE2Lf9HdKYUwMbfDnGHO5K+2dr9/Kd/6NJKNTuAzb5zPlPjJDEQ72
+         oHsDncNYfakGPxTcWIHnmswXKo1IkyOYxRLMJAb534e0KFrhEFDWNU94bOjsdzyheO
+         AiSUvC2nJaiBTjv0GCDVhUroMLiksUkpHGZvzE6o=
+Subject: FAILED: patch "[PATCH] KVM: arm64: Workaround Cortex-A510's single-step and PAC trap" failed to apply to 5.15-stable tree
 To:     james.morse@arm.com, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 06 Feb 2022 13:23:23 +0100
-Message-ID: <164415020311036@kroah.com>
+Date:   Sun, 06 Feb 2022 13:23:24 +0100
+Message-ID: <164415020456246@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
