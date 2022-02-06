@@ -2,50 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74F324AAF22
-	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:09:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 850EB4AAF27
+	for <lists+stable@lfdr.de>; Sun,  6 Feb 2022 13:23:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230450AbiBFMJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Feb 2022 07:09:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46974 "EHLO
+        id S235510AbiBFMXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Feb 2022 07:23:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229647AbiBFMJo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:09:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2434BC06173B;
-        Sun,  6 Feb 2022 04:09:44 -0800 (PST)
+        with ESMTP id S229647AbiBFMXb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Feb 2022 07:23:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52459C06173B
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 04:23:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D3E160F9D;
-        Sun,  6 Feb 2022 12:09:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4294C340E9;
-        Sun,  6 Feb 2022 12:09:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B09D1B8095C
+        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 12:23:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB9A2C340E9;
+        Sun,  6 Feb 2022 12:23:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644149382;
-        bh=1tjtCxGDwbqw9ixahReK/ueXFMVBs0fTu97Pu4ohV7g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fuRHhDjCZpF3o85hV2koVqYWJ3WfeA2jwsyjf+T2F7rpnL3zvZIcIPW8/na/K8dEa
-         Eo4jvX02AGM8R05s+EbzYMKz6IkWRKrQ15YMihnO5XV/hpuDejQ6Vh7kklPQ7lXVJ6
-         mwcGcv80l0E0poywsTAeUaHMgujcrGhFv8P02kVw=
-Date:   Sun, 6 Feb 2022 13:09:39 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Michael Stapelberg <michael+drm@stapelberg.ch>,
-        Maxime Ripard <maxime@cerno.tech>
-Subject: Re: [PATCH 5.15 05/32] drm/vc4: hdmi: Make sure the device is
- powered with CEC
-Message-ID: <Yf+6gxmQnlbngqwm@kroah.com>
-References: <20220204091915.247906930@linuxfoundation.org>
- <20220204091915.421812582@linuxfoundation.org>
- <20220205171238.GA3073350@roeck-us.net>
- <Yf66Y2/N0nh9tMxT@kroah.com>
- <20220205184108.GA3084817@roeck-us.net>
+        s=korg; t=1644150206;
+        bh=MvDQuiEtrgFdJgW3yjzNssMgepRTsFSimyh+0RG03pA=;
+        h=Subject:To:Cc:From:Date:From;
+        b=JEtYg+YCBPSK+9dVgclU/+HEXiW/RZbwu985ubl8WXLXHgzSnuW15i6B+dMj4/Tjw
+         SbSuKbVC/BXi+ia7MKoG0z+n0lfcqWQf76b1EyXeLpidjgTS0wCBb6kbIFt1ok7HKD
+         wtAP5RdyTHI4iP8ztMPiJdaWlXG6MY/4Zgya9inA=
+Subject: FAILED: patch "[PATCH] KVM: arm64: Workaround Cortex-A510's single-step and PAC trap" failed to apply to 5.16-stable tree
+To:     james.morse@arm.com, maz@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 06 Feb 2022 13:23:23 +0100
+Message-ID: <164415020311036@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220205184108.GA3084817@roeck-us.net>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -56,28 +47,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Feb 05, 2022 at 10:41:08AM -0800, Guenter Roeck wrote:
-> Hi Greg,
-> 
-> On Sat, Feb 05, 2022 at 06:56:51PM +0100, Greg Kroah-Hartman wrote:
-> [ ... ]
-> > 
-> > Yeah, something is really wrong here.  I'm going to go revert this for
-> > now and push out a new set of releases with that fixed.
-> 
-> If you pull a release for that, can you possibly revert 9de2b9286a6
-> ("ASoC: mediatek: Check for error clk pointer") as well ? It does not
-> realy fix anything but breaks pretty much all Mediatek systems using
-> the mtk-scpsys driver. I sent a revert request
-> 	https://lore.kernel.org/lkml/20220205014755.699603-1-linux@roeck-us.net/
-> but the it looks like the submitter keeps defending their patch. In the
-> current state, pretty much all stable release starting with v4.19.y won't
-> work for affected systems due to this patch.
 
-I don't see anyone objecting to the revert in that thread (or any
-responses at all.)  I'll queue up a revert for the next round of
-releases until this all gets worked out.
+The patch below does not apply to the 5.16-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 1dd498e5e26ad71e3e9130daf72cfb6a693fee03 Mon Sep 17 00:00:00 2001
+From: James Morse <james.morse@arm.com>
+Date: Thu, 27 Jan 2022 12:20:52 +0000
+Subject: [PATCH] KVM: arm64: Workaround Cortex-A510's single-step and PAC trap
+ errata
+
+Cortex-A510's erratum #2077057 causes SPSR_EL2 to be corrupted when
+single-stepping authenticated ERET instructions. A single step is
+expected, but a pointer authentication trap is taken instead. The
+erratum causes SPSR_EL1 to be copied to SPSR_EL2, which could allow
+EL1 to cause a return to EL2 with a guest controlled ELR_EL2.
+
+Because the conditions require an ERET into active-not-pending state,
+this is only a problem for the EL2 when EL2 is stepping EL1. In this case
+the previous SPSR_EL2 value is preserved in struct kvm_vcpu, and can be
+restored.
+
+Cc: stable@vger.kernel.org # 53960faf2b73: arm64: Add Cortex-A510 CPU part definition
+Cc: stable@vger.kernel.org
+Signed-off-by: James Morse <james.morse@arm.com>
+[maz: fixup cpucaps ordering]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220127122052.1584324-5-james.morse@arm.com
+
+diff --git a/Documentation/arm64/silicon-errata.rst b/Documentation/arm64/silicon-errata.rst
+index 0ec7b7f1524b..ea281dd75517 100644
+--- a/Documentation/arm64/silicon-errata.rst
++++ b/Documentation/arm64/silicon-errata.rst
+@@ -100,6 +100,8 @@ stable kernels.
+ +----------------+-----------------+-----------------+-----------------------------+
+ | ARM            | Cortex-A510     | #2051678        | ARM64_ERRATUM_2051678       |
+ +----------------+-----------------+-----------------+-----------------------------+
++| ARM            | Cortex-A510     | #2077057        | ARM64_ERRATUM_2077057       |
+++----------------+-----------------+-----------------+-----------------------------+
+ | ARM            | Cortex-A710     | #2119858        | ARM64_ERRATUM_2119858       |
+ +----------------+-----------------+-----------------+-----------------------------+
+ | ARM            | Cortex-A710     | #2054223        | ARM64_ERRATUM_2054223       |
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index f2b5a4abef21..cbcd42decb2a 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -680,6 +680,22 @@ config ARM64_ERRATUM_2051678
+ 
+ 	  If unsure, say Y.
+ 
++config ARM64_ERRATUM_2077057
++	bool "Cortex-A510: 2077057: workaround software-step corrupting SPSR_EL2"
++	help
++	  This option adds the workaround for ARM Cortex-A510 erratum 2077057.
++	  Affected Cortex-A510 may corrupt SPSR_EL2 when the a step exception is
++	  expected, but a Pointer Authentication trap is taken instead. The
++	  erratum causes SPSR_EL1 to be copied to SPSR_EL2, which could allow
++	  EL1 to cause a return to EL2 with a guest controlled ELR_EL2.
++
++	  This can only happen when EL2 is stepping EL1.
++
++	  When these conditions occur, the SPSR_EL2 value is unchanged from the
++	  previous guest entry, and can be restored from the in-memory copy.
++
++	  If unsure, say Y.
++
+ config ARM64_ERRATUM_2119858
+ 	bool "Cortex-A710/X2: 2119858: workaround TRBE overwriting trace data in FILL mode"
+ 	default y
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index 066098198c24..b217941713a8 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -600,6 +600,14 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+ 		CAP_MIDR_RANGE_LIST(trbe_write_out_of_range_cpus),
+ 	},
+ #endif
++#ifdef CONFIG_ARM64_ERRATUM_2077057
++	{
++		.desc = "ARM erratum 2077057",
++		.capability = ARM64_WORKAROUND_2077057,
++		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
++		ERRATA_MIDR_REV_RANGE(MIDR_CORTEX_A510, 0, 0, 2),
++	},
++#endif
+ #ifdef CONFIG_ARM64_ERRATUM_2064142
+ 	{
+ 		.desc = "ARM erratum 2064142",
+diff --git a/arch/arm64/kvm/hyp/include/hyp/switch.h b/arch/arm64/kvm/hyp/include/hyp/switch.h
+index 331dd10821df..701cfb964905 100644
+--- a/arch/arm64/kvm/hyp/include/hyp/switch.h
++++ b/arch/arm64/kvm/hyp/include/hyp/switch.h
+@@ -402,6 +402,24 @@ static inline bool kvm_hyp_handle_exit(struct kvm_vcpu *vcpu, u64 *exit_code)
+ 	return false;
+ }
+ 
++static inline void synchronize_vcpu_pstate(struct kvm_vcpu *vcpu, u64 *exit_code)
++{
++	/*
++	 * Check for the conditions of Cortex-A510's #2077057. When these occur
++	 * SPSR_EL2 can't be trusted, but isn't needed either as it is
++	 * unchanged from the value in vcpu_gp_regs(vcpu)->pstate.
++	 * Are we single-stepping the guest, and took a PAC exception from the
++	 * active-not-pending state?
++	 */
++	if (cpus_have_final_cap(ARM64_WORKAROUND_2077057)		&&
++	    vcpu->guest_debug & KVM_GUESTDBG_SINGLESTEP			&&
++	    *vcpu_cpsr(vcpu) & DBG_SPSR_SS				&&
++	    ESR_ELx_EC(read_sysreg_el2(SYS_ESR)) == ESR_ELx_EC_PAC)
++		write_sysreg_el2(*vcpu_cpsr(vcpu), SYS_SPSR);
++
++	vcpu->arch.ctxt.regs.pstate = read_sysreg_el2(SYS_SPSR);
++}
++
+ /*
+  * Return true when we were able to fixup the guest exit and should return to
+  * the guest, false when we should restore the host state and return to the
+@@ -413,7 +431,7 @@ static inline bool fixup_guest_exit(struct kvm_vcpu *vcpu, u64 *exit_code)
+ 	 * Save PSTATE early so that we can evaluate the vcpu mode
+ 	 * early on.
+ 	 */
+-	vcpu->arch.ctxt.regs.pstate = read_sysreg_el2(SYS_SPSR);
++	synchronize_vcpu_pstate(vcpu, exit_code);
+ 
+ 	/*
+ 	 * Check whether we want to repaint the state one way or
+diff --git a/arch/arm64/tools/cpucaps b/arch/arm64/tools/cpucaps
+index e7719e8f18de..9c65b1e25a96 100644
+--- a/arch/arm64/tools/cpucaps
++++ b/arch/arm64/tools/cpucaps
+@@ -55,9 +55,10 @@ WORKAROUND_1418040
+ WORKAROUND_1463225
+ WORKAROUND_1508412
+ WORKAROUND_1542419
+-WORKAROUND_2064142
+-WORKAROUND_2038923
+ WORKAROUND_1902691
++WORKAROUND_2038923
++WORKAROUND_2064142
++WORKAROUND_2077057
+ WORKAROUND_TRBE_OVERWRITE_FILL_MODE
+ WORKAROUND_TSB_FLUSH_FAILURE
+ WORKAROUND_TRBE_WRITE_OUT_OF_RANGE
+
