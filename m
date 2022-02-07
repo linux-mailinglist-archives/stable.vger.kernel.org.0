@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DA0B4ABAEB
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:31:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F104ABB2D
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384142AbiBGLYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49034 "EHLO
+        id S1384259AbiBGL05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:26:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235268AbiBGLKs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:10:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59978C0401C0;
-        Mon,  7 Feb 2022 03:10:48 -0800 (PST)
+        with ESMTP id S236277AbiBGLKx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:10:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1AEBC043188;
+        Mon,  7 Feb 2022 03:10:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E789461388;
-        Mon,  7 Feb 2022 11:10:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C76ECC004E1;
-        Mon,  7 Feb 2022 11:10:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A273EB80EE8;
+        Mon,  7 Feb 2022 11:10:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C39CAC004E1;
+        Mon,  7 Feb 2022 11:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232247;
-        bh=rVzw4I1cQMNBrWV6J20Z9Clp0NL/SBYy8ZU4O+vPCvo=;
+        s=korg; t=1644232250;
+        bh=pVidsFRwvfWJFQLvZpwUyJitFV+B3v0Ew0uHp1fIxC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0lq4yw0ZUnH8WSplyLsA9c09EGjUzFd+eyT6yGdoQW65rzEnKKpT0TkwJCwQlImdz
-         1QwTGRRqT+E64XBUaGtrb3UfUK3BTFlZR0oC/EhImEwxxue7BVsn0/Qot28d96JBmf
-         ukq3Efg70QtyrqvoLKg+Nmiswz6fSztLhxer/P60=
+        b=TkU6sL82DfQD2FgAwslIIWMlOynk94zBuv40S8qJDetbLnVglFa7+L8KG1EdC5hot
+         Gqqm2vgxqWOg9YbIy/y/K6JdQOisMTrzM4zH0skT2fpW7cf4wos2phH/82xjkGYRjC
+         AC+/cDtnNI4J4PGanCeczw+Tvzk6WfeyEHNoT2Y4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Florian Westphal <fw@strlen.de>,
-        Steffen Weinreich <steve@weinreich.org>
-Subject: [PATCH 4.14 07/69] netfilter: nft_payload: do not update layer 4 checksum when mangling fragments
-Date:   Mon,  7 Feb 2022 12:05:29 +0100
-Message-Id: <20220207103755.853444766@linuxfoundation.org>
+        stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
+        Valentin Caron <valentin.caron@foss.st.com>
+Subject: [PATCH 4.14 08/69] serial: stm32: fix software flow control transfer
+Date:   Mon,  7 Feb 2022 12:05:30 +0100
+Message-Id: <20220207103755.885708425@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
 References: <20220207103755.604121441@linuxfoundation.org>
@@ -54,33 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Valentin Caron <valentin.caron@foss.st.com>
 
-commit 4e1860a3863707e8177329c006d10f9e37e097a8 upstream.
+commit 037b91ec7729524107982e36ec4b40f9b174f7a2 upstream.
 
-IP fragments do not come with the transport header, hence skip bogus
-layer 4 checksum updates.
+x_char is ignored by stm32_usart_start_tx() when xmit buffer is empty.
 
-Fixes: 1814096980bb ("netfilter: nft_payload: layer 4 checksum adjustment for pseudoheader fields")
-Reported-and-tested-by: Steffen Weinreich <steve@weinreich.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Fix start_tx condition to allow x_char to be sent.
+
+Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
+Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
+Link: https://lore.kernel.org/r/20220111164441.6178-3-valentin.caron@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nft_payload.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/tty/serial/stm32-usart.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/nft_payload.c
-+++ b/net/netfilter/nft_payload.c
-@@ -194,6 +194,9 @@ static int nft_payload_l4csum_offset(con
- 				     struct sk_buff *skb,
- 				     unsigned int *l4csum_offset)
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -402,7 +402,7 @@ static void stm32_start_tx(struct uart_p
  {
-+	if (pkt->xt.fragoff)
-+		return -1;
-+
- 	switch (pkt->tprot) {
- 	case IPPROTO_TCP:
- 		*l4csum_offset = offsetof(struct tcphdr, check);
+ 	struct circ_buf *xmit = &port->state->xmit;
+ 
+-	if (uart_circ_empty(xmit))
++	if (uart_circ_empty(xmit) && !port->x_char)
+ 		return;
+ 
+ 	stm32_transmit_chars(port);
 
 
