@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA8534ABA96
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA5484ABCAD
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383920AbiBGLYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49848 "EHLO
+        id S1387021AbiBGLik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:38:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355609AbiBGLMk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:12:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4E48C043181;
-        Mon,  7 Feb 2022 03:12:39 -0800 (PST)
+        with ESMTP id S1385522AbiBGLb4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 141FAC03E963;
+        Mon,  7 Feb 2022 03:30:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 737C16113B;
-        Mon,  7 Feb 2022 11:12:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56CDDC004E1;
-        Mon,  7 Feb 2022 11:12:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD4AAB80EC3;
+        Mon,  7 Feb 2022 11:30:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1FD8C004E1;
+        Mon,  7 Feb 2022 11:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232358;
-        bh=21GWfXvoGM3JfY9PBYB8efgCAL2zUuXUMcw97qztprY=;
+        s=korg; t=1644233436;
+        bh=ax9fryblx6QV7qJ+qvkUKsP1d+CzKmmJDTBUlRRYv54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F/Rv1sAF21vYsXTfvhjkCx8HThFmug5ZWCLlkwKZxliaG5Vt4Qe8rB4g2vaE+B4qc
-         o7FTDbWfYygIIhDb0DsFPFYvfTSvXLIoSCTOEVZQ/qa80dsAr8rJaVpwI+Ysdric2e
-         1l+oU6rIYcB0509TgVL0pK4AkYZnuQTF6sQitOQM=
+        b=SofHlcAEqJe1VyQvKZkohCeYA5SPsoCkK7fsWFRdQeVI+mQBJzxyPDukVH+x5V7X5
+         uhXnXbICSGI6BBK3LuudArPlfGOw8U+JSJmSTe1PYaYGKtY13Vhur93x5/CqMyWZWA
+         /38NsH1oEhiEykwR0McL+MJBw0daJUG+CGCDziGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Damato <jdamato@fastly.com>,
-        kernel test robot <lkp@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 4.14 20/69] i40e: fix unsigned stat widths
-Date:   Mon,  7 Feb 2022 12:05:42 +0100
-Message-Id: <20220207103756.279586065@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Sergeyev <sergeev917@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.16 012/126] ALSA: hda: realtek: Fix race at concurrent COEF updates
+Date:   Mon,  7 Feb 2022 12:05:43 +0100
+Message-Id: <20220207103804.489874256@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
-References: <20220207103755.604121441@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +53,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Damato <jdamato@fastly.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 3b8428b84539c78fdc8006c17ebd25afd4722d51 upstream.
+commit b837a9f5ab3bdfab9233c9f98a6bef717673a3e5 upstream.
 
-Change i40e_update_vsi_stats and struct i40e_vsi to use u64 fields to match
-the width of the stats counters in struct i40e_rx_queue_stats.
+The COEF access is done with two steps: setting the index then read or
+write the data.  When multiple COEF accesses are performed
+concurrently, the index and data might be paired unexpectedly.
+In most cases, this isn't a big problem as the COEF setup is done at
+the initialization, but some dynamic changes like the mute LED may hit
+such a race.
 
-Update debugfs code to use the correct format specifier for u64.
+For avoiding the racy COEF accesses, this patch introduces a new
+mutex coef_mutex to alc_spec, and wrap the COEF accessing functions
+with it.
 
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Signed-off-by: Joe Damato <jdamato@fastly.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reported-by: Alexander Sergeyev <sergeev917@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220111195229.a77wrpjclqwrx4bx@localhost.localdomain
+Link: https://lore.kernel.org/r/20220131075738.24323-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e.h         |    8 ++++----
- drivers/net/ethernet/intel/i40e/i40e_debugfs.c |    2 +-
- drivers/net/ethernet/intel/i40e/i40e_main.c    |    4 ++--
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ sound/pci/hda/patch_realtek.c |   61 ++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 50 insertions(+), 11 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e.h
-@@ -627,12 +627,12 @@ struct i40e_vsi {
- 	struct rtnl_link_stats64 net_stats_offsets;
- 	struct i40e_eth_stats eth_stats;
- 	struct i40e_eth_stats eth_stats_offsets;
--	u32 tx_restart;
--	u32 tx_busy;
-+	u64 tx_restart;
-+	u64 tx_busy;
- 	u64 tx_linearize;
- 	u64 tx_force_wb;
--	u32 rx_buf_failed;
--	u32 rx_page_failed;
-+	u64 rx_buf_failed;
-+	u64 rx_page_failed;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -97,6 +97,7 @@ struct alc_spec {
+ 	unsigned int gpio_mic_led_mask;
+ 	struct alc_coef_led mute_led_coef;
+ 	struct alc_coef_led mic_led_coef;
++	struct mutex coef_mutex;
  
- 	/* These are containers of ring pointers, allocated at run-time */
- 	struct i40e_ring **rx_rings;
---- a/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
-@@ -259,7 +259,7 @@ static void i40e_dbg_dump_vsi_seid(struc
- 		 (unsigned long int)vsi->net_stats_offsets.rx_compressed,
- 		 (unsigned long int)vsi->net_stats_offsets.tx_compressed);
- 	dev_info(&pf->pdev->dev,
--		 "    tx_restart = %d, tx_busy = %d, rx_buf_failed = %d, rx_page_failed = %d\n",
-+		 "    tx_restart = %llu, tx_busy = %llu, rx_buf_failed = %llu, rx_page_failed = %llu\n",
- 		 vsi->tx_restart, vsi->tx_busy,
- 		 vsi->rx_buf_failed, vsi->rx_page_failed);
- 	rcu_read_lock();
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -778,9 +778,9 @@ static void i40e_update_vsi_stats(struct
- 	struct rtnl_link_stats64 *ns;   /* netdev stats */
- 	struct i40e_eth_stats *oes;
- 	struct i40e_eth_stats *es;     /* device's eth stats */
--	u32 tx_restart, tx_busy;
-+	u64 tx_restart, tx_busy;
- 	struct i40e_ring *p;
--	u32 rx_page, rx_buf;
-+	u64 rx_page, rx_buf;
- 	u64 bytes, packets;
- 	unsigned int start;
- 	u64 tx_linearize;
+ 	hda_nid_t headset_mic_pin;
+ 	hda_nid_t headphone_mic_pin;
+@@ -132,8 +133,8 @@ struct alc_spec {
+  * COEF access helper functions
+  */
+ 
+-static int alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+-			       unsigned int coef_idx)
++static int __alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++				 unsigned int coef_idx)
+ {
+ 	unsigned int val;
+ 
+@@ -142,28 +143,61 @@ static int alc_read_coefex_idx(struct hd
+ 	return val;
+ }
+ 
++static int alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++			       unsigned int coef_idx)
++{
++	struct alc_spec *spec = codec->spec;
++	unsigned int val;
++
++	mutex_lock(&spec->coef_mutex);
++	val = __alc_read_coefex_idx(codec, nid, coef_idx);
++	mutex_unlock(&spec->coef_mutex);
++	return val;
++}
++
+ #define alc_read_coef_idx(codec, coef_idx) \
+ 	alc_read_coefex_idx(codec, 0x20, coef_idx)
+ 
+-static void alc_write_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+-				 unsigned int coef_idx, unsigned int coef_val)
++static void __alc_write_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++				   unsigned int coef_idx, unsigned int coef_val)
+ {
+ 	snd_hda_codec_write(codec, nid, 0, AC_VERB_SET_COEF_INDEX, coef_idx);
+ 	snd_hda_codec_write(codec, nid, 0, AC_VERB_SET_PROC_COEF, coef_val);
+ }
+ 
++static void alc_write_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++				 unsigned int coef_idx, unsigned int coef_val)
++{
++	struct alc_spec *spec = codec->spec;
++
++	mutex_lock(&spec->coef_mutex);
++	__alc_write_coefex_idx(codec, nid, coef_idx, coef_val);
++	mutex_unlock(&spec->coef_mutex);
++}
++
+ #define alc_write_coef_idx(codec, coef_idx, coef_val) \
+ 	alc_write_coefex_idx(codec, 0x20, coef_idx, coef_val)
+ 
++static void __alc_update_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++				    unsigned int coef_idx, unsigned int mask,
++				    unsigned int bits_set)
++{
++	unsigned int val = __alc_read_coefex_idx(codec, nid, coef_idx);
++
++	if (val != -1)
++		__alc_write_coefex_idx(codec, nid, coef_idx,
++				       (val & ~mask) | bits_set);
++}
++
+ static void alc_update_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+ 				  unsigned int coef_idx, unsigned int mask,
+ 				  unsigned int bits_set)
+ {
+-	unsigned int val = alc_read_coefex_idx(codec, nid, coef_idx);
++	struct alc_spec *spec = codec->spec;
+ 
+-	if (val != -1)
+-		alc_write_coefex_idx(codec, nid, coef_idx,
+-				     (val & ~mask) | bits_set);
++	mutex_lock(&spec->coef_mutex);
++	__alc_update_coefex_idx(codec, nid, coef_idx, mask, bits_set);
++	mutex_unlock(&spec->coef_mutex);
+ }
+ 
+ #define alc_update_coef_idx(codec, coef_idx, mask, bits_set)	\
+@@ -196,13 +230,17 @@ struct coef_fw {
+ static void alc_process_coef_fw(struct hda_codec *codec,
+ 				const struct coef_fw *fw)
+ {
++	struct alc_spec *spec = codec->spec;
++
++	mutex_lock(&spec->coef_mutex);
+ 	for (; fw->nid; fw++) {
+ 		if (fw->mask == (unsigned short)-1)
+-			alc_write_coefex_idx(codec, fw->nid, fw->idx, fw->val);
++			__alc_write_coefex_idx(codec, fw->nid, fw->idx, fw->val);
+ 		else
+-			alc_update_coefex_idx(codec, fw->nid, fw->idx,
+-					      fw->mask, fw->val);
++			__alc_update_coefex_idx(codec, fw->nid, fw->idx,
++						fw->mask, fw->val);
+ 	}
++	mutex_unlock(&spec->coef_mutex);
+ }
+ 
+ /*
+@@ -1148,6 +1186,7 @@ static int alc_alloc_spec(struct hda_cod
+ 	codec->spdif_status_reset = 1;
+ 	codec->forced_resume = 1;
+ 	codec->patch_ops = alc_patch_ops;
++	mutex_init(&spec->coef_mutex);
+ 
+ 	err = alc_codec_rename_from_preset(codec);
+ 	if (err < 0) {
 
 
