@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C09B94ABC23
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E335C4ABB87
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384918AbiBGLai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:30:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36326 "EHLO
+        id S1376652AbiBGL3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:29:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384001AbiBGLYY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:24:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79961C043188;
-        Mon,  7 Feb 2022 03:24:23 -0800 (PST)
+        with ESMTP id S1382811AbiBGLUw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:20:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66D47C03E90A;
+        Mon,  7 Feb 2022 03:20:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0CB30B81158;
-        Mon,  7 Feb 2022 11:24:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F74DC004E1;
-        Mon,  7 Feb 2022 11:24:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1549BB81028;
+        Mon,  7 Feb 2022 11:20:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E227C004E1;
+        Mon,  7 Feb 2022 11:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233060;
-        bh=2kK5sbq3cpZ3QtSC6O0CqOyEdKdVWKxpE+KMJ3HVuHI=;
+        s=korg; t=1644232826;
+        bh=jIwfAxVEMGhpnFVreXI7ObayC/K7pZmZBtoSvlANXFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QWZ8u266EFvHsaQwtxPwp1Zq6G2GUfjlgDKVsH1sc9Tex6H4soAZwPt+2Uzx3I9qr
-         GIcmD/goROb2vUTqf7+rsk+r+6OiG/xVqQTUZ/she87TnlTTsWU1yv/LeoEkq1HFXM
-         Ol/KoWf1SI/35GajjcM/OQkiN/xEGgkAkrdGbL3M=
+        b=2jzMkgG5Wvn8ETq+aQCSh+xCGG+tQojRvfGXojXMNVY4ELnDfgYaKkZnDmshigR6G
+         HrS4FKClV28oRmiTzBFcBwHxlIsFdGbvAIz3Tx5FtOVXJpZaFsY6nVCJedWsBZzOeJ
+         gylW4ivFbnkjIUTdiYBof0oFyCYQVdf5SPyzyQRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haiyue Wang <haiyue.wang@intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 54/74] gve: fix the wrong AdminQ buffer queue index check
-Date:   Mon,  7 Feb 2022 12:06:52 +0100
-Message-Id: <20220207103758.983776899@linuxfoundation.org>
+        stable@vger.kernel.org, Guangwu Zhang <guazhang@redhat.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        John Meneghini <jmeneghi@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 37/44] scsi: bnx2fc: Make bnx2fc_recv_frame() mp safe
+Date:   Mon,  7 Feb 2022 12:06:53 +0100
+Message-Id: <20220207103754.362566762@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
+References: <20220207103753.155627314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +55,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haiyue Wang <haiyue.wang@intel.com>
+From: John Meneghini <jmeneghi@redhat.com>
 
-commit 1f84a9450d75e08af70d9e2f2d5e1c0ac0c881d2 upstream.
+commit 936bd03405fc83ba039d42bc93ffd4b88418f1d3 upstream.
 
-The 'tail' and 'head' are 'unsigned int' type free-running count, when
-'head' is overflow, the 'int i (= tail) < u32 head' will be false:
+Running tests with a debug kernel shows that bnx2fc_recv_frame() is
+modifying the per_cpu lport stats counters in a non-mpsafe way.  Just boot
+a debug kernel and run the bnx2fc driver with the hardware enabled.
 
-Only '- loop 0: idx = 63' result is shown, so it needs to use 'int' type
-to compare, it can handle the overflow correctly.
+[ 1391.699147] BUG: using smp_processor_id() in preemptible [00000000] code: bnx2fc_
+[ 1391.699160] caller is bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
+[ 1391.699174] CPU: 2 PID: 4355 Comm: bnx2fc_l2_threa Kdump: loaded Tainted: G    B
+[ 1391.699180] Hardware name: HP ProLiant DL120 G7, BIOS J01 07/01/2013
+[ 1391.699183] Call Trace:
+[ 1391.699188]  dump_stack_lvl+0x57/0x7d
+[ 1391.699198]  check_preemption_disabled+0xc8/0xd0
+[ 1391.699205]  bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
+[ 1391.699215]  ? do_raw_spin_trylock+0xb5/0x180
+[ 1391.699221]  ? bnx2fc_npiv_create_vports.isra.0+0x4e0/0x4e0 [bnx2fc]
+[ 1391.699229]  ? bnx2fc_l2_rcv_thread+0xb7/0x3a0 [bnx2fc]
+[ 1391.699240]  bnx2fc_l2_rcv_thread+0x1af/0x3a0 [bnx2fc]
+[ 1391.699250]  ? bnx2fc_ulp_init+0xc0/0xc0 [bnx2fc]
+[ 1391.699258]  kthread+0x364/0x420
+[ 1391.699263]  ? _raw_spin_unlock_irq+0x24/0x50
+[ 1391.699268]  ? set_kthread_struct+0x100/0x100
+[ 1391.699273]  ret_from_fork+0x22/0x30
 
-typedef uint32_t u32;
+Restore the old get_cpu/put_cpu code with some modifications to reduce the
+size of the critical section.
 
-int main()
-{
-        u32 tail, head;
-        int stail, shead;
-        int i, loop;
-
-        tail = 0xffffffff;
-        head = 0x00000000;
-
-        for (i = tail, loop = 0; i < head; i++) {
-                unsigned int idx = i & 63;
-
-                printf("+ loop %d: idx = %u\n", loop++, idx);
-        }
-
-        stail = tail;
-        shead = head;
-        for (i = stail, loop = 0; i < shead; i++) {
-                unsigned int idx = i & 63;
-
-                printf("- loop %d: idx = %u\n", loop++, idx);
-        }
-
-        return 0;
-}
-
-Fixes: 5cdad90de62c ("gve: Batch AQ commands for creating and destroying queues.")
-Signed-off-by: Haiyue Wang <haiyue.wang@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20220124145110.442335-1-jmeneghi@redhat.com
+Fixes: d576a5e80cd0 ("bnx2fc: Improve stats update mechanism")
+Tested-by: Guangwu Zhang <guazhang@redhat.com>
+Acked-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: John Meneghini <jmeneghi@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/google/gve/gve_adminq.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/bnx2fc/bnx2fc_fcoe.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/google/gve/gve_adminq.c
-+++ b/drivers/net/ethernet/google/gve/gve_adminq.c
-@@ -141,7 +141,7 @@ static int gve_adminq_parse_err(struct g
-  */
- static int gve_adminq_kick_and_wait(struct gve_priv *priv)
- {
--	u32 tail, head;
-+	int tail, head;
- 	int i;
+--- a/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
++++ b/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
+@@ -506,7 +506,8 @@ static int bnx2fc_l2_rcv_thread(void *ar
  
- 	tail = ioread32be(&priv->reg_bar0->adminq_event_counter);
+ static void bnx2fc_recv_frame(struct sk_buff *skb)
+ {
+-	u32 fr_len;
++	u64 crc_err;
++	u32 fr_len, fr_crc;
+ 	struct fc_lport *lport;
+ 	struct fcoe_rcv_info *fr;
+ 	struct fc_stats *stats;
+@@ -540,6 +541,11 @@ static void bnx2fc_recv_frame(struct sk_
+ 	skb_pull(skb, sizeof(struct fcoe_hdr));
+ 	fr_len = skb->len - sizeof(struct fcoe_crc_eof);
+ 
++	stats = per_cpu_ptr(lport->stats, get_cpu());
++	stats->RxFrames++;
++	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
++	put_cpu();
++
+ 	fp = (struct fc_frame *)skb;
+ 	fc_frame_init(fp);
+ 	fr_dev(fp) = lport;
+@@ -622,16 +628,15 @@ static void bnx2fc_recv_frame(struct sk_
+ 		return;
+ 	}
+ 
+-	stats = per_cpu_ptr(lport->stats, smp_processor_id());
+-	stats->RxFrames++;
+-	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
++	fr_crc = le32_to_cpu(fr_crc(fp));
+ 
+-	if (le32_to_cpu(fr_crc(fp)) !=
+-			~crc32(~0, skb->data, fr_len)) {
+-		if (stats->InvalidCRCCount < 5)
++	if (unlikely(fr_crc != ~crc32(~0, skb->data, fr_len))) {
++		stats = per_cpu_ptr(lport->stats, get_cpu());
++		crc_err = (stats->InvalidCRCCount++);
++		put_cpu();
++		if (crc_err < 5)
+ 			printk(KERN_WARNING PFX "dropping frame with "
+ 			       "CRC error\n");
+-		stats->InvalidCRCCount++;
+ 		kfree_skb(skb);
+ 		return;
+ 	}
 
 
