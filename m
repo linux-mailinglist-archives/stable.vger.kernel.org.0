@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EE3C4ABB73
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBAF44ABC90
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359121AbiBGL2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:28:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34620 "EHLO
+        id S1386851AbiBGLhy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:37:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383494AbiBGLWn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:22:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D4E0C043181;
-        Mon,  7 Feb 2022 03:22:42 -0800 (PST)
+        with ESMTP id S1384663AbiBGL3d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:29:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA8D6C03E90F;
+        Mon,  7 Feb 2022 03:27:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 08B6D61380;
-        Mon,  7 Feb 2022 11:22:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4CFAC340EB;
-        Mon,  7 Feb 2022 11:22:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81642B80EC3;
+        Mon,  7 Feb 2022 11:27:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BB45C340EB;
+        Mon,  7 Feb 2022 11:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232961;
-        bh=oockd+H0nbljZXJvxJaW8xs5secCp/bASldZOrm0rlE=;
+        s=korg; t=1644233271;
+        bh=+vD/we64CXzKQ+evO7omnlTqMOtfkb0divxIeNZ98KU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wdRaxjjMr1aLJfXeOkJVWDZIAH+IUgqP9XahiGZe94wAKGmvoD5NfuOCSkH/gFU7c
-         FBnz/cl72HK+w2gp5gjqDDa2Rtz5/UTfnR7Phf5vdyIMcEYc9aL4/TFXKxXcp7BzUa
-         RTcKstVQwDHWECVI/1z7xAo9bnvHVepzocEhihds=
+        b=PtJaqYaDgUUNE1IvjAghhoKgpjJHk25WI8HVYBSfZ+jzERWg8GQA/52kp7wj5uczN
+         OuZbt27vS1AbYAPo7cH6W8lh7uHt5F8FgisTKcqXe7IEoG81+6C5m+HK/LHS+IWByM
+         uunsZgCqezy20yYBmVc3sRBK36QQ2vu8Wnkt4N/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 45/74] ASoC: fsl: Add missing error handling in pcm030_fabric_probe
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>
+Subject: [PATCH 5.15 070/110] drm/amd: avoid suspend on dGPUs w/ s2idle support when runtime PM enabled
 Date:   Mon,  7 Feb 2022 12:06:43 +0100
-Message-Id: <20220207103758.694638738@linuxfoundation.org>
+Message-Id: <20220207103804.655136591@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit fb25621da5702c104ce0a48de5b174ced09e5b4e upstream.
+commit e55a3aea418269266d84f426b3bd70794d3389c8 upstream.
 
-Add the missing platform_device_put() and platform_device_del()
-before return from pcm030_fabric_probe in the error handling case.
+dGPUs connected to Intel systems configured for suspend to idle
+will not have the power rails cut at suspend and resetting the GPU
+may lead to problematic behaviors.
 
-Fixes: c912fa913446 ("ASoC: fsl: register the wm9712-codec")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220127131336.30214-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: e25443d2765f4 ("drm/amdgpu: add a dev_pm_ops prepare callback (v2)")
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1879
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/fsl/pcm030-audio-fabric.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/sound/soc/fsl/pcm030-audio-fabric.c
-+++ b/sound/soc/fsl/pcm030-audio-fabric.c
-@@ -93,16 +93,21 @@ static int pcm030_fabric_probe(struct pl
- 		dev_err(&op->dev, "platform_device_alloc() failed\n");
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -1504,8 +1504,7 @@ static int amdgpu_pmops_prepare(struct d
+ 	 * DPM_FLAG_SMART_SUSPEND works properly
+ 	 */
+ 	if (amdgpu_device_supports_boco(drm_dev))
+-		return pm_runtime_suspended(dev) &&
+-			pm_suspend_via_firmware();
++		return pm_runtime_suspended(dev);
  
- 	ret = platform_device_add(pdata->codec_device);
--	if (ret)
-+	if (ret) {
- 		dev_err(&op->dev, "platform_device_add() failed: %d\n", ret);
-+		platform_device_put(pdata->codec_device);
-+	}
- 
- 	ret = snd_soc_register_card(card);
--	if (ret)
-+	if (ret) {
- 		dev_err(&op->dev, "snd_soc_register_card() failed: %d\n", ret);
-+		platform_device_del(pdata->codec_device);
-+		platform_device_put(pdata->codec_device);
-+	}
- 
- 	platform_set_drvdata(op, pdata);
--
- 	return ret;
-+
+ 	return 0;
  }
- 
- static int pcm030_fabric_remove(struct platform_device *op)
 
 
