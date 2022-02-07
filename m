@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 702B14ABAFB
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:35:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FE734ABCA1
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358819AbiBGL0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:26:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48726 "EHLO
+        id S1386974AbiBGLiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:38:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235129AbiBGLKA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:10:00 -0500
+        with ESMTP id S1385570AbiBGLb7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:59 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BBB8C043181;
-        Mon,  7 Feb 2022 03:10:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 273C1C03E96B;
+        Mon,  7 Feb 2022 03:30:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE73D61261;
-        Mon,  7 Feb 2022 11:09:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FDC4C004E1;
-        Mon,  7 Feb 2022 11:09:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA7DB60AB0;
+        Mon,  7 Feb 2022 11:30:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81337C004E1;
+        Mon,  7 Feb 2022 11:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232199;
-        bh=e33QsNjVU05DR+DPLHy/MjtwUMwEaty783dBJ63ogEM=;
+        s=korg; t=1644233455;
+        bh=n9gapmnR3BmvRHyNXNq14LqFhx8NlinKmjcEoRr3GL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oO7KNjcyQd62PLWYdLTyjzcz2FBYLjk+AvOGnY4GbtWNtH7FaQPF9skoOUDWef+Fs
-         LE+sV5JCkYjfS+J8J1vdyrkQb0Q/LPF57AgrT1jsUaRVJRDDjeezg5FjiL3GQa8uj8
-         d7JY44UfSKqX62ZYLOGCX6RaFrWDRydAuXQKUtY0=
+        b=EKJkgPv5zgFw4nyGZJDLXHTWyZPy5hNgyOi1azjp/yx1NwXslqOnJI1jwFVYRHOl3
+         z49EtoNQ5OkCWHSBkPN+1yptfMKLHr3ymrBEE+bp4j5zh6UmT+Qk1Vmbs43GoNfGXg
+         QVuBUEjQJlS5QCrQc2PKpVmLO++d8o6RsHbX8Jqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maksym Yaremchuk <maksymy@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Amit Cohen <amcohen@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 16/48] ipv6_tunnel: Rate limit warning messages
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.16 018/126] btrfs: dont start transaction for scrub if the fs is mounted read-only
 Date:   Mon,  7 Feb 2022 12:05:49 +0100
-Message-Id: <20220207103752.872721609@linuxfoundation.org>
+Message-Id: <20220207103804.695325273@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
-References: <20220207103752.341184175@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 6cee105e7f2ced596373951d9ea08dacc3883c68 upstream.
+commit 2d192fc4c1abeb0d04d1c8cd54405ff4a0b0255b upstream.
 
-The warning messages can be invoked from the data path for every packet
-transmitted through an ip6gre netdev, leading to high CPU utilization.
+[BUG]
+The following super simple script would crash btrfs at unmount time, if
+CONFIG_BTRFS_ASSERT() is set.
 
-Fix that by rate limiting the messages.
+ mkfs.btrfs -f $dev
+ mount $dev $mnt
+ xfs_io -f -c "pwrite 0 4k" $mnt/file
+ umount $mnt
+ mount -r ro $dev $mnt
+ btrfs scrub start -Br $mnt
+ umount $mnt
 
-Fixes: 09c6bbf090ec ("[IPV6]: Do mandatory IPv6 tunnel endpoint checks in realtime")
-Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
-Tested-by: Maksym Yaremchuk <maksymy@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Amit Cohen <amcohen@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This will trigger the following ASSERT() introduced by commit
+0a31daa4b602 ("btrfs: add assertion for empty list of transactions at
+late stage of umount").
+
+That patch is definitely not the cause, it just makes enough noise for
+developers.
+
+[CAUSE]
+We will start transaction for the following call chain during scrub:
+
+  scrub_enumerate_chunks()
+  |- btrfs_inc_block_group_ro()
+     |- btrfs_join_transaction()
+
+However for RO mount, there is no running transaction at all, thus
+btrfs_join_transaction() will start a new transaction.
+
+Furthermore, since it's read-only mount, btrfs_sync_fs() will not call
+btrfs_commit_super() to commit the new but empty transaction.
+
+And leads to the ASSERT().
+
+The bug has been there for a long time. Only the new ASSERT() makes it
+noisy enough to be noticed.
+
+[FIX]
+For read-only scrub on read-only mount, there is no need to start a
+transaction nor to allocate new chunks in btrfs_inc_block_group_ro().
+
+Just do extra read-only mount check in btrfs_inc_block_group_ro(), and
+if it's read-only, skip all chunk allocation and go inc_block_group_ro()
+directly.
+
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_tunnel.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/btrfs/block-group.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/net/ipv6/ip6_tunnel.c
-+++ b/net/ipv6/ip6_tunnel.c
-@@ -1007,12 +1007,12 @@ int ip6_tnl_xmit_ctl(struct ip6_tnl *t,
- 			ldev = dev_get_by_index_rcu(net, p->link);
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -2547,6 +2547,19 @@ int btrfs_inc_block_group_ro(struct btrf
+ 	int ret;
+ 	bool dirty_bg_running;
  
- 		if (unlikely(!ipv6_chk_addr(net, laddr, ldev, 0)))
--			pr_warn("%s xmit: Local address not yet configured!\n",
--				p->name);
-+			pr_warn_ratelimited("%s xmit: Local address not yet configured!\n",
-+					    p->name);
- 		else if (!ipv6_addr_is_multicast(raddr) &&
- 			 unlikely(ipv6_chk_addr(net, raddr, NULL, 0)))
--			pr_warn("%s xmit: Routing loop! Remote address found on this node!\n",
--				p->name);
-+			pr_warn_ratelimited("%s xmit: Routing loop! Remote address found on this node!\n",
-+					    p->name);
- 		else
- 			ret = 1;
- 		rcu_read_unlock();
++	/*
++	 * This can only happen when we are doing read-only scrub on read-only
++	 * mount.
++	 * In that case we should not start a new transaction on read-only fs.
++	 * Thus here we skip all chunk allocations.
++	 */
++	if (sb_rdonly(fs_info->sb)) {
++		mutex_lock(&fs_info->ro_block_group_mutex);
++		ret = inc_block_group_ro(cache, 0);
++		mutex_unlock(&fs_info->ro_block_group_mutex);
++		return ret;
++	}
++
+ 	do {
+ 		trans = btrfs_join_transaction(fs_info->extent_root);
+ 		if (IS_ERR(trans))
 
 
