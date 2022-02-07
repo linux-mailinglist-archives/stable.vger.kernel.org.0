@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FBD84ABAE6
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:31:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 287C24ABDA5
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384132AbiBGLYw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48926 "EHLO
+        id S1388881AbiBGLpo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:45:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245457AbiBGLKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:10:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02F9EC043181;
-        Mon,  7 Feb 2022 03:10:30 -0800 (PST)
+        with ESMTP id S1385472AbiBGLby (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 139F2C02B671;
+        Mon,  7 Feb 2022 03:30:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9417661261;
-        Mon,  7 Feb 2022 11:10:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CB2FC004E1;
-        Mon,  7 Feb 2022 11:10:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BDFF60AB0;
+        Mon,  7 Feb 2022 11:30:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6103FC004E1;
+        Mon,  7 Feb 2022 11:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232229;
-        bh=40TGlXvYU8HmwnD5uK4ogNUgHQ0LKk7pe54l57x2akE=;
+        s=korg; t=1644233427;
+        bh=A1rMhRx1IR6nDl1kC20YzOonK0OAz8N4dIY/i/zc29s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L2MkOhkzVDxkCl9X1gTyNxxRmc0eD3z9f0y4uBA4RHVIuE6oEoD2g3BIjNjfAFzpS
-         8IEQG2XF/h0mC13n18/Jymc/DcEIx6Rv+REd7Hw7cRwQ3+eHi9Q8O2uGl4ITyovTKA
-         YqfdbSX6owrpQBZhRcSHwcBnPcV9KUNNaDKeCsKI=
+        b=s1MrCR0qp/J/w0ZGpB8yeAmPe+MYTNmhdK/BG87/s+8CPQT4lYLv8rLb/+K/Kyakj
+         UGDkcyi8sVuUg47p1pseoUNrg69rAvkVl4800iAT4z29OVk+/06nN5EA411ok1W0LI
+         02akeL7wxdrJ5x35DDxv5uaY27y/tiQxC8+OPe5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cameron Williams <cang1@live.co.uk>
-Subject: [PATCH 4.14 10/69] tty: Add support for Brainboxes UC cards.
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Uma Shankar <uma.shankar@intel.com>,
+        Mario Kleiner <mario.kleiner.de@gmail.com>
+Subject: [PATCH 5.16 001/126] drm/i915: Disable DSB usage for now
 Date:   Mon,  7 Feb 2022 12:05:32 +0100
-Message-Id: <20220207103755.949344220@linuxfoundation.org>
+Message-Id: <20220207103804.104537478@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
-References: <20220207103755.604121441@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -52,139 +58,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cameron Williams <cang1@live.co.uk>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 152d1afa834c84530828ee031cf07a00e0fc0b8c upstream.
+commit 99510e1afb4863a225207146bd988064c5fd0629 upstream.
 
-This commit adds support for the some of the Brainboxes PCI range of
-cards, including the UC-101, UC-235/246, UC-257, UC-268, UC-275/279,
-UC-302, UC-310, UC-313, UC-320/324, UC-346, UC-357, UC-368
-and UC-420/431.
+Turns out the DSB has trouble correctly loading the gamma LUT.
+>From a cursory look maybe like some entries do not load
+properly, or they get loaded with some gibberish. Unfortunately
+our current kms_color/etc. tests do not seem to catch this.
 
-Signed-off-by: Cameron Williams <cang1@live.co.uk>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/AM5PR0202MB2564688493F7DD9B9C610827C45E9@AM5PR0202MB2564.eurprd02.prod.outlook.com
+I had a brief look at the generated DSB batch and it looked
+correct. Tried a few quick tricks like writing the index
+register twice/etc. but didn't see any improvement.
+Also tried switching to the 10bit gamma mode in case
+there is yet another issue with the multi-segment mode, but
+even the 10bit mode was showing issues.
+
+Switching to mmio fixes all of it. I suppose one theory is that
+maybe the DSB bangs on the LUT too quickly and it can't keep up
+and instead some data either gets dropped or corrupted. To confirm
+that someone should try to slow down the DSB's progress a bit.
+Another thought was that maybe the LUT has crappy dual porting
+and you get contention if you try to load it during active
+scanout. But why then would the mmio path work, unless it's
+just sufficiently slow?
+
+Whatever the case, this is currently busted so let's disable
+it until we get to the root of the problem.
+
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3916
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211014181856.17581-2-ville.syrjala@linux.intel.com
+Reviewed-by: Uma Shankar <uma.shankar@intel.com>
+Cc: Mario Kleiner <mario.kleiner.de@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_pci.c |  100 ++++++++++++++++++++++++++++++++++++-
- 1 file changed, 98 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/i915_pci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -4808,8 +4808,30 @@ static const struct pci_device_id serial
- 	{	PCI_VENDOR_ID_INTASHIELD, PCI_DEVICE_ID_INTASHIELD_IS400,
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,    /* 135a.0dc0 */
- 		pbn_b2_4_115200 },
-+	/* Brainboxes Devices */
- 	/*
--	 * BrainBoxes UC-260
-+	* Brainboxes UC-101
-+	*/
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x0BA1,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-235/246
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0AA1,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_1_115200 },
-+	/*
-+	 * Brainboxes UC-257
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0861,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-260/271/701/756
- 	 */
- 	{	PCI_VENDOR_ID_INTASHIELD, 0x0D21,
- 		PCI_ANY_ID, PCI_ANY_ID,
-@@ -4817,7 +4839,81 @@ static const struct pci_device_id serial
- 		pbn_b2_4_115200 },
- 	{	PCI_VENDOR_ID_INTASHIELD, 0x0E34,
- 		PCI_ANY_ID, PCI_ANY_ID,
--		 PCI_CLASS_COMMUNICATION_MULTISERIAL << 8, 0xffff00,
-+		PCI_CLASS_COMMUNICATION_MULTISERIAL << 8, 0xffff00,
-+		pbn_b2_4_115200 },
-+	/*
-+	 * Brainboxes UC-268
-+	 */
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x0841,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_4_115200 },
-+	/*
-+	 * Brainboxes UC-275/279
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0881,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_8_115200 },
-+	/*
-+	 * Brainboxes UC-302
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x08E1,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-310
-+	 */
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x08C1,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-313
-+	 */
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x08A3,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-320/324
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0A61,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_1_115200 },
-+	/*
-+	 * Brainboxes UC-346
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0B02,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_4_115200 },
-+	/*
-+	 * Brainboxes UC-357
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0A81,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0A83,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-368
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0C41,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_4_115200 },
-+	/*
-+	 * Brainboxes UC-420/431
-+	 */
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x0921,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
- 		pbn_b2_4_115200 },
- 	/*
- 	 * Perle PCI-RAS cards
+--- a/drivers/gpu/drm/i915/i915_pci.c
++++ b/drivers/gpu/drm/i915/i915_pci.c
+@@ -866,7 +866,7 @@ static const struct intel_device_info js
+ 	TGL_CURSOR_OFFSETS, \
+ 	.has_global_mocs = 1, \
+ 	.has_pxp = 1, \
+-	.display.has_dsb = 1
++	.display.has_dsb = 0 /* FIXME: LUT load is broken with DSB */
+ 
+ static const struct intel_device_info tgl_info = {
+ 	GEN12_FEATURES,
 
 
