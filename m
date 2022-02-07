@@ -2,56 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC3A24ABC3D
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:46:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 909EC4ABB99
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:39:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385076AbiBGLbE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:31:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37362 "EHLO
+        id S1384578AbiBGL3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:29:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355803AbiBGL0B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:26:01 -0500
+        with ESMTP id S1383021AbiBGLVZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:21:25 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CAA8C03E968;
-        Mon,  7 Feb 2022 03:25:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D9B0C03FECD;
+        Mon,  7 Feb 2022 03:21:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B32BEB80EC3;
-        Mon,  7 Feb 2022 11:25:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A65C004E1;
-        Mon,  7 Feb 2022 11:25:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69E04B811AF;
+        Mon,  7 Feb 2022 11:21:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F295C004E1;
+        Mon,  7 Feb 2022 11:21:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233133;
-        bh=LLYIADvuVzP5s+T9xBErFHnFjFO3FixGAqGldwSpfRM=;
+        s=korg; t=1644232862;
+        bh=vhAEzco/UHCmcxF7QDa7KCLTLJqPXpSuTCLSQsFmnXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SQbRX+/rnigdCUOpT2p5+Zbp9lDJpqpCxfWnIqZY1fCbIlQXdCk51Pt/GEd9ETtQU
-         TJ9/z4aqnKZFlgallqZIZYyvW3o5j0PWGWGjbCxJC7++b8oHNfYwWe8rdMPOoprSv+
-         Y5phggj+l5LqF41pelcg4tqJro4wuIB1SNy/ZsPI=
+        b=ibUbqN6flqoJa0wJYlkzkYUqCCucIv5B2+ZL0+kKJCkM+oV6X+MZyC/XWhqddX4G7
+         U8X0aHV4V0i+oKsRNcUZaOQgbl4GZ4VuN6PVWSvDGicsRZKufTmLYLr/kjbUp3I3Ft
+         iNDjdb1LVsL454ZlML/eN5c9Ck/Zc7sT/hRuJz3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Zi Yan <ziy@nvidia.com>, David Rientjes <rientjes@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Paul Turner <pjt@google.com>, Wei Xu <weixugc@google.com>,
-        Greg Thelen <gthelen@google.com>,
-        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 027/110] mm/debug_vm_pgtable: remove pte entry from the page table
+        stable@vger.kernel.org, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.10 02/74] audit: improve audit queue handling when "audit=1" on cmdline
 Date:   Mon,  7 Feb 2022 12:06:00 +0100
-Message-Id: <20220207103803.165197284@linuxfoundation.org>
+Message-Id: <20220207103757.311948583@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,75 +54,207 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pasha Tatashin <pasha.tatashin@soleen.com>
+From: Paul Moore <paul@paul-moore.com>
 
-commit fb5222aae64fe25e5f3ebefde8214dcf3ba33ca5 upstream.
+commit f26d04331360d42dbd6b58448bd98e4edbfbe1c5 upstream.
 
-Patch series "page table check fixes and cleanups", v5.
+When an admin enables audit at early boot via the "audit=1" kernel
+command line the audit queue behavior is slightly different; the
+audit subsystem goes to greater lengths to avoid dropping records,
+which unfortunately can result in problems when the audit daemon is
+forcibly stopped for an extended period of time.
 
-This patch (of 4):
+This patch makes a number of changes designed to improve the audit
+queuing behavior so that leaving the audit daemon in a stopped state
+for an extended period does not cause a significant impact to the
+system.
 
-The pte entry that is used in pte_advanced_tests() is never removed from
-the page table at the end of the test.
+- kauditd_send_queue() is now limited to looping through the
+  passed queue only once per call.  This not only prevents the
+  function from looping indefinitely when records are returned
+  to the current queue, it also allows any recovery handling in
+  kauditd_thread() to take place when kauditd_send_queue()
+  returns.
 
-The issue is detected by page_table_check, to repro compile kernel with
-the following configs:
+- Transient netlink send errors seen as -EAGAIN now cause the
+  record to be returned to the retry queue instead of going to
+  the hold queue.  The intention of the hold queue is to store,
+  perhaps for an extended period of time, the events which led
+  up to the audit daemon going offline.  The retry queue remains
+  a temporary queue intended to protect against transient issues
+  between the kernel and the audit daemon.
 
-CONFIG_DEBUG_VM_PGTABLE=y
-CONFIG_PAGE_TABLE_CHECK=y
-CONFIG_PAGE_TABLE_CHECK_ENFORCED=y
+- The retry queue is now limited by the audit_backlog_limit
+  setting, the same as the other queues.  This allows admins
+  to bound the size of all of the audit queues on the system.
 
-During the boot the following BUG is printed:
+- kauditd_rehold_skb() now returns records to the end of the
+  hold queue to ensure ordering is preserved in the face of
+  recent changes to kauditd_send_queue().
 
-  debug_vm_pgtable: [debug_vm_pgtable         ]: Validating architecture page table helpers
-  ------------[ cut here ]------------
-  kernel BUG at mm/page_table_check.c:162!
-  invalid opcode: 0000 [#1] PREEMPT SMP PTI
-  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.16.0-11413-g2c271fe77d52 #3
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
-  ...
-
-The entry should be properly removed from the page table before the page
-is released to the free list.
-
-Link: https://lkml.kernel.org/r/20220131203249.2832273-1-pasha.tatashin@soleen.com
-Link: https://lkml.kernel.org/r/20220131203249.2832273-2-pasha.tatashin@soleen.com
-Fixes: a5c3b9ffb0f4 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
-Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
-Reviewed-by: Zi Yan <ziy@nvidia.com>
-Tested-by: Zi Yan <ziy@nvidia.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Paul Turner <pjt@google.com>
-Cc: Wei Xu <weixugc@google.com>
-Cc: Greg Thelen <gthelen@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: <stable@vger.kernel.org>	[5.9+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 5b52330bbfe63 ("audit: fix auditd/kernel connection state tracking")
+Fixes: f4b3ee3c85551 ("audit: improve robustness of the audit queue handling")
+Reported-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Tested-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/debug_vm_pgtable.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/audit.c |   62 +++++++++++++++++++++++++++++++++++++++------------------
+ 1 file changed, 43 insertions(+), 19 deletions(-)
 
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -171,6 +171,8 @@ static void __init pte_advanced_tests(st
- 	ptep_test_and_clear_young(args->vma, args->vaddr, args->ptep);
- 	pte = ptep_get(args->ptep);
- 	WARN_ON(pte_young(pte));
-+
-+	ptep_get_and_clear_full(args->mm, args->vaddr, args->ptep, 1);
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -541,20 +541,22 @@ static void kauditd_printk_skb(struct sk
+ /**
+  * kauditd_rehold_skb - Handle a audit record send failure in the hold queue
+  * @skb: audit record
++ * @error: error code (unused)
+  *
+  * Description:
+  * This should only be used by the kauditd_thread when it fails to flush the
+  * hold queue.
+  */
+-static void kauditd_rehold_skb(struct sk_buff *skb)
++static void kauditd_rehold_skb(struct sk_buff *skb, __always_unused int error)
+ {
+-	/* put the record back in the queue at the same place */
+-	skb_queue_head(&audit_hold_queue, skb);
++	/* put the record back in the queue */
++	skb_queue_tail(&audit_hold_queue, skb);
  }
  
- static void __init pte_savedwrite_tests(struct pgtable_debug_args *args)
+ /**
+  * kauditd_hold_skb - Queue an audit record, waiting for auditd
+  * @skb: audit record
++ * @error: error code
+  *
+  * Description:
+  * Queue the audit record, waiting for an instance of auditd.  When this
+@@ -564,19 +566,31 @@ static void kauditd_rehold_skb(struct sk
+  * and queue it, if we have room.  If we want to hold on to the record, but we
+  * don't have room, record a record lost message.
+  */
+-static void kauditd_hold_skb(struct sk_buff *skb)
++static void kauditd_hold_skb(struct sk_buff *skb, int error)
+ {
+ 	/* at this point it is uncertain if we will ever send this to auditd so
+ 	 * try to send the message via printk before we go any further */
+ 	kauditd_printk_skb(skb);
+ 
+ 	/* can we just silently drop the message? */
+-	if (!audit_default) {
+-		kfree_skb(skb);
+-		return;
++	if (!audit_default)
++		goto drop;
++
++	/* the hold queue is only for when the daemon goes away completely,
++	 * not -EAGAIN failures; if we are in a -EAGAIN state requeue the
++	 * record on the retry queue unless it's full, in which case drop it
++	 */
++	if (error == -EAGAIN) {
++		if (!audit_backlog_limit ||
++		    skb_queue_len(&audit_retry_queue) < audit_backlog_limit) {
++			skb_queue_tail(&audit_retry_queue, skb);
++			return;
++		}
++		audit_log_lost("kauditd retry queue overflow");
++		goto drop;
+ 	}
+ 
+-	/* if we have room, queue the message */
++	/* if we have room in the hold queue, queue the message */
+ 	if (!audit_backlog_limit ||
+ 	    skb_queue_len(&audit_hold_queue) < audit_backlog_limit) {
+ 		skb_queue_tail(&audit_hold_queue, skb);
+@@ -585,24 +599,32 @@ static void kauditd_hold_skb(struct sk_b
+ 
+ 	/* we have no other options - drop the message */
+ 	audit_log_lost("kauditd hold queue overflow");
++drop:
+ 	kfree_skb(skb);
+ }
+ 
+ /**
+  * kauditd_retry_skb - Queue an audit record, attempt to send again to auditd
+  * @skb: audit record
++ * @error: error code (unused)
+  *
+  * Description:
+  * Not as serious as kauditd_hold_skb() as we still have a connected auditd,
+  * but for some reason we are having problems sending it audit records so
+  * queue the given record and attempt to resend.
+  */
+-static void kauditd_retry_skb(struct sk_buff *skb)
++static void kauditd_retry_skb(struct sk_buff *skb, __always_unused int error)
+ {
+-	/* NOTE: because records should only live in the retry queue for a
+-	 * short period of time, before either being sent or moved to the hold
+-	 * queue, we don't currently enforce a limit on this queue */
+-	skb_queue_tail(&audit_retry_queue, skb);
++	if (!audit_backlog_limit ||
++	    skb_queue_len(&audit_retry_queue) < audit_backlog_limit) {
++		skb_queue_tail(&audit_retry_queue, skb);
++		return;
++	}
++
++	/* we have to drop the record, send it via printk as a last effort */
++	kauditd_printk_skb(skb);
++	audit_log_lost("kauditd retry queue overflow");
++	kfree_skb(skb);
+ }
+ 
+ /**
+@@ -640,7 +662,7 @@ static void auditd_reset(const struct au
+ 	/* flush the retry queue to the hold queue, but don't touch the main
+ 	 * queue since we need to process that normally for multicast */
+ 	while ((skb = skb_dequeue(&audit_retry_queue)))
+-		kauditd_hold_skb(skb);
++		kauditd_hold_skb(skb, -ECONNREFUSED);
+ }
+ 
+ /**
+@@ -714,16 +736,18 @@ static int kauditd_send_queue(struct soc
+ 			      struct sk_buff_head *queue,
+ 			      unsigned int retry_limit,
+ 			      void (*skb_hook)(struct sk_buff *skb),
+-			      void (*err_hook)(struct sk_buff *skb))
++			      void (*err_hook)(struct sk_buff *skb, int error))
+ {
+ 	int rc = 0;
+-	struct sk_buff *skb;
++	struct sk_buff *skb = NULL;
++	struct sk_buff *skb_tail;
+ 	unsigned int failed = 0;
+ 
+ 	/* NOTE: kauditd_thread takes care of all our locking, we just use
+ 	 *       the netlink info passed to us (e.g. sk and portid) */
+ 
+-	while ((skb = skb_dequeue(queue))) {
++	skb_tail = skb_peek_tail(queue);
++	while ((skb != skb_tail) && (skb = skb_dequeue(queue))) {
+ 		/* call the skb_hook for each skb we touch */
+ 		if (skb_hook)
+ 			(*skb_hook)(skb);
+@@ -731,7 +755,7 @@ static int kauditd_send_queue(struct soc
+ 		/* can we send to anyone via unicast? */
+ 		if (!sk) {
+ 			if (err_hook)
+-				(*err_hook)(skb);
++				(*err_hook)(skb, -ECONNREFUSED);
+ 			continue;
+ 		}
+ 
+@@ -745,7 +769,7 @@ retry:
+ 			    rc == -ECONNREFUSED || rc == -EPERM) {
+ 				sk = NULL;
+ 				if (err_hook)
+-					(*err_hook)(skb);
++					(*err_hook)(skb, rc);
+ 				if (rc == -EAGAIN)
+ 					rc = 0;
+ 				/* continue to drain the queue */
 
 
