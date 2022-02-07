@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8247D4ABB40
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D56B74ABD2B
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:59:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384298AbiBGL1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:27:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56436 "EHLO
+        id S1379840AbiBGLjv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:39:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245576AbiBGLSA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:18:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5916C0401C0;
-        Mon,  7 Feb 2022 03:17:52 -0800 (PST)
+        with ESMTP id S1386252AbiBGLeJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:34:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4990DC043188;
+        Mon,  7 Feb 2022 03:34:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79345B8111C;
-        Mon,  7 Feb 2022 11:17:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8718C004E1;
-        Mon,  7 Feb 2022 11:17:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCA4260A69;
+        Mon,  7 Feb 2022 11:34:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D135AC004E1;
+        Mon,  7 Feb 2022 11:34:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232670;
-        bh=3BnQTiy1lYRjKYs33OvlOJ3AUlWRFB7XgubtblS7lzg=;
+        s=korg; t=1644233647;
+        bh=l41qFpCCnF7zcx7W10sjE/r96IdLrzfLg4iNeaeKeis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FElPdqdnIcYnMPLMlWr7FwqBbKovSo+ogq6t3TfMvAx1/JSSNjsYbFvTTOYGEW9tN
-         Y7UgvDhWyllDf3hsymiK4sKDplAO2HkOoTPgwWE19RbpOJjasHdsm/ncHmn1W/J7rj
-         8CpbdR8W26wybXNsTdVU+x5gloMYz5lX8BtV/qA8=
+        b=CqBo7iVC5N34b3DaUt11dA6GZQWZfewM7/vnokEVZZl4bIwfW530IRhGTR5XtfmM8
+         h/ykPLqmQk5Nv+jcUUBNK7qWTdXWWt9tRQvkzqcuK0U6E2Q8IV5ABt5l9xC/yY/7I0
+         K4kI8PwnCSMxM1DK0R/lfRbIBZAkhRFO5JHfBRV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.19 85/86] EDAC/xgene: Fix deferred probing
+        stable@vger.kernel.org, Yannick Vignon <yannick.vignon@nxp.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.16 077/126] net: stmmac: ensure PTP time register reads are consistent
 Date:   Mon,  7 Feb 2022 12:06:48 +0100
-Message-Id: <20220207103800.472179644@linuxfoundation.org>
+Message-Id: <20220207103806.773594103@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Yannick Vignon <yannick.vignon@nxp.com>
 
-commit dfd0dfb9a7cc04acf93435b440dd34c2ca7b4424 upstream.
+commit 80d4609008e6d696a279e39ae7458c916fcd44c1 upstream.
 
-The driver overrides error codes returned by platform_get_irq_optional()
-to -EINVAL for some strange reason, so if it returns -EPROBE_DEFER, the
-driver will fail the probe permanently instead of the deferred probing.
-Switch to propagating the proper error codes to platform driver code
-upwards.
+Even if protected from preemption and interrupts, a small time window
+remains when the 2 register reads could return inconsistent values,
+each time the "seconds" register changes. This could lead to an about
+1-second error in the reported time.
 
-  [ bp: Massage commit message. ]
+Add logic to ensure the "seconds" and "nanoseconds" values are consistent.
 
-Fixes: 0d4429301c4a ("EDAC: Add APM X-Gene SoC EDAC driver")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220124185503.6720-3-s.shtylyov@omp.ru
+Fixes: 92ba6888510c ("stmmac: add the support for PTP hw clock driver")
+Signed-off-by: Yannick Vignon <yannick.vignon@nxp.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20220203160025.750632-1-yannick.vignon@oss.nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/edac/xgene_edac.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/drivers/edac/xgene_edac.c
-+++ b/drivers/edac/xgene_edac.c
-@@ -1934,7 +1934,7 @@ static int xgene_edac_probe(struct platf
- 			irq = platform_get_irq(pdev, i);
- 			if (irq < 0) {
- 				dev_err(&pdev->dev, "No IRQ resource\n");
--				rc = -EINVAL;
-+				rc = irq;
- 				goto out_err;
- 			}
- 			rc = devm_request_irq(&pdev->dev, irq,
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
+@@ -145,15 +145,20 @@ static int adjust_systime(void __iomem *
+ 
+ static void get_systime(void __iomem *ioaddr, u64 *systime)
+ {
+-	u64 ns;
++	u64 ns, sec0, sec1;
+ 
+-	/* Get the TSSS value */
+-	ns = readl(ioaddr + PTP_STNSR);
+-	/* Get the TSS and convert sec time value to nanosecond */
+-	ns += readl(ioaddr + PTP_STSR) * 1000000000ULL;
++	/* Get the TSS value */
++	sec1 = readl_relaxed(ioaddr + PTP_STSR);
++	do {
++		sec0 = sec1;
++		/* Get the TSSS value */
++		ns = readl_relaxed(ioaddr + PTP_STNSR);
++		/* Get the TSS value */
++		sec1 = readl_relaxed(ioaddr + PTP_STSR);
++	} while (sec0 != sec1);
+ 
+ 	if (systime)
+-		*systime = ns;
++		*systime = ns + (sec1 * 1000000000ULL);
+ }
+ 
+ static void get_ptptime(void __iomem *ptpaddr, u64 *ptp_time)
 
 
