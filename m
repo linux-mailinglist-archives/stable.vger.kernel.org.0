@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E9F74ABD0F
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:56:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA5144ABC17
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239674AbiBGLok (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:44:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44744 "EHLO
+        id S1384853AbiBGLaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:30:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385022AbiBGLa5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:30:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B84F8C03BFFF;
-        Mon,  7 Feb 2022 03:29:01 -0800 (PST)
+        with ESMTP id S1383881AbiBGLXy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:23:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 147EEC0401C5;
+        Mon,  7 Feb 2022 03:23:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5297D60B5C;
-        Mon,  7 Feb 2022 11:29:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F849C004E1;
-        Mon,  7 Feb 2022 11:28:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6311B8111C;
+        Mon,  7 Feb 2022 11:23:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D062C004E1;
+        Mon,  7 Feb 2022 11:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233340;
-        bh=ztI+U6AJfXgJOfHa3JGdlrmkcr9HcxcswIQ5WY5SUUg=;
+        s=korg; t=1644233028;
+        bh=/tGzveDzfTBR4qxgZ0fj0VvGpTMLFFUP9H5ABeVidT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2jpesOpgkmwLZgETVuLO6y5dub6AaoumPwmN168Pl7HtTgKR5fPusfve/Wi3wdOMw
-         C1KSk79jPEKbyS4DEEk0L2GFTY5FjxIcbt0Y2DlnlqnM1GFxSliXUC5CStkcI/5DMy
-         e92sR7WQ/3p04lQy84P82+mX2Ees12p9CmBojddw=
+        b=hzBb6oTzslXsmzBvC8y06E+A8SLrVur7SzMqx7Wee/KLHmX/iKXi0ghHy5Eo9KPgh
+         +Aca4TwAqf/j8yHIPD3D+KPkX13SJYoXYv8YNHl5iADJMjL2wVGVX5Maf7DNrzf0Xm
+         A44O1hgzZXfMYLBOfa0MqXZ7QD2njRDjNCP3RraU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
-        Marco Elver <elver@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 093/110] perf: Copy perf_event_attr::sig_data on modification
+        stable@vger.kernel.org, Xin Yin <yinxin.x@bytedance.com>,
+        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.10 68/74] ext4: modify the logic of ext4_mb_new_blocks_simple
 Date:   Mon,  7 Feb 2022 12:07:06 +0100
-Message-Id: <20220207103805.549583830@linuxfoundation.org>
+Message-Id: <20220207103759.457691273@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Xin Yin <yinxin.x@bytedance.com>
 
-[ Upstream commit 3c25fc97f5590060464cabfa25710970ecddbc96 ]
+commit 31a074a0c62dc0d2bfb9b543142db4fe27f9e5eb upstream.
 
-The intent has always been that perf_event_attr::sig_data should also be
-modifiable along with PERF_EVENT_IOC_MODIFY_ATTRIBUTES, because it is
-observable by user space if SIGTRAP on events is requested.
+For now in ext4_mb_new_blocks_simple, if we found a block which
+should be excluded then will switch to next group, this may
+probably cause 'group' run out of range.
 
-Currently only PERF_TYPE_BREAKPOINT is modifiable, and explicitly copies
-relevant breakpoint-related attributes in hw_breakpoint_copy_attr().
-This misses copying perf_event_attr::sig_data.
+Change to check next block in the same group when get a block should
+be excluded. Also change the search range to EXT4_CLUSTERS_PER_GROUP
+and add error checking.
 
-Since sig_data is not specific to PERF_TYPE_BREAKPOINT, introduce a
-helper to copy generic event-type-independent attributes on
-modification.
-
-Fixes: 97ba62b27867 ("perf: Add support for SIGTRAP on perf events")
-Reported-by: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Link: https://lore.kernel.org/r/20220131103407.1971678-1-elver@google.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Xin Yin <yinxin.x@bytedance.com>
+Reviewed-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
+Link: https://lore.kernel.org/r/20220110035141.1980-3-yinxin.x@bytedance.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ fs/ext4/mballoc.c |   26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index c7581e3fb8ab1..69c70767b5dff 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -3234,6 +3234,15 @@ static int perf_event_modify_breakpoint(struct perf_event *bp,
- 	return err;
- }
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -5173,7 +5173,8 @@ static ext4_fsblk_t ext4_mb_new_blocks_s
+ 	struct super_block *sb = ar->inode->i_sb;
+ 	ext4_group_t group;
+ 	ext4_grpblk_t blkoff;
+-	int i = sb->s_blocksize;
++	ext4_grpblk_t max = EXT4_CLUSTERS_PER_GROUP(sb);
++	ext4_grpblk_t i = 0;
+ 	ext4_fsblk_t goal, block;
+ 	struct ext4_super_block *es = EXT4_SB(sb)->s_es;
  
-+/*
-+ * Copy event-type-independent attributes that may be modified.
-+ */
-+static void perf_event_modify_copy_attr(struct perf_event_attr *to,
-+					const struct perf_event_attr *from)
-+{
-+	to->sig_data = from->sig_data;
-+}
-+
- static int perf_event_modify_attr(struct perf_event *event,
- 				  struct perf_event_attr *attr)
- {
-@@ -3256,10 +3265,17 @@ static int perf_event_modify_attr(struct perf_event *event,
- 	WARN_ON_ONCE(event->ctx->parent_ctx);
+@@ -5195,19 +5196,26 @@ static ext4_fsblk_t ext4_mb_new_blocks_s
+ 		ext4_get_group_no_and_offset(sb,
+ 			max(ext4_group_first_block_no(sb, group), goal),
+ 			NULL, &blkoff);
+-		i = mb_find_next_zero_bit(bitmap_bh->b_data, sb->s_blocksize,
++		while (1) {
++			i = mb_find_next_zero_bit(bitmap_bh->b_data, max,
+ 						blkoff);
++			if (i >= max)
++				break;
++			if (ext4_fc_replay_check_excluded(sb,
++				ext4_group_first_block_no(sb, group) + i)) {
++				blkoff = i + 1;
++			} else
++				break;
++		}
+ 		brelse(bitmap_bh);
+-		if (i >= sb->s_blocksize)
+-			continue;
+-		if (ext4_fc_replay_check_excluded(sb,
+-			ext4_group_first_block_no(sb, group) + i))
+-			continue;
+-		break;
++		if (i < max)
++			break;
+ 	}
  
- 	mutex_lock(&event->child_mutex);
-+	/*
-+	 * Event-type-independent attributes must be copied before event-type
-+	 * modification, which will validate that final attributes match the
-+	 * source attributes after all relevant attributes have been copied.
-+	 */
-+	perf_event_modify_copy_attr(&event->attr, attr);
- 	err = func(event, attr);
- 	if (err)
- 		goto out;
- 	list_for_each_entry(child, &event->child_list, child_list) {
-+		perf_event_modify_copy_attr(&child->attr, attr);
- 		err = func(child, attr);
- 		if (err)
- 			goto out;
--- 
-2.34.1
-
+-	if (group >= ext4_get_groups_count(sb) && i >= sb->s_blocksize)
++	if (group >= ext4_get_groups_count(sb) || i >= max) {
++		*errp = -ENOSPC;
+ 		return 0;
++	}
+ 
+ 	block = ext4_group_first_block_no(sb, group) + i;
+ 	ext4_mb_mark_bb(sb, block, 1, 1);
 
 
