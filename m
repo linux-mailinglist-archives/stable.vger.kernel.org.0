@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0418D4ABC18
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E9F74ABD0F
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:56:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384858AbiBGLaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:30:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35992 "EHLO
+        id S239674AbiBGLok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:44:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383871AbiBGLXu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:23:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1170FC0401C4;
-        Mon,  7 Feb 2022 03:23:47 -0800 (PST)
+        with ESMTP id S1385022AbiBGLa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:30:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B84F8C03BFFF;
+        Mon,  7 Feb 2022 03:29:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AAA01B8111C;
-        Mon,  7 Feb 2022 11:23:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40B5CC004E1;
-        Mon,  7 Feb 2022 11:23:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5297D60B5C;
+        Mon,  7 Feb 2022 11:29:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F849C004E1;
+        Mon,  7 Feb 2022 11:28:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233025;
-        bh=+0N3nRukO1GQN2mvogj92JZma4Oi/VLjvAT+GztctPg=;
+        s=korg; t=1644233340;
+        bh=ztI+U6AJfXgJOfHa3JGdlrmkcr9HcxcswIQ5WY5SUUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmGWbHw20WH2Khw9EPB//I847mxUuO+VcSWAdQvxZNv6Ix99M1hGiUji3aY6nMxTZ
-         WIEGLbVo6TJcjchGIpnTsh3/hHpc/0VS9akKzsCfnqwAamtXVSWo+gor41TuVnrex+
-         m83D9WMYlbFR10uvu7KmiSQmiq+9ADM0wlmlbDCo=
+        b=2jpesOpgkmwLZgETVuLO6y5dub6AaoumPwmN168Pl7HtTgKR5fPusfve/Wi3wdOMw
+         C1KSk79jPEKbyS4DEEk0L2GFTY5FjxIcbt0Y2DlnlqnM1GFxSliXUC5CStkcI/5DMy
+         e92sR7WQ/3p04lQy84P82+mX2Ees12p9CmBojddw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Yin <yinxin.x@bytedance.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.10 67/74] ext4: prevent used blocks from being allocated during fast commit replay
-Date:   Mon,  7 Feb 2022 12:07:05 +0100
-Message-Id: <20220207103759.426782898@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        Marco Elver <elver@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 093/110] perf: Copy perf_event_attr::sig_data on modification
+Date:   Mon,  7 Feb 2022 12:07:06 +0100
+Message-Id: <20220207103805.549583830@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,107 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Yin <yinxin.x@bytedance.com>
+From: Marco Elver <elver@google.com>
 
-commit 599ea31d13617c5484c40cdf50d88301dc351cfc upstream.
+[ Upstream commit 3c25fc97f5590060464cabfa25710970ecddbc96 ]
 
-During fast commit replay procedure, we clear inode blocks bitmap in
-ext4_ext_clear_bb(), this may cause ext4_mb_new_blocks_simple() allocate
-blocks still in use.
+The intent has always been that perf_event_attr::sig_data should also be
+modifiable along with PERF_EVENT_IOC_MODIFY_ATTRIBUTES, because it is
+observable by user space if SIGTRAP on events is requested.
 
-Make ext4_fc_record_regions() also record physical disk regions used by
-inodes during replay procedure. Then ext4_mb_new_blocks_simple() can
-excludes these blocks in use.
+Currently only PERF_TYPE_BREAKPOINT is modifiable, and explicitly copies
+relevant breakpoint-related attributes in hw_breakpoint_copy_attr().
+This misses copying perf_event_attr::sig_data.
 
-Signed-off-by: Xin Yin <yinxin.x@bytedance.com>
-Link: https://lore.kernel.org/r/20220110035141.1980-2-yinxin.x@bytedance.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since sig_data is not specific to PERF_TYPE_BREAKPOINT, introduce a
+helper to copy generic event-type-independent attributes on
+modification.
+
+Fixes: 97ba62b27867 ("perf: Add support for SIGTRAP on perf events")
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
+Link: https://lore.kernel.org/r/20220131103407.1971678-1-elver@google.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ext4.h        |    3 +++
- fs/ext4/extents.c     |    4 ++++
- fs/ext4/fast_commit.c |   20 +++++++++++++++-----
- 3 files changed, 22 insertions(+), 5 deletions(-)
+ kernel/events/core.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2779,6 +2779,9 @@ void ext4_fc_replay_cleanup(struct super
- int ext4_fc_commit(journal_t *journal, tid_t commit_tid);
- int __init ext4_fc_init_dentry_cache(void);
- void ext4_fc_destroy_dentry_cache(void);
-+int ext4_fc_record_regions(struct super_block *sb, int ino,
-+			   ext4_lblk_t lblk, ext4_fsblk_t pblk,
-+			   int len, int replay);
- 
- /* mballoc.c */
- extern const struct seq_operations ext4_mb_seq_groups_ops;
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -6088,11 +6088,15 @@ int ext4_ext_clear_bb(struct inode *inod
- 
- 					ext4_mb_mark_bb(inode->i_sb,
- 							path[j].p_block, 1, 0);
-+					ext4_fc_record_regions(inode->i_sb, inode->i_ino,
-+							0, path[j].p_block, 1, 1);
- 				}
- 				ext4_ext_drop_refs(path);
- 				kfree(path);
- 			}
- 			ext4_mb_mark_bb(inode->i_sb, map.m_pblk, map.m_len, 0);
-+			ext4_fc_record_regions(inode->i_sb, inode->i_ino,
-+					map.m_lblk, map.m_pblk, map.m_len, 1);
- 		}
- 		cur = cur + map.m_len;
- 	}
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -1558,16 +1558,23 @@ out:
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index c7581e3fb8ab1..69c70767b5dff 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -3234,6 +3234,15 @@ static int perf_event_modify_breakpoint(struct perf_event *bp,
+ 	return err;
  }
  
- /*
-- * Record physical disk regions which are in use as per fast commit area. Our
-- * simple replay phase allocator excludes these regions from allocation.
-+ * Record physical disk regions which are in use as per fast commit area,
-+ * and used by inodes during replay phase. Our simple replay phase
-+ * allocator excludes these regions from allocation.
-  */
--static int ext4_fc_record_regions(struct super_block *sb, int ino,
--		ext4_lblk_t lblk, ext4_fsblk_t pblk, int len)
-+int ext4_fc_record_regions(struct super_block *sb, int ino,
-+		ext4_lblk_t lblk, ext4_fsblk_t pblk, int len, int replay)
- {
- 	struct ext4_fc_replay_state *state;
- 	struct ext4_fc_alloc_region *region;
- 
- 	state = &EXT4_SB(sb)->s_fc_replay_state;
-+	/*
-+	 * during replay phase, the fc_regions_valid may not same as
-+	 * fc_regions_used, update it when do new additions.
-+	 */
-+	if (replay && state->fc_regions_used != state->fc_regions_valid)
-+		state->fc_regions_used = state->fc_regions_valid;
- 	if (state->fc_regions_used == state->fc_regions_size) {
- 		state->fc_regions_size +=
- 			EXT4_FC_REPLAY_REALLOC_INCREMENT;
-@@ -1585,6 +1592,9 @@ static int ext4_fc_record_regions(struct
- 	region->pblk = pblk;
- 	region->len = len;
- 
-+	if (replay)
-+		state->fc_regions_valid++;
++/*
++ * Copy event-type-independent attributes that may be modified.
++ */
++static void perf_event_modify_copy_attr(struct perf_event_attr *to,
++					const struct perf_event_attr *from)
++{
++	to->sig_data = from->sig_data;
++}
 +
- 	return 0;
- }
+ static int perf_event_modify_attr(struct perf_event *event,
+ 				  struct perf_event_attr *attr)
+ {
+@@ -3256,10 +3265,17 @@ static int perf_event_modify_attr(struct perf_event *event,
+ 	WARN_ON_ONCE(event->ctx->parent_ctx);
  
-@@ -1954,7 +1964,7 @@ static int ext4_fc_replay_scan(journal_t
- 			ret = ext4_fc_record_regions(sb,
- 				le32_to_cpu(ext.fc_ino),
- 				le32_to_cpu(ex->ee_block), ext4_ext_pblock(ex),
--				ext4_ext_get_actual_len(ex));
-+				ext4_ext_get_actual_len(ex), 0);
- 			if (ret < 0)
- 				break;
- 			ret = JBD2_FC_REPLAY_CONTINUE;
+ 	mutex_lock(&event->child_mutex);
++	/*
++	 * Event-type-independent attributes must be copied before event-type
++	 * modification, which will validate that final attributes match the
++	 * source attributes after all relevant attributes have been copied.
++	 */
++	perf_event_modify_copy_attr(&event->attr, attr);
+ 	err = func(event, attr);
+ 	if (err)
+ 		goto out;
+ 	list_for_each_entry(child, &event->child_list, child_list) {
++		perf_event_modify_copy_attr(&child->attr, attr);
+ 		err = func(child, attr);
+ 		if (err)
+ 			goto out;
+-- 
+2.34.1
+
 
 
