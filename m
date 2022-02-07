@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D09074ABB35
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E626E4ABB70
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384276AbiBGL1S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:27:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56300 "EHLO
+        id S1356287AbiBGL2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:28:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381849AbiBGLRi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:17:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52DFFC03F93F;
-        Mon,  7 Feb 2022 03:17:20 -0800 (PST)
+        with ESMTP id S1383456AbiBGLWb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:22:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91AE7C043181;
+        Mon,  7 Feb 2022 03:22:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EC7B6113B;
-        Mon,  7 Feb 2022 11:17:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ACF7C004E1;
-        Mon,  7 Feb 2022 11:17:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E7F5B81028;
+        Mon,  7 Feb 2022 11:22:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 962DBC004E1;
+        Mon,  7 Feb 2022 11:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232639;
-        bh=iGQN3gxeX4JzN/xizsFpuroI2XOdwUXZN9hPN4VWVoo=;
+        s=korg; t=1644232948;
+        bh=QP1HDIGI0Be4fyhFaed9ZyP3A+9v1iuwVzIVMxGZcVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t9piR9A8jPkHlpcIYyP0fHHyZ5mqwhiS6vnenBIQunowpGvOO7PfOa08y9sttaPSJ
-         mad2w/wOAz7QbCcZEDY8YmWIy5hIL0GTj2HHhcagXHRmv9RaEeViQ19BHsTcehha/w
-         1EikLIR5bxh03fqKv7neWGFaJam2O8aqrk1/vGtI=
+        b=MPUrc+p0jivb4MwTAeJc1qp5unB1R2M/uOgCeAl/BgokpCA8X1MkrHtJp1uDDQidK
+         ojaR0LuESs4rqs3a5QZ/oXvmveAZUFeG3e8tJP0eP1059eUXSmB32gA4WPhlmBp3vU
+         45wbBOjZUGAfrN7RnLjx2KnSKm1zEq6gFGMZN2qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 4.19 76/86] drm/i915/overlay: Prevent divide by zero bugs in scaling
-Date:   Mon,  7 Feb 2022 12:06:39 +0100
-Message-Id: <20220207103800.164470393@linuxfoundation.org>
+        stable@vger.kernel.org, Camel Guo <camelg@axis.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 42/74] net: stmmac: dump gmac4 DMA registers correctly
+Date:   Mon,  7 Feb 2022 12:06:40 +0100
+Message-Id: <20220207103758.603272932@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Camel Guo <camelg@axis.com>
 
-commit 90a3d22ff02b196d5884e111f39271a1d4ee8e3e upstream.
+commit 7af037c39b600bac2c716dd1228e8ddbe149573f upstream.
 
-Smatch detected a divide by zero bug in check_overlay_scaling().
+Unlike gmac100, gmac1000, gmac4 has 27 DMA registers and they are
+located at DMA_CHAN_BASE_ADDR (0x1100). In order for ethtool to dump
+gmac4 DMA registers correctly, this commit checks if a net_device has
+gmac4 and uses different logic to dump its DMA registers.
 
-    drivers/gpu/drm/i915/display/intel_overlay.c:976 check_overlay_scaling()
-    error: potential divide by zero bug '/ rec->dst_height'.
-    drivers/gpu/drm/i915/display/intel_overlay.c:980 check_overlay_scaling()
-    error: potential divide by zero bug '/ rec->dst_width'.
+This fixes the following KASAN warning, which can normally be triggered
+by a command similar like "ethtool -d eth0":
 
-Prevent this by ensuring that the dst height and width are non-zero.
+BUG: KASAN: vmalloc-out-of-bounds in dwmac4_dump_dma_regs+0x6d4/0xb30
+Write of size 4 at addr ffffffc010177100 by task ethtool/1839
+ kasan_report+0x200/0x21c
+ __asan_report_store4_noabort+0x34/0x60
+ dwmac4_dump_dma_regs+0x6d4/0xb30
+ stmmac_ethtool_gregs+0x110/0x204
+ ethtool_get_regs+0x200/0x4b0
+ dev_ethtool+0x1dac/0x3800
+ dev_ioctl+0x7c0/0xb50
+ sock_ioctl+0x298/0x6c4
+ ...
 
-Fixes: 02e792fbaadb ("drm/i915: implement drmmode overlay support v4")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220124122409.GA31673@kili
-(cherry picked from commit cf5b64f7f10b28bebb9b7c9d25e7aee5cbe43918)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Fixes: fbf68229ffe7 ("net: stmmac: unify registers dumps methods")
+Signed-off-by: Camel Guo <camelg@axis.com>
+Link: https://lore.kernel.org/r/20220131083841.3346801-1-camel.guo@axis.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/intel_overlay.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h      |    1 +
+ drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c |   19 +++++++++++++++++--
+ 2 files changed, 18 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/intel_overlay.c
-+++ b/drivers/gpu/drm/i915/intel_overlay.c
-@@ -929,6 +929,9 @@ static int check_overlay_dst(struct inte
- 	const struct intel_crtc_state *pipe_config =
- 		overlay->crtc->config;
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h
+@@ -130,6 +130,7 @@
  
-+	if (rec->dst_height == 0 || rec->dst_width == 0)
-+		return -EINVAL;
+ #define NUM_DWMAC100_DMA_REGS	9
+ #define NUM_DWMAC1000_DMA_REGS	23
++#define NUM_DWMAC4_DMA_REGS	27
+ 
+ void dwmac_enable_dma_transmission(void __iomem *ioaddr);
+ void dwmac_enable_dma_irq(void __iomem *ioaddr, u32 chan, bool rx, bool tx);
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
+@@ -21,10 +21,18 @@
+ #include "dwxgmac2.h"
+ 
+ #define REG_SPACE_SIZE	0x1060
++#define GMAC4_REG_SPACE_SIZE	0x116C
+ #define MAC100_ETHTOOL_NAME	"st_mac100"
+ #define GMAC_ETHTOOL_NAME	"st_gmac"
+ #define XGMAC_ETHTOOL_NAME	"st_xgmac"
+ 
++/* Same as DMA_CHAN_BASE_ADDR defined in dwmac4_dma.h
++ *
++ * It is here because dwmac_dma.h and dwmac4_dam.h can not be included at the
++ * same time due to the conflicting macro names.
++ */
++#define GMAC4_DMA_CHAN_BASE_ADDR  0x00001100
 +
- 	if (rec->dst_x < pipe_config->pipe_src_w &&
- 	    rec->dst_x + rec->dst_width <= pipe_config->pipe_src_w &&
- 	    rec->dst_y < pipe_config->pipe_src_h &&
+ #define ETHTOOL_DMA_OFFSET	55
+ 
+ struct stmmac_stats {
+@@ -413,6 +421,8 @@ static int stmmac_ethtool_get_regs_len(s
+ 
+ 	if (priv->plat->has_xgmac)
+ 		return XGMAC_REGSIZE * 4;
++	else if (priv->plat->has_gmac4)
++		return GMAC4_REG_SPACE_SIZE;
+ 	return REG_SPACE_SIZE;
+ }
+ 
+@@ -425,8 +435,13 @@ static void stmmac_ethtool_gregs(struct
+ 	stmmac_dump_mac_regs(priv, priv->hw, reg_space);
+ 	stmmac_dump_dma_regs(priv, priv->ioaddr, reg_space);
+ 
+-	if (!priv->plat->has_xgmac) {
+-		/* Copy DMA registers to where ethtool expects them */
++	/* Copy DMA registers to where ethtool expects them */
++	if (priv->plat->has_gmac4) {
++		/* GMAC4 dumps its DMA registers at its DMA_CHAN_BASE_ADDR */
++		memcpy(&reg_space[ETHTOOL_DMA_OFFSET],
++		       &reg_space[GMAC4_DMA_CHAN_BASE_ADDR / 4],
++		       NUM_DWMAC4_DMA_REGS * 4);
++	} else if (!priv->plat->has_xgmac) {
+ 		memcpy(&reg_space[ETHTOOL_DMA_OFFSET],
+ 		       &reg_space[DMA_BUS_MODE / 4],
+ 		       NUM_DWMAC1000_DMA_REGS * 4);
 
 
