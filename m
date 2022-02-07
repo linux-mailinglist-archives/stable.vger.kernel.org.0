@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD2784ABBAD
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:39:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 207C04ABD3B
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:59:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384712AbiBGL3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:29:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34312 "EHLO
+        id S1387168AbiBGLkG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:40:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383249AbiBGLVz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:21:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5CDCC043188;
-        Mon,  7 Feb 2022 03:21:54 -0800 (PST)
+        with ESMTP id S1386568AbiBGLe6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:34:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D975C043181;
+        Mon,  7 Feb 2022 03:34:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B2016077B;
-        Mon,  7 Feb 2022 11:21:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F7C1C004E1;
-        Mon,  7 Feb 2022 11:21:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3C79B8102E;
+        Mon,  7 Feb 2022 11:34:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D71C004E1;
+        Mon,  7 Feb 2022 11:34:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232913;
-        bh=eMk+zsYs9KJIsnbpsZQenhxkAml+RHON7vSyYSThfvQ=;
+        s=korg; t=1644233694;
+        bh=kbXvknl46C1yh96qPSzRoU7OAGKJq3nYu1ZxHS+sLKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vPOdEtkVfZMShKt/UGz6xOlv97e+y9BtmsHZWGTDZ1+rcg2dswpi5/xxTo6N5uPSJ
-         UNs7cP4RY4g9tfTmHs/xyjIdnTGUVXnOt0pyaeym0JtsChkG/noFKetPQYS7Xyhpdo
-         d3W7H6MyoO6nEKYti5uOgKBurc35ea4ni/qgUGDE=
+        b=dADbWCjsWp4AZCsTwDibgrXq5Pnw1uE4PfUmeClOg2k4lk2S/1BCwzlwllkEx7Iq0
+         D8nwpdvDSMN8Rn1LGWdZ2pYVmuLj+AFox73N5UYNqp3n8oHFUGMaW4dWkHmFGPKxY+
+         xxnjLYYXUg/QUg6O0wG1/hxzBAvaRl6umNYYEi3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 32/74] spi: bcm-qspi: check for valid cs before applying chip select
+Subject: [PATCH 5.16 059/126] spi: bcm-qspi: check for valid cs before applying chip select
 Date:   Mon,  7 Feb 2022 12:06:30 +0100
-Message-Id: <20220207103758.293372537@linuxfoundation.org>
+Message-Id: <20220207103806.153211332@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -76,7 +76,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/spi/spi-bcm-qspi.c
 +++ b/drivers/spi/spi-bcm-qspi.c
-@@ -551,7 +551,7 @@ static void bcm_qspi_chip_select(struct
+@@ -573,7 +573,7 @@ static void bcm_qspi_chip_select(struct
  	u32 rd = 0;
  	u32 wr = 0;
  
