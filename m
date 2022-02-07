@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 962384ABCA7
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76F274ABDA6
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387004AbiBGLic (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:38:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44846 "EHLO
+        id S1388896AbiBGLpq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:45:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385681AbiBGLcG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E381C0401D4;
-        Mon,  7 Feb 2022 03:31:57 -0800 (PST)
+        with ESMTP id S1384322AbiBGL1z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:27:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8A9C03FEC9;
+        Mon,  7 Feb 2022 03:26:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F35CB8111C;
-        Mon,  7 Feb 2022 11:31:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95434C004E1;
-        Mon,  7 Feb 2022 11:31:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12D5A614D7;
+        Mon,  7 Feb 2022 11:26:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAABBC004E1;
+        Mon,  7 Feb 2022 11:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233515;
-        bh=QVmF++sgL5K8mV3wQlECsBRirJ5ovffGWfToglpzGLc=;
+        s=korg; t=1644233163;
+        bh=XRGvNkqVwgskbwyTHU3F4u6+gEJdsITDycdsfzLfWyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xaAhfGqRXaeQntRv/zLuSiU5H15SMHBuMqZv7cL4ewpvNzA/QFPz76NxokQCn2Ikn
-         cLdP9tJTEg7ya5hV1TNo2ZUPAfGHzwh+kQ/H2O870gJ1D2uYajEDODS4mVlWwA4m6n
-         FhbiF6Ixp1IAgN5EO+mHLrtyIVck92RtgfVJQeSs=
+        b=oBJ5uEnQan3a/PNmUEQIxYlEA4nYkLBebxLzvHMwNpjp/cOWcWNwuHbwsZNfHGU5n
+         5bM/bgNY5kZlGixUbNGIIIg8JiYpJY/UQT3YcQdYMdnuuRYJLMf3LMNLs7QWf0P9ou
+         VZm/k0zfJ4P04PIWDYSTtukiKjKWfLBPmaDBbuJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.16 037/126] IB/hfi1: Fix alloc failure with larger txqueuelen
-Date:   Mon,  7 Feb 2022 12:06:08 +0100
-Message-Id: <20220207103805.418161681@linuxfoundation.org>
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Mark Brown <broonie@kernel.org>,
+        James Liao <jamesjj.liao@mediatek.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Daniel Golle <daniel@makrotopia.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.15 036/110] Revert "ASoC: mediatek: Check for error clk pointer"
+Date:   Mon,  7 Feb 2022 12:06:09 +0100
+Message-Id: <20220207103803.489983104@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,186 +58,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit b1151b74ff68cc83c2a8e1a618efe7d056e4f237 upstream.
+This reverts commit 38accfd85e41b7ca547c5a7d4866bbc1462950cb which is
+commit 9de2b9286a6dd16966959b3cb34fc2ddfd39213e upstream
 
-The following allocation with large txqueuelen will result in the
-following warning:
+With this patch in the tree, Chromebooks running the affected hardware
+no longer boot. Bisect points to this patch, and reverting it fixes
+the problem.
 
-  Call Trace:
-   __alloc_pages_nodemask+0x283/0x2c0
-   kmalloc_large_node+0x3c/0xa0
-   __kmalloc_node+0x22a/0x2f0
-   hfi1_ipoib_txreq_init+0x19f/0x330 [hfi1]
-   hfi1_ipoib_setup_rn+0xd3/0x1a0 [hfi1]
-   rdma_init_netdev+0x5a/0x80 [ib_core]
-   ipoib_intf_init+0x6c/0x350 [ib_ipoib]
-   ipoib_intf_alloc+0x5c/0xc0 [ib_ipoib]
-   ipoib_add_one+0xbe/0x300 [ib_ipoib]
-   add_client_context+0x12c/0x1a0 [ib_core]
-   ib_register_client+0x147/0x190 [ib_core]
-   ipoib_init_module+0xdd/0x132 [ib_ipoib]
-   do_one_initcall+0x46/0x1c3
-   do_init_module+0x5a/0x220
-   load_module+0x14c5/0x17f0
-   __do_sys_init_module+0x13b/0x180
-   do_syscall_64+0x5b/0x1a0
-   entry_SYSCALL_64_after_hwframe+0x65/0xca
+An analysis of the code with this patch applied shows:
 
-For ipoib, the txqueuelen is modified with the module parameter
-send_queue_size.
+        ret = init_clks(pdev, clk);
+        if (ret)
+                return ERR_PTR(ret);
+...
+                for (j = 0; j < MAX_CLKS && data->clk_id[j]; j++) {
+                        struct clk *c = clk[data->clk_id[j]];
 
-Fix by changing to use kv versions of the same allocator to handle the
-large allocations.  The allocation embeds a hdr struct that is dma mapped.
-Change that struct to a pointer to a kzalloced struct.
+                        if (IS_ERR(c)) {
+                                dev_err(&pdev->dev, "%s: clk unavailable\n",
+                                        data->name);
+                                return ERR_CAST(c);
+                        }
 
-Cc: stable@vger.kernel.org
-Fixes: d99dc602e2a5 ("IB/hfi1: Add functions to transmit datagram ipoib packets")
-Link: https://lore.kernel.org/r/1642287756-182313-3-git-send-email-mike.marciniszyn@cornelisnetworks.com
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+                        scpd->clk[j] = c;
+                }
+
+Not all clocks in the clk_names array have to be present. Only the clocks
+in the data->clk_id array are actually needed. The code already checks if
+the required clocks are available and bails out if not. The assumption that
+all clocks have to be present is wrong, and commit 9de2b9286a6d needs to be
+reverted.
+
+Fixes: 9de2b9286a6d ("ASoC: mediatek: Check for error clk pointer")
+Cc: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: James Liao <jamesjj.liao@mediatek.com>
+Cc: Kevin Hilman <khilman@baylibre.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com
+Cc: Frank Wunderlich <frank-w@public-files.de>
+Cc: Daniel Golle <daniel@makrotopia.org>
+Link: https://lore.kernel.org/lkml/20220205014755.699603-1-linux@roeck-us.net/
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hfi1/ipoib.h    |    2 -
- drivers/infiniband/hw/hfi1/ipoib_tx.c |   36 +++++++++++++++++++++++-----------
- 2 files changed, 26 insertions(+), 12 deletions(-)
+ drivers/soc/mediatek/mtk-scpsys.c |   15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/ipoib.h
-+++ b/drivers/infiniband/hw/hfi1/ipoib.h
-@@ -55,7 +55,7 @@ union hfi1_ipoib_flow {
-  */
- struct ipoib_txreq {
- 	struct sdma_txreq           txreq;
--	struct hfi1_sdma_header     sdma_hdr;
-+	struct hfi1_sdma_header     *sdma_hdr;
- 	int                         sdma_status;
- 	int                         complete;
- 	struct hfi1_ipoib_dev_priv *priv;
---- a/drivers/infiniband/hw/hfi1/ipoib_tx.c
-+++ b/drivers/infiniband/hw/hfi1/ipoib_tx.c
-@@ -122,7 +122,7 @@ static void hfi1_ipoib_free_tx(struct ip
- 		dd_dev_warn(priv->dd,
- 			    "%s: Status = 0x%x pbc 0x%llx txq = %d sde = %d\n",
- 			    __func__, tx->sdma_status,
--			    le64_to_cpu(tx->sdma_hdr.pbc), tx->txq->q_idx,
-+			    le64_to_cpu(tx->sdma_hdr->pbc), tx->txq->q_idx,
- 			    tx->txq->sde->this_idx);
- 	}
+--- a/drivers/soc/mediatek/mtk-scpsys.c
++++ b/drivers/soc/mediatek/mtk-scpsys.c
+@@ -411,17 +411,12 @@ out:
+ 	return ret;
+ }
  
-@@ -231,7 +231,7 @@ static int hfi1_ipoib_build_tx_desc(stru
+-static int init_clks(struct platform_device *pdev, struct clk **clk)
++static void init_clks(struct platform_device *pdev, struct clk **clk)
  {
- 	struct hfi1_devdata *dd = txp->dd;
- 	struct sdma_txreq *txreq = &tx->txreq;
--	struct hfi1_sdma_header *sdma_hdr = &tx->sdma_hdr;
-+	struct hfi1_sdma_header *sdma_hdr = tx->sdma_hdr;
- 	u16 pkt_bytes =
- 		sizeof(sdma_hdr->pbc) + (txp->hdr_dwords << 2) + tx->skb->len;
- 	int ret;
-@@ -256,7 +256,7 @@ static void hfi1_ipoib_build_ib_tx_heade
- 					   struct ipoib_txparms *txp)
- {
- 	struct hfi1_ipoib_dev_priv *priv = tx->txq->priv;
--	struct hfi1_sdma_header *sdma_hdr = &tx->sdma_hdr;
-+	struct hfi1_sdma_header *sdma_hdr = tx->sdma_hdr;
- 	struct sk_buff *skb = tx->skb;
- 	struct hfi1_pportdata *ppd = ppd_from_ibp(txp->ibp);
- 	struct rdma_ah_attr *ah_attr = txp->ah_attr;
-@@ -483,7 +483,7 @@ static int hfi1_ipoib_send_dma_single(st
- 	if (likely(!ret)) {
- tx_ok:
- 		trace_sdma_output_ibhdr(txq->priv->dd,
--					&tx->sdma_hdr.hdr,
-+					&tx->sdma_hdr->hdr,
- 					ib_is_sc5(txp->flow.sc5));
- 		hfi1_ipoib_check_queue_depth(txq);
- 		return NETDEV_TX_OK;
-@@ -547,7 +547,7 @@ static int hfi1_ipoib_send_dma_list(stru
- 	hfi1_ipoib_check_queue_depth(txq);
+ 	int i;
  
- 	trace_sdma_output_ibhdr(txq->priv->dd,
--				&tx->sdma_hdr.hdr,
-+				&tx->sdma_hdr->hdr,
- 				ib_is_sc5(txp->flow.sc5));
+-	for (i = CLK_NONE + 1; i < CLK_MAX; i++) {
++	for (i = CLK_NONE + 1; i < CLK_MAX; i++)
+ 		clk[i] = devm_clk_get(&pdev->dev, clk_names[i]);
+-		if (IS_ERR(clk[i]))
+-			return PTR_ERR(clk[i]);
+-	}
+-
+-	return 0;
+ }
  
- 	if (!netdev_xmit_more())
-@@ -683,7 +683,8 @@ int hfi1_ipoib_txreq_init(struct hfi1_ip
+ static struct scp *init_scp(struct platform_device *pdev,
+@@ -431,7 +426,7 @@ static struct scp *init_scp(struct platf
  {
- 	struct net_device *dev = priv->netdev;
- 	u32 tx_ring_size, tx_item_size;
--	int i;
-+	struct hfi1_ipoib_circ_buf *tx_ring;
+ 	struct genpd_onecell_data *pd_data;
+ 	struct resource *res;
+-	int i, j, ret;
 +	int i, j;
+ 	struct scp *scp;
+ 	struct clk *clk[CLK_MAX];
  
- 	/*
- 	 * Ring holds 1 less than tx_ring_size
-@@ -701,7 +702,9 @@ int hfi1_ipoib_txreq_init(struct hfi1_ip
+@@ -486,9 +481,7 @@ static struct scp *init_scp(struct platf
  
- 	for (i = 0; i < dev->num_tx_queues; i++) {
- 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
-+		struct ipoib_txreq *tx;
+ 	pd_data->num_domains = num;
  
-+		tx_ring = &txq->tx_ring;
- 		iowait_init(&txq->wait,
- 			    0,
- 			    hfi1_ipoib_flush_txq,
-@@ -725,14 +728,19 @@ int hfi1_ipoib_txreq_init(struct hfi1_ip
- 					     priv->dd->node);
+-	ret = init_clks(pdev, clk);
+-	if (ret)
+-		return ERR_PTR(ret);
++	init_clks(pdev, clk);
  
- 		txq->tx_ring.items =
--			kcalloc_node(tx_ring_size, tx_item_size,
--				     GFP_KERNEL, priv->dd->node);
-+			kvzalloc_node(array_size(tx_ring_size, tx_item_size),
-+				      GFP_KERNEL, priv->dd->node);
- 		if (!txq->tx_ring.items)
- 			goto free_txqs;
- 
- 		txq->tx_ring.max_items = tx_ring_size;
- 		txq->tx_ring.shift = ilog2(tx_item_size);
- 		txq->tx_ring.avail = hfi1_ipoib_ring_hwat(txq);
-+		tx_ring = &txq->tx_ring;
-+		for (j = 0; j < tx_ring_size; j++)
-+			hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr =
-+				kzalloc_node(sizeof(*tx->sdma_hdr),
-+					     GFP_KERNEL, priv->dd->node);
- 
- 		netif_tx_napi_add(dev, &txq->napi,
- 				  hfi1_ipoib_poll_tx_ring,
-@@ -746,7 +754,10 @@ free_txqs:
- 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
- 
- 		netif_napi_del(&txq->napi);
--		kfree(txq->tx_ring.items);
-+		tx_ring = &txq->tx_ring;
-+		for (j = 0; j < tx_ring_size; j++)
-+			kfree(hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr);
-+		kvfree(tx_ring->items);
- 	}
- 
- 	kfree(priv->txqs);
-@@ -780,17 +791,20 @@ static void hfi1_ipoib_drain_tx_list(str
- 
- void hfi1_ipoib_txreq_deinit(struct hfi1_ipoib_dev_priv *priv)
- {
--	int i;
-+	int i, j;
- 
- 	for (i = 0; i < priv->netdev->num_tx_queues; i++) {
- 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
-+		struct hfi1_ipoib_circ_buf *tx_ring = &txq->tx_ring;
- 
- 		iowait_cancel_work(&txq->wait);
- 		iowait_sdma_drain(&txq->wait);
- 		hfi1_ipoib_drain_tx_list(txq);
- 		netif_napi_del(&txq->napi);
- 		hfi1_ipoib_drain_tx_ring(txq);
--		kfree(txq->tx_ring.items);
-+		for (j = 0; j < tx_ring->max_items; j++)
-+			kfree(hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr);
-+		kvfree(tx_ring->items);
- 	}
- 
- 	kfree(priv->txqs);
+ 	for (i = 0; i < num; i++) {
+ 		struct scp_domain *scpd = &scp->domains[i];
 
 
