@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B4494ABB6B
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C3654ABC7B
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:48:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240722AbiBGL2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:28:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34494 "EHLO
+        id S244199AbiBGLhm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:37:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383384AbiBGLWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:22:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 893E1C043181;
-        Mon,  7 Feb 2022 03:22:22 -0800 (PST)
+        with ESMTP id S1384594AbiBGL3X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:29:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86168C02B5D1;
+        Mon,  7 Feb 2022 03:27:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0CEE1B81028;
-        Mon,  7 Feb 2022 11:22:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 205C5C004E1;
-        Mon,  7 Feb 2022 11:22:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E522B80EBD;
+        Mon,  7 Feb 2022 11:27:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47739C004E1;
+        Mon,  7 Feb 2022 11:27:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232938;
-        bh=KWI6vSg9iJAy0sZw7ylDuPKoHk9LZwGvR0dTqATAMdo=;
+        s=korg; t=1644233247;
+        bh=a/ZBpKbDDQqi+MpGt1DElsti8XZTAvY6yZ+reuerCY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOXsDu5b7IlRGxZHzfQ2ndccwnaVbmC2nmsYL2R1skVz1mDfMQBbnVImd4AYyHrNc
-         7B4gONvPUw9yEUKFxRsfjO/0JYBC/BDjuBmgbuUwqvacl1AneHCnpzPbg2wsdDFt+u
-         2l9DbGLJAcsr6Bv8ypT3ik8drq8yx7R4zxNh+KAU=
+        b=p5o0Zh5Mf7NzRn4EdtNdw7rNkieDEJ8Y4Tgtt/87MbaOjnKiNDOdzHkQOjxmlTvZR
+         bp980SrQoklv1Tfqo9lhSh02VnXi6e5tmmoxkoAidKZvow0zG5DiG7pdbqMTOXR31l
+         6cr8EPKtk85Cg2FyCHdSIcp36HXOM950Zr7C/ieM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 5.10 39/74] net: ieee802154: Return meaningful error codes from the netlink helpers
+        stable@vger.kernel.org, Lior Nahmanson <liorna@nvidia.com>,
+        Raed Salem <raeds@nvidia.com>,
+        Antoine Tenart <atenart@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 064/110] net: macsec: Fix offload support for NETDEV_UNREGISTER event
 Date:   Mon,  7 Feb 2022 12:06:37 +0100
-Message-Id: <20220207103758.508489235@linuxfoundation.org>
+Message-Id: <20220207103804.446898871@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Lior Nahmanson <liorna@nvidia.com>
 
-commit 79c37ca73a6e9a33f7b2b7783ba6af07a448c8a9 upstream.
+commit 9cef24c8b76c1f6effe499d2f131807c90f7ce9a upstream.
 
-Returning -1 does not indicate anything useful.
+Current macsec netdev notify handler handles NETDEV_UNREGISTER event by
+releasing relevant SW resources only, this causes resources leak in case
+of macsec HW offload, as the underlay driver was not notified to clean
+it's macsec offload resources.
 
-Use a standard and meaningful error code instead.
+Fix by calling the underlay driver to clean it's relevant resources
+by moving offload handling from macsec_dellink() to macsec_common_dellink()
+when handling NETDEV_UNREGISTER event.
 
-Fixes: a26c5fd7622d ("nl802154: add support for security layer")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20220125121426.848337-6-miquel.raynal@bootlin.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Fixes: 3cf3227a21d1 ("net: macsec: hardware offloading infrastructure")
+Signed-off-by: Lior Nahmanson <liorna@nvidia.com>
+Reviewed-by: Raed Salem <raeds@nvidia.com>
+Signed-off-by: Raed Salem <raeds@nvidia.com>
+Reviewed-by: Antoine Tenart <atenart@kernel.org>
+Link: https://lore.kernel.org/r/1643542141-28956-1-git-send-email-raeds@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ieee802154/nl802154.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/macsec.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/net/ieee802154/nl802154.c
-+++ b/net/ieee802154/nl802154.c
-@@ -1441,7 +1441,7 @@ static int nl802154_send_key(struct sk_b
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -3870,6 +3870,18 @@ static void macsec_common_dellink(struct
+ 	struct macsec_dev *macsec = macsec_priv(dev);
+ 	struct net_device *real_dev = macsec->real_dev;
  
- 	hdr = nl802154hdr_put(msg, portid, seq, flags, cmd);
- 	if (!hdr)
--		return -1;
-+		return -ENOBUFS;
++	/* If h/w offloading is available, propagate to the device */
++	if (macsec_is_offloaded(macsec)) {
++		const struct macsec_ops *ops;
++		struct macsec_context ctx;
++
++		ops = macsec_get_ops(netdev_priv(dev), &ctx);
++		if (ops) {
++			ctx.secy = &macsec->secy;
++			macsec_offload(ops->mdo_del_secy, &ctx);
++		}
++	}
++
+ 	unregister_netdevice_queue(dev, head);
+ 	list_del_rcu(&macsec->secys);
+ 	macsec_del_dev(macsec);
+@@ -3884,18 +3896,6 @@ static void macsec_dellink(struct net_de
+ 	struct net_device *real_dev = macsec->real_dev;
+ 	struct macsec_rxh_data *rxd = macsec_data_rtnl(real_dev);
  
- 	if (nla_put_u32(msg, NL802154_ATTR_IFINDEX, dev->ifindex))
- 		goto nla_put_failure;
-@@ -1634,7 +1634,7 @@ static int nl802154_send_device(struct s
+-	/* If h/w offloading is available, propagate to the device */
+-	if (macsec_is_offloaded(macsec)) {
+-		const struct macsec_ops *ops;
+-		struct macsec_context ctx;
+-
+-		ops = macsec_get_ops(netdev_priv(dev), &ctx);
+-		if (ops) {
+-			ctx.secy = &macsec->secy;
+-			macsec_offload(ops->mdo_del_secy, &ctx);
+-		}
+-	}
+-
+ 	macsec_common_dellink(dev, head);
  
- 	hdr = nl802154hdr_put(msg, portid, seq, flags, cmd);
- 	if (!hdr)
--		return -1;
-+		return -ENOBUFS;
- 
- 	if (nla_put_u32(msg, NL802154_ATTR_IFINDEX, dev->ifindex))
- 		goto nla_put_failure;
-@@ -1812,7 +1812,7 @@ static int nl802154_send_devkey(struct s
- 
- 	hdr = nl802154hdr_put(msg, portid, seq, flags, cmd);
- 	if (!hdr)
--		return -1;
-+		return -ENOBUFS;
- 
- 	if (nla_put_u32(msg, NL802154_ATTR_IFINDEX, dev->ifindex))
- 		goto nla_put_failure;
-@@ -1988,7 +1988,7 @@ static int nl802154_send_seclevel(struct
- 
- 	hdr = nl802154hdr_put(msg, portid, seq, flags, cmd);
- 	if (!hdr)
--		return -1;
-+		return -ENOBUFS;
- 
- 	if (nla_put_u32(msg, NL802154_ATTR_IFINDEX, dev->ifindex))
- 		goto nla_put_failure;
+ 	if (list_empty(&rxd->secys)) {
 
 
