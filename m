@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E335C4ABB87
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19D1B4ABD4A
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:59:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376652AbiBGL3H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:29:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60320 "EHLO
+        id S1387211AbiBGLkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:40:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382811AbiBGLUw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:20:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66D47C03E90A;
-        Mon,  7 Feb 2022 03:20:37 -0800 (PST)
+        with ESMTP id S1349352AbiBGLaH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:30:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E449DC03FEF7;
+        Mon,  7 Feb 2022 03:28:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1549BB81028;
-        Mon,  7 Feb 2022 11:20:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E227C004E1;
-        Mon,  7 Feb 2022 11:20:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1480DB81158;
+        Mon,  7 Feb 2022 11:28:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CD12C004E1;
+        Mon,  7 Feb 2022 11:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232826;
-        bh=jIwfAxVEMGhpnFVreXI7ObayC/K7pZmZBtoSvlANXFU=;
+        s=korg; t=1644233305;
+        bh=ugirauE7wsGqXb36nXK6gxIvb+7wGHj2bprs0GCSXLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2jzMkgG5Wvn8ETq+aQCSh+xCGG+tQojRvfGXojXMNVY4ELnDfgYaKkZnDmshigR6G
-         HrS4FKClV28oRmiTzBFcBwHxlIsFdGbvAIz3Tx5FtOVXJpZaFsY6nVCJedWsBZzOeJ
-         gylW4ivFbnkjIUTdiYBof0oFyCYQVdf5SPyzyQRg=
+        b=ukQjQDUzpmEzWMeJlrrIqbjlTC6ATB6Cwqxwi/SMpr+vpy/3+12IWgeF/YaRzTwsQ
+         +/r+Rovx2E0W0Xu3zW7H8UMnuOFy1YrIq6yS097ljNVD2p3RPjsLFjLkDkFthNwLlx
+         WjTodUWADorpwONLWywqZ0Ca3WYui7DsUJjYpx1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangwu Zhang <guazhang@redhat.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        John Meneghini <jmeneghi@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 37/44] scsi: bnx2fc: Make bnx2fc_recv_frame() mp safe
+        stable@vger.kernel.org, Kane Chen <kane.chen@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Grace Kao <grace.kao@intel.com>
+Subject: [PATCH 5.15 080/110] pinctrl: intel: Fix a glitch when updating IRQ flags on a preconfigured line
 Date:   Mon,  7 Feb 2022 12:06:53 +0100
-Message-Id: <20220207103754.362566762@linuxfoundation.org>
+Message-Id: <20220207103805.092155522@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
-References: <20220207103753.155627314@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,92 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Meneghini <jmeneghi@redhat.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 936bd03405fc83ba039d42bc93ffd4b88418f1d3 upstream.
+commit e12963c453263d5321a2c610e98cbc731233b685 upstream.
 
-Running tests with a debug kernel shows that bnx2fc_recv_frame() is
-modifying the per_cpu lport stats counters in a non-mpsafe way.  Just boot
-a debug kernel and run the bnx2fc driver with the hardware enabled.
+The commit af7e3eeb84e2 ("pinctrl: intel: Disable input and output buffer
+when switching to GPIO") hadn't taken into account an update of the IRQ
+flags scenario.
 
-[ 1391.699147] BUG: using smp_processor_id() in preemptible [00000000] code: bnx2fc_
-[ 1391.699160] caller is bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
-[ 1391.699174] CPU: 2 PID: 4355 Comm: bnx2fc_l2_threa Kdump: loaded Tainted: G    B
-[ 1391.699180] Hardware name: HP ProLiant DL120 G7, BIOS J01 07/01/2013
-[ 1391.699183] Call Trace:
-[ 1391.699188]  dump_stack_lvl+0x57/0x7d
-[ 1391.699198]  check_preemption_disabled+0xc8/0xd0
-[ 1391.699205]  bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
-[ 1391.699215]  ? do_raw_spin_trylock+0xb5/0x180
-[ 1391.699221]  ? bnx2fc_npiv_create_vports.isra.0+0x4e0/0x4e0 [bnx2fc]
-[ 1391.699229]  ? bnx2fc_l2_rcv_thread+0xb7/0x3a0 [bnx2fc]
-[ 1391.699240]  bnx2fc_l2_rcv_thread+0x1af/0x3a0 [bnx2fc]
-[ 1391.699250]  ? bnx2fc_ulp_init+0xc0/0xc0 [bnx2fc]
-[ 1391.699258]  kthread+0x364/0x420
-[ 1391.699263]  ? _raw_spin_unlock_irq+0x24/0x50
-[ 1391.699268]  ? set_kthread_struct+0x100/0x100
-[ 1391.699273]  ret_from_fork+0x22/0x30
+When updating the IRQ flags on the preconfigured line the ->irq_set_type()
+is called again. In such case the sequential Rx buffer configuration
+changes may trigger a falling or rising edge interrupt that may lead,
+on some platforms, to an undesired event.
 
-Restore the old get_cpu/put_cpu code with some modifications to reduce the
-size of the critical section.
+This may happen because each of intel_gpio_set_gpio_mode() and
+__intel_gpio_set_direction() updates the pad configuration with a different
+value of the GPIORXDIS bit. Notable, that the intel_gpio_set_gpio_mode() is
+called only for the pads that are configured as an input. Due to this fact,
+integrate the logic of __intel_gpio_set_direction() call into the
+intel_gpio_set_gpio_mode() so that the Rx buffer won't be disabled and
+immediately re-enabled.
 
-Link: https://lore.kernel.org/r/20220124145110.442335-1-jmeneghi@redhat.com
-Fixes: d576a5e80cd0 ("bnx2fc: Improve stats update mechanism")
-Tested-by: Guangwu Zhang <guazhang@redhat.com>
-Acked-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: John Meneghini <jmeneghi@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: af7e3eeb84e2 ("pinctrl: intel: Disable input and output buffer when switching to GPIO")
+Reported-by: Kane Chen <kane.chen@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Tested-by: Grace Kao <grace.kao@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/bnx2fc/bnx2fc_fcoe.c |   21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ drivers/pinctrl/intel/pinctrl-intel.c |   10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
---- a/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
-+++ b/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
-@@ -506,7 +506,8 @@ static int bnx2fc_l2_rcv_thread(void *ar
+--- a/drivers/pinctrl/intel/pinctrl-intel.c
++++ b/drivers/pinctrl/intel/pinctrl-intel.c
+@@ -451,8 +451,8 @@ static void intel_gpio_set_gpio_mode(voi
+ 	value &= ~PADCFG0_PMODE_MASK;
+ 	value |= PADCFG0_PMODE_GPIO;
  
- static void bnx2fc_recv_frame(struct sk_buff *skb)
- {
--	u32 fr_len;
-+	u64 crc_err;
-+	u32 fr_len, fr_crc;
- 	struct fc_lport *lport;
- 	struct fcoe_rcv_info *fr;
- 	struct fc_stats *stats;
-@@ -540,6 +541,11 @@ static void bnx2fc_recv_frame(struct sk_
- 	skb_pull(skb, sizeof(struct fcoe_hdr));
- 	fr_len = skb->len - sizeof(struct fcoe_crc_eof);
+-	/* Disable input and output buffers */
+-	value |= PADCFG0_GPIORXDIS;
++	/* Disable TX buffer and enable RX (this will be input) */
++	value &= ~PADCFG0_GPIORXDIS;
+ 	value |= PADCFG0_GPIOTXDIS;
  
-+	stats = per_cpu_ptr(lport->stats, get_cpu());
-+	stats->RxFrames++;
-+	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
-+	put_cpu();
-+
- 	fp = (struct fc_frame *)skb;
- 	fc_frame_init(fp);
- 	fr_dev(fp) = lport;
-@@ -622,16 +628,15 @@ static void bnx2fc_recv_frame(struct sk_
- 		return;
- 	}
+ 	/* Disable SCI/SMI/NMI generation */
+@@ -497,9 +497,6 @@ static int intel_gpio_request_enable(str
  
--	stats = per_cpu_ptr(lport->stats, smp_processor_id());
--	stats->RxFrames++;
--	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
-+	fr_crc = le32_to_cpu(fr_crc(fp));
+ 	intel_gpio_set_gpio_mode(padcfg0);
  
--	if (le32_to_cpu(fr_crc(fp)) !=
--			~crc32(~0, skb->data, fr_len)) {
--		if (stats->InvalidCRCCount < 5)
-+	if (unlikely(fr_crc != ~crc32(~0, skb->data, fr_len))) {
-+		stats = per_cpu_ptr(lport->stats, get_cpu());
-+		crc_err = (stats->InvalidCRCCount++);
-+		put_cpu();
-+		if (crc_err < 5)
- 			printk(KERN_WARNING PFX "dropping frame with "
- 			       "CRC error\n");
--		stats->InvalidCRCCount++;
- 		kfree_skb(skb);
- 		return;
- 	}
+-	/* Disable TX buffer and enable RX (this will be input) */
+-	__intel_gpio_set_direction(padcfg0, true);
+-
+ 	raw_spin_unlock_irqrestore(&pctrl->lock, flags);
+ 
+ 	return 0;
+@@ -1115,9 +1112,6 @@ static int intel_gpio_irq_type(struct ir
+ 
+ 	intel_gpio_set_gpio_mode(reg);
+ 
+-	/* Disable TX buffer and enable RX (this will be input) */
+-	__intel_gpio_set_direction(reg, true);
+-
+ 	value = readl(reg);
+ 
+ 	value &= ~(PADCFG0_RXEVCFG_MASK | PADCFG0_RXINV);
 
 
