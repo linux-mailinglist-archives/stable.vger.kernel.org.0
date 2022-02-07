@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC8EC4ABC0A
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F221A4ABAB4
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377070AbiBGLf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:35:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37938 "EHLO
+        id S1384013AbiBGLY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384404AbiBGL2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:28:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA330C03CA4D;
-        Mon,  7 Feb 2022 03:26:18 -0800 (PST)
+        with ESMTP id S1356773AbiBGLNj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:13:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0F7EC043181;
+        Mon,  7 Feb 2022 03:13:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD93360915;
-        Mon,  7 Feb 2022 11:26:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9602BC004E1;
-        Mon,  7 Feb 2022 11:26:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BC10B81028;
+        Mon,  7 Feb 2022 11:13:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB364C340EB;
+        Mon,  7 Feb 2022 11:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233172;
-        bh=PKvBXJQu1nVFDRuLrKBgOdM6HGK2rycgt1IfS96CECQ=;
+        s=korg; t=1644232416;
+        bh=JE/jV0p/vLig4xTmzfQk4lQFfn7O51vh4mZW9DF20YE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HFA6XzOGMd94/dS8jv9il31rtO9ygeSrORyeilG7gBMVywI06ncqjpJwztjc0jy6e
-         kUmdZvfNff86pDd9gkdAciAlaujcrbkbr9xt/AFWie0G13M7CdEa79396WU+P77VEq
-         3kXPVOjdKmzOUzHp2wS2HUAzlTlmoYZ0D/AsZU9Q=
+        b=kQcSr5MpVqbDy3GqbOnE9nO1Y0k50aW0sPOcNYPj0+ioDz7arrLIYXc9TfeadGLtm
+         ubiucvHIcHrMpL8ZPVRm7Q/571Bb2nqmfWk8sV0YKZOgXhdk3BtCjLUUM0ua/v1V2P
+         Qle22nk3r3KVETsUqlcLWZn/IwaMig1GUjFa0hXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.15 039/110] RDMA/cma: Use correct address when leaving multicast group
+        stable@vger.kernel.org, Nick Lopez <github@glowingmonkey.org>,
+        Ilia Mirkin <imirkin@alum.mit.edu>,
+        Karol Herbst <kherbst@redhat.com>
+Subject: [PATCH 4.14 50/69] drm/nouveau: fix off by one in BIOS boundary checking
 Date:   Mon,  7 Feb 2022 12:06:12 +0100
-Message-Id: <20220207103803.598613108@linuxfoundation.org>
+Message-Id: <20220207103757.267256930@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: Nick Lopez <github@glowingmonkey.org>
 
-commit d9e410ebbed9d091b97bdf45b8a3792e2878dc48 upstream.
+commit 1b777d4d9e383d2744fc9b3a09af6ec1893c8b1a upstream.
 
-In RoCE we should use cma_iboe_set_mgid() and not cma_set_mgid to generate
-the mgid, otherwise we will generate an IGMP for an incorrect address.
+Bounds checking when parsing init scripts embedded in the BIOS reject
+access to the last byte. This causes driver initialization to fail on
+Apple eMac's with GeForce 2 MX GPUs, leaving the system with no working
+console.
 
-Fixes: b5de0c60cc30 ("RDMA/cma: Fix use after free race in roce multicast join")
-Link: https://lore.kernel.org/r/913bc6783fd7a95fe71ad9454e01653ee6fb4a9a.1642491047.git.leonro@nvidia.com
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+This is probably only seen on OpenFirmware machines like PowerPC Macs
+because the BIOS image provided by OF is only the used parts of the ROM,
+not a power-of-two blocks read from PCI directly so PCs always have
+empty bytes at the end that are never accessed.
+
+Signed-off-by: Nick Lopez <github@glowingmonkey.org>
+Fixes: 4d4e9907ff572 ("drm/nouveau/bios: guard against out-of-bounds accesses to image")
+Cc: <stable@vger.kernel.org> # v4.10+
+Reviewed-by: Ilia Mirkin <imirkin@alum.mit.edu>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220122081906.2633061-1-github@glowingmonkey.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/core/cma.c |   22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -67,8 +67,8 @@ static const char * const cma_events[] =
- 	[RDMA_CM_EVENT_TIMEWAIT_EXIT]	 = "timewait exit",
- };
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c
+@@ -38,7 +38,7 @@ nvbios_addr(struct nvkm_bios *bios, u32
+ 		*addr += bios->imaged_addr;
+ 	}
  
--static void cma_set_mgid(struct rdma_id_private *id_priv, struct sockaddr *addr,
--			 union ib_gid *mgid);
-+static void cma_iboe_set_mgid(struct sockaddr *addr, union ib_gid *mgid,
-+			      enum ib_gid_type gid_type);
- 
- const char *__attribute_const__ rdma_event_msg(enum rdma_cm_event_type event)
- {
-@@ -1844,17 +1844,19 @@ static void destroy_mc(struct rdma_id_pr
- 		if (dev_addr->bound_dev_if)
- 			ndev = dev_get_by_index(dev_addr->net,
- 						dev_addr->bound_dev_if);
--		if (ndev) {
-+		if (ndev && !send_only) {
-+			enum ib_gid_type gid_type;
- 			union ib_gid mgid;
- 
--			cma_set_mgid(id_priv, (struct sockaddr *)&mc->addr,
--				     &mgid);
--
--			if (!send_only)
--				cma_igmp_send(ndev, &mgid, false);
--
--			dev_put(ndev);
-+			gid_type = id_priv->cma_dev->default_gid_type
-+					   [id_priv->id.port_num -
-+					    rdma_start_port(
-+						    id_priv->cma_dev->device)];
-+			cma_iboe_set_mgid((struct sockaddr *)&mc->addr, &mgid,
-+					  gid_type);
-+			cma_igmp_send(ndev, &mgid, false);
- 		}
-+		dev_put(ndev);
- 
- 		cancel_work_sync(&mc->iboe_join.work);
+-	if (unlikely(*addr + size >= bios->size)) {
++	if (unlikely(*addr + size > bios->size)) {
+ 		nvkm_error(&bios->subdev, "OOB %d %08x %08x\n", size, p, *addr);
+ 		return false;
  	}
 
 
