@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D007D4ABA4F
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:27:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 702B14ABAFB
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:35:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235268AbiBGLZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:25:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49294 "EHLO
+        id S1358819AbiBGL0E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:26:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244127AbiBGLLW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:11:22 -0500
+        with ESMTP id S235129AbiBGLKA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:10:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18BD8C043188;
-        Mon,  7 Feb 2022 03:11:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BBB8C043181;
+        Mon,  7 Feb 2022 03:10:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A228861388;
-        Mon,  7 Feb 2022 11:11:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61B1DC004E1;
-        Mon,  7 Feb 2022 11:11:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE73D61261;
+        Mon,  7 Feb 2022 11:09:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FDC4C004E1;
+        Mon,  7 Feb 2022 11:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232280;
-        bh=Uy/xBrLc3Mn2iT8mVCcdW2XFCgcS+4RcXsgRvWliJ7Y=;
+        s=korg; t=1644232199;
+        bh=e33QsNjVU05DR+DPLHy/MjtwUMwEaty783dBJ63ogEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZhfRwsSjL8kryVJsjIE1+t/2g0hkQeHilbt6sYAEq87PdneZl8EA+9LvD0imvVNWO
-         l36Vsui64SBX4JYbjc0+2kG3RN66pBO/UxNfUZxejahzXhMGy5UFnDsxOtrtd841Ql
-         QNB/Sp00mDdU/sC33vD0zzzmdLR8dAeg9uwK1td0=
+        b=oO7KNjcyQd62PLWYdLTyjzcz2FBYLjk+AvOGnY4GbtWNtH7FaQPF9skoOUDWef+Fs
+         LE+sV5JCkYjfS+J8J1vdyrkQb0Q/LPF57AgrT1jsUaRVJRDDjeezg5FjiL3GQa8uj8
+         d7JY44UfSKqX62ZYLOGCX6RaFrWDRydAuXQKUtY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>, Ray Che <xijiache@gmail.com>,
-        Willy Tarreau <w@1wt.eu>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 27/69] ipv4: avoid using shared IP generator for connected sockets
+        stable@vger.kernel.org, Maksym Yaremchuk <maksymy@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Amit Cohen <amcohen@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 16/48] ipv6_tunnel: Rate limit warning messages
 Date:   Mon,  7 Feb 2022 12:05:49 +0100
-Message-Id: <20220207103756.517075813@linuxfoundation.org>
+Message-Id: <20220207103752.872721609@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
-References: <20220207103755.604121441@linuxfoundation.org>
+In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
+References: <20220207103752.341184175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-commit 23f57406b82de51809d5812afd96f210f8b627f3 upstream.
+commit 6cee105e7f2ced596373951d9ea08dacc3883c68 upstream.
 
-ip_select_ident_segs() has been very conservative about using
-the connected socket private generator only for packets with IP_DF
-set, claiming it was needed for some VJ compression implementations.
+The warning messages can be invoked from the data path for every packet
+transmitted through an ip6gre netdev, leading to high CPU utilization.
 
-As mentioned in this referenced document, this can be abused.
-(Ref: Off-Path TCP Exploits of the Mixed IPID Assignment)
+Fix that by rate limiting the messages.
 
-Before switching to pure random IPID generation and possibly hurt
-some workloads, lets use the private inet socket generator.
-
-Not only this will remove one vulnerability, this will also
-improve performance of TCP flows using pmtudisc==IP_PMTUDISC_DONT
-
-Fixes: 73f156a6e8c1 ("inetpeer: get rid of ip_id_count")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Reported-by: Ray Che <xijiache@gmail.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 09c6bbf090ec ("[IPV6]: Do mandatory IPv6 tunnel endpoint checks in realtime")
+Reported-by: Maksym Yaremchuk <maksymy@nvidia.com>
+Tested-by: Maksym Yaremchuk <maksymy@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Amit Cohen <amcohen@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/ip.h |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ net/ipv6/ip6_tunnel.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -399,19 +399,18 @@ static inline void ip_select_ident_segs(
- {
- 	struct iphdr *iph = ip_hdr(skb);
+--- a/net/ipv6/ip6_tunnel.c
++++ b/net/ipv6/ip6_tunnel.c
+@@ -1007,12 +1007,12 @@ int ip6_tnl_xmit_ctl(struct ip6_tnl *t,
+ 			ldev = dev_get_by_index_rcu(net, p->link);
  
-+	/* We had many attacks based on IPID, use the private
-+	 * generator as much as we can.
-+	 */
-+	if (sk && inet_sk(sk)->inet_daddr) {
-+		iph->id = htons(inet_sk(sk)->inet_id);
-+		inet_sk(sk)->inet_id += segs;
-+		return;
-+	}
- 	if ((iph->frag_off & htons(IP_DF)) && !skb->ignore_df) {
--		/* This is only to work around buggy Windows95/2000
--		 * VJ compression implementations.  If the ID field
--		 * does not change, they drop every other packet in
--		 * a TCP stream using header compression.
--		 */
--		if (sk && inet_sk(sk)->inet_daddr) {
--			iph->id = htons(inet_sk(sk)->inet_id);
--			inet_sk(sk)->inet_id += segs;
--		} else {
--			iph->id = 0;
--		}
-+		iph->id = 0;
- 	} else {
-+		/* Unfortunately we need the big hammer to get a suitable IPID */
- 		__ip_select_ident(net, iph, segs);
- 	}
- }
+ 		if (unlikely(!ipv6_chk_addr(net, laddr, ldev, 0)))
+-			pr_warn("%s xmit: Local address not yet configured!\n",
+-				p->name);
++			pr_warn_ratelimited("%s xmit: Local address not yet configured!\n",
++					    p->name);
+ 		else if (!ipv6_addr_is_multicast(raddr) &&
+ 			 unlikely(ipv6_chk_addr(net, raddr, NULL, 0)))
+-			pr_warn("%s xmit: Routing loop! Remote address found on this node!\n",
+-				p->name);
++			pr_warn_ratelimited("%s xmit: Routing loop! Remote address found on this node!\n",
++					    p->name);
+ 		else
+ 			ret = 1;
+ 		rcu_read_unlock();
 
 
