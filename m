@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 388744ABAC4
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C3BB4ABC2E
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384056AbiBGLYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51276 "EHLO
+        id S1384939AbiBGLaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:30:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357317AbiBGLOU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:14:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA36C03FED1;
-        Mon,  7 Feb 2022 03:14:06 -0800 (PST)
+        with ESMTP id S1384086AbiBGLYl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:24:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AA3AC043181;
+        Mon,  7 Feb 2022 03:24:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B576CB811AF;
-        Mon,  7 Feb 2022 11:14:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E55AEC340EB;
-        Mon,  7 Feb 2022 11:14:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 290E7B81028;
+        Mon,  7 Feb 2022 11:24:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52033C004E1;
+        Mon,  7 Feb 2022 11:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232443;
-        bh=inEi6MZyFIrjD+u/UkCk8WlduMCblX7w7gqJwvl//nE=;
+        s=korg; t=1644233079;
+        bh=KA0v6uzmrpCq8CZngEmIzixkjPkWni2L1J8EWKJLKg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=thjrgNu08V4BQu4bBYymDREcEQ/CzkTCIgF6EfQtkepHdQisDIKL1KqLIuuu5i8Gp
-         Ps9ucNK8H376eWfDIHD8/WiwdS59l35Dq4u2gCzwL3MXHacH3z7Fb2RdiG03PEuinL
-         brPwe2H4ivOEOoGbQmlQN2aDZm2HuTGTat80JVdY=
+        b=aygwEb0CYYhKshccfKdNiK32+hxkZCKTEm+rUhreEzTrl8LE4S7c8qDzrYa1tyQT6
+         5dHwo09gmohfI+/JMtA/mTXNbneUHeYAmt7keorf7Mtbl8KdvdVFc7QmKsGaYf3kMt
+         I4+DPf2W5U6NfFqNHFvt6AGeSowi75xjQ4iCP9ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 4.19 11/86] tty: n_gsm: fix SW flow control encoding/handling
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Uma Shankar <uma.shankar@intel.com>,
+        Mario Kleiner <mario.kleiner.de@gmail.com>
+Subject: [PATCH 5.15 001/110] drm/i915: Disable DSB usage for now
 Date:   Mon,  7 Feb 2022 12:05:34 +0100
-Message-Id: <20220207103757.930570465@linuxfoundation.org>
+Message-Id: <20220207103802.334366967@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -52,64 +58,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: daniel.starke@siemens.com <daniel.starke@siemens.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 8838b2af23caf1ff0610caef2795d6668a013b2d upstream.
+commit 99510e1afb4863a225207146bd988064c5fd0629 upstream.
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.2.7.3 states that DC1 (XON) and DC3 (XOFF)
-are the control characters defined in ISO/IEC 646. These shall be quoted if
-seen in the data stream to avoid interpretation as flow control characters.
+Turns out the DSB has trouble correctly loading the gamma LUT.
+>From a cursory look maybe like some entries do not load
+properly, or they get loaded with some gibberish. Unfortunately
+our current kms_color/etc. tests do not seem to catch this.
 
-ISO/IEC 646 refers to the set of ISO standards described as the ISO
-7-bit coded character set for information interchange. Its final version
-is also known as ITU T.50.
-See https://www.itu.int/rec/T-REC-T.50-199209-I/en
+I had a brief look at the generated DSB batch and it looked
+correct. Tried a few quick tricks like writing the index
+register twice/etc. but didn't see any improvement.
+Also tried switching to the 10bit gamma mode in case
+there is yet another issue with the multi-segment mode, but
+even the 10bit mode was showing issues.
 
-To abide the standard it is needed to quote DC1 and DC3 correctly if these
-are seen as data bytes and not as control characters. The current
-implementation already tries to enforce this but fails to catch all
-defined cases. 3GPP 27.010 chapter 5.2.7.3 clearly states that the most
-significant bit shall be ignored for DC1 and DC3 handling. The current
-implementation handles only the case with the most significant bit set 0.
-Cases in which DC1 and DC3 have the most significant bit set 1 are left
-unhandled.
+Switching to mmio fixes all of it. I suppose one theory is that
+maybe the DSB bangs on the LUT too quickly and it can't keep up
+and instead some data either gets dropped or corrupted. To confirm
+that someone should try to slow down the DSB's progress a bit.
+Another thought was that maybe the LUT has crappy dual porting
+and you get contention if you try to load it during active
+scanout. But why then would the mmio path work, unless it's
+just sufficiently slow?
 
-This patch fixes this by masking the data bytes with ISO_IEC_646_MASK (only
-the 7 least significant bits set 1) before comparing them with XON
-(a.k.a. DC1) and XOFF (a.k.a. DC3) when testing which byte values need
-quotation via byte stuffing.
+Whatever the case, this is currently busted so let's disable
+it until we get to the root of the problem.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220120101857.2509-1-daniel.starke@siemens.com
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3916
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211014181856.17581-2-ville.syrjala@linux.intel.com
+Reviewed-by: Uma Shankar <uma.shankar@intel.com>
+Cc: Mario Kleiner <mario.kleiner.de@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/i915_pci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -313,6 +313,7 @@ static struct tty_driver *gsm_tty_driver
- #define GSM1_ESCAPE_BITS	0x20
- #define XON			0x11
- #define XOFF			0x13
-+#define ISO_IEC_646_MASK	0x7F
+--- a/drivers/gpu/drm/i915/i915_pci.c
++++ b/drivers/gpu/drm/i915/i915_pci.c
+@@ -865,7 +865,7 @@ static const struct intel_device_info js
+ 	}, \
+ 	TGL_CURSOR_OFFSETS, \
+ 	.has_global_mocs = 1, \
+-	.display.has_dsb = 1
++	.display.has_dsb = 0 /* FIXME: LUT load is broken with DSB */
  
- static const struct tty_port_operations gsm_port_ops;
- 
-@@ -531,7 +532,8 @@ static int gsm_stuff_frame(const u8 *inp
- 	int olen = 0;
- 	while (len--) {
- 		if (*input == GSM1_SOF || *input == GSM1_ESCAPE
--		    || *input == XON || *input == XOFF) {
-+		    || (*input & ISO_IEC_646_MASK) == XON
-+		    || (*input & ISO_IEC_646_MASK) == XOFF) {
- 			*output++ = GSM1_ESCAPE;
- 			*output++ = *input++ ^ GSM1_ESCAPE_BITS;
- 			olen++;
+ static const struct intel_device_info tgl_info = {
+ 	GEN12_FEATURES,
 
 
