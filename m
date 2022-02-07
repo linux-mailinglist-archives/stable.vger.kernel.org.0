@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 429564ABA9B
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C59344ABCC7
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:50:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383935AbiBGLYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48100 "EHLO
+        id S1387112AbiBGLjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:39:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355402AbiBGLIj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:08:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADEE8C043189;
-        Mon,  7 Feb 2022 03:08:38 -0800 (PST)
+        with ESMTP id S1385893AbiBGLdB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:33:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C75A3C043181;
+        Mon,  7 Feb 2022 03:33:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BD5C611AA;
-        Mon,  7 Feb 2022 11:08:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECAE0C004E1;
-        Mon,  7 Feb 2022 11:08:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66EE060A67;
+        Mon,  7 Feb 2022 11:33:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A4F0C004E1;
+        Mon,  7 Feb 2022 11:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232117;
-        bh=bUfL19lQYyh/uVh/2uT7PbGVoJgRER1O9iE2p8Nq4wY=;
+        s=korg; t=1644233579;
+        bh=0b2/NmoR00QawfH4Fcskg1rd4c91k5VvvsO+xnT9CSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDKYKHiUidJUMzgoW83jl3ovvvOdFoocxVIms4XcjGeHNAA7oCNg14lAikZ6K+OHf
-         nh33nHxqroGVfACjEPNEkxcp1B7YugJMN69onGQKCLx/ihGn/F60V+OsnxYKJr6k8+
-         djIVVtPbxO2X3kxvsZFNnMZ/zvjwqvL79caFMmD4=
+        b=dAQ5K3juq+Gtali1zcUGtpIp1A9ljDwIRWtxuaMJFn1+kgyNXxb7RhVkp3bAg5Mcv
+         y+cHKZaelkMKKVO6Ne15IKfJkMT16F2Z0kQhFcQNUvoRie17975ASa9IaqhXvSngJS
+         Ut5SlUNX8twlSRCLsMkghQrdI04zwF8HWD4+Ai5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Xianting Tian <xianting.tian@linux.alibaba.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 22/48] drm/msm: Fix wrong size calculation
+        stable@vger.kernel.org, Lang Yu <Lang.Yu@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.16 024/126] drm/amdgpu: fix a potential GPU hang on cyan skillfish
 Date:   Mon,  7 Feb 2022 12:05:55 +0100
-Message-Id: <20220207103753.062497895@linuxfoundation.org>
+Message-Id: <20220207103804.991012702@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
-References: <20220207103752.341184175@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xianting Tian <xianting.tian@linux.alibaba.com>
+From: Lang Yu <Lang.Yu@amd.com>
 
-commit 0a727b459ee39bd4c5ced19d6024258ac87b6b2e upstream.
+commit bca52455a3c07922ee976714b00563a13a29ab15 upstream.
 
-For example, memory-region in .dts as below,
-	reg = <0x0 0x50000000 0x0 0x20000000>
+We observed a GPU hang when querying GMC CG state(i.e.,
+cat amdgpu_pm_info) on cyan skillfish. Acctually, cyan
+skillfish doesn't support any CG features.
 
-We can get below values,
-struct resource r;
-r.start = 0x50000000;
-r.end	= 0x6fffffff;
+Just prevent it from accessing GMC CG registers.
 
-So the size should be:
-size = r.end - r.start + 1 = 0x20000000
-
-Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Fixes: 072f1f9168ed ("drm/msm: add support for "stolen" mem")
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20220112123334.749776-1-xianting.tian@linux.alibaba.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Lang Yu <Lang.Yu@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -297,7 +297,7 @@ static int msm_init_vram(struct drm_devi
- 		of_node_put(node);
- 		if (ret)
- 			return ret;
--		size = r.end - r.start;
-+		size = r.end - r.start + 1;
- 		DRM_INFO("using VRAM carveout: %lx@%pa\n", size, &r.start);
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
+@@ -1147,6 +1147,9 @@ static void gmc_v10_0_get_clockgating_st
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
  
- 		/* if we have no IOMMU, then we need to use carveout allocator.
++	if (adev->ip_versions[GC_HWIP][0] == IP_VERSION(10, 1, 3))
++		return;
++
+ 	adev->mmhub.funcs->get_clockgating(adev, flags);
+ 
+ 	if (adev->ip_versions[ATHUB_HWIP][0] >= IP_VERSION(2, 1, 0))
 
 
