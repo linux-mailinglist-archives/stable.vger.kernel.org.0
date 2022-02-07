@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EFE74ABBAC
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:39:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 188D84ABB47
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384706AbiBGL3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:29:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34244 "EHLO
+        id S1384313AbiBGL1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:27:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383222AbiBGLVu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:21:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53195C0401CA;
-        Mon,  7 Feb 2022 03:21:50 -0800 (PST)
+        with ESMTP id S1382159AbiBGLS2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:18:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF2F2C0401D4;
+        Mon,  7 Feb 2022 03:18:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3705B81028;
-        Mon,  7 Feb 2022 11:21:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24759C004E1;
-        Mon,  7 Feb 2022 11:21:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A2476126D;
+        Mon,  7 Feb 2022 11:18:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F1A1C004E1;
+        Mon,  7 Feb 2022 11:18:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232907;
-        bh=OuwT4LirGBoLvopfmraLft+Fx9tRLUnJPwW1eXn6O8U=;
+        s=korg; t=1644232691;
+        bh=8RcvJ0iNpGXd9hhP8foxR5IlHZdwD/RWOBg4L/G1cj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=whkdbnOK5d0J+E4jLiVAct137NFdnMh9D8diUJEvzudZqSFHuVMcCdlmZbu3zgiEh
-         UliJN2gLSWbDjNX6oK+j1uCxWhLse6tjJvo7pMAXAkUNLlUghAEYTmUMINNWDrEvOa
-         yOmOG/WyEr1dXHjqAeQNvjjOyzikSpPDMJO+lN38=
+        b=1bwxGQ2ZMMZ8LEFiiO5/X4IEDRhCFsPmDJlksPH5nZcO4u9EhefMhvd/N013nqdfy
+         YsrGa9AEI3jD6S+6ZGR1A2zCR+jL1UFAp9Dukl6sdeawVfpsXVDApoHPfcEhuzDtMq
+         XjdGM8EBaC441vDYQ1F27CTK13CqrrM4qf4xxdKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
         Guoqing Jiang <guoqing.jiang@linux.dev>,
         Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.10 30/74] iommu/vt-d: Fix potential memory leak in intel_setup_irq_remapping()
+Subject: [PATCH 4.19 65/86] iommu/vt-d: Fix potential memory leak in intel_setup_irq_remapping()
 Date:   Mon,  7 Feb 2022 12:06:28 +0100
-Message-Id: <20220207103758.230545765@linuxfoundation.org>
+Message-Id: <20220207103759.692772181@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+References: <20220207103757.550973048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,12 +78,12 @@ Link: https://lore.kernel.org/r/20220128031002.2219155-3-baolu.lu@linux.intel.co
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel/irq_remapping.c |   13 ++++++++++---
+ drivers/iommu/intel_irq_remapping.c |   13 ++++++++++---
  1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/drivers/iommu/intel/irq_remapping.c
-+++ b/drivers/iommu/intel/irq_remapping.c
-@@ -576,9 +576,8 @@ static int intel_setup_irq_remapping(str
+--- a/drivers/iommu/intel_irq_remapping.c
++++ b/drivers/iommu/intel_irq_remapping.c
+@@ -543,9 +543,8 @@ static int intel_setup_irq_remapping(str
  					    fn, &intel_ir_domain_ops,
  					    iommu);
  	if (!iommu->ir_domain) {
@@ -94,7 +94,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	}
  	iommu->ir_msi_domain =
  		arch_create_remap_msi_irq_domain(iommu->ir_domain,
-@@ -602,7 +601,7 @@ static int intel_setup_irq_remapping(str
+@@ -569,7 +568,7 @@ static int intel_setup_irq_remapping(str
  
  		if (dmar_enable_qi(iommu)) {
  			pr_err("Failed to enable queued invalidation\n");
@@ -103,7 +103,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		}
  	}
  
-@@ -626,6 +625,14 @@ static int intel_setup_irq_remapping(str
+@@ -593,6 +592,14 @@ static int intel_setup_irq_remapping(str
  
  	return 0;
  
@@ -116,7 +116,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +out_free_fwnode:
 +	irq_domain_free_fwnode(fn);
  out_free_bitmap:
- 	bitmap_free(bitmap);
+ 	kfree(bitmap);
  out_free_pages:
 
 
