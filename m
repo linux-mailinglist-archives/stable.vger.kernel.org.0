@@ -2,56 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 953644ABC9B
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C22AF4ABAEC
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:31:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386960AbiBGLiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:38:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45042 "EHLO
+        id S239405AbiBGLZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:25:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385664AbiBGLcE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E71FBC0401C0;
-        Mon,  7 Feb 2022 03:31:34 -0800 (PST)
+        with ESMTP id S1352845AbiBGLMB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:12:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3AB9C043181;
+        Mon,  7 Feb 2022 03:12:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F508B811A6;
-        Mon,  7 Feb 2022 11:31:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2F50C340EB;
-        Mon,  7 Feb 2022 11:31:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91E4261314;
+        Mon,  7 Feb 2022 11:12:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BBD2C004E1;
+        Mon,  7 Feb 2022 11:11:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233492;
-        bh=LLYIADvuVzP5s+T9xBErFHnFjFO3FixGAqGldwSpfRM=;
+        s=korg; t=1644232320;
+        bh=GVclLUpV5I6fB7xF9BnCi/GSDE4G3lqHd2p6FC+z9kA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VSVa6Sc7P6GqAxYjNDCbVDm+HR7yAHaadrWC1HWVBUF2jEyvQIz6k3v8/f9aUvkzs
-         0w1ZrRDoIVLBM5OargRLnHVj0ErFWDb5lXwN9+qbmwdvN2HKv4amwrbiTBAEmhqGrr
-         AIB/JHzBtBwUwBB890S7zaoLIJW3JNMfQgOIq0GI=
+        b=alyJOE3b5xqHbSZpa1jkGOLntMxsLlgZl2If0NiAKD8UoQv5EMX0vtXT/SJ7YsyFn
+         dyxFmrtWWu5Su/ucnxg97VWOZC1ZojnMRfeC0Bx4hmar1rYXOH24PzHiT7CpLiSws6
+         rYPpowzxDJve1HPXJ/3h32pxC40nUpkipoOUrFbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Zi Yan <ziy@nvidia.com>, David Rientjes <rientjes@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Paul Turner <pjt@google.com>, Wei Xu <weixugc@google.com>,
-        Greg Thelen <gthelen@google.com>,
-        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.16 030/126] mm/debug_vm_pgtable: remove pte entry from the page table
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.14 39/69] netfilter: nat: remove l4 protocol port rovers
 Date:   Mon,  7 Feb 2022 12:06:01 +0100
-Message-Id: <20220207103805.185385774@linuxfoundation.org>
+Message-Id: <20220207103756.914150863@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,75 +53,182 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pasha Tatashin <pasha.tatashin@soleen.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit fb5222aae64fe25e5f3ebefde8214dcf3ba33ca5 upstream.
+commit 6ed5943f8735e2b778d92ea4d9805c0a1d89bc2b upstream.
 
-Patch series "page table check fixes and cleanups", v5.
+This is a leftover from days where single-cpu systems were common:
+Store last port used to resolve a clash to use it as a starting point when
+the next conflict needs to be resolved.
 
-This patch (of 4):
+When we have parallel attempt to connect to same address:port pair,
+its likely that both cores end up computing the same "available" port,
+as both use same starting port, and newly used ports won't become
+visible to other cores until the conntrack gets confirmed later.
 
-The pte entry that is used in pte_advanced_tests() is never removed from
-the page table at the end of the test.
+One of the cores then has to drop the packet at insertion time because
+the chosen new tuple turns out to be in use after all.
 
-The issue is detected by page_table_check, to repro compile kernel with
-the following configs:
+Lets simplify this: remove port rover and use a pseudo-random starting
+point.
 
-CONFIG_DEBUG_VM_PGTABLE=y
-CONFIG_PAGE_TABLE_CHECK=y
-CONFIG_PAGE_TABLE_CHECK_ENFORCED=y
+Note that this doesn't make netfilter default to 'fully random' mode;
+the 'rover' was only used if NAT could not reuse source port as-is.
 
-During the boot the following BUG is printed:
-
-  debug_vm_pgtable: [debug_vm_pgtable         ]: Validating architecture page table helpers
-  ------------[ cut here ]------------
-  kernel BUG at mm/page_table_check.c:162!
-  invalid opcode: 0000 [#1] PREEMPT SMP PTI
-  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.16.0-11413-g2c271fe77d52 #3
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
-  ...
-
-The entry should be properly removed from the page table before the page
-is released to the free list.
-
-Link: https://lkml.kernel.org/r/20220131203249.2832273-1-pasha.tatashin@soleen.com
-Link: https://lkml.kernel.org/r/20220131203249.2832273-2-pasha.tatashin@soleen.com
-Fixes: a5c3b9ffb0f4 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
-Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
-Reviewed-by: Zi Yan <ziy@nvidia.com>
-Tested-by: Zi Yan <ziy@nvidia.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Paul Turner <pjt@google.com>
-Cc: Wei Xu <weixugc@google.com>
-Cc: Greg Thelen <gthelen@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: <stable@vger.kernel.org>	[5.9+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/debug_vm_pgtable.c |    2 ++
- 1 file changed, 2 insertions(+)
+ include/net/netfilter/nf_nat_l4proto.h |    2 +-
+ net/netfilter/nf_nat_proto_common.c    |    7 ++-----
+ net/netfilter/nf_nat_proto_dccp.c      |    5 +----
+ net/netfilter/nf_nat_proto_sctp.c      |    5 +----
+ net/netfilter/nf_nat_proto_tcp.c       |    5 +----
+ net/netfilter/nf_nat_proto_udp.c       |   10 ++--------
+ 6 files changed, 8 insertions(+), 26 deletions(-)
 
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -171,6 +171,8 @@ static void __init pte_advanced_tests(st
- 	ptep_test_and_clear_young(args->vma, args->vaddr, args->ptep);
- 	pte = ptep_get(args->ptep);
- 	WARN_ON(pte_young(pte));
-+
-+	ptep_get_and_clear_full(args->mm, args->vaddr, args->ptep, 1);
+--- a/include/net/netfilter/nf_nat_l4proto.h
++++ b/include/net/netfilter/nf_nat_l4proto.h
+@@ -74,7 +74,7 @@ void nf_nat_l4proto_unique_tuple(const s
+ 				 struct nf_conntrack_tuple *tuple,
+ 				 const struct nf_nat_range *range,
+ 				 enum nf_nat_manip_type maniptype,
+-				 const struct nf_conn *ct, u16 *rover);
++				 const struct nf_conn *ct);
+ 
+ int nf_nat_l4proto_nlattr_to_range(struct nlattr *tb[],
+ 				   struct nf_nat_range *range);
+--- a/net/netfilter/nf_nat_proto_common.c
++++ b/net/netfilter/nf_nat_proto_common.c
+@@ -38,8 +38,7 @@ void nf_nat_l4proto_unique_tuple(const s
+ 				 struct nf_conntrack_tuple *tuple,
+ 				 const struct nf_nat_range *range,
+ 				 enum nf_nat_manip_type maniptype,
+-				 const struct nf_conn *ct,
+-				 u16 *rover)
++				 const struct nf_conn *ct)
+ {
+ 	unsigned int range_size, min, max, i;
+ 	__be16 *portptr;
+@@ -84,15 +83,13 @@ void nf_nat_l4proto_unique_tuple(const s
+ 	} else if (range->flags & NF_NAT_RANGE_PROTO_RANDOM_FULLY) {
+ 		off = prandom_u32();
+ 	} else {
+-		off = *rover;
++		off = prandom_u32();
+ 	}
+ 
+ 	for (i = 0; ; ++off) {
+ 		*portptr = htons(min + off % range_size);
+ 		if (++i != range_size && nf_nat_used_tuple(tuple, ct))
+ 			continue;
+-		if (!(range->flags & NF_NAT_RANGE_PROTO_RANDOM_ALL))
+-			*rover = off;
+ 		return;
+ 	}
+ }
+--- a/net/netfilter/nf_nat_proto_dccp.c
++++ b/net/netfilter/nf_nat_proto_dccp.c
+@@ -18,8 +18,6 @@
+ #include <net/netfilter/nf_nat_l3proto.h>
+ #include <net/netfilter/nf_nat_l4proto.h>
+ 
+-static u_int16_t dccp_port_rover;
+-
+ static void
+ dccp_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		  struct nf_conntrack_tuple *tuple,
+@@ -27,8 +25,7 @@ dccp_unique_tuple(const struct nf_nat_l3
+ 		  enum nf_nat_manip_type maniptype,
+ 		  const struct nf_conn *ct)
+ {
+-	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct,
+-				    &dccp_port_rover);
++	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct);
  }
  
- static void __init pte_savedwrite_tests(struct pgtable_debug_args *args)
+ static bool
+--- a/net/netfilter/nf_nat_proto_sctp.c
++++ b/net/netfilter/nf_nat_proto_sctp.c
+@@ -12,8 +12,6 @@
+ 
+ #include <net/netfilter/nf_nat_l4proto.h>
+ 
+-static u_int16_t nf_sctp_port_rover;
+-
+ static void
+ sctp_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		  struct nf_conntrack_tuple *tuple,
+@@ -21,8 +19,7 @@ sctp_unique_tuple(const struct nf_nat_l3
+ 		  enum nf_nat_manip_type maniptype,
+ 		  const struct nf_conn *ct)
+ {
+-	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct,
+-				    &nf_sctp_port_rover);
++	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct);
+ }
+ 
+ static bool
+--- a/net/netfilter/nf_nat_proto_tcp.c
++++ b/net/netfilter/nf_nat_proto_tcp.c
+@@ -18,8 +18,6 @@
+ #include <net/netfilter/nf_nat_l4proto.h>
+ #include <net/netfilter/nf_nat_core.h>
+ 
+-static u16 tcp_port_rover;
+-
+ static void
+ tcp_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		 struct nf_conntrack_tuple *tuple,
+@@ -27,8 +25,7 @@ tcp_unique_tuple(const struct nf_nat_l3p
+ 		 enum nf_nat_manip_type maniptype,
+ 		 const struct nf_conn *ct)
+ {
+-	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct,
+-				    &tcp_port_rover);
++	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct);
+ }
+ 
+ static bool
+--- a/net/netfilter/nf_nat_proto_udp.c
++++ b/net/netfilter/nf_nat_proto_udp.c
+@@ -17,8 +17,6 @@
+ #include <net/netfilter/nf_nat_l3proto.h>
+ #include <net/netfilter/nf_nat_l4proto.h>
+ 
+-static u16 udp_port_rover;
+-
+ static void
+ udp_unique_tuple(const struct nf_nat_l3proto *l3proto,
+ 		 struct nf_conntrack_tuple *tuple,
+@@ -26,8 +24,7 @@ udp_unique_tuple(const struct nf_nat_l3p
+ 		 enum nf_nat_manip_type maniptype,
+ 		 const struct nf_conn *ct)
+ {
+-	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct,
+-				    &udp_port_rover);
++	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct);
+ }
+ 
+ static void
+@@ -78,8 +75,6 @@ static bool udp_manip_pkt(struct sk_buff
+ }
+ 
+ #ifdef CONFIG_NF_NAT_PROTO_UDPLITE
+-static u16 udplite_port_rover;
+-
+ static bool udplite_manip_pkt(struct sk_buff *skb,
+ 			      const struct nf_nat_l3proto *l3proto,
+ 			      unsigned int iphdroff, unsigned int hdroff,
+@@ -103,8 +98,7 @@ udplite_unique_tuple(const struct nf_nat
+ 		     enum nf_nat_manip_type maniptype,
+ 		     const struct nf_conn *ct)
+ {
+-	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct,
+-				    &udplite_port_rover);
++	nf_nat_l4proto_unique_tuple(l3proto, tuple, range, maniptype, ct);
+ }
+ 
+ const struct nf_nat_l4proto nf_nat_l4proto_udplite = {
 
 
