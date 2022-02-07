@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23AF94ABB7F
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D1F44ABD10
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:56:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376399AbiBGL2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:28:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59762 "EHLO
+        id S1343751AbiBGLoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:44:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356968AbiBGLUM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:20:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B584C0401E2;
-        Mon,  7 Feb 2022 03:20:03 -0800 (PST)
+        with ESMTP id S1385015AbiBGLa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:30:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02F3CC03BFFA;
+        Mon,  7 Feb 2022 03:28:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF13561388;
-        Mon,  7 Feb 2022 11:20:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D26DC004E1;
-        Mon,  7 Feb 2022 11:20:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B324BB811B2;
+        Mon,  7 Feb 2022 11:28:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDFCCC36AE2;
+        Mon,  7 Feb 2022 11:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232802;
-        bh=ea+hcjM0+kOavuGX3yikwa9yDCSL8uxSQ/4hJSNZOyg=;
+        s=korg; t=1644233337;
+        bh=TdKdDS8mr/Iv2O+Ke94fu/1lpmuGq84s4HlElW3efN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GzDWOB6OkBYfTlfTwtWSzWbuCtRicCAfn+K8NFqgwBLcZytgYZR0Tz32xQFzv4A93
-         TBm8wux878KbJg4z0U3I1qgLK6Xx0QbAFGiR9XewipI/W7pHaBloFSOM9BRW01rnU7
-         h5r6JPuKc7g5/5cal7kUIBhVhhxj6KkF1BdYjsdA=
+        b=usBKefgxZ2ogVmb+oI3SvYIPNcjjjp4m2nUrNiK/oRIyhkKYhTRQGgnzBv/wH0dF3
+         vx8WRasRZJX8wbOJNBCpfptWtx7CXyZcXS5AVNWGyvo5Hpqa9+FO4CzETWzYIoknXS
+         moWe/DdpVhmUbov5ugS2ErrQPbd2P1Nstw3+uD0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Borislav Petkov <bp@suse.de>, Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 5.4 41/44] EDAC/altera: Fix deferred probing
+        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Bruce Fields <bfields@fieldses.org>
+Subject: [PATCH 5.15 084/110] nfsd: nfsd4_setclientid_confirm mistakenly expires confirmed client.
 Date:   Mon,  7 Feb 2022 12:06:57 +0100
-Message-Id: <20220207103754.491070360@linuxfoundation.org>
+Message-Id: <20220207103805.253054671@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
-References: <20220207103753.155627314@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Dai Ngo <dai.ngo@oracle.com>
 
-commit 279eb8575fdaa92c314a54c0d583c65e26229107 upstream.
+commit ab451ea952fe9d7afefae55ddb28943a148247fe upstream.
 
-The driver overrides the error codes returned by platform_get_irq() to
--ENODEV for some strange reason, so if it returns -EPROBE_DEFER, the
-driver will fail the probe permanently instead of the deferred probing.
-Switch to propagating the proper error codes to platform driver code
-upwards.
+>From RFC 7530 Section 16.34.5:
 
-  [ bp: Massage commit message. ]
+o  The server has not recorded an unconfirmed { v, x, c, *, * } and
+   has recorded a confirmed { v, x, c, *, s }.  If the principals of
+   the record and of SETCLIENTID_CONFIRM do not match, the server
+   returns NFS4ERR_CLID_INUSE without removing any relevant leased
+   client state, and without changing recorded callback and
+   callback_ident values for client { x }.
 
-Fixes: 71bcada88b0f ("edac: altera: Add Altera SDRAM EDAC support")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220124185503.6720-2-s.shtylyov@omp.ru
+The current code intends to do what the spec describes above but
+it forgot to set 'old' to NULL resulting to the confirmed client
+to be expired.
+
+Fixes: 2b63482185e6 ("nfsd: fix clid_inuse on mount with security change")
+Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Reviewed-by: Bruce Fields <bfields@fieldses.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/edac/altera_edac.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/nfs4state.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/edac/altera_edac.c
-+++ b/drivers/edac/altera_edac.c
-@@ -349,7 +349,7 @@ static int altr_sdram_probe(struct platf
- 	if (irq < 0) {
- 		edac_printk(KERN_ERR, EDAC_MC,
- 			    "No irq %d in DT\n", irq);
--		return -ENODEV;
-+		return irq;
- 	}
- 
- 	/* Arria10 has a 2nd IRQ */
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -4112,8 +4112,10 @@ nfsd4_setclientid_confirm(struct svc_rqs
+ 			status = nfserr_clid_inuse;
+ 			if (client_has_state(old)
+ 					&& !same_creds(&unconf->cl_cred,
+-							&old->cl_cred))
++							&old->cl_cred)) {
++				old = NULL;
+ 				goto out;
++			}
+ 			status = mark_client_expired_locked(old);
+ 			if (status) {
+ 				old = NULL;
 
 
