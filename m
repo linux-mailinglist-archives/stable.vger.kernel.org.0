@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EB9B4ABBBB
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:39:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83E2E4ABADF
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:31:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376964AbiBGLaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:30:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34876 "EHLO
+        id S1384112AbiBGLYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357821AbiBGLXS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:23:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 032F0C0401D1;
-        Mon,  7 Feb 2022 03:23:16 -0800 (PST)
+        with ESMTP id S1356779AbiBGLNk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:13:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A40DC043181;
+        Mon,  7 Feb 2022 03:13:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D386B811CB;
-        Mon,  7 Feb 2022 11:23:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A01CC340EB;
-        Mon,  7 Feb 2022 11:23:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06A2561380;
+        Mon,  7 Feb 2022 11:13:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC782C340F0;
+        Mon,  7 Feb 2022 11:13:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232993;
-        bh=zn1d9yHL3Mx95okSlALVah5I9XCApZrkhMiBNbcmEbg=;
+        s=korg; t=1644232419;
+        bh=FiHCycypaGmh6ZE4s8cl9YhCQrEHuZt+aoReo8QuKOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=waBeK7xZYuZh1j85yirYwAJCsQPSTMDOpht2mxib6ZIOSh/1Dw658S/d9qef1f0ww
-         0XgVjGUtFQMsZblDTGH2nREHLauUPQ+XWA/2vnZ3st8mn41iOyHxwXmgvFMj3YdY5Z
-         6I+HVyBS4+FqZaIiGSmwk+ZncHpShwBjEfckxzDo=
+        b=FsOU274KnPthb7p/JThL3bC3EeakbNcOa7Qysx6RMznk4MIhA891UbwWUS4Mp5cCr
+         KK87AnVV9C3AV/tbdufNQwRx8ClkQZN9T/oHPaeI3BRjBrxrjKCkBLQ79331gQMlV8
+         67P+dWKIvEpcHqG+EXdJzFn4TClZT+ZVUrv92URM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aun-Ali Zaidi <admin@kodeit.net>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Aditya Garg <gargaditya08@live.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 15/74] drm/amd/display: Force link_rate as LINK_RATE_RBR2 for 2018 15" Apple Retina panels
+        stable@vger.kernel.org, Dmitry Monakhov <dmonakhov@openvz.org>,
+        Dmitry Ivanov <dmitry.ivanov2@hpe.com>,
+        Alexey Lyashkov <alexey.lyashkov@hpe.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 51/69] block: bio-integrity: Advance seed correctly for larger interval sizes
 Date:   Mon,  7 Feb 2022 12:06:13 +0100
-Message-Id: <20220207103757.732456217@linuxfoundation.org>
+Message-Id: <20220207103757.299374694@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aun-Ali Zaidi <admin@kodeit.net>
+From: Martin K. Petersen <martin.petersen@oracle.com>
 
-commit 30fbce374745a9c6af93c775a5ac49a97f822fda upstream.
+commit b13e0c71856817fca67159b11abac350e41289f5 upstream.
 
-The eDP link rate reported by the DP_MAX_LINK_RATE dpcd register (0xa) is
-contradictory to the highest rate supported reported by
-EDID (0xc = LINK_RATE_RBR2). The effects of this compounded with commit
-'4a8ca46bae8a ("drm/amd/display: Default max bpc to 16 for eDP")' results
-in no display modes being found and a dark panel.
+Commit 309a62fa3a9e ("bio-integrity: bio_integrity_advance must update
+integrity seed") added code to update the integrity seed value when
+advancing a bio. However, it failed to take into account that the
+integrity interval might be larger than the 512-byte block layer
+sector size. This broke bio splitting on PI devices with 4KB logical
+blocks.
 
-For now, simply force the maximum supported link rate for the eDP attached
-2018 15" Apple Retina panels.
+The seed value should be advanced by bio_integrity_intervals() and not
+the number of sectors.
 
-Additionally, we must also check the firmware revision since the device ID
-reported by the DPCD is identical to that of the more capable 16,1,
-incorrectly quirking it. We also use said firmware check to quirk the
-refreshed 15,1 models with Vega graphics as they use a slightly newer
-firmware version.
-
-Tested-by: Aun-Ali Zaidi <admin@kodeit.net>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Aun-Ali Zaidi <admin@kodeit.net>
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Dmitry Monakhov <dmonakhov@openvz.org>
 Cc: stable@vger.kernel.org
+Fixes: 309a62fa3a9e ("bio-integrity: bio_integrity_advance must update integrity seed")
+Tested-by: Dmitry Ivanov <dmitry.ivanov2@hpe.com>
+Reported-by: Alexey Lyashkov <alexey.lyashkov@hpe.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lore.kernel.org/r/20220204034209.4193-1-martin.petersen@oracle.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ block/bio-integrity.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -3587,6 +3587,26 @@ static bool retrieve_link_cap(struct dc_
- 		dp_hw_fw_revision.ieee_fw_rev,
- 		sizeof(dp_hw_fw_revision.ieee_fw_rev));
+--- a/block/bio-integrity.c
++++ b/block/bio-integrity.c
+@@ -417,7 +417,7 @@ void bio_integrity_advance(struct bio *b
+ 	struct blk_integrity *bi = blk_get_integrity(bio->bi_disk);
+ 	unsigned bytes = bio_integrity_bytes(bi, bytes_done >> 9);
  
-+	/* Quirk for Apple MBP 2018 15" Retina panels: wrong DP_MAX_LINK_RATE */
-+	{
-+		uint8_t str_mbp_2018[] = { 101, 68, 21, 103, 98, 97 };
-+		uint8_t fwrev_mbp_2018[] = { 7, 4 };
-+		uint8_t fwrev_mbp_2018_vega[] = { 8, 4 };
-+
-+		/* We also check for the firmware revision as 16,1 models have an
-+		 * identical device id and are incorrectly quirked otherwise.
-+		 */
-+		if ((link->dpcd_caps.sink_dev_id == 0x0010fa) &&
-+		    !memcmp(link->dpcd_caps.sink_dev_id_str, str_mbp_2018,
-+			     sizeof(str_mbp_2018)) &&
-+		    (!memcmp(link->dpcd_caps.sink_fw_revision, fwrev_mbp_2018,
-+			     sizeof(fwrev_mbp_2018)) ||
-+		    !memcmp(link->dpcd_caps.sink_fw_revision, fwrev_mbp_2018_vega,
-+			     sizeof(fwrev_mbp_2018_vega)))) {
-+			link->reported_link_cap.link_rate = LINK_RATE_RBR2;
-+		}
-+	}
-+
- 	memset(&link->dpcd_caps.dsc_caps, '\0',
- 			sizeof(link->dpcd_caps.dsc_caps));
- 	memset(&link->dpcd_caps.fec_cap, '\0', sizeof(link->dpcd_caps.fec_cap));
+-	bip->bip_iter.bi_sector += bytes_done >> 9;
++	bip->bip_iter.bi_sector += bio_integrity_intervals(bi, bytes_done >> 9);
+ 	bvec_iter_advance(bip->bip_vec, &bip->bip_iter, bytes);
+ }
+ EXPORT_SYMBOL(bio_integrity_advance);
 
 
