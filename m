@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABF9D4ABCB1
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D2024ABB0E
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:35:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387042AbiBGLit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:38:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44578 "EHLO
+        id S1345346AbiBGL0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:26:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385725AbiBGLcS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E7D1C043188;
-        Mon,  7 Feb 2022 03:32:17 -0800 (PST)
+        with ESMTP id S1343790AbiBGLJm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:09:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9F2AC043181;
+        Mon,  7 Feb 2022 03:09:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2F87B80EBD;
-        Mon,  7 Feb 2022 11:32:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47B2AC004E1;
-        Mon,  7 Feb 2022 11:32:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48CCC611AA;
+        Mon,  7 Feb 2022 11:09:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A6CEC004E1;
+        Mon,  7 Feb 2022 11:09:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233534;
-        bh=gnZ42VB8luOBpe47zX/EhN1MWbO2bGrsu/FWoeueKY0=;
+        s=korg; t=1644232180;
+        bh=eVnM4/vWa5RlrsKSZ9YEG2ii+6AgOF8vjc0ymH0k7qA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K0ufMjgF8OXHfxvMxouB/e/S7DXY0A+ZlU3BLnyuRSwH+z1njXJ85+wtA1ln7yU//
-         FVgZkFqTMLFIk03kK98hS/EVr7GbPpG+Vi5qswjjG2vamzrh02jdoMml7H6wHnQTGv
-         Pc+6bv62sHMn2qU3j4jnJV/kCo5nvtIvvAIPIB3s=
+        b=n4+CUdKCOr5dpilGvFkd3SMtH53XFLBCJZY6jRKZWvzGojZNckEr6WjfhOa8VCxWm
+         EmyXBOfdNN4V/bFx+LU3GgVyJYB9q8r4+VZNbPbT7hvpYlpPO9bEmULP/qUicsxygA
+         bP4MRDuBCzy2Uik+aMWD4dn9izpE22lkdiAgx6VE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 042/126] mptcp: fix msk traversal in mptcp_nl_cmd_set_flags()
-Date:   Mon,  7 Feb 2022 12:06:13 +0100
-Message-Id: <20220207103805.578390861@linuxfoundation.org>
+        stable@vger.kernel.org, Lior Nahmanson <liorna@nvidia.com>,
+        Raed Salem <raeds@nvidia.com>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 41/48] net: macsec: Verify that send_sci is on when setting Tx sci explicitly
+Date:   Mon,  7 Feb 2022 12:06:14 +0100
+Message-Id: <20220207103753.667970822@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
+References: <20220207103752.341184175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Lior Nahmanson <liorna@nvidia.com>
 
-commit 8e9eacad7ec7a9cbf262649ebf1fa6e6f6cc7d82 upstream.
+commit d0cfa548dbde354de986911d3913897b5448faad upstream.
 
-The MPTCP endpoint list is under RCU protection, guarded by the
-pernet spinlock. mptcp_nl_cmd_set_flags() traverses the list
-without acquiring the spin-lock nor under the RCU critical section.
+When setting Tx sci explicit, the Rx side is expected to use this
+sci and not recalculate it from the packet.However, in case of Tx sci
+is explicit and send_sci is off, the receiver is wrongly recalculate
+the sci from the source MAC address which most likely be different
+than the explicit sci.
 
-This change addresses the issue performing the lookup and the endpoint
-update under the pernet spinlock.
+Fix by preventing such configuration when macsec newlink is established
+and return EINVAL error code on such cases.
 
-[The upstream commit had to handle a lookup_by_id variable that is only
- present in 5.17. This version of the patch removes that variable, so
- the __lookup_addr() function only handles the lookup as it is
- implemented in 5.15 and 5.16. It also removes one 'const' keyword to
- prevent a warning due to differing const-ness in the 5.17 version of
- addresses_equal().]
-
-Fixes: 0f9f696a502e ("mptcp: add set_flags command in PM netlink")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
+Signed-off-by: Lior Nahmanson <liorna@nvidia.com>
+Reviewed-by: Raed Salem <raeds@nvidia.com>
+Signed-off-by: Raed Salem <raeds@nvidia.com>
+Link: https://lore.kernel.org/r/1643542672-29403-1-git-send-email-raeds@nvidia.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/pm_netlink.c |   34 +++++++++++++++++++++++++---------
- 1 file changed, 25 insertions(+), 9 deletions(-)
+ drivers/net/macsec.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/net/mptcp/pm_netlink.c
-+++ b/net/mptcp/pm_netlink.c
-@@ -459,6 +459,18 @@ static unsigned int fill_remote_addresse
- 	return i;
- }
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -3230,6 +3230,15 @@ static int macsec_newlink(struct net *ne
  
-+static struct mptcp_pm_addr_entry *
-+__lookup_addr(struct pm_nl_pernet *pernet, struct mptcp_addr_info *info)
-+{
-+	struct mptcp_pm_addr_entry *entry;
+ 	macsec->real_dev = real_dev;
+ 
++	/* send_sci must be set to true when transmit sci explicitly is set */
++	if ((data && data[IFLA_MACSEC_SCI]) &&
++	    (data && data[IFLA_MACSEC_INC_SCI])) {
++		u8 send_sci = !!nla_get_u8(data[IFLA_MACSEC_INC_SCI]);
 +
-+	list_for_each_entry(entry, &pernet->local_addr_list, list) {
-+		if (addresses_equal(&entry->addr, info, true))
-+			return entry;
++		if (!send_sci)
++			return -EINVAL;
 +	}
-+	return NULL;
-+}
 +
- static void mptcp_pm_create_subflow_or_signal_addr(struct mptcp_sock *msk)
- {
- 	struct sock *sk = (struct sock *)msk;
-@@ -1725,17 +1737,21 @@ static int mptcp_nl_cmd_set_flags(struct
- 	if (addr.flags & MPTCP_PM_ADDR_FLAG_BACKUP)
- 		bkup = 1;
- 
--	list_for_each_entry(entry, &pernet->local_addr_list, list) {
--		if (addresses_equal(&entry->addr, &addr.addr, true)) {
--			mptcp_nl_addr_backup(net, &entry->addr, bkup);
--
--			if (bkup)
--				entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
--			else
--				entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
--		}
-+	spin_lock_bh(&pernet->lock);
-+	entry = __lookup_addr(pernet, &addr.addr);
-+	if (!entry) {
-+		spin_unlock_bh(&pernet->lock);
-+		return -EINVAL;
- 	}
- 
-+	if (bkup)
-+		entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
-+	else
-+		entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
-+	addr = *entry;
-+	spin_unlock_bh(&pernet->lock);
-+
-+	mptcp_nl_addr_backup(net, &addr.addr, bkup);
- 	return 0;
- }
- 
+ 	if (data && data[IFLA_MACSEC_ICV_LEN])
+ 		icv_len = nla_get_u8(data[IFLA_MACSEC_ICV_LEN]);
+ 	mtu = real_dev->mtu - icv_len - macsec_extra_len(true);
 
 
