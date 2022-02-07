@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1730C4ABA5B
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:28:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A0284ABC2F
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232541AbiBGLZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:25:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53288 "EHLO
+        id S1384970AbiBGLay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:30:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377020AbiBGLPT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:15:19 -0500
+        with ESMTP id S1384116AbiBGLYt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:24:49 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEF6DC0401C6;
-        Mon,  7 Feb 2022 03:14:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09C07C043188;
+        Mon,  7 Feb 2022 03:24:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21D6161388;
-        Mon,  7 Feb 2022 11:14:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0895CC004E1;
-        Mon,  7 Feb 2022 11:14:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9308F6077B;
+        Mon,  7 Feb 2022 11:24:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 760B5C004E1;
+        Mon,  7 Feb 2022 11:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232476;
-        bh=5VJ9d+3abFEWJ2MJnXPLDc5G8RtfHSLhqrT8Z/ak7FY=;
+        s=korg; t=1644233088;
+        bh=ax9fryblx6QV7qJ+qvkUKsP1d+CzKmmJDTBUlRRYv54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gKSJBYM6EQ+mhi8KCafShuYWZbxJc2XDF887BYNIJ11JeI6U+0m7mGxi8HitYy4HE
-         0rZvhwaqXksUZwb+hvQcBEMdAtrpqMwECyjDUrWmgnM2tvQzSruHd4lKg4Y6gY2i/2
-         xxYE/FoWrQNOmDntF12yCRVX9xD8hKCeMHgmXFnQ=
+        b=PPx9L1x7LRw6VORMg+hH5UbCS0mpDm3AfUio4zRGgbCLXfqWAkbp1PKH8easVOLJr
+         P0H3xtG7sy/oS3hM4tA9lJDSQTxFtmDG6hL9Ct6vYe+FkWgFjKIFvBCbpazrPCeyE2
+         bY/COp5Tg2APrK3wsHvUtQAe3E5Bx2quB8Qhv42E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslaw Gawin <jaroslawx.gawin@intel.com>,
-        Slawomir Laba <slawomirx.laba@intel.com>,
-        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 4.19 21/86] i40e: Fix issue when maximum queues is exceeded
-Date:   Mon,  7 Feb 2022 12:05:44 +0100
-Message-Id: <20220207103758.243956521@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Sergeyev <sergeev917@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 012/110] ALSA: hda: realtek: Fix race at concurrent COEF updates
+Date:   Mon,  7 Feb 2022 12:05:45 +0100
+Message-Id: <20220207103802.687712648@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,195 +53,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d701658a50a471591094b3eb3961b4926cc8f104 upstream.
+commit b837a9f5ab3bdfab9233c9f98a6bef717673a3e5 upstream.
 
-Before this patch VF interface vanished when
-maximum queue number was exceeded. Driver tried
-to add next queues even if there was not enough
-space. PF sent incorrect number of queues to
-the VF when there were not enough of them.
+The COEF access is done with two steps: setting the index then read or
+write the data.  When multiple COEF accesses are performed
+concurrently, the index and data might be paired unexpectedly.
+In most cases, this isn't a big problem as the COEF setup is done at
+the initialization, but some dynamic changes like the mute LED may hit
+such a race.
 
-Add an additional condition introduced to check
-available space in 'qp_pile' before proceeding.
-This condition makes it impossible to add queues
-if they number is greater than the number resulting
-from available space.
-Also add the search for free space in PF queue
-pair piles.
+For avoiding the racy COEF accesses, this patch introduces a new
+mutex coef_mutex to alc_spec, and wrap the COEF accessing functions
+with it.
 
-Without this patch VF interfaces are not seen
-when available space for queues has been
-exceeded and following logs appears permanently
-in dmesg:
-"Unable to get VF config (-32)".
-"VF 62 failed opcode 3, retval: -5"
-"Unable to get VF config due to PF error condition, not retrying"
-
-Fixes: 7daa6bf3294e ("i40e: driver core headers")
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Signed-off-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reported-by: Alexander Sergeyev <sergeev917@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220111195229.a77wrpjclqwrx4bx@localhost.localdomain
+Link: https://lore.kernel.org/r/20220131075738.24323-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e.h             |    1 
- drivers/net/ethernet/intel/i40e/i40e_main.c        |   14 ----
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |   59 +++++++++++++++++++++
- 3 files changed, 61 insertions(+), 13 deletions(-)
+ sound/pci/hda/patch_realtek.c |   61 ++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 50 insertions(+), 11 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e.h
-@@ -179,7 +179,6 @@ enum i40e_interrupt_policy {
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -97,6 +97,7 @@ struct alc_spec {
+ 	unsigned int gpio_mic_led_mask;
+ 	struct alc_coef_led mute_led_coef;
+ 	struct alc_coef_led mic_led_coef;
++	struct mutex coef_mutex;
  
- struct i40e_lump_tracking {
- 	u16 num_entries;
--	u16 search_hint;
- 	u16 list[0];
- #define I40E_PILE_VALID_BIT  0x8000
- #define I40E_IWARP_IRQ_PILE_ID  (I40E_PILE_VALID_BIT - 2)
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -193,10 +193,6 @@ int i40e_free_virt_mem_d(struct i40e_hw
-  * @id: an owner id to stick on the items assigned
-  *
-  * Returns the base item index of the lump, or negative for error
-- *
-- * The search_hint trick and lack of advanced fit-finding only work
-- * because we're highly likely to have all the same size lump requests.
-- * Linear search time and any fragmentation should be minimal.
-  **/
- static int i40e_get_lump(struct i40e_pf *pf, struct i40e_lump_tracking *pile,
- 			 u16 needed, u16 id)
-@@ -211,8 +207,7 @@ static int i40e_get_lump(struct i40e_pf
- 		return -EINVAL;
- 	}
+ 	hda_nid_t headset_mic_pin;
+ 	hda_nid_t headphone_mic_pin;
+@@ -132,8 +133,8 @@ struct alc_spec {
+  * COEF access helper functions
+  */
  
--	/* start the linear search with an imperfect hint */
--	i = pile->search_hint;
-+	i = 0;
- 	while (i < pile->num_entries) {
- 		/* skip already allocated entries */
- 		if (pile->list[i] & I40E_PILE_VALID_BIT) {
-@@ -231,7 +226,6 @@ static int i40e_get_lump(struct i40e_pf
- 			for (j = 0; j < needed; j++)
- 				pile->list[i+j] = id | I40E_PILE_VALID_BIT;
- 			ret = i;
--			pile->search_hint = i + j;
- 			break;
- 		}
- 
-@@ -254,7 +248,7 @@ static int i40e_put_lump(struct i40e_lum
+-static int alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+-			       unsigned int coef_idx)
++static int __alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++				 unsigned int coef_idx)
  {
- 	int valid_id = (id | I40E_PILE_VALID_BIT);
- 	int count = 0;
--	int i;
-+	u16 i;
+ 	unsigned int val;
  
- 	if (!pile || index >= pile->num_entries)
- 		return -EINVAL;
-@@ -266,8 +260,6 @@ static int i40e_put_lump(struct i40e_lum
- 		count++;
- 	}
- 
--	if (count && index < pile->search_hint)
--		pile->search_hint = index;
- 
- 	return count;
- }
-@@ -10727,7 +10719,6 @@ static int i40e_init_interrupt_scheme(st
- 		return -ENOMEM;
- 
- 	pf->irq_pile->num_entries = vectors;
--	pf->irq_pile->search_hint = 0;
- 
- 	/* track first vector for misc interrupts, ignore return */
- 	(void)i40e_get_lump(pf, pf->irq_pile, 1, I40E_PILE_VALID_BIT - 1);
-@@ -11436,7 +11427,6 @@ static int i40e_sw_init(struct i40e_pf *
- 		goto sw_init_done;
- 	}
- 	pf->qp_pile->num_entries = pf->hw.func_caps.num_tx_qp;
--	pf->qp_pile->search_hint = 0;
- 
- 	pf->tx_timeout_recovery_level = 1;
- 
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -2339,6 +2339,59 @@ error_param:
+@@ -142,28 +143,61 @@ static int alc_read_coefex_idx(struct hd
+ 	return val;
  }
  
- /**
-+ * i40e_check_enough_queue - find big enough queue number
-+ * @vf: pointer to the VF info
-+ * @needed: the number of items needed
-+ *
-+ * Returns the base item index of the queue, or negative for error
-+ **/
-+static int i40e_check_enough_queue(struct i40e_vf *vf, u16 needed)
++static int alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++			       unsigned int coef_idx)
 +{
-+	unsigned int  i, cur_queues, more, pool_size;
-+	struct i40e_lump_tracking *pile;
-+	struct i40e_pf *pf = vf->pf;
-+	struct i40e_vsi *vsi;
++	struct alc_spec *spec = codec->spec;
++	unsigned int val;
 +
-+	vsi = pf->vsi[vf->lan_vsi_idx];
-+	cur_queues = vsi->alloc_queue_pairs;
-+
-+	/* if current allocated queues are enough for need */
-+	if (cur_queues >= needed)
-+		return vsi->base_queue;
-+
-+	pile = pf->qp_pile;
-+	if (cur_queues > 0) {
-+		/* if the allocated queues are not zero
-+		 * just check if there are enough queues for more
-+		 * behind the allocated queues.
-+		 */
-+		more = needed - cur_queues;
-+		for (i = vsi->base_queue + cur_queues;
-+			i < pile->num_entries; i++) {
-+			if (pile->list[i] & I40E_PILE_VALID_BIT)
-+				break;
-+
-+			if (more-- == 1)
-+				/* there is enough */
-+				return vsi->base_queue;
-+		}
-+	}
-+
-+	pool_size = 0;
-+	for (i = 0; i < pile->num_entries; i++) {
-+		if (pile->list[i] & I40E_PILE_VALID_BIT) {
-+			pool_size = 0;
-+			continue;
-+		}
-+		if (needed <= ++pool_size)
-+			/* there is enough */
-+			return i;
-+	}
-+
-+	return -ENOMEM;
++	mutex_lock(&spec->coef_mutex);
++	val = __alc_read_coefex_idx(codec, nid, coef_idx);
++	mutex_unlock(&spec->coef_mutex);
++	return val;
 +}
 +
-+/**
-  * i40e_vc_request_queues_msg
-  * @vf: pointer to the VF info
-  * @msg: pointer to the msg buffer
-@@ -2377,6 +2430,12 @@ static int i40e_vc_request_queues_msg(st
- 			 req_pairs - cur_pairs,
- 			 pf->queues_left);
- 		vfres->num_queue_pairs = pf->queues_left + cur_pairs;
-+	} else if (i40e_check_enough_queue(vf, req_pairs) < 0) {
-+		dev_warn(&pf->pdev->dev,
-+			 "VF %d requested %d more queues, but there is not enough for it.\n",
-+			 vf->vf_id,
-+			 req_pairs - cur_pairs);
-+		vfres->num_queue_pairs = cur_pairs;
- 	} else {
- 		/* successful request */
- 		vf->num_req_queues = req_pairs;
+ #define alc_read_coef_idx(codec, coef_idx) \
+ 	alc_read_coefex_idx(codec, 0x20, coef_idx)
+ 
+-static void alc_write_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+-				 unsigned int coef_idx, unsigned int coef_val)
++static void __alc_write_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++				   unsigned int coef_idx, unsigned int coef_val)
+ {
+ 	snd_hda_codec_write(codec, nid, 0, AC_VERB_SET_COEF_INDEX, coef_idx);
+ 	snd_hda_codec_write(codec, nid, 0, AC_VERB_SET_PROC_COEF, coef_val);
+ }
+ 
++static void alc_write_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++				 unsigned int coef_idx, unsigned int coef_val)
++{
++	struct alc_spec *spec = codec->spec;
++
++	mutex_lock(&spec->coef_mutex);
++	__alc_write_coefex_idx(codec, nid, coef_idx, coef_val);
++	mutex_unlock(&spec->coef_mutex);
++}
++
+ #define alc_write_coef_idx(codec, coef_idx, coef_val) \
+ 	alc_write_coefex_idx(codec, 0x20, coef_idx, coef_val)
+ 
++static void __alc_update_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++				    unsigned int coef_idx, unsigned int mask,
++				    unsigned int bits_set)
++{
++	unsigned int val = __alc_read_coefex_idx(codec, nid, coef_idx);
++
++	if (val != -1)
++		__alc_write_coefex_idx(codec, nid, coef_idx,
++				       (val & ~mask) | bits_set);
++}
++
+ static void alc_update_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+ 				  unsigned int coef_idx, unsigned int mask,
+ 				  unsigned int bits_set)
+ {
+-	unsigned int val = alc_read_coefex_idx(codec, nid, coef_idx);
++	struct alc_spec *spec = codec->spec;
+ 
+-	if (val != -1)
+-		alc_write_coefex_idx(codec, nid, coef_idx,
+-				     (val & ~mask) | bits_set);
++	mutex_lock(&spec->coef_mutex);
++	__alc_update_coefex_idx(codec, nid, coef_idx, mask, bits_set);
++	mutex_unlock(&spec->coef_mutex);
+ }
+ 
+ #define alc_update_coef_idx(codec, coef_idx, mask, bits_set)	\
+@@ -196,13 +230,17 @@ struct coef_fw {
+ static void alc_process_coef_fw(struct hda_codec *codec,
+ 				const struct coef_fw *fw)
+ {
++	struct alc_spec *spec = codec->spec;
++
++	mutex_lock(&spec->coef_mutex);
+ 	for (; fw->nid; fw++) {
+ 		if (fw->mask == (unsigned short)-1)
+-			alc_write_coefex_idx(codec, fw->nid, fw->idx, fw->val);
++			__alc_write_coefex_idx(codec, fw->nid, fw->idx, fw->val);
+ 		else
+-			alc_update_coefex_idx(codec, fw->nid, fw->idx,
+-					      fw->mask, fw->val);
++			__alc_update_coefex_idx(codec, fw->nid, fw->idx,
++						fw->mask, fw->val);
+ 	}
++	mutex_unlock(&spec->coef_mutex);
+ }
+ 
+ /*
+@@ -1148,6 +1186,7 @@ static int alc_alloc_spec(struct hda_cod
+ 	codec->spdif_status_reset = 1;
+ 	codec->forced_resume = 1;
+ 	codec->patch_ops = alc_patch_ops;
++	mutex_init(&spec->coef_mutex);
+ 
+ 	err = alc_codec_rename_from_preset(codec);
+ 	if (err < 0) {
 
 
