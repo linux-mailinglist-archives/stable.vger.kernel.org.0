@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BB494ABB0F
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:35:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E11BC4ABCC1
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:50:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384549AbiBGL2N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:28:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58988 "EHLO
+        id S1387096AbiBGLjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:39:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382546AbiBGLTl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:19:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8BBEC043181;
-        Mon,  7 Feb 2022 03:19:40 -0800 (PST)
+        with ESMTP id S1385837AbiBGLcr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CBB5C043181;
+        Mon,  7 Feb 2022 03:32:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D6D86077B;
-        Mon,  7 Feb 2022 11:19:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 372FAC340F0;
-        Mon,  7 Feb 2022 11:19:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 564B2B80EC3;
+        Mon,  7 Feb 2022 11:32:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 717FAC004E1;
+        Mon,  7 Feb 2022 11:32:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232779;
-        bh=wsyRc9ZMvzorUJmWyI3fLh+nyyibMv5xQACoeXZCBwc=;
+        s=korg; t=1644233564;
+        bh=4jVbnwfVC3bF207Ch0FiydCtVRc8MucTpP3gbvg3VWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XCRSVOhZuJHvM1A/Z/Ixnj6wJXlM/ksa1skypCs0DG8ZbE9oib8aPLDfWAlMrt4hi
-         PXc+tE6nGWoTSl7qrXcHsT8lG2Bs2SW4KPGwEtijw5q6EtAEtkeErQT/BGI1HOdMer
-         0TXfHWKhPPEcH3I2xOgF0pNdEUeAYT8nXmPXaWPs=
+        b=m8lieLTQs9tksiOZnPLQwP0FPEujde2GbR25deL5t/kvpZn3vVOyturPU9oH6OVwN
+         bZ/6ICU36FbM7W7YDP2gOqqrpYwoynYgweFmHYQSOd11Dptf9ptUygtxk6WF/u5GCu
+         AES8CXp/hDvEglzHJHRjw1ith9Kht4J9kKxEhKKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 05/44] ALSA: usb-audio: Simplify quirk entries with a macro
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.16 050/126] RDMA/siw: Fix refcounting leak in siw_create_qp()
 Date:   Mon,  7 Feb 2022 12:06:21 +0100
-Message-Id: <20220207103753.334915098@linuxfoundation.org>
+Message-Id: <20220207103805.844976517@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
-References: <20220207103753.155627314@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,39 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit fa10635fca359f047df6a18b3befd2f1e7304e1a upstream.
+commit a75badebfdc0b3823054bedf112edb54d6357c75 upstream.
 
-Introduce a new macro USB_AUDIO_DEVICE() for the entries matching with
-the pid/vid pair and the class/subclass, and remove the open-code.
+The atomic_inc() needs to be paired with an atomic_dec() on the error
+path.
 
-Link: https://lore.kernel.org/r/20200817082140.20232-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-[ just add the macro for 5.4.y, no entry changes made - gregkh ]
+Fixes: 514aee660df4 ("RDMA: Globally allocate and release QP memory")
+Link: https://lore.kernel.org/r/20220118091104.GA11671@kili
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Bernard Metzler <bmt@zurich.ibm.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks-table.h |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/infiniband/sw/siw/siw_verbs.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -25,6 +25,16 @@
- 	.idProduct = prod, \
- 	.bInterfaceClass = USB_CLASS_VENDOR_SPEC
+--- a/drivers/infiniband/sw/siw/siw_verbs.c
++++ b/drivers/infiniband/sw/siw/siw_verbs.c
+@@ -311,7 +311,8 @@ int siw_create_qp(struct ib_qp *ibqp, st
  
-+/* A standard entry matching with vid/pid and the audio class/subclass */
-+#define USB_AUDIO_DEVICE(vend, prod) \
-+	.match_flags = USB_DEVICE_ID_MATCH_DEVICE | \
-+		       USB_DEVICE_ID_MATCH_INT_CLASS | \
-+		       USB_DEVICE_ID_MATCH_INT_SUBCLASS, \
-+	.idVendor = vend, \
-+	.idProduct = prod, \
-+	.bInterfaceClass = USB_CLASS_AUDIO, \
-+	.bInterfaceSubClass = USB_SUBCLASS_AUDIOCONTROL
-+
- /* HP Thunderbolt Dock Audio Headset */
- {
- 	USB_DEVICE(0x03f0, 0x0269),
+ 	if (atomic_inc_return(&sdev->num_qp) > SIW_MAX_QP) {
+ 		siw_dbg(base_dev, "too many QP's\n");
+-		return -ENOMEM;
++		rv = -ENOMEM;
++		goto err_atomic;
+ 	}
+ 	if (attrs->qp_type != IB_QPT_RC) {
+ 		siw_dbg(base_dev, "only RC QP's supported\n");
 
 
