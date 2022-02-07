@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9AFF4ABD95
+	by mail.lfdr.de (Postfix) with ESMTP id 269D54ABD93
 	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388794AbiBGLpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:45:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38440 "EHLO
+        id S1388758AbiBGLpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:45:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384709AbiBGL3i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:29:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB891C0401CA;
-        Mon,  7 Feb 2022 03:28:04 -0800 (PST)
+        with ESMTP id S1384711AbiBGL3j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:29:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B46F4C0401C6;
+        Mon,  7 Feb 2022 03:28:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7784460AB2;
-        Mon,  7 Feb 2022 11:28:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5220DC004E1;
-        Mon,  7 Feb 2022 11:28:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FF366091A;
+        Mon,  7 Feb 2022 11:28:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EAD4C340F0;
+        Mon,  7 Feb 2022 11:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233283;
-        bh=u3/akX/dz9ZO7Yp9P/0+QWrmMr/uEK5Ppvyr2pAXRic=;
+        s=korg; t=1644233287;
+        bh=07DXET1mUt27c2qdzB5vxavcElMoUr/eGhq3NzQRh/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cRFmOPzv10hMTRT6BL48zRmuMEEDXH4g3h5ozIn8i5dK2B5rdCUw1+t3fdGt+aPVb
-         oYuMDz6FCYXcLgduts/z8TuPUtzFYy1BF24mrgzKW4zPEG/zduEbFspwG3d1Ln0/qR
-         UQSvvnU8aRBEc6mREIa5BEmbzhmm0mTtOLp5Dino=
+        b=A1jAPGWHt+KcZKzX5uwMzPn2N0SERWpjCZgK0c6PLjyGEpFJVX6Ydt/4jfKq0jges
+         8g4sY8qN1d5VnopwJ7dVZSg6rxk/UyO6DZWyr3met0Uku4oZThfk2a2E5urPRV/wK2
+         AsGHls+sEe22ha297QRYDnrB4ytt46Lk4JBfMkdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.15 074/110] ASoC: cpcap: Check for NULL pointer after calling of_get_child_by_name
-Date:   Mon,  7 Feb 2022 12:06:47 +0100
-Message-Id: <20220207103804.801499999@linuxfoundation.org>
+Subject: [PATCH 5.15 075/110] ASoC: max9759: fix underflow in speaker_gain_control_put()
+Date:   Mon,  7 Feb 2022 12:06:48 +0100
+Message-Id: <20220207103804.925662667@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
 References: <20220207103802.280120990@linuxfoundation.org>
@@ -53,36 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit f7a6021aaf02088870559f82fc13c58cda7fea1a upstream.
+commit 4c907bcd9dcd233da6707059d777ab389dcbd964 upstream.
 
-If the device does not exist, of_get_child_by_name() will return NULL
-pointer.
-And devm_snd_soc_register_component() does not check it.
-Also, I have noticed that cpcap_codec_driver has not been used yet.
-Therefore, it should be better to check it in order to avoid the future
-dereference of the NULL pointer.
+Check for negative values of "priv->gain" to prevent an out of bounds
+access.  The concern is that these might come from the user via:
+  -> snd_ctl_elem_write_user()
+    -> snd_ctl_elem_write()
+      -> kctl->put()
 
-Fixes: f6cdf2d3445d ("ASoC: cpcap: new codec")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220111025048.524134-1-jiasheng@iscas.ac.cn
+Fixes: fa8d915172b8 ("ASoC: max9759: Add Amplifier Driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20220119123101.GA9509@kili
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/cpcap.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/codecs/max9759.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/soc/codecs/cpcap.c
-+++ b/sound/soc/codecs/cpcap.c
-@@ -1667,6 +1667,8 @@ static int cpcap_codec_probe(struct plat
- {
- 	struct device_node *codec_node =
- 		of_get_child_by_name(pdev->dev.parent->of_node, "audio-codec");
-+	if (!codec_node)
-+		return -ENODEV;
+--- a/sound/soc/codecs/max9759.c
++++ b/sound/soc/codecs/max9759.c
+@@ -64,7 +64,8 @@ static int speaker_gain_control_put(stru
+ 	struct snd_soc_component *c = snd_soc_kcontrol_component(kcontrol);
+ 	struct max9759 *priv = snd_soc_component_get_drvdata(c);
  
- 	pdev->dev.of_node = codec_node;
+-	if (ucontrol->value.integer.value[0] > 3)
++	if (ucontrol->value.integer.value[0] < 0 ||
++	    ucontrol->value.integer.value[0] > 3)
+ 		return -EINVAL;
  
+ 	priv->gain = ucontrol->value.integer.value[0];
 
 
