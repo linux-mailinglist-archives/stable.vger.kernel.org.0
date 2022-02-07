@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C91EE4ABD7B
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C2CF4ABC1D
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245245AbiBGLom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:44:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45004 "EHLO
+        id S1384879AbiBGLa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:30:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385075AbiBGLbE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:04 -0500
+        with ESMTP id S1383922AbiBGLYF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:24:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93C94C03544C;
-        Mon,  7 Feb 2022 03:29:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AEC5C043181;
+        Mon,  7 Feb 2022 03:24:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A1E260AB0;
-        Mon,  7 Feb 2022 11:29:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2330C004E1;
-        Mon,  7 Feb 2022 11:29:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3EA46149A;
+        Mon,  7 Feb 2022 11:24:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F0ADC004E1;
+        Mon,  7 Feb 2022 11:24:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233350;
-        bh=dlSCWan0FfA5znaLczSL60Lqi/QBNHiAtI0rESPoMpM=;
+        s=korg; t=1644233042;
+        bh=xiY5lY35WAOg9QHGSqaxsrGkoe9bLoInwRS9wfYQ2Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kEUz8gV7yqHCtFKUzno+n+JILWViIKEHt95jTv2kOlKHVm+TDnk8HuObPGi7k1APK
-         O43Hp0Fa3Tp5s81cy+/BV3U2oVfCnEQ02TcohMk5g0Qjk1NjrQ+Y56ZTyyv1ctpTn7
-         QsKt80dKRQk81qJ4UPll8qd5o9p5yLwMBuFOfKvY=
+        b=DdLWZJjKO/fHj5VAs7dXfkNOH+ibLB1ypzjmo30/oZHgaP8ENN+ZViv9UBkThlxLJ
+         bM1pw/2KIvgOjxZ7WmP4U89A55uFo3XiIlMrYznKuJCTvnzBkPXzBxpAUydxKoDUV/
+         pKV4TWuaBGyo3ZOkBfaqpVOaKirlO8ZD+y1dRMJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kyle Huey <me@kylehuey.com>,
-        Andrew Cooper <Andrew.Cooper3@citrix.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
-Subject: [PATCH 5.15 096/110] x86/perf: Default set FREEZE_ON_SMI for all
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        stable@kernel.org, Xin Yin <yinxin.x@bytedance.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 71/74] ext4: fix incorrect type issue during replay_del_range
 Date:   Mon,  7 Feb 2022 12:07:09 +0100
-Message-Id: <20220207103805.641038111@linuxfoundation.org>
+Message-Id: <20220207103759.557358261@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Xin Yin <yinxin.x@bytedance.com>
 
-commit a01994f5e5c79d3a35e5e8cf4252c7f2147323c3 upstream.
+commit 8fca8a2b0a822f7936130af7299d2fd7f0a66714 upstream.
 
-Kyle reported that rr[0] has started to malfunction on Comet Lake and
-later CPUs due to EFI starting to make use of CPL3 [1] and the PMU
-event filtering not distinguishing between regular CPL3 and SMM CPL3.
+should not use fast commit log data directly, add le32_to_cpu().
 
-Since this is a privilege violation, default disable SMM visibility
-where possible.
-
-Administrators wanting to observe SMM cycles can easily change this
-using the sysfs attribute while regular users don't have access to
-this file.
-
-[0] https://rr-project.org/
-
-[1] See the Intel white paper "Trustworthy SMM on the Intel vPro Platform"
-at https://bugzilla.kernel.org/attachment.cgi?id=300300, particularly the
-end of page 5.
-
-Reported-by: Kyle Huey <me@kylehuey.com>
-Suggested-by: Andrew Cooper <Andrew.Cooper3@citrix.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 0b5b5a62b945 ("ext4: use ext4_ext_remove_space() for fast commit replay delete range")
 Cc: stable@kernel.org
-Link: https://lkml.kernel.org/r/YfKChjX61OW4CkYm@hirez.programming.kicks-ass.net
+Signed-off-by: Xin Yin <yinxin.x@bytedance.com>
+Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220126063146.2302-1-yinxin.x@bytedance.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/core.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ fs/ext4/fast_commit.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -4654,6 +4654,19 @@ static __initconst const struct x86_pmu
- 	.lbr_read		= intel_pmu_lbr_read_64,
- 	.lbr_save		= intel_pmu_lbr_save,
- 	.lbr_restore		= intel_pmu_lbr_restore,
-+
-+	/*
-+	 * SMM has access to all 4 rings and while traditionally SMM code only
-+	 * ran in CPL0, 2021-era firmware is starting to make use of CPL3 in SMM.
-+	 *
-+	 * Since the EVENTSEL.{USR,OS} CPL filtering makes no distinction
-+	 * between SMM or not, this results in what should be pure userspace
-+	 * counters including SMM data.
-+	 *
-+	 * This is a clear privilege issue, therefore globally disable
-+	 * counting SMM by default.
-+	 */
-+	.attr_freeze_on_smi	= 1,
- };
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -1771,8 +1771,9 @@ ext4_fc_replay_del_range(struct super_bl
+ 	}
  
- static __init void intel_clovertown_quirk(void)
+ 	down_write(&EXT4_I(inode)->i_data_sem);
+-	ret = ext4_ext_remove_space(inode, lrange.fc_lblk,
+-				lrange.fc_lblk + lrange.fc_len - 1);
++	ret = ext4_ext_remove_space(inode, le32_to_cpu(lrange.fc_lblk),
++				le32_to_cpu(lrange.fc_lblk) +
++				le32_to_cpu(lrange.fc_len) - 1);
+ 	up_write(&EXT4_I(inode)->i_data_sem);
+ 	if (ret)
+ 		goto out;
 
 
