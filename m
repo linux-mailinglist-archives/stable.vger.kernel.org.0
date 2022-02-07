@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 557764ABCBD
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58D884ABA9A
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387084AbiBGLjG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:39:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45936 "EHLO
+        id S1383939AbiBGLYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385802AbiBGLcj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 680D5C043181;
-        Mon,  7 Feb 2022 03:32:38 -0800 (PST)
+        with ESMTP id S1380461AbiBGLQo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:16:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A5A2C043181;
+        Mon,  7 Feb 2022 03:16:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0432A60A67;
-        Mon,  7 Feb 2022 11:32:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF73BC004E1;
-        Mon,  7 Feb 2022 11:32:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54232B8107E;
+        Mon,  7 Feb 2022 11:16:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F2D5C004E1;
+        Mon,  7 Feb 2022 11:16:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233557;
-        bh=JE/jV0p/vLig4xTmzfQk4lQFfn7O51vh4mZW9DF20YE=;
+        s=korg; t=1644232601;
+        bh=X2PmtcubdmBuKzfOIo3d1B6F6vjAA0MMayA++6lrPLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPi1YNayf5ZDyviLTPPiUL4S/N4NrqR/zjg3rjdI633wRdB172qlVMC+a8UgN1qUX
-         ePFT+LkAt3htfgpMnJ3NU6ioB9OtnCZJldboolpYrLO+jvdjk14JWEB/XeJce52haS
-         ZYMibY4Fo3U61u40zhBk+zsCoKymrZj4TWCXx6rg=
+        b=IOLfu02ft05vJpR2CcFL/E4CVXwYVTTG0c0PZqi1oIP2RFflca5oquX+5RIEqX6lP
+         cRak9p6xI/J9pdzEgePm7ib900705JQAfM1Nx3sWXqBGoJIxL97E7aJblNQK2vDT4r
+         DA+Lmvx90xfMGvE2pAH0vBLSNFci3XccOsUfMB90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Lopez <github@glowingmonkey.org>,
-        Ilia Mirkin <imirkin@alum.mit.edu>,
-        Karol Herbst <kherbst@redhat.com>
-Subject: [PATCH 5.16 022/126] drm/nouveau: fix off by one in BIOS boundary checking
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        David Ahern <dsahern@kernel.org>, Ray Che <xijiache@gmail.com>,
+        Willy Tarreau <w@1wt.eu>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 30/86] ipv4: avoid using shared IP generator for connected sockets
 Date:   Mon,  7 Feb 2022 12:05:53 +0100
-Message-Id: <20220207103804.925676047@linuxfoundation.org>
+Message-Id: <20220207103758.522973323@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+References: <20220207103757.550973048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Lopez <github@glowingmonkey.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 1b777d4d9e383d2744fc9b3a09af6ec1893c8b1a upstream.
+commit 23f57406b82de51809d5812afd96f210f8b627f3 upstream.
 
-Bounds checking when parsing init scripts embedded in the BIOS reject
-access to the last byte. This causes driver initialization to fail on
-Apple eMac's with GeForce 2 MX GPUs, leaving the system with no working
-console.
+ip_select_ident_segs() has been very conservative about using
+the connected socket private generator only for packets with IP_DF
+set, claiming it was needed for some VJ compression implementations.
 
-This is probably only seen on OpenFirmware machines like PowerPC Macs
-because the BIOS image provided by OF is only the used parts of the ROM,
-not a power-of-two blocks read from PCI directly so PCs always have
-empty bytes at the end that are never accessed.
+As mentioned in this referenced document, this can be abused.
+(Ref: Off-Path TCP Exploits of the Mixed IPID Assignment)
 
-Signed-off-by: Nick Lopez <github@glowingmonkey.org>
-Fixes: 4d4e9907ff572 ("drm/nouveau/bios: guard against out-of-bounds accesses to image")
-Cc: <stable@vger.kernel.org> # v4.10+
-Reviewed-by: Ilia Mirkin <imirkin@alum.mit.edu>
-Reviewed-by: Karol Herbst <kherbst@redhat.com>
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220122081906.2633061-1-github@glowingmonkey.org
+Before switching to pure random IPID generation and possibly hurt
+some workloads, lets use the private inet socket generator.
+
+Not only this will remove one vulnerability, this will also
+improve performance of TCP flows using pmtudisc==IP_PMTUDISC_DONT
+
+Fixes: 73f156a6e8c1 ("inetpeer: get rid of ip_id_count")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Reported-by: Ray Che <xijiache@gmail.com>
+Cc: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/ip.h |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c
-@@ -38,7 +38,7 @@ nvbios_addr(struct nvkm_bios *bios, u32
- 		*addr += bios->imaged_addr;
- 	}
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -441,19 +441,18 @@ static inline void ip_select_ident_segs(
+ {
+ 	struct iphdr *iph = ip_hdr(skb);
  
--	if (unlikely(*addr + size >= bios->size)) {
-+	if (unlikely(*addr + size > bios->size)) {
- 		nvkm_error(&bios->subdev, "OOB %d %08x %08x\n", size, p, *addr);
- 		return false;
++	/* We had many attacks based on IPID, use the private
++	 * generator as much as we can.
++	 */
++	if (sk && inet_sk(sk)->inet_daddr) {
++		iph->id = htons(inet_sk(sk)->inet_id);
++		inet_sk(sk)->inet_id += segs;
++		return;
++	}
+ 	if ((iph->frag_off & htons(IP_DF)) && !skb->ignore_df) {
+-		/* This is only to work around buggy Windows95/2000
+-		 * VJ compression implementations.  If the ID field
+-		 * does not change, they drop every other packet in
+-		 * a TCP stream using header compression.
+-		 */
+-		if (sk && inet_sk(sk)->inet_daddr) {
+-			iph->id = htons(inet_sk(sk)->inet_id);
+-			inet_sk(sk)->inet_id += segs;
+-		} else {
+-			iph->id = 0;
+-		}
++		iph->id = 0;
+ 	} else {
++		/* Unfortunately we need the big hammer to get a suitable IPID */
+ 		__ip_select_ident(net, iph, segs);
  	}
+ }
 
 
