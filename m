@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6D774ABB31
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC9D04ABAE5
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:31:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384269AbiBGL1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:27:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48890 "EHLO
+        id S1384134AbiBGLYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242911AbiBGLKY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:10:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 289F2C043181;
-        Mon,  7 Feb 2022 03:10:24 -0800 (PST)
+        with ESMTP id S1379780AbiBGLQV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:16:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17047C043181;
+        Mon,  7 Feb 2022 03:16:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A935961380;
-        Mon,  7 Feb 2022 11:10:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71995C004E1;
-        Mon,  7 Feb 2022 11:10:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97B426126D;
+        Mon,  7 Feb 2022 11:16:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 776FAC004E1;
+        Mon,  7 Feb 2022 11:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232223;
-        bh=/1gOUus/PlI8TcuhnyrJCK0TBi6oG+v2tNclrv/K+8U=;
+        s=korg; t=1644232579;
+        bh=PkDSCHfSoW1Otd51STQdopensaiCHNHWwutyrZDS9Gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZTrUM9juqsGnZdMmESX2AxTSxoEcYpEJvgAy0sQkFgHa0ebK7d+5l9vzBGxXodETK
-         t29UO5ZxK8C2Cu0Aooji/40bbXguCzYhASQC0T3ARowS2Fwgfg1t5l9k9S6VPOlxhz
-         638E2zWEbJKEW0O8FVtnIKOJmCvBm5yrJY2qNVIc=
+        b=e2Fg7AbEEqTd9QFmm9eGTkbxg7x8J4PdRTd26iGVEeLV7QwI/umqnvH1k4OL8+0Hy
+         2fZXaIF1feL3+BckuKlTBclNWDgYPUml5cbM7Djky2gEDnu8ACwWfzl5iOUiMR/etq
+         WFLPEIQAO6E6KnnXMnoSA8cOP12clVJb1t9Uzd94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Bruce Fields <bfields@fieldses.org>
-Subject: [PATCH 4.9 44/48] nfsd: nfsd4_setclientid_confirm mistakenly expires confirmed client.
+        stable@vger.kernel.org, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.19 54/86] audit: improve audit queue handling when "audit=1" on cmdline
 Date:   Mon,  7 Feb 2022 12:06:17 +0100
-Message-Id: <20220207103753.761720551@linuxfoundation.org>
+Message-Id: <20220207103759.334877202@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
-References: <20220207103752.341184175@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+References: <20220207103757.550973048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,207 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dai Ngo <dai.ngo@oracle.com>
+From: Paul Moore <paul@paul-moore.com>
 
-commit ab451ea952fe9d7afefae55ddb28943a148247fe upstream.
+commit f26d04331360d42dbd6b58448bd98e4edbfbe1c5 upstream.
 
->From RFC 7530 Section 16.34.5:
+When an admin enables audit at early boot via the "audit=1" kernel
+command line the audit queue behavior is slightly different; the
+audit subsystem goes to greater lengths to avoid dropping records,
+which unfortunately can result in problems when the audit daemon is
+forcibly stopped for an extended period of time.
 
-o  The server has not recorded an unconfirmed { v, x, c, *, * } and
-   has recorded a confirmed { v, x, c, *, s }.  If the principals of
-   the record and of SETCLIENTID_CONFIRM do not match, the server
-   returns NFS4ERR_CLID_INUSE without removing any relevant leased
-   client state, and without changing recorded callback and
-   callback_ident values for client { x }.
+This patch makes a number of changes designed to improve the audit
+queuing behavior so that leaving the audit daemon in a stopped state
+for an extended period does not cause a significant impact to the
+system.
 
-The current code intends to do what the spec describes above but
-it forgot to set 'old' to NULL resulting to the confirmed client
-to be expired.
+- kauditd_send_queue() is now limited to looping through the
+  passed queue only once per call.  This not only prevents the
+  function from looping indefinitely when records are returned
+  to the current queue, it also allows any recovery handling in
+  kauditd_thread() to take place when kauditd_send_queue()
+  returns.
 
-Fixes: 2b63482185e6 ("nfsd: fix clid_inuse on mount with security change")
-Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Reviewed-by: Bruce Fields <bfields@fieldses.org>
+- Transient netlink send errors seen as -EAGAIN now cause the
+  record to be returned to the retry queue instead of going to
+  the hold queue.  The intention of the hold queue is to store,
+  perhaps for an extended period of time, the events which led
+  up to the audit daemon going offline.  The retry queue remains
+  a temporary queue intended to protect against transient issues
+  between the kernel and the audit daemon.
+
+- The retry queue is now limited by the audit_backlog_limit
+  setting, the same as the other queues.  This allows admins
+  to bound the size of all of the audit queues on the system.
+
+- kauditd_rehold_skb() now returns records to the end of the
+  hold queue to ensure ordering is preserved in the face of
+  recent changes to kauditd_send_queue().
+
+Cc: stable@vger.kernel.org
+Fixes: 5b52330bbfe63 ("audit: fix auditd/kernel connection state tracking")
+Fixes: f4b3ee3c85551 ("audit: improve robustness of the audit queue handling")
+Reported-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Tested-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfs4state.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/audit.c |   62 +++++++++++++++++++++++++++++++++++++++------------------
+ 1 file changed, 43 insertions(+), 19 deletions(-)
 
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -3424,8 +3424,10 @@ nfsd4_setclientid_confirm(struct svc_rqs
- 			status = nfserr_clid_inuse;
- 			if (client_has_state(old)
- 					&& !same_creds(&unconf->cl_cred,
--							&old->cl_cred))
-+							&old->cl_cred)) {
-+				old = NULL;
- 				goto out;
-+			}
- 			status = mark_client_expired_locked(old);
- 			if (status) {
- 				old = NULL;
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -549,20 +549,22 @@ static void kauditd_printk_skb(struct sk
+ /**
+  * kauditd_rehold_skb - Handle a audit record send failure in the hold queue
+  * @skb: audit record
++ * @error: error code (unused)
+  *
+  * Description:
+  * This should only be used by the kauditd_thread when it fails to flush the
+  * hold queue.
+  */
+-static void kauditd_rehold_skb(struct sk_buff *skb)
++static void kauditd_rehold_skb(struct sk_buff *skb, __always_unused int error)
+ {
+-	/* put the record back in the queue at the same place */
+-	skb_queue_head(&audit_hold_queue, skb);
++	/* put the record back in the queue */
++	skb_queue_tail(&audit_hold_queue, skb);
+ }
+ 
+ /**
+  * kauditd_hold_skb - Queue an audit record, waiting for auditd
+  * @skb: audit record
++ * @error: error code
+  *
+  * Description:
+  * Queue the audit record, waiting for an instance of auditd.  When this
+@@ -572,19 +574,31 @@ static void kauditd_rehold_skb(struct sk
+  * and queue it, if we have room.  If we want to hold on to the record, but we
+  * don't have room, record a record lost message.
+  */
+-static void kauditd_hold_skb(struct sk_buff *skb)
++static void kauditd_hold_skb(struct sk_buff *skb, int error)
+ {
+ 	/* at this point it is uncertain if we will ever send this to auditd so
+ 	 * try to send the message via printk before we go any further */
+ 	kauditd_printk_skb(skb);
+ 
+ 	/* can we just silently drop the message? */
+-	if (!audit_default) {
+-		kfree_skb(skb);
+-		return;
++	if (!audit_default)
++		goto drop;
++
++	/* the hold queue is only for when the daemon goes away completely,
++	 * not -EAGAIN failures; if we are in a -EAGAIN state requeue the
++	 * record on the retry queue unless it's full, in which case drop it
++	 */
++	if (error == -EAGAIN) {
++		if (!audit_backlog_limit ||
++		    skb_queue_len(&audit_retry_queue) < audit_backlog_limit) {
++			skb_queue_tail(&audit_retry_queue, skb);
++			return;
++		}
++		audit_log_lost("kauditd retry queue overflow");
++		goto drop;
+ 	}
+ 
+-	/* if we have room, queue the message */
++	/* if we have room in the hold queue, queue the message */
+ 	if (!audit_backlog_limit ||
+ 	    skb_queue_len(&audit_hold_queue) < audit_backlog_limit) {
+ 		skb_queue_tail(&audit_hold_queue, skb);
+@@ -593,24 +607,32 @@ static void kauditd_hold_skb(struct sk_b
+ 
+ 	/* we have no other options - drop the message */
+ 	audit_log_lost("kauditd hold queue overflow");
++drop:
+ 	kfree_skb(skb);
+ }
+ 
+ /**
+  * kauditd_retry_skb - Queue an audit record, attempt to send again to auditd
+  * @skb: audit record
++ * @error: error code (unused)
+  *
+  * Description:
+  * Not as serious as kauditd_hold_skb() as we still have a connected auditd,
+  * but for some reason we are having problems sending it audit records so
+  * queue the given record and attempt to resend.
+  */
+-static void kauditd_retry_skb(struct sk_buff *skb)
++static void kauditd_retry_skb(struct sk_buff *skb, __always_unused int error)
+ {
+-	/* NOTE: because records should only live in the retry queue for a
+-	 * short period of time, before either being sent or moved to the hold
+-	 * queue, we don't currently enforce a limit on this queue */
+-	skb_queue_tail(&audit_retry_queue, skb);
++	if (!audit_backlog_limit ||
++	    skb_queue_len(&audit_retry_queue) < audit_backlog_limit) {
++		skb_queue_tail(&audit_retry_queue, skb);
++		return;
++	}
++
++	/* we have to drop the record, send it via printk as a last effort */
++	kauditd_printk_skb(skb);
++	audit_log_lost("kauditd retry queue overflow");
++	kfree_skb(skb);
+ }
+ 
+ /**
+@@ -648,7 +670,7 @@ static void auditd_reset(const struct au
+ 	/* flush the retry queue to the hold queue, but don't touch the main
+ 	 * queue since we need to process that normally for multicast */
+ 	while ((skb = skb_dequeue(&audit_retry_queue)))
+-		kauditd_hold_skb(skb);
++		kauditd_hold_skb(skb, -ECONNREFUSED);
+ }
+ 
+ /**
+@@ -722,16 +744,18 @@ static int kauditd_send_queue(struct soc
+ 			      struct sk_buff_head *queue,
+ 			      unsigned int retry_limit,
+ 			      void (*skb_hook)(struct sk_buff *skb),
+-			      void (*err_hook)(struct sk_buff *skb))
++			      void (*err_hook)(struct sk_buff *skb, int error))
+ {
+ 	int rc = 0;
+-	struct sk_buff *skb;
++	struct sk_buff *skb = NULL;
++	struct sk_buff *skb_tail;
+ 	unsigned int failed = 0;
+ 
+ 	/* NOTE: kauditd_thread takes care of all our locking, we just use
+ 	 *       the netlink info passed to us (e.g. sk and portid) */
+ 
+-	while ((skb = skb_dequeue(queue))) {
++	skb_tail = skb_peek_tail(queue);
++	while ((skb != skb_tail) && (skb = skb_dequeue(queue))) {
+ 		/* call the skb_hook for each skb we touch */
+ 		if (skb_hook)
+ 			(*skb_hook)(skb);
+@@ -739,7 +763,7 @@ static int kauditd_send_queue(struct soc
+ 		/* can we send to anyone via unicast? */
+ 		if (!sk) {
+ 			if (err_hook)
+-				(*err_hook)(skb);
++				(*err_hook)(skb, -ECONNREFUSED);
+ 			continue;
+ 		}
+ 
+@@ -753,7 +777,7 @@ retry:
+ 			    rc == -ECONNREFUSED || rc == -EPERM) {
+ 				sk = NULL;
+ 				if (err_hook)
+-					(*err_hook)(skb);
++					(*err_hook)(skb, rc);
+ 				if (rc == -EAGAIN)
+ 					rc = 0;
+ 				/* continue to drain the queue */
 
 
