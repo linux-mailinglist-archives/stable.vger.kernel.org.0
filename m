@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDACE4ABAF3
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 383E44ABB9C
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:39:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239623AbiBGLZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:25:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48264 "EHLO
+        id S1384595AbiBGL3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:29:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243012AbiBGLJD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:09:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34C63C0401C0;
-        Mon,  7 Feb 2022 03:09:03 -0800 (PST)
+        with ESMTP id S1383097AbiBGLVg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:21:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54334C0401C8;
+        Mon,  7 Feb 2022 03:21:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA8E261370;
-        Mon,  7 Feb 2022 11:09:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9553FC004E1;
-        Mon,  7 Feb 2022 11:09:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CC3761388;
+        Mon,  7 Feb 2022 11:21:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE7DBC004E1;
+        Mon,  7 Feb 2022 11:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232142;
-        bh=+4mZZHudvKT32dDGcBg2edq6nXoIttprgmSJJ8Y7vys=;
+        s=korg; t=1644232871;
+        bh=3Iw4+C7epksGrwi7zi0NVaXS+fJ2+w8mzoPqqhMRU+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CNHLzgzECmzhJ9J07vLVCZwnd+RZsIxWjuPzWGMPb+u5Ruwafg3fsCoeifnpzRud1
-         +Ra8hFYs28mobw9E4uYAWxA7zOEx7iPhsWziIpwHmDcn+XWN3vpNgVYhx2PBXzcR6A
-         qdW4FCDNlKFpalXO9jlDAMxXjQrITmnYQogy7y8A=
+        b=HHlDo0g4OPPsWn+tCzPfd+I8oIhplXNzw9E36P1axyxVWqxFV/iKBLaipsx7FIksu
+         TifgM9hRzHY7pe/18yAayHFNS7lFONI2M6Ty3mb9Phdq/vOcQneL6CBk2JRv2JAn7i
+         1ZW6Taig28vyJJ7t0NdA3zkcH/DOiM5v4Zt4FGmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
-        Raju Rangoju <Raju.Rangoju@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 29/48] net: amd-xgbe: ensure to reset the tx_timer_active flag
-Date:   Mon,  7 Feb 2022 12:06:02 +0100
-Message-Id: <20220207103753.293439483@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 05/74] ASoC: ops: Reject out of bounds values in snd_soc_put_xr_sx()
+Date:   Mon,  7 Feb 2022 12:06:03 +0100
+Message-Id: <20220207103757.412513163@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
-References: <20220207103752.341184175@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raju Rangoju <Raju.Rangoju@amd.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit 7674b7b559b683478c3832527c59bceb169e701d upstream.
+commit 4cf28e9ae6e2e11a044be1bcbcfa1b0d8675fe4d upstream.
 
-Ensure to reset the tx_timer_active flag in xgbe_stop(),
-otherwise a port restart may result in tx timeout due to
-uncleared flag.
+We don't currently validate that the values being set are within the range
+we advertised to userspace as being valid, do so and reject any values
+that are out of range.
 
-Fixes: c635eaacbf77 ("amd-xgbe: Remove Tx coalescing")
-Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lore.kernel.org/r/20220127060222.453371-1-Raju.Rangoju@amd.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220124153253.3548853-4-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c |    2 ++
+ sound/soc/soc-ops.c |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-@@ -494,7 +494,9 @@ static void xgbe_stop_timers(struct xgbe
- 		if (!channel->tx_ring)
- 			break;
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -880,6 +880,8 @@ int snd_soc_put_xr_sx(struct snd_kcontro
+ 	unsigned int i, regval, regmask;
+ 	int err;
  
-+		/* Deactivate the Tx timer */
- 		del_timer_sync(&channel->tx_timer);
-+		channel->tx_timer_active = 0;
- 	}
- }
- 
++	if (val < mc->min || val > mc->max)
++		return -EINVAL;
+ 	if (invert)
+ 		val = max - val;
+ 	val &= mask;
 
 
