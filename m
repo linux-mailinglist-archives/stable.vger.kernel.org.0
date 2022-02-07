@@ -2,172 +2,327 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48A5D4ABDCD
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:05:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09A2B4ABD13
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:56:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389107AbiBGLqH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:46:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48696 "EHLO
+        id S242040AbiBGLol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:44:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386788AbiBGLg4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:36:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CF70C043181;
-        Mon,  7 Feb 2022 03:36:55 -0800 (PST)
+        with ESMTP id S1385052AbiBGLbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E73C2C03649B;
+        Mon,  7 Feb 2022 03:29:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 291BEB80EBD;
-        Mon,  7 Feb 2022 11:36:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5282AC004E1;
-        Mon,  7 Feb 2022 11:36:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 403A1B80EBD;
+        Mon,  7 Feb 2022 11:29:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BDA7C004E1;
+        Mon,  7 Feb 2022 11:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233813;
-        bh=HlwO99kzVVDq/w0vcBsb1+gvp57k51VTn37EzEf+CmY=;
+        s=korg; t=1644233344;
+        bh=fPYdKdWpnGHTHXZCbhnIuCJs8ENy0yQAD1fLx+dFIIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dExP08jtTf0gfebk03t2yMiAGcOk6QsK6HXMbIm55sybph8yVJwo7lol+3FGtqB40
-         OcDak+6xOLjqf1i7dTlTlLyOn2dJ6q5XFpdWCKoLt+x63RtyTX1i3pwfp8XeO1TTPb
-         ynmWyJqacMJZ1nNWa/6aKUy3k1ClOFpRGpjlE7qg=
+        b=ciMsHFjBm6mBx0qLwnUcEiytLfs3SN2Hf5IEVcUF4rSQusurkwpk9251zTqQtKcQg
+         XDTYbyJxlml9tMAtAgnGyCG0EEGAsiv1f1jW6A23TC1Sn8NLUrD5/qttbJQ5pklRAp
+         LoPUOpeHf1oDIHiikqEI33A297wSfSXv2v/tju8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C5=81ukasz=20Bartosik?= <lb@semihalf.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.16 095/126] pinctrl: intel: fix unexpected interrupt
-Date:   Mon,  7 Feb 2022 12:07:06 +0100
-Message-Id: <20220207103807.363627234@linuxfoundation.org>
+        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Asaf Yaffe <asaf.yaffe@intel.com>,
+        Caleb Biggers <caleb.biggers@intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        James Clark <james.clark@arm.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        John Garry <john.garry@huawei.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Kshipra Bopardikar <kshipra.bopardikar@intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Perry Taylor <perry.taylor@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Vineet Singh <vineet.singh@intel.com>,
+        Zhengjun Xing <zhengjun.xing@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 094/110] perf stat: Fix display of grouped aliased events
+Date:   Mon,  7 Feb 2022 12:07:07 +0100
+Message-Id: <20220207103805.580324499@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,UPPERCASE_50_75
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Łukasz Bartosik <lb@semihalf.com>
+From: Ian Rogers <irogers@google.com>
 
-commit e986f0e602f19ecb7880b04dd1db415ed9bca3f6 upstream.
+[ Upstream commit b2b1aa73ade982c175ac926a1fd34e76ad628b94 ]
 
-ASUS Chromebook C223 with Celeron N3350 crashes sometimes during
-cold booot. Inspection of the kernel log showed that it gets into
-an inifite loop logging the following message:
+An event may have a number of uncore aliases that when added to the
+evlist are consecutive.
 
-->handle_irq():  000000009cdb51e8, handle_bad_irq+0x0/0x251
-->irq_data.chip(): 000000005ec212a7, 0xffffa043009d8e7
-->action(): 00000
-   IRQ_NOPROBE set
-unexpected IRQ trap at vector 7c
+If there are multiple uncore events in a group then
+parse_events__set_leader_for_uncore_aliase will reorder the evlist so
+that events on the same PMU are adjacent.
 
-The issue happens during cold boot but only if cold boot happens
-at most several dozen seconds after Chromebook is powered off. For
-longer intervals between power off and power on (cold boot) the issue
-does not reproduce. The unexpected interrupt is sourced from INT3452
-GPIO pin which is used for SD card detect. Investigation relevealed
-that when the interval between power off and power on (cold boot)
-is less than several dozen seconds then values of INT3452 GPIO interrupt
-enable and interrupt pending registers survive power off and power
-on sequence and interrupt for SD card detect pin is enabled and pending
-during probe of SD controller which causes the unexpected IRQ message.
-"Intel Pentium and Celeron Processor N- and J- Series" volume 3 doc
-mentions that GPIO interrupt enable and status registers default
-value is 0x0.
-The fix clears INT3452 GPIO interrupt enabled and interrupt pending
-registers in its probe function.
+The collect_all_aliases function assumes that aliases are in blocks so
+that only the first counter is printed and all others are marked merged.
 
-Fixes: 7981c0015af2 ("pinctrl: intel: Add Intel Sunrisepoint pin controller and GPIO support")
-Signed-off-by: Łukasz Bartosik <lb@semihalf.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The reordering for groups breaks the assumption and so all counts are
+printed.
+
+This change removes the assumption from collect_all_aliases
+that the events are in blocks and instead processes the entire evlist.
+
+Before:
+
+  ```
+  $ perf stat -e '{UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE,UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE},duration_time' -a -A -- sleep 1
+
+   Performance counter stats for 'system wide':
+
+  CPU0                  256,866      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 494,413      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                      967      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,738      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  285,161      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 429,920      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                      955      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,443      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  310,753      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 416,657      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,231      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,573      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  416,067      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 405,966      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,481      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,447      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  312,911      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 408,154      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,086      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,380      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  333,994      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 370,349      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,287      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,335      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  188,107      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 302,423      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                      701      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,070      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  307,221      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 383,642      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,036      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,158      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  318,479      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 821,545      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,028      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   2,550      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  227,618      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 372,272      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                      903      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,456      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  376,783      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 419,827      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,406      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,453      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  286,583      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 429,956      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                      999      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,436      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  313,867      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 370,159      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,114      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,291      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  342,083      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 409,111      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,399      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,684      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  365,828      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 376,037      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,378      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,411      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  382,456      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 621,743      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,232      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,955      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  342,316      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 385,067      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,176      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,268      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  373,588      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 386,163      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,394      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,464      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  381,206      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 546,891      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,266      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,712      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  221,176      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 392,069      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                      831      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,456      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  355,401      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 705,595      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,235      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   2,216      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  371,436      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 428,103      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,306      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,442      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  384,352      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 504,200      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,468      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,860      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  228,856      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 287,976      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                      832      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,060      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  215,121      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 334,162      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                      681      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,026      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  296,179      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 436,083      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,084      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,525      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  262,296      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 416,573      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                      986      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,533      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  285,852      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 359,842      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,073      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,326      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  303,379      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 367,222      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,008      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,156      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  273,487      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 425,449      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                      932      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,367      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  297,596      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 414,793      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,140      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,601      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  342,365      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 360,422      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,291      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,342      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  327,196      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 580,858      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,122      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   2,014      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  296,564      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 452,817      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,087      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,694      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  375,002      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 389,393      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,478      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   1,540      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0                  365,213      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36                 594,685      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                    1,401      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                   2,222      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0            1,000,749,060 ns   duration_time
+
+         1.000749060 seconds time elapsed
+  ```
+
+After:
+
+  ```
+   Performance counter stats for 'system wide':
+
+  CPU0               20,547,434      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU36              45,202,862      UNC_CHA_TOR_OCCUPANCY.IA_MISS_DRD_REMOTE
+  CPU0                   82,001      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU36                 159,688      UNC_CHA_TOR_INSERTS.IA_MISS_DRD_REMOTE
+  CPU0            1,000,464,828 ns   duration_time
+
+         1.000464828 seconds time elapsed
+  ```
+
+Fixes: 3cdc5c2cb924acb4 ("perf parse-events: Handle uncore event aliases in small groups properly")
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Signed-off-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Asaf Yaffe <asaf.yaffe@intel.com>
+Cc: Caleb Biggers <caleb.biggers@intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: James Clark <james.clark@arm.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Kshipra Bopardikar <kshipra.bopardikar@intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Perry Taylor <perry.taylor@intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Vineet Singh <vineet.singh@intel.com>
+Cc: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+Link: https://lore.kernel.org/r/20220205010941.1065469-1-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-intel.c |   54 +++++++++++++++++++++-------------
- 1 file changed, 34 insertions(+), 20 deletions(-)
+ tools/perf/util/stat-display.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -1210,6 +1210,39 @@ static irqreturn_t intel_gpio_irq(int ir
- 	return IRQ_RETVAL(ret);
- }
+diff --git a/tools/perf/util/stat-display.c b/tools/perf/util/stat-display.c
+index 588601000f3f9..db00ca6a67deb 100644
+--- a/tools/perf/util/stat-display.c
++++ b/tools/perf/util/stat-display.c
+@@ -584,15 +584,16 @@ static void collect_all_aliases(struct perf_stat_config *config, struct evsel *c
  
-+static void intel_gpio_irq_init(struct intel_pinctrl *pctrl)
-+{
-+	int i;
-+
-+	for (i = 0; i < pctrl->ncommunities; i++) {
-+		const struct intel_community *community;
-+		void __iomem *base;
-+		unsigned int gpp;
-+
-+		community = &pctrl->communities[i];
-+		base = community->regs;
-+
-+		for (gpp = 0; gpp < community->ngpps; gpp++) {
-+			/* Mask and clear all interrupts */
-+			writel(0, base + community->ie_offset + gpp * 4);
-+			writel(0xffff, base + community->is_offset + gpp * 4);
+ 	alias = list_prepare_entry(counter, &(evlist->core.entries), core.node);
+ 	list_for_each_entry_continue (alias, &evlist->core.entries, core.node) {
+-		if (strcmp(evsel__name(alias), evsel__name(counter)) ||
+-		    alias->scale != counter->scale ||
+-		    alias->cgrp != counter->cgrp ||
+-		    strcmp(alias->unit, counter->unit) ||
+-		    evsel__is_clock(alias) != evsel__is_clock(counter) ||
+-		    !strcmp(alias->pmu_name, counter->pmu_name))
+-			break;
+-		alias->merged_stat = true;
+-		cb(config, alias, data, false);
++		/* Merge events with the same name, etc. but on different PMUs. */
++		if (!strcmp(evsel__name(alias), evsel__name(counter)) &&
++			alias->scale == counter->scale &&
++			alias->cgrp == counter->cgrp &&
++			!strcmp(alias->unit, counter->unit) &&
++			evsel__is_clock(alias) == evsel__is_clock(counter) &&
++			strcmp(alias->pmu_name, counter->pmu_name)) {
++			alias->merged_stat = true;
++			cb(config, alias, data, false);
 +		}
-+	}
-+}
-+
-+static int intel_gpio_irq_init_hw(struct gpio_chip *gc)
-+{
-+	struct intel_pinctrl *pctrl = gpiochip_get_data(gc);
-+
-+	/*
-+	 * Make sure the interrupt lines are in a proper state before
-+	 * further configuration.
-+	 */
-+	intel_gpio_irq_init(pctrl);
-+
-+	return 0;
-+}
-+
- static int intel_gpio_add_community_ranges(struct intel_pinctrl *pctrl,
- 				const struct intel_community *community)
- {
-@@ -1314,6 +1347,7 @@ static int intel_gpio_probe(struct intel
- 	girq->num_parents = 0;
- 	girq->default_type = IRQ_TYPE_NONE;
- 	girq->handler = handle_bad_irq;
-+	girq->init_hw = intel_gpio_irq_init_hw;
- 
- 	ret = devm_gpiochip_add_data(pctrl->dev, &pctrl->chip, pctrl);
- 	if (ret) {
-@@ -1689,26 +1723,6 @@ int intel_pinctrl_suspend_noirq(struct d
+ 	}
  }
- EXPORT_SYMBOL_GPL(intel_pinctrl_suspend_noirq);
  
--static void intel_gpio_irq_init(struct intel_pinctrl *pctrl)
--{
--	size_t i;
--
--	for (i = 0; i < pctrl->ncommunities; i++) {
--		const struct intel_community *community;
--		void __iomem *base;
--		unsigned int gpp;
--
--		community = &pctrl->communities[i];
--		base = community->regs;
--
--		for (gpp = 0; gpp < community->ngpps; gpp++) {
--			/* Mask and clear all interrupts */
--			writel(0, base + community->ie_offset + gpp * 4);
--			writel(0xffff, base + community->is_offset + gpp * 4);
--		}
--	}
--}
--
- static bool intel_gpio_update_reg(void __iomem *reg, u32 mask, u32 value)
- {
- 	u32 curr, updated;
+-- 
+2.34.1
+
 
 
