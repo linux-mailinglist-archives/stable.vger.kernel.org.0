@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A7104ABD38
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:59:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 357C44ABD81
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387143AbiBGLkB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:40:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46712 "EHLO
+        id S1376276AbiBGLop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:44:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386505AbiBGLes (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:34:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7546C043188;
-        Mon,  7 Feb 2022 03:34:47 -0800 (PST)
+        with ESMTP id S1385190AbiBGLbS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E0C8C03FEE0;
+        Mon,  7 Feb 2022 03:29:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93480B8102E;
-        Mon,  7 Feb 2022 11:34:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84BA3C004E1;
-        Mon,  7 Feb 2022 11:34:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 82D126077B;
+        Mon,  7 Feb 2022 11:29:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66D58C004E1;
+        Mon,  7 Feb 2022 11:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233685;
-        bh=u3/akX/dz9ZO7Yp9P/0+QWrmMr/uEK5Ppvyr2pAXRic=;
+        s=korg; t=1644233373;
+        bh=GS6MBhstiZFiTAX47S9HOYPrRvE1rIgmTK6Ds/8qu4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t5xaD/2lVVp7c10OGGCY4dM0ctnj/8/lPZuvw9wSxgmcXEAzdwR9AtCqcueAUVjRR
-         i/R2xT0SJC4l1+xIxnNkOYyELp9V/D4/wLyX1CGGNqVunfpXiG/pPKMwVGC65QJTk/
-         GkXnu7B6tJ5lT5nqVxIbxGsqKosV6qo7iHKSMW/o=
+        b=vz2MI98HlH63Wyrq7duaOcQ/cViXIuzS6ixFxzTiLFsYy6OWrUdS59Onaq/QQU5d8
+         EyOHX+pjoSS9Mjk5favPOtchc0b87Jt7GuU5TqBoiA0lMvV9sivU9qW5eTldrKIAvc
+         +zkcd8nzcZ3I0QMzWdS1eA5o5LAetDnPdWfo9IcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.16 087/126] ASoC: cpcap: Check for NULL pointer after calling of_get_child_by_name
+        stable@vger.kernel.org, Haiyue Wang <haiyue.wang@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 085/110] gve: fix the wrong AdminQ buffer queue index check
 Date:   Mon,  7 Feb 2022 12:06:58 +0100
-Message-Id: <20220207103807.103050951@linuxfoundation.org>
+Message-Id: <20220207103805.285730669@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Haiyue Wang <haiyue.wang@intel.com>
 
-commit f7a6021aaf02088870559f82fc13c58cda7fea1a upstream.
+commit 1f84a9450d75e08af70d9e2f2d5e1c0ac0c881d2 upstream.
 
-If the device does not exist, of_get_child_by_name() will return NULL
-pointer.
-And devm_snd_soc_register_component() does not check it.
-Also, I have noticed that cpcap_codec_driver has not been used yet.
-Therefore, it should be better to check it in order to avoid the future
-dereference of the NULL pointer.
+The 'tail' and 'head' are 'unsigned int' type free-running count, when
+'head' is overflow, the 'int i (= tail) < u32 head' will be false:
 
-Fixes: f6cdf2d3445d ("ASoC: cpcap: new codec")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220111025048.524134-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Only '- loop 0: idx = 63' result is shown, so it needs to use 'int' type
+to compare, it can handle the overflow correctly.
+
+typedef uint32_t u32;
+
+int main()
+{
+        u32 tail, head;
+        int stail, shead;
+        int i, loop;
+
+        tail = 0xffffffff;
+        head = 0x00000000;
+
+        for (i = tail, loop = 0; i < head; i++) {
+                unsigned int idx = i & 63;
+
+                printf("+ loop %d: idx = %u\n", loop++, idx);
+        }
+
+        stail = tail;
+        shead = head;
+        for (i = stail, loop = 0; i < shead; i++) {
+                unsigned int idx = i & 63;
+
+                printf("- loop %d: idx = %u\n", loop++, idx);
+        }
+
+        return 0;
+}
+
+Fixes: 5cdad90de62c ("gve: Batch AQ commands for creating and destroying queues.")
+Signed-off-by: Haiyue Wang <haiyue.wang@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/cpcap.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/google/gve/gve_adminq.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/codecs/cpcap.c
-+++ b/sound/soc/codecs/cpcap.c
-@@ -1667,6 +1667,8 @@ static int cpcap_codec_probe(struct plat
+--- a/drivers/net/ethernet/google/gve/gve_adminq.c
++++ b/drivers/net/ethernet/google/gve/gve_adminq.c
+@@ -281,7 +281,7 @@ static int gve_adminq_parse_err(struct g
+  */
+ static int gve_adminq_kick_and_wait(struct gve_priv *priv)
  {
- 	struct device_node *codec_node =
- 		of_get_child_by_name(pdev->dev.parent->of_node, "audio-codec");
-+	if (!codec_node)
-+		return -ENODEV;
+-	u32 tail, head;
++	int tail, head;
+ 	int i;
  
- 	pdev->dev.of_node = codec_node;
- 
+ 	tail = ioread32be(&priv->reg_bar0->adminq_event_counter);
 
 
