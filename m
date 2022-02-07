@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D3B4ABD99
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 380ED4ABC0F
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388800AbiBGLpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:45:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44538 "EHLO
+        id S1380712AbiBGLaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:30:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385372AbiBGLbj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:39 -0500
+        with ESMTP id S1383831AbiBGLXl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:23:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FA95C03FEE4;
-        Mon,  7 Feb 2022 03:30:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8B3EC0401C2;
+        Mon,  7 Feb 2022 03:23:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27B58B80EBD;
-        Mon,  7 Feb 2022 11:30:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20A0BC004E1;
-        Mon,  7 Feb 2022 11:30:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A51C6B81028;
+        Mon,  7 Feb 2022 11:23:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E66E3C004E1;
+        Mon,  7 Feb 2022 11:23:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233411;
-        bh=rG2zIR8em5dhqg9au0dA4l5hkYO7yd8NVH3Wp/6VZIs=;
+        s=korg; t=1644233015;
+        bh=RvuDaYRuaj5nY8GNjEn5EiyUfTzSdHrWzSwRtuJGEV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SFppwJmxWItrmpyQ0yZNqiEJLC7nN/SNr0E+HEuzg0rDSouPXvFuPCXMG6ssvAPg/
-         RL9+IBt1Yf4TZVwFoBncU471mxP45CbFO8Wzf2PqJcX/CbJK1kCXbaBC8Gbm42P+uW
-         kF1sVjG+VCKSEuc6Q3xkzXmxdVouFixlq5q11Zbg=
+        b=pNN8ucsfppJtqn2M1eMfoPzLWNTyIZJrPSRRgpa9NIKvmI9hcBrG+jfXxeDweMYZo
+         bJIZHm+HWbDit/L5884mj57d9Bc0QWDj9THKszYzs3im4F4nqNlXfGpwwgV3ye29EY
+         fB5J0YwuLdLJpfmpZQJ8BOuvtyc1x1RO1NEZjij0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.15 089/110] tools/resolve_btfids: Do not print any commands when building silently
+        stable@vger.kernel.org, Kyle Huey <me@kylehuey.com>,
+        Andrew Cooper <Andrew.Cooper3@citrix.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
+Subject: [PATCH 5.10 64/74] x86/perf: Default set FREEZE_ON_SMI for all
 Date:   Mon,  7 Feb 2022 12:07:02 +0100
-Message-Id: <20220207103805.420581720@linuxfoundation.org>
+Message-Id: <20220207103759.331714765@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 7f3bdbc3f13146eb9d07de81ea71f551587a384b upstream.
+commit a01994f5e5c79d3a35e5e8cf4252c7f2147323c3 upstream.
 
-When building with 'make -s', there is some output from resolve_btfids:
+Kyle reported that rr[0] has started to malfunction on Comet Lake and
+later CPUs due to EFI starting to make use of CPL3 [1] and the PMU
+event filtering not distinguishing between regular CPL3 and SMM CPL3.
 
-$ make -sj"$(nproc)" oldconfig prepare
-  MKDIR     .../tools/bpf/resolve_btfids/libbpf/
-  MKDIR     .../tools/bpf/resolve_btfids//libsubcmd
-  LINK     resolve_btfids
+Since this is a privilege violation, default disable SMM visibility
+where possible.
 
-Silent mode means that no information should be emitted about what is
-currently being done. Use the $(silent) variable from Makefile.include
-to avoid defining the msg macro so that there is no information printed.
+Administrators wanting to observe SMM cycles can easily change this
+using the sysfs attribute while regular users don't have access to
+this file.
 
-Fixes: fbbb68de80a4 ("bpf: Add resolve_btfids tool to resolve BTF IDs in ELF object")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220201212503.731732-1-nathan@kernel.org
+[0] https://rr-project.org/
+
+[1] See the Intel white paper "Trustworthy SMM on the Intel vPro Platform"
+at https://bugzilla.kernel.org/attachment.cgi?id=300300, particularly the
+end of page 5.
+
+Reported-by: Kyle Huey <me@kylehuey.com>
+Suggested-by: Andrew Cooper <Andrew.Cooper3@citrix.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@kernel.org
+Link: https://lkml.kernel.org/r/YfKChjX61OW4CkYm@hirez.programming.kicks-ass.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/bpf/resolve_btfids/Makefile |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/events/intel/core.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/tools/bpf/resolve_btfids/Makefile
-+++ b/tools/bpf/resolve_btfids/Makefile
-@@ -9,7 +9,11 @@ ifeq ($(V),1)
-   msg =
- else
-   Q = @
--  msg = @printf '  %-8s %s%s\n' "$(1)" "$(notdir $(2))" "$(if $(3), $(3))";
-+  ifeq ($(silent),1)
-+    msg =
-+  else
-+    msg = @printf '  %-8s %s%s\n' "$(1)" "$(notdir $(2))" "$(if $(3), $(3))";
-+  endif
-   MAKEFLAGS=--no-print-directory
- endif
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -4353,6 +4353,19 @@ static __initconst const struct x86_pmu
+ 	.lbr_read		= intel_pmu_lbr_read_64,
+ 	.lbr_save		= intel_pmu_lbr_save,
+ 	.lbr_restore		= intel_pmu_lbr_restore,
++
++	/*
++	 * SMM has access to all 4 rings and while traditionally SMM code only
++	 * ran in CPL0, 2021-era firmware is starting to make use of CPL3 in SMM.
++	 *
++	 * Since the EVENTSEL.{USR,OS} CPL filtering makes no distinction
++	 * between SMM or not, this results in what should be pure userspace
++	 * counters including SMM data.
++	 *
++	 * This is a clear privilege issue, therefore globally disable
++	 * counting SMM by default.
++	 */
++	.attr_freeze_on_smi	= 1,
+ };
  
+ static __init void intel_clovertown_quirk(void)
 
 
