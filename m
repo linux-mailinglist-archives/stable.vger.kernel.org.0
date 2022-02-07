@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F4064ABC1A
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C86EE4ABC76
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:48:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384868AbiBGLa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:30:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34820 "EHLO
+        id S236891AbiBGLhk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:37:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234232AbiBGLXO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:23:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DB94C0401C0;
-        Mon,  7 Feb 2022 03:23:13 -0800 (PST)
+        with ESMTP id S1382259AbiBGL3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:29:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0AF3C02B66A;
+        Mon,  7 Feb 2022 03:27:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEC3EB80EC3;
-        Mon,  7 Feb 2022 11:23:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F557C004E1;
-        Mon,  7 Feb 2022 11:23:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F35D3B811B2;
+        Mon,  7 Feb 2022 11:27:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D363C340F1;
+        Mon,  7 Feb 2022 11:27:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232990;
-        bh=yyjs4xP38S6pltTHny3dYs+0bVDofK7LasEUo8BHNSA=;
+        s=korg; t=1644233224;
+        bh=MoTW/brTC+J+UXtfZY4dtaQdrJZe9Uc4Pjt72hZLdi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h3acLb4Y1Y4KaUHsqnjDaDsdzkPgeJKoPIF+GAT6WP+qxUtHUii4rtOnbwr3klhAr
-         tq81Eal7AJwX2p5puRDoHcKfzihDAV4Jixg5FKJtwxnKrcNsJmQR6RQVpksF32pGtr
-         mxvp4hLq4pJewQPF/uGzfDyj3/f58Xd5raVLN2u8=
+        b=ghV6XsvgMMe6/nrjno2KIiWUIeHf74/dfxM8Vg3gV9vEt3FZpmaII3KITpErqDsZZ
+         nsKDREkfB/ZwJvuCySQ8t25+Bmj29rEoLmkTERakLwSRVm0bFTUCxt908L12FPmkx1
+         ifrKEIrHE/0a8WysUbNTAYYBnh5n3FH4Rm373aok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yutian Yang <nglaive@gmail.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        shenwenbo@zju.edu.cn, Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 24/74] memcg: charge fs_context and legacy_fs_context
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.15 049/110] iommu/amd: Fix loop timeout issue in iommu_ga_log_enable()
 Date:   Mon,  7 Feb 2022 12:06:22 +0100
-Message-Id: <20220207103758.031431111@linuxfoundation.org>
+Message-Id: <20220207103803.944639925@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,107 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yutian Yang <nglaive@gmail.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit bb902cb47cf93b33cd92b3b7a4019330a03ef57f upstream.
+commit 9b45a7738eec52bf0f5d8d3d54e822962781c5f2 upstream.
 
-This patch adds accounting flags to fs_context and legacy_fs_context
-allocation sites so that kernel could correctly charge these objects.
+The polling loop for the register change in iommu_ga_log_enable() needs
+to have a udelay() in it.  Otherwise the CPU might be faster than the
+IOMMU hardware and wrongly trigger the WARN_ON() further down the code
+stream. Use a 10us for udelay(), has there is some hardware where
+activation of the GA log can take more than a 100ms.
 
-We have written a PoC to demonstrate the effect of the missing-charging
-bugs.  The PoC takes around 1,200MB unaccounted memory, while it is
-charged for only 362MB memory usage.  We evaluate the PoC on QEMU x86_64
-v5.2.90 + Linux kernel v5.10.19 + Debian buster.  All the limitations
-including ulimits and sysctl variables are set as default.  Specifically,
-the hard NOFILE limit and nr_open in sysctl are both 1,048,576.
+A future optimization should move the activation check of the GA log
+to the point where it gets used for the first time. But that is a
+bigger change and not suitable for a fix.
 
-/*------------------------- POC code ----------------------------*/
-
-#define _GNU_SOURCE
-#include <sys/types.h>
-#include <sys/file.h>
-#include <time.h>
-#include <sys/wait.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <signal.h>
-#include <sched.h>
-#include <fcntl.h>
-#include <linux/mount.h>
-
-#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
-                        } while (0)
-
-#define STACK_SIZE (8 * 1024)
-#ifndef __NR_fsopen
-#define __NR_fsopen 430
-#endif
-static inline int fsopen(const char *fs_name, unsigned int flags)
-{
-        return syscall(__NR_fsopen, fs_name, flags);
-}
-
-static char thread_stack[512][STACK_SIZE];
-
-int thread_fn(void* arg)
-{
-  for (int i = 0; i< 800000; ++i) {
-    int fsfd = fsopen("nfs", FSOPEN_CLOEXEC);
-    if (fsfd == -1) {
-      errExit("fsopen");
-    }
-  }
-  while(1);
-  return 0;
-}
-
-int main(int argc, char *argv[]) {
-  int thread_pid;
-  for (int i = 0; i < 1; ++i) {
-    thread_pid = clone(thread_fn, thread_stack[i] + STACK_SIZE, \
-      SIGCHLD, NULL);
-  }
-  while(1);
-  return 0;
-}
-
-/*-------------------------- end --------------------------------*/
-
-Link: https://lkml.kernel.org/r/1626517201-24086-1-git-send-email-nglaive@gmail.com
-Signed-off-by: Yutian Yang <nglaive@gmail.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: <shenwenbo@zju.edu.cn>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 8bda0cfbdc1a ("iommu/amd: Detect and initialize guest vAPIC log")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Link: https://lore.kernel.org/r/20220204115537.3894-1-joro@8bytes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fs_context.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iommu/amd/init.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/fs_context.c
-+++ b/fs/fs_context.c
-@@ -231,7 +231,7 @@ static struct fs_context *alloc_fs_conte
- 	struct fs_context *fc;
- 	int ret = -ENOMEM;
+--- a/drivers/iommu/amd/init.c
++++ b/drivers/iommu/amd/init.c
+@@ -21,6 +21,7 @@
+ #include <linux/export.h>
+ #include <linux/kmemleak.h>
+ #include <linux/mem_encrypt.h>
++#include <linux/iopoll.h>
+ #include <asm/pci-direct.h>
+ #include <asm/iommu.h>
+ #include <asm/apic.h>
+@@ -832,6 +833,7 @@ static int iommu_ga_log_enable(struct am
+ 		status = readl(iommu->mmio_base + MMIO_STATUS_OFFSET);
+ 		if (status & (MMIO_STATUS_GALOG_RUN_MASK))
+ 			break;
++		udelay(10);
+ 	}
  
--	fc = kzalloc(sizeof(struct fs_context), GFP_KERNEL);
-+	fc = kzalloc(sizeof(struct fs_context), GFP_KERNEL_ACCOUNT);
- 	if (!fc)
- 		return ERR_PTR(-ENOMEM);
- 
-@@ -631,7 +631,7 @@ const struct fs_context_operations legac
-  */
- static int legacy_init_fs_context(struct fs_context *fc)
- {
--	fc->fs_private = kzalloc(sizeof(struct legacy_fs_context), GFP_KERNEL);
-+	fc->fs_private = kzalloc(sizeof(struct legacy_fs_context), GFP_KERNEL_ACCOUNT);
- 	if (!fc->fs_private)
- 		return -ENOMEM;
- 	fc->ops = &legacy_fs_context_ops;
+ 	if (WARN_ON(i >= LOOP_TIMEOUT))
 
 
