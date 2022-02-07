@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 973344ABB6F
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 668944ABD23
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357643AbiBGL2g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:28:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34586 "EHLO
+        id S243612AbiBGLjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:39:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383471AbiBGLWg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:22:36 -0500
+        with ESMTP id S1386137AbiBGLdq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:33:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A616C043188;
-        Mon,  7 Feb 2022 03:22:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63F52C043181;
+        Mon,  7 Feb 2022 03:33:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AA046126D;
-        Mon,  7 Feb 2022 11:22:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6828BC004E1;
-        Mon,  7 Feb 2022 11:22:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F09D560180;
+        Mon,  7 Feb 2022 11:33:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4CC1C004E1;
+        Mon,  7 Feb 2022 11:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232955;
-        bh=i9zk4AcF9jXF72YBlRloYKPoP25ixnHr83HDUf618Wo=;
+        s=korg; t=1644233625;
+        bh=Cufcp3rMZnSu8TxXUO/67GgkkFgPiEJAJLQFh2QPqxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MS1VHRim+fI0z8xgLjeJq2Q9ns1Z3nVkv2lGvrLEmsrewiMpIhRhv0RlaiMw8rdna
-         G/froI2xql0Ec47+HBuHpIMeajgcMrz8OSnoMj6RIF5PGwc0nIjX176q8BzLeE8dvk
-         SaFANGB2obaO63ao/TBcoHlZBmglsCbeAW2M0vs4=
+        b=q0KJG2hfMnwymoXPUcrY0qiviILp7m2LDS0tBZnAjnjB/q5CCdqmj9j1AmxihxKVb
+         8igWSx6bDNEworP8PSUTPqAoJyCW/L068w8KKSN0f6/5iKEfBtVfz8Jx/slkz8mBrP
+         Sf9ilVUI6XfWe6y2Ef7RzCmtDryop2JxQVJV+HHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.10 44/74] drm/i915/overlay: Prevent divide by zero bugs in scaling
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Yuji Ishikawa <yuji2.ishikawa@toshiba.co.jp>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 071/126] net: stmmac: dwmac-visconti: No change to ETHER_CLOCK_SEL for unexpected speed request.
 Date:   Mon,  7 Feb 2022 12:06:42 +0100
-Message-Id: <20220207103758.663881010@linuxfoundation.org>
+Message-Id: <20220207103806.567514812@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Yuji Ishikawa <yuji2.ishikawa@toshiba.co.jp>
 
-commit 90a3d22ff02b196d5884e111f39271a1d4ee8e3e upstream.
+commit 928d6fe996f69330ded6b887baf4534c5fac7988 upstream.
 
-Smatch detected a divide by zero bug in check_overlay_scaling().
+Variable clk_sel_val is not initialized in the default case of the first switch statement.
+In that case, the function should return immediately without any changes to the hardware.
 
-    drivers/gpu/drm/i915/display/intel_overlay.c:976 check_overlay_scaling()
-    error: potential divide by zero bug '/ rec->dst_height'.
-    drivers/gpu/drm/i915/display/intel_overlay.c:980 check_overlay_scaling()
-    error: potential divide by zero bug '/ rec->dst_width'.
-
-Prevent this by ensuring that the dst height and width are non-zero.
-
-Fixes: 02e792fbaadb ("drm/i915: implement drmmode overlay support v4")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220124122409.GA31673@kili
-(cherry picked from commit cf5b64f7f10b28bebb9b7c9d25e7aee5cbe43918)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: b38dd98ff8d0 ("net: stmmac: Add Toshiba Visconti SoCs glue driver")
+Signed-off-by: Yuji Ishikawa <yuji2.ishikawa@toshiba.co.jp>
+Reviewed-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_overlay.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-visconti.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_overlay.c
-+++ b/drivers/gpu/drm/i915/display/intel_overlay.c
-@@ -932,6 +932,9 @@ static int check_overlay_dst(struct inte
- 	const struct intel_crtc_state *pipe_config =
- 		overlay->crtc->config;
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-visconti.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-visconti.c
+@@ -49,13 +49,15 @@ struct visconti_eth {
+ 	void __iomem *reg;
+ 	u32 phy_intf_sel;
+ 	struct clk *phy_ref_clk;
++	struct device *dev;
+ 	spinlock_t lock; /* lock to protect register update */
+ };
  
-+	if (rec->dst_height == 0 || rec->dst_width == 0)
-+		return -EINVAL;
-+
- 	if (rec->dst_x < pipe_config->pipe_src_w &&
- 	    rec->dst_x + rec->dst_width <= pipe_config->pipe_src_w &&
- 	    rec->dst_y < pipe_config->pipe_src_h &&
+ static void visconti_eth_fix_mac_speed(void *priv, unsigned int speed)
+ {
+ 	struct visconti_eth *dwmac = priv;
+-	unsigned int val, clk_sel_val;
++	struct net_device *netdev = dev_get_drvdata(dwmac->dev);
++	unsigned int val, clk_sel_val = 0;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&dwmac->lock, flags);
+@@ -85,7 +87,9 @@ static void visconti_eth_fix_mac_speed(v
+ 		break;
+ 	default:
+ 		/* No bit control */
+-		break;
++		netdev_err(netdev, "Unsupported speed request (%d)", speed);
++		spin_unlock_irqrestore(&dwmac->lock, flags);
++		return;
+ 	}
+ 
+ 	writel(val, dwmac->reg + MAC_CTRL_REG);
+@@ -229,6 +233,7 @@ static int visconti_eth_dwmac_probe(stru
+ 
+ 	spin_lock_init(&dwmac->lock);
+ 	dwmac->reg = stmmac_res.addr;
++	dwmac->dev = &pdev->dev;
+ 	plat_dat->bsp_priv = dwmac;
+ 	plat_dat->fix_mac_speed = visconti_eth_fix_mac_speed;
+ 
 
 
