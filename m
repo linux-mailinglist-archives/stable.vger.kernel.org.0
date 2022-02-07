@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91ECC4ABD74
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C3CC4ABD70
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389129AbiBGLqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:46:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48862 "EHLO
+        id S1389122AbiBGLqL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:46:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386801AbiBGLhT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:37:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB99FC043181;
-        Mon,  7 Feb 2022 03:37:18 -0800 (PST)
+        with ESMTP id S1386798AbiBGLhL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:37:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75A8DC043181;
+        Mon,  7 Feb 2022 03:37:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9683AB8112C;
-        Mon,  7 Feb 2022 11:37:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFACBC004E1;
-        Mon,  7 Feb 2022 11:37:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D9456091A;
+        Mon,  7 Feb 2022 11:37:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C98CAC004E1;
+        Mon,  7 Feb 2022 11:37:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233836;
-        bh=/caNl0v9RwhFS+XEpOgKYAUioaM4gZ0FnbqNGD2i7JI=;
+        s=korg; t=1644233829;
+        bh=MLFw33SBS/pqg+VfKau4wYtPr8pye3UBHws0wWK4l+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0oe2GnF8jeJNv+Gvf67AU8NwenlZoN6gBWltIkiSIhenb9DSbEKVNykFG4tFpyADA
-         6ckzE2g4TdEEKHTa2iQLituZYnndmEtTI974HrE+iHsPX1iuhPuTlMBuGMaOi79XW/
-         uMTJa7TGZLsipOwDSveMdsOZN0k00ZhRRrXXOTWA=
+        b=lC37KSiNZZ3Eo+zA76rTPrLD+9L9jfE7GAphPivjiMbi0gBfsvPWBrl/Ll/j2quHv
+         Hn1MK3w8ADdClI3uaRCmZv/smT4ynw+nYK48YzRjYGPCSb7+yAlDrvPqubBK2VC4iG
+         jsXkqiHxoVZpXrVHUhocajoD7suAZZOpUbJ6K5UA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 5.16 124/126] gpio: mpc8xxx: Fix an ignored error return from platform_get_irq()
-Date:   Mon,  7 Feb 2022 12:07:35 +0100
-Message-Id: <20220207103808.328037387@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Stefano Brivio <sbrivio@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.16 125/126] selftests: nft_concat_range: add test for reload with no element add/del
+Date:   Mon,  7 Feb 2022 12:07:36 +0100
+Message-Id: <20220207103808.361008101@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
 References: <20220207103804.053675072@linuxfoundation.org>
@@ -54,37 +54,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 9f51ce0b9e73f83bab2442b36d5e247a81bd3401 upstream.
+commit eda0cf1202acf1ef47f93d8f92d4839213431424 upstream.
 
-The return from the call to platform_get_irq() is int, it can be
-a negative error code, however this is being assigned to an unsigned
-int variable 'irqn', so making 'irqn' an int.
+Add a specific test for the reload issue fixed with
+commit 23c54263efd7cb ("netfilter: nft_set_pipapo: allocate pcpu scratch maps on clone").
 
-Eliminate the following coccicheck warning:
-./drivers/gpio/gpio-mpc8xxx.c:391:5-21: WARNING: Unsigned expression
-compared with zero: mpc8xxx_gc -> irqn < 0
+Add to set, then flush set content + restore without other add/remove in
+the transaction.
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Fixes: 0b39536cc699 ("gpio: mpc8xxx: Fix IRQ check in mpc8xxx_probe")
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+On kernels before the fix, this test case fails:
+  net,mac with reload    [FAIL]
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-mpc8xxx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/netfilter/nft_concat_range.sh |   72 +++++++++++++++++-
+ 1 file changed, 71 insertions(+), 1 deletion(-)
 
---- a/drivers/gpio/gpio-mpc8xxx.c
-+++ b/drivers/gpio/gpio-mpc8xxx.c
-@@ -47,7 +47,7 @@ struct mpc8xxx_gpio_chip {
- 				unsigned offset, int value);
+--- a/tools/testing/selftests/netfilter/nft_concat_range.sh
++++ b/tools/testing/selftests/netfilter/nft_concat_range.sh
+@@ -27,7 +27,7 @@ TYPES="net_port port_net net6_port port_
+        net6_port_net6_port net_port_mac_proto_net"
  
- 	struct irq_domain *irq;
--	unsigned int irqn;
-+	int irqn;
- };
+ # Reported bugs, also described by TYPE_ variables below
+-BUGS="flush_remove_add"
++BUGS="flush_remove_add reload"
  
- /*
+ # List of possible paths to pktgen script from kernel tree for performance tests
+ PKTGEN_SCRIPT_PATHS="
+@@ -354,6 +354,23 @@ TYPE_flush_remove_add="
+ display		Add two elements, flush, re-add
+ "
+ 
++TYPE_reload="
++display		net,mac with reload
++type_spec	ipv4_addr . ether_addr
++chain_spec	ip daddr . ether saddr
++dst		addr4
++src		mac
++start		1
++count		1
++src_delta	2000
++tools		sendip nc bash
++proto		udp
++
++race_repeat	0
++
++perf_duration	0
++"
++
+ # Set template for all tests, types and rules are filled in depending on test
+ set_template='
+ flush ruleset
+@@ -1473,6 +1490,59 @@ test_bug_flush_remove_add() {
+ 	nft flush ruleset
+ }
+ 
++# - add ranged element, check that packets match it
++# - reload the set, check packets still match
++test_bug_reload() {
++	setup veth send_"${proto}" set || return ${KSELFTEST_SKIP}
++	rstart=${start}
++
++	range_size=1
++	for i in $(seq "${start}" $((start + count))); do
++		end=$((start + range_size))
++
++		# Avoid negative or zero-sized port ranges
++		if [ $((end / 65534)) -gt $((start / 65534)) ]; then
++			start=${end}
++			end=$((end + 1))
++		fi
++		srcstart=$((start + src_delta))
++		srcend=$((end + src_delta))
++
++		add "$(format)" || return 1
++		range_size=$((range_size + 1))
++		start=$((end + range_size))
++	done
++
++	# check kernel does allocate pcpu sctrach map
++	# for reload with no elemet add/delete
++	( echo flush set inet filter test ;
++	  nft list set inet filter test ) | nft -f -
++
++	start=${rstart}
++	range_size=1
++
++	for i in $(seq "${start}" $((start + count))); do
++		end=$((start + range_size))
++
++		# Avoid negative or zero-sized port ranges
++		if [ $((end / 65534)) -gt $((start / 65534)) ]; then
++			start=${end}
++			end=$((end + 1))
++		fi
++		srcstart=$((start + src_delta))
++		srcend=$((end + src_delta))
++
++		for j in $(seq ${start} $((range_size / 2 + 1)) ${end}); do
++			send_match "${j}" $((j + src_delta)) || return 1
++		done
++
++		range_size=$((range_size + 1))
++		start=$((end + range_size))
++	done
++
++	nft flush ruleset
++}
++
+ test_reported_issues() {
+ 	eval test_bug_"${subtest}"
+ }
 
 
