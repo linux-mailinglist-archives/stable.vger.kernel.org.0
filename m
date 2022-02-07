@@ -2,47 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B64AA4ABB1F
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:35:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3404B4ABB65
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384233AbiBGL0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:26:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54548 "EHLO
+        id S1350649AbiBGL2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:28:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379730AbiBGLQR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:16:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11CE8C043181;
-        Mon,  7 Feb 2022 03:16:17 -0800 (PST)
+        with ESMTP id S240031AbiBGLT5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:19:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEB6EC043181;
+        Mon,  7 Feb 2022 03:19:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A26E06126D;
-        Mon,  7 Feb 2022 11:16:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80C46C004E1;
-        Mon,  7 Feb 2022 11:16:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 80D276077B;
+        Mon,  7 Feb 2022 11:19:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 315C7C004E1;
+        Mon,  7 Feb 2022 11:19:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232576;
-        bh=a2vDTHOBI49xRFAsoaRVTLreLT9c8ZOaJ3EMq+rDAfs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qVghLWZULlHoug5Y5TEQpuGHNQBdcoLaF9af+OApUe1QavrXVzpXRQblhFc3jsaWd
-         18FNsZTOl4EIo+YByEUCwUVpc/a6kB4d+FZ/psDsiA3wA2Rq16QJD7v3jEXASjvXTT
-         bnCaE9fHd24lYrG6LZp9qxNMPMywgpHtcJyIfjjI=
+        s=korg; t=1644232795;
+        bh=T8d6pg+SAnRE9VtixxjuM/Wh8N5tWvg2m1IuGyeDoiI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=eCXaDjfBWhBd36VETtf08bdCEr7Khd7ZgBFuTE+rOmwXP1XMl9meguLVLExE0rE+Z
+         +P9dLVU5pgogZH+5YxjK4cJZx1+mhlWMZIGvHJSSiuwUlQT62Of/LwhzoRLdf+0LfK
+         dMCU3a0gh189zT2ekZBEDVwbTNxSTVN99aKrvjFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 53/86] af_packet: fix data-race in packet_setsockopt / packet_setsockopt
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.4 00/44] 5.4.178-rc1 review
 Date:   Mon,  7 Feb 2022 12:06:16 +0100
-Message-Id: <20220207103759.304646175@linuxfoundation.org>
+Message-Id: <20220207103753.155627314@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.178-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.178-rc1
+X-KernelTest-Deadline: 2022-02-09T10:37+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -55,80 +62,209 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+This is the start of the stable review cycle for the 5.4.178 release.
+There are 44 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit e42e70ad6ae2ae511a6143d2e8da929366e58bd9 upstream.
+Responses should be made by Wed, 09 Feb 2022 10:37:42 +0000.
+Anything received after that time might be too late.
 
-When packet_setsockopt( PACKET_FANOUT_DATA ) reads po->fanout,
-no lock is held, meaning that another thread can change po->fanout.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.178-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-Given that po->fanout can only be set once during the socket lifetime
-(it is only cleared from fanout_release()), we can use
-READ_ONCE()/WRITE_ONCE() to document the race.
+thanks,
 
-BUG: KCSAN: data-race in packet_setsockopt / packet_setsockopt
+greg k-h
 
-write to 0xffff88813ae8e300 of 8 bytes by task 14653 on cpu 0:
- fanout_add net/packet/af_packet.c:1791 [inline]
- packet_setsockopt+0x22fe/0x24a0 net/packet/af_packet.c:3931
- __sys_setsockopt+0x209/0x2a0 net/socket.c:2180
- __do_sys_setsockopt net/socket.c:2191 [inline]
- __se_sys_setsockopt net/socket.c:2188 [inline]
- __x64_sys_setsockopt+0x62/0x70 net/socket.c:2188
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+-------------
+Pseudo-Shortlog of commits:
 
-read to 0xffff88813ae8e300 of 8 bytes by task 14654 on cpu 1:
- packet_setsockopt+0x691/0x24a0 net/packet/af_packet.c:3935
- __sys_setsockopt+0x209/0x2a0 net/socket.c:2180
- __do_sys_setsockopt net/socket.c:2191 [inline]
- __se_sys_setsockopt net/socket.c:2188 [inline]
- __x64_sys_setsockopt+0x62/0x70 net/socket.c:2188
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.178-rc1
 
-value changed: 0x0000000000000000 -> 0xffff888106f8c000
+Waiman Long <longman@redhat.com>
+    cgroup/cpuset: Fix "suspicious RCU usage" lockdep warning
 
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 14654 Comm: syz-executor.3 Not tainted 5.16.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Ritesh Harjani <riteshh@linux.ibm.com>
+    ext4: fix error handling in ext4_restore_inline_data()
 
-Fixes: 47dceb8ecdc1 ("packet: add classic BPF fanout mode")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20220201022358.330621-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/packet/af_packet.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+Sergey Shtylyov <s.shtylyov@omp.ru>
+    EDAC/xgene: Fix deferred probing
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1730,7 +1730,10 @@ static int fanout_add(struct sock *sk, u
- 		err = -ENOSPC;
- 		if (refcount_read(&match->sk_ref) < PACKET_FANOUT_MAX) {
- 			__dev_remove_pack(&po->prot_hook);
--			po->fanout = match;
-+
-+			/* Paired with packet_setsockopt(PACKET_FANOUT_DATA) */
-+			WRITE_ONCE(po->fanout, match);
-+
- 			po->rollover = rollover;
- 			rollover = NULL;
- 			refcount_set(&match->sk_ref, refcount_read(&match->sk_ref) + 1);
-@@ -3877,7 +3880,8 @@ packet_setsockopt(struct socket *sock, i
- 	}
- 	case PACKET_FANOUT_DATA:
- 	{
--		if (!po->fanout)
-+		/* Paired with the WRITE_ONCE() in fanout_add() */
-+		if (!READ_ONCE(po->fanout))
- 			return -EINVAL;
- 
- 		return fanout_set_data(po, optval, optlen);
+Sergey Shtylyov <s.shtylyov@omp.ru>
+    EDAC/altera: Fix deferred probing
+
+Riwen Lu <luriwen@kylinos.cn>
+    rtc: cmos: Evaluate century appropriate
+
+Muhammad Usama Anjum <usama.anjum@collabora.com>
+    selftests: futex: Use variable MAKE instead of make
+
+Dai Ngo <dai.ngo@oracle.com>
+    nfsd: nfsd4_setclientid_confirm mistakenly expires confirmed client.
+
+John Meneghini <jmeneghi@redhat.com>
+    scsi: bnx2fc: Make bnx2fc_recv_frame() mp safe
+
+Florian Fainelli <f.fainelli@gmail.com>
+    pinctrl: bcm2835: Fix a few error paths
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    ASoC: max9759: fix underflow in speaker_gain_control_put()
+
+Jiasheng Jiang <jiasheng@iscas.ac.cn>
+    ASoC: cpcap: Check for NULL pointer after calling of_get_child_by_name
+
+Robert Hancock <robert.hancock@calian.com>
+    ASoC: xilinx: xlnx_formatter_pcm: Make buffer bytes multiple of period bytes
+
+Miaoqian Lin <linmq006@gmail.com>
+    ASoC: fsl: Add missing error handling in pcm030_fabric_probe
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    drm/i915/overlay: Prevent divide by zero bugs in scaling
+
+Yannick Vignon <yannick.vignon@nxp.com>
+    net: stmmac: ensure PTP time register reads are consistent
+
+Camel Guo <camelg@axis.com>
+    net: stmmac: dump gmac4 DMA registers correctly
+
+Lior Nahmanson <liorna@nvidia.com>
+    net: macsec: Verify that send_sci is on when setting Tx sci explicitly
+
+Miquel Raynal <miquel.raynal@bootlin.com>
+    net: ieee802154: Return meaningful error codes from the netlink helpers
+
+Miquel Raynal <miquel.raynal@bootlin.com>
+    net: ieee802154: ca8210: Stop leaking skb's
+
+Miquel Raynal <miquel.raynal@bootlin.com>
+    net: ieee802154: mcr20a: Fix lifs/sifs periods
+
+Miquel Raynal <miquel.raynal@bootlin.com>
+    net: ieee802154: hwsim: Ensure proper channel selection at probe time
+
+Miaoqian Lin <linmq006@gmail.com>
+    spi: meson-spicc: add IRQ check in meson_spicc_probe
+
+Benjamin Gaignard <benjamin.gaignard@collabora.com>
+    spi: mediatek: Avoid NULL pointer crash in interrupt
+
+Kamal Dasu <kdasu.kdev@gmail.com>
+    spi: bcm-qspi: check for valid cs before applying chip select
+
+Joerg Roedel <jroedel@suse.de>
+    iommu/amd: Fix loop timeout issue in iommu_ga_log_enable()
+
+Guoqing Jiang <guoqing.jiang@linux.dev>
+    iommu/vt-d: Fix potential memory leak in intel_setup_irq_remapping()
+
+Leon Romanovsky <leonro@nvidia.com>
+    RDMA/mlx4: Don't continue event handler after memory allocation failure
+
+Bernard Metzler <bmt@zurich.ibm.com>
+    RDMA/siw: Fix broken RDMA Read Fence/Resume logic.
+
+Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+    IB/rdmavt: Validate remote_addr during loopback atomic tests
+
+Yutian Yang <nglaive@gmail.com>
+    memcg: charge fs_context and legacy_fs_context
+
+Guenter Roeck <linux@roeck-us.net>
+    Revert "ASoC: mediatek: Check for error clk pointer"
+
+Martin K. Petersen <martin.petersen@oracle.com>
+    block: bio-integrity: Advance seed correctly for larger interval sizes
+
+Lang Yu <lang.yu@amd.com>
+    mm/kmemleak: avoid scanning potential huge holes
+
+Nick Lopez <github@glowingmonkey.org>
+    drm/nouveau: fix off by one in BIOS boundary checking
+
+Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+    btrfs: fix deadlock between quota disable and qgroup rescan worker
+
+Christian Lachner <gladiac@gmail.com>
+    ALSA: hda/realtek: Fix silent output on Gigabyte X570 Aorus Xtreme after reboot from Windows
+
+Christian Lachner <gladiac@gmail.com>
+    ALSA: hda/realtek: Fix silent output on Gigabyte X570S Aorus Master (newer chipset)
+
+Christian Lachner <gladiac@gmail.com>
+    ALSA: hda/realtek: Add missing fixup-model entry for Gigabyte X570 ALC1220 quirks
+
+Albert Geantă <albertgeanta@gmail.com>
+    ALSA: hda/realtek: Add quirk for ASUS GU603
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: usb-audio: Simplify quirk entries with a macro
+
+Mark Brown <broonie@kernel.org>
+    ASoC: ops: Reject out of bounds values in snd_soc_put_xr_sx()
+
+Mark Brown <broonie@kernel.org>
+    ASoC: ops: Reject out of bounds values in snd_soc_put_volsw_sx()
+
+Mark Brown <broonie@kernel.org>
+    ASoC: ops: Reject out of bounds values in snd_soc_put_volsw()
+
+Paul Moore <paul@paul-moore.com>
+    audit: improve audit queue handling when "audit=1" on cmdline
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ block/bio-integrity.c                              |  2 +-
+ drivers/edac/altera_edac.c                         |  2 +-
+ drivers/edac/xgene_edac.c                          |  2 +-
+ drivers/gpu/drm/i915/display/intel_overlay.c       |  3 ++
+ drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c    |  2 +-
+ drivers/infiniband/hw/mlx4/main.c                  |  2 +-
+ drivers/infiniband/sw/rdmavt/qp.c                  |  2 +
+ drivers/infiniband/sw/siw/siw.h                    |  7 +--
+ drivers/infiniband/sw/siw/siw_qp_rx.c              | 20 +++----
+ drivers/iommu/amd_iommu_init.c                     |  2 +
+ drivers/iommu/intel_irq_remapping.c                | 13 +++--
+ drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h    |  1 +
+ .../net/ethernet/stmicro/stmmac/stmmac_ethtool.c   | 19 ++++++-
+ .../net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c  | 19 ++++---
+ drivers/net/ieee802154/ca8210.c                    |  1 +
+ drivers/net/ieee802154/mac802154_hwsim.c           |  1 +
+ drivers/net/ieee802154/mcr20a.c                    |  4 +-
+ drivers/net/macsec.c                               |  9 ++++
+ drivers/pinctrl/bcm/pinctrl-bcm2835.c              | 23 +++++---
+ drivers/rtc/rtc-mc146818-lib.c                     |  2 +-
+ drivers/scsi/bnx2fc/bnx2fc_fcoe.c                  | 21 +++++---
+ drivers/soc/mediatek/mtk-scpsys.c                  | 15 ++----
+ drivers/spi/spi-bcm-qspi.c                         |  2 +-
+ drivers/spi/spi-meson-spicc.c                      |  5 ++
+ drivers/spi/spi-mt65xx.c                           |  2 +-
+ fs/btrfs/qgroup.c                                  | 21 +++++++-
+ fs/ext4/inline.c                                   | 10 +++-
+ fs/fs_context.c                                    |  4 +-
+ fs/nfsd/nfs4state.c                                |  4 +-
+ kernel/audit.c                                     | 62 +++++++++++++++-------
+ kernel/cgroup/cpuset.c                             | 10 ++++
+ mm/kmemleak.c                                      | 13 ++---
+ net/ieee802154/nl802154.c                          |  8 +--
+ sound/pci/hda/patch_realtek.c                      |  6 ++-
+ sound/soc/codecs/cpcap.c                           |  2 +
+ sound/soc/codecs/max9759.c                         |  3 +-
+ sound/soc/fsl/pcm030-audio-fabric.c                | 11 ++--
+ sound/soc/soc-ops.c                                | 29 ++++++++--
+ sound/soc/xilinx/xlnx_formatter_pcm.c              | 27 ++++++++--
+ sound/usb/quirks-table.h                           | 10 ++++
+ tools/testing/selftests/futex/Makefile             |  4 +-
+ 42 files changed, 295 insertions(+), 114 deletions(-)
 
 
