@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 740AA4ABC34
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 452444ABCBF
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:50:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385007AbiBGLa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:30:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38148 "EHLO
+        id S1387090AbiBGLjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:39:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358795AbiBGLZn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:25:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29309C03FEC1;
-        Mon,  7 Feb 2022 03:25:22 -0800 (PST)
+        with ESMTP id S1384248AbiBGL0e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:26:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74049C0401C9;
+        Mon,  7 Feb 2022 03:25:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3C076149A;
-        Mon,  7 Feb 2022 11:25:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D68CDC004E1;
-        Mon,  7 Feb 2022 11:25:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12DFC6135A;
+        Mon,  7 Feb 2022 11:25:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4EFEC004E1;
+        Mon,  7 Feb 2022 11:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233121;
-        bh=rZvJ4ZyZHDyPNU3S/M+WkdB/RT1ucA3r+WNcdZmHxi4=;
+        s=korg; t=1644233154;
+        bh=Qt3S7UX4NFNycD6cNDXk6cbCpdwYlASoMUr9U9g1V+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UYgqaPaocGJ05eObxo/XBaQcBCEUJlXO2XoDr3i6r8BNAT7BFzmebJxwrTrsoNUv8
-         yxoEt2xEPCZ29SXA4PexCLfTjknMfi3ZvstM7N2B2qLamTuW6qmxwSvdrsDsFRXyiB
-         RN2M2pR4h16WPaIMyIwwkw56o2HKe7iNFJsjOpEs=
+        b=W4WWYzWDkMpwDgSzx8jhAT8UsuUdjTI8glJOnDhJjXnJvoKkPJqq5g9mX0RItQdCN
+         NHBz4kVpWBqvF6B4NLR+RSOOhDoTWgXE9dYd2wV5PyKnoKRT0ROOU+W830GmCQvyz3
+         pdJGU8CV+jyAQIG4FknXYQOmf5kaoKO3NfA9kGCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Christian Lachner <gladiac@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 015/110] ALSA: hda/realtek: Fix silent output on Gigabyte X570S Aorus Master (newer chipset)
-Date:   Mon,  7 Feb 2022 12:05:48 +0100
-Message-Id: <20220207103802.781986089@linuxfoundation.org>
+Subject: [PATCH 5.15 016/110] ALSA: hda/realtek: Fix silent output on Gigabyte X570 Aorus Xtreme after reboot from Windows
+Date:   Mon,  7 Feb 2022 12:05:49 +0100
+Message-Id: <20220207103802.814239221@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
 References: <20220207103802.280120990@linuxfoundation.org>
@@ -55,49 +55,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christian Lachner <gladiac@gmail.com>
 
-commit 41a8601302ecbe704ac970552c33dc942300fc37 upstream.
+commit ea3541961376f733373839cc90493aafa8a7f733 upstream.
 
-Newer versions of the X570 Master come with a newer revision of the
-mainboard chipset - the X570S. These boards have the same ALC1220 codec
-but seem to initialize the codec with a different parameter in Coef 0x7
-which causes the output audio to be very low. We therefore write a
-known-good value to Coef 0x7 to fix that. As the value is the exact same
-as on the other X570(non-S) boards the same quirk-function can be shared
-between both generations.
+This commit switches the Gigabyte X570 Aorus Xtreme from using the
+ALC1220_FIXUP_CLEVO_P950 to the ALC1220_FIXUP_GB_X570 quirk. This fixes
+the no-audio after reboot from windows problem.
 
-This commit adds the Gigabyte X570S Aorus Master to the list of boards
-using the ALC1220_FIXUP_GB_X570 quirk. This fixes both, the silent output
-and the no-audio after reboot from windows problems.
-
-This work has been tested by the folks over at the level1techs forum here:
-https://forum.level1techs.com/t/has-anybody-gotten-audio-working-in-linux-on-aorus-x570-master/154072
-
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205275
 Signed-off-by: Christian Lachner <gladiac@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220129113243.93068-3-gladiac@gmail.com
+Link: https://lore.kernel.org/r/20220129113243.93068-4-gladiac@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/patch_realtek.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -2159,6 +2159,7 @@ static void alc1220_fixup_gb_x570(struct
- {
- 	static const hda_nid_t conn1[] = { 0x0c };
- 	static const struct coef_fw gb_x570_coefs[] = {
-+		WRITE_COEF(0x07, 0x03c0),
- 		WRITE_COEF(0x1a, 0x01c1),
- 		WRITE_COEF(0x1b, 0x0202),
- 		WRITE_COEF(0x43, 0x3005),
-@@ -2586,6 +2587,7 @@ static const struct snd_pci_quirk alc882
+@@ -2586,7 +2586,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1458, 0xa002, "Gigabyte EP45-DS3/Z87X-UD3H", ALC889_FIXUP_FRONT_HP_NO_PRESENCE),
  	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
  	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_GB_X570),
- 	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_CLEVO_P950),
-+	SND_PCI_QUIRK(0x1458, 0xa0d5, "Gigabyte X570S Aorus Master", ALC1220_FIXUP_GB_X570),
+-	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_CLEVO_P950),
++	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_GB_X570),
+ 	SND_PCI_QUIRK(0x1458, 0xa0d5, "Gigabyte X570S Aorus Master", ALC1220_FIXUP_GB_X570),
  	SND_PCI_QUIRK(0x1462, 0x11f7, "MSI-GE63", ALC1220_FIXUP_CLEVO_P950),
  	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1229, "MSI-GP73", ALC1220_FIXUP_CLEVO_P950),
 
 
