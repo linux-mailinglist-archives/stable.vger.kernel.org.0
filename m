@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 628914ABC93
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29EA04ABAD2
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386884AbiBGLh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:37:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
+        id S1384085AbiBGLYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385650AbiBGLcE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00CF1C03C19A;
-        Mon,  7 Feb 2022 03:31:26 -0800 (PST)
+        with ESMTP id S1380294AbiBGLQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:16:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAD3AC043181;
+        Mon,  7 Feb 2022 03:16:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 838466077B;
-        Mon,  7 Feb 2022 11:31:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D88CC004E1;
-        Mon,  7 Feb 2022 11:31:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82DD9B81028;
+        Mon,  7 Feb 2022 11:16:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5775C004E1;
+        Mon,  7 Feb 2022 11:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233486;
-        bh=Ga6OEc+mD3Ux1qJe8QMat14m+/koqLqZMqZCtgrUzDY=;
+        s=korg; t=1644232594;
+        bh=p7LzfJOf7GfWgAH2xKEH9YBjrrSNgxYw3zMbv8pEEWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jpl3HqBjM586ItpaTXD9O26G7F3n9v1ldgcpmsPADmWlH1fnYwciy8HjXa2zZN7zw
-         kFL0f4eLk9yTqs8FRHxFth+nJShPf7eePON5LKIREwhKeNYdxLcPtvhkp6T2U+kyU3
-         tsjvFW2JUToYoINV2o8nHQHp82CIe0OzKc3Xd9ms=
+        b=DA6cF181QfUlMQiokJkDuL+INiLXp+K6+Et9ZiDnJXEAqF5vMiwe2rWoj9Vvxm2pQ
+         i68nCYvygX/ILNps90XXQ1m9TKR4w6MzPK+oyL2oyZmW6zhWRR1cJiqMYn4j9c7+dn
+         LKWgYYK/wO/1TzUcTnmBuCfYm3X66VJ75vdhnMGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.16 020/126] btrfs: fix use-after-free after failure to create a snapshot
+        stable@vger.kernel.org, Congyu Liu <liu3101@purdue.edu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 28/86] net: fix information leakage in /proc/net/ptype
 Date:   Mon,  7 Feb 2022 12:05:51 +0100
-Message-Id: <20220207103804.763666588@linuxfoundation.org>
+Message-Id: <20220207103758.459928026@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+References: <20220207103757.550973048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,125 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Congyu Liu <liu3101@purdue.edu>
 
-commit 28b21c558a3753171097193b6f6602a94169093a upstream.
+commit 47934e06b65637c88a762d9c98329ae6e3238888 upstream.
 
-At ioctl.c:create_snapshot(), we allocate a pending snapshot structure and
-then attach it to the transaction's list of pending snapshots. After that
-we call btrfs_commit_transaction(), and if that returns an error we jump
-to 'fail' label, where we kfree() the pending snapshot structure. This can
-result in a later use-after-free of the pending snapshot:
+In one net namespace, after creating a packet socket without binding
+it to a device, users in other net namespaces can observe the new
+`packet_type` added by this packet socket by reading `/proc/net/ptype`
+file. This is minor information leakage as packet socket is
+namespace aware.
 
-1) We allocated the pending snapshot and added it to the transaction's
-   list of pending snapshots;
+Add a net pointer in `packet_type` to keep the net namespace of
+of corresponding packet socket. In `ptype_seq_show`, this net pointer
+must be checked when it is not NULL.
 
-2) We call btrfs_commit_transaction(), and it fails either at the first
-   call to btrfs_run_delayed_refs() or btrfs_start_dirty_block_groups().
-   In both cases, we don't abort the transaction and we release our
-   transaction handle. We jump to the 'fail' label and free the pending
-   snapshot structure. We return with the pending snapshot still in the
-   transaction's list;
-
-3) Another task commits the transaction. This time there's no error at
-   all, and then during the transaction commit it accesses a pointer
-   to the pending snapshot structure that the snapshot creation task
-   has already freed, resulting in a user-after-free.
-
-This issue could actually be detected by smatch, which produced the
-following warning:
-
-  fs/btrfs/ioctl.c:843 create_snapshot() warn: '&pending_snapshot->list' not removed from list
-
-So fix this by not having the snapshot creation ioctl directly add the
-pending snapshot to the transaction's list. Instead add the pending
-snapshot to the transaction handle, and then at btrfs_commit_transaction()
-we add the snapshot to the list only when we can guarantee that any error
-returned after that point will result in a transaction abort, in which
-case the ioctl code can safely free the pending snapshot and no one can
-access it anymore.
-
-CC: stable@vger.kernel.org # 5.10+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 2feb27dbe00c ("[NETNS]: Minor information leak via /proc/net/ptype file.")
+Signed-off-by: Congyu Liu <liu3101@purdue.edu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ioctl.c       |    5 +----
- fs/btrfs/transaction.c |   24 ++++++++++++++++++++++++
- fs/btrfs/transaction.h |    2 ++
- 3 files changed, 27 insertions(+), 4 deletions(-)
+ include/linux/netdevice.h |    1 +
+ net/core/net-procfs.c     |    3 ++-
+ net/packet/af_packet.c    |    2 ++
+ 3 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -779,10 +779,7 @@ static int create_snapshot(struct btrfs_
- 		goto fail;
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -2346,6 +2346,7 @@ struct packet_type {
+ 					      struct net_device *);
+ 	bool			(*id_match)(struct packet_type *ptype,
+ 					    struct sock *sk);
++	struct net		*af_packet_net;
+ 	void			*af_packet_priv;
+ 	struct list_head	list;
+ };
+--- a/net/core/net-procfs.c
++++ b/net/core/net-procfs.c
+@@ -252,7 +252,8 @@ static int ptype_seq_show(struct seq_fil
+ 
+ 	if (v == SEQ_START_TOKEN)
+ 		seq_puts(seq, "Type Device      Function\n");
+-	else if (pt->dev == NULL || dev_net(pt->dev) == seq_file_net(seq)) {
++	else if ((!pt->af_packet_net || net_eq(pt->af_packet_net, seq_file_net(seq))) &&
++		 (!pt->dev || net_eq(dev_net(pt->dev), seq_file_net(seq)))) {
+ 		if (pt->type == htons(ETH_P_ALL))
+ 			seq_puts(seq, "ALL ");
+ 		else
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -1716,6 +1716,7 @@ static int fanout_add(struct sock *sk, u
+ 		match->prot_hook.dev = po->prot_hook.dev;
+ 		match->prot_hook.func = packet_rcv_fanout;
+ 		match->prot_hook.af_packet_priv = match;
++		match->prot_hook.af_packet_net = read_pnet(&match->net);
+ 		match->prot_hook.id_match = match_fanout_group;
+ 		list_add(&match->list, &fanout_list);
  	}
+@@ -3294,6 +3295,7 @@ static int packet_create(struct net *net
+ 		po->prot_hook.func = packet_rcv_spkt;
  
--	spin_lock(&fs_info->trans_lock);
--	list_add(&pending_snapshot->list,
--		 &trans->transaction->pending_snapshots);
--	spin_unlock(&fs_info->trans_lock);
-+	trans->pending_snapshot = pending_snapshot;
+ 	po->prot_hook.af_packet_priv = sk;
++	po->prot_hook.af_packet_net = sock_net(sk);
  
- 	ret = btrfs_commit_transaction(trans);
- 	if (ret)
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -2032,6 +2032,27 @@ static inline void btrfs_wait_delalloc_f
- 		btrfs_wait_ordered_roots(fs_info, U64_MAX, 0, (u64)-1);
- }
- 
-+/*
-+ * Add a pending snapshot associated with the given transaction handle to the
-+ * respective handle. This must be called after the transaction commit started
-+ * and while holding fs_info->trans_lock.
-+ * This serves to guarantee a caller of btrfs_commit_transaction() that it can
-+ * safely free the pending snapshot pointer in case btrfs_commit_transaction()
-+ * returns an error.
-+ */
-+static void add_pending_snapshot(struct btrfs_trans_handle *trans)
-+{
-+	struct btrfs_transaction *cur_trans = trans->transaction;
-+
-+	if (!trans->pending_snapshot)
-+		return;
-+
-+	lockdep_assert_held(&trans->fs_info->trans_lock);
-+	ASSERT(cur_trans->state >= TRANS_STATE_COMMIT_START);
-+
-+	list_add(&trans->pending_snapshot->list, &cur_trans->pending_snapshots);
-+}
-+
- int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
- {
- 	struct btrfs_fs_info *fs_info = trans->fs_info;
-@@ -2105,6 +2126,8 @@ int btrfs_commit_transaction(struct btrf
- 	if (cur_trans->state >= TRANS_STATE_COMMIT_START) {
- 		enum btrfs_trans_state want_state = TRANS_STATE_COMPLETED;
- 
-+		add_pending_snapshot(trans);
-+
- 		spin_unlock(&fs_info->trans_lock);
- 		refcount_inc(&cur_trans->use_count);
- 
-@@ -2195,6 +2218,7 @@ int btrfs_commit_transaction(struct btrf
- 	 * COMMIT_DOING so make sure to wait for num_writers to == 1 again.
- 	 */
- 	spin_lock(&fs_info->trans_lock);
-+	add_pending_snapshot(trans);
- 	cur_trans->state = TRANS_STATE_COMMIT_DOING;
- 	spin_unlock(&fs_info->trans_lock);
- 	wait_event(cur_trans->writer_wait,
---- a/fs/btrfs/transaction.h
-+++ b/fs/btrfs/transaction.h
-@@ -123,6 +123,8 @@ struct btrfs_trans_handle {
- 	struct btrfs_transaction *transaction;
- 	struct btrfs_block_rsv *block_rsv;
- 	struct btrfs_block_rsv *orig_rsv;
-+	/* Set by a task that wants to create a snapshot. */
-+	struct btrfs_pending_snapshot *pending_snapshot;
- 	refcount_t use_count;
- 	unsigned int type;
- 	/*
+ 	if (proto) {
+ 		po->prot_hook.type = proto;
 
 
