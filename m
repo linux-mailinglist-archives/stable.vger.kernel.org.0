@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 561CB4AB5F9
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 08:49:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05D0B4AB65F
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 09:14:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233730AbiBGHtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 02:49:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37652 "EHLO
+        id S233928AbiBGINV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 03:13:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233582AbiBGHmq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 02:42:46 -0500
-X-Greylist: delayed 403 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 06 Feb 2022 23:42:44 PST
-Received: from mail.twelvesign.pl (mail.twelvesign.pl [89.221.214.137])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8820C043181
-        for <stable@vger.kernel.org>; Sun,  6 Feb 2022 23:42:44 -0800 (PST)
-Received: by mail.twelvesign.pl (Postfix, from userid 1002)
-        id 144C82F5F6; Mon,  7 Feb 2022 08:35:54 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=twelvesign.pl;
-        s=mail; t=1644219360;
-        bh=rqcEvVJQSOmVvt10Vd77A7h4EQ3zL1XaGAodpexDxk8=;
-        h=Date:From:To:Subject:From;
-        b=MxzltSFLR3npisqfwSCDwXQ044mTi3hFLCYqySD/d4Nh9/yjaeBEmhdULYZiNwhXv
-         bHv2jjHAbWwSFYVurNY8GJhRNx+x41WbVSSDVt1zIYMZ2xLr4GvwBI2kHCdROFXZHR
-         MS4+Le9/i3aaHsJrllFOdMqborI1413ictYgNxrHANHUu4pdkmTIFaFQLsSxlAWklJ
-         H3rOnIbiCWhLJM8e8+oJhYfqayk5aU9mzbepiIOI1z+JinUPkzZ8jT0BzhX6+a7ta6
-         vynWk6pZ9mI1lndyNoBxRJ2jy1RTaifdS4dKFfd50f3b6WZ6nOfYkXABilW2mksuF4
-         wp8V2XQuO/Qqw==
-Received: by mail.twelvesign.pl for <stable@vger.kernel.org>; Mon,  7 Feb 2022 07:35:52 GMT
-Message-ID: <20220207064500-0.1.h.s5b.0.fkipioce7n@twelvesign.pl>
-Date:   Mon,  7 Feb 2022 07:35:52 GMT
-From:   "Damian Kraska" <damian.kraska@twelvesign.pl>
-To:     <stable@vger.kernel.org>
-Subject: Wycena paneli fotowoltaicznych
-X-Mailer: mail.twelvesign.pl
+        with ESMTP id S241936AbiBGIFg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 03:05:36 -0500
+Received: from spam.unicloud.com (gw.haihefund.cn [220.194.70.58])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54EB7C043181
+        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 00:05:33 -0800 (PST)
+Received: from spam.unicloud.com (localhost [127.0.0.2] (may be forged))
+        by spam.unicloud.com with ESMTP id 2177oeIA054565
+        for <stable@vger.kernel.org>; Mon, 7 Feb 2022 15:50:40 +0800 (GMT-8)
+        (envelope-from luofei@unicloud.com)
+Received: from eage.unicloud.com ([220.194.70.35])
+        by spam.unicloud.com with ESMTP id 2177oaAM054545
+        for <stable@vger.kernel.org>; Mon, 7 Feb 2022 15:50:36 +0800 (GMT-8)
+        (envelope-from luofei@unicloud.com)
+Received: from localhost.localdomain (10.10.1.7) by zgys-ex-mb09.Unicloud.com
+ (10.10.0.24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2375.17; Mon, 7
+ Feb 2022 15:50:35 +0800
+From:   luofei <luofei@unicloud.com>
+To:     <luofei@unicloud.com>
+CC:     <stable@vger.kernel.org>
+Subject: [PATCH] x86/mm, mm/hwpoison: fix unmap kernel 1:1 pages
+Date:   Mon, 7 Feb 2022 02:50:23 -0500
+Message-ID: <20220207075023.830571-1-luofei@unicloud.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.10.1.7]
+X-ClientProxiedBy: zgys-ex-mb08.Unicloud.com (10.10.0.14) To
+ zgys-ex-mb09.Unicloud.com (10.10.0.24)
+X-DNSRBL: 
+X-MAIL: spam.unicloud.com 2177oeIA054565
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -47,17 +50,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dzie=C5=84 dobry,
+Only unmap the page when the memory error is properly handled
+by calling memory_failure(), not the other way around.
 
-dostrzegam mo=C5=BCliwo=C5=9B=C4=87 wsp=C3=B3=C5=82pracy z Pa=C5=84stwa f=
-irm=C4=85.
+Fixes: 26f8c38bb466("x86/mm, mm/hwpoison: Don't unconditionally unmap kernel 1:1 pages")
 
-=C5=9Awiadczymy kompleksow=C4=85 obs=C5=82ug=C4=99 inwestycji w fotowolta=
-ik=C4=99, kt=C3=B3ra obni=C5=BCa koszty energii elektrycznej nawet o 90%.
+Signed-off-by: luofei <luofei@unicloud.com>
+Cc: stable@vger.kernel.org #v4.14
+---
+ arch/x86/kernel/cpu/mcheck/mce.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Czy s=C4=85 Pa=C5=84stwo zainteresowani weryfikacj=C4=85 wst=C4=99pnych p=
-ropozycji?
+diff --git a/arch/x86/kernel/cpu/mcheck/mce.c b/arch/x86/kernel/cpu/mcheck/mce.c
+index 95c09db1bba2..d8399a689165 100644
+--- a/arch/x86/kernel/cpu/mcheck/mce.c
++++ b/arch/x86/kernel/cpu/mcheck/mce.c
+@@ -589,7 +589,7 @@ static int srao_decode_notifier(struct notifier_block *nb, unsigned long val,
+ 
+ 	if (mce_usable_address(mce) && (mce->severity == MCE_AO_SEVERITY)) {
+ 		pfn = mce->addr >> PAGE_SHIFT;
+-		if (memory_failure(pfn, MCE_VECTOR, 0))
++		if (!memory_failure(pfn, MCE_VECTOR, 0))
+ 			mce_unmap_kpfn(pfn);
+ 	}
+ 
+-- 
+2.27.0
 
-
-Pozdrawiam,
-Damian Kraska
