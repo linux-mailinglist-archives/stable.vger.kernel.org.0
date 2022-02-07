@@ -2,245 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 298054AB7E2
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 10:41:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FDC54AB80A
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 11:01:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239874AbiBGJfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 04:35:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59746 "EHLO
+        id S1350616AbiBGJvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 04:51:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241344AbiBGJcK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 04:32:10 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05889C043188
-        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 01:32:10 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id t4-20020a17090a510400b001b8c4a6cd5dso1558510pjh.5
-        for <stable@vger.kernel.org>; Mon, 07 Feb 2022 01:32:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=x4lUMBYHKlqlMq21eU/Dd+CsOfzUavZgZoWDBbzJfq4=;
-        b=5TgSFID+h0wr3XQkr7vu1085t3+XZw0upfcdwL+eAwT648aB5EIwarGSAgY88hAPtT
-         dMRr6z5Cyp7wwmtxHXa1SCcAe4Rvwbqc4XkXVxfJsJ3rvbMIWM6YldWoMdRUj0VbsYbL
-         mNcHbE7re7WuGWlm14sNSJUo+qcfej8IHidUFmk+dDQ0f47llUkeoqjTk3GGakwhqcGm
-         voKeN4fZyXxWmfVlFaRpaKVwCGDXZwHIYhhnuWOJsCoL+FuUTtQjrU8G38yUKV2YRVYC
-         rg6DSvZh5RIDVvpdrO06AlYZolJ9bJQ7dy6JdzJtkbLYKc0W/rVAaGUPrebGGA92E9z5
-         lMng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=x4lUMBYHKlqlMq21eU/Dd+CsOfzUavZgZoWDBbzJfq4=;
-        b=V8wT9zdQUmiN7Y6/aW7pmdsf2AeoPO/3exiyzKeHdUXP2nBHrok+wdUmojexmqRD/Q
-         zflyzH7LyPCeQZjCbZ/dKwSnxp8kGXjqjlbwBkPqgo9QqdXxjleX3zXwFLYDcQphIcmQ
-         VtbiTnOzqjwdcZL/497McZnhYsP2ivHgwiHcjcZV6U+G+ep872/HDXCCm/TSqaEbqwPA
-         Zhy50uTqioRuI4ANWkWkjEjntfcUeYeExe19oF18nVoZ1GCqpkTOUcqPac0Se7c072BM
-         jmZF9bNOAgWy0iqPZSjswRjSEpubW7V+4GhmHGfYLMpfwPVsrfiyYkS8oe8EJgjYspho
-         gK2Q==
-X-Gm-Message-State: AOAM531dvRu75z+yPRHR2+BvIN/jpkA7Z291Oh59Z4kVoPe7/O7t6VUp
-        YRQOVjaz+mZkDhrCS9rPep/RMTZ0h9WsJ8ty
-X-Google-Smtp-Source: ABdhPJxc92jhL4Sofx6hfaVe0LIRonk1ZF/J3bfWuaRjMyIwK06AvAQNjXYmbuO2fRtY0I/UrgnrQg==
-X-Received: by 2002:a17:902:694c:: with SMTP id k12mr16038181plt.98.1644226329390;
-        Mon, 07 Feb 2022 01:32:09 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j18sm11904073pfj.13.2022.02.07.01.32.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Feb 2022 01:32:09 -0800 (PST)
-Message-ID: <6200e719.1c69fb81.8d64d.e364@mx.google.com>
-Date:   Mon, 07 Feb 2022 01:32:09 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1351343AbiBGJfz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 04:35:55 -0500
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 889CDC043181;
+        Mon,  7 Feb 2022 01:35:54 -0800 (PST)
+Received: from zn.tnic (dslb-088-067-221-104.088.067.pools.vodafone-ip.de [88.67.221.104])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id D93221EC032C;
+        Mon,  7 Feb 2022 10:35:46 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1644226547;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=rDiVcxjeYIchdVruDF/dh+Lsn2pxySfwdTEN8yKfdeQ=;
+        b=nnRw/Rwp2ohjKTUmnH9MBlX89ad3H/Y7vIsogbPEB2l6ApAnSms33M5oDEXH8rc92vQOFg
+        PraSmUxtkbAd1G9jq0L51/yfllCBdkkq+nvvzspcZkcwGSbPtRBpsPNFrN8OkU0+JnqzTh
+        F7ttl1pHCVXr19Tft2Dt548YWOGBeaU=
+Date:   Mon, 7 Feb 2022 10:35:41 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     luofei <luofei@unicloud.com>, stable@vger.kernel.org,
+        tony.luck@intel.com, tglx@linutronix.de, mingo@redhat.com,
+        hpa@zytor.com, x86@kernel.org, linux-edac@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86/mm, mm/hwpoison: fix unmap kernel 1:1 pages
+Message-ID: <YgDn7WWdcD5xaprX@zn.tnic>
+References: <20220207075242.830685-1-luofei@unicloud.com>
+ <YgDU3+KsiaQ54J5N@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.177-40-g360f8c8daab5
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 150 runs,
- 4 regressions (v5.4.177-40-g360f8c8daab5)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <YgDU3+KsiaQ54J5N@kroah.com>
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        TRACKER_ID,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 150 runs, 4 regressions (v5.4.177-40-g360f8c8=
-daab5)
+On Mon, Feb 07, 2022 at 09:14:23AM +0100, Greg KH wrote:
+> On Mon, Feb 07, 2022 at 02:52:42AM -0500, luofei wrote:
+> > Only unmap the page when the memory error is properly handled
+> > by calling memory_failure(), not the other way around.
+> > 
+> > Fixes: 26f8c38bb466("x86/mm, mm/hwpoison: Don't unconditionally unmap kernel 1:1 pages")
+> 
+> This commit is not in Linus's tree.  Please use the correct commit id.
 
-Regressions Summary
--------------------
+I think he's trying to fix the backport:
 
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
+see 26f8c38bb466c1a2d232d7609fb4bfb4bc121678 which is the stable tree backport:
 
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.177-40-g360f8c8daab5/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.177-40-g360f8c8daab5
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      360f8c8daab5d447004793dd1a1b8a8f6dde1bf5 =
+@@ -582,7 +586,8 @@ static int srao_decode_notifier(struct notifier_block *nb, unsigned long val,
+ 
+        if (mce_usable_address(mce) && (mce->severity == MCE_AO_SEVERITY)) {
+                pfn = mce->addr >> PAGE_SHIFT;
+-               memory_failure(pfn, MCE_VECTOR, 0);
++               if (memory_failure(pfn, MCE_VECTOR, 0))
++                       mce_unmap_kpfn(pfn);
+        }
 
 
+vs the upstream commit:
 
-Test Regressions
----------------- =
+fd0e786d9d09024f67bd71ec094b110237dc3840
 
+@@ -590,7 +594,8 @@ static int srao_decode_notifier(struct notifier_block *nb, unsigned long val,
+ 
+        if (mce_usable_address(mce) && (mce->severity == MCE_AO_SEVERITY)) {
+                pfn = mce->addr >> PAGE_SHIFT;
+-               memory_failure(pfn, 0);
++               if (!memory_failure(pfn, 0))
++                       mce_unmap_kpfn(pfn);
+        }
+ 
+        return NOTIFY_OK;
 
+-- 
+Regards/Gruss,
+    Boris.
 
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6200ae1793018714cf5d6f15
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
-0-g360f8c8daab5/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
-0-g360f8c8daab5/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6200ae1793018714cf5d6=
-f16
-        failing since 53 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6200ae2745be6f857e5d6ef7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
-0-g360f8c8daab5/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
-0-g360f8c8daab5/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6200ae2745be6f857e5d6=
-ef8
-        failing since 53 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6200ae2cf1d4baa90b5d6ee8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
-0-g360f8c8daab5/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
-0-g360f8c8daab5/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6200ae2cf1d4baa90b5d6=
-ee9
-        failing since 53 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6200ae2693018714cf5d6f39
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
-0-g360f8c8daab5/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.177-4=
-0-g360f8c8daab5/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6200ae2693018714cf5d6=
-f3a
-        failing since 53 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =20
+https://people.kernel.org/tglx/notes-about-netiquette
