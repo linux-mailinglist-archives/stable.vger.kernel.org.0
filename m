@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55ACF4ABB7D
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 951134ABACA
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376357AbiBGL2s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:28:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34776 "EHLO
+        id S1384066AbiBGLYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357487AbiBGLXL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:23:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C5C6C043181;
-        Mon,  7 Feb 2022 03:23:10 -0800 (PST)
+        with ESMTP id S1380499AbiBGLQw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:16:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72C22C043188;
+        Mon,  7 Feb 2022 03:16:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2496B81028;
-        Mon,  7 Feb 2022 11:23:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9594C004E1;
-        Mon,  7 Feb 2022 11:23:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DDCA6113B;
+        Mon,  7 Feb 2022 11:16:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDFB7C004E1;
+        Mon,  7 Feb 2022 11:16:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232987;
-        bh=YT8gsCAg7F7T3vjACjvYf0OXzG7CD0BJNhqoexsczrg=;
+        s=korg; t=1644232610;
+        bh=DaGD0G2X0YExTtuIuMmfRFGlyWBa1FEMMdKEvocIJkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TJl7+4huupDfTjFMXEC15HFeQGYIb9E9yNdlJUQa+tvMQMQRDfCiatPM6eWNiGbwd
-         7lxnJ1nqkrrVn2P3wD6H4CYBMCbeQQaQ8/P96hFJ9Q02lXY/pRoaMCYhsSvRYIEFfT
-         rv1ty4LwXaqikOVil87ayX8+XTKc9rtFI2ezLXrc=
+        b=IX249gItXwMwjhsAFll0733+LC9XvLw/gy78a2LV1fPFA5row4Ib2DdfKOG4Khjim
+         fVjlN0S8axv+L48YvXbTHPpfNPGEI1FydC87DAeP6zAAfPKy1uFOWjvL5DHp8GwI0Y
+         o165LbTGbf08QyfIILFLS1D4nCTjOZTaQanh130s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>,
-        James Liao <jamesjj.liao@mediatek.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Daniel Golle <daniel@makrotopia.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.10 23/74] Revert "ASoC: mediatek: Check for error clk pointer"
+        stable@vger.kernel.org, Christian Lachner <gladiac@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 58/86] ALSA: hda/realtek: Add missing fixup-model entry for Gigabyte X570 ALC1220 quirks
 Date:   Mon,  7 Feb 2022 12:06:21 +0100
-Message-Id: <20220207103757.999234038@linuxfoundation.org>
+Message-Id: <20220207103759.462395774@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+References: <20220207103757.550973048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,95 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Christian Lachner <gladiac@gmail.com>
 
-This reverts commit d491a2c2cf96f9f3d855cf0bcd807d48ccb98e81 which is
-commit 9de2b9286a6dd16966959b3cb34fc2ddfd39213e upstream
+commit 63394a16086fc2152869d7902621e2525e14bc40 upstream.
 
-With this patch in the tree, Chromebooks running the affected hardware
-no longer boot. Bisect points to this patch, and reverting it fixes
-the problem.
+The initial commit of the new Gigabyte X570 ALC1220 quirks lacked the
+fixup-model entry in alc882_fixup_models[]. It seemed not to cause any ill
+effects but for completeness sake this commit makes up for that.
 
-An analysis of the code with this patch applied shows:
-
-        ret = init_clks(pdev, clk);
-        if (ret)
-                return ERR_PTR(ret);
-...
-                for (j = 0; j < MAX_CLKS && data->clk_id[j]; j++) {
-                        struct clk *c = clk[data->clk_id[j]];
-
-                        if (IS_ERR(c)) {
-                                dev_err(&pdev->dev, "%s: clk unavailable\n",
-                                        data->name);
-                                return ERR_CAST(c);
-                        }
-
-                        scpd->clk[j] = c;
-                }
-
-Not all clocks in the clk_names array have to be present. Only the clocks
-in the data->clk_id array are actually needed. The code already checks if
-the required clocks are available and bails out if not. The assumption that
-all clocks have to be present is wrong, and commit 9de2b9286a6d needs to be
-reverted.
-
-Fixes: 9de2b9286a6d ("ASoC: mediatek: Check for error clk pointer")
-Cc: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: James Liao <jamesjj.liao@mediatek.com>
-Cc: Kevin Hilman <khilman@baylibre.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com
-Cc: Frank Wunderlich <frank-w@public-files.de>
-Cc: Daniel Golle <daniel@makrotopia.org>
-Link: https://lore.kernel.org/lkml/20220205014755.699603-1-linux@roeck-us.net/
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Christian Lachner <gladiac@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220129113243.93068-2-gladiac@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/mediatek/mtk-scpsys.c |   15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/soc/mediatek/mtk-scpsys.c
-+++ b/drivers/soc/mediatek/mtk-scpsys.c
-@@ -411,17 +411,12 @@ out:
- 	return ret;
- }
- 
--static int init_clks(struct platform_device *pdev, struct clk **clk)
-+static void init_clks(struct platform_device *pdev, struct clk **clk)
- {
- 	int i;
- 
--	for (i = CLK_NONE + 1; i < CLK_MAX; i++) {
-+	for (i = CLK_NONE + 1; i < CLK_MAX; i++)
- 		clk[i] = devm_clk_get(&pdev->dev, clk_names[i]);
--		if (IS_ERR(clk[i]))
--			return PTR_ERR(clk[i]);
--	}
--
--	return 0;
- }
- 
- static struct scp *init_scp(struct platform_device *pdev,
-@@ -431,7 +426,7 @@ static struct scp *init_scp(struct platf
- {
- 	struct genpd_onecell_data *pd_data;
- 	struct resource *res;
--	int i, j, ret;
-+	int i, j;
- 	struct scp *scp;
- 	struct clk *clk[CLK_MAX];
- 
-@@ -486,9 +481,7 @@ static struct scp *init_scp(struct platf
- 
- 	pd_data->num_domains = num;
- 
--	ret = init_clks(pdev, clk);
--	if (ret)
--		return ERR_PTR(ret);
-+	init_clks(pdev, clk);
- 
- 	for (i = 0; i < num; i++) {
- 		struct scp_domain *scpd = &scp->domains[i];
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2607,6 +2607,7 @@ static const struct hda_model_fixup alc8
+ 	{.id = ALC882_FIXUP_NO_PRIMARY_HP, .name = "no-primary-hp"},
+ 	{.id = ALC887_FIXUP_ASUS_BASS, .name = "asus-bass"},
+ 	{.id = ALC1220_FIXUP_GB_DUAL_CODECS, .name = "dual-codecs"},
++	{.id = ALC1220_FIXUP_GB_X570, .name = "gb-x570"},
+ 	{.id = ALC1220_FIXUP_CLEVO_P950, .name = "clevo-p950"},
+ 	{}
+ };
 
 
