@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB034ABD2C
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:59:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71FA34ABB42
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380492AbiBGLjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:39:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46454 "EHLO
+        id S1384299AbiBGL1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:27:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386260AbiBGLeN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:34:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 096F0C043181;
-        Mon,  7 Feb 2022 03:34:13 -0800 (PST)
+        with ESMTP id S1379451AbiBGLSB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:18:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374DCC0401C9;
+        Mon,  7 Feb 2022 03:17:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC6C7B8102E;
-        Mon,  7 Feb 2022 11:34:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3913C004E1;
-        Mon,  7 Feb 2022 11:34:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C42FB61314;
+        Mon,  7 Feb 2022 11:17:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B92BC340EB;
+        Mon,  7 Feb 2022 11:17:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233650;
-        bh=sRT0SUtVKDDdJobDZ2zVLyItWfN68H3/PvgmN5nr8u4=;
+        s=korg; t=1644232673;
+        bh=n/RJ37BfvaQCe9xTuupKRuHFLifrohdspvASD97qDXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAQX48k1KpaRE1imS8OK63hG2Fs2FQgVHrj599ZYMUKQ3C8yDmTK6wE4atbM+D1AG
-         tZP+JKGGGF+thWWS0TG56Z8yWbfSVSfZApLCIOV67+BcrChMvh56152mRD/4FCbJq3
-         1+oEOdiQVX82SAz7sF2gNyuO8vsV6W0UiUW2vr3M=
+        b=zB9N5OMBvkgHAq6S8u+kH9eBYcFFLTFVglAuKoiToCTRgWPnMwiNnOyykRch/6BHO
+         UgsVJCh1o82O+nbjbuOnoJVYFugdyhr5OgMi/bOojBX8T7N5cSaBnfxMHB51pgAJ6H
+         BORxEjvXQOtOSELaTNt7AvIh7jdwofQTKPHvab7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Marek Vasut <marex@denx.de>
-Subject: [PATCH 5.16 078/126] drm: mxsfb: Fix NULL pointer dereference
+        stable@vger.kernel.org, Eric Whitney <enwlinux@gmail.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 4.19 86/86] ext4: fix error handling in ext4_restore_inline_data()
 Date:   Mon,  7 Feb 2022 12:06:49 +0100
-Message-Id: <20220207103806.805730351@linuxfoundation.org>
+Message-Id: <20220207103800.504129882@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+References: <20220207103757.550973048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-commit 622c9a3a7868e1eeca39c55305ca3ebec4742b64 upstream.
+commit 897026aaa73eb2517dfea8d147f20ddb0b813044 upstream.
 
-mxsfb should not ever dereference the NULL pointer which
-drm_atomic_get_new_bridge_state is allowed to return.
-Assume a fixed format instead.
+While running "./check -I 200 generic/475" it sometimes gives below
+kernel BUG(). Ideally we should not call ext4_write_inline_data() if
+ext4_create_inline_data() has failed.
 
-Fixes: b776b0f00f24 ("drm: mxsfb: Use bus_format from the nearest bridge if present")
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220202081755.145716-3-alexander.stein@ew.tq-group.com
+<log snip>
+[73131.453234] kernel BUG at fs/ext4/inline.c:223!
+
+<code snip>
+ 212 static void ext4_write_inline_data(struct inode *inode, struct ext4_iloc *iloc,
+ 213                                    void *buffer, loff_t pos, unsigned int len)
+ 214 {
+<...>
+ 223         BUG_ON(!EXT4_I(inode)->i_inline_off);
+ 224         BUG_ON(pos + len > EXT4_I(inode)->i_inline_size);
+
+This patch handles the error and prints out a emergency msg saying potential
+data loss for the given inode (since we couldn't restore the original
+inline_data due to some previous error).
+
+[ 9571.070313] EXT4-fs (dm-0): error restoring inline_data for inode -- potential data loss! (inode 1703982, error -30)
+
+Reported-by: Eric Whitney <enwlinux@gmail.com>
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/9f4cd7dfd54fa58ff27270881823d94ddf78dd07.1642416995.git.riteshh@linux.ibm.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/mxsfb/mxsfb_kms.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/ext4/inline.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/mxsfb/mxsfb_kms.c
-+++ b/drivers/gpu/drm/mxsfb/mxsfb_kms.c
-@@ -361,7 +361,11 @@ static void mxsfb_crtc_atomic_enable(str
- 		bridge_state =
- 			drm_atomic_get_new_bridge_state(state,
- 							mxsfb->bridge);
--		bus_format = bridge_state->input_bus_cfg.format;
-+		if (!bridge_state)
-+			bus_format = MEDIA_BUS_FMT_FIXED;
-+		else
-+			bus_format = bridge_state->input_bus_cfg.format;
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -1125,7 +1125,15 @@ static void ext4_restore_inline_data(han
+ 				     struct ext4_iloc *iloc,
+ 				     void *buf, int inline_size)
+ {
+-	ext4_create_inline_data(handle, inode, inline_size);
++	int ret;
 +
- 		if (bus_format == MEDIA_BUS_FMT_FIXED) {
- 			dev_warn_once(drm->dev,
- 				      "Bridge does not provide bus format, assuming MEDIA_BUS_FMT_RGB888_1X24.\n"
++	ret = ext4_create_inline_data(handle, inode, inline_size);
++	if (ret) {
++		ext4_msg(inode->i_sb, KERN_EMERG,
++			"error restoring inline_data for inode -- potential data loss! (inode %lu, error %d)",
++			inode->i_ino, ret);
++		return;
++	}
+ 	ext4_write_inline_data(inode, iloc, buf, 0, inline_size);
+ 	ext4_set_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+ }
 
 
