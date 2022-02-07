@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F8ED4ABB12
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:35:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 536234ABBA9
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:39:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238003AbiBGL2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:28:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59064 "EHLO
+        id S1384683AbiBGL3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:29:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382596AbiBGLTy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:19:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C12DBC043181;
-        Mon,  7 Feb 2022 03:19:53 -0800 (PST)
+        with ESMTP id S1383151AbiBGLVl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:21:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD864C0401C9;
+        Mon,  7 Feb 2022 03:21:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D56061380;
-        Mon,  7 Feb 2022 11:19:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27271C340EB;
-        Mon,  7 Feb 2022 11:19:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C3336126D;
+        Mon,  7 Feb 2022 11:21:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16CD3C004E1;
+        Mon,  7 Feb 2022 11:21:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232792;
-        bh=RO6JrjTCFtLKjGtkJis78RkBmbX7z/chUZefduVLvhc=;
+        s=korg; t=1644232898;
+        bh=xcwRTLWfcoreqpPWUuCpo3zgDv3YjEwAjCch1f5MauY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aRiiY4bTWx2jQbG9pBR/5qv/9ZKtUJ+ZwARiaUd78qoOolAO819OEwzzln40corla
-         hoCwrWIPw/5TQpmTamGPkaw+pWIShzweHBfXVhYCbbcZps0eoDovE0xVka7KOQ2gax
-         wEmDRf22hqAq9I2yW6wlnfpTUKyVH3syCkh2mcOc=
+        b=O3nB+vRb8eoRfoamc8CP15Ea4td4ZBPDJNJ1mQRPshPGCa2fqJpRvfULCxCEx8YVH
+         Qm1ip2N/IPRmxXsIxORkEsopJM/Q/cbSGKos7xKQlv27e4Nlmfo2ir7QW0wOxH8XfK
+         yR/8ul9At1jzAi+AX4XrK27PdnTgQzBGOV43TtGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Lachner <gladiac@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 09/44] ALSA: hda/realtek: Fix silent output on Gigabyte X570 Aorus Xtreme after reboot from Windows
+        stable@vger.kernel.org,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.10 27/74] IB/rdmavt: Validate remote_addr during loopback atomic tests
 Date:   Mon,  7 Feb 2022 12:06:25 +0100
-Message-Id: <20220207103753.459222383@linuxfoundation.org>
+Message-Id: <20220207103758.129515893@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
-References: <20220207103753.155627314@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lachner <gladiac@gmail.com>
+From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 
-commit ea3541961376f733373839cc90493aafa8a7f733 upstream.
+commit 4028bccb003cf67e46632dee7f97ddc5d7b6e685 upstream.
 
-This commit switches the Gigabyte X570 Aorus Xtreme from using the
-ALC1220_FIXUP_CLEVO_P950 to the ALC1220_FIXUP_GB_X570 quirk. This fixes
-the no-audio after reboot from windows problem.
+The rdma-core test suite sends an unaligned remote address and expects a
+failure.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205275
-Signed-off-by: Christian Lachner <gladiac@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220129113243.93068-4-gladiac@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+ERROR: test_atomic_non_aligned_addr (tests.test_atomic.AtomicTest)
+
+The qib/hfi1 rc handling validates properly, but the test has the client
+and server on the same system.
+
+The loopback of these operations is a distinct code path.
+
+Fix by syntaxing the proposed remote address in the loopback code path.
+
+Fixes: 15703461533a ("IB/{hfi1, qib, rdmavt}: Move ruc_loopback to rdmavt")
+Link: https://lore.kernel.org/r/1642584489-141005-1-git-send-email-mike.marciniszyn@cornelisnetworks.com
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/sw/rdmavt/qp.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2549,7 +2549,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1458, 0xa002, "Gigabyte EP45-DS3/Z87X-UD3H", ALC889_FIXUP_FRONT_HP_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
- 	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_GB_X570),
--	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_CLEVO_P950),
-+	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_GB_X570),
- 	SND_PCI_QUIRK(0x1458, 0xa0d5, "Gigabyte X570S Aorus Master", ALC1220_FIXUP_GB_X570),
- 	SND_PCI_QUIRK(0x1462, 0x11f7, "MSI-GE63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
+--- a/drivers/infiniband/sw/rdmavt/qp.c
++++ b/drivers/infiniband/sw/rdmavt/qp.c
+@@ -3124,6 +3124,8 @@ do_write:
+ 	case IB_WR_ATOMIC_FETCH_AND_ADD:
+ 		if (unlikely(!(qp->qp_access_flags & IB_ACCESS_REMOTE_ATOMIC)))
+ 			goto inv_err;
++		if (unlikely(wqe->atomic_wr.remote_addr & (sizeof(u64) - 1)))
++			goto inv_err;
+ 		if (unlikely(!rvt_rkey_ok(qp, &qp->r_sge.sge, sizeof(u64),
+ 					  wqe->atomic_wr.remote_addr,
+ 					  wqe->atomic_wr.rkey,
 
 
