@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 518284ABCB7
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5B544ABA75
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:28:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387063AbiBGLi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:38:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44584 "EHLO
+        id S1383766AbiBGLXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:23:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385729AbiBGLcT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18EF5C043189;
-        Mon,  7 Feb 2022 03:32:18 -0800 (PST)
+        with ESMTP id S1356783AbiBGLNp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:13:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01816C043181;
+        Mon,  7 Feb 2022 03:13:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B4F660A67;
-        Mon,  7 Feb 2022 11:32:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 611B5C004E1;
-        Mon,  7 Feb 2022 11:32:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B012BB80EC3;
+        Mon,  7 Feb 2022 11:13:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA3ACC004E1;
+        Mon,  7 Feb 2022 11:13:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233537;
-        bh=idzC9wTmQOAG07iR2RbTzqlDGaG9udT+X4x1GRMFd3A=;
+        s=korg; t=1644232422;
+        bh=3hXgbhO+YSOZhDR0x7tGN3e0CeUh1NYxSuTNjjlVmOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pFDLn3ArROto2tlYpRvyyvibYk2eozmsvmRJ6dEO8G/QR51U0oDMrft2s3pTv2QIP
-         hvyFFWpoiJ3Fn5u9n7cYZWa+2bc5yxQoSAMAqNlxwSbwM2ZlUMKO0EqrvH3YOqJrbc
-         7dOB2YtvYlGla8t+wbSLjscrllnAgbcphp8f+bts=
+        b=o8za7HjalpyErx3IVuSEbRpBXqAtcVln60hu3213ivzQgtecyoMEWNV2OE1LAZ3so
+         pAL4CUkcR/vBuj1pY3gsAvGVbn/9/PzwKW2xdUf4anUw8aFUs/vODmj3msvp9ZlTuy
+         TnNZzKVE2V0bUnIRPDv7IlmcShUOVyXC+aJOUfxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>,
-        James Liao <jamesjj.liao@mediatek.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Daniel Golle <daniel@makrotopia.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.16 043/126] [PATCH] Revert "ASoC: mediatek: Check for error clk pointer"
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 4.14 52/69] RDMA/mlx4: Dont continue event handler after memory allocation failure
 Date:   Mon,  7 Feb 2022 12:06:14 +0100
-Message-Id: <20220207103805.609153851@linuxfoundation.org>
+Message-Id: <20220207103757.332346102@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,95 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-This reverts commit e0bf3c9e05ca6837ac756ec7d9de70b44603da12 which is
-commit 9de2b9286a6dd16966959b3cb34fc2ddfd39213e upstream
+commit f3136c4ce7acf64bee43135971ca52a880572e32 upstream.
 
-With this patch in the tree, Chromebooks running the affected hardware
-no longer boot. Bisect points to this patch, and reverting it fixes
-the problem.
+The failure to allocate memory during MLX4_DEV_EVENT_PORT_MGMT_CHANGE
+event handler will cause skip the assignment logic, but
+ib_dispatch_event() will be called anyway.
 
-An analysis of the code with this patch applied shows:
+Fix it by calling to return instead of break after memory allocation
+failure.
 
-        ret = init_clks(pdev, clk);
-        if (ret)
-                return ERR_PTR(ret);
-...
-                for (j = 0; j < MAX_CLKS && data->clk_id[j]; j++) {
-                        struct clk *c = clk[data->clk_id[j]];
-
-                        if (IS_ERR(c)) {
-                                dev_err(&pdev->dev, "%s: clk unavailable\n",
-                                        data->name);
-                                return ERR_CAST(c);
-                        }
-
-                        scpd->clk[j] = c;
-                }
-
-Not all clocks in the clk_names array have to be present. Only the clocks
-in the data->clk_id array are actually needed. The code already checks if
-the required clocks are available and bails out if not. The assumption that
-all clocks have to be present is wrong, and commit 9de2b9286a6d needs to be
-reverted.
-
-Fixes: 9de2b9286a6d ("ASoC: mediatek: Check for error clk pointer")
-Cc: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: James Liao <jamesjj.liao@mediatek.com>
-Cc: Kevin Hilman <khilman@baylibre.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com
-Cc: Frank Wunderlich <frank-w@public-files.de>
-Cc: Daniel Golle <daniel@makrotopia.org>
-Link: https://lore.kernel.org/lkml/20220205014755.699603-1-linux@roeck-us.net/
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 00f5ce99dc6e ("mlx4: Use port management change event instead of smp_snoop")
+Link: https://lore.kernel.org/r/12a0e83f18cfad4b5f62654f141e240d04915e10.1643622264.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Håkon Bugge <haakon.bugge@oracle.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/mediatek/mtk-scpsys.c |   15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ drivers/infiniband/hw/mlx4/main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/soc/mediatek/mtk-scpsys.c
-+++ b/drivers/soc/mediatek/mtk-scpsys.c
-@@ -411,17 +411,12 @@ out:
- 	return ret;
- }
+--- a/drivers/infiniband/hw/mlx4/main.c
++++ b/drivers/infiniband/hw/mlx4/main.c
+@@ -3346,7 +3346,7 @@ static void mlx4_ib_event(struct mlx4_de
+ 	case MLX4_DEV_EVENT_PORT_MGMT_CHANGE:
+ 		ew = kmalloc(sizeof *ew, GFP_ATOMIC);
+ 		if (!ew)
+-			break;
++			return;
  
--static int init_clks(struct platform_device *pdev, struct clk **clk)
-+static void init_clks(struct platform_device *pdev, struct clk **clk)
- {
- 	int i;
- 
--	for (i = CLK_NONE + 1; i < CLK_MAX; i++) {
-+	for (i = CLK_NONE + 1; i < CLK_MAX; i++)
- 		clk[i] = devm_clk_get(&pdev->dev, clk_names[i]);
--		if (IS_ERR(clk[i]))
--			return PTR_ERR(clk[i]);
--	}
--
--	return 0;
- }
- 
- static struct scp *init_scp(struct platform_device *pdev,
-@@ -431,7 +426,7 @@ static struct scp *init_scp(struct platf
- {
- 	struct genpd_onecell_data *pd_data;
- 	struct resource *res;
--	int i, j, ret;
-+	int i, j;
- 	struct scp *scp;
- 	struct clk *clk[CLK_MAX];
- 
-@@ -486,9 +481,7 @@ static struct scp *init_scp(struct platf
- 
- 	pd_data->num_domains = num;
- 
--	ret = init_clks(pdev, clk);
--	if (ret)
--		return ERR_PTR(ret);
-+	init_clks(pdev, clk);
- 
- 	for (i = 0; i < num; i++) {
- 		struct scp_domain *scpd = &scp->domains[i];
+ 		INIT_WORK(&ew->work, handle_port_mgmt_change_event);
+ 		memcpy(&ew->ib_eqe, eqe, sizeof *eqe);
 
 
