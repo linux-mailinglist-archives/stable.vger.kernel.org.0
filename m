@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC6AB4ABA17
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:27:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 656604ABA62
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:28:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357672AbiBGLXL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:23:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53384 "EHLO
+        id S1376364AbiBGLXT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:23:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377080AbiBGLPW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:15:22 -0500
+        with ESMTP id S1355720AbiBGLMo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:12:44 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B4F0C0401C1;
-        Mon,  7 Feb 2022 03:15:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A322C043181;
+        Mon,  7 Feb 2022 03:12:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA05DB811AF;
-        Mon,  7 Feb 2022 11:14:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3EEFC004E1;
-        Mon,  7 Feb 2022 11:14:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04340B81028;
+        Mon,  7 Feb 2022 11:12:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49850C004E1;
+        Mon,  7 Feb 2022 11:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232497;
-        bh=MT4sNF0PfxcIg6PS6y3Pd/xe1QUKigz4w0dUAF1+YxE=;
+        s=korg; t=1644232361;
+        bh=UMtfmC1/MsJ0EmiflofBXKsFTxo8ZPytFMJqH4w8PIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ETyhh2uMGQ8WDmBAG8dpTNh0XexMnwjiVzQziIZVq3YB4RFzWezVZgQ1waWoNDeYt
-         Z0rrVcNNuz0jbh7CRpmdqi1ctAHm9foDEiYQbt/69e2aWuaahFC6ADIB6vHwf8jHmk
-         VecW0eKw2GtbpGOnGeM6ATDOZ2rQltImHgXEMwRE=
+        b=eXJiNqAPvy+znqa+T3uNCeZ429rnq1gIWVKcooapOL6lXdFX8Qaanst5FIy7F1KCo
+         JqVJcMB3J14F84c1H0+dnUVo/BnUd1TAbrkW3AAjpref5+X4jdEUtNetB6D68t8rGn
+         ss7P5CAsovmCHoSg4DhzDQ7MXxFnxKVGQ3rLWM80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>
-Subject: [PATCH 4.19 09/86] serial: 8250: of: Fix mapped region size when using reg-offset property
-Date:   Mon,  7 Feb 2022 12:05:32 +0100
-Message-Id: <20220207103757.862574812@linuxfoundation.org>
+        stable@vger.kernel.org, DocMAX <mail@vacharakis.de>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>
+Subject: [PATCH 4.14 11/69] usb-storage: Add unusual-devs entry for VL817 USB-SATA bridge
+Date:   Mon,  7 Feb 2022 12:05:33 +0100
+Message-Id: <20220207103755.982253009@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,52 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit d06b1cf28297e27127d3da54753a3a01a2fa2f28 upstream.
+commit 5b67b315037250a61861119683e7fcb509deea25 upstream.
 
-8250_of supports a reg-offset property which is intended to handle
-cases where the device registers start at an offset inside the region
-of memory allocated to the device. The Xilinx 16550 UART, for which this
-support was initially added, requires this. However, the code did not
-adjust the overall size of the mapped region accordingly, causing the
-driver to request an area of memory past the end of the device's
-allocation. For example, if the UART was allocated an address of
-0xb0130000, size of 0x10000 and reg-offset of 0x1000 in the device
-tree, the region of memory reserved was b0131000-b0140fff, which caused
-the driver for the region starting at b0140000 to fail to probe.
+Two people have reported (and mentioned numerous other reports on the
+web) that VIA's VL817 USB-SATA bridge does not work with the uas
+driver.  Typical log messages are:
 
-Fix this by subtracting reg-offset from the mapped region size.
+[ 3606.232149] sd 14:0:0:0: [sdg] tag#2 uas_zap_pending 0 uas-tag 1 inflight: CMD
+[ 3606.232154] sd 14:0:0:0: [sdg] tag#2 CDB: Write(16) 8a 00 00 00 00 00 18 0c c9 80 00 00 00 80 00 00
+[ 3606.306257] usb 4-4.4: reset SuperSpeed Plus Gen 2x1 USB device number 11 using xhci_hcd
+[ 3606.328584] scsi host14: uas_eh_device_reset_handler success
 
-Fixes: b912b5e2cfb3 ([POWERPC] Xilinx: of_serial support for Xilinx uart 16550.)
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20220112194214.881844-1-robert.hancock@calian.com
+Surprisingly, the devices do seem to work okay for some other people.
+The cause of the differing behaviors is not known.
+
+In the hope of getting the devices to work for the most users, even at
+the possible cost of degraded performance for some, this patch adds an
+unusual_devs entry for the VL817 to block it from binding to the uas
+driver by default.  Users will be able to override this entry by means
+of a module parameter, if they want.
+
+CC: <stable@vger.kernel.org>
+Reported-by: DocMAX <mail@vacharakis.de>
+Reported-and-tested-by: Thomas Weißschuh <linux@weissschuh.net>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/Ye8IsK2sjlEv1rqU@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_of.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/usb/storage/unusual_devs.h |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_of.c
-+++ b/drivers/tty/serial/8250/8250_of.c
-@@ -104,8 +104,17 @@ static int of_platform_serial_setup(stru
- 		port->mapsize = resource_size(&resource);
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2320,6 +2320,16 @@ UNUSUAL_DEV(  0x2027, 0xa001, 0x0000, 0x
+ 		USB_SC_DEVICE, USB_PR_DEVICE, usb_stor_euscsi_init,
+ 		US_FL_SCM_MULT_TARG ),
  
- 		/* Check for shifted address mapping */
--		if (of_property_read_u32(np, "reg-offset", &prop) == 0)
-+		if (of_property_read_u32(np, "reg-offset", &prop) == 0) {
-+			if (prop >= port->mapsize) {
-+				dev_warn(&ofdev->dev, "reg-offset %u exceeds region size %pa\n",
-+					 prop, &port->mapsize);
-+				ret = -EINVAL;
-+				goto err_unprepare;
-+			}
++/*
++ * Reported by DocMAX <mail@vacharakis.de>
++ * and Thomas Weißschuh <linux@weissschuh.net>
++ */
++UNUSUAL_DEV( 0x2109, 0x0715, 0x9999, 0x9999,
++		"VIA Labs, Inc.",
++		"VL817 SATA Bridge",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_IGNORE_UAS),
 +
- 			port->mapbase += prop;
-+			port->mapsize -= prop;
-+		}
- 
- 		port->iotype = UPIO_MEM;
- 		if (of_property_read_u32(np, "reg-io-width", &prop) == 0) {
+ UNUSUAL_DEV( 0x2116, 0x0320, 0x0001, 0x0001,
+ 		"ST",
+ 		"2A",
 
 
