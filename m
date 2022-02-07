@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1888C4ABB85
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C09B94ABC23
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376534AbiBGL3C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:29:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60122 "EHLO
+        id S1384918AbiBGLai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:30:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382775AbiBGLUs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:20:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B27E9C03FEDA;
-        Mon,  7 Feb 2022 03:20:33 -0800 (PST)
+        with ESMTP id S1384001AbiBGLYY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:24:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79961C043188;
+        Mon,  7 Feb 2022 03:24:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7164661467;
-        Mon,  7 Feb 2022 11:20:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50128C004E1;
-        Mon,  7 Feb 2022 11:20:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0CB30B81158;
+        Mon,  7 Feb 2022 11:24:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F74DC004E1;
+        Mon,  7 Feb 2022 11:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232823;
-        bh=oKV/0tUCmzuCQDKEZ9sUtaQfHusBkRgbX5Iepng1Hp8=;
+        s=korg; t=1644233060;
+        bh=2kK5sbq3cpZ3QtSC6O0CqOyEdKdVWKxpE+KMJ3HVuHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MObADnTDZ0yQm5kNtrhI4H8iMoxUaKBBXfqAaf4C77YaD+Z5YMwWLU3wSyQY9ZzzA
-         wok7HkKoh7hvVseBHKh5aaLKc5pN/3cifYNhdmSpjpaFAn8Dpzhrrsqny26BdHMKQV
-         636l1q/0MynfDk6HY9bi2bgpDFTLpm/ZZ+qFlas4=
+        b=QWZ8u266EFvHsaQwtxPwp1Zq6G2GUfjlgDKVsH1sc9Tex6H4soAZwPt+2Uzx3I9qr
+         GIcmD/goROb2vUTqf7+rsk+r+6OiG/xVqQTUZ/she87TnlTTsWU1yv/LeoEkq1HFXM
+         Ol/KoWf1SI/35GajjcM/OQkiN/xEGgkAkrdGbL3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 36/44] pinctrl: bcm2835: Fix a few error paths
+        stable@vger.kernel.org, Haiyue Wang <haiyue.wang@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 54/74] gve: fix the wrong AdminQ buffer queue index check
 Date:   Mon,  7 Feb 2022 12:06:52 +0100
-Message-Id: <20220207103754.331444864@linuxfoundation.org>
+Message-Id: <20220207103758.983776899@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
-References: <20220207103753.155627314@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,78 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Haiyue Wang <haiyue.wang@intel.com>
 
-commit 5297c693d8c8e08fa742e3112cf70723f7a04da2 upstream.
+commit 1f84a9450d75e08af70d9e2f2d5e1c0ac0c881d2 upstream.
 
-After commit 266423e60ea1 ("pinctrl: bcm2835: Change init order for gpio
-hogs") a few error paths would not unwind properly the registration of
-gpio ranges. Correct that by assigning a single error label and goto it
-whenever we encounter a fatal error.
+The 'tail' and 'head' are 'unsigned int' type free-running count, when
+'head' is overflow, the 'int i (= tail) < u32 head' will be false:
 
-Fixes: 266423e60ea1 ("pinctrl: bcm2835: Change init order for gpio hogs")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220127215033.267227-1-f.fainelli@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Only '- loop 0: idx = 63' result is shown, so it needs to use 'int' type
+to compare, it can handle the overflow correctly.
+
+typedef uint32_t u32;
+
+int main()
+{
+        u32 tail, head;
+        int stail, shead;
+        int i, loop;
+
+        tail = 0xffffffff;
+        head = 0x00000000;
+
+        for (i = tail, loop = 0; i < head; i++) {
+                unsigned int idx = i & 63;
+
+                printf("+ loop %d: idx = %u\n", loop++, idx);
+        }
+
+        stail = tail;
+        shead = head;
+        for (i = stail, loop = 0; i < shead; i++) {
+                unsigned int idx = i & 63;
+
+                printf("- loop %d: idx = %u\n", loop++, idx);
+        }
+
+        return 0;
+}
+
+Fixes: 5cdad90de62c ("gve: Batch AQ commands for creating and destroying queues.")
+Signed-off-by: Haiyue Wang <haiyue.wang@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/bcm/pinctrl-bcm2835.c |   23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/google/gve/gve_adminq.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pinctrl/bcm/pinctrl-bcm2835.c
-+++ b/drivers/pinctrl/bcm/pinctrl-bcm2835.c
-@@ -1261,16 +1261,18 @@ static int bcm2835_pinctrl_probe(struct
- 				     sizeof(*girq->parents),
- 				     GFP_KERNEL);
- 	if (!girq->parents) {
--		pinctrl_remove_gpio_range(pc->pctl_dev, &pc->gpio_range);
--		return -ENOMEM;
-+		err = -ENOMEM;
-+		goto out_remove;
- 	}
+--- a/drivers/net/ethernet/google/gve/gve_adminq.c
++++ b/drivers/net/ethernet/google/gve/gve_adminq.c
+@@ -141,7 +141,7 @@ static int gve_adminq_parse_err(struct g
+  */
+ static int gve_adminq_kick_and_wait(struct gve_priv *priv)
+ {
+-	u32 tail, head;
++	int tail, head;
+ 	int i;
  
- 	if (is_7211) {
- 		pc->wake_irq = devm_kcalloc(dev, BCM2835_NUM_IRQS,
- 					    sizeof(*pc->wake_irq),
- 					    GFP_KERNEL);
--		if (!pc->wake_irq)
--			return -ENOMEM;
-+		if (!pc->wake_irq) {
-+			err = -ENOMEM;
-+			goto out_remove;
-+		}
- 	}
- 
- 	/*
-@@ -1294,8 +1296,10 @@ static int bcm2835_pinctrl_probe(struct
- 
- 		len = strlen(dev_name(pc->dev)) + 16;
- 		name = devm_kzalloc(pc->dev, len, GFP_KERNEL);
--		if (!name)
--			return -ENOMEM;
-+		if (!name) {
-+			err = -ENOMEM;
-+			goto out_remove;
-+		}
- 
- 		snprintf(name, len, "%s:bank%d", dev_name(pc->dev), i);
- 
-@@ -1314,11 +1318,14 @@ static int bcm2835_pinctrl_probe(struct
- 	err = gpiochip_add_data(&pc->gpio_chip, pc);
- 	if (err) {
- 		dev_err(dev, "could not add GPIO chip\n");
--		pinctrl_remove_gpio_range(pc->pctl_dev, &pc->gpio_range);
--		return err;
-+		goto out_remove;
- 	}
- 
- 	return 0;
-+
-+out_remove:
-+	pinctrl_remove_gpio_range(pc->pctl_dev, &pc->gpio_range);
-+	return err;
- }
- 
- static struct platform_driver bcm2835_pinctrl_driver = {
+ 	tail = ioread32be(&priv->reg_bar0->adminq_event_counter);
 
 
