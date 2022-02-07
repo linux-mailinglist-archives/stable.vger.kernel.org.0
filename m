@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED8554ABA53
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:28:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 965014ABC43
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:46:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234951AbiBGLZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:25:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54116 "EHLO
+        id S1385117AbiBGLbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:31:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378622AbiBGLPy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:15:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA57BC0401C8;
-        Mon,  7 Feb 2022 03:15:49 -0800 (PST)
+        with ESMTP id S1384307AbiBGL1o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:27:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31944C03FEC0;
+        Mon,  7 Feb 2022 03:26:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EBDB61388;
-        Mon,  7 Feb 2022 11:15:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 193DDC004E1;
-        Mon,  7 Feb 2022 11:15:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DCA83B81158;
+        Mon,  7 Feb 2022 11:26:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AD41C004E1;
+        Mon,  7 Feb 2022 11:25:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232548;
-        bh=U+c9K6WdzIVH2IfFgZxIiSIM4vFtt9G9/lsDaGV6npA=;
+        s=korg; t=1644233160;
+        bh=gnZ42VB8luOBpe47zX/EhN1MWbO2bGrsu/FWoeueKY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fuwp6H5gQPfUFDtBLOQNxzcwmYNfwqgHJRJFKctYt9lEjyAfzEtk1IXJaQ0DTGW3j
-         2OlbwtbbsmsmhKTGUqmSs/Gv6Vox7U1U04rlAC1zoJ/yN25ZTC5IYmzd16EZ1RCRIP
-         Cpf6RBI6UXTIGTYn187Y/IlWrFhGGF1yney1dCeE=
+        b=bARqaB/alJD46Uj3ajcV9eFhEx5mOiWpuqMPyDa/9p6oiojVxKGD7SMw4dv2cbbSa
+         NHb8JoWYkd5UIogoArm6rP1XFZuYyfH4mxorpnzdRLyE2RYq5rpa8Eb9VZqPy7KcN6
+         eAhAyKX5weXLmna8bB50LuNMTmX+e3nuEyJyb+No=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Ray Che <xijiache@gmail.com>, David Ahern <dsahern@kernel.org>,
-        Geoff Alexander <alexandg@cs.unm.edu>,
-        Willy Tarreau <w@1wt.eu>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 45/86] ipv4: tcp: send zero IPID in SYNACK messages
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 035/110] mptcp: fix msk traversal in mptcp_nl_cmd_set_flags()
 Date:   Mon,  7 Feb 2022 12:06:08 +0100
-Message-Id: <20220207103759.028005440@linuxfoundation.org>
+Message-Id: <20220207103803.450454111@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 970a5a3ea86da637471d3cd04d513a0755aba4bf ]
+commit 8e9eacad7ec7a9cbf262649ebf1fa6e6f6cc7d82 upstream.
 
-In commit 431280eebed9 ("ipv4: tcp: send zero IPID for RST and
-ACK sent in SYN-RECV and TIME-WAIT state") we took care of some
-ctl packets sent by TCP.
+The MPTCP endpoint list is under RCU protection, guarded by the
+pernet spinlock. mptcp_nl_cmd_set_flags() traverses the list
+without acquiring the spin-lock nor under the RCU critical section.
 
-It turns out we need to use a similar strategy for SYNACK packets.
+This change addresses the issue performing the lookup and the endpoint
+update under the pernet spinlock.
 
-By default, they carry IP_DF and IPID==0, but there are ways
-to ask them to use the hashed IP ident generator and thus
-be used to build off-path attacks.
-(Ref: Off-Path TCP Exploits of the Mixed IPID Assignment)
+[The upstream commit had to handle a lookup_by_id variable that is only
+ present in 5.17. This version of the patch removes that variable, so
+ the __lookup_addr() function only handles the lookup as it is
+ implemented in 5.15 and 5.16. It also removes one 'const' keyword to
+ prevent a warning due to differing const-ness in the 5.17 version of
+ addresses_equal().]
 
-One of this way is to force (before listener is started)
-echo 1 >/proc/sys/net/ipv4/ip_no_pmtu_disc
-
-Another way is using forged ICMP ICMP_FRAG_NEEDED
-with a very small MTU (like 68) to force a false return from
-ip_dont_fragment()
-
-In this patch, ip_build_and_send_pkt() uses the following
-heuristics.
-
-1) Most SYNACK packets are smaller than IPV4_MIN_MTU and therefore
-can use IP_DF regardless of the listener or route pmtu setting.
-
-2) In case the SYNACK packet is bigger than IPV4_MIN_MTU,
-we use prandom_u32() generator instead of the IPv4 hashed ident one.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Ray Che <xijiache@gmail.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Cc: Geoff Alexander <alexandg@cs.unm.edu>
-Cc: Willy Tarreau <w@1wt.eu>
+Fixes: 0f9f696a502e ("mptcp: add set_flags command in PM netlink")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_output.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ net/mptcp/pm_netlink.c |   34 +++++++++++++++++++++++++---------
+ 1 file changed, 25 insertions(+), 9 deletions(-)
 
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -160,12 +160,19 @@ int ip_build_and_send_pkt(struct sk_buff
- 	iph->daddr    = (opt && opt->opt.srr ? opt->opt.faddr : daddr);
- 	iph->saddr    = saddr;
- 	iph->protocol = sk->sk_protocol;
--	if (ip_dont_fragment(sk, &rt->dst)) {
-+	/* Do not bother generating IPID for small packets (eg SYNACK) */
-+	if (skb->len <= IPV4_MIN_MTU || ip_dont_fragment(sk, &rt->dst)) {
- 		iph->frag_off = htons(IP_DF);
- 		iph->id = 0;
- 	} else {
- 		iph->frag_off = 0;
--		__ip_select_ident(net, iph, 1);
-+		/* TCP packets here are SYNACK with fat IPv4/TCP options.
-+		 * Avoid using the hashed IP ident generator.
-+		 */
-+		if (sk->sk_protocol == IPPROTO_TCP)
-+			iph->id = (__force __be16)prandom_u32();
-+		else
-+			__ip_select_ident(net, iph, 1);
+--- a/net/mptcp/pm_netlink.c
++++ b/net/mptcp/pm_netlink.c
+@@ -459,6 +459,18 @@ static unsigned int fill_remote_addresse
+ 	return i;
+ }
+ 
++static struct mptcp_pm_addr_entry *
++__lookup_addr(struct pm_nl_pernet *pernet, struct mptcp_addr_info *info)
++{
++	struct mptcp_pm_addr_entry *entry;
++
++	list_for_each_entry(entry, &pernet->local_addr_list, list) {
++		if (addresses_equal(&entry->addr, info, true))
++			return entry;
++	}
++	return NULL;
++}
++
+ static void mptcp_pm_create_subflow_or_signal_addr(struct mptcp_sock *msk)
+ {
+ 	struct sock *sk = (struct sock *)msk;
+@@ -1725,17 +1737,21 @@ static int mptcp_nl_cmd_set_flags(struct
+ 	if (addr.flags & MPTCP_PM_ADDR_FLAG_BACKUP)
+ 		bkup = 1;
+ 
+-	list_for_each_entry(entry, &pernet->local_addr_list, list) {
+-		if (addresses_equal(&entry->addr, &addr.addr, true)) {
+-			mptcp_nl_addr_backup(net, &entry->addr, bkup);
+-
+-			if (bkup)
+-				entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
+-			else
+-				entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
+-		}
++	spin_lock_bh(&pernet->lock);
++	entry = __lookup_addr(pernet, &addr.addr);
++	if (!entry) {
++		spin_unlock_bh(&pernet->lock);
++		return -EINVAL;
  	}
  
- 	if (opt && opt->opt.optlen) {
++	if (bkup)
++		entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
++	else
++		entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
++	addr = *entry;
++	spin_unlock_bh(&pernet->lock);
++
++	mptcp_nl_addr_backup(net, &addr.addr, bkup);
+ 	return 0;
+ }
+ 
 
 
