@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 483C84ABAD0
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 991164ABADB
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:31:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384089AbiBGLYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49836 "EHLO
+        id S1384107AbiBGLYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355533AbiBGLMj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:12:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 899CFC043181;
-        Mon,  7 Feb 2022 03:12:38 -0800 (PST)
+        with ESMTP id S1359284AbiBGLOt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:14:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A981C03FEDC;
+        Mon,  7 Feb 2022 03:14:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4203BB81158;
-        Mon,  7 Feb 2022 11:12:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59DC0C004E1;
-        Mon,  7 Feb 2022 11:12:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ECB216113B;
+        Mon,  7 Feb 2022 11:14:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1B7BC004E1;
+        Mon,  7 Feb 2022 11:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232356;
-        bh=vK+HZo3Tvyg460B+nkSpIbDOI1U1G+kuCUFZrEnEw/s=;
+        s=korg; t=1644232464;
+        bh=96vWH8VeJUzwAZTEU3JXtbswkrsSnHsOR4OR7b5bcCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lsSeBqlfdfQqHiQCCbsYsDkxnsZaTpBjfQkBXL103xtVe/0F9o2LJzuJ1XYhWufqb
-         iVD0dDuE2wfMXkE7MgEhXp8DSAj7DMxtstxunU4QJYqkfcO2COzWmQx43kQdN9z6JD
-         p+UU4LUn2QJL46f+89v4QpRaal762GKci1Iq2tkw=
+        b=Y1YV65qTEMaNYHdKLTLwnHdFnOCkDP4FengGOR31G9nPqTQE48/8zK3xdwD0Hjyew
+         /7vK/UyzGI/k2gkTBg6TabJ6jNAt6FkxQ6ZezP7JJT1Hq0snrHXgfn1NJwEXDrC1i2
+         cMIjEksiY48AmNu4n67TEgWovB4Q8ITCAQaHS0yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
-        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 4.14 19/69] i40e: Increase delay to 1 s after global EMP reset
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 18/86] net: sfp: ignore disabled SFP node
 Date:   Mon,  7 Feb 2022 12:05:41 +0100
-Message-Id: <20220207103756.247650210@linuxfoundation.org>
+Message-Id: <20220207103758.150313396@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
-References: <20220207103755.604121441@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+References: <20220207103757.550973048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+From: Marek Behún <kabel@kernel.org>
 
-commit 9b13bd53134c9ddd544a790125199fdbdb505e67 upstream.
+commit 2148927e6ed43a1667baf7c2ae3e0e05a44b51a0 upstream.
 
-Recently simplified i40e_rebuild causes that FW sometimes
-is not ready after NVM update, the ping does not return.
+Commit ce0aa27ff3f6 ("sfp: add sfp-bus to bridge between network devices
+and sfp cages") added code which finds SFP bus DT node even if the node
+is disabled with status = "disabled". Because of this, when phylink is
+created, it ends with non-null .sfp_bus member, even though the SFP
+module is not probed (because the node is disabled).
 
-Increase the delay in case of EMP reset.
-Old delay of 300 ms was introduced for specific cards for 710 series.
-Now it works for all the cards and delay was increased.
+We need to ignore disabled SFP bus node.
 
-Fixes: 1fa51a650e1d ("i40e: Add delay after EMP reset for firmware to recover")
-Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
-Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: ce0aa27ff3f6 ("sfp: add sfp-bus to bridge between network devices and sfp cages")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org # 2203cbf2c8b5 ("net: sfp: move fwnode parsing into sfp-bus layer")
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[ backport to 4.19 ]
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |   12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ drivers/net/phy/phylink.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -7245,15 +7245,9 @@ static void i40e_rebuild(struct i40e_pf
- 	}
- 	i40e_get_oem_version(&pf->hw);
- 
--	if (test_bit(__I40E_EMP_RESET_INTR_RECEIVED, pf->state) &&
--	    ((hw->aq.fw_maj_ver == 4 && hw->aq.fw_min_ver <= 33) ||
--	     hw->aq.fw_maj_ver < 4) && hw->mac.type == I40E_MAC_XL710) {
--		/* The following delay is necessary for 4.33 firmware and older
--		 * to recover after EMP reset. 200 ms should suffice but we
--		 * put here 300 ms to be sure that FW is ready to operate
--		 * after reset.
--		 */
--		mdelay(300);
-+	if (test_and_clear_bit(__I40E_EMP_RESET_INTR_RECEIVED, pf->state)) {
-+		/* The following delay is necessary for firmware update. */
-+		mdelay(1000);
+--- a/drivers/net/phy/phylink.c
++++ b/drivers/net/phy/phylink.c
+@@ -554,6 +554,11 @@ static int phylink_register_sfp(struct p
+ 		return ret;
  	}
  
- 	/* re-verify the eeprom if we just had an EMP reset */
++	if (!fwnode_device_is_available(ref.fwnode)) {
++		fwnode_handle_put(ref.fwnode);
++		return 0;
++	}
++
+ 	pl->sfp_bus = sfp_register_upstream(ref.fwnode, pl->netdev, pl,
+ 					    &sfp_phylink_ops);
+ 	if (!pl->sfp_bus)
 
 
