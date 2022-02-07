@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A9F4ABA1D
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:27:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CA5F4ABA1A
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:27:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237229AbiBGLXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:23:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47712 "EHLO
+        id S1353453AbiBGLXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:23:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355245AbiBGLIH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:08:07 -0500
-X-Greylist: delayed 13060 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 07 Feb 2022 03:08:06 PST
+        with ESMTP id S1358086AbiBGLOc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:14:32 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 571CCC043181;
-        Mon,  7 Feb 2022 03:08:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D124C03F91E;
+        Mon,  7 Feb 2022 03:14:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95D2CB80EE8;
-        Mon,  7 Feb 2022 11:08:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1664C004E1;
-        Mon,  7 Feb 2022 11:08:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B210B81158;
+        Mon,  7 Feb 2022 11:14:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA124C004E1;
+        Mon,  7 Feb 2022 11:14:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232083;
-        bh=xDt/v0wjh/teTSvWU8FTJ+9zGVA5D8k7qvF/ziHbYYI=;
+        s=korg; t=1644232449;
+        bh=p9gzYhntkEFFU0kZCVkx2X3WS7L38CrCbtyOn9AY4Z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BWm2EyN0nkbFQNe2aJo9g23UHkkhuSk/J+/TWPj+RWUvCvufVZcttVZXCuQdOQNaB
-         OjVBzV/7cFvLWUfKeBl2JhPnCpq5hRQ2HEmDFNs1MoiVvOvKgEyBvbmkm65v5iGU67
-         gVAJJuQnlaqufrpxBXrsTxTwyYvtezrjYfjCLv4U=
+        b=dc3UTnCZ1AFRGMcalLjU/nRVy2TC++WKa8PifD+bHbHMyh579kA94mMjm1dzS0SvM
+         Rv0mTt8zwL9nCLxQNpdSy/ycOdbpabGedqfBm/U5eAn50m6H8yUcSLYk4kt/eZZ3gW
+         OvLeIzmzMg0AoiHKPpAlsTOivIFf+H2YkwfLDPGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.9 03/48] s390/hypfs: include z/VM guests with access control group set
+        stable@vger.kernel.org, DocMAX <mail@vacharakis.de>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>
+Subject: [PATCH 4.19 13/86] usb-storage: Add unusual-devs entry for VL817 USB-SATA bridge
 Date:   Mon,  7 Feb 2022 12:05:36 +0100
-Message-Id: <20220207103752.452958801@linuxfoundation.org>
+Message-Id: <20220207103757.994684774@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
-References: <20220207103752.341184175@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+References: <20220207103757.550973048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 663d34c8df98740f1e90241e78e456d00b3c6cad upstream.
+commit 5b67b315037250a61861119683e7fcb509deea25 upstream.
 
-Currently if z/VM guest is allowed to retrieve hypervisor performance
-data globally for all guests (privilege class B) the query is formed in a
-way to include all guests but the group name is left empty. This leads to
-that z/VM guests which have access control group set not being included
-in the results (even local vm).
+Two people have reported (and mentioned numerous other reports on the
+web) that VIA's VL817 USB-SATA bridge does not work with the uas
+driver.  Typical log messages are:
 
-Change the query group identifier from empty to "any" to retrieve
-information about all guests from any groups (or without a group set).
+[ 3606.232149] sd 14:0:0:0: [sdg] tag#2 uas_zap_pending 0 uas-tag 1 inflight: CMD
+[ 3606.232154] sd 14:0:0:0: [sdg] tag#2 CDB: Write(16) 8a 00 00 00 00 00 18 0c c9 80 00 00 00 80 00 00
+[ 3606.306257] usb 4-4.4: reset SuperSpeed Plus Gen 2x1 USB device number 11 using xhci_hcd
+[ 3606.328584] scsi host14: uas_eh_device_reset_handler success
 
-Cc: stable@vger.kernel.org
-Fixes: 31cb4bd31a48 ("[S390] Hypervisor filesystem (s390_hypfs) for z/VM")
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Surprisingly, the devices do seem to work okay for some other people.
+The cause of the differing behaviors is not known.
+
+In the hope of getting the devices to work for the most users, even at
+the possible cost of degraded performance for some, this patch adds an
+unusual_devs entry for the VL817 to block it from binding to the uas
+driver by default.  Users will be able to override this entry by means
+of a module parameter, if they want.
+
+CC: <stable@vger.kernel.org>
+Reported-by: DocMAX <mail@vacharakis.de>
+Reported-and-tested-by: Thomas Weißschuh <linux@weissschuh.net>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/Ye8IsK2sjlEv1rqU@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/hypfs/hypfs_vm.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/storage/unusual_devs.h |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/s390/hypfs/hypfs_vm.c
-+++ b/arch/s390/hypfs/hypfs_vm.c
-@@ -19,6 +19,7 @@
+--- a/drivers/usb/storage/unusual_devs.h
++++ b/drivers/usb/storage/unusual_devs.h
+@@ -2301,6 +2301,16 @@ UNUSUAL_DEV(  0x2027, 0xa001, 0x0000, 0x
+ 		USB_SC_DEVICE, USB_PR_DEVICE, usb_stor_euscsi_init,
+ 		US_FL_SCM_MULT_TARG ),
  
- static char local_guest[] = "        ";
- static char all_guests[] = "*       ";
-+static char *all_groups = all_guests;
- static char *guest_query;
- 
- struct diag2fc_data {
-@@ -61,10 +62,11 @@ static int diag2fc(int size, char* query
- 
- 	memcpy(parm_list.userid, query, NAME_LEN);
- 	ASCEBC(parm_list.userid, NAME_LEN);
--	parm_list.addr = (unsigned long) addr ;
-+	memcpy(parm_list.aci_grp, all_groups, NAME_LEN);
-+	ASCEBC(parm_list.aci_grp, NAME_LEN);
-+	parm_list.addr = (unsigned long)addr;
- 	parm_list.size = size;
- 	parm_list.fmt = 0x02;
--	memset(parm_list.aci_grp, 0x40, NAME_LEN);
- 	rc = -1;
- 
- 	diag_stat_inc(DIAG_STAT_X2FC);
++/*
++ * Reported by DocMAX <mail@vacharakis.de>
++ * and Thomas Weißschuh <linux@weissschuh.net>
++ */
++UNUSUAL_DEV( 0x2109, 0x0715, 0x9999, 0x9999,
++		"VIA Labs, Inc.",
++		"VL817 SATA Bridge",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_IGNORE_UAS),
++
+ UNUSUAL_DEV( 0x2116, 0x0320, 0x0001, 0x0001,
+ 		"ST",
+ 		"2A",
 
 
