@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A97764ABA51
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:27:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E7A04ABCA3
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236876AbiBGLZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:25:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54038 "EHLO
+        id S1386979AbiBGLiU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:38:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378393AbiBGLPu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:15:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E3BCC03FEE8;
-        Mon,  7 Feb 2022 03:15:31 -0800 (PST)
+        with ESMTP id S1385674AbiBGLcF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4BC4C0401C9;
+        Mon,  7 Feb 2022 03:31:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCA0C6113B;
-        Mon,  7 Feb 2022 11:15:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2460C004E1;
-        Mon,  7 Feb 2022 11:15:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 645C560A67;
+        Mon,  7 Feb 2022 11:31:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59056C004E1;
+        Mon,  7 Feb 2022 11:31:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232530;
-        bh=2OOCeYXrVO5I2xFEe1arKQB7R0jBUJ86hcpONKyUaUI=;
+        s=korg; t=1644233498;
+        bh=/mdKNCS/v4khbOY4M1DC21Yj9S+GLexjOpKckihNDzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sBBVUiQIBmGhpxNd1dSxkMMFxIEwbxJWPhH286x66Qhhz3D+JTOmZnxqm/ZcpO/wM
-         IxsxryPQIGTtEBlTufbDLj4r6L4MIrKawdQ++zVqQR9lEdmU5gs1HNmHzQHL7VmGIH
-         4D4inhjXVhBRn0sZ6iAxZX/PdBXxHJP0x56OtBA8=
+        b=g+oba4UUyt62SP5tlCY52jKeRqJ1CvlMZ0laSxfnAS7aoI8EsYXoRJC0qMeu7+K6a
+         OzbnWJ8Lr9RaeKtgf/CS5aMLv//vBzxIMf5nmIcKJD9CNFOsfdlZIN7lE5sjncgf9j
+         GWc7IT6MackzAj0+me3ccKQQ4sXFF3xBtnPFbWhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/86] phylib: fix potential use-after-free
+        stable@vger.kernel.org, Lang Yu <lang.yu@amd.com>,
+        David Hildenbrand <david@redhat.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.16 032/126] mm/kmemleak: avoid scanning potential huge holes
 Date:   Mon,  7 Feb 2022 12:06:03 +0100
-Message-Id: <20220207103758.845485398@linuxfoundation.org>
+Message-Id: <20220207103805.249337543@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +57,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Lang Yu <lang.yu@amd.com>
 
-[ Upstream commit cbda1b16687580d5beee38273f6241ae3725960c ]
+commit c10a0f877fe007021d70f9cada240f42adc2b5db upstream.
 
-Commit bafbdd527d56 ("phylib: Add device reset GPIO support") added call
-to phy_device_reset(phydev) after the put_device() call in phy_detach().
+When using devm_request_free_mem_region() and devm_memremap_pages() to
+add ZONE_DEVICE memory, if requested free mem region's end pfn were
+huge(e.g., 0x400000000), the node_end_pfn() will be also huge (see
+move_pfn_range_to_zone()).  Thus it creates a huge hole between
+node_start_pfn() and node_end_pfn().
 
-The comment before the put_device() call says that the phydev might go
-away with put_device().
+We found on some AMD APUs, amdkfd requested such a free mem region and
+created a huge hole.  In such a case, following code snippet was just
+doing busy test_bit() looping on the huge hole.
 
-Fix potential use-after-free by calling phy_device_reset() before
-put_device().
+  for (pfn = start_pfn; pfn < end_pfn; pfn++) {
+	struct page *page = pfn_to_online_page(pfn);
+		if (!page)
+			continue;
+	...
+  }
 
-Fixes: bafbdd527d56 ("phylib: Add device reset GPIO support")
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220119162748.32418-1-kabel@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So we got a soft lockup:
+
+  watchdog: BUG: soft lockup - CPU#6 stuck for 26s! [bash:1221]
+  CPU: 6 PID: 1221 Comm: bash Not tainted 5.15.0-custom #1
+  RIP: 0010:pfn_to_online_page+0x5/0xd0
+  Call Trace:
+    ? kmemleak_scan+0x16a/0x440
+    kmemleak_write+0x306/0x3a0
+    ? common_file_perm+0x72/0x170
+    full_proxy_write+0x5c/0x90
+    vfs_write+0xb9/0x260
+    ksys_write+0x67/0xe0
+    __x64_sys_write+0x1a/0x20
+    do_syscall_64+0x3b/0xc0
+    entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+I did some tests with the patch.
+
+(1) amdgpu module unloaded
+
+before the patch:
+
+  real    0m0.976s
+  user    0m0.000s
+  sys     0m0.968s
+
+after the patch:
+
+  real    0m0.981s
+  user    0m0.000s
+  sys     0m0.973s
+
+(2) amdgpu module loaded
+
+before the patch:
+
+  real    0m35.365s
+  user    0m0.000s
+  sys     0m35.354s
+
+after the patch:
+
+  real    0m1.049s
+  user    0m0.000s
+  sys     0m1.042s
+
+Link: https://lkml.kernel.org/r/20211108140029.721144-1-lang.yu@amd.com
+Signed-off-by: Lang Yu <lang.yu@amd.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/phy_device.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ mm/kmemleak.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index b884b681d5c52..a03d0627efb06 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -1166,6 +1166,9 @@ void phy_detach(struct phy_device *phydev)
- 	    phydev->mdio.dev.driver == &genphy_driver.mdiodrv.driver)
- 		device_release_driver(&phydev->mdio.dev);
+--- a/mm/kmemleak.c
++++ b/mm/kmemleak.c
+@@ -1403,7 +1403,8 @@ static void kmemleak_scan(void)
+ {
+ 	unsigned long flags;
+ 	struct kmemleak_object *object;
+-	int i;
++	struct zone *zone;
++	int __maybe_unused i;
+ 	int new_leaks = 0;
  
-+	/* Assert the reset signal */
-+	phy_device_reset(phydev, 1);
-+
- 	/*
- 	 * The phydev might go away on the put_device() below, so avoid
- 	 * a use-after-free bug by reading the underlying bus first.
-@@ -1175,9 +1178,6 @@ void phy_detach(struct phy_device *phydev)
- 	put_device(&phydev->mdio.dev);
- 	if (ndev_owner != bus->owner)
- 		module_put(bus->owner);
--
--	/* Assert the reset signal */
--	phy_device_reset(phydev, 1);
- }
- EXPORT_SYMBOL(phy_detach);
+ 	jiffies_last_scan = jiffies;
+@@ -1443,9 +1444,9 @@ static void kmemleak_scan(void)
+ 	 * Struct page scanning for each node.
+ 	 */
+ 	get_online_mems();
+-	for_each_online_node(i) {
+-		unsigned long start_pfn = node_start_pfn(i);
+-		unsigned long end_pfn = node_end_pfn(i);
++	for_each_populated_zone(zone) {
++		unsigned long start_pfn = zone->zone_start_pfn;
++		unsigned long end_pfn = zone_end_pfn(zone);
+ 		unsigned long pfn;
  
--- 
-2.34.1
-
+ 		for (pfn = start_pfn; pfn < end_pfn; pfn++) {
+@@ -1454,8 +1455,8 @@ static void kmemleak_scan(void)
+ 			if (!page)
+ 				continue;
+ 
+-			/* only scan pages belonging to this node */
+-			if (page_to_nid(page) != i)
++			/* only scan pages belonging to this zone */
++			if (page_zone(page) != zone)
+ 				continue;
+ 			/* only scan if page is in use */
+ 			if (page_count(page) == 0)
 
 
