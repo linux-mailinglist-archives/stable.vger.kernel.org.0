@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E698A4ABD89
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CFDD4ABDB1
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:03:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384232AbiBGLox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:44:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44958 "EHLO
+        id S1389017AbiBGLpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:45:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385249AbiBGLb0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:26 -0500
+        with ESMTP id S1382918AbiBGLf7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:35:59 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89438C02B647;
-        Mon,  7 Feb 2022 03:29:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 166C6C03FEC0;
+        Mon,  7 Feb 2022 03:35:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5398EB8111C;
-        Mon,  7 Feb 2022 11:29:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91106C004E1;
-        Mon,  7 Feb 2022 11:29:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C24A3B8102E;
+        Mon,  7 Feb 2022 11:35:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7EBEC004E1;
+        Mon,  7 Feb 2022 11:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233389;
-        bh=Bhdf+S29ZevkiMeS0rzmUpQEcBMlLRTwt6TQNWmKMNc=;
+        s=korg; t=1644233753;
+        bh=fkBbCu26Q7qpm8psYy59pDkbehGMf3egVEF0vTplVJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vyUSsswwmfKojG0ORAIc8rB/6ufEi4M0wZKlcAxWgx57EAqX8VEqfIGBf0rQt4W3b
-         ME5oIIfh98/SGLryW5sib4mZHQFgdApDM+sTyIG3UcxnAePSn1ZBLfnQ7wqkTePso6
-         Re1sm56fR9kAkr6PesyTKCKIz2o8oP42hAvMNoRc=
+        b=HE0mrW9W8MeA9Wpe8m4c9iwVZwlql/IFrUq69jQGFai0AnO4/A04Bxs9UPgsZzHev
+         vYh0AvM2gL8ST8DKZkVBqI/QSvEauKEH7UAPk/Uo6TQuzlkAZ1Vz8o3YYeYgrF+3PN
+         fDsZS99gnSQ9yM5+9AyS3xNMEf9kJiZJU6SFfkYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 5.15 107/110] gpio: idt3243x: Fix an ignored error return from platform_get_irq()
+        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        Marco Elver <elver@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 109/126] perf: Copy perf_event_attr::sig_data on modification
 Date:   Mon,  7 Feb 2022 12:07:20 +0100
-Message-Id: <20220207103806.015849410@linuxfoundation.org>
+Message-Id: <20220207103807.824862640@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Marco Elver <elver@google.com>
 
-commit 7c1cf55577782725ea2bc24687767c8fe8e57486 upstream.
+[ Upstream commit 3c25fc97f5590060464cabfa25710970ecddbc96 ]
 
-The return from the call to platform_get_irq() is int, it can be
-a negative error code, however this is being assigned to an unsigned
-int variable 'parent_irq', so making 'parent_irq' an int.
+The intent has always been that perf_event_attr::sig_data should also be
+modifiable along with PERF_EVENT_IOC_MODIFY_ATTRIBUTES, because it is
+observable by user space if SIGTRAP on events is requested.
 
-Eliminate the following coccicheck warning:
-./drivers/gpio/gpio-idt3243x.c:167:6-16: WARNING: Unsigned expression
-compared with zero: parent_irq < 0
+Currently only PERF_TYPE_BREAKPOINT is modifiable, and explicitly copies
+relevant breakpoint-related attributes in hw_breakpoint_copy_attr().
+This misses copying perf_event_attr::sig_data.
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Fixes: 30fee1d7462a ("gpio: idt3243x: Fix IRQ check in idt_gpio_probe")
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since sig_data is not specific to PERF_TYPE_BREAKPOINT, introduce a
+helper to copy generic event-type-independent attributes on
+modification.
+
+Fixes: 97ba62b27867 ("perf: Add support for SIGTRAP on perf events")
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
+Link: https://lore.kernel.org/r/20220131103407.1971678-1-elver@google.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-idt3243x.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/events/core.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/gpio/gpio-idt3243x.c
-+++ b/drivers/gpio/gpio-idt3243x.c
-@@ -132,7 +132,7 @@ static int idt_gpio_probe(struct platfor
- 	struct device *dev = &pdev->dev;
- 	struct gpio_irq_chip *girq;
- 	struct idt_gpio_ctrl *ctrl;
--	unsigned int parent_irq;
-+	int parent_irq;
- 	int ngpios;
- 	int ret;
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 6ed890480c4aa..04e6e2dae60e4 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -3234,6 +3234,15 @@ static int perf_event_modify_breakpoint(struct perf_event *bp,
+ 	return err;
+ }
  
++/*
++ * Copy event-type-independent attributes that may be modified.
++ */
++static void perf_event_modify_copy_attr(struct perf_event_attr *to,
++					const struct perf_event_attr *from)
++{
++	to->sig_data = from->sig_data;
++}
++
+ static int perf_event_modify_attr(struct perf_event *event,
+ 				  struct perf_event_attr *attr)
+ {
+@@ -3256,10 +3265,17 @@ static int perf_event_modify_attr(struct perf_event *event,
+ 	WARN_ON_ONCE(event->ctx->parent_ctx);
+ 
+ 	mutex_lock(&event->child_mutex);
++	/*
++	 * Event-type-independent attributes must be copied before event-type
++	 * modification, which will validate that final attributes match the
++	 * source attributes after all relevant attributes have been copied.
++	 */
++	perf_event_modify_copy_attr(&event->attr, attr);
+ 	err = func(event, attr);
+ 	if (err)
+ 		goto out;
+ 	list_for_each_entry(child, &event->child_list, child_list) {
++		perf_event_modify_copy_attr(&child->attr, attr);
+ 		err = func(child, attr);
+ 		if (err)
+ 			goto out;
+-- 
+2.34.1
+
 
 
