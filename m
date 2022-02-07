@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27E9C4ABDB0
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:03:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 291D54ABD85
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388985AbiBGLpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:45:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47524 "EHLO
+        id S1378403AbiBGLoq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:44:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378322AbiBGLfu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:35:50 -0500
+        with ESMTP id S1385224AbiBGLbY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66ED9C0401C3;
-        Mon,  7 Feb 2022 03:35:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73786C02C461;
+        Mon,  7 Feb 2022 03:29:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 042A060B5B;
-        Mon,  7 Feb 2022 11:35:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCDE2C004E1;
-        Mon,  7 Feb 2022 11:35:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 119A260A69;
+        Mon,  7 Feb 2022 11:29:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2CFBC004E1;
+        Mon,  7 Feb 2022 11:29:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233742;
-        bh=Z7H7oZrmQOOS5dhXt+kfnsPedSGfqT1i5+pCQHO2n5E=;
+        s=korg; t=1644233382;
+        bh=qVNKeck0zmBC2NlbwYsQU2xFOx29BT7tvNk9RAbYvl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QT4Km53LWiJ+Bg3Evq/VAcdYGefZvDoDtkhEs2JagNk8vVcFDbt3XKHGhFs6Phy69
-         Z6hgqrurdgpQdeQxmk9m+Ax5s9lrf5Z3gC8aUx3ttehbB7xqStJV95lyT4UqlFnf/t
-         NXyxf40NuQDRHwe5xzKfgEJfBbasYrZRUgCNNKhk=
+        b=lyIW1SVLv4iMkO1aBzTC7qAJ2XPhBJzLtEGc0ei0+2eJPAsrlOSsFwUBrhNsmgExi
+         dOqsLV2z5XYofUAZncWAT0wZhAha8ERoF2IoiGtMJly534aJ9P/wFAizYqLayXn/Oo
+         YKrYG9JBOlIDpVon49sM5NQOEWOIWz0y2yio6lxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Borowski <kilobyte@angband.pl>,
-        =?UTF-8?q?Martin=20Li=C5=A1ka?= <mliska@suse.cz>,
-        Sergei Trofimovich <slyich@gmail.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 107/126] objtool: Fix truncated string warning
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Phil Auld <pauld@redhat.com>, Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.15 105/110] cgroup/cpuset: Fix "suspicious RCU usage" lockdep warning
 Date:   Mon,  7 Feb 2022 12:07:18 +0100
-Message-Id: <20220207103807.759609312@linuxfoundation.org>
+Message-Id: <20220207103805.944986607@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,60 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyich@gmail.com>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit 82880283d7fcd0a1d20964a56d6d1a5cc0df0713 ]
+commit 2bdfd2825c9662463371e6691b1a794e97fa36b4 upstream.
 
-On GCC 12, the build fails due to a possible truncated string:
+It was found that a "suspicious RCU usage" lockdep warning was issued
+with the rcu_read_lock() call in update_sibling_cpumasks().  It is
+because the update_cpumasks_hier() function may sleep. So we have
+to release the RCU lock, call update_cpumasks_hier() and reacquire
+it afterward.
 
-    check.c: In function 'validate_call':
-    check.c:2865:58: error: '%d' directive output may be truncated writing between 1 and 10 bytes into a region of size 9 [-Werror=format-truncation=]
-     2865 |                 snprintf(pvname, sizeof(pvname), "pv_ops[%d]", idx);
-          |                                                          ^~
+Also add a percpu_rwsem_assert_held() in update_sibling_cpumasks()
+instead of stating that in the comment.
 
-In theory it's a valid bug:
-
-    static char pvname[16];
-    int idx;
-    ...
-    idx = (rel->addend / sizeof(void *));
-    snprintf(pvname, sizeof(pvname), "pv_ops[%d]", idx);
-
-There are only 7 chars for %d while it could take up to 9, so the
-printed "pv_ops[%d]" string could get truncated.
-
-In reality the bug should never happen, because pv_ops only has ~80
-entries, so 7 chars for the integer is more than enough.  Still, it's
-worth fixing.  Bump the buffer size by 2 bytes to silence the warning.
-
-[ jpoimboe: changed size to 19; massaged changelog ]
-
-Fixes: db2b0c5d7b6f ("objtool: Support pv_opsindirect calls for noinstr")
-Reported-by: Adam Borowski <kilobyte@angband.pl>
-Reported-by: Martin Liška <mliska@suse.cz>
-Signed-off-by: Sergei Trofimovich <slyich@gmail.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lore.kernel.org/r/20220120233748.2062559-1-slyich@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4716909cc5c5 ("cpuset: Track cpusets that use parent's effective_cpus")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Tested-by: Phil Auld <pauld@redhat.com>
+Reviewed-by: Phil Auld <pauld@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/check.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cgroup/cpuset.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 21735829b860c..750ef1c446c8a 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -2823,7 +2823,7 @@ static inline bool func_uaccess_safe(struct symbol *func)
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -1512,10 +1512,15 @@ static void update_sibling_cpumasks(stru
+ 	struct cpuset *sibling;
+ 	struct cgroup_subsys_state *pos_css;
  
- static inline const char *call_dest_name(struct instruction *insn)
- {
--	static char pvname[16];
-+	static char pvname[19];
- 	struct reloc *rel;
- 	int idx;
++	percpu_rwsem_assert_held(&cpuset_rwsem);
++
+ 	/*
+ 	 * Check all its siblings and call update_cpumasks_hier()
+ 	 * if their use_parent_ecpus flag is set in order for them
+ 	 * to use the right effective_cpus value.
++	 *
++	 * The update_cpumasks_hier() function may sleep. So we have to
++	 * release the RCU read lock before calling it.
+ 	 */
+ 	rcu_read_lock();
+ 	cpuset_for_each_child(sibling, pos_css, parent) {
+@@ -1523,8 +1528,13 @@ static void update_sibling_cpumasks(stru
+ 			continue;
+ 		if (!sibling->use_parent_ecpus)
+ 			continue;
++		if (!css_tryget_online(&sibling->css))
++			continue;
  
--- 
-2.34.1
-
++		rcu_read_unlock();
+ 		update_cpumasks_hier(sibling, tmp);
++		rcu_read_lock();
++		css_put(&sibling->css);
+ 	}
+ 	rcu_read_unlock();
+ }
 
 
