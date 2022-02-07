@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B3734ABC19
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6570F4ABDD0
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:05:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384863AbiBGLaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:30:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35950 "EHLO
+        id S1389116AbiBGLqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:46:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383914AbiBGLYD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:24:03 -0500
+        with ESMTP id S1386796AbiBGLhF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:37:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6913C0401C2;
-        Mon,  7 Feb 2022 03:24:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 151E8C043188;
+        Mon,  7 Feb 2022 03:37:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 546DEB81028;
-        Mon,  7 Feb 2022 11:24:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EFC2C004E1;
-        Mon,  7 Feb 2022 11:23:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5698B8112C;
+        Mon,  7 Feb 2022 11:37:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8170C004E1;
+        Mon,  7 Feb 2022 11:37:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233039;
-        bh=jwWxuydULTtgYTV1nDL00L7tSOlEusY8iX84mfzayrc=;
+        s=korg; t=1644233822;
+        bh=dDv+O0Tzmkl7n2hL6tah/Kh7Z2X5dd7k5qI4BVpOqWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jy0/sBa9uGH1l0MXX+U3Jv2KfhvIV99orl863kuQ+n+Kj5/lfSOkHL3Y+d5Oj+Koc
-         eI6Off59Zh4Pu0t9OJK4dO85YM89rdAK2g5SyErKxPkstDjFtuVOd8xlB3h6DIqfCr
-         8bsYCWMWVHXPoancbVT0iWxoXO6k/m7rgAP8Z3qk=
+        b=k23FOMvLZS1geTYfhGMuytgHJTAExTZsN9nJrjST35y46Bj78bv3gV+YMpmDqZ1Q0
+         h1YfZoHEB80JN6VPxK+T9w9fPEYKBQrh4qTU102X8/JFAxkrwPwMok5aDVZE2DqSE1
+         Zb+5ClnIeXt0v9SBtfKzff6epJIc6lLhgSRlhod0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, luo penghao <luo.penghao@zte.com.cn>,
-        Lukas Czerner <lczerner@redhat.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.10 70/74] ext4: fix error handling in ext4_fc_record_modified_inode()
-Date:   Mon,  7 Feb 2022 12:07:08 +0100
-Message-Id: <20220207103759.525879295@linuxfoundation.org>
+        stable@vger.kernel.org, Guangwu Zhang <guazhang@redhat.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        John Meneghini <jmeneghi@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.16 098/126] scsi: bnx2fc: Make bnx2fc_recv_frame() mp safe
+Date:   Mon,  7 Feb 2022 12:07:09 +0100
+Message-Id: <20220207103807.462139400@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,182 +55,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ritesh Harjani <riteshh@linux.ibm.com>
+From: John Meneghini <jmeneghi@redhat.com>
 
-commit cdce59a1549190b66f8e3fe465c2b2f714b98a94 upstream.
+commit 936bd03405fc83ba039d42bc93ffd4b88418f1d3 upstream.
 
-Current code does not fully takes care of krealloc() error case, which
-could lead to silent memory corruption or a kernel bug.  This patch
-fixes that.
+Running tests with a debug kernel shows that bnx2fc_recv_frame() is
+modifying the per_cpu lport stats counters in a non-mpsafe way.  Just boot
+a debug kernel and run the bnx2fc driver with the hardware enabled.
 
-Also it cleans up some duplicated error handling logic from various
-functions in fast_commit.c file.
+[ 1391.699147] BUG: using smp_processor_id() in preemptible [00000000] code: bnx2fc_
+[ 1391.699160] caller is bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
+[ 1391.699174] CPU: 2 PID: 4355 Comm: bnx2fc_l2_threa Kdump: loaded Tainted: G    B
+[ 1391.699180] Hardware name: HP ProLiant DL120 G7, BIOS J01 07/01/2013
+[ 1391.699183] Call Trace:
+[ 1391.699188]  dump_stack_lvl+0x57/0x7d
+[ 1391.699198]  check_preemption_disabled+0xc8/0xd0
+[ 1391.699205]  bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
+[ 1391.699215]  ? do_raw_spin_trylock+0xb5/0x180
+[ 1391.699221]  ? bnx2fc_npiv_create_vports.isra.0+0x4e0/0x4e0 [bnx2fc]
+[ 1391.699229]  ? bnx2fc_l2_rcv_thread+0xb7/0x3a0 [bnx2fc]
+[ 1391.699240]  bnx2fc_l2_rcv_thread+0x1af/0x3a0 [bnx2fc]
+[ 1391.699250]  ? bnx2fc_ulp_init+0xc0/0xc0 [bnx2fc]
+[ 1391.699258]  kthread+0x364/0x420
+[ 1391.699263]  ? _raw_spin_unlock_irq+0x24/0x50
+[ 1391.699268]  ? set_kthread_struct+0x100/0x100
+[ 1391.699273]  ret_from_fork+0x22/0x30
 
-Reported-by: luo penghao <luo.penghao@zte.com.cn>
-Suggested-by: Lukas Czerner <lczerner@redhat.com>
-Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/62e8b6a1cce9359682051deb736a3c0953c9d1e9.1642416995.git.riteshh@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Restore the old get_cpu/put_cpu code with some modifications to reduce the
+size of the critical section.
+
+Link: https://lore.kernel.org/r/20220124145110.442335-1-jmeneghi@redhat.com
+Fixes: d576a5e80cd0 ("bnx2fc: Improve stats update mechanism")
+Tested-by: Guangwu Zhang <guazhang@redhat.com>
+Acked-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: John Meneghini <jmeneghi@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c |   64 ++++++++++++++++++++++----------------------------
- 1 file changed, 29 insertions(+), 35 deletions(-)
+ drivers/scsi/bnx2fc/bnx2fc_fcoe.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -1388,14 +1388,15 @@ static int ext4_fc_record_modified_inode
- 		if (state->fc_modified_inodes[i] == ino)
- 			return 0;
- 	if (state->fc_modified_inodes_used == state->fc_modified_inodes_size) {
--		state->fc_modified_inodes_size +=
--			EXT4_FC_REPLAY_REALLOC_INCREMENT;
- 		state->fc_modified_inodes = krealloc(
--					state->fc_modified_inodes, sizeof(int) *
--					state->fc_modified_inodes_size,
--					GFP_KERNEL);
-+				state->fc_modified_inodes,
-+				sizeof(int) * (state->fc_modified_inodes_size +
-+				EXT4_FC_REPLAY_REALLOC_INCREMENT),
-+				GFP_KERNEL);
- 		if (!state->fc_modified_inodes)
- 			return -ENOMEM;
-+		state->fc_modified_inodes_size +=
-+			EXT4_FC_REPLAY_REALLOC_INCREMENT;
- 	}
- 	state->fc_modified_inodes[state->fc_modified_inodes_used++] = ino;
- 	return 0;
-@@ -1427,7 +1428,9 @@ static int ext4_fc_replay_inode(struct s
- 	}
- 	inode = NULL;
+--- a/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
++++ b/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
+@@ -508,7 +508,8 @@ static int bnx2fc_l2_rcv_thread(void *ar
  
--	ext4_fc_record_modified_inode(sb, ino);
-+	ret = ext4_fc_record_modified_inode(sb, ino);
-+	if (ret)
-+		goto out;
+ static void bnx2fc_recv_frame(struct sk_buff *skb)
+ {
+-	u32 fr_len;
++	u64 crc_err;
++	u32 fr_len, fr_crc;
+ 	struct fc_lport *lport;
+ 	struct fcoe_rcv_info *fr;
+ 	struct fc_stats *stats;
+@@ -542,6 +543,11 @@ static void bnx2fc_recv_frame(struct sk_
+ 	skb_pull(skb, sizeof(struct fcoe_hdr));
+ 	fr_len = skb->len - sizeof(struct fcoe_crc_eof);
  
- 	raw_fc_inode = (struct ext4_inode *)
- 		(val + offsetof(struct ext4_fc_inode, fc_raw_inode));
-@@ -1626,6 +1629,8 @@ static int ext4_fc_replay_add_range(stru
++	stats = per_cpu_ptr(lport->stats, get_cpu());
++	stats->RxFrames++;
++	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
++	put_cpu();
++
+ 	fp = (struct fc_frame *)skb;
+ 	fc_frame_init(fp);
+ 	fr_dev(fp) = lport;
+@@ -624,16 +630,15 @@ static void bnx2fc_recv_frame(struct sk_
+ 		return;
  	}
  
- 	ret = ext4_fc_record_modified_inode(sb, inode->i_ino);
-+	if (ret)
-+		goto out;
+-	stats = per_cpu_ptr(lport->stats, smp_processor_id());
+-	stats->RxFrames++;
+-	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
++	fr_crc = le32_to_cpu(fr_crc(fp));
  
- 	start = le32_to_cpu(ex->ee_block);
- 	start_pblk = ext4_ext_pblock(ex);
-@@ -1643,18 +1648,14 @@ static int ext4_fc_replay_add_range(stru
- 		map.m_pblk = 0;
- 		ret = ext4_map_blocks(NULL, inode, &map, 0);
- 
--		if (ret < 0) {
--			iput(inode);
--			return 0;
--		}
-+		if (ret < 0)
-+			goto out;
- 
- 		if (ret == 0) {
- 			/* Range is not mapped */
- 			path = ext4_find_extent(inode, cur, NULL, 0);
--			if (IS_ERR(path)) {
--				iput(inode);
--				return 0;
--			}
-+			if (IS_ERR(path))
-+				goto out;
- 			memset(&newex, 0, sizeof(newex));
- 			newex.ee_block = cpu_to_le32(cur);
- 			ext4_ext_store_pblock(
-@@ -1668,10 +1669,8 @@ static int ext4_fc_replay_add_range(stru
- 			up_write((&EXT4_I(inode)->i_data_sem));
- 			ext4_ext_drop_refs(path);
- 			kfree(path);
--			if (ret) {
--				iput(inode);
--				return 0;
--			}
-+			if (ret)
-+				goto out;
- 			goto next;
- 		}
- 
-@@ -1684,10 +1683,8 @@ static int ext4_fc_replay_add_range(stru
- 			ret = ext4_ext_replay_update_ex(inode, cur, map.m_len,
- 					ext4_ext_is_unwritten(ex),
- 					start_pblk + cur - start);
--			if (ret) {
--				iput(inode);
--				return 0;
--			}
-+			if (ret)
-+				goto out;
- 			/*
- 			 * Mark the old blocks as free since they aren't used
- 			 * anymore. We maintain an array of all the modified
-@@ -1707,10 +1704,8 @@ static int ext4_fc_replay_add_range(stru
- 			ext4_ext_is_unwritten(ex), map.m_pblk);
- 		ret = ext4_ext_replay_update_ex(inode, cur, map.m_len,
- 					ext4_ext_is_unwritten(ex), map.m_pblk);
--		if (ret) {
--			iput(inode);
--			return 0;
--		}
-+		if (ret)
-+			goto out;
- 		/*
- 		 * We may have split the extent tree while toggling the state.
- 		 * Try to shrink the extent tree now.
-@@ -1722,6 +1717,7 @@ next:
+-	if (le32_to_cpu(fr_crc(fp)) !=
+-			~crc32(~0, skb->data, fr_len)) {
+-		if (stats->InvalidCRCCount < 5)
++	if (unlikely(fr_crc != ~crc32(~0, skb->data, fr_len))) {
++		stats = per_cpu_ptr(lport->stats, get_cpu());
++		crc_err = (stats->InvalidCRCCount++);
++		put_cpu();
++		if (crc_err < 5)
+ 			printk(KERN_WARNING PFX "dropping frame with "
+ 			       "CRC error\n");
+-		stats->InvalidCRCCount++;
+ 		kfree_skb(skb);
+ 		return;
  	}
- 	ext4_ext_replay_shrink_inode(inode, i_size_read(inode) >>
- 					sb->s_blocksize_bits);
-+out:
- 	iput(inode);
- 	return 0;
- }
-@@ -1751,6 +1747,8 @@ ext4_fc_replay_del_range(struct super_bl
- 	}
- 
- 	ret = ext4_fc_record_modified_inode(sb, inode->i_ino);
-+	if (ret)
-+		goto out;
- 
- 	jbd_debug(1, "DEL_RANGE, inode %ld, lblk %d, len %d\n",
- 			inode->i_ino, le32_to_cpu(lrange.fc_lblk),
-@@ -1760,10 +1758,8 @@ ext4_fc_replay_del_range(struct super_bl
- 		map.m_len = remaining;
- 
- 		ret = ext4_map_blocks(NULL, inode, &map, 0);
--		if (ret < 0) {
--			iput(inode);
--			return 0;
--		}
-+		if (ret < 0)
-+			goto out;
- 		if (ret > 0) {
- 			remaining -= ret;
- 			cur += ret;
-@@ -1778,15 +1774,13 @@ ext4_fc_replay_del_range(struct super_bl
- 	ret = ext4_ext_remove_space(inode, lrange.fc_lblk,
- 				lrange.fc_lblk + lrange.fc_len - 1);
- 	up_write(&EXT4_I(inode)->i_data_sem);
--	if (ret) {
--		iput(inode);
--		return 0;
--	}
-+	if (ret)
-+		goto out;
- 	ext4_ext_replay_shrink_inode(inode,
- 		i_size_read(inode) >> sb->s_blocksize_bits);
- 	ext4_mark_inode_dirty(NULL, inode);
-+out:
- 	iput(inode);
--
- 	return 0;
- }
- 
 
 
