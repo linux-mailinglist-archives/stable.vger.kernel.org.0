@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71FA34ABB42
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36A434ABD90
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384299AbiBGL1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:27:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56674 "EHLO
+        id S1388737AbiBGLpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:45:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379451AbiBGLSB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:18:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374DCC0401C9;
-        Mon,  7 Feb 2022 03:17:54 -0800 (PST)
+        with ESMTP id S1384717AbiBGL3m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:29:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E73AC043189;
+        Mon,  7 Feb 2022 03:28:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C42FB61314;
-        Mon,  7 Feb 2022 11:17:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B92BC340EB;
-        Mon,  7 Feb 2022 11:17:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5900B811AF;
+        Mon,  7 Feb 2022 11:28:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC81C004E1;
+        Mon,  7 Feb 2022 11:28:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232673;
-        bh=n/RJ37BfvaQCe9xTuupKRuHFLifrohdspvASD97qDXA=;
+        s=korg; t=1644233293;
+        bh=QSzRICIWp+0GChseBdZWcjIxGZHnKp6X93Ah6uWn+to=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zB9N5OMBvkgHAq6S8u+kH9eBYcFFLTFVglAuKoiToCTRgWPnMwiNnOyykRch/6BHO
-         UgsVJCh1o82O+nbjbuOnoJVYFugdyhr5OgMi/bOojBX8T7N5cSaBnfxMHB51pgAJ6H
-         BORxEjvXQOtOSELaTNt7AvIh7jdwofQTKPHvab7A=
+        b=BF+yxwpHCg6gHgJJG2EB5psc3KwzTfZ/sTe8yQpMUOfxFyx0lTFCBniJrK4Nmrvrz
+         U5vxl5yJI6CjZlV9x1iWSUEGXDrg736avj34uC7mBqYsOlFmPjnIuxipcYCw1XyoqQ
+         +ImCHisApsQ+zyhY+HpZXw6+VYIGeZNd2GCa8WdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Whitney <enwlinux@gmail.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 4.19 86/86] ext4: fix error handling in ext4_restore_inline_data()
-Date:   Mon,  7 Feb 2022 12:06:49 +0100
-Message-Id: <20220207103800.504129882@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 077/110] ASoC: codecs: lpass-rx-macro: fix sidetone register offsets
+Date:   Mon,  7 Feb 2022 12:06:50 +0100
+Message-Id: <20220207103804.987633377@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ritesh Harjani <riteshh@linux.ibm.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-commit 897026aaa73eb2517dfea8d147f20ddb0b813044 upstream.
+commit fca041a3ab70a099a6d5519ecb689b6279bd04f3 upstream.
 
-While running "./check -I 200 generic/475" it sometimes gives below
-kernel BUG(). Ideally we should not call ext4_write_inline_data() if
-ext4_create_inline_data() has failed.
+For some reason we ended up with incorrect register offfset calcuations
+for sidetone. regmap clearly throw errors when accessing these incorrect
+registers as these do not belong to any read/write ranges.
+so fix them to point to correct register offsets.
 
-<log snip>
-[73131.453234] kernel BUG at fs/ext4/inline.c:223!
-
-<code snip>
- 212 static void ext4_write_inline_data(struct inode *inode, struct ext4_iloc *iloc,
- 213                                    void *buffer, loff_t pos, unsigned int len)
- 214 {
-<...>
- 223         BUG_ON(!EXT4_I(inode)->i_inline_off);
- 224         BUG_ON(pos + len > EXT4_I(inode)->i_inline_size);
-
-This patch handles the error and prints out a emergency msg saying potential
-data loss for the given inode (since we couldn't restore the original
-inline_data due to some previous error).
-
-[ 9571.070313] EXT4-fs (dm-0): error restoring inline_data for inode -- potential data loss! (inode 1703982, error -30)
-
-Reported-by: Eric Whitney <enwlinux@gmail.com>
-Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/9f4cd7dfd54fa58ff27270881823d94ddf78dd07.1642416995.git.riteshh@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Fixes: f3ce6f3c9a99 ("ASoC: codecs: lpass-rx-macro: add iir widgets")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220126113549.8853-3-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inline.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ sound/soc/codecs/lpass-rx-macro.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/inline.c
-+++ b/fs/ext4/inline.c
-@@ -1125,7 +1125,15 @@ static void ext4_restore_inline_data(han
- 				     struct ext4_iloc *iloc,
- 				     void *buf, int inline_size)
+--- a/sound/soc/codecs/lpass-rx-macro.c
++++ b/sound/soc/codecs/lpass-rx-macro.c
+@@ -2688,8 +2688,8 @@ static uint32_t get_iir_band_coeff(struc
+ 	int reg, b2_reg;
+ 
+ 	/* Address does not automatically update if reading */
+-	reg = CDC_RX_SIDETONE_IIR0_IIR_COEF_B1_CTL + 16 * iir_idx;
+-	b2_reg = CDC_RX_SIDETONE_IIR0_IIR_COEF_B2_CTL + 16 * iir_idx;
++	reg = CDC_RX_SIDETONE_IIR0_IIR_COEF_B1_CTL + 0x80 * iir_idx;
++	b2_reg = CDC_RX_SIDETONE_IIR0_IIR_COEF_B2_CTL + 0x80 * iir_idx;
+ 
+ 	snd_soc_component_write(component, reg,
+ 				((band_idx * BAND_MAX + coeff_idx) *
+@@ -2718,7 +2718,7 @@ static uint32_t get_iir_band_coeff(struc
+ static void set_iir_band_coeff(struct snd_soc_component *component,
+ 			       int iir_idx, int band_idx, uint32_t value)
  {
--	ext4_create_inline_data(handle, inode, inline_size);
-+	int ret;
-+
-+	ret = ext4_create_inline_data(handle, inode, inline_size);
-+	if (ret) {
-+		ext4_msg(inode->i_sb, KERN_EMERG,
-+			"error restoring inline_data for inode -- potential data loss! (inode %lu, error %d)",
-+			inode->i_ino, ret);
-+		return;
-+	}
- 	ext4_write_inline_data(inode, iloc, buf, 0, inline_size);
- 	ext4_set_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
- }
+-	int reg = CDC_RX_SIDETONE_IIR0_IIR_COEF_B2_CTL + 16 * iir_idx;
++	int reg = CDC_RX_SIDETONE_IIR0_IIR_COEF_B2_CTL + 0x80 * iir_idx;
+ 
+ 	snd_soc_component_write(component, reg, (value & 0xFF));
+ 	snd_soc_component_write(component, reg, (value >> 8) & 0xFF);
+@@ -2739,7 +2739,7 @@ static int rx_macro_put_iir_band_audio_m
+ 	int iir_idx = ctl->iir_idx;
+ 	int band_idx = ctl->band_idx;
+ 	u32 coeff[BAND_MAX];
+-	int reg = CDC_RX_SIDETONE_IIR0_IIR_COEF_B1_CTL + 16 * iir_idx;
++	int reg = CDC_RX_SIDETONE_IIR0_IIR_COEF_B1_CTL + 0x80 * iir_idx;
+ 
+ 	memcpy(&coeff[0], ucontrol->value.bytes.data, params->max);
+ 
 
 
