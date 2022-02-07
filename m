@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6570F4ABDD0
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:05:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C91EE4ABD7B
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389116AbiBGLqK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:46:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48784 "EHLO
+        id S245245AbiBGLom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:44:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386796AbiBGLhF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:37:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 151E8C043188;
-        Mon,  7 Feb 2022 03:37:05 -0800 (PST)
+        with ESMTP id S1385075AbiBGLbE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93C94C03544C;
+        Mon,  7 Feb 2022 03:29:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5698B8112C;
-        Mon,  7 Feb 2022 11:37:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8170C004E1;
-        Mon,  7 Feb 2022 11:37:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A1E260AB0;
+        Mon,  7 Feb 2022 11:29:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2330C004E1;
+        Mon,  7 Feb 2022 11:29:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233822;
-        bh=dDv+O0Tzmkl7n2hL6tah/Kh7Z2X5dd7k5qI4BVpOqWQ=;
+        s=korg; t=1644233350;
+        bh=dlSCWan0FfA5znaLczSL60Lqi/QBNHiAtI0rESPoMpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k23FOMvLZS1geTYfhGMuytgHJTAExTZsN9nJrjST35y46Bj78bv3gV+YMpmDqZ1Q0
-         h1YfZoHEB80JN6VPxK+T9w9fPEYKBQrh4qTU102X8/JFAxkrwPwMok5aDVZE2DqSE1
-         Zb+5ClnIeXt0v9SBtfKzff6epJIc6lLhgSRlhod0=
+        b=kEUz8gV7yqHCtFKUzno+n+JILWViIKEHt95jTv2kOlKHVm+TDnk8HuObPGi7k1APK
+         O43Hp0Fa3Tp5s81cy+/BV3U2oVfCnEQ02TcohMk5g0Qjk1NjrQ+Y56ZTyyv1ctpTn7
+         QsKt80dKRQk81qJ4UPll8qd5o9p5yLwMBuFOfKvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangwu Zhang <guazhang@redhat.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        John Meneghini <jmeneghi@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.16 098/126] scsi: bnx2fc: Make bnx2fc_recv_frame() mp safe
+        stable@vger.kernel.org, Kyle Huey <me@kylehuey.com>,
+        Andrew Cooper <Andrew.Cooper3@citrix.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
+Subject: [PATCH 5.15 096/110] x86/perf: Default set FREEZE_ON_SMI for all
 Date:   Mon,  7 Feb 2022 12:07:09 +0100
-Message-Id: <20220207103807.462139400@linuxfoundation.org>
+Message-Id: <20220207103805.641038111@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,92 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Meneghini <jmeneghi@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 936bd03405fc83ba039d42bc93ffd4b88418f1d3 upstream.
+commit a01994f5e5c79d3a35e5e8cf4252c7f2147323c3 upstream.
 
-Running tests with a debug kernel shows that bnx2fc_recv_frame() is
-modifying the per_cpu lport stats counters in a non-mpsafe way.  Just boot
-a debug kernel and run the bnx2fc driver with the hardware enabled.
+Kyle reported that rr[0] has started to malfunction on Comet Lake and
+later CPUs due to EFI starting to make use of CPL3 [1] and the PMU
+event filtering not distinguishing between regular CPL3 and SMM CPL3.
 
-[ 1391.699147] BUG: using smp_processor_id() in preemptible [00000000] code: bnx2fc_
-[ 1391.699160] caller is bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
-[ 1391.699174] CPU: 2 PID: 4355 Comm: bnx2fc_l2_threa Kdump: loaded Tainted: G    B
-[ 1391.699180] Hardware name: HP ProLiant DL120 G7, BIOS J01 07/01/2013
-[ 1391.699183] Call Trace:
-[ 1391.699188]  dump_stack_lvl+0x57/0x7d
-[ 1391.699198]  check_preemption_disabled+0xc8/0xd0
-[ 1391.699205]  bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
-[ 1391.699215]  ? do_raw_spin_trylock+0xb5/0x180
-[ 1391.699221]  ? bnx2fc_npiv_create_vports.isra.0+0x4e0/0x4e0 [bnx2fc]
-[ 1391.699229]  ? bnx2fc_l2_rcv_thread+0xb7/0x3a0 [bnx2fc]
-[ 1391.699240]  bnx2fc_l2_rcv_thread+0x1af/0x3a0 [bnx2fc]
-[ 1391.699250]  ? bnx2fc_ulp_init+0xc0/0xc0 [bnx2fc]
-[ 1391.699258]  kthread+0x364/0x420
-[ 1391.699263]  ? _raw_spin_unlock_irq+0x24/0x50
-[ 1391.699268]  ? set_kthread_struct+0x100/0x100
-[ 1391.699273]  ret_from_fork+0x22/0x30
+Since this is a privilege violation, default disable SMM visibility
+where possible.
 
-Restore the old get_cpu/put_cpu code with some modifications to reduce the
-size of the critical section.
+Administrators wanting to observe SMM cycles can easily change this
+using the sysfs attribute while regular users don't have access to
+this file.
 
-Link: https://lore.kernel.org/r/20220124145110.442335-1-jmeneghi@redhat.com
-Fixes: d576a5e80cd0 ("bnx2fc: Improve stats update mechanism")
-Tested-by: Guangwu Zhang <guazhang@redhat.com>
-Acked-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: John Meneghini <jmeneghi@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[0] https://rr-project.org/
+
+[1] See the Intel white paper "Trustworthy SMM on the Intel vPro Platform"
+at https://bugzilla.kernel.org/attachment.cgi?id=300300, particularly the
+end of page 5.
+
+Reported-by: Kyle Huey <me@kylehuey.com>
+Suggested-by: Andrew Cooper <Andrew.Cooper3@citrix.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@kernel.org
+Link: https://lkml.kernel.org/r/YfKChjX61OW4CkYm@hirez.programming.kicks-ass.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/bnx2fc/bnx2fc_fcoe.c |   21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ arch/x86/events/intel/core.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
-+++ b/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
-@@ -508,7 +508,8 @@ static int bnx2fc_l2_rcv_thread(void *ar
- 
- static void bnx2fc_recv_frame(struct sk_buff *skb)
- {
--	u32 fr_len;
-+	u64 crc_err;
-+	u32 fr_len, fr_crc;
- 	struct fc_lport *lport;
- 	struct fcoe_rcv_info *fr;
- 	struct fc_stats *stats;
-@@ -542,6 +543,11 @@ static void bnx2fc_recv_frame(struct sk_
- 	skb_pull(skb, sizeof(struct fcoe_hdr));
- 	fr_len = skb->len - sizeof(struct fcoe_crc_eof);
- 
-+	stats = per_cpu_ptr(lport->stats, get_cpu());
-+	stats->RxFrames++;
-+	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
-+	put_cpu();
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -4654,6 +4654,19 @@ static __initconst const struct x86_pmu
+ 	.lbr_read		= intel_pmu_lbr_read_64,
+ 	.lbr_save		= intel_pmu_lbr_save,
+ 	.lbr_restore		= intel_pmu_lbr_restore,
 +
- 	fp = (struct fc_frame *)skb;
- 	fc_frame_init(fp);
- 	fr_dev(fp) = lport;
-@@ -624,16 +630,15 @@ static void bnx2fc_recv_frame(struct sk_
- 		return;
- 	}
++	/*
++	 * SMM has access to all 4 rings and while traditionally SMM code only
++	 * ran in CPL0, 2021-era firmware is starting to make use of CPL3 in SMM.
++	 *
++	 * Since the EVENTSEL.{USR,OS} CPL filtering makes no distinction
++	 * between SMM or not, this results in what should be pure userspace
++	 * counters including SMM data.
++	 *
++	 * This is a clear privilege issue, therefore globally disable
++	 * counting SMM by default.
++	 */
++	.attr_freeze_on_smi	= 1,
+ };
  
--	stats = per_cpu_ptr(lport->stats, smp_processor_id());
--	stats->RxFrames++;
--	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
-+	fr_crc = le32_to_cpu(fr_crc(fp));
- 
--	if (le32_to_cpu(fr_crc(fp)) !=
--			~crc32(~0, skb->data, fr_len)) {
--		if (stats->InvalidCRCCount < 5)
-+	if (unlikely(fr_crc != ~crc32(~0, skb->data, fr_len))) {
-+		stats = per_cpu_ptr(lport->stats, get_cpu());
-+		crc_err = (stats->InvalidCRCCount++);
-+		put_cpu();
-+		if (crc_err < 5)
- 			printk(KERN_WARNING PFX "dropping frame with "
- 			       "CRC error\n");
--		stats->InvalidCRCCount++;
- 		kfree_skb(skb);
- 		return;
- 	}
+ static __init void intel_clovertown_quirk(void)
 
 
