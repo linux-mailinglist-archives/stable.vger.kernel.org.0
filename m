@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E07A04ABAD8
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:31:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7295F4ABB29
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384102AbiBGLYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50482 "EHLO
+        id S1384249AbiBGL0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:26:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356786AbiBGLNs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:13:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0F68C043181;
-        Mon,  7 Feb 2022 03:13:47 -0800 (PST)
+        with ESMTP id S1344884AbiBGLJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:09:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8D1BC043181;
+        Mon,  7 Feb 2022 03:09:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A293CB80EC3;
-        Mon,  7 Feb 2022 11:13:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB078C004E1;
-        Mon,  7 Feb 2022 11:13:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D0B2611AA;
+        Mon,  7 Feb 2022 11:09:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35EB7C004E1;
+        Mon,  7 Feb 2022 11:09:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232425;
-        bh=8RcvJ0iNpGXd9hhP8foxR5IlHZdwD/RWOBg4L/G1cj0=;
+        s=korg; t=1644232183;
+        bh=hqkNVBOY0nLILtHUbF7Ph3I2L0K2QYQl+6SqV0lpEbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=unSfOZvWdfI7vcrAE+xWFPxD/RGcRJjHDRjNezuQ0js+ERbRI7rtkJFhdmOp9ZsC+
-         m6iUoJjyLhN7RgtdDnIK2zBc5CbnZEWZ2+JsV4p+NTX7rLgZGvCuRiUX/FH3Tb99Ty
-         1GGwSTSVycUXtFr1OqWrOQv2cGR0a/Gk81rLz3hg=
+        b=LVEW6mn0UC4fl0QwcTeox30Vj+a9j4zoJI1eHCXt/CcpUHpP9tl9fjW+8bl0GVv7D
+         /C2C7ELWRlTUuahiQWpYcOEzVn0ewdlq3ZMZ24jdpKW5xgFzinqp+J4BEpj2im0uPs
+         PB8srgr560i6wNfGo5KZuyGNRHKsKZoguEwdhEHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Guoqing Jiang <guoqing.jiang@linux.dev>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 4.14 53/69] iommu/vt-d: Fix potential memory leak in intel_setup_irq_remapping()
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 42/48] ASoC: fsl: Add missing error handling in pcm030_fabric_probe
 Date:   Mon,  7 Feb 2022 12:06:15 +0100
-Message-Id: <20220207103757.363053239@linuxfoundation.org>
+Message-Id: <20220207103753.699330277@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
-References: <20220207103755.604121441@linuxfoundation.org>
+In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
+References: <20220207103752.341184175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@linux.dev>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 99e675d473eb8cf2deac1376a0f840222fc1adcf upstream.
+commit fb25621da5702c104ce0a48de5b174ced09e5b4e upstream.
 
-After commit e3beca48a45b ("irqdomain/treewide: Keep firmware node
-unconditionally allocated"). For tear down scenario, fn is only freed
-after fail to allocate ir_domain, though it also should be freed in case
-dmar_enable_qi returns error.
+Add the missing platform_device_put() and platform_device_del()
+before return from pcm030_fabric_probe in the error handling case.
 
-Besides free fn, irq_domain and ir_msi_domain need to be removed as well
-if intel_setup_irq_remapping fails to enable queued invalidation.
-
-Improve the rewinding path by add out_free_ir_domain and out_free_fwnode
-lables per Baolu's suggestion.
-
-Fixes: e3beca48a45b ("irqdomain/treewide: Keep firmware node unconditionally allocated")
-Suggested-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Guoqing Jiang <guoqing.jiang@linux.dev>
-Link: https://lore.kernel.org/r/20220119063640.16864-1-guoqing.jiang@linux.dev
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20220128031002.2219155-3-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: c912fa913446 ("ASoC: fsl: register the wm9712-codec")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220127131336.30214-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel_irq_remapping.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ sound/soc/fsl/pcm030-audio-fabric.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/iommu/intel_irq_remapping.c
-+++ b/drivers/iommu/intel_irq_remapping.c
-@@ -543,9 +543,8 @@ static int intel_setup_irq_remapping(str
- 					    fn, &intel_ir_domain_ops,
- 					    iommu);
- 	if (!iommu->ir_domain) {
--		irq_domain_free_fwnode(fn);
- 		pr_err("IR%d: failed to allocate irqdomain\n", iommu->seq_id);
--		goto out_free_bitmap;
-+		goto out_free_fwnode;
- 	}
- 	iommu->ir_msi_domain =
- 		arch_create_remap_msi_irq_domain(iommu->ir_domain,
-@@ -569,7 +568,7 @@ static int intel_setup_irq_remapping(str
+--- a/sound/soc/fsl/pcm030-audio-fabric.c
++++ b/sound/soc/fsl/pcm030-audio-fabric.c
+@@ -90,16 +90,21 @@ static int pcm030_fabric_probe(struct pl
+ 		dev_err(&op->dev, "platform_device_alloc() failed\n");
  
- 		if (dmar_enable_qi(iommu)) {
- 			pr_err("Failed to enable queued invalidation\n");
--			goto out_free_bitmap;
-+			goto out_free_ir_domain;
- 		}
- 	}
+ 	ret = platform_device_add(pdata->codec_device);
+-	if (ret)
++	if (ret) {
+ 		dev_err(&op->dev, "platform_device_add() failed: %d\n", ret);
++		platform_device_put(pdata->codec_device);
++	}
  
-@@ -593,6 +592,14 @@ static int intel_setup_irq_remapping(str
+ 	ret = snd_soc_register_card(card);
+-	if (ret)
++	if (ret) {
+ 		dev_err(&op->dev, "snd_soc_register_card() failed: %d\n", ret);
++		platform_device_del(pdata->codec_device);
++		platform_device_put(pdata->codec_device);
++	}
  
- 	return 0;
+ 	platform_set_drvdata(op, pdata);
+-
+ 	return ret;
++
+ }
  
-+out_free_ir_domain:
-+	if (iommu->ir_msi_domain)
-+		irq_domain_remove(iommu->ir_msi_domain);
-+	iommu->ir_msi_domain = NULL;
-+	irq_domain_remove(iommu->ir_domain);
-+	iommu->ir_domain = NULL;
-+out_free_fwnode:
-+	irq_domain_free_fwnode(fn);
- out_free_bitmap:
- 	kfree(bitmap);
- out_free_pages:
+ static int pcm030_fabric_remove(struct platform_device *op)
 
 
