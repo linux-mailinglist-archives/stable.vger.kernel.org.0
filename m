@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FD0B4ABB82
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC1E94ABC15
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376506AbiBGL26 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:28:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60716 "EHLO
+        id S1384850AbiBGLaW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:30:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382679AbiBGLUj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:20:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1BBC0401CC;
-        Mon,  7 Feb 2022 03:20:17 -0800 (PST)
+        with ESMTP id S1383886AbiBGLX5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:23:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9AF8C0401CF;
+        Mon,  7 Feb 2022 03:23:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D944BB811AF;
-        Mon,  7 Feb 2022 11:20:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22399C004E1;
-        Mon,  7 Feb 2022 11:20:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7889B6077B;
+        Mon,  7 Feb 2022 11:23:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47D1FC004E1;
+        Mon,  7 Feb 2022 11:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232814;
-        bh=Fglqxzgr+A1WzQ28mgY6xGCSQNbOtNgjhGgd95zp0VQ=;
+        s=korg; t=1644233032;
+        bh=6R5EQEaS0/XQoxwQd9w6MGNpyaOaeu03ggOMPwlSSGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q+Gaw+knzEdXEtWhfiXl2h8diAfu1E/TsznmZQ0OKfLCpc0/t1XvbswS72hhI7hav
-         So05/wYCkFo1DlwG66fEBqvpy+BCbzobFYDPWmF2RhMiAAeh4SM6sKEu9+DkwK4n+0
-         gW/FAK/AgUou8Bs3CtqB7XddnV2A0Bec8TkYf8N8=
+        b=kk0DLfDcNZcb7RtnQny7U4ERGZ2rmFg0BoK/hBIQer1g2A+tST0JHSqPVHNqyXwD/
+         pvK2LMWNKsrQNAMsBU6WFXvUaOkPKbtsoQQza8wTraZJyvk+TUJs4jtYpK5hEw8fOu
+         56v8mch4A1dqiydjTPbrWhUhGMf+v+eJqTdNh4w4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Devarsh Thakkar <devarsh.thakkar@xilinx.com>,
-        Robert Hancock <robert.hancock@calian.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 33/44] ASoC: xilinx: xlnx_formatter_pcm: Make buffer bytes multiple of period bytes
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.10 51/74] pinctrl: bcm2835: Fix a few error paths
 Date:   Mon,  7 Feb 2022 12:06:49 +0100
-Message-Id: <20220207103754.230959617@linuxfoundation.org>
+Message-Id: <20220207103758.890700743@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
-References: <20220207103753.155627314@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,90 +53,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit e958b5884725dac86d36c1e7afe5a55f31feb0b2 upstream.
+commit 5297c693d8c8e08fa742e3112cf70723f7a04da2 upstream.
 
-This patch is based on one in the Xilinx kernel tree, "ASoc: xlnx: Make
-buffer bytes multiple of period bytes" by Devarsh Thakkar. The same
-issue exists in the mainline version of the driver. The original
-patch description is as follows:
+After commit 266423e60ea1 ("pinctrl: bcm2835: Change init order for gpio
+hogs") a few error paths would not unwind properly the registration of
+gpio ranges. Correct that by assigning a single error label and goto it
+whenever we encounter a fatal error.
 
-"The Xilinx Audio Formatter IP has a constraint on period
-bytes to be multiple of 64. This leads to driver changing
-the period size to suitable frames such that period bytes
-are multiple of 64.
-
-Now since period bytes and period size are updated but not
-the buffer bytes, this may make the buffer bytes unaligned
-and not multiple of period bytes.
-
-When this happens we hear popping noise as while DMA is being
-done the buffer bytes are not enough to complete DMA access
-for last period of frame within the application buffer boundary.
-
-To avoid this, align buffer bytes too as multiple of 64, and
-set another constraint to always enforce number of periods as
-integer. Now since, there is already a rule in alsa core
-to enforce Buffer size = Number of Periods * Period Size
-this automatically aligns buffer bytes as multiple of period
-bytes."
-
-Fixes: 6f6c3c36f091 ("ASoC: xlnx: add pcm formatter platform driver")
-Cc: Devarsh Thakkar <devarsh.thakkar@xilinx.com>
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20220107214711.1100162-2-robert.hancock@calian.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 266423e60ea1 ("pinctrl: bcm2835: Change init order for gpio hogs")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220127215033.267227-1-f.fainelli@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/xilinx/xlnx_formatter_pcm.c |   27 ++++++++++++++++++++++++---
- 1 file changed, 24 insertions(+), 3 deletions(-)
+ drivers/pinctrl/bcm/pinctrl-bcm2835.c |   23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
---- a/sound/soc/xilinx/xlnx_formatter_pcm.c
-+++ b/sound/soc/xilinx/xlnx_formatter_pcm.c
-@@ -37,6 +37,7 @@
- #define XLNX_AUD_XFER_COUNT	0x28
- #define XLNX_AUD_CH_STS_START	0x2C
- #define XLNX_BYTES_PER_CH	0x44
-+#define XLNX_AUD_ALIGN_BYTES	64
- 
- #define AUD_STS_IOC_IRQ_MASK	BIT(31)
- #define AUD_STS_CH_STS_MASK	BIT(29)
-@@ -370,12 +371,32 @@ static int xlnx_formatter_pcm_open(struc
- 	snd_soc_set_runtime_hwparams(substream, &xlnx_pcm_hardware);
- 	runtime->private_data = stream_data;
- 
--	/* Resize the period size divisible by 64 */
-+	/* Resize the period bytes as divisible by 64 */
- 	err = snd_pcm_hw_constraint_step(runtime, 0,
--					 SNDRV_PCM_HW_PARAM_PERIOD_BYTES, 64);
-+					 SNDRV_PCM_HW_PARAM_PERIOD_BYTES,
-+					 XLNX_AUD_ALIGN_BYTES);
- 	if (err) {
- 		dev_err(component->dev,
--			"unable to set constraint on period bytes\n");
-+			"Unable to set constraint on period bytes\n");
-+		return err;
-+	}
-+
-+	/* Resize the buffer bytes as divisible by 64 */
-+	err = snd_pcm_hw_constraint_step(runtime, 0,
-+					 SNDRV_PCM_HW_PARAM_BUFFER_BYTES,
-+					 XLNX_AUD_ALIGN_BYTES);
-+	if (err) {
-+		dev_err(component->dev,
-+			"Unable to set constraint on buffer bytes\n");
-+		return err;
-+	}
-+
-+	/* Set periods as integer multiple */
-+	err = snd_pcm_hw_constraint_integer(runtime,
-+					    SNDRV_PCM_HW_PARAM_PERIODS);
-+	if (err < 0) {
-+		dev_err(component->dev,
-+			"Unable to set constraint on periods to be integer\n");
- 		return err;
+--- a/drivers/pinctrl/bcm/pinctrl-bcm2835.c
++++ b/drivers/pinctrl/bcm/pinctrl-bcm2835.c
+@@ -1264,16 +1264,18 @@ static int bcm2835_pinctrl_probe(struct
+ 				     sizeof(*girq->parents),
+ 				     GFP_KERNEL);
+ 	if (!girq->parents) {
+-		pinctrl_remove_gpio_range(pc->pctl_dev, &pc->gpio_range);
+-		return -ENOMEM;
++		err = -ENOMEM;
++		goto out_remove;
  	}
  
+ 	if (is_7211) {
+ 		pc->wake_irq = devm_kcalloc(dev, BCM2835_NUM_IRQS,
+ 					    sizeof(*pc->wake_irq),
+ 					    GFP_KERNEL);
+-		if (!pc->wake_irq)
+-			return -ENOMEM;
++		if (!pc->wake_irq) {
++			err = -ENOMEM;
++			goto out_remove;
++		}
+ 	}
+ 
+ 	/*
+@@ -1297,8 +1299,10 @@ static int bcm2835_pinctrl_probe(struct
+ 
+ 		len = strlen(dev_name(pc->dev)) + 16;
+ 		name = devm_kzalloc(pc->dev, len, GFP_KERNEL);
+-		if (!name)
+-			return -ENOMEM;
++		if (!name) {
++			err = -ENOMEM;
++			goto out_remove;
++		}
+ 
+ 		snprintf(name, len, "%s:bank%d", dev_name(pc->dev), i);
+ 
+@@ -1317,11 +1321,14 @@ static int bcm2835_pinctrl_probe(struct
+ 	err = gpiochip_add_data(&pc->gpio_chip, pc);
+ 	if (err) {
+ 		dev_err(dev, "could not add GPIO chip\n");
+-		pinctrl_remove_gpio_range(pc->pctl_dev, &pc->gpio_range);
+-		return err;
++		goto out_remove;
+ 	}
+ 
+ 	return 0;
++
++out_remove:
++	pinctrl_remove_gpio_range(pc->pctl_dev, &pc->gpio_range);
++	return err;
+ }
+ 
+ static struct platform_driver bcm2835_pinctrl_driver = {
 
 
