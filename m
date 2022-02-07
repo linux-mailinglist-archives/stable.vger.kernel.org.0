@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E19744ABB23
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:35:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A36394ABCBE
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384245AbiBGL0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:26:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54146 "EHLO
+        id S1387087AbiBGLjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:39:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379040AbiBGLP7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:15:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D7AC0401C1;
-        Mon,  7 Feb 2022 03:15:55 -0800 (PST)
+        with ESMTP id S1384361AbiBGL2A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:28:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26AC3C03FEFF;
+        Mon,  7 Feb 2022 03:26:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A8756113B;
-        Mon,  7 Feb 2022 11:15:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 236CEC004E1;
-        Mon,  7 Feb 2022 11:15:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83E96B811B3;
+        Mon,  7 Feb 2022 11:26:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C95ECC004E1;
+        Mon,  7 Feb 2022 11:26:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232554;
-        bh=LFmkYpZoYitqpsxbqK/+Yq6+QTUAR/LsvVhg5PB8eQU=;
+        s=korg; t=1644233166;
+        bh=tzgF2lLRVeO9JbCxJ6yO7uNVPTSA0/Rh2rbE1TmBoxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=csFNy1zUdlz/y3LyPUqK9+vUBvrIb5SzykyVpvwxHut4AxlkkDU3Z30d+BVrdrfOW
-         xPf5YRu4hHGXz+gY9eGRRty+RtIyVUR0ST7/32NlgPQb515vSzZ0YuIdUDnRkYBKUs
-         crKEz+FX2Z7mFQX7IPpu9TgWd4TU8DoBEhecTZGo=
+        b=uX7ZnLp0r+ITwFkZPBvmyMgfN/ZG0pFX/kYkXIS60NYtUy31kPRIQ4pF4fttZw7kQ
+         AaGFcdQx9bu0lNERJRl22TINzxqkVZDQeglJ3qp5k+RF0ams6NmAEqNCG5PkDsOd5t
+         ngCHmCq+qr+k2jRdg0SJuaW3L+K39qMOIapdN2rU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.19 47/86] netfilter: nat: limit port clash resolution attempts
+        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.15 037/110] KVM: arm64: Avoid consuming a stale esr value when SError occur
 Date:   Mon,  7 Feb 2022 12:06:10 +0100
-Message-Id: <20220207103759.092441686@linuxfoundation.org>
+Message-Id: <20220207103803.530037238@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: James Morse <james.morse@arm.com>
 
-commit a504b703bb1da526a01593da0e4be2af9d9f5fa8 upstream.
+commit 1c71dbc8a179d99dd9bb7e7fc1888db613cf85de upstream.
 
-In case almost or all available ports are taken, clash resolution can
-take a very long time, resulting in soft lockup.
+When any exception other than an IRQ occurs, the CPU updates the ESR_EL2
+register with the exception syndrome. An SError may also become pending,
+and will be synchronised by KVM. KVM notes the exception type, and whether
+an SError was synchronised in exit_code.
 
-This can happen when many to-be-natted hosts connect to same
-destination:port (e.g. a proxy) and all connections pass the same SNAT.
+When an exception other than an IRQ occurs, fixup_guest_exit() updates
+vcpu->arch.fault.esr_el2 from the hardware register. When an SError was
+synchronised, the vcpu esr value is used to determine if the exception
+was due to an HVC. If so, ELR_EL2 is moved back one instruction. This
+is so that KVM can process the SError first, and re-execute the HVC if
+the guest survives the SError.
 
-Pick a random offset in the acceptable range, then try ever smaller
-number of adjacent port numbers, until either the limit is reached or a
-useable port was found.  This results in at most 248 attempts
-(128 + 64 + 32 + 16 + 8, i.e. 4 restarts with new search offset)
-instead of 64000+,
+But if an IRQ synchronises an SError, the vcpu's esr value is stale.
+If the previous non-IRQ exception was an HVC, KVM will corrupt ELR_EL2,
+causing an unrelated guest instruction to be executed twice.
 
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Check ARM_EXCEPTION_CODE() before messing with ELR_EL2, IRQs don't
+update this register so don't need to check.
+
+Fixes: defe21f49bc9 ("KVM: arm64: Move PC rollback on SError to HYP")
+Cc: stable@vger.kernel.org
+Reported-by: Steven Price <steven.price@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220127122052.1584324-3-james.morse@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_nat_proto_common.c |   29 +++++++++++++++++++++++------
- 1 file changed, 23 insertions(+), 6 deletions(-)
+ arch/arm64/kvm/hyp/include/hyp/switch.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/netfilter/nf_nat_proto_common.c
-+++ b/net/netfilter/nf_nat_proto_common.c
-@@ -40,9 +40,10 @@ void nf_nat_l4proto_unique_tuple(const s
- 				 enum nf_nat_manip_type maniptype,
- 				 const struct nf_conn *ct)
- {
--	unsigned int range_size, min, max, i;
-+	unsigned int range_size, min, max, i, attempts;
- 	__be16 *portptr;
--	u_int16_t off;
-+	u16 off;
-+	static const unsigned int max_attempts = 128;
+--- a/arch/arm64/kvm/hyp/include/hyp/switch.h
++++ b/arch/arm64/kvm/hyp/include/hyp/switch.h
+@@ -425,7 +425,8 @@ static inline bool fixup_guest_exit(stru
+ 	if (ARM_EXCEPTION_CODE(*exit_code) != ARM_EXCEPTION_IRQ)
+ 		vcpu->arch.fault.esr_el2 = read_sysreg_el2(SYS_ESR);
  
- 	if (maniptype == NF_NAT_MANIP_SRC)
- 		portptr = &tuple->src.u.all;
-@@ -88,12 +89,28 @@ void nf_nat_l4proto_unique_tuple(const s
- 		off = prandom_u32();
- 	}
+-	if (ARM_SERROR_PENDING(*exit_code)) {
++	if (ARM_SERROR_PENDING(*exit_code) &&
++	    ARM_EXCEPTION_CODE(*exit_code) != ARM_EXCEPTION_IRQ) {
+ 		u8 esr_ec = kvm_vcpu_trap_get_class(vcpu);
  
--	for (i = 0; ; ++off) {
-+	attempts = range_size;
-+	if (attempts > max_attempts)
-+		attempts = max_attempts;
-+
-+	/* We are in softirq; doing a search of the entire range risks
-+	 * soft lockup when all tuples are already used.
-+	 *
-+	 * If we can't find any free port from first offset, pick a new
-+	 * one and try again, with ever smaller search window.
-+	 */
-+another_round:
-+	for (i = 0; i < attempts; i++, off++) {
- 		*portptr = htons(min + off % range_size);
--		if (++i != range_size && nf_nat_used_tuple(tuple, ct))
--			continue;
--		return;
-+		if (!nf_nat_used_tuple(tuple, ct))
-+			return;
- 	}
-+
-+	if (attempts >= range_size || attempts < 16)
-+		return;
-+	attempts /= 2;
-+	off = prandom_u32();
-+	goto another_round;
- }
- EXPORT_SYMBOL_GPL(nf_nat_l4proto_unique_tuple);
- 
+ 		/*
 
 
