@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D8ED4ABAA3
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4B244ABBA6
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:39:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383966AbiBGLYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50036 "EHLO
+        id S1384654AbiBGL3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:29:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243241AbiBGLNI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:13:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44C4CC0401C2;
-        Mon,  7 Feb 2022 03:13:08 -0800 (PST)
+        with ESMTP id S1383135AbiBGLVk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:21:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AFBC0401C2;
+        Mon,  7 Feb 2022 03:21:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF155B81028;
-        Mon,  7 Feb 2022 11:13:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A7EFC004E1;
-        Mon,  7 Feb 2022 11:13:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26C7561380;
+        Mon,  7 Feb 2022 11:21:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEB05C004E1;
+        Mon,  7 Feb 2022 11:21:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232385;
-        bh=hqkNVBOY0nLILtHUbF7Ph3I2L0K2QYQl+6SqV0lpEbs=;
+        s=korg; t=1644232895;
+        bh=nX/spthLodhzppYhHdGfbmaXFQuRzGLMi4gWVQbVVgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rwo/fP3cJqSR+xd1d8XH46MMWBPuw1gypVmkLrrsOjLC7rqe9ReU6bpi+2sfZ7Uyf
-         FfAOQgFb5X0gydS+sJdqcTWwQudRssVqBfJFEy8w7gVyOhf2KT7rsizi2TqRJ2zZXG
-         n9WoUJmuSx/S0YQTQ42bed84fcXJ65f2Fpp1V7NU=
+        b=y3d/ZdracQ5NCwFTJ7vzC+Zd2Z2KvnWl0bhPba4tcMD0Y7eG8pRn1fpQKanJ16YX7
+         e/60qD6FkRZNcZ3ApsLax/e+S5FJPCVoPF+7QnL01kUy6/RO7RjKKZ3tufiZN5uOP7
+         4ijx9blC/CfvtxoDoCCvumyaqsQnA4//f0iDzIBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 62/69] ASoC: fsl: Add missing error handling in pcm030_fabric_probe
+        stable@vger.kernel.org,
+        syzbot+e3f96c43d19782dd14a7@syzkaller.appspotmail.com,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>
+Subject: [PATCH 5.10 26/74] RDMA/ucma: Protect mc during concurrent multicast leaves
 Date:   Mon,  7 Feb 2022 12:06:24 +0100
-Message-Id: <20220207103757.661545761@linuxfoundation.org>
+Message-Id: <20220207103758.100071214@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
-References: <20220207103755.604121441@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +56,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit fb25621da5702c104ce0a48de5b174ced09e5b4e upstream.
+commit 36e8169ec973359f671f9ec7213547059cae972e upstream.
 
-Add the missing platform_device_put() and platform_device_del()
-before return from pcm030_fabric_probe in the error handling case.
+Partially revert the commit mentioned in the Fixes line to make sure that
+allocation and erasing multicast struct are locked.
 
-Fixes: c912fa913446 ("ASoC: fsl: register the wm9712-codec")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220127131336.30214-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  BUG: KASAN: use-after-free in ucma_cleanup_multicast drivers/infiniband/core/ucma.c:491 [inline]
+  BUG: KASAN: use-after-free in ucma_destroy_private_ctx+0x914/0xb70 drivers/infiniband/core/ucma.c:579
+  Read of size 8 at addr ffff88801bb74b00 by task syz-executor.1/25529
+  CPU: 0 PID: 25529 Comm: syz-executor.1 Not tainted 5.16.0-rc7-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Call Trace:
+   __dump_stack lib/dump_stack.c:88 [inline]
+   dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+   print_address_description.constprop.0.cold+0x8d/0x320 mm/kasan/report.c:247
+   __kasan_report mm/kasan/report.c:433 [inline]
+   kasan_report.cold+0x83/0xdf mm/kasan/report.c:450
+   ucma_cleanup_multicast drivers/infiniband/core/ucma.c:491 [inline]
+   ucma_destroy_private_ctx+0x914/0xb70 drivers/infiniband/core/ucma.c:579
+   ucma_destroy_id+0x1e6/0x280 drivers/infiniband/core/ucma.c:614
+   ucma_write+0x25c/0x350 drivers/infiniband/core/ucma.c:1732
+   vfs_write+0x28e/0xae0 fs/read_write.c:588
+   ksys_write+0x1ee/0x250 fs/read_write.c:643
+   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+   do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Currently the xarray search can touch a concurrently freeing mc as the
+xa_for_each() is not surrounded by any lock. Rather than hold the lock for
+a full scan hold it only for the effected items, which is usually an empty
+list.
+
+Fixes: 95fe51096b7a ("RDMA/ucma: Remove mc_list and rely on xarray")
+Link: https://lore.kernel.org/r/1cda5fabb1081e8d16e39a48d3a4f8160cea88b8.1642491047.git.leonro@nvidia.com
+Reported-by: syzbot+e3f96c43d19782dd14a7@syzkaller.appspotmail.com
+Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/fsl/pcm030-audio-fabric.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/infiniband/core/ucma.c |   34 +++++++++++++++++++++++-----------
+ 1 file changed, 23 insertions(+), 11 deletions(-)
 
---- a/sound/soc/fsl/pcm030-audio-fabric.c
-+++ b/sound/soc/fsl/pcm030-audio-fabric.c
-@@ -90,16 +90,21 @@ static int pcm030_fabric_probe(struct pl
- 		dev_err(&op->dev, "platform_device_alloc() failed\n");
+--- a/drivers/infiniband/core/ucma.c
++++ b/drivers/infiniband/core/ucma.c
+@@ -95,6 +95,7 @@ struct ucma_context {
+ 	u64			uid;
  
- 	ret = platform_device_add(pdata->codec_device);
--	if (ret)
-+	if (ret) {
- 		dev_err(&op->dev, "platform_device_add() failed: %d\n", ret);
-+		platform_device_put(pdata->codec_device);
-+	}
+ 	struct list_head	list;
++	struct list_head	mc_list;
+ 	struct work_struct	close_work;
+ };
  
- 	ret = snd_soc_register_card(card);
--	if (ret)
-+	if (ret) {
- 		dev_err(&op->dev, "snd_soc_register_card() failed: %d\n", ret);
-+		platform_device_del(pdata->codec_device);
-+		platform_device_put(pdata->codec_device);
-+	}
+@@ -105,6 +106,7 @@ struct ucma_multicast {
  
- 	platform_set_drvdata(op, pdata);
--
- 	return ret;
-+
+ 	u64			uid;
+ 	u8			join_state;
++	struct list_head	list;
+ 	struct sockaddr_storage	addr;
+ };
+ 
+@@ -198,6 +200,7 @@ static struct ucma_context *ucma_alloc_c
+ 
+ 	INIT_WORK(&ctx->close_work, ucma_close_id);
+ 	init_completion(&ctx->comp);
++	INIT_LIST_HEAD(&ctx->mc_list);
+ 	/* So list_del() will work if we don't do ucma_finish_ctx() */
+ 	INIT_LIST_HEAD(&ctx->list);
+ 	ctx->file = file;
+@@ -484,19 +487,19 @@ err1:
+ 
+ static void ucma_cleanup_multicast(struct ucma_context *ctx)
+ {
+-	struct ucma_multicast *mc;
+-	unsigned long index;
++	struct ucma_multicast *mc, *tmp;
+ 
+-	xa_for_each(&multicast_table, index, mc) {
+-		if (mc->ctx != ctx)
+-			continue;
++	xa_lock(&multicast_table);
++	list_for_each_entry_safe(mc, tmp, &ctx->mc_list, list) {
++		list_del(&mc->list);
+ 		/*
+ 		 * At this point mc->ctx->ref is 0 so the mc cannot leave the
+ 		 * lock on the reader and this is enough serialization
+ 		 */
+-		xa_erase(&multicast_table, index);
++		__xa_erase(&multicast_table, mc->id);
+ 		kfree(mc);
+ 	}
++	xa_unlock(&multicast_table);
  }
  
- static int pcm030_fabric_remove(struct platform_device *op)
+ static void ucma_cleanup_mc_events(struct ucma_multicast *mc)
+@@ -1469,12 +1472,16 @@ static ssize_t ucma_process_join(struct
+ 	mc->uid = cmd->uid;
+ 	memcpy(&mc->addr, addr, cmd->addr_size);
+ 
+-	if (xa_alloc(&multicast_table, &mc->id, NULL, xa_limit_32b,
++	xa_lock(&multicast_table);
++	if (__xa_alloc(&multicast_table, &mc->id, NULL, xa_limit_32b,
+ 		     GFP_KERNEL)) {
+ 		ret = -ENOMEM;
+ 		goto err_free_mc;
+ 	}
+ 
++	list_add_tail(&mc->list, &ctx->mc_list);
++	xa_unlock(&multicast_table);
++
+ 	mutex_lock(&ctx->mutex);
+ 	ret = rdma_join_multicast(ctx->cm_id, (struct sockaddr *)&mc->addr,
+ 				  join_state, mc);
+@@ -1500,8 +1507,11 @@ err_leave_multicast:
+ 	mutex_unlock(&ctx->mutex);
+ 	ucma_cleanup_mc_events(mc);
+ err_xa_erase:
+-	xa_erase(&multicast_table, mc->id);
++	xa_lock(&multicast_table);
++	list_del(&mc->list);
++	__xa_erase(&multicast_table, mc->id);
+ err_free_mc:
++	xa_unlock(&multicast_table);
+ 	kfree(mc);
+ err_put_ctx:
+ 	ucma_put_ctx(ctx);
+@@ -1569,15 +1579,17 @@ static ssize_t ucma_leave_multicast(stru
+ 		mc = ERR_PTR(-EINVAL);
+ 	else if (!refcount_inc_not_zero(&mc->ctx->ref))
+ 		mc = ERR_PTR(-ENXIO);
+-	else
+-		__xa_erase(&multicast_table, mc->id);
+-	xa_unlock(&multicast_table);
+ 
+ 	if (IS_ERR(mc)) {
++		xa_unlock(&multicast_table);
+ 		ret = PTR_ERR(mc);
+ 		goto out;
+ 	}
+ 
++	list_del(&mc->list);
++	__xa_erase(&multicast_table, mc->id);
++	xa_unlock(&multicast_table);
++
+ 	mutex_lock(&mc->ctx->mutex);
+ 	rdma_leave_multicast(mc->ctx->cm_id, (struct sockaddr *) &mc->addr);
+ 	mutex_unlock(&mc->ctx->mutex);
 
 
