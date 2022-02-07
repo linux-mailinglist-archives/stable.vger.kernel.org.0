@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 466AF4ABD6E
+	by mail.lfdr.de (Postfix) with ESMTP id F1C494ABD6F
 	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232547AbiBGLol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:44:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
+        id S235983AbiBGLom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:44:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385093AbiBGLbG (ORCPT
+        with ESMTP id S1385092AbiBGLbG (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 115B5C035416;
-        Mon,  7 Feb 2022 03:29:15 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7241C033241;
+        Mon,  7 Feb 2022 03:29:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE08AB80EC3;
-        Mon,  7 Feb 2022 11:29:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE59FC004E1;
-        Mon,  7 Feb 2022 11:29:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6437F6077B;
+        Mon,  7 Feb 2022 11:29:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B3EEC004E1;
+        Mon,  7 Feb 2022 11:29:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233353;
-        bh=s67VpVP7MXMILns6SrqsrSdBqMFhRM8QKqe4wHf8zNk=;
+        s=korg; t=1644233356;
+        bh=3+OdnXHnwYipTw8qEI909/tZBBwnRXIhertLR4aPfWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LdPrV0ZlJD6K99cybysk7Sz5t9V8ruUXz4DgCm0KqYa4QlE9OSF+t1ZuE2JQonJs5
-         pkzjH9vI8n7nEaz4TftS4uEvbwfZ3kp6Fulcbsd4A6qPXpdgjJ0hKpDPE9Fh2RByvS
-         ruSeqthObn/k6RWu/vbAmKTfUlDsiIGxu6CWeLAc=
+        b=aq23/UZvX6IbQeIztvpZyWcN6Xs/+naP+96Yi6YBtWfKS7rVajvzjRhH+vVE/HSmx
+         9HR7z6q8Udx/0pp9qIkFkAgIxms/DnqXzJavOEESEX6V1LWlFpmEJLTf94Tf15Jt5c
+         0PcUtuY61e5iKF/0s/I1QWwJjtk+CVSRf0L/+9jU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Borislav Petkov <bp@suse.de>, Dinh Nguyen <dinguyen@kernel.org>
-Subject: [PATCH 5.15 097/110] EDAC/altera: Fix deferred probing
-Date:   Mon,  7 Feb 2022 12:07:10 +0100
-Message-Id: <20220207103805.674588034@linuxfoundation.org>
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.15 098/110] EDAC/xgene: Fix deferred probing
+Date:   Mon,  7 Feb 2022 12:07:11 +0100
+Message-Id: <20220207103805.711854566@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
 References: <20220207103802.280120990@linuxfoundation.org>
@@ -55,37 +55,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit 279eb8575fdaa92c314a54c0d583c65e26229107 upstream.
+commit dfd0dfb9a7cc04acf93435b440dd34c2ca7b4424 upstream.
 
-The driver overrides the error codes returned by platform_get_irq() to
--ENODEV for some strange reason, so if it returns -EPROBE_DEFER, the
+The driver overrides error codes returned by platform_get_irq_optional()
+to -EINVAL for some strange reason, so if it returns -EPROBE_DEFER, the
 driver will fail the probe permanently instead of the deferred probing.
 Switch to propagating the proper error codes to platform driver code
 upwards.
 
   [ bp: Massage commit message. ]
 
-Fixes: 71bcada88b0f ("edac: altera: Add Altera SDRAM EDAC support")
+Fixes: 0d4429301c4a ("EDAC: Add APM X-Gene SoC EDAC driver")
 Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220124185503.6720-2-s.shtylyov@omp.ru
+Link: https://lore.kernel.org/r/20220124185503.6720-3-s.shtylyov@omp.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/edac/altera_edac.c |    2 +-
+ drivers/edac/xgene_edac.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/edac/altera_edac.c
-+++ b/drivers/edac/altera_edac.c
-@@ -350,7 +350,7 @@ static int altr_sdram_probe(struct platf
- 	if (irq < 0) {
- 		edac_printk(KERN_ERR, EDAC_MC,
- 			    "No irq %d in DT\n", irq);
--		return -ENODEV;
-+		return irq;
- 	}
- 
- 	/* Arria10 has a 2nd IRQ */
+--- a/drivers/edac/xgene_edac.c
++++ b/drivers/edac/xgene_edac.c
+@@ -1919,7 +1919,7 @@ static int xgene_edac_probe(struct platf
+ 			irq = platform_get_irq_optional(pdev, i);
+ 			if (irq < 0) {
+ 				dev_err(&pdev->dev, "No IRQ resource\n");
+-				rc = -EINVAL;
++				rc = irq;
+ 				goto out_err;
+ 			}
+ 			rc = devm_request_irq(&pdev->dev, irq,
 
 
