@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25F724ABD87
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79EA84ABDB4
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:03:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380200AbiBGLor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:44:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44972 "EHLO
+        id S1389036AbiBGLpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:45:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385255AbiBGLb1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:27 -0500
+        with ESMTP id S1383800AbiBGLgH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:36:07 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D35DC03E910;
-        Mon,  7 Feb 2022 03:30:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDC37C0401D4;
+        Mon,  7 Feb 2022 03:36:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2806DB80EBD;
-        Mon,  7 Feb 2022 11:30:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6529AC004E1;
-        Mon,  7 Feb 2022 11:29:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26001B8102E;
+        Mon,  7 Feb 2022 11:36:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41559C004E1;
+        Mon,  7 Feb 2022 11:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233399;
-        bh=2io9CEw91StQj81t+X7quJ24LQ0pDfkOTHb8NuMuRsA=;
+        s=korg; t=1644233764;
+        bh=GZjfwiDTZrXgySDAJnA5L8SeTfEpLi6S8B2FyT7h61A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bYz8Z368S6x/yQ7j6PYuEtgLKmmtdTi+6L0E9cwIfzgMNlU1wNL0lSGKSFUlxmTKF
-         wZe0Ia63S0v5IFdf0/MNetqUwNXRlytVjgnKLkEDfjMxOBtbs5xwd9uvYwzvPQsG0n
-         wIR0Liwl+L7mfdv7LNI1hQ8TJiuxHHsQ1yScnJME=
+        b=nD3vUdiQD3MCkjnHl2RxeXODzgdho2WRv5XOfUA1g1LVF620xDCdFfV6FZUukiz5s
+         UdFsuELNjnYoXdqpKCNG6fWHdP/kwSbn7lEY5sOgMuFq64AwQApWaUZQwezgAANNJ6
+         Izbm5PZX0v6YBvC3pl3J6r1JYiyXP8KqfQgZM/78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.15 110/110] selftests: netfilter: check stateless nat udp checksum fixup
+        stable@vger.kernel.org, Kyle Huey <me@kylehuey.com>,
+        Andrew Cooper <Andrew.Cooper3@citrix.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>, stable@kernel.org
+Subject: [PATCH 5.16 112/126] x86/perf: Default set FREEZE_ON_SMI for all
 Date:   Mon,  7 Feb 2022 12:07:23 +0100
-Message-Id: <20220207103806.116943414@linuxfoundation.org>
+Message-Id: <20220207103807.927118056@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,208 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit aad51ca71ad83273e8826d6cfdcf53c98748d1fa upstream.
+commit a01994f5e5c79d3a35e5e8cf4252c7f2147323c3 upstream.
 
-Add a test that sends large udp packet (which is fragmented)
-via a stateless nft nat rule, i.e. 'ip saddr set 10.2.3.4'
-and check that the datagram is received by peer.
+Kyle reported that rr[0] has started to malfunction on Comet Lake and
+later CPUs due to EFI starting to make use of CPL3 [1] and the PMU
+event filtering not distinguishing between regular CPL3 and SMM CPL3.
 
-On kernels without
-commit 4e1860a38637 ("netfilter: nft_payload: do not update layer 4 checksum when mangling fragments")',
-this will fail with:
+Since this is a privilege violation, default disable SMM visibility
+where possible.
 
-cmp: EOF on /tmp/tmp.V1q0iXJyQF which is empty
--rw------- 1 root root 4096 Jan 24 22:03 /tmp/tmp.Aaqnq4rBKS
--rw------- 1 root root    0 Jan 24 22:03 /tmp/tmp.V1q0iXJyQF
-ERROR: in and output file mismatch when checking udp with stateless nat
-FAIL: nftables v1.0.0 (Fearless Fosdick #2)
+Administrators wanting to observe SMM cycles can easily change this
+using the sysfs attribute while regular users don't have access to
+this file.
 
-On patched kernels, this will show:
-PASS: IP statless for ns2-PFp89amx
+[0] https://rr-project.org/
 
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+[1] See the Intel white paper "Trustworthy SMM on the Intel vPro Platform"
+at https://bugzilla.kernel.org/attachment.cgi?id=300300, particularly the
+end of page 5.
+
+Reported-by: Kyle Huey <me@kylehuey.com>
+Suggested-by: Andrew Cooper <Andrew.Cooper3@citrix.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@kernel.org
+Link: https://lkml.kernel.org/r/YfKChjX61OW4CkYm@hirez.programming.kicks-ass.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/netfilter/nft_nat.sh |  152 +++++++++++++++++++++++++++
- 1 file changed, 152 insertions(+)
+ arch/x86/events/intel/core.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/tools/testing/selftests/netfilter/nft_nat.sh
-+++ b/tools/testing/selftests/netfilter/nft_nat.sh
-@@ -885,6 +885,144 @@ EOF
- 	ip netns exec "$ns0" nft delete table $family nat
- }
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -4709,6 +4709,19 @@ static __initconst const struct x86_pmu
+ 	.lbr_read		= intel_pmu_lbr_read_64,
+ 	.lbr_save		= intel_pmu_lbr_save,
+ 	.lbr_restore		= intel_pmu_lbr_restore,
++
++	/*
++	 * SMM has access to all 4 rings and while traditionally SMM code only
++	 * ran in CPL0, 2021-era firmware is starting to make use of CPL3 in SMM.
++	 *
++	 * Since the EVENTSEL.{USR,OS} CPL filtering makes no distinction
++	 * between SMM or not, this results in what should be pure userspace
++	 * counters including SMM data.
++	 *
++	 * This is a clear privilege issue, therefore globally disable
++	 * counting SMM by default.
++	 */
++	.attr_freeze_on_smi	= 1,
+ };
  
-+test_stateless_nat_ip()
-+{
-+	local lret=0
-+
-+	ip netns exec "$ns0" sysctl net.ipv4.conf.veth0.forwarding=1 > /dev/null
-+	ip netns exec "$ns0" sysctl net.ipv4.conf.veth1.forwarding=1 > /dev/null
-+
-+	ip netns exec "$ns2" ping -q -c 1 10.0.1.99 > /dev/null # ping ns2->ns1
-+	if [ $? -ne 0 ] ; then
-+		echo "ERROR: cannot ping $ns1 from $ns2 before loading stateless rules"
-+		return 1
-+	fi
-+
-+ip netns exec "$ns0" nft -f /dev/stdin <<EOF
-+table ip stateless {
-+	map xlate_in {
-+		typeof meta iifname . ip saddr . ip daddr : ip daddr
-+		elements = {
-+			"veth1" . 10.0.2.99 . 10.0.1.99 : 10.0.2.2,
-+		}
-+	}
-+	map xlate_out {
-+		typeof meta iifname . ip saddr . ip daddr : ip daddr
-+		elements = {
-+			"veth0" . 10.0.1.99 . 10.0.2.2 : 10.0.2.99
-+		}
-+	}
-+
-+	chain prerouting {
-+		type filter hook prerouting priority -400; policy accept;
-+		ip saddr set meta iifname . ip saddr . ip daddr map @xlate_in
-+		ip daddr set meta iifname . ip saddr . ip daddr map @xlate_out
-+	}
-+}
-+EOF
-+	if [ $? -ne 0 ]; then
-+		echo "SKIP: Could not add ip statless rules"
-+		return $ksft_skip
-+	fi
-+
-+	reset_counters
-+
-+	ip netns exec "$ns2" ping -q -c 1 10.0.1.99 > /dev/null # ping ns2->ns1
-+	if [ $? -ne 0 ] ; then
-+		echo "ERROR: cannot ping $ns1 from $ns2 with stateless rules"
-+		lret=1
-+	fi
-+
-+	# ns1 should have seen packets from .2.2, due to stateless rewrite.
-+	expect="packets 1 bytes 84"
-+	cnt=$(ip netns exec "$ns1" nft list counter inet filter ns0insl | grep -q "$expect")
-+	if [ $? -ne 0 ]; then
-+		bad_counter "$ns1" ns0insl "$expect" "test_stateless 1"
-+		lret=1
-+	fi
-+
-+	for dir in "in" "out" ; do
-+		cnt=$(ip netns exec "$ns2" nft list counter inet filter ns1${dir} | grep -q "$expect")
-+		if [ $? -ne 0 ]; then
-+			bad_counter "$ns2" ns1$dir "$expect" "test_stateless 2"
-+			lret=1
-+		fi
-+	done
-+
-+	# ns1 should not have seen packets from ns2, due to masquerade
-+	expect="packets 0 bytes 0"
-+	for dir in "in" "out" ; do
-+		cnt=$(ip netns exec "$ns1" nft list counter inet filter ns2${dir} | grep -q "$expect")
-+		if [ $? -ne 0 ]; then
-+			bad_counter "$ns1" ns0$dir "$expect" "test_stateless 3"
-+			lret=1
-+		fi
-+
-+		cnt=$(ip netns exec "$ns0" nft list counter inet filter ns1${dir} | grep -q "$expect")
-+		if [ $? -ne 0 ]; then
-+			bad_counter "$ns0" ns1$dir "$expect" "test_stateless 4"
-+			lret=1
-+		fi
-+	done
-+
-+	reset_counters
-+
-+	socat -h > /dev/null 2>&1
-+	if [ $? -ne 0 ];then
-+		echo "SKIP: Could not run stateless nat frag test without socat tool"
-+		if [ $lret -eq 0 ]; then
-+			return $ksft_skip
-+		fi
-+
-+		ip netns exec "$ns0" nft delete table ip stateless
-+		return $lret
-+	fi
-+
-+	local tmpfile=$(mktemp)
-+	dd if=/dev/urandom of=$tmpfile bs=4096 count=1 2>/dev/null
-+
-+	local outfile=$(mktemp)
-+	ip netns exec "$ns1" timeout 3 socat -u UDP4-RECV:4233 OPEN:$outfile < /dev/null &
-+	sc_r=$!
-+
-+	sleep 1
-+	# re-do with large ping -> ip fragmentation
-+	ip netns exec "$ns2" timeout 3 socat - UDP4-SENDTO:"10.0.1.99:4233" < "$tmpfile" > /dev/null
-+	if [ $? -ne 0 ] ; then
-+		echo "ERROR: failed to test udp $ns1 to $ns2 with stateless ip nat" 1>&2
-+		lret=1
-+	fi
-+
-+	wait
-+
-+	cmp "$tmpfile" "$outfile"
-+	if [ $? -ne 0 ]; then
-+		ls -l "$tmpfile" "$outfile"
-+		echo "ERROR: in and output file mismatch when checking udp with stateless nat" 1>&2
-+		lret=1
-+	fi
-+
-+	rm -f "$tmpfile" "$outfile"
-+
-+	# ns1 should have seen packets from 2.2, due to stateless rewrite.
-+	expect="packets 3 bytes 4164"
-+	cnt=$(ip netns exec "$ns1" nft list counter inet filter ns0insl | grep -q "$expect")
-+	if [ $? -ne 0 ]; then
-+		bad_counter "$ns1" ns0insl "$expect" "test_stateless 5"
-+		lret=1
-+	fi
-+
-+	ip netns exec "$ns0" nft delete table ip stateless
-+	if [ $? -ne 0 ]; then
-+		echo "ERROR: Could not delete table ip stateless" 1>&2
-+		lret=1
-+	fi
-+
-+	test $lret -eq 0 && echo "PASS: IP statless for $ns2"
-+
-+	return $lret
-+}
-+
- # ip netns exec "$ns0" ping -c 1 -q 10.0.$i.99
- for i in 0 1 2; do
- ip netns exec ns$i-$sfx nft -f /dev/stdin <<EOF
-@@ -951,6 +1089,19 @@ table inet filter {
- EOF
- done
- 
-+# special case for stateless nat check, counter needs to
-+# be done before (input) ip defragmentation
-+ip netns exec ns1-$sfx nft -f /dev/stdin <<EOF
-+table inet filter {
-+	counter ns0insl {}
-+
-+	chain pre {
-+		type filter hook prerouting priority -400; policy accept;
-+		ip saddr 10.0.2.2 counter name "ns0insl"
-+	}
-+}
-+EOF
-+
- sleep 3
- # test basic connectivity
- for i in 1 2; do
-@@ -1005,6 +1156,7 @@ $test_inet_nat && test_redirect inet
- $test_inet_nat && test_redirect6 inet
- 
- test_port_shadowing
-+test_stateless_nat_ip
- 
- if [ $ret -ne 0 ];then
- 	echo -n "FAIL: "
+ static __init void intel_clovertown_quirk(void)
 
 
