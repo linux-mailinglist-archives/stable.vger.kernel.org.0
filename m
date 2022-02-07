@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85FAB4ABD40
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:59:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5E54ABB55
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387184AbiBGLkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:40:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46838 "EHLO
+        id S1384393AbiBGL2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:28:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386615AbiBGLfK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:35:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18513C043181;
-        Mon,  7 Feb 2022 03:35:10 -0800 (PST)
+        with ESMTP id S1382361AbiBGLS5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:18:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDB7CC0401D2;
+        Mon,  7 Feb 2022 03:18:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2B1FB8102E;
-        Mon,  7 Feb 2022 11:35:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDD02C004E1;
-        Mon,  7 Feb 2022 11:35:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7953661388;
+        Mon,  7 Feb 2022 11:18:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 484B1C004E1;
+        Mon,  7 Feb 2022 11:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233707;
-        bh=D1iJwyfsHLPr5Rqzs8UxZzRupRZ+cg/8d6hqnSL8FKo=;
+        s=korg; t=1644232728;
+        bh=nLja3KJrMm451tePeJRkSOSCVt0H4TJ+JcyUcy8Hgq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pHbA8ExLyYb/hHuRwGz+wwL7HtSuzn0WGo56zt5OBi4gI5vcgN3RHrzhr16Y4+gzd
-         f5zkizOwbXvSTZ8LbvI1VqZCvXCtmJeXP8KFsaZNOmcz2Huk/5GN2yCC/7eaRRgNF7
-         AxEwWZmluCmRe8GFU8mkhiGGFJRdPR5US82/2ybM=
+        b=xRYrsXInCGgkzBE/2N7Jyu4AQnM/7CmsK7SdVrr+u6z1reAooRNVWbN3QrGHWjYqy
+         uXiLc0O3Ir0Tb2DU5M4HMQvdbfd8SHHV1q+KL/UOqtLDGMaXpr/a4bDLXcfWAEOH1/
+         MsG2GR175QJvDAaRtz9sqdLGx45aC6/uJJK2TbVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
         Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.16 063/126] IB/hfi1: Fix tstats alloc and dealloc
+Subject: [PATCH 5.4 18/44] RDMA/mlx4: Dont continue event handler after memory allocation failure
 Date:   Mon,  7 Feb 2022 12:06:34 +0100
-Message-Id: <20220207103806.284725902@linuxfoundation.org>
+Message-Id: <20220207103753.747092286@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
+References: <20220207103753.155627314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,75 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit e5cce44aff3be9ad2cd52f63f35edbd706181d50 upstream.
+commit f3136c4ce7acf64bee43135971ca52a880572e32 upstream.
 
-The tstats allocation is done in the accelerated ndo_init function but the
-allocation is not tested to succeed.
+The failure to allocate memory during MLX4_DEV_EVENT_PORT_MGMT_CHANGE
+event handler will cause skip the assignment logic, but
+ib_dispatch_event() will be called anyway.
 
-The deallocation is not done in the accelerated ndo_uninit function.
+Fix it by calling to return instead of break after memory allocation
+failure.
 
-Resolve issues by testing for an allocation failure and adding the
-free_percpu in the uninit function.
-
-Fixes: aa0616a9bd52 ("IB/hfi1: switch to core handling of rx/tx byte/packet counters")
-Link: https://lore.kernel.org/r/1642287756-182313-5-git-send-email-mike.marciniszyn@cornelisnetworks.com
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Fixes: 00f5ce99dc6e ("mlx4: Use port management change event instead of smp_snoop")
+Link: https://lore.kernel.org/r/12a0e83f18cfad4b5f62654f141e240d04915e10.1643622264.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Håkon Bugge <haakon.bugge@oracle.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hfi1/ipoib_main.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/mlx4/main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/hfi1/ipoib_main.c
-+++ b/drivers/infiniband/hw/hfi1/ipoib_main.c
-@@ -22,26 +22,35 @@ static int hfi1_ipoib_dev_init(struct ne
- 	int ret;
+--- a/drivers/infiniband/hw/mlx4/main.c
++++ b/drivers/infiniband/hw/mlx4/main.c
+@@ -3291,7 +3291,7 @@ static void mlx4_ib_event(struct mlx4_de
+ 	case MLX4_DEV_EVENT_PORT_MGMT_CHANGE:
+ 		ew = kmalloc(sizeof *ew, GFP_ATOMIC);
+ 		if (!ew)
+-			break;
++			return;
  
- 	dev->tstats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
-+	if (!dev->tstats)
-+		return -ENOMEM;
- 
- 	ret = priv->netdev_ops->ndo_init(dev);
- 	if (ret)
--		return ret;
-+		goto out_ret;
- 
- 	ret = hfi1_netdev_add_data(priv->dd,
- 				   qpn_from_mac(priv->netdev->dev_addr),
- 				   dev);
- 	if (ret < 0) {
- 		priv->netdev_ops->ndo_uninit(dev);
--		return ret;
-+		goto out_ret;
- 	}
- 
- 	return 0;
-+out_ret:
-+	free_percpu(dev->tstats);
-+	dev->tstats = NULL;
-+	return ret;
- }
- 
- static void hfi1_ipoib_dev_uninit(struct net_device *dev)
- {
- 	struct hfi1_ipoib_dev_priv *priv = hfi1_ipoib_priv(dev);
- 
-+	free_percpu(dev->tstats);
-+	dev->tstats = NULL;
-+
- 	hfi1_netdev_remove_data(priv->dd, qpn_from_mac(priv->netdev->dev_addr));
- 
- 	priv->netdev_ops->ndo_uninit(dev);
-@@ -166,6 +175,7 @@ static void hfi1_ipoib_netdev_dtor(struc
- 	hfi1_ipoib_rxq_deinit(priv->netdev);
- 
- 	free_percpu(dev->tstats);
-+	dev->tstats = NULL;
- }
- 
- static void hfi1_ipoib_set_id(struct net_device *dev, int id)
+ 		INIT_WORK(&ew->work, handle_port_mgmt_change_event);
+ 		memcpy(&ew->ib_eqe, eqe, sizeof *eqe);
 
 
