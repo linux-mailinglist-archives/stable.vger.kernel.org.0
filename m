@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C3CC4ABD70
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 597634ABD72
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389122AbiBGLqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:46:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48812 "EHLO
+        id S1389124AbiBGLqN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:46:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386798AbiBGLhL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:37:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75A8DC043181;
-        Mon,  7 Feb 2022 03:37:10 -0800 (PST)
+        with ESMTP id S1386800AbiBGLhP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:37:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26C67C043181;
+        Mon,  7 Feb 2022 03:37:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D9456091A;
-        Mon,  7 Feb 2022 11:37:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C98CAC004E1;
-        Mon,  7 Feb 2022 11:37:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0C836091A;
+        Mon,  7 Feb 2022 11:37:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3316FC340EB;
+        Mon,  7 Feb 2022 11:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233829;
-        bh=MLFw33SBS/pqg+VfKau4wYtPr8pye3UBHws0wWK4l+Y=;
+        s=korg; t=1644233833;
+        bh=YXdkOb+AW7YT32Y3DFc/rWRM/5lbSEXUizTTYCWC+2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lC37KSiNZZ3Eo+zA76rTPrLD+9L9jfE7GAphPivjiMbi0gBfsvPWBrl/Ll/j2quHv
-         Hn1MK3w8ADdClI3uaRCmZv/smT4ynw+nYK48YzRjYGPCSb7+yAlDrvPqubBK2VC4iG
-         jsXkqiHxoVZpXrVHUhocajoD7suAZZOpUbJ6K5UA=
+        b=aLJ3vXDAQr9sSJno+YYmUnThc2nOTRbzsYe1DJK6WSK5/AB5FOGKNBB2NZhrI0RH+
+         Cat6tFG7Xr0FZhbRtxCsF3i6fICMfJzRdIQCohgEK68GQZatHzIXgc9EA2jx+A6W4M
+         BHmrvJgHWVW49WNNVEw0RYwR8SO0Vyo9sEdKo+xs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Stefano Brivio <sbrivio@redhat.com>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.16 125/126] selftests: nft_concat_range: add test for reload with no element add/del
-Date:   Mon,  7 Feb 2022 12:07:36 +0100
-Message-Id: <20220207103808.361008101@linuxfoundation.org>
+Subject: [PATCH 5.16 126/126] selftests: netfilter: check stateless nat udp checksum fixup
+Date:   Mon,  7 Feb 2022 12:07:37 +0100
+Message-Id: <20220207103808.392194264@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
 References: <20220207103804.053675072@linuxfoundation.org>
@@ -56,119 +55,206 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Florian Westphal <fw@strlen.de>
 
-commit eda0cf1202acf1ef47f93d8f92d4839213431424 upstream.
+commit aad51ca71ad83273e8826d6cfdcf53c98748d1fa upstream.
 
-Add a specific test for the reload issue fixed with
-commit 23c54263efd7cb ("netfilter: nft_set_pipapo: allocate pcpu scratch maps on clone").
+Add a test that sends large udp packet (which is fragmented)
+via a stateless nft nat rule, i.e. 'ip saddr set 10.2.3.4'
+and check that the datagram is received by peer.
 
-Add to set, then flush set content + restore without other add/remove in
-the transaction.
+On kernels without
+commit 4e1860a38637 ("netfilter: nft_payload: do not update layer 4 checksum when mangling fragments")',
+this will fail with:
 
-On kernels before the fix, this test case fails:
-  net,mac with reload    [FAIL]
+cmp: EOF on /tmp/tmp.V1q0iXJyQF which is empty
+-rw------- 1 root root 4096 Jan 24 22:03 /tmp/tmp.Aaqnq4rBKS
+-rw------- 1 root root    0 Jan 24 22:03 /tmp/tmp.V1q0iXJyQF
+ERROR: in and output file mismatch when checking udp with stateless nat
+FAIL: nftables v1.0.0 (Fearless Fosdick #2)
+
+On patched kernels, this will show:
+PASS: IP statless for ns2-PFp89amx
 
 Signed-off-by: Florian Westphal <fw@strlen.de>
-Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/netfilter/nft_concat_range.sh |   72 +++++++++++++++++-
- 1 file changed, 71 insertions(+), 1 deletion(-)
+ tools/testing/selftests/netfilter/nft_nat.sh |  152 +++++++++++++++++++++++++++
+ 1 file changed, 152 insertions(+)
 
---- a/tools/testing/selftests/netfilter/nft_concat_range.sh
-+++ b/tools/testing/selftests/netfilter/nft_concat_range.sh
-@@ -27,7 +27,7 @@ TYPES="net_port port_net net6_port port_
-        net6_port_net6_port net_port_mac_proto_net"
- 
- # Reported bugs, also described by TYPE_ variables below
--BUGS="flush_remove_add"
-+BUGS="flush_remove_add reload"
- 
- # List of possible paths to pktgen script from kernel tree for performance tests
- PKTGEN_SCRIPT_PATHS="
-@@ -354,6 +354,23 @@ TYPE_flush_remove_add="
- display		Add two elements, flush, re-add
- "
- 
-+TYPE_reload="
-+display		net,mac with reload
-+type_spec	ipv4_addr . ether_addr
-+chain_spec	ip daddr . ether saddr
-+dst		addr4
-+src		mac
-+start		1
-+count		1
-+src_delta	2000
-+tools		sendip nc bash
-+proto		udp
-+
-+race_repeat	0
-+
-+perf_duration	0
-+"
-+
- # Set template for all tests, types and rules are filled in depending on test
- set_template='
- flush ruleset
-@@ -1473,6 +1490,59 @@ test_bug_flush_remove_add() {
- 	nft flush ruleset
+--- a/tools/testing/selftests/netfilter/nft_nat.sh
++++ b/tools/testing/selftests/netfilter/nft_nat.sh
+@@ -898,6 +898,144 @@ EOF
+ 	ip netns exec "$ns0" nft delete table $family nat
  }
  
-+# - add ranged element, check that packets match it
-+# - reload the set, check packets still match
-+test_bug_reload() {
-+	setup veth send_"${proto}" set || return ${KSELFTEST_SKIP}
-+	rstart=${start}
++test_stateless_nat_ip()
++{
++	local lret=0
 +
-+	range_size=1
-+	for i in $(seq "${start}" $((start + count))); do
-+		end=$((start + range_size))
++	ip netns exec "$ns0" sysctl net.ipv4.conf.veth0.forwarding=1 > /dev/null
++	ip netns exec "$ns0" sysctl net.ipv4.conf.veth1.forwarding=1 > /dev/null
 +
-+		# Avoid negative or zero-sized port ranges
-+		if [ $((end / 65534)) -gt $((start / 65534)) ]; then
-+			start=${end}
-+			end=$((end + 1))
++	ip netns exec "$ns2" ping -q -c 1 10.0.1.99 > /dev/null # ping ns2->ns1
++	if [ $? -ne 0 ] ; then
++		echo "ERROR: cannot ping $ns1 from $ns2 before loading stateless rules"
++		return 1
++	fi
++
++ip netns exec "$ns0" nft -f /dev/stdin <<EOF
++table ip stateless {
++	map xlate_in {
++		typeof meta iifname . ip saddr . ip daddr : ip daddr
++		elements = {
++			"veth1" . 10.0.2.99 . 10.0.1.99 : 10.0.2.2,
++		}
++	}
++	map xlate_out {
++		typeof meta iifname . ip saddr . ip daddr : ip daddr
++		elements = {
++			"veth0" . 10.0.1.99 . 10.0.2.2 : 10.0.2.99
++		}
++	}
++
++	chain prerouting {
++		type filter hook prerouting priority -400; policy accept;
++		ip saddr set meta iifname . ip saddr . ip daddr map @xlate_in
++		ip daddr set meta iifname . ip saddr . ip daddr map @xlate_out
++	}
++}
++EOF
++	if [ $? -ne 0 ]; then
++		echo "SKIP: Could not add ip statless rules"
++		return $ksft_skip
++	fi
++
++	reset_counters
++
++	ip netns exec "$ns2" ping -q -c 1 10.0.1.99 > /dev/null # ping ns2->ns1
++	if [ $? -ne 0 ] ; then
++		echo "ERROR: cannot ping $ns1 from $ns2 with stateless rules"
++		lret=1
++	fi
++
++	# ns1 should have seen packets from .2.2, due to stateless rewrite.
++	expect="packets 1 bytes 84"
++	cnt=$(ip netns exec "$ns1" nft list counter inet filter ns0insl | grep -q "$expect")
++	if [ $? -ne 0 ]; then
++		bad_counter "$ns1" ns0insl "$expect" "test_stateless 1"
++		lret=1
++	fi
++
++	for dir in "in" "out" ; do
++		cnt=$(ip netns exec "$ns2" nft list counter inet filter ns1${dir} | grep -q "$expect")
++		if [ $? -ne 0 ]; then
++			bad_counter "$ns2" ns1$dir "$expect" "test_stateless 2"
++			lret=1
 +		fi
-+		srcstart=$((start + src_delta))
-+		srcend=$((end + src_delta))
-+
-+		add "$(format)" || return 1
-+		range_size=$((range_size + 1))
-+		start=$((end + range_size))
 +	done
 +
-+	# check kernel does allocate pcpu sctrach map
-+	# for reload with no elemet add/delete
-+	( echo flush set inet filter test ;
-+	  nft list set inet filter test ) | nft -f -
-+
-+	start=${rstart}
-+	range_size=1
-+
-+	for i in $(seq "${start}" $((start + count))); do
-+		end=$((start + range_size))
-+
-+		# Avoid negative or zero-sized port ranges
-+		if [ $((end / 65534)) -gt $((start / 65534)) ]; then
-+			start=${end}
-+			end=$((end + 1))
++	# ns1 should not have seen packets from ns2, due to masquerade
++	expect="packets 0 bytes 0"
++	for dir in "in" "out" ; do
++		cnt=$(ip netns exec "$ns1" nft list counter inet filter ns2${dir} | grep -q "$expect")
++		if [ $? -ne 0 ]; then
++			bad_counter "$ns1" ns0$dir "$expect" "test_stateless 3"
++			lret=1
 +		fi
-+		srcstart=$((start + src_delta))
-+		srcend=$((end + src_delta))
 +
-+		for j in $(seq ${start} $((range_size / 2 + 1)) ${end}); do
-+			send_match "${j}" $((j + src_delta)) || return 1
-+		done
-+
-+		range_size=$((range_size + 1))
-+		start=$((end + range_size))
++		cnt=$(ip netns exec "$ns0" nft list counter inet filter ns1${dir} | grep -q "$expect")
++		if [ $? -ne 0 ]; then
++			bad_counter "$ns0" ns1$dir "$expect" "test_stateless 4"
++			lret=1
++		fi
 +	done
 +
-+	nft flush ruleset
++	reset_counters
++
++	socat -h > /dev/null 2>&1
++	if [ $? -ne 0 ];then
++		echo "SKIP: Could not run stateless nat frag test without socat tool"
++		if [ $lret -eq 0 ]; then
++			return $ksft_skip
++		fi
++
++		ip netns exec "$ns0" nft delete table ip stateless
++		return $lret
++	fi
++
++	local tmpfile=$(mktemp)
++	dd if=/dev/urandom of=$tmpfile bs=4096 count=1 2>/dev/null
++
++	local outfile=$(mktemp)
++	ip netns exec "$ns1" timeout 3 socat -u UDP4-RECV:4233 OPEN:$outfile < /dev/null &
++	sc_r=$!
++
++	sleep 1
++	# re-do with large ping -> ip fragmentation
++	ip netns exec "$ns2" timeout 3 socat - UDP4-SENDTO:"10.0.1.99:4233" < "$tmpfile" > /dev/null
++	if [ $? -ne 0 ] ; then
++		echo "ERROR: failed to test udp $ns1 to $ns2 with stateless ip nat" 1>&2
++		lret=1
++	fi
++
++	wait
++
++	cmp "$tmpfile" "$outfile"
++	if [ $? -ne 0 ]; then
++		ls -l "$tmpfile" "$outfile"
++		echo "ERROR: in and output file mismatch when checking udp with stateless nat" 1>&2
++		lret=1
++	fi
++
++	rm -f "$tmpfile" "$outfile"
++
++	# ns1 should have seen packets from 2.2, due to stateless rewrite.
++	expect="packets 3 bytes 4164"
++	cnt=$(ip netns exec "$ns1" nft list counter inet filter ns0insl | grep -q "$expect")
++	if [ $? -ne 0 ]; then
++		bad_counter "$ns1" ns0insl "$expect" "test_stateless 5"
++		lret=1
++	fi
++
++	ip netns exec "$ns0" nft delete table ip stateless
++	if [ $? -ne 0 ]; then
++		echo "ERROR: Could not delete table ip stateless" 1>&2
++		lret=1
++	fi
++
++	test $lret -eq 0 && echo "PASS: IP statless for $ns2"
++
++	return $lret
 +}
 +
- test_reported_issues() {
- 	eval test_bug_"${subtest}"
- }
+ # ip netns exec "$ns0" ping -c 1 -q 10.0.$i.99
+ for i in 0 1 2; do
+ ip netns exec ns$i-$sfx nft -f /dev/stdin <<EOF
+@@ -964,6 +1102,19 @@ table inet filter {
+ EOF
+ done
+ 
++# special case for stateless nat check, counter needs to
++# be done before (input) ip defragmentation
++ip netns exec ns1-$sfx nft -f /dev/stdin <<EOF
++table inet filter {
++	counter ns0insl {}
++
++	chain pre {
++		type filter hook prerouting priority -400; policy accept;
++		ip saddr 10.0.2.2 counter name "ns0insl"
++	}
++}
++EOF
++
+ sleep 3
+ # test basic connectivity
+ for i in 1 2; do
+@@ -1018,6 +1169,7 @@ $test_inet_nat && test_redirect inet
+ $test_inet_nat && test_redirect6 inet
+ 
+ test_port_shadowing
++test_stateless_nat_ip
+ 
+ if [ $ret -ne 0 ];then
+ 	echo -n "FAIL: "
 
 
