@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B2F44AC136
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 15:31:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE4E24AC12F
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 15:31:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240669AbiBGOXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1344858AbiBGOXM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 7 Feb 2022 09:23:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56012 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232268AbiBGOEr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 09:04:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44881C043181;
-        Mon,  7 Feb 2022 06:04:43 -0800 (PST)
+        with ESMTP id S233982AbiBGOEt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 09:04:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C453C043188;
+        Mon,  7 Feb 2022 06:04:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DCFB3B81369;
-        Mon,  7 Feb 2022 14:04:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BBCAC340EF;
-        Mon,  7 Feb 2022 14:04:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5E3A61331;
+        Mon,  7 Feb 2022 14:04:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 959FEC340F0;
+        Mon,  7 Feb 2022 14:04:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644242680;
-        bh=7Q9gyPNvG2b5EKb0/m4NzA0fFB9Mqcpkkeonwz4DyCM=;
+        s=korg; t=1644242687;
+        bh=5jlXl7erf1jcZZnZB73OBLBZ3LGueZR2xUssqo7Avs0=;
         h=From:To:Cc:Subject:Date:From;
-        b=Iijs29mJbWX646m9VY8yhHoTQz0eIfVDz3FTt9QBgVJRlBqLPaGfQbqdUTMN66ev4
-         3Q3v5Boce/Y3KZECPBPB0GSXT5wJ2rEkvhLYUiOwje5kupiIYZs9OeSt+Ncpn0r9HT
-         qtutYTqWITwrVlthqW1sRSYXCyPhXOP4aM7gslPE=
+        b=KaUwKMiHF5qJuIXVik1MaTJHCgO0Ra/Sr4NJ4kurixA8Mz+7pwAeo65FVIeMsGJ0l
+         cNBtVelH+zPDaf7GKKQRoqcMf1PNgJTr3i4IQ0A2pGZMDGptfx6EVtcJAfNxG+GwBB
+         VFCJQo3A/pjhF7bdD8kvbd/iCIBEPplUV/AYJU0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,19 +36,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com,
         sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.15 000/111] 5.15.22-rc2 review
-Date:   Mon,  7 Feb 2022 15:04:35 +0100
-Message-Id: <20220207133903.595766086@linuxfoundation.org>
+Subject: [PATCH 5.16 000/127] 5.16.8-rc2 review
+Date:   Mon,  7 Feb 2022 15:04:44 +0100
+Message-Id: <20220207133856.644483064@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.22-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.8-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.15.y
+X-KernelTest-Branch: linux-5.16.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.15.22-rc2
+X-KernelTest-Version: 5.16.8-rc2
 X-KernelTest-Deadline: 2022-02-09T13:39+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -62,18 +62,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.15.22 release.
-There are 111 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 5.16.8 release.
+There are 127 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
-Responses should be made by Wed, 09 Feb 2022 13:38:43 +0000.
+Responses should be made by Wed, 09 Feb 2022 13:38:34 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.22-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.8-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
 and the diffstat can be found below.
 
 thanks,
@@ -84,7 +84,7 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.15.22-rc2
+    Linux 5.16.8-rc2
 
 Florian Westphal <fw@strlen.de>
     selftests: netfilter: check stateless nat udp checksum fixup
@@ -146,6 +146,9 @@ Mark Rutland <mark.rutland@arm.com>
 Mark Rutland <mark.rutland@arm.com>
     kvm: add guest_state_{enter,exit}_irqoff()
 
+Sergei Trofimovich <slyich@gmail.com>
+    objtool: Fix truncated string warning
+
 Riwen Lu <luriwen@kylinos.cn>
     rtc: cmos: Evaluate century appropriate
 
@@ -173,6 +176,9 @@ Dai Ngo <dai.ngo@oracle.com>
 John Meneghini <jmeneghi@redhat.com>
     scsi: bnx2fc: Make bnx2fc_recv_frame() mp safe
 
+Tom Rix <trix@redhat.com>
+    btrfs: fix use of uninitialized variable at rm device ioctl
+
 Florian Fainelli <f.fainelli@gmail.com>
     pinctrl: bcm2835: Fix a few error paths
 
@@ -184,6 +190,9 @@ Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 Andre Przywara <andre.przywara@arm.com>
     pinctrl: sunxi: Fix H616 I2S3 pin data
+
+Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+    ASoC: qdsp6: q6apm-dai: only stop graphs that are started
 
 Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
     ASoC: codecs: wcd938x: fix return value of mixer put function
@@ -209,8 +218,14 @@ Robert Hancock <robert.hancock@calian.com>
 Miaoqian Lin <linmq006@gmail.com>
     ASoC: fsl: Add missing error handling in pcm030_fabric_probe
 
+Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+    ASoC: rt5682: Fix deadlock on resume
+
 Mario Limonciello <mario.limonciello@amd.com>
     drm/amd: avoid suspend on dGPUs w/ s2idle support when runtime PM enabled
+
+Matthew Brost <matthew.brost@intel.com>
+    drm/i915: Lock timeline mutex directly in error path of eb_pin_timeline
 
 Dan Carpenter <dan.carpenter@oracle.com>
     drm/i915/overlay: Prevent divide by zero bugs in scaling
@@ -218,8 +233,14 @@ Dan Carpenter <dan.carpenter@oracle.com>
 Anitha Chrisanthus <anitha.chrisanthus@intel.com>
     drm/kmb: Fix for build errors with Warray-bounds
 
+Alexander Stein <alexander.stein@ew.tq-group.com>
+    drm: mxsfb: Fix NULL pointer dereference
+
 Yannick Vignon <yannick.vignon@nxp.com>
     net: stmmac: ensure PTP time register reads are consistent
+
+Daniel Borkmann <daniel@iogearbox.net>
+    net, neigh: Do not trigger immediate probes on NUD_FAILED from neigh_managed_work
 
 Camel Guo <camelg@axis.com>
     net: stmmac: dump gmac4 DMA registers correctly
@@ -305,11 +326,17 @@ Leon Romanovsky <leon@kernel.org>
 Maor Gottlieb <maorg@nvidia.com>
     RDMA/cma: Use correct address when leaving multicast group
 
+Anshuman Khandual <anshuman.khandual@arm.com>
+    arm64: Add Cortex-A510 CPU part definition
+
 James Morse <james.morse@arm.com>
     KVM: arm64: Stop handle_exit() from handling HVC twice when an SError occurs
 
 James Morse <james.morse@arm.com>
     KVM: arm64: Avoid consuming a stale esr value when SError occur
+
+Mayuresh Chitale <mchitale@ventanamicro.com>
+    RISC-V: KVM: make CY, TM, and IR counters accessible in VU mode
 
 Guenter Roeck <linux@roeck-us.net>
     Revert "ASoC: mediatek: Check for error clk pointer"
@@ -323,11 +350,23 @@ Helge Deller <deller@gmx.de>
 Helge Deller <deller@gmx.de>
     Revert "fbcon: Disable accelerated scrolling"
 
+Helge Deller <deller@gmx.de>
+    Revert "fbdev: Garbage collect fbdev scrolling acceleration, part 1 (from TODO list)"
+
 Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
     IB/hfi1: Fix AIP early init panic
 
+Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+    IB/hfi1: Fix alloc failure with larger txqueuelen
+
+Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+    IB/hfi1: Fix panic with larger ipoib send_queue_size
+
 Jordy Zomer <jordy@pwning.systems>
     dma-buf: heaps: Fix potential spectre v1 gadget
+
+Ryan Bair <ryandbair@gmail.com>
+    cifs: fix workstation_name for multiuser mounts
 
 Martin K. Petersen <martin.petersen@oracle.com>
     block: bio-integrity: Advance seed correctly for larger interval sizes
@@ -350,8 +389,14 @@ Aun-Ali Zaidi <admin@kodeit.net>
 Paul Hsieh <paul.hsieh@amd.com>
     drm/amd/display: watermark latencies is not enough on DCN31
 
+Agustin Gutierrez <agustin.gutierrez@amd.com>
+    drm/amd/display: Update watermark values for DCN301
+
 Evan Quan <evan.quan@amd.com>
     drm/amd/pm: correct the MGpuFanBoost support for Beige Goby
+
+Lang Yu <Lang.Yu@amd.com>
+    drm/amdgpu: fix a potential GPU hang on cyan skillfish
 
 Imre Deak <imre.deak@intel.com>
     drm/i915/adlp: Fix TypeC PHY-ready status readout
@@ -370,6 +415,9 @@ Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
 Qu Wenruo <wqu@suse.com>
     btrfs: don't start transaction for scrub if the fs is mounted read-only
+
+Anton Lundin <glance@acc.umu.se>
+    ata: libata-core: Introduce ATA_HORKAGE_NO_LOG_DIR horkage
 
 Christian Lachner <gladiac@gmail.com>
     ALSA: hda/realtek: Fix silent output on Gigabyte X570 Aorus Xtreme after reboot from Windows
@@ -424,123 +472,146 @@ Ville Syrjälä <ville.syrjala@linux.intel.com>
 
 Diffstat:
 
- Documentation/gpu/todo.rst                         |  21 ---
+ Documentation/gpu/todo.rst                         |  24 -
  Makefile                                           |   4 +-
- arch/arm64/kvm/arm.c                               |  51 ++++---
- arch/arm64/kvm/handle_exit.c                       |   8 ++
+ arch/arm64/include/asm/cputype.h                   |   2 +
+ arch/arm64/kvm/arm.c                               |  51 +-
+ arch/arm64/kvm/handle_exit.c                       |   8 +
  arch/arm64/kvm/hyp/include/hyp/switch.h            |   3 +-
- arch/x86/events/intel/core.c                       |  13 ++
+ arch/riscv/kvm/vcpu.c                              |   4 +
+ arch/x86/events/intel/core.c                       |  13 +
  arch/x86/events/intel/pt.c                         |   5 +-
  block/bio-integrity.c                              |   2 +-
+ drivers/ata/libata-core.c                          |  10 +
  drivers/dma-buf/dma-heap.c                         |   2 +
  drivers/edac/altera_edac.c                         |   2 +-
  drivers/edac/xgene_edac.c                          |   2 +-
  drivers/gpio/gpio-idt3243x.c                       |   2 +-
  drivers/gpio/gpio-mpc8xxx.c                        |   2 +-
  drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c            |   3 +-
- .../amd/display/dc/clk_mgr/dcn31/dcn31_clk_mgr.c   |  20 +--
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c   |  20 +++
+ drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c             |   3 +
+ .../drm/amd/display/dc/clk_mgr/dcn301/vg_clk_mgr.c |  16 +-
+ .../amd/display/dc/clk_mgr/dcn31/dcn31_clk_mgr.c   |  20 +-
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c   |  20 +
  .../drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c    |   6 +-
  drivers/gpu/drm/i915/display/intel_overlay.c       |   3 +
  drivers/gpu/drm/i915/display/intel_tc.c            |   3 +-
+ drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c     |   9 +-
  drivers/gpu/drm/i915/i915_pci.c                    |   2 +-
  drivers/gpu/drm/kmb/kmb_plane.c                    |   6 -
+ drivers/gpu/drm/mxsfb/mxsfb_kms.c                  |   6 +-
  drivers/gpu/drm/nouveau/nvkm/subdev/bios/base.c    |   2 +-
  drivers/infiniband/core/cm.c                       |   2 +-
- drivers/infiniband/core/cma.c                      |  22 +--
- drivers/infiniband/core/ucma.c                     |  34 +++--
- drivers/infiniband/hw/hfi1/ipoib_main.c            |  27 ++--
+ drivers/infiniband/core/cma.c                      |  22 +-
+ drivers/infiniband/core/ucma.c                     |  34 +-
+ drivers/infiniband/hw/hfi1/ipoib.h                 |   2 +-
+ drivers/infiniband/hw/hfi1/ipoib_main.c            |  27 +-
+ drivers/infiniband/hw/hfi1/ipoib_tx.c              |  38 +-
  drivers/infiniband/hw/mlx4/main.c                  |   2 +-
  drivers/infiniband/sw/rdmavt/qp.c                  |   2 +
  drivers/infiniband/sw/siw/siw.h                    |   7 +-
- drivers/infiniband/sw/siw/siw_qp_rx.c              |  20 +--
+ drivers/infiniband/sw/siw/siw_qp_rx.c              |  20 +-
  drivers/infiniband/sw/siw/siw_verbs.c              |   3 +-
  drivers/iommu/amd/init.c                           |   2 +
  drivers/iommu/intel/irq_remapping.c                |  13 +-
  drivers/net/dsa/Kconfig                            |   1 +
  drivers/net/ethernet/google/gve/gve_adminq.c       |   2 +-
  drivers/net/ethernet/intel/e1000e/e1000.h          |   4 +-
- drivers/net/ethernet/intel/e1000e/ich8lan.c        |  20 +++
- drivers/net/ethernet/intel/e1000e/netdev.c         |  33 ++---
+ drivers/net/ethernet/intel/e1000e/ich8lan.c        |  20 +
+ drivers/net/ethernet/intel/e1000e/netdev.c         |  33 +-
  .../net/ethernet/stmicro/stmmac/dwmac-visconti.c   |   9 +-
  drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h    |   1 +
- .../net/ethernet/stmicro/stmmac/stmmac_ethtool.c   |  19 ++-
- .../net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c  |  19 ++-
+ .../net/ethernet/stmicro/stmmac/stmmac_ethtool.c   |  19 +-
+ .../net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c  |  19 +-
  drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |   6 +-
  drivers/net/ieee802154/ca8210.c                    |   1 +
  drivers/net/ieee802154/mac802154_hwsim.c           |   1 +
  drivers/net/ieee802154/mcr20a.c                    |   4 +-
- drivers/net/macsec.c                               |  33 +++--
+ drivers/net/macsec.c                               |  33 +-
  drivers/nvme/host/fabrics.h                        |   1 +
- drivers/pinctrl/bcm/pinctrl-bcm2835.c              |  23 ++--
- drivers/pinctrl/intel/pinctrl-intel.c              |  64 +++++----
+ drivers/pinctrl/bcm/pinctrl-bcm2835.c              |  23 +-
+ drivers/pinctrl/intel/pinctrl-intel.c              |  64 +--
  drivers/pinctrl/sunxi/pinctrl-sun50i-h616.c        |   8 +-
  drivers/rtc/rtc-mc146818-lib.c                     |   2 +-
- drivers/scsi/bnx2fc/bnx2fc_fcoe.c                  |  21 +--
+ drivers/scsi/bnx2fc/bnx2fc_fcoe.c                  |  21 +-
  drivers/soc/mediatek/mtk-scpsys.c                  |  15 +-
  drivers/spi/spi-bcm-qspi.c                         |   2 +-
  drivers/spi/spi-meson-spicc.c                      |   5 +
  drivers/spi/spi-mt65xx.c                           |   2 +-
- drivers/spi/spi-stm32-qspi.c                       |  47 +++----
- drivers/spi/spi-uniphier.c                         |  18 ++-
- drivers/video/console/Kconfig                      |  20 +++
- drivers/video/fbdev/core/fbcon.c                   |  68 +++++++--
- drivers/video/fbdev/core/fbcon.h                   |  15 +-
- drivers/video/fbdev/core/fbcon_ccw.c               |  10 +-
- drivers/video/fbdev/core/fbcon_cw.c                |  10 +-
- drivers/video/fbdev/core/fbcon_rotate.h            |   4 +-
- drivers/video/fbdev/core/fbcon_ud.c                |  20 +--
+ drivers/spi/spi-stm32-qspi.c                       |  47 +-
+ drivers/spi/spi-uniphier.c                         |  18 +-
+ drivers/video/console/Kconfig                      |  20 +
+ drivers/video/fbdev/core/bitblit.c                 |  16 +
+ drivers/video/fbdev/core/fbcon.c                   | 557 ++++++++++++++++++++-
+ drivers/video/fbdev/core/fbcon.h                   |  72 +++
+ drivers/video/fbdev/core/fbcon_ccw.c               |  28 +-
+ drivers/video/fbdev/core/fbcon_cw.c                |  28 +-
+ drivers/video/fbdev/core/fbcon_rotate.h            |   9 +
+ drivers/video/fbdev/core/fbcon_ud.c                |  37 +-
+ drivers/video/fbdev/core/tileblit.c                |  16 +
+ drivers/video/fbdev/skeletonfb.c                   |  12 +-
  fs/9p/fid.c                                        |   9 +-
- fs/btrfs/block-group.c                             |  13 ++
- fs/btrfs/ioctl.c                                   |   5 +-
- fs/btrfs/qgroup.c                                  |  21 ++-
- fs/btrfs/transaction.c                             |  24 ++++
+ fs/btrfs/block-group.c                             |  13 +
+ fs/btrfs/ioctl.c                                   |   7 +-
+ fs/btrfs/qgroup.c                                  |  21 +-
+ fs/btrfs/transaction.c                             |  24 +
  fs/btrfs/transaction.h                             |   2 +
+ fs/cifs/connect.c                                  |  13 +
+ fs/cifs/sess.c                                     |   6 +-
  fs/ext4/ext4.h                                     |   3 +
  fs/ext4/extents.c                                  |   4 +
- fs/ext4/fast_commit.c                              |  89 ++++++------
+ fs/ext4/fast_commit.c                              |  89 ++--
  fs/ext4/inline.c                                   |  10 +-
- fs/ext4/mballoc.c                                  |  26 ++--
+ fs/ext4/mballoc.c                                  |  26 +-
  fs/nfsd/nfs4state.c                                |   4 +-
- include/linux/kvm_host.h                           | 112 ++++++++++++++-
+ include/linux/fb.h                                 |   2 +-
+ include/linux/kvm_host.h                           | 112 ++++-
+ include/linux/libata.h                             |   1 +
  include/linux/pgtable.h                            |   1 +
+ include/net/neighbour.h                            |  18 +-
  include/uapi/sound/asound.h                        |   4 +-
  ipc/sem.c                                          |   4 +-
- kernel/audit.c                                     |  62 ++++++---
+ kernel/audit.c                                     |  62 ++-
  kernel/bpf/ringbuf.c                               |   2 +-
- kernel/cgroup/cpuset.c                             |  10 ++
- kernel/events/core.c                               |  16 +++
+ kernel/cgroup/cpuset.c                             |  10 +
+ kernel/events/core.c                               |  16 +
  mm/debug_vm_pgtable.c                              |   2 +
  mm/kmemleak.c                                      |  13 +-
  net/bridge/netfilter/nft_reject_bridge.c           |   8 +-
+ net/core/neighbour.c                               |  18 +-
  net/ieee802154/nl802154.c                          |   8 +-
- net/mptcp/pm_netlink.c                             |  34 +++--
- net/smc/af_smc.c                                   | 133 ++++++++++++++++--
- net/smc/smc.h                                      |  20 ++-
+ net/mptcp/pm_netlink.c                             |  34 +-
+ net/smc/af_smc.c                                   | 133 ++++-
+ net/smc/smc.h                                      |  20 +-
  security/selinux/ss/conditional.c                  |   3 +-
  sound/pci/hda/hda_auto_parser.c                    |   2 +-
  sound/pci/hda/hda_codec.c                          |   4 +
- sound/pci/hda/hda_generic.c                        |  17 ++-
+ sound/pci/hda/hda_generic.c                        |  17 +-
  sound/pci/hda/hda_generic.h                        |   3 +
- sound/pci/hda/patch_realtek.c                      |  67 +++++++--
+ sound/pci/hda/patch_realtek.c                      |  67 ++-
  sound/soc/codecs/cpcap.c                           |   2 +
  sound/soc/codecs/hdmi-codec.c                      |   2 +-
  sound/soc/codecs/lpass-rx-macro.c                  |   8 +-
  sound/soc/codecs/max9759.c                         |   3 +-
- sound/soc/codecs/wcd938x.c                         |  31 +++--
+ sound/soc/codecs/rt5682-i2c.c                      |  15 +-
+ sound/soc/codecs/rt5682.c                          |  24 +-
+ sound/soc/codecs/rt5682.h                          |   2 -
+ sound/soc/codecs/wcd938x.c                         |  31 +-
  sound/soc/fsl/pcm030-audio-fabric.c                |  11 +-
- sound/soc/generic/simple-card.c                    |  26 +++-
- sound/soc/soc-ops.c                                |  29 +++-
- sound/soc/xilinx/xlnx_formatter_pcm.c              |  27 +++-
+ sound/soc/generic/simple-card.c                    |  26 +-
+ sound/soc/qcom/qdsp6/q6apm-dai.c                   |   7 +-
+ sound/soc/soc-ops.c                                |  29 +-
+ sound/soc/xilinx/xlnx_formatter_pcm.c              |  27 +-
  sound/usb/mixer.c                                  |   4 +
  sound/usb/quirks-table.h                           |   2 +-
  tools/bpf/resolve_btfids/Makefile                  |   6 +-
  tools/include/uapi/sound/asound.h                  |   4 +-
- tools/perf/util/stat-display.c                     |  19 +--
+ tools/objtool/check.c                              |   2 +-
+ tools/perf/util/stat-display.c                     |  19 +-
  tools/testing/selftests/exec/Makefile              |   2 +-
  tools/testing/selftests/futex/Makefile             |   4 +-
- .../selftests/netfilter/nft_concat_range.sh        |  72 +++++++++-
- tools/testing/selftests/netfilter/nft_nat.sh       | 152 +++++++++++++++++++++
- 117 files changed, 1470 insertions(+), 493 deletions(-)
+ .../selftests/netfilter/nft_concat_range.sh        |  72 ++-
+ tools/testing/selftests/netfilter/nft_nat.sh       | 152 ++++++
+ 140 files changed, 2239 insertions(+), 575 deletions(-)
 
 
