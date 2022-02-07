@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2629E4ABC3E
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:46:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B87D4ABAA1
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385085AbiBGLbG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:31:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36646 "EHLO
+        id S1383971AbiBGLYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244593AbiBGLZJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:25:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FF5BC0401C6;
-        Mon,  7 Feb 2022 03:25:08 -0800 (PST)
+        with ESMTP id S1355265AbiBGLIN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:08:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A4B7C043188;
+        Mon,  7 Feb 2022 03:08:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37984B81028;
-        Mon,  7 Feb 2022 11:25:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E358C340F6;
-        Mon,  7 Feb 2022 11:25:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06C6C61261;
+        Mon,  7 Feb 2022 11:08:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7A50C004E1;
+        Mon,  7 Feb 2022 11:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233106;
-        bh=5IsXqdmiyDuHjCKLVr33FdSRI3q+QbGeX0U1P/98KaI=;
+        s=korg; t=1644232092;
+        bh=0Cq6hiZ7YsNrUK6HHr6pAyM3KJv2Ya2Cm6SehmCrLPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PntqZ7XK5f0k6/DhgvlMJ4Ih4tj3pVR4qg2+4hmXpi7jRNVSzoz3PYH3UCwgcJrus
-         xhRlp9v2z3T2eWz5YW6ivFRD6oR4tvliRPzyy6VHkSU/Xf+B/C21cHIZtWiB91tOyZ
-         +MnB+nicccytgYn5lvWJclYiSGwmiE00LGNrnG5I=
+        b=cSJUysm18/oyoMMtpvlOv+ZYT07FBhVEMW9kPaOKFCFDFUa7oLA+qDOLoIPr8CJ3+
+         97NchBGB+xBtxugzLFoO2qhGu2ZG+avma3pfAasaRymakp28+CYMb0KnoZYILcC8ko
+         8gYPG9Lvo/ueHqmlT2JroxRKzxeF4ouzCClrIgOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.15 006/110] ASoC: hdmi-codec: Fix OOB memory accesses
+        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.9 06/48] udf: Fix NULL ptr deref when converting from inline format
 Date:   Mon,  7 Feb 2022 12:05:39 +0100
-Message-Id: <20220207103802.499218364@linuxfoundation.org>
+Message-Id: <20220207103752.548604476@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
+References: <20220207103752.341184175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 06feec6005c9d9500cd286ec440aabf8b2ddd94d upstream.
+commit 7fc3b7c2981bbd1047916ade327beccb90994eee upstream.
 
-Correct size of iec_status array by changing it to the size of status
-array of the struct snd_aes_iec958. This fixes out-of-bounds slab
-read accesses made by memcpy() of the hdmi-codec driver. This problem
-is reported by KASAN.
+udf_expand_file_adinicb() calls directly ->writepage to write data
+expanded into a page. This however misses to setup inode for writeback
+properly and so we can crash on inode->i_wb dereference when submitting
+page for IO like:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20220112195039.1329-1-digetx@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  BUG: kernel NULL pointer dereference, address: 0000000000000158
+  #PF: supervisor read access in kernel mode
+...
+  <TASK>
+  __folio_start_writeback+0x2ac/0x350
+  __block_write_full_page+0x37d/0x490
+  udf_expand_file_adinicb+0x255/0x400 [udf]
+  udf_file_write_iter+0xbe/0x1b0 [udf]
+  new_sync_write+0x125/0x1c0
+  vfs_write+0x28e/0x400
+
+Fix the problem by marking the page dirty and going through the standard
+writeback path to write the page. Strictly speaking we would not even
+have to write the page but we want to catch e.g. ENOSPC errors early.
+
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+CC: stable@vger.kernel.org
+Fixes: 52ebea749aae ("writeback: make backing_dev_info host cgroup-specific bdi_writebacks")
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/sound/asound.h   |    4 +++-
- sound/soc/codecs/hdmi-codec.c |    2 +-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ fs/udf/inode.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/include/uapi/sound/asound.h
-+++ b/include/uapi/sound/asound.h
-@@ -56,8 +56,10 @@
-  *                                                                          *
-  ****************************************************************************/
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -259,10 +259,6 @@ int udf_expand_file_adinicb(struct inode
+ 	char *kaddr;
+ 	struct udf_inode_info *iinfo = UDF_I(inode);
+ 	int err;
+-	struct writeback_control udf_wbc = {
+-		.sync_mode = WB_SYNC_NONE,
+-		.nr_to_write = 1,
+-	};
  
-+#define AES_IEC958_STATUS_SIZE		24
-+
- struct snd_aes_iec958 {
--	unsigned char status[24];	/* AES/IEC958 channel status bits */
-+	unsigned char status[AES_IEC958_STATUS_SIZE]; /* AES/IEC958 channel status bits */
- 	unsigned char subcode[147];	/* AES/IEC958 subcode bits */
- 	unsigned char pad;		/* nothing */
- 	unsigned char dig_subframe[4];	/* AES/IEC958 subframe bits */
---- a/sound/soc/codecs/hdmi-codec.c
-+++ b/sound/soc/codecs/hdmi-codec.c
-@@ -277,7 +277,7 @@ struct hdmi_codec_priv {
- 	bool busy;
- 	struct snd_soc_jack *jack;
- 	unsigned int jack_status;
--	u8 iec_status[5];
-+	u8 iec_status[AES_IEC958_STATUS_SIZE];
- };
- 
- static const struct snd_soc_dapm_widget hdmi_widgets[] = {
+ 	WARN_ON_ONCE(!inode_is_locked(inode));
+ 	if (!iinfo->i_lenAlloc) {
+@@ -306,8 +302,10 @@ int udf_expand_file_adinicb(struct inode
+ 		iinfo->i_alloc_type = ICBTAG_FLAG_AD_LONG;
+ 	/* from now on we have normal address_space methods */
+ 	inode->i_data.a_ops = &udf_aops;
++	set_page_dirty(page);
++	unlock_page(page);
+ 	up_write(&iinfo->i_data_sem);
+-	err = inode->i_data.a_ops->writepage(page, &udf_wbc);
++	err = filemap_fdatawrite(inode->i_mapping);
+ 	if (err) {
+ 		/* Restore everything back so that we don't lose data... */
+ 		lock_page(page);
 
 
