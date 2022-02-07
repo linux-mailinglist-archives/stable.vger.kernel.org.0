@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1BD94ABCB3
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8C684ABAE2
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:31:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387046AbiBGLiu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:38:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45042 "EHLO
+        id S1384124AbiBGLYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385490AbiBGLbz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:55 -0500
+        with ESMTP id S237982AbiBGLKL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:10:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55260C03E952;
-        Mon,  7 Feb 2022 03:30:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14D92C043181;
+        Mon,  7 Feb 2022 03:10:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9F346077B;
-        Mon,  7 Feb 2022 11:30:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFE2DC004E1;
-        Mon,  7 Feb 2022 11:30:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DEA761380;
+        Mon,  7 Feb 2022 11:10:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B4E6C004E1;
+        Mon,  7 Feb 2022 11:10:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233433;
-        bh=5OlD3dhXOCojKO3N7H+U3aupk719bOzjvga7rhxB4wA=;
+        s=korg; t=1644232207;
+        bh=ZeDUeqjVFY5hR5gcDoPLSCYZkaeoS06bacBxe8SFSYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQlkwCeQH2nm+ActBsIL3oOEctHfOKCEpl504jYoNdbarnRLpTWZxBdPHJnsVzJbg
-         Bn8zQWCzoTXvsJy/DbgKvojJvFvxybGsW86rexdbHrEnh+Khdw/ItsIKF42DCF4Dcs
-         eUimsYSBk51YU72ZgbkX/2hNMUUs/MU9aPS5e58g=
+        b=GnBd8wn/P3XDO6N86wnGOyLlN6MDxaskKpXvDza+9OrsH+DQnGXic9jGI7g3VcAKF
+         sTK9gYwqloH5ae+OMN5qWVy9rpcghRZ9vCO3GraAhHsbek27k3JUFEFa0wYqBSoyZv
+         Frmq1Rj2xtzw1u+ztGbnVbnemFGQnyB5DTDToFV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Sergeyev <sergeev917@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.16 011/126] ALSA: hda: Fix UAF of leds class devs at unbinding
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 4.9 09/48] tty: n_gsm: fix SW flow control encoding/handling
 Date:   Mon,  7 Feb 2022 12:05:42 +0100
-Message-Id: <20220207103804.452290450@linuxfoundation.org>
+Message-Id: <20220207103752.643784889@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
+References: <20220207103752.341184175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,86 +52,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: daniel.starke@siemens.com <daniel.starke@siemens.com>
 
-commit 549f8ffc7b2f7561bea7f90930b6c5104318e87b upstream.
+commit 8838b2af23caf1ff0610caef2795d6668a013b2d upstream.
 
-The LED class devices that are created by HD-audio codec drivers are
-registered via devm_led_classdev_register() and associated with the
-HD-audio codec device.  Unfortunately, it turned out that the devres
-release doesn't work for this case; namely, since the codec resource
-release happens before the devm call chain, it triggers a NULL
-dereference or a UAF for a stale set_brightness_delay callback.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.2.7.3 states that DC1 (XON) and DC3 (XOFF)
+are the control characters defined in ISO/IEC 646. These shall be quoted if
+seen in the data stream to avoid interpretation as flow control characters.
 
-For fixing the bug, this patch changes the LED class device register
-and unregister in a manual manner without devres, keeping the
-instances in hda_gen_spec.
+ISO/IEC 646 refers to the set of ISO standards described as the ISO
+7-bit coded character set for information interchange. Its final version
+is also known as ITU T.50.
+See https://www.itu.int/rec/T-REC-T.50-199209-I/en
 
-Reported-by: Alexander Sergeyev <sergeev917@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220111195229.a77wrpjclqwrx4bx@localhost.localdomain
-Link: https://lore.kernel.org/r/20220126145011.16728-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+To abide the standard it is needed to quote DC1 and DC3 correctly if these
+are seen as data bytes and not as control characters. The current
+implementation already tries to enforce this but fails to catch all
+defined cases. 3GPP 27.010 chapter 5.2.7.3 clearly states that the most
+significant bit shall be ignored for DC1 and DC3 handling. The current
+implementation handles only the case with the most significant bit set 0.
+Cases in which DC1 and DC3 have the most significant bit set 1 are left
+unhandled.
+
+This patch fixes this by masking the data bytes with ISO_IEC_646_MASK (only
+the 7 least significant bits set 1) before comparing them with XON
+(a.k.a. DC1) and XOFF (a.k.a. DC3) when testing which byte values need
+quotation via byte stuffing.
+
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220120101857.2509-1-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_generic.c |   17 +++++++++++++++--
- sound/pci/hda/hda_generic.h |    3 +++
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ drivers/tty/n_gsm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_generic.c
-+++ b/sound/pci/hda/hda_generic.c
-@@ -91,6 +91,12 @@ static void snd_hda_gen_spec_free(struct
- 	free_kctls(spec);
- 	snd_array_free(&spec->paths);
- 	snd_array_free(&spec->loopback_list);
-+#ifdef CONFIG_SND_HDA_GENERIC_LEDS
-+	if (spec->led_cdevs[LED_AUDIO_MUTE])
-+		led_classdev_unregister(spec->led_cdevs[LED_AUDIO_MUTE]);
-+	if (spec->led_cdevs[LED_AUDIO_MICMUTE])
-+		led_classdev_unregister(spec->led_cdevs[LED_AUDIO_MICMUTE]);
-+#endif
- }
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -329,6 +329,7 @@ static struct tty_driver *gsm_tty_driver
+ #define GSM1_ESCAPE_BITS	0x20
+ #define XON			0x11
+ #define XOFF			0x13
++#define ISO_IEC_646_MASK	0x7F
  
- /*
-@@ -3922,7 +3928,10 @@ static int create_mute_led_cdev(struct h
- 						enum led_brightness),
- 				bool micmute)
- {
-+	struct hda_gen_spec *spec = codec->spec;
- 	struct led_classdev *cdev;
-+	int idx = micmute ? LED_AUDIO_MICMUTE : LED_AUDIO_MUTE;
-+	int err;
+ static const struct tty_port_operations gsm_port_ops;
  
- 	cdev = devm_kzalloc(&codec->core.dev, sizeof(*cdev), GFP_KERNEL);
- 	if (!cdev)
-@@ -3932,10 +3941,14 @@ static int create_mute_led_cdev(struct h
- 	cdev->max_brightness = 1;
- 	cdev->default_trigger = micmute ? "audio-micmute" : "audio-mute";
- 	cdev->brightness_set_blocking = callback;
--	cdev->brightness = ledtrig_audio_get(micmute ? LED_AUDIO_MICMUTE : LED_AUDIO_MUTE);
-+	cdev->brightness = ledtrig_audio_get(idx);
- 	cdev->flags = LED_CORE_SUSPENDRESUME;
- 
--	return devm_led_classdev_register(&codec->core.dev, cdev);
-+	err = led_classdev_register(&codec->core.dev, cdev);
-+	if (err < 0)
-+		return err;
-+	spec->led_cdevs[idx] = cdev;
-+	return 0;
- }
- 
- /**
---- a/sound/pci/hda/hda_generic.h
-+++ b/sound/pci/hda/hda_generic.h
-@@ -294,6 +294,9 @@ struct hda_gen_spec {
- 				   struct hda_jack_callback *cb);
- 	void (*mic_autoswitch_hook)(struct hda_codec *codec,
- 				    struct hda_jack_callback *cb);
-+
-+	/* leds */
-+	struct led_classdev *led_cdevs[NUM_AUDIO_LEDS];
- };
- 
- /* values for add_stereo_mix_input flag */
+@@ -547,7 +548,8 @@ static int gsm_stuff_frame(const u8 *inp
+ 	int olen = 0;
+ 	while (len--) {
+ 		if (*input == GSM1_SOF || *input == GSM1_ESCAPE
+-		    || *input == XON || *input == XOFF) {
++		    || (*input & ISO_IEC_646_MASK) == XON
++		    || (*input & ISO_IEC_646_MASK) == XOFF) {
+ 			*output++ = GSM1_ESCAPE;
+ 			*output++ = *input++ ^ GSM1_ESCAPE_BITS;
+ 			olen++;
 
 
