@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F4104ABD9B
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03DF44ABC28
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388812AbiBGLp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:45:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44406 "EHLO
+        id S1384934AbiBGLau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:30:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385470AbiBGLby (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93729C03E944;
-        Mon,  7 Feb 2022 03:30:26 -0800 (PST)
+        with ESMTP id S1384048AbiBGLYe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:24:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DCAC043181;
+        Mon,  7 Feb 2022 03:24:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 475E0B811BE;
-        Mon,  7 Feb 2022 11:30:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50C22C004E1;
-        Mon,  7 Feb 2022 11:30:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4719A6149B;
+        Mon,  7 Feb 2022 11:24:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5591CC004E1;
+        Mon,  7 Feb 2022 11:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233424;
-        bh=dDv+O0Tzmkl7n2hL6tah/Kh7Z2X5dd7k5qI4BVpOqWQ=;
+        s=korg; t=1644233072;
+        bh=rG2zIR8em5dhqg9au0dA4l5hkYO7yd8NVH3Wp/6VZIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NzR4wutdE+XwIjzcLIwdTFghUFpoyYBENoFRRMl2reMmNDnhEQhzh0YctLMDNHNHz
-         T5Tt7KaHmq9TAuqITNyy9tzmGVnyzNt3RI3n3Q9W9h8w12sjSPCTbiexbSBrk1rQok
-         cnhAui0z7iOq4X/1iN+i/7YjGBCjM/S7ULd8zMjg=
+        b=1/f/038yMWN1n7bEb+jPr/xD4IqKXoCH7wxEVdrC4XZqmA72g5JsDAFZzov502E2I
+         1nRJAWvAQJ7bPxr4/R1S11x+RQLZiXoNsIdB+xaDTF12WNIHjzXaHLzyiNt3m02QuV
+         elxgskJZMS6SCOMlPm9s6irRKu2iJmtsWa3EljV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangwu Zhang <guazhang@redhat.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        John Meneghini <jmeneghi@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 083/110] scsi: bnx2fc: Make bnx2fc_recv_frame() mp safe
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.10 58/74] tools/resolve_btfids: Do not print any commands when building silently
 Date:   Mon,  7 Feb 2022 12:06:56 +0100
-Message-Id: <20220207103805.208752206@linuxfoundation.org>
+Message-Id: <20220207103759.126287541@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,92 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Meneghini <jmeneghi@redhat.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 936bd03405fc83ba039d42bc93ffd4b88418f1d3 upstream.
+commit 7f3bdbc3f13146eb9d07de81ea71f551587a384b upstream.
 
-Running tests with a debug kernel shows that bnx2fc_recv_frame() is
-modifying the per_cpu lport stats counters in a non-mpsafe way.  Just boot
-a debug kernel and run the bnx2fc driver with the hardware enabled.
+When building with 'make -s', there is some output from resolve_btfids:
 
-[ 1391.699147] BUG: using smp_processor_id() in preemptible [00000000] code: bnx2fc_
-[ 1391.699160] caller is bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
-[ 1391.699174] CPU: 2 PID: 4355 Comm: bnx2fc_l2_threa Kdump: loaded Tainted: G    B
-[ 1391.699180] Hardware name: HP ProLiant DL120 G7, BIOS J01 07/01/2013
-[ 1391.699183] Call Trace:
-[ 1391.699188]  dump_stack_lvl+0x57/0x7d
-[ 1391.699198]  check_preemption_disabled+0xc8/0xd0
-[ 1391.699205]  bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
-[ 1391.699215]  ? do_raw_spin_trylock+0xb5/0x180
-[ 1391.699221]  ? bnx2fc_npiv_create_vports.isra.0+0x4e0/0x4e0 [bnx2fc]
-[ 1391.699229]  ? bnx2fc_l2_rcv_thread+0xb7/0x3a0 [bnx2fc]
-[ 1391.699240]  bnx2fc_l2_rcv_thread+0x1af/0x3a0 [bnx2fc]
-[ 1391.699250]  ? bnx2fc_ulp_init+0xc0/0xc0 [bnx2fc]
-[ 1391.699258]  kthread+0x364/0x420
-[ 1391.699263]  ? _raw_spin_unlock_irq+0x24/0x50
-[ 1391.699268]  ? set_kthread_struct+0x100/0x100
-[ 1391.699273]  ret_from_fork+0x22/0x30
+$ make -sj"$(nproc)" oldconfig prepare
+  MKDIR     .../tools/bpf/resolve_btfids/libbpf/
+  MKDIR     .../tools/bpf/resolve_btfids//libsubcmd
+  LINK     resolve_btfids
 
-Restore the old get_cpu/put_cpu code with some modifications to reduce the
-size of the critical section.
+Silent mode means that no information should be emitted about what is
+currently being done. Use the $(silent) variable from Makefile.include
+to avoid defining the msg macro so that there is no information printed.
 
-Link: https://lore.kernel.org/r/20220124145110.442335-1-jmeneghi@redhat.com
-Fixes: d576a5e80cd0 ("bnx2fc: Improve stats update mechanism")
-Tested-by: Guangwu Zhang <guazhang@redhat.com>
-Acked-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: John Meneghini <jmeneghi@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: fbbb68de80a4 ("bpf: Add resolve_btfids tool to resolve BTF IDs in ELF object")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220201212503.731732-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/bnx2fc/bnx2fc_fcoe.c |   21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ tools/bpf/resolve_btfids/Makefile |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
-+++ b/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
-@@ -508,7 +508,8 @@ static int bnx2fc_l2_rcv_thread(void *ar
+--- a/tools/bpf/resolve_btfids/Makefile
++++ b/tools/bpf/resolve_btfids/Makefile
+@@ -9,7 +9,11 @@ ifeq ($(V),1)
+   msg =
+ else
+   Q = @
+-  msg = @printf '  %-8s %s%s\n' "$(1)" "$(notdir $(2))" "$(if $(3), $(3))";
++  ifeq ($(silent),1)
++    msg =
++  else
++    msg = @printf '  %-8s %s%s\n' "$(1)" "$(notdir $(2))" "$(if $(3), $(3))";
++  endif
+   MAKEFLAGS=--no-print-directory
+ endif
  
- static void bnx2fc_recv_frame(struct sk_buff *skb)
- {
--	u32 fr_len;
-+	u64 crc_err;
-+	u32 fr_len, fr_crc;
- 	struct fc_lport *lport;
- 	struct fcoe_rcv_info *fr;
- 	struct fc_stats *stats;
-@@ -542,6 +543,11 @@ static void bnx2fc_recv_frame(struct sk_
- 	skb_pull(skb, sizeof(struct fcoe_hdr));
- 	fr_len = skb->len - sizeof(struct fcoe_crc_eof);
- 
-+	stats = per_cpu_ptr(lport->stats, get_cpu());
-+	stats->RxFrames++;
-+	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
-+	put_cpu();
-+
- 	fp = (struct fc_frame *)skb;
- 	fc_frame_init(fp);
- 	fr_dev(fp) = lport;
-@@ -624,16 +630,15 @@ static void bnx2fc_recv_frame(struct sk_
- 		return;
- 	}
- 
--	stats = per_cpu_ptr(lport->stats, smp_processor_id());
--	stats->RxFrames++;
--	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
-+	fr_crc = le32_to_cpu(fr_crc(fp));
- 
--	if (le32_to_cpu(fr_crc(fp)) !=
--			~crc32(~0, skb->data, fr_len)) {
--		if (stats->InvalidCRCCount < 5)
-+	if (unlikely(fr_crc != ~crc32(~0, skb->data, fr_len))) {
-+		stats = per_cpu_ptr(lport->stats, get_cpu());
-+		crc_err = (stats->InvalidCRCCount++);
-+		put_cpu();
-+		if (crc_err < 5)
- 			printk(KERN_WARNING PFX "dropping frame with "
- 			       "CRC error\n");
--		stats->InvalidCRCCount++;
- 		kfree_skb(skb);
- 		return;
- 	}
 
 
