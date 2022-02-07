@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82DE94ABB69
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FD0B4ABB82
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231891AbiBGLaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:30:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35316 "EHLO
+        id S1376506AbiBGL26 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:28:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383673AbiBGLXY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:23:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16639C0401D4;
-        Mon,  7 Feb 2022 03:23:19 -0800 (PST)
+        with ESMTP id S1382679AbiBGLUj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:20:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1BBC0401CC;
+        Mon,  7 Feb 2022 03:20:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F191B811B2;
-        Mon,  7 Feb 2022 11:23:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31E90C004E1;
-        Mon,  7 Feb 2022 11:23:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D944BB811AF;
+        Mon,  7 Feb 2022 11:20:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22399C004E1;
+        Mon,  7 Feb 2022 11:20:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232996;
-        bh=P/8x4z9awNIPRoU7bcgMNv3+1kOQLXdXrq64xhcsXlQ=;
+        s=korg; t=1644232814;
+        bh=Fglqxzgr+A1WzQ28mgY6xGCSQNbOtNgjhGgd95zp0VQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I9/9ywJ1kds7R86qarGs2WHyi+E7C1fW2kIYSDf2q1hS1SS0yGASLPSydJ2DZHil5
-         Ex36Do/UzxOQh3ezoh0Mbop+gctFenYXiSUjHlPcMNho17+G9RreNNJyQL+C32Uu8B
-         BGXgFffHvH7R0KVrhsD76o/84iBJKocei/LqpuJ8=
+        b=Q+Gaw+knzEdXEtWhfiXl2h8diAfu1E/TsznmZQ0OKfLCpc0/t1XvbswS72hhI7hav
+         So05/wYCkFo1DlwG66fEBqvpy+BCbzobFYDPWmF2RhMiAAeh4SM6sKEu9+DkwK4n+0
+         gW/FAK/AgUou8Bs3CtqB7XddnV2A0Bec8TkYf8N8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?=C5=81ukasz=20Bartosik?= <lb@semihalf.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.10 50/74] pinctrl: intel: fix unexpected interrupt
-Date:   Mon,  7 Feb 2022 12:06:48 +0100
-Message-Id: <20220207103758.859492624@linuxfoundation.org>
+        Devarsh Thakkar <devarsh.thakkar@xilinx.com>,
+        Robert Hancock <robert.hancock@calian.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 33/44] ASoC: xilinx: xlnx_formatter_pcm: Make buffer bytes multiple of period bytes
+Date:   Mon,  7 Feb 2022 12:06:49 +0100
+Message-Id: <20220207103754.230959617@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
+References: <20220207103753.155627314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,120 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Łukasz Bartosik <lb@semihalf.com>
+From: Robert Hancock <robert.hancock@calian.com>
 
-commit e986f0e602f19ecb7880b04dd1db415ed9bca3f6 upstream.
+commit e958b5884725dac86d36c1e7afe5a55f31feb0b2 upstream.
 
-ASUS Chromebook C223 with Celeron N3350 crashes sometimes during
-cold booot. Inspection of the kernel log showed that it gets into
-an inifite loop logging the following message:
+This patch is based on one in the Xilinx kernel tree, "ASoc: xlnx: Make
+buffer bytes multiple of period bytes" by Devarsh Thakkar. The same
+issue exists in the mainline version of the driver. The original
+patch description is as follows:
 
-->handle_irq():  000000009cdb51e8, handle_bad_irq+0x0/0x251
-->irq_data.chip(): 000000005ec212a7, 0xffffa043009d8e7
-->action(): 00000
-   IRQ_NOPROBE set
-unexpected IRQ trap at vector 7c
+"The Xilinx Audio Formatter IP has a constraint on period
+bytes to be multiple of 64. This leads to driver changing
+the period size to suitable frames such that period bytes
+are multiple of 64.
 
-The issue happens during cold boot but only if cold boot happens
-at most several dozen seconds after Chromebook is powered off. For
-longer intervals between power off and power on (cold boot) the issue
-does not reproduce. The unexpected interrupt is sourced from INT3452
-GPIO pin which is used for SD card detect. Investigation relevealed
-that when the interval between power off and power on (cold boot)
-is less than several dozen seconds then values of INT3452 GPIO interrupt
-enable and interrupt pending registers survive power off and power
-on sequence and interrupt for SD card detect pin is enabled and pending
-during probe of SD controller which causes the unexpected IRQ message.
-"Intel Pentium and Celeron Processor N- and J- Series" volume 3 doc
-mentions that GPIO interrupt enable and status registers default
-value is 0x0.
-The fix clears INT3452 GPIO interrupt enabled and interrupt pending
-registers in its probe function.
+Now since period bytes and period size are updated but not
+the buffer bytes, this may make the buffer bytes unaligned
+and not multiple of period bytes.
 
-Fixes: 7981c0015af2 ("pinctrl: intel: Add Intel Sunrisepoint pin controller and GPIO support")
-Signed-off-by: Łukasz Bartosik <lb@semihalf.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+When this happens we hear popping noise as while DMA is being
+done the buffer bytes are not enough to complete DMA access
+for last period of frame within the application buffer boundary.
+
+To avoid this, align buffer bytes too as multiple of 64, and
+set another constraint to always enforce number of periods as
+integer. Now since, there is already a rule in alsa core
+to enforce Buffer size = Number of Periods * Period Size
+this automatically aligns buffer bytes as multiple of period
+bytes."
+
+Fixes: 6f6c3c36f091 ("ASoC: xlnx: add pcm formatter platform driver")
+Cc: Devarsh Thakkar <devarsh.thakkar@xilinx.com>
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Link: https://lore.kernel.org/r/20220107214711.1100162-2-robert.hancock@calian.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/intel/pinctrl-intel.c |   54 +++++++++++++++++++++-------------
- 1 file changed, 34 insertions(+), 20 deletions(-)
+ sound/soc/xilinx/xlnx_formatter_pcm.c |   27 ++++++++++++++++++++++++---
+ 1 file changed, 24 insertions(+), 3 deletions(-)
 
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -1201,6 +1201,39 @@ static irqreturn_t intel_gpio_irq(int ir
- 	return IRQ_RETVAL(ret);
- }
+--- a/sound/soc/xilinx/xlnx_formatter_pcm.c
++++ b/sound/soc/xilinx/xlnx_formatter_pcm.c
+@@ -37,6 +37,7 @@
+ #define XLNX_AUD_XFER_COUNT	0x28
+ #define XLNX_AUD_CH_STS_START	0x2C
+ #define XLNX_BYTES_PER_CH	0x44
++#define XLNX_AUD_ALIGN_BYTES	64
  
-+static void intel_gpio_irq_init(struct intel_pinctrl *pctrl)
-+{
-+	int i;
-+
-+	for (i = 0; i < pctrl->ncommunities; i++) {
-+		const struct intel_community *community;
-+		void __iomem *base;
-+		unsigned int gpp;
-+
-+		community = &pctrl->communities[i];
-+		base = community->regs;
-+
-+		for (gpp = 0; gpp < community->ngpps; gpp++) {
-+			/* Mask and clear all interrupts */
-+			writel(0, base + community->ie_offset + gpp * 4);
-+			writel(0xffff, base + community->is_offset + gpp * 4);
-+		}
+ #define AUD_STS_IOC_IRQ_MASK	BIT(31)
+ #define AUD_STS_CH_STS_MASK	BIT(29)
+@@ -370,12 +371,32 @@ static int xlnx_formatter_pcm_open(struc
+ 	snd_soc_set_runtime_hwparams(substream, &xlnx_pcm_hardware);
+ 	runtime->private_data = stream_data;
+ 
+-	/* Resize the period size divisible by 64 */
++	/* Resize the period bytes as divisible by 64 */
+ 	err = snd_pcm_hw_constraint_step(runtime, 0,
+-					 SNDRV_PCM_HW_PARAM_PERIOD_BYTES, 64);
++					 SNDRV_PCM_HW_PARAM_PERIOD_BYTES,
++					 XLNX_AUD_ALIGN_BYTES);
+ 	if (err) {
+ 		dev_err(component->dev,
+-			"unable to set constraint on period bytes\n");
++			"Unable to set constraint on period bytes\n");
++		return err;
 +	}
-+}
 +
-+static int intel_gpio_irq_init_hw(struct gpio_chip *gc)
-+{
-+	struct intel_pinctrl *pctrl = gpiochip_get_data(gc);
++	/* Resize the buffer bytes as divisible by 64 */
++	err = snd_pcm_hw_constraint_step(runtime, 0,
++					 SNDRV_PCM_HW_PARAM_BUFFER_BYTES,
++					 XLNX_AUD_ALIGN_BYTES);
++	if (err) {
++		dev_err(component->dev,
++			"Unable to set constraint on buffer bytes\n");
++		return err;
++	}
 +
-+	/*
-+	 * Make sure the interrupt lines are in a proper state before
-+	 * further configuration.
-+	 */
-+	intel_gpio_irq_init(pctrl);
-+
-+	return 0;
-+}
-+
- static int intel_gpio_add_community_ranges(struct intel_pinctrl *pctrl,
- 				const struct intel_community *community)
- {
-@@ -1305,6 +1338,7 @@ static int intel_gpio_probe(struct intel
- 	girq->num_parents = 0;
- 	girq->default_type = IRQ_TYPE_NONE;
- 	girq->handler = handle_bad_irq;
-+	girq->init_hw = intel_gpio_irq_init_hw;
++	/* Set periods as integer multiple */
++	err = snd_pcm_hw_constraint_integer(runtime,
++					    SNDRV_PCM_HW_PARAM_PERIODS);
++	if (err < 0) {
++		dev_err(component->dev,
++			"Unable to set constraint on periods to be integer\n");
+ 		return err;
+ 	}
  
- 	ret = devm_gpiochip_add_data(pctrl->dev, &pctrl->chip, pctrl);
- 	if (ret) {
-@@ -1634,26 +1668,6 @@ int intel_pinctrl_suspend_noirq(struct d
- }
- EXPORT_SYMBOL_GPL(intel_pinctrl_suspend_noirq);
- 
--static void intel_gpio_irq_init(struct intel_pinctrl *pctrl)
--{
--	size_t i;
--
--	for (i = 0; i < pctrl->ncommunities; i++) {
--		const struct intel_community *community;
--		void __iomem *base;
--		unsigned int gpp;
--
--		community = &pctrl->communities[i];
--		base = community->regs;
--
--		for (gpp = 0; gpp < community->ngpps; gpp++) {
--			/* Mask and clear all interrupts */
--			writel(0, base + community->ie_offset + gpp * 4);
--			writel(0xffff, base + community->is_offset + gpp * 4);
--		}
--	}
--}
--
- static bool intel_gpio_update_reg(void __iomem *reg, u32 mask, u32 value)
- {
- 	u32 curr, updated;
 
 
