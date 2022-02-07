@@ -2,136 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5930D4AC5FC
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 17:39:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 941B64AC697
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 18:00:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236904AbiBGQfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 11:35:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59832 "EHLO
+        id S236345AbiBGQ7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 11:59:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1389590AbiBGQXg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 11:23:36 -0500
-Received: from mail-il1-x12e.google.com (mail-il1-x12e.google.com [IPv6:2607:f8b0:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40999C0401CE
-        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 08:23:36 -0800 (PST)
-Received: by mail-il1-x12e.google.com with SMTP id 15so11486702ilg.8
-        for <stable@vger.kernel.org>; Mon, 07 Feb 2022 08:23:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=X2blKuObfXNE80hmcUNeFStEMfyaLwrofTJ0jHNw/vY=;
-        b=AQaufvKBgRC7hdiokBnIfoyUZ5h5cYR9xlg2vwcMwIyhI5ojONlASRRHD6XOPnK6As
-         HAW6AmD8+73nPiquEEDg48JX9m9eKh3S95pCaCS74QWXdMnYpJ81pwPUbfRmjuP60kOz
-         lBtta/Lcz6Ny7tGM91dDSt3ONx1Y8PEXDQ9vUloHGfyOU+GZ9iuRFpqdS/Ilt2z+XuB6
-         Aw3yf6I3CTg1IoXir/EdZ+o/gGRwKVbgJFEMxGo3UF5a+u17MAwperMMc3+uMuvju2OJ
-         R70lqZ427OtfXHUw7n9/9mLss3Gtw/gW69R7cn+PtVj+mxjRhQ5iuYqKXzSEq9/2BvK5
-         vEBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=X2blKuObfXNE80hmcUNeFStEMfyaLwrofTJ0jHNw/vY=;
-        b=XFnEZlfGtEE/wMJ685VsrhvpkpA54DjJQ89hMTBQaoVfyKqtwyt7VfD60w932uTTkl
-         xjuFmaFMubyepLwtswiKkVmxiwVfuHNqC8ZGWVAQbJ1CvKZWQo2YQlN1sSEuHc/mICg7
-         ylbMdQK1QoKGhhOHWnyGTx0YEj4j/s6Mk2EA4yTp6IP5qFd0gK0fnaONmBigbd1+Uk/K
-         fnVtaJlM+spMyqXmqLSWoPq0QZzS8kMNNCwvk5i/UvhkEgHMaRgngShEFfv+lDobaGHf
-         +1yI/CDf5S0UT0L6QJt1rNGVG3He38wGBnc0Kk7kQ9gAYbOrCofz5JRV1aWkqZDkt924
-         tmrA==
-X-Gm-Message-State: AOAM533dYYhleMez9DhYhqyo5cOTB3bqGlF2gk93DJYV72zGjCtI2xFK
-        Uiwb9zzGDPDgUc+CbvY2D6udOA==
-X-Google-Smtp-Source: ABdhPJzUXxyzj8vN8GEo+B6OoFHl80vE4YJKkbmLaP5eowOZPJqZIs1JYon9cF70slozvy8hHTTOwQ==
-X-Received: by 2002:a05:6e02:1786:: with SMTP id y6mr163709ilu.152.1644251015532;
-        Mon, 07 Feb 2022 08:23:35 -0800 (PST)
-Received: from [172.22.22.4] (c-73-185-129-58.hsd1.mn.comcast.net. [73.185.129.58])
-        by smtp.googlemail.com with ESMTPSA id c11sm1452720iln.56.2022.02.07.08.23.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 07 Feb 2022 08:23:34 -0800 (PST)
-Message-ID: <4a8c8a8d-b760-5dd4-512d-ae08b95ab902@linaro.org>
-Date:   Mon, 7 Feb 2022 10:23:33 -0600
+        with ESMTP id S1386797AbiBGQpI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 11:45:08 -0500
+Received: from mgw-02.mpynet.fi (mgw-02.mpynet.fi [82.197.21.91])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6BF7C0401DD;
+        Mon,  7 Feb 2022 08:45:05 -0800 (PST)
+Received: from pps.filterd (mgw-02.mpynet.fi [127.0.0.1])
+        by mgw-02.mpynet.fi (8.16.0.43/8.16.0.43) with SMTP id 217GeCDA090121;
+        Mon, 7 Feb 2022 18:44:58 +0200
+Received: from ex13.tuxera.com (ex13.tuxera.com [178.16.184.72])
+        by mgw-02.mpynet.fi with ESMTP id 3e1dtn18jr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Mon, 07 Feb 2022 18:44:58 +0200
+Received: from [192.168.0.129] (62.78.240.173) by tuxera-exch.ad.tuxera.com
+ (10.20.48.11) with Microsoft SMTP Server (TLS) id 15.0.1497.26; Mon, 7 Feb
+ 2022 18:44:57 +0200
+Message-ID: <cd346b72-1899-8f2d-5ff6-65c4ac93308c@tuxera.com>
+Date:   Mon, 7 Feb 2022 18:44:55 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.5.0
-Subject: Re: FAILED: patch "[PATCH] net: ipa: request IPA register values be
- retained" failed to apply to 5.15-stable tree
+Subject: Re: [PATCH] fs/read_write.c: Fix a broken signed integer overflow
+ check.
 Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     kuba@kernel.org,
-        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
-        stable@vger.kernel.org
-References: <1643964634201142@kroah.com>
- <b4a3db1e-9bee-5075-9b45-1e1dcc06869e@linaro.org>
- <Yf4vTqtKLQ71O77S@kroah.com>
- <d66a5ce0-acb1-d2c4-b6a5-c4783abc1482@linaro.org>
- <Yf7CWW+kGnH86KtE@kroah.com>
-From:   Alex Elder <elder@linaro.org>
-In-Reply-To: <Yf7CWW+kGnH86KtE@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To:     Al Viro <viro@zeniv.linux.org.uk>
+CC:     Andrew Morton <akpm@linux-foundation.org>,
+        <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+        <stable@vger.kernel.org>, Anton Altaparmakov <anton@tuxera.com>
+References: <20220207120711.4070403-1-ari@tuxera.com>
+ <YgEzs2Hp0LrdDmJu@zeniv-ca.linux.org.uk>
+From:   Ari Sundholm <ari@tuxera.com>
+In-Reply-To: <YgEzs2Hp0LrdDmJu@zeniv-ca.linux.org.uk>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Originating-IP: [62.78.240.173]
+X-ClientProxiedBy: tuxera-exch.ad.tuxera.com (10.20.48.11) To
+ tuxera-exch.ad.tuxera.com (10.20.48.11)
+X-Proofpoint-GUID: Da0sQN7Knu4Px4pte8UxgNfRYtot2MB1
+X-Proofpoint-ORIG-GUID: Da0sQN7Knu4Px4pte8UxgNfRYtot2MB1
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.425,18.0.816
+ definitions=2022-02-07_06:2022-02-07,2022-02-07 signatures=0
+X-Proofpoint-Spam-Details: rule=mpy_notspam policy=mpy score=0 phishscore=0 suspectscore=0
+ malwarescore=0 adultscore=0 bulkscore=0 spamscore=0 mlxlogscore=999
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202070103
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/5/22 12:30 PM, Greg KH wrote:
-> On Sat, Feb 05, 2022 at 08:32:30AM -0600, Alex Elder wrote:
->> On 2/5/22 2:03 AM, Greg KH wrote:
->>> On Fri, Feb 04, 2022 at 03:41:20PM -0600, Alex Elder wrote:
->>>> On 2/4/22 2:50 AM, gregkh@linuxfoundation.org wrote:
->>>>>
->>>>> The patch below does not apply to the 5.15-stable tree.
->>>>> If someone wants it applied there, or to any other stable or longterm
->>>>> tree, then please email the backport, including the original git commit
->>>>> id to <stable@vger.kernel.org>.
->>>>
->>>> I just tried to apply this patch on v5.15.19 and it applied
->>>> cleanly for me.
->>>>
->>>> ----------------
->>>>
->>>> {2314} elder@presto-> git checkout -b test
->>>> Switched to a new branch 'test'
->>>> {2315} elder@presto-> git reset --hard v5.15.19
->>>> HEAD is now at 47cccb1eb2fec Linux 5.15.19
->>>> {2316} elder@presto-> git cherry-pick -x
->>>> 34a081761e4e3c35381cbfad609ebae2962fe2f8
->>>> [test 71a06f5acbb05] net: ipa: request IPA register values be retained
->>>>    Date: Tue Feb 1 09:02:05 2022 -0600
->>>>    3 files changed, 64 insertions(+)
->>>> {2317} elder@presto-> git log --oneline -2
->>>> 71a06f5acbb05 (HEAD -> test) net: ipa: request IPA register values be
->>>> retained
->>>> 47cccb1eb2fec (tag: v5.15.19, stable/linux-5.15.y) Linux 5.15.19
->>>> {2318} elder@presto->
->>>>
->>>> ----------------
->>>>
->>>> I don't understand.  If you know that I'm doing something wrong,
->>>> can you let me know what it might be?
->>>
->>> It fails to build :)
+Hello, Al,
+
+On 2/7/22 16:58, Al Viro wrote:
+> On Mon, Feb 07, 2022 at 02:07:11PM +0200, Ari Sundholm wrote:
+>> The function generic_copy_file_checks() checks that the ends of the
+>> input and output file ranges do not overflow. Unfortunately, there is
+>> an issue with the check itself.
 >>
->> Oh!  Well that's different!  Sorry about that, I'll spend
->> a little more time on this I guess...
+>> Due to the integer promotion rules in C, the expressions
+>> (pos_in + count) and (pos_out + count) have an unsigned type because
+>> the count variable has the type uint64_t. Thus, in many cases where we
+>> should detect signed integer overflow to have occurred (and thus one or
+>> more of the ranges being invalid), the expressions will instead be
+>> interpreted as large unsigned integers. This means the check is broken.
 > 
-> It was a "include file not found" type of error if I remember correctly.
+> I must be slow this morning, but... which values of pos_in and count are
+> caught by your check, but not by the original?
+> 
 
-OK, yes, I did discover the build problem.  And it can be
-easily fixed with one more prerequisite commit.
+Thank you for your response and questions.
 
-HOWEVER, there is a "matching" DTS patch that won't land
-in Linus' master branch until v5.18-rc1, so I'll have to
-get back to you on that later anyway.
+Assuming an x86-64 target platform, please consider:
 
-Which means you can simply drop my attempted 5.15 back-port
-from your queue (if you haven't already...).
+loff_t pos_out = 0x7FFFFFFFFFFEFFFFLL;
+and
+uint64_t count = 65537;
 
-Thanks, and sorry for the noise.
+The type of the expression (pos_out + count) is a 64-bit unsigned type, 
+by C's integer promotion rules. Its value is 0x8000000000000000ULL, that 
+is, bit 63 is set.
 
-					-Alex
+The comparison (pos_out + count) < pos_out, again due to C's integer 
+promotion rules, is unsigned. Thus, the comparison, in this case, is 
+equivalent to:
+
+0x8000000000000000ULL < 0x7FFFFFFFFFFEFFFFULL,
+
+which is false. Please note that the LHS is not expressible as a 
+positive integer of type loff_t. With larger values for count, the 
+problem should become quite obvious, as some the offsets within the file 
+would not be expressible as positive integers of type loff_t. But I 
+digress. As we can see above, the overflow is missed.
+
+With the LHS explicitly cast to loff_t, the comparison is equivalent to:
+
+0x8000000000000000LL < 0x7FFFFFFFFFFEFFFFLL,
+
+which is true, as the LHS is negative.
+
+This has also been verified in practice, and was detected when running 
+tests on special cases of the copy_file_range syscall on different 
+filesystems.
+
+>> -	if (pos_in + count < pos_in || pos_out + count < pos_out)
+>> +	if ((loff_t)(pos_in + count) < pos_in ||
+>> +			(loff_t)(pos_out + count) < pos_out)
+> 
+> Example, please.  Why do you need that comparison to be signed?
+
+Please see the above.
+
+I also created a small test program one can try on Compiler Explorer: 
+https://godbolt.org/z/e76rb3Ec9
+
+Please let me know if there are any further concerns.
+
+Best regards,
+Ari Sundholm
+ari@tuxera.com
