@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E09624ABAAE
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA8534ABA96
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383992AbiBGLYW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53024 "EHLO
+        id S1383920AbiBGLYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376406AbiBGLPH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:15:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC570C0401E4;
-        Mon,  7 Feb 2022 03:14:49 -0800 (PST)
+        with ESMTP id S1355609AbiBGLMk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:12:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4E48C043181;
+        Mon,  7 Feb 2022 03:12:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4CE5B81028;
-        Mon,  7 Feb 2022 11:14:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05AC3C004E1;
-        Mon,  7 Feb 2022 11:14:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 737C16113B;
+        Mon,  7 Feb 2022 11:12:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56CDDC004E1;
+        Mon,  7 Feb 2022 11:12:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232467;
-        bh=XGWLjLU68ZbceAndK89yy5Ot2TUFaEqJAD5v5ebQOPI=;
+        s=korg; t=1644232358;
+        bh=21GWfXvoGM3JfY9PBYB8efgCAL2zUuXUMcw97qztprY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mupFd7Lt051bjNbWKSIw0y2kCJSPQZsip31N3tyntPjZjdbctcd7+XNs/UyuVVm/U
-         Lb3mkhTPQCG2mOId8enYCNXM2nAWkh3CtUPgRTT/aNWFoLZqkUZ+YYqyAjt17PcCpm
-         VTO0484Wz8SukMlKmND941MmEWq67mcTYqNQTLNg=
+        b=F/Rv1sAF21vYsXTfvhjkCx8HThFmug5ZWCLlkwKZxliaG5Vt4Qe8rB4g2vaE+B4qc
+         o7FTDbWfYygIIhDb0DsFPFYvfTSvXLIoSCTOEVZQ/qa80dsAr8rJaVpwI+Ysdric2e
+         1l+oU6rIYcB0509TgVL0pK4AkYZnuQTF6sQitOQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 19/86] powerpc/32: Fix boot failure with GCC latent entropy plugin
+        stable@vger.kernel.org, Joe Damato <jdamato@fastly.com>,
+        kernel test robot <lkp@intel.com>,
+        Gurucharan G <gurucharanx.g@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 4.14 20/69] i40e: fix unsigned stat widths
 Date:   Mon,  7 Feb 2022 12:05:42 +0100
-Message-Id: <20220207103758.182352841@linuxfoundation.org>
+Message-Id: <20220207103756.279586065@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Joe Damato <jdamato@fastly.com>
 
-commit bba496656a73fc1d1330b49c7f82843836e9feb1 upstream.
+commit 3b8428b84539c78fdc8006c17ebd25afd4722d51 upstream.
 
-Boot fails with GCC latent entropy plugin enabled.
+Change i40e_update_vsi_stats and struct i40e_vsi to use u64 fields to match
+the width of the stats counters in struct i40e_rx_queue_stats.
 
-This is due to early boot functions trying to access 'latent_entropy'
-global data while the kernel is not relocated at its final
-destination yet.
+Update debugfs code to use the correct format specifier for u64.
 
-As there is no way to tell GCC to use PTRRELOC() to access it,
-disable latent entropy plugin in early_32.o and feature-fixups.o and
-code-patching.o
-
-Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
-Cc: stable@vger.kernel.org # v4.9+
-Reported-by: Erhard Furtner <erhard_f@mailbox.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215217
-Link: https://lore.kernel.org/r/2bac55483b8daf5b1caa163a45fa5f9cdbe18be4.1640178426.git.christophe.leroy@csgroup.eu
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Signed-off-by: Joe Damato <jdamato@fastly.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/Makefile |    1 +
- arch/powerpc/lib/Makefile    |    3 +++
- 2 files changed, 4 insertions(+)
+ drivers/net/ethernet/intel/i40e/i40e.h         |    8 ++++----
+ drivers/net/ethernet/intel/i40e/i40e_debugfs.c |    2 +-
+ drivers/net/ethernet/intel/i40e/i40e_main.c    |    4 ++--
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
---- a/arch/powerpc/kernel/Makefile
-+++ b/arch/powerpc/kernel/Makefile
-@@ -15,6 +15,7 @@ CFLAGS_prom_init.o      += -fPIC
- CFLAGS_btext.o		+= -fPIC
- endif
+--- a/drivers/net/ethernet/intel/i40e/i40e.h
++++ b/drivers/net/ethernet/intel/i40e/i40e.h
+@@ -627,12 +627,12 @@ struct i40e_vsi {
+ 	struct rtnl_link_stats64 net_stats_offsets;
+ 	struct i40e_eth_stats eth_stats;
+ 	struct i40e_eth_stats eth_stats_offsets;
+-	u32 tx_restart;
+-	u32 tx_busy;
++	u64 tx_restart;
++	u64 tx_busy;
+ 	u64 tx_linearize;
+ 	u64 tx_force_wb;
+-	u32 rx_buf_failed;
+-	u32 rx_page_failed;
++	u64 rx_buf_failed;
++	u64 rx_page_failed;
  
-+CFLAGS_setup_32.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
- CFLAGS_cputable.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
- CFLAGS_prom_init.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
- CFLAGS_btext.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
---- a/arch/powerpc/lib/Makefile
-+++ b/arch/powerpc/lib/Makefile
-@@ -10,6 +10,9 @@ ccflags-$(CONFIG_PPC64)	:= $(NO_MINIMAL_
- CFLAGS_REMOVE_code-patching.o = $(CC_FLAGS_FTRACE)
- CFLAGS_REMOVE_feature-fixups.o = $(CC_FLAGS_FTRACE)
- 
-+CFLAGS_code-patching.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
-+CFLAGS_feature-fixups.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
-+
- obj-y += string.o alloc.o code-patching.o feature-fixups.o
- 
- obj-$(CONFIG_PPC32)	+= div64.o copy_32.o crtsavres.o strlen_32.o
+ 	/* These are containers of ring pointers, allocated at run-time */
+ 	struct i40e_ring **rx_rings;
+--- a/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
+@@ -259,7 +259,7 @@ static void i40e_dbg_dump_vsi_seid(struc
+ 		 (unsigned long int)vsi->net_stats_offsets.rx_compressed,
+ 		 (unsigned long int)vsi->net_stats_offsets.tx_compressed);
+ 	dev_info(&pf->pdev->dev,
+-		 "    tx_restart = %d, tx_busy = %d, rx_buf_failed = %d, rx_page_failed = %d\n",
++		 "    tx_restart = %llu, tx_busy = %llu, rx_buf_failed = %llu, rx_page_failed = %llu\n",
+ 		 vsi->tx_restart, vsi->tx_busy,
+ 		 vsi->rx_buf_failed, vsi->rx_page_failed);
+ 	rcu_read_lock();
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -778,9 +778,9 @@ static void i40e_update_vsi_stats(struct
+ 	struct rtnl_link_stats64 *ns;   /* netdev stats */
+ 	struct i40e_eth_stats *oes;
+ 	struct i40e_eth_stats *es;     /* device's eth stats */
+-	u32 tx_restart, tx_busy;
++	u64 tx_restart, tx_busy;
+ 	struct i40e_ring *p;
+-	u32 rx_page, rx_buf;
++	u64 rx_page, rx_buf;
+ 	u64 bytes, packets;
+ 	unsigned int start;
+ 	u64 tx_linearize;
 
 
