@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 812534ABD36
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:59:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F4104ABD9B
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381398AbiBGLkA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:40:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46676 "EHLO
+        id S1388812AbiBGLp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:45:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386466AbiBGLel (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:34:41 -0500
+        with ESMTP id S1385470AbiBGLby (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:54 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79ECC043188;
-        Mon,  7 Feb 2022 03:34:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93729C03E944;
+        Mon,  7 Feb 2022 03:30:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83428B8102E;
-        Mon,  7 Feb 2022 11:34:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DF56C004E1;
-        Mon,  7 Feb 2022 11:34:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 475E0B811BE;
+        Mon,  7 Feb 2022 11:30:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50C22C004E1;
+        Mon,  7 Feb 2022 11:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233678;
-        bh=fQ6HmfmTWZIJTOD7EvLAW2lH/Y8C1gMM3DzkQZuDHbA=;
+        s=korg; t=1644233424;
+        bh=dDv+O0Tzmkl7n2hL6tah/Kh7Z2X5dd7k5qI4BVpOqWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m1Eb7/Nr8lZkZDw6JN1b+uS7apohpv2bZaC8i7YRlGS98pPkXkG75RnGkmF218Dke
-         NgAcoE6GNx3izqk6I7+232bfpU3mHrY1sSJjcaZlSg7iKBdwf2keDZfRkwKzXMhf2h
-         DN+o+OZGBk60zDqTyilxtoCxUik/5wQ7CDcFX+MU=
+        b=NzR4wutdE+XwIjzcLIwdTFghUFpoyYBENoFRRMl2reMmNDnhEQhzh0YctLMDNHNHz
+         T5Tt7KaHmq9TAuqITNyy9tzmGVnyzNt3RI3n3Q9W9h8w12sjSPCTbiexbSBrk1rQok
+         cnhAui0z7iOq4X/1iN+i/7YjGBCjM/S7ULd8zMjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Devarsh Thakkar <devarsh.thakkar@xilinx.com>,
-        Robert Hancock <robert.hancock@calian.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.16 085/126] ASoC: xilinx: xlnx_formatter_pcm: Make buffer bytes multiple of period bytes
+        stable@vger.kernel.org, Guangwu Zhang <guazhang@redhat.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        John Meneghini <jmeneghi@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 083/110] scsi: bnx2fc: Make bnx2fc_recv_frame() mp safe
 Date:   Mon,  7 Feb 2022 12:06:56 +0100
-Message-Id: <20220207103807.036853878@linuxfoundation.org>
+Message-Id: <20220207103805.208752206@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,90 +55,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: John Meneghini <jmeneghi@redhat.com>
 
-commit e958b5884725dac86d36c1e7afe5a55f31feb0b2 upstream.
+commit 936bd03405fc83ba039d42bc93ffd4b88418f1d3 upstream.
 
-This patch is based on one in the Xilinx kernel tree, "ASoc: xlnx: Make
-buffer bytes multiple of period bytes" by Devarsh Thakkar. The same
-issue exists in the mainline version of the driver. The original
-patch description is as follows:
+Running tests with a debug kernel shows that bnx2fc_recv_frame() is
+modifying the per_cpu lport stats counters in a non-mpsafe way.  Just boot
+a debug kernel and run the bnx2fc driver with the hardware enabled.
 
-"The Xilinx Audio Formatter IP has a constraint on period
-bytes to be multiple of 64. This leads to driver changing
-the period size to suitable frames such that period bytes
-are multiple of 64.
+[ 1391.699147] BUG: using smp_processor_id() in preemptible [00000000] code: bnx2fc_
+[ 1391.699160] caller is bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
+[ 1391.699174] CPU: 2 PID: 4355 Comm: bnx2fc_l2_threa Kdump: loaded Tainted: G    B
+[ 1391.699180] Hardware name: HP ProLiant DL120 G7, BIOS J01 07/01/2013
+[ 1391.699183] Call Trace:
+[ 1391.699188]  dump_stack_lvl+0x57/0x7d
+[ 1391.699198]  check_preemption_disabled+0xc8/0xd0
+[ 1391.699205]  bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
+[ 1391.699215]  ? do_raw_spin_trylock+0xb5/0x180
+[ 1391.699221]  ? bnx2fc_npiv_create_vports.isra.0+0x4e0/0x4e0 [bnx2fc]
+[ 1391.699229]  ? bnx2fc_l2_rcv_thread+0xb7/0x3a0 [bnx2fc]
+[ 1391.699240]  bnx2fc_l2_rcv_thread+0x1af/0x3a0 [bnx2fc]
+[ 1391.699250]  ? bnx2fc_ulp_init+0xc0/0xc0 [bnx2fc]
+[ 1391.699258]  kthread+0x364/0x420
+[ 1391.699263]  ? _raw_spin_unlock_irq+0x24/0x50
+[ 1391.699268]  ? set_kthread_struct+0x100/0x100
+[ 1391.699273]  ret_from_fork+0x22/0x30
 
-Now since period bytes and period size are updated but not
-the buffer bytes, this may make the buffer bytes unaligned
-and not multiple of period bytes.
+Restore the old get_cpu/put_cpu code with some modifications to reduce the
+size of the critical section.
 
-When this happens we hear popping noise as while DMA is being
-done the buffer bytes are not enough to complete DMA access
-for last period of frame within the application buffer boundary.
-
-To avoid this, align buffer bytes too as multiple of 64, and
-set another constraint to always enforce number of periods as
-integer. Now since, there is already a rule in alsa core
-to enforce Buffer size = Number of Periods * Period Size
-this automatically aligns buffer bytes as multiple of period
-bytes."
-
-Fixes: 6f6c3c36f091 ("ASoC: xlnx: add pcm formatter platform driver")
-Cc: Devarsh Thakkar <devarsh.thakkar@xilinx.com>
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20220107214711.1100162-2-robert.hancock@calian.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220124145110.442335-1-jmeneghi@redhat.com
+Fixes: d576a5e80cd0 ("bnx2fc: Improve stats update mechanism")
+Tested-by: Guangwu Zhang <guazhang@redhat.com>
+Acked-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: John Meneghini <jmeneghi@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/xilinx/xlnx_formatter_pcm.c |   27 ++++++++++++++++++++++++---
- 1 file changed, 24 insertions(+), 3 deletions(-)
+ drivers/scsi/bnx2fc/bnx2fc_fcoe.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/sound/soc/xilinx/xlnx_formatter_pcm.c
-+++ b/sound/soc/xilinx/xlnx_formatter_pcm.c
-@@ -37,6 +37,7 @@
- #define XLNX_AUD_XFER_COUNT	0x28
- #define XLNX_AUD_CH_STS_START	0x2C
- #define XLNX_BYTES_PER_CH	0x44
-+#define XLNX_AUD_ALIGN_BYTES	64
+--- a/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
++++ b/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
+@@ -508,7 +508,8 @@ static int bnx2fc_l2_rcv_thread(void *ar
  
- #define AUD_STS_IOC_IRQ_MASK	BIT(31)
- #define AUD_STS_CH_STS_MASK	BIT(29)
-@@ -368,12 +369,32 @@ static int xlnx_formatter_pcm_open(struc
- 	snd_soc_set_runtime_hwparams(substream, &xlnx_pcm_hardware);
- 	runtime->private_data = stream_data;
+ static void bnx2fc_recv_frame(struct sk_buff *skb)
+ {
+-	u32 fr_len;
++	u64 crc_err;
++	u32 fr_len, fr_crc;
+ 	struct fc_lport *lport;
+ 	struct fcoe_rcv_info *fr;
+ 	struct fc_stats *stats;
+@@ -542,6 +543,11 @@ static void bnx2fc_recv_frame(struct sk_
+ 	skb_pull(skb, sizeof(struct fcoe_hdr));
+ 	fr_len = skb->len - sizeof(struct fcoe_crc_eof);
  
--	/* Resize the period size divisible by 64 */
-+	/* Resize the period bytes as divisible by 64 */
- 	err = snd_pcm_hw_constraint_step(runtime, 0,
--					 SNDRV_PCM_HW_PARAM_PERIOD_BYTES, 64);
-+					 SNDRV_PCM_HW_PARAM_PERIOD_BYTES,
-+					 XLNX_AUD_ALIGN_BYTES);
- 	if (err) {
- 		dev_err(component->dev,
--			"unable to set constraint on period bytes\n");
-+			"Unable to set constraint on period bytes\n");
-+		return err;
-+	}
++	stats = per_cpu_ptr(lport->stats, get_cpu());
++	stats->RxFrames++;
++	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
++	put_cpu();
 +
-+	/* Resize the buffer bytes as divisible by 64 */
-+	err = snd_pcm_hw_constraint_step(runtime, 0,
-+					 SNDRV_PCM_HW_PARAM_BUFFER_BYTES,
-+					 XLNX_AUD_ALIGN_BYTES);
-+	if (err) {
-+		dev_err(component->dev,
-+			"Unable to set constraint on buffer bytes\n");
-+		return err;
-+	}
-+
-+	/* Set periods as integer multiple */
-+	err = snd_pcm_hw_constraint_integer(runtime,
-+					    SNDRV_PCM_HW_PARAM_PERIODS);
-+	if (err < 0) {
-+		dev_err(component->dev,
-+			"Unable to set constraint on periods to be integer\n");
- 		return err;
+ 	fp = (struct fc_frame *)skb;
+ 	fc_frame_init(fp);
+ 	fr_dev(fp) = lport;
+@@ -624,16 +630,15 @@ static void bnx2fc_recv_frame(struct sk_
+ 		return;
  	}
  
+-	stats = per_cpu_ptr(lport->stats, smp_processor_id());
+-	stats->RxFrames++;
+-	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
++	fr_crc = le32_to_cpu(fr_crc(fp));
+ 
+-	if (le32_to_cpu(fr_crc(fp)) !=
+-			~crc32(~0, skb->data, fr_len)) {
+-		if (stats->InvalidCRCCount < 5)
++	if (unlikely(fr_crc != ~crc32(~0, skb->data, fr_len))) {
++		stats = per_cpu_ptr(lport->stats, get_cpu());
++		crc_err = (stats->InvalidCRCCount++);
++		put_cpu();
++		if (crc_err < 5)
+ 			printk(KERN_WARNING PFX "dropping frame with "
+ 			       "CRC error\n");
+-		stats->InvalidCRCCount++;
+ 		kfree_skb(skb);
+ 		return;
+ 	}
 
 
