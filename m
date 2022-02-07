@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B87D4ABAA1
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B494C4ABA19
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:27:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383971AbiBGLYR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47746 "EHLO
+        id S1356748AbiBGLXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:23:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355265AbiBGLIN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:08:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A4B7C043188;
-        Mon,  7 Feb 2022 03:08:13 -0800 (PST)
+        with ESMTP id S1355150AbiBGLMe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:12:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F2AEC043181;
+        Mon,  7 Feb 2022 03:12:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06C6C61261;
-        Mon,  7 Feb 2022 11:08:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7A50C004E1;
-        Mon,  7 Feb 2022 11:08:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0684CB80EC3;
+        Mon,  7 Feb 2022 11:12:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B862C004E1;
+        Mon,  7 Feb 2022 11:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232092;
-        bh=0Cq6hiZ7YsNrUK6HHr6pAyM3KJv2Ya2Cm6SehmCrLPY=;
+        s=korg; t=1644232349;
+        bh=ut4pxxVPBaNxm0x7it6MGjCmGKfZhZPsmMbZw11adRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cSJUysm18/oyoMMtpvlOv+ZYT07FBhVEMW9kPaOKFCFDFUa7oLA+qDOLoIPr8CJ3+
-         97NchBGB+xBtxugzLFoO2qhGu2ZG+avma3pfAasaRymakp28+CYMb0KnoZYILcC8ko
-         8gYPG9Lvo/ueHqmlT2JroxRKzxeF4ouzCClrIgOw=
+        b=v4RcnNdi+Rgy04pxdZELNoQMHEejGcvkeILoPUJZ/defqkwUUWL5AEWIJMMjoq6kG
+         AsV2o6o3qFy/MdGQKS5y82PXW8IweCWDeyFs4oAVp+CtMZQ5ZjqOi7F3c5DofA+0x+
+         dCmCYbThCfcbjoII4+6Y6k7QU0dyPIEB+qAUk5Bk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.9 06/48] udf: Fix NULL ptr deref when converting from inline format
+        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 17/69] powerpc/32: Fix boot failure with GCC latent entropy plugin
 Date:   Mon,  7 Feb 2022 12:05:39 +0100
-Message-Id: <20220207103752.548604476@linuxfoundation.org>
+Message-Id: <20220207103756.185978501@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
-References: <20220207103752.341184175@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 7fc3b7c2981bbd1047916ade327beccb90994eee upstream.
+commit bba496656a73fc1d1330b49c7f82843836e9feb1 upstream.
 
-udf_expand_file_adinicb() calls directly ->writepage to write data
-expanded into a page. This however misses to setup inode for writeback
-properly and so we can crash on inode->i_wb dereference when submitting
-page for IO like:
+Boot fails with GCC latent entropy plugin enabled.
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000158
-  #PF: supervisor read access in kernel mode
-...
-  <TASK>
-  __folio_start_writeback+0x2ac/0x350
-  __block_write_full_page+0x37d/0x490
-  udf_expand_file_adinicb+0x255/0x400 [udf]
-  udf_file_write_iter+0xbe/0x1b0 [udf]
-  new_sync_write+0x125/0x1c0
-  vfs_write+0x28e/0x400
+This is due to early boot functions trying to access 'latent_entropy'
+global data while the kernel is not relocated at its final
+destination yet.
 
-Fix the problem by marking the page dirty and going through the standard
-writeback path to write the page. Strictly speaking we would not even
-have to write the page but we want to catch e.g. ENOSPC errors early.
+As there is no way to tell GCC to use PTRRELOC() to access it,
+disable latent entropy plugin in early_32.o and feature-fixups.o and
+code-patching.o
 
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-CC: stable@vger.kernel.org
-Fixes: 52ebea749aae ("writeback: make backing_dev_info host cgroup-specific bdi_writebacks")
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
+Cc: stable@vger.kernel.org # v4.9+
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215217
+Link: https://lore.kernel.org/r/2bac55483b8daf5b1caa163a45fa5f9cdbe18be4.1640178426.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/inode.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/powerpc/kernel/Makefile |    1 +
+ arch/powerpc/lib/Makefile    |    3 +++
+ 2 files changed, 4 insertions(+)
 
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -259,10 +259,6 @@ int udf_expand_file_adinicb(struct inode
- 	char *kaddr;
- 	struct udf_inode_info *iinfo = UDF_I(inode);
- 	int err;
--	struct writeback_control udf_wbc = {
--		.sync_mode = WB_SYNC_NONE,
--		.nr_to_write = 1,
--	};
+--- a/arch/powerpc/kernel/Makefile
++++ b/arch/powerpc/kernel/Makefile
+@@ -15,6 +15,7 @@ CFLAGS_prom_init.o      += -fPIC
+ CFLAGS_btext.o		+= -fPIC
+ endif
  
- 	WARN_ON_ONCE(!inode_is_locked(inode));
- 	if (!iinfo->i_lenAlloc) {
-@@ -306,8 +302,10 @@ int udf_expand_file_adinicb(struct inode
- 		iinfo->i_alloc_type = ICBTAG_FLAG_AD_LONG;
- 	/* from now on we have normal address_space methods */
- 	inode->i_data.a_ops = &udf_aops;
-+	set_page_dirty(page);
-+	unlock_page(page);
- 	up_write(&iinfo->i_data_sem);
--	err = inode->i_data.a_ops->writepage(page, &udf_wbc);
-+	err = filemap_fdatawrite(inode->i_mapping);
- 	if (err) {
- 		/* Restore everything back so that we don't lose data... */
- 		lock_page(page);
++CFLAGS_setup_32.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+ CFLAGS_cputable.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+ CFLAGS_prom_init.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+ CFLAGS_btext.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+--- a/arch/powerpc/lib/Makefile
++++ b/arch/powerpc/lib/Makefile
+@@ -10,6 +10,9 @@ ccflags-$(CONFIG_PPC64)	:= $(NO_MINIMAL_
+ CFLAGS_REMOVE_code-patching.o = $(CC_FLAGS_FTRACE)
+ CFLAGS_REMOVE_feature-fixups.o = $(CC_FLAGS_FTRACE)
+ 
++CFLAGS_code-patching.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
++CFLAGS_feature-fixups.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
++
+ obj-y += string.o alloc.o code-patching.o feature-fixups.o
+ 
+ obj-$(CONFIG_PPC32)	+= div64.o copy_32.o crtsavres.o
 
 
