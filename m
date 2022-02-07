@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 207C04ABD3B
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:59:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A0004ABA50
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:27:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387168AbiBGLkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:40:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46768 "EHLO
+        id S237122AbiBGLZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:25:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386568AbiBGLe6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:34:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D975C043181;
-        Mon,  7 Feb 2022 03:34:57 -0800 (PST)
+        with ESMTP id S1381054AbiBGLQ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:16:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E31C2C0401E1;
+        Mon,  7 Feb 2022 03:16:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3C79B8102E;
-        Mon,  7 Feb 2022 11:34:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D71C004E1;
-        Mon,  7 Feb 2022 11:34:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5BD561380;
+        Mon,  7 Feb 2022 11:16:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6B29C004E1;
+        Mon,  7 Feb 2022 11:16:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233694;
-        bh=kbXvknl46C1yh96qPSzRoU7OAGKJq3nYu1ZxHS+sLKY=;
+        s=korg; t=1644232613;
+        bh=lTG3C07Wf8/sEI8hwYExwGyUXAy1bir6utVxXmpv+8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dADbWCjsWp4AZCsTwDibgrXq5Pnw1uE4PfUmeClOg2k4lk2S/1BCwzlwllkEx7Iq0
-         D8nwpdvDSMN8Rn1LGWdZ2pYVmuLj+AFox73N5UYNqp3n8oHFUGMaW4dWkHmFGPKxY+
-         xxnjLYYXUg/QUg6O0wG1/hxzBAvaRl6umNYYEi3E=
+        b=T3Og4X4Za3O51jXNAlXv9dHR6h+zPVoGmUtHsJYKZTxxKG9/A4MpJgoqqLI2drWPB
+         CjAPwvtEYlH9iEDqglBFKtpahcyoc/5WLmms6QQYe8saRjyjN1ZAZrHTyX62QJRkib
+         oPV/6BV2jUP3N/l1CehrT1Ro187W2Xe1/5AKdsWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.16 059/126] spi: bcm-qspi: check for valid cs before applying chip select
+Subject: [PATCH 4.19 67/86] spi: bcm-qspi: check for valid cs before applying chip select
 Date:   Mon,  7 Feb 2022 12:06:30 +0100
-Message-Id: <20220207103806.153211332@linuxfoundation.org>
+Message-Id: <20220207103759.756812412@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+References: <20220207103757.550973048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -76,7 +76,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/spi/spi-bcm-qspi.c
 +++ b/drivers/spi/spi-bcm-qspi.c
-@@ -573,7 +573,7 @@ static void bcm_qspi_chip_select(struct
+@@ -520,7 +520,7 @@ static void bcm_qspi_chip_select(struct
  	u32 rd = 0;
  	u32 wr = 0;
  
