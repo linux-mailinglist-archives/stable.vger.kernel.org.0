@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 189D14ABDC2
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFA044ABDBA
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:03:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389070AbiBGLqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:46:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47598 "EHLO
+        id S1389056AbiBGLp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:45:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386741AbiBGLg3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:36:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61CB5C03FED2;
-        Mon,  7 Feb 2022 03:36:26 -0800 (PST)
+        with ESMTP id S1386748AbiBGLgb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:36:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 026E9C043181;
+        Mon,  7 Feb 2022 03:36:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEBEBB8102E;
-        Mon,  7 Feb 2022 11:36:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8032C004E1;
-        Mon,  7 Feb 2022 11:36:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8208A60A69;
+        Mon,  7 Feb 2022 11:36:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4948FC004E1;
+        Mon,  7 Feb 2022 11:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233783;
-        bh=o8tPfxgrZHOaxIilLIOW80FOCyLWdjQ7p85OGcBk3uA=;
+        s=korg; t=1644233790;
+        bh=rrCuu477wj4X6lM0wC9UJqAp+SzH0iPa855DMsGM5eA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K4ao3HnvBije//pTJYXSjXAOLife03v9r+OVKPR/8fhhwBFrB+a6WoIqkEM+RwtbD
-         ucNl2WzlBGlR9Ol38Bv9gJAnkUKg1Oewth4N4tLR2IEOnUQiD2/oWtcfKKU7UC5lk1
-         59ijy5q2fuIlG8EPjcCIPVmEXF6e+exylVjxKAlw=
+        b=vG77KdU+pylEYjlWOPzMxMSbX14SwUoD5v7P5xZOLe/pWjKIHyCcXzjAAtITeRoGa
+         X0c2tLjZ5MMEwWj8YHKKaWxNMZ3afwq8huyP6jLe8oPlxvEAhVrbNbVCsdujIvcBFd
+         JI8OoSDS2Nk9KLPb+KutkijQ+6D6AWYBsA/AYKKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, luo penghao <luo.penghao@zte.com.cn>,
-        Lukas Czerner <lczerner@redhat.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        stable@kernel.org, Xin Yin <yinxin.x@bytedance.com>,
         Ritesh Harjani <riteshh@linux.ibm.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.16 118/126] ext4: fix error handling in ext4_fc_record_modified_inode()
-Date:   Mon,  7 Feb 2022 12:07:29 +0100
-Message-Id: <20220207103808.137191937@linuxfoundation.org>
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.16 119/126] ext4: fix incorrect type issue during replay_del_range
+Date:   Mon,  7 Feb 2022 12:07:30 +0100
+Message-Id: <20220207103808.170434877@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
 References: <20220207103804.053675072@linuxfoundation.org>
@@ -56,182 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ritesh Harjani <riteshh@linux.ibm.com>
+From: Xin Yin <yinxin.x@bytedance.com>
 
-commit cdce59a1549190b66f8e3fe465c2b2f714b98a94 upstream.
+commit 8fca8a2b0a822f7936130af7299d2fd7f0a66714 upstream.
 
-Current code does not fully takes care of krealloc() error case, which
-could lead to silent memory corruption or a kernel bug.  This patch
-fixes that.
+should not use fast commit log data directly, add le32_to_cpu().
 
-Also it cleans up some duplicated error handling logic from various
-functions in fast_commit.c file.
-
-Reported-by: luo penghao <luo.penghao@zte.com.cn>
-Suggested-by: Lukas Czerner <lczerner@redhat.com>
-Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/62e8b6a1cce9359682051deb736a3c0953c9d1e9.1642416995.git.riteshh@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 0b5b5a62b945 ("ext4: use ext4_ext_remove_space() for fast commit replay delete range")
 Cc: stable@kernel.org
+Signed-off-by: Xin Yin <yinxin.x@bytedance.com>
+Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220126063146.2302-1-yinxin.x@bytedance.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c |   64 ++++++++++++++++++++++----------------------------
- 1 file changed, 29 insertions(+), 35 deletions(-)
+ fs/ext4/fast_commit.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 --- a/fs/ext4/fast_commit.c
 +++ b/fs/ext4/fast_commit.c
-@@ -1435,14 +1435,15 @@ static int ext4_fc_record_modified_inode
- 		if (state->fc_modified_inodes[i] == ino)
- 			return 0;
- 	if (state->fc_modified_inodes_used == state->fc_modified_inodes_size) {
--		state->fc_modified_inodes_size +=
--			EXT4_FC_REPLAY_REALLOC_INCREMENT;
- 		state->fc_modified_inodes = krealloc(
--					state->fc_modified_inodes, sizeof(int) *
--					state->fc_modified_inodes_size,
--					GFP_KERNEL);
-+				state->fc_modified_inodes,
-+				sizeof(int) * (state->fc_modified_inodes_size +
-+				EXT4_FC_REPLAY_REALLOC_INCREMENT),
-+				GFP_KERNEL);
- 		if (!state->fc_modified_inodes)
- 			return -ENOMEM;
-+		state->fc_modified_inodes_size +=
-+			EXT4_FC_REPLAY_REALLOC_INCREMENT;
- 	}
- 	state->fc_modified_inodes[state->fc_modified_inodes_used++] = ino;
- 	return 0;
-@@ -1474,7 +1475,9 @@ static int ext4_fc_replay_inode(struct s
- 	}
- 	inode = NULL;
- 
--	ext4_fc_record_modified_inode(sb, ino);
-+	ret = ext4_fc_record_modified_inode(sb, ino);
-+	if (ret)
-+		goto out;
- 
- 	raw_fc_inode = (struct ext4_inode *)
- 		(val + offsetof(struct ext4_fc_inode, fc_raw_inode));
-@@ -1674,6 +1677,8 @@ static int ext4_fc_replay_add_range(stru
+@@ -1819,8 +1819,9 @@ ext4_fc_replay_del_range(struct super_bl
  	}
  
- 	ret = ext4_fc_record_modified_inode(sb, inode->i_ino);
-+	if (ret)
-+		goto out;
- 
- 	start = le32_to_cpu(ex->ee_block);
- 	start_pblk = ext4_ext_pblock(ex);
-@@ -1691,18 +1696,14 @@ static int ext4_fc_replay_add_range(stru
- 		map.m_pblk = 0;
- 		ret = ext4_map_blocks(NULL, inode, &map, 0);
- 
--		if (ret < 0) {
--			iput(inode);
--			return 0;
--		}
-+		if (ret < 0)
-+			goto out;
- 
- 		if (ret == 0) {
- 			/* Range is not mapped */
- 			path = ext4_find_extent(inode, cur, NULL, 0);
--			if (IS_ERR(path)) {
--				iput(inode);
--				return 0;
--			}
-+			if (IS_ERR(path))
-+				goto out;
- 			memset(&newex, 0, sizeof(newex));
- 			newex.ee_block = cpu_to_le32(cur);
- 			ext4_ext_store_pblock(
-@@ -1716,10 +1717,8 @@ static int ext4_fc_replay_add_range(stru
- 			up_write((&EXT4_I(inode)->i_data_sem));
- 			ext4_ext_drop_refs(path);
- 			kfree(path);
--			if (ret) {
--				iput(inode);
--				return 0;
--			}
-+			if (ret)
-+				goto out;
- 			goto next;
- 		}
- 
-@@ -1732,10 +1731,8 @@ static int ext4_fc_replay_add_range(stru
- 			ret = ext4_ext_replay_update_ex(inode, cur, map.m_len,
- 					ext4_ext_is_unwritten(ex),
- 					start_pblk + cur - start);
--			if (ret) {
--				iput(inode);
--				return 0;
--			}
-+			if (ret)
-+				goto out;
- 			/*
- 			 * Mark the old blocks as free since they aren't used
- 			 * anymore. We maintain an array of all the modified
-@@ -1755,10 +1752,8 @@ static int ext4_fc_replay_add_range(stru
- 			ext4_ext_is_unwritten(ex), map.m_pblk);
- 		ret = ext4_ext_replay_update_ex(inode, cur, map.m_len,
- 					ext4_ext_is_unwritten(ex), map.m_pblk);
--		if (ret) {
--			iput(inode);
--			return 0;
--		}
-+		if (ret)
-+			goto out;
- 		/*
- 		 * We may have split the extent tree while toggling the state.
- 		 * Try to shrink the extent tree now.
-@@ -1770,6 +1765,7 @@ next:
- 	}
- 	ext4_ext_replay_shrink_inode(inode, i_size_read(inode) >>
- 					sb->s_blocksize_bits);
-+out:
- 	iput(inode);
- 	return 0;
- }
-@@ -1799,6 +1795,8 @@ ext4_fc_replay_del_range(struct super_bl
- 	}
- 
- 	ret = ext4_fc_record_modified_inode(sb, inode->i_ino);
-+	if (ret)
-+		goto out;
- 
- 	jbd_debug(1, "DEL_RANGE, inode %ld, lblk %d, len %d\n",
- 			inode->i_ino, le32_to_cpu(lrange.fc_lblk),
-@@ -1808,10 +1806,8 @@ ext4_fc_replay_del_range(struct super_bl
- 		map.m_len = remaining;
- 
- 		ret = ext4_map_blocks(NULL, inode, &map, 0);
--		if (ret < 0) {
--			iput(inode);
--			return 0;
--		}
-+		if (ret < 0)
-+			goto out;
- 		if (ret > 0) {
- 			remaining -= ret;
- 			cur += ret;
-@@ -1826,15 +1822,13 @@ ext4_fc_replay_del_range(struct super_bl
- 	ret = ext4_ext_remove_space(inode, lrange.fc_lblk,
- 				lrange.fc_lblk + lrange.fc_len - 1);
+ 	down_write(&EXT4_I(inode)->i_data_sem);
+-	ret = ext4_ext_remove_space(inode, lrange.fc_lblk,
+-				lrange.fc_lblk + lrange.fc_len - 1);
++	ret = ext4_ext_remove_space(inode, le32_to_cpu(lrange.fc_lblk),
++				le32_to_cpu(lrange.fc_lblk) +
++				le32_to_cpu(lrange.fc_len) - 1);
  	up_write(&EXT4_I(inode)->i_data_sem);
--	if (ret) {
--		iput(inode);
--		return 0;
--	}
-+	if (ret)
-+		goto out;
- 	ext4_ext_replay_shrink_inode(inode,
- 		i_size_read(inode) >> sb->s_blocksize_bits);
- 	ext4_mark_inode_dirty(NULL, inode);
-+out:
- 	iput(inode);
--
- 	return 0;
- }
- 
+ 	if (ret)
+ 		goto out;
 
 
