@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 909EC4ABB99
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:39:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C335B4ABA93
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384578AbiBGL3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:29:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33188 "EHLO
+        id S1383909AbiBGLYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383021AbiBGLVZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:21:25 -0500
+        with ESMTP id S1352740AbiBGLMA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:12:00 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D9B0C03FECD;
-        Mon,  7 Feb 2022 03:21:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A83C043181;
+        Mon,  7 Feb 2022 03:11:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69E04B811AF;
-        Mon,  7 Feb 2022 11:21:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F295C004E1;
-        Mon,  7 Feb 2022 11:21:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2EADCB80EE8;
+        Mon,  7 Feb 2022 11:11:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73327C340F0;
+        Mon,  7 Feb 2022 11:11:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232862;
-        bh=vhAEzco/UHCmcxF7QDa7KCLTLJqPXpSuTCLSQsFmnXo=;
+        s=korg; t=1644232317;
+        bh=A0RU8r+l+8sVWeobTgW/MCLtGu7DGf8IPAqtA1vxPvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ibUbqN6flqoJa0wJYlkzkYUqCCucIv5B2+ZL0+kKJCkM+oV6X+MZyC/XWhqddX4G7
-         U8X0aHV4V0i+oKsRNcUZaOQgbl4GZ4VuN6PVWSvDGicsRZKufTmLYLr/kjbUp3I3Ft
-         iNDjdb1LVsL454ZlML/eN5c9Ck/Zc7sT/hRuJz3I=
+        b=YLIPIm/POsby5w19PVfnC+Z7om8M3SQp1hG4I58wCYoNb2pbcMeCyyZHR9mE2sfoN
+         xCjDO8HOtYaru6fYgP0i9IUgTdvNHVKPFSX3AaSUEi/g6bZypIvMolRLRQZc+rZSzj
+         8+VoGyMoAIdg9Yr402Wh3b+Vk8gA9da7x8zDdxYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.10 02/74] audit: improve audit queue handling when "audit=1" on cmdline
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Alessio Balsini <balsini@android.com>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 4.14 38/69] bpf: fix truncated jump targets on heavy expansions
 Date:   Mon,  7 Feb 2022 12:06:00 +0100
-Message-Id: <20220207103757.311948583@linuxfoundation.org>
+Message-Id: <20220207103756.875238153@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,207 +56,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit f26d04331360d42dbd6b58448bd98e4edbfbe1c5 upstream.
+commit 050fad7c4534c13c8eb1d9c2ba66012e014773cb upstream.
 
-When an admin enables audit at early boot via the "audit=1" kernel
-command line the audit queue behavior is slightly different; the
-audit subsystem goes to greater lengths to avoid dropping records,
-which unfortunately can result in problems when the audit daemon is
-forcibly stopped for an extended period of time.
+Recently during testing, I ran into the following panic:
 
-This patch makes a number of changes designed to improve the audit
-queuing behavior so that leaving the audit daemon in a stopped state
-for an extended period does not cause a significant impact to the
-system.
+  [  207.892422] Internal error: Accessing user space memory outside uaccess.h routines: 96000004 [#1] SMP
+  [  207.901637] Modules linked in: binfmt_misc [...]
+  [  207.966530] CPU: 45 PID: 2256 Comm: test_verifier Tainted: G        W         4.17.0-rc3+ #7
+  [  207.974956] Hardware name: FOXCONN R2-1221R-A4/C2U4N_MB, BIOS G31FB18A 03/31/2017
+  [  207.982428] pstate: 60400005 (nZCv daif +PAN -UAO)
+  [  207.987214] pc : bpf_skb_load_helper_8_no_cache+0x34/0xc0
+  [  207.992603] lr : 0xffff000000bdb754
+  [  207.996080] sp : ffff000013703ca0
+  [  207.999384] x29: ffff000013703ca0 x28: 0000000000000001
+  [  208.004688] x27: 0000000000000001 x26: 0000000000000000
+  [  208.009992] x25: ffff000013703ce0 x24: ffff800fb4afcb00
+  [  208.015295] x23: ffff00007d2f5038 x22: ffff00007d2f5000
+  [  208.020599] x21: fffffffffeff2a6f x20: 000000000000000a
+  [  208.025903] x19: ffff000009578000 x18: 0000000000000a03
+  [  208.031206] x17: 0000000000000000 x16: 0000000000000000
+  [  208.036510] x15: 0000ffff9de83000 x14: 0000000000000000
+  [  208.041813] x13: 0000000000000000 x12: 0000000000000000
+  [  208.047116] x11: 0000000000000001 x10: ffff0000089e7f18
+  [  208.052419] x9 : fffffffffeff2a6f x8 : 0000000000000000
+  [  208.057723] x7 : 000000000000000a x6 : 00280c6160000000
+  [  208.063026] x5 : 0000000000000018 x4 : 0000000000007db6
+  [  208.068329] x3 : 000000000008647a x2 : 19868179b1484500
+  [  208.073632] x1 : 0000000000000000 x0 : ffff000009578c08
+  [  208.078938] Process test_verifier (pid: 2256, stack limit = 0x0000000049ca7974)
+  [  208.086235] Call trace:
+  [  208.088672]  bpf_skb_load_helper_8_no_cache+0x34/0xc0
+  [  208.093713]  0xffff000000bdb754
+  [  208.096845]  bpf_test_run+0x78/0xf8
+  [  208.100324]  bpf_prog_test_run_skb+0x148/0x230
+  [  208.104758]  sys_bpf+0x314/0x1198
+  [  208.108064]  el0_svc_naked+0x30/0x34
+  [  208.111632] Code: 91302260 f9400001 f9001fa1 d2800001 (29500680)
+  [  208.117717] ---[ end trace 263cb8a59b5bf29f ]---
 
-- kauditd_send_queue() is now limited to looping through the
-  passed queue only once per call.  This not only prevents the
-  function from looping indefinitely when records are returned
-  to the current queue, it also allows any recovery handling in
-  kauditd_thread() to take place when kauditd_send_queue()
-  returns.
+The program itself which caused this had a long jump over the whole
+instruction sequence where all of the inner instructions required
+heavy expansions into multiple BPF instructions. Additionally, I also
+had BPF hardening enabled which requires once more rewrites of all
+constant values in order to blind them. Each time we rewrite insns,
+bpf_adj_branches() would need to potentially adjust branch targets
+which cross the patchlet boundary to accommodate for the additional
+delta. Eventually that lead to the case where the target offset could
+not fit into insn->off's upper 0x7fff limit anymore where then offset
+wraps around becoming negative (in s16 universe), or vice versa
+depending on the jump direction.
 
-- Transient netlink send errors seen as -EAGAIN now cause the
-  record to be returned to the retry queue instead of going to
-  the hold queue.  The intention of the hold queue is to store,
-  perhaps for an extended period of time, the events which led
-  up to the audit daemon going offline.  The retry queue remains
-  a temporary queue intended to protect against transient issues
-  between the kernel and the audit daemon.
+Therefore it becomes necessary to detect and reject any such occasions
+in a generic way for native eBPF and cBPF to eBPF migrations. For
+the latter we can simply check bounds in the bpf_convert_filter()'s
+BPF_EMIT_JMP helper macro and bail out once we surpass limits. The
+bpf_patch_insn_single() for native eBPF (and cBPF to eBPF in case
+of subsequent hardening) is a bit more complex in that we need to
+detect such truncations before hitting the bpf_prog_realloc(). Thus
+the latter is split into an extra pass to probe problematic offsets
+on the original program in order to fail early. With that in place
+and carefully tested I no longer hit the panic and the rewrites are
+rejected properly. The above example panic I've seen on bpf-next,
+though the issue itself is generic in that a guard against this issue
+in bpf seems more appropriate in this case.
 
-- The retry queue is now limited by the audit_backlog_limit
-  setting, the same as the other queues.  This allows admins
-  to bound the size of all of the audit queues on the system.
-
-- kauditd_rehold_skb() now returns records to the end of the
-  hold queue to ensure ordering is preserved in the face of
-  recent changes to kauditd_send_queue().
-
-Cc: stable@vger.kernel.org
-Fixes: 5b52330bbfe63 ("audit: fix auditd/kernel connection state tracking")
-Fixes: f4b3ee3c85551 ("audit: improve robustness of the audit queue handling")
-Reported-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Tested-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+[ab: Dropped BPF_PSEUDO_CALL hardening, introoduced in 4.16]
+Signed-off-by: Alessio Balsini <balsini@android.com>
+Acked-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/audit.c |   62 +++++++++++++++++++++++++++++++++++++++------------------
- 1 file changed, 43 insertions(+), 19 deletions(-)
+ kernel/bpf/core.c |   59 ++++++++++++++++++++++++++++++++++++++++++++++--------
+ net/core/filter.c |   11 ++++++++--
+ 2 files changed, 60 insertions(+), 10 deletions(-)
 
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -541,20 +541,22 @@ static void kauditd_printk_skb(struct sk
- /**
-  * kauditd_rehold_skb - Handle a audit record send failure in the hold queue
-  * @skb: audit record
-+ * @error: error code (unused)
-  *
-  * Description:
-  * This should only be used by the kauditd_thread when it fails to flush the
-  * hold queue.
-  */
--static void kauditd_rehold_skb(struct sk_buff *skb)
-+static void kauditd_rehold_skb(struct sk_buff *skb, __always_unused int error)
- {
--	/* put the record back in the queue at the same place */
--	skb_queue_head(&audit_hold_queue, skb);
-+	/* put the record back in the queue */
-+	skb_queue_tail(&audit_hold_queue, skb);
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -228,27 +228,57 @@ static bool bpf_is_jmp_and_has_target(co
+ 	       BPF_OP(insn->code) != BPF_EXIT;
  }
  
- /**
-  * kauditd_hold_skb - Queue an audit record, waiting for auditd
-  * @skb: audit record
-+ * @error: error code
-  *
-  * Description:
-  * Queue the audit record, waiting for an instance of auditd.  When this
-@@ -564,19 +566,31 @@ static void kauditd_rehold_skb(struct sk
-  * and queue it, if we have room.  If we want to hold on to the record, but we
-  * don't have room, record a record lost message.
-  */
--static void kauditd_hold_skb(struct sk_buff *skb)
-+static void kauditd_hold_skb(struct sk_buff *skb, int error)
+-static void bpf_adj_branches(struct bpf_prog *prog, u32 pos, u32 delta)
++static int bpf_adj_delta_to_off(struct bpf_insn *insn, u32 pos, u32 delta,
++				u32 curr, const bool probe_pass)
  {
- 	/* at this point it is uncertain if we will ever send this to auditd so
- 	 * try to send the message via printk before we go any further */
- 	kauditd_printk_skb(skb);
- 
- 	/* can we just silently drop the message? */
--	if (!audit_default) {
--		kfree_skb(skb);
--		return;
-+	if (!audit_default)
-+		goto drop;
++	const s32 off_min = S16_MIN, off_max = S16_MAX;
++	s32 off = insn->off;
 +
-+	/* the hold queue is only for when the daemon goes away completely,
-+	 * not -EAGAIN failures; if we are in a -EAGAIN state requeue the
-+	 * record on the retry queue unless it's full, in which case drop it
-+	 */
-+	if (error == -EAGAIN) {
-+		if (!audit_backlog_limit ||
-+		    skb_queue_len(&audit_retry_queue) < audit_backlog_limit) {
-+			skb_queue_tail(&audit_retry_queue, skb);
-+			return;
++	if (curr < pos && curr + off + 1 > pos)
++		off += delta;
++	else if (curr > pos + delta && curr + off + 1 <= pos + delta)
++		off -= delta;
++	if (off < off_min || off > off_max)
++		return -ERANGE;
++	if (!probe_pass)
++		insn->off = off;
++	return 0;
++}
++
++static int bpf_adj_branches(struct bpf_prog *prog, u32 pos, u32 delta,
++			    const bool probe_pass)
++{
++	u32 i, insn_cnt = prog->len + (probe_pass ? delta : 0);
+ 	struct bpf_insn *insn = prog->insnsi;
+-	u32 i, insn_cnt = prog->len;
++	int ret = 0;
+ 
+ 	for (i = 0; i < insn_cnt; i++, insn++) {
++		/* In the probing pass we still operate on the original,
++		 * unpatched image in order to check overflows before we
++		 * do any other adjustments. Therefore skip the patchlet.
++		 */
++		if (probe_pass && i == pos) {
++			i += delta + 1;
++			insn++;
 +		}
-+		audit_log_lost("kauditd retry queue overflow");
-+		goto drop;
- 	}
- 
--	/* if we have room, queue the message */
-+	/* if we have room in the hold queue, queue the message */
- 	if (!audit_backlog_limit ||
- 	    skb_queue_len(&audit_hold_queue) < audit_backlog_limit) {
- 		skb_queue_tail(&audit_hold_queue, skb);
-@@ -585,24 +599,32 @@ static void kauditd_hold_skb(struct sk_b
- 
- 	/* we have no other options - drop the message */
- 	audit_log_lost("kauditd hold queue overflow");
-+drop:
- 	kfree_skb(skb);
- }
- 
- /**
-  * kauditd_retry_skb - Queue an audit record, attempt to send again to auditd
-  * @skb: audit record
-+ * @error: error code (unused)
-  *
-  * Description:
-  * Not as serious as kauditd_hold_skb() as we still have a connected auditd,
-  * but for some reason we are having problems sending it audit records so
-  * queue the given record and attempt to resend.
-  */
--static void kauditd_retry_skb(struct sk_buff *skb)
-+static void kauditd_retry_skb(struct sk_buff *skb, __always_unused int error)
- {
--	/* NOTE: because records should only live in the retry queue for a
--	 * short period of time, before either being sent or moved to the hold
--	 * queue, we don't currently enforce a limit on this queue */
--	skb_queue_tail(&audit_retry_queue, skb);
-+	if (!audit_backlog_limit ||
-+	    skb_queue_len(&audit_retry_queue) < audit_backlog_limit) {
-+		skb_queue_tail(&audit_retry_queue, skb);
-+		return;
-+	}
 +
-+	/* we have to drop the record, send it via printk as a last effort */
-+	kauditd_printk_skb(skb);
-+	audit_log_lost("kauditd retry queue overflow");
-+	kfree_skb(skb);
- }
- 
- /**
-@@ -640,7 +662,7 @@ static void auditd_reset(const struct au
- 	/* flush the retry queue to the hold queue, but don't touch the main
- 	 * queue since we need to process that normally for multicast */
- 	while ((skb = skb_dequeue(&audit_retry_queue)))
--		kauditd_hold_skb(skb);
-+		kauditd_hold_skb(skb, -ECONNREFUSED);
- }
- 
- /**
-@@ -714,16 +736,18 @@ static int kauditd_send_queue(struct soc
- 			      struct sk_buff_head *queue,
- 			      unsigned int retry_limit,
- 			      void (*skb_hook)(struct sk_buff *skb),
--			      void (*err_hook)(struct sk_buff *skb))
-+			      void (*err_hook)(struct sk_buff *skb, int error))
- {
- 	int rc = 0;
--	struct sk_buff *skb;
-+	struct sk_buff *skb = NULL;
-+	struct sk_buff *skb_tail;
- 	unsigned int failed = 0;
- 
- 	/* NOTE: kauditd_thread takes care of all our locking, we just use
- 	 *       the netlink info passed to us (e.g. sk and portid) */
- 
--	while ((skb = skb_dequeue(queue))) {
-+	skb_tail = skb_peek_tail(queue);
-+	while ((skb != skb_tail) && (skb = skb_dequeue(queue))) {
- 		/* call the skb_hook for each skb we touch */
- 		if (skb_hook)
- 			(*skb_hook)(skb);
-@@ -731,7 +755,7 @@ static int kauditd_send_queue(struct soc
- 		/* can we send to anyone via unicast? */
- 		if (!sk) {
- 			if (err_hook)
--				(*err_hook)(skb);
-+				(*err_hook)(skb, -ECONNREFUSED);
+ 		if (!bpf_is_jmp_and_has_target(insn))
  			continue;
- 		}
  
-@@ -745,7 +769,7 @@ retry:
- 			    rc == -ECONNREFUSED || rc == -EPERM) {
- 				sk = NULL;
- 				if (err_hook)
--					(*err_hook)(skb);
-+					(*err_hook)(skb, rc);
- 				if (rc == -EAGAIN)
- 					rc = 0;
- 				/* continue to drain the queue */
+-		/* Adjust offset of jmps if we cross boundaries. */
+-		if (i < pos && i + insn->off + 1 > pos)
+-			insn->off += delta;
+-		else if (i > pos + delta && i + insn->off + 1 <= pos + delta)
+-			insn->off -= delta;
++		/* Adjust offset of jmps if we cross patch boundaries. */
++		ret = bpf_adj_delta_to_off(insn, pos, delta, i, probe_pass);
++		if (ret)
++			break;
+ 	}
++
++	return ret;
+ }
+ 
+ struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
+ 				       const struct bpf_insn *patch, u32 len)
+ {
+ 	u32 insn_adj_cnt, insn_rest, insn_delta = len - 1;
++	const u32 cnt_max = S16_MAX;
+ 	struct bpf_prog *prog_adj;
+ 
+ 	/* Since our patchlet doesn't expand the image, we're done. */
+@@ -259,6 +289,15 @@ struct bpf_prog *bpf_patch_insn_single(s
+ 
+ 	insn_adj_cnt = prog->len + insn_delta;
+ 
++	/* Reject anything that would potentially let the insn->off
++	 * target overflow when we have excessive program expansions.
++	 * We need to probe here before we do any reallocation where
++	 * we afterwards may not fail anymore.
++	 */
++	if (insn_adj_cnt > cnt_max &&
++	    bpf_adj_branches(prog, off, insn_delta, true))
++		return NULL;
++
+ 	/* Several new instructions need to be inserted. Make room
+ 	 * for them. Likely, there's no need for a new allocation as
+ 	 * last page could have large enough tailroom.
+@@ -284,7 +323,11 @@ struct bpf_prog *bpf_patch_insn_single(s
+ 		sizeof(*patch) * insn_rest);
+ 	memcpy(prog_adj->insnsi + off, patch, sizeof(*patch) * len);
+ 
+-	bpf_adj_branches(prog_adj, off, insn_delta);
++	/* We are guaranteed to not fail at this point, otherwise
++	 * the ship has sailed to reverse to the original state. An
++	 * overflow cannot happen at this point.
++	 */
++	BUG_ON(bpf_adj_branches(prog_adj, off, insn_delta, false));
+ 
+ 	return prog_adj;
+ }
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -472,11 +472,18 @@ do_pass:
+ 
+ #define BPF_EMIT_JMP							\
+ 	do {								\
++		const s32 off_min = S16_MIN, off_max = S16_MAX;		\
++		s32 off;						\
++									\
+ 		if (target >= len || target < 0)			\
+ 			goto err;					\
+-		insn->off = addrs ? addrs[target] - addrs[i] - 1 : 0;	\
++		off = addrs ? addrs[target] - addrs[i] - 1 : 0;		\
+ 		/* Adjust pc relative offset for 2nd or 3rd insn. */	\
+-		insn->off -= insn - tmp_insns;				\
++		off -= insn - tmp_insns;				\
++		/* Reject anything not fitting into insn->off. */	\
++		if (off < off_min || off > off_max)			\
++			goto err;					\
++		insn->off = off;					\
+ 	} while (0)
+ 
+ 		case BPF_JMP | BPF_JA:
 
 
