@@ -2,43 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 152AB4ABACB
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC3A24ABC3D
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:46:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384076AbiBGLYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48196 "EHLO
+        id S1385076AbiBGLbE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:31:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239868AbiBGLIz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:08:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B954C043181;
-        Mon,  7 Feb 2022 03:08:54 -0800 (PST)
+        with ESMTP id S1355803AbiBGL0B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:26:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CAA8C03E968;
+        Mon,  7 Feb 2022 03:25:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF00661370;
-        Mon,  7 Feb 2022 11:08:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6649C004E1;
-        Mon,  7 Feb 2022 11:08:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B32BEB80EC3;
+        Mon,  7 Feb 2022 11:25:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A65C004E1;
+        Mon,  7 Feb 2022 11:25:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232133;
-        bh=XEHOf2BWWJu2fV5Q2GdwzqBELmU+u4aevCPMAGrUlxw=;
+        s=korg; t=1644233133;
+        bh=LLYIADvuVzP5s+T9xBErFHnFjFO3FixGAqGldwSpfRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HNuSKRD3Q2nA9kBqkcCwLqhw1vtdO28G9f1pbXpEnqBAnl3pRLJSNs79HHQhv/AsK
-         YkeLrp458XsBsItanEkX11u68ZrbFz/7FlbFVukNmNH2j4rRg+KQUE71fuKw2RkvTA
-         wbGH9TUYdnYoY8QZlOFty9gbFEG5D7soS9smNhdg=
+        b=SQbRX+/rnigdCUOpT2p5+Zbp9lDJpqpCxfWnIqZY1fCbIlQXdCk51Pt/GEd9ETtQU
+         TJ9/z4aqnKZFlgallqZIZYyvW3o5j0PWGWGjbCxJC7++b8oHNfYwWe8rdMPOoprSv+
+         Y5phggj+l5LqF41pelcg4tqJro4wuIB1SNy/ZsPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.9 27/48] netfilter: nat: limit port clash resolution attempts
+        stable@vger.kernel.org, Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Zi Yan <ziy@nvidia.com>, David Rientjes <rientjes@google.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Paul Turner <pjt@google.com>, Wei Xu <weixugc@google.com>,
+        Greg Thelen <gthelen@google.com>,
+        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
+        Mike Rapoport <rppt@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 027/110] mm/debug_vm_pgtable: remove pte entry from the page table
 Date:   Mon,  7 Feb 2022 12:06:00 +0100
-Message-Id: <20220207103753.228797467@linuxfoundation.org>
+Message-Id: <20220207103803.165197284@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
-References: <20220207103752.341184175@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +66,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Pasha Tatashin <pasha.tatashin@soleen.com>
 
-commit a504b703bb1da526a01593da0e4be2af9d9f5fa8 upstream.
+commit fb5222aae64fe25e5f3ebefde8214dcf3ba33ca5 upstream.
 
-In case almost or all available ports are taken, clash resolution can
-take a very long time, resulting in soft lockup.
+Patch series "page table check fixes and cleanups", v5.
 
-This can happen when many to-be-natted hosts connect to same
-destination:port (e.g. a proxy) and all connections pass the same SNAT.
+This patch (of 4):
 
-Pick a random offset in the acceptable range, then try ever smaller
-number of adjacent port numbers, until either the limit is reached or a
-useable port was found.  This results in at most 248 attempts
-(128 + 64 + 32 + 16 + 8, i.e. 4 restarts with new search offset)
-instead of 64000+,
+The pte entry that is used in pte_advanced_tests() is never removed from
+the page table at the end of the test.
 
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+The issue is detected by page_table_check, to repro compile kernel with
+the following configs:
+
+CONFIG_DEBUG_VM_PGTABLE=y
+CONFIG_PAGE_TABLE_CHECK=y
+CONFIG_PAGE_TABLE_CHECK_ENFORCED=y
+
+During the boot the following BUG is printed:
+
+  debug_vm_pgtable: [debug_vm_pgtable         ]: Validating architecture page table helpers
+  ------------[ cut here ]------------
+  kernel BUG at mm/page_table_check.c:162!
+  invalid opcode: 0000 [#1] PREEMPT SMP PTI
+  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.16.0-11413-g2c271fe77d52 #3
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
+  ...
+
+The entry should be properly removed from the page table before the page
+is released to the free list.
+
+Link: https://lkml.kernel.org/r/20220131203249.2832273-1-pasha.tatashin@soleen.com
+Link: https://lkml.kernel.org/r/20220131203249.2832273-2-pasha.tatashin@soleen.com
+Fixes: a5c3b9ffb0f4 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
+Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
+Tested-by: Zi Yan <ziy@nvidia.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Paul Turner <pjt@google.com>
+Cc: Wei Xu <weixugc@google.com>
+Cc: Greg Thelen <gthelen@google.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: <stable@vger.kernel.org>	[5.9+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_nat_proto_common.c |   29 +++++++++++++++++++++++------
- 1 file changed, 23 insertions(+), 6 deletions(-)
+ mm/debug_vm_pgtable.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/netfilter/nf_nat_proto_common.c
-+++ b/net/netfilter/nf_nat_proto_common.c
-@@ -40,9 +40,10 @@ void nf_nat_l4proto_unique_tuple(const s
- 				 enum nf_nat_manip_type maniptype,
- 				 const struct nf_conn *ct)
- {
--	unsigned int range_size, min, max, i;
-+	unsigned int range_size, min, max, i, attempts;
- 	__be16 *portptr;
--	u_int16_t off;
-+	u16 off;
-+	static const unsigned int max_attempts = 128;
- 
- 	if (maniptype == NF_NAT_MANIP_SRC)
- 		portptr = &tuple->src.u.all;
-@@ -86,12 +87,28 @@ void nf_nat_l4proto_unique_tuple(const s
- 		off = prandom_u32();
- 	}
- 
--	for (i = 0; ; ++off) {
-+	attempts = range_size;
-+	if (attempts > max_attempts)
-+		attempts = max_attempts;
+--- a/mm/debug_vm_pgtable.c
++++ b/mm/debug_vm_pgtable.c
+@@ -171,6 +171,8 @@ static void __init pte_advanced_tests(st
+ 	ptep_test_and_clear_young(args->vma, args->vaddr, args->ptep);
+ 	pte = ptep_get(args->ptep);
+ 	WARN_ON(pte_young(pte));
 +
-+	/* We are in softirq; doing a search of the entire range risks
-+	 * soft lockup when all tuples are already used.
-+	 *
-+	 * If we can't find any free port from first offset, pick a new
-+	 * one and try again, with ever smaller search window.
-+	 */
-+another_round:
-+	for (i = 0; i < attempts; i++, off++) {
- 		*portptr = htons(min + off % range_size);
--		if (++i != range_size && nf_nat_used_tuple(tuple, ct))
--			continue;
--		return;
-+		if (!nf_nat_used_tuple(tuple, ct))
-+			return;
- 	}
-+
-+	if (attempts >= range_size || attempts < 16)
-+		return;
-+	attempts /= 2;
-+	off = prandom_u32();
-+	goto another_round;
++	ptep_get_and_clear_full(args->mm, args->vaddr, args->ptep, 1);
  }
- EXPORT_SYMBOL_GPL(nf_nat_l4proto_unique_tuple);
  
+ static void __init pte_savedwrite_tests(struct pgtable_debug_args *args)
 
 
