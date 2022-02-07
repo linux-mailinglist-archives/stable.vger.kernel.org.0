@@ -2,97 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FDC54AB80A
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 11:01:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD9294AB828
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 11:01:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350616AbiBGJvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 04:51:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33090 "EHLO
+        id S237845AbiBGJuu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 04:50:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351343AbiBGJfz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 04:35:55 -0500
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 889CDC043181;
-        Mon,  7 Feb 2022 01:35:54 -0800 (PST)
-Received: from zn.tnic (dslb-088-067-221-104.088.067.pools.vodafone-ip.de [88.67.221.104])
+        with ESMTP id S236095AbiBGJpN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 04:45:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D59EBC043181;
+        Mon,  7 Feb 2022 01:45:12 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id D93221EC032C;
-        Mon,  7 Feb 2022 10:35:46 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1644226547;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=rDiVcxjeYIchdVruDF/dh+Lsn2pxySfwdTEN8yKfdeQ=;
-        b=nnRw/Rwp2ohjKTUmnH9MBlX89ad3H/Y7vIsogbPEB2l6ApAnSms33M5oDEXH8rc92vQOFg
-        PraSmUxtkbAd1G9jq0L51/yfllCBdkkq+nvvzspcZkcwGSbPtRBpsPNFrN8OkU0+JnqzTh
-        F7ttl1pHCVXr19Tft2Dt548YWOGBeaU=
-Date:   Mon, 7 Feb 2022 10:35:41 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     luofei <luofei@unicloud.com>, stable@vger.kernel.org,
-        tony.luck@intel.com, tglx@linutronix.de, mingo@redhat.com,
-        hpa@zytor.com, x86@kernel.org, linux-edac@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86/mm, mm/hwpoison: fix unmap kernel 1:1 pages
-Message-ID: <YgDn7WWdcD5xaprX@zn.tnic>
-References: <20220207075242.830685-1-luofei@unicloud.com>
- <YgDU3+KsiaQ54J5N@kroah.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C3F1B810F7;
+        Mon,  7 Feb 2022 09:45:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 919B0C004E1;
+        Mon,  7 Feb 2022 09:45:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1644227108;
+        bh=SC/2SlU63pP9Mfmat6jclxxX8jCixi9ZXMl/X43zsPk=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=PsFTwW+BM2Mk8RCqQMVi5w+w3sjlZTVS3IHoxPnbk0VYHtd32RH2XI4CnHBhE/qir
+         o6RNj/CjKHlw8ZpG9ZxnPou3yfqsCESJkBWOawAeZ56aZfqA93cxgnFCSMiGg82fPP
+         dChoaEuCbahF7lkXlzsSAr/oE9DuGgs613jBNKZ6TMa6Cfx3U2wDwuIwn7sbxyj+2x
+         N7eXuMcfW5TgucA914NNYG+rSzwXtaGM4lo7KhsAJLXr7ZnVsIGpHitAGtVlRTIajb
+         Sz1r7+FfKh0yYX7moqJPsbgLBaR6iMpxtcQvDJuycYVJM+HFDLqvKdrN9RvNptzhEr
+         s8M+jDY4H0yaw==
+Message-ID: <b5c87b7d-fdb4-2288-5c21-c666fdd40005@kernel.org>
+Date:   Mon, 7 Feb 2022 03:45:06 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YgDU3+KsiaQ54J5N@kroah.com>
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        TRACKER_ID,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH] ARM: socfpga: fix missing RESET_CONTROLLER
+Content-Language: en-US
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <nathan@kernel.org>,
+        kernel test robot <lkp@intel.com>, stable@vger.kernel.org
+References: <20220207084404.212017-1-krzysztof.kozlowski@canonical.com>
+From:   Dinh Nguyen <dinguyen@kernel.org>
+In-Reply-To: <20220207084404.212017-1-krzysztof.kozlowski@canonical.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 07, 2022 at 09:14:23AM +0100, Greg KH wrote:
-> On Mon, Feb 07, 2022 at 02:52:42AM -0500, luofei wrote:
-> > Only unmap the page when the memory error is properly handled
-> > by calling memory_failure(), not the other way around.
-> > 
-> > Fixes: 26f8c38bb466("x86/mm, mm/hwpoison: Don't unconditionally unmap kernel 1:1 pages")
+
+
+On 2/7/22 02:44, Krzysztof Kozlowski wrote:
+> The SocFPGA machine since commit b3ca9888f35f ("reset: socfpga: add an
+> early reset driver for SoCFPGA") uses reset controller, so it should
+> select RESET_CONTROLLER explicitly.  Selecting ARCH_HAS_RESET_CONTROLLER
+> is not enough because it affects only default choice still allowing a
+> non-buildable configuration:
 > 
-> This commit is not in Linus's tree.  Please use the correct commit id.
+>    /usr/bin/arm-linux-gnueabi-ld: arch/arm/mach-socfpga/socfpga.o: in function `socfpga_init_irq':
+>    arch/arm/mach-socfpga/socfpga.c:56: undefined reference to `socfpga_reset_init'
+> 
+> Reported-by: kernel test robot <lkp@intel.com>
+> Cc: <stable@vger.kernel.org>
+> Fixes: b3ca9888f35f ("reset: socfpga: add an early reset driver for SoCFPGA")
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+> ---
+>   arch/arm/mach-socfpga/Kconfig | 2 ++
+>   1 file changed, 2 insertions(+)
+> 
+> diff --git a/arch/arm/mach-socfpga/Kconfig b/arch/arm/mach-socfpga/Kconfig
+> index 43ddec677c0b..594edf9bbea4 100644
+> --- a/arch/arm/mach-socfpga/Kconfig
+> +++ b/arch/arm/mach-socfpga/Kconfig
+> @@ -2,6 +2,7 @@
+>   menuconfig ARCH_INTEL_SOCFPGA
+>   	bool "Altera SOCFPGA family"
+>   	depends on ARCH_MULTI_V7
+> +	select ARCH_HAS_RESET_CONTROLLER
+>   	select ARCH_SUPPORTS_BIG_ENDIAN
+>   	select ARM_AMBA
+>   	select ARM_GIC
+> @@ -18,6 +19,7 @@ menuconfig ARCH_INTEL_SOCFPGA
+>   	select PL310_ERRATA_727915
+>   	select PL310_ERRATA_753970 if PL310
+>   	select PL310_ERRATA_769419
+> +	select RESET_CONTROLLER
+>   
+>   if ARCH_INTEL_SOCFPGA
+>   config SOCFPGA_SUSPEND
 
-I think he's trying to fix the backport:
-
-see 26f8c38bb466c1a2d232d7609fb4bfb4bc121678 which is the stable tree backport:
-
-@@ -582,7 +586,8 @@ static int srao_decode_notifier(struct notifier_block *nb, unsigned long val,
- 
-        if (mce_usable_address(mce) && (mce->severity == MCE_AO_SEVERITY)) {
-                pfn = mce->addr >> PAGE_SHIFT;
--               memory_failure(pfn, MCE_VECTOR, 0);
-+               if (memory_failure(pfn, MCE_VECTOR, 0))
-+                       mce_unmap_kpfn(pfn);
-        }
-
-
-vs the upstream commit:
-
-fd0e786d9d09024f67bd71ec094b110237dc3840
-
-@@ -590,7 +594,8 @@ static int srao_decode_notifier(struct notifier_block *nb, unsigned long val,
- 
-        if (mce_usable_address(mce) && (mce->severity == MCE_AO_SEVERITY)) {
-                pfn = mce->addr >> PAGE_SHIFT;
--               memory_failure(pfn, 0);
-+               if (!memory_failure(pfn, 0))
-+                       mce_unmap_kpfn(pfn);
-        }
- 
-        return NOTIFY_OK;
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Acked-By: Dinh Nguyen <dinguyen@kernel.org>
