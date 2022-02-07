@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C03FD4ABB43
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F8ED4ABB12
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:35:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384303AbiBGL1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:27:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56674 "EHLO
+        id S238003AbiBGL2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:28:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380436AbiBGLSE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:18:04 -0500
+        with ESMTP id S1382596AbiBGLTy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:19:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856D1C03FEC0;
-        Mon,  7 Feb 2022 03:18:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C12DBC043181;
+        Mon,  7 Feb 2022 03:19:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C26561451;
-        Mon,  7 Feb 2022 11:18:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F12C004E1;
-        Mon,  7 Feb 2022 11:18:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D56061380;
+        Mon,  7 Feb 2022 11:19:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27271C340EB;
+        Mon,  7 Feb 2022 11:19:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232682;
-        bh=iXGDTNBF+FlYxOjJCdOesONE//qh5SKJfvahh3dVTsw=;
+        s=korg; t=1644232792;
+        bh=RO6JrjTCFtLKjGtkJis78RkBmbX7z/chUZefduVLvhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fmXAUgmfHA31t6ZUeip/MPnhABg8pUveOVLHvy8wqGOUYNAt4pyP34m8xLwu9Rs+k
-         QrIwNEvvgYxyiab5QK5Um68w2W/3V8j1OZ54O0CfVgVtIz4Tyjjx9YxVkk16+8pMp2
-         ij4nCYegvd7B2feDS0T9HfUvnhcMdyMzaee+GkXs=
+        b=aRiiY4bTWx2jQbG9pBR/5qv/9ZKtUJ+ZwARiaUd78qoOolAO819OEwzzln40corla
+         hoCwrWIPw/5TQpmTamGPkaw+pWIShzweHBfXVhYCbbcZps0eoDovE0xVka7KOQ2gax
+         wEmDRf22hqAq9I2yW6wlnfpTUKyVH3syCkh2mcOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Monakhov <dmonakhov@openvz.org>,
-        Dmitry Ivanov <dmitry.ivanov2@hpe.com>,
-        Alexey Lyashkov <alexey.lyashkov@hpe.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 62/86] block: bio-integrity: Advance seed correctly for larger interval sizes
+        stable@vger.kernel.org, Christian Lachner <gladiac@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 09/44] ALSA: hda/realtek: Fix silent output on Gigabyte X570 Aorus Xtreme after reboot from Windows
 Date:   Mon,  7 Feb 2022 12:06:25 +0100
-Message-Id: <20220207103759.599619195@linuxfoundation.org>
+Message-Id: <20220207103753.459222383@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
+References: <20220207103753.155627314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin K. Petersen <martin.petersen@oracle.com>
+From: Christian Lachner <gladiac@gmail.com>
 
-commit b13e0c71856817fca67159b11abac350e41289f5 upstream.
+commit ea3541961376f733373839cc90493aafa8a7f733 upstream.
 
-Commit 309a62fa3a9e ("bio-integrity: bio_integrity_advance must update
-integrity seed") added code to update the integrity seed value when
-advancing a bio. However, it failed to take into account that the
-integrity interval might be larger than the 512-byte block layer
-sector size. This broke bio splitting on PI devices with 4KB logical
-blocks.
+This commit switches the Gigabyte X570 Aorus Xtreme from using the
+ALC1220_FIXUP_CLEVO_P950 to the ALC1220_FIXUP_GB_X570 quirk. This fixes
+the no-audio after reboot from windows problem.
 
-The seed value should be advanced by bio_integrity_intervals() and not
-the number of sectors.
-
-Cc: Dmitry Monakhov <dmonakhov@openvz.org>
-Cc: stable@vger.kernel.org
-Fixes: 309a62fa3a9e ("bio-integrity: bio_integrity_advance must update integrity seed")
-Tested-by: Dmitry Ivanov <dmitry.ivanov2@hpe.com>
-Reported-by: Alexey Lyashkov <alexey.lyashkov@hpe.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Link: https://lore.kernel.org/r/20220204034209.4193-1-martin.petersen@oracle.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205275
+Signed-off-by: Christian Lachner <gladiac@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220129113243.93068-4-gladiac@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bio-integrity.c |    2 +-
+ sound/pci/hda/patch_realtek.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/block/bio-integrity.c
-+++ b/block/bio-integrity.c
-@@ -399,7 +399,7 @@ void bio_integrity_advance(struct bio *b
- 	struct blk_integrity *bi = blk_get_integrity(bio->bi_disk);
- 	unsigned bytes = bio_integrity_bytes(bi, bytes_done >> 9);
- 
--	bip->bip_iter.bi_sector += bytes_done >> 9;
-+	bip->bip_iter.bi_sector += bio_integrity_intervals(bi, bytes_done >> 9);
- 	bvec_iter_advance(bip->bip_vec, &bip->bip_iter, bytes);
- }
- EXPORT_SYMBOL(bio_integrity_advance);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2549,7 +2549,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1458, 0xa002, "Gigabyte EP45-DS3/Z87X-UD3H", ALC889_FIXUP_FRONT_HP_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
+ 	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_GB_X570),
+-	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_CLEVO_P950),
++	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_GB_X570),
+ 	SND_PCI_QUIRK(0x1458, 0xa0d5, "Gigabyte X570S Aorus Master", ALC1220_FIXUP_GB_X570),
+ 	SND_PCI_QUIRK(0x1462, 0x11f7, "MSI-GE63", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
 
 
