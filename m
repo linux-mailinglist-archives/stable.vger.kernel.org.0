@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAB8C4ABD71
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCECF4ABB89
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389117AbiBGLqK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:46:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48796 "EHLO
+        id S1376819AbiBGL3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:29:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386797AbiBGLhI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:37:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E340C043181;
-        Mon,  7 Feb 2022 03:37:07 -0800 (PST)
+        with ESMTP id S1382631AbiBGLU0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:20:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87A62C03E94C;
+        Mon,  7 Feb 2022 03:20:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEFE660B5B;
-        Mon,  7 Feb 2022 11:37:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D750C004E1;
-        Mon,  7 Feb 2022 11:37:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25CF46126D;
+        Mon,  7 Feb 2022 11:20:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F36D3C004E1;
+        Mon,  7 Feb 2022 11:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233826;
-        bh=mghb54hZFOF3Tf8Tw34fghEoY09mRRxhydg5x0NVEVE=;
+        s=korg; t=1644232811;
+        bh=tB5ykpycoZ7rTEDHLWjtzHvL5qtmrfWQCoQ0Z7I1mNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sB5/vD+jyShTn+H+Vhx2AIt1T3JZgCgjcEyGTvt2VxZxJSXZNqDOcA8O3oG6IYUMx
-         Ww3wnIRicgLPPosHJbtXu06LNkB+rqvtoLmmzL9xY8Hsd1WMF355fRiiDtIFqnYUyT
-         B2bEZVIXx/FQj+2qoNs8ZauMV4ZcAoEeitcVO+S8=
+        b=wbaHFfLZXDwfg0EiY1gFWVzOJsJYbm3KcG0ne5nXFccgM0wx6uqu915I0FXoajjmX
+         Jft6wDg4G9pNiGFkLMsPKz0JNjUeqcFn/WJxy+jPnwmNFTBvqPwUfQqXS9FlaoIhSO
+         GUcQfcNXjG6x91d7eraTWGAaItkHQm7MHNVkOt0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.16 089/126] ASoC: codecs: wcd938x: fix incorrect used of portid
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Phil Auld <pauld@redhat.com>, Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.4 44/44] cgroup/cpuset: Fix "suspicious RCU usage" lockdep warning
 Date:   Mon,  7 Feb 2022 12:07:00 +0100
-Message-Id: <20220207103807.170220798@linuxfoundation.org>
+Message-Id: <20220207103754.590640611@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
+References: <20220207103753.155627314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,104 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Waiman Long <longman@redhat.com>
 
-commit c5c1546a654f613e291a7c5d6f3660fc1eb6d0c7 upstream.
+commit 2bdfd2825c9662463371e6691b1a794e97fa36b4 upstream.
 
-Mixer controls have the channel id in mixer->reg, which is not same
-as port id. port id should be derived from chan_info array.
-So fix this. Without this, its possible that we could corrupt
-struct wcd938x_sdw_priv by accessing port_map array out of range
-with channel id instead of port id.
+It was found that a "suspicious RCU usage" lockdep warning was issued
+with the rcu_read_lock() call in update_sibling_cpumasks().  It is
+because the update_cpumasks_hier() function may sleep. So we have
+to release the RCU lock, call update_cpumasks_hier() and reacquire
+it afterward.
 
-Fixes: e8ba1e05bdc0 ("ASoC: codecs: wcd938x: add basic controls")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220126113549.8853-2-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Also add a percpu_rwsem_assert_held() in update_sibling_cpumasks()
+instead of stating that in the comment.
+
+Fixes: 4716909cc5c5 ("cpuset: Track cpusets that use parent's effective_cpus")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Tested-by: Phil Auld <pauld@redhat.com>
+Reviewed-by: Phil Auld <pauld@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/wcd938x.c |   25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+ kernel/cgroup/cpuset.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/sound/soc/codecs/wcd938x.c
-+++ b/sound/soc/codecs/wcd938x.c
-@@ -1432,14 +1432,10 @@ static int wcd938x_sdw_connect_port(stru
- 	return 0;
- }
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -1473,10 +1473,15 @@ static void update_sibling_cpumasks(stru
+ 	struct cpuset *sibling;
+ 	struct cgroup_subsys_state *pos_css;
  
--static int wcd938x_connect_port(struct wcd938x_sdw_priv *wcd, u8 ch_id, u8 enable)
-+static int wcd938x_connect_port(struct wcd938x_sdw_priv *wcd, u8 port_num, u8 ch_id, u8 enable)
- {
--	u8 port_num;
--
--	port_num = wcd->ch_info[ch_id].port_num;
--
- 	return wcd938x_sdw_connect_port(&wcd->ch_info[ch_id],
--					&wcd->port_config[port_num],
-+					&wcd->port_config[port_num - 1],
- 					enable);
- }
- 
-@@ -2593,6 +2589,7 @@ static int wcd938x_set_compander(struct
- 	struct wcd938x_priv *wcd938x = snd_soc_component_get_drvdata(component);
- 	struct wcd938x_sdw_priv *wcd;
- 	int value = ucontrol->value.integer.value[0];
-+	int portidx;
- 	struct soc_mixer_control *mc;
- 	bool hphr;
- 
-@@ -2606,10 +2603,12 @@ static int wcd938x_set_compander(struct
- 	else
- 		wcd938x->comp1_enable = value;
- 
-+	portidx = wcd->ch_info[mc->reg].port_num;
++	percpu_rwsem_assert_held(&cpuset_rwsem);
 +
- 	if (value)
--		wcd938x_connect_port(wcd, mc->reg, true);
-+		wcd938x_connect_port(wcd, portidx, mc->reg, true);
- 	else
--		wcd938x_connect_port(wcd, mc->reg, false);
-+		wcd938x_connect_port(wcd, portidx, mc->reg, false);
+ 	/*
+ 	 * Check all its siblings and call update_cpumasks_hier()
+ 	 * if their use_parent_ecpus flag is set in order for them
+ 	 * to use the right effective_cpus value.
++	 *
++	 * The update_cpumasks_hier() function may sleep. So we have to
++	 * release the RCU read lock before calling it.
+ 	 */
+ 	rcu_read_lock();
+ 	cpuset_for_each_child(sibling, pos_css, parent) {
+@@ -1484,8 +1489,13 @@ static void update_sibling_cpumasks(stru
+ 			continue;
+ 		if (!sibling->use_parent_ecpus)
+ 			continue;
++		if (!css_tryget_online(&sibling->css))
++			continue;
  
- 	return 0;
++		rcu_read_unlock();
+ 		update_cpumasks_hier(sibling, tmp);
++		rcu_read_lock();
++		css_put(&sibling->css);
+ 	}
+ 	rcu_read_unlock();
  }
-@@ -2882,9 +2881,11 @@ static int wcd938x_get_swr_port(struct s
- 	struct wcd938x_sdw_priv *wcd;
- 	struct soc_mixer_control *mixer = (struct soc_mixer_control *)kcontrol->private_value;
- 	int dai_id = mixer->shift;
--	int portidx = mixer->reg;
-+	int portidx, ch_idx = mixer->reg;
-+
- 
- 	wcd = wcd938x->sdw_priv[dai_id];
-+	portidx = wcd->ch_info[ch_idx].port_num;
- 
- 	ucontrol->value.integer.value[0] = wcd->port_enable[portidx];
- 
-@@ -2899,12 +2900,14 @@ static int wcd938x_set_swr_port(struct s
- 	struct wcd938x_sdw_priv *wcd;
- 	struct soc_mixer_control *mixer =
- 		(struct soc_mixer_control *)kcontrol->private_value;
--	int portidx = mixer->reg;
-+	int ch_idx = mixer->reg;
-+	int portidx;
- 	int dai_id = mixer->shift;
- 	bool enable;
- 
- 	wcd = wcd938x->sdw_priv[dai_id];
- 
-+	portidx = wcd->ch_info[ch_idx].port_num;
- 	if (ucontrol->value.integer.value[0])
- 		enable = true;
- 	else
-@@ -2912,7 +2915,7 @@ static int wcd938x_set_swr_port(struct s
- 
- 	wcd->port_enable[portidx] = enable;
- 
--	wcd938x_connect_port(wcd, portidx, enable);
-+	wcd938x_connect_port(wcd, portidx, ch_idx, enable);
- 
- 	return 0;
- 
 
 
