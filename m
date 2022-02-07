@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6AFC4ABD50
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:59:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48D814ABB88
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387225AbiBGLkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:40:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40050 "EHLO
+        id S1376757AbiBGL3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:29:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384770AbiBGLaA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:30:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDCD1C0401E6;
-        Mon,  7 Feb 2022 03:28:20 -0800 (PST)
+        with ESMTP id S1382769AbiBGLUr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:20:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E81C03FED2;
+        Mon,  7 Feb 2022 03:20:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8845860918;
-        Mon,  7 Feb 2022 11:28:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EF31C004E1;
-        Mon,  7 Feb 2022 11:28:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17B54B811A6;
+        Mon,  7 Feb 2022 11:20:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F32BC004E1;
+        Mon,  7 Feb 2022 11:20:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233300;
-        bh=esiT/hIJxVX2S5Y8Ay8ItBQhf+iGcOTS78pGTHXvBrc=;
+        s=korg; t=1644232820;
+        bh=07DXET1mUt27c2qdzB5vxavcElMoUr/eGhq3NzQRh/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=moOvvyJSUSZuouXvMw/OP9rpeI+UbSyY8skQ9+J6hnfAS61KaM7on2TbLbx62iX0Q
-         vIL+sM8lySsPDy1znr/Ho5+qJTonSf1PLUukASvXEhlZGmKVx16j72ZQmJfqVpfuyH
-         a6RIOe5Zs0oB69OhtT8TzKVnFhZUQpfEnFzvW0cc=
+        b=ay2woS+Ft2A7HTP2ZNzcnZ6TTRX8udCL7m6OTM7aUllHAg/8MkSWS+vR0RgCKPV74
+         9eoCTT/HTWRESdBJCK0NGcoeVEcxeSyum72kQyh7/Kqm0eXkxhfqGwGMCiKCto6hZF
+         q4MB0ajE0xUBceS8ZoiHLCNe/DAdueg9HWvwgq7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.15 078/110] ASoC: codecs: wcd938x: fix return value of mixer put function
+Subject: [PATCH 5.4 35/44] ASoC: max9759: fix underflow in speaker_gain_control_put()
 Date:   Mon,  7 Feb 2022 12:06:51 +0100
-Message-Id: <20220207103805.020663399@linuxfoundation.org>
+Message-Id: <20220207103754.299466569@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
+References: <20220207103753.155627314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit bd2347fd67d8da0fa76296507cc556da0a233bcb upstream.
+commit 4c907bcd9dcd233da6707059d777ab389dcbd964 upstream.
 
-wcd938x_ear_pa_put_gain, wcd938x_set_swr_port and  wcd938x_set_compander
-currently returns zero eventhough it changes the value.
-Fix this, so that change notifications are sent correctly.
+Check for negative values of "priv->gain" to prevent an out of bounds
+access.  The concern is that these might come from the user via:
+  -> snd_ctl_elem_write_user()
+    -> snd_ctl_elem_write()
+      -> kctl->put()
 
-Fixes: e8ba1e05bdc01 ("ASoC: codecs: wcd938x: add basic controls")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220126113549.8853-4-srinivas.kandagatla@linaro.org
+Fixes: fa8d915172b8 ("ASoC: max9759: Add Amplifier Driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20220119123101.GA9509@kili
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/wcd938x.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/codecs/max9759.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/soc/codecs/wcd938x.c
-+++ b/sound/soc/codecs/wcd938x.c
-@@ -2559,7 +2559,7 @@ static int wcd938x_ear_pa_put_gain(struc
- 				      WCD938X_EAR_GAIN_MASK,
- 				      ucontrol->value.integer.value[0]);
+--- a/sound/soc/codecs/max9759.c
++++ b/sound/soc/codecs/max9759.c
+@@ -64,7 +64,8 @@ static int speaker_gain_control_put(stru
+ 	struct snd_soc_component *c = snd_soc_kcontrol_component(kcontrol);
+ 	struct max9759 *priv = snd_soc_component_get_drvdata(c);
  
--	return 0;
-+	return 1;
- }
+-	if (ucontrol->value.integer.value[0] > 3)
++	if (ucontrol->value.integer.value[0] < 0 ||
++	    ucontrol->value.integer.value[0] > 3)
+ 		return -EINVAL;
  
- static int wcd938x_get_compander(struct snd_kcontrol *kcontrol,
-@@ -2610,7 +2610,7 @@ static int wcd938x_set_compander(struct
- 	else
- 		wcd938x_connect_port(wcd, portidx, mc->reg, false);
- 
--	return 0;
-+	return 1;
- }
- 
- static int wcd938x_ldoh_get(struct snd_kcontrol *kcontrol,
-@@ -2917,7 +2917,7 @@ static int wcd938x_set_swr_port(struct s
- 
- 	wcd938x_connect_port(wcd, portidx, ch_idx, enable);
- 
--	return 0;
-+	return 1;
- 
- }
- 
+ 	priv->gain = ucontrol->value.integer.value[0];
 
 
