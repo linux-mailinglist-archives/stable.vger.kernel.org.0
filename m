@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F20714ABAC3
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59F814ABDA3
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384058AbiBGLYh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52862 "EHLO
+        id S1388867AbiBGLpo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:45:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359847AbiBGLPB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:15:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21746C0401E6;
-        Mon,  7 Feb 2022 03:14:46 -0800 (PST)
+        with ESMTP id S1385484AbiBGLby (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A17DC03F93F;
+        Mon,  7 Feb 2022 03:30:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A48F7B811A6;
-        Mon,  7 Feb 2022 11:14:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAB60C004E1;
-        Mon,  7 Feb 2022 11:14:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABA3B60AB0;
+        Mon,  7 Feb 2022 11:30:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84ACBC004E1;
+        Mon,  7 Feb 2022 11:30:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232461;
-        bh=C7V72L6qUMellueiSr7gQPjlWH16WYktJB8JU2MQGNM=;
+        s=korg; t=1644233430;
+        bh=xjkRWAuO6sjuAxBcS+6c7kSyPv7Q3Yfk0x1pK5sdx1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HyGu7z5OjW5azltD0t3MvM3ga0DCMMh1uWYMwSR7x+In0mwAHfQUMYZlFxAoVpIa0
-         NGj+ayP4iu9PJOrqc9rfJPfTbg3hPB84oAnNs9WlaJ6lky917ZU1jGDALiGjgT4FaY
-         QMVLb1lAn1KfLr++q5oeA1WDa3shW+UAVFJmWbkQ=
+        b=mlWz7zmJ7oA1Xkk9qcUJGklv6hw8BLVngWURiJmsOYG2R9k3LRsErNjJR/v6XAdrp
+         R06GCmQRsdrr4y6zUxA4aLH3rT4bUgY2BgDb1yxsPAf2qKscYqLkoXhtFdk26lPhFx
+         eneCnyqo+BQjiBgEHYmyAQEZZ3wJdRpClOPB3zO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Badhri Jagan Sridharan <badhri@google.com>
-Subject: [PATCH 4.19 17/86] usb: typec: tcpm: Do not disconnect while receiving VBUS off
-Date:   Mon,  7 Feb 2022 12:05:40 +0100
-Message-Id: <20220207103758.119388532@linuxfoundation.org>
+        Jukka Heikintalo <heikintalo.jukka@gmail.com>,
+        =?UTF-8?q?Pawe=C5=82=20Susicki?= <pawel.susicki@gmail.com>,
+        Jonas Hahnfeld <hahnjo@hahnjo.de>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.16 010/126] ALSA: usb-audio: Correct quirk for VF0770
+Date:   Mon,  7 Feb 2022 12:05:41 +0100
+Message-Id: <20220207103804.413334168@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Badhri Jagan Sridharan <badhri@google.com>
+From: Jonas Hahnfeld <hahnjo@hahnjo.de>
 
-commit 90b8aa9f5b09edae6928c0561f933fec9f7a9987 upstream.
+commit 4ee02e20893d2f9e951c7888f2284fa608ddaa35 upstream.
 
-With some chargers, vbus might momentarily raise above VSAFE5V and fall
-back to 0V before tcpm gets to read port->tcpc->get_vbus. This will
-will report a VBUS off event causing TCPM to transition to
-SNK_UNATTACHED where it should be waiting in either SNK_ATTACH_WAIT
-or SNK_DEBOUNCED state. This patch makes TCPM avoid vbus off events
-while in SNK_ATTACH_WAIT or SNK_DEBOUNCED state.
+This device provides both audio and video. The original quirk added in
+commit 48827e1d6af5 ("ALSA: usb-audio: Add quirk for VF0770") used
+USB_DEVICE to match the vendor and product ID. Depending on module order,
+if snd-usb-audio was asked first, it would match the entire device and
+uvcvideo wouldn't get to see it. Change the matching to USB_AUDIO_DEVICE
+to restore uvcvideo matching in all cases.
 
-Stub from the spec:
-    "4.5.2.2.4.2 Exiting from AttachWait.SNK State
-    A Sink shall transition to Unattached.SNK when the state of both
-    the CC1 and CC2 pins is SNK.Open for at least tPDDebounce.
-    A DRP shall transition to Unattached.SRC when the state of both
-    the CC1 and CC2 pins is SNK.Open for at least tPDDebounce."
-
-[23.194131] CC1: 0 -> 0, CC2: 0 -> 5 [state SNK_UNATTACHED, polarity 0, connected]
-[23.201777] state change SNK_UNATTACHED -> SNK_ATTACH_WAIT [rev3 NONE_AMS]
-[23.209949] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev3 NONE_AMS]
-[23.300579] VBUS off
-[23.300668] state change SNK_ATTACH_WAIT -> SNK_UNATTACHED [rev3 NONE_AMS]
-[23.301014] VBUS VSAFE0V
-[23.301111] Start toggling
-
-Fixes: f0690a25a140b8 ("staging: typec: USB Type-C Port Manager (tcpm)")
-Cc: stable@vger.kernel.org
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
-Link: https://lore.kernel.org/r/20220122015520.332507-1-badhri@google.com
+Fixes: 48827e1d6af5 ("ALSA: usb-audio: Add quirk for VF0770")
+Reported-by: Jukka Heikintalo <heikintalo.jukka@gmail.com>
+Tested-by: Jukka Heikintalo <heikintalo.jukka@gmail.com>
+Reported-by: Paweł Susicki <pawel.susicki@gmail.com>
+Tested-by: Paweł Susicki <pawel.susicki@gmail.com>
+Cc: <stable@vger.kernel.org> # 5.4, 5.10, 5.14, 5.15
+Signed-off-by: Jonas Hahnfeld <hahnjo@hahnjo.de>
+Link: https://lore.kernel.org/r/20220131183516.61191-1-hahnjo@hahnjo.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/usb/quirks-table.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/typec/tcpm.c
-+++ b/drivers/usb/typec/tcpm.c
-@@ -3865,7 +3865,8 @@ static void _tcpm_pd_vbus_off(struct tcp
- 	case SNK_TRYWAIT_DEBOUNCE:
- 		break;
- 	case SNK_ATTACH_WAIT:
--		tcpm_set_state(port, SNK_UNATTACHED, 0);
-+	case SNK_DEBOUNCED:
-+		/* Do nothing, as TCPM is still waiting for vbus to reaach VSAFE5V to connect */
- 		break;
- 
- 	case SNK_NEGOTIATE_CAPABILITIES:
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -84,7 +84,7 @@
+  * combination.
+  */
+ {
+-	USB_DEVICE(0x041e, 0x4095),
++	USB_AUDIO_DEVICE(0x041e, 0x4095),
+ 	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
+ 		.ifnum = QUIRK_ANY_INTERFACE,
+ 		.type = QUIRK_COMPOSITE,
 
 
