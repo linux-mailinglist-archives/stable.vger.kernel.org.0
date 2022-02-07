@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B52A24ABC25
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEB8F4ABD4B
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:59:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384924AbiBGLam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:30:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36356 "EHLO
+        id S1387214AbiBGLk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:40:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384012AbiBGLY0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:24:26 -0500
+        with ESMTP id S1359604AbiBGLaJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:30:09 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23192C043188;
-        Mon,  7 Feb 2022 03:24:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68CB4C03E94C;
+        Mon,  7 Feb 2022 03:28:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB8CBB81028;
-        Mon,  7 Feb 2022 11:24:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28B36C004E1;
-        Mon,  7 Feb 2022 11:24:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 270C0B811B3;
+        Mon,  7 Feb 2022 11:28:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E9DDC004E1;
+        Mon,  7 Feb 2022 11:28:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233063;
-        bh=Pf3Xbot02iSdkWxVTfYuvi1stNSsMt1hK7z/z6eHHA0=;
+        s=korg; t=1644233309;
+        bh=HlwO99kzVVDq/w0vcBsb1+gvp57k51VTn37EzEf+CmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A+Z0HeTAjWmybKeIwTgdVwHmBb52d+MAaKVZFqVl7WEvuH4mppbDBNSHZ+w3fkpHv
-         QUGp/4kHIZxSJREcZl159bdQj5JiMoLqjPOC8rbllsOZ62cl+q7cgn7g49IF5iIF2W
-         xzMvEYMAl0hECm7Ne/WsguHRRykPdGcJvX9b0tbE=
+        b=pogn1h+/KMb8Y7sG1eU4Z3tPqmZDBcQ6cl46Mte8qcQR2IMpgZsCNsgf0iTRactKr
+         /HUX+GP+cPglgKXFE1PtJxuY2C6DUCrDuL9YU6ltCp298yeWLgwAgHSAEMJZImlzRh
+         7eQW3BFS/9KAagZaSrieHSpeI16v0Mb7Pmf8psLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+5ad567a418794b9b5983@syzkaller.appspotmail.com,
-        Hou Tao <houtao1@huawei.com>,
-        Andrii Nakryiko <andrii@kernel.org>
-Subject: [PATCH 5.10 55/74] bpf: Use VM_MAP instead of VM_ALLOC for ringbuf
-Date:   Mon,  7 Feb 2022 12:06:53 +0100
-Message-Id: <20220207103759.023935529@linuxfoundation.org>
+        =?UTF-8?q?=C5=81ukasz=20Bartosik?= <lb@semihalf.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.15 081/110] pinctrl: intel: fix unexpected interrupt
+Date:   Mon,  7 Feb 2022 12:06:54 +0100
+Message-Id: <20220207103805.134119606@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +54,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <hotforest@gmail.com>
+From: Łukasz Bartosik <lb@semihalf.com>
 
-commit b293dcc473d22a62dc6d78de2b15e4f49515db56 upstream.
+commit e986f0e602f19ecb7880b04dd1db415ed9bca3f6 upstream.
 
-After commit 2fd3fb0be1d1 ("kasan, vmalloc: unpoison VM_ALLOC pages
-after mapping"), non-VM_ALLOC mappings will be marked as accessible
-in __get_vm_area_node() when KASAN is enabled. But now the flag for
-ringbuf area is VM_ALLOC, so KASAN will complain out-of-bound access
-after vmap() returns. Because the ringbuf area is created by mapping
-allocated pages, so use VM_MAP instead.
+ASUS Chromebook C223 with Celeron N3350 crashes sometimes during
+cold booot. Inspection of the kernel log showed that it gets into
+an inifite loop logging the following message:
 
-After the change, info in /proc/vmallocinfo also changes from
-  [start]-[end]   24576 ringbuf_map_alloc+0x171/0x290 vmalloc user
-to
-  [start]-[end]   24576 ringbuf_map_alloc+0x171/0x290 vmap user
+->handle_irq():  000000009cdb51e8, handle_bad_irq+0x0/0x251
+->irq_data.chip(): 000000005ec212a7, 0xffffa043009d8e7
+->action(): 00000
+   IRQ_NOPROBE set
+unexpected IRQ trap at vector 7c
 
-Fixes: 457f44363a88 ("bpf: Implement BPF ring buffer and verifier support for it")
-Reported-by: syzbot+5ad567a418794b9b5983@syzkaller.appspotmail.com
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220202060158.6260-1-houtao1@huawei.com
+The issue happens during cold boot but only if cold boot happens
+at most several dozen seconds after Chromebook is powered off. For
+longer intervals between power off and power on (cold boot) the issue
+does not reproduce. The unexpected interrupt is sourced from INT3452
+GPIO pin which is used for SD card detect. Investigation relevealed
+that when the interval between power off and power on (cold boot)
+is less than several dozen seconds then values of INT3452 GPIO interrupt
+enable and interrupt pending registers survive power off and power
+on sequence and interrupt for SD card detect pin is enabled and pending
+during probe of SD controller which causes the unexpected IRQ message.
+"Intel Pentium and Celeron Processor N- and J- Series" volume 3 doc
+mentions that GPIO interrupt enable and status registers default
+value is 0x0.
+The fix clears INT3452 GPIO interrupt enabled and interrupt pending
+registers in its probe function.
+
+Fixes: 7981c0015af2 ("pinctrl: intel: Add Intel Sunrisepoint pin controller and GPIO support")
+Signed-off-by: Łukasz Bartosik <lb@semihalf.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/ringbuf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/intel/pinctrl-intel.c |   54 +++++++++++++++++++++-------------
+ 1 file changed, 34 insertions(+), 20 deletions(-)
 
---- a/kernel/bpf/ringbuf.c
-+++ b/kernel/bpf/ringbuf.c
-@@ -108,7 +108,7 @@ static struct bpf_ringbuf *bpf_ringbuf_a
- 	}
+--- a/drivers/pinctrl/intel/pinctrl-intel.c
++++ b/drivers/pinctrl/intel/pinctrl-intel.c
+@@ -1210,6 +1210,39 @@ static irqreturn_t intel_gpio_irq(int ir
+ 	return IRQ_RETVAL(ret);
+ }
  
- 	rb = vmap(pages, nr_meta_pages + 2 * nr_data_pages,
--		  VM_ALLOC | VM_USERMAP, PAGE_KERNEL);
-+		  VM_MAP | VM_USERMAP, PAGE_KERNEL);
- 	if (rb) {
- 		kmemleak_not_leak(pages);
- 		rb->pages = pages;
++static void intel_gpio_irq_init(struct intel_pinctrl *pctrl)
++{
++	int i;
++
++	for (i = 0; i < pctrl->ncommunities; i++) {
++		const struct intel_community *community;
++		void __iomem *base;
++		unsigned int gpp;
++
++		community = &pctrl->communities[i];
++		base = community->regs;
++
++		for (gpp = 0; gpp < community->ngpps; gpp++) {
++			/* Mask and clear all interrupts */
++			writel(0, base + community->ie_offset + gpp * 4);
++			writel(0xffff, base + community->is_offset + gpp * 4);
++		}
++	}
++}
++
++static int intel_gpio_irq_init_hw(struct gpio_chip *gc)
++{
++	struct intel_pinctrl *pctrl = gpiochip_get_data(gc);
++
++	/*
++	 * Make sure the interrupt lines are in a proper state before
++	 * further configuration.
++	 */
++	intel_gpio_irq_init(pctrl);
++
++	return 0;
++}
++
+ static int intel_gpio_add_community_ranges(struct intel_pinctrl *pctrl,
+ 				const struct intel_community *community)
+ {
+@@ -1314,6 +1347,7 @@ static int intel_gpio_probe(struct intel
+ 	girq->num_parents = 0;
+ 	girq->default_type = IRQ_TYPE_NONE;
+ 	girq->handler = handle_bad_irq;
++	girq->init_hw = intel_gpio_irq_init_hw;
+ 
+ 	ret = devm_gpiochip_add_data(pctrl->dev, &pctrl->chip, pctrl);
+ 	if (ret) {
+@@ -1689,26 +1723,6 @@ int intel_pinctrl_suspend_noirq(struct d
+ }
+ EXPORT_SYMBOL_GPL(intel_pinctrl_suspend_noirq);
+ 
+-static void intel_gpio_irq_init(struct intel_pinctrl *pctrl)
+-{
+-	size_t i;
+-
+-	for (i = 0; i < pctrl->ncommunities; i++) {
+-		const struct intel_community *community;
+-		void __iomem *base;
+-		unsigned int gpp;
+-
+-		community = &pctrl->communities[i];
+-		base = community->regs;
+-
+-		for (gpp = 0; gpp < community->ngpps; gpp++) {
+-			/* Mask and clear all interrupts */
+-			writel(0, base + community->ie_offset + gpp * 4);
+-			writel(0xffff, base + community->is_offset + gpp * 4);
+-		}
+-	}
+-}
+-
+ static bool intel_gpio_update_reg(void __iomem *reg, u32 mask, u32 value)
+ {
+ 	u32 curr, updated;
 
 
