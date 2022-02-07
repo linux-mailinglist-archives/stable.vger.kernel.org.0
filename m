@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 518E84ABCC6
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:50:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D8ED4ABAA3
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387108AbiBGLjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:39:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46024 "EHLO
+        id S1383966AbiBGLYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385880AbiBGLc4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:56 -0500
+        with ESMTP id S243241AbiBGLNI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:13:08 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18079C043181;
-        Mon,  7 Feb 2022 03:32:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44C4CC0401C2;
+        Mon,  7 Feb 2022 03:13:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ACFC1B80EBD;
-        Mon,  7 Feb 2022 11:32:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00017C004E1;
-        Mon,  7 Feb 2022 11:32:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF155B81028;
+        Mon,  7 Feb 2022 11:13:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A7EFC004E1;
+        Mon,  7 Feb 2022 11:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233573;
-        bh=0amyQrwO/l9Xpx9ZFXvom4ZEQ7XuUf/uQHAxWPyi1UE=;
+        s=korg; t=1644232385;
+        bh=hqkNVBOY0nLILtHUbF7Ph3I2L0K2QYQl+6SqV0lpEbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YfHfWlBKwAS5Gsa+mhhNu/97a0g/M81UrBz5H5KUfVtRKzyEm61b5cFdOcAfyOlhA
-         pEcIwXyF+PZQ2uyIi23OkTST9Eu6k3kojMj+E+5fo+GMSprHIW5XMPf2aIQ6dLHvvV
-         faMCYGpvl6GgQ6socJb6OZDm8CKoNPESv2but3fQ=
+        b=rwo/fP3cJqSR+xd1d8XH46MMWBPuw1gypVmkLrrsOjLC7rqe9ReU6bpi+2sfZ7Uyf
+         FfAOQgFb5X0gydS+sJdqcTWwQudRssVqBfJFEy8w7gVyOhf2KT7rsizi2TqRJ2zZXG
+         n9WoUJmuSx/S0YQTQ42bed84fcXJ65f2Fpp1V7NU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.16 053/126] RDMA/mlx4: Dont continue event handler after memory allocation failure
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 62/69] ASoC: fsl: Add missing error handling in pcm030_fabric_probe
 Date:   Mon,  7 Feb 2022 12:06:24 +0100
-Message-Id: <20220207103805.945560237@linuxfoundation.org>
+Message-Id: <20220207103757.661545761@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit f3136c4ce7acf64bee43135971ca52a880572e32 upstream.
+commit fb25621da5702c104ce0a48de5b174ced09e5b4e upstream.
 
-The failure to allocate memory during MLX4_DEV_EVENT_PORT_MGMT_CHANGE
-event handler will cause skip the assignment logic, but
-ib_dispatch_event() will be called anyway.
+Add the missing platform_device_put() and platform_device_del()
+before return from pcm030_fabric_probe in the error handling case.
 
-Fix it by calling to return instead of break after memory allocation
-failure.
-
-Fixes: 00f5ce99dc6e ("mlx4: Use port management change event instead of smp_snoop")
-Link: https://lore.kernel.org/r/12a0e83f18cfad4b5f62654f141e240d04915e10.1643622264.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Håkon Bugge <haakon.bugge@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: c912fa913446 ("ASoC: fsl: register the wm9712-codec")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220127131336.30214-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/mlx4/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/fsl/pcm030-audio-fabric.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/infiniband/hw/mlx4/main.c
-+++ b/drivers/infiniband/hw/mlx4/main.c
-@@ -3247,7 +3247,7 @@ static void mlx4_ib_event(struct mlx4_de
- 	case MLX4_DEV_EVENT_PORT_MGMT_CHANGE:
- 		ew = kmalloc(sizeof *ew, GFP_ATOMIC);
- 		if (!ew)
--			break;
-+			return;
+--- a/sound/soc/fsl/pcm030-audio-fabric.c
++++ b/sound/soc/fsl/pcm030-audio-fabric.c
+@@ -90,16 +90,21 @@ static int pcm030_fabric_probe(struct pl
+ 		dev_err(&op->dev, "platform_device_alloc() failed\n");
  
- 		INIT_WORK(&ew->work, handle_port_mgmt_change_event);
- 		memcpy(&ew->ib_eqe, eqe, sizeof *eqe);
+ 	ret = platform_device_add(pdata->codec_device);
+-	if (ret)
++	if (ret) {
+ 		dev_err(&op->dev, "platform_device_add() failed: %d\n", ret);
++		platform_device_put(pdata->codec_device);
++	}
+ 
+ 	ret = snd_soc_register_card(card);
+-	if (ret)
++	if (ret) {
+ 		dev_err(&op->dev, "snd_soc_register_card() failed: %d\n", ret);
++		platform_device_del(pdata->codec_device);
++		platform_device_put(pdata->codec_device);
++	}
+ 
+ 	platform_set_drvdata(op, pdata);
+-
+ 	return ret;
++
+ }
+ 
+ static int pcm030_fabric_remove(struct platform_device *op)
 
 
