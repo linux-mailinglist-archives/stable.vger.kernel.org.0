@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 455A24ABA98
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D45B4ABCB6
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383933AbiBGLYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47962 "EHLO
+        id S1387028AbiBGLin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:38:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355369AbiBGLIb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:08:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44203C0401C3;
-        Mon,  7 Feb 2022 03:08:30 -0800 (PST)
+        with ESMTP id S1385685AbiBGLcG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B851BC0401D6;
+        Mon,  7 Feb 2022 03:32:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02F6CB80EE8;
-        Mon,  7 Feb 2022 11:08:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41EF6C004E1;
-        Mon,  7 Feb 2022 11:08:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 262C560B5B;
+        Mon,  7 Feb 2022 11:32:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAB6EC004E1;
+        Mon,  7 Feb 2022 11:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232107;
-        bh=t3CKQhOZSqK+9EDYMRdB/12HFLkeO7GVPHP9kDG6JOE=;
+        s=korg; t=1644233521;
+        bh=4W2tn002ITYK63bmP9hov/JOOeTD9dndTF/zgZV7jQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sBSeM8+3PRq9LXQNuDKWX64flsNSPueAS9HZZFnjduqQez62rZSsmM7+MdMeky66h
-         O4UReQE8RDx9wcUO0nWTsOBPDnorAPF2iWUtd61NEHzREuMYfrCjugkNHh2P+shz61
-         nyBdyfo2SdPky6d6PdOM42jZkt96FI8kvGrqXg1k=
+        b=NM9m2wmnnxuUSyF583pm1Uesbo0P054JKu+deh+Z4qCwlM9JNPxHrn6L4tMsoWi1B
+         gpPbdephUtgqh+O/L687oJKVk1FBxJzn/eM7FU8twefmNX+cpkw67lW94ISuaUlbnl
+         k1xcqtSPEAeoF5+nsakjnHLatG6D4UaRreuoIWj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyu Tao <tao.lyu@epfl.ch>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 4.9 19/48] NFSv4: Handle case where the lookup of a directory fails
+        stable@vger.kernel.org, ron minnich <rminnich@gmail.com>,
+        ng@0x80.stream, Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 5.16 021/126] Revert "fs/9p: search open fids first"
 Date:   Mon,  7 Feb 2022 12:05:52 +0100
-Message-Id: <20220207103752.968788657@linuxfoundation.org>
+Message-Id: <20220207103804.797485286@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
-References: <20220207103752.341184175@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Dominique Martinet <asmadeus@codewreck.org>
 
-commit ac795161c93699d600db16c1a8cc23a65a1eceaf upstream.
+commit 22e424feb6658c5d6789e45121830357809c59cb upstream.
 
-If the application sets the O_DIRECTORY flag, and tries to open a
-regular file, nfs_atomic_open() will punt to doing a regular lookup.
-If the server then returns a regular file, we will happily return a
-file descriptor with uninitialised open state.
+This reverts commit 478ba09edc1f2f2ee27180a06150cb2d1a686f9c.
 
-The fix is to return the expected ENOTDIR error in these cases.
+That commit was meant as a fix for setattrs with by fd (e.g. ftruncate)
+to use an open fid instead of the first fid it found on lookup.
+The proper fix for that is to use the fid associated with the open file
+struct, available in iattr->ia_file for such operations, and was
+actually done just before in 66246641609b ("9p: retrieve fid from file
+when file instance exist.")
+As such, this commit is no longer required.
 
-Reported-by: Lyu Tao <tao.lyu@epfl.ch>
-Fixes: 0dd2b474d0b6 ("nfs: implement i_op->atomic_open()")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Furthermore, changing lookup to return open fids first had unwanted side
+effects, as it turns out the protocol forbids the use of open fids for
+further walks (e.g. clone_fid) and we broke mounts for some servers
+enforcing this rule.
+
+Note this only reverts to the old working behaviour, but it's still
+possible for lookup to return open fids if dentry->d_fsdata is not set,
+so more work is needed to make sure we respect this rule in the future,
+for example by adding a flag to the lookup functions to only match
+certain fid open modes depending on caller requirements.
+
+Link: https://lkml.kernel.org/r/20220130130651.712293-1-asmadeus@codewreck.org
+Fixes: 478ba09edc1f ("fs/9p: search open fids first")
+Cc: stable@vger.kernel.org # v5.11+
+Reported-by: ron minnich <rminnich@gmail.com>
+Reported-by: ng@0x80.stream
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/dir.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ fs/9p/fid.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -1602,6 +1602,19 @@ out:
+--- a/fs/9p/fid.c
++++ b/fs/9p/fid.c
+@@ -96,12 +96,8 @@ static struct p9_fid *v9fs_fid_find(stru
+ 		 dentry, dentry, from_kuid(&init_user_ns, uid),
+ 		 any);
+ 	ret = NULL;
+-
+-	if (d_inode(dentry))
+-		ret = v9fs_fid_find_inode(d_inode(dentry), uid);
+-
+ 	/* we'll recheck under lock if there's anything to look in */
+-	if (!ret && dentry->d_fsdata) {
++	if (dentry->d_fsdata) {
+ 		struct hlist_head *h = (struct hlist_head *)&dentry->d_fsdata;
  
- no_open:
- 	res = nfs_lookup(dir, dentry, lookup_flags);
-+	if (!res) {
-+		inode = d_inode(dentry);
-+		if ((lookup_flags & LOOKUP_DIRECTORY) && inode &&
-+		    !S_ISDIR(inode->i_mode))
-+			res = ERR_PTR(-ENOTDIR);
-+	} else if (!IS_ERR(res)) {
-+		inode = d_inode(res);
-+		if ((lookup_flags & LOOKUP_DIRECTORY) && inode &&
-+		    !S_ISDIR(inode->i_mode)) {
-+			dput(res);
-+			res = ERR_PTR(-ENOTDIR);
-+		}
-+	}
- 	if (switched) {
- 		d_lookup_done(dentry);
- 		if (!res)
+ 		spin_lock(&dentry->d_lock);
+@@ -113,6 +109,9 @@ static struct p9_fid *v9fs_fid_find(stru
+ 			}
+ 		}
+ 		spin_unlock(&dentry->d_lock);
++	} else {
++		if (dentry->d_inode)
++			ret = v9fs_fid_find_inode(dentry->d_inode, uid);
+ 	}
+ 
+ 	return ret;
 
 
