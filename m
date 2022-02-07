@@ -2,56 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A63A34ABBB1
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:39:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5C9B4ABA90
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384721AbiBGL3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:29:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34402 "EHLO
+        id S1383895AbiBGLYA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383302AbiBGLWF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:22:05 -0500
+        with ESMTP id S1346277AbiBGLJt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:09:49 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BC87C0401C0;
-        Mon,  7 Feb 2022 03:22:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57674C043181;
+        Mon,  7 Feb 2022 03:09:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAF0E61380;
-        Mon,  7 Feb 2022 11:22:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 446C6C004E1;
-        Mon,  7 Feb 2022 11:22:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7E1B61261;
+        Mon,  7 Feb 2022 11:09:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ADC9C004E1;
+        Mon,  7 Feb 2022 11:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232923;
-        bh=qGx8pLorX6OJ0M3ZEKrK/Gl5ED4V6pQ8BoJGOTE1Dts=;
+        s=korg; t=1644232187;
+        bh=A73VDMZcIsuiSE1vytGOv6KnVkctfiB40PR3pOzmyJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uGnzqlTiR7wML5f9KqCkF4iUYmIUYViR4ZjvqSzpjV9Z+kCbNqT6ImVo8ihgrruQv
-         Uzj8tb2hrWeJok4vm9KddbcKIiKbFad32a354tzNGTaaRH5pylS2hVJS9XrOMJ0vYS
-         toTru6tvIiX7vkaqpKQTDc7D7bVS6hrWwVHHA/2M=
+        b=tlczAESGOFMMkwyNez/AXNDs8Mnn6H72JVWaAkkxd/ujkpIcH+2Qj/xqfyCQBg5st
+         HsfdB7aMkxi0iDO/hJspXqaQg9Y6K0Vwp4xte7QCN2pOUj8MG8AXhboTYp3rxxoVYw
+         Xt+Y1j3MvJb0XR1gfOfvHQxolKbJlzEqiIJyWUhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pasha Tatashin <pasha.tatashin@soleen.com>,
-        Zi Yan <ziy@nvidia.com>, David Rientjes <rientjes@google.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Paul Turner <pjt@google.com>, Wei Xu <weixugc@google.com>,
-        Greg Thelen <gthelen@google.com>,
-        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 17/74] mm/debug_vm_pgtable: remove pte entry from the page table
-Date:   Mon,  7 Feb 2022 12:06:15 +0100
-Message-Id: <20220207103757.797627637@linuxfoundation.org>
+        stable@vger.kernel.org, Guangwu Zhang <guazhang@redhat.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        John Meneghini <jmeneghi@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.9 43/48] scsi: bnx2fc: Make bnx2fc_recv_frame() mp safe
+Date:   Mon,  7 Feb 2022 12:06:16 +0100
+Message-Id: <20220207103753.730454805@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
+References: <20220207103752.341184175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,75 +55,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pasha Tatashin <pasha.tatashin@soleen.com>
+From: John Meneghini <jmeneghi@redhat.com>
 
-commit fb5222aae64fe25e5f3ebefde8214dcf3ba33ca5 upstream.
+commit 936bd03405fc83ba039d42bc93ffd4b88418f1d3 upstream.
 
-Patch series "page table check fixes and cleanups", v5.
+Running tests with a debug kernel shows that bnx2fc_recv_frame() is
+modifying the per_cpu lport stats counters in a non-mpsafe way.  Just boot
+a debug kernel and run the bnx2fc driver with the hardware enabled.
 
-This patch (of 4):
+[ 1391.699147] BUG: using smp_processor_id() in preemptible [00000000] code: bnx2fc_
+[ 1391.699160] caller is bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
+[ 1391.699174] CPU: 2 PID: 4355 Comm: bnx2fc_l2_threa Kdump: loaded Tainted: G    B
+[ 1391.699180] Hardware name: HP ProLiant DL120 G7, BIOS J01 07/01/2013
+[ 1391.699183] Call Trace:
+[ 1391.699188]  dump_stack_lvl+0x57/0x7d
+[ 1391.699198]  check_preemption_disabled+0xc8/0xd0
+[ 1391.699205]  bnx2fc_recv_frame+0xbf9/0x1760 [bnx2fc]
+[ 1391.699215]  ? do_raw_spin_trylock+0xb5/0x180
+[ 1391.699221]  ? bnx2fc_npiv_create_vports.isra.0+0x4e0/0x4e0 [bnx2fc]
+[ 1391.699229]  ? bnx2fc_l2_rcv_thread+0xb7/0x3a0 [bnx2fc]
+[ 1391.699240]  bnx2fc_l2_rcv_thread+0x1af/0x3a0 [bnx2fc]
+[ 1391.699250]  ? bnx2fc_ulp_init+0xc0/0xc0 [bnx2fc]
+[ 1391.699258]  kthread+0x364/0x420
+[ 1391.699263]  ? _raw_spin_unlock_irq+0x24/0x50
+[ 1391.699268]  ? set_kthread_struct+0x100/0x100
+[ 1391.699273]  ret_from_fork+0x22/0x30
 
-The pte entry that is used in pte_advanced_tests() is never removed from
-the page table at the end of the test.
+Restore the old get_cpu/put_cpu code with some modifications to reduce the
+size of the critical section.
 
-The issue is detected by page_table_check, to repro compile kernel with
-the following configs:
-
-CONFIG_DEBUG_VM_PGTABLE=y
-CONFIG_PAGE_TABLE_CHECK=y
-CONFIG_PAGE_TABLE_CHECK_ENFORCED=y
-
-During the boot the following BUG is printed:
-
-  debug_vm_pgtable: [debug_vm_pgtable         ]: Validating architecture page table helpers
-  ------------[ cut here ]------------
-  kernel BUG at mm/page_table_check.c:162!
-  invalid opcode: 0000 [#1] PREEMPT SMP PTI
-  CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.16.0-11413-g2c271fe77d52 #3
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
-  ...
-
-The entry should be properly removed from the page table before the page
-is released to the free list.
-
-Link: https://lkml.kernel.org/r/20220131203249.2832273-1-pasha.tatashin@soleen.com
-Link: https://lkml.kernel.org/r/20220131203249.2832273-2-pasha.tatashin@soleen.com
-Fixes: a5c3b9ffb0f4 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
-Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
-Reviewed-by: Zi Yan <ziy@nvidia.com>
-Tested-by: Zi Yan <ziy@nvidia.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Paul Turner <pjt@google.com>
-Cc: Wei Xu <weixugc@google.com>
-Cc: Greg Thelen <gthelen@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: <stable@vger.kernel.org>	[5.9+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20220124145110.442335-1-jmeneghi@redhat.com
+Fixes: d576a5e80cd0 ("bnx2fc: Improve stats update mechanism")
+Tested-by: Guangwu Zhang <guazhang@redhat.com>
+Acked-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: John Meneghini <jmeneghi@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/debug_vm_pgtable.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/bnx2fc/bnx2fc_fcoe.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -128,6 +128,8 @@ static void __init pte_advanced_tests(st
- 	ptep_test_and_clear_young(vma, vaddr, ptep);
- 	pte = ptep_get(ptep);
- 	WARN_ON(pte_young(pte));
-+
-+	ptep_get_and_clear_full(mm, vaddr, ptep, 1);
- }
+--- a/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
++++ b/drivers/scsi/bnx2fc/bnx2fc_fcoe.c
+@@ -521,7 +521,8 @@ static int bnx2fc_l2_rcv_thread(void *ar
  
- static void __init pte_savedwrite_tests(unsigned long pfn, pgprot_t prot)
+ static void bnx2fc_recv_frame(struct sk_buff *skb)
+ {
+-	u32 fr_len;
++	u64 crc_err;
++	u32 fr_len, fr_crc;
+ 	struct fc_lport *lport;
+ 	struct fcoe_rcv_info *fr;
+ 	struct fc_stats *stats;
+@@ -553,6 +554,11 @@ static void bnx2fc_recv_frame(struct sk_
+ 	skb_pull(skb, sizeof(struct fcoe_hdr));
+ 	fr_len = skb->len - sizeof(struct fcoe_crc_eof);
+ 
++	stats = per_cpu_ptr(lport->stats, get_cpu());
++	stats->RxFrames++;
++	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
++	put_cpu();
++
+ 	fp = (struct fc_frame *)skb;
+ 	fc_frame_init(fp);
+ 	fr_dev(fp) = lport;
+@@ -604,16 +610,15 @@ static void bnx2fc_recv_frame(struct sk_
+ 		return;
+ 	}
+ 
+-	stats = per_cpu_ptr(lport->stats, smp_processor_id());
+-	stats->RxFrames++;
+-	stats->RxWords += fr_len / FCOE_WORD_TO_BYTE;
++	fr_crc = le32_to_cpu(fr_crc(fp));
+ 
+-	if (le32_to_cpu(fr_crc(fp)) !=
+-			~crc32(~0, skb->data, fr_len)) {
+-		if (stats->InvalidCRCCount < 5)
++	if (unlikely(fr_crc != ~crc32(~0, skb->data, fr_len))) {
++		stats = per_cpu_ptr(lport->stats, get_cpu());
++		crc_err = (stats->InvalidCRCCount++);
++		put_cpu();
++		if (crc_err < 5)
+ 			printk(KERN_WARNING PFX "dropping frame with "
+ 			       "CRC error\n");
+-		stats->InvalidCRCCount++;
+ 		kfree_skb(skb);
+ 		return;
+ 	}
 
 
