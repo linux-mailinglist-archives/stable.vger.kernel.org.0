@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4725D4ABC9A
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1E914ABAB9
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386920AbiBGLiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:38:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45104 "EHLO
+        id S1384025AbiBGLYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385612AbiBGLcB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79C4DC03CA49;
-        Mon,  7 Feb 2022 03:31:09 -0800 (PST)
+        with ESMTP id S1353119AbiBGLMH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:12:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D724BC043189;
+        Mon,  7 Feb 2022 03:12:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E159B80EBD;
-        Mon,  7 Feb 2022 11:31:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A95CC004E1;
-        Mon,  7 Feb 2022 11:31:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72E2161380;
+        Mon,  7 Feb 2022 11:12:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44A14C004E1;
+        Mon,  7 Feb 2022 11:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233467;
-        bh=OOrci6zsJTgNVekK33PRhoxSHZ4Cd74TJOKyCSGkGLA=;
+        s=korg; t=1644232325;
+        bh=4jO7K2E2c5x+A9y9hULWt9uHAkK9NZL2YaHuUeXezB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xqs8VEO2XbAtpdbdgmxIuQJ+mid9ZZWNHVkkh2CZumU7zbcuAkaRm7nD2hTP4tlJW
-         EDZ4niGYFjFVJ/iiSxldY1qcAX2c6913eIYFfUiRf0CYw2ufL+RgH29LHJcjeJjkgX
-         x1QHuztrcbY4EUSFm6HQmRg5lqITBdxFne/TKmVk=
+        b=sixaUP5wZpPz0mEyAGBl8sJxOeMflkp5yxvHZ9IGhmKDNx3DBMcm2hwk/J31FHo+r
+         whf35qiYQDCO7STKFdIwTOgxv/4o+r4xQyMg0R1aZ6/ElDwHzmrh4YfPT4vM7eTSea
+         Eeo6QBcT7HIJ4MqJoaSr6zG98bCtqrLnosdGWtAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Lukas Wunner <lukas@wunner.de>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.16 005/126] spi: stm32-qspi: Update spi registering
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+76629376e06e2c2ad626@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 14/69] USB: core: Fix hang in usb_kill_urb by adding memory barriers
 Date:   Mon,  7 Feb 2022 12:05:36 +0100
-Message-Id: <20220207103804.249514249@linuxfoundation.org>
+Message-Id: <20220207103756.084594797@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,144 +53,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrice Chotard <patrice.chotard@foss.st.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit e4d63473d3110afd170e6e0e48494d3789d26136 upstream.
+commit 26fbe9772b8c459687930511444ce443011f86bf upstream.
 
-Some device driver need to communicate to qspi device during the remove
-process, qspi controller must be functional when spi_unregister_master()
-is called.
+The syzbot fuzzer has identified a bug in which processes hang waiting
+for usb_kill_urb() to return.  It turns out the issue is not unlinking
+the URB; that works just fine.  Rather, the problem arises when the
+wakeup notification that the URB has completed is not received.
 
-To ensure this, replace devm_spi_register_master() by spi_register_master()
-and spi_unregister_master() is called directly in .remove callback before
-stopping the qspi controller.
+The reason is memory-access ordering on SMP systems.  In outline form,
+usb_kill_urb() and __usb_hcd_giveback_urb() operating concurrently on
+different CPUs perform the following actions:
 
-This issue was put in evidence using kernel v5.11 and later
-with a spi-nor which supports the software reset feature introduced
-by commit d73ee7534cc5 ("mtd: spi-nor: core: perform a Soft Reset on
-shutdown")
+CPU 0					CPU 1
+----------------------------		---------------------------------
+usb_kill_urb():				__usb_hcd_giveback_urb():
+  ...					  ...
+  atomic_inc(&urb->reject);		  atomic_dec(&urb->use_count);
+  ...					  ...
+  wait_event(usb_kill_urb_queue,
+	atomic_read(&urb->use_count) == 0);
+					  if (atomic_read(&urb->reject))
+						wake_up(&usb_kill_urb_queue);
 
-Fixes: c530cd1d9d5e ("spi: spi-mem: add stm32 qspi controller")
+Confining your attention to urb->reject and urb->use_count, you can
+see that the overall pattern of accesses on CPU 0 is:
 
-Signed-off-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Cc: <stable@vger.kernel.org> # 5.8.x
-Reviewed-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/20220117121744.29729-1-patrice.chotard@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+	write urb->reject, then read urb->use_count;
+
+whereas the overall pattern of accesses on CPU 1 is:
+
+	write urb->use_count, then read urb->reject.
+
+This pattern is referred to in memory-model circles as SB (for "Store
+Buffering"), and it is well known that without suitable enforcement of
+the desired order of accesses -- in the form of memory barriers -- it
+is entirely possible for one or both CPUs to execute their reads ahead
+of their writes.  The end result will be that sometimes CPU 0 sees the
+old un-decremented value of urb->use_count while CPU 1 sees the old
+un-incremented value of urb->reject.  Consequently CPU 0 ends up on
+the wait queue and never gets woken up, leading to the observed hang
+in usb_kill_urb().
+
+The same pattern of accesses occurs in usb_poison_urb() and the
+failure pathway of usb_hcd_submit_urb().
+
+The problem is fixed by adding suitable memory barriers.  To provide
+proper memory-access ordering in the SB pattern, a full barrier is
+required on both CPUs.  The atomic_inc() and atomic_dec() accesses
+themselves don't provide any memory ordering, but since they are
+present, we can use the optimized smp_mb__after_atomic() memory
+barrier in the various routines to obtain the desired effect.
+
+This patch adds the necessary memory barriers.
+
+CC: <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+76629376e06e2c2ad626@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/Ye8K0QYee0Q0Nna2@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-stm32-qspi.c |   47 +++++++++++++++----------------------------
- 1 file changed, 17 insertions(+), 30 deletions(-)
+ drivers/usb/core/hcd.c |   14 ++++++++++++++
+ drivers/usb/core/urb.c |   12 ++++++++++++
+ 2 files changed, 26 insertions(+)
 
---- a/drivers/spi/spi-stm32-qspi.c
-+++ b/drivers/spi/spi-stm32-qspi.c
-@@ -688,7 +688,7 @@ static int stm32_qspi_probe(struct platf
- 	struct resource *res;
- 	int ret, irq;
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -1679,6 +1679,13 @@ int usb_hcd_submit_urb (struct urb *urb,
+ 		urb->hcpriv = NULL;
+ 		INIT_LIST_HEAD(&urb->urb_list);
+ 		atomic_dec(&urb->use_count);
++		/*
++		 * Order the write of urb->use_count above before the read
++		 * of urb->reject below.  Pairs with the memory barriers in
++		 * usb_kill_urb() and usb_poison_urb().
++		 */
++		smp_mb__after_atomic();
++
+ 		atomic_dec(&urb->dev->urbnum);
+ 		if (atomic_read(&urb->reject))
+ 			wake_up(&usb_kill_urb_queue);
+@@ -1788,6 +1795,13 @@ static void __usb_hcd_giveback_urb(struc
  
--	ctrl = spi_alloc_master(dev, sizeof(*qspi));
-+	ctrl = devm_spi_alloc_master(dev, sizeof(*qspi));
- 	if (!ctrl)
- 		return -ENOMEM;
+ 	usb_anchor_resume_wakeups(anchor);
+ 	atomic_dec(&urb->use_count);
++	/*
++	 * Order the write of urb->use_count above before the read
++	 * of urb->reject below.  Pairs with the memory barriers in
++	 * usb_kill_urb() and usb_poison_urb().
++	 */
++	smp_mb__after_atomic();
++
+ 	if (unlikely(atomic_read(&urb->reject)))
+ 		wake_up(&usb_kill_urb_queue);
+ 	usb_put_urb(urb);
+--- a/drivers/usb/core/urb.c
++++ b/drivers/usb/core/urb.c
+@@ -686,6 +686,12 @@ void usb_kill_urb(struct urb *urb)
+ 	if (!(urb && urb->dev && urb->ep))
+ 		return;
+ 	atomic_inc(&urb->reject);
++	/*
++	 * Order the write of urb->reject above before the read
++	 * of urb->use_count below.  Pairs with the barriers in
++	 * __usb_hcd_giveback_urb() and usb_hcd_submit_urb().
++	 */
++	smp_mb__after_atomic();
  
-@@ -697,58 +697,46 @@ static int stm32_qspi_probe(struct platf
+ 	usb_hcd_unlink_urb(urb, -ENOENT);
+ 	wait_event(usb_kill_urb_queue, atomic_read(&urb->use_count) == 0);
+@@ -727,6 +733,12 @@ void usb_poison_urb(struct urb *urb)
+ 	if (!urb)
+ 		return;
+ 	atomic_inc(&urb->reject);
++	/*
++	 * Order the write of urb->reject above before the read
++	 * of urb->use_count below.  Pairs with the barriers in
++	 * __usb_hcd_giveback_urb() and usb_hcd_submit_urb().
++	 */
++	smp_mb__after_atomic();
  
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "qspi");
- 	qspi->io_base = devm_ioremap_resource(dev, res);
--	if (IS_ERR(qspi->io_base)) {
--		ret = PTR_ERR(qspi->io_base);
--		goto err_master_put;
--	}
-+	if (IS_ERR(qspi->io_base))
-+		return PTR_ERR(qspi->io_base);
- 
- 	qspi->phys_base = res->start;
- 
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "qspi_mm");
- 	qspi->mm_base = devm_ioremap_resource(dev, res);
--	if (IS_ERR(qspi->mm_base)) {
--		ret = PTR_ERR(qspi->mm_base);
--		goto err_master_put;
--	}
-+	if (IS_ERR(qspi->mm_base))
-+		return PTR_ERR(qspi->mm_base);
- 
- 	qspi->mm_size = resource_size(res);
--	if (qspi->mm_size > STM32_QSPI_MAX_MMAP_SZ) {
--		ret = -EINVAL;
--		goto err_master_put;
--	}
-+	if (qspi->mm_size > STM32_QSPI_MAX_MMAP_SZ)
-+		return -EINVAL;
- 
- 	irq = platform_get_irq(pdev, 0);
--	if (irq < 0) {
--		ret = irq;
--		goto err_master_put;
--	}
-+	if (irq < 0)
-+		return irq;
- 
- 	ret = devm_request_irq(dev, irq, stm32_qspi_irq, 0,
- 			       dev_name(dev), qspi);
- 	if (ret) {
- 		dev_err(dev, "failed to request irq\n");
--		goto err_master_put;
-+		return ret;
- 	}
- 
- 	init_completion(&qspi->data_completion);
- 	init_completion(&qspi->match_completion);
- 
- 	qspi->clk = devm_clk_get(dev, NULL);
--	if (IS_ERR(qspi->clk)) {
--		ret = PTR_ERR(qspi->clk);
--		goto err_master_put;
--	}
-+	if (IS_ERR(qspi->clk))
-+		return PTR_ERR(qspi->clk);
- 
- 	qspi->clk_rate = clk_get_rate(qspi->clk);
--	if (!qspi->clk_rate) {
--		ret = -EINVAL;
--		goto err_master_put;
--	}
-+	if (!qspi->clk_rate)
-+		return -EINVAL;
- 
- 	ret = clk_prepare_enable(qspi->clk);
- 	if (ret) {
- 		dev_err(dev, "can not enable the clock\n");
--		goto err_master_put;
-+		return ret;
- 	}
- 
- 	rstc = devm_reset_control_get_exclusive(dev, NULL);
-@@ -784,7 +772,7 @@ static int stm32_qspi_probe(struct platf
- 	pm_runtime_enable(dev);
- 	pm_runtime_get_noresume(dev);
- 
--	ret = devm_spi_register_master(dev, ctrl);
-+	ret = spi_register_master(ctrl);
- 	if (ret)
- 		goto err_pm_runtime_free;
- 
-@@ -806,8 +794,6 @@ err_dma_free:
- 	stm32_qspi_dma_free(qspi);
- err_clk_disable:
- 	clk_disable_unprepare(qspi->clk);
--err_master_put:
--	spi_master_put(qspi->ctrl);
- 
- 	return ret;
- }
-@@ -817,6 +803,7 @@ static int stm32_qspi_remove(struct plat
- 	struct stm32_qspi *qspi = platform_get_drvdata(pdev);
- 
- 	pm_runtime_get_sync(qspi->dev);
-+	spi_unregister_master(qspi->ctrl);
- 	/* disable qspi */
- 	writel_relaxed(0, qspi->io_base + QSPI_CR);
- 	stm32_qspi_dma_free(qspi);
+ 	if (!urb->dev || !urb->ep)
+ 		return;
 
 
