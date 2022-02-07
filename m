@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73AC64ABA1B
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:27:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 373104ABA81
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:29:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241175AbiBGLXL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:23:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48692 "EHLO
+        id S1383843AbiBGLXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:23:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232220AbiBGLJy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:09:54 -0500
+        with ESMTP id S238560AbiBGLLP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:11:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EED9C043188;
-        Mon,  7 Feb 2022 03:09:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E717BC0401C4;
+        Mon,  7 Feb 2022 03:11:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C185261261;
-        Mon,  7 Feb 2022 11:09:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F117C004E1;
-        Mon,  7 Feb 2022 11:09:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77C8561261;
+        Mon,  7 Feb 2022 11:11:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A0F7C340EB;
+        Mon,  7 Feb 2022 11:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232193;
-        bh=+DizvWClW/CV/X7Q1K0svABf404QPj0PYFO9jr/kB0Y=;
+        s=korg; t=1644232273;
+        bh=sm5sbFHOTB/cW9HRgnuJ81rw67nPFJSlWPf3S0Er/qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gaKsrfQz74RMr0wQFNhQPyAdYT0XiuN0cIllN2w8oboqG9IAa8RA3JVz2TtGkwTu7
-         LFu80xvhFbkyPNYipYw0W7ol+9uUp68qEo13rZ/XbkEzZTY6OjYSUUsDadv3p88xdj
-         2mJrTWoi5JGhIldVBdz8LEtUtZeKDNBBklwtjYG4=
+        b=kkVNuTpI0qPRpVD1v15A+AWWPvhHgYi5X8MfoaFdzr08RPtlHdBsZcEj9kEryNujp
+         PaIGrgwbtOWql672TwATEGjILh6Boa50eyVeBbbOctWjF7KCvsJQaoIAFtJVrxmpki
+         NtpNQb2MedYCOpjkcPjqNoC6BPA/yipw0hmqOFbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.9 14/48] powerpc/32: Fix boot failure with GCC latent entropy plugin
+        stable@vger.kernel.org, Congyu Liu <liu3101@purdue.edu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 25/69] net: fix information leakage in /proc/net/ptype
 Date:   Mon,  7 Feb 2022 12:05:47 +0100
-Message-Id: <20220207103752.809184786@linuxfoundation.org>
+Message-Id: <20220207103756.446972586@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
-References: <20220207103752.341184175@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Congyu Liu <liu3101@purdue.edu>
 
-commit bba496656a73fc1d1330b49c7f82843836e9feb1 upstream.
+commit 47934e06b65637c88a762d9c98329ae6e3238888 upstream.
 
-Boot fails with GCC latent entropy plugin enabled.
+In one net namespace, after creating a packet socket without binding
+it to a device, users in other net namespaces can observe the new
+`packet_type` added by this packet socket by reading `/proc/net/ptype`
+file. This is minor information leakage as packet socket is
+namespace aware.
 
-This is due to early boot functions trying to access 'latent_entropy'
-global data while the kernel is not relocated at its final
-destination yet.
+Add a net pointer in `packet_type` to keep the net namespace of
+of corresponding packet socket. In `ptype_seq_show`, this net pointer
+must be checked when it is not NULL.
 
-As there is no way to tell GCC to use PTRRELOC() to access it,
-disable latent entropy plugin in early_32.o and feature-fixups.o and
-code-patching.o
-
-Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
-Cc: stable@vger.kernel.org # v4.9+
-Reported-by: Erhard Furtner <erhard_f@mailbox.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215217
-Link: https://lore.kernel.org/r/2bac55483b8daf5b1caa163a45fa5f9cdbe18be4.1640178426.git.christophe.leroy@csgroup.eu
+Fixes: 2feb27dbe00c ("[NETNS]: Minor information leak via /proc/net/ptype file.")
+Signed-off-by: Congyu Liu <liu3101@purdue.edu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/Makefile |    1 +
- arch/powerpc/lib/Makefile    |    3 +++
- 2 files changed, 4 insertions(+)
+ include/linux/netdevice.h |    1 +
+ net/core/net-procfs.c     |    3 ++-
+ net/packet/af_packet.c    |    2 ++
+ 3 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/Makefile
-+++ b/arch/powerpc/kernel/Makefile
-@@ -14,6 +14,7 @@ CFLAGS_prom_init.o      += -fPIC
- CFLAGS_btext.o		+= -fPIC
- endif
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -2206,6 +2206,7 @@ struct packet_type {
+ 					 struct net_device *);
+ 	bool			(*id_match)(struct packet_type *ptype,
+ 					    struct sock *sk);
++	struct net		*af_packet_net;
+ 	void			*af_packet_priv;
+ 	struct list_head	list;
+ };
+--- a/net/core/net-procfs.c
++++ b/net/core/net-procfs.c
+@@ -279,7 +279,8 @@ static int ptype_seq_show(struct seq_fil
  
-+CFLAGS_setup_32.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
- CFLAGS_cputable.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
- CFLAGS_prom_init.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
- CFLAGS_btext.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
---- a/arch/powerpc/lib/Makefile
-+++ b/arch/powerpc/lib/Makefile
-@@ -9,6 +9,9 @@ ccflags-$(CONFIG_PPC64)	:= $(NO_MINIMAL_
- CFLAGS_REMOVE_code-patching.o = $(CC_FLAGS_FTRACE)
- CFLAGS_REMOVE_feature-fixups.o = $(CC_FLAGS_FTRACE)
+ 	if (v == SEQ_START_TOKEN)
+ 		seq_puts(seq, "Type Device      Function\n");
+-	else if (pt->dev == NULL || dev_net(pt->dev) == seq_file_net(seq)) {
++	else if ((!pt->af_packet_net || net_eq(pt->af_packet_net, seq_file_net(seq))) &&
++		 (!pt->dev || net_eq(dev_net(pt->dev), seq_file_net(seq)))) {
+ 		if (pt->type == htons(ETH_P_ALL))
+ 			seq_puts(seq, "ALL ");
+ 		else
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -1756,6 +1756,7 @@ static int fanout_add(struct sock *sk, u
+ 		match->prot_hook.dev = po->prot_hook.dev;
+ 		match->prot_hook.func = packet_rcv_fanout;
+ 		match->prot_hook.af_packet_priv = match;
++		match->prot_hook.af_packet_net = read_pnet(&match->net);
+ 		match->prot_hook.id_match = match_fanout_group;
+ 		list_add(&match->list, &fanout_list);
+ 	}
+@@ -3330,6 +3331,7 @@ static int packet_create(struct net *net
+ 		po->prot_hook.func = packet_rcv_spkt;
  
-+CFLAGS_code-patching.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
-+CFLAGS_feature-fixups.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
-+
- obj-y += string.o alloc.o crtsavres.o code-patching.o \
- 	 feature-fixups.o
+ 	po->prot_hook.af_packet_priv = sk;
++	po->prot_hook.af_packet_net = sock_net(sk);
  
+ 	if (proto) {
+ 		po->prot_hook.type = proto;
 
 
