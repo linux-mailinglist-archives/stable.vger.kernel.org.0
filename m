@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 853984ABD26
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:58:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B89254ABC5A
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:47:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379117AbiBGLjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:39:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46396 "EHLO
+        id S234232AbiBGLfb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:35:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386230AbiBGLeC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:34:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1EC2C043181;
-        Mon,  7 Feb 2022 03:34:01 -0800 (PST)
+        with ESMTP id S1384704AbiBGL3g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:29:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 486CFC0401D1;
+        Mon,  7 Feb 2022 03:28:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B3EB60A69;
-        Mon,  7 Feb 2022 11:34:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95C10C004E1;
-        Mon,  7 Feb 2022 11:34:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0458AB80EBD;
+        Mon,  7 Feb 2022 11:28:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B371C340F0;
+        Mon,  7 Feb 2022 11:27:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233641;
-        bh=EtbOZiAqtWbT4t6/B/vsUfgMMXkYyFMWs8SFTUx3QU0=;
+        s=korg; t=1644233280;
+        bh=biUjx9epFYxUc5njJ7zZT0O1LrXh9iSxhzE0Ljx4fBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iLON1TxALfT8aPijy2aukgpFGhgLHZi8m8QF3IHPM7lpJr46NSw5AQucWyd0Q8s9P
-         +DHqqj1kuwC5BRYohyUtZizOAAln428lbYC5gz5d99N39rEy/ZKXlziHlRvAZG/XYJ
-         OxlyMHTVytNb0Uho/UdVypJjG7skXTtUalrK27Y4=
+        b=OYs9Jo9EtA7FesHozSOyGRkhE7fydY4vcQmF00FNJ9DKbqF2ET3hEfcbkVOx6Yk5w
+         xhRfZtgPQddCRWQytlagEid3kFoPLZCEI9sko4TrMyEvFNsbmogUgTgfScgP20fAwB
+         M0/r8xR2xTHY9mF0cfayyRoFXpeu9/UeT5V3BpHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Camel Guo <camelg@axis.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 075/126] net: stmmac: dump gmac4 DMA registers correctly
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 073/110] ASoC: simple-card: fix probe failure on platform component
 Date:   Mon,  7 Feb 2022 12:06:46 +0100
-Message-Id: <20220207103806.694567104@linuxfoundation.org>
+Message-Id: <20220207103804.763779936@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,95 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Camel Guo <camelg@axis.com>
+From: Robert Hancock <robert.hancock@calian.com>
 
-commit 7af037c39b600bac2c716dd1228e8ddbe149573f upstream.
+commit a64067f4cecaaa4deed8e33d3266bc0bcc189142 upstream.
 
-Unlike gmac100, gmac1000, gmac4 has 27 DMA registers and they are
-located at DMA_CHAN_BASE_ADDR (0x1100). In order for ethtool to dump
-gmac4 DMA registers correctly, this commit checks if a net_device has
-gmac4 and uses different logic to dump its DMA registers.
+A previous change to simple-card resulted in asoc_simple_parse_dai
+attempting to retrieve the dai_name for platform components, which are
+unlikely to have a valid DAI name. This caused simple-card to fail to
+probe when using the xlnx_formatter_pcm as the platform component, since
+it does not register any DAI components.
 
-This fixes the following KASAN warning, which can normally be triggered
-by a command similar like "ethtool -d eth0":
+Since the dai_name is not used for platform components, just skip trying
+to retrieve it for those.
 
-BUG: KASAN: vmalloc-out-of-bounds in dwmac4_dump_dma_regs+0x6d4/0xb30
-Write of size 4 at addr ffffffc010177100 by task ethtool/1839
- kasan_report+0x200/0x21c
- __asan_report_store4_noabort+0x34/0x60
- dwmac4_dump_dma_regs+0x6d4/0xb30
- stmmac_ethtool_gregs+0x110/0x204
- ethtool_get_regs+0x200/0x4b0
- dev_ethtool+0x1dac/0x3800
- dev_ioctl+0x7c0/0xb50
- sock_ioctl+0x298/0x6c4
- ...
-
-Fixes: fbf68229ffe7 ("net: stmmac: unify registers dumps methods")
-Signed-off-by: Camel Guo <camelg@axis.com>
-Link: https://lore.kernel.org/r/20220131083841.3346801-1-camel.guo@axis.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: f107294c6422 ("ASoC: simple-card: support snd_soc_dai_link_component style for cpu")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Link: https://lore.kernel.org/r/20220107214711.1100162-6-robert.hancock@calian.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h      |    1 +
- drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c |   19 +++++++++++++++++--
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ sound/soc/generic/simple-card.c |   26 +++++++++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h
-@@ -150,6 +150,7 @@
+--- a/sound/soc/generic/simple-card.c
++++ b/sound/soc/generic/simple-card.c
+@@ -28,6 +28,30 @@ static const struct snd_soc_ops simple_o
+ 	.hw_params	= asoc_simple_hw_params,
+ };
  
- #define NUM_DWMAC100_DMA_REGS	9
- #define NUM_DWMAC1000_DMA_REGS	23
-+#define NUM_DWMAC4_DMA_REGS	27
- 
- void dwmac_enable_dma_transmission(void __iomem *ioaddr);
- void dwmac_enable_dma_irq(void __iomem *ioaddr, u32 chan, bool rx, bool tx);
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-@@ -21,10 +21,18 @@
- #include "dwxgmac2.h"
- 
- #define REG_SPACE_SIZE	0x1060
-+#define GMAC4_REG_SPACE_SIZE	0x116C
- #define MAC100_ETHTOOL_NAME	"st_mac100"
- #define GMAC_ETHTOOL_NAME	"st_gmac"
- #define XGMAC_ETHTOOL_NAME	"st_xgmac"
- 
-+/* Same as DMA_CHAN_BASE_ADDR defined in dwmac4_dma.h
-+ *
-+ * It is here because dwmac_dma.h and dwmac4_dam.h can not be included at the
-+ * same time due to the conflicting macro names.
-+ */
-+#define GMAC4_DMA_CHAN_BASE_ADDR  0x00001100
++static int asoc_simple_parse_platform(struct device_node *node,
++				      struct snd_soc_dai_link_component *dlc)
++{
++	struct of_phandle_args args;
++	int ret;
 +
- #define ETHTOOL_DMA_OFFSET	55
++	if (!node)
++		return 0;
++
++	/*
++	 * Get node via "sound-dai = <&phandle port>"
++	 * it will be used as xxx_of_node on soc_bind_dai_link()
++	 */
++	ret = of_parse_phandle_with_args(node, DAI, CELL, 0, &args);
++	if (ret)
++		return ret;
++
++	/* dai_name is not required and may not exist for plat component */
++
++	dlc->of_node = args.np;
++
++	return 0;
++}
++
+ static int asoc_simple_parse_dai(struct device_node *node,
+ 				 struct snd_soc_dai_link_component *dlc,
+ 				 int *is_single_link)
+@@ -289,7 +313,7 @@ static int simple_dai_link_of(struct aso
+ 	if (ret < 0)
+ 		goto dai_link_of_err;
  
- struct stmmac_stats {
-@@ -435,6 +443,8 @@ static int stmmac_ethtool_get_regs_len(s
+-	ret = asoc_simple_parse_dai(plat, platforms, NULL);
++	ret = asoc_simple_parse_platform(plat, platforms);
+ 	if (ret < 0)
+ 		goto dai_link_of_err;
  
- 	if (priv->plat->has_xgmac)
- 		return XGMAC_REGSIZE * 4;
-+	else if (priv->plat->has_gmac4)
-+		return GMAC4_REG_SPACE_SIZE;
- 	return REG_SPACE_SIZE;
- }
- 
-@@ -447,8 +457,13 @@ static void stmmac_ethtool_gregs(struct
- 	stmmac_dump_mac_regs(priv, priv->hw, reg_space);
- 	stmmac_dump_dma_regs(priv, priv->ioaddr, reg_space);
- 
--	if (!priv->plat->has_xgmac) {
--		/* Copy DMA registers to where ethtool expects them */
-+	/* Copy DMA registers to where ethtool expects them */
-+	if (priv->plat->has_gmac4) {
-+		/* GMAC4 dumps its DMA registers at its DMA_CHAN_BASE_ADDR */
-+		memcpy(&reg_space[ETHTOOL_DMA_OFFSET],
-+		       &reg_space[GMAC4_DMA_CHAN_BASE_ADDR / 4],
-+		       NUM_DWMAC4_DMA_REGS * 4);
-+	} else if (!priv->plat->has_xgmac) {
- 		memcpy(&reg_space[ETHTOOL_DMA_OFFSET],
- 		       &reg_space[DMA_BUS_MODE / 4],
- 		       NUM_DWMAC1000_DMA_REGS * 4);
 
 
