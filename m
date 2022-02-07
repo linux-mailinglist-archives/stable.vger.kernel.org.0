@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B6CB4ABAB5
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68F324ABB93
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384009AbiBGLY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48498 "EHLO
+        id S1382270AbiBGL3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:29:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242774AbiBGLJ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:09:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD97AC043181;
-        Mon,  7 Feb 2022 03:09:26 -0800 (PST)
+        with ESMTP id S1382980AbiBGLVT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:21:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AAC6C0401E8;
+        Mon,  7 Feb 2022 03:20:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 605B7611AA;
-        Mon,  7 Feb 2022 11:09:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B6CEC004E1;
-        Mon,  7 Feb 2022 11:09:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64BFE6126D;
+        Mon,  7 Feb 2022 11:20:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38149C004E1;
+        Mon,  7 Feb 2022 11:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232165;
-        bh=8ghriyWbh+VukJ7ln3XXsA/uQ+qN6yX00Mc0zjol/ck=;
+        s=korg; t=1644232852;
+        bh=2K2GpP7nuqFATal9aoLAU6lo/neZKGJn0bBAFRix2cE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g7PJIoFyV2/D+xK8ZrRiRTDPcTIJoRXjwdGTlspCeC3c583L0Ly47K6cuWZbIiZCi
-         xTCty5J+0flz/xJPXA2I/3riDgSP7ZbQbxNTSFER7P1cygxmKGa4JUVi6q8nmLfjpg
-         DNnHtoqM527LdZPcuWwKjRniApiHPWnswnII8dFs=
+        b=ZdJ/L2r74+2ED74WoYq28ckN7OxsTIoFhV54ehzbdDy/UpSwLrajy+YbUCvxlJfnO
+         CoLCaJ3QvotqdClKBQ7uCT7DFqFBCQHryIpZDfncqQTVUBN/zniuYdgafJ+ASAav/y
+         fqoJ6Vt8Iqsep7/v2DbKlpxyA/hxBcYqp6G4mioE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 4.9 37/48] iommu/amd: Fix loop timeout issue in iommu_ga_log_enable()
+        stable@vger.kernel.org, Christian Lachner <gladiac@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 12/74] ALSA: hda/realtek: Fix silent output on Gigabyte X570 Aorus Xtreme after reboot from Windows
 Date:   Mon,  7 Feb 2022 12:06:10 +0100
-Message-Id: <20220207103753.546943012@linuxfoundation.org>
+Message-Id: <20220207103757.632250161@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
-References: <20220207103752.341184175@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Christian Lachner <gladiac@gmail.com>
 
-commit 9b45a7738eec52bf0f5d8d3d54e822962781c5f2 upstream.
+commit ea3541961376f733373839cc90493aafa8a7f733 upstream.
 
-The polling loop for the register change in iommu_ga_log_enable() needs
-to have a udelay() in it.  Otherwise the CPU might be faster than the
-IOMMU hardware and wrongly trigger the WARN_ON() further down the code
-stream. Use a 10us for udelay(), has there is some hardware where
-activation of the GA log can take more than a 100ms.
+This commit switches the Gigabyte X570 Aorus Xtreme from using the
+ALC1220_FIXUP_CLEVO_P950 to the ALC1220_FIXUP_GB_X570 quirk. This fixes
+the no-audio after reboot from windows problem.
 
-A future optimization should move the activation check of the GA log
-to the point where it gets used for the first time. But that is a
-bigger change and not suitable for a fix.
-
-Fixes: 8bda0cfbdc1a ("iommu/amd: Detect and initialize guest vAPIC log")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20220204115537.3894-1-joro@8bytes.org
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205275
+Signed-off-by: Christian Lachner <gladiac@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220129113243.93068-4-gladiac@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/amd_iommu_init.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/patch_realtek.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iommu/amd_iommu_init.c
-+++ b/drivers/iommu/amd_iommu_init.c
-@@ -28,6 +28,7 @@
- #include <linux/amd-iommu.h>
- #include <linux/export.h>
- #include <linux/iommu.h>
-+#include <linux/iopoll.h>
- #include <asm/pci-direct.h>
- #include <asm/iommu.h>
- #include <asm/gart.h>
-@@ -715,6 +716,7 @@ static int iommu_ga_log_enable(struct am
- 		status = readl(iommu->mmio_base + MMIO_STATUS_OFFSET);
- 		if (status & (MMIO_STATUS_GALOG_RUN_MASK))
- 			break;
-+		udelay(10);
- 	}
- 
- 	if (i >= LOOP_TIMEOUT)
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2598,7 +2598,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1458, 0xa002, "Gigabyte EP45-DS3/Z87X-UD3H", ALC889_FIXUP_FRONT_HP_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
+ 	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_GB_X570),
+-	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_CLEVO_P950),
++	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_GB_X570),
+ 	SND_PCI_QUIRK(0x1458, 0xa0d5, "Gigabyte X570S Aorus Master", ALC1220_FIXUP_GB_X570),
+ 	SND_PCI_QUIRK(0x1462, 0x11f7, "MSI-GE63", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
 
 
