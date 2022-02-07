@@ -2,118 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 932984ACB6B
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 22:41:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A4A54ACBAA
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 22:52:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240123AbiBGVjv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 16:39:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56210 "EHLO
+        id S243141AbiBGVwd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 16:52:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231607AbiBGVju (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 16:39:50 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CA32EC061355
-        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 13:39:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1644269988;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=AvJ9N+RokT/quaPmMZhpaU8mvk15cL5DRf0vZEA2K/0=;
-        b=Qh4maPoRmIKsHlxU5yBKyt+Dm5+8p2ikEoglcTNgUYSHAMsneDBtsMPvHClVoYrEvTI2Q8
-        iRAG8J7AApUpRzv7utsABeW+33UMqXFBt8xdsZBV3FEGTAb//2CfJvy4nmBG6sXGbSz1gC
-        Ri5Y/XgkDOkSfVzGHJzAiXTIryelkKY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-441-vgSPi0YHOzOjbRTZsRCqcQ-1; Mon, 07 Feb 2022 16:39:45 -0500
-X-MC-Unique: vgSPi0YHOzOjbRTZsRCqcQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1D0B1101F7A1;
-        Mon,  7 Feb 2022 21:39:43 +0000 (UTC)
-Received: from emerald.redhat.com (unknown [10.22.8.36])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0A52E1037F38;
-        Mon,  7 Feb 2022 21:39:34 +0000 (UTC)
-From:   Lyude Paul <lyude@redhat.com>
-To:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Cc:     Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>, stable@vger.kernel.org,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH] drm/i915/psr: Disable PSR2 selective fetch for all TGL steps
-Date:   Mon,  7 Feb 2022 16:38:20 -0500
-Message-Id: <20220207213923.3605-1-lyude@redhat.com>
+        with ESMTP id S243125AbiBGVwd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 16:52:33 -0500
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62842C061355
+        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 13:52:32 -0800 (PST)
+Received: by mail-pj1-x102a.google.com with SMTP id v4so8356089pjh.2
+        for <stable@vger.kernel.org>; Mon, 07 Feb 2022 13:52:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=S4zrQYHRQgSeBOTpQU+Y2vfgNi0v/V3wK2hEqmal1jI=;
+        b=6VpFOm1+F6PlONYzvWepQ8ZZMIj3kWKV5kzzSG72LsFvNjcSWzVwX1znkqJwEPclrT
+         KLbA1esL++/hF3X+GBXqH3sxU51V1nCMr10D+ON742xX/SXbmpzAr6w06R3uwavxPPR4
+         ybf64ksQ819TXjGhUOzPEtbmjsZagT7WCUWFpneHBTDI+T1ziyRVEjuB42JBdn841BHY
+         KhsNNF+NYBonK/oxfS84/Ah2l/1pj3pGLqPjyIqWIN9Zr/x6rS9jFzTNqDoPZhvj3Srb
+         oornT6xcMtCoTrM7ufLSTXI7GLiPQXOvM2/HTldFDiDZDPv6QbcovYzvyzqPQIcl5cas
+         Ua0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=S4zrQYHRQgSeBOTpQU+Y2vfgNi0v/V3wK2hEqmal1jI=;
+        b=p0FsYPlW4+Rd3JDf4T0eFQTEcbWfbQ4DFGafezzvYGga7gJN39QXwomeq/Xrv1LJCW
+         qEt89E2P+hjRO/HkA6Kr41U4WDN2CfRbcwuxi9DwrQaEqaZVNoqlczpVN/9BMqHDZtdW
+         p6A0UzNXsCmBBXGQiIvC8p3ytBdeZp/h74jku8jUYAwSzKJjUgFBpCATRCbkUCfl1Th+
+         hzQEEOdUajONFYmCwts3IdH6zIwi4zAt6Z1AJn/+O0c2Zs3UQM2TFWwv5JpcuR2K0xrN
+         XwJuJ/yLyIXEUAiBfJIYchZFoavU3CpiBSXbMPzKc+BD7/0uNnbHVt3NN6NbeYhLPkh4
+         /nmA==
+X-Gm-Message-State: AOAM532uor6kPleUCpS6Ya/9as22fvq8s0Bygka38DEatMlrwLL5JF6s
+        3PYuQum/IbeRxnaqX+eXF1Z+4zWyHBWgboSU
+X-Google-Smtp-Source: ABdhPJzOA8oNL+gx05YvKCkc3GZe4Gl6oLZO8Zz3Q5PLT/mCZryQo9jGx5FcLKhZ3GTKgyeUSCZhZw==
+X-Received: by 2002:a17:902:b710:: with SMTP id d16mr1281190pls.130.1644270751428;
+        Mon, 07 Feb 2022 13:52:31 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id nl7sm314805pjb.5.2022.02.07.13.52.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Feb 2022 13:52:31 -0800 (PST)
+Message-ID: <6201949f.1c69fb81.6f207.1461@mx.google.com>
+Date:   Mon, 07 Feb 2022 13:52:31 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.15.21-112-g0472630a5621
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-5.15.y
+Subject: stable-rc/linux-5.15.y baseline: 126 runs,
+ 1 regressions (v5.15.21-112-g0472630a5621)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As we've unfortunately started to come to expect from PSR on Intel
-platforms, PSR2 selective fetch is not at all ready to be enabled on
-Tigerlake as it results in severe flickering issues - at least on this
-ThinkPad X1 Carbon 9th generation. The easiest way I've found of
-reproducing these issues is to just move the cursor around the left border
-of the screen (suspicious…).
+stable-rc/linux-5.15.y baseline: 126 runs, 1 regressions (v5.15.21-112-g047=
+2630a5621)
 
-So, fix people's displays again and turn PSR2 selective fetch off for all
-steppings of Tigerlake. This can be re-enabled again if someone from Intel
-finds the time to fix this functionality on OEM machines.
+Regressions Summary
+-------------------
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: 7f6002e58025 ("drm/i915/display: Enable PSR2 selective fetch by default")
-Cc: Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: José Roberto de Souza <jose.souza@intel.com>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: intel-gfx@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.16+
----
- drivers/gpu/drm/i915/display/intel_psr.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
 
-diff --git a/drivers/gpu/drm/i915/display/intel_psr.c b/drivers/gpu/drm/i915/display/intel_psr.c
-index a1a663f362e7..25c16abcd9cd 100644
---- a/drivers/gpu/drm/i915/display/intel_psr.c
-+++ b/drivers/gpu/drm/i915/display/intel_psr.c
-@@ -737,10 +737,14 @@ static bool intel_psr2_sel_fetch_config_valid(struct intel_dp *intel_dp,
- 		return false;
- 	}
- 
--	/* Wa_14010254185 Wa_14010103792 */
--	if (IS_TGL_DISPLAY_STEP(dev_priv, STEP_A0, STEP_C0)) {
-+	/*
-+	 * There's two things stopping this from being enabled on TGL:
-+	 * For steps A0-C0: workarounds Wa_14010254185 Wa_14010103792 are missing
-+	 * For all steps: PSR2 selective fetch causes screen flickering
-+	 */
-+	if (IS_TIGERLAKE(dev_priv)) {
- 		drm_dbg_kms(&dev_priv->drm,
--			    "PSR2 sel fetch not enabled, missing the implementation of WAs\n");
-+			    "PSR2 sel fetch not enabled, currently broken on TGL\n");
- 		return false;
- 	}
- 
--- 
-2.34.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.21-112-g0472630a5621/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.21-112-g0472630a5621
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      0472630a562104918269888a8b355d06c5060e98 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/62015de213634fc6ea5d6f1d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.2=
+1-112-g0472630a5621/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-b=
+ananapi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.2=
+1-112-g0472630a5621/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-b=
+ananapi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62015de213634fc6ea5d6=
+f1e
+        failing since 3 days (last pass: v5.15.19, first fail: v5.15.19-34-=
+g61f904d1d627) =
+
+ =20
