@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A3AB4ABB36
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57FA74ABD16
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:56:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384281AbiBGL1W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:27:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56216 "EHLO
+        id S236813AbiBGLjn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:39:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381883AbiBGLRj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:17:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A16C0401DB;
-        Mon,  7 Feb 2022 03:17:31 -0800 (PST)
+        with ESMTP id S1386130AbiBGLdq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:33:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD7F5C043181;
+        Mon,  7 Feb 2022 03:33:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2AA5EB8111C;
-        Mon,  7 Feb 2022 11:17:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69043C004E1;
-        Mon,  7 Feb 2022 11:17:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53F9EB811BE;
+        Mon,  7 Feb 2022 11:33:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0E3DC004E1;
+        Mon,  7 Feb 2022 11:33:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232649;
-        bh=p/9Eah5nhtugNJaw6mXassHwYlybfO93r0QZ0+5hfdo=;
+        s=korg; t=1644233622;
+        bh=T8REWhQ1Mtb0fl1o94ZEi9V/KsvtSXXcW/qQBovErYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UZtO75zNXVgXioZWr7xPgZa1bmAaDRfIYxSJhwAsoq7sn/bIYdRDNE0foG9JbaYHS
-         DZP8uKIIir1GbPV1s56QAzoMxafJS+5SUG2BJleCI1RiUEqseG0/g8z0ZoMFehh7hb
-         q2htUb/RAXgJBTWA0gIzR85slbNseJW+c7rmYAug=
+        b=Y9w7bmO64uvKfM8HyGpaDEOHltfS4tzySexlgteJ3qglW3mId6wCECDPfP4TIX9wI
+         y1IESLRqEywzo1YsoO/ey7o+jjJ0DI+PLX/dU3GrCKhSNrJmZbIQxjxgYgD8ua1Wrg
+         Lm9cIBPhgG+nmV4FVIQhPiUhir+s8cq2aWhj46pg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 78/86] ASoC: cpcap: Check for NULL pointer after calling of_get_child_by_name
+        stable@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 070/126] net/smc: Forward wakeup to smc socket waitqueue after fallback
 Date:   Mon,  7 Feb 2022 12:06:41 +0100
-Message-Id: <20220207103800.227001691@linuxfoundation.org>
+Message-Id: <20220207103806.531120414@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,291 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Wen Gu <guwen@linux.alibaba.com>
 
-commit f7a6021aaf02088870559f82fc13c58cda7fea1a upstream.
+commit 341adeec9adad0874f29a0a1af35638207352a39 upstream.
 
-If the device does not exist, of_get_child_by_name() will return NULL
-pointer.
-And devm_snd_soc_register_component() does not check it.
-Also, I have noticed that cpcap_codec_driver has not been used yet.
-Therefore, it should be better to check it in order to avoid the future
-dereference of the NULL pointer.
+When we replace TCP with SMC and a fallback occurs, there may be
+some socket waitqueue entries remaining in smc socket->wq, such
+as eppoll_entries inserted by userspace applications.
 
-Fixes: f6cdf2d3445d ("ASoC: cpcap: new codec")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220111025048.524134-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+After the fallback, data flows over TCP/IP and only clcsocket->wq
+will be woken up. Applications can't be notified by the entries
+which were inserted in smc socket->wq before fallback. So we need
+a mechanism to wake up smc socket->wq at the same time if some
+entries remaining in it.
+
+The current workaround is to transfer the entries from smc socket->wq
+to clcsock->wq during the fallback. But this may cause a crash
+like this:
+
+ general protection fault, probably for non-canonical address 0xdead000000000100: 0000 [#1] PREEMPT SMP PTI
+ CPU: 3 PID: 0 Comm: swapper/3 Kdump: loaded Tainted: G E     5.16.0+ #107
+ RIP: 0010:__wake_up_common+0x65/0x170
+ Call Trace:
+  <IRQ>
+  __wake_up_common_lock+0x7a/0xc0
+  sock_def_readable+0x3c/0x70
+  tcp_data_queue+0x4a7/0xc40
+  tcp_rcv_established+0x32f/0x660
+  ? sk_filter_trim_cap+0xcb/0x2e0
+  tcp_v4_do_rcv+0x10b/0x260
+  tcp_v4_rcv+0xd2a/0xde0
+  ip_protocol_deliver_rcu+0x3b/0x1d0
+  ip_local_deliver_finish+0x54/0x60
+  ip_local_deliver+0x6a/0x110
+  ? tcp_v4_early_demux+0xa2/0x140
+  ? tcp_v4_early_demux+0x10d/0x140
+  ip_sublist_rcv_finish+0x49/0x60
+  ip_sublist_rcv+0x19d/0x230
+  ip_list_rcv+0x13e/0x170
+  __netif_receive_skb_list_core+0x1c2/0x240
+  netif_receive_skb_list_internal+0x1e6/0x320
+  napi_complete_done+0x11d/0x190
+  mlx5e_napi_poll+0x163/0x6b0 [mlx5_core]
+  __napi_poll+0x3c/0x1b0
+  net_rx_action+0x27c/0x300
+  __do_softirq+0x114/0x2d2
+  irq_exit_rcu+0xb4/0xe0
+  common_interrupt+0xba/0xe0
+  </IRQ>
+  <TASK>
+
+The crash is caused by privately transferring waitqueue entries from
+smc socket->wq to clcsock->wq. The owners of these entries, such as
+epoll, have no idea that the entries have been transferred to a
+different socket wait queue and still use original waitqueue spinlock
+(smc socket->wq.wait.lock) to make the entries operation exclusive,
+but it doesn't work. The operations to the entries, such as removing
+from the waitqueue (now is clcsock->wq after fallback), may cause a
+crash when clcsock waitqueue is being iterated over at the moment.
+
+This patch tries to fix this by no longer transferring wait queue
+entries privately, but introducing own implementations of clcsock's
+callback functions in fallback situation. The callback functions will
+forward the wakeup to smc socket->wq if clcsock->wq is actually woken
+up and smc socket->wq has remaining entries.
+
+Fixes: 2153bd1e3d3d ("net/smc: Transfer remaining wait queue entries during fallback")
+Suggested-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/cpcap.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/smc/af_smc.c |  133 ++++++++++++++++++++++++++++++++++++++++++++++++-------
+ net/smc/smc.h    |   20 +++++++-
+ 2 files changed, 137 insertions(+), 16 deletions(-)
 
---- a/sound/soc/codecs/cpcap.c
-+++ b/sound/soc/codecs/cpcap.c
-@@ -1541,6 +1541,8 @@ static int cpcap_codec_probe(struct plat
- {
- 	struct device_node *codec_node =
- 		of_get_child_by_name(pdev->dev.parent->of_node, "audio-codec");
-+	if (!codec_node)
-+		return -ENODEV;
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -566,17 +566,115 @@ static void smc_stat_fallback(struct smc
+ 	mutex_unlock(&net->smc.mutex_fback_rsn);
+ }
  
- 	pdev->dev.of_node = codec_node;
++/* must be called under rcu read lock */
++static void smc_fback_wakeup_waitqueue(struct smc_sock *smc, void *key)
++{
++	struct socket_wq *wq;
++	__poll_t flags;
++
++	wq = rcu_dereference(smc->sk.sk_wq);
++	if (!skwq_has_sleeper(wq))
++		return;
++
++	/* wake up smc sk->sk_wq */
++	if (!key) {
++		/* sk_state_change */
++		wake_up_interruptible_all(&wq->wait);
++	} else {
++		flags = key_to_poll(key);
++		if (flags & (EPOLLIN | EPOLLOUT))
++			/* sk_data_ready or sk_write_space */
++			wake_up_interruptible_sync_poll(&wq->wait, flags);
++		else if (flags & EPOLLERR)
++			/* sk_error_report */
++			wake_up_interruptible_poll(&wq->wait, flags);
++	}
++}
++
++static int smc_fback_mark_woken(wait_queue_entry_t *wait,
++				unsigned int mode, int sync, void *key)
++{
++	struct smc_mark_woken *mark =
++		container_of(wait, struct smc_mark_woken, wait_entry);
++
++	mark->woken = true;
++	mark->key = key;
++	return 0;
++}
++
++static void smc_fback_forward_wakeup(struct smc_sock *smc, struct sock *clcsk,
++				     void (*clcsock_callback)(struct sock *sk))
++{
++	struct smc_mark_woken mark = { .woken = false };
++	struct socket_wq *wq;
++
++	init_waitqueue_func_entry(&mark.wait_entry,
++				  smc_fback_mark_woken);
++	rcu_read_lock();
++	wq = rcu_dereference(clcsk->sk_wq);
++	if (!wq)
++		goto out;
++	add_wait_queue(sk_sleep(clcsk), &mark.wait_entry);
++	clcsock_callback(clcsk);
++	remove_wait_queue(sk_sleep(clcsk), &mark.wait_entry);
++
++	if (mark.woken)
++		smc_fback_wakeup_waitqueue(smc, mark.key);
++out:
++	rcu_read_unlock();
++}
++
++static void smc_fback_state_change(struct sock *clcsk)
++{
++	struct smc_sock *smc =
++		smc_clcsock_user_data(clcsk);
++
++	if (!smc)
++		return;
++	smc_fback_forward_wakeup(smc, clcsk, smc->clcsk_state_change);
++}
++
++static void smc_fback_data_ready(struct sock *clcsk)
++{
++	struct smc_sock *smc =
++		smc_clcsock_user_data(clcsk);
++
++	if (!smc)
++		return;
++	smc_fback_forward_wakeup(smc, clcsk, smc->clcsk_data_ready);
++}
++
++static void smc_fback_write_space(struct sock *clcsk)
++{
++	struct smc_sock *smc =
++		smc_clcsock_user_data(clcsk);
++
++	if (!smc)
++		return;
++	smc_fback_forward_wakeup(smc, clcsk, smc->clcsk_write_space);
++}
++
++static void smc_fback_error_report(struct sock *clcsk)
++{
++	struct smc_sock *smc =
++		smc_clcsock_user_data(clcsk);
++
++	if (!smc)
++		return;
++	smc_fback_forward_wakeup(smc, clcsk, smc->clcsk_error_report);
++}
++
+ static int smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
+ {
+-	wait_queue_head_t *smc_wait = sk_sleep(&smc->sk);
+-	wait_queue_head_t *clc_wait;
+-	unsigned long flags;
++	struct sock *clcsk;
+ 
+ 	mutex_lock(&smc->clcsock_release_lock);
+ 	if (!smc->clcsock) {
+ 		mutex_unlock(&smc->clcsock_release_lock);
+ 		return -EBADF;
+ 	}
++	clcsk = smc->clcsock->sk;
++
+ 	smc->use_fallback = true;
+ 	smc->fallback_rsn = reason_code;
+ 	smc_stat_fallback(smc);
+@@ -587,16 +685,22 @@ static int smc_switch_to_fallback(struct
+ 		smc->clcsock->wq.fasync_list =
+ 			smc->sk.sk_socket->wq.fasync_list;
+ 
+-		/* There may be some entries remaining in
+-		 * smc socket->wq, which should be removed
+-		 * to clcsocket->wq during the fallback.
++		/* There might be some wait entries remaining
++		 * in smc sk->sk_wq and they should be woken up
++		 * as clcsock's wait queue is woken up.
+ 		 */
+-		clc_wait = sk_sleep(smc->clcsock->sk);
+-		spin_lock_irqsave(&smc_wait->lock, flags);
+-		spin_lock_nested(&clc_wait->lock, SINGLE_DEPTH_NESTING);
+-		list_splice_init(&smc_wait->head, &clc_wait->head);
+-		spin_unlock(&clc_wait->lock);
+-		spin_unlock_irqrestore(&smc_wait->lock, flags);
++		smc->clcsk_state_change = clcsk->sk_state_change;
++		smc->clcsk_data_ready = clcsk->sk_data_ready;
++		smc->clcsk_write_space = clcsk->sk_write_space;
++		smc->clcsk_error_report = clcsk->sk_error_report;
++
++		clcsk->sk_state_change = smc_fback_state_change;
++		clcsk->sk_data_ready = smc_fback_data_ready;
++		clcsk->sk_write_space = smc_fback_write_space;
++		clcsk->sk_error_report = smc_fback_error_report;
++
++		smc->clcsock->sk->sk_user_data =
++			(void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
+ 	}
+ 	mutex_unlock(&smc->clcsock_release_lock);
+ 	return 0;
+@@ -2111,10 +2215,9 @@ out:
+ 
+ static void smc_clcsock_data_ready(struct sock *listen_clcsock)
+ {
+-	struct smc_sock *lsmc;
++	struct smc_sock *lsmc =
++		smc_clcsock_user_data(listen_clcsock);
+ 
+-	lsmc = (struct smc_sock *)
+-	       ((uintptr_t)listen_clcsock->sk_user_data & ~SK_USER_DATA_NOCOPY);
+ 	if (!lsmc)
+ 		return;
+ 	lsmc->clcsk_data_ready(listen_clcsock);
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -139,6 +139,12 @@ enum smc_urg_state {
+ 	SMC_URG_READ	= 3,			/* data was already read */
+ };
+ 
++struct smc_mark_woken {
++	bool woken;
++	void *key;
++	wait_queue_entry_t wait_entry;
++};
++
+ struct smc_connection {
+ 	struct rb_node		alert_node;
+ 	struct smc_link_group	*lgr;		/* link group of connection */
+@@ -227,8 +233,14 @@ struct smc_connection {
+ struct smc_sock {				/* smc sock container */
+ 	struct sock		sk;
+ 	struct socket		*clcsock;	/* internal tcp socket */
++	void			(*clcsk_state_change)(struct sock *sk);
++						/* original stat_change fct. */
+ 	void			(*clcsk_data_ready)(struct sock *sk);
+-						/* original data_ready fct. **/
++						/* original data_ready fct. */
++	void			(*clcsk_write_space)(struct sock *sk);
++						/* original write_space fct. */
++	void			(*clcsk_error_report)(struct sock *sk);
++						/* original error_report fct. */
+ 	struct smc_connection	conn;		/* smc connection */
+ 	struct smc_sock		*listen_smc;	/* listen parent */
+ 	struct work_struct	connect_work;	/* handle non-blocking connect*/
+@@ -263,6 +275,12 @@ static inline struct smc_sock *smc_sk(co
+ 	return (struct smc_sock *)sk;
+ }
+ 
++static inline struct smc_sock *smc_clcsock_user_data(struct sock *clcsk)
++{
++	return (struct smc_sock *)
++	       ((uintptr_t)clcsk->sk_user_data & ~SK_USER_DATA_NOCOPY);
++}
++
+ extern struct workqueue_struct	*smc_hs_wq;	/* wq for handshake work */
+ extern struct workqueue_struct	*smc_close_wq;	/* wq for close work */
  
 
 
