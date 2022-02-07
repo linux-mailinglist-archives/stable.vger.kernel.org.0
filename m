@@ -2,67 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C68F4AC7CC
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 18:43:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 060D24AC7C9
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 18:43:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235995AbiBGRnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 12:43:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49426 "EHLO
+        id S231896AbiBGRmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 12:42:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383533AbiBGRal (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 12:30:41 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086CCC0401D5
-        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 09:30:41 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id r64-20020a17090a43c600b001b8854e682eso6410826pjg.0
-        for <stable@vger.kernel.org>; Mon, 07 Feb 2022 09:30:41 -0800 (PST)
+        with ESMTP id S1384405AbiBGRkn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 12:40:43 -0500
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE79C0401D9;
+        Mon,  7 Feb 2022 09:40:41 -0800 (PST)
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 217FZLAS020213;
+        Mon, 7 Feb 2022 17:40:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2021-07-09;
+ bh=NJxRHke/qyTl8W+YVEW0q2tvx5NXp9Qs8uL8SnGhFSQ=;
+ b=CwzEKf/ZJ8BKv0inuYMRR/I4/QZrWRdhhg+TzswI44X1Pzamdd6W0rruXjHaoF9g+C0c
+ FlMbQ5DJZabqLYoq1JUdmyA9YQ8s2cV2vezWmvG/X1dN10YSUbn7Pxl0imGvXW6Of6kx
+ u8B7KIrmHhJXB+z65tsfKIXMWDsD/inVbPrXtUuPa5Kmif/89Kllrom2BqmO4ST/k4KI
+ 7b8lAvY/yFegLcScDOFJSCMG2lO93xEUUxL1syDgTpVGe1Hp8b77VmOWv/MweqCMmJPU
+ wRvOQl0c8/meqK4/xB5uGvVf26et2PGwAf7ySQnVGsyWDf1RiTcDRs2QrrlkZkzeMiJj 0g== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3e366wrcat-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 07 Feb 2022 17:40:27 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 217Ha1oX108372;
+        Mon, 7 Feb 2022 17:40:26 GMT
+Received: from nam12-dm6-obe.outbound.protection.outlook.com (mail-dm6nam12lp2175.outbound.protection.outlook.com [104.47.59.175])
+        by aserp3030.oracle.com with ESMTP id 3e1f9dqusr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 07 Feb 2022 17:40:26 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JnylckqN0A/Dq8t7x6r3C1yskZkWejEFz/cswGES/GqVzpXNuyXu6upeV1e9+rT5jnoBZf/VWEi/wB/wXdSNd11E77ygKG/z5yruqyZ2zJjiAlxWS1lBoL3RFVSv07pzeFBYpj4GXKYzpu1rnZLT5boj2i/oy3GtZ5Bo64zXglwIbsfl66Y1Sc5GEOxYzJnwd1EPy+m1nc5AxUHHRY9c1Socwj5PAeAHc84liCuWchmKLRjl/PYY1zXfMOW1Q7nFZR4a8laMIjzNsfvxTPyavHD7au/wf5yuSfBEWxLliLj8YG+UK+yEvBF3yCaA7ocIyzcFmjLlYiS/uwr8d6ZFPQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=NJxRHke/qyTl8W+YVEW0q2tvx5NXp9Qs8uL8SnGhFSQ=;
+ b=jZmcFGt5CB8y4RyqdyxwfzvqgCNLCoKhT2XuTHI2T4X3IWkyEGZg9bgZru/cnrZV7/qrA7P/jo/+Byv/xZ1TT6/OYQNya75jfI+lK4wzqYi2141O9Ti8V98Hl7haSfLHgoPH1434YV79xBmO+aeogauPDnhaOviyPthYEx7dqMQqfpWJWcmI/3Kkq3ATi73eKA6uYd9XC63uZqqnmnnQuq7WAWoba70Lac3YKywGrip5BmmQWWOEAMIv3OF9YnaflL/Mm0oX4xszObxvZL6oairG9vALJUV+g9kMlNtDIKcIcM6VpLtgk+7P7gbsHD89ZrGTVZuyvzyO1YKM4iKAXA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=zzUfLvlAQJDhXMxVZ2sAxS0Dvcb9n47AU1PeHH//EnE=;
-        b=WneYSsbmG2cMZl/on3qTfgOlJYxgRLKVXunOLjHDNVPWH5PDYS74rUHT65ilDnsgya
-         DlpHSh/WobFCbNOC7baq8CvZfZ8qqCW71MKS6IvbuvZA3a2p3XGdmtfT3Osv1adbyzzy
-         EVG01qObnD8yG19Y1oSRc3LLFrSWu0I42P9XgiQhM/QrxXVf2zFT+XKrnsOuMaN8FSzp
-         022TWb2++eSlK3SEYJbH+ab+CUKE/vkgWNpSjZb/iuIXmsnfbSJ/FIir4ZAX8yT5pis7
-         X6QJb0rcdkDFoEytvI57DT3OT6UD0MTwTcp12nsNyaGYDqBHIUJ9T2+oOvPs/pbiie7c
-         HFTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=zzUfLvlAQJDhXMxVZ2sAxS0Dvcb9n47AU1PeHH//EnE=;
-        b=n8wis0fvb0c80Ng6zsWpmBGGHwfdjuPwfZKm5uYjMmyLrJzWjmBzzyV1eddlmzn+GJ
-         SCvaqozjOamshHbmJ66tG8HlWnxC8VnlZ3DOQPPbsEwAk9johjCfiXw03iU4tgP/OyRQ
-         GqoWT1TE+PHlq+/NXVo7qHp1sFunwKA9ekCKEA8qnGzD1tG8Z3lW1ZAbWU1CSTDrYYSl
-         h1f7FopsGijAEr9W53/0VvOfQ98mGG228VNbdomv6W1CtdpFvKJc5fCP6OdRt2MQVRg/
-         1RpV4M3M2V5pnnQzBNUQ0nIz7aSp11wjPNK4JTl29svQ025CPb8IGPThFqhjDgBk+kVA
-         +rGg==
-X-Gm-Message-State: AOAM530xPvjHkqTYSAAhx2vDQpi0aUwe0IdhJmkuFab05/lXrowK2+2E
-        HQkgiYHYd8v88BoYuaNV6LaIECd+18HcVfe2
-X-Google-Smtp-Source: ABdhPJzUhmU52qau36w8d2ioJaSkj3FlTntJnGuHPs7r+dnF0k8MEcglCreuszgrKJ09iLcjImL8lg==
-X-Received: by 2002:a17:902:f60a:: with SMTP id n10mr772500plg.1.1644255040253;
-        Mon, 07 Feb 2022 09:30:40 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k21sm12761973pff.33.2022.02.07.09.30.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Feb 2022 09:30:39 -0800 (PST)
-Message-ID: <6201573f.1c69fb81.12f9e.01e9@mx.google.com>
-Date:   Mon, 07 Feb 2022 09:30:39 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=NJxRHke/qyTl8W+YVEW0q2tvx5NXp9Qs8uL8SnGhFSQ=;
+ b=SkzkEizUKev3aTT8dfKGDim/pZG3AEFcjvtClpjbEq5GSOy0nbpSEUyfAQFMX5aOW/iBuzprxbiODjpDT412A8j3/MkoG+rk4wSdABflftAi/rSi1WNgzffP2aC3k9YOT2uLeu4gjxInjWdDkN+Gj/lkHaioRh6DvrnN1pU3Fco=
+Received: from SA2PR10MB4665.namprd10.prod.outlook.com (2603:10b6:806:fb::17)
+ by DS7PR10MB4880.namprd10.prod.outlook.com (2603:10b6:5:3ac::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4951.12; Mon, 7 Feb
+ 2022 17:40:25 +0000
+Received: from SA2PR10MB4665.namprd10.prod.outlook.com
+ ([fe80::5c:9564:93b9:5654]) by SA2PR10MB4665.namprd10.prod.outlook.com
+ ([fe80::5c:9564:93b9:5654%8]) with mapi id 15.20.4951.019; Mon, 7 Feb 2022
+ 17:40:25 +0000
+Message-ID: <cda221fd-6481-598f-03ba-29d0b79af8b7@oracle.com>
+Date:   Mon, 7 Feb 2022 11:40:23 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.1
+Subject: Re: [PATCH] KEYS: trusted: Avoid calling null function
+ trusted_key_exit
+Content-Language: en-US
+To:     Jarkko Sakkinen <jarkko@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
+        James Bottomley <jejb@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org, stable@vger.kernel.org
+References: <20220126184155.220814-1-dave.kleikamp@oracle.com>
+ <YfGtVk/HQjgl1zSS@iki.fi>
+From:   Dave Kleikamp <dave.kleikamp@oracle.com>
+In-Reply-To: <YfGtVk/HQjgl1zSS@iki.fi>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SA9PR13CA0053.namprd13.prod.outlook.com
+ (2603:10b6:806:22::28) To SA2PR10MB4665.namprd10.prod.outlook.com
+ (2603:10b6:806:fb::17)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.177-45-g3836147e31ee
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable-rc/linux-5.4.y baseline: 129 runs,
- 5 regressions (v5.4.177-45-g3836147e31ee)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 7f7e8401-ee1a-4d30-51ad-08d9ea60ec45
+X-MS-TrafficTypeDiagnostic: DS7PR10MB4880:EE_
+X-Microsoft-Antispam-PRVS: <DS7PR10MB4880615E290081632527D726872C9@DS7PR10MB4880.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Wgyi20aEEauz1GUvCkMRLIsmIf/pM3V3yiTxtRyHpZDz3RAV8U+b+DqjHoaAWytYPSwYQ02Knu9+xyBxQorS3q4YRTE/WwJ+2TxXG1+2QHoqLuxtCvjq7WP3hCeL2U64skdcIOo8cmYcJKKwJqgW1BVc3f2L6yC4W6NOf48kbViQWUSgtD/K7mSLvkNFxlM4b/i6HewP5bm7oDHMsiId0lGXDC4QbmJVfRrcKRaxvDHgW/TeubazvjfxNUdao8MBu37I/5w5X7vs+gaelrFooeP+xNXLGzBDZ5p3n4E0emw+iIBrUpeFfGZRKfPBq30+xIRJKkwf3fibExxAlchseLmkfD0iOCUUo9MOo2M3tCtWqsh92/g4Hic0ci+lrxjeQh3/9S/nW8BU35aF7v7pERr/nBpchLSOK95CRL+UGJDG4Y5jWh3jYm11d6zbJriXnhMTLoxcnRynE32AwFIgwg44gt7BxaAPBruAuu37DTYrGPdd7XOlWkQxPPMnwta8jfJfDVOCtw8Zw0lwWEI9QwEgN494jKZ3W5MgdzN9zrZG+whBEGReWNYqw+a+VD09L6UGUBvfHgPV6dv812fzfC7+iAdwQEHaRgOnQkBD5YnoYYE+UiFFJaQmfAVg9hXOg/bFrPsp7oi//Rw8yHGRQosaUejQHnZDfGxF7gm8YCikTYlqchYiBZ9tSqNKJAObq80Wj7V2YxZlINfsc76QI2z8JsnU/bRCc2mUv0rzd24=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA2PR10MB4665.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(6486002)(6512007)(6506007)(508600001)(4744005)(7416002)(5660300002)(44832011)(2906002)(316002)(6916009)(54906003)(8676002)(4326008)(66476007)(66946007)(8936002)(66556008)(31686004)(38100700002)(31696002)(36756003)(86362001)(2616005)(26005)(186003)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?S0tCV3JoNUlLakthU0kzZE14cnJrTU43WnV0RGhEZ0NPdEM4dTE3RkxBeVpm?=
+ =?utf-8?B?OWIzdWxLRktzRW5wbkNBNE02cUFHUzdYbThCZUNOVnI4L1h1b0tsTGhmTmtK?=
+ =?utf-8?B?enpYNUk5QlJsUmdmeFdYSDMrOVdZUHFLTzBMVEZCaWVEQTdWZ09iWnJxY2x3?=
+ =?utf-8?B?dnVKUXNGd3VOZlkzaytUd3BNc0lGNVNLUTRzbko0elZ3RDluaXVIMDQyK3JD?=
+ =?utf-8?B?MnUwQ2xkeTI1SEJCMGVqNnU2L1BUa3lYR25NT2JGWC9vYWFFV1NGdlF6MlN1?=
+ =?utf-8?B?dndCMzl3dW4ybmJwVmFmSjV3NmlzSklNK3IxRFhiTU81VGJSWVc1TndpUEhV?=
+ =?utf-8?B?ejQzN2NJbnBINFF6M3pZYkFoZ2dJMEJIbG1XdVhKdS9Ob3ljeGhXT3Z4cWZF?=
+ =?utf-8?B?S3k4NmNQay9BK2RzUS9SOUd4eU9xdzJTNnpuTGI3cThhd1kvemk4UHZSRnE2?=
+ =?utf-8?B?Z01lU29nWkxRYjFFc3A2RzM2WGtQZkxVR0xINWJBS1dMNW0wbDQ5RmVENmVv?=
+ =?utf-8?B?VUJhQzlPaUZ3Vk83SmYvYlpHZ1llcG1ML3B5ZmNyckZ6dmZ2NTRjTnZKTVQ5?=
+ =?utf-8?B?YlUrYTJBOHpjbW8wRE9ZMjU2SXBVSmVONFc3VW95NDlNVGxmRmxUWTA3d3h5?=
+ =?utf-8?B?RE5lT3l6L1BsOUVlNURQWjgyN2swWnZTbTVMZWswajhUMzNqb1JJS2YyR3d2?=
+ =?utf-8?B?dmYrUm1leWhoZnBRazNmVFU4cWswZXBtZUxXV2p3NjN1NXRJWkdRNHduUDBG?=
+ =?utf-8?B?aTNKaGVUR2FEUnJ2K04xSnhQT1ZJSXBFWDdEdXBSUlJjZ3crMCtOWTUvdWMz?=
+ =?utf-8?B?Q3lWQ2t0UGhZZ2JIQjkzcEtoa3pkWXRrdmpKU2ZTRzg1b2wzSWszaUpPdHNm?=
+ =?utf-8?B?YkFWU3lqTGs5Y3g3STZLU2d2RTVNV2EyYzk0c1l0OXNJQ1JvUloreERBV3hX?=
+ =?utf-8?B?UWlRYWVPZmRVY3dqMlNKNkZFa3JYcjJ0aVhJRnhBT1BtcittNlplSUxJM3dR?=
+ =?utf-8?B?Zkljdy9JOVQ5N2podXJBWWI0cXhGYTVxQTRZMTZhYnhrQk5OVFBYaFAxRWVn?=
+ =?utf-8?B?RUFiSjllbFE2cGM2L2k4blhkd0taaVhxZjhFNm9PbXBvWTRScjZQdTZMR05X?=
+ =?utf-8?B?WXVmOHFmMHdUK2NaQWtxNmtDUkcwa3JGdE5ZWFlsY1FCd3hGS1dCc0xCWEpC?=
+ =?utf-8?B?M3ByMWIvZHhPYS9qNHJ2a0o4aVM5VHg5UWxEMEtOTEZxbVdRVG96ZkM5WHVt?=
+ =?utf-8?B?Tmh2YmplZmtmR0sySGZzbFBWemZ4ME5GdkxlUmVsSGlIKzJyTVowUE4zQ0hw?=
+ =?utf-8?B?UmhEcDE2aG5aMkhYakFCZTdKTjN6YTE4eG9JQkJwaFRFRm44bnJldzVocjMw?=
+ =?utf-8?B?UGZtQnUzUHdySGQrODliUXIwWWlLVE5xTXF1WlY0MFRQbEVUbGpwdTNkNUZF?=
+ =?utf-8?B?SmpmNisxb0pXQlRlWjZqUEFETjBVQUsydHhyb00za2NEZmRpc2VveUNpT0t1?=
+ =?utf-8?B?MjZRT2M0VnBMYWRHUmdPVldpQWo1WmdyNzZPVjUzSkNjQ2lJQzRpTEdGRVFX?=
+ =?utf-8?B?bnVyMXNQTndTREkwOWh6b3NLVEQ3S21panZYeXdNbFpCZVNBcHI1VHA3MjhY?=
+ =?utf-8?B?enZPckNEVFdqQ0U0cUNlK2k2d0ozLzdwTXRxY0dtdS9YY0lDQks0WklXUVRU?=
+ =?utf-8?B?NkdNR1B4aXZLMiszT2t0ay9wUXdvTWdmcTU3a2xpTzFPb3FDNGc2SWZCRFo1?=
+ =?utf-8?B?ODYra3U1L29mR2FzSllUWVdROEZPUWRHVHFKdmhFVGhOa21FMTh6MlVRR1l4?=
+ =?utf-8?B?SExVK3M2YklZUHdQTlZvRXNEdXBFdllLT0hOdGVkV1pyYkRWZTMrUWRpc0hR?=
+ =?utf-8?B?dGhsaE56RStVbHJNUTRNUm93emlMTnNyc2t0ZXlBMmpXNTNHQWYwQ2JzZnNa?=
+ =?utf-8?B?cWJZMDk0c2RjZ0NqN00wSUFxSzNEcExRUytkVncxWEhXOExqTGhoV29RSnc5?=
+ =?utf-8?B?cndyRytIRjZjWkE0U2dUVWxOeUNxRVpXMU1aQnNOVGpUM2o2ZW5LU1E1eG5X?=
+ =?utf-8?B?QXkzMFdpa3FmVERla01wUk1sbEVBT0R2OSszNDFwMkZ3b01Jc0N1STQ4MVhp?=
+ =?utf-8?B?bmVrcng5RnQ5SUkyTlVYM1JsMkkwNlRzNktlNVAzdlN3cXFIWFJBWXBnY3Fj?=
+ =?utf-8?B?eGdmWEFKYVNiMjRudnIyMHdsWXR1TUsrQjl3N2wvcDRQL2xXMVdSYkUwS1d4?=
+ =?utf-8?B?V1pMcHR4bFRJSkM3Snl6cXZGV2lnPT0=?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7f7e8401-ee1a-4d30-51ad-08d9ea60ec45
+X-MS-Exchange-CrossTenant-AuthSource: SA2PR10MB4665.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Feb 2022 17:40:25.2767
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: AqjFOOilUc6yJ5TGQvrSLoeB/yZBqMt3CBMs6+w6o0xdsIVKIYcZN88s1apQCw/anm4Z3VJJKAiG5WX4/zdj02XMUvJt53nyzoHwrueHDHE=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR10MB4880
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10251 signatures=673430
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 adultscore=0
+ mlxlogscore=999 suspectscore=0 mlxscore=0 phishscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2201110000
+ definitions=main-2202070109
+X-Proofpoint-GUID: CIqGmtd4dp8OEfo7Q7ZJUgnRPTgKMDHh
+X-Proofpoint-ORIG-GUID: CIqGmtd4dp8OEfo7Q7ZJUgnRPTgKMDHh
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,214 +163,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 129 runs, 5 regressions (v5.4.177-45-g38361=
-47e31ee)
+On 1/26/22 2:21PM, Jarkko Sakkinen wrote:
+> On Wed, Jan 26, 2022 at 12:41:55PM -0600, Dave Kleikamp wrote:
+>> If one loads and unloads the trusted module, trusted_key_exit can be
+>> NULL. Call it through static_call_cond() to avoid a kernel trap.
+>>
+>> Fixes: 5d0682be3189 ("KEYS: trusted: Add generic trusted keys framework")
+>>
+>> Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+> 
+> Please re-send with cc stable and the empty line removed and I'll pick it.
 
-Regressions Summary
--------------------
+I re-sent a v2, but haven't seen any response from you.
 
-platform                 | arch  | lab          | compiler | defconfig     =
-     | regressions
--------------------------+-------+--------------+----------+---------------=
------+------------
-hifive-unleashed-a00     | riscv | lab-baylibre | gcc-10   | defconfig     =
-     | 1          =
+I can send it again, or feel free to clean up those lines yourself.
 
-qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
-nfig | 1          =
+Thanks,
+Shaggy
 
-qemu_arm-virt-gicv2-uefi | arm   | lab-broonie  | gcc-10   | multi_v7_defco=
-nfig | 1          =
-
-qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
-nfig | 1          =
-
-qemu_arm-virt-gicv3-uefi | arm   | lab-broonie  | gcc-10   | multi_v7_defco=
-nfig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.177-45-g3836147e31ee/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.177-45-g3836147e31ee
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3836147e31ee95815758c97dc5c319423774464d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch  | lab          | compiler | defconfig     =
-     | regressions
--------------------------+-------+--------------+----------+---------------=
------+------------
-hifive-unleashed-a00     | riscv | lab-baylibre | gcc-10   | defconfig     =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62011e4b05fccd64485d6eee
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.177=
--45-g3836147e31ee/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unlea=
-shed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.177=
--45-g3836147e31ee/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unlea=
-shed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/riscv/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62011e4b05fccd64485d6=
-eef
-        failing since 17 days (last pass: v5.4.171-35-g6a507169a5ff, first =
-fail: v5.4.173) =
-
- =
-
-
-
-platform                 | arch  | lab          | compiler | defconfig     =
-     | regressions
--------------------------+-------+--------------+----------+---------------=
------+------------
-qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/620120355ddad496df5d6f01
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.177=
--45-g3836147e31ee/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-arm-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.177=
--45-g3836147e31ee/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-arm-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/620120355ddad496df5d6=
-f02
-        failing since 53 days (last pass: v5.4.165, first fail: v5.4.165-19=
--gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch  | lab          | compiler | defconfig     =
-     | regressions
--------------------------+-------+--------------+----------+---------------=
------+------------
-qemu_arm-virt-gicv2-uefi | arm   | lab-broonie  | gcc-10   | multi_v7_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62011df570905faf655d6f27
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.177=
--45-g3836147e31ee/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.177=
--45-g3836147e31ee/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62011df570905faf655d6=
-f28
-        failing since 53 days (last pass: v5.4.165, first fail: v5.4.165-19=
--gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch  | lab          | compiler | defconfig     =
-     | regressions
--------------------------+-------+--------------+----------+---------------=
------+------------
-qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6201206e37f9b30e035d6eed
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.177=
--45-g3836147e31ee/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-arm-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.177=
--45-g3836147e31ee/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-arm-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6201206e37f9b30e035d6=
-eee
-        failing since 53 days (last pass: v5.4.165, first fail: v5.4.165-19=
--gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch  | lab          | compiler | defconfig     =
-     | regressions
--------------------------+-------+--------------+----------+---------------=
------+------------
-qemu_arm-virt-gicv3-uefi | arm   | lab-broonie  | gcc-10   | multi_v7_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62011df90e817939615d6ef0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.177=
--45-g3836147e31ee/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.177=
--45-g3836147e31ee/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62011df90e817939615d6=
-ef1
-        failing since 53 days (last pass: v5.4.165, first fail: v5.4.165-19=
--gb780ab989d60) =
-
- =20
+> 
+> BR, Jarkko
