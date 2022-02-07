@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C91E4ABCAF
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90B474ABC0D
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387036AbiBGLir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:38:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44580 "EHLO
+        id S232134AbiBGLf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:35:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385712AbiBGLcQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C72BC043181;
-        Mon,  7 Feb 2022 03:32:14 -0800 (PST)
+        with ESMTP id S1384403AbiBGL2D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:28:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CBEDC043189;
+        Mon,  7 Feb 2022 03:26:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 079E9B80EC3;
-        Mon,  7 Feb 2022 11:32:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ADA9C004E1;
-        Mon,  7 Feb 2022 11:32:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FE8CB80EC3;
+        Mon,  7 Feb 2022 11:26:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A82B4C340EB;
+        Mon,  7 Feb 2022 11:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233531;
-        bh=aD0fW2QKN7a3SuoAXXSIuJoa4pm6mYQpb4fAe05NYCo=;
+        s=korg; t=1644233175;
+        bh=nX/spthLodhzppYhHdGfbmaXFQuRzGLMi4gWVQbVVgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RVBO4VzqJHBbBJ0MGFkMmPEsQh8iFxBZxr4lel4TkNFASsS+Ka62IYOoRF1BrtQgZ
-         hHWr0IrzRwowboDiV/0gFRiXr+ssXFOlJNY+lTyeyErXxvviYZzlhocIneInHN2wZC
-         BbTlpdYDpIlSb04bE/7c7t+BlcMiJY6qUjL2OSjs=
+        b=hAFE0WzNKEQbYlRWECCnpDjb6Sw2bGEb9w2mj4zniqWHBcvDVMsftwjt5NUqQUz5K
+         fRIitt3klS7J9b2Z5Qdh46Sj/xjoZTR8QWFZkGc6zpO4B7ghTW8V/KZMEiVn2GNQEM
+         Jft6wweEFxmAJUYl55Bqgpx9kl1w41jU9otDY8XA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.16 041/126] fbcon: Add option to enable legacy hardware acceleration
-Date:   Mon,  7 Feb 2022 12:06:12 +0100
-Message-Id: <20220207103805.545207852@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+e3f96c43d19782dd14a7@syzkaller.appspotmail.com,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>
+Subject: [PATCH 5.15 040/110] RDMA/ucma: Protect mc during concurrent multicast leaves
+Date:   Mon,  7 Feb 2022 12:06:13 +0100
+Message-Id: <20220207103803.638511265@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,373 +56,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit a3f781a9d6114c1d1e01defb7aa234dec45d2a5f upstream.
+commit 36e8169ec973359f671f9ec7213547059cae972e upstream.
 
-Add a config option CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION to
-enable bitblt and fillrect hardware acceleration in the framebuffer
-console. If disabled, such acceleration will not be used, even if it is
-supported by the graphics hardware driver.
+Partially revert the commit mentioned in the Fixes line to make sure that
+allocation and erasing multicast struct are locked.
 
-If you plan to use DRM as your main graphics output system, you should
-disable this option since it will prevent compiling in code which isn't
-used later on when DRM takes over.
+  BUG: KASAN: use-after-free in ucma_cleanup_multicast drivers/infiniband/core/ucma.c:491 [inline]
+  BUG: KASAN: use-after-free in ucma_destroy_private_ctx+0x914/0xb70 drivers/infiniband/core/ucma.c:579
+  Read of size 8 at addr ffff88801bb74b00 by task syz-executor.1/25529
+  CPU: 0 PID: 25529 Comm: syz-executor.1 Not tainted 5.16.0-rc7-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Call Trace:
+   __dump_stack lib/dump_stack.c:88 [inline]
+   dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+   print_address_description.constprop.0.cold+0x8d/0x320 mm/kasan/report.c:247
+   __kasan_report mm/kasan/report.c:433 [inline]
+   kasan_report.cold+0x83/0xdf mm/kasan/report.c:450
+   ucma_cleanup_multicast drivers/infiniband/core/ucma.c:491 [inline]
+   ucma_destroy_private_ctx+0x914/0xb70 drivers/infiniband/core/ucma.c:579
+   ucma_destroy_id+0x1e6/0x280 drivers/infiniband/core/ucma.c:614
+   ucma_write+0x25c/0x350 drivers/infiniband/core/ucma.c:1732
+   vfs_write+0x28e/0xae0 fs/read_write.c:588
+   ksys_write+0x1ee/0x250 fs/read_write.c:643
+   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+   do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-For all other configurations, e.g. if none of your graphic cards support
-DRM (yet), DRM isn't available for your architecture, or you can't be
-sure that the graphic card in the target system will support DRM, you
-most likely want to enable this option.
+Currently the xarray search can touch a concurrently freeing mc as the
+xa_for_each() is not surrounded by any lock. Rather than hold the lock for
+a full scan hold it only for the effected items, which is usually an empty
+list.
 
-In the non-accelerated case (e.g. when DRM is used), the inlined
-fb_scrollmode() function is hardcoded to return SCROLL_REDRAW and as such the
-compiler is able to optimize much unneccesary code away.
-
-In this v3 patch version I additionally changed the GETVYRES() and GETVXRES()
-macros to take a pointer to the fbcon_display struct. This fixes the build when
-console rotation is enabled and helps the compiler again to optimize out code.
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220202135531.92183-4-deller@gmx.de
+Fixes: 95fe51096b7a ("RDMA/ucma: Remove mc_list and rely on xarray")
+Link: https://lore.kernel.org/r/1cda5fabb1081e8d16e39a48d3a4f8160cea88b8.1642491047.git.leonro@nvidia.com
+Reported-by: syzbot+e3f96c43d19782dd14a7@syzkaller.appspotmail.com
+Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/console/Kconfig           |   20 ++++++++++++++++
- drivers/video/fbdev/core/fbcon.c        |   39 ++++++++++++++++++++++----------
- drivers/video/fbdev/core/fbcon.h        |   15 +++++++++++-
- drivers/video/fbdev/core/fbcon_ccw.c    |   10 ++++----
- drivers/video/fbdev/core/fbcon_cw.c     |   10 ++++----
- drivers/video/fbdev/core/fbcon_rotate.h |    4 +--
- drivers/video/fbdev/core/fbcon_ud.c     |   20 ++++++++--------
- 7 files changed, 84 insertions(+), 34 deletions(-)
+ drivers/infiniband/core/ucma.c |   34 +++++++++++++++++++++++-----------
+ 1 file changed, 23 insertions(+), 11 deletions(-)
 
---- a/drivers/video/console/Kconfig
-+++ b/drivers/video/console/Kconfig
-@@ -78,6 +78,26 @@ config FRAMEBUFFER_CONSOLE
- 	help
- 	  Low-level framebuffer-based console driver.
+--- a/drivers/infiniband/core/ucma.c
++++ b/drivers/infiniband/core/ucma.c
+@@ -95,6 +95,7 @@ struct ucma_context {
+ 	u64			uid;
  
-+config FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
-+	bool "Enable legacy fbcon hardware acceleration code"
-+	depends on FRAMEBUFFER_CONSOLE
-+	default y if PARISC
-+	default n
-+	help
-+	  This option enables the fbcon (framebuffer text-based) hardware
-+	  acceleration for graphics drivers which were written for the fbdev
-+	  graphics interface.
-+
-+	  On modern machines, on mainstream machines (like x86-64) or when
-+	  using a modern Linux distribution those fbdev drivers usually aren't used.
-+	  So enabling this option wouldn't have any effect, which is why you want
-+	  to disable this option on such newer machines.
-+
-+	  If you compile this kernel for older machines which still require the
-+	  fbdev drivers, you may want to say Y.
-+
-+	  If unsure, select n.
-+
- config FRAMEBUFFER_CONSOLE_DETECT_PRIMARY
-        bool "Map the console to the primary display device"
-        depends on FRAMEBUFFER_CONSOLE
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -1136,11 +1136,13 @@ static void fbcon_init(struct vc_data *v
+ 	struct list_head	list;
++	struct list_head	mc_list;
+ 	struct work_struct	close_work;
+ };
  
- 	ops->graphics = 0;
+@@ -105,6 +106,7 @@ struct ucma_multicast {
  
-+#ifdef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
- 	if ((cap & FBINFO_HWACCEL_COPYAREA) &&
- 	    !(cap & FBINFO_HWACCEL_DISABLED))
- 		p->scrollmode = SCROLL_MOVE;
- 	else /* default to something safe */
- 		p->scrollmode = SCROLL_REDRAW;
-+#endif
+ 	u64			uid;
+ 	u8			join_state;
++	struct list_head	list;
+ 	struct sockaddr_storage	addr;
+ };
  
- 	/*
- 	 *  ++guenther: console.c:vc_allocate() relies on initializing
-@@ -1705,7 +1707,7 @@ static bool fbcon_scroll(struct vc_data
- 			count = vc->vc_rows;
- 		if (logo_shown >= 0)
- 			goto redraw_up;
--		switch (p->scrollmode) {
-+		switch (fb_scrollmode(p)) {
- 		case SCROLL_MOVE:
- 			fbcon_redraw_blit(vc, info, p, t, b - t - count,
- 				     count);
-@@ -1795,7 +1797,7 @@ static bool fbcon_scroll(struct vc_data
- 			count = vc->vc_rows;
- 		if (logo_shown >= 0)
- 			goto redraw_down;
--		switch (p->scrollmode) {
-+		switch (fb_scrollmode(p)) {
- 		case SCROLL_MOVE:
- 			fbcon_redraw_blit(vc, info, p, b - 1, b - t - count,
- 				     -count);
-@@ -1946,12 +1948,12 @@ static void fbcon_bmove_rec(struct vc_da
- 		   height, width);
- }
+@@ -198,6 +200,7 @@ static struct ucma_context *ucma_alloc_c
  
--static void updatescrollmode(struct fbcon_display *p,
-+static void updatescrollmode_accel(struct fbcon_display *p,
- 					struct fb_info *info,
- 					struct vc_data *vc)
+ 	INIT_WORK(&ctx->close_work, ucma_close_id);
+ 	init_completion(&ctx->comp);
++	INIT_LIST_HEAD(&ctx->mc_list);
+ 	/* So list_del() will work if we don't do ucma_finish_ctx() */
+ 	INIT_LIST_HEAD(&ctx->list);
+ 	ctx->file = file;
+@@ -484,19 +487,19 @@ err1:
+ 
+ static void ucma_cleanup_multicast(struct ucma_context *ctx)
  {
-+#ifdef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
- 	struct fbcon_ops *ops = info->fbcon_par;
--	int fh = vc->vc_font.height;
- 	int cap = info->flags;
- 	u16 t = 0;
- 	int ypan = FBCON_SWAP(ops->rotate, info->fix.ypanstep,
-@@ -1972,12 +1974,6 @@ static void updatescrollmode(struct fbco
- 	int fast_imageblit = (cap & FBINFO_HWACCEL_IMAGEBLIT) &&
- 		!(cap & FBINFO_HWACCEL_DISABLED);
+-	struct ucma_multicast *mc;
+-	unsigned long index;
++	struct ucma_multicast *mc, *tmp;
  
--	p->vrows = vyres/fh;
--	if (yres > (fh * (vc->vc_rows + 1)))
--		p->vrows -= (yres - (fh * vc->vc_rows)) / fh;
--	if ((yres % fh) && (vyres % fh < yres % fh))
--		p->vrows--;
--
- 	if (good_wrap || good_pan) {
- 		if (reading_fast || fast_copyarea)
- 			p->scrollmode = good_wrap ?
-@@ -1991,6 +1987,27 @@ static void updatescrollmode(struct fbco
- 		else
- 			p->scrollmode = SCROLL_REDRAW;
+-	xa_for_each(&multicast_table, index, mc) {
+-		if (mc->ctx != ctx)
+-			continue;
++	xa_lock(&multicast_table);
++	list_for_each_entry_safe(mc, tmp, &ctx->mc_list, list) {
++		list_del(&mc->list);
+ 		/*
+ 		 * At this point mc->ctx->ref is 0 so the mc cannot leave the
+ 		 * lock on the reader and this is enough serialization
+ 		 */
+-		xa_erase(&multicast_table, index);
++		__xa_erase(&multicast_table, mc->id);
+ 		kfree(mc);
  	}
-+#endif
-+}
-+
-+static void updatescrollmode(struct fbcon_display *p,
-+					struct fb_info *info,
-+					struct vc_data *vc)
-+{
-+	struct fbcon_ops *ops = info->fbcon_par;
-+	int fh = vc->vc_font.height;
-+	int yres = FBCON_SWAP(ops->rotate, info->var.yres, info->var.xres);
-+	int vyres = FBCON_SWAP(ops->rotate, info->var.yres_virtual,
-+				   info->var.xres_virtual);
-+
-+	p->vrows = vyres/fh;
-+	if (yres > (fh * (vc->vc_rows + 1)))
-+		p->vrows -= (yres - (fh * vc->vc_rows)) / fh;
-+	if ((yres % fh) && (vyres % fh < yres % fh))
-+		p->vrows--;
-+
-+	/* update scrollmode in case hardware acceleration is used */
-+	updatescrollmode_accel(p, info, vc);
++	xa_unlock(&multicast_table);
  }
  
- #define PITCH(w) (((w) + 7) >> 3)
-@@ -2148,7 +2165,7 @@ static int fbcon_switch(struct vc_data *
+ static void ucma_cleanup_mc_events(struct ucma_multicast *mc)
+@@ -1469,12 +1472,16 @@ static ssize_t ucma_process_join(struct
+ 	mc->uid = cmd->uid;
+ 	memcpy(&mc->addr, addr, cmd->addr_size);
  
- 	updatescrollmode(p, info, vc);
+-	if (xa_alloc(&multicast_table, &mc->id, NULL, xa_limit_32b,
++	xa_lock(&multicast_table);
++	if (__xa_alloc(&multicast_table, &mc->id, NULL, xa_limit_32b,
+ 		     GFP_KERNEL)) {
+ 		ret = -ENOMEM;
+ 		goto err_free_mc;
+ 	}
  
--	switch (p->scrollmode) {
-+	switch (fb_scrollmode(p)) {
- 	case SCROLL_WRAP_MOVE:
- 		scrollback_phys_max = p->vrows - vc->vc_rows;
- 		break;
---- a/drivers/video/fbdev/core/fbcon.h
-+++ b/drivers/video/fbdev/core/fbcon.h
-@@ -29,7 +29,9 @@ struct fbcon_display {
-     /* Filled in by the low-level console driver */
-     const u_char *fontdata;
-     int userfont;                   /* != 0 if fontdata kmalloc()ed */
--    u_short scrollmode;             /* Scroll Method */
-+#ifdef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
-+    u_short scrollmode;             /* Scroll Method, use fb_scrollmode() */
-+#endif
-     u_short inverse;                /* != 0 text black on white as default */
-     short yscroll;                  /* Hardware scrolling */
-     int vrows;                      /* number of virtual rows */
-@@ -208,6 +210,17 @@ static inline int attr_col_ec(int shift,
- #define SCROLL_REDRAW	   0x004
- #define SCROLL_PAN_REDRAW  0x005
- 
-+static inline u_short fb_scrollmode(struct fbcon_display *fb)
-+{
-+#ifdef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
-+	return fb->scrollmode;
-+#else
-+	/* hardcoded to SCROLL_REDRAW if acceleration was disabled. */
-+	return SCROLL_REDRAW;
-+#endif
-+}
++	list_add_tail(&mc->list, &ctx->mc_list);
++	xa_unlock(&multicast_table);
 +
+ 	mutex_lock(&ctx->mutex);
+ 	ret = rdma_join_multicast(ctx->cm_id, (struct sockaddr *)&mc->addr,
+ 				  join_state, mc);
+@@ -1500,8 +1507,11 @@ err_leave_multicast:
+ 	mutex_unlock(&ctx->mutex);
+ 	ucma_cleanup_mc_events(mc);
+ err_xa_erase:
+-	xa_erase(&multicast_table, mc->id);
++	xa_lock(&multicast_table);
++	list_del(&mc->list);
++	__xa_erase(&multicast_table, mc->id);
+ err_free_mc:
++	xa_unlock(&multicast_table);
+ 	kfree(mc);
+ err_put_ctx:
+ 	ucma_put_ctx(ctx);
+@@ -1569,15 +1579,17 @@ static ssize_t ucma_leave_multicast(stru
+ 		mc = ERR_PTR(-EINVAL);
+ 	else if (!refcount_inc_not_zero(&mc->ctx->ref))
+ 		mc = ERR_PTR(-ENXIO);
+-	else
+-		__xa_erase(&multicast_table, mc->id);
+-	xa_unlock(&multicast_table);
+ 
+ 	if (IS_ERR(mc)) {
++		xa_unlock(&multicast_table);
+ 		ret = PTR_ERR(mc);
+ 		goto out;
+ 	}
+ 
++	list_del(&mc->list);
++	__xa_erase(&multicast_table, mc->id);
++	xa_unlock(&multicast_table);
 +
- #ifdef CONFIG_FB_TILEBLITTING
- extern void fbcon_set_tileops(struct vc_data *vc, struct fb_info *info);
- #endif
---- a/drivers/video/fbdev/core/fbcon_ccw.c
-+++ b/drivers/video/fbdev/core/fbcon_ccw.c
-@@ -65,7 +65,7 @@ static void ccw_bmove(struct vc_data *vc
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	struct fb_copyarea area;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
- 
- 	area.sx = sy * vc->vc_font.height;
- 	area.sy = vyres - ((sx + width) * vc->vc_font.width);
-@@ -83,7 +83,7 @@ static void ccw_clear(struct vc_data *vc
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	struct fb_fillrect region;
- 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
- 
- 	region.color = attr_bgcol_ec(bgshift,vc,info);
- 	region.dx = sy * vc->vc_font.height;
-@@ -140,7 +140,7 @@ static void ccw_putcs(struct vc_data *vc
- 	u32 cnt, pitch, size;
- 	u32 attribute = get_attribute(info, scr_readw(s));
- 	u8 *dst, *buf = NULL;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
- 
- 	if (!ops->fontbuffer)
- 		return;
-@@ -229,7 +229,7 @@ static void ccw_cursor(struct vc_data *v
- 	int attribute, use_sw = vc->vc_cursor_type & CUR_SW;
- 	int err = 1, dx, dy;
- 	char *src;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
- 
- 	if (!ops->fontbuffer)
- 		return;
-@@ -387,7 +387,7 @@ static int ccw_update_start(struct fb_in
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	u32 yoffset;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
- 	int err;
- 
- 	yoffset = (vyres - info->var.yres) - ops->var.xoffset;
---- a/drivers/video/fbdev/core/fbcon_cw.c
-+++ b/drivers/video/fbdev/core/fbcon_cw.c
-@@ -50,7 +50,7 @@ static void cw_bmove(struct vc_data *vc,
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	struct fb_copyarea area;
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	area.sx = vxres - ((sy + height) * vc->vc_font.height);
- 	area.sy = sx * vc->vc_font.width;
-@@ -68,7 +68,7 @@ static void cw_clear(struct vc_data *vc,
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	struct fb_fillrect region;
- 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	region.color = attr_bgcol_ec(bgshift,vc,info);
- 	region.dx = vxres - ((sy + height) * vc->vc_font.height);
-@@ -125,7 +125,7 @@ static void cw_putcs(struct vc_data *vc,
- 	u32 cnt, pitch, size;
- 	u32 attribute = get_attribute(info, scr_readw(s));
- 	u8 *dst, *buf = NULL;
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	if (!ops->fontbuffer)
- 		return;
-@@ -212,7 +212,7 @@ static void cw_cursor(struct vc_data *vc
- 	int attribute, use_sw = vc->vc_cursor_type & CUR_SW;
- 	int err = 1, dx, dy;
- 	char *src;
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	if (!ops->fontbuffer)
- 		return;
-@@ -369,7 +369,7 @@ static void cw_cursor(struct vc_data *vc
- static int cw_update_start(struct fb_info *info)
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 	u32 xoffset;
- 	int err;
- 
---- a/drivers/video/fbdev/core/fbcon_rotate.h
-+++ b/drivers/video/fbdev/core/fbcon_rotate.h
-@@ -12,11 +12,11 @@
- #define _FBCON_ROTATE_H
- 
- #define GETVYRES(s,i) ({                           \
--        (s == SCROLL_REDRAW || s == SCROLL_MOVE) ? \
-+        (fb_scrollmode(s) == SCROLL_REDRAW || fb_scrollmode(s) == SCROLL_MOVE) ? \
-         (i)->var.yres : (i)->var.yres_virtual; })
- 
- #define GETVXRES(s,i) ({                           \
--        (s == SCROLL_REDRAW || s == SCROLL_MOVE || !(i)->fix.xpanstep) ? \
-+        (fb_scrollmode(s) == SCROLL_REDRAW || fb_scrollmode(s) == SCROLL_MOVE || !(i)->fix.xpanstep) ? \
-         (i)->var.xres : (i)->var.xres_virtual; })
- 
- 
---- a/drivers/video/fbdev/core/fbcon_ud.c
-+++ b/drivers/video/fbdev/core/fbcon_ud.c
-@@ -50,8 +50,8 @@ static void ud_bmove(struct vc_data *vc,
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	struct fb_copyarea area;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	area.sy = vyres - ((sy + height) * vc->vc_font.height);
- 	area.sx = vxres - ((sx + width) * vc->vc_font.width);
-@@ -69,8 +69,8 @@ static void ud_clear(struct vc_data *vc,
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	struct fb_fillrect region;
- 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	region.color = attr_bgcol_ec(bgshift,vc,info);
- 	region.dy = vyres - ((sy + height) * vc->vc_font.height);
-@@ -162,8 +162,8 @@ static void ud_putcs(struct vc_data *vc,
- 	u32 mod = vc->vc_font.width % 8, cnt, pitch, size;
- 	u32 attribute = get_attribute(info, scr_readw(s));
- 	u8 *dst, *buf = NULL;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	if (!ops->fontbuffer)
- 		return;
-@@ -259,8 +259,8 @@ static void ud_cursor(struct vc_data *vc
- 	int attribute, use_sw = vc->vc_cursor_type & CUR_SW;
- 	int err = 1, dx, dy;
- 	char *src;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 
- 	if (!ops->fontbuffer)
- 		return;
-@@ -410,8 +410,8 @@ static int ud_update_start(struct fb_inf
- {
- 	struct fbcon_ops *ops = info->fbcon_par;
- 	int xoffset, yoffset;
--	u32 vyres = GETVYRES(ops->p->scrollmode, info);
--	u32 vxres = GETVXRES(ops->p->scrollmode, info);
-+	u32 vyres = GETVYRES(ops->p, info);
-+	u32 vxres = GETVXRES(ops->p, info);
- 	int err;
- 
- 	xoffset = vxres - info->var.xres - ops->var.xoffset;
+ 	mutex_lock(&mc->ctx->mutex);
+ 	rdma_leave_multicast(mc->ctx->cm_id, (struct sockaddr *) &mc->addr);
+ 	mutex_unlock(&mc->ctx->mutex);
 
 
