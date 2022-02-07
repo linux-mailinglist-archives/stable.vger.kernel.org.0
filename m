@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2023C4ABC2B
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1B314ABCAB
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384959AbiBGLay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:30:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36502 "EHLO
+        id S1387017AbiBGLih (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:38:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384110AbiBGLYs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:24:48 -0500
+        with ESMTP id S1385531AbiBGLb4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:56 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91D00C043181;
-        Mon,  7 Feb 2022 03:24:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75208C02B5C6;
+        Mon,  7 Feb 2022 03:30:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A21CB81158;
-        Mon,  7 Feb 2022 11:24:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D367C340EB;
-        Mon,  7 Feb 2022 11:24:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD839B8111C;
+        Mon,  7 Feb 2022 11:30:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF1BBC004E1;
+        Mon,  7 Feb 2022 11:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233085;
-        bh=5OlD3dhXOCojKO3N7H+U3aupk719bOzjvga7rhxB4wA=;
+        s=korg; t=1644233439;
+        bh=IEgE565Gtb1btIQogTZvSJuRAGwhj+7xF4Okv16Im2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J7vJegfj6srU1+87YVha1YzPNd+/7wHTjp+MiZZPZeI9gxXaNEretC31ilQmK8xRJ
-         ZZBp9q/pQvGGlIfVlXlvjQPdfqinR3mT/Zlk0hBrXbcGj3/2zpA1wPY6uv5Cl9+k2z
-         XwM/kicc2ADS6HO2rp3shf65N7yG5eUHuLTjrPnM=
+        b=KJVZJGB9XeDNqtMU83pmMnhY11ozCvms4nnNYQodItKv/o8xCZb7ugA7248MWVH9s
+         c/PQsyvrbxTIBhOau/DiSFsDH81v6ThiShXNdkTG6ZGnjWmNim9gmpbuXDF+Eqs4e2
+         PCYdi9bduvIp1oQozT/LMa1In0ZwJz/xmC0ZDspY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Sergeyev <sergeev917@gmail.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Albert=20Geant=C4=83?= <albertgeanta@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 011/110] ALSA: hda: Fix UAF of leds class devs at unbinding
+Subject: [PATCH 5.16 013/126] ALSA: hda/realtek: Add quirk for ASUS GU603
 Date:   Mon,  7 Feb 2022 12:05:44 +0100
-Message-Id: <20220207103802.657532100@linuxfoundation.org>
+Message-Id: <20220207103804.527072518@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,86 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Albert Geantă <albertgeanta@gmail.com>
 
-commit 549f8ffc7b2f7561bea7f90930b6c5104318e87b upstream.
+commit 94db9cc8f8fa2d5426ce79ec4ca16028f7084224 upstream.
 
-The LED class devices that are created by HD-audio codec drivers are
-registered via devm_led_classdev_register() and associated with the
-HD-audio codec device.  Unfortunately, it turned out that the devres
-release doesn't work for this case; namely, since the codec resource
-release happens before the devm call chain, it triggers a NULL
-dereference or a UAF for a stale set_brightness_delay callback.
+The ASUS GU603 (Zephyrus M16 - SSID 1043:16b2) requires a quirk similar to
+other ASUS devices for correctly routing the 4 integrated speakers. This
+fixes it by adding a corresponding quirk entry, which connects the bass
+speakers to the proper DAC.
 
-For fixing the bug, this patch changes the LED class device register
-and unregister in a manual manner without devres, keeping the
-instances in hda_gen_spec.
-
-Reported-by: Alexander Sergeyev <sergeev917@gmail.com>
+Signed-off-by: Albert Geantă <albertgeanta@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220111195229.a77wrpjclqwrx4bx@localhost.localdomain
-Link: https://lore.kernel.org/r/20220126145011.16728-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20220131010523.546386-1-albertgeanta@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_generic.c |   17 +++++++++++++++--
- sound/pci/hda/hda_generic.h |    3 +++
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/hda_generic.c
-+++ b/sound/pci/hda/hda_generic.c
-@@ -91,6 +91,12 @@ static void snd_hda_gen_spec_free(struct
- 	free_kctls(spec);
- 	snd_array_free(&spec->paths);
- 	snd_array_free(&spec->loopback_list);
-+#ifdef CONFIG_SND_HDA_GENERIC_LEDS
-+	if (spec->led_cdevs[LED_AUDIO_MUTE])
-+		led_classdev_unregister(spec->led_cdevs[LED_AUDIO_MUTE]);
-+	if (spec->led_cdevs[LED_AUDIO_MICMUTE])
-+		led_classdev_unregister(spec->led_cdevs[LED_AUDIO_MICMUTE]);
-+#endif
- }
- 
- /*
-@@ -3922,7 +3928,10 @@ static int create_mute_led_cdev(struct h
- 						enum led_brightness),
- 				bool micmute)
- {
-+	struct hda_gen_spec *spec = codec->spec;
- 	struct led_classdev *cdev;
-+	int idx = micmute ? LED_AUDIO_MICMUTE : LED_AUDIO_MUTE;
-+	int err;
- 
- 	cdev = devm_kzalloc(&codec->core.dev, sizeof(*cdev), GFP_KERNEL);
- 	if (!cdev)
-@@ -3932,10 +3941,14 @@ static int create_mute_led_cdev(struct h
- 	cdev->max_brightness = 1;
- 	cdev->default_trigger = micmute ? "audio-micmute" : "audio-mute";
- 	cdev->brightness_set_blocking = callback;
--	cdev->brightness = ledtrig_audio_get(micmute ? LED_AUDIO_MICMUTE : LED_AUDIO_MUTE);
-+	cdev->brightness = ledtrig_audio_get(idx);
- 	cdev->flags = LED_CORE_SUSPENDRESUME;
- 
--	return devm_led_classdev_register(&codec->core.dev, cdev);
-+	err = led_classdev_register(&codec->core.dev, cdev);
-+	if (err < 0)
-+		return err;
-+	spec->led_cdevs[idx] = cdev;
-+	return 0;
- }
- 
- /**
---- a/sound/pci/hda/hda_generic.h
-+++ b/sound/pci/hda/hda_generic.h
-@@ -294,6 +294,9 @@ struct hda_gen_spec {
- 				   struct hda_jack_callback *cb);
- 	void (*mic_autoswitch_hook)(struct hda_codec *codec,
- 				    struct hda_jack_callback *cb);
-+
-+	/* leds */
-+	struct led_classdev *led_cdevs[NUM_AUDIO_LEDS];
- };
- 
- /* values for add_stereo_mix_input flag */
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8854,6 +8854,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
++	SND_PCI_QUIRK(0x1043, 0x16b2, "ASUS GU603", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
+ 	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x834a, "ASUS S101", ALC269_FIXUP_STEREO_DMIC),
 
 
