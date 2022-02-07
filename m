@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB8F4ABD4B
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:59:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ED564ABB86
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387214AbiBGLk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:40:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37938 "EHLO
+        id S1376558AbiBGL3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:29:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359604AbiBGLaJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:30:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68CB4C03E94C;
-        Mon,  7 Feb 2022 03:28:31 -0800 (PST)
+        with ESMTP id S1382813AbiBGLUw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:20:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63567C03E910;
+        Mon,  7 Feb 2022 03:20:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 270C0B811B3;
-        Mon,  7 Feb 2022 11:28:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E9DDC004E1;
-        Mon,  7 Feb 2022 11:28:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08C77B80EC3;
+        Mon,  7 Feb 2022 11:20:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A504C004E1;
+        Mon,  7 Feb 2022 11:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233309;
-        bh=HlwO99kzVVDq/w0vcBsb1+gvp57k51VTn37EzEf+CmY=;
+        s=korg; t=1644232829;
+        bh=9et30F4hoHWjlx+NVt+W20fhsWMMbCyyQ7IkdpDPWOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pogn1h+/KMb8Y7sG1eU4Z3tPqmZDBcQ6cl46Mte8qcQR2IMpgZsCNsgf0iTRactKr
-         /HUX+GP+cPglgKXFE1PtJxuY2C6DUCrDuL9YU6ltCp298yeWLgwAgHSAEMJZImlzRh
-         7eQW3BFS/9KAagZaSrieHSpeI16v0Mb7Pmf8psLA=
+        b=L5rMSq06IdGLRrnEnc2VVwDTW5koCWFI+vCXb8HLczIsk5seYMWtocml0LrQfqKsp
+         gCcdnrdAqG3RsJh5rQg82ncYliLk8rgYWteZdbQoo/Ba/lFlOs/gk5JVMRvsrzm6MQ
+         jz5FcPHfB7TJuzfo/BVaRyWVhaQYYnDf9hO+9UJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C5=81ukasz=20Bartosik?= <lb@semihalf.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.15 081/110] pinctrl: intel: fix unexpected interrupt
+        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Bruce Fields <bfields@fieldses.org>
+Subject: [PATCH 5.4 38/44] nfsd: nfsd4_setclientid_confirm mistakenly expires confirmed client.
 Date:   Mon,  7 Feb 2022 12:06:54 +0100
-Message-Id: <20220207103805.134119606@linuxfoundation.org>
+Message-Id: <20220207103754.394730613@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
+References: <20220207103753.155627314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,120 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Łukasz Bartosik <lb@semihalf.com>
+From: Dai Ngo <dai.ngo@oracle.com>
 
-commit e986f0e602f19ecb7880b04dd1db415ed9bca3f6 upstream.
+commit ab451ea952fe9d7afefae55ddb28943a148247fe upstream.
 
-ASUS Chromebook C223 with Celeron N3350 crashes sometimes during
-cold booot. Inspection of the kernel log showed that it gets into
-an inifite loop logging the following message:
+>From RFC 7530 Section 16.34.5:
 
-->handle_irq():  000000009cdb51e8, handle_bad_irq+0x0/0x251
-->irq_data.chip(): 000000005ec212a7, 0xffffa043009d8e7
-->action(): 00000
-   IRQ_NOPROBE set
-unexpected IRQ trap at vector 7c
+o  The server has not recorded an unconfirmed { v, x, c, *, * } and
+   has recorded a confirmed { v, x, c, *, s }.  If the principals of
+   the record and of SETCLIENTID_CONFIRM do not match, the server
+   returns NFS4ERR_CLID_INUSE without removing any relevant leased
+   client state, and without changing recorded callback and
+   callback_ident values for client { x }.
 
-The issue happens during cold boot but only if cold boot happens
-at most several dozen seconds after Chromebook is powered off. For
-longer intervals between power off and power on (cold boot) the issue
-does not reproduce. The unexpected interrupt is sourced from INT3452
-GPIO pin which is used for SD card detect. Investigation relevealed
-that when the interval between power off and power on (cold boot)
-is less than several dozen seconds then values of INT3452 GPIO interrupt
-enable and interrupt pending registers survive power off and power
-on sequence and interrupt for SD card detect pin is enabled and pending
-during probe of SD controller which causes the unexpected IRQ message.
-"Intel Pentium and Celeron Processor N- and J- Series" volume 3 doc
-mentions that GPIO interrupt enable and status registers default
-value is 0x0.
-The fix clears INT3452 GPIO interrupt enabled and interrupt pending
-registers in its probe function.
+The current code intends to do what the spec describes above but
+it forgot to set 'old' to NULL resulting to the confirmed client
+to be expired.
 
-Fixes: 7981c0015af2 ("pinctrl: intel: Add Intel Sunrisepoint pin controller and GPIO support")
-Signed-off-by: Łukasz Bartosik <lb@semihalf.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 2b63482185e6 ("nfsd: fix clid_inuse on mount with security change")
+Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Reviewed-by: Bruce Fields <bfields@fieldses.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/intel/pinctrl-intel.c |   54 +++++++++++++++++++++-------------
- 1 file changed, 34 insertions(+), 20 deletions(-)
+ fs/nfsd/nfs4state.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -1210,6 +1210,39 @@ static irqreturn_t intel_gpio_irq(int ir
- 	return IRQ_RETVAL(ret);
- }
- 
-+static void intel_gpio_irq_init(struct intel_pinctrl *pctrl)
-+{
-+	int i;
-+
-+	for (i = 0; i < pctrl->ncommunities; i++) {
-+		const struct intel_community *community;
-+		void __iomem *base;
-+		unsigned int gpp;
-+
-+		community = &pctrl->communities[i];
-+		base = community->regs;
-+
-+		for (gpp = 0; gpp < community->ngpps; gpp++) {
-+			/* Mask and clear all interrupts */
-+			writel(0, base + community->ie_offset + gpp * 4);
-+			writel(0xffff, base + community->is_offset + gpp * 4);
-+		}
-+	}
-+}
-+
-+static int intel_gpio_irq_init_hw(struct gpio_chip *gc)
-+{
-+	struct intel_pinctrl *pctrl = gpiochip_get_data(gc);
-+
-+	/*
-+	 * Make sure the interrupt lines are in a proper state before
-+	 * further configuration.
-+	 */
-+	intel_gpio_irq_init(pctrl);
-+
-+	return 0;
-+}
-+
- static int intel_gpio_add_community_ranges(struct intel_pinctrl *pctrl,
- 				const struct intel_community *community)
- {
-@@ -1314,6 +1347,7 @@ static int intel_gpio_probe(struct intel
- 	girq->num_parents = 0;
- 	girq->default_type = IRQ_TYPE_NONE;
- 	girq->handler = handle_bad_irq;
-+	girq->init_hw = intel_gpio_irq_init_hw;
- 
- 	ret = devm_gpiochip_add_data(pctrl->dev, &pctrl->chip, pctrl);
- 	if (ret) {
-@@ -1689,26 +1723,6 @@ int intel_pinctrl_suspend_noirq(struct d
- }
- EXPORT_SYMBOL_GPL(intel_pinctrl_suspend_noirq);
- 
--static void intel_gpio_irq_init(struct intel_pinctrl *pctrl)
--{
--	size_t i;
--
--	for (i = 0; i < pctrl->ncommunities; i++) {
--		const struct intel_community *community;
--		void __iomem *base;
--		unsigned int gpp;
--
--		community = &pctrl->communities[i];
--		base = community->regs;
--
--		for (gpp = 0; gpp < community->ngpps; gpp++) {
--			/* Mask and clear all interrupts */
--			writel(0, base + community->ie_offset + gpp * 4);
--			writel(0xffff, base + community->is_offset + gpp * 4);
--		}
--	}
--}
--
- static bool intel_gpio_update_reg(void __iomem *reg, u32 mask, u32 value)
- {
- 	u32 curr, updated;
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -3941,8 +3941,10 @@ nfsd4_setclientid_confirm(struct svc_rqs
+ 			status = nfserr_clid_inuse;
+ 			if (client_has_state(old)
+ 					&& !same_creds(&unconf->cl_cred,
+-							&old->cl_cred))
++							&old->cl_cred)) {
++				old = NULL;
+ 				goto out;
++			}
+ 			status = mark_client_expired_locked(old);
+ 			if (status) {
+ 				old = NULL;
 
 
