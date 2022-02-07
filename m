@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C7644ABC60
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:47:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C54134ABAC8
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377095AbiBGLfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:35:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38448 "EHLO
+        id S1384071AbiBGLYj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238765AbiBGL2R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:28:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0EA4C0364B6;
-        Mon,  7 Feb 2022 03:26:47 -0800 (PST)
+        with ESMTP id S1356790AbiBGLNw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:13:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45545C043181;
+        Mon,  7 Feb 2022 03:13:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A79E76091A;
-        Mon,  7 Feb 2022 11:26:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87002C004E1;
-        Mon,  7 Feb 2022 11:26:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D87086113B;
+        Mon,  7 Feb 2022 11:13:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C100CC004E1;
+        Mon,  7 Feb 2022 11:13:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233184;
-        bh=lV1mkuh7zyPWVcvLXzJOB2GkO6mowb3cwC8cFqZQMqI=;
+        s=korg; t=1644232431;
+        bh=ZgHTpfB1Lw6sGk4se2ymlqSay6WE68L2OOWNGliZFQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qphQZw38ZA6I73laFsNqdqEqAWo6HKF9w3UZeG7BifWgOS1HVwUnOLi65NukDxQei
-         ph9nTa+xpfu7j0ErtyEPhaSJSqr+5OORAQZZKkEvo07Ex6StR7bjOHRUApfeFntXDc
-         SSbdEBpRDBOw0kOT9yBntM6sNLj/GPCrB7eErapc=
+        b=MCg9vfW/nCXMZbj8CimTM7fgGcwXooQyK5hgepe6WYAWWjMD8EH3bl77/JmRcbcsK
+         0G8kDBi49VprOzqp+KiXLEmq0Mh19A+F0C83b3mgdvpCBGR1+Q/ILLTweq+7lrIYut
+         sdqztYHjn9Jwbbak/6eOlC/VTlyZqU0fVf1sldKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jared Holzman <jared.holzman@excelero.com>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.15 043/110] RDMA/siw: Fix broken RDMA Read Fence/Resume logic.
-Date:   Mon,  7 Feb 2022 12:06:16 +0100
-Message-Id: <20220207103803.734262243@linuxfoundation.org>
+        stable@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 55/69] spi: bcm-qspi: check for valid cs before applying chip select
+Date:   Mon,  7 Feb 2022 12:06:17 +0100
+Message-Id: <20220207103757.433746148@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernard Metzler <bmt@zurich.ibm.com>
+From: Kamal Dasu <kdasu.kdev@gmail.com>
 
-commit b43a76f423aa304037603fd6165c4a534d2c09a7 upstream.
+commit 2cbd27267ffe020af1442b95ec57f59a157ba85c upstream.
 
-Code unconditionally resumed fenced SQ processing after next RDMA Read
-completion, even if other RDMA Read responses are still outstanding, or
-ORQ is full. Also adds comments for better readability of fence
-processing, and removes orq_get_tail() helper, which is not needed
-anymore.
+Apply only valid chip select value. This change fixes case where chip
+select is set to initial value of '-1' during probe and  PM supend and
+subsequent resume can try to use the value with undefined behaviour.
+Also in case where gpio based chip select, the check in
+bcm_qspi_chip_select() shall prevent undefined behaviour on resume.
 
-Fixes: 8b6a361b8c48 ("rdma/siw: receive path")
-Fixes: a531975279f3 ("rdma/siw: main include file")
-Link: https://lore.kernel.org/r/20220130170815.1940-1-bmt@zurich.ibm.com
-Reported-by: Jared Holzman <jared.holzman@excelero.com>
-Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: fa236a7ef240 ("spi: bcm-qspi: Add Broadcom MSPI driver")
+Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220127185359.27322-1-kdasu.kdev@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/sw/siw/siw.h       |    7 +------
- drivers/infiniband/sw/siw/siw_qp_rx.c |   20 +++++++++++---------
- 2 files changed, 12 insertions(+), 15 deletions(-)
+ drivers/spi/spi-bcm-qspi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/sw/siw/siw.h
-+++ b/drivers/infiniband/sw/siw/siw.h
-@@ -644,14 +644,9 @@ static inline struct siw_sqe *orq_get_cu
- 	return &qp->orq[qp->orq_get % qp->attrs.orq_size];
- }
+--- a/drivers/spi/spi-bcm-qspi.c
++++ b/drivers/spi/spi-bcm-qspi.c
+@@ -522,7 +522,7 @@ static void bcm_qspi_chip_select(struct
+ 	u32 rd = 0;
+ 	u32 wr = 0;
  
--static inline struct siw_sqe *orq_get_tail(struct siw_qp *qp)
--{
--	return &qp->orq[qp->orq_put % qp->attrs.orq_size];
--}
--
- static inline struct siw_sqe *orq_get_free(struct siw_qp *qp)
- {
--	struct siw_sqe *orq_e = orq_get_tail(qp);
-+	struct siw_sqe *orq_e = &qp->orq[qp->orq_put % qp->attrs.orq_size];
- 
- 	if (READ_ONCE(orq_e->flags) == 0)
- 		return orq_e;
---- a/drivers/infiniband/sw/siw/siw_qp_rx.c
-+++ b/drivers/infiniband/sw/siw/siw_qp_rx.c
-@@ -1153,11 +1153,12 @@ static int siw_check_tx_fence(struct siw
- 
- 	spin_lock_irqsave(&qp->orq_lock, flags);
- 
--	rreq = orq_get_current(qp);
--
- 	/* free current orq entry */
-+	rreq = orq_get_current(qp);
- 	WRITE_ONCE(rreq->flags, 0);
- 
-+	qp->orq_get++;
-+
- 	if (qp->tx_ctx.orq_fence) {
- 		if (unlikely(tx_waiting->wr_status != SIW_WR_QUEUED)) {
- 			pr_warn("siw: [QP %u]: fence resume: bad status %d\n",
-@@ -1165,10 +1166,12 @@ static int siw_check_tx_fence(struct siw
- 			rv = -EPROTO;
- 			goto out;
- 		}
--		/* resume SQ processing */
-+		/* resume SQ processing, if possible */
- 		if (tx_waiting->sqe.opcode == SIW_OP_READ ||
- 		    tx_waiting->sqe.opcode == SIW_OP_READ_LOCAL_INV) {
--			rreq = orq_get_tail(qp);
-+
-+			/* SQ processing was stopped because of a full ORQ */
-+			rreq = orq_get_free(qp);
- 			if (unlikely(!rreq)) {
- 				pr_warn("siw: [QP %u]: no ORQE\n", qp_id(qp));
- 				rv = -EPROTO;
-@@ -1181,15 +1184,14 @@ static int siw_check_tx_fence(struct siw
- 			resume_tx = 1;
- 
- 		} else if (siw_orq_empty(qp)) {
-+			/*
-+			 * SQ processing was stopped by fenced work request.
-+			 * Resume since all previous Read's are now completed.
-+			 */
- 			qp->tx_ctx.orq_fence = 0;
- 			resume_tx = 1;
--		} else {
--			pr_warn("siw: [QP %u]: fence resume: orq idx: %d:%d\n",
--				qp_id(qp), qp->orq_get, qp->orq_put);
--			rv = -EPROTO;
- 		}
- 	}
--	qp->orq_get++;
- out:
- 	spin_unlock_irqrestore(&qp->orq_lock, flags);
- 
+-	if (qspi->base[CHIP_SELECT]) {
++	if (cs >= 0 && qspi->base[CHIP_SELECT]) {
+ 		rd = bcm_qspi_read(qspi, CHIP_SELECT, 0);
+ 		wr = (rd & ~0xff) | (1 << cs);
+ 		if (rd == wr)
 
 
