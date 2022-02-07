@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC9D04ABAE5
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:31:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FE534ABCB8
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384134AbiBGLYw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54568 "EHLO
+        id S1387071AbiBGLi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:38:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379780AbiBGLQV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:16:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17047C043181;
-        Mon,  7 Feb 2022 03:16:20 -0800 (PST)
+        with ESMTP id S1385760AbiBGLc3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF456C043181;
+        Mon,  7 Feb 2022 03:32:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97B426126D;
-        Mon,  7 Feb 2022 11:16:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 776FAC004E1;
-        Mon,  7 Feb 2022 11:16:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7290460C99;
+        Mon,  7 Feb 2022 11:32:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F1F7C004E1;
+        Mon,  7 Feb 2022 11:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232579;
-        bh=PkDSCHfSoW1Otd51STQdopensaiCHNHWwutyrZDS9Gg=;
+        s=korg; t=1644233547;
+        bh=pejCLm/dhWAINZ/EwhvHtPsSwaQldnRAQnd2fBpHpUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e2Fg7AbEEqTd9QFmm9eGTkbxg7x8J4PdRTd26iGVEeLV7QwI/umqnvH1k4OL8+0Hy
-         2fZXaIF1feL3+BckuKlTBclNWDgYPUml5cbM7Djky2gEDnu8ACwWfzl5iOUiMR/etq
-         WFLPEIQAO6E6KnnXMnoSA8cOP12clVJb1t9Uzd94=
+        b=A9hWeim76AJ8AxFR+JuDdCbICabx/yEa0DJVRJ6hk4e+uN1oAPLJ0aUYsEW3+IoPi
+         5neydjqRmgYNRYX/J+w74Ip9hzbP9EULMLqANiRKnNj6ZGglZK1bR1lsLw7+2CWLLM
+         xfY5dt4qluHWwaYloXEA7UhXDduQuPiUmu9AmoBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 4.19 54/86] audit: improve audit queue handling when "audit=1" on cmdline
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.16 046/126] KVM: arm64: Stop handle_exit() from handling HVC twice when an SError occurs
 Date:   Mon,  7 Feb 2022 12:06:17 +0100
-Message-Id: <20220207103759.334877202@linuxfoundation.org>
+Message-Id: <20220207103805.706627373@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,207 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: James Morse <james.morse@arm.com>
 
-commit f26d04331360d42dbd6b58448bd98e4edbfbe1c5 upstream.
+commit 1229630af88620f6e3a621a1ebd1ca14d9340df7 upstream.
 
-When an admin enables audit at early boot via the "audit=1" kernel
-command line the audit queue behavior is slightly different; the
-audit subsystem goes to greater lengths to avoid dropping records,
-which unfortunately can result in problems when the audit daemon is
-forcibly stopped for an extended period of time.
+Prior to commit defe21f49bc9 ("KVM: arm64: Move PC rollback on SError to
+HYP"), when an SError is synchronised due to another exception, KVM
+handles the SError first. If the guest survives, the instruction that
+triggered the original exception is re-exectued to handle the first
+exception. HVC is treated as a special case as the instruction wouldn't
+normally be re-exectued, as its not a trap.
 
-This patch makes a number of changes designed to improve the audit
-queuing behavior so that leaving the audit daemon in a stopped state
-for an extended period does not cause a significant impact to the
-system.
+Commit defe21f49bc9 didn't preserve the behaviour of the 'return 1'
+that skips the rest of handle_exit().
 
-- kauditd_send_queue() is now limited to looping through the
-  passed queue only once per call.  This not only prevents the
-  function from looping indefinitely when records are returned
-  to the current queue, it also allows any recovery handling in
-  kauditd_thread() to take place when kauditd_send_queue()
-  returns.
+Since commit defe21f49bc9, KVM will try to handle the SError and the
+original exception at the same time. When the exception was an HVC,
+fixup_guest_exit() has already rolled back ELR_EL2, meaning if the
+guest has virtual SError masked, it will execute and handle the HVC
+twice.
 
-- Transient netlink send errors seen as -EAGAIN now cause the
-  record to be returned to the retry queue instead of going to
-  the hold queue.  The intention of the hold queue is to store,
-  perhaps for an extended period of time, the events which led
-  up to the audit daemon going offline.  The retry queue remains
-  a temporary queue intended to protect against transient issues
-  between the kernel and the audit daemon.
+Restore the original behaviour.
 
-- The retry queue is now limited by the audit_backlog_limit
-  setting, the same as the other queues.  This allows admins
-  to bound the size of all of the audit queues on the system.
-
-- kauditd_rehold_skb() now returns records to the end of the
-  hold queue to ensure ordering is preserved in the face of
-  recent changes to kauditd_send_queue().
-
+Fixes: defe21f49bc9 ("KVM: arm64: Move PC rollback on SError to HYP")
 Cc: stable@vger.kernel.org
-Fixes: 5b52330bbfe63 ("audit: fix auditd/kernel connection state tracking")
-Fixes: f4b3ee3c85551 ("audit: improve robustness of the audit queue handling")
-Reported-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Tested-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220127122052.1584324-4-james.morse@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/audit.c |   62 +++++++++++++++++++++++++++++++++++++++------------------
- 1 file changed, 43 insertions(+), 19 deletions(-)
+ arch/arm64/kvm/handle_exit.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -549,20 +549,22 @@ static void kauditd_printk_skb(struct sk
- /**
-  * kauditd_rehold_skb - Handle a audit record send failure in the hold queue
-  * @skb: audit record
-+ * @error: error code (unused)
-  *
-  * Description:
-  * This should only be used by the kauditd_thread when it fails to flush the
-  * hold queue.
-  */
--static void kauditd_rehold_skb(struct sk_buff *skb)
-+static void kauditd_rehold_skb(struct sk_buff *skb, __always_unused int error)
+--- a/arch/arm64/kvm/handle_exit.c
++++ b/arch/arm64/kvm/handle_exit.c
+@@ -226,6 +226,14 @@ int handle_exit(struct kvm_vcpu *vcpu, i
  {
--	/* put the record back in the queue at the same place */
--	skb_queue_head(&audit_hold_queue, skb);
-+	/* put the record back in the queue */
-+	skb_queue_tail(&audit_hold_queue, skb);
- }
+ 	struct kvm_run *run = vcpu->run;
  
- /**
-  * kauditd_hold_skb - Queue an audit record, waiting for auditd
-  * @skb: audit record
-+ * @error: error code
-  *
-  * Description:
-  * Queue the audit record, waiting for an instance of auditd.  When this
-@@ -572,19 +574,31 @@ static void kauditd_rehold_skb(struct sk
-  * and queue it, if we have room.  If we want to hold on to the record, but we
-  * don't have room, record a record lost message.
-  */
--static void kauditd_hold_skb(struct sk_buff *skb)
-+static void kauditd_hold_skb(struct sk_buff *skb, int error)
- {
- 	/* at this point it is uncertain if we will ever send this to auditd so
- 	 * try to send the message via printk before we go any further */
- 	kauditd_printk_skb(skb);
- 
- 	/* can we just silently drop the message? */
--	if (!audit_default) {
--		kfree_skb(skb);
--		return;
-+	if (!audit_default)
-+		goto drop;
-+
-+	/* the hold queue is only for when the daemon goes away completely,
-+	 * not -EAGAIN failures; if we are in a -EAGAIN state requeue the
-+	 * record on the retry queue unless it's full, in which case drop it
-+	 */
-+	if (error == -EAGAIN) {
-+		if (!audit_backlog_limit ||
-+		    skb_queue_len(&audit_retry_queue) < audit_backlog_limit) {
-+			skb_queue_tail(&audit_retry_queue, skb);
-+			return;
-+		}
-+		audit_log_lost("kauditd retry queue overflow");
-+		goto drop;
- 	}
- 
--	/* if we have room, queue the message */
-+	/* if we have room in the hold queue, queue the message */
- 	if (!audit_backlog_limit ||
- 	    skb_queue_len(&audit_hold_queue) < audit_backlog_limit) {
- 		skb_queue_tail(&audit_hold_queue, skb);
-@@ -593,24 +607,32 @@ static void kauditd_hold_skb(struct sk_b
- 
- 	/* we have no other options - drop the message */
- 	audit_log_lost("kauditd hold queue overflow");
-+drop:
- 	kfree_skb(skb);
- }
- 
- /**
-  * kauditd_retry_skb - Queue an audit record, attempt to send again to auditd
-  * @skb: audit record
-+ * @error: error code (unused)
-  *
-  * Description:
-  * Not as serious as kauditd_hold_skb() as we still have a connected auditd,
-  * but for some reason we are having problems sending it audit records so
-  * queue the given record and attempt to resend.
-  */
--static void kauditd_retry_skb(struct sk_buff *skb)
-+static void kauditd_retry_skb(struct sk_buff *skb, __always_unused int error)
- {
--	/* NOTE: because records should only live in the retry queue for a
--	 * short period of time, before either being sent or moved to the hold
--	 * queue, we don't currently enforce a limit on this queue */
--	skb_queue_tail(&audit_retry_queue, skb);
-+	if (!audit_backlog_limit ||
-+	    skb_queue_len(&audit_retry_queue) < audit_backlog_limit) {
-+		skb_queue_tail(&audit_retry_queue, skb);
-+		return;
++	if (ARM_SERROR_PENDING(exception_index)) {
++		/*
++		 * The SError is handled by handle_exit_early(). If the guest
++		 * survives it will re-execute the original instruction.
++		 */
++		return 1;
 +	}
 +
-+	/* we have to drop the record, send it via printk as a last effort */
-+	kauditd_printk_skb(skb);
-+	audit_log_lost("kauditd retry queue overflow");
-+	kfree_skb(skb);
- }
+ 	exception_index = ARM_EXCEPTION_CODE(exception_index);
  
- /**
-@@ -648,7 +670,7 @@ static void auditd_reset(const struct au
- 	/* flush the retry queue to the hold queue, but don't touch the main
- 	 * queue since we need to process that normally for multicast */
- 	while ((skb = skb_dequeue(&audit_retry_queue)))
--		kauditd_hold_skb(skb);
-+		kauditd_hold_skb(skb, -ECONNREFUSED);
- }
- 
- /**
-@@ -722,16 +744,18 @@ static int kauditd_send_queue(struct soc
- 			      struct sk_buff_head *queue,
- 			      unsigned int retry_limit,
- 			      void (*skb_hook)(struct sk_buff *skb),
--			      void (*err_hook)(struct sk_buff *skb))
-+			      void (*err_hook)(struct sk_buff *skb, int error))
- {
- 	int rc = 0;
--	struct sk_buff *skb;
-+	struct sk_buff *skb = NULL;
-+	struct sk_buff *skb_tail;
- 	unsigned int failed = 0;
- 
- 	/* NOTE: kauditd_thread takes care of all our locking, we just use
- 	 *       the netlink info passed to us (e.g. sk and portid) */
- 
--	while ((skb = skb_dequeue(queue))) {
-+	skb_tail = skb_peek_tail(queue);
-+	while ((skb != skb_tail) && (skb = skb_dequeue(queue))) {
- 		/* call the skb_hook for each skb we touch */
- 		if (skb_hook)
- 			(*skb_hook)(skb);
-@@ -739,7 +763,7 @@ static int kauditd_send_queue(struct soc
- 		/* can we send to anyone via unicast? */
- 		if (!sk) {
- 			if (err_hook)
--				(*err_hook)(skb);
-+				(*err_hook)(skb, -ECONNREFUSED);
- 			continue;
- 		}
- 
-@@ -753,7 +777,7 @@ retry:
- 			    rc == -ECONNREFUSED || rc == -EPERM) {
- 				sk = NULL;
- 				if (err_hook)
--					(*err_hook)(skb);
-+					(*err_hook)(skb, rc);
- 				if (rc == -EAGAIN)
- 					rc = 0;
- 				/* continue to drain the queue */
+ 	switch (exception_index) {
 
 
