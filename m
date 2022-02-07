@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1F214ABD31
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:59:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99D2D4ABD49
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:59:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381106AbiBGLjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:39:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46518 "EHLO
+        id S1387208AbiBGLkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:40:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386318AbiBGLeX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:34:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71210C043181;
-        Mon,  7 Feb 2022 03:34:23 -0800 (PST)
+        with ESMTP id S1352776AbiBGLaE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:30:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CDA7C03FEE6;
+        Mon,  7 Feb 2022 03:28:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC03C60A69;
-        Mon,  7 Feb 2022 11:34:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEB9BC004E1;
-        Mon,  7 Feb 2022 11:34:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28947B80EBD;
+        Mon,  7 Feb 2022 11:28:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA84C004E1;
+        Mon,  7 Feb 2022 11:28:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233662;
-        bh=+47cr8N7Htw4ywLt3V8sL2iOcTtpPvwzUNFzThO3/TY=;
+        s=korg; t=1644233302;
+        bh=8QV6oXiFaB4PUA8JqIhf7y6Mx274xZaFC/RUXpTItBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sIGzIqSWd69oa1ICWHmWNpxAi3TmYbY1hZPLwSnju8GcMXImRJWHqXGPFaR4/wvmW
-         Y4lHW4Mt22HwkHTEqT7uWZkvv+3n2jkb1Il9dvakpwXGHiQXwFpEf7XVyA54h/vAVP
-         8Md/kzXyWBAZdPSNG7E5KbiCBUa4BJ/QtBX/wvHI=
+        b=Fo+LSCeT74grMC0GPXfs24sY/lLKCF4+EdDKEnhrTaVCMV17FzInldyrTujroZmUa
+         WvDHbjWcTpDXc5JqR+RC1O7/WDXrQtShucoa+B2JtIoCbtpzrD9FpZzyd5dlkCMXRS
+         8o2Iq7OVMbOop7632/NXWW1K9eO+Dq3EkjVdUjUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Brost <matthew.brost@intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.16 081/126] drm/i915: Lock timeline mutex directly in error path of eb_pin_timeline
+        stable@vger.kernel.org, SASANO Takayoshi <uaa@mx5.nisiq.net>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.15 079/110] pinctrl: sunxi: Fix H616 I2S3 pin data
 Date:   Mon,  7 Feb 2022 12:06:52 +0100
-Message-Id: <20220207103806.903419880@linuxfoundation.org>
+Message-Id: <20220207103805.059120061@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Brost <matthew.brost@intel.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-commit 5ae13c305ef8cb54efc4f0ba4565709b9f320fed upstream.
+commit 1fd6bb5b47a65eacb063b37e6fa6df2b8fa92959 upstream.
 
-Don't use the interruptable version of the timeline mutex lock in the
-error path of eb_pin_timeline as the cleanup must always happen.
+Two bugs have sneaked in the H616 pinctrl data:
+- PH9 uses the mux value of 0x3 twice (one should be 0x5 instead)
+- PH8 and PH9 use the "i2s3" function name twice in each pin
 
-v2:
- (John Harrison)
-  - Don't check for interrupt during mutex lock
-v3:
- (Tvrtko)
-  - A comment explaining why lock helper isn't used
+For the double pin name we use the same trick we pulled for i2s0: append
+the pin function to the group name to designate the special function.
 
-Fixes: 544460c33821 ("drm/i915: Multi-BB execbuf")
-Signed-off-by: Matthew Brost <matthew.brost@intel.com>
-Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220111163929.14017-1-matthew.brost@intel.com
-(cherry picked from commit cb935c4618bd2ff9058feee4af7088446da6a763)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Fixes: 25adc29407fb ("pinctrl: sunxi: Add support for the Allwinner H616 pin controller")
+Reported-by: SASANO Takayoshi <uaa@mx5.nisiq.net>
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Reviewed-by: Samuel Holland <samuel@sholland.org>
+Link: https://lore.kernel.org/r/20220105172952.23347-1-andre.przywara@arm.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/pinctrl/sunxi/pinctrl-sun50i-h616.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -2372,9 +2372,14 @@ static int eb_pin_timeline(struct i915_e
- 				      timeout) < 0) {
- 			i915_request_put(rq);
- 
--			tl = intel_context_timeline_lock(ce);
-+			/*
-+			 * Error path, cannot use intel_context_timeline_lock as
-+			 * that is user interruptable and this clean up step
-+			 * must be done.
-+			 */
-+			mutex_lock(&ce->timeline->mutex);
- 			intel_context_exit(ce);
--			intel_context_timeline_unlock(tl);
-+			mutex_unlock(&ce->timeline->mutex);
- 
- 			if (nonblock)
- 				return -EWOULDBLOCK;
+--- a/drivers/pinctrl/sunxi/pinctrl-sun50i-h616.c
++++ b/drivers/pinctrl/sunxi/pinctrl-sun50i-h616.c
+@@ -363,16 +363,16 @@ static const struct sunxi_desc_pin h616_
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+ 		  SUNXI_FUNCTION(0x2, "uart2"),		/* CTS */
+-		  SUNXI_FUNCTION(0x3, "i2s3"),	/* DO0 */
++		  SUNXI_FUNCTION(0x3, "i2s3_dout0"),	/* DO0 */
+ 		  SUNXI_FUNCTION(0x4, "spi1"),		/* MISO */
+-		  SUNXI_FUNCTION(0x5, "i2s3"),	/* DI1 */
++		  SUNXI_FUNCTION(0x5, "i2s3_din1"),	/* DI1 */
+ 		  SUNXI_FUNCTION_IRQ_BANK(0x6, 6, 8)),	/* PH_EINT8 */
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(H, 9),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+-		  SUNXI_FUNCTION(0x3, "i2s3"),	/* DI0 */
++		  SUNXI_FUNCTION(0x3, "i2s3_din0"),	/* DI0 */
+ 		  SUNXI_FUNCTION(0x4, "spi1"),		/* CS1 */
+-		  SUNXI_FUNCTION(0x3, "i2s3"),	/* DO1 */
++		  SUNXI_FUNCTION(0x5, "i2s3_dout1"),	/* DO1 */
+ 		  SUNXI_FUNCTION_IRQ_BANK(0x6, 6, 9)),	/* PH_EINT9 */
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(H, 10),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
 
 
