@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 746774ABBB3
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:39:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB3DF4ABB54
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384724AbiBGL3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:29:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34424 "EHLO
+        id S1384399AbiBGL2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:28:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383313AbiBGLWJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:22:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D572AC043181;
-        Mon,  7 Feb 2022 03:22:08 -0800 (PST)
+        with ESMTP id S1382356AbiBGLS5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:18:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C35F3C0401D0;
+        Mon,  7 Feb 2022 03:18:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8FDA1B8111C;
-        Mon,  7 Feb 2022 11:22:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90661C004E1;
-        Mon,  7 Feb 2022 11:22:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DE1A6077B;
+        Mon,  7 Feb 2022 11:18:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BE03C004E1;
+        Mon,  7 Feb 2022 11:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232926;
-        bh=+G3hb5+RB2uCCKVlicO2SP2tFVuFlczkrJDxVN1aZDs=;
+        s=korg; t=1644232725;
+        bh=R6xFvRSAhvFiOxBA1ZVRq5dVEm6iq07Plk0RDFwvnH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+vKmBwUs7PS5jnofMN9r+sHT+OCQWwTEdXzJ30shb1Di6KbLRxVPvb1KoE1mnoeU
-         2Hmtug/3w8ZiplUjTEHea5Hx8XNKTyQRMeueG0A2hkcNorqut6ity5EfMKMBxkOPxn
-         Y2MW41upiwrJ+rjJfyLu2yrUM2dIbiuGsxhlt91k=
+        b=yVpmD4fFmmzI2ihvUMqdU85mbsFKFiP3C6q+uQlTPwGdMBgwQjuQ4QoPK84j1OfKc
+         2RiqsvOilJCjQ7FGLR6Hd7l2vS38WDOHYMaWLsFt8xulw8PRZLmxBQFTA3VCcVUzhs
+         7PdLT07G6Wa36oKQn8qBCxf0zn0bU1yXl30Y+zTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
-        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 35/74] spi: uniphier: fix reference count leak in uniphier_spi_probe()
+        stable@vger.kernel.org, Jared Holzman <jared.holzman@excelero.com>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.4 17/44] RDMA/siw: Fix broken RDMA Read Fence/Resume logic.
 Date:   Mon,  7 Feb 2022 12:06:33 +0100
-Message-Id: <20220207103758.385920871@linuxfoundation.org>
+Message-Id: <20220207103753.714125859@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
+References: <20220207103753.155627314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,80 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Bernard Metzler <bmt@zurich.ibm.com>
 
-commit 37c2c83ca4f1ef4b6908181ac98e18360af89b42 upstream.
+commit b43a76f423aa304037603fd6165c4a534d2c09a7 upstream.
 
-The issue happens in several error paths in uniphier_spi_probe().
-When either dma_get_slave_caps() or devm_spi_register_master() returns
-an error code, the function forgets to decrease the refcount of both
-`dma_rx` and `dma_tx` objects, which may lead to refcount leaks.
+Code unconditionally resumed fenced SQ processing after next RDMA Read
+completion, even if other RDMA Read responses are still outstanding, or
+ORQ is full. Also adds comments for better readability of fence
+processing, and removes orq_get_tail() helper, which is not needed
+anymore.
 
-Fix it by decrementing the reference count of specific objects in
-those error paths.
-
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Reviewed-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Fixes: 28d1dddc59f6 ("spi: uniphier: Add DMA transfer mode support")
-Link: https://lore.kernel.org/r/20220125101214.35677-1-xiongx18@fudan.edu.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 8b6a361b8c48 ("rdma/siw: receive path")
+Fixes: a531975279f3 ("rdma/siw: main include file")
+Link: https://lore.kernel.org/r/20220130170815.1940-1-bmt@zurich.ibm.com
+Reported-by: Jared Holzman <jared.holzman@excelero.com>
+Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-uniphier.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/infiniband/sw/siw/siw.h       |    7 +------
+ drivers/infiniband/sw/siw/siw_qp_rx.c |   20 +++++++++++---------
+ 2 files changed, 12 insertions(+), 15 deletions(-)
 
---- a/drivers/spi/spi-uniphier.c
-+++ b/drivers/spi/spi-uniphier.c
-@@ -726,7 +726,7 @@ static int uniphier_spi_probe(struct pla
- 		if (ret) {
- 			dev_err(&pdev->dev, "failed to get TX DMA capacities: %d\n",
- 				ret);
--			goto out_disable_clk;
-+			goto out_release_dma;
- 		}
- 		dma_tx_burst = caps.max_burst;
- 	}
-@@ -735,7 +735,7 @@ static int uniphier_spi_probe(struct pla
- 	if (IS_ERR_OR_NULL(master->dma_rx)) {
- 		if (PTR_ERR(master->dma_rx) == -EPROBE_DEFER) {
- 			ret = -EPROBE_DEFER;
--			goto out_disable_clk;
-+			goto out_release_dma;
- 		}
- 		master->dma_rx = NULL;
- 		dma_rx_burst = INT_MAX;
-@@ -744,7 +744,7 @@ static int uniphier_spi_probe(struct pla
- 		if (ret) {
- 			dev_err(&pdev->dev, "failed to get RX DMA capacities: %d\n",
- 				ret);
--			goto out_disable_clk;
-+			goto out_release_dma;
- 		}
- 		dma_rx_burst = caps.max_burst;
- 	}
-@@ -753,10 +753,20 @@ static int uniphier_spi_probe(struct pla
+--- a/drivers/infiniband/sw/siw/siw.h
++++ b/drivers/infiniband/sw/siw/siw.h
+@@ -658,14 +658,9 @@ static inline struct siw_sqe *orq_get_cu
+ 	return &qp->orq[qp->orq_get % qp->attrs.orq_size];
+ }
  
- 	ret = devm_spi_register_master(&pdev->dev, master);
- 	if (ret)
--		goto out_disable_clk;
-+		goto out_release_dma;
+-static inline struct siw_sqe *orq_get_tail(struct siw_qp *qp)
+-{
+-	return &qp->orq[qp->orq_put % qp->attrs.orq_size];
+-}
+-
+ static inline struct siw_sqe *orq_get_free(struct siw_qp *qp)
+ {
+-	struct siw_sqe *orq_e = orq_get_tail(qp);
++	struct siw_sqe *orq_e = &qp->orq[qp->orq_put % qp->attrs.orq_size];
  
- 	return 0;
+ 	if (READ_ONCE(orq_e->flags) == 0)
+ 		return orq_e;
+--- a/drivers/infiniband/sw/siw/siw_qp_rx.c
++++ b/drivers/infiniband/sw/siw/siw_qp_rx.c
+@@ -1153,11 +1153,12 @@ static int siw_check_tx_fence(struct siw
  
-+out_release_dma:
-+	if (!IS_ERR_OR_NULL(master->dma_rx)) {
-+		dma_release_channel(master->dma_rx);
-+		master->dma_rx = NULL;
-+	}
-+	if (!IS_ERR_OR_NULL(master->dma_tx)) {
-+		dma_release_channel(master->dma_tx);
-+		master->dma_tx = NULL;
-+	}
+ 	spin_lock_irqsave(&qp->orq_lock, flags);
+ 
+-	rreq = orq_get_current(qp);
+-
+ 	/* free current orq entry */
++	rreq = orq_get_current(qp);
+ 	WRITE_ONCE(rreq->flags, 0);
+ 
++	qp->orq_get++;
 +
- out_disable_clk:
- 	clk_disable_unprepare(priv->clk);
+ 	if (qp->tx_ctx.orq_fence) {
+ 		if (unlikely(tx_waiting->wr_status != SIW_WR_QUEUED)) {
+ 			pr_warn("siw: [QP %u]: fence resume: bad status %d\n",
+@@ -1165,10 +1166,12 @@ static int siw_check_tx_fence(struct siw
+ 			rv = -EPROTO;
+ 			goto out;
+ 		}
+-		/* resume SQ processing */
++		/* resume SQ processing, if possible */
+ 		if (tx_waiting->sqe.opcode == SIW_OP_READ ||
+ 		    tx_waiting->sqe.opcode == SIW_OP_READ_LOCAL_INV) {
+-			rreq = orq_get_tail(qp);
++
++			/* SQ processing was stopped because of a full ORQ */
++			rreq = orq_get_free(qp);
+ 			if (unlikely(!rreq)) {
+ 				pr_warn("siw: [QP %u]: no ORQE\n", qp_id(qp));
+ 				rv = -EPROTO;
+@@ -1181,15 +1184,14 @@ static int siw_check_tx_fence(struct siw
+ 			resume_tx = 1;
+ 
+ 		} else if (siw_orq_empty(qp)) {
++			/*
++			 * SQ processing was stopped by fenced work request.
++			 * Resume since all previous Read's are now completed.
++			 */
+ 			qp->tx_ctx.orq_fence = 0;
+ 			resume_tx = 1;
+-		} else {
+-			pr_warn("siw: [QP %u]: fence resume: orq idx: %d:%d\n",
+-				qp_id(qp), qp->orq_get, qp->orq_put);
+-			rv = -EPROTO;
+ 		}
+ 	}
+-	qp->orq_get++;
+ out:
+ 	spin_unlock_irqrestore(&qp->orq_lock, flags);
  
 
 
