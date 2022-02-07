@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 290614ABCD2
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:50:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B29244ABC85
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353867AbiBGLjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:39:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46242 "EHLO
+        id S1378983AbiBGLhr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:37:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386091AbiBGLde (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:33:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 655C0C043181;
-        Mon,  7 Feb 2022 03:33:33 -0800 (PST)
+        with ESMTP id S1384616AbiBGL31 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:29:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7DBCC02B5DC;
+        Mon,  7 Feb 2022 03:27:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECF2460B20;
-        Mon,  7 Feb 2022 11:33:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD72FC004E1;
-        Mon,  7 Feb 2022 11:33:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 095BCB811AF;
+        Mon,  7 Feb 2022 11:27:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DD8AC340F0;
+        Mon,  7 Feb 2022 11:27:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233612;
-        bh=0G4mg7JrTwEv++ARZxUJpNZ1oLOwrJ8UNREcb0ZZ/f8=;
+        s=korg; t=1644233254;
+        bh=EtbOZiAqtWbT4t6/B/vsUfgMMXkYyFMWs8SFTUx3QU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E1fTyPHCa7ONPxbl19duLpzzj7yqyatT2z35ElYvoNxnwXrfYRZbeix9syhTFF/Tv
-         1AXJ77aLkCBAKZme5KqVKWXGsGPmVm7r7wb8wPFVH/u98GrR78Mav0FIhQzu/8lgLy
-         Ka9n5JgvP6c+cqxL/eKBSJzB6pqE13nSRHDyKxMY=
+        b=Y27jjh47+CUty3MmNRBpQYy+RFfSBWzegOX3K4GVYcsgzCtgNjnuZGe/J75zqcYau
+         WHnHaTRGX5uA+fT2gHQX22udortkTOae5d3QMg6HVR/PRk7hdmZRg1aP4yTa3f22WA
+         4IQch0bNJuL7/snPAx44rhM49IAGSFZIFqHLODhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 5.16 067/126] net: ieee802154: ca8210: Stop leaking skbs
-Date:   Mon,  7 Feb 2022 12:06:38 +0100
-Message-Id: <20220207103806.426048917@linuxfoundation.org>
+        stable@vger.kernel.org, Camel Guo <camelg@axis.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 066/110] net: stmmac: dump gmac4 DMA registers correctly
+Date:   Mon,  7 Feb 2022 12:06:39 +0100
+Message-Id: <20220207103804.510645202@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Camel Guo <camelg@axis.com>
 
-commit 621b24b09eb61c63f262da0c9c5f0e93348897e5 upstream.
+commit 7af037c39b600bac2c716dd1228e8ddbe149573f upstream.
 
-Upon error the ieee802154_xmit_complete() helper is not called. Only
-ieee802154_wake_queue() is called manually. We then leak the skb
-structure.
+Unlike gmac100, gmac1000, gmac4 has 27 DMA registers and they are
+located at DMA_CHAN_BASE_ADDR (0x1100). In order for ethtool to dump
+gmac4 DMA registers correctly, this commit checks if a net_device has
+gmac4 and uses different logic to dump its DMA registers.
 
-Free the skb structure upon error before returning.
+This fixes the following KASAN warning, which can normally be triggered
+by a command similar like "ethtool -d eth0":
 
-Fixes: ded845a781a5 ("ieee802154: Add CA8210 IEEE 802.15.4 device driver")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20220125121426.848337-5-miquel.raynal@bootlin.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+BUG: KASAN: vmalloc-out-of-bounds in dwmac4_dump_dma_regs+0x6d4/0xb30
+Write of size 4 at addr ffffffc010177100 by task ethtool/1839
+ kasan_report+0x200/0x21c
+ __asan_report_store4_noabort+0x34/0x60
+ dwmac4_dump_dma_regs+0x6d4/0xb30
+ stmmac_ethtool_gregs+0x110/0x204
+ ethtool_get_regs+0x200/0x4b0
+ dev_ethtool+0x1dac/0x3800
+ dev_ioctl+0x7c0/0xb50
+ sock_ioctl+0x298/0x6c4
+ ...
+
+Fixes: fbf68229ffe7 ("net: stmmac: unify registers dumps methods")
+Signed-off-by: Camel Guo <camelg@axis.com>
+Link: https://lore.kernel.org/r/20220131083841.3346801-1-camel.guo@axis.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ieee802154/ca8210.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h      |    1 +
+ drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c |   19 +++++++++++++++++--
+ 2 files changed, 18 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ieee802154/ca8210.c
-+++ b/drivers/net/ieee802154/ca8210.c
-@@ -1771,6 +1771,7 @@ static int ca8210_async_xmit_complete(
- 			status
- 		);
- 		if (status != MAC_TRANSACTION_OVERFLOW) {
-+			dev_kfree_skb_any(priv->tx_skb);
- 			ieee802154_wake_queue(priv->hw);
- 			return 0;
- 		}
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h
+@@ -150,6 +150,7 @@
+ 
+ #define NUM_DWMAC100_DMA_REGS	9
+ #define NUM_DWMAC1000_DMA_REGS	23
++#define NUM_DWMAC4_DMA_REGS	27
+ 
+ void dwmac_enable_dma_transmission(void __iomem *ioaddr);
+ void dwmac_enable_dma_irq(void __iomem *ioaddr, u32 chan, bool rx, bool tx);
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
+@@ -21,10 +21,18 @@
+ #include "dwxgmac2.h"
+ 
+ #define REG_SPACE_SIZE	0x1060
++#define GMAC4_REG_SPACE_SIZE	0x116C
+ #define MAC100_ETHTOOL_NAME	"st_mac100"
+ #define GMAC_ETHTOOL_NAME	"st_gmac"
+ #define XGMAC_ETHTOOL_NAME	"st_xgmac"
+ 
++/* Same as DMA_CHAN_BASE_ADDR defined in dwmac4_dma.h
++ *
++ * It is here because dwmac_dma.h and dwmac4_dam.h can not be included at the
++ * same time due to the conflicting macro names.
++ */
++#define GMAC4_DMA_CHAN_BASE_ADDR  0x00001100
++
+ #define ETHTOOL_DMA_OFFSET	55
+ 
+ struct stmmac_stats {
+@@ -435,6 +443,8 @@ static int stmmac_ethtool_get_regs_len(s
+ 
+ 	if (priv->plat->has_xgmac)
+ 		return XGMAC_REGSIZE * 4;
++	else if (priv->plat->has_gmac4)
++		return GMAC4_REG_SPACE_SIZE;
+ 	return REG_SPACE_SIZE;
+ }
+ 
+@@ -447,8 +457,13 @@ static void stmmac_ethtool_gregs(struct
+ 	stmmac_dump_mac_regs(priv, priv->hw, reg_space);
+ 	stmmac_dump_dma_regs(priv, priv->ioaddr, reg_space);
+ 
+-	if (!priv->plat->has_xgmac) {
+-		/* Copy DMA registers to where ethtool expects them */
++	/* Copy DMA registers to where ethtool expects them */
++	if (priv->plat->has_gmac4) {
++		/* GMAC4 dumps its DMA registers at its DMA_CHAN_BASE_ADDR */
++		memcpy(&reg_space[ETHTOOL_DMA_OFFSET],
++		       &reg_space[GMAC4_DMA_CHAN_BASE_ADDR / 4],
++		       NUM_DWMAC4_DMA_REGS * 4);
++	} else if (!priv->plat->has_xgmac) {
+ 		memcpy(&reg_space[ETHTOOL_DMA_OFFSET],
+ 		       &reg_space[DMA_BUS_MODE / 4],
+ 		       NUM_DWMAC1000_DMA_REGS * 4);
 
 
