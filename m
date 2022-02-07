@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C7784ABAF7
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:35:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 878B44ABDA1
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243012AbiBGL0A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:26:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49706 "EHLO
+        id S1388857AbiBGLpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:45:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354078AbiBGLMS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:12:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92B70C043181;
-        Mon,  7 Feb 2022 03:12:17 -0800 (PST)
+        with ESMTP id S1385679AbiBGLcG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27452C0401D1;
+        Mon,  7 Feb 2022 03:31:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 513F6B80EE8;
-        Mon,  7 Feb 2022 11:12:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DF2DC340EB;
-        Mon,  7 Feb 2022 11:12:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B774160A67;
+        Mon,  7 Feb 2022 11:31:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1232C004E1;
+        Mon,  7 Feb 2022 11:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232335;
-        bh=t1mDbYUz5ncUHrgoorpW5ZuOdFGpnnHi3xKn5xv1gsw=;
+        s=korg; t=1644233505;
+        bh=F68DvOu11U/2Izi/Om2gsPqtu/mO84SiK259QUL0IZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ndk2yByGpknPOtX9p3VTcsNfkizELBPmkhGzeuqFFDGWB9qfXjMP8phwI1JLY29yj
-         utO1enj46KOyvSIQhUkLT3UKz4CINQ+gLvgHTfGCAzcn1SJAfxttHb9+qneAGukuC4
-         8zjBFdcZQW1N0JvcCT5W3Gw5/ziZw8iErfbGYhh4=
+        b=eF9j0nENq4C7nqbR1fLvWKTxfu31z4UzteH2CfdwLVKyi6UbKmO1McZ4MENy8UGbk
+         FgMOFoctl/W3AAOtnKfS+3hbDKUAzxZPE9sQe7OLT0TxEKqqN3c1fCEMSRWubcQrzF
+         1D0hZ0LKN1tzkBkbEwgjYpb/6P9/3Ch8dh3NAxNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 43/69] net: amd-xgbe: Fix skb data length underflow
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Ryan Bair <ryandbair@gmail.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.16 034/126] cifs: fix workstation_name for multiuser mounts
 Date:   Mon,  7 Feb 2022 12:06:05 +0100
-Message-Id: <20220207103757.041725409@linuxfoundation.org>
+Message-Id: <20220207103805.320263296@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
-References: <20220207103755.604121441@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Ryan Bair <ryandbair@gmail.com>
 
-commit 5aac9108a180fc06e28d4e7fb00247ce603b72ee upstream.
+commit d3b331fb51f326d5b5326010bf2b5841bb86cdc6 upstream.
 
-There will be BUG_ON() triggered in include/linux/skbuff.h leading to
-intermittent kernel panic, when the skb length underflow is detected.
+Set workstation_name from the master_tcon for multiuser mounts.
 
-Fix this by dropping the packet if such length underflows are seen
-because of inconsistencies in the hardware descriptors.
+Just in case, protect size_of_ntlmssp_blob against a NULL workstation_name.
 
-Fixes: 622c36f143fc ("amd-xgbe: Fix jumbo MTU processing on newer hardware")
-Suggested-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lore.kernel.org/r/20220127092003.2812745-1-Shyam-sundar.S-k@amd.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 49bd49f983b5 ("cifs: send workstation name during ntlmssp session setup")
+Cc: stable@vger.kernel.org # 5.16
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Ryan Bair <ryandbair@gmail.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/cifs/connect.c |   13 +++++++++++++
+ fs/cifs/sess.c    |    6 +++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-@@ -2722,6 +2722,14 @@ read_again:
- 			buf2_len = xgbe_rx_buf2_len(rdata, packet, len);
- 			len += buf2_len;
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -1945,6 +1945,19 @@ cifs_set_cifscreds(struct smb3_fs_contex
+ 		}
+ 	}
  
-+			if (buf2_len > rdata->rx.buf.dma_len) {
-+				/* Hardware inconsistency within the descriptors
-+				 * that has resulted in a length underflow.
-+				 */
-+				error = 1;
-+				goto skip_data;
-+			}
++	ctx->workstation_name = kstrdup(ses->workstation_name, GFP_KERNEL);
++	if (!ctx->workstation_name) {
++		cifs_dbg(FYI, "Unable to allocate memory for workstation_name\n");
++		rc = -ENOMEM;
++		kfree(ctx->username);
++		ctx->username = NULL;
++		kfree_sensitive(ctx->password);
++		ctx->password = NULL;
++		kfree(ctx->domainname);
++		ctx->domainname = NULL;
++		goto out_key_put;
++	}
 +
- 			if (!skb) {
- 				skb = xgbe_create_skb(pdata, napi, rdata,
- 						      buf1_len);
-@@ -2751,8 +2759,10 @@ skip_data:
- 		if (!last || context_next)
- 			goto read_again;
+ out_key_put:
+ 	up_read(&key->sem);
+ 	key_put(key);
+--- a/fs/cifs/sess.c
++++ b/fs/cifs/sess.c
+@@ -675,7 +675,11 @@ static int size_of_ntlmssp_blob(struct c
+ 	else
+ 		sz += sizeof(__le16);
  
--		if (!skb)
-+		if (!skb || error) {
-+			dev_kfree_skb(skb);
- 			goto next_packet;
-+		}
+-	sz += sizeof(__le16) * strnlen(ses->workstation_name, CIFS_MAX_WORKSTATION_LEN);
++	if (ses->workstation_name)
++		sz += sizeof(__le16) * strnlen(ses->workstation_name,
++			CIFS_MAX_WORKSTATION_LEN);
++	else
++		sz += sizeof(__le16);
  
- 		/* Be sure we don't exceed the configured MTU */
- 		max_len = netdev->mtu + ETH_HLEN;
+ 	return sz;
+ }
 
 
