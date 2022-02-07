@@ -2,132 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 941B64AC697
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 18:00:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62E7F4AC6A8
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 18:00:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236345AbiBGQ7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 11:59:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47286 "EHLO
+        id S1346071AbiBGRAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 12:00:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386797AbiBGQpI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 11:45:08 -0500
-Received: from mgw-02.mpynet.fi (mgw-02.mpynet.fi [82.197.21.91])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6BF7C0401DD;
-        Mon,  7 Feb 2022 08:45:05 -0800 (PST)
-Received: from pps.filterd (mgw-02.mpynet.fi [127.0.0.1])
-        by mgw-02.mpynet.fi (8.16.0.43/8.16.0.43) with SMTP id 217GeCDA090121;
-        Mon, 7 Feb 2022 18:44:58 +0200
-Received: from ex13.tuxera.com (ex13.tuxera.com [178.16.184.72])
-        by mgw-02.mpynet.fi with ESMTP id 3e1dtn18jr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Mon, 07 Feb 2022 18:44:58 +0200
-Received: from [192.168.0.129] (62.78.240.173) by tuxera-exch.ad.tuxera.com
- (10.20.48.11) with Microsoft SMTP Server (TLS) id 15.0.1497.26; Mon, 7 Feb
- 2022 18:44:57 +0200
-Message-ID: <cd346b72-1899-8f2d-5ff6-65c4ac93308c@tuxera.com>
-Date:   Mon, 7 Feb 2022 18:44:55 +0200
+        with ESMTP id S1391740AbiBGQr6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 11:47:58 -0500
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48521C0401D5
+        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 08:47:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644252478; x=1675788478;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=RoNEdmj3fJhDnp6obfu/M+jqOlEzSacb5uBPv2jSv1s=;
+  b=N0RYnErb/yHB5DAs7bZWr8ukQcGJ79kq4OFGVYTW82KpYznj4s+sYrsH
+   liaUAOp+YU8iznXJVF5con8T5JWon7Y3RXzv7cp088078cYNdK0u4qiIN
+   gG8sfVSWvdRUjTzK/LbzX61DThelIfAqI4YRG6Oct6PCDrz1P/9OZ/MWK
+   L5vThpccAnrfW0JZE9jPw4W0ucy4jwBa2ecAe746fgcIfHLFeFxXxHSJM
+   3XivtIbTOzYapPAeIg/brPvYOFr34p+YQf8vM8iVqlYtBEh9waAwp+17P
+   3FkLY3k3uVPqjKPCEP+++0KQk7hM4LDJ4UxNDu7kYV8DXwTD5+WwfzJgu
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10250"; a="247590795"
+X-IronPort-AV: E=Sophos;i="5.88,350,1635231600"; 
+   d="scan'208";a="247590795"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2022 08:47:58 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,350,1635231600"; 
+   d="scan'208";a="536263960"
+Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.151])
+  by fmsmga007.fm.intel.com with SMTP; 07 Feb 2022 08:47:56 -0800
+Received: by stinkbox (sSMTP sendmail emulation); Mon, 07 Feb 2022 18:47:55 +0200
+Date:   Mon, 7 Feb 2022 18:47:55 +0200
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] drm/i195: Fix dbuf slice config lookup
+Message-ID: <YgFNOzZDOWn7UryH@intel.com>
+References: <20220207132700.481-1-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH] fs/read_write.c: Fix a broken signed integer overflow
- check.
-Content-Language: en-US
-To:     Al Viro <viro@zeniv.linux.org.uk>
-CC:     Andrew Morton <akpm@linux-foundation.org>,
-        <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
-        <stable@vger.kernel.org>, Anton Altaparmakov <anton@tuxera.com>
-References: <20220207120711.4070403-1-ari@tuxera.com>
- <YgEzs2Hp0LrdDmJu@zeniv-ca.linux.org.uk>
-From:   Ari Sundholm <ari@tuxera.com>
-In-Reply-To: <YgEzs2Hp0LrdDmJu@zeniv-ca.linux.org.uk>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [62.78.240.173]
-X-ClientProxiedBy: tuxera-exch.ad.tuxera.com (10.20.48.11) To
- tuxera-exch.ad.tuxera.com (10.20.48.11)
-X-Proofpoint-GUID: Da0sQN7Knu4Px4pte8UxgNfRYtot2MB1
-X-Proofpoint-ORIG-GUID: Da0sQN7Knu4Px4pte8UxgNfRYtot2MB1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.425,18.0.816
- definitions=2022-02-07_06:2022-02-07,2022-02-07 signatures=0
-X-Proofpoint-Spam-Details: rule=mpy_notspam policy=mpy score=0 phishscore=0 suspectscore=0
- malwarescore=0 adultscore=0 bulkscore=0 spamscore=0 mlxlogscore=999
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202070103
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220207132700.481-1-ville.syrjala@linux.intel.com>
+X-Patchwork-Hint: comment
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello, Al,
-
-On 2/7/22 16:58, Al Viro wrote:
-> On Mon, Feb 07, 2022 at 02:07:11PM +0200, Ari Sundholm wrote:
->> The function generic_copy_file_checks() checks that the ends of the
->> input and output file ranges do not overflow. Unfortunately, there is
->> an issue with the check itself.
->>
->> Due to the integer promotion rules in C, the expressions
->> (pos_in + count) and (pos_out + count) have an unsigned type because
->> the count variable has the type uint64_t. Thus, in many cases where we
->> should detect signed integer overflow to have occurred (and thus one or
->> more of the ranges being invalid), the expressions will instead be
->> interpreted as large unsigned integers. This means the check is broken.
+On Mon, Feb 07, 2022 at 03:26:59PM +0200, Ville Syrjala wrote:
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 > 
-> I must be slow this morning, but... which values of pos_in and count are
-> caught by your check, but not by the original?
+> Apparently I totally fumbled the loop condition when I
+> removed the ARRAY_SIZE() stuff from the dbuf slice config
+> lookup. Comparing the loop index with the active_pipes bitmask
+> is utter nonsense, what we want to do is check to see if the
+> mask is zero or not.
 > 
-
-Thank you for your response and questions.
-
-Assuming an x86-64 target platform, please consider:
-
-loff_t pos_out = 0x7FFFFFFFFFFEFFFFLL;
-and
-uint64_t count = 65537;
-
-The type of the expression (pos_out + count) is a 64-bit unsigned type, 
-by C's integer promotion rules. Its value is 0x8000000000000000ULL, that 
-is, bit 63 is set.
-
-The comparison (pos_out + count) < pos_out, again due to C's integer 
-promotion rules, is unsigned. Thus, the comparison, in this case, is 
-equivalent to:
-
-0x8000000000000000ULL < 0x7FFFFFFFFFFEFFFFULL,
-
-which is false. Please note that the LHS is not expressible as a 
-positive integer of type loff_t. With larger values for count, the 
-problem should become quite obvious, as some the offsets within the file 
-would not be expressible as positive integers of type loff_t. But I 
-digress. As we can see above, the overflow is missed.
-
-With the LHS explicitly cast to loff_t, the comparison is equivalent to:
-
-0x8000000000000000LL < 0x7FFFFFFFFFFEFFFFLL,
-
-which is true, as the LHS is negative.
-
-This has also been verified in practice, and was detected when running 
-tests on special cases of the copy_file_range syscall on different 
-filesystems.
-
->> -	if (pos_in + count < pos_in || pos_out + count < pos_out)
->> +	if ((loff_t)(pos_in + count) < pos_in ||
->> +			(loff_t)(pos_out + count) < pos_out)
+> Cc: stable@vger.kernel.org
+> Fixes: 05e8155afe35 ("drm/i915: Use a sentinel to terminate the dbuf slice arrays")
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> ---
+>  drivers/gpu/drm/i915/intel_pm.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Example, please.  Why do you need that comparison to be signed?
+> diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+> index 02084652fe3d..da721aea70ff 100644
+> --- a/drivers/gpu/drm/i915/intel_pm.c
+> +++ b/drivers/gpu/drm/i915/intel_pm.c
+> @@ -4848,7 +4848,7 @@ static u8 compute_dbuf_slices(enum pipe pipe, u8 active_pipes, bool join_mbus,
+>  {
+>  	int i;
+>  
+> -	for (i = 0; i < dbuf_slices[i].active_pipes; i++) {
+> +	for (i = 0; dbuf_slices[i].active_pipes != 0; i++) {
 
-Please see the above.
+Actually looks like the tables just happened to be ordered
+the right way that the code never did the wrong thing until
+commit eef173954432 ("drm/i915: Allow !join_mbus cases for adlp+
+dbuf configuration"). So this just needs backporting alongside
+that commit (which I flagged for 5.14+), but no crucial need to
+backport further than that.
 
-I also created a small test program one can try on Compiler Explorer: 
-https://godbolt.org/z/e76rb3Ec9
-
-Please let me know if there are any further concerns.
-
-Best regards,
-Ari Sundholm
-ari@tuxera.com
+-- 
+Ville Syrjälä
+Intel
