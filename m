@@ -2,133 +2,371 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00E4B4AB65C
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 09:13:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 242214AB65E
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 09:14:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229945AbiBGIMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 03:12:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49148 "EHLO
+        id S234533AbiBGINV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 03:13:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244314AbiBGIG4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 03:06:56 -0500
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EB53C043184
-        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 00:06:55 -0800 (PST)
-Received: by mail-pf1-x435.google.com with SMTP id i186so11690898pfe.0
-        for <stable@vger.kernel.org>; Mon, 07 Feb 2022 00:06:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=yx2TQW8a7zDhsVP3ktZ7JGGI28sjf3OF2I3mpdUTigw=;
-        b=RSwKbwuLq7SUT3/dUzgF1HhPkgaJ61aHUPki3JWG5zxx0Qoh3OSR1CFrppb8o5Trn3
-         n/QQu8wLfBGHC2ecVfK2PaZON0cksMKDWMkXtNJ9SEshqPrUYg0fBNGZRgy57iSN7FhT
-         66J/cz49svXHKzUHTeWqgc5qh+NqyQL4Do7o796tcL08K4JMijxMZ6y/CR2V8j1iC9Yw
-         aXiwliWe2A4czVL+l675WD/GzhPS8zXk51BPEgr4IxuM6kUvFcL506taJV9zk7fdbhMr
-         3pvMTH2sCEpiCKPX931WHGhlb1KWhKGGMEzoTtx4fho7E82uH+dJcI3Ro2qctXRQgnZl
-         KgnQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=yx2TQW8a7zDhsVP3ktZ7JGGI28sjf3OF2I3mpdUTigw=;
-        b=EAmZIIMhIZfTArlxX3ygaTdMZkabWPfr/nzTSIKsXFazJoLJnJ+2MnZIANni4sbuq5
-         TFdL4dCgjxnkfRcFB1Aa+dswHloHkaAKjp8kXScwFsjPOUPLF1BuCd4310sfpg793l+S
-         GrzqSTRPO2evKbOWgxdb0nytBzGWpCFZBuUt8odfhJqUglis+/wuSq+01hpfFO6h2BsO
-         43g0FznJPzYjdlGXPV4RJP0LpFMORBoHovPcmKWMjtdmh5Nz0D+fE4RefRC1bIrjdsyW
-         yMBU29EzA+4YDu3I7UjF38hZrKfpCSzkllVDZHiyfg0pnNaQJizqOi3RRSJL/Hulis2C
-         bZ8w==
-X-Gm-Message-State: AOAM533QMb7PbI1DXfqlN9tgov6k0VSPEKNTb7CfH40oqSTHcMnLdOXe
-        zNAEdYsbYzYIkLEbYA+ELKBWMJbMmTKm2Zne
-X-Google-Smtp-Source: ABdhPJyivwHtv0kwXyPRBO0z6WQ7Lv/nQGOiTTYtqNbGApOUk2Fm7Vx2U9dQHAFdpUWARJjCggFyAw==
-X-Received: by 2002:a63:7e1b:: with SMTP id z27mr8392409pgc.345.1644221215036;
-        Mon, 07 Feb 2022 00:06:55 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a4sm9667920pjs.24.2022.02.07.00.06.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Feb 2022 00:06:54 -0800 (PST)
-Message-ID: <6200d31e.1c69fb81.2976e.8f2b@mx.google.com>
-Date:   Mon, 07 Feb 2022 00:06:54 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1347530AbiBGIIm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 03:08:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12952C043185
+        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 00:08:41 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 891EE60FDB
+        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 08:08:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E661C004E1;
+        Mon,  7 Feb 2022 08:08:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1644221319;
+        bh=8zvIR7xtur/hixdUXbA4J9ao26dk3InTBGlUUwZHObs=;
+        h=Subject:To:Cc:From:Date:From;
+        b=i59or3qH7l/4XXFmx035k5U2i7q/pj5D6rdsbwz4nMsZklOtEKWWiJ+fr2Qgdo7+E
+         NxyjfKhi8nLzBmKBOhJEkK1uUnyiOutPyIC1avoNL6XumuFyR0sNpBKHyUqSYUOrKS
+         ry7kAimriQYTrkF+CE3Cd73ywVNZYhkOdIE4t42Q=
+Subject: FAILED: patch "[PATCH] ext4: fast commit may not fallback for ineligible commit" failed to apply to 5.16-stable tree
+To:     yinxin.x@bytedance.com, dan.carpenter@oracle.com,
+        harshadshirwadkar@gmail.com, lkp@intel.com, riteshh@linux.ibm.com,
+        tytso@mit.edu
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 07 Feb 2022 09:08:36 +0100
+Message-ID: <1644221316156151@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.98-62-g9bd5c420eb78
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 158 runs,
- 1 regressions (v5.10.98-62-g9bd5c420eb78)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 158 runs, 1 regressions (v5.10.98-62-g9bd5c4=
-20eb78)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 5.16-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
-      =
+thanks,
 
+greg k-h
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.98-62-g9bd5c420eb78/plan/baseline/
+------------------ original commit in Linus's tree ------------------
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.98-62-g9bd5c420eb78
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9bd5c420eb783215791a2964fc90490abd36aa14 =
+From e85c81ba8859a4c839bcd69c5d83b32954133a5b Mon Sep 17 00:00:00 2001
+From: Xin Yin <yinxin.x@bytedance.com>
+Date: Mon, 17 Jan 2022 17:36:54 +0800
+Subject: [PATCH] ext4: fast commit may not fallback for ineligible commit
 
+For the follow scenario:
+1. jbd start commit transaction n
+2. task A get new handle for transaction n+1
+3. task A do some ineligible actions and mark FC_INELIGIBLE
+4. jbd complete transaction n and clean FC_INELIGIBLE
+5. task A call fsync
 
+In this case fast commit will not fallback to full commit and
+transaction n+1 also not handled by jbd.
 
-Test Regressions
----------------- =
+Make ext4_fc_mark_ineligible() also record transaction tid for
+latest ineligible case, when call ext4_fc_cleanup() check
+current transaction tid, if small than latest ineligible tid
+do not clear the EXT4_MF_FC_INELIGIBLE.
 
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reported-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Suggested-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
+Signed-off-by: Xin Yin <yinxin.x@bytedance.com>
+Link: https://lore.kernel.org/r/20220117093655.35160-2-yinxin.x@bytedance.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 
+diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
+index 598ecf07652a..d52295becda3 100644
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -1749,6 +1749,7 @@ struct ext4_sb_info {
+ 	spinlock_t s_fc_lock;
+ 	struct buffer_head *s_fc_bh;
+ 	struct ext4_fc_stats s_fc_stats;
++	tid_t s_fc_ineligible_tid;
+ #ifdef CONFIG_EXT4_DEBUG
+ 	int s_fc_debug_max_replay;
+ #endif
+@@ -2925,7 +2926,7 @@ void __ext4_fc_track_create(handle_t *handle, struct inode *inode,
+ 			    struct dentry *dentry);
+ void ext4_fc_track_create(handle_t *handle, struct dentry *dentry);
+ void ext4_fc_track_inode(handle_t *handle, struct inode *inode);
+-void ext4_fc_mark_ineligible(struct super_block *sb, int reason);
++void ext4_fc_mark_ineligible(struct super_block *sb, int reason, handle_t *handle);
+ void ext4_fc_start_update(struct inode *inode);
+ void ext4_fc_stop_update(struct inode *inode);
+ void ext4_fc_del(struct inode *inode);
+diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
+index 5dd13108d4b7..3ce4fc250b0d 100644
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -5336,7 +5336,7 @@ static int ext4_collapse_range(struct inode *inode, loff_t offset, loff_t len)
+ 		ret = PTR_ERR(handle);
+ 		goto out_mmap;
+ 	}
+-	ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_FALLOC_RANGE);
++	ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_FALLOC_RANGE, handle);
+ 
+ 	down_write(&EXT4_I(inode)->i_data_sem);
+ 	ext4_discard_preallocations(inode, 0);
+@@ -5476,7 +5476,7 @@ static int ext4_insert_range(struct inode *inode, loff_t offset, loff_t len)
+ 		ret = PTR_ERR(handle);
+ 		goto out_mmap;
+ 	}
+-	ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_FALLOC_RANGE);
++	ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_FALLOC_RANGE, handle);
+ 
+ 	/* Expand file to avoid data loss if there is error while shifting */
+ 	inode->i_size += len;
+diff --git a/fs/ext4/fast_commit.c b/fs/ext4/fast_commit.c
+index 1abe78b8d84f..e031afee42de 100644
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -300,18 +300,32 @@ void ext4_fc_del(struct inode *inode)
+ }
+ 
+ /*
+- * Mark file system as fast commit ineligible. This means that next commit
+- * operation would result in a full jbd2 commit.
++ * Mark file system as fast commit ineligible, and record latest
++ * ineligible transaction tid. This means until the recorded
++ * transaction, commit operation would result in a full jbd2 commit.
+  */
+-void ext4_fc_mark_ineligible(struct super_block *sb, int reason)
++void ext4_fc_mark_ineligible(struct super_block *sb, int reason, handle_t *handle)
+ {
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
++	tid_t tid;
+ 
+ 	if (!test_opt2(sb, JOURNAL_FAST_COMMIT) ||
+ 	    (EXT4_SB(sb)->s_mount_state & EXT4_FC_REPLAY))
+ 		return;
+ 
+ 	ext4_set_mount_flag(sb, EXT4_MF_FC_INELIGIBLE);
++	if (handle && !IS_ERR(handle))
++		tid = handle->h_transaction->t_tid;
++	else {
++		read_lock(&sbi->s_journal->j_state_lock);
++		tid = sbi->s_journal->j_running_transaction ?
++				sbi->s_journal->j_running_transaction->t_tid : 0;
++		read_unlock(&sbi->s_journal->j_state_lock);
++	}
++	spin_lock(&sbi->s_fc_lock);
++	if (sbi->s_fc_ineligible_tid < tid)
++		sbi->s_fc_ineligible_tid = tid;
++	spin_unlock(&sbi->s_fc_lock);
+ 	WARN_ON(reason >= EXT4_FC_REASON_MAX);
+ 	sbi->s_fc_stats.fc_ineligible_reason_count[reason]++;
+ }
+@@ -387,7 +401,7 @@ static int __track_dentry_update(struct inode *inode, void *arg, bool update)
+ 	mutex_unlock(&ei->i_fc_lock);
+ 	node = kmem_cache_alloc(ext4_fc_dentry_cachep, GFP_NOFS);
+ 	if (!node) {
+-		ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_NOMEM);
++		ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_NOMEM, NULL);
+ 		mutex_lock(&ei->i_fc_lock);
+ 		return -ENOMEM;
+ 	}
+@@ -400,7 +414,7 @@ static int __track_dentry_update(struct inode *inode, void *arg, bool update)
+ 		if (!node->fcd_name.name) {
+ 			kmem_cache_free(ext4_fc_dentry_cachep, node);
+ 			ext4_fc_mark_ineligible(inode->i_sb,
+-				EXT4_FC_REASON_NOMEM);
++				EXT4_FC_REASON_NOMEM, NULL);
+ 			mutex_lock(&ei->i_fc_lock);
+ 			return -ENOMEM;
+ 		}
+@@ -502,7 +516,7 @@ void ext4_fc_track_inode(handle_t *handle, struct inode *inode)
+ 
+ 	if (ext4_should_journal_data(inode)) {
+ 		ext4_fc_mark_ineligible(inode->i_sb,
+-					EXT4_FC_REASON_INODE_JOURNAL_DATA);
++					EXT4_FC_REASON_INODE_JOURNAL_DATA, handle);
+ 		return;
+ 	}
+ 
+@@ -1179,7 +1193,7 @@ int ext4_fc_commit(journal_t *journal, tid_t commit_tid)
+  * Fast commit cleanup routine. This is called after every fast commit and
+  * full commit. full is true if we are called after a full commit.
+  */
+-static void ext4_fc_cleanup(journal_t *journal, int full)
++static void ext4_fc_cleanup(journal_t *journal, int full, tid_t tid)
+ {
+ 	struct super_block *sb = journal->j_private;
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+@@ -1227,7 +1241,10 @@ static void ext4_fc_cleanup(journal_t *journal, int full)
+ 				&sbi->s_fc_q[FC_Q_MAIN]);
+ 
+ 	ext4_clear_mount_flag(sb, EXT4_MF_FC_COMMITTING);
+-	ext4_clear_mount_flag(sb, EXT4_MF_FC_INELIGIBLE);
++	if (tid >= sbi->s_fc_ineligible_tid) {
++		sbi->s_fc_ineligible_tid = 0;
++		ext4_clear_mount_flag(sb, EXT4_MF_FC_INELIGIBLE);
++	}
+ 
+ 	if (full)
+ 		sbi->s_fc_bytes = 0;
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 9dbeb772de60..f368dd5fd8d5 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -337,7 +337,7 @@ void ext4_evict_inode(struct inode *inode)
+ 	return;
+ no_delete:
+ 	if (!list_empty(&EXT4_I(inode)->i_fc_list))
+-		ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_NOMEM);
++		ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_NOMEM, NULL);
+ 	ext4_clear_inode(inode);	/* We must guarantee clearing of inode... */
+ }
+ 
+@@ -5976,7 +5976,7 @@ int ext4_change_inode_journal_flag(struct inode *inode, int val)
+ 		return PTR_ERR(handle);
+ 
+ 	ext4_fc_mark_ineligible(inode->i_sb,
+-		EXT4_FC_REASON_JOURNAL_FLAG_CHANGE);
++		EXT4_FC_REASON_JOURNAL_FLAG_CHANGE, handle);
+ 	err = ext4_mark_inode_dirty(handle, inode);
+ 	ext4_handle_sync(handle);
+ 	ext4_journal_stop(handle);
+diff --git a/fs/ext4/ioctl.c b/fs/ext4/ioctl.c
+index bbbedf27b71c..a8022c2c6a58 100644
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -411,7 +411,7 @@ static long swap_inode_boot_loader(struct super_block *sb,
+ 		err = -EINVAL;
+ 		goto err_out;
+ 	}
+-	ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_SWAP_BOOT);
++	ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_SWAP_BOOT, handle);
+ 
+ 	/* Protect extent tree against block allocations via delalloc */
+ 	ext4_double_down_write_data_sem(inode, inode_bl);
+@@ -1373,7 +1373,7 @@ static long __ext4_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 
+ 		err = ext4_resize_fs(sb, n_blocks_count);
+ 		if (EXT4_SB(sb)->s_journal) {
+-			ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_RESIZE);
++			ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_RESIZE, NULL);
+ 			jbd2_journal_lock_updates(EXT4_SB(sb)->s_journal);
+ 			err2 = jbd2_journal_flush(EXT4_SB(sb)->s_journal, 0);
+ 			jbd2_journal_unlock_updates(EXT4_SB(sb)->s_journal);
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index 52c9bd154122..47b9f87dbc6f 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3889,7 +3889,7 @@ static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+ 		 * dirents in directories.
+ 		 */
+ 		ext4_fc_mark_ineligible(old.inode->i_sb,
+-			EXT4_FC_REASON_RENAME_DIR);
++			EXT4_FC_REASON_RENAME_DIR, handle);
+ 	} else {
+ 		if (new.inode)
+ 			ext4_fc_track_unlink(handle, new.dentry);
+@@ -4049,7 +4049,7 @@ static int ext4_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 	if (unlikely(retval))
+ 		goto end_rename;
+ 	ext4_fc_mark_ineligible(new.inode->i_sb,
+-				EXT4_FC_REASON_CROSS_RENAME);
++				EXT4_FC_REASON_CROSS_RENAME, handle);
+ 	if (old.dir_bh) {
+ 		retval = ext4_rename_dir_finish(handle, &old, new.dir->i_ino);
+ 		if (retval)
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 9a936ecbaa3b..6930b7737ce4 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -5084,6 +5084,7 @@ static int __ext4_fill_super(struct fs_context *fc, struct super_block *sb)
+ 	sbi->s_fc_bytes = 0;
+ 	ext4_clear_mount_flag(sb, EXT4_MF_FC_INELIGIBLE);
+ 	ext4_clear_mount_flag(sb, EXT4_MF_FC_COMMITTING);
++	sbi->s_fc_ineligible_tid = 0;
+ 	spin_lock_init(&sbi->s_fc_lock);
+ 	memset(&sbi->s_fc_stats, 0, sizeof(sbi->s_fc_stats));
+ 	sbi->s_fc_replay_state.fc_regions = NULL;
+diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
+index 1e0fc1ed845b..042325349098 100644
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2408,7 +2408,7 @@ ext4_xattr_set_handle(handle_t *handle, struct inode *inode, int name_index,
+ 		if (IS_SYNC(inode))
+ 			ext4_handle_sync(handle);
+ 	}
+-	ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_XATTR);
++	ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_XATTR, handle);
+ 
+ cleanup:
+ 	brelse(is.iloc.bh);
+@@ -2486,7 +2486,7 @@ ext4_xattr_set(struct inode *inode, int name_index, const char *name,
+ 		if (error == 0)
+ 			error = error2;
+ 	}
+-	ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_XATTR);
++	ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_XATTR, NULL);
+ 
+ 	return error;
+ }
+@@ -2920,7 +2920,7 @@ int ext4_xattr_delete_inode(handle_t *handle, struct inode *inode,
+ 					 error);
+ 			goto cleanup;
+ 		}
+-		ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_XATTR);
++		ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_XATTR, handle);
+ 	}
+ 	error = 0;
+ cleanup:
+diff --git a/fs/jbd2/commit.c b/fs/jbd2/commit.c
+index 3cc4ab2ba7f4..d188fa913a07 100644
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -1170,7 +1170,7 @@ void jbd2_journal_commit_transaction(journal_t *journal)
+ 	if (journal->j_commit_callback)
+ 		journal->j_commit_callback(journal, commit_transaction);
+ 	if (journal->j_fc_cleanup_callback)
+-		journal->j_fc_cleanup_callback(journal, 1);
++		journal->j_fc_cleanup_callback(journal, 1, commit_transaction->t_tid);
+ 
+ 	trace_jbd2_end_commit(journal, commit_transaction);
+ 	jbd_debug(1, "JBD2: commit %d complete, head %d\n",
+diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
+index 0b86a4365b66..a8e64ad11ae3 100644
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -771,7 +771,7 @@ static int __jbd2_fc_end_commit(journal_t *journal, tid_t tid, bool fallback)
+ {
+ 	jbd2_journal_unlock_updates(journal);
+ 	if (journal->j_fc_cleanup_callback)
+-		journal->j_fc_cleanup_callback(journal, 0);
++		journal->j_fc_cleanup_callback(journal, 0, tid);
+ 	write_lock(&journal->j_state_lock);
+ 	journal->j_flags &= ~JBD2_FAST_COMMIT_ONGOING;
+ 	if (fallback)
+diff --git a/include/linux/jbd2.h b/include/linux/jbd2.h
+index fd933c45281a..d63b8106796e 100644
+--- a/include/linux/jbd2.h
++++ b/include/linux/jbd2.h
+@@ -1295,7 +1295,7 @@ struct journal_s
+ 	 * Clean-up after fast commit or full commit. JBD2 calls this function
+ 	 * after every commit operation.
+ 	 */
+-	void (*j_fc_cleanup_callback)(struct journal_s *journal, int);
++	void (*j_fc_cleanup_callback)(struct journal_s *journal, int full, tid_t tid);
+ 
+ 	/**
+ 	 * @j_fc_replay_callback:
 
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
-      =
-
-
-  Details:     https://kernelci.org/test/plan/id/62009f45eea31ce57d5d6ef8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.98-=
-62-g9bd5c420eb78/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
-napi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.98-=
-62-g9bd5c420eb78/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
-napi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62009f45eea31ce57d5d6=
-ef9
-        new failure (last pass: v5.10.98-61-gaad123f55679) =
-
- =20
