@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF1344ABBA3
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:39:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03CDD4ABCC5
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:50:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384649AbiBGL3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:29:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33768 "EHLO
+        id S1387105AbiBGLjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:39:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383136AbiBGLVk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:21:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BA10C043189;
-        Mon,  7 Feb 2022 03:21:35 -0800 (PST)
+        with ESMTP id S1385861AbiBGLcw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A257C043188;
+        Mon,  7 Feb 2022 03:32:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA644B811BE;
-        Mon,  7 Feb 2022 11:21:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EDBAC004E1;
-        Mon,  7 Feb 2022 11:21:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0077160A67;
+        Mon,  7 Feb 2022 11:32:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B77FFC340F0;
+        Mon,  7 Feb 2022 11:32:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232892;
-        bh=L3njw7D1h60xj4ZtXZ2nQPYXAjn8bemYgbJCbuB78r8=;
+        s=korg; t=1644233570;
+        bh=lV1mkuh7zyPWVcvLXzJOB2GkO6mowb3cwC8cFqZQMqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y3zN6vrFr61rXRjBnvAxC2wCTqHhTHwU9IX7psjGx4bMUHH0MlO+GfRVPivRfHIxW
-         Oy2fb3Sc3FpBbAgVKN2c12VmmPzFrFymjZbnFhwMMhoGGHb0IouVK3Odt4Nocpz+2S
-         jlt8yIbeppdeuNDK0yOIPY4XXFRWs0XujfvCfdtU=
+        b=H/bZJPj2Y9ph58jwNLPAf9NPLUmeVVT5Nj765uIEgedxjkIJo+8oBVtv+PG/nos1b
+         oy5YKNAO+C+UjiasiApBwLE7qlecButwf++mk6H9BgxSHGaRfIgi+G1udUgSL3CV9U
+         KkGuHJUHFdmhSUoN2RZukUWWMrGnEY0yalF+hNGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        stable@vger.kernel.org, Jared Holzman <jared.holzman@excelero.com>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
         Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.10 25/74] RDMA/cma: Use correct address when leaving multicast group
+Subject: [PATCH 5.16 052/126] RDMA/siw: Fix broken RDMA Read Fence/Resume logic.
 Date:   Mon,  7 Feb 2022 12:06:23 +0100
-Message-Id: <20220207103758.065621350@linuxfoundation.org>
+Message-Id: <20220207103805.913090166@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: Bernard Metzler <bmt@zurich.ibm.com>
 
-commit d9e410ebbed9d091b97bdf45b8a3792e2878dc48 upstream.
+commit b43a76f423aa304037603fd6165c4a534d2c09a7 upstream.
 
-In RoCE we should use cma_iboe_set_mgid() and not cma_set_mgid to generate
-the mgid, otherwise we will generate an IGMP for an incorrect address.
+Code unconditionally resumed fenced SQ processing after next RDMA Read
+completion, even if other RDMA Read responses are still outstanding, or
+ORQ is full. Also adds comments for better readability of fence
+processing, and removes orq_get_tail() helper, which is not needed
+anymore.
 
-Fixes: b5de0c60cc30 ("RDMA/cma: Fix use after free race in roce multicast join")
-Link: https://lore.kernel.org/r/913bc6783fd7a95fe71ad9454e01653ee6fb4a9a.1642491047.git.leonro@nvidia.com
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Fixes: 8b6a361b8c48 ("rdma/siw: receive path")
+Fixes: a531975279f3 ("rdma/siw: main include file")
+Link: https://lore.kernel.org/r/20220130170815.1940-1-bmt@zurich.ibm.com
+Reported-by: Jared Holzman <jared.holzman@excelero.com>
+Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/core/cma.c |   22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/infiniband/sw/siw/siw.h       |    7 +------
+ drivers/infiniband/sw/siw/siw_qp_rx.c |   20 +++++++++++---------
+ 2 files changed, 12 insertions(+), 15 deletions(-)
 
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -68,8 +68,8 @@ static const char * const cma_events[] =
- 	[RDMA_CM_EVENT_TIMEWAIT_EXIT]	 = "timewait exit",
- };
+--- a/drivers/infiniband/sw/siw/siw.h
++++ b/drivers/infiniband/sw/siw/siw.h
+@@ -644,14 +644,9 @@ static inline struct siw_sqe *orq_get_cu
+ 	return &qp->orq[qp->orq_get % qp->attrs.orq_size];
+ }
  
--static void cma_set_mgid(struct rdma_id_private *id_priv, struct sockaddr *addr,
--			 union ib_gid *mgid);
-+static void cma_iboe_set_mgid(struct sockaddr *addr, union ib_gid *mgid,
-+			      enum ib_gid_type gid_type);
- 
- const char *__attribute_const__ rdma_event_msg(enum rdma_cm_event_type event)
+-static inline struct siw_sqe *orq_get_tail(struct siw_qp *qp)
+-{
+-	return &qp->orq[qp->orq_put % qp->attrs.orq_size];
+-}
+-
+ static inline struct siw_sqe *orq_get_free(struct siw_qp *qp)
  {
-@@ -1840,17 +1840,19 @@ static void destroy_mc(struct rdma_id_pr
- 		if (dev_addr->bound_dev_if)
- 			ndev = dev_get_by_index(dev_addr->net,
- 						dev_addr->bound_dev_if);
--		if (ndev) {
-+		if (ndev && !send_only) {
-+			enum ib_gid_type gid_type;
- 			union ib_gid mgid;
+-	struct siw_sqe *orq_e = orq_get_tail(qp);
++	struct siw_sqe *orq_e = &qp->orq[qp->orq_put % qp->attrs.orq_size];
  
--			cma_set_mgid(id_priv, (struct sockaddr *)&mc->addr,
--				     &mgid);
+ 	if (READ_ONCE(orq_e->flags) == 0)
+ 		return orq_e;
+--- a/drivers/infiniband/sw/siw/siw_qp_rx.c
++++ b/drivers/infiniband/sw/siw/siw_qp_rx.c
+@@ -1153,11 +1153,12 @@ static int siw_check_tx_fence(struct siw
+ 
+ 	spin_lock_irqsave(&qp->orq_lock, flags);
+ 
+-	rreq = orq_get_current(qp);
 -
--			if (!send_only)
--				cma_igmp_send(ndev, &mgid, false);
--
--			dev_put(ndev);
-+			gid_type = id_priv->cma_dev->default_gid_type
-+					   [id_priv->id.port_num -
-+					    rdma_start_port(
-+						    id_priv->cma_dev->device)];
-+			cma_iboe_set_mgid((struct sockaddr *)&mc->addr, &mgid,
-+					  gid_type);
-+			cma_igmp_send(ndev, &mgid, false);
+ 	/* free current orq entry */
++	rreq = orq_get_current(qp);
+ 	WRITE_ONCE(rreq->flags, 0);
+ 
++	qp->orq_get++;
++
+ 	if (qp->tx_ctx.orq_fence) {
+ 		if (unlikely(tx_waiting->wr_status != SIW_WR_QUEUED)) {
+ 			pr_warn("siw: [QP %u]: fence resume: bad status %d\n",
+@@ -1165,10 +1166,12 @@ static int siw_check_tx_fence(struct siw
+ 			rv = -EPROTO;
+ 			goto out;
  		}
-+		dev_put(ndev);
+-		/* resume SQ processing */
++		/* resume SQ processing, if possible */
+ 		if (tx_waiting->sqe.opcode == SIW_OP_READ ||
+ 		    tx_waiting->sqe.opcode == SIW_OP_READ_LOCAL_INV) {
+-			rreq = orq_get_tail(qp);
++
++			/* SQ processing was stopped because of a full ORQ */
++			rreq = orq_get_free(qp);
+ 			if (unlikely(!rreq)) {
+ 				pr_warn("siw: [QP %u]: no ORQE\n", qp_id(qp));
+ 				rv = -EPROTO;
+@@ -1181,15 +1184,14 @@ static int siw_check_tx_fence(struct siw
+ 			resume_tx = 1;
  
- 		cancel_work_sync(&mc->iboe_join.work);
+ 		} else if (siw_orq_empty(qp)) {
++			/*
++			 * SQ processing was stopped by fenced work request.
++			 * Resume since all previous Read's are now completed.
++			 */
+ 			qp->tx_ctx.orq_fence = 0;
+ 			resume_tx = 1;
+-		} else {
+-			pr_warn("siw: [QP %u]: fence resume: orq idx: %d:%d\n",
+-				qp_id(qp), qp->orq_get, qp->orq_put);
+-			rv = -EPROTO;
+ 		}
  	}
+-	qp->orq_get++;
+ out:
+ 	spin_unlock_irqrestore(&qp->orq_lock, flags);
+ 
 
 
