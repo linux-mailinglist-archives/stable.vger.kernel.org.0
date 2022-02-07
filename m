@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61C4E4ABB75
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 674124ABB3B
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359222AbiBGL2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:28:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34660 "EHLO
+        id S1384288AbiBGL1a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:27:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383529AbiBGLWw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:22:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55EC5C043181;
-        Mon,  7 Feb 2022 03:22:51 -0800 (PST)
+        with ESMTP id S1381962AbiBGLRo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:17:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D6D9C0401C3;
+        Mon,  7 Feb 2022 03:17:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F911B8111C;
-        Mon,  7 Feb 2022 11:22:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 212B7C004E1;
-        Mon,  7 Feb 2022 11:22:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54222B81028;
+        Mon,  7 Feb 2022 11:17:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 834B1C004E1;
+        Mon,  7 Feb 2022 11:17:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232968;
-        bh=LPbSgYmyotJYWZu9QU3QmUxyEYSnsnsURj/WgpZNoQw=;
+        s=korg; t=1644232661;
+        bh=72vwZ6kvzEMAGleLWY/VTPiDOeZhPnE8/1zmPpNqG64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PuprqQ8RmlJQHcmvKRZIrgc5c9n1c38LLkcyc2C4EorzXOgV6bgkK0WAjepTu/cZu
-         /ylRcaKKsYXgbrH+2fw6zNLjo/z5BH7zAyzgaawN57omgrLXfC60C4ZweBT5By1hWC
-         OHT87xQAFK+cPeDh3ia6m3PTAkpoiptkEe8ihO78=
+        b=NdpK2FzaK48UqZN4AspslELwEVKvXZ9DJYLuyjalVMniPgt8/rYtn8pckqXgFBs6j
+         eLKRx5jp5CH7JRARP9u1sDOWaTxqBvRaZXDxRRvxwAHIdEMrijIZ8ZMpn61IgeRuv8
+         DQXbjrrDvPDCNQyf1b5wKRWXHtFMzYA0bCcNGw4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 47/74] ASoC: cpcap: Check for NULL pointer after calling of_get_child_by_name
+        stable@vger.kernel.org,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 4.19 82/86] selftests: futex: Use variable MAKE instead of make
 Date:   Mon,  7 Feb 2022 12:06:45 +0100
-Message-Id: <20220207103758.764036788@linuxfoundation.org>
+Message-Id: <20220207103800.378114752@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+References: <20220207103757.550973048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Muhammad Usama Anjum <usama.anjum@collabora.com>
 
-commit f7a6021aaf02088870559f82fc13c58cda7fea1a upstream.
+commit b9199181a9ef8252e47e207be8c23e1f50662620 upstream.
 
-If the device does not exist, of_get_child_by_name() will return NULL
-pointer.
-And devm_snd_soc_register_component() does not check it.
-Also, I have noticed that cpcap_codec_driver has not been used yet.
-Therefore, it should be better to check it in order to avoid the future
-dereference of the NULL pointer.
+Recursive make commands should always use the variable MAKE, not the
+explicit command name ‘make’. This has benefits and removes the
+following warning when multiple jobs are used for the build:
 
-Fixes: f6cdf2d3445d ("ASoC: cpcap: new codec")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220111025048.524134-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+make[2]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+
+Fixes: a8ba798bc8ec ("selftests: enable O and KBUILD_OUTPUT")
+Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Reviewed-by: André Almeida <andrealmeid@collabora.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/cpcap.c |    2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/selftests/futex/Makefile |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/soc/codecs/cpcap.c
-+++ b/sound/soc/codecs/cpcap.c
-@@ -1544,6 +1544,8 @@ static int cpcap_codec_probe(struct plat
- {
- 	struct device_node *codec_node =
- 		of_get_child_by_name(pdev->dev.parent->of_node, "audio-codec");
-+	if (!codec_node)
-+		return -ENODEV;
- 
- 	pdev->dev.of_node = codec_node;
- 
+--- a/tools/testing/selftests/futex/Makefile
++++ b/tools/testing/selftests/futex/Makefile
+@@ -11,7 +11,7 @@ all:
+ 	@for DIR in $(SUBDIRS); do		\
+ 		BUILD_TARGET=$(OUTPUT)/$$DIR;	\
+ 		mkdir $$BUILD_TARGET  -p;	\
+-		make OUTPUT=$$BUILD_TARGET -C $$DIR $@;\
++		$(MAKE) OUTPUT=$$BUILD_TARGET -C $$DIR $@;\
+ 		if [ -e $$DIR/$(TEST_PROGS) ]; then \
+ 			rsync -a $$DIR/$(TEST_PROGS) $$BUILD_TARGET/; \
+ 		fi \
+@@ -32,6 +32,6 @@ override define CLEAN
+ 	@for DIR in $(SUBDIRS); do		\
+ 		BUILD_TARGET=$(OUTPUT)/$$DIR;	\
+ 		mkdir $$BUILD_TARGET  -p;	\
+-		make OUTPUT=$$BUILD_TARGET -C $$DIR $@;\
++		$(MAKE) OUTPUT=$$BUILD_TARGET -C $$DIR $@;\
+ 	done
+ endef
 
 
