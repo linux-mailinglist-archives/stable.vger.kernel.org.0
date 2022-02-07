@@ -2,76 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E80804AC57D
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 17:27:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5930D4AC5FC
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 17:39:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230155AbiBGQWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 11:22:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52072 "EHLO
+        id S236904AbiBGQfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 11:35:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381666AbiBGQOt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 11:14:49 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F2A57C0401D2
-        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 08:14:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1644250488;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=IFrUiE399AWkgKFh5f0w6DFQ5l0IKVbpkKeYpipiJKA=;
-        b=P+E63qIrFa2Pe1V+YkKGXWPaMAzf4Wbxr6IFHr2ZynCrMZuF7oZbY0ZXHFNSrRmMqYc0W1
-        SVY8w8ArWn2/1UzsxKtkoTtOF7EKoOyXdTP1rWs9tsOaVtowIIEz+P1J56IoZp3tGl5xLE
-        g1hWz+5INNRBjNiabcHWtH3irW4EesY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-326-YIHgJIFLO7SE0efwhHXyoA-1; Mon, 07 Feb 2022 11:14:46 -0500
-X-MC-Unique: YIHgJIFLO7SE0efwhHXyoA-1
-Received: by mail-wm1-f72.google.com with SMTP id c7-20020a1c3507000000b0034a0dfc86aaso12477332wma.6
-        for <stable@vger.kernel.org>; Mon, 07 Feb 2022 08:14:45 -0800 (PST)
+        with ESMTP id S1389590AbiBGQXg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 11:23:36 -0500
+Received: from mail-il1-x12e.google.com (mail-il1-x12e.google.com [IPv6:2607:f8b0:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40999C0401CE
+        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 08:23:36 -0800 (PST)
+Received: by mail-il1-x12e.google.com with SMTP id 15so11486702ilg.8
+        for <stable@vger.kernel.org>; Mon, 07 Feb 2022 08:23:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=X2blKuObfXNE80hmcUNeFStEMfyaLwrofTJ0jHNw/vY=;
+        b=AQaufvKBgRC7hdiokBnIfoyUZ5h5cYR9xlg2vwcMwIyhI5ojONlASRRHD6XOPnK6As
+         HAW6AmD8+73nPiquEEDg48JX9m9eKh3S95pCaCS74QWXdMnYpJ81pwPUbfRmjuP60kOz
+         lBtta/Lcz6Ny7tGM91dDSt3ONx1Y8PEXDQ9vUloHGfyOU+GZ9iuRFpqdS/Ilt2z+XuB6
+         Aw3yf6I3CTg1IoXir/EdZ+o/gGRwKVbgJFEMxGo3UF5a+u17MAwperMMc3+uMuvju2OJ
+         R70lqZ427OtfXHUw7n9/9mLss3Gtw/gW69R7cn+PtVj+mxjRhQ5iuYqKXzSEq9/2BvK5
+         vEBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=IFrUiE399AWkgKFh5f0w6DFQ5l0IKVbpkKeYpipiJKA=;
-        b=inhobRKde19Duo1I/gdtckFBnJ1CXwKjL2tXiq1DVpuPpoYU42QNA+gCAqCyWZvKc0
-         eOeF5EgvOEplphe8eiEFIpiaSftgfpvizRp70GRJP7yIxOdsCMj2NyVL8NCZiCwYVLVy
-         6oiudYVlLiFVRrkIN3hYQaLd5bI5SOPe7lBBDWuoyGkgvxggN0A/ZTMqkNgm6pSM/dwG
-         xF4nuMr4uRwhoIAEC/ZtDTBP1y55/K5dXTROby+DLoua/RuGoAtknFNy3AuaKycoAOQ2
-         tFk73++XriZiYtllYLFLDk6dYNoM5+J5GNGmf8tFG+tdKJF67/iuN1CtajW+1CwlLBOt
-         3UGA==
-X-Gm-Message-State: AOAM5334MjCJH5cZhJDjtTWfmavrIzU/L0pfj5mTLqwKTEQsDMyc1nni
-        I3e1M6t94IQfpgsCuHIRL5bU5uSM61J/oM7In7/QXI0h2MiZSHuzzU0TSILQrhsE1EQ4+3+p+aM
-        iTdTiFU1mrMFIysPY
-X-Received: by 2002:a5d:40ca:: with SMTP id b10mr178622wrq.6.1644250484835;
-        Mon, 07 Feb 2022 08:14:44 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxag/VMAQvDNvrhkp9126/FEr3+jzTAsqTwom1rxeqdyBy5yKiDpvjeiVrKAD+kaImszZyfLA==
-X-Received: by 2002:a5d:40ca:: with SMTP id b10mr178611wrq.6.1644250484657;
-        Mon, 07 Feb 2022 08:14:44 -0800 (PST)
-Received: from kherbst.pingu.com (ip1f10bb48.dynamic.kabel-deutschland.de. [31.16.187.72])
-        by smtp.gmail.com with ESMTPSA id f8sm12358148wry.12.2022.02.07.08.14.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Feb 2022 08:14:44 -0800 (PST)
-From:   Karol Herbst <kherbst@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Karol Herbst <kherbst@redhat.com>, stable@vger.kernel.org,
-        Ben Skeggs <bskeggs@redhat.com>, Lyude Paul <lyude@redhat.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org (open list:DRM DRIVER FOR NVIDIA
-        GEFORCE/QUADRO GPUS),
-        nouveau@lists.freedesktop.org (open list:DRM DRIVER FOR NVIDIA
-        GEFORCE/QUADRO GPUS)
-Subject: [PATCH] drm/nouveau/mmu: fix reuse of nvkm_umem
-Date:   Mon,  7 Feb 2022 17:14:42 +0100
-Message-Id: <20220207161443.1843660-1-kherbst@redhat.com>
-X-Mailer: git-send-email 2.34.1
+        bh=X2blKuObfXNE80hmcUNeFStEMfyaLwrofTJ0jHNw/vY=;
+        b=XFnEZlfGtEE/wMJ685VsrhvpkpA54DjJQ89hMTBQaoVfyKqtwyt7VfD60w932uTTkl
+         xjuFmaFMubyepLwtswiKkVmxiwVfuHNqC8ZGWVAQbJ1CvKZWQo2YQlN1sSEuHc/mICg7
+         ylbMdQK1QoKGhhOHWnyGTx0YEj4j/s6Mk2EA4yTp6IP5qFd0gK0fnaONmBigbd1+Uk/K
+         fnVtaJlM+spMyqXmqLSWoPq0QZzS8kMNNCwvk5i/UvhkEgHMaRgngShEFfv+lDobaGHf
+         +1yI/CDf5S0UT0L6QJt1rNGVG3He38wGBnc0Kk7kQ9gAYbOrCofz5JRV1aWkqZDkt924
+         tmrA==
+X-Gm-Message-State: AOAM533dYYhleMez9DhYhqyo5cOTB3bqGlF2gk93DJYV72zGjCtI2xFK
+        Uiwb9zzGDPDgUc+CbvY2D6udOA==
+X-Google-Smtp-Source: ABdhPJzUXxyzj8vN8GEo+B6OoFHl80vE4YJKkbmLaP5eowOZPJqZIs1JYon9cF70slozvy8hHTTOwQ==
+X-Received: by 2002:a05:6e02:1786:: with SMTP id y6mr163709ilu.152.1644251015532;
+        Mon, 07 Feb 2022 08:23:35 -0800 (PST)
+Received: from [172.22.22.4] (c-73-185-129-58.hsd1.mn.comcast.net. [73.185.129.58])
+        by smtp.googlemail.com with ESMTPSA id c11sm1452720iln.56.2022.02.07.08.23.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Feb 2022 08:23:34 -0800 (PST)
+Message-ID: <4a8c8a8d-b760-5dd4-512d-ae08b95ab902@linaro.org>
+Date:   Mon, 7 Feb 2022 10:23:33 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: FAILED: patch "[PATCH] net: ipa: request IPA register values be
+ retained" failed to apply to 5.15-stable tree
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     kuba@kernel.org,
+        "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org
+References: <1643964634201142@kroah.com>
+ <b4a3db1e-9bee-5075-9b45-1e1dcc06869e@linaro.org>
+ <Yf4vTqtKLQ71O77S@kroah.com>
+ <d66a5ce0-acb1-d2c4-b6a5-c4783abc1482@linaro.org>
+ <Yf7CWW+kGnH86KtE@kroah.com>
+From:   Alex Elder <elder@linaro.org>
+In-Reply-To: <Yf7CWW+kGnH86KtE@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -79,50 +79,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I am not entirely sure if this fixes anything, but the code standed out
-while investigated problematic calls to vunmap.
+On 2/5/22 12:30 PM, Greg KH wrote:
+> On Sat, Feb 05, 2022 at 08:32:30AM -0600, Alex Elder wrote:
+>> On 2/5/22 2:03 AM, Greg KH wrote:
+>>> On Fri, Feb 04, 2022 at 03:41:20PM -0600, Alex Elder wrote:
+>>>> On 2/4/22 2:50 AM, gregkh@linuxfoundation.org wrote:
+>>>>>
+>>>>> The patch below does not apply to the 5.15-stable tree.
+>>>>> If someone wants it applied there, or to any other stable or longterm
+>>>>> tree, then please email the backport, including the original git commit
+>>>>> id to <stable@vger.kernel.org>.
+>>>>
+>>>> I just tried to apply this patch on v5.15.19 and it applied
+>>>> cleanly for me.
+>>>>
+>>>> ----------------
+>>>>
+>>>> {2314} elder@presto-> git checkout -b test
+>>>> Switched to a new branch 'test'
+>>>> {2315} elder@presto-> git reset --hard v5.15.19
+>>>> HEAD is now at 47cccb1eb2fec Linux 5.15.19
+>>>> {2316} elder@presto-> git cherry-pick -x
+>>>> 34a081761e4e3c35381cbfad609ebae2962fe2f8
+>>>> [test 71a06f5acbb05] net: ipa: request IPA register values be retained
+>>>>    Date: Tue Feb 1 09:02:05 2022 -0600
+>>>>    3 files changed, 64 insertions(+)
+>>>> {2317} elder@presto-> git log --oneline -2
+>>>> 71a06f5acbb05 (HEAD -> test) net: ipa: request IPA register values be
+>>>> retained
+>>>> 47cccb1eb2fec (tag: v5.15.19, stable/linux-5.15.y) Linux 5.15.19
+>>>> {2318} elder@presto->
+>>>>
+>>>> ----------------
+>>>>
+>>>> I don't understand.  If you know that I'm doing something wrong,
+>>>> can you let me know what it might be?
+>>>
+>>> It fails to build :)
+>>
+>> Oh!  Well that's different!  Sorry about that, I'll spend
+>> a little more time on this I guess...
+> 
+> It was a "include file not found" type of error if I remember correctly.
 
-nvkm_umem.io is only ever set for the NVKM_OBJECT_MAP_IO case in
-nvkm_umem_map, but never for the NVKM_OBJECT_MAP_VA one, which could lead
-to taking the wrong patch inside nvkm_umem_unmap.
+OK, yes, I did discover the build problem.  And it can be
+easily fixed with one more prerequisite commit.
 
-I just don't know if this is a real issue or not, but the code doesn't
-look correct this way.
+HOWEVER, there is a "matching" DTS patch that won't land
+in Linus' master branch until v5.18-rc1, so I'll have to
+get back to you on that later anyway.
 
-Fixes: c83c4097eba8 ("drm/nouveau/mmu: define user interfaces to mmu memory allocation")
-Cc: <stable@vger.kernel.org> # v4.15+
----
- drivers/gpu/drm/nouveau/nvkm/subdev/mmu/umem.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Which means you can simply drop my attempted 5.15 back-port
+from your queue (if you haven't already...).
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/umem.c b/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/umem.c
-index e530bb8b3b17..2608e0796066 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/umem.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/mmu/umem.c
-@@ -102,6 +102,7 @@ nvkm_umem_map(struct nvkm_object *object, void *argv, u32 argc,
- 		*handle = (unsigned long)(void *)umem->map;
- 		*length = nvkm_memory_size(umem->memory);
- 		*type = NVKM_OBJECT_MAP_VA;
-+		umem->io = false;
- 		return 0;
- 	} else
- 	if ((umem->type & NVKM_MEM_VRAM) ||
-@@ -112,12 +113,11 @@ nvkm_umem_map(struct nvkm_object *object, void *argv, u32 argc,
- 			return ret;
- 
- 		*type = NVKM_OBJECT_MAP_IO;
--	} else {
--		return -EINVAL;
-+		umem->io = true;
-+		return 0;
- 	}
- 
--	umem->io = (*type == NVKM_OBJECT_MAP_IO);
--	return 0;
-+	return -EINVAL;
- }
- 
- static void *
--- 
-2.34.1
+Thanks, and sorry for the noise.
 
+					-Alex
