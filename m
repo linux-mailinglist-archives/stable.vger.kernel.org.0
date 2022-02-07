@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE66E4ABDCC
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:05:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0418D4ABC18
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389102AbiBGLqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:46:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48676 "EHLO
+        id S1384858AbiBGLaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:30:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386787AbiBGLgv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:36:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B46D8C043181;
-        Mon,  7 Feb 2022 03:36:50 -0800 (PST)
+        with ESMTP id S1383871AbiBGLXu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:23:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1170FC0401C4;
+        Mon,  7 Feb 2022 03:23:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 491B460A69;
-        Mon,  7 Feb 2022 11:36:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 645F1C004E1;
-        Mon,  7 Feb 2022 11:36:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AAA01B8111C;
+        Mon,  7 Feb 2022 11:23:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40B5CC004E1;
+        Mon,  7 Feb 2022 11:23:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233809;
-        bh=ugirauE7wsGqXb36nXK6gxIvb+7wGHj2bprs0GCSXLQ=;
+        s=korg; t=1644233025;
+        bh=+0N3nRukO1GQN2mvogj92JZma4Oi/VLjvAT+GztctPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njsGotnMmV+snq/HyLqoPNzSLQnyztyPDzqvb6/c0IA+A1lPqF+vOHfUgYMQy+vNV
-         xRAQvNdSThVWNYZObGtrg1imdM7LFKoXsrPxHNhK8iCFksJuTUgegVEC5RkN5ySnLP
-         pMc+mIKOoW8kwh444wUcY0SpGdeM4N7kgygS4YhU=
+        b=wmGWbHw20WH2Khw9EPB//I847mxUuO+VcSWAdQvxZNv6Ix99M1hGiUji3aY6nMxTZ
+         WIEGLbVo6TJcjchGIpnTsh3/hHpc/0VS9akKzsCfnqwAamtXVSWo+gor41TuVnrex+
+         m83D9WMYlbFR10uvu7KmiSQmiq+9ADM0wlmlbDCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kane Chen <kane.chen@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Grace Kao <grace.kao@intel.com>
-Subject: [PATCH 5.16 094/126] pinctrl: intel: Fix a glitch when updating IRQ flags on a preconfigured line
+        stable@vger.kernel.org, Xin Yin <yinxin.x@bytedance.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.10 67/74] ext4: prevent used blocks from being allocated during fast commit replay
 Date:   Mon,  7 Feb 2022 12:07:05 +0100
-Message-Id: <20220207103807.329696976@linuxfoundation.org>
+Message-Id: <20220207103759.426782898@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +53,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Xin Yin <yinxin.x@bytedance.com>
 
-commit e12963c453263d5321a2c610e98cbc731233b685 upstream.
+commit 599ea31d13617c5484c40cdf50d88301dc351cfc upstream.
 
-The commit af7e3eeb84e2 ("pinctrl: intel: Disable input and output buffer
-when switching to GPIO") hadn't taken into account an update of the IRQ
-flags scenario.
+During fast commit replay procedure, we clear inode blocks bitmap in
+ext4_ext_clear_bb(), this may cause ext4_mb_new_blocks_simple() allocate
+blocks still in use.
 
-When updating the IRQ flags on the preconfigured line the ->irq_set_type()
-is called again. In such case the sequential Rx buffer configuration
-changes may trigger a falling or rising edge interrupt that may lead,
-on some platforms, to an undesired event.
+Make ext4_fc_record_regions() also record physical disk regions used by
+inodes during replay procedure. Then ext4_mb_new_blocks_simple() can
+excludes these blocks in use.
 
-This may happen because each of intel_gpio_set_gpio_mode() and
-__intel_gpio_set_direction() updates the pad configuration with a different
-value of the GPIORXDIS bit. Notable, that the intel_gpio_set_gpio_mode() is
-called only for the pads that are configured as an input. Due to this fact,
-integrate the logic of __intel_gpio_set_direction() call into the
-intel_gpio_set_gpio_mode() so that the Rx buffer won't be disabled and
-immediately re-enabled.
-
-Fixes: af7e3eeb84e2 ("pinctrl: intel: Disable input and output buffer when switching to GPIO")
-Reported-by: Kane Chen <kane.chen@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Tested-by: Grace Kao <grace.kao@intel.com>
+Signed-off-by: Xin Yin <yinxin.x@bytedance.com>
+Link: https://lore.kernel.org/r/20220110035141.1980-2-yinxin.x@bytedance.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/intel/pinctrl-intel.c |   10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ fs/ext4/ext4.h        |    3 +++
+ fs/ext4/extents.c     |    4 ++++
+ fs/ext4/fast_commit.c |   20 +++++++++++++++-----
+ 3 files changed, 22 insertions(+), 5 deletions(-)
 
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -451,8 +451,8 @@ static void intel_gpio_set_gpio_mode(voi
- 	value &= ~PADCFG0_PMODE_MASK;
- 	value |= PADCFG0_PMODE_GPIO;
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -2779,6 +2779,9 @@ void ext4_fc_replay_cleanup(struct super
+ int ext4_fc_commit(journal_t *journal, tid_t commit_tid);
+ int __init ext4_fc_init_dentry_cache(void);
+ void ext4_fc_destroy_dentry_cache(void);
++int ext4_fc_record_regions(struct super_block *sb, int ino,
++			   ext4_lblk_t lblk, ext4_fsblk_t pblk,
++			   int len, int replay);
  
--	/* Disable input and output buffers */
--	value |= PADCFG0_GPIORXDIS;
-+	/* Disable TX buffer and enable RX (this will be input) */
-+	value &= ~PADCFG0_GPIORXDIS;
- 	value |= PADCFG0_GPIOTXDIS;
+ /* mballoc.c */
+ extern const struct seq_operations ext4_mb_seq_groups_ops;
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -6088,11 +6088,15 @@ int ext4_ext_clear_bb(struct inode *inod
  
- 	/* Disable SCI/SMI/NMI generation */
-@@ -497,9 +497,6 @@ static int intel_gpio_request_enable(str
+ 					ext4_mb_mark_bb(inode->i_sb,
+ 							path[j].p_block, 1, 0);
++					ext4_fc_record_regions(inode->i_sb, inode->i_ino,
++							0, path[j].p_block, 1, 1);
+ 				}
+ 				ext4_ext_drop_refs(path);
+ 				kfree(path);
+ 			}
+ 			ext4_mb_mark_bb(inode->i_sb, map.m_pblk, map.m_len, 0);
++			ext4_fc_record_regions(inode->i_sb, inode->i_ino,
++					map.m_lblk, map.m_pblk, map.m_len, 1);
+ 		}
+ 		cur = cur + map.m_len;
+ 	}
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -1558,16 +1558,23 @@ out:
+ }
  
- 	intel_gpio_set_gpio_mode(padcfg0);
+ /*
+- * Record physical disk regions which are in use as per fast commit area. Our
+- * simple replay phase allocator excludes these regions from allocation.
++ * Record physical disk regions which are in use as per fast commit area,
++ * and used by inodes during replay phase. Our simple replay phase
++ * allocator excludes these regions from allocation.
+  */
+-static int ext4_fc_record_regions(struct super_block *sb, int ino,
+-		ext4_lblk_t lblk, ext4_fsblk_t pblk, int len)
++int ext4_fc_record_regions(struct super_block *sb, int ino,
++		ext4_lblk_t lblk, ext4_fsblk_t pblk, int len, int replay)
+ {
+ 	struct ext4_fc_replay_state *state;
+ 	struct ext4_fc_alloc_region *region;
  
--	/* Disable TX buffer and enable RX (this will be input) */
--	__intel_gpio_set_direction(padcfg0, true);
--
- 	raw_spin_unlock_irqrestore(&pctrl->lock, flags);
+ 	state = &EXT4_SB(sb)->s_fc_replay_state;
++	/*
++	 * during replay phase, the fc_regions_valid may not same as
++	 * fc_regions_used, update it when do new additions.
++	 */
++	if (replay && state->fc_regions_used != state->fc_regions_valid)
++		state->fc_regions_used = state->fc_regions_valid;
+ 	if (state->fc_regions_used == state->fc_regions_size) {
+ 		state->fc_regions_size +=
+ 			EXT4_FC_REPLAY_REALLOC_INCREMENT;
+@@ -1585,6 +1592,9 @@ static int ext4_fc_record_regions(struct
+ 	region->pblk = pblk;
+ 	region->len = len;
  
++	if (replay)
++		state->fc_regions_valid++;
++
  	return 0;
-@@ -1115,9 +1112,6 @@ static int intel_gpio_irq_type(struct ir
+ }
  
- 	intel_gpio_set_gpio_mode(reg);
- 
--	/* Disable TX buffer and enable RX (this will be input) */
--	__intel_gpio_set_direction(reg, true);
--
- 	value = readl(reg);
- 
- 	value &= ~(PADCFG0_RXEVCFG_MASK | PADCFG0_RXINV);
+@@ -1954,7 +1964,7 @@ static int ext4_fc_replay_scan(journal_t
+ 			ret = ext4_fc_record_regions(sb,
+ 				le32_to_cpu(ext.fc_ino),
+ 				le32_to_cpu(ex->ee_block), ext4_ext_pblock(ex),
+-				ext4_ext_get_actual_len(ex));
++				ext4_ext_get_actual_len(ex), 0);
+ 			if (ret < 0)
+ 				break;
+ 			ret = JBD2_FC_REPLAY_CONTINUE;
 
 
