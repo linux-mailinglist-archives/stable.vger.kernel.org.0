@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 965014ABC43
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:46:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 962384ABCA7
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385117AbiBGLbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:31:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37294 "EHLO
+        id S1387004AbiBGLic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:38:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384307AbiBGL1o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:27:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31944C03FEC0;
-        Mon,  7 Feb 2022 03:26:03 -0800 (PST)
+        with ESMTP id S1385681AbiBGLcG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E381C0401D4;
+        Mon,  7 Feb 2022 03:31:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DCA83B81158;
-        Mon,  7 Feb 2022 11:26:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AD41C004E1;
-        Mon,  7 Feb 2022 11:25:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F35CB8111C;
+        Mon,  7 Feb 2022 11:31:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95434C004E1;
+        Mon,  7 Feb 2022 11:31:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233160;
-        bh=gnZ42VB8luOBpe47zX/EhN1MWbO2bGrsu/FWoeueKY0=;
+        s=korg; t=1644233515;
+        bh=QVmF++sgL5K8mV3wQlECsBRirJ5ovffGWfToglpzGLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bARqaB/alJD46Uj3ajcV9eFhEx5mOiWpuqMPyDa/9p6oiojVxKGD7SMw4dv2cbbSa
-         NHb8JoWYkd5UIogoArm6rP1XFZuYyfH4mxorpnzdRLyE2RYq5rpa8Eb9VZqPy7KcN6
-         eAhAyKX5weXLmna8bB50LuNMTmX+e3nuEyJyb+No=
+        b=xaAhfGqRXaeQntRv/zLuSiU5H15SMHBuMqZv7cL4ewpvNzA/QFPz76NxokQCn2Ikn
+         cLdP9tJTEg7ya5hV1TNo2ZUPAfGHzwh+kQ/H2O870gJ1D2uYajEDODS4mVlWwA4m6n
+         FhbiF6Ixp1IAgN5EO+mHLrtyIVck92RtgfVJQeSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 035/110] mptcp: fix msk traversal in mptcp_nl_cmd_set_flags()
+        stable@vger.kernel.org,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.16 037/126] IB/hfi1: Fix alloc failure with larger txqueuelen
 Date:   Mon,  7 Feb 2022 12:06:08 +0100
-Message-Id: <20220207103803.450454111@linuxfoundation.org>
+Message-Id: <20220207103805.418161681@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +55,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 
-commit 8e9eacad7ec7a9cbf262649ebf1fa6e6f6cc7d82 upstream.
+commit b1151b74ff68cc83c2a8e1a618efe7d056e4f237 upstream.
 
-The MPTCP endpoint list is under RCU protection, guarded by the
-pernet spinlock. mptcp_nl_cmd_set_flags() traverses the list
-without acquiring the spin-lock nor under the RCU critical section.
+The following allocation with large txqueuelen will result in the
+following warning:
 
-This change addresses the issue performing the lookup and the endpoint
-update under the pernet spinlock.
+  Call Trace:
+   __alloc_pages_nodemask+0x283/0x2c0
+   kmalloc_large_node+0x3c/0xa0
+   __kmalloc_node+0x22a/0x2f0
+   hfi1_ipoib_txreq_init+0x19f/0x330 [hfi1]
+   hfi1_ipoib_setup_rn+0xd3/0x1a0 [hfi1]
+   rdma_init_netdev+0x5a/0x80 [ib_core]
+   ipoib_intf_init+0x6c/0x350 [ib_ipoib]
+   ipoib_intf_alloc+0x5c/0xc0 [ib_ipoib]
+   ipoib_add_one+0xbe/0x300 [ib_ipoib]
+   add_client_context+0x12c/0x1a0 [ib_core]
+   ib_register_client+0x147/0x190 [ib_core]
+   ipoib_init_module+0xdd/0x132 [ib_ipoib]
+   do_one_initcall+0x46/0x1c3
+   do_init_module+0x5a/0x220
+   load_module+0x14c5/0x17f0
+   __do_sys_init_module+0x13b/0x180
+   do_syscall_64+0x5b/0x1a0
+   entry_SYSCALL_64_after_hwframe+0x65/0xca
 
-[The upstream commit had to handle a lookup_by_id variable that is only
- present in 5.17. This version of the patch removes that variable, so
- the __lookup_addr() function only handles the lookup as it is
- implemented in 5.15 and 5.16. It also removes one 'const' keyword to
- prevent a warning due to differing const-ness in the 5.17 version of
- addresses_equal().]
+For ipoib, the txqueuelen is modified with the module parameter
+send_queue_size.
 
-Fixes: 0f9f696a502e ("mptcp: add set_flags command in PM netlink")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fix by changing to use kv versions of the same allocator to handle the
+large allocations.  The allocation embeds a hdr struct that is dma mapped.
+Change that struct to a pointer to a kzalloced struct.
+
+Cc: stable@vger.kernel.org
+Fixes: d99dc602e2a5 ("IB/hfi1: Add functions to transmit datagram ipoib packets")
+Link: https://lore.kernel.org/r/1642287756-182313-3-git-send-email-mike.marciniszyn@cornelisnetworks.com
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/pm_netlink.c |   34 +++++++++++++++++++++++++---------
- 1 file changed, 25 insertions(+), 9 deletions(-)
+ drivers/infiniband/hw/hfi1/ipoib.h    |    2 -
+ drivers/infiniband/hw/hfi1/ipoib_tx.c |   36 +++++++++++++++++++++++-----------
+ 2 files changed, 26 insertions(+), 12 deletions(-)
 
---- a/net/mptcp/pm_netlink.c
-+++ b/net/mptcp/pm_netlink.c
-@@ -459,6 +459,18 @@ static unsigned int fill_remote_addresse
- 	return i;
- }
- 
-+static struct mptcp_pm_addr_entry *
-+__lookup_addr(struct pm_nl_pernet *pernet, struct mptcp_addr_info *info)
-+{
-+	struct mptcp_pm_addr_entry *entry;
-+
-+	list_for_each_entry(entry, &pernet->local_addr_list, list) {
-+		if (addresses_equal(&entry->addr, info, true))
-+			return entry;
-+	}
-+	return NULL;
-+}
-+
- static void mptcp_pm_create_subflow_or_signal_addr(struct mptcp_sock *msk)
- {
- 	struct sock *sk = (struct sock *)msk;
-@@ -1725,17 +1737,21 @@ static int mptcp_nl_cmd_set_flags(struct
- 	if (addr.flags & MPTCP_PM_ADDR_FLAG_BACKUP)
- 		bkup = 1;
- 
--	list_for_each_entry(entry, &pernet->local_addr_list, list) {
--		if (addresses_equal(&entry->addr, &addr.addr, true)) {
--			mptcp_nl_addr_backup(net, &entry->addr, bkup);
--
--			if (bkup)
--				entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
--			else
--				entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
--		}
-+	spin_lock_bh(&pernet->lock);
-+	entry = __lookup_addr(pernet, &addr.addr);
-+	if (!entry) {
-+		spin_unlock_bh(&pernet->lock);
-+		return -EINVAL;
+--- a/drivers/infiniband/hw/hfi1/ipoib.h
++++ b/drivers/infiniband/hw/hfi1/ipoib.h
+@@ -55,7 +55,7 @@ union hfi1_ipoib_flow {
+  */
+ struct ipoib_txreq {
+ 	struct sdma_txreq           txreq;
+-	struct hfi1_sdma_header     sdma_hdr;
++	struct hfi1_sdma_header     *sdma_hdr;
+ 	int                         sdma_status;
+ 	int                         complete;
+ 	struct hfi1_ipoib_dev_priv *priv;
+--- a/drivers/infiniband/hw/hfi1/ipoib_tx.c
++++ b/drivers/infiniband/hw/hfi1/ipoib_tx.c
+@@ -122,7 +122,7 @@ static void hfi1_ipoib_free_tx(struct ip
+ 		dd_dev_warn(priv->dd,
+ 			    "%s: Status = 0x%x pbc 0x%llx txq = %d sde = %d\n",
+ 			    __func__, tx->sdma_status,
+-			    le64_to_cpu(tx->sdma_hdr.pbc), tx->txq->q_idx,
++			    le64_to_cpu(tx->sdma_hdr->pbc), tx->txq->q_idx,
+ 			    tx->txq->sde->this_idx);
  	}
  
-+	if (bkup)
-+		entry->flags |= MPTCP_PM_ADDR_FLAG_BACKUP;
-+	else
-+		entry->flags &= ~MPTCP_PM_ADDR_FLAG_BACKUP;
-+	addr = *entry;
-+	spin_unlock_bh(&pernet->lock);
-+
-+	mptcp_nl_addr_backup(net, &addr.addr, bkup);
- 	return 0;
- }
+@@ -231,7 +231,7 @@ static int hfi1_ipoib_build_tx_desc(stru
+ {
+ 	struct hfi1_devdata *dd = txp->dd;
+ 	struct sdma_txreq *txreq = &tx->txreq;
+-	struct hfi1_sdma_header *sdma_hdr = &tx->sdma_hdr;
++	struct hfi1_sdma_header *sdma_hdr = tx->sdma_hdr;
+ 	u16 pkt_bytes =
+ 		sizeof(sdma_hdr->pbc) + (txp->hdr_dwords << 2) + tx->skb->len;
+ 	int ret;
+@@ -256,7 +256,7 @@ static void hfi1_ipoib_build_ib_tx_heade
+ 					   struct ipoib_txparms *txp)
+ {
+ 	struct hfi1_ipoib_dev_priv *priv = tx->txq->priv;
+-	struct hfi1_sdma_header *sdma_hdr = &tx->sdma_hdr;
++	struct hfi1_sdma_header *sdma_hdr = tx->sdma_hdr;
+ 	struct sk_buff *skb = tx->skb;
+ 	struct hfi1_pportdata *ppd = ppd_from_ibp(txp->ibp);
+ 	struct rdma_ah_attr *ah_attr = txp->ah_attr;
+@@ -483,7 +483,7 @@ static int hfi1_ipoib_send_dma_single(st
+ 	if (likely(!ret)) {
+ tx_ok:
+ 		trace_sdma_output_ibhdr(txq->priv->dd,
+-					&tx->sdma_hdr.hdr,
++					&tx->sdma_hdr->hdr,
+ 					ib_is_sc5(txp->flow.sc5));
+ 		hfi1_ipoib_check_queue_depth(txq);
+ 		return NETDEV_TX_OK;
+@@ -547,7 +547,7 @@ static int hfi1_ipoib_send_dma_list(stru
+ 	hfi1_ipoib_check_queue_depth(txq);
  
+ 	trace_sdma_output_ibhdr(txq->priv->dd,
+-				&tx->sdma_hdr.hdr,
++				&tx->sdma_hdr->hdr,
+ 				ib_is_sc5(txp->flow.sc5));
+ 
+ 	if (!netdev_xmit_more())
+@@ -683,7 +683,8 @@ int hfi1_ipoib_txreq_init(struct hfi1_ip
+ {
+ 	struct net_device *dev = priv->netdev;
+ 	u32 tx_ring_size, tx_item_size;
+-	int i;
++	struct hfi1_ipoib_circ_buf *tx_ring;
++	int i, j;
+ 
+ 	/*
+ 	 * Ring holds 1 less than tx_ring_size
+@@ -701,7 +702,9 @@ int hfi1_ipoib_txreq_init(struct hfi1_ip
+ 
+ 	for (i = 0; i < dev->num_tx_queues; i++) {
+ 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
++		struct ipoib_txreq *tx;
+ 
++		tx_ring = &txq->tx_ring;
+ 		iowait_init(&txq->wait,
+ 			    0,
+ 			    hfi1_ipoib_flush_txq,
+@@ -725,14 +728,19 @@ int hfi1_ipoib_txreq_init(struct hfi1_ip
+ 					     priv->dd->node);
+ 
+ 		txq->tx_ring.items =
+-			kcalloc_node(tx_ring_size, tx_item_size,
+-				     GFP_KERNEL, priv->dd->node);
++			kvzalloc_node(array_size(tx_ring_size, tx_item_size),
++				      GFP_KERNEL, priv->dd->node);
+ 		if (!txq->tx_ring.items)
+ 			goto free_txqs;
+ 
+ 		txq->tx_ring.max_items = tx_ring_size;
+ 		txq->tx_ring.shift = ilog2(tx_item_size);
+ 		txq->tx_ring.avail = hfi1_ipoib_ring_hwat(txq);
++		tx_ring = &txq->tx_ring;
++		for (j = 0; j < tx_ring_size; j++)
++			hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr =
++				kzalloc_node(sizeof(*tx->sdma_hdr),
++					     GFP_KERNEL, priv->dd->node);
+ 
+ 		netif_tx_napi_add(dev, &txq->napi,
+ 				  hfi1_ipoib_poll_tx_ring,
+@@ -746,7 +754,10 @@ free_txqs:
+ 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
+ 
+ 		netif_napi_del(&txq->napi);
+-		kfree(txq->tx_ring.items);
++		tx_ring = &txq->tx_ring;
++		for (j = 0; j < tx_ring_size; j++)
++			kfree(hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr);
++		kvfree(tx_ring->items);
+ 	}
+ 
+ 	kfree(priv->txqs);
+@@ -780,17 +791,20 @@ static void hfi1_ipoib_drain_tx_list(str
+ 
+ void hfi1_ipoib_txreq_deinit(struct hfi1_ipoib_dev_priv *priv)
+ {
+-	int i;
++	int i, j;
+ 
+ 	for (i = 0; i < priv->netdev->num_tx_queues; i++) {
+ 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
++		struct hfi1_ipoib_circ_buf *tx_ring = &txq->tx_ring;
+ 
+ 		iowait_cancel_work(&txq->wait);
+ 		iowait_sdma_drain(&txq->wait);
+ 		hfi1_ipoib_drain_tx_list(txq);
+ 		netif_napi_del(&txq->napi);
+ 		hfi1_ipoib_drain_tx_ring(txq);
+-		kfree(txq->tx_ring.items);
++		for (j = 0; j < tx_ring->max_items; j++)
++			kfree(hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr);
++		kvfree(tx_ring->items);
+ 	}
+ 
+ 	kfree(priv->txqs);
 
 
