@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEC574ABC0C
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61C4E4ABB75
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229914AbiBGLf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:35:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37304 "EHLO
+        id S1359222AbiBGL2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:28:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384673AbiBGL3e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:29:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D75C0258CE;
-        Mon,  7 Feb 2022 03:27:55 -0800 (PST)
+        with ESMTP id S1383529AbiBGLWw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:22:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55EC5C043181;
+        Mon,  7 Feb 2022 03:22:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EC1360918;
-        Mon,  7 Feb 2022 11:27:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF956C004E1;
-        Mon,  7 Feb 2022 11:27:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F911B8111C;
+        Mon,  7 Feb 2022 11:22:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 212B7C004E1;
+        Mon,  7 Feb 2022 11:22:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233274;
-        bh=oockd+H0nbljZXJvxJaW8xs5secCp/bASldZOrm0rlE=;
+        s=korg; t=1644232968;
+        bh=LPbSgYmyotJYWZu9QU3QmUxyEYSnsnsURj/WgpZNoQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qwKJh+ehzJqVFKdoXKsa26ymzoXB6/YTVsXUkttJBaWaKob4lRTu85cYSHULxLDqK
-         vXdCPOcg4jLVcaPCXf1uHFMe4Ye9MKXAzsOLiKfGH+sAf99+TeLKDxfkrXrSqr5q9Y
-         9hjrsVHmlk0sodqDuWoV9s1h9DqcnbYpwN4Yja+8=
+        b=PuprqQ8RmlJQHcmvKRZIrgc5c9n1c38LLkcyc2C4EorzXOgV6bgkK0WAjepTu/cZu
+         /ylRcaKKsYXgbrH+2fw6zNLjo/z5BH7zAyzgaawN57omgrLXfC60C4ZweBT5By1hWC
+         OHT87xQAFK+cPeDh3ia6m3PTAkpoiptkEe8ihO78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.15 071/110] ASoC: fsl: Add missing error handling in pcm030_fabric_probe
-Date:   Mon,  7 Feb 2022 12:06:44 +0100
-Message-Id: <20220207103804.687368485@linuxfoundation.org>
+Subject: [PATCH 5.10 47/74] ASoC: cpcap: Check for NULL pointer after calling of_get_child_by_name
+Date:   Mon,  7 Feb 2022 12:06:45 +0100
+Message-Id: <20220207103758.764036788@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit fb25621da5702c104ce0a48de5b174ced09e5b4e upstream.
+commit f7a6021aaf02088870559f82fc13c58cda7fea1a upstream.
 
-Add the missing platform_device_put() and platform_device_del()
-before return from pcm030_fabric_probe in the error handling case.
+If the device does not exist, of_get_child_by_name() will return NULL
+pointer.
+And devm_snd_soc_register_component() does not check it.
+Also, I have noticed that cpcap_codec_driver has not been used yet.
+Therefore, it should be better to check it in order to avoid the future
+dereference of the NULL pointer.
 
-Fixes: c912fa913446 ("ASoC: fsl: register the wm9712-codec")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220127131336.30214-1-linmq006@gmail.com
+Fixes: f6cdf2d3445d ("ASoC: cpcap: new codec")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220111025048.524134-1-jiasheng@iscas.ac.cn
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/fsl/pcm030-audio-fabric.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ sound/soc/codecs/cpcap.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/soc/fsl/pcm030-audio-fabric.c
-+++ b/sound/soc/fsl/pcm030-audio-fabric.c
-@@ -93,16 +93,21 @@ static int pcm030_fabric_probe(struct pl
- 		dev_err(&op->dev, "platform_device_alloc() failed\n");
+--- a/sound/soc/codecs/cpcap.c
++++ b/sound/soc/codecs/cpcap.c
+@@ -1544,6 +1544,8 @@ static int cpcap_codec_probe(struct plat
+ {
+ 	struct device_node *codec_node =
+ 		of_get_child_by_name(pdev->dev.parent->of_node, "audio-codec");
++	if (!codec_node)
++		return -ENODEV;
  
- 	ret = platform_device_add(pdata->codec_device);
--	if (ret)
-+	if (ret) {
- 		dev_err(&op->dev, "platform_device_add() failed: %d\n", ret);
-+		platform_device_put(pdata->codec_device);
-+	}
+ 	pdev->dev.of_node = codec_node;
  
- 	ret = snd_soc_register_card(card);
--	if (ret)
-+	if (ret) {
- 		dev_err(&op->dev, "snd_soc_register_card() failed: %d\n", ret);
-+		platform_device_del(pdata->codec_device);
-+		platform_device_put(pdata->codec_device);
-+	}
- 
- 	platform_set_drvdata(op, pdata);
--
- 	return ret;
-+
- }
- 
- static int pcm030_fabric_remove(struct platform_device *op)
 
 
