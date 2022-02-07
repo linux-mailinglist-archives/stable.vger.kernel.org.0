@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03DF44ABC28
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B3494ABB8D
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384934AbiBGLau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:30:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36430 "EHLO
+        id S1378472AbiBGL3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:29:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384048AbiBGLYe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:24:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DCAC043181;
-        Mon,  7 Feb 2022 03:24:33 -0800 (PST)
+        with ESMTP id S1382929AbiBGLVL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:21:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4278BC0401D5;
+        Mon,  7 Feb 2022 03:20:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4719A6149B;
-        Mon,  7 Feb 2022 11:24:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5591CC004E1;
-        Mon,  7 Feb 2022 11:24:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31F34B811BE;
+        Mon,  7 Feb 2022 11:20:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41C96C004E1;
+        Mon,  7 Feb 2022 11:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233072;
-        bh=rG2zIR8em5dhqg9au0dA4l5hkYO7yd8NVH3Wp/6VZIs=;
+        s=korg; t=1644232835;
+        bh=tvZEM60YYnpiLaqprdHNK3Tb+A8gmqs5ag5ZSNH2XMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1/f/038yMWN1n7bEb+jPr/xD4IqKXoCH7wxEVdrC4XZqmA72g5JsDAFZzov502E2I
-         1nRJAWvAQJ7bPxr4/R1S11x+RQLZiXoNsIdB+xaDTF12WNIHjzXaHLzyiNt3m02QuV
-         elxgskJZMS6SCOMlPm9s6irRKu2iJmtsWa3EljV4=
+        b=yJFfy/YvcgkAjuiQMHkmnKhL71RzAxqaxl5hbI6dS2mPEa/z/71xn98fTOEdvRTqr
+         pZmV5Fji0JaruzVBK8/ROnB/BC0DD/gVnABLxsOWvt+gQVmD2VewOmJG12fnrhRzp0
+         Zhof/phJWoZ0Vf0dCghw0VWTE436TRnt0BQuUbRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.10 58/74] tools/resolve_btfids: Do not print any commands when building silently
+        stable@vger.kernel.org, Riwen Lu <luriwen@kylinos.cn>,
+        Eric Wong <e@80x24.org>,
+        =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5.4 40/44] rtc: cmos: Evaluate century appropriate
 Date:   Mon,  7 Feb 2022 12:06:56 +0100
-Message-Id: <20220207103759.126287541@linuxfoundation.org>
+Message-Id: <20220207103754.458926618@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
+References: <20220207103753.155627314@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Riwen Lu <luriwen@kylinos.cn>
 
-commit 7f3bdbc3f13146eb9d07de81ea71f551587a384b upstream.
+commit ff164ae39b82ee483b24579c8e22a13a8ce5bd04 upstream.
 
-When building with 'make -s', there is some output from resolve_btfids:
+There's limiting the year to 2069. When setting the rtc year to 2070,
+reading it returns 1970. Evaluate century starting from 19 to count the
+correct year.
 
-$ make -sj"$(nproc)" oldconfig prepare
-  MKDIR     .../tools/bpf/resolve_btfids/libbpf/
-  MKDIR     .../tools/bpf/resolve_btfids//libsubcmd
-  LINK     resolve_btfids
+$ sudo date -s 20700106
+Mon 06 Jan 2070 12:00:00 AM CST
+$ sudo hwclock -w
+$ sudo hwclock -r
+1970-01-06 12:00:49.604968+08:00
 
-Silent mode means that no information should be emitted about what is
-currently being done. Use the $(silent) variable from Makefile.include
-to avoid defining the msg macro so that there is no information printed.
+Fixes: 2a4daadd4d3e5071 ("rtc: cmos: ignore bogus century byte")
 
-Fixes: fbbb68de80a4 ("bpf: Add resolve_btfids tool to resolve BTF IDs in ELF object")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220201212503.731732-1-nathan@kernel.org
+Signed-off-by: Riwen Lu <luriwen@kylinos.cn>
+Acked-by: Eric Wong <e@80x24.org>
+Reviewed-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20220106084609.1223688-1-luriwen@kylinos.cn
+Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl> # preparation for stable
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/bpf/resolve_btfids/Makefile |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-mc146818-lib.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/bpf/resolve_btfids/Makefile
-+++ b/tools/bpf/resolve_btfids/Makefile
-@@ -9,7 +9,11 @@ ifeq ($(V),1)
-   msg =
- else
-   Q = @
--  msg = @printf '  %-8s %s%s\n' "$(1)" "$(notdir $(2))" "$(if $(3), $(3))";
-+  ifeq ($(silent),1)
-+    msg =
-+  else
-+    msg = @printf '  %-8s %s%s\n' "$(1)" "$(notdir $(2))" "$(if $(3), $(3))";
-+  endif
-   MAKEFLAGS=--no-print-directory
- endif
+--- a/drivers/rtc/rtc-mc146818-lib.c
++++ b/drivers/rtc/rtc-mc146818-lib.c
+@@ -83,7 +83,7 @@ unsigned int mc146818_get_time(struct rt
+ 	time->tm_year += real_year - 72;
+ #endif
  
+-	if (century > 20)
++	if (century > 19)
+ 		time->tm_year += (century - 19) * 100;
+ 
+ 	/*
 
 
