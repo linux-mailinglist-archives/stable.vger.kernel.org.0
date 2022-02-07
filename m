@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06A5A4ABAFC
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:35:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 589264ABAE4
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:31:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345932AbiBGL0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:26:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47654 "EHLO
+        id S1384117AbiBGLYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355215AbiBGLIC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:08:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4034EC043181;
-        Mon,  7 Feb 2022 03:08:01 -0800 (PST)
+        with ESMTP id S1345973AbiBGLLg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:11:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36B60C0401C0;
+        Mon,  7 Feb 2022 03:11:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF07B611AA;
-        Mon,  7 Feb 2022 11:08:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96FD8C004E1;
-        Mon,  7 Feb 2022 11:07:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFDA0B80EE8;
+        Mon,  7 Feb 2022 11:11:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10280C004E1;
+        Mon,  7 Feb 2022 11:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232080;
-        bh=u4195M9uifM8d22mIW+olg3HBt73pJGFVtNfQc0j3uU=;
+        s=korg; t=1644232292;
+        bh=sQAKYqwJSmKj6ZF2oZqmaAeGNkm8va4f8ABQg75aHic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lYpmPMsK1WI6Xh/csC2bQ2zplLCqc4kjS3U85OfA35Q9xyS1Jo1YexWwG6xH/Hp8e
-         l1BM5s5J8bCoYLjeQFOEkI8GgK4ASbkrhvfaUGa1j9dviX2vTM9BD58NPTuEfsO7oW
-         LRynpib1o1XxuCN6wWM+DZd4+4XjElHMBfpYdk40=
+        b=iJNw19jWVPVs1cptEaDUYc6VL1dC15MeXv2I7nWXeSWWJmicrXk7FmD1ZJaWIx/5J
+         lFAoqsg3YxZ9XKEfsY2S0Ukfvbv26X0G1YvdXxV+H3LtR92tuqP3aGYCsj5mm72+33
+         /iGtRcfvf0guHAJ8pkCE24rItJzoo9VvCnjfJgoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Gix <brian.gix@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        syphyr <syphyr@gmail.com>
-Subject: [PATCH 4.9 02/48] Bluetooth: refactor malicious adv data check
+        stable@vger.kernel.org,
+        Pavankumar Kondeti <quic_pkondeti@quicinc.com>
+Subject: [PATCH 4.14 13/69] usb: gadget: f_sourcesink: Fix isoc transfer for USB_SPEED_SUPER_PLUS
 Date:   Mon,  7 Feb 2022 12:05:35 +0100
-Message-Id: <20220207103752.420929028@linuxfoundation.org>
+Message-Id: <20220207103756.052722060@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
-References: <20220207103752.341184175@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Gix <brian.gix@intel.com>
+From: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
 
-commit 899663be5e75dc0174dc8bda0b5e6826edf0b29a upstream.
+commit 904edf8aeb459697129be5fde847e2a502f41fd9 upstream.
 
-Check for out-of-bound read was being performed at the end of while
-num_reports loop, and would fill journal with false positives. Added
-check to beginning of loop processing so that it doesn't get checked
-after ptr has been advanced.
+Currently when gadget enumerates in super speed plus, the isoc
+endpoint request buffer size is not calculated correctly. Fix
+this by checking the gadget speed against USB_SPEED_SUPER_PLUS
+and update the request buffer size.
 
-Signed-off-by: Brian Gix <brian.gix@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: syphyr <syphyr@gmail.com>
+Fixes: 90c4d05780d4 ("usb: fix various gadgets null ptr deref on 10gbps cabling.")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
+Link: https://lore.kernel.org/r/1642820602-20619-1-git-send-email-quic_pkondeti@quicinc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_event.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/usb/gadget/function/f_sourcesink.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -4967,6 +4967,11 @@ static void hci_le_adv_report_evt(struct
- 		struct hci_ev_le_advertising_info *ev = ptr;
- 		s8 rssi;
+--- a/drivers/usb/gadget/function/f_sourcesink.c
++++ b/drivers/usb/gadget/function/f_sourcesink.c
+@@ -587,6 +587,7 @@ static int source_sink_start_ep(struct f
  
-+		if (ptr > (void *)skb_tail_pointer(skb) - sizeof(*ev)) {
-+			bt_dev_err(hdev, "Malicious advertising data.");
-+			break;
-+		}
-+
- 		if (ev->length <= HCI_MAX_AD_LENGTH &&
- 		    ev->data + ev->length <= skb_tail_pointer(skb)) {
- 			rssi = ev->data[ev->length];
-@@ -4978,11 +4983,6 @@ static void hci_le_adv_report_evt(struct
- 		}
- 
- 		ptr += sizeof(*ev) + ev->length + 1;
--
--		if (ptr > (void *) skb_tail_pointer(skb) - sizeof(*ev)) {
--			bt_dev_err(hdev, "Malicious advertising data. Stopping processing");
--			break;
--		}
- 	}
- 
- 	hci_dev_unlock(hdev);
+ 	if (is_iso) {
+ 		switch (speed) {
++		case USB_SPEED_SUPER_PLUS:
+ 		case USB_SPEED_SUPER:
+ 			size = ss->isoc_maxpacket *
+ 					(ss->isoc_mult + 1) *
 
 
