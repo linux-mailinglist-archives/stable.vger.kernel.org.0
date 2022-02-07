@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B6A34ABACE
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 737C94ABC08
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384081AbiBGLYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48548 "EHLO
+        id S1384010AbiBGLf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:35:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244593AbiBGLJb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:09:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BACBC0401C0;
-        Mon,  7 Feb 2022 03:09:31 -0800 (PST)
+        with ESMTP id S1384388AbiBGL2C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:28:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE7D0C03E94F;
+        Mon,  7 Feb 2022 03:26:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3513B81028;
-        Mon,  7 Feb 2022 11:09:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27F17C004E1;
-        Mon,  7 Feb 2022 11:09:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9D1C6006F;
+        Mon,  7 Feb 2022 11:26:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B747BC004E1;
+        Mon,  7 Feb 2022 11:26:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232168;
-        bh=h26siPkwY4qdDG27Hy2p6yoYlHa37dXXGoSZUXxo4xk=;
+        s=korg; t=1644233169;
+        bh=pejCLm/dhWAINZ/EwhvHtPsSwaQldnRAQnd2fBpHpUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lrKnfzNuoat0sRiKnchMQ2otr1fFTkRvZveY6vttu7cQ2pZa/JQdMtOs31Dp4Yqb3
-         1vkuWQ72SNynuxAROO08ZPY4QKOVFVOXb3RXL/z6UjpVAJovuHQyl6uZ75b1SrgUlB
-         uB9a8OlQkyIR3K2NdUMaCCBRHmxk4yNazKnp9JhA=
+        b=ELlspqw27oAiv79KJh4GEIh30BMh/vI0XWm/oT+1wYl4g+xMzn3OZSKOPI0nljVDH
+         4S78iNalFYWFYjcW4bKsXk5qVHy9ftBfaLRFcy/Mnx4iofksR6mFWlMDBO3yvufWgG
+         ZkfLTEKhVBix7e1J0Lbu+VBrnqGn3pM5Ic0cRJzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.9 38/48] spi: bcm-qspi: check for valid cs before applying chip select
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.15 038/110] KVM: arm64: Stop handle_exit() from handling HVC twice when an SError occurs
 Date:   Mon,  7 Feb 2022 12:06:11 +0100
-Message-Id: <20220207103753.577049817@linuxfoundation.org>
+Message-Id: <20220207103803.561653593@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
-References: <20220207103752.341184175@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Dasu <kdasu.kdev@gmail.com>
+From: James Morse <james.morse@arm.com>
 
-commit 2cbd27267ffe020af1442b95ec57f59a157ba85c upstream.
+commit 1229630af88620f6e3a621a1ebd1ca14d9340df7 upstream.
 
-Apply only valid chip select value. This change fixes case where chip
-select is set to initial value of '-1' during probe and  PM supend and
-subsequent resume can try to use the value with undefined behaviour.
-Also in case where gpio based chip select, the check in
-bcm_qspi_chip_select() shall prevent undefined behaviour on resume.
+Prior to commit defe21f49bc9 ("KVM: arm64: Move PC rollback on SError to
+HYP"), when an SError is synchronised due to another exception, KVM
+handles the SError first. If the guest survives, the instruction that
+triggered the original exception is re-exectued to handle the first
+exception. HVC is treated as a special case as the instruction wouldn't
+normally be re-exectued, as its not a trap.
 
-Fixes: fa236a7ef240 ("spi: bcm-qspi: Add Broadcom MSPI driver")
-Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220127185359.27322-1-kdasu.kdev@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Commit defe21f49bc9 didn't preserve the behaviour of the 'return 1'
+that skips the rest of handle_exit().
+
+Since commit defe21f49bc9, KVM will try to handle the SError and the
+original exception at the same time. When the exception was an HVC,
+fixup_guest_exit() has already rolled back ELR_EL2, meaning if the
+guest has virtual SError masked, it will execute and handle the HVC
+twice.
+
+Restore the original behaviour.
+
+Fixes: defe21f49bc9 ("KVM: arm64: Move PC rollback on SError to HYP")
+Cc: stable@vger.kernel.org
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220127122052.1584324-4-james.morse@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-bcm-qspi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kvm/handle_exit.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -546,7 +546,7 @@ static void bcm_qspi_chip_select(struct
- 	u32 rd = 0;
- 	u32 wr = 0;
+--- a/arch/arm64/kvm/handle_exit.c
++++ b/arch/arm64/kvm/handle_exit.c
+@@ -226,6 +226,14 @@ int handle_exit(struct kvm_vcpu *vcpu, i
+ {
+ 	struct kvm_run *run = vcpu->run;
  
--	if (qspi->base[CHIP_SELECT]) {
-+	if (cs >= 0 && qspi->base[CHIP_SELECT]) {
- 		rd = bcm_qspi_read(qspi, CHIP_SELECT, 0);
- 		wr = (rd & ~0xff) | (1 << cs);
- 		if (rd == wr)
++	if (ARM_SERROR_PENDING(exception_index)) {
++		/*
++		 * The SError is handled by handle_exit_early(). If the guest
++		 * survives it will re-execute the original instruction.
++		 */
++		return 1;
++	}
++
+ 	exception_index = ARM_EXCEPTION_CODE(exception_index);
+ 
+ 	switch (exception_index) {
 
 
