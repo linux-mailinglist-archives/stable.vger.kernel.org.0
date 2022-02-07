@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83CFB4ABCAA
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 483264ABA59
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:28:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387013AbiBGLig (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:38:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44942 "EHLO
+        id S244455AbiBGLZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:25:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385683AbiBGLcG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F32C0401D3;
-        Mon,  7 Feb 2022 03:31:53 -0800 (PST)
+        with ESMTP id S1354800AbiBGLMY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:12:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B12F4C043181;
+        Mon,  7 Feb 2022 03:12:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A6A160A67;
-        Mon,  7 Feb 2022 11:31:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DE7CC004E1;
-        Mon,  7 Feb 2022 11:31:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70BBAB81158;
+        Mon,  7 Feb 2022 11:12:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A80BC004E1;
+        Mon,  7 Feb 2022 11:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233512;
-        bh=se97KZL3JpsFxJ8ZQy95Brw1C50SVIoarbrezIf3j+Y=;
+        s=korg; t=1644232341;
+        bh=0U6ln+mci2a4SV4DbDK3nR+s6trUK/xFJvJqzsqX7oU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0nCAo6feEwdEQyvwNeUd/5ZZiVny/BI64UJu5IkSBuT3MBZAi58Av5Oecz26dOwCw
-         6XsFJTPGRXMHAI4Any1hvy6eHXiWl9uxAfe31JCBwMtHS72+hp0GTs/mW9lxwnB48P
-         LsSmPJpSmaZk/F5cwpOxTPQfzSkun/IFTL4JtLFc=
+        b=p9I6WxE8EHD8Ip371UbYNFtaAsaacdl/hukAGss8j7RsLsGAcS9Ptq6FJ29mIgdZ7
+         jN4YE/ABW2B/g4onvS2YO7wqCy0fssBY78oL6Dzf8VsPv5bSxAfHWL1AZx+Y/YjKrr
+         PjA3XoYIdILe+Xcrmp5RJP32gWzMkWroiTN+Lsrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.16 036/126] IB/hfi1: Fix panic with larger ipoib send_queue_size
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 45/69] af_packet: fix data-race in packet_setsockopt / packet_setsockopt
 Date:   Mon,  7 Feb 2022 12:06:07 +0100
-Message-Id: <20220207103805.388207888@linuxfoundation.org>
+Message-Id: <20220207103757.109325470@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 8c83d39cc730378bbac64d67a551897b203a606e upstream.
+commit e42e70ad6ae2ae511a6143d2e8da929366e58bd9 upstream.
 
-When the ipoib send_queue_size is increased from the default the following
-panic happens:
+When packet_setsockopt( PACKET_FANOUT_DATA ) reads po->fanout,
+no lock is held, meaning that another thread can change po->fanout.
 
-  RIP: 0010:hfi1_ipoib_drain_tx_ring+0x45/0xf0 [hfi1]
-  Code: 31 e4 eb 0f 8b 85 c8 02 00 00 41 83 c4 01 44 39 e0 76 60 8b 8d cc 02 00 00 44 89 e3 be 01 00 00 00 d3 e3 48 03 9d c0 02 00 00 <c7> 83 18 01 00 00 00 00 00 00 48 8b bb 30 01 00 00 e8 25 af a7 e0
-  RSP: 0018:ffffc9000798f4a0 EFLAGS: 00010286
-  RAX: 0000000000008000 RBX: ffffc9000aa0f000 RCX: 000000000000000f
-  RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
-  RBP: ffff88810ff08000 R08: ffff88889476d900 R09: 0000000000000101
-  R10: 0000000000000000 R11: ffffc90006590ff8 R12: 0000000000000200
-  R13: ffffc9000798fba8 R14: 0000000000000000 R15: 0000000000000001
-  FS:  00007fd0f79cc3c0(0000) GS:ffff88885fb00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: ffffc9000aa0f118 CR3: 0000000889c84001 CR4: 00000000001706e0
-  Call Trace:
-   <TASK>
-   hfi1_ipoib_napi_tx_disable+0x45/0x60 [hfi1]
-   hfi1_ipoib_dev_stop+0x18/0x80 [hfi1]
-   ipoib_ib_dev_stop+0x1d/0x40 [ib_ipoib]
-   ipoib_stop+0x48/0xc0 [ib_ipoib]
-   __dev_close_many+0x9e/0x110
-   __dev_change_flags+0xd9/0x210
-   dev_change_flags+0x21/0x60
-   do_setlink+0x31c/0x10f0
-   ? __nla_validate_parse+0x12d/0x1a0
-   ? __nla_parse+0x21/0x30
-   ? inet6_validate_link_af+0x5e/0xf0
-   ? cpumask_next+0x1f/0x20
-   ? __snmp6_fill_stats64.isra.53+0xbb/0x140
-   ? __nla_validate_parse+0x47/0x1a0
-   __rtnl_newlink+0x530/0x910
-   ? pskb_expand_head+0x73/0x300
-   ? __kmalloc_node_track_caller+0x109/0x280
-   ? __nla_put+0xc/0x20
-   ? cpumask_next_and+0x20/0x30
-   ? update_sd_lb_stats.constprop.144+0xd3/0x820
-   ? _raw_spin_unlock_irqrestore+0x25/0x37
-   ? __wake_up_common_lock+0x87/0xc0
-   ? kmem_cache_alloc_trace+0x3d/0x3d0
-   rtnl_newlink+0x43/0x60
+Given that po->fanout can only be set once during the socket lifetime
+(it is only cleared from fanout_release()), we can use
+READ_ONCE()/WRITE_ONCE() to document the race.
 
-The issue happens when the shift that should have been a function of the
-txq item size mistakenly used the ring size.
+BUG: KCSAN: data-race in packet_setsockopt / packet_setsockopt
 
-Fix by using the item size.
+write to 0xffff88813ae8e300 of 8 bytes by task 14653 on cpu 0:
+ fanout_add net/packet/af_packet.c:1791 [inline]
+ packet_setsockopt+0x22fe/0x24a0 net/packet/af_packet.c:3931
+ __sys_setsockopt+0x209/0x2a0 net/socket.c:2180
+ __do_sys_setsockopt net/socket.c:2191 [inline]
+ __se_sys_setsockopt net/socket.c:2188 [inline]
+ __x64_sys_setsockopt+0x62/0x70 net/socket.c:2188
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Cc: stable@vger.kernel.org
-Fixes: d47dfc2b00e6 ("IB/hfi1: Remove cache and embed txreq in ring")
-Link: https://lore.kernel.org/r/1642287756-182313-2-git-send-email-mike.marciniszyn@cornelisnetworks.com
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+read to 0xffff88813ae8e300 of 8 bytes by task 14654 on cpu 1:
+ packet_setsockopt+0x691/0x24a0 net/packet/af_packet.c:3935
+ __sys_setsockopt+0x209/0x2a0 net/socket.c:2180
+ __do_sys_setsockopt net/socket.c:2191 [inline]
+ __se_sys_setsockopt net/socket.c:2188 [inline]
+ __x64_sys_setsockopt+0x62/0x70 net/socket.c:2188
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0x0000000000000000 -> 0xffff888106f8c000
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 14654 Comm: syz-executor.3 Not tainted 5.16.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 47dceb8ecdc1 ("packet: add classic BPF fanout mode")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20220201022358.330621-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hfi1/ipoib_tx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/packet/af_packet.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/ipoib_tx.c
-+++ b/drivers/infiniband/hw/hfi1/ipoib_tx.c
-@@ -731,7 +731,7 @@ int hfi1_ipoib_txreq_init(struct hfi1_ip
- 			goto free_txqs;
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -1770,7 +1770,10 @@ static int fanout_add(struct sock *sk, u
+ 		err = -ENOSPC;
+ 		if (refcount_read(&match->sk_ref) < PACKET_FANOUT_MAX) {
+ 			__dev_remove_pack(&po->prot_hook);
+-			po->fanout = match;
++
++			/* Paired with packet_setsockopt(PACKET_FANOUT_DATA) */
++			WRITE_ONCE(po->fanout, match);
++
+ 			po->rollover = rollover;
+ 			rollover = NULL;
+ 			refcount_set(&match->sk_ref, refcount_read(&match->sk_ref) + 1);
+@@ -3915,7 +3918,8 @@ packet_setsockopt(struct socket *sock, i
+ 	}
+ 	case PACKET_FANOUT_DATA:
+ 	{
+-		if (!po->fanout)
++		/* Paired with the WRITE_ONCE() in fanout_add() */
++		if (!READ_ONCE(po->fanout))
+ 			return -EINVAL;
  
- 		txq->tx_ring.max_items = tx_ring_size;
--		txq->tx_ring.shift = ilog2(tx_ring_size);
-+		txq->tx_ring.shift = ilog2(tx_item_size);
- 		txq->tx_ring.avail = hfi1_ipoib_ring_hwat(txq);
- 
- 		netif_tx_napi_add(dev, &txq->napi,
+ 		return fanout_set_data(po, optval, optlen);
 
 
