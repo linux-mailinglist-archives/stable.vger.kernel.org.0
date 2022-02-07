@@ -2,95 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6F7A4ACC13
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 23:34:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 647544ACC47
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 23:48:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240813AbiBGWe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 17:34:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53138 "EHLO
+        id S234031AbiBGWsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 17:48:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234065AbiBGWe2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 17:34:28 -0500
-Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2CBCC061355
-        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 14:34:27 -0800 (PST)
-Received: by mail-oi1-x234.google.com with SMTP id 4so18603973oil.11
-        for <stable@vger.kernel.org>; Mon, 07 Feb 2022 14:34:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxtx.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=jZpXna9RakCKkgXGAFhti4wc05ngWfCJ4E7jcKRY2H4=;
-        b=eZanaDLiv1hJcEwlxqmy0AJ7x+q9T4OvmtYZ8B2Yc55juThoXIGjgkg8RYy1qxJuXx
-         JHAEaTni7L8CZqYwNGrDoo5LUyjO6Y5vnqsVfR0P9W0Y40jCMS6mfD6vnl7ic4L086Dt
-         Jlcf9lTGh9S5tJpRQizAahaC+b88QiEWGNl+8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=jZpXna9RakCKkgXGAFhti4wc05ngWfCJ4E7jcKRY2H4=;
-        b=DpZwNUeqU/zkFuGrvSKIXx9/Uiqf388vHMyndfSMXX4z42EhrK0Xp9KLw4EOCJP8f3
-         rwAmswnZpXCQVoDnWa6wRP/QyISSdH8mNJumzjlQ+tkGn11QHhBoK2wYR/XbBLTmZwJs
-         dHyi58CJE43BWey2Igoqw1y73PMXnGtaPWk3byHXiPFmrJBKPFOd7dyWSnbkar+4GHws
-         piUXHcOBgyyP0jtVbWATXyUQDnGcOGV39sUROpDW10LVc3H45w092/d68J2YADiOtGw0
-         aXl0lBs9TqlNHTlcDOA6WYdKio+Y2cd/4cPRvF+5gdTJJDasnkc1vIEOpOcexWn8qoh/
-         pqQA==
-X-Gm-Message-State: AOAM5308sObdDRGmC7NqWY8mLJWBKssOgIo9c49Rffn2jFJCwJRzljEu
-        C9ioLdA/+jA+s7+VgxJkwrQZtg==
-X-Google-Smtp-Source: ABdhPJz8cJPnojSXGkuYGPCtnTXScbq+YaH87iccoI/UR4HFfH/DkAwdJhhFBXNp6jCFhJLpeQuGrA==
-X-Received: by 2002:aca:41c5:: with SMTP id o188mr534669oia.160.1644273267306;
-        Mon, 07 Feb 2022 14:34:27 -0800 (PST)
-Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
-        by smtp.gmail.com with ESMTPSA id d21sm4452745otq.68.2022.02.07.14.34.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Feb 2022 14:34:26 -0800 (PST)
-Date:   Mon, 7 Feb 2022 16:34:25 -0600
-From:   Justin Forbes <jmforbes@linuxtx.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.16 000/127] 5.16.8-rc2 review
-Message-ID: <YgGecQQ6T1+W0s8s@fedora64.linuxtx.org>
-References: <20220207133856.644483064@linuxfoundation.org>
+        with ESMTP id S231463AbiBGWsl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 17:48:41 -0500
+X-Greylist: delayed 303 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 07 Feb 2022 14:48:38 PST
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1D20C061355;
+        Mon,  7 Feb 2022 14:48:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1644274117;
+        bh=QhZBPtbAWH4+pKc3YMKNO4ZUECQS51u5SUOueTN1NGg=;
+        h=X-UI-Sender-Class:Date:From:Subject:To:Cc;
+        b=Lwl34HF/VMltqaVw0xBpCYB9VcHeyhGakRFm/hWcojk0l88vpnV0YwjJV7vPYywt+
+         WeuqSC3XH/5ZyEqE2MyOQgVB0pzyxWelpwVAX9LMoLAHiIBqnUjb+tkwNrcor1MUkT
+         JE0yd6wQwmw4PZGevbpv4ZyzSg0b7slAhUFunyf0=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.100.20] ([46.142.35.82]) by mail.gmx.net (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MfHEP-1nxAS63xFb-00goFO; Mon, 07
+ Feb 2022 23:43:34 +0100
+Message-ID: <3251deaa-2b0f-1e04-fdb3-361b84ef4a7a@gmx.de>
+Date:   Mon, 7 Feb 2022 23:43:33 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220207133856.644483064@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+From:   Ronald Warsow <rwarsow@gmx.de>
+Subject: Re: [PATCH 5.16 000/127] 5.16.8-rc2 review
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:RZNd/xCD/zmSBdEh/hZVBZ/+M029zV543YVboXn/dcEJt8wJPXu
+ fLJhzSU/rzrhToxixgkrDAjbT4y0SVNcIKR5YWEDnkZbNuI++xpqx+g4ggFur4FZixdoW2i
+ ITu0T1A4qgSVpKl2xeGHAh4DJCArHZ6kylv86cbmk9lwOv0tHt0Ukm3i4UYk6fRDklKdmT/
+ RrMRaK8icvVqGbOB6StaQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:3ODOsgAMdFU=:WvP8R29XAfZ72OczrvrIFC
+ OAC0aJ3+mV4pewM0QHZfKh0Ef2WMtY8Zw9jYgAOdWp6asUfcXMADovAmArfs/Dnha0yduAQJU
+ 5GuosIlInFnRRFcFkv2yRpxyuqopSP0JmJTzN4gKlnM6CAQoEwVJyJn4e1Ugdox11TEPSjtd6
+ n318fLJ2P2/NQ8wg+8FK2ktJYaoqS5w9UVKbkqphGfJ+fIwusUjBI2yJb+KrhZdeVO42n8GIs
+ hzTed7VAFtKqu63A6WurRQdf3oFVaQ+pXNHb3eLKENxIFr4PwwCSTBVzMmy9uPrd7hAvSOAMK
+ +wtmpVDb2QvRLyN1eJrK6Da33a1j7aj26r8kHs0sqmJMvFyPy3pp1+3bOUJxWY+QcI8KfrPh1
+ Ye7OpaIGiADgk4HYvPV9LzdQl+a31LnwxOxpNjVKTW8e7qIhY/IceTWhoo10vccLhcqdKnPUh
+ 6CxqTocJealxd6siT9lXfQrO7aCkjiVMfQYspaEBrQvfb7otOQF8wb+AAGvy8b2dmGXAbt/qH
+ P+uRlfyQ5xokAZcVlkhPt0EYiBXIWWeH0iIe45AeCSsfMcXAfHP7Hv3wC4fQXqp1reLb0+huu
+ Aq5xA6WlSLXqh6p7JOxxEe7ifchHJefg7EqqeuFt0NPsta/2IPCrQudMDbhJMHZbokTmBzUDj
+ oAyPkToBjS4J+ChqrbvLqTR9XdGAoItBnN8YBw2Kv71esSFlhUgkLw+A/K6GgTZpKC5P1gFCA
+ IoUiSbXuaDvMoXr7YFqaadE+GoE0vwNMqIQ/A5VfFB+NwijSn6kwawpDWh/a0nexWN2lfNv98
+ gIG70nEepFp4aTWhmYeO+jkUQraLCnsHYEsKfRwYqxcZKk02cj+9yNehLzHWpNYJAPSYVuyBO
+ TWecUg602N4fVcBa7eAZlu5+deb9ez7jz5MsMvMIxzlEBDpV2izOCxZyoPEWKnbF9AOFhk0k0
+ n6llywkgEEqMQpfghlZ2CrKo6fjFAx3GMlHt7G7mFK2zL2poe+KkXpA2lzEeE8z0+3MHtDrcN
+ EVI2g9F8kv7XZYtQdhAifx+ygToKg9uAOKYnE+LTyvUhnekkw1GDL44xG7VW+E9xxzCfprJ/3
+ nvky2jMj/jh2vk=
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H5,
+        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 07, 2022 at 03:04:44PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.8 release.
-> There are 127 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 09 Feb 2022 13:38:34 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.8-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+hallo Greg
 
-Tested rc2 against the Fedora build system (aarch64, armv7, ppc64le,
-s390x, x86_64), and boot tested x86_64. No regressions noted.
+5.16.8-rc2
 
-Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+compiles, boots and runs on my x86_64
+(Intel i5-11400, Fedora 35)
+
+Thanks
+
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
+------------------------------------------------------------------------
+
+regards
+Ronald
+
+
