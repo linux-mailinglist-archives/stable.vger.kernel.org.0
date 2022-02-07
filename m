@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFD724ABB01
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:35:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05C1F4ABB9E
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:39:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351916AbiBGLZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:25:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54052 "EHLO
+        id S1384609AbiBGL30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:29:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378469AbiBGLPw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:15:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7029CC0401C4;
-        Mon,  7 Feb 2022 03:15:44 -0800 (PST)
+        with ESMTP id S1383108AbiBGLVh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:21:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75C4AC0401D9;
+        Mon,  7 Feb 2022 03:21:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 879ABB81028;
-        Mon,  7 Feb 2022 11:15:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC37CC004E1;
-        Mon,  7 Feb 2022 11:15:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06BE26126D;
+        Mon,  7 Feb 2022 11:21:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6906C004E1;
+        Mon,  7 Feb 2022 11:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232542;
-        bh=bZY68VpT7CGufdOKN0ip2iobYHcwOX8yhXkeaZpLdgM=;
+        s=korg; t=1644232880;
+        bh=DNdWn2flkb8w9nBNpBs9iVhmk+7EkEXEnkSrwUo7IMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQfR+uKtNspJChdBaKchg6AGLRT8g7mU0SVrFgIlMHtdHku/73Lux527VrVFhRTyw
-         44yoop9ZKaNGsLKMTmPiiR69q3hOKdXHolUXmBabgXxsVRCQH5iXQ0a32j6IKLdSnE
-         75lQSrzb/YmGkltdJg9o3aq9LVdjX+nNnab2PfLM=
+        b=IMxqTPub1JI6bAmCGCGuwd7CCq4neR5sfYnJRLiDKatTy7+Mj3bNLizLa+mnwnk4Z
+         VCvFeKDZfXAfk27NZdrFpHHDOU9AepHgaC77hxHp8llS0CvXu+k8WFuxoRDs5FEQCO
+         ig5k7f4K8cGV0GyPqGOcDVxb/gxL6DgAYkLtbfK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 43/86] yam: fix a memory leak in yam_siocdevprivate()
+        stable@vger.kernel.org, Alexander Sergeyev <sergeev917@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 08/74] ALSA: hda: realtek: Fix race at concurrent COEF updates
 Date:   Mon,  7 Feb 2022 12:06:06 +0100
-Message-Id: <20220207103758.949477972@linuxfoundation.org>
+Message-Id: <20220207103757.509087979@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 29eb31542787e1019208a2e1047bb7c76c069536 ]
+commit b837a9f5ab3bdfab9233c9f98a6bef717673a3e5 upstream.
 
-ym needs to be free when ym->cmd != SIOCYAMSMCS.
+The COEF access is done with two steps: setting the index then read or
+write the data.  When multiple COEF accesses are performed
+concurrently, the index and data might be paired unexpectedly.
+In most cases, this isn't a big problem as the COEF setup is done at
+the initialization, but some dynamic changes like the mute LED may hit
+such a race.
 
-Fixes: 0781168e23a2 ("yam: fix a missing-check bug")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For avoiding the racy COEF accesses, this patch introduces a new
+mutex coef_mutex to alc_spec, and wrap the COEF accessing functions
+with it.
+
+Reported-by: Alexander Sergeyev <sergeev917@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220111195229.a77wrpjclqwrx4bx@localhost.localdomain
+Link: https://lore.kernel.org/r/20220131075738.24323-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hamradio/yam.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |   61 ++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 50 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/hamradio/yam.c b/drivers/net/hamradio/yam.c
-index fdab498725878..3db86f247bf45 100644
---- a/drivers/net/hamradio/yam.c
-+++ b/drivers/net/hamradio/yam.c
-@@ -966,9 +966,7 @@ static int yam_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
- 				 sizeof(struct yamdrv_ioctl_mcs));
- 		if (IS_ERR(ym))
- 			return PTR_ERR(ym);
--		if (ym->cmd != SIOCYAMSMCS)
--			return -EINVAL;
--		if (ym->bitrate > YAM_MAXBITRATE) {
-+		if (ym->cmd != SIOCYAMSMCS || ym->bitrate > YAM_MAXBITRATE) {
- 			kfree(ym);
- 			return -EINVAL;
- 		}
--- 
-2.34.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -97,6 +97,7 @@ struct alc_spec {
+ 	unsigned int gpio_mic_led_mask;
+ 	struct alc_coef_led mute_led_coef;
+ 	struct alc_coef_led mic_led_coef;
++	struct mutex coef_mutex;
+ 
+ 	hda_nid_t headset_mic_pin;
+ 	hda_nid_t headphone_mic_pin;
+@@ -133,8 +134,8 @@ struct alc_spec {
+  * COEF access helper functions
+  */
+ 
+-static int alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+-			       unsigned int coef_idx)
++static int __alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++				 unsigned int coef_idx)
+ {
+ 	unsigned int val;
+ 
+@@ -143,28 +144,61 @@ static int alc_read_coefex_idx(struct hd
+ 	return val;
+ }
+ 
++static int alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++			       unsigned int coef_idx)
++{
++	struct alc_spec *spec = codec->spec;
++	unsigned int val;
++
++	mutex_lock(&spec->coef_mutex);
++	val = __alc_read_coefex_idx(codec, nid, coef_idx);
++	mutex_unlock(&spec->coef_mutex);
++	return val;
++}
++
+ #define alc_read_coef_idx(codec, coef_idx) \
+ 	alc_read_coefex_idx(codec, 0x20, coef_idx)
+ 
+-static void alc_write_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+-				 unsigned int coef_idx, unsigned int coef_val)
++static void __alc_write_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++				   unsigned int coef_idx, unsigned int coef_val)
+ {
+ 	snd_hda_codec_write(codec, nid, 0, AC_VERB_SET_COEF_INDEX, coef_idx);
+ 	snd_hda_codec_write(codec, nid, 0, AC_VERB_SET_PROC_COEF, coef_val);
+ }
+ 
++static void alc_write_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++				 unsigned int coef_idx, unsigned int coef_val)
++{
++	struct alc_spec *spec = codec->spec;
++
++	mutex_lock(&spec->coef_mutex);
++	__alc_write_coefex_idx(codec, nid, coef_idx, coef_val);
++	mutex_unlock(&spec->coef_mutex);
++}
++
+ #define alc_write_coef_idx(codec, coef_idx, coef_val) \
+ 	alc_write_coefex_idx(codec, 0x20, coef_idx, coef_val)
+ 
++static void __alc_update_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
++				    unsigned int coef_idx, unsigned int mask,
++				    unsigned int bits_set)
++{
++	unsigned int val = __alc_read_coefex_idx(codec, nid, coef_idx);
++
++	if (val != -1)
++		__alc_write_coefex_idx(codec, nid, coef_idx,
++				       (val & ~mask) | bits_set);
++}
++
+ static void alc_update_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+ 				  unsigned int coef_idx, unsigned int mask,
+ 				  unsigned int bits_set)
+ {
+-	unsigned int val = alc_read_coefex_idx(codec, nid, coef_idx);
++	struct alc_spec *spec = codec->spec;
+ 
+-	if (val != -1)
+-		alc_write_coefex_idx(codec, nid, coef_idx,
+-				     (val & ~mask) | bits_set);
++	mutex_lock(&spec->coef_mutex);
++	__alc_update_coefex_idx(codec, nid, coef_idx, mask, bits_set);
++	mutex_unlock(&spec->coef_mutex);
+ }
+ 
+ #define alc_update_coef_idx(codec, coef_idx, mask, bits_set)	\
+@@ -197,13 +231,17 @@ struct coef_fw {
+ static void alc_process_coef_fw(struct hda_codec *codec,
+ 				const struct coef_fw *fw)
+ {
++	struct alc_spec *spec = codec->spec;
++
++	mutex_lock(&spec->coef_mutex);
+ 	for (; fw->nid; fw++) {
+ 		if (fw->mask == (unsigned short)-1)
+-			alc_write_coefex_idx(codec, fw->nid, fw->idx, fw->val);
++			__alc_write_coefex_idx(codec, fw->nid, fw->idx, fw->val);
+ 		else
+-			alc_update_coefex_idx(codec, fw->nid, fw->idx,
+-					      fw->mask, fw->val);
++			__alc_update_coefex_idx(codec, fw->nid, fw->idx,
++						fw->mask, fw->val);
+ 	}
++	mutex_unlock(&spec->coef_mutex);
+ }
+ 
+ /*
+@@ -1160,6 +1198,7 @@ static int alc_alloc_spec(struct hda_cod
+ 	codec->spdif_status_reset = 1;
+ 	codec->forced_resume = 1;
+ 	codec->patch_ops = alc_patch_ops;
++	mutex_init(&spec->coef_mutex);
+ 
+ 	err = alc_codec_rename_from_preset(codec);
+ 	if (err < 0) {
 
 
