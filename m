@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1E914ABAB9
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4A9F4ABA1D
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:27:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384025AbiBGLYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49636 "EHLO
+        id S237229AbiBGLXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:23:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353119AbiBGLMH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:12:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D724BC043189;
-        Mon,  7 Feb 2022 03:12:06 -0800 (PST)
+        with ESMTP id S1355245AbiBGLIH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:08:07 -0500
+X-Greylist: delayed 13060 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 07 Feb 2022 03:08:06 PST
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 571CCC043181;
+        Mon,  7 Feb 2022 03:08:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72E2161380;
-        Mon,  7 Feb 2022 11:12:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44A14C004E1;
-        Mon,  7 Feb 2022 11:12:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95D2CB80EE8;
+        Mon,  7 Feb 2022 11:08:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1664C004E1;
+        Mon,  7 Feb 2022 11:08:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232325;
-        bh=4jO7K2E2c5x+A9y9hULWt9uHAkK9NZL2YaHuUeXezB4=;
+        s=korg; t=1644232083;
+        bh=xDt/v0wjh/teTSvWU8FTJ+9zGVA5D8k7qvF/ziHbYYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sixaUP5wZpPz0mEyAGBl8sJxOeMflkp5yxvHZ9IGhmKDNx3DBMcm2hwk/J31FHo+r
-         whf35qiYQDCO7STKFdIwTOgxv/4o+r4xQyMg0R1aZ6/ElDwHzmrh4YfPT4vM7eTSea
-         Eeo6QBcT7HIJ4MqJoaSr6zG98bCtqrLnosdGWtAA=
+        b=BWm2EyN0nkbFQNe2aJo9g23UHkkhuSk/J+/TWPj+RWUvCvufVZcttVZXCuQdOQNaB
+         OjVBzV/7cFvLWUfKeBl2JhPnCpq5hRQ2HEmDFNs1MoiVvOvKgEyBvbmkm65v5iGU67
+         gVAJJuQnlaqufrpxBXrsTxTwyYvtezrjYfjCLv4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+76629376e06e2c2ad626@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 14/69] USB: core: Fix hang in usb_kill_urb by adding memory barriers
+        stable@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.9 03/48] s390/hypfs: include z/VM guests with access control group set
 Date:   Mon,  7 Feb 2022 12:05:36 +0100
-Message-Id: <20220207103756.084594797@linuxfoundation.org>
+Message-Id: <20220207103752.452958801@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
-References: <20220207103755.604121441@linuxfoundation.org>
+In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
+References: <20220207103752.341184175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,128 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-commit 26fbe9772b8c459687930511444ce443011f86bf upstream.
+commit 663d34c8df98740f1e90241e78e456d00b3c6cad upstream.
 
-The syzbot fuzzer has identified a bug in which processes hang waiting
-for usb_kill_urb() to return.  It turns out the issue is not unlinking
-the URB; that works just fine.  Rather, the problem arises when the
-wakeup notification that the URB has completed is not received.
+Currently if z/VM guest is allowed to retrieve hypervisor performance
+data globally for all guests (privilege class B) the query is formed in a
+way to include all guests but the group name is left empty. This leads to
+that z/VM guests which have access control group set not being included
+in the results (even local vm).
 
-The reason is memory-access ordering on SMP systems.  In outline form,
-usb_kill_urb() and __usb_hcd_giveback_urb() operating concurrently on
-different CPUs perform the following actions:
+Change the query group identifier from empty to "any" to retrieve
+information about all guests from any groups (or without a group set).
 
-CPU 0					CPU 1
-----------------------------		---------------------------------
-usb_kill_urb():				__usb_hcd_giveback_urb():
-  ...					  ...
-  atomic_inc(&urb->reject);		  atomic_dec(&urb->use_count);
-  ...					  ...
-  wait_event(usb_kill_urb_queue,
-	atomic_read(&urb->use_count) == 0);
-					  if (atomic_read(&urb->reject))
-						wake_up(&usb_kill_urb_queue);
-
-Confining your attention to urb->reject and urb->use_count, you can
-see that the overall pattern of accesses on CPU 0 is:
-
-	write urb->reject, then read urb->use_count;
-
-whereas the overall pattern of accesses on CPU 1 is:
-
-	write urb->use_count, then read urb->reject.
-
-This pattern is referred to in memory-model circles as SB (for "Store
-Buffering"), and it is well known that without suitable enforcement of
-the desired order of accesses -- in the form of memory barriers -- it
-is entirely possible for one or both CPUs to execute their reads ahead
-of their writes.  The end result will be that sometimes CPU 0 sees the
-old un-decremented value of urb->use_count while CPU 1 sees the old
-un-incremented value of urb->reject.  Consequently CPU 0 ends up on
-the wait queue and never gets woken up, leading to the observed hang
-in usb_kill_urb().
-
-The same pattern of accesses occurs in usb_poison_urb() and the
-failure pathway of usb_hcd_submit_urb().
-
-The problem is fixed by adding suitable memory barriers.  To provide
-proper memory-access ordering in the SB pattern, a full barrier is
-required on both CPUs.  The atomic_inc() and atomic_dec() accesses
-themselves don't provide any memory ordering, but since they are
-present, we can use the optimized smp_mb__after_atomic() memory
-barrier in the various routines to obtain the desired effect.
-
-This patch adds the necessary memory barriers.
-
-CC: <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+76629376e06e2c2ad626@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/Ye8K0QYee0Q0Nna2@rowland.harvard.edu
+Cc: stable@vger.kernel.org
+Fixes: 31cb4bd31a48 ("[S390] Hypervisor filesystem (s390_hypfs) for z/VM")
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hcd.c |   14 ++++++++++++++
- drivers/usb/core/urb.c |   12 ++++++++++++
- 2 files changed, 26 insertions(+)
+ arch/s390/hypfs/hypfs_vm.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -1679,6 +1679,13 @@ int usb_hcd_submit_urb (struct urb *urb,
- 		urb->hcpriv = NULL;
- 		INIT_LIST_HEAD(&urb->urb_list);
- 		atomic_dec(&urb->use_count);
-+		/*
-+		 * Order the write of urb->use_count above before the read
-+		 * of urb->reject below.  Pairs with the memory barriers in
-+		 * usb_kill_urb() and usb_poison_urb().
-+		 */
-+		smp_mb__after_atomic();
-+
- 		atomic_dec(&urb->dev->urbnum);
- 		if (atomic_read(&urb->reject))
- 			wake_up(&usb_kill_urb_queue);
-@@ -1788,6 +1795,13 @@ static void __usb_hcd_giveback_urb(struc
+--- a/arch/s390/hypfs/hypfs_vm.c
++++ b/arch/s390/hypfs/hypfs_vm.c
+@@ -19,6 +19,7 @@
  
- 	usb_anchor_resume_wakeups(anchor);
- 	atomic_dec(&urb->use_count);
-+	/*
-+	 * Order the write of urb->use_count above before the read
-+	 * of urb->reject below.  Pairs with the memory barriers in
-+	 * usb_kill_urb() and usb_poison_urb().
-+	 */
-+	smp_mb__after_atomic();
-+
- 	if (unlikely(atomic_read(&urb->reject)))
- 		wake_up(&usb_kill_urb_queue);
- 	usb_put_urb(urb);
---- a/drivers/usb/core/urb.c
-+++ b/drivers/usb/core/urb.c
-@@ -686,6 +686,12 @@ void usb_kill_urb(struct urb *urb)
- 	if (!(urb && urb->dev && urb->ep))
- 		return;
- 	atomic_inc(&urb->reject);
-+	/*
-+	 * Order the write of urb->reject above before the read
-+	 * of urb->use_count below.  Pairs with the barriers in
-+	 * __usb_hcd_giveback_urb() and usb_hcd_submit_urb().
-+	 */
-+	smp_mb__after_atomic();
+ static char local_guest[] = "        ";
+ static char all_guests[] = "*       ";
++static char *all_groups = all_guests;
+ static char *guest_query;
  
- 	usb_hcd_unlink_urb(urb, -ENOENT);
- 	wait_event(usb_kill_urb_queue, atomic_read(&urb->use_count) == 0);
-@@ -727,6 +733,12 @@ void usb_poison_urb(struct urb *urb)
- 	if (!urb)
- 		return;
- 	atomic_inc(&urb->reject);
-+	/*
-+	 * Order the write of urb->reject above before the read
-+	 * of urb->use_count below.  Pairs with the barriers in
-+	 * __usb_hcd_giveback_urb() and usb_hcd_submit_urb().
-+	 */
-+	smp_mb__after_atomic();
+ struct diag2fc_data {
+@@ -61,10 +62,11 @@ static int diag2fc(int size, char* query
  
- 	if (!urb->dev || !urb->ep)
- 		return;
+ 	memcpy(parm_list.userid, query, NAME_LEN);
+ 	ASCEBC(parm_list.userid, NAME_LEN);
+-	parm_list.addr = (unsigned long) addr ;
++	memcpy(parm_list.aci_grp, all_groups, NAME_LEN);
++	ASCEBC(parm_list.aci_grp, NAME_LEN);
++	parm_list.addr = (unsigned long)addr;
+ 	parm_list.size = size;
+ 	parm_list.fmt = 0x02;
+-	memset(parm_list.aci_grp, 0x40, NAME_LEN);
+ 	rc = -1;
+ 
+ 	diag_stat_inc(DIAG_STAT_X2FC);
 
 
