@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 373104ABA81
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:29:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D79D4ABD9C
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:00:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383843AbiBGLXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:23:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49218 "EHLO
+        id S1388816AbiBGLpc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:45:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238560AbiBGLLP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:11:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E717BC0401C4;
-        Mon,  7 Feb 2022 03:11:14 -0800 (PST)
+        with ESMTP id S1385568AbiBGLb7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:31:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83552C03E969;
+        Mon,  7 Feb 2022 03:30:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77C8561261;
-        Mon,  7 Feb 2022 11:11:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A0F7C340EB;
-        Mon,  7 Feb 2022 11:11:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DA3CB80EBD;
+        Mon,  7 Feb 2022 11:30:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 879BBC004E1;
+        Mon,  7 Feb 2022 11:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232273;
-        bh=sm5sbFHOTB/cW9HRgnuJ81rw67nPFJSlWPf3S0Er/qk=;
+        s=korg; t=1644233452;
+        bh=ommyWLdHB1X5ao2pxgZFgQltSg+lALGtV7sFv7djEpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kkVNuTpI0qPRpVD1v15A+AWWPvhHgYi5X8MfoaFdzr08RPtlHdBsZcEj9kEryNujp
-         PaIGrgwbtOWql672TwATEGjILh6Boa50eyVeBbbOctWjF7KCvsJQaoIAFtJVrxmpki
-         NtpNQb2MedYCOpjkcPjqNoC6BPA/yipw0hmqOFbQ=
+        b=i6vbk9/b8rxq0BGIoBa7l3rrlS9RSFVdIVtnEYvAKfI5INttm5FwmXK1ZcDxSVX6O
+         P4aVJcrUHWOfzInlDvYwGX7Qnn2mqrow2N7PBE4O5LZ/QT6uC12s1kYRWTlhRUCI6e
+         PJ0TJx+f3UoG4xDRmdNsDqvehV9WpdzR/aHupF2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Congyu Liu <liu3101@purdue.edu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 25/69] net: fix information leakage in /proc/net/ptype
-Date:   Mon,  7 Feb 2022 12:05:47 +0100
-Message-Id: <20220207103756.446972586@linuxfoundation.org>
+        stable@vger.kernel.org, Anton Lundin <glance@acc.umu.se>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 5.16 017/126] ata: libata-core: Introduce ATA_HORKAGE_NO_LOG_DIR horkage
+Date:   Mon,  7 Feb 2022 12:05:48 +0100
+Message-Id: <20220207103804.653311531@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
-References: <20220207103755.604121441@linuxfoundation.org>
+In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
+References: <20220207103804.053675072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Congyu Liu <liu3101@purdue.edu>
+From: Anton Lundin <glance@acc.umu.se>
 
-commit 47934e06b65637c88a762d9c98329ae6e3238888 upstream.
+commit ac9f0c810684a1b161c18eb4b91ce84cbc13c91d upstream.
 
-In one net namespace, after creating a packet socket without binding
-it to a device, users in other net namespaces can observe the new
-`packet_type` added by this packet socket by reading `/proc/net/ptype`
-file. This is minor information leakage as packet socket is
-namespace aware.
+06f6c4c6c3e8 ("ata: libata: add missing ata_identify_page_supported() calls")
+introduced additional calls to ata_identify_page_supported(), thus also
+adding indirectly accesses to the device log directory log page through
+ata_log_supported(). Reading this log page causes SATADOM-ML 3ME devices
+to lock up.
 
-Add a net pointer in `packet_type` to keep the net namespace of
-of corresponding packet socket. In `ptype_seq_show`, this net pointer
-must be checked when it is not NULL.
+Introduce the horkage flag ATA_HORKAGE_NO_LOG_DIR to prevent accesses to
+the log directory in ata_log_supported() and add a blacklist entry
+with this flag for "SATADOM-ML 3ME" devices.
 
-Fixes: 2feb27dbe00c ("[NETNS]: Minor information leak via /proc/net/ptype file.")
-Signed-off-by: Congyu Liu <liu3101@purdue.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 636f6e2af4fb ("libata: add horkage for missing Identify Device log")
+Cc: stable@vger.kernel.org # v5.10+
+Signed-off-by: Anton Lundin <glance@acc.umu.se>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netdevice.h |    1 +
- net/core/net-procfs.c     |    3 ++-
- net/packet/af_packet.c    |    2 ++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/ata/libata-core.c |   10 ++++++++++
+ include/linux/libata.h    |    1 +
+ 2 files changed, 11 insertions(+)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -2206,6 +2206,7 @@ struct packet_type {
- 					 struct net_device *);
- 	bool			(*id_match)(struct packet_type *ptype,
- 					    struct sock *sk);
-+	struct net		*af_packet_net;
- 	void			*af_packet_priv;
- 	struct list_head	list;
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -2043,6 +2043,9 @@ static bool ata_log_supported(struct ata
+ {
+ 	struct ata_port *ap = dev->link->ap;
+ 
++	if (dev->horkage & ATA_HORKAGE_NO_LOG_DIR)
++		return false;
++
+ 	if (ata_read_log_page(dev, ATA_LOG_DIRECTORY, 0, ap->sector_buf, 1))
+ 		return false;
+ 	return get_unaligned_le16(&ap->sector_buf[log * 2]) ? true : false;
+@@ -4123,6 +4126,13 @@ static const struct ata_blacklist_entry
+ 	{ "WDC WD3000JD-*",		NULL,	ATA_HORKAGE_WD_BROKEN_LPM },
+ 	{ "WDC WD3200JD-*",		NULL,	ATA_HORKAGE_WD_BROKEN_LPM },
+ 
++	/*
++	 * This sata dom device goes on a walkabout when the ATA_LOG_DIRECTORY
++	 * log page is accessed. Ensure we never ask for this log page with
++	 * these devices.
++	 */
++	{ "SATADOM-ML 3ME",		NULL,	ATA_HORKAGE_NO_LOG_DIR },
++
+ 	/* End Marker */
+ 	{ }
  };
---- a/net/core/net-procfs.c
-+++ b/net/core/net-procfs.c
-@@ -279,7 +279,8 @@ static int ptype_seq_show(struct seq_fil
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -428,6 +428,7 @@ enum {
+ 	ATA_HORKAGE_MAX_TRIM_128M = (1 << 26),	/* Limit max trim size to 128M */
+ 	ATA_HORKAGE_NO_NCQ_ON_ATI = (1 << 27),	/* Disable NCQ on ATI chipset */
+ 	ATA_HORKAGE_NO_ID_DEV_LOG = (1 << 28),	/* Identify device log missing */
++	ATA_HORKAGE_NO_LOG_DIR	= (1 << 29),	/* Do not read log directory */
  
- 	if (v == SEQ_START_TOKEN)
- 		seq_puts(seq, "Type Device      Function\n");
--	else if (pt->dev == NULL || dev_net(pt->dev) == seq_file_net(seq)) {
-+	else if ((!pt->af_packet_net || net_eq(pt->af_packet_net, seq_file_net(seq))) &&
-+		 (!pt->dev || net_eq(dev_net(pt->dev), seq_file_net(seq)))) {
- 		if (pt->type == htons(ETH_P_ALL))
- 			seq_puts(seq, "ALL ");
- 		else
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1756,6 +1756,7 @@ static int fanout_add(struct sock *sk, u
- 		match->prot_hook.dev = po->prot_hook.dev;
- 		match->prot_hook.func = packet_rcv_fanout;
- 		match->prot_hook.af_packet_priv = match;
-+		match->prot_hook.af_packet_net = read_pnet(&match->net);
- 		match->prot_hook.id_match = match_fanout_group;
- 		list_add(&match->list, &fanout_list);
- 	}
-@@ -3330,6 +3331,7 @@ static int packet_create(struct net *net
- 		po->prot_hook.func = packet_rcv_spkt;
- 
- 	po->prot_hook.af_packet_priv = sk;
-+	po->prot_hook.af_packet_net = sock_net(sk);
- 
- 	if (proto) {
- 		po->prot_hook.type = proto;
+ 	 /* DMA mask for user DMA control: User visible values; DO NOT
+ 	    renumber */
 
 
