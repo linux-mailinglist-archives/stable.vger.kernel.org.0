@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 001624ABB5C
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 599A94ABC8D
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384477AbiBGL2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:28:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58802 "EHLO
+        id S1386832AbiBGLhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:37:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382457AbiBGLTP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:19:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A408CC0401C3;
-        Mon,  7 Feb 2022 03:19:14 -0800 (PST)
+        with ESMTP id S1384635AbiBGL3a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:29:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3586CC02B5E8;
+        Mon,  7 Feb 2022 03:27:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 183F761426;
-        Mon,  7 Feb 2022 11:19:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E985DC004E1;
-        Mon,  7 Feb 2022 11:19:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9ED9B811A6;
+        Mon,  7 Feb 2022 11:27:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15284C004E1;
+        Mon,  7 Feb 2022 11:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232753;
-        bh=b13qAo4YSP2y+ta2ne27FSUAmi4yqSLi1KWG0FFTyEU=;
+        s=korg; t=1644233264;
+        bh=G53Ov27bx25K4bYLcs+JBgsqz22eleL4UIUrJ3J1pmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=socPR+A26rP6ZlBB96Vt4Tsj6Qq7N0PrvsZ9Yp5NrdAjZEh5cwkxuHvWQLHffAHSt
-         Bxy6XM0RfS+7NioDY5gJWpIDv/m8v+3Ty7tKKULTFRESoXgn57itSLWLvC7w+4+tHo
-         h4dR0bmZJ3yAggf6MTiXPswWjtKt3MJNjTJA6+lc=
+        b=gbZY4oNOQnU/lNERKTOyZazLtMML9qlLGYS4FsB4liIPLvvFiRhASabY2s5NDMc6F
+         C6vaStQpXGDD6xtSMudmyKM+vYB2SMGPo25qLe3N39KVOwd6le0xUYlKeDUYjCzvaY
+         H5fU8lV3poNovXUdxBiW86ZUk3lH2v6owomuhNBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 5.4 25/44] net: ieee802154: mcr20a: Fix lifs/sifs periods
+        stable@vger.kernel.org,
+        Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.15 068/110] drm/kmb: Fix for build errors with Warray-bounds
 Date:   Mon,  7 Feb 2022 12:06:41 +0100
-Message-Id: <20220207103753.981171151@linuxfoundation.org>
+Message-Id: <20220207103804.581728460@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
-References: <20220207103753.155627314@linuxfoundation.org>
+In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
+References: <20220207103802.280120990@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Anitha Chrisanthus <anitha.chrisanthus@intel.com>
 
-commit d753c4004820a888ec007dd88b271fa9c3172c5c upstream.
+commit 43f2517955875be5d96b641fba33d73097fe3cd9 upstream.
 
-These periods are expressed in time units (microseconds) while 40 and 12
-are the number of symbol durations these periods will last. We need to
-multiply them both with phy->symbol_duration in order to get these
-values in microseconds.
+This fixes the following build error
 
-Fixes: 8c6ad9cc5157 ("ieee802154: Add NXP MCR20A IEEE 802.15.4 transceiver driver")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20220125121426.848337-3-miquel.raynal@bootlin.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+drivers/gpu/drm/kmb/kmb_plane.c: In function 'kmb_plane_atomic_disable':
+drivers/gpu/drm/kmb/kmb_plane.c:165:34: error: array subscript 3 is above array bounds of 'struct layer_status[2]' [-Werror=array-bounds]
+  165 |                 kmb->plane_status[plane_id].ctrl =
+  LCD_CTRL_GL2_ENABLE;
+  |                 ~~~~~~~~~~~~~~~~~^~~~~~~~~~
+  In file included from drivers/gpu/drm/kmb/kmb_plane.c:17:
+  drivers/gpu/drm/kmb/kmb_drv.h:61:41: note: while referencing 'plane_status'
+  61 |         struct layer_status  plane_status[KMB_MAX_PLANES];
+  |                                         ^~~~~~~~~~~~
+  drivers/gpu/drm/kmb/kmb_plane.c:162:34: error: array subscript 2 is above array bounds of 'struct layer_status[2]' [-Werror=array-bounds]
+  162 |  kmb->plane_status[plane_id].ctrl =  LCD_CTRL_GL1_ENABLE;
+  |                 ~~~~~~~~~~~~~~~~~^~~~~~~~~~
+  In file included from
+  drivers/gpu/drm/kmb/kmb_plane.c:17:
+  drivers/gpu/drm/kmb/kmb_drv.h:61:41: note: while referencing 'plane_status'
+  61 |         struct layer_status  plane_status[KMB_MAX_PLANES];
+  |
+  ^~~~~~~~~~~~
+
+Fixes: 7f7b96a8a0a1 ("drm/kmb: Add support for KeemBay Display")
+Signed-off-by: Anitha Chrisanthus <anitha.chrisanthus@intel.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220127194227.2213608-1-anitha.chrisanthus@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ieee802154/mcr20a.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/kmb/kmb_plane.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/drivers/net/ieee802154/mcr20a.c
-+++ b/drivers/net/ieee802154/mcr20a.c
-@@ -976,8 +976,8 @@ static void mcr20a_hw_setup(struct mcr20
- 	dev_dbg(printdev(lp), "%s\n", __func__);
+--- a/drivers/gpu/drm/kmb/kmb_plane.c
++++ b/drivers/gpu/drm/kmb/kmb_plane.c
+@@ -158,12 +158,6 @@ static void kmb_plane_atomic_disable(str
+ 	case LAYER_1:
+ 		kmb->plane_status[plane_id].ctrl = LCD_CTRL_VL2_ENABLE;
+ 		break;
+-	case LAYER_2:
+-		kmb->plane_status[plane_id].ctrl = LCD_CTRL_GL1_ENABLE;
+-		break;
+-	case LAYER_3:
+-		kmb->plane_status[plane_id].ctrl = LCD_CTRL_GL2_ENABLE;
+-		break;
+ 	}
  
- 	phy->symbol_duration = 16;
--	phy->lifs_period = 40;
--	phy->sifs_period = 12;
-+	phy->lifs_period = 40 * phy->symbol_duration;
-+	phy->sifs_period = 12 * phy->symbol_duration;
- 
- 	hw->flags = IEEE802154_HW_TX_OMIT_CKSUM |
- 			IEEE802154_HW_AFILT |
+ 	kmb->plane_status[plane_id].disable = true;
 
 
