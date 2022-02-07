@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D75AD4ABDB7
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:03:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 715B54ABDB9
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 13:03:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389047AbiBGLpz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:45:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48320 "EHLO
+        id S1389054AbiBGLp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:45:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386714AbiBGLgT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:36:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32ED0C0401EB;
-        Mon,  7 Feb 2022 03:36:18 -0800 (PST)
+        with ESMTP id S1386730AbiBGLgX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:36:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6D89C03FECD;
+        Mon,  7 Feb 2022 03:36:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C624A6091A;
-        Mon,  7 Feb 2022 11:36:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABBE3C004E1;
-        Mon,  7 Feb 2022 11:36:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 800BCB80EBD;
+        Mon,  7 Feb 2022 11:36:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6957C004E1;
+        Mon,  7 Feb 2022 11:36:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233777;
-        bh=R4imgKnV8m32j4qt81S3AnOiSUStzzwNsdj4QWnDjis=;
+        s=korg; t=1644233780;
+        bh=CfF5WdTDKr8HJN9/b0LVxkEDlz1x+4lkrQSzwtW1+XQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hxz/Ec2FZheIlL+dI7q0x/Cd3iV6Yxadd4rX43s5puD+WX8aqZAfkU/07nHW+cwP1
-         JjCMD1Zvm1zfO/H3Li97e9huYc1vqb8EKYHJygGvf7R68cSxv8kLF+v7maV7DnpueP
-         DDWKpu+tQ5ZpOsPmtf1y14s/QQ+a6zYHriFYjSjE=
+        b=YLNoFxxPvUd5BUSM5eKiDgMHpUeVHGGKR97mwM1dFfmsVFZStvQKQ2f1CvVCMHfmd
+         rOGaxP76d426LmdQbLZHP/CnoOxlQXKfwMU46EWv3HA7xqNak0i+FiPdfG9jp3YyEO
+         zV4ZgYOTj3/o/BnQ6yaamzh7sQ0FV67xoSRBlB60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Yin <yinxin.x@bytedance.com>,
-        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.16 116/126] ext4: modify the logic of ext4_mb_new_blocks_simple
-Date:   Mon,  7 Feb 2022 12:07:27 +0100
-Message-Id: <20220207103808.065831948@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Whitney <enwlinux@gmail.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 5.16 117/126] ext4: fix error handling in ext4_restore_inline_data()
+Date:   Mon,  7 Feb 2022 12:07:28 +0100
+Message-Id: <20220207103808.102750557@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
 References: <20220207103804.053675072@linuxfoundation.org>
@@ -54,74 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Yin <yinxin.x@bytedance.com>
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-commit 31a074a0c62dc0d2bfb9b543142db4fe27f9e5eb upstream.
+commit 897026aaa73eb2517dfea8d147f20ddb0b813044 upstream.
 
-For now in ext4_mb_new_blocks_simple, if we found a block which
-should be excluded then will switch to next group, this may
-probably cause 'group' run out of range.
+While running "./check -I 200 generic/475" it sometimes gives below
+kernel BUG(). Ideally we should not call ext4_write_inline_data() if
+ext4_create_inline_data() has failed.
 
-Change to check next block in the same group when get a block should
-be excluded. Also change the search range to EXT4_CLUSTERS_PER_GROUP
-and add error checking.
+<log snip>
+[73131.453234] kernel BUG at fs/ext4/inline.c:223!
 
-Signed-off-by: Xin Yin <yinxin.x@bytedance.com>
-Reviewed-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
-Link: https://lore.kernel.org/r/20220110035141.1980-3-yinxin.x@bytedance.com
+<code snip>
+ 212 static void ext4_write_inline_data(struct inode *inode, struct ext4_iloc *iloc,
+ 213                                    void *buffer, loff_t pos, unsigned int len)
+ 214 {
+<...>
+ 223         BUG_ON(!EXT4_I(inode)->i_inline_off);
+ 224         BUG_ON(pos + len > EXT4_I(inode)->i_inline_size);
+
+This patch handles the error and prints out a emergency msg saying potential
+data loss for the given inode (since we couldn't restore the original
+inline_data due to some previous error).
+
+[ 9571.070313] EXT4-fs (dm-0): error restoring inline_data for inode -- potential data loss! (inode 1703982, error -30)
+
+Reported-by: Eric Whitney <enwlinux@gmail.com>
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/9f4cd7dfd54fa58ff27270881823d94ddf78dd07.1642416995.git.riteshh@linux.ibm.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/mballoc.c |   26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+ fs/ext4/inline.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -5753,7 +5753,8 @@ static ext4_fsblk_t ext4_mb_new_blocks_s
- 	struct super_block *sb = ar->inode->i_sb;
- 	ext4_group_t group;
- 	ext4_grpblk_t blkoff;
--	int i = sb->s_blocksize;
-+	ext4_grpblk_t max = EXT4_CLUSTERS_PER_GROUP(sb);
-+	ext4_grpblk_t i = 0;
- 	ext4_fsblk_t goal, block;
- 	struct ext4_super_block *es = EXT4_SB(sb)->s_es;
- 
-@@ -5775,19 +5776,26 @@ static ext4_fsblk_t ext4_mb_new_blocks_s
- 		ext4_get_group_no_and_offset(sb,
- 			max(ext4_group_first_block_no(sb, group), goal),
- 			NULL, &blkoff);
--		i = mb_find_next_zero_bit(bitmap_bh->b_data, sb->s_blocksize,
-+		while (1) {
-+			i = mb_find_next_zero_bit(bitmap_bh->b_data, max,
- 						blkoff);
-+			if (i >= max)
-+				break;
-+			if (ext4_fc_replay_check_excluded(sb,
-+				ext4_group_first_block_no(sb, group) + i)) {
-+				blkoff = i + 1;
-+			} else
-+				break;
-+		}
- 		brelse(bitmap_bh);
--		if (i >= sb->s_blocksize)
--			continue;
--		if (ext4_fc_replay_check_excluded(sb,
--			ext4_group_first_block_no(sb, group) + i))
--			continue;
--		break;
-+		if (i < max)
-+			break;
- 	}
- 
--	if (group >= ext4_get_groups_count(sb) && i >= sb->s_blocksize)
-+	if (group >= ext4_get_groups_count(sb) || i >= max) {
-+		*errp = -ENOSPC;
- 		return 0;
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -1133,7 +1133,15 @@ static void ext4_restore_inline_data(han
+ 				     struct ext4_iloc *iloc,
+ 				     void *buf, int inline_size)
+ {
+-	ext4_create_inline_data(handle, inode, inline_size);
++	int ret;
++
++	ret = ext4_create_inline_data(handle, inode, inline_size);
++	if (ret) {
++		ext4_msg(inode->i_sb, KERN_EMERG,
++			"error restoring inline_data for inode -- potential data loss! (inode %lu, error %d)",
++			inode->i_ino, ret);
++		return;
 +	}
- 
- 	block = ext4_group_first_block_no(sb, group) + i;
- 	ext4_mb_mark_bb(sb, block, 1, 1);
+ 	ext4_write_inline_data(inode, iloc, buf, 0, inline_size);
+ 	ext4_set_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+ }
 
 
