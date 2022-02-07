@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EECD4ABCB9
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:49:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2C644ABB79
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387074AbiBGLjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:39:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45900 "EHLO
+        id S1359542AbiBGL2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:28:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385783AbiBGLce (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:32:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A337FC043181;
-        Mon,  7 Feb 2022 03:32:33 -0800 (PST)
+        with ESMTP id S1383578AbiBGLW7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:22:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E076BC043181;
+        Mon,  7 Feb 2022 03:22:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59C2EB80EC3;
-        Mon,  7 Feb 2022 11:32:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B0B9C004E1;
-        Mon,  7 Feb 2022 11:32:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72DA361380;
+        Mon,  7 Feb 2022 11:22:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56EDAC004E1;
+        Mon,  7 Feb 2022 11:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233551;
-        bh=vrB/RKCrhUdnQqTQrbSnLENcZbcBygxjrdB7ZJt2Xcg=;
+        s=korg; t=1644232977;
+        bh=Yi+aO17RMvhJzsy4QMGy26kwoK7BkoXux0P4J5pPcf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/kBZk8mDfTZUzDAXaj+S8znkuoNsqJ7qW44Wr5u9uuwWTR6tiWKwakZq8L4cxivA
-         0KtixKXf3lmpeLvl2GPx5skKLJRGIfbFlXXtn/4kcCaZoRQn7OrNu9RW2YQroiufYv
-         TlColIHwEC/KblkFNZyJQsrcYZu/H+rJCVxmKqRM=
+        b=IdqxJkYb+rhT5ky6z5/w4qhoXjavqoo5vvViPViuzaGFGsBqEG5RJMB40ooKVsxUW
+         VMhQuUSf1J3cj/QUwpwh3XSKiixWZ08Pz8QnEa/RXY/YzRvw7hFJl/ZV/NBg6VTcYj
+         fYyW5zsHgRy84HXM/9Ty46R79UYxb9+QzaWmUgFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Suzuki Poulose <suzuki.poulose@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 5.16 047/126] arm64: Add Cortex-A510 CPU part definition
+        stable@vger.kernel.org, Dmitry Monakhov <dmonakhov@openvz.org>,
+        Dmitry Ivanov <dmitry.ivanov2@hpe.com>,
+        Alexey Lyashkov <alexey.lyashkov@hpe.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 20/74] block: bio-integrity: Advance seed correctly for larger interval sizes
 Date:   Mon,  7 Feb 2022 12:06:18 +0100
-Message-Id: <20220207103805.746458741@linuxfoundation.org>
+Message-Id: <20220207103757.898337254@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,44 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Martin K. Petersen <martin.petersen@oracle.com>
 
-commit 53960faf2b731dd2f9ed6e1334634b8ba6286850 upstream.
+commit b13e0c71856817fca67159b11abac350e41289f5 upstream.
 
-Add the CPU Partnumbers for the new Arm designs.
+Commit 309a62fa3a9e ("bio-integrity: bio_integrity_advance must update
+integrity seed") added code to update the integrity seed value when
+advancing a bio. However, it failed to take into account that the
+integrity interval might be larger than the 512-byte block layer
+sector size. This broke bio splitting on PI devices with 4KB logical
+blocks.
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Suzuki Poulose <suzuki.poulose@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Link: https://lore.kernel.org/r/1643120437-14352-2-git-send-email-anshuman.khandual@arm.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+The seed value should be advanced by bio_integrity_intervals() and not
+the number of sectors.
+
+Cc: Dmitry Monakhov <dmonakhov@openvz.org>
+Cc: stable@vger.kernel.org
+Fixes: 309a62fa3a9e ("bio-integrity: bio_integrity_advance must update integrity seed")
+Tested-by: Dmitry Ivanov <dmitry.ivanov2@hpe.com>
+Reported-by: Alexey Lyashkov <alexey.lyashkov@hpe.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lore.kernel.org/r/20220204034209.4193-1-martin.petersen@oracle.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/cputype.h |    2 ++
- 1 file changed, 2 insertions(+)
+ block/bio-integrity.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -73,6 +73,7 @@
- #define ARM_CPU_PART_CORTEX_A76		0xD0B
- #define ARM_CPU_PART_NEOVERSE_N1	0xD0C
- #define ARM_CPU_PART_CORTEX_A77		0xD0D
-+#define ARM_CPU_PART_CORTEX_A510	0xD46
- #define ARM_CPU_PART_CORTEX_A710	0xD47
- #define ARM_CPU_PART_NEOVERSE_N2	0xD49
+--- a/block/bio-integrity.c
++++ b/block/bio-integrity.c
+@@ -384,7 +384,7 @@ void bio_integrity_advance(struct bio *b
+ 	struct blk_integrity *bi = blk_get_integrity(bio->bi_disk);
+ 	unsigned bytes = bio_integrity_bytes(bi, bytes_done >> 9);
  
-@@ -115,6 +116,7 @@
- #define MIDR_CORTEX_A76	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A76)
- #define MIDR_NEOVERSE_N1 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_N1)
- #define MIDR_CORTEX_A77	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A77)
-+#define MIDR_CORTEX_A510 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A510)
- #define MIDR_CORTEX_A710 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A710)
- #define MIDR_NEOVERSE_N2 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_N2)
- #define MIDR_THUNDERX	MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX)
+-	bip->bip_iter.bi_sector += bytes_done >> 9;
++	bip->bip_iter.bi_sector += bio_integrity_intervals(bi, bytes_done >> 9);
+ 	bvec_iter_advance(bip->bip_vec, &bip->bip_iter, bytes);
+ }
+ 
 
 
