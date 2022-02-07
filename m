@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C335B4ABA93
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 441074ABB2E
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383909AbiBGLYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:24:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49586 "EHLO
+        id S1384261AbiBGL1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:27:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352740AbiBGLMA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:12:00 -0500
+        with ESMTP id S1378063AbiBGLPn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:15:43 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A83C043181;
-        Mon,  7 Feb 2022 03:11:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CE2FC0401CE;
+        Mon,  7 Feb 2022 03:15:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2EADCB80EE8;
-        Mon,  7 Feb 2022 11:11:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73327C340F0;
-        Mon,  7 Feb 2022 11:11:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BEB94B811AF;
+        Mon,  7 Feb 2022 11:15:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7FEFC004E1;
+        Mon,  7 Feb 2022 11:15:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232317;
-        bh=A0RU8r+l+8sVWeobTgW/MCLtGu7DGf8IPAqtA1vxPvw=;
+        s=korg; t=1644232521;
+        bh=F1s5gUhACbxYTgy3q4vT3rcy4q4s2APu8H8KOKKraCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLIPIm/POsby5w19PVfnC+Z7om8M3SQp1hG4I58wCYoNb2pbcMeCyyZHR9mE2sfoN
-         xCjDO8HOtYaru6fYgP0i9IUgTdvNHVKPFSX3AaSUEi/g6bZypIvMolRLRQZc+rZSzj
-         8+VoGyMoAIdg9Yr402Wh3b+Vk8gA9da7x8zDdxYU=
+        b=ZGqUVtfHTnNGBdpkKlCwHD16JczQ8bUiaGZ4dSCGWZZ1b2IRCp0K/GEqd8W57nAq2
+         qW4miE4gpPQrZSCAwnqvzOmfC5qsA/PQDl/eNyubxlBHEWhFZ68I6daIfyt6OIr+os
+         L2MY9ZyMsdmTOLGgF+AzOUaevAlew+SyOpeuVUY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Alessio Balsini <balsini@android.com>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 4.14 38/69] bpf: fix truncated jump targets on heavy expansions
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 37/86] ipv6: annotate accesses to fn->fn_sernum
 Date:   Mon,  7 Feb 2022 12:06:00 +0100
-Message-Id: <20220207103756.875238153@linuxfoundation.org>
+Message-Id: <20220207103758.744907067@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
-References: <20220207103755.604121441@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+References: <20220207103757.550973048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,202 +54,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 050fad7c4534c13c8eb1d9c2ba66012e014773cb upstream.
+commit aafc2e3285c2d7a79b7ee15221c19fbeca7b1509 upstream.
 
-Recently during testing, I ran into the following panic:
+struct fib6_node's fn_sernum field can be
+read while other threads change it.
 
-  [  207.892422] Internal error: Accessing user space memory outside uaccess.h routines: 96000004 [#1] SMP
-  [  207.901637] Modules linked in: binfmt_misc [...]
-  [  207.966530] CPU: 45 PID: 2256 Comm: test_verifier Tainted: G        W         4.17.0-rc3+ #7
-  [  207.974956] Hardware name: FOXCONN R2-1221R-A4/C2U4N_MB, BIOS G31FB18A 03/31/2017
-  [  207.982428] pstate: 60400005 (nZCv daif +PAN -UAO)
-  [  207.987214] pc : bpf_skb_load_helper_8_no_cache+0x34/0xc0
-  [  207.992603] lr : 0xffff000000bdb754
-  [  207.996080] sp : ffff000013703ca0
-  [  207.999384] x29: ffff000013703ca0 x28: 0000000000000001
-  [  208.004688] x27: 0000000000000001 x26: 0000000000000000
-  [  208.009992] x25: ffff000013703ce0 x24: ffff800fb4afcb00
-  [  208.015295] x23: ffff00007d2f5038 x22: ffff00007d2f5000
-  [  208.020599] x21: fffffffffeff2a6f x20: 000000000000000a
-  [  208.025903] x19: ffff000009578000 x18: 0000000000000a03
-  [  208.031206] x17: 0000000000000000 x16: 0000000000000000
-  [  208.036510] x15: 0000ffff9de83000 x14: 0000000000000000
-  [  208.041813] x13: 0000000000000000 x12: 0000000000000000
-  [  208.047116] x11: 0000000000000001 x10: ffff0000089e7f18
-  [  208.052419] x9 : fffffffffeff2a6f x8 : 0000000000000000
-  [  208.057723] x7 : 000000000000000a x6 : 00280c6160000000
-  [  208.063026] x5 : 0000000000000018 x4 : 0000000000007db6
-  [  208.068329] x3 : 000000000008647a x2 : 19868179b1484500
-  [  208.073632] x1 : 0000000000000000 x0 : ffff000009578c08
-  [  208.078938] Process test_verifier (pid: 2256, stack limit = 0x0000000049ca7974)
-  [  208.086235] Call trace:
-  [  208.088672]  bpf_skb_load_helper_8_no_cache+0x34/0xc0
-  [  208.093713]  0xffff000000bdb754
-  [  208.096845]  bpf_test_run+0x78/0xf8
-  [  208.100324]  bpf_prog_test_run_skb+0x148/0x230
-  [  208.104758]  sys_bpf+0x314/0x1198
-  [  208.108064]  el0_svc_naked+0x30/0x34
-  [  208.111632] Code: 91302260 f9400001 f9001fa1 d2800001 (29500680)
-  [  208.117717] ---[ end trace 263cb8a59b5bf29f ]---
+Add READ_ONCE()/WRITE_ONCE() annotations.
 
-The program itself which caused this had a long jump over the whole
-instruction sequence where all of the inner instructions required
-heavy expansions into multiple BPF instructions. Additionally, I also
-had BPF hardening enabled which requires once more rewrites of all
-constant values in order to blind them. Each time we rewrite insns,
-bpf_adj_branches() would need to potentially adjust branch targets
-which cross the patchlet boundary to accommodate for the additional
-delta. Eventually that lead to the case where the target offset could
-not fit into insn->off's upper 0x7fff limit anymore where then offset
-wraps around becoming negative (in s16 universe), or vice versa
-depending on the jump direction.
+Do not change existing smp barriers in fib6_get_cookie_safe()
+and __fib6_update_sernum_upto_root()
 
-Therefore it becomes necessary to detect and reject any such occasions
-in a generic way for native eBPF and cBPF to eBPF migrations. For
-the latter we can simply check bounds in the bpf_convert_filter()'s
-BPF_EMIT_JMP helper macro and bail out once we surpass limits. The
-bpf_patch_insn_single() for native eBPF (and cBPF to eBPF in case
-of subsequent hardening) is a bit more complex in that we need to
-detect such truncations before hitting the bpf_prog_realloc(). Thus
-the latter is split into an extra pass to probe problematic offsets
-on the original program in order to fail early. With that in place
-and carefully tested I no longer hit the panic and the rewrites are
-rejected properly. The above example panic I've seen on bpf-next,
-though the issue itself is generic in that a guard against this issue
-in bpf seems more appropriate in this case.
+syzbot reported:
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-[ab: Dropped BPF_PSEUDO_CALL hardening, introoduced in 4.16]
-Signed-off-by: Alessio Balsini <balsini@android.com>
-Acked-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+BUG: KCSAN: data-race in fib6_clean_node / inet6_csk_route_socket
+
+write to 0xffff88813df62e2c of 4 bytes by task 1920 on cpu 1:
+ fib6_clean_node+0xc2/0x260 net/ipv6/ip6_fib.c:2178
+ fib6_walk_continue+0x38e/0x430 net/ipv6/ip6_fib.c:2112
+ fib6_walk net/ipv6/ip6_fib.c:2160 [inline]
+ fib6_clean_tree net/ipv6/ip6_fib.c:2240 [inline]
+ __fib6_clean_all+0x1a9/0x2e0 net/ipv6/ip6_fib.c:2256
+ fib6_flush_trees+0x6c/0x80 net/ipv6/ip6_fib.c:2281
+ rt_genid_bump_ipv6 include/net/net_namespace.h:488 [inline]
+ addrconf_dad_completed+0x57f/0x870 net/ipv6/addrconf.c:4230
+ addrconf_dad_work+0x908/0x1170
+ process_one_work+0x3f6/0x960 kernel/workqueue.c:2307
+ worker_thread+0x616/0xa70 kernel/workqueue.c:2454
+ kthread+0x1bf/0x1e0 kernel/kthread.c:359
+ ret_from_fork+0x1f/0x30
+
+read to 0xffff88813df62e2c of 4 bytes by task 15701 on cpu 0:
+ fib6_get_cookie_safe include/net/ip6_fib.h:285 [inline]
+ rt6_get_cookie include/net/ip6_fib.h:306 [inline]
+ ip6_dst_store include/net/ip6_route.h:234 [inline]
+ inet6_csk_route_socket+0x352/0x3c0 net/ipv6/inet6_connection_sock.c:109
+ inet6_csk_xmit+0x91/0x1e0 net/ipv6/inet6_connection_sock.c:121
+ __tcp_transmit_skb+0x1323/0x1840 net/ipv4/tcp_output.c:1402
+ tcp_transmit_skb net/ipv4/tcp_output.c:1420 [inline]
+ tcp_write_xmit+0x1450/0x4460 net/ipv4/tcp_output.c:2680
+ __tcp_push_pending_frames+0x68/0x1c0 net/ipv4/tcp_output.c:2864
+ tcp_push+0x2d9/0x2f0 net/ipv4/tcp.c:725
+ mptcp_push_release net/mptcp/protocol.c:1491 [inline]
+ __mptcp_push_pending+0x46c/0x490 net/mptcp/protocol.c:1578
+ mptcp_sendmsg+0x9ec/0xa50 net/mptcp/protocol.c:1764
+ inet6_sendmsg+0x5f/0x80 net/ipv6/af_inet6.c:643
+ sock_sendmsg_nosec net/socket.c:705 [inline]
+ sock_sendmsg net/socket.c:725 [inline]
+ kernel_sendmsg+0x97/0xd0 net/socket.c:745
+ sock_no_sendpage+0x84/0xb0 net/core/sock.c:3086
+ inet_sendpage+0x9d/0xc0 net/ipv4/af_inet.c:834
+ kernel_sendpage+0x187/0x200 net/socket.c:3492
+ sock_sendpage+0x5a/0x70 net/socket.c:1007
+ pipe_to_sendpage+0x128/0x160 fs/splice.c:364
+ splice_from_pipe_feed fs/splice.c:418 [inline]
+ __splice_from_pipe+0x207/0x500 fs/splice.c:562
+ splice_from_pipe fs/splice.c:597 [inline]
+ generic_splice_sendpage+0x94/0xd0 fs/splice.c:746
+ do_splice_from fs/splice.c:767 [inline]
+ direct_splice_actor+0x80/0xa0 fs/splice.c:936
+ splice_direct_to_actor+0x345/0x650 fs/splice.c:891
+ do_splice_direct+0x106/0x190 fs/splice.c:979
+ do_sendfile+0x675/0xc40 fs/read_write.c:1245
+ __do_sys_sendfile64 fs/read_write.c:1310 [inline]
+ __se_sys_sendfile64 fs/read_write.c:1296 [inline]
+ __x64_sys_sendfile64+0x102/0x140 fs/read_write.c:1296
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0x0000026f -> 0x00000271
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 15701 Comm: syz-executor.2 Not tainted 5.16.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+The Fixes tag I chose is probably arbitrary, I do not think
+we need to backport this patch to older kernels.
+
+Fixes: c5cff8561d2d ("ipv6: add rcu grace period before freeing fib6_node")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20220120174112.1126644-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/core.c |   59 ++++++++++++++++++++++++++++++++++++++++++++++--------
- net/core/filter.c |   11 ++++++++--
- 2 files changed, 60 insertions(+), 10 deletions(-)
+ include/net/ip6_fib.h |    2 +-
+ net/ipv6/ip6_fib.c    |   23 +++++++++++++----------
+ net/ipv6/route.c      |    2 +-
+ 3 files changed, 15 insertions(+), 12 deletions(-)
 
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -228,27 +228,57 @@ static bool bpf_is_jmp_and_has_target(co
- 	       BPF_OP(insn->code) != BPF_EXIT;
+--- a/include/net/ip6_fib.h
++++ b/include/net/ip6_fib.h
+@@ -243,7 +243,7 @@ static inline bool fib6_get_cookie_safe(
+ 	fn = rcu_dereference(f6i->fib6_node);
+ 
+ 	if (fn) {
+-		*cookie = fn->fn_sernum;
++		*cookie = READ_ONCE(fn->fn_sernum);
+ 		/* pairs with smp_wmb() in fib6_update_sernum_upto_root() */
+ 		smp_rmb();
+ 		status = true;
+--- a/net/ipv6/ip6_fib.c
++++ b/net/ipv6/ip6_fib.c
+@@ -112,7 +112,7 @@ void fib6_update_sernum(struct net *net,
+ 	fn = rcu_dereference_protected(f6i->fib6_node,
+ 			lockdep_is_held(&f6i->fib6_table->tb6_lock));
+ 	if (fn)
+-		fn->fn_sernum = fib6_new_sernum(net);
++		WRITE_ONCE(fn->fn_sernum, fib6_new_sernum(net));
  }
  
--static void bpf_adj_branches(struct bpf_prog *prog, u32 pos, u32 delta)
-+static int bpf_adj_delta_to_off(struct bpf_insn *insn, u32 pos, u32 delta,
-+				u32 curr, const bool probe_pass)
- {
-+	const s32 off_min = S16_MIN, off_max = S16_MAX;
-+	s32 off = insn->off;
-+
-+	if (curr < pos && curr + off + 1 > pos)
-+		off += delta;
-+	else if (curr > pos + delta && curr + off + 1 <= pos + delta)
-+		off -= delta;
-+	if (off < off_min || off > off_max)
-+		return -ERANGE;
-+	if (!probe_pass)
-+		insn->off = off;
-+	return 0;
-+}
-+
-+static int bpf_adj_branches(struct bpf_prog *prog, u32 pos, u32 delta,
-+			    const bool probe_pass)
-+{
-+	u32 i, insn_cnt = prog->len + (probe_pass ? delta : 0);
- 	struct bpf_insn *insn = prog->insnsi;
--	u32 i, insn_cnt = prog->len;
-+	int ret = 0;
- 
- 	for (i = 0; i < insn_cnt; i++, insn++) {
-+		/* In the probing pass we still operate on the original,
-+		 * unpatched image in order to check overflows before we
-+		 * do any other adjustments. Therefore skip the patchlet.
-+		 */
-+		if (probe_pass && i == pos) {
-+			i += delta + 1;
-+			insn++;
-+		}
-+
- 		if (!bpf_is_jmp_and_has_target(insn))
- 			continue;
- 
--		/* Adjust offset of jmps if we cross boundaries. */
--		if (i < pos && i + insn->off + 1 > pos)
--			insn->off += delta;
--		else if (i > pos + delta && i + insn->off + 1 <= pos + delta)
--			insn->off -= delta;
-+		/* Adjust offset of jmps if we cross patch boundaries. */
-+		ret = bpf_adj_delta_to_off(insn, pos, delta, i, probe_pass);
-+		if (ret)
-+			break;
+ /*
+@@ -544,12 +544,13 @@ static int fib6_dump_table(struct fib6_t
+ 		spin_unlock_bh(&table->tb6_lock);
+ 		if (res > 0) {
+ 			cb->args[4] = 1;
+-			cb->args[5] = w->root->fn_sernum;
++			cb->args[5] = READ_ONCE(w->root->fn_sernum);
+ 		}
+ 	} else {
+-		if (cb->args[5] != w->root->fn_sernum) {
++		int sernum = READ_ONCE(w->root->fn_sernum);
++		if (cb->args[5] != sernum) {
+ 			/* Begin at the root if the tree changed */
+-			cb->args[5] = w->root->fn_sernum;
++			cb->args[5] = sernum;
+ 			w->state = FWS_INIT;
+ 			w->node = w->root;
+ 			w->skip = w->count;
+@@ -1203,7 +1204,7 @@ static void __fib6_update_sernum_upto_ro
+ 	/* paired with smp_rmb() in rt6_get_cookie_safe() */
+ 	smp_wmb();
+ 	while (fn) {
+-		fn->fn_sernum = sernum;
++		WRITE_ONCE(fn->fn_sernum, sernum);
+ 		fn = rcu_dereference_protected(fn->parent,
+ 				lockdep_is_held(&rt->fib6_table->tb6_lock));
  	}
-+
-+	return ret;
- }
+@@ -1983,8 +1984,8 @@ static int fib6_clean_node(struct fib6_w
+ 	};
  
- struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
- 				       const struct bpf_insn *patch, u32 len)
+ 	if (c->sernum != FIB6_NO_SERNUM_CHANGE &&
+-	    w->node->fn_sernum != c->sernum)
+-		w->node->fn_sernum = c->sernum;
++	    READ_ONCE(w->node->fn_sernum) != c->sernum)
++		WRITE_ONCE(w->node->fn_sernum, c->sernum);
+ 
+ 	if (!c->func) {
+ 		WARN_ON_ONCE(c->sernum == FIB6_NO_SERNUM_CHANGE);
+@@ -2332,7 +2333,7 @@ static void ipv6_route_seq_setup_walk(st
+ 	iter->w.state = FWS_INIT;
+ 	iter->w.node = iter->w.root;
+ 	iter->w.args = iter;
+-	iter->sernum = iter->w.root->fn_sernum;
++	iter->sernum = READ_ONCE(iter->w.root->fn_sernum);
+ 	INIT_LIST_HEAD(&iter->w.lh);
+ 	fib6_walker_link(net, &iter->w);
+ }
+@@ -2360,8 +2361,10 @@ static struct fib6_table *ipv6_route_seq
+ 
+ static void ipv6_route_check_sernum(struct ipv6_route_iter *iter)
  {
- 	u32 insn_adj_cnt, insn_rest, insn_delta = len - 1;
-+	const u32 cnt_max = S16_MAX;
- 	struct bpf_prog *prog_adj;
- 
- 	/* Since our patchlet doesn't expand the image, we're done. */
-@@ -259,6 +289,15 @@ struct bpf_prog *bpf_patch_insn_single(s
- 
- 	insn_adj_cnt = prog->len + insn_delta;
- 
-+	/* Reject anything that would potentially let the insn->off
-+	 * target overflow when we have excessive program expansions.
-+	 * We need to probe here before we do any reallocation where
-+	 * we afterwards may not fail anymore.
-+	 */
-+	if (insn_adj_cnt > cnt_max &&
-+	    bpf_adj_branches(prog, off, insn_delta, true))
-+		return NULL;
+-	if (iter->sernum != iter->w.root->fn_sernum) {
+-		iter->sernum = iter->w.root->fn_sernum;
++	int sernum = READ_ONCE(iter->w.root->fn_sernum);
 +
- 	/* Several new instructions need to be inserted. Make room
- 	 * for them. Likely, there's no need for a new allocation as
- 	 * last page could have large enough tailroom.
-@@ -284,7 +323,11 @@ struct bpf_prog *bpf_patch_insn_single(s
- 		sizeof(*patch) * insn_rest);
- 	memcpy(prog_adj->insnsi + off, patch, sizeof(*patch) * len);
- 
--	bpf_adj_branches(prog_adj, off, insn_delta);
-+	/* We are guaranteed to not fail at this point, otherwise
-+	 * the ship has sailed to reverse to the original state. An
-+	 * overflow cannot happen at this point.
-+	 */
-+	BUG_ON(bpf_adj_branches(prog_adj, off, insn_delta, false));
- 
- 	return prog_adj;
- }
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -472,11 +472,18 @@ do_pass:
- 
- #define BPF_EMIT_JMP							\
- 	do {								\
-+		const s32 off_min = S16_MIN, off_max = S16_MAX;		\
-+		s32 off;						\
-+									\
- 		if (target >= len || target < 0)			\
- 			goto err;					\
--		insn->off = addrs ? addrs[target] - addrs[i] - 1 : 0;	\
-+		off = addrs ? addrs[target] - addrs[i] - 1 : 0;		\
- 		/* Adjust pc relative offset for 2nd or 3rd insn. */	\
--		insn->off -= insn - tmp_insns;				\
-+		off -= insn - tmp_insns;				\
-+		/* Reject anything not fitting into insn->off. */	\
-+		if (off < off_min || off > off_max)			\
-+			goto err;					\
-+		insn->off = off;					\
- 	} while (0)
- 
- 		case BPF_JMP | BPF_JA:
++	if (iter->sernum != sernum) {
++		iter->sernum = sernum;
+ 		iter->w.state = FWS_INIT;
+ 		iter->w.node = iter->w.root;
+ 		WARN_ON(iter->w.skip);
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -2320,7 +2320,7 @@ static void ip6_link_failure(struct sk_b
+ 			if (from) {
+ 				fn = rcu_dereference(from->fib6_node);
+ 				if (fn && (rt->rt6i_flags & RTF_DEFAULT))
+-					fn->fn_sernum = -1;
++					WRITE_ONCE(fn->fn_sernum, -1);
+ 			}
+ 		}
+ 		rcu_read_unlock();
 
 
