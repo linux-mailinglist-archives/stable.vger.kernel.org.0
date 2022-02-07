@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E626E4ABB70
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:38:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D03144ABB3A
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:37:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356287AbiBGL2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:28:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34554 "EHLO
+        id S1384286AbiBGL12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:27:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383456AbiBGLWb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:22:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91AE7C043181;
-        Mon,  7 Feb 2022 03:22:30 -0800 (PST)
+        with ESMTP id S1381875AbiBGLRj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:17:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE657C0401F4;
+        Mon,  7 Feb 2022 03:17:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E7F5B81028;
-        Mon,  7 Feb 2022 11:22:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 962DBC004E1;
-        Mon,  7 Feb 2022 11:22:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A06C6126D;
+        Mon,  7 Feb 2022 11:17:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EE50C004E1;
+        Mon,  7 Feb 2022 11:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644232948;
-        bh=QP1HDIGI0Be4fyhFaed9ZyP3A+9v1iuwVzIVMxGZcVU=;
+        s=korg; t=1644232645;
+        bh=hqkNVBOY0nLILtHUbF7Ph3I2L0K2QYQl+6SqV0lpEbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MPUrc+p0jivb4MwTAeJc1qp5unB1R2M/uOgCeAl/BgokpCA8X1MkrHtJp1uDDQidK
-         ojaR0LuESs4rqs3a5QZ/oXvmveAZUFeG3e8tJP0eP1059eUXSmB32gA4WPhlmBp3vU
-         45wbBOjZUGAfrN7RnLjx2KnSKm1zEq6gFGMZN2qc=
+        b=Q9B6zcw8TZuoxHCeUYgmNpo3INvOI33TOldrgbd/2zbWxNFTs4wZ0dF8SY60Bpy2G
+         7fKx6XD4AoyyYjORbnZ4Onoyl8o+jbtl1H39RgO2OuKibWc5fdSTo5U1app7F5YKT6
+         AvaTRWHdEJxdRPhFvSpmXxHb6ZnN2gO4P+4XKX1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Camel Guo <camelg@axis.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 42/74] net: stmmac: dump gmac4 DMA registers correctly
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 77/86] ASoC: fsl: Add missing error handling in pcm030_fabric_probe
 Date:   Mon,  7 Feb 2022 12:06:40 +0100
-Message-Id: <20220207103758.603272932@linuxfoundation.org>
+Message-Id: <20220207103800.195504006@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
-References: <20220207103757.232676988@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+References: <20220207103757.550973048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,95 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Camel Guo <camelg@axis.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 7af037c39b600bac2c716dd1228e8ddbe149573f upstream.
+commit fb25621da5702c104ce0a48de5b174ced09e5b4e upstream.
 
-Unlike gmac100, gmac1000, gmac4 has 27 DMA registers and they are
-located at DMA_CHAN_BASE_ADDR (0x1100). In order for ethtool to dump
-gmac4 DMA registers correctly, this commit checks if a net_device has
-gmac4 and uses different logic to dump its DMA registers.
+Add the missing platform_device_put() and platform_device_del()
+before return from pcm030_fabric_probe in the error handling case.
 
-This fixes the following KASAN warning, which can normally be triggered
-by a command similar like "ethtool -d eth0":
-
-BUG: KASAN: vmalloc-out-of-bounds in dwmac4_dump_dma_regs+0x6d4/0xb30
-Write of size 4 at addr ffffffc010177100 by task ethtool/1839
- kasan_report+0x200/0x21c
- __asan_report_store4_noabort+0x34/0x60
- dwmac4_dump_dma_regs+0x6d4/0xb30
- stmmac_ethtool_gregs+0x110/0x204
- ethtool_get_regs+0x200/0x4b0
- dev_ethtool+0x1dac/0x3800
- dev_ioctl+0x7c0/0xb50
- sock_ioctl+0x298/0x6c4
- ...
-
-Fixes: fbf68229ffe7 ("net: stmmac: unify registers dumps methods")
-Signed-off-by: Camel Guo <camelg@axis.com>
-Link: https://lore.kernel.org/r/20220131083841.3346801-1-camel.guo@axis.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: c912fa913446 ("ASoC: fsl: register the wm9712-codec")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220127131336.30214-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h      |    1 +
- drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c |   19 +++++++++++++++++--
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ sound/soc/fsl/pcm030-audio-fabric.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac_dma.h
-@@ -130,6 +130,7 @@
+--- a/sound/soc/fsl/pcm030-audio-fabric.c
++++ b/sound/soc/fsl/pcm030-audio-fabric.c
+@@ -90,16 +90,21 @@ static int pcm030_fabric_probe(struct pl
+ 		dev_err(&op->dev, "platform_device_alloc() failed\n");
  
- #define NUM_DWMAC100_DMA_REGS	9
- #define NUM_DWMAC1000_DMA_REGS	23
-+#define NUM_DWMAC4_DMA_REGS	27
+ 	ret = platform_device_add(pdata->codec_device);
+-	if (ret)
++	if (ret) {
+ 		dev_err(&op->dev, "platform_device_add() failed: %d\n", ret);
++		platform_device_put(pdata->codec_device);
++	}
  
- void dwmac_enable_dma_transmission(void __iomem *ioaddr);
- void dwmac_enable_dma_irq(void __iomem *ioaddr, u32 chan, bool rx, bool tx);
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-@@ -21,10 +21,18 @@
- #include "dwxgmac2.h"
+ 	ret = snd_soc_register_card(card);
+-	if (ret)
++	if (ret) {
+ 		dev_err(&op->dev, "snd_soc_register_card() failed: %d\n", ret);
++		platform_device_del(pdata->codec_device);
++		platform_device_put(pdata->codec_device);
++	}
  
- #define REG_SPACE_SIZE	0x1060
-+#define GMAC4_REG_SPACE_SIZE	0x116C
- #define MAC100_ETHTOOL_NAME	"st_mac100"
- #define GMAC_ETHTOOL_NAME	"st_gmac"
- #define XGMAC_ETHTOOL_NAME	"st_xgmac"
- 
-+/* Same as DMA_CHAN_BASE_ADDR defined in dwmac4_dma.h
-+ *
-+ * It is here because dwmac_dma.h and dwmac4_dam.h can not be included at the
-+ * same time due to the conflicting macro names.
-+ */
-+#define GMAC4_DMA_CHAN_BASE_ADDR  0x00001100
+ 	platform_set_drvdata(op, pdata);
+-
+ 	return ret;
 +
- #define ETHTOOL_DMA_OFFSET	55
- 
- struct stmmac_stats {
-@@ -413,6 +421,8 @@ static int stmmac_ethtool_get_regs_len(s
- 
- 	if (priv->plat->has_xgmac)
- 		return XGMAC_REGSIZE * 4;
-+	else if (priv->plat->has_gmac4)
-+		return GMAC4_REG_SPACE_SIZE;
- 	return REG_SPACE_SIZE;
  }
  
-@@ -425,8 +435,13 @@ static void stmmac_ethtool_gregs(struct
- 	stmmac_dump_mac_regs(priv, priv->hw, reg_space);
- 	stmmac_dump_dma_regs(priv, priv->ioaddr, reg_space);
- 
--	if (!priv->plat->has_xgmac) {
--		/* Copy DMA registers to where ethtool expects them */
-+	/* Copy DMA registers to where ethtool expects them */
-+	if (priv->plat->has_gmac4) {
-+		/* GMAC4 dumps its DMA registers at its DMA_CHAN_BASE_ADDR */
-+		memcpy(&reg_space[ETHTOOL_DMA_OFFSET],
-+		       &reg_space[GMAC4_DMA_CHAN_BASE_ADDR / 4],
-+		       NUM_DWMAC4_DMA_REGS * 4);
-+	} else if (!priv->plat->has_xgmac) {
- 		memcpy(&reg_space[ETHTOOL_DMA_OFFSET],
- 		       &reg_space[DMA_BUS_MODE / 4],
- 		       NUM_DWMAC1000_DMA_REGS * 4);
+ static int pcm030_fabric_remove(struct platform_device *op)
 
 
