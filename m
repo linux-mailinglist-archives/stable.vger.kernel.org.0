@@ -2,52 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 231C14ABBB7
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:39:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 064084ABA72
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:28:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384737AbiBGL3v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:29:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36588 "EHLO
+        id S1383750AbiBGLXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:23:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234936AbiBGLZC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:25:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32FCEC043189;
-        Mon,  7 Feb 2022 03:25:01 -0800 (PST)
+        with ESMTP id S1354815AbiBGLM0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:12:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEC89C043188;
+        Mon,  7 Feb 2022 03:12:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCDE76077B;
-        Mon,  7 Feb 2022 11:25:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69A43C004E1;
-        Mon,  7 Feb 2022 11:24:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B462611AA;
+        Mon,  7 Feb 2022 11:12:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BC7DC004E1;
+        Mon,  7 Feb 2022 11:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233100;
-        bh=UBUGUaJZe93yLz+nk7Ton8WJCc+VGhP2Z/SUcF67TSE=;
+        s=korg; t=1644232344;
+        bh=FE2h/zvvcUjsME01AwRtBtnb1+6moFaXnxKmjhwCs3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D1QCKwMvqrqOY0PBmIDwvsgpmfBWF561OZJGbdMc+oizXCQ/u/1+F/GKaVoqbI2VB
-         Z5WGPTW8JfAp+GA9nrVU9z4Ai28ziNIDvL6IFZ+oWrQueZuwplzPzJzG5ykmS2sJEd
-         MGrZQV7D45NGNmhtx8xUC8YbdneSCOX2cH46DXMQ=
+        b=d7/ngxnbVgbeCX6qVlzE8O9AH4ps0gtGp6nlrlGQs2YMcGT5zfFqnonfebWn1yj0U
+         sMjsyBmaxFVW1riW6xZT2ClV7wFswN6mTp6z4951DdVyS5+G+NFYMOeMQznijVTlem
+         +gsI/UCf2NbQCp50STInFUh3gLB3aGECndjVhu/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Minghao Chi <chi.minghao@zte.com.cn>,
-        Shakeel Butt <shakeelb@google.com>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Arnd Bergmann <arnd@arndb.de>, Yang Guang <cgel.zte@gmail.com>,
-        Davidlohr Bueso <dbueso@suse.de>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Bhaskar Chowdhury <unixbhaskar@gmail.com>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 004/110] ipc/sem: do not sleep with a spin lock held
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Badhri Jagan Sridharan <badhri@google.com>
+Subject: [PATCH 4.14 15/69] usb: typec: tcpm: Do not disconnect while receiving VBUS off
 Date:   Mon,  7 Feb 2022 12:05:37 +0100
-Message-Id: <20220207103802.427673715@linuxfoundation.org>
+Message-Id: <20220207103756.117211011@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,52 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minghao Chi <chi.minghao@zte.com.cn>
+From: Badhri Jagan Sridharan <badhri@google.com>
 
-commit 520ba724061cef59763e2b6f5b26e8387c2e5822 upstream.
+commit 90b8aa9f5b09edae6928c0561f933fec9f7a9987 upstream.
 
-We can't call kvfree() with a spin lock held, so defer it.
+With some chargers, vbus might momentarily raise above VSAFE5V and fall
+back to 0V before tcpm gets to read port->tcpc->get_vbus. This will
+will report a VBUS off event causing TCPM to transition to
+SNK_UNATTACHED where it should be waiting in either SNK_ATTACH_WAIT
+or SNK_DEBOUNCED state. This patch makes TCPM avoid vbus off events
+while in SNK_ATTACH_WAIT or SNK_DEBOUNCED state.
 
-Link: https://lkml.kernel.org/r/20211223031207.556189-1-chi.minghao@zte.com.cn
-Fixes: fc37a3b8b438 ("[PATCH] ipc sem: use kvmalloc for sem_undo allocation")
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Manfred Spraul <manfred@colorfullife.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Yang Guang <cgel.zte@gmail.com>
-Cc: Davidlohr Bueso <dbueso@suse.de>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Bhaskar Chowdhury <unixbhaskar@gmail.com>
-Cc: Vasily Averin <vvs@virtuozzo.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Stub from the spec:
+    "4.5.2.2.4.2 Exiting from AttachWait.SNK State
+    A Sink shall transition to Unattached.SNK when the state of both
+    the CC1 and CC2 pins is SNK.Open for at least tPDDebounce.
+    A DRP shall transition to Unattached.SRC when the state of both
+    the CC1 and CC2 pins is SNK.Open for at least tPDDebounce."
+
+[23.194131] CC1: 0 -> 0, CC2: 0 -> 5 [state SNK_UNATTACHED, polarity 0, connected]
+[23.201777] state change SNK_UNATTACHED -> SNK_ATTACH_WAIT [rev3 NONE_AMS]
+[23.209949] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev3 NONE_AMS]
+[23.300579] VBUS off
+[23.300668] state change SNK_ATTACH_WAIT -> SNK_UNATTACHED [rev3 NONE_AMS]
+[23.301014] VBUS VSAFE0V
+[23.301111] Start toggling
+
+Fixes: f0690a25a140b8 ("staging: typec: USB Type-C Port Manager (tcpm)")
+Cc: stable@vger.kernel.org
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+Link: https://lore.kernel.org/r/20220122015520.332507-1-badhri@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- ipc/sem.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/typec/tcpm.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/ipc/sem.c
-+++ b/ipc/sem.c
-@@ -1964,6 +1964,7 @@ static struct sem_undo *find_alloc_undo(
- 	 */
- 	un = lookup_undo(ulp, semid);
- 	if (un) {
-+		spin_unlock(&ulp->lock);
- 		kvfree(new);
- 		goto success;
- 	}
-@@ -1976,9 +1977,8 @@ static struct sem_undo *find_alloc_undo(
- 	ipc_assert_locked_object(&sma->sem_perm);
- 	list_add(&new->list_id, &sma->list_id);
- 	un = new;
--
--success:
- 	spin_unlock(&ulp->lock);
-+success:
- 	sem_unlock(sma, -1);
- out:
- 	return un;
+--- a/drivers/staging/typec/tcpm.c
++++ b/drivers/staging/typec/tcpm.c
+@@ -3103,7 +3103,8 @@ static void _tcpm_pd_vbus_off(struct tcp
+ 	case SNK_TRYWAIT_DEBOUNCE:
+ 		break;
+ 	case SNK_ATTACH_WAIT:
+-		tcpm_set_state(port, SNK_UNATTACHED, 0);
++	case SNK_DEBOUNCED:
++		/* Do nothing, as TCPM is still waiting for vbus to reaach VSAFE5V to connect */
+ 		break;
+ 
+ 	case SNK_NEGOTIATE_CAPABILITIES:
 
 
