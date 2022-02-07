@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DA9F4ABC36
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:45:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BAE94ABB1D
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:35:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385028AbiBGLa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:30:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37246 "EHLO
+        id S1380022AbiBGL02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:26:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359847AbiBGLZu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:25:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 447F9C03F938;
-        Mon,  7 Feb 2022 03:25:25 -0800 (PST)
+        with ESMTP id S1377741AbiBGLPi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:15:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7118C0401E8;
+        Mon,  7 Feb 2022 03:15:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA50461426;
-        Mon,  7 Feb 2022 11:25:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAB8FC340F0;
-        Mon,  7 Feb 2022 11:25:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93AB6B81028;
+        Mon,  7 Feb 2022 11:15:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D202BC340EB;
+        Mon,  7 Feb 2022 11:15:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233124;
-        bh=FpLbFZCwIFwVPBtGjKWXVSV5VFmPi9xFQJzqfubzEq4=;
+        s=korg; t=1644232512;
+        bh=eqaDUaWKBeWkcDFPzgRykjEQnCAlLdBYpvHrHiPgvio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2CsyHAkokbcrZTmCM0JUS86H78O2QJ30zz9ORK1Z+4nueF+V4p4/Asxhg2eGh7Ogy
-         V28LkCqv4Md1JlM7TZaPRm+jmcHWdReZMdcqDMW5jdH+/fnRVxg2nuBp251Z3wAxXn
-         Uu8LX893cZ8WvfKhiTHkqDl9Owxv+EklIRyfWidQ=
+        b=awT6fxNZ+LvIaIk7N1nt5aB9rUEW+wmuZ61UHkv3EfaiiNKabNXS06lQKUtOZ91JP
+         sUjH5+dsHNHlnqFhNolKWqTovSbzVH6/s9orWrM1LgtuxB68s4osSXX6dX74242sVw
+         FGYkIJ5h/KI+UdDcCT9RJQ5ne6Tgxu2LgRufD8kc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>, Stylon Wang <stylon.wang@amd.com>,
-        Paul Hsieh <paul.hsieh@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 024/110] drm/amd/display: watermark latencies is not enough on DCN31
+        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 34/86] net-procfs: show net devices bound packet types
 Date:   Mon,  7 Feb 2022 12:05:57 +0100
-Message-Id: <20220207103803.068724708@linuxfoundation.org>
+Message-Id: <20220207103758.650078401@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103802.280120990@linuxfoundation.org>
-References: <20220207103802.280120990@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+References: <20220207103757.550973048@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,87 +53,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Hsieh <paul.hsieh@amd.com>
+From: Jianguo Wu <wujianguo@chinatelecom.cn>
 
-commit f5fa54f45ab41cbb1f99b1208f49554132ffb207 upstream.
+commit 1d10f8a1f40b965d449e8f2d5ed7b96a7c138b77 upstream.
 
-[Why]
-The original latencies were causing underflow in some modes.
-Resolution: 2880x1620@60p when HDR enable
+After commit:7866a621043f ("dev: add per net_device packet type chains"),
+we can not get packet types that are bound to a specified net device by
+/proc/net/ptype, this patch fix the regression.
 
-[How]
-1. Replace with the up-to-date watermark values based on new measurments
-2. Correct the ddr_wm_table name to DDR5 on DCN31
+Run "tcpdump -i ens192 udp -nns0" Before and after apply this patch:
 
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Stylon Wang <stylon.wang@amd.com>
-Signed-off-by: Paul Hsieh <paul.hsieh@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Before:
+  [root@localhost ~]# cat /proc/net/ptype
+  Type Device      Function
+  0800          ip_rcv
+  0806          arp_rcv
+  86dd          ipv6_rcv
+
+After:
+  [root@localhost ~]# cat /proc/net/ptype
+  Type Device      Function
+  ALL  ens192   tpacket_rcv
+  0800          ip_rcv
+  0806          arp_rcv
+  86dd          ipv6_rcv
+
+v1 -> v2:
+  - fix the regression rather than adding new /proc API as
+    suggested by Stephen Hemminger.
+
+Fixes: 7866a621043f ("dev: add per net_device packet type chains")
+Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/clk_mgr/dcn31/dcn31_clk_mgr.c |   20 +++++------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ net/core/net-procfs.c |   35 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 32 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn31/dcn31_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn31/dcn31_clk_mgr.c
-@@ -324,38 +324,38 @@ static struct clk_bw_params dcn31_bw_par
- 
+--- a/net/core/net-procfs.c
++++ b/net/core/net-procfs.c
+@@ -182,12 +182,23 @@ static const struct seq_operations softn
+ 	.show  = softnet_seq_show,
  };
  
--static struct wm_table ddr4_wm_table = {
-+static struct wm_table ddr5_wm_table = {
- 	.entries = {
- 		{
- 			.wm_inst = WM_A,
- 			.wm_type = WM_TYPE_PSTATE_CHG,
- 			.pstate_latency_us = 11.72,
--			.sr_exit_time_us = 6.09,
--			.sr_enter_plus_exit_time_us = 7.14,
-+			.sr_exit_time_us = 9,
-+			.sr_enter_plus_exit_time_us = 11,
- 			.valid = true,
- 		},
- 		{
- 			.wm_inst = WM_B,
- 			.wm_type = WM_TYPE_PSTATE_CHG,
- 			.pstate_latency_us = 11.72,
--			.sr_exit_time_us = 10.12,
--			.sr_enter_plus_exit_time_us = 11.48,
-+			.sr_exit_time_us = 9,
-+			.sr_enter_plus_exit_time_us = 11,
- 			.valid = true,
- 		},
- 		{
- 			.wm_inst = WM_C,
- 			.wm_type = WM_TYPE_PSTATE_CHG,
- 			.pstate_latency_us = 11.72,
--			.sr_exit_time_us = 10.12,
--			.sr_enter_plus_exit_time_us = 11.48,
-+			.sr_exit_time_us = 9,
-+			.sr_enter_plus_exit_time_us = 11,
- 			.valid = true,
- 		},
- 		{
- 			.wm_inst = WM_D,
- 			.wm_type = WM_TYPE_PSTATE_CHG,
- 			.pstate_latency_us = 11.72,
--			.sr_exit_time_us = 10.12,
--			.sr_enter_plus_exit_time_us = 11.48,
-+			.sr_exit_time_us = 9,
-+			.sr_enter_plus_exit_time_us = 11,
- 			.valid = true,
- 		},
- 	}
-@@ -683,7 +683,7 @@ void dcn31_clk_mgr_construct(
- 		if (ctx->dc_bios->integrated_info->memory_type == LpDdr5MemType) {
- 			dcn31_bw_params.wm_table = lpddr5_wm_table;
- 		} else {
--			dcn31_bw_params.wm_table = ddr4_wm_table;
-+			dcn31_bw_params.wm_table = ddr5_wm_table;
- 		}
- 		/* Saved clocks configured at boot for debug purposes */
- 		 dcn31_dump_clk_registers(&clk_mgr->base.base.boot_snapshot, &clk_mgr->base.base, &log_info);
+-static void *ptype_get_idx(loff_t pos)
++static void *ptype_get_idx(struct seq_file *seq, loff_t pos)
+ {
++	struct list_head *ptype_list = NULL;
+ 	struct packet_type *pt = NULL;
++	struct net_device *dev;
+ 	loff_t i = 0;
+ 	int t;
+ 
++	for_each_netdev_rcu(seq_file_net(seq), dev) {
++		ptype_list = &dev->ptype_all;
++		list_for_each_entry_rcu(pt, ptype_list, list) {
++			if (i == pos)
++				return pt;
++			++i;
++		}
++	}
++
+ 	list_for_each_entry_rcu(pt, &ptype_all, list) {
+ 		if (i == pos)
+ 			return pt;
+@@ -208,22 +219,40 @@ static void *ptype_seq_start(struct seq_
+ 	__acquires(RCU)
+ {
+ 	rcu_read_lock();
+-	return *pos ? ptype_get_idx(*pos - 1) : SEQ_START_TOKEN;
++	return *pos ? ptype_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
+ }
+ 
+ static void *ptype_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ {
++	struct net_device *dev;
+ 	struct packet_type *pt;
+ 	struct list_head *nxt;
+ 	int hash;
+ 
+ 	++*pos;
+ 	if (v == SEQ_START_TOKEN)
+-		return ptype_get_idx(0);
++		return ptype_get_idx(seq, 0);
+ 
+ 	pt = v;
+ 	nxt = pt->list.next;
++	if (pt->dev) {
++		if (nxt != &pt->dev->ptype_all)
++			goto found;
++
++		dev = pt->dev;
++		for_each_netdev_continue_rcu(seq_file_net(seq), dev) {
++			if (!list_empty(&dev->ptype_all)) {
++				nxt = dev->ptype_all.next;
++				goto found;
++			}
++		}
++
++		nxt = ptype_all.next;
++		goto ptype_all;
++	}
++
+ 	if (pt->type == htons(ETH_P_ALL)) {
++ptype_all:
+ 		if (nxt != &ptype_all)
+ 			goto found;
+ 		hash = 0;
 
 
