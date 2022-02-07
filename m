@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E3B4ABCD0
-	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:50:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E46044ABAD4
+	for <lists+stable@lfdr.de>; Mon,  7 Feb 2022 12:30:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387133AbiBGLj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 06:39:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46164 "EHLO
+        id S1384093AbiBGLYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 06:24:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386025AbiBGLdU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:33:20 -0500
+        with ESMTP id S1355058AbiBGLNO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 06:13:14 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75BD5C043181;
-        Mon,  7 Feb 2022 03:33:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0DB6C043189;
+        Mon,  7 Feb 2022 03:13:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E6AD60C8E;
-        Mon,  7 Feb 2022 11:33:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAD58C004E1;
-        Mon,  7 Feb 2022 11:33:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A7006113B;
+        Mon,  7 Feb 2022 11:13:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36A75C004E1;
+        Mon,  7 Feb 2022 11:13:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644233599;
-        bh=8eH1MdEVdu2hKNRuGIzmCqaimYky5xcS1WJ3g2iEc98=;
+        s=korg; t=1644232391;
+        bh=2Q1dbn0eLfIe61aVuyBIXRjIkZTDLb8UPYbVbrGLcCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nYBjP/lpsYMSpxS2KGxgpjebAfpxTLD9ORgOuV013wD4J8V1fPzwukRYrJbXRsIbf
-         J2t7UxSXcvhcDQj6YHRhSGJyhBibqJWtAARj3QtAUwFpGtfiBGhm+pZ34wqhJLwCHz
-         nhLb3pWzNtxwGHYa7ajQ3ZOkIp2ey8Z1BpiTjxMk=
+        b=KXWuJwPpR6etHoPS1pSoBS2DhzrXfXMxUDs+AecCIMIJUZouz39Bv5zgtEE5EY6W1
+         MIFFfk4CqfPVGbkMvFGl/+3qXAJFOGWtuvF7Omiv2HWgO7IZM9ur3tkpMGWDk/5Qs7
+         IgIrKKtgBGgeMkBygjpjziRliskd0EtpYVs40HSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.16 055/126] ALSA: hda: Fix signedness of sscanf() arguments
+        stable@vger.kernel.org, Dai Ngo <dai.ngo@oracle.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Bruce Fields <bfields@fieldses.org>
+Subject: [PATCH 4.14 64/69] nfsd: nfsd4_setclientid_confirm mistakenly expires confirmed client.
 Date:   Mon,  7 Feb 2022 12:06:26 +0100
-Message-Id: <20220207103806.014919306@linuxfoundation.org>
+Message-Id: <20220207103757.728793877@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207103804.053675072@linuxfoundation.org>
-References: <20220207103804.053675072@linuxfoundation.org>
+In-Reply-To: <20220207103755.604121441@linuxfoundation.org>
+References: <20220207103755.604121441@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Dai Ngo <dai.ngo@oracle.com>
 
-commit 0444f82766f0b5b9c8302ad802dafa5dd0e722d0 upstream.
+commit ab451ea952fe9d7afefae55ddb28943a148247fe upstream.
 
-The %x format of sscanf() takes an unsigned int pointer, while we pass
-a signed int pointer.  Practically it's OK, but this may result in a
-compile warning.  Let's fix it.
+>From RFC 7530 Section 16.34.5:
 
-Fixes: a235d5b8e550 ("ALSA: hda: Allow model option to specify PCI SSID alias")
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/20220127135717.31751-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+o  The server has not recorded an unconfirmed { v, x, c, *, * } and
+   has recorded a confirmed { v, x, c, *, s }.  If the principals of
+   the record and of SETCLIENTID_CONFIRM do not match, the server
+   returns NFS4ERR_CLID_INUSE without removing any relevant leased
+   client state, and without changing recorded callback and
+   callback_ident values for client { x }.
+
+The current code intends to do what the spec describes above but
+it forgot to set 'old' to NULL resulting to the confirmed client
+to be expired.
+
+Fixes: 2b63482185e6 ("nfsd: fix clid_inuse on mount with security change")
+Signed-off-by: Dai Ngo <dai.ngo@oracle.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Reviewed-by: Bruce Fields <bfields@fieldses.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_auto_parser.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/nfs4state.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_auto_parser.c
-+++ b/sound/pci/hda/hda_auto_parser.c
-@@ -985,7 +985,7 @@ void snd_hda_pick_fixup(struct hda_codec
- 	int id = HDA_FIXUP_ID_NOT_SET;
- 	const char *name = NULL;
- 	const char *type = NULL;
--	int vendor, device;
-+	unsigned int vendor, device;
- 
- 	if (codec->fixup_id != HDA_FIXUP_ID_NOT_SET)
- 		return;
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -3423,8 +3423,10 @@ nfsd4_setclientid_confirm(struct svc_rqs
+ 			status = nfserr_clid_inuse;
+ 			if (client_has_state(old)
+ 					&& !same_creds(&unconf->cl_cred,
+-							&old->cl_cred))
++							&old->cl_cred)) {
++				old = NULL;
+ 				goto out;
++			}
+ 			status = mark_client_expired_locked(old);
+ 			if (status) {
+ 				old = NULL;
 
 
