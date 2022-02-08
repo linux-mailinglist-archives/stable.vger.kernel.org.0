@@ -2,221 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BA954AD388
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 09:33:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 485EB4AD368
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 09:30:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242557AbiBHIdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 03:33:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33816 "EHLO
+        id S244731AbiBHIa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 03:30:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347610AbiBHIdw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 03:33:52 -0500
-X-Greylist: delayed 507 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 08 Feb 2022 00:33:50 PST
-Received: from first.geanix.com (first.geanix.com [116.203.34.67])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 227DBC03FEC0;
-        Tue,  8 Feb 2022 00:33:49 -0800 (PST)
-Received: from zen.. (unknown [185.17.218.86])
-        by first.geanix.com (Postfix) with ESMTPSA id 3B30AE28D1;
-        Tue,  8 Feb 2022 08:25:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
-        t=1644308719; bh=Efu6zjcxm/eWjynAIA8LNMAq9G0qvlYvhealE9QUzXQ=;
-        h=From:To:Cc:Subject:Date;
-        b=C2ohMC85IOb51JqunUAZHpOrmNCwKkz1ZlbIrTMm12tmkPSAGUPUtAfynh+pxU2Tb
-         Jo9+i8yz8kitAON4mcrNf3/w4EtR5N8Re3sf8JaxSkApNWKxWUj5fgk7o7Gw9Fgl5k
-         ETMGo2aW2WdWjlo8gIcp+EuGIY3s1aLfLZinpZsemsX5vAHCsK+ShtX4soNyB5MFim
-         3dd0ZiVf6IldfoR/NtOUeIiYWM0NEh9s3qigwgsRRfp51es91ujVqeKHTjk9NpbVN/
-         bdQGmEZDldUJszJYssqmSm7uO979MI71LCtWrIHzXf6X6b6L+jK7zOnELzlULxN9vA
-         rwCmCD1jUkLOA==
-From:   Sean Nyekjaer <sean@geanix.com>
-To:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Boris Brezillon <bbrezillon@kernel.org>
-Cc:     Sean Nyekjaer <sean@geanix.com>, stable@vger.kernel.org,
-        sfr@canb.auug.org.au,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3] mtd: rawnand: protect access to rawnand devices while in suspend
-Date:   Tue,  8 Feb 2022 09:25:06 +0100
-Message-Id: <20220208082507.1837764-1-sean@geanix.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S229920AbiBHIa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 03:30:57 -0500
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2077.outbound.protection.outlook.com [40.107.243.77])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C779C0401F6;
+        Tue,  8 Feb 2022 00:30:56 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WpkXbekYg8Vyyn/l7i1BoHXcSWycUqZT4DeB6lbGNCy0g8I9wS+BSDqd7QI3tV2eTKrC2m4/CwA2hY4221qKFnmV3Nb0i+JUQM72IfGNahfS6Beqw5zfutBRdJhlc3XfhF7gRTasqVvA4ates0LjEBuln6kEzfuG2vgNjB+voiNkS9KpNbsmkCkhxZcyIcklZEs+2ywBVsaP/Jnnng1dnYsmghOr5MjBMSaMIDOCl8tBUEMN2/XyrCxGwJqV0XrsHRG3VXI2n5xMa/r0ylx7eLXcJYoAw4vaxXWwi+Jzs+YBsfAKO7vqguA3b3g4gmLTijnotf6FrngajmUX9N7A4A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=KscgSzTB10lwddLE7TE4OQ4aJVbeARmEl8M1qbSFO9Y=;
+ b=Z4fosyD0bzptc1MgqKkl934MKot3YdWFuy6mJRRE0/XFJfmPZ5m4Vg/wdenqIcRwqNmSEuYSaT7gJjneykzb1qyumppd4A4367IVNB2YSGS660pvuSGau7cLj8rqgup9DCsTKUwoJenV//3riEzUTrZxRJTItYhUPryLfPIpj4QqqU5oYY0WkJIL2ps8ugHkLAnoCJnyKjd2dLjezC8KXyu/W8gRUs45CIxEr8ckwk5QtGxWVfVFT4tC3+1Oi0QsSZCX8CQLsjPw90f/4Igv6D3AuMDlL4ueL60IEFSkd098A4Cuplp4I4Wwusryd7ol27QC9VIGpjtMQSW7uhmq7A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.235) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com; dmarc=pass
+ (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
+ (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=KscgSzTB10lwddLE7TE4OQ4aJVbeARmEl8M1qbSFO9Y=;
+ b=or0qUbx4d473JpJwRt8zyiVnPHEBmiA14DwrImJrSvRyJfKHjPjP8yPL8XkY6F+rmJTZlnwJqHt5iTJD5mkcnq4gwcv0j4b1/KKesgVF3jhSXeQ+Q43jeg960zn+qCxBizoPlK5PDy2H304FgCW86Tv4S1kFYKuCP7wl8InIIdjYQ+Ax0YPaOMhegxhUKAmlMKX1UQHkFmgFJu7HdigVTt+YBO3EHP2oDmPtpvK2qGs/pCml52cgBuNRiuEbPwHUPrwDZAQeIB7iGc9c3LZg2cuzNa0HB1ZzKalOP6BonDxVt3rwFCs99lnwmCCcGXTeTIMqsww9Ctft2uyzDeGEgQ==
+Received: from DM6PR06CA0049.namprd06.prod.outlook.com (2603:10b6:5:54::26) by
+ BY5PR12MB4148.namprd12.prod.outlook.com (2603:10b6:a03:208::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4951.12; Tue, 8 Feb
+ 2022 08:30:54 +0000
+Received: from DM6NAM11FT059.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:54:cafe::38) by DM6PR06CA0049.outlook.office365.com
+ (2603:10b6:5:54::26) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4951.12 via Frontend
+ Transport; Tue, 8 Feb 2022 08:30:53 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.235)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.235 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.235; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (12.22.5.235) by
+ DM6NAM11FT059.mail.protection.outlook.com (10.13.172.92) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4951.12 via Frontend Transport; Tue, 8 Feb 2022 08:30:53 +0000
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by DRHQMAIL107.nvidia.com
+ (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 8 Feb
+ 2022 08:30:53 +0000
+Received: from rnnvmail203.nvidia.com (10.129.68.9) by rnnvmail205.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.9; Tue, 8 Feb 2022
+ 00:30:52 -0800
+Received: from jonathanh-vm-01.nvidia.com (10.127.8.9) by mail.nvidia.com
+ (10.129.68.9) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.9 via Frontend
+ Transport; Tue, 8 Feb 2022 00:30:52 -0800
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>,
+        <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.9 00/48] 4.9.300-rc1 review
+In-Reply-To: <20220207103752.341184175@linuxfoundation.org>
+References: <20220207103752.341184175@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Message-ID: <7c1d5531-d756-4cff-986f-02b57fd45ede@rnnvmail203.nvidia.com>
+Date:   Tue, 8 Feb 2022 00:30:52 -0800
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 4b628416-7e11-4046-15da-08d9eadd5240
+X-MS-TrafficTypeDiagnostic: BY5PR12MB4148:EE_
+X-Microsoft-Antispam-PRVS: <BY5PR12MB4148820315E211F4EC315953D92D9@BY5PR12MB4148.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: v9yyjUAxaF/vzzDbENkW6MmqydirEEpnAd64qc4m+q/KW2zhCnLW7CDSvnr36U39Ua9bLWb9kEslIMKGnmikz9IW8JVxA+Y12NmEYYMDZTeWpzeR/HLjDbRMJM5lqPA+vpUZq+LatLzZizVmtANqdvUWbwO/ckIoFcFzv226zyX4rcIGJ5YICbmDToDbXoGg0yv3kmwyCkPiHP2u4bJFhiQHLVnhRu+BFIoRiW/IQrWZ60zRbk/ZnXTTsTAbg19MkhUSwGwquriYPboHfesMUz9i69rqPWhv4lCSTEJ2VDztX4tOCwtwifuxHhVvDzhF9W0JeGh+cS86t3zAZc/yM1npwQ0+Az1prEY1IeLP9VeMlZpN5kUVUGe8HRHafi8iaBizQDRt5kestoFe9JritI6CwjckJVUqb3QerTKleI1nHJtw1xWaf1sGKX15sTAsbUMQZhQGz0ULU+42vSmPCv/TJ/flWW9t8jzfHNbFvqgwiYgu+eJe2CUALMB8KXsmyAHshOut/duMxcZTAEVWTqFob/pLxl06Zn9R7EUGH3qPghjMeUtzv/n51qWHAN4kspieK6k8w29lSM4vV7Q5a0I54fXHIrrWqZh1eq284COZOfPihqHk/LufAgKPOMYvvvGe4XBvsuTCy0J8wYgLaoGVONy4XV7SuInFZPcsEiif3UC1JlAoRuVA/+RY1o0VVnUMfmahHOxIj0COakASzrhOhKe3Sn1oIxmrlXBH6Ml2gw2vs11v9atdZpoWUo1zMRL1AJjad6t6ovl5EaiTuiNjWUKM8PplOc/GvHfv22g=
+X-Forefront-Antispam-Report: CIP:12.22.5.235;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(13230001)(4636009)(36840700001)(40470700004)(46966006)(316002)(47076005)(336012)(8676002)(70586007)(31686004)(8936002)(70206006)(7416002)(4326008)(5660300002)(54906003)(2906002)(6916009)(508600001)(40460700003)(186003)(26005)(31696002)(356005)(36860700001)(966005)(81166007)(86362001)(82310400004)(426003)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Feb 2022 08:30:53.7145
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4b628416-7e11-4046-15da-08d9eadd5240
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.235];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT059.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4148
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Prevent rawnend access while in a suspended state.
+On Mon, 07 Feb 2022 12:05:33 +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.300 release.
+> There are 48 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 09 Feb 2022 10:37:42 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.300-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Commit 013e6292aaf5 ("mtd: rawnand: Simplify the locking") allows the
-rawnand layer to return errors rather than waiting in a blocking wait.
+All tests passing for Tegra ...
 
-Tested on a iMX6ULL.
+Test results for stable-v4.9:
+    8 builds:	8 pass, 0 fail
+    16 boots:	16 pass, 0 fail
+    32 tests:	32 pass, 0 fail
 
-Fixes: 013e6292aaf5 ("mtd: rawnand: Simplify the locking")
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
----
-Follow-up on discussion in:
-https://lkml.org/lkml/2021/10/4/41
-https://lkml.org/lkml/2021/10/11/435
-https://lkml.org/lkml/2021/10/20/184
-https://lkml.org/lkml/2021/10/25/288
-https://lkml.org/lkml/2021/10/26/55
-https://lkml.org/lkml/2021/11/2/352
+Linux version:	4.9.300-rc1-gfa39f098578a
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
 
-Changes since v1:
- - fixed uninitialized return
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
-Changes since v2:
- - fixed wait queue description
-
- drivers/mtd/nand/raw/nand_base.c | 44 +++++++++++++++-----------------
- include/linux/mtd/rawnand.h      |  2 ++
- 2 files changed, 22 insertions(+), 24 deletions(-)
-
-diff --git a/drivers/mtd/nand/raw/nand_base.c b/drivers/mtd/nand/raw/nand_base.c
-index e7b2ba016d8c..8daaba96edb2 100644
---- a/drivers/mtd/nand/raw/nand_base.c
-+++ b/drivers/mtd/nand/raw/nand_base.c
-@@ -338,16 +338,19 @@ static int nand_isbad_bbm(struct nand_chip *chip, loff_t ofs)
-  *
-  * Return: -EBUSY if the chip has been suspended, 0 otherwise
-  */
--static int nand_get_device(struct nand_chip *chip)
-+static void nand_get_device(struct nand_chip *chip)
- {
--	mutex_lock(&chip->lock);
--	if (chip->suspended) {
-+	/* Wait until the device is resumed. */
-+	while (1) {
-+		mutex_lock(&chip->lock);
-+		if (!chip->suspended) {
-+			mutex_lock(&chip->controller->lock);
-+			return;
-+		}
- 		mutex_unlock(&chip->lock);
--		return -EBUSY;
--	}
--	mutex_lock(&chip->controller->lock);
- 
--	return 0;
-+		wait_event(chip->resume_wq, !chip->suspended);
-+	}
- }
- 
- /**
-@@ -576,9 +579,7 @@ static int nand_block_markbad_lowlevel(struct nand_chip *chip, loff_t ofs)
- 		nand_erase_nand(chip, &einfo, 0);
- 
- 		/* Write bad block marker to OOB */
--		ret = nand_get_device(chip);
--		if (ret)
--			return ret;
-+		nand_get_device(chip);
- 
- 		ret = nand_markbad_bbm(chip, ofs);
- 		nand_release_device(chip);
-@@ -3826,9 +3827,7 @@ static int nand_read_oob(struct mtd_info *mtd, loff_t from,
- 	    ops->mode != MTD_OPS_RAW)
- 		return -ENOTSUPP;
- 
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	if (!ops->datbuf)
- 		ret = nand_do_read_oob(chip, from, ops);
-@@ -4415,13 +4414,11 @@ static int nand_write_oob(struct mtd_info *mtd, loff_t to,
- 			  struct mtd_oob_ops *ops)
- {
- 	struct nand_chip *chip = mtd_to_nand(mtd);
--	int ret;
-+	int ret = 0;
- 
- 	ops->retlen = 0;
- 
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	switch (ops->mode) {
- 	case MTD_OPS_PLACE_OOB:
-@@ -4481,9 +4478,7 @@ int nand_erase_nand(struct nand_chip *chip, struct erase_info *instr,
- 		return -EIO;
- 
- 	/* Grab the lock and see if the device is available */
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	/* Shift to get first page */
- 	page = (int)(instr->addr >> chip->page_shift);
-@@ -4570,7 +4565,7 @@ static void nand_sync(struct mtd_info *mtd)
- 	pr_debug("%s: called\n", __func__);
- 
- 	/* Grab the lock and see if the device is available */
--	WARN_ON(nand_get_device(chip));
-+	nand_get_device(chip);
- 	/* Release it and go back */
- 	nand_release_device(chip);
- }
-@@ -4587,9 +4582,7 @@ static int nand_block_isbad(struct mtd_info *mtd, loff_t offs)
- 	int ret;
- 
- 	/* Select the NAND device */
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	nand_select_target(chip, chipnr);
- 
-@@ -4660,6 +4653,8 @@ static void nand_resume(struct mtd_info *mtd)
- 			__func__);
- 	}
- 	mutex_unlock(&chip->lock);
-+
-+	wake_up_all(&chip->resume_wq);
- }
- 
- /**
-@@ -5437,6 +5432,7 @@ static int nand_scan_ident(struct nand_chip *chip, unsigned int maxchips,
- 	chip->cur_cs = -1;
- 
- 	mutex_init(&chip->lock);
-+	init_waitqueue_head(&chip->resume_wq);
- 
- 	/* Enforce the right timings for reset/detection */
- 	chip->current_interface_config = nand_get_reset_interface_config();
-diff --git a/include/linux/mtd/rawnand.h b/include/linux/mtd/rawnand.h
-index 5b88cd51fadb..dcf90144d70b 100644
---- a/include/linux/mtd/rawnand.h
-+++ b/include/linux/mtd/rawnand.h
-@@ -1240,6 +1240,7 @@ struct nand_secure_region {
-  * @lock: Lock protecting the suspended field. Also used to serialize accesses
-  *        to the NAND device
-  * @suspended: Set to 1 when the device is suspended, 0 when it's not
-+ * @resume_wq: wait queue to sleep if rawnand is in suspended state.
-  * @cur_cs: Currently selected target. -1 means no target selected, otherwise we
-  *          should always have cur_cs >= 0 && cur_cs < nanddev_ntargets().
-  *          NAND Controller drivers should not modify this value, but they're
-@@ -1294,6 +1295,7 @@ struct nand_chip {
- 	/* Internals */
- 	struct mutex lock;
- 	unsigned int suspended : 1;
-+	wait_queue_head_t resume_wq;
- 	int cur_cs;
- 	int read_retries;
- 	struct nand_secure_region *secure_regions;
--- 
-2.34.1
-
+Jon
