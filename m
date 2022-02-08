@@ -2,69 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81B884AE3BB
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 23:24:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9AF64AE3C9
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 23:24:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386743AbiBHWXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 17:23:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47972 "EHLO
+        id S1387389AbiBHWXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 17:23:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387142AbiBHWAg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 17:00:36 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 73012C0612BE
-        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 14:00:34 -0800 (PST)
+        with ESMTP id S1387144AbiBHWCZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 17:02:25 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1539AC0612B8
+        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 14:02:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1644357633;
+        s=mimecast20190719; t=1644357742;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=W7/XrpH//YwRO83/RuCZbVzbSGr6NZxZ5lE/266BDXk=;
-        b=Rncly/6pYBVp8PCR6O7bNQQqEouVCBphJ1ckNmKUJV561a3SKuK1uDAYmGb1vyRyEWg/er
-        LfDq7uOHVNcK/vII/CfwBuDtIe+YOFpKGyc0izU+LpKz2hOXPVzHeCC2hefc1w4xoKd2Xe
-        9i5DrxIh/Fae0gLE4LkDPomlbHlyc38=
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
- [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=v+/tNcBi1hqQ3zAZ+kreP8zrjRNSZd5An8aAqUlnWDs=;
+        b=ExJ0+p7vaRbH+dUZ6MoGanoV76XMzIcKjmmTJcrdpS1T+087S6tg9QzkZo771YA9V2fm18
+        72VU4BHPVx6Wc1fv2UJAkpv/tXnb15KjzDkKnd6Y5X7eEN707DRXh+Ojpo5VlL0FWlTEkC
+        EB28nZSL/MEENUQZNpSMJxXCdaoVeqU=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-201-KZ60NCEYOPOcbdd7OANyJA-1; Tue, 08 Feb 2022 17:00:32 -0500
-X-MC-Unique: KZ60NCEYOPOcbdd7OANyJA-1
-Received: by mail-qt1-f197.google.com with SMTP id g18-20020ac84b72000000b002cf274754c5so253390qts.14
-        for <stable@vger.kernel.org>; Tue, 08 Feb 2022 14:00:32 -0800 (PST)
+ us-mta-126-DJVE7PtLPVuhjJCbZs_ANQ-1; Tue, 08 Feb 2022 17:02:21 -0500
+X-MC-Unique: DJVE7PtLPVuhjJCbZs_ANQ-1
+Received: by mail-qk1-f197.google.com with SMTP id bj2-20020a05620a190200b005084968bb24so105546qkb.23
+        for <stable@vger.kernel.org>; Tue, 08 Feb 2022 14:02:21 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=W7/XrpH//YwRO83/RuCZbVzbSGr6NZxZ5lE/266BDXk=;
-        b=Ys2NuaLaQ+7wjLGrq78lSL58NngkOVBRd98thG9C/PKHq6VhAGqBqHgYExR+0e0Sql
-         DY0yg/i3nb+3BlMBEb1W6KoBGpH+7/tusaBzd6ZXB/FW+eF06mdFyBUOvxFIGdY7kvYM
-         XksYHUFnPeVFTVn6s6p+z9AOHbo+UcMp8Db4OLFmuHChZumLmabYSc40CVziCVz2T9MO
-         M6dHI14+Xj3nKwyt7VR8Tz/ITl1papVgjAp7cojGWELh1m9pIRHj70IH93saYIuhgFam
-         tzf4mcbQxZWpQXCIklBgW08E+vdCo9c/8KEcJwy4L/pZahrVEV1kYY6TlGOor0pxAlGE
-         OADA==
-X-Gm-Message-State: AOAM5313mMJotmnOkUgrlW6ET1a8FB3UWcoF/ILOvQqeZA1x1LXwcJLE
-        cuOCSXHDsYQeie71k4WWdjpyYEndB8kLkACSpvQz5vCrfWFzeDqwrh/fs0cpqUZA2cMhQ4yNcEF
-        3tqAnnRTGvpCWW6A=
-X-Received: by 2002:ac8:578e:: with SMTP id v14mr4420848qta.45.1644357631271;
-        Tue, 08 Feb 2022 14:00:31 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxBmY5C/N/7k0llE16sNXZl2FnzqAvMcesorwNx/7mm5+uXx+1ySZbo16/w1a7eY8EuZv6V9Q==
-X-Received: by 2002:ac8:578e:: with SMTP id v14mr4420827qta.45.1644357631012;
-        Tue, 08 Feb 2022 14:00:31 -0800 (PST)
-Received: from localhost (pool-68-160-176-52.bstnma.fios.verizon.net. [68.160.176.52])
-        by smtp.gmail.com with ESMTPSA id h7sm8224485qtb.27.2022.02.08.14.00.30
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=v+/tNcBi1hqQ3zAZ+kreP8zrjRNSZd5An8aAqUlnWDs=;
+        b=kdUhCowYACu0bFI1RjBR+2xEh3Mvra7ih5D/tvKuAT4si14+RTgm/bhr+sFhzSa0dQ
+         1eL19mG/LzQNnR3uiBEDPz7nvxiLsW5efuCvKHrnbgQCpaHCTgTe8/ZqfSzG0oXtSKo/
+         sBw1J9TdZGFf+CMdCQICiwDXjCmnrAfICnl5HuWGiAz3vAS0a/R6oQ2+8qSos+q5LHhY
+         wCACjSR0UmyUSO2mmG7hATEZJkWN0MmPoxIPaFQz1OadhYdGQfPWIYmWD+pF7wG5eUwJ
+         vGBPJ437YFKAksj3IYYIFKnCzZ81OpuVDKft4weKuURAog08unU6q79R8Md9AI1aZy2v
+         h98Q==
+X-Gm-Message-State: AOAM532CjJFd8ylI72DKhzgs4hpk7gAZXCzYNwl6rXiW+SYYPlzSa/WK
+        aZZwbjrHtCzYtPt/dwEbae7NePaL3JbYqaWCz6k5geExsja45IgSJ4pnoBzNs49MUYhe/MsLoC/
+        L5Ajw2RhZ4cMvLw1i
+X-Received: by 2002:a05:6214:62b:: with SMTP id a11mr4576791qvx.99.1644357741254;
+        Tue, 08 Feb 2022 14:02:21 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxzDmob0mRw3m+J1LeJvrujTFW2KQpp8qCWQ71N6Q6IhmpZwPecRLzOaHkQFsysr2sKjwHqKQ==
+X-Received: by 2002:a05:6214:62b:: with SMTP id a11mr4576772qvx.99.1644357741022;
+        Tue, 08 Feb 2022 14:02:21 -0800 (PST)
+Received: from [192.168.8.138] (pool-96-230-100-15.bstnma.fios.verizon.net. [96.230.100.15])
+        by smtp.gmail.com with ESMTPSA id d6sm8080823qtb.55.2022.02.08.14.02.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Feb 2022 14:00:30 -0800 (PST)
-Date:   Tue, 8 Feb 2022 17:00:29 -0500
-From:   Mike Snitzer <snitzer@redhat.com>
-To:     gregkh@linuxfoundation.org
-Cc:     axboe@kernel.dk, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] dm: revert partial fix for redundant
- bio-based IO accounting" failed to apply to 5.4-stable tree
-Message-ID: <YgLn/Xax8fzFY5Z+@redhat.com>
-References: <1643463094220106@kroah.com>
+        Tue, 08 Feb 2022 14:02:20 -0800 (PST)
+Message-ID: <10bfefe40b9cb82610d4f1e8d3e7293824fac03b.camel@redhat.com>
+Subject: Re: [PATCH] drm/i915/psr: Disable PSR2 selective fetch for all TGL
+ steps
+From:   Lyude Paul <lyude@redhat.com>
+To:     "Souza, Jose" <jose.souza@intel.com>,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
+Cc:     "airlied@linux.ie" <airlied@linux.ie>,
+        "ville.syrjala@linux.intel.com" <ville.syrjala@linux.intel.com>,
+        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
+        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
+        "Mun, Gwan-gyeong" <gwan-gyeong.mun@intel.com>,
+        "Roper, Matthew D" <matthew.d.roper@intel.com>,
+        "tvrtko.ursulin@linux.intel.com" <tvrtko.ursulin@linux.intel.com>,
+        "Kahola, Mika" <mika.kahola@intel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
+        "daniel@ffwll.ch" <daniel@ffwll.ch>,
+        "Hogander, Jouni" <jouni.hogander@intel.com>,
+        "De Marchi, Lucas" <lucas.demarchi@intel.com>
+Date:   Tue, 08 Feb 2022 17:02:18 -0500
+In-Reply-To: <47eed687da699a6abbfd7726439fd307786c9d93.camel@intel.com>
+References: <20220207213923.3605-1-lyude@redhat.com>
+         <47eed687da699a6abbfd7726439fd307786c9d93.camel@intel.com>
+Organization: Red Hat Inc.
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.3 (3.42.3-1.fc35) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1643463094220106@kroah.com>
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -75,81 +95,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hey Greg,
+Opened the issue at https://gitlab.freedesktop.org/drm/intel/-/issues/5077 ,
+included dmesg + video. Feel free to let me know if you need any more info, or
+need me to try any patches
 
-Turns out the fixes I marked for stable@ aren't actually fixing
-anything (after applying the changes: code is cleaner but no
-meaningful difference in IO stats).
+On Tue, 2022-02-08 at 13:06 +0000, Souza, Jose wrote:
+> On Mon, 2022-02-07 at 16:38 -0500, Lyude Paul wrote:
+> > As we've unfortunately started to come to expect from PSR on Intel
+> > platforms, PSR2 selective fetch is not at all ready to be enabled on
+> > Tigerlake as it results in severe flickering issues - at least on this
+> > ThinkPad X1 Carbon 9th generation. The easiest way I've found of
+> > reproducing these issues is to just move the cursor around the left border
+> > of the screen (suspicious…).
+> 
+> Where is the bug for that? Where is the logs?
+> We can't go from enabled to disabled without any debug and because of a
+> single device.
+> In the mean time you have the option to set the i915 parameter to disable
+> it.
+> 
+> > 
+> > So, fix people's displays again and turn PSR2 selective fetch off for all
+> > steppings of Tigerlake. This can be re-enabled again if someone from Intel
+> > finds the time to fix this functionality on OEM machines.
+> > 
+> > Signed-off-by: Lyude Paul <lyude@redhat.com>
+> > Fixes: 7f6002e58025 ("drm/i915/display: Enable PSR2 selective fetch by
+> > default")
+> > Cc: Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>
+> > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > Cc: José Roberto de Souza <jose.souza@intel.com>
+> > Cc: Jani Nikula <jani.nikula@linux.intel.com>
+> > Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> > Cc: intel-gfx@lists.freedesktop.org
+> > Cc: <stable@vger.kernel.org> # v5.16+
+> > ---
+> >  drivers/gpu/drm/i915/display/intel_psr.c | 10 +++++++---
+> >  1 file changed, 7 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/i915/display/intel_psr.c
+> > b/drivers/gpu/drm/i915/display/intel_psr.c
+> > index a1a663f362e7..25c16abcd9cd 100644
+> > --- a/drivers/gpu/drm/i915/display/intel_psr.c
+> > +++ b/drivers/gpu/drm/i915/display/intel_psr.c
+> > @@ -737,10 +737,14 @@ static bool intel_psr2_sel_fetch_config_valid(struct
+> > intel_dp *intel_dp,
+> >                 return false;
+> >         }
+> >  
+> > -       /* Wa_14010254185 Wa_14010103792 */
+> > -       if (IS_TGL_DISPLAY_STEP(dev_priv, STEP_A0, STEP_C0)) {
+> > +       /*
+> > +        * There's two things stopping this from being enabled on TGL:
+> > +        * For steps A0-C0: workarounds Wa_14010254185 Wa_14010103792 are
+> > missing
+> > +        * For all steps: PSR2 selective fetch causes screen flickering
+> > +        */
+> > +       if (IS_TIGERLAKE(dev_priv)) {
+> >                 drm_dbg_kms(&dev_priv->drm,
+> > -                           "PSR2 sel fetch not enabled, missing the
+> > implementation of WAs\n");
+> > +                           "PSR2 sel fetch not enabled, currently broken
+> > on TGL\n");
+> >                 return false;
+> >         }
+> >  
+> 
 
-That is because DM was already patching up the 'sectors' portion of
-the stats after a split.  The other fields I documented in the
-following header aren't tied to payload (see __part_start_io_acct).
-
-So no _real_ need to backport to 5.4 or 5.10.  Sorry for the noise.
-
-Mike
-
-On Sat, Jan 29 2022 at  8:31P -0500,
-gregkh@linuxfoundation.org <gregkh@linuxfoundation.org> wrote:
-
-> 
-> The patch below does not apply to the 5.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From f524d9c95fab54783d0038f7a3e8c014d5b56857 Mon Sep 17 00:00:00 2001
-> From: Mike Snitzer <snitzer@redhat.com>
-> Date: Fri, 28 Jan 2022 10:58:40 -0500
-> Subject: [PATCH] dm: revert partial fix for redundant bio-based IO accounting
-> 
-> Reverts a1e1cb72d9649 ("dm: fix redundant IO accounting for bios that
-> need splitting") because it was too narrow in scope (only addressed
-> redundant 'sectors[]' accounting and not ios, nsecs[], etc).
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-> Link: https://lore.kernel.org/r/20220128155841.39644-3-snitzer@redhat.com
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> 
-> diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-> index c0ae8087c602..9849114b3c08 100644
-> --- a/drivers/md/dm.c
-> +++ b/drivers/md/dm.c
-> @@ -1442,9 +1442,6 @@ static void init_clone_info(struct clone_info *ci, struct mapped_device *md,
->  	ci->sector = bio->bi_iter.bi_sector;
->  }
->  
-> -#define __dm_part_stat_sub(part, field, subnd)	\
-> -	(part_stat_get(part, field) -= (subnd))
-> -
->  /*
->   * Entry point to split a bio into clones and submit them to the targets.
->   */
-> @@ -1480,18 +1477,6 @@ static void __split_and_process_bio(struct mapped_device *md,
->  						  GFP_NOIO, &md->queue->bio_split);
->  			ci.io->orig_bio = b;
->  
-> -			/*
-> -			 * Adjust IO stats for each split, otherwise upon queue
-> -			 * reentry there will be redundant IO accounting.
-> -			 * NOTE: this is a stop-gap fix, a proper fix involves
-> -			 * significant refactoring of DM core's bio splitting
-> -			 * (by eliminating DM's splitting and just using bio_split)
-> -			 */
-> -			part_stat_lock();
-> -			__dm_part_stat_sub(dm_disk(md)->part0,
-> -					   sectors[op_stat_group(bio_op(bio))], ci.sector_count);
-> -			part_stat_unlock();
-> -
->  			bio_chain(b, bio);
->  			trace_block_split(b, bio->bi_iter.bi_sector);
->  			submit_bio_noacct(bio);
-> 
+-- 
+Cheers,
+ Lyude Paul (she/her)
+ Software Engineer at Red Hat
 
