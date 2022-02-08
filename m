@@ -2,134 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05D804ACF06
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 03:40:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B09664ACF16
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 03:45:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344406AbiBHCkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 21:40:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33386 "EHLO
+        id S235948AbiBHCpM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 21:45:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346011AbiBHCjp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 21:39:45 -0500
-Received: from mga06.intel.com (mga06.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6543FC061355;
-        Mon,  7 Feb 2022 18:39:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644287984; x=1675823984;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=FPiMScmKrrYrSMCiVZJ/GItd2crt5fT7a6jcSBmyeZc=;
-  b=VJg63bpTKrCh1/QZW5AuezJ9xxnVz9ZQi5fTdsrKdPiIR/XTMUpAVtsa
-   lnsNHRJU9035az2p7Vjj2s0VNzZUWhXC3mvlK9nLU7s0OIH8CKbr7NZiW
-   7bbI65VzhZW951Xq2Rwr08ESE0++Y6I5/ZcDNE2EPoKB5JoQOEcktMaQm
-   ywqpuWwFwZaDNPsFzcys8SiiHyMj99kE7JcLMr7lQY1FNRWYAChbomJRD
-   DgWokrSwxM0yA8/6q+PqtJeHWwDhhRjSaO/VzDC4YOJV+hilU7re3AjL3
-   r7yXo5RL6cwy6lX80zjqheANfi/57AQ9htDRWjeYEap1iTYMNUpmY504f
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10251"; a="309600262"
-X-IronPort-AV: E=Sophos;i="5.88,351,1635231600"; 
-   d="scan'208";a="309600262"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2022 18:39:43 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,351,1635231600"; 
-   d="scan'208";a="540398347"
-Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.189])
-  by orsmga008.jf.intel.com with ESMTP; 07 Feb 2022 18:39:41 -0800
-Date:   Tue, 8 Feb 2022 10:39:40 +0800
-From:   Feng Tang <feng.tang@intel.com>
-To:     Doug Smythies <dsmythies@telus.net>
-Cc:     'Thomas Gleixner' <tglx@linutronix.de>,
-        "paulmck@kernel.org" <paulmck@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        'srinivas pandruvada' <srinivas.pandruvada@linux.intel.com>
-Subject: Re: CPU excessively long times between frequency scaling driver
- calls - bisected
-Message-ID: <20220208023940.GA5558@shbuild999.sh.intel.com>
-References: <003f01d81c8c$d20ee3e0$762caba0$@telus.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <003f01d81c8c$d20ee3e0$762caba0$@telus.net>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S232395AbiBHCpM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 21:45:12 -0500
+Received: from new1-smtp.messagingengine.com (new1-smtp.messagingengine.com [66.111.4.221])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6EF1C061A73;
+        Mon,  7 Feb 2022 18:45:11 -0800 (PST)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailnew.nyi.internal (Postfix) with ESMTP id EACAE580226;
+        Mon,  7 Feb 2022 21:45:10 -0500 (EST)
+Received: from imap49 ([10.202.2.99])
+  by compute2.internal (MEProxy); Mon, 07 Feb 2022 21:45:10 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        sladewatkins.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to; s=fm1; bh=GPPvZF7CrpCa01
+        ldSCH7Kb3KmYZSJ9z2RRGc0QtN2mA=; b=fgRaUT5qeuwprMW3BODkLqX1dvpX4k
+        qkUGQjdyG4wmHvvAYApgKyAQnoxYsdsIXrgEdKtvxrdTfHY7PXM7fJ4lYVv3oEeb
+        l6c5rkM55KUvocuqYMeL8lX17iLukdreL4Xg2cQbOIqUDFkrkBoRB9v2I31vF7+b
+        n7dAIOMYLXyjRa45h9PBWui9KW4NsG6fZcGUsdmb0JSVZnmHGlElNPGUtehNjdbH
+        qqm4vQqajztuUWCRiTEzVgdCE9ZDK9EO2Te77x0eHlp5nQisHPzSEriv1v91xSES
+        /SkC/a3H2MXjNPXxzY5dvn/ZCRfnBYIZC+e5djgXbzLaGz1RQR3zHYJQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=GPPvZF7CrpCa01ldS
+        CH7Kb3KmYZSJ9z2RRGc0QtN2mA=; b=H8qie7AUArXm59XzaaMdQwY94zK5KwaOV
+        OVMzNW/dt8YkvWzyZBLHsFvia1eqFozoJLUYNopumbATEutcRz6TA9R68GV3xccT
+        nvpmkDbTMgBRxTaQ0R5YKzhhEW5yrhQFkgOK5djeAu6O4Y5jBRKELoUfnhLk8Iwg
+        21jEEOHK8Ofqf8oHsyMoWBpWEi1Xma1fWoDFx1YECie5nW6ma0VbotAfCTnXvqxb
+        NmDEYCLQnQY0rnUr1M/Mh5w7dJYCqgRWG10y4Ix4lFs1Ft+CiE6Jziv6FFqgHtU0
+        lXl8qkLV6IxECch2N3+iHaUDKpnw15yX03MTiLQwv9cKhdWkDHlog==
+X-ME-Sender: <xms:NtkBYm0yxdkSGk9RDEkpGesAX3EDyT_Q_EO_0uiEardh0CWe7tSqUQ>
+    <xme:NtkBYpGCti6om80-GadM4pTZvm2qkCaZiWyzqoPZljFDJQsKoartQlneorPTLa5-M
+    ye8FoKLaja6irqf5us>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrheeigdegkecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefofgggkfgjfhffhffvufgtsehttdertderredtnecuhfhrohhmpedfufhlrggu
+    vgcuhggrthhkihhnshdfuceoshhlrgguvgesshhlrgguvgifrghtkhhinhhsrdgtohhmqe
+    enucggtffrrghtthgvrhhnpeeuieffteejieetgfevteelheevudehteeihffhteehtdet
+    leegtedtvdevvddugeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehslhgruggvsehslhgruggvfigrthhkihhnshdrtghomh
+X-ME-Proxy: <xmx:NtkBYu41EPCdE_0v57zg3tcKvZdGechEREtIZ9y3grCipX3J3caiEQ>
+    <xmx:NtkBYn02pidNS-Qw6Re1xR8h638E9jucaYrM7mfEFS7eQbLfvdFzjg>
+    <xmx:NtkBYpFFORRd5u8xfCGt4KD3p-jzr2puPCQRHArzq-HH83pooRKvPw>
+    <xmx:NtkBYh9eMAvTDAcfbRo_rEj6XOfjVje9ujBv66qqhupORmbcj9e21yocmcE>
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 2C8EFF6007E; Mon,  7 Feb 2022 21:45:10 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.5.0-alpha0-4748-g31a5b5f50e-fm-cal2020-20220204.001-g31a5b5f5
+Mime-Version: 1.0
+Message-Id: <07d66f94-1290-4d87-bf94-dacd550e6a21@www.fastmail.com>
+In-Reply-To: <20220207103757.232676988@linuxfoundation.org>
+References: <20220207103757.232676988@linuxfoundation.org>
+Date:   Mon, 07 Feb 2022 21:45:09 -0500
+From:   "Slade Watkins" <slade@sladewatkins.com>
+To:     "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Andrew Morton" <akpm@linux-foundation.org>,
+        "Guenter Roeck" <linux@roeck-us.net>, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        "Pavel Machek" <pavel@denx.de>,
+        "Jon Hunter" <jonathanh@nvidia.com>,
+        "Florian Fainelli" <f.fainelli@gmail.com>,
+        "Sudip Mukherjee" <sudipm.mukherjee@gmail.com>
+Subject: Re: [PATCH 5.10 00/74] 5.10.99-rc1 review
+Content-Type: text/plain
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Doug,
+On Mon, Feb 7, 2022, at 6:05 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.99 release.
+> There are 74 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 09 Feb 2022 10:37:42 +0000.
+> Anything received after that time might be too late.
 
-Thanks for the report.
+Compiled and booted 5.10.99-rc1 on my x86_64 test system successfully without errors or regressions.
 
-On Tue, Feb 08, 2022 at 09:40:14AM +0800, Doug Smythies wrote:
-> Hi All,
-> 
-> Note before: I do not know If I have the e-mail address list correct,
-> nor am I actually a member of the x86 distribution list. I am on
-> the linux-pm email list.
-> 
-> When using the intel_pstate CPU frequency scaling driver with HWP disabled,
-> active mode, powersave scaling governor, the times between calls to the driver
-> have never exceeded 10 seconds.
-> 
-> Since kernel 5.16-rc4 and commit: b50db7095fe002fa3e16605546cba66bf1b68a3e
-> " x86/tsc: Disable clocksource watchdog for TSC on qualified platorms"
-> 
-> There are now occasions where times between calls to the driver can be
-> over 100's of seconds and can result in the CPU frequency being left
-> unnecessarily high for extended periods.
-> 
-> >From the number of clock cycles executed between these long
-> durations one can tell that the CPU has been running code, but
-> the driver never got called.
-> 
-> Attached are some graphs from some trace data acquired using
-> intel_pstate_tracer.py where one can observe an idle system between
-> about 42 and well over 200 seconds elapsed time, yet CPU10 never gets
-> called, which would have resulted in reducing it's pstate request, until
-> an elapsed time of 167.616 seconds, 126 seconds since the last call. The
-> CPU frequency never does go to minimum.
-> 
-> For reference, a similar CPU frequency graph is also attached, with
-> the commit reverted. The CPU frequency drops to minimum,
-> over about 10 or 15 seconds.
-
-
-commit b50db7095fe0 essentially disables the clocksource watchdog, 
-which literally doesn't have much to do with cpufreq code. 
-
-One thing I can think of is, without the patch, there is a periodic
-clocksource timer running every 500 ms, and it loops to run on
-all CPUs in turn. For your HW, it has 12 CPUs (from the graph),
-so each CPU will get a timer (HW timer interrupt backed) every 6
-seconds. Could this affect the cpufreq governor's work flow (I just
-quickly read some cpufreq code, and seem there is irq_work/workqueue
-involved).
-
-Can you try one test that keep all the current setting and change
-the irq affinity of disk/network-card to 0xfff to let interrupts
-from them be distributed to all CPUs?
+Tested-by: Slade Watkins <slade@sladewatkins.com>
 
 Thanks,
-Feng
-
-
-> Processor: Intel(R) Core(TM) i5-10600K CPU @ 4.10GHz
-> 
-> Why this particular configuration, i.e. no-hwp, active, powersave?
-> Because it is, by far, the easiest to observe what is going on.
-> 
-> ... Doug
-> 
-
-
-
-
-
+Slade
