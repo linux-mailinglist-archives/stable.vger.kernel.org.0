@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D864ADEEF
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 18:08:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 245AA4ADFB8
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 18:35:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383714AbiBHRIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 12:08:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44204 "EHLO
+        id S1345869AbiBHRf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 12:35:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383626AbiBHRIb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 12:08:31 -0500
-Received: from nef.ens.fr (nef2.ens.fr [129.199.96.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27344C061576
-        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 09:08:30 -0800 (PST)
-X-ENS-nef-client:   129.199.1.22 ( name = clipper-gw.ens.fr )
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ens.fr; s=default;
-        t=1644337919; bh=rqZhpVrbVrs2npaoKtNtrRr0I2HSo5TWQ93nQB9Ac98=;
-        h=From:To:Cc:Subject:Date:From;
-        b=lEQegoWRIRBzb0lPEMbsPy+oBwBXdHMCKvP4CuiSsjKAaMc3q+abTCLEwleq30hUE
-         mxkjL8xXOdHoivCRLTjJYGrCsgX6IUQEI3/rl+fnPSTuTgb8bZE81Psf6DQ3Oa7mgR
-         uZZFqVIFbHRjQUUr9FnjHU9Cg3uhS8xktqcad8Zw=
-Received: from clipper.ens.fr (clipper-gw.ens.fr [129.199.1.22])
-          by nef.ens.fr (8.14.4/1.01.28121999) with ESMTP id 218GVw1M007768
-          ; Tue, 8 Feb 2022 17:31:58 +0100
-Received: from  optiplex-7.sg.lan using smtps by clipper.ens.fr (8.14.4/jb-1.1)
-       id 218GVs8u094603 ; Tue, 8 Feb 2022 17:31:58 +0100 (authenticated user gbertholon)
-X-ENS-Received:  (maths.r-prg.net.univ-paris7.fr [81.194.27.158])
-From:   Guillaume Bertholon <guillaume.bertholon@ens.fr>
-To:     gregkh@linuxfoundation.org
-Cc:     guillaume.bertholon@ens.fr, stable@vger.kernel.org
-Subject: [PATCH 4.9] ALSA: line6: Fix misplaced backport of "Fix wrong altsetting for LINE6_PODHD500_1"
-Date:   Tue,  8 Feb 2022 17:31:15 +0100
-Message-Id: <1644337875-22219-1-git-send-email-guillaume.bertholon@ens.fr>
-X-Mailer: git-send-email 2.7.4
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.4.3 (nef.ens.fr [129.199.96.32]); Tue, 08 Feb 2022 17:31:59 +0100 (CET)
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
+        with ESMTP id S241572AbiBHRf1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 12:35:27 -0500
+X-Greylist: delayed 1370 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 08 Feb 2022 09:35:25 PST
+Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FB18C061576
+        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 09:35:25 -0800 (PST)
+Received: from ip5b412258.dynamic.kabel-deutschland.de ([91.65.34.88] helo=phil.lan)
+        by gloria.sntech.de with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <heiko@sntech.de>)
+        id 1nHU2U-00034v-M7; Tue, 08 Feb 2022 18:12:26 +0100
+From:   Heiko Stuebner <heiko@sntech.de>
+To:     Brian Norris <briannorris@chromium.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>
+Cc:     Heiko Stuebner <heiko@sntech.de>, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, Sandy Huang <hjc@rock-chips.com>,
+        linux-rockchip@lists.infradead.org,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        stable@vger.kernel.org, Mark Yao <markyao0591@gmail.com>
+Subject: Re: [PATCH] drm/rockchip: vop: Correct RK3399 VOP register fields
+Date:   Tue,  8 Feb 2022 18:12:25 +0100
+Message-Id: <164434033775.248576.1440613083224554584.b4-ty@sntech.de>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20220119161104.1.I1d01436bef35165a8cdfe9308789c0badb5ff46a@changeid>
+References: <20220119161104.1.I1d01436bef35165a8cdfe9308789c0badb5ff46a@changeid>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE,T_SPF_HELO_TEMPERROR autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,45 +47,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The upstream commit 70256b42caaf ("ALSA: line6: Fix wrong altsetting for
-LINE6_PODHD500_1") changed the .altsetting field of the LINE6_PODHD500_1
-entry in podhd_properties_table from 1 to 0.
+On Wed, 19 Jan 2022 16:11:22 -0800, Brian Norris wrote:
+> Commit 7707f7227f09 ("drm/rockchip: Add support for afbc") switched up
+> the rk3399_vop_big[] register windows, but it did so incorrectly.
+> 
+> The biggest problem is in rk3288_win23_data[] vs.
+> rk3368_win23_data[] .format field:
+> 
+>   RK3288's format: VOP_REG(RK3288_WIN2_CTRL0, 0x7, 1)
+>   RK3368's format: VOP_REG(RK3368_WIN2_CTRL0, 0x3, 5)
+> 
+> [...]
 
-However, its backported version in stable (commit ec565611f930 ("ALSA:
-line6: Fix wrong altsetting for LINE6_PODHD500_1")) change the
-.altsetting field of the LINE6_PODHD500_0 entry instead.
+Applied, thanks!
 
-This patch resets the altsetting of LINE6_PODHD500_0 to 1, and sets the
-altsetting of LINE6_PODHD500_1 to 0, as wanted by the original fix.
+[1/1] drm/rockchip: vop: Correct RK3399 VOP register fields
+      commit: 9da1e9ab82c92d0e89fe44cad2cd7c2d18d64070
 
-Fixes: ec565611f930 ("ALSA: line6: Fix wrong altsetting for LINE6_PODHD500_1")
-Signed-off-by: Guillaume Bertholon <guillaume.bertholon@ens.fr>
----
- sound/usb/line6/podhd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/sound/usb/line6/podhd.c b/sound/usb/line6/podhd.c
-index 7133c36..b3abc4c 100644
---- a/sound/usb/line6/podhd.c
-+++ b/sound/usb/line6/podhd.c
-@@ -385,7 +385,7 @@ static const struct line6_properties podhd_properties_table[] = {
- 		.name = "POD HD500",
- 		.capabilities	= LINE6_CAP_PCM
- 				| LINE6_CAP_HWMON,
--		.altsetting = 0,
-+		.altsetting = 1,
- 		.ep_ctrl_r = 0x81,
- 		.ep_ctrl_w = 0x01,
- 		.ep_audio_r = 0x86,
-@@ -396,7 +396,7 @@ static const struct line6_properties podhd_properties_table[] = {
- 		.name = "POD HD500",
- 		.capabilities	= LINE6_CAP_PCM
- 				| LINE6_CAP_HWMON,
--		.altsetting = 1,
-+		.altsetting = 0,
- 		.ep_ctrl_r = 0x81,
- 		.ep_ctrl_w = 0x01,
- 		.ep_audio_r = 0x86,
---
-2.7.4
-
+Best regards,
+-- 
+Heiko Stuebner <heiko@sntech.de>
