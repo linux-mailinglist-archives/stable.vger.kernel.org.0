@@ -2,84 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 981884ACFB2
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 04:21:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3EDF4ACFC6
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 04:28:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229530AbiBHDV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 22:21:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52076 "EHLO
+        id S237974AbiBHD2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 22:28:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236142AbiBHDVZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 22:21:25 -0500
-Received: from spam.unicloud.com (mx.gosinoic.com [220.194.70.58])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6252AC043188;
-        Mon,  7 Feb 2022 19:21:23 -0800 (PST)
-Received: from eage.unicloud.com ([220.194.70.35])
-        by spam.unicloud.com with ESMTP id 2183Kac4021080;
-        Tue, 8 Feb 2022 11:20:36 +0800 (GMT-8)
-        (envelope-from luofei@unicloud.com)
-Received: from localhost.localdomain (10.10.1.7) by zgys-ex-mb09.Unicloud.com
- (10.10.0.24) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2375.17; Tue, 8
- Feb 2022 11:20:35 +0800
-From:   luofei <luofei@unicloud.com>
-To:     <stable@vger.kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
-        <tglx@linutronix.de>, <mingo@redhat.com>, <hpa@zytor.com>,
-        <x86@kernel.org>
-CC:     <linux-edac@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        luofei <luofei@unicloud.com>
-Subject: [PATCH] x86/mm, mm/hwpoison: Fix the unmap kernel 1:1 pages check condition
-Date:   Mon, 7 Feb 2022 22:20:28 -0500
-Message-ID: <20220208032028.852302-1-luofei@unicloud.com>
-X-Mailer: git-send-email 2.27.0
+        with ESMTP id S230356AbiBHD2Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 22:28:24 -0500
+Received: from mail-oo1-xc2d.google.com (mail-oo1-xc2d.google.com [IPv6:2607:f8b0:4864:20::c2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C06CC0401D1
+        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 19:28:24 -0800 (PST)
+Received: by mail-oo1-xc2d.google.com with SMTP id v17-20020a4ac911000000b002eac41bb3f4so16059610ooq.10
+        for <stable@vger.kernel.org>; Mon, 07 Feb 2022 19:28:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=7ZAKaEEyJI1QlBtAO97x/djdFEUaVpT8G63TEnOhPRg=;
+        b=W6dNI7vUff+i2CWCPidwYuDGTXnjvVZ967bP9FBbHOD6GWxeF7BTCtKnnq+/EnBk8d
+         Cdl5XsWFnnf0bi3ikaGN5N0vkfb9qsUCYM4uVsVSPTaZQ6NBZLPdwkCMoWNx+B36ZzH8
+         Fg+da5Yr1RHZHbv40fywMSgRRWEd6sxVquv3W6NYMJRL8MNkjYqkaNTXciJh5Hy1iynM
+         k52TqHw5xhSsd/Qh4qvrw0PeraONV9SYN6jCl0B++3IhJtysEQzjNCtGMfoss7RdzHvI
+         jH0doWgS4TBQWIULob9UVazUbDZh6sgnMr3IcEg0csFxPhU/2SvH/KKa1PgPxd9vhqWj
+         COUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=7ZAKaEEyJI1QlBtAO97x/djdFEUaVpT8G63TEnOhPRg=;
+        b=1z3RShxBL3oB/XTMI8Rc5eqNKLJLvahwlBRaarZATnSNoRE34dYLLoZCZX/TioiHjm
+         WFQlelDhMt+e04JOjj0lYimz7WROojmw5g8XyRHK+uERtocurTLVrJBl4wbvnQnbuPz3
+         9f/Rm4xg/xXGpq43L9uyd7Pm+1NPQAbAY6YaPPKjcqWjAz44iLbzz117+vwOrOigMrdD
+         VhSVrF/wyZFX7IJ4GkYiSYdi7l6OqUi36FiebRPkhVBmdE+4uYjqrFrZqqGjd8u7UZdp
+         bq03cpco3EpSyGpePIoBw6PkYPXxWMg5sLaYWuupd+U6itWw/aQ1gRgI8I23Gx/cehtT
+         UUUw==
+X-Gm-Message-State: AOAM533rhQYHqUdnc4wGiD+HniA4TH1ezpsXSCd25lmlo8g5fPdmTzl0
+        pQFT2CGjxyt3TSNj7ETT0Ba7RQ==
+X-Google-Smtp-Source: ABdhPJxN1005N1nYLZgtc+K1Uzm1yy23+Xza9MKiC+hNYnP7jyUycrml+zFm/YdVOHUZHfNTY5jJxQ==
+X-Received: by 2002:a05:6870:3:: with SMTP id a3mr631975oaa.305.1644290903793;
+        Mon, 07 Feb 2022 19:28:23 -0800 (PST)
+Received: from builder.lan ([2600:1700:a0:3dc8:3697:f6ff:fe85:aac9])
+        by smtp.gmail.com with ESMTPSA id c13sm4705272otf.5.2022.02.07.19.28.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Feb 2022 19:28:23 -0800 (PST)
+From:   Bjorn Andersson <bjorn.andersson@linaro.org>
+To:     Alistair Delva <adelva@google.com>, linux-kernel@vger.kernel.org
+Cc:     linux-remoteproc@vger.kernel.org, Ohad Ben-Cohen <ohad@wizery.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Rishabh Bhatnagar <rishabhb@codeaurora.org>,
+        stable@vger.kernel.org, Sibi Sankar <sibis@codeaurora.org>,
+        kernel-team@android.com
+Subject: Re: [PATCH] remoteproc: Fix count check in rproc_coredump_write()
+Date:   Mon,  7 Feb 2022 21:28:22 -0600
+Message-Id: <164429089105.137686.16984376250267108775.b4-ty@linaro.org>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220119232139.1125908-1-adelva@google.com>
+References: <20220119232139.1125908-1-adelva@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.10.1.7]
-X-ClientProxiedBy: zgys-ex-mb10.Unicloud.com (10.10.0.6) To
- zgys-ex-mb09.Unicloud.com (10.10.0.24)
-X-DNSRBL: 
-X-MAIL: spam.unicloud.com 2183Kac4021080
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fd0e786d9d09024f67bd71ec094b110237dc3840 ]
+On Wed, 19 Jan 2022 23:21:39 +0000, Alistair Delva wrote:
+> Check count for 0, to avoid a potential underflow. Make the check the
+> same as the one in rproc_recovery_write().
+> 
+> 
 
-This commit solves the problem of unmap kernel 1:1 pages
-unconditionally, it appears in Linus's tree 4.16 and later
-versions, and is backported to 4.14.x and 4.15.x stable branches.
+Applied, thanks!
 
-But the backported patch has its logic reversed when calling
-memory_failure() to determine whether it needs to unmap the
-kernel page. Only when memory_failure() returns successfully,
-the kernel page can be unmapped.
+[1/1] remoteproc: Fix count check in rproc_coredump_write()
+      commit: 09dc6efba9088a84ac00bd25be36c50d0a01a4df
 
-Signed-off-by: luofei <luofei@unicloud.com>
-Cc: stable@vger.kernel.org #v4.14.x
-Cc: stable@vger.kernel.org #v4.15.x
----
- arch/x86/kernel/cpu/mcheck/mce.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/x86/kernel/cpu/mcheck/mce.c b/arch/x86/kernel/cpu/mcheck/mce.c
-index 95c09db1bba2..d8399a689165 100644
---- a/arch/x86/kernel/cpu/mcheck/mce.c
-+++ b/arch/x86/kernel/cpu/mcheck/mce.c
-@@ -589,7 +589,7 @@ static int srao_decode_notifier(struct notifier_block *nb, unsigned long val,
- 
- 	if (mce_usable_address(mce) && (mce->severity == MCE_AO_SEVERITY)) {
- 		pfn = mce->addr >> PAGE_SHIFT;
--		if (memory_failure(pfn, MCE_VECTOR, 0))
-+		if (!memory_failure(pfn, MCE_VECTOR, 0))
- 			mce_unmap_kpfn(pfn);
- 	}
- 
+Best regards,
 -- 
-2.27.0
-
+Bjorn Andersson <bjorn.andersson@linaro.org>
