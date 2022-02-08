@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAAA44AD3F5
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 09:51:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EC0A4AD403
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 09:52:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349598AbiBHIvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 03:51:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44796 "EHLO
+        id S235798AbiBHIwm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 03:52:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234703AbiBHIvF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 03:51:05 -0500
-Received: from mail.kmu-office.ch (mail.kmu-office.ch [IPv6:2a02:418:6a02::a2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7843DC0401F6
-        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 00:51:01 -0800 (PST)
-Received: from webmail.kmu-office.ch (unknown [IPv6:2a02:418:6a02::a3])
-        by mail.kmu-office.ch (Postfix) with ESMTPSA id 4642F5C1D10;
-        Tue,  8 Feb 2022 09:50:59 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=agner.ch; s=dkim;
-        t=1644310259;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=jdbAvq7z9eTXY5eg8HuXoMcDIWe+qtaUrY5jz0a9as0=;
-        b=ruHoVnCHu83SL64ZG8dQ0vlZHaDEy0F4DPhonRJmt+UYDYSHEZJ/P+5I0fU4TybtQxq1yf
-        B8wKMcJCn6PWRRvtL/NwQoxiE10x3AYsYag4chdsAtrFa+W5BPdeWOmaV60k3lwvE9uhr3
-        C9RaadyqT2rpoNI41gJE3v1nS6dpInQ=
+        with ESMTP id S232577AbiBHIwl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 03:52:41 -0500
+Received: from first.geanix.com (first.geanix.com [116.203.34.67])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B32C03FEC0;
+        Tue,  8 Feb 2022 00:52:40 -0800 (PST)
+Received: from zen.. (unknown [185.17.218.86])
+        by first.geanix.com (Postfix) with ESMTPSA id A64FDE28FB;
+        Tue,  8 Feb 2022 08:52:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
+        t=1644310357; bh=IfhFtV9h7TZeyZofkNglQMWg6AkUIHKmkWYK/JylW0g=;
+        h=From:To:Cc:Subject:Date;
+        b=js/n16a0zimkjRoS2heJRpgLxJGxRQ3w5s1bEzO1ieNAumVGSI7w5G1GH1QKZmRzw
+         +wXhb4jTDUu+AqSO6al4a2SXOVm1Sy8xyOBERiMG9w5WZjCLMBtPqxPRU2ebUKkIdG
+         wRJ35PC28Vyq+EcrPH3T7Fsp9Tx1LZMuktC0w1Wa47zbo4XuHqi0cOtkz1gxeP24vT
+         SK4Wm18IMHuqeyeuQs7CKIcz58NJu2UMGYugELMimgyqzbazH3cSawSHqZSq/FK0ID
+         PuYv3quhdyGmzRxlbcQe90tZdtbv0bIAXe+5cJkwyzPI04AnAlXVFtEc9YYnLd3/Jy
+         G7XFHn7oxmv6g==
+From:   Sean Nyekjaer <sean@geanix.com>
+To:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Boris Brezillon <bbrezillon@kernel.org>
+Cc:     Sean Nyekjaer <sean@geanix.com>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        stable@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v4] mtd: rawnand: protect access to rawnand devices while in suspend
+Date:   Tue,  8 Feb 2022 09:52:13 +0100
+Message-Id: <20220208085213.1838273-1-sean@geanix.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Date:   Tue, 08 Feb 2022 09:50:59 +0100
-From:   Stefan Agner <stefan@agner.ch>
-To:     Jason Self <jason@bluehome.net>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Cc:     stable@vger.kernel.org, regressions@lists.linux.dev
-Subject: Re: Regression/boot failure on 5.16.3
-In-Reply-To: <20220203161959.3edf1d6e@valencia>
-References: <20220203161959.3edf1d6e@valencia>
-User-Agent: Roundcube Webmail/1.4.9
-Message-ID: <00b41f5de94fca5ef995ab2c95def4aa@agner.ch>
-X-Sender: stefan@agner.ch
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,51 +50,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-02-04 01:19, Jason Self wrote:
-> The computer (amd64) fails to boot. The init was stuck at the
-> synchronization of the time through the network. This began between
-> 5.16.2 (good) and 5.16.3 (bad.) This continues on 5.16.4 and 5.16.5.
-> Git bisect revealed the following. In this case the nonfree firmwre is
-> not present on the system. Blacklisting the iwflwifi module works as a
-> workaround for now.
+Prevent rawnand access while in a suspended state.
 
-I have several reports of Intel NUC 10th/11th gen not booting/crashing
-during boot after updating to 5.10.96 (from 5.10.91). At least one stack
-trace shows iwl_dealloc_ucode in the call path. The below commit is part
-of 5.10.96 So this regression seems to not only affect 5.16 series.
+Commit 013e6292aaf5 ("mtd: rawnand: Simplify the locking") allows the
+rawnand layer to return errors rather than waiting in a blocking wait.
 
-Link:
-https://github.com/home-assistant/operating-system/issues/1739#issuecomment-1032013069
+Tested on a iMX6ULL.
 
---
-Stefan
+Fixes: 013e6292aaf5 ("mtd: rawnand: Simplify the locking")
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: stable@vger.kernel.org
+---
 
+Changes since v1:
+ - fixed uninitialized return
 
-> 
-> 6b5ad4bd0d78fef6bbe0ecdf96e09237c9c52cc1 is the first bad commit
-> commit 6b5ad4bd0d78fef6bbe0ecdf96e09237c9c52cc1
-> Author: Johannes Berg <johannes.berg@intel.com>
-> Date:   Fri Dec 10 11:12:42 2021 +0200
-> 
->     iwlwifi: fix leaks/bad data after failed firmware load
->     
->     [ Upstream commit ab07506b0454bea606095951e19e72c282bfbb42 ]
->     
->     If firmware load fails after having loaded some parts of the
->     firmware, e.g. the IML image, then this would leak. For the
->     host command list we'd end up running into a WARN on the next
->     attempt to load another firmware image.
->     
->     Fix this by calling iwl_dealloc_ucode() on failures, and make
->     that also clear the data so we start fresh on the next round.
->     
->     Signed-off-by: Johannes Berg <johannes.berg@intel.com>
->     Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
->     Link:
->    
-> https://lore.kernel.org/r/iwlwifi.20211210110539.1f742f0eb58a.I1315f22f6aa632d94ae2069f85e1bca5e734dce0@changeid
->     Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
->     Signed-off-by: Sasha Levin <sashal@kernel.org>
-> 
->  drivers/net/wireless/intel/iwlwifi/iwl-drv.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
+Changes since v2:
+ - fixed wait queue description
+
+Changes since v3:
+ - fixed typo in commit msg
+ - added stable tag in signoff area
+
+ drivers/mtd/nand/raw/nand_base.c | 44 +++++++++++++++-----------------
+ include/linux/mtd/rawnand.h      |  2 ++
+ 2 files changed, 22 insertions(+), 24 deletions(-)
+
+diff --git a/drivers/mtd/nand/raw/nand_base.c b/drivers/mtd/nand/raw/nand_base.c
+index e7b2ba016d8c..8daaba96edb2 100644
+--- a/drivers/mtd/nand/raw/nand_base.c
++++ b/drivers/mtd/nand/raw/nand_base.c
+@@ -338,16 +338,19 @@ static int nand_isbad_bbm(struct nand_chip *chip, loff_t ofs)
+  *
+  * Return: -EBUSY if the chip has been suspended, 0 otherwise
+  */
+-static int nand_get_device(struct nand_chip *chip)
++static void nand_get_device(struct nand_chip *chip)
+ {
+-	mutex_lock(&chip->lock);
+-	if (chip->suspended) {
++	/* Wait until the device is resumed. */
++	while (1) {
++		mutex_lock(&chip->lock);
++		if (!chip->suspended) {
++			mutex_lock(&chip->controller->lock);
++			return;
++		}
+ 		mutex_unlock(&chip->lock);
+-		return -EBUSY;
+-	}
+-	mutex_lock(&chip->controller->lock);
+ 
+-	return 0;
++		wait_event(chip->resume_wq, !chip->suspended);
++	}
+ }
+ 
+ /**
+@@ -576,9 +579,7 @@ static int nand_block_markbad_lowlevel(struct nand_chip *chip, loff_t ofs)
+ 		nand_erase_nand(chip, &einfo, 0);
+ 
+ 		/* Write bad block marker to OOB */
+-		ret = nand_get_device(chip);
+-		if (ret)
+-			return ret;
++		nand_get_device(chip);
+ 
+ 		ret = nand_markbad_bbm(chip, ofs);
+ 		nand_release_device(chip);
+@@ -3826,9 +3827,7 @@ static int nand_read_oob(struct mtd_info *mtd, loff_t from,
+ 	    ops->mode != MTD_OPS_RAW)
+ 		return -ENOTSUPP;
+ 
+-	ret = nand_get_device(chip);
+-	if (ret)
+-		return ret;
++	nand_get_device(chip);
+ 
+ 	if (!ops->datbuf)
+ 		ret = nand_do_read_oob(chip, from, ops);
+@@ -4415,13 +4414,11 @@ static int nand_write_oob(struct mtd_info *mtd, loff_t to,
+ 			  struct mtd_oob_ops *ops)
+ {
+ 	struct nand_chip *chip = mtd_to_nand(mtd);
+-	int ret;
++	int ret = 0;
+ 
+ 	ops->retlen = 0;
+ 
+-	ret = nand_get_device(chip);
+-	if (ret)
+-		return ret;
++	nand_get_device(chip);
+ 
+ 	switch (ops->mode) {
+ 	case MTD_OPS_PLACE_OOB:
+@@ -4481,9 +4478,7 @@ int nand_erase_nand(struct nand_chip *chip, struct erase_info *instr,
+ 		return -EIO;
+ 
+ 	/* Grab the lock and see if the device is available */
+-	ret = nand_get_device(chip);
+-	if (ret)
+-		return ret;
++	nand_get_device(chip);
+ 
+ 	/* Shift to get first page */
+ 	page = (int)(instr->addr >> chip->page_shift);
+@@ -4570,7 +4565,7 @@ static void nand_sync(struct mtd_info *mtd)
+ 	pr_debug("%s: called\n", __func__);
+ 
+ 	/* Grab the lock and see if the device is available */
+-	WARN_ON(nand_get_device(chip));
++	nand_get_device(chip);
+ 	/* Release it and go back */
+ 	nand_release_device(chip);
+ }
+@@ -4587,9 +4582,7 @@ static int nand_block_isbad(struct mtd_info *mtd, loff_t offs)
+ 	int ret;
+ 
+ 	/* Select the NAND device */
+-	ret = nand_get_device(chip);
+-	if (ret)
+-		return ret;
++	nand_get_device(chip);
+ 
+ 	nand_select_target(chip, chipnr);
+ 
+@@ -4660,6 +4653,8 @@ static void nand_resume(struct mtd_info *mtd)
+ 			__func__);
+ 	}
+ 	mutex_unlock(&chip->lock);
++
++	wake_up_all(&chip->resume_wq);
+ }
+ 
+ /**
+@@ -5437,6 +5432,7 @@ static int nand_scan_ident(struct nand_chip *chip, unsigned int maxchips,
+ 	chip->cur_cs = -1;
+ 
+ 	mutex_init(&chip->lock);
++	init_waitqueue_head(&chip->resume_wq);
+ 
+ 	/* Enforce the right timings for reset/detection */
+ 	chip->current_interface_config = nand_get_reset_interface_config();
+diff --git a/include/linux/mtd/rawnand.h b/include/linux/mtd/rawnand.h
+index 5b88cd51fadb..dcf90144d70b 100644
+--- a/include/linux/mtd/rawnand.h
++++ b/include/linux/mtd/rawnand.h
+@@ -1240,6 +1240,7 @@ struct nand_secure_region {
+  * @lock: Lock protecting the suspended field. Also used to serialize accesses
+  *        to the NAND device
+  * @suspended: Set to 1 when the device is suspended, 0 when it's not
++ * @resume_wq: wait queue to sleep if rawnand is in suspended state.
+  * @cur_cs: Currently selected target. -1 means no target selected, otherwise we
+  *          should always have cur_cs >= 0 && cur_cs < nanddev_ntargets().
+  *          NAND Controller drivers should not modify this value, but they're
+@@ -1294,6 +1295,7 @@ struct nand_chip {
+ 	/* Internals */
+ 	struct mutex lock;
+ 	unsigned int suspended : 1;
++	wait_queue_head_t resume_wq;
+ 	int cur_cs;
+ 	int read_retries;
+ 	struct nand_secure_region *secure_regions;
+-- 
+2.34.1
+
