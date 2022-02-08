@@ -2,94 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AAF74ACFC8
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 04:29:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 574B64ACFFE
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 04:58:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242885AbiBHD3M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 22:29:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55470 "EHLO
+        id S239402AbiBHD6b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 22:58:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242124AbiBHD3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 22:29:11 -0500
-Received: from mail-oo1-xc30.google.com (mail-oo1-xc30.google.com [IPv6:2607:f8b0:4864:20::c30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 411B8C043188;
-        Mon,  7 Feb 2022 19:29:11 -0800 (PST)
-Received: by mail-oo1-xc30.google.com with SMTP id i10-20020a4aab0a000000b002fccf890d5fso16142190oon.5;
-        Mon, 07 Feb 2022 19:29:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=1AAZ5DI86KNzEVu6hc7CCCpyAZ1x5OZZFyPZDEWyzoI=;
-        b=RR8of/o/89MJ4ngX5plmYwfJ5uTugad82T4YlOrDrjkE1Njep9K5FNHkBRyBlv1tQw
-         LBUES2gT421V4jWdf4PDpYpFXPlX17AoqjtzxfQ7BrGyPR9d5557cp3whvkV0M9ojoyy
-         PdpYYYYXX5Qqy8AcLkbNd5nq6Fokvf/bu8ieFpNWIHw5rybXekjimT9FygHXda/SSQKo
-         9CbHnV4y3Uw9c6kkITjHNau6kAg+6rLZ24oVoxu1eD+DoM1DSdTZR5sZhGOvVn4jP2rE
-         CUlt13S8WyV8C9CNoGG+Pp4+FdYqNMYnJqeS8gXq3iknJEcdH1eoretHSJkhnS/pCmlr
-         Aeng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=1AAZ5DI86KNzEVu6hc7CCCpyAZ1x5OZZFyPZDEWyzoI=;
-        b=OsMTRR3FUrh+PHVHlh9LzyOwWo8a2I1zr13M0DINiKvNTKzQzFWLjeBmE8zgxTK/yF
-         PTsTprYqbyfGk8TPc5Bld1Ce8ShE82QCcUey6ftwR+NjipCTeagoFAwiyzkDwyy0QSZM
-         DysNc6COUPLXdP8IdgWGae3ATMVlyBhO44obzHEDjk34Bcklvbo4VGCOYz2dLlNWp5l0
-         fJJ/zK6Zvy2rgzwPG7hcQVUQXlp0XkDD0+K5SsB6CdWlsK2CKT+M65zBup5/cao8h8wX
-         9IfO18pVXPRQNHAwpMSws5W1BAkWgVU0KBuHEPGkwjarlll8eJuxRDMn7h2UsmYabZos
-         TjSg==
-X-Gm-Message-State: AOAM533ir46hShJRkniZuHiV3QKcNCR82o5s65vqMnE0ujDsdP1TVpo3
-        59NvhfiREQNd/0JXVeU+vuE=
-X-Google-Smtp-Source: ABdhPJwCy9emVvOs04KdM9w7kZ2pdw5f1ltXQa8WfHYKpjCVuyO1d5pfsl5lFVXoEiN6v6CIRp7iMQ==
-X-Received: by 2002:a05:6871:4009:: with SMTP id kx9mr688997oab.111.1644290950711;
-        Mon, 07 Feb 2022 19:29:10 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id eq37sm5508647oab.19.2022.02.07.19.29.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Feb 2022 19:29:09 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Mon, 7 Feb 2022 19:29:08 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.4 00/44] 5.4.178-rc1 review
-Message-ID: <20220208032908.GA3403317@roeck-us.net>
-References: <20220207103753.155627314@linuxfoundation.org>
+        with ESMTP id S230298AbiBHD6a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 22:58:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDE8CC0401DC;
+        Mon,  7 Feb 2022 19:58:29 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87DA561512;
+        Tue,  8 Feb 2022 03:58:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DDADC340E9;
+        Tue,  8 Feb 2022 03:58:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1644292708;
+        bh=wlSWE02vijqLb7afUOki+FFDRQApC6VyPmtbpgQxuAA=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=KxjZM/HWcTU3/sIZy4/XZGDmB/vfPmYkJVei9liZjWeJ23rw/5zAfT6PCiPB7mtET
+         SwYA+Qmb4QgTiLXEHdmG/72I7HttzRU/Umssvx/s3eSc5eQNwqj+r/TNIjxrek8NCF
+         FrEqsvrrE4t6OMaoGD6oKj5VWilPj/rtknLqzg8hH+Pqiydl956gjs37b4mb8GHmiT
+         HG+izeZLGBtZb8VvtijszGf2zKaHWZyW6/E5nPcXGOKd9QAe+1b5DsMhnurqPfHIok
+         p/ZAQdvTJX8rxa8kKufE9085rdpfGyu/TAXnAS7AgsC3VJEr+/2LpZCJmyrtXVeT+a
+         Aq5wr54YoB1Og==
+Date:   Mon, 7 Feb 2022 19:58:27 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc:     Serge Semin <fancer.lancer@gmail.com>,
+        Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        <stable@vger.kernel.org>, <netdev@vger.kernel.org>
+Subject: Re: [PATCH net v2] net: phy: marvell: Fix RGMII Tx/Rx delays
+ setting in 88e1121-compatible PHYs
+Message-ID: <20220207195827.43f11866@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20220207112239.20ae3bfe@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+References: <96759fee7240fd095cb9cc1f6eaf2d9113b57cf0.camel@baikalelectronics.ru>
+        <20220205203932.26899-1-Pavel.Parkhomenko@baikalelectronics.ru>
+        <20220207094039.6a2b34df@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        <20220207183319.ls2rz4k6m7tgbqlg@mobilestation>
+        <20220207112239.20ae3bfe@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220207103753.155627314@linuxfoundation.org>
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 07, 2022 at 12:06:16PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.178 release.
-> There are 44 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Mon, 7 Feb 2022 11:22:39 -0800 Jakub Kicinski wrote:
+> On Mon, 7 Feb 2022 21:33:19 +0300 Serge Semin wrote:
+> > > I see it's marked as Superseded in patchwork, but can't track down a v3.    
+> > 
+> > We had accidentally sent out a temporal v2 version before submitting this
+> > one. The failed patch is here
+> > Link: https://lore.kernel.org/stable/20220205190814.20282-1-Pavel.Parkhomenko@baikalelectronics.ru/
+> > But the message was sent to Russel and to the stable mailing list only
+> > with no netdev list being in Cc. I thought if the right v2 was sent
+> > out after the failed one, then even if patchwork somehow gets to catch
+> > both of the messages, the former patch would have at least superseded
+> > the later one. It appears I was wrong. Sorry about that. Do you want
+> > us to resend this patch as v3 to have a proper patchwork status?  
 > 
-> Responses should be made by Wed, 09 Feb 2022 10:37:42 +0000.
-> Anything received after that time might be too late.
-> 
+> No need, I set it back to New, thanks!
 
-Build results:
-	total: 159 pass: 159 fail: 0
-Qemu test results:
-	total: 449 pass: 449 fail: 0
-
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-
-Guenter
+Applied now, commit fe4f57bf7b58 ("net: phy: marvell: Fix RGMII Tx/Rx
+delays setting in 88e1121-compatible PHYs"), thanks!
