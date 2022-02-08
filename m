@@ -2,81 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85F814AE0A5
+	by mail.lfdr.de (Postfix) with ESMTP id D63FA4AE0A6
 	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 19:24:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384542AbiBHSWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 13:22:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54806 "EHLO
+        id S235351AbiBHSYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 13:24:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235976AbiBHSWa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 13:22:30 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8A4EC061576
-        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 10:22:29 -0800 (PST)
-Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1nHV8E-0006rv-9m; Tue, 08 Feb 2022 19:22:26 +0100
-Message-ID: <df18cc2e-fa46-b088-85c6-959d8b6ea4ea@leemhuis.info>
-Date:   Tue, 8 Feb 2022 19:22:25 +0100
+        with ESMTP id S1384827AbiBHSYP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 13:24:15 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE6EC061578
+        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 10:24:14 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id E64C61F383;
+        Tue,  8 Feb 2022 18:24:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1644344652; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=2cezhqvSYd03W2vEOIyADNeTfn7ceRR+wpiEBrOr2Bw=;
+        b=HjpXOEqvuSgA+bziCImghLVg0D9FYtDymJHDIPmXjOaRLvAgCg80OEDalGGVzmbHTjN8Ve
+        lsjVBsrCtNVkxRdvdN9/TeLdLrEYZSJM7OKe+FeVG42yixwWcKLWWjGgxx2xlbufiB1Njl
+        rOceoJnXWQjdk7WmixTQMAlc1PYoANU=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id D38E313CDC;
+        Tue,  8 Feb 2022 18:24:12 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id y9UcM0y1AmKtfQAAMHmgww
+        (envelope-from <mkoutny@suse.com>); Tue, 08 Feb 2022 18:24:12 +0000
+From:   =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>
+To:     stable@vger.kernel.org
+Cc:     Tabitha Sable <tabitha.c.sable@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH] cgroup-v1: Require capabilities to set release_agent (backport to v4.12)
+Date:   Tue,  8 Feb 2022 19:24:02 +0100
+Message-Id: <20220208182402.24674-1-mkoutny@suse.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Content-Language: en-BS
-To:     Jason Self <jason@bluehome.net>, Stefan Agner <stefan@agner.ch>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        stable@vger.kernel.org, regressions@lists.linux.dev
-References: <20220203161959.3edf1d6e@valencia>
- <00b41f5de94fca5ef995ab2c95def4aa@agner.ch>
- <20220208100529.41d1b4d7@valencia>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-Subject: Re: Regression/boot failure on 5.16.3
-In-Reply-To: <20220208100529.41d1b4d7@valencia>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1644344549;6d1cfed6;
-X-HE-SMSGID: 1nHV8E-0006rv-9m
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08.02.22 19:05, Jason Self wrote:
-> On Tue, 08 Feb 2022 09:50:59 +0100
-> Stefan Agner <stefan@agner.ch> wrote:
-> 
->> On 2022-02-04 01:19, Jason Self wrote:
->>  [...]  
->>
->> I have several reports of Intel NUC 10th/11th gen not booting/crashing
->> during boot after updating to 5.10.96 (from 5.10.91). At least one
->> stack trace shows iwl_dealloc_ucode in the call path. The below
->> commit is part of 5.10.96 So this regression seems to not only affect
->> 5.16 series.
->>
->> Link:
->> https://github.com/home-assistant/operating-system/issues/1739#issuecomment-1032013069
-> 
-> Yes, it does appear to affect multiple versions; at least 5.17-rc2,
-> 5.16, 5.15, and as you say 5.10.
-> 
-> I can confirm that this patch addresses it on 5.16:
-> https://lore.kernel.org/stable/YgJSEEmRDKKG+3lT@mail-itl/T/#t
+From: "Eric W. Biederman" <ebiederm@xmission.com>
 
-Thx for pointing to the thread!
+The cgroup release_agent is called with call_usermodehelper.  The function
+call_usermodehelper starts the release_agent with a full set fo capabilities.
+Therefore require capabilities when setting the release_agaent.
 
-#regzbot monitor: https://lore.kernel.org/stable/YgJSEEmRDKKG+3lT@mail-itl/
+[ Upstream commit 24f6008564183aa120d07c03d9289519c2fe02af ]
 
-> It appears desirable to apply the patch to all of the stable versions
-> that need it, after it's gone into Linus's tree to also address the
-> matter with the upcoming 5.17 series.
+Reported-by: Tabitha Sable <tabitha.c.sable@gmail.com>
+Tested-by: Tabitha Sable <tabitha.c.sable@gmail.com>
+Fixes: 81a6a5cdd2c5 ("Task Control Groups: automatic userspace notification of idle cgroups")
+Cc: stable@vger.kernel.org # v2.6.24+
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+[mkoutny: Adjust for pre-fs_context, duplicate mount/remount check, drop log messages.]
+Acked-by: Michal Koutný <mkoutny@suse.com>
+---
 
-FWIW, the patch is marked for backporting already, it just needs to get
-merged to mainline first.
+Hello,
+FWIW, I'm sharing v4.12 backport of the aforementioned patch (v4.12 is not
+actual stable but someone may find it useful).
 
-Ciao, Thorsten
+Michal
+
+ kernel/cgroup/cgroup-v1.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -531,6 +531,14 @@ static ssize_t cgroup_release_agent_writ
+ 
+ 	BUILD_BUG_ON(sizeof(cgrp->root->release_agent_path) < PATH_MAX);
+ 
++	/*
++	 * Release agent gets called with all capabilities,
++	 * require capabilities to set release agent.
++	 */
++	if ((of->file->f_cred->user_ns != &init_user_ns) ||
++	    !capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	cgrp = cgroup_kn_lock_live(of->kn, false);
+ 	if (!cgrp)
+ 		return -ENODEV;
+@@ -1004,6 +1012,7 @@ static int cgroup1_remount(struct kernfs
+ {
+ 	int ret = 0;
+ 	struct cgroup_root *root = cgroup_root_from_kf(kf_root);
++	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
+ 	struct cgroup_sb_opts opts;
+ 	u16 added_mask, removed_mask;
+ 
+@@ -1017,6 +1026,12 @@ static int cgroup1_remount(struct kernfs
+ 	if (opts.subsys_mask != root->subsys_mask || opts.release_agent)
+ 		pr_warn("option changes via remount are deprecated (pid=%d comm=%s)\n",
+ 			task_tgid_nr(current), current->comm);
++	/* See cgroup1_mount release_agent handling */
++	if (opts.release_agent &&
++	    ((ns->user_ns != &init_user_ns) || !capable(CAP_SYS_ADMIN))) {
++		ret = -EINVAL;
++		goto out_unlock;
++	}
+ 
+ 	added_mask = opts.subsys_mask & ~root->subsys_mask;
+ 	removed_mask = root->subsys_mask & ~opts.subsys_mask;
+@@ -1180,6 +1195,15 @@ struct dentry *cgroup1_mount(struct file
+ 		ret = -EPERM;
+ 		goto out_unlock;
+ 	}
++	/*
++	 * Release agent gets called with all capabilities,
++	 * require capabilities to set release agent.
++	 */
++	if (opts.release_agent &&
++	    ((ns->user_ns != &init_user_ns) || !capable(CAP_SYS_ADMIN))) {
++		ret = -EINVAL;
++		goto out_unlock;
++	}
+ 
+ 	root = kzalloc(sizeof(*root), GFP_KERNEL);
+ 	if (!root) {
