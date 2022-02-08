@@ -2,92 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D2564AD8D4
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 14:16:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7EF64AD9E6
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 14:31:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346818AbiBHNP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 08:15:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36994 "EHLO
+        id S237553AbiBHNbl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 08:31:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350281AbiBHNGW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 08:06:22 -0500
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3DBEC03FEC0;
-        Tue,  8 Feb 2022 05:06:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644325582; x=1675861582;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-id:content-transfer-encoding:
-   mime-version;
-  bh=Hz/tDemN33s+rgHjOdOGQDPsW+gdZ6F31mZmG9gY28c=;
-  b=Aunc/ObHkOyJw4wqtbUamCh9cBLcLlXpu0mE5RJgstIOjxT+G+2S87C7
-   UtQtiQp6GNpSwqpzNzzS62KtsUayEODFQW/FIPpcvqc1WRyCcOKBV+2iv
-   cjcIPAP7BSLxztULyKtheidhFjG2NqsciO4S2WkpUzOEbt3XaAh41q03n
-   e9RCi8dio2jBlgV/Xg301MXN5ibo3EW9tipC855EBnRqwuoaEvQrLeaAf
-   AXh9KNKTvPd3RwGr88WFFFpcRf49msrUKXI+0q0qjAPNEH2XMEqT6Z456
-   m8lTCElR765s+cHYT28ZFaNX/mmZD2vwi/p/4UsKyzemPjTS6VYnrb5C+
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10251"; a="246531171"
-X-IronPort-AV: E=Sophos;i="5.88,352,1635231600"; 
-   d="scan'208";a="246531171"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Feb 2022 05:06:21 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,352,1635231600"; 
-   d="scan'208";a="621898449"
-Received: from orsmsx605.amr.corp.intel.com ([10.22.229.18])
-  by FMSMGA003.fm.intel.com with ESMTP; 08 Feb 2022 05:06:21 -0800
-Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
- ORSMSX605.amr.corp.intel.com (10.22.229.18) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Tue, 8 Feb 2022 05:06:20 -0800
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Tue, 8 Feb 2022 05:06:20 -0800
-Received: from orsmsx610.amr.corp.intel.com ([10.22.229.23]) by
- ORSMSX610.amr.corp.intel.com ([10.22.229.23]) with mapi id 15.01.2308.020;
- Tue, 8 Feb 2022 05:06:20 -0800
-From:   "Souza, Jose" <jose.souza@intel.com>
-To:     "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "lyude@redhat.com" <lyude@redhat.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
-CC:     "airlied@linux.ie" <airlied@linux.ie>,
-        "ville.syrjala@linux.intel.com" <ville.syrjala@linux.intel.com>,
-        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
-        "Mun, Gwan-gyeong" <gwan-gyeong.mun@intel.com>,
-        "Roper, Matthew D" <matthew.d.roper@intel.com>,
-        "tvrtko.ursulin@linux.intel.com" <tvrtko.ursulin@linux.intel.com>,
-        "Kahola, Mika" <mika.kahola@intel.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
-        "daniel@ffwll.ch" <daniel@ffwll.ch>,
-        "Hogander, Jouni" <jouni.hogander@intel.com>,
-        "De Marchi, Lucas" <lucas.demarchi@intel.com>
-Subject: Re: [PATCH] drm/i915/psr: Disable PSR2 selective fetch for all TGL
- steps
-Thread-Topic: [PATCH] drm/i915/psr: Disable PSR2 selective fetch for all TGL
- steps
-Thread-Index: AQHYHGs84cCIUJlC2Ume2siiSl6AyKyKJykA
-Date:   Tue, 8 Feb 2022 13:06:20 +0000
-Message-ID: <47eed687da699a6abbfd7726439fd307786c9d93.camel@intel.com>
-References: <20220207213923.3605-1-lyude@redhat.com>
-In-Reply-To: <20220207213923.3605-1-lyude@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.1.200.100]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <648DFECD201D5E469AA52B10753BF2F5@intel.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        with ESMTP id S1378148AbiBHNbB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 08:31:01 -0500
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BD3CC0085A1;
+        Tue,  8 Feb 2022 05:30:10 -0800 (PST)
+Received: by mail-pj1-x1032.google.com with SMTP id v5-20020a17090a4ec500b001b8b702df57so2063940pjl.2;
+        Tue, 08 Feb 2022 05:30:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=xB1NXJm/hSKDkAp5uvY7mCj2m7DP3RBYPb/PrnHZ/F0=;
+        b=U9PDIsquqkjhFvbqaVGOsHi//xTum/Othq5fIF5gO7qTVFAazvz84mdHt9EulDmD5B
+         4+uaHBh9uLS1Gf5se6ZWe4nVmgnRqdKIzbL9vNSdGR347jC2w/e4g5Sjk04GBDeSRk16
+         qCEn1V9RUi4ewlLxYhaUGN4GDFUh4jtHjOkn+Y69nLduFTtLVLl9TLd0b5PEswHvxfMZ
+         r7lBg7OZ/Ad6agOGUAATJuR4TF9UMoYVQFMV/EM/hZGDsXG4PV1k4Lm9MQzvZ9SURdRd
+         M5GmiPhc1vNwX2xwO5Wdq8TZBnCEFd91OdJj7XOC8itYVCru0jtJmx6jwH30Euj4KBRU
+         /Nlw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=xB1NXJm/hSKDkAp5uvY7mCj2m7DP3RBYPb/PrnHZ/F0=;
+        b=DLczjz5O7MdAzYT1vX0qht/hxLBxJ7Ccwx41MVro3gb9DQGmK/Cg47n2KBasR86fds
+         pmug92DWe2cjTJ3wJpCk3hy1j6KzNCTtEJMhquPoHIye83/01l60HuzSzUVJdx4WP17z
+         XeUKUBTbz5v8WzdYFsWer870vzJji4YzV4T58DPKU5530aAjMII/+Yezec6Hr+FspmyD
+         KULv2BhYa+Vi8hDkUUTCVWL5W/aUQRNhTo21/3BZuJtAM3QzIWwkWngUM0R8sVVPPW1A
+         0id847xQCZFMwQTkX4R+I6+FbRQOjctMZyjogBhbiU8RtcYZBglnIf4Q+FYaGn9YAseI
+         bZOQ==
+X-Gm-Message-State: AOAM531lRceIjnFDH2up3h5EPDVco/TuV0R54p5I9ieXXrUyA7vGjsXa
+        rL+x2KkBywBpxPUMamJNZ2uwU/cB/hIFYLw4mB8=
+X-Google-Smtp-Source: ABdhPJxQrxFY5lG5Z7jL/Ry8i/+9mnFdAHla8n6Qy1qJHVR27ottI155JllEx8V1L8ONpdHYn+sDxg==
+X-Received: by 2002:a17:90b:3a90:: with SMTP id om16mr1354914pjb.111.1644327009355;
+        Tue, 08 Feb 2022 05:30:09 -0800 (PST)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
+        by smtp.gmail.com with ESMTPSA id l21sm16263274pfu.120.2022.02.08.05.30.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Feb 2022 05:30:08 -0800 (PST)
+Message-ID: <62027060.1c69fb81.bd18b.8223@mx.google.com>
+Date:   Tue, 08 Feb 2022 05:30:08 -0800 (PST)
+X-Google-Original-Date: Tue, 08 Feb 2022 13:30:02 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20220207133856.644483064@linuxfoundation.org>
+Subject: RE: [PATCH 5.16 000/127] 5.16.8-rc2 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -95,46 +72,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gTW9uLCAyMDIyLTAyLTA3IGF0IDE2OjM4IC0wNTAwLCBMeXVkZSBQYXVsIHdyb3RlOg0KPiBB
-cyB3ZSd2ZSB1bmZvcnR1bmF0ZWx5IHN0YXJ0ZWQgdG8gY29tZSB0byBleHBlY3QgZnJvbSBQU1Ig
-b24gSW50ZWwNCj4gcGxhdGZvcm1zLCBQU1IyIHNlbGVjdGl2ZSBmZXRjaCBpcyBub3QgYXQgYWxs
-IHJlYWR5IHRvIGJlIGVuYWJsZWQgb24NCj4gVGlnZXJsYWtlIGFzIGl0IHJlc3VsdHMgaW4gc2V2
-ZXJlIGZsaWNrZXJpbmcgaXNzdWVzIC0gYXQgbGVhc3Qgb24gdGhpcw0KPiBUaGlua1BhZCBYMSBD
-YXJib24gOXRoIGdlbmVyYXRpb24uIFRoZSBlYXNpZXN0IHdheSBJJ3ZlIGZvdW5kIG9mDQo+IHJl
-cHJvZHVjaW5nIHRoZXNlIGlzc3VlcyBpcyB0byBqdXN0IG1vdmUgdGhlIGN1cnNvciBhcm91bmQg
-dGhlIGxlZnQgYm9yZGVyDQo+IG9mIHRoZSBzY3JlZW4gKHN1c3BpY2lvdXPigKYpLg0KDQpXaGVy
-ZSBpcyB0aGUgYnVnIGZvciB0aGF0PyBXaGVyZSBpcyB0aGUgbG9ncz8NCldlIGNhbid0IGdvIGZy
-b20gZW5hYmxlZCB0byBkaXNhYmxlZCB3aXRob3V0IGFueSBkZWJ1ZyBhbmQgYmVjYXVzZSBvZiBh
-IHNpbmdsZSBkZXZpY2UuDQpJbiB0aGUgbWVhbiB0aW1lIHlvdSBoYXZlIHRoZSBvcHRpb24gdG8g
-c2V0IHRoZSBpOTE1IHBhcmFtZXRlciB0byBkaXNhYmxlIGl0Lg0KDQo+IA0KPiBTbywgZml4IHBl
-b3BsZSdzIGRpc3BsYXlzIGFnYWluIGFuZCB0dXJuIFBTUjIgc2VsZWN0aXZlIGZldGNoIG9mZiBm
-b3IgYWxsDQo+IHN0ZXBwaW5ncyBvZiBUaWdlcmxha2UuIFRoaXMgY2FuIGJlIHJlLWVuYWJsZWQg
-YWdhaW4gaWYgc29tZW9uZSBmcm9tIEludGVsDQo+IGZpbmRzIHRoZSB0aW1lIHRvIGZpeCB0aGlz
-IGZ1bmN0aW9uYWxpdHkgb24gT0VNIG1hY2hpbmVzLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogTHl1
-ZGUgUGF1bCA8bHl1ZGVAcmVkaGF0LmNvbT4NCj4gRml4ZXM6IDdmNjAwMmU1ODAyNSAoImRybS9p
-OTE1L2Rpc3BsYXk6IEVuYWJsZSBQU1IyIHNlbGVjdGl2ZSBmZXRjaCBieSBkZWZhdWx0IikNCj4g
-Q2M6IEd3YW4tZ3llb25nIE11biA8Z3dhbi1neWVvbmcubXVuQGludGVsLmNvbT4NCj4gQ2M6IFZp
-bGxlIFN5cmrDpGzDpCA8dmlsbGUuc3lyamFsYUBsaW51eC5pbnRlbC5jb20+DQo+IENjOiBKb3PD
-qSBSb2JlcnRvIGRlIFNvdXphIDxqb3NlLnNvdXphQGludGVsLmNvbT4NCj4gQ2M6IEphbmkgTmlr
-dWxhIDxqYW5pLm5pa3VsYUBsaW51eC5pbnRlbC5jb20+DQo+IENjOiBSb2RyaWdvIFZpdmkgPHJv
-ZHJpZ28udml2aUBpbnRlbC5jb20+DQo+IENjOiBpbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Au
-b3JnDQo+IENjOiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4gIyB2NS4xNisNCj4gLS0tDQo+ICBk
-cml2ZXJzL2dwdS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX3Bzci5jIHwgMTAgKysrKysrKy0tLQ0K
-PiAgMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkNCj4gDQo+
-IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX3Bzci5jIGIv
-ZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9wc3IuYw0KPiBpbmRleCBhMWE2NjNm
-MzYyZTcuLjI1YzE2YWJjZDljZCAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUv
-ZGlzcGxheS9pbnRlbF9wc3IuYw0KPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9kaXNwbGF5
-L2ludGVsX3Bzci5jDQo+IEBAIC03MzcsMTAgKzczNywxNCBAQCBzdGF0aWMgYm9vbCBpbnRlbF9w
-c3IyX3NlbF9mZXRjaF9jb25maWdfdmFsaWQoc3RydWN0IGludGVsX2RwICppbnRlbF9kcCwNCj4g
-IAkJcmV0dXJuIGZhbHNlOw0KPiAgCX0NCj4gIA0KPiAtCS8qIFdhXzE0MDEwMjU0MTg1IFdhXzE0
-MDEwMTAzNzkyICovDQo+IC0JaWYgKElTX1RHTF9ESVNQTEFZX1NURVAoZGV2X3ByaXYsIFNURVBf
-QTAsIFNURVBfQzApKSB7DQo+ICsJLyoNCj4gKwkgKiBUaGVyZSdzIHR3byB0aGluZ3Mgc3RvcHBp
-bmcgdGhpcyBmcm9tIGJlaW5nIGVuYWJsZWQgb24gVEdMOg0KPiArCSAqIEZvciBzdGVwcyBBMC1D
-MDogd29ya2Fyb3VuZHMgV2FfMTQwMTAyNTQxODUgV2FfMTQwMTAxMDM3OTIgYXJlIG1pc3NpbmcN
-Cj4gKwkgKiBGb3IgYWxsIHN0ZXBzOiBQU1IyIHNlbGVjdGl2ZSBmZXRjaCBjYXVzZXMgc2NyZWVu
-IGZsaWNrZXJpbmcNCj4gKwkgKi8NCj4gKwlpZiAoSVNfVElHRVJMQUtFKGRldl9wcml2KSkgew0K
-PiAgCQlkcm1fZGJnX2ttcygmZGV2X3ByaXYtPmRybSwNCj4gLQkJCSAgICAiUFNSMiBzZWwgZmV0
-Y2ggbm90IGVuYWJsZWQsIG1pc3NpbmcgdGhlIGltcGxlbWVudGF0aW9uIG9mIFdBc1xuIik7DQo+
-ICsJCQkgICAgIlBTUjIgc2VsIGZldGNoIG5vdCBlbmFibGVkLCBjdXJyZW50bHkgYnJva2VuIG9u
-IFRHTFxuIik7DQo+ICAJCXJldHVybiBmYWxzZTsNCj4gIAl9DQo+ICANCg0K
+On Mon,  7 Feb 2022 15:04:44 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.16.8 release.
+> There are 127 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 09 Feb 2022 13:38:34 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.8-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+5.16.8-rc2 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
+
