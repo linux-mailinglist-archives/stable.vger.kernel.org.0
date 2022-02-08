@@ -2,71 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E99984AD8CE
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 14:16:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE0CE4AD957
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 14:17:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343608AbiBHNP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 08:15:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54012 "EHLO
+        id S1348335AbiBHNQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 08:16:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243018AbiBHMWR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 07:22:17 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 80E1DC03FEC0
-        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 04:22:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1644322935;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Mt0hncQ/RRm0riihXr626lJBH3pbgbYhHyz5dtgoOAs=;
-        b=gYZfm7tRUihBv3TJhA7MI1tSCAWqmzAY4kOOMNTLo0R5gdMi3S7b2e4Kzs/B7JA5dXh042
-        8lP5EOK3LKB3O1Ob2w/vZ3BX2u1mLT4DXBaNDdyxD/Hab/e8VDLIJwU0yMacyia2v8TaFB
-        5oRiFcKRkdEW+1S+wppTxZ/cZBZHHOE=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-132--pcMfD6gMsaKv4p7LoaaRA-1; Tue, 08 Feb 2022 07:22:14 -0500
-X-MC-Unique: -pcMfD6gMsaKv4p7LoaaRA-1
-Received: by mail-wm1-f70.google.com with SMTP id a8-20020a7bc1c8000000b0037bc4c62e97so471766wmj.0
-        for <stable@vger.kernel.org>; Tue, 08 Feb 2022 04:22:14 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Mt0hncQ/RRm0riihXr626lJBH3pbgbYhHyz5dtgoOAs=;
-        b=3UtYmFBpJib5uAGmXTLcZ2Bc63ou62pKOsb6NWdUJL6jdXNYo1AwP1o1rgpgk+q73Y
-         jRgxgJnPn6mJI0+BdXA4zqNYrhTuqBkCckwB9BqydjYqT02Q/SjQcxCj+KlStTRPsYV8
-         qaqC84yy1xLKXZNJjQbDJBInD0MbZQQg+kv0WDVbmaMMWkr/hkZyXW5+ScElCTUyVcBw
-         9tG5MW/mBQHpLlgzMdWAyLsUMoiX3uFuk+VALtvqz0846e2G9dsZK6BiKAnwEAZ94LWA
-         QVZaQOvv8xeoBypSeKlNJHFimIiuZOKUCBeUIWZnd9h2yl7AGbHZ1YK5HF5kfgTPt6HF
-         qFVQ==
-X-Gm-Message-State: AOAM5320DuZkvhfXETjCd8pt/g5pnfWt710LUvOnnhNR5+PY8i+76iLA
-        plnIjVH2rPOvIhbKM7Nnw7wZf/a5kSX3pHscWkl0OKsoo26lhkZ+6zply8U7/JcYRFI0gFz6HFQ
-        CEJ0DFzmZegNj4dd79i9QvZ2sGvqCyDaD
-X-Received: by 2002:a7b:c21a:: with SMTP id x26mr938667wmi.74.1644322933134;
-        Tue, 08 Feb 2022 04:22:13 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJw05S2FM4hb+eMcua2vq2VzpKE6qzOqTT3pzSCAKpcyucQY5qglNO8kSljUgpASBmw4liJar8UCAeaCMl7/oQ0=
-X-Received: by 2002:a7b:c21a:: with SMTP id x26mr938337wmi.74.1644322927980;
- Tue, 08 Feb 2022 04:22:07 -0800 (PST)
+        with ESMTP id S1350458AbiBHMYf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 07:24:35 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B771CC03FEC0;
+        Tue,  8 Feb 2022 04:24:34 -0800 (PST)
+Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1nHPXq-0006Dt-4I; Tue, 08 Feb 2022 13:24:31 +0100
+Message-ID: <c674269f-5dfe-ac61-01ac-20c393c56f48@leemhuis.info>
+Date:   Tue, 8 Feb 2022 13:24:29 +0100
 MIME-Version: 1.0
-References: <20220204193319.451119-1-lyude@redhat.com>
-In-Reply-To: <20220204193319.451119-1-lyude@redhat.com>
-From:   Karol Herbst <kherbst@redhat.com>
-Date:   Tue, 8 Feb 2022 13:21:57 +0100
-Message-ID: <CACO55tv1yFYeboJsdV9sg1KWqWhs3WfJVmHuBKjAV6FUi6BLSA@mail.gmail.com>
-Subject: Re: [PATCH] drm/nouveau/backlight: Just set all backlight types as RAW
-To:     Lyude Paul <lyude@redhat.com>
-Cc:     nouveau <nouveau@lists.freedesktop.org>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        open list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH] gpio: Revert regression in sysfs-gpio (gpiolib.c)
+Content-Language: en-BS
+To:     Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>
+Cc:     Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable <stable@vger.kernel.org>, regressions@lists.linux.dev,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Thierry Reding <treding@nvidia.com>,
+        Vidya Sagar <vidyas@nvidia.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Edmond Chung <edmondchung@google.com>,
+        Andrew Chant <achant@google.com>,
+        Will McVicker <willmcvicker@google.com>,
+        Sergio Tanzilli <tanzilli@acmesystems.it>
+References: <20211217153555.9413-1-marcelo.jimenez@gmail.com>
+ <a7fbb773-eb85-ccc7-8bfb-0bfab062ffe1@leemhuis.info>
+ <CAMRc=MfAxzmAfATV2NwfTgpfmyxFx8bgTbaAfWxSi9zmBecPng@mail.gmail.com>
+ <CACjc_5puGpg85XseEjKxnwE2R_XoH8EWvdwp4g2WKNBmW7pX+w@mail.gmail.com>
+ <37d074c7-b264-acac-4bf6-65caa4dbab1a@leemhuis.info>
+ <CACjc_5o4n9CNXoER5Va6u0fQhuE9osnUSUwSbHPx0K1yiPUj8g@mail.gmail.com>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <CACjc_5o4n9CNXoER5Va6u0fQhuE9osnUSUwSbHPx0K1yiPUj8g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1644323074;49d1220f;
+X-HE-SMSGID: 1nHPXq-0006Dt-4I
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -74,59 +58,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Hi, this is your Linux kernel regression tracker speaking.
 
-On Fri, Feb 4, 2022 at 8:33 PM Lyude Paul <lyude@redhat.com> wrote:
->
-> Currently we can get a warning on systems with eDP backlights like so:
->
->   nv_backlight: invalid backlight type
->   WARNING: CPU: 4 PID: 454 at drivers/video/backlight/backlight.c:420
->     backlight_device_register+0x226/0x250
->
-> This happens as a result of us not filling out props.type for the eDP
-> backlight, even though we do it for all other backlight types.
->
-> Since nothing in our driver uses anything but BACKLIGHT_RAW, let's take the
-> props\.type assignments out of the codepaths for individual backlight types
-> and just set it unconditionally to prevent this from happening again.
->
-> Signed-off-by: Lyude Paul <lyude@redhat.com>
-> Fixes: 6eca310e8924 ("drm/nouveau/kms/nv50-: Add basic DPCD backlight support for nouveau")
-> Cc: <stable@vger.kernel.org> # v5.15+
-> ---
->  drivers/gpu/drm/nouveau/nouveau_backlight.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/drivers/gpu/drm/nouveau/nouveau_backlight.c b/drivers/gpu/drm/nouveau/nouveau_backlight.c
-> index 6af12dc99d7f..daf9f87477ba 100644
-> --- a/drivers/gpu/drm/nouveau/nouveau_backlight.c
-> +++ b/drivers/gpu/drm/nouveau/nouveau_backlight.c
-> @@ -101,7 +101,6 @@ nv40_backlight_init(struct nouveau_encoder *encoder,
->         if (!(nvif_rd32(device, NV40_PMC_BACKLIGHT) & NV40_PMC_BACKLIGHT_MASK))
->                 return -ENODEV;
->
-> -       props->type = BACKLIGHT_RAW;
->         props->max_brightness = 31;
->         *ops = &nv40_bl_ops;
->         return 0;
-> @@ -343,7 +342,6 @@ nv50_backlight_init(struct nouveau_backlight *bl,
->         else
->                 *ops = &nva3_bl_ops;
->
-> -       props->type = BACKLIGHT_RAW;
->         props->max_brightness = 100;
->
->         return 0;
-> @@ -411,6 +409,7 @@ nouveau_backlight_init(struct drm_connector *connector)
->                 goto fail_alloc;
+Top-posting for once, to make this easy accessible to everyone.
+
+GPIO Maintainers and developers, what the status of this regression and
+getting it fixed? It looks like there was no progress for quite a while.
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+
+P.S.: As the Linux kernel's regression tracker I'm getting a lot of
+reports on my table. I can only look briefly into most of them and lack
+knowledge about most of the areas they concern. I thus unfortunately
+will sometimes get things wrong or miss something important. I hope
+that's not the case here; if you think it is, don't hesitate to tell me
+in a public reply, it's in everyone's interest to set the public record
+straight.
+
+#regzbot poke
+
+On 12.01.22 01:09, Marcelo Roberto Jimenez wrote:
+> Hi,
+> 
+> On Mon, Jan 10, 2022 at 4:02 AM Thorsten Leemhuis
+> <regressions@leemhuis.info> wrote:
+>>
+>> Hi, this is your Linux kernel regression tracker speaking.
+>>
+>> On 20.12.21 21:41, Marcelo Roberto Jimenez wrote:
+>>> On Mon, Dec 20, 2021 at 11:57 AM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+>>>> On Sat, Dec 18, 2021 at 7:28 AM Thorsten Leemhuis
+>>>> <regressions@leemhuis.info> wrote:
+>>>>>
+>>>>> [TLDR: I'm adding this regression to regzbot, the Linux kernel
+>>>>> regression tracking bot; most text you find below is compiled from a few
+>>>>> templates paragraphs some of you might have seen already.]
+>>>>>
+>>>>> On 17.12.21 16:35, Marcelo Roberto Jimenez wrote:
+>>>>>> Some GPIO lines have stopped working after the patch
+>>>>>> commit 2ab73c6d8323f ("gpio: Support GPIO controllers without pin-ranges")
+>>>>>>
+>>>>>> And this has supposedly been fixed in the following patches
+>>>>>> commit 89ad556b7f96a ("gpio: Avoid using pin ranges with !PINCTRL")
+>>>>>> commit 6dbbf84603961 ("gpiolib: Don't free if pin ranges are not defined")
+>>>>>
+>>>>> There seems to be a backstory here. Are there any entries and bug
+>>>>> trackers or earlier discussions everyone that looks into this should be
+>>>>> aware of?
+>>>>
+>>>> Agreed with Thorsten. I'd like to first try to determine what's wrong
+>>>> before reverting those, as they are correct in theory but maybe the
+>>>> implementation missed something.
+>>>>
+>>>> Have you tried tracing the execution on your platform in order to see
+>>>> what the driver is doing?
+>>>
+>>> Yes. The problem is that there is no list defined for the sysfs-gpio
+>>> interface. The driver will not perform pinctrl_gpio_request() and will
+>>> return zero (failure).
+>>>
+>>> I don't know if this is the case to add something to a global DTD or
+>>> to fix it in the sysfs-gpio code.
+>>
+>> Out of interest, has any progress been made on this front?
+>>
+>> BTW, there was a last-minute commit for 5.16 yesterday that referenced
+>> the culprit Marcelo specified:
+>>
+>> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=c8013355ead68dce152cf426686f8a5f80d88b40
+>>
+>> This was for a BCM283x and BCM2711 devices, so I assume it won't help.
+>> Wild guess (I don't know anything about this area of the kernel):
+>> Marcelo, do the dts files for your hardware maybe need a similar fix?
+> 
+> I have tried to add "gpio-ranges" to the gpio-controllers in
+> at91sam9x5.dtsi, but the system deadlocks, because in pinctrl-at91.c,
+> function at91_pinctrl_probe() we have:
+> 
+> /*
+> * We need all the GPIO drivers to probe FIRST, or we will not be able
+> * to obtain references to the struct gpio_chip * for them, and we
+> * need this to proceed.
+> */
+> for (i = 0; i < gpio_banks; i++)
+>         if (gpio_chips[i])
+>                 ngpio_chips_enabled++;
+> 
+>         if (ngpio_chips_enabled < info->nactive_banks) {
+>                 dev_warn(&pdev->dev,
+>                       "All GPIO chips are not registered yet (%d/%d)\n",
+>                       ngpio_chips_enabled, info->nactive_banks);
+>                devm_kfree(&pdev->dev, info);
+>                 return -EPROBE_DEFER;
 >         }
->
-> +       props.type = BACKLIGHT_RAW;
->         bl->dev = backlight_device_register(backlight_name, connector->kdev,
->                                             nv_encoder, ops, &props);
->         if (IS_ERR(bl->dev)) {
-> --
-> 2.34.1
->
-
+> 
+> On the other hand, in gpiolib-of.c, function
+> of_gpiochip_add_pin_range() we have:
+> 
+> if (!pctldev)
+>         return -EPROBE_DEFER;
+> 
+> In other words, the pinctrl needs all the gpio-controllers, and the
+> gpio-controllers need the pinctrl. Each returns -EPROBE_DEFER and the
+> system deadlocks.
+> 
+>>
+>> Ciao, Thorsten
+>>
+>> P.S.: As a Linux kernel regression tracker I'm getting a lot of reports
+>> on my table. I can only look briefly into most of them. Unfortunately
+>> therefore I sometimes will get things wrong or miss something important.
+>> I hope that's not the case here; if you think it is, don't hesitate to
+>> tell me about it in a public reply, that's in everyone's interest.
+>>
+>> BTW, I have no personal interest in this issue, which is tracked using
+>> regzbot, my Linux kernel regression tracking bot
+>> (https://linux-regtracking.leemhuis.info/regzbot/). I'm only posting
+>> this mail to get things rolling again and hence don't need to be CC on
+>> all further activities wrt to this regression.
+>>
+>> #regzbot poke
+>>
+> 
+> Regards,
+> Marcelo.
+> 
+> 
