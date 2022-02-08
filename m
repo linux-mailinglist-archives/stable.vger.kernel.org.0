@@ -2,114 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BF974ACE86
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 02:58:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05D804ACF06
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 03:40:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231599AbiBHB6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Feb 2022 20:58:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45520 "EHLO
+        id S1344406AbiBHCkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Feb 2022 21:40:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244596AbiBHB6B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 20:58:01 -0500
-Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 397ABC061A73;
-        Mon,  7 Feb 2022 17:58:01 -0800 (PST)
-Received: by mail-io1-xd30.google.com with SMTP id h7so19366826iof.3;
-        Mon, 07 Feb 2022 17:58:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Y6LL15sKBUCB5jpcMtEzuUx11A37XJsokGmfmwHbmTw=;
-        b=eRcL3Nm87C1GFPXlf9w0y99ThD2XUhUBMCPvD4G3K0WCSoDnhpHlbNxbOfOpviMiea
-         VwHLV+119v0VSfWHIhGhN951e8a2EEiqs3oNbWGnjQcWUn6pmO/c7nYriLm9TvLcSwXV
-         aWfFyH9bFY1k07MJ+Ssnsb2R+VSxFr1dsQP+9+zjnFHP0rKE9BzGWlEVMUAh2C1MFecx
-         JPAV3GUS4P6tswJ3LhAPrSX9pPuB0eZ1MnwkbL57jgfNAXBb2HkYDkOWg2PWMqCLF2TB
-         hnem8HhRiFw3z62j6glh3A8VV0qbsBgM3eaf/ZynTcYbipgqR0gEB21nz/GNHRFPSfes
-         kJNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Y6LL15sKBUCB5jpcMtEzuUx11A37XJsokGmfmwHbmTw=;
-        b=O2NhDqgRX6NuZpWLlm05DkWj388qxV0LFZSDFsuPkZO6JeCI9eet+e4OXAgeCl6UZm
-         jMoYWqlPT7kSkRT3xLq5TF6xQKQT416DnFHhp6BzTwlc6svL+WRrUETOae69hbv3PiXO
-         pRJyY3jS7eSN4FX6+OXYpJQC7p8wNzGRJyvbiNHC7ICnod/BeBf207qjkJmiicrm03sU
-         52ECgLkyBUdnoDIcfUYpWdQrvyUCXr0hUJ1W91ewyavyXNAzrQDjZoyrvZTycKeMrOhe
-         NKf1rlS0ImKwu+UD770/MJSf7RzTPhANt3Orohp+rKnS5EqKU9oq7DnN9R7LkDLYHu1I
-         rNBA==
-X-Gm-Message-State: AOAM5338rd2SmQzGxJN5JttCQ9s998yP0L4Rw55EyRmKUQTYiS8uEMS7
-        Mh/E4uITxKNZY5nvX/MrbWDfumEHS8gtntaUYIM=
-X-Google-Smtp-Source: ABdhPJyL4wkgnkqRf0wUUrIPAwFmAD6zaYr7NnN7z+A/JQrbvNh8Dv4kdWm/XKMy6lhdNgsbHa+kISWa0TIJlVfgy/o=
-X-Received: by 2002:a02:6988:: with SMTP id e130mr1129766jac.120.1644285480118;
- Mon, 07 Feb 2022 17:58:00 -0800 (PST)
+        with ESMTP id S1346011AbiBHCjp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Feb 2022 21:39:45 -0500
+Received: from mga06.intel.com (mga06.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6543FC061355;
+        Mon,  7 Feb 2022 18:39:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644287984; x=1675823984;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=FPiMScmKrrYrSMCiVZJ/GItd2crt5fT7a6jcSBmyeZc=;
+  b=VJg63bpTKrCh1/QZW5AuezJ9xxnVz9ZQi5fTdsrKdPiIR/XTMUpAVtsa
+   lnsNHRJU9035az2p7Vjj2s0VNzZUWhXC3mvlK9nLU7s0OIH8CKbr7NZiW
+   7bbI65VzhZW951Xq2Rwr08ESE0++Y6I5/ZcDNE2EPoKB5JoQOEcktMaQm
+   ywqpuWwFwZaDNPsFzcys8SiiHyMj99kE7JcLMr7lQY1FNRWYAChbomJRD
+   DgWokrSwxM0yA8/6q+PqtJeHWwDhhRjSaO/VzDC4YOJV+hilU7re3AjL3
+   r7yXo5RL6cwy6lX80zjqheANfi/57AQ9htDRWjeYEap1iTYMNUpmY504f
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10251"; a="309600262"
+X-IronPort-AV: E=Sophos;i="5.88,351,1635231600"; 
+   d="scan'208";a="309600262"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2022 18:39:43 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,351,1635231600"; 
+   d="scan'208";a="540398347"
+Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.189])
+  by orsmga008.jf.intel.com with ESMTP; 07 Feb 2022 18:39:41 -0800
+Date:   Tue, 8 Feb 2022 10:39:40 +0800
+From:   Feng Tang <feng.tang@intel.com>
+To:     Doug Smythies <dsmythies@telus.net>
+Cc:     'Thomas Gleixner' <tglx@linutronix.de>,
+        "paulmck@kernel.org" <paulmck@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        'srinivas pandruvada' <srinivas.pandruvada@linux.intel.com>
+Subject: Re: CPU excessively long times between frequency scaling driver
+ calls - bisected
+Message-ID: <20220208023940.GA5558@shbuild999.sh.intel.com>
+References: <003f01d81c8c$d20ee3e0$762caba0$@telus.net>
 MIME-Version: 1.0
-References: <20220207133856.644483064@linuxfoundation.org>
-In-Reply-To: <20220207133856.644483064@linuxfoundation.org>
-From:   Zan Aziz <zanaziz313@gmail.com>
-Date:   Mon, 7 Feb 2022 18:57:49 -0700
-Message-ID: <CAFU3qoYBZ1+nWTjiJUSaYNZMPdU8rfLR0X0vaQyr9kv8xA2fow@mail.gmail.com>
-Subject: Re: [PATCH 5.16 000/127] 5.16.8-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <003f01d81c8c$d20ee3e0$762caba0$@telus.net>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 7, 2022 at 8:18 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.16.8 release.
-> There are 127 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 09 Feb 2022 13:38:34 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.8-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Hi Doug,
 
-Hi Greg,
+Thanks for the report.
 
-Compiled and booted on my test system Lenovo P50s: Intel Core i7
-No emergency and critical messages in the dmesg
+On Tue, Feb 08, 2022 at 09:40:14AM +0800, Doug Smythies wrote:
+> Hi All,
+> 
+> Note before: I do not know If I have the e-mail address list correct,
+> nor am I actually a member of the x86 distribution list. I am on
+> the linux-pm email list.
+> 
+> When using the intel_pstate CPU frequency scaling driver with HWP disabled,
+> active mode, powersave scaling governor, the times between calls to the driver
+> have never exceeded 10 seconds.
+> 
+> Since kernel 5.16-rc4 and commit: b50db7095fe002fa3e16605546cba66bf1b68a3e
+> " x86/tsc: Disable clocksource watchdog for TSC on qualified platorms"
+> 
+> There are now occasions where times between calls to the driver can be
+> over 100's of seconds and can result in the CPU frequency being left
+> unnecessarily high for extended periods.
+> 
+> >From the number of clock cycles executed between these long
+> durations one can tell that the CPU has been running code, but
+> the driver never got called.
+> 
+> Attached are some graphs from some trace data acquired using
+> intel_pstate_tracer.py where one can observe an idle system between
+> about 42 and well over 200 seconds elapsed time, yet CPU10 never gets
+> called, which would have resulted in reducing it's pstate request, until
+> an elapsed time of 167.616 seconds, 126 seconds since the last call. The
+> CPU frequency never does go to minimum.
+> 
+> For reference, a similar CPU frequency graph is also attached, with
+> the commit reverted. The CPU frequency drops to minimum,
+> over about 10 or 15 seconds.
 
-./perf bench sched all
-# Running sched/messaging benchmark...
-# 20 sender and receiver processes per group
-# 10 groups == 400 processes run
 
-     Total time: 0.449 [sec]
+commit b50db7095fe0 essentially disables the clocksource watchdog, 
+which literally doesn't have much to do with cpufreq code. 
 
-# Running sched/pipe benchmark...
-# Executed 1000000 pipe operations between two processes
+One thing I can think of is, without the patch, there is a periodic
+clocksource timer running every 500 ms, and it loops to run on
+all CPUs in turn. For your HW, it has 12 CPUs (from the graph),
+so each CPU will get a timer (HW timer interrupt backed) every 6
+seconds. Could this affect the cpufreq governor's work flow (I just
+quickly read some cpufreq code, and seem there is irq_work/workqueue
+involved).
 
-     Total time: 9.039 [sec]
+Can you try one test that keep all the current setting and change
+the irq affinity of disk/network-card to 0xfff to let interrupts
+from them be distributed to all CPUs?
 
-       9.039568 usecs/op
-         110624 ops/sec
+Thanks,
+Feng
 
-Tested-by: Zan Aziz <zanaziz313@gmail.com>
 
-Thanks
--Zan
+> Processor: Intel(R) Core(TM) i5-10600K CPU @ 4.10GHz
+> 
+> Why this particular configuration, i.e. no-hwp, active, powersave?
+> Because it is, by far, the easiest to observe what is going on.
+> 
+> ... Doug
+> 
+
+
+
+
+
