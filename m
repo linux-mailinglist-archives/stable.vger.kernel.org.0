@@ -2,70 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A05A74AD1AA
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 07:37:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D47B14AD1E4
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 08:03:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347598AbiBHGhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 01:37:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39406 "EHLO
+        id S237121AbiBHHDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 02:03:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347556AbiBHGhZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 01:37:25 -0500
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82ED6C0401EF;
-        Mon,  7 Feb 2022 22:37:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644302244; x=1675838244;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=DG+xa0PnRRQdvZ7t1yNYWlenZClK6CulMIOQACerRMg=;
-  b=hqFa+b3lBeT4PwvSRhkviQrlp6vx6HN11nluqrdFgG0A7W1DmoepThbw
-   KG9A0s5kBAFzdH+7+AFut8bj7ws0ENjjOwI95S/fcekUtnUCMzgM80f02
-   anGLpSAl+iZsih31vQsGVVNM+RQg2sU1uizCq8Hi5qpePDaQdpOkWxPkf
-   y+nzq946Lsa5gEbHetNPuDqwiasSs4YarOiDIHe9qvD88SA5e/JBWoXFk
-   os8gYi2jsEXLj0mnuPmZPbZG3+6OVvzTKvO/tKd/MsHzYyMxIPPfULRHf
-   5cedLJUGVge/ni+oJL2X5IwrXeaGGX/sOzY18DC05kl4tcLY/HZhbtR2A
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10251"; a="273412483"
-X-IronPort-AV: E=Sophos;i="5.88,351,1635231600"; 
-   d="scan'208";a="273412483"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2022 22:37:13 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,351,1635231600"; 
-   d="scan'208";a="632744902"
-Received: from ahunter-desktop.fi.intel.com (HELO [10.237.72.92]) ([10.237.72.92])
-  by orsmga004.jf.intel.com with ESMTP; 07 Feb 2022 22:37:11 -0800
-Subject: Re: [PATCHv2] mmc: block: fix read single on recovery logic
-To:     =?UTF-8?Q?Christian_L=c3=b6hle?= <CLoehle@hyperstone.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <5e5f2e45d0a14a55a8b7a9357846114b@hyperstone.com>
- <7c4757cc707740e580c61c39f963a04d@hyperstone.com>
- <CAPDyKFr0YXCwL-8F9M7mkpNzSQpzw6gNUq2zaiJEXj1jNxUbrg@mail.gmail.com>
- <5c66833d-4b35-2c76-db54-0306e08843e5@intel.com>
- <79d44b0c54e048b0a9cc86319a24cc19@hyperstone.com>
- <bc706a6ab08c4fe2834ba0c05a804672@hyperstone.com>
-From:   Adrian Hunter <adrian.hunter@intel.com>
-Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki,
- Business Identity Code: 0357606 - 4, Domiciled in Helsinki
-Message-ID: <b047d374-c282-8c63-32c1-2135eec11fb6@intel.com>
-Date:   Tue, 8 Feb 2022 08:37:10 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.14.0
-MIME-Version: 1.0
-In-Reply-To: <bc706a6ab08c4fe2834ba0c05a804672@hyperstone.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        with ESMTP id S233309AbiBHHDm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 02:03:42 -0500
+Received: from new3-smtp.messagingengine.com (new3-smtp.messagingengine.com [66.111.4.229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 007BEC0401F4;
+        Mon,  7 Feb 2022 23:03:38 -0800 (PST)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailnew.nyi.internal (Postfix) with ESMTP id D1CE35801C4;
+        Tue,  8 Feb 2022 02:03:35 -0500 (EST)
+Received: from imap49 ([10.202.2.99])
+  by compute2.internal (MEProxy); Tue, 08 Feb 2022 02:03:35 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        sladewatkins.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to; s=fm1; bh=1zZeOHN8TQZQpX
+        SBE9ns/EHrQBA4/VHUOn1td3lu4bY=; b=UPeru9y8pzDYJINqGGFCZLTaoiE2Cc
+        NjBbWZ8dz+XyohKX+vsHRBDrFAPeZdNfZr/qqQcUbWpUBi/o6tK6rdTaAlvlexGO
+        49rKVQSpZa09AZijMIhybcogle1+cQlg1xF2RiNql5rbdKLHcqQ11dgoL5tVwyV5
+        bdKdOvaZItuTbIGn4c+mRhLmInbmq3g2a+wO/MCZKCaEYVxt4l2Eoc04SI9x3+7K
+        QpCY1zMPY+75f3qCgrLdW6eGUuaCrTRpypMv8Hd5+T6JLUzL1WLVEzNI1MWZ916P
+        kXEAakTn3Du5RV09kwY4NVd9I2BOHas5DpIpE8HQgTOFr59qHKYNO5VA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1zZeOHN8TQZQpXSBE
+        9ns/EHrQBA4/VHUOn1td3lu4bY=; b=kCzv7xzpIq7NAwTR6wdnR/Xlc8apTdgz9
+        uWiA8MFf/uvYZQDhulKNlqybNVQii+7YHNV7jb1qQv6WI3M9DWycoAumsMeFok++
+        U7qiApcX+YNe6zgrPBfEM/r+XBt2Kk1HLKFPU3WJHAJfpMA5Gtj5iJiSHzx5gfO6
+        KmQq/PGcYfGv3kzy/pKwkcKGczWWNo+Kd5KvAFpMK1T7hqTBzxcKpNA80GIzng7L
+        D6+20bn6CatlPwd9l02HECDEJ1sJvtOQ+kG+UW0nVps1PrqCsjkpWTmyKtE+Wm6D
+        mWJ4tsEN0M5dC2DMj5FXmiqMAN8Laa7XbNl6Z5C03hx9rIxSIgwXw==
+X-ME-Sender: <xms:xhUCYmkROP--4Oe2xv_yfKO-ck5upi_vNrHamTBPa1tCvZebTM__jw>
+    <xme:xhUCYt3bRW2NwkLZMxmxjIR15EoosSxdENleGL2nx_FOfZDyKab1Iy7cg2RlIvQY4
+    pn4z-kQikTSXYEvaKs>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrheeigddutddvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvffutgesthdtredtreertdenucfhrhhomhepfdfulhgr
+    uggvucghrghtkhhinhhsfdcuoehslhgruggvsehslhgruggvfigrthhkihhnshdrtghomh
+    eqnecuggftrfgrthhtvghrnhepueeiffetjeeitefgveetleehveduheetiefhhfethedt
+    teelgeettddvvedvudegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepshhlrgguvgesshhlrgguvgifrghtkhhinhhsrdgtohhm
+X-ME-Proxy: <xmx:xhUCYkqDY5eEl7_pdGQSlNL1hNjkl_AwxV7yMPfhOPjnVjeAW3Yj8A>
+    <xmx:xhUCYqnOblalu6JZb__5uDzjbrlPyo2FbT1lxQiA8OGQIMaTgJnb7Q>
+    <xmx:xhUCYk2Y6ajGQ_zUSgGSPvHOWWinMZfL_T770ceGmj-iBZ6EU91MWA>
+    <xmx:xxUCYtvXyik6yDHJxqssZVzsf-ZNyYdXU45__DV0xwlaUDQ5nJBvU_0U4Cw>
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id CEAC9F6007E; Tue,  8 Feb 2022 02:03:34 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.5.0-alpha0-4748-g31a5b5f50e-fm-cal2020-20220204.001-g31a5b5f5
+Mime-Version: 1.0
+Message-Id: <16bbddcb-d827-490a-ac80-cd5a75404d6f@www.fastmail.com>
+In-Reply-To: <20220207133856.644483064@linuxfoundation.org>
+References: <20220207133856.644483064@linuxfoundation.org>
+Date:   Tue, 08 Feb 2022 02:03:33 -0500
+From:   "Slade Watkins" <slade@sladewatkins.com>
+To:     "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Andrew Morton" <akpm@linux-foundation.org>,
+        "Guenter Roeck" <linux@roeck-us.net>, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        "Pavel Machek" <pavel@denx.de>,
+        "Jon Hunter" <jonathanh@nvidia.com>,
+        "Florian Fainelli" <f.fainelli@gmail.com>,
+        "Sudip Mukherjee" <sudipm.mukherjee@gmail.com>
+Subject: Re: [PATCH 5.16 000/127] 5.16.8-rc2 review
+Content-Type: text/plain
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -73,87 +88,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 04/02/2022 17:11, Christian Löhle wrote:
-> On reads with MMC_READ_MULTIPLE_BLOCK that fail,
-> the recovery handler will use MMC_READ_SINGLE_BLOCK for
-> each of the blocks, up to MMC_READ_SINGLE_RETRIES times each.
-> The logic for this is fixed to never report unsuccessful reads
-> as success to the block layer.
-> 
-> On command error with retries remaining, blk_update_request was
-> called with whatever value error was set last to.
-> In case it was last set to BLK_STS_OK (default), the read will be
-> reported as success, even though there was no data read from the device.
-> This could happen on a CRC mismatch for the response,
-> a card rejecting the command (e.g. again due to a CRC mismatch).
-> In case it was last set to BLK_STS_IOERR, the error is reported correctly,
-> but no retries will be attempted.
-> 
-> Fixes: 81196976ed946c ("mmc: block: Add blk-mq support")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
+On Mon, Feb 7, 2022, at 9:04 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.8 release.
+> There are 127 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 09 Feb 2022 13:38:34 +0000.
+> Anything received after that time might be too late.
 
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
+Compiled and booted 5.16.8-rc2 on my x86_64 test system successfully without errors or regressions.
 
-> ---
-> v2:
->   - Do not allow data error retries
->   - Actually retry MMC_READ_SINGLE_RETRIES times instead of
->   MMC_READ_SINGLE_RETRIES-1
-> 
-> 
->  drivers/mmc/core/block.c | 28 ++++++++++++++--------------
->  1 file changed, 14 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
-> index 4e61b28a002f..8d718aa56d33 100644
-> --- a/drivers/mmc/core/block.c
-> +++ b/drivers/mmc/core/block.c
-> @@ -1682,31 +1682,31 @@ static void mmc_blk_read_single(struct mmc_queue *mq, struct request *req)
->  	struct mmc_card *card = mq->card;
->  	struct mmc_host *host = card->host;
->  	blk_status_t error = BLK_STS_OK;
-> -	int retries = 0;
->  
->  	do {
->  		u32 status;
->  		int err;
-> +		int retries = 0;
->  
-> -		mmc_blk_rw_rq_prep(mqrq, card, 1, mq);
-> +		while (retries++ <= MMC_READ_SINGLE_RETRIES) {
-> +			mmc_blk_rw_rq_prep(mqrq, card, 1, mq);
->  
-> -		mmc_wait_for_req(host, mrq);
-> +			mmc_wait_for_req(host, mrq);
->  
-> -		err = mmc_send_status(card, &status);
-> -		if (err)
-> -			goto error_exit;
-> -
-> -		if (!mmc_host_is_spi(host) &&
-> -		    !mmc_ready_for_data(status)) {
-> -			err = mmc_blk_fix_state(card, req);
-> +			err = mmc_send_status(card, &status);
->  			if (err)
->  				goto error_exit;
-> -		}
->  
-> -		if (mrq->cmd->error && retries++ < MMC_READ_SINGLE_RETRIES)
-> -			continue;
-> +			if (!mmc_host_is_spi(host) &&
-> +			    !mmc_ready_for_data(status)) {
-> +				err = mmc_blk_fix_state(card, req);
-> +				if (err)
-> +					goto error_exit;
-> +			}
->  
-> -		retries = 0;
-> +			if (!mrq->cmd->error)
-> +				break;
-> +		}
->  
->  		if (mrq->cmd->error ||
->  		    mrq->data->error ||
-> 
+Tested-by: Slade Watkins <slade@sladewatkins.com>
 
+Thanks,
+Slade
