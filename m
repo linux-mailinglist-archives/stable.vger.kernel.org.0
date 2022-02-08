@@ -2,116 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A8114AD4CB
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 10:26:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D92084AD44F
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 10:05:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230111AbiBHJ0I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 04:26:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36960 "EHLO
+        id S245035AbiBHJEF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 04:04:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354755AbiBHJZu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 04:25:50 -0500
-X-Greylist: delayed 1389 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 08 Feb 2022 01:25:50 PST
-Received: from qproxy5-pub.mail.unifiedlayer.com (qproxy5-pub.mail.unifiedlayer.com [69.89.21.30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31B36C03FEC0
-        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 01:25:50 -0800 (PST)
-Received: from gproxy3-pub.mail.unifiedlayer.com (gproxy3-pub.mail.unifiedlayer.com [69.89.30.42])
-        by qproxy5.mail.unifiedlayer.com (Postfix) with ESMTP id 67D318038EFE
-        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 09:02:41 +0000 (UTC)
-Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
-        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id CA0CA10047175
-        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 09:02:10 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id HMO2nsNu0XOyfHMO2nqzYn; Tue, 08 Feb 2022 09:02:10 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=EucXEQQA c=1 sm=1 tr=0 ts=62023192
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=oGFeUVbbRNcA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=NjNOBljHOn0YkUJ5KKXki1nVeez07hjn+mmexGx7Yz8=; b=szxKvTH9Pmt57WEcUfEdeo1hxA
-        bHEhYdQuukSVdWmTpIvQeU1h5D52VKzHVamntCgdl3HeAzidkQ7TDaPchJr3XkIEVAidrJjXb5FX6
-        rJyXOl4YkucwYtETw2SGuEl6O;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53772 helo=[10.0.1.23])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1nHMO1-0021xE-QM; Tue, 08 Feb 2022 02:02:09 -0700
-Message-ID: <8986fe5b-edf5-3511-0ff9-eb0e5b0e672a@w6rz.net>
-Date:   Tue, 8 Feb 2022 01:02:08 -0800
+        with ESMTP id S237702AbiBHJEE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 04:04:04 -0500
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EF63C03FEC0;
+        Tue,  8 Feb 2022 01:04:03 -0800 (PST)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: kholk11)
+        with ESMTPSA id 5ED6B1F4474E
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1644311042;
+        bh=9sgJPXTqfK75Hu2kDZUDOsgZGJfuQ/MhsF+51PqY9d8=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=cxeCpY9JpTWim2lNGoN3hul0SMhHdA/NQydI8he7rdyfhWY7N9QUuad1cg8/AY4EW
+         E55D03ZuSDgOfbQo4tRF+hDHOQ2ew1uqD3KM63YuMNQjiS/tdWjLKKh5/1VY6lipsm
+         qEdIcTrFzLViuTltNWGVYE8IksuFoKoGdyXIw0n6DgNseDxH9jb+vFIbW3bvH6kAK4
+         gWmHxHi/8YMCppgoaUyjEncsnx7jK9hhehV6oZp0HyEw37HccDD37SONlwwcufc+KW
+         O4YMvTxxPVG/z2Sxymn98QaaU75LOL234XZt1qXP0oqe2GItnewSEEqfgAVwFpELgh
+         lmXub2km4nYnQ==
+Message-ID: <bf486a23-4322-328e-abdc-962a66792f23@collabora.com>
+Date:   Tue, 8 Feb 2022 10:03:58 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 5.16 000/127] 5.16.8-rc2 review
+ Thunderbird/91.5.1
+Subject: Re: [PATCH v4] drm/mediatek: mtk_dsi: Avoid EPROBE_DEFER loop with
+ external bridge
 Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220207133856.644483064@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-In-Reply-To: <20220207133856.644483064@linuxfoundation.org>
+To:     CK Hu <ck.hu@mediatek.com>, dri-devel@lists.freedesktop.org
+Cc:     chunkuang.hu@kernel.org, airlied@linux.ie,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        andrzej.hajda@intel.com, linux-mediatek@lists.infradead.org,
+        Jagan Teki <jagan@amarulasolutions.com>,
+        matthias.bgg@gmail.com, kernel@collabora.com,
+        linux-arm-kernel@lists.infradead.org
+References: <20220131085520.287105-1-angelogioacchino.delregno@collabora.com>
+ <20755168cc2be0d1bb5e40907cfe27cea25a9363.camel@mediatek.com>
+ <b886b9a8a3368127be7357e8921e18358987033d.camel@mediatek.com>
+From:   AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>
+In-Reply-To: <b886b9a8a3368127be7357e8921e18358987033d.camel@mediatek.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1nHMO1-0021xE-QM
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:53772
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 12
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/7/22 06:04, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.8 release.
-> There are 127 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 09 Feb 2022 13:38:34 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.8-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Il 08/02/22 09:32, CK Hu ha scritto:
+> Hi, Angelo:
+> 
+> On Tue, 2022-02-08 at 16:20 +0800, CK Hu wrote:
+>> Hi, Angelo:
+>>
+>> On Mon, 2022-01-31 at 09:55 +0100, AngeloGioacchino Del Regno wrote:
+>>> DRM bridge drivers are now attaching their DSI device at probe
+>>> time,
+>>> which requires us to register our DSI host in order to let the
+>>> bridge
+>>> to probe: this recently started producing an endless -EPROBE_DEFER
+>>> loop on some machines that are using external bridges, like the
+>>> parade-ps8640, found on the ACER Chromebook R13.
+>>>
+>>> Now that the DSI hosts/devices probe sequence is documented, we can
+>>> do adjustments to the mtk_dsi driver as to both fix now and make
+>>> sure
+>>> to avoid this situation in the future: for this, following what is
+>>> documented in drm_bridge.c, move the mtk_dsi component_add() to the
+>>> mtk_dsi_ops.attach callback and delete it in the detach callback;
+>>> keeping in mind that we are registering a drm_bridge for our DSI,
+>>> which is only used/attached if the DSI Host is bound, it wouldn't
+>>> make sense to keep adding our bridge at probe time (as it would
+>>> be useless to have it if mtk_dsi_ops.attach() fails!), so also move
+>>> that one to the dsi host attach function (and remove it in detach).
+>>>
+>>> Cc: <stable@vger.kernel.org> # 5.15.x
+>>> Signed-off-by: AngeloGioacchino Del Regno <
+>>> angelogioacchino.delregno@collabora.com>
+>>> Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+>>> Reviewed-by: Jagan Teki <jagan@amarulasolutions.com>
+>>>
+>>> ---
+>>>   drivers/gpu/drm/mediatek/mtk_dsi.c | 167 +++++++++++++++----------
+>>> ----
+>>>   1 file changed, 84 insertions(+), 83 deletions(-)
+>>>
+>>> diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c
+>>> b/drivers/gpu/drm/mediatek/mtk_dsi.c
+>>> index 5d90d2eb0019..bced4c7d668e 100644
+>>> --- a/drivers/gpu/drm/mediatek/mtk_dsi.c
+>>> +++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
+>>> @@ -786,18 +786,101 @@ void mtk_dsi_ddp_stop(struct device *dev)
+>>>   	mtk_dsi_poweroff(dsi);
+>>>   }
+>>>   
+>>>
+>>
+>> [snip]
+>>
+>>> +
+>>>   static int mtk_dsi_host_attach(struct mipi_dsi_host *host,
+>>>   			       struct mipi_dsi_device *device)
+>>>   {
+>>>   	struct mtk_dsi *dsi = host_to_dsi(host);
+>>> +	struct device *dev = host->dev;
+>>> +	int ret;
+>>>   
+>>>   	dsi->lanes = device->lanes;
+>>>   	dsi->format = device->format;
+>>>   	dsi->mode_flags = device->mode_flags;
+>>> +	dsi->next_bridge = devm_drm_of_get_bridge(dev, dev->of_node, 0,
+>>> 0);
+>>
+>> The original would process panel. Why do you remove the panel part?
+>> It's better that someone has a platform of DSI->Panel to test this
+>> patch.
+> 
+> Sorry, devm_drm_of_get_bridge() has processed the panel part, so for
+> this patch,
+> 
+> Reviewed-by: CK Hu <ck.hu@mediatek.com>
+> 
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+No worries! Thanks for the review/approval.
 
-Tested-by: Ron Economos <re@w6rz.net>
+Regards,
+Angelo
 
+>>
+>> Regards,
+>> CK
+>>
