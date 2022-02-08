@@ -2,44 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 245AA4ADFB8
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 18:35:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B72694ADF22
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 18:17:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345869AbiBHRf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 12:35:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59916 "EHLO
+        id S236374AbiBHRR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 12:17:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241572AbiBHRf1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 12:35:27 -0500
-X-Greylist: delayed 1370 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 08 Feb 2022 09:35:25 PST
-Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FB18C061576
-        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 09:35:25 -0800 (PST)
-Received: from ip5b412258.dynamic.kabel-deutschland.de ([91.65.34.88] helo=phil.lan)
-        by gloria.sntech.de with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <heiko@sntech.de>)
-        id 1nHU2U-00034v-M7; Tue, 08 Feb 2022 18:12:26 +0100
-From:   Heiko Stuebner <heiko@sntech.de>
-To:     Brian Norris <briannorris@chromium.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>
-Cc:     Heiko Stuebner <heiko@sntech.de>, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, Sandy Huang <hjc@rock-chips.com>,
-        linux-rockchip@lists.infradead.org,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        stable@vger.kernel.org, Mark Yao <markyao0591@gmail.com>
-Subject: Re: [PATCH] drm/rockchip: vop: Correct RK3399 VOP register fields
-Date:   Tue,  8 Feb 2022 18:12:25 +0100
-Message-Id: <164434033775.248576.1440613083224554584.b4-ty@sntech.de>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20220119161104.1.I1d01436bef35165a8cdfe9308789c0badb5ff46a@changeid>
-References: <20220119161104.1.I1d01436bef35165a8cdfe9308789c0badb5ff46a@changeid>
+        with ESMTP id S235886AbiBHRR2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 12:17:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D33C9C061576
+        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 09:17:27 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0870B81C6D
+        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 17:17:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE369C004E1;
+        Tue,  8 Feb 2022 17:17:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1644340645;
+        bh=tOo9judSzzhFgtdtJTy0xrIA1N6abnNq3/n+Ncv1//A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=AeB8ADJoYpCWnix3UqEdCvHr+ssfA0MuYx1r51SBUBT0gSjoPIgnYWQMVbsqDpImO
+         dqRVY3hGLfdNd5zLSoRkEQhPRd4f/UKAW1jcRJgcJWu+fUjhV1WfP20ztvYooUiJOr
+         /NwKPerynaqOZfIltUi2TJ0gjvCZ6ejNgtzJiYs4=
+Date:   Tue, 8 Feb 2022 18:17:22 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: Re: [PATCH for-5.4,5.10] kbuild: simplify access to the kernel's
+ version
+Message-ID: <YgKlosDt91Hf3+iJ@kroah.com>
+References: <20220207143643.234233-1-jiaxun.yang@flygoat.com>
+ <e781d772-71a8-f073-66cf-0b415399413e@flygoat.com>
+ <YgKK7xskaM6NroIM@kroah.com>
+ <516b790f-8f67-0523-a95b-9d359036bd59@flygoat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE,T_SPF_HELO_TEMPERROR autolearn=unavailable
+In-Reply-To: <516b790f-8f67-0523-a95b-9d359036bd59@flygoat.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,23 +55,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 19 Jan 2022 16:11:22 -0800, Brian Norris wrote:
-> Commit 7707f7227f09 ("drm/rockchip: Add support for afbc") switched up
-> the rk3399_vop_big[] register windows, but it did so incorrectly.
+On Tue, Feb 08, 2022 at 03:47:13PM +0000, Jiaxun Yang wrote:
 > 
-> The biggest problem is in rk3288_win23_data[] vs.
-> rk3368_win23_data[] .format field:
 > 
->   RK3288's format: VOP_REG(RK3288_WIN2_CTRL0, 0x7, 1)
->   RK3368's format: VOP_REG(RK3368_WIN2_CTRL0, 0x3, 5)
+> 在 2022/2/8 15:23, Greg KH 写道:
+> > On Tue, Feb 08, 2022 at 02:46:36PM +0000, Jiaxun Yang wrote:
+> > > Oh Please ignore this series of backport.
+> > For all branches?
+> Yep.
+> > 
+> > > We find another way to workaround the issue.
+> > What is your solution?  I am sure that others would be interested in it.
+> Oh we just define them in Makefile with cflags
+> like:
 > 
-> [...]
+> 
+> --- a/Makefile.kernel
+> +++ b/Makefile.kernel
+> @@ -60,3 +60,5 @@ obj-$(CPTCFG_WLAN) += drivers/net/wireless/
+>  #obj-$(CPTCFG_USB_USBNET) += drivers/net/usb/
+>  #
+>  #obj-$(CPTCFG_STAGING) += drivers/staging/
+> +
+> +subdir-ccflags-y += -DCOMPAT_KERNEL_SUBLEVEL=$(SUBLEVEL)
 
-Applied, thanks!
+Ah, that works, nice!
 
-[1/1] drm/rockchip: vop: Correct RK3399 VOP register fields
-      commit: 9da1e9ab82c92d0e89fe44cad2cd7c2d18d64070
-
-Best regards,
--- 
-Heiko Stuebner <heiko@sntech.de>
+greg k-h
