@@ -2,55 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2D9F4ADDE7
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 17:04:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F7D14ADE62
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 17:33:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242211AbiBHQEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 11:04:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41966 "EHLO
+        id S1383461AbiBHQdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 11:33:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239269AbiBHQEW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 11:04:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6D6EC061576;
-        Tue,  8 Feb 2022 08:04:21 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 53FDD6168C;
-        Tue,  8 Feb 2022 16:04:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3931FC004E1;
-        Tue,  8 Feb 2022 16:04:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644336260;
-        bh=fkcM/cj5TPbLIL53k1xCwKgNr/uerJzMAH9JtGLwnIY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=W2ObtUKMEXvRy3dBC56Fc90mt+dAL+rivWu2owCuXVq8ZkTywujYcg7GOXvqjaWWp
-         k1pRIEVq8nEywWeHrVSZZCzZ9wVomBrnw5TiJO8JAPHGaQs0/XpWJ+ZhMQgghtnEBQ
-         zt5+pTF0G8ydZtXrTlgEAMNpnskaa3TOQRqYoTqbb82TLr88AyZNd0B5+TlKhp+HFu
-         284mtD2ZKWuxgUlOrQUub9s0VTX9HFVkNtvDeFVONHQTtrxa5k4W0g3Ts8j+0fwE0O
-         PEYwLJnJvqSXkdHI2rljnF9jkSuDrQr8mz9byg6MSbhL6JBxS1RdPOBWzerws73Ax6
-         NPl8wJWcYhfVQ==
-Date:   Tue, 8 Feb 2022 09:04:16 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Masahiro Yamada <masahiroy@kernel.org>
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        llvm@lists.linux.dev, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] Makefile.extrawarn: Move -Wunaligned-access to W=1
-Message-ID: <YgKUgI95kAPKGOZY@dev-arch.archlinux-ax161>
-References: <20220202230515.2931333-1-nathan@kernel.org>
- <CAKwvOdkQ__2A3NohrcJgF+JABSDnSyEKzD97qVa4cpM==GPONQ@mail.gmail.com>
- <CAK7LNASCGbLWkDXYqyCf08sFHjGqvqSgmFsJ741MHGSKzkifLg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK7LNASCGbLWkDXYqyCf08sFHjGqvqSgmFsJ741MHGSKzkifLg@mail.gmail.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        with ESMTP id S1383453AbiBHQdU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 11:33:20 -0500
+X-Greylist: delayed 77 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 08 Feb 2022 08:33:18 PST
+Received: from nef.ens.fr (nef2.ens.fr [129.199.96.40])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D538C061576
+        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 08:33:18 -0800 (PST)
+X-ENS-nef-client:   129.199.1.22 ( name = clipper-gw.ens.fr )
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ens.fr; s=default;
+        t=1644337996; bh=v1TTUcoPWZhk5mbmkObylO9a7Qp5YW8ShXwjANkaXNM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=YHIrag+TI+TZxcgWZcCoaYXLpSHU5Tm7Jn/ap8UMeJm+nZSNbSMExaEcn71CzTCAr
+         WAXUBLY4VeTIT91aN0+2a4P2q0yyHXhHfER0m2u+tMDckh0avEqiHmCbh//o4Jcmmd
+         r8BRpQWZljr7+b7mzQlSc9wjT4AgWRnXqV1IoH8c=
+Received: from clipper.ens.fr (clipper-gw.ens.fr [129.199.1.22])
+          by nef.ens.fr (8.14.4/1.01.28121999) with ESMTP id 218GXFCZ012690
+          ; Tue, 8 Feb 2022 17:33:16 +0100
+Received: from  optiplex-7.sg.lan using smtps by clipper.ens.fr (8.14.4/jb-1.1)
+       id 218GX7HP098149 ; Tue, 8 Feb 2022 17:33:15 +0100 (authenticated user gbertholon)
+X-ENS-Received:  (maths.r-prg.net.univ-paris7.fr [81.194.27.158])
+From:   Guillaume Bertholon <guillaume.bertholon@ens.fr>
+To:     gregkh@linuxfoundation.org
+Cc:     guillaume.bertholon@ens.fr, stable@vger.kernel.org
+Subject: [PATCH 4.9] Input: i8042 - Fix misplaced backport of "add ASUS Zenbook Flip to noselftest list"
+Date:   Tue,  8 Feb 2022 17:33:02 +0100
+Message-Id: <1644337982-23738-1-git-send-email-guillaume.bertholon@ens.fr>
+X-Mailer: git-send-email 2.7.4
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.4.3 (nef.ens.fr [129.199.96.32]); Tue, 08 Feb 2022 17:33:16 +0100 (CET)
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,83 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 08, 2022 at 01:23:32PM +0900, Masahiro Yamada wrote:
-> On Thu, Feb 3, 2022 at 8:12 AM Nick Desaulniers <ndesaulniers@google.com> wrote:
-> >
-> > On Wed, Feb 2, 2022 at 3:07 PM Nathan Chancellor <nathan@kernel.org> wrote:
-> > >
-> > > -Wunaligned-access is a new warning in clang that is default enabled for
-> > > arm and arm64 under certain circumstances within the clang frontend (see
-> > > LLVM commit below). On v5.17-rc2, an ARCH=arm allmodconfig build shows
-> > > 1284 total/70 unique instances of this warning (most of the instances
-> > > are in header files), which is quite noisy.
-> > >
-> > > To keep a normal build green through CONFIG_WERROR, only show this
-> > > warning with W=1, which will allow automated build systems to catch new
-> > > instances of the warning so that the total number can be driven down to
-> > > zero eventually since catching unaligned accesses at compile time would
-> > > be generally useful.
-> > >
-> > > Cc: stable@vger.kernel.org
-> > > Link: https://github.com/llvm/llvm-project/commit/35737df4dcd28534bd3090157c224c19b501278a
-> > > Link: https://github.com/ClangBuiltLinux/linux/issues/1569
-> > > Link: https://github.com/ClangBuiltLinux/linux/issues/1576
-> > > Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> >
-> > Thanks to you and Arnd for working out whether this is important to
-> > pursue. Sounds like it is.
-> > Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-> >
-> > > ---
-> 
-> 
-> I assume this should be considered as a bug fix
-> to avoid the error for the combination of CONFIG_WERROR=y
-> and the latest Clang.
-> 
-> Applied to linux-kbuild/fixes.
-> Thanks.
+The upstream commit b5d6e7ab7fe7 ("Input: i8042 - add ASUS Zenbook Flip to
+noselftest list") inserted a new entry in the `i8042_dmi_noselftest_table`
+table, further patched by commit daa58c8eec0a ("Input: i8042 - fix Pegatron
+C15B ID entry") to insert a missing separator.
 
-Yes, this is what I was hoping for! Thank you, I'll try to make that
-more clear in the future.
+However, their backported version in stable (commit e9e8b3769099
+("Input: i8042 - add ASUS Zenbook Flip to noselftest list") and
+commit c551d20d487a ("Input: i8042 - fix Pegatron C15B ID entry"))
+inserted this entry in `i8042_dmi_forcemux_table` instead.
 
-Cheers,
-Nathan
+This patch moves the entry back into `i8042_dmi_noselftest_table`.
 
-> > >
-> > > v1 -> v2: https://lore.kernel.org/r/20220201232229.2992968-1-nathan@kernel.org/
-> > >
-> > > * Move to W=1 instead of W=2 so that new instances are caught (Arnd).
-> > > * Add links to the ClangBuiltLinux issue tracker.
-> > >
-> > >  scripts/Makefile.extrawarn | 1 +
-> > >  1 file changed, 1 insertion(+)
-> > >
-> > > diff --git a/scripts/Makefile.extrawarn b/scripts/Makefile.extrawarn
-> > > index d53825503874..8be892887d71 100644
-> > > --- a/scripts/Makefile.extrawarn
-> > > +++ b/scripts/Makefile.extrawarn
-> > > @@ -51,6 +51,7 @@ KBUILD_CFLAGS += -Wno-sign-compare
-> > >  KBUILD_CFLAGS += -Wno-format-zero-length
-> > >  KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
-> > >  KBUILD_CFLAGS += -Wno-tautological-constant-out-of-range-compare
-> > > +KBUILD_CFLAGS += $(call cc-disable-warning, unaligned-access)
-> > >  endif
-> > >
-> > >  endif
-> > >
-> > > base-commit: 26291c54e111ff6ba87a164d85d4a4e134b7315c
-> > > --
-> > > 2.35.1
-> > >
-> >
-> >
-> > --
-> > Thanks,
-> > ~Nick Desaulniers
-> 
-> 
-> 
-> -- 
-> Best Regards
-> Masahiro Yamada
+Fixes: e9e8b3769099 ("Input: i8042 - add ASUS Zenbook Flip to noselftest list")
+Signed-off-by: Guillaume Bertholon <guillaume.bertholon@ens.fr>
+---
+ drivers/input/serio/i8042-x86ia64io.h | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 323b86b..6cd2ae9 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -586,11 +586,6 @@ static const struct dmi_system_id i8042_dmi_forcemux_table[] __initconst = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "VGN-CS"),
+ 		},
+-	}, {
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-			DMI_MATCH(DMI_CHASSIS_TYPE, "31"), /* Convertible Notebook */
+-		},
+ 	},
+ 	{ }
+ };
+@@ -677,6 +672,12 @@ static const struct dmi_system_id i8042_dmi_noselftest_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Z450LA"),
+ 		},
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_CHASSIS_TYPE, "31"), /* Convertible Notebook */
++		},
++	},
+ 	{ }
+ };
+ static const struct dmi_system_id __initconst i8042_dmi_reset_table[] = {
+--
+2.7.4
+
