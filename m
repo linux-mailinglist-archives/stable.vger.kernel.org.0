@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE0CE4AD957
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 14:17:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6364B4AD8D8
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 14:16:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348335AbiBHNQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 08:16:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54650 "EHLO
+        id S1348685AbiBHNQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 08:16:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350458AbiBHMYf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 07:24:35 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B771CC03FEC0;
-        Tue,  8 Feb 2022 04:24:34 -0800 (PST)
-Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1nHPXq-0006Dt-4I; Tue, 08 Feb 2022 13:24:31 +0100
-Message-ID: <c674269f-5dfe-ac61-01ac-20c393c56f48@leemhuis.info>
-Date:   Tue, 8 Feb 2022 13:24:29 +0100
+        with ESMTP id S1376423AbiBHNFi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 08:05:38 -0500
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8EF7C03FEC0;
+        Tue,  8 Feb 2022 05:05:36 -0800 (PST)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: andrzej.p)
+        with ESMTPSA id 8B08C1F445AC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1644325534;
+        bh=+LYk/UmBswNwBd6wWfrZcVl5V3vV0QlUdcWtoUKbDuQ=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=IanUsb20GeXPoeXi8WV425L3Z8GSZZDMd0uxkgXYPzceXXkZJh9UCows5Csu7Wvvc
+         B3yIDNzZT4Xy4oCBqx+wDXMTsql5c19joggI4o0NCcavdvhcu3HPkMpjZ/JTdD6lWt
+         1ci/i++lztI4rFx09BtouRBuOS0jm/JXSjF08/fdua7R5mT+LTCOVWOseeYR57JO/y
+         F8xL5qxuJXEYjUHYtf3h4CECr7JoSHdDDNkOa0IoiA0+n5gq7baWcQ99XTE/UFrhyZ
+         qQy+aeuj0dfnjFYL/C7+b/vqY40oUyVHUW3CjmgJ3qxzYqA3twd6xi4DcFWuX0Xd6J
+         8kaYKsldRv48Q==
+Message-ID: <73b30627-2908-8472-01db-d07e176ce129@collabora.com>
+Date:   Tue, 8 Feb 2022 14:05:30 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.5.0
-Subject: Re: [PATCH] gpio: Revert regression in sysfs-gpio (gpiolib.c)
-Content-Language: en-BS
-To:     Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>
-Cc:     Bartosz Golaszewski <brgl@bgdev.pl>,
-        stable <stable@vger.kernel.org>, regressions@lists.linux.dev,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Thierry Reding <treding@nvidia.com>,
-        Vidya Sagar <vidyas@nvidia.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Edmond Chung <edmondchung@google.com>,
-        Andrew Chant <achant@google.com>,
-        Will McVicker <willmcvicker@google.com>,
-        Sergio Tanzilli <tanzilli@acmesystems.it>
-References: <20211217153555.9413-1-marcelo.jimenez@gmail.com>
- <a7fbb773-eb85-ccc7-8bfb-0bfab062ffe1@leemhuis.info>
- <CAMRc=MfAxzmAfATV2NwfTgpfmyxFx8bgTbaAfWxSi9zmBecPng@mail.gmail.com>
- <CACjc_5puGpg85XseEjKxnwE2R_XoH8EWvdwp4g2WKNBmW7pX+w@mail.gmail.com>
- <37d074c7-b264-acac-4bf6-65caa4dbab1a@leemhuis.info>
- <CACjc_5o4n9CNXoER5Va6u0fQhuE9osnUSUwSbHPx0K1yiPUj8g@mail.gmail.com>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <CACjc_5o4n9CNXoER5Va6u0fQhuE9osnUSUwSbHPx0K1yiPUj8g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1644323074;49d1220f;
-X-HE-SMSGID: 1nHPXq-0006Dt-4I
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Subject: Re: [PATCH] drm/rockchip: vop: Correct RK3399 VOP register fields
+Content-Language: en-US
+To:     Brian Norris <briannorris@chromium.org>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@linux.ie>,
+        =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>
+Cc:     Sandy Huang <hjc@rock-chips.com>, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org,
+        stable@vger.kernel.org, Mark Yao <markyao0591@gmail.com>
+References: <20220119161104.1.I1d01436bef35165a8cdfe9308789c0badb5ff46a@changeid>
+From:   Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+In-Reply-To: <20220119161104.1.I1d01436bef35165a8cdfe9308789c0badb5ff46a@changeid>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,129 +56,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, this is your Linux kernel regression tracker speaking.
+Hi Brian,
 
-Top-posting for once, to make this easy accessible to everyone.
+Sorry about the delay.
 
-GPIO Maintainers and developers, what the status of this regression and
-getting it fixed? It looks like there was no progress for quite a while.
+W dniu 20.01.2022 o 01:11, Brian Norris pisze:
+> Commit 7707f7227f09 ("drm/rockchip: Add support for afbc") switched up
+> the rk3399_vop_big[] register windows, but it did so incorrectly.
+> 
+> The biggest problem is in rk3288_win23_data[] vs.
+> rk3368_win23_data[] .format field:
+> 
+>    RK3288's format: VOP_REG(RK3288_WIN2_CTRL0, 0x7, 1)
+>    RK3368's format: VOP_REG(RK3368_WIN2_CTRL0, 0x3, 5)
+> 
+> Bits 5:6 (i.e., shift 5, mask 0x3) are correct for RK3399, according to
+> the TRM.
+> 
+> There are a few other small differences between the 3288 and 3368
+> definitions that were swapped in commit 7707f7227f09. I reviewed them to
+> the best of my ability according to the RK3399 TRM and fixed them up.
+> 
+> This fixes IOMMU issues (and display errors) when testing with BG24
+> color formats.
+> 
+> Fixes: 7707f7227f09 ("drm/rockchip: Add support for afbc")
+> Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+Tested-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
 
-P.S.: As the Linux kernel's regression tracker I'm getting a lot of
-reports on my table. I can only look briefly into most of them and lack
-knowledge about most of the areas they concern. I thus unfortunately
-will sometimes get things wrong or miss something important. I hope
-that's not the case here; if you think it is, don't hesitate to tell me
-in a public reply, it's in everyone's interest to set the public record
-straight.
+> ---
+> I'd appreciate notes or testing from Andrzej, since I'm not sure how he
+> tested his original AFBC work.
+> 
+>   drivers/gpu/drm/rockchip/rockchip_vop_reg.c | 8 +++++---
+>   1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
+> index 1f7353f0684a..798b542e5916 100644
+> --- a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
+> +++ b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
+> @@ -902,6 +902,7 @@ static const struct vop_win_phy rk3399_win01_data = {
+>   	.enable = VOP_REG(RK3288_WIN0_CTRL0, 0x1, 0),
+>   	.format = VOP_REG(RK3288_WIN0_CTRL0, 0x7, 1),
+>   	.rb_swap = VOP_REG(RK3288_WIN0_CTRL0, 0x1, 12),
+> +	.x_mir_en = VOP_REG(RK3288_WIN0_CTRL0, 0x1, 21),
+>   	.y_mir_en = VOP_REG(RK3288_WIN0_CTRL0, 0x1, 22),
+>   	.act_info = VOP_REG(RK3288_WIN0_ACT_INFO, 0x1fff1fff, 0),
+>   	.dsp_info = VOP_REG(RK3288_WIN0_DSP_INFO, 0x0fff0fff, 0),
+> @@ -912,6 +913,7 @@ static const struct vop_win_phy rk3399_win01_data = {
+>   	.uv_vir = VOP_REG(RK3288_WIN0_VIR, 0x3fff, 16),
+>   	.src_alpha_ctl = VOP_REG(RK3288_WIN0_SRC_ALPHA_CTRL, 0xff, 0),
+>   	.dst_alpha_ctl = VOP_REG(RK3288_WIN0_DST_ALPHA_CTRL, 0xff, 0),
+> +	.channel = VOP_REG(RK3288_WIN0_CTRL2, 0xff, 0),
+>   };
+>   
+>   /*
+> @@ -922,11 +924,11 @@ static const struct vop_win_phy rk3399_win01_data = {
+>   static const struct vop_win_data rk3399_vop_win_data[] = {
+>   	{ .base = 0x00, .phy = &rk3399_win01_data,
+>   	  .type = DRM_PLANE_TYPE_PRIMARY },
+> -	{ .base = 0x40, .phy = &rk3288_win01_data,
+> +	{ .base = 0x40, .phy = &rk3368_win01_data,
+>   	  .type = DRM_PLANE_TYPE_OVERLAY },
+> -	{ .base = 0x00, .phy = &rk3288_win23_data,
+> +	{ .base = 0x00, .phy = &rk3368_win23_data,
+>   	  .type = DRM_PLANE_TYPE_OVERLAY },
+> -	{ .base = 0x50, .phy = &rk3288_win23_data,
+> +	{ .base = 0x50, .phy = &rk3368_win23_data,
+>   	  .type = DRM_PLANE_TYPE_CURSOR },
+>   };
+>   
 
-#regzbot poke
-
-On 12.01.22 01:09, Marcelo Roberto Jimenez wrote:
-> Hi,
-> 
-> On Mon, Jan 10, 2022 at 4:02 AM Thorsten Leemhuis
-> <regressions@leemhuis.info> wrote:
->>
->> Hi, this is your Linux kernel regression tracker speaking.
->>
->> On 20.12.21 21:41, Marcelo Roberto Jimenez wrote:
->>> On Mon, Dec 20, 2021 at 11:57 AM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
->>>> On Sat, Dec 18, 2021 at 7:28 AM Thorsten Leemhuis
->>>> <regressions@leemhuis.info> wrote:
->>>>>
->>>>> [TLDR: I'm adding this regression to regzbot, the Linux kernel
->>>>> regression tracking bot; most text you find below is compiled from a few
->>>>> templates paragraphs some of you might have seen already.]
->>>>>
->>>>> On 17.12.21 16:35, Marcelo Roberto Jimenez wrote:
->>>>>> Some GPIO lines have stopped working after the patch
->>>>>> commit 2ab73c6d8323f ("gpio: Support GPIO controllers without pin-ranges")
->>>>>>
->>>>>> And this has supposedly been fixed in the following patches
->>>>>> commit 89ad556b7f96a ("gpio: Avoid using pin ranges with !PINCTRL")
->>>>>> commit 6dbbf84603961 ("gpiolib: Don't free if pin ranges are not defined")
->>>>>
->>>>> There seems to be a backstory here. Are there any entries and bug
->>>>> trackers or earlier discussions everyone that looks into this should be
->>>>> aware of?
->>>>
->>>> Agreed with Thorsten. I'd like to first try to determine what's wrong
->>>> before reverting those, as they are correct in theory but maybe the
->>>> implementation missed something.
->>>>
->>>> Have you tried tracing the execution on your platform in order to see
->>>> what the driver is doing?
->>>
->>> Yes. The problem is that there is no list defined for the sysfs-gpio
->>> interface. The driver will not perform pinctrl_gpio_request() and will
->>> return zero (failure).
->>>
->>> I don't know if this is the case to add something to a global DTD or
->>> to fix it in the sysfs-gpio code.
->>
->> Out of interest, has any progress been made on this front?
->>
->> BTW, there was a last-minute commit for 5.16 yesterday that referenced
->> the culprit Marcelo specified:
->>
->> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=c8013355ead68dce152cf426686f8a5f80d88b40
->>
->> This was for a BCM283x and BCM2711 devices, so I assume it won't help.
->> Wild guess (I don't know anything about this area of the kernel):
->> Marcelo, do the dts files for your hardware maybe need a similar fix?
-> 
-> I have tried to add "gpio-ranges" to the gpio-controllers in
-> at91sam9x5.dtsi, but the system deadlocks, because in pinctrl-at91.c,
-> function at91_pinctrl_probe() we have:
-> 
-> /*
-> * We need all the GPIO drivers to probe FIRST, or we will not be able
-> * to obtain references to the struct gpio_chip * for them, and we
-> * need this to proceed.
-> */
-> for (i = 0; i < gpio_banks; i++)
->         if (gpio_chips[i])
->                 ngpio_chips_enabled++;
-> 
->         if (ngpio_chips_enabled < info->nactive_banks) {
->                 dev_warn(&pdev->dev,
->                       "All GPIO chips are not registered yet (%d/%d)\n",
->                       ngpio_chips_enabled, info->nactive_banks);
->                devm_kfree(&pdev->dev, info);
->                 return -EPROBE_DEFER;
->         }
-> 
-> On the other hand, in gpiolib-of.c, function
-> of_gpiochip_add_pin_range() we have:
-> 
-> if (!pctldev)
->         return -EPROBE_DEFER;
-> 
-> In other words, the pinctrl needs all the gpio-controllers, and the
-> gpio-controllers need the pinctrl. Each returns -EPROBE_DEFER and the
-> system deadlocks.
-> 
->>
->> Ciao, Thorsten
->>
->> P.S.: As a Linux kernel regression tracker I'm getting a lot of reports
->> on my table. I can only look briefly into most of them. Unfortunately
->> therefore I sometimes will get things wrong or miss something important.
->> I hope that's not the case here; if you think it is, don't hesitate to
->> tell me about it in a public reply, that's in everyone's interest.
->>
->> BTW, I have no personal interest in this issue, which is tracked using
->> regzbot, my Linux kernel regression tracking bot
->> (https://linux-regtracking.leemhuis.info/regzbot/). I'm only posting
->> this mail to get things rolling again and hence don't need to be CC on
->> all further activities wrt to this regression.
->>
->> #regzbot poke
->>
-> 
-> Regards,
-> Marcelo.
-> 
-> 
