@@ -2,103 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D955E4ADAA9
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 15:02:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A1B84ADAD9
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 15:10:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377387AbiBHOCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 09:02:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51340 "EHLO
+        id S236563AbiBHOKj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 09:10:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344364AbiBHOCm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 09:02:42 -0500
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92502C03FED0;
-        Tue,  8 Feb 2022 06:02:41 -0800 (PST)
-Received: by mail-wr1-x431.google.com with SMTP id v12so2231304wrv.2;
-        Tue, 08 Feb 2022 06:02:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Xp9QZN/2z/upaKAhd3EP5sH3V0LGEoUW36DmbK5D1mg=;
-        b=ksZMV3wZESIE8s3J+vkEoZkwAmwMNgXzV9D6ABMTidn81xM22dEolwar416EYM0ixW
-         X9glk6wkCWMndCidF8Yx/ulOlgs/9T6gVVnFXJnbze1EaQ1TZgIVm5jFZT/jvpQTCPxr
-         8GVVXnDR5G2hiLdT2LVRg8opk0K/hGxyMx1GQsvtU7T0C3kOLhch6NFxiO+cxrBMD/SD
-         o/mPZuSNF7sxcraugnXC75Y/grsfqMHVxg5SwJ+R64AN3ldEr7MDQa0DilIs7FtPkLQp
-         CvipfInGq0fJ5mRKXollmJTSwtco25lCmOUhu4UM9QXesusAgWL8nXDQktewIv6RMaan
-         FpKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Xp9QZN/2z/upaKAhd3EP5sH3V0LGEoUW36DmbK5D1mg=;
-        b=RODyjfBn4+fdb1RCQHhjLMoE4ckmwrwohbZe023qpeBmbJjcC8HGgTOwaLBDXQbXKJ
-         tcDn0vHRtLMYlSOZSXHLU89C1HE1JpeCRIxnabbUOhTUxNBqEAM6V8HXrzbnPs7ZNguD
-         N/CeXqjZI334TyJhWjkhh9CK3UrZ7XbDVFSisyp8FShpc+S9obrn1X0HllEzHiwu7eey
-         kxTaxdsRRH0B0VxM/XQiv6TN1U3eToJUF9XrT6YEwRSu5HqcxWAgt4ZR7TSE/7wFrQSf
-         a9Prx49oE1nn3bcyn3NxZIXAsJi2WBPDyGJaJYgWmcb1kRI6+eepo+lpXGYGS974Eo/8
-         NMvQ==
-X-Gm-Message-State: AOAM530T3GQJByYrHrz+6ZjYCI1Vf22BxL9yF5dMuHsx8dC6YFdjUP+A
-        jHmYr1xx/xs75op1L8N+3wo=
-X-Google-Smtp-Source: ABdhPJxvppN8OLWxCr62/0Hv9hDWKUKj61tfD4E/YEG8VR8gsHj0IZwiv4IYdKRcs/NueVeFgvyXmg==
-X-Received: by 2002:adf:f90c:: with SMTP id b12mr3624219wrr.97.1644328960198;
-        Tue, 08 Feb 2022 06:02:40 -0800 (PST)
-Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
-        by smtp.gmail.com with ESMTPSA id h4sm15477041wre.0.2022.02.08.06.02.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Feb 2022 06:02:39 -0800 (PST)
-Date:   Tue, 8 Feb 2022 14:02:38 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, slade@sladewatkins.com
-Subject: Re: [PATCH 4.19 00/86] 4.19.228-rc1 review
-Message-ID: <YgJ3/tVg/MT4G2qi@debian>
-References: <20220207103757.550973048@linuxfoundation.org>
+        with ESMTP id S232200AbiBHOKj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 09:10:39 -0500
+Received: from mga06.intel.com (mga06.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81B36C03FECE
+        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 06:10:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644329438; x=1675865438;
+  h=from:to:cc:subject:in-reply-to:references:date:
+   message-id:mime-version:content-transfer-encoding;
+  bh=CCFgStHsQ7eIZNN6U3FNFaaYurrT5dw80GtTTN7klSY=;
+  b=h7lTPtEByFE1S+q8GH+6U7fCaCeRkW0SDMFiCQvhxKJ104dU5JhTJQ7I
+   RiEanM2ChwaOo4bAGlfX/Oyu/OMGtzptgnqbvuFsilFS+th3Rzug7hYdR
+   dakcM5AaSmWiI7wr9fSXJmoDPPJ/h+xBvzHDJaZAdau6VTB0gIbJ0JeeW
+   jQaHVPILiYV5sLH1P1Yvsk5/qTOSQ7OGQ/cs9dZSH4VEdNSJsUpoDo7W4
+   /xPoPFbUXDK+FGFiraTNvp6wntY+Q2lz69Whg5l0kOmL/kj4vD+pkUOOo
+   4fpYHWHHDcfhoM4FDjoemxKPkqxILlwu1us05tXUxx1Hdu6ZDZnDCGz5m
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10252"; a="309697983"
+X-IronPort-AV: E=Sophos;i="5.88,352,1635231600"; 
+   d="scan'208";a="309697983"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Feb 2022 06:10:38 -0800
+X-IronPort-AV: E=Sophos;i="5.88,352,1635231600"; 
+   d="scan'208";a="540611368"
+Received: from ijbeckin-mobl2.ger.corp.intel.com (HELO localhost) ([10.252.19.63])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Feb 2022 06:10:36 -0800
+From:   Jani Nikula <jani.nikula@linux.intel.com>
+To:     Ville Syrjala <ville.syrjala@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH 1/2] drm/i195: Fix dbuf slice config lookup
+In-Reply-To: <20220207132700.481-1-ville.syrjala@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <20220207132700.481-1-ville.syrjala@linux.intel.com>
+Date:   Tue, 08 Feb 2022 16:10:33 +0200
+Message-ID: <878rulqwiu.fsf@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On Mon, 07 Feb 2022, Ville Syrjala <ville.syrjala@linux.intel.com> wrote:
+> From: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
+>
+> Apparently I totally fumbled the loop condition when I
+> removed the ARRAY_SIZE() stuff from the dbuf slice config
+> lookup. Comparing the loop index with the active_pipes bitmask
+> is utter nonsense, what we want to do is check to see if the
+> mask is zero or not.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: 05e8155afe35 ("drm/i915: Use a sentinel to terminate the dbuf slic=
+e arrays")
+> Signed-off-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
 
-On Mon, Feb 07, 2022 at 12:05:23PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.228 release.
-> There are 86 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 09 Feb 2022 10:37:42 +0000.
-> Anything received after that time might be too late.
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
 
-Build test:
-mips (gcc version 11.2.1 20220121): 63 configs -> no failure
-arm (gcc version 11.2.1 20220121): 116 configs -> no new failure
-arm64 (gcc version 11.2.1 20220121): 2 configs -> no failure
-x86_64 (gcc version 11.2.1 20220121): 4 configs -> no failure
+> ---
+>  drivers/gpu/drm/i915/intel_pm.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel=
+_pm.c
+> index 02084652fe3d..da721aea70ff 100644
+> --- a/drivers/gpu/drm/i915/intel_pm.c
+> +++ b/drivers/gpu/drm/i915/intel_pm.c
+> @@ -4848,7 +4848,7 @@ static u8 compute_dbuf_slices(enum pipe pipe, u8 ac=
+tive_pipes, bool join_mbus,
+>  {
+>  	int i;
+>=20=20
+> -	for (i =3D 0; i < dbuf_slices[i].active_pipes; i++) {
+> +	for (i =3D 0; dbuf_slices[i].active_pipes !=3D 0; i++) {
+>  		if (dbuf_slices[i].active_pipes =3D=3D active_pipes &&
+>  		    dbuf_slices[i].join_mbus =3D=3D join_mbus)
+>  			return dbuf_slices[i].dbuf_mask[pipe];
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-
-[1]. https://openqa.qa.codethink.co.uk/tests/722
-
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
---
-Regards
-Sudip
-
+--=20
+Jani Nikula, Intel Open Source Graphics Center
