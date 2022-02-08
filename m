@@ -2,218 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EC0A4AD403
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 09:52:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A8114AD4CB
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 10:26:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235798AbiBHIwm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 03:52:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46086 "EHLO
+        id S230111AbiBHJ0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 04:26:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232577AbiBHIwl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 03:52:41 -0500
-Received: from first.geanix.com (first.geanix.com [116.203.34.67])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B32C03FEC0;
-        Tue,  8 Feb 2022 00:52:40 -0800 (PST)
-Received: from zen.. (unknown [185.17.218.86])
-        by first.geanix.com (Postfix) with ESMTPSA id A64FDE28FB;
-        Tue,  8 Feb 2022 08:52:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
-        t=1644310357; bh=IfhFtV9h7TZeyZofkNglQMWg6AkUIHKmkWYK/JylW0g=;
-        h=From:To:Cc:Subject:Date;
-        b=js/n16a0zimkjRoS2heJRpgLxJGxRQ3w5s1bEzO1ieNAumVGSI7w5G1GH1QKZmRzw
-         +wXhb4jTDUu+AqSO6al4a2SXOVm1Sy8xyOBERiMG9w5WZjCLMBtPqxPRU2ebUKkIdG
-         wRJ35PC28Vyq+EcrPH3T7Fsp9Tx1LZMuktC0w1Wa47zbo4XuHqi0cOtkz1gxeP24vT
-         SK4Wm18IMHuqeyeuQs7CKIcz58NJu2UMGYugELMimgyqzbazH3cSawSHqZSq/FK0ID
-         PuYv3quhdyGmzRxlbcQe90tZdtbv0bIAXe+5cJkwyzPI04AnAlXVFtEc9YYnLd3/Jy
-         G7XFHn7oxmv6g==
-From:   Sean Nyekjaer <sean@geanix.com>
-To:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Boris Brezillon <bbrezillon@kernel.org>
-Cc:     Sean Nyekjaer <sean@geanix.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        stable@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v4] mtd: rawnand: protect access to rawnand devices while in suspend
-Date:   Tue,  8 Feb 2022 09:52:13 +0100
-Message-Id: <20220208085213.1838273-1-sean@geanix.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S1354755AbiBHJZu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 04:25:50 -0500
+X-Greylist: delayed 1389 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 08 Feb 2022 01:25:50 PST
+Received: from qproxy5-pub.mail.unifiedlayer.com (qproxy5-pub.mail.unifiedlayer.com [69.89.21.30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31B36C03FEC0
+        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 01:25:50 -0800 (PST)
+Received: from gproxy3-pub.mail.unifiedlayer.com (gproxy3-pub.mail.unifiedlayer.com [69.89.30.42])
+        by qproxy5.mail.unifiedlayer.com (Postfix) with ESMTP id 67D318038EFE
+        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 09:02:41 +0000 (UTC)
+Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
+        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id CA0CA10047175
+        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 09:02:10 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id HMO2nsNu0XOyfHMO2nqzYn; Tue, 08 Feb 2022 09:02:10 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=EucXEQQA c=1 sm=1 tr=0 ts=62023192
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=oGFeUVbbRNcA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=NjNOBljHOn0YkUJ5KKXki1nVeez07hjn+mmexGx7Yz8=; b=szxKvTH9Pmt57WEcUfEdeo1hxA
+        bHEhYdQuukSVdWmTpIvQeU1h5D52VKzHVamntCgdl3HeAzidkQ7TDaPchJr3XkIEVAidrJjXb5FX6
+        rJyXOl4YkucwYtETw2SGuEl6O;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53772 helo=[10.0.1.23])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1nHMO1-0021xE-QM; Tue, 08 Feb 2022 02:02:09 -0700
+Message-ID: <8986fe5b-edf5-3511-0ff9-eb0e5b0e672a@w6rz.net>
+Date:   Tue, 8 Feb 2022 01:02:08 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.16 000/127] 5.16.8-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220207133856.644483064@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+In-Reply-To: <20220207133856.644483064@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1nHMO1-0021xE-QM
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:53772
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 12
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,
+        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Prevent rawnand access while in a suspended state.
+On 2/7/22 06:04, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.8 release.
+> There are 127 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 09 Feb 2022 13:38:34 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.8-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Commit 013e6292aaf5 ("mtd: rawnand: Simplify the locking") allows the
-rawnand layer to return errors rather than waiting in a blocking wait.
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Tested on a iMX6ULL.
-
-Fixes: 013e6292aaf5 ("mtd: rawnand: Simplify the locking")
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Cc: stable@vger.kernel.org
----
-
-Changes since v1:
- - fixed uninitialized return
-
-Changes since v2:
- - fixed wait queue description
-
-Changes since v3:
- - fixed typo in commit msg
- - added stable tag in signoff area
-
- drivers/mtd/nand/raw/nand_base.c | 44 +++++++++++++++-----------------
- include/linux/mtd/rawnand.h      |  2 ++
- 2 files changed, 22 insertions(+), 24 deletions(-)
-
-diff --git a/drivers/mtd/nand/raw/nand_base.c b/drivers/mtd/nand/raw/nand_base.c
-index e7b2ba016d8c..8daaba96edb2 100644
---- a/drivers/mtd/nand/raw/nand_base.c
-+++ b/drivers/mtd/nand/raw/nand_base.c
-@@ -338,16 +338,19 @@ static int nand_isbad_bbm(struct nand_chip *chip, loff_t ofs)
-  *
-  * Return: -EBUSY if the chip has been suspended, 0 otherwise
-  */
--static int nand_get_device(struct nand_chip *chip)
-+static void nand_get_device(struct nand_chip *chip)
- {
--	mutex_lock(&chip->lock);
--	if (chip->suspended) {
-+	/* Wait until the device is resumed. */
-+	while (1) {
-+		mutex_lock(&chip->lock);
-+		if (!chip->suspended) {
-+			mutex_lock(&chip->controller->lock);
-+			return;
-+		}
- 		mutex_unlock(&chip->lock);
--		return -EBUSY;
--	}
--	mutex_lock(&chip->controller->lock);
- 
--	return 0;
-+		wait_event(chip->resume_wq, !chip->suspended);
-+	}
- }
- 
- /**
-@@ -576,9 +579,7 @@ static int nand_block_markbad_lowlevel(struct nand_chip *chip, loff_t ofs)
- 		nand_erase_nand(chip, &einfo, 0);
- 
- 		/* Write bad block marker to OOB */
--		ret = nand_get_device(chip);
--		if (ret)
--			return ret;
-+		nand_get_device(chip);
- 
- 		ret = nand_markbad_bbm(chip, ofs);
- 		nand_release_device(chip);
-@@ -3826,9 +3827,7 @@ static int nand_read_oob(struct mtd_info *mtd, loff_t from,
- 	    ops->mode != MTD_OPS_RAW)
- 		return -ENOTSUPP;
- 
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	if (!ops->datbuf)
- 		ret = nand_do_read_oob(chip, from, ops);
-@@ -4415,13 +4414,11 @@ static int nand_write_oob(struct mtd_info *mtd, loff_t to,
- 			  struct mtd_oob_ops *ops)
- {
- 	struct nand_chip *chip = mtd_to_nand(mtd);
--	int ret;
-+	int ret = 0;
- 
- 	ops->retlen = 0;
- 
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	switch (ops->mode) {
- 	case MTD_OPS_PLACE_OOB:
-@@ -4481,9 +4478,7 @@ int nand_erase_nand(struct nand_chip *chip, struct erase_info *instr,
- 		return -EIO;
- 
- 	/* Grab the lock and see if the device is available */
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	/* Shift to get first page */
- 	page = (int)(instr->addr >> chip->page_shift);
-@@ -4570,7 +4565,7 @@ static void nand_sync(struct mtd_info *mtd)
- 	pr_debug("%s: called\n", __func__);
- 
- 	/* Grab the lock and see if the device is available */
--	WARN_ON(nand_get_device(chip));
-+	nand_get_device(chip);
- 	/* Release it and go back */
- 	nand_release_device(chip);
- }
-@@ -4587,9 +4582,7 @@ static int nand_block_isbad(struct mtd_info *mtd, loff_t offs)
- 	int ret;
- 
- 	/* Select the NAND device */
--	ret = nand_get_device(chip);
--	if (ret)
--		return ret;
-+	nand_get_device(chip);
- 
- 	nand_select_target(chip, chipnr);
- 
-@@ -4660,6 +4653,8 @@ static void nand_resume(struct mtd_info *mtd)
- 			__func__);
- 	}
- 	mutex_unlock(&chip->lock);
-+
-+	wake_up_all(&chip->resume_wq);
- }
- 
- /**
-@@ -5437,6 +5432,7 @@ static int nand_scan_ident(struct nand_chip *chip, unsigned int maxchips,
- 	chip->cur_cs = -1;
- 
- 	mutex_init(&chip->lock);
-+	init_waitqueue_head(&chip->resume_wq);
- 
- 	/* Enforce the right timings for reset/detection */
- 	chip->current_interface_config = nand_get_reset_interface_config();
-diff --git a/include/linux/mtd/rawnand.h b/include/linux/mtd/rawnand.h
-index 5b88cd51fadb..dcf90144d70b 100644
---- a/include/linux/mtd/rawnand.h
-+++ b/include/linux/mtd/rawnand.h
-@@ -1240,6 +1240,7 @@ struct nand_secure_region {
-  * @lock: Lock protecting the suspended field. Also used to serialize accesses
-  *        to the NAND device
-  * @suspended: Set to 1 when the device is suspended, 0 when it's not
-+ * @resume_wq: wait queue to sleep if rawnand is in suspended state.
-  * @cur_cs: Currently selected target. -1 means no target selected, otherwise we
-  *          should always have cur_cs >= 0 && cur_cs < nanddev_ntargets().
-  *          NAND Controller drivers should not modify this value, but they're
-@@ -1294,6 +1295,7 @@ struct nand_chip {
- 	/* Internals */
- 	struct mutex lock;
- 	unsigned int suspended : 1;
-+	wait_queue_head_t resume_wq;
- 	int cur_cs;
- 	int read_retries;
- 	struct nand_secure_region *secure_regions;
--- 
-2.34.1
+Tested-by: Ron Economos <re@w6rz.net>
 
