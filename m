@@ -2,104 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D47B14AD1E4
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 08:03:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37F6A4AD1F5
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 08:12:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237121AbiBHHDn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 02:03:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48478 "EHLO
+        id S1347925AbiBHHL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 02:11:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233309AbiBHHDm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 02:03:42 -0500
-Received: from new3-smtp.messagingengine.com (new3-smtp.messagingengine.com [66.111.4.229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 007BEC0401F4;
-        Mon,  7 Feb 2022 23:03:38 -0800 (PST)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id D1CE35801C4;
-        Tue,  8 Feb 2022 02:03:35 -0500 (EST)
-Received: from imap49 ([10.202.2.99])
-  by compute2.internal (MEProxy); Tue, 08 Feb 2022 02:03:35 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        sladewatkins.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to; s=fm1; bh=1zZeOHN8TQZQpX
-        SBE9ns/EHrQBA4/VHUOn1td3lu4bY=; b=UPeru9y8pzDYJINqGGFCZLTaoiE2Cc
-        NjBbWZ8dz+XyohKX+vsHRBDrFAPeZdNfZr/qqQcUbWpUBi/o6tK6rdTaAlvlexGO
-        49rKVQSpZa09AZijMIhybcogle1+cQlg1xF2RiNql5rbdKLHcqQ11dgoL5tVwyV5
-        bdKdOvaZItuTbIGn4c+mRhLmInbmq3g2a+wO/MCZKCaEYVxt4l2Eoc04SI9x3+7K
-        QpCY1zMPY+75f3qCgrLdW6eGUuaCrTRpypMv8Hd5+T6JLUzL1WLVEzNI1MWZ916P
-        kXEAakTn3Du5RV09kwY4NVd9I2BOHas5DpIpE8HQgTOFr59qHKYNO5VA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1zZeOHN8TQZQpXSBE
-        9ns/EHrQBA4/VHUOn1td3lu4bY=; b=kCzv7xzpIq7NAwTR6wdnR/Xlc8apTdgz9
-        uWiA8MFf/uvYZQDhulKNlqybNVQii+7YHNV7jb1qQv6WI3M9DWycoAumsMeFok++
-        U7qiApcX+YNe6zgrPBfEM/r+XBt2Kk1HLKFPU3WJHAJfpMA5Gtj5iJiSHzx5gfO6
-        KmQq/PGcYfGv3kzy/pKwkcKGczWWNo+Kd5KvAFpMK1T7hqTBzxcKpNA80GIzng7L
-        D6+20bn6CatlPwd9l02HECDEJ1sJvtOQ+kG+UW0nVps1PrqCsjkpWTmyKtE+Wm6D
-        mWJ4tsEN0M5dC2DMj5FXmiqMAN8Laa7XbNl6Z5C03hx9rIxSIgwXw==
-X-ME-Sender: <xms:xhUCYmkROP--4Oe2xv_yfKO-ck5upi_vNrHamTBPa1tCvZebTM__jw>
-    <xme:xhUCYt3bRW2NwkLZMxmxjIR15EoosSxdENleGL2nx_FOfZDyKab1Iy7cg2RlIvQY4
-    pn4z-kQikTSXYEvaKs>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrheeigddutddvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvffutgesthdtredtreertdenucfhrhhomhepfdfulhgr
-    uggvucghrghtkhhinhhsfdcuoehslhgruggvsehslhgruggvfigrthhkihhnshdrtghomh
-    eqnecuggftrfgrthhtvghrnhepueeiffetjeeitefgveetleehveduheetiefhhfethedt
-    teelgeettddvvedvudegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepshhlrgguvgesshhlrgguvgifrghtkhhinhhsrdgtohhm
-X-ME-Proxy: <xmx:xhUCYkqDY5eEl7_pdGQSlNL1hNjkl_AwxV7yMPfhOPjnVjeAW3Yj8A>
-    <xmx:xhUCYqnOblalu6JZb__5uDzjbrlPyo2FbT1lxQiA8OGQIMaTgJnb7Q>
-    <xmx:xhUCYk2Y6ajGQ_zUSgGSPvHOWWinMZfL_T770ceGmj-iBZ6EU91MWA>
-    <xmx:xxUCYtvXyik6yDHJxqssZVzsf-ZNyYdXU45__DV0xwlaUDQ5nJBvU_0U4Cw>
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id CEAC9F6007E; Tue,  8 Feb 2022 02:03:34 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.5.0-alpha0-4748-g31a5b5f50e-fm-cal2020-20220204.001-g31a5b5f5
-Mime-Version: 1.0
-Message-Id: <16bbddcb-d827-490a-ac80-cd5a75404d6f@www.fastmail.com>
-In-Reply-To: <20220207133856.644483064@linuxfoundation.org>
-References: <20220207133856.644483064@linuxfoundation.org>
-Date:   Tue, 08 Feb 2022 02:03:33 -0500
-From:   "Slade Watkins" <slade@sladewatkins.com>
-To:     "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Andrew Morton" <akpm@linux-foundation.org>,
-        "Guenter Roeck" <linux@roeck-us.net>, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        "Pavel Machek" <pavel@denx.de>,
-        "Jon Hunter" <jonathanh@nvidia.com>,
-        "Florian Fainelli" <f.fainelli@gmail.com>,
-        "Sudip Mukherjee" <sudipm.mukherjee@gmail.com>
-Subject: Re: [PATCH 5.16 000/127] 5.16.8-rc2 review
-Content-Type: text/plain
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S1347928AbiBHHL6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 02:11:58 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D531BC0401F4
+        for <stable@vger.kernel.org>; Mon,  7 Feb 2022 23:11:56 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id v5-20020a17090a4ec500b001b8b702df57so1308149pjl.2
+        for <stable@vger.kernel.org>; Mon, 07 Feb 2022 23:11:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=AzT2zSb2THNUuyQZXITuwOuNUzZi7qz7YcPLPaKf/rI=;
+        b=Lhm693r23Ti8wAB6bYk3E1Q2q3lTbPPIe+OT0/XGp/NvM3hMz6KA9q0SB7rouXhXdf
+         7aEzUb+JY9J2Mg77bkN5Oyj5qsYnl1jUHVVPP3Fyf9yWXYCxYlYcVTwHx2M0eTv0Ve7/
+         AWQKoZi56HQ1Ea63v4l4bx2UHAYM2awxgpMaDa/3GJxgeKWM6vDhmhi/sM56Ov58gOyZ
+         BncDRnnBa/9tV1DFDdme4f8v72+zodrFDj8X0yFVPgFtoGDpT0RurTr9U+r/+WXtM3su
+         +oydKlnkCLVo6d7ii1ktaTPqSbihzH5wpKPTIE1otKbBrTRWAbgdasf7C1HPdR/yb2hs
+         5WPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AzT2zSb2THNUuyQZXITuwOuNUzZi7qz7YcPLPaKf/rI=;
+        b=wr5DR9mUzr0ugUpeDcKioF3mUC/Jx9VzjeQT6s0J5vPuXd4/r4RW/L4ttar2faDcmZ
+         Eh+Noxat/CP7LSrxfFZjzoc6TWIL9N/xbYEaq2co/sXS+J2HdvINYQ2sD/TrXZ7kWCA/
+         X0k7yWRDenAacJb4Lf1oKZVUJN4KN4DFOQ2A8yIqKxywa1jLStZVBHMwKZ48XMtRnKDL
+         avTGbwe7UVCLoIz1FQsL0wDkpB7VNTluTbTR3lMEoLzUk+tAoNGgiwccObPTUZTDxlTf
+         ciZ7svaVy6dsEWccY+HQPnSasz5vyEzZPPZw/Safh+/8WquOuURiv0bVOOCBPyTIUGNO
+         Lw4g==
+X-Gm-Message-State: AOAM533ME3VTwGj7Q3p5KPIygFeIPjWYi0ZZogr6cDFp5Z3jYUJiQ3CZ
+        CV3N5AJmcaE+LMshy+nofT3O3ZjTlbe2LSVjXtQ6Iw==
+X-Google-Smtp-Source: ABdhPJyE+FvacCbFr+U5+PSFkIVoti6qzgI8AF6+tnabk9G2exslpk9RmMoKfrI9b9ZZoHaVkUk+ZWm5v74HlT1gFUU=
+X-Received: by 2002:a17:90b:4d92:: with SMTP id oj18mr2896123pjb.236.1644304315799;
+ Mon, 07 Feb 2022 23:11:55 -0800 (PST)
+MIME-Version: 1.0
+References: <20220129093036.488231-1-pumahsu@google.com> <413ce7e5-1c35-c3d0-a89e-a3c7f03b4db7@linux.intel.com>
+In-Reply-To: <413ce7e5-1c35-c3d0-a89e-a3c7f03b4db7@linux.intel.com>
+From:   Puma Hsu <pumahsu@google.com>
+Date:   Tue, 8 Feb 2022 15:11:19 +0800
+Message-ID: <CAGCq0La83AKrdk4w2b6wJLZVB0oKB7_AH3iqc4R0K1vDnqrX9A@mail.gmail.com>
+Subject: Re: [PATCH v6] xhci: re-initialize the HC during resume if HCE was set
+To:     Mathias Nyman <mathias.nyman@linux.intel.com>
+Cc:     mathias.nyman@intel.com, Greg KH <gregkh@linuxfoundation.org>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Albert Wang <albertccwang@google.com>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 7, 2022, at 9:04 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.8 release.
-> There are 127 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, Feb 3, 2022 at 3:11 AM Mathias Nyman
+<mathias.nyman@linux.intel.com> wrote:
 >
-> Responses should be made by Wed, 09 Feb 2022 13:38:34 +0000.
-> Anything received after that time might be too late.
+> On 29.1.2022 11.30, Puma Hsu wrote:
+> > When HCE(Host Controller Error) is set, it means an internal
+> > error condition has been detected. Software needs to re-initialize
+> > the HC, so add this check in xhci resume.
+> >
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Puma Hsu <pumahsu@google.com>
+> > ---
+> > v2: Follow Sergey Shtylyov <s.shtylyov@omp.ru>'s comment.
+> > v3: Add stable@vger.kernel.org for stable release.
+> > v4: Refine the commit message.
+> > v5: Add a debug log. Follow Mathias Nyman <mathias.nyman@linux.intel.com>'s comment.
+> > v6: Fix the missing declaration for str.
+> >
+> >  drivers/usb/host/xhci.c | 7 +++++--
+> >  1 file changed, 5 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+> > index dc357cabb265..6f1198068004 100644
+> > --- a/drivers/usb/host/xhci.c
+> > +++ b/drivers/usb/host/xhci.c
+> > @@ -1091,6 +1091,7 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
+> >       int                     retval = 0;
+> >       bool                    comp_timer_running = false;
+> >       bool                    pending_portevent = false;
+> > +     char                    str[XHCI_MSG_MAX];
+> >
+> >       if (!hcd->state)
+> >               return 0;
+> > @@ -1146,8 +1147,10 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
+> >               temp = readl(&xhci->op_regs->status);
+> >       }
+> >
+> > -     /* If restore operation fails, re-initialize the HC during resume */
+> > -     if ((temp & STS_SRE) || hibernated) {
+> > +     /* If restore operation fails or HC error is detected, re-initialize the HC during resume */
+> > +     if ((temp & (STS_SRE | STS_HCE)) || hibernated) {
+> > +             xhci_warn(xhci, "re-initialize HC during resume, USBSTS:%s\n",
+> > +                       xhci_decode_usbsts(str, temp));
+> >
+> >               if ((xhci->quirks & XHCI_COMP_MODE_QUIRK) &&
+> >                               !(xhci_all_ports_seen_u0(xhci))) {
+> >
+>
+> Ended up modifying this patch a bit more than I first intended,
+> - don't print warning in hibernation case, only error.
+> - maybe using a lot of stack for a debug string isn't really needed.
+> - make sure we read the usbsts register before checking for the HCE bit.
+>
+> Does the below work for you? If yes, and you agree I'll apply it instead
 
-Compiled and booted 5.16.8-rc2 on my x86_64 test system successfully without errors or regressions.
+Hi Mathias,
+Yes, your patch works for me, thanks!
+Will you submit a new patch? or should I update to a new version?
+Thanks.
 
-Tested-by: Slade Watkins <slade@sladewatkins.com>
-
-Thanks,
-Slade
+> ---
+>
+> diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+> index dc357cabb265..04ec2de158bf 100644
+> --- a/drivers/usb/host/xhci.c
+> +++ b/drivers/usb/host/xhci.c
+> @@ -1091,6 +1091,7 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
+>         int                     retval = 0;
+>         bool                    comp_timer_running = false;
+>         bool                    pending_portevent = false;
+> +       bool                    reinit_xhc = false;
+>
+>         if (!hcd->state)
+>                 return 0;
+> @@ -1107,10 +1108,11 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
+>         set_bit(HCD_FLAG_HW_ACCESSIBLE, &xhci->shared_hcd->flags);
+>
+>         spin_lock_irq(&xhci->lock);
+> -       if ((xhci->quirks & XHCI_RESET_ON_RESUME) || xhci->broken_suspend)
+> -               hibernated = true;
+>
+> -       if (!hibernated) {
+> +       if (hibernated || xhci->quirks & XHCI_RESET_ON_RESUME || xhci->broken_suspend)
+> +               reinit_xhc = true;
+> +
+> +       if (!reinit_xhc) {
+>                 /*
+>                  * Some controllers might lose power during suspend, so wait
+>                  * for controller not ready bit to clear, just as in xHC init.
+> @@ -1143,12 +1145,17 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
+>                         spin_unlock_irq(&xhci->lock);
+>                         return -ETIMEDOUT;
+>                 }
+> -               temp = readl(&xhci->op_regs->status);
+>         }
+>
+> -       /* If restore operation fails, re-initialize the HC during resume */
+> -       if ((temp & STS_SRE) || hibernated) {
+> +       temp = readl(&xhci->op_regs->status);
+> +
+> +       /* re-initialize the HC on Restore Error, or Host Controller Error */
+> +       if (temp & (STS_SRE | STS_HCE)) {
+> +               reinit_xhc = true;
+> +               xhci_warn(xhci, "xHC error in resume, USBSTS 0x%x, Reinit\n", temp);
+> +       }
+>
+> +       if (reinit_xhc) {
+>                 if ((xhci->quirks & XHCI_COMP_MODE_QUIRK) &&
+>                                 !(xhci_all_ports_seen_u0(xhci))) {
+>                         del_timer_sync(&xhci->comp_mode_recovery_timer);
+>
