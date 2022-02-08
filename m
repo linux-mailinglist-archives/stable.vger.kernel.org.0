@@ -2,55 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3421C4AD37B
-	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 09:32:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86CD34AD392
+	for <lists+stable@lfdr.de>; Tue,  8 Feb 2022 09:37:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349759AbiBHIcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Feb 2022 03:32:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60982 "EHLO
+        id S1350018AbiBHIhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Feb 2022 03:37:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239909AbiBHIcH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 03:32:07 -0500
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40042C0401F6;
-        Tue,  8 Feb 2022 00:32:05 -0800 (PST)
-X-UUID: ab91830bc8c843acbb42b2d06d77bc71-20220208
-X-UUID: ab91830bc8c843acbb42b2d06d77bc71-20220208
-Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
-        (envelope-from <ck.hu@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 629433519; Tue, 08 Feb 2022 16:32:01 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
- Tue, 8 Feb 2022 16:32:00 +0800
-Received: from mtksdccf07 (172.21.84.99) by mtkcas10.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 8 Feb 2022 16:32:00 +0800
-Message-ID: <b886b9a8a3368127be7357e8921e18358987033d.camel@mediatek.com>
-Subject: Re: [PATCH v4] drm/mediatek: mtk_dsi: Avoid EPROBE_DEFER loop with
- external bridge
-From:   CK Hu <ck.hu@mediatek.com>
-To:     AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        <dri-devel@lists.freedesktop.org>
-CC:     <chunkuang.hu@kernel.org>, <airlied@linux.ie>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        <andrzej.hajda@intel.com>, <linux-mediatek@lists.infradead.org>,
-        Jagan Teki <jagan@amarulasolutions.com>,
-        <matthias.bgg@gmail.com>, <kernel@collabora.com>,
-        <linux-arm-kernel@lists.infradead.org>
-Date:   Tue, 8 Feb 2022 16:32:00 +0800
-In-Reply-To: <20755168cc2be0d1bb5e40907cfe27cea25a9363.camel@mediatek.com>
-References: <20220131085520.287105-1-angelogioacchino.delregno@collabora.com>
-         <20755168cc2be0d1bb5e40907cfe27cea25a9363.camel@mediatek.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
+        with ESMTP id S1350014AbiBHIhw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Feb 2022 03:37:52 -0500
+Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA6E9C0401F6
+        for <stable@vger.kernel.org>; Tue,  8 Feb 2022 00:37:51 -0800 (PST)
+Received: by mail-yb1-xb36.google.com with SMTP id v186so47881318ybg.1
+        for <stable@vger.kernel.org>; Tue, 08 Feb 2022 00:37:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=IsuhTS+fbqIjZZkQVp8lZwfj5D0FFzFyP+BYoi4T2aY=;
+        b=nc/nJKMT67xSf7afuo0qsrw7uxsuMSEaRe+4+HQ92JQakbLevrRVxaxy5FeoTJ1pfL
+         oqUeVrBcyQvTc2tyxKKhC02KO61lnovMNdqTK+VVVekEsaP87A3AzDQoFKudIcqYsiuo
+         Y4zaH+1CvzADu85+0xo4NyTE1OsHSDnVjvcK56gK5MyDBXK053+SMUT8yYBH2EAW6VtV
+         V2RzWVZiPypnpZ1rNAXQJvM73x8kxhjFaof79JWcsZtkQBsgEJgBl/lqOYGbY85AAeg4
+         m5ZlXVNKOpSJco/2HRO1zVsSFL1lPbrR6yL7xGCtC8nWvqhh6YnQA/a8Uo5IwZiPh80k
+         +14g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=IsuhTS+fbqIjZZkQVp8lZwfj5D0FFzFyP+BYoi4T2aY=;
+        b=PGKdWEQD2Uwrl/zVp44haFqSPQWf32LxY1LH4KQh+2B+G/0QKjNK/kq8QF56sDGPyU
+         k4VPzRnW1mO7u4lNaCHMRZwjGe8CWhJ90h+Ss5t5R//Hd4idX3XJcmX4OcuBCIeiVhhl
+         605sOsqI1SafJhmhsn1bbPEDvCHkcXh57u4sV/dce4Ba1YpUi7IByA1kuLrC5/k/1QEt
+         Jrwj3h2xRwuN9EXKKkFGrQpLG8NmwOAIsF9/q8ZAHbwRYNsyiMJQ4KrJg7EgACGE6bvU
+         Y31YNxqodPGBqD6Yq5D6ohj16/47LYiLi3DXFjHpINsg8xjmzeuJyY98W1oCr3HxHiI8
+         Lqqg==
+X-Gm-Message-State: AOAM533rxhxPmtUdwd4AuEVYPVzjBhfMcQL/ZoaxRcNhNQk0f8LNb9mj
+        1FqR/4PSeUo5zwxVg+x9Z+8XiEVgGHG6u+ZSdgbKqg==
+X-Google-Smtp-Source: ABdhPJyqqj0kG95cuaMupOXzk0MyB+zmiuu5RMcz5TRg30Xc//9dGAfX89A4nujJ7Z/ZRWjB0ylhQamoijY0GhHJNdU=
+X-Received: by 2002:a25:1402:: with SMTP id 2mr3274089ybu.684.1644309470792;
+ Tue, 08 Feb 2022 00:37:50 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-MTK:  N
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
+References: <20220207103757.550973048@linuxfoundation.org>
+In-Reply-To: <20220207103757.550973048@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 8 Feb 2022 14:07:39 +0530
+Message-ID: <CA+G9fYvxXGkgjcWqoZPbEWPThXf-oZD6rA3fWqiQW2oD9=cFvQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/86] 4.19.228-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,181 +69,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Angelo:
+On Mon, 7 Feb 2022 at 16:45, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.228 release.
+> There are 86 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 09 Feb 2022 10:37:42 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.228-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-On Tue, 2022-02-08 at 16:20 +0800, CK Hu wrote:
-> Hi, Angelo:
-> 
-> On Mon, 2022-01-31 at 09:55 +0100, AngeloGioacchino Del Regno wrote:
-> > DRM bridge drivers are now attaching their DSI device at probe
-> > time,
-> > which requires us to register our DSI host in order to let the
-> > bridge
-> > to probe: this recently started producing an endless -EPROBE_DEFER
-> > loop on some machines that are using external bridges, like the
-> > parade-ps8640, found on the ACER Chromebook R13.
-> > 
-> > Now that the DSI hosts/devices probe sequence is documented, we can
-> > do adjustments to the mtk_dsi driver as to both fix now and make
-> > sure
-> > to avoid this situation in the future: for this, following what is
-> > documented in drm_bridge.c, move the mtk_dsi component_add() to the
-> > mtk_dsi_ops.attach callback and delete it in the detach callback;
-> > keeping in mind that we are registering a drm_bridge for our DSI,
-> > which is only used/attached if the DSI Host is bound, it wouldn't
-> > make sense to keep adding our bridge at probe time (as it would
-> > be useless to have it if mtk_dsi_ops.attach() fails!), so also move
-> > that one to the dsi host attach function (and remove it in detach).
-> > 
-> > Cc: <stable@vger.kernel.org> # 5.15.x
-> > Signed-off-by: AngeloGioacchino Del Regno <
-> > angelogioacchino.delregno@collabora.com>
-> > Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-> > Reviewed-by: Jagan Teki <jagan@amarulasolutions.com>
-> > 
-> > ---
-> >  drivers/gpu/drm/mediatek/mtk_dsi.c | 167 +++++++++++++++----------
-> > ----
-> >  1 file changed, 84 insertions(+), 83 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c
-> > b/drivers/gpu/drm/mediatek/mtk_dsi.c
-> > index 5d90d2eb0019..bced4c7d668e 100644
-> > --- a/drivers/gpu/drm/mediatek/mtk_dsi.c
-> > +++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
-> > @@ -786,18 +786,101 @@ void mtk_dsi_ddp_stop(struct device *dev)
-> >  	mtk_dsi_poweroff(dsi);
-> >  }
-> >  
-> > 
-> 
-> [snip]
-> 
-> > +
-> >  static int mtk_dsi_host_attach(struct mipi_dsi_host *host,
-> >  			       struct mipi_dsi_device *device)
-> >  {
-> >  	struct mtk_dsi *dsi = host_to_dsi(host);
-> > +	struct device *dev = host->dev;
-> > +	int ret;
-> >  
-> >  	dsi->lanes = device->lanes;
-> >  	dsi->format = device->format;
-> >  	dsi->mode_flags = device->mode_flags;
-> > +	dsi->next_bridge = devm_drm_of_get_bridge(dev, dev->of_node, 0,
-> > 0);
-> 
-> The original would process panel. Why do you remove the panel part?
-> It's better that someone has a platform of DSI->Panel to test this
-> patch.
 
-Sorry, devm_drm_of_get_bridge() has processed the panel part, so for
-this patch,
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Reviewed-by: CK Hu <ck.hu@mediatek.com>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-> 
-> Regards,
-> CK
-> 
-> > +	if (IS_ERR(dsi->next_bridge))
-> > +		return PTR_ERR(dsi->next_bridge);
-> > +
-> > +	drm_bridge_add(&dsi->bridge);
-> > +
-> > +	ret = component_add(host->dev, &mtk_dsi_component_ops);
-> > +	if (ret) {
-> > +		DRM_ERROR("failed to add dsi_host component: %d\n",
-> > ret);
-> > +		drm_bridge_remove(&dsi->bridge);
-> > +		return ret;
-> > +	}
-> >  
-> >  	return 0;
-> >  }
-> >  
-> > +static int mtk_dsi_host_detach(struct mipi_dsi_host *host,
-> > +			       struct mipi_dsi_device *device)
-> > +{
-> > +	struct mtk_dsi *dsi = host_to_dsi(host);
-> > +
-> > +	component_del(host->dev, &mtk_dsi_component_ops);
-> > +	drm_bridge_remove(&dsi->bridge);
-> > +	return 0;
-> > +}
-> > +
-> >  static void mtk_dsi_wait_for_idle(struct mtk_dsi *dsi)
-> >  {
-> >  	int ret;
-> > @@ -938,73 +1021,14 @@ static ssize_t mtk_dsi_host_transfer(struct
-> > mipi_dsi_host *host,
-> >  
-> >  static const struct mipi_dsi_host_ops mtk_dsi_ops = {
-> >  	.attach = mtk_dsi_host_attach,
-> > +	.detach = mtk_dsi_host_detach,
-> >  	.transfer = mtk_dsi_host_transfer,
-> >  };
-> >  
-> > 
-> 
-> [snip]
-> 
-> > -
-> >  static int mtk_dsi_probe(struct platform_device *pdev)
-> >  {
-> >  	struct mtk_dsi *dsi;
-> >  	struct device *dev = &pdev->dev;
-> > -	struct drm_panel *panel;
-> >  	struct resource *regs;
-> >  	int irq_num;
-> >  	int ret;
-> > @@ -1021,19 +1045,6 @@ static int mtk_dsi_probe(struct
-> > platform_device *pdev)
-> >  		return ret;
-> >  	}
-> >  
-> > -	ret = drm_of_find_panel_or_bridge(dev->of_node, 0, 0,
-> > -					  &panel, &dsi->next_bridge);
-> > -	if (ret)
-> > -		goto err_unregister_host;
-> > -
-> > -	if (panel) {
-> > -		dsi->next_bridge = devm_drm_panel_bridge_add(dev,
-> > panel);
-> > -		if (IS_ERR(dsi->next_bridge)) {
-> > -			ret = PTR_ERR(dsi->next_bridge);
-> > -			goto err_unregister_host;
-> > -		}
-> > -	}
-> > -
-> >  	dsi->driver_data = of_device_get_match_data(dev);
-> >  
-> >  	dsi->engine_clk = devm_clk_get(dev, "engine");
-> > @@ -1098,14 +1109,6 @@ static int mtk_dsi_probe(struct
-> > platform_device *pdev)
-> >  	dsi->bridge.of_node = dev->of_node;
-> >  	dsi->bridge.type = DRM_MODE_CONNECTOR_DSI;
-> >  
-> > -	drm_bridge_add(&dsi->bridge);
-> > -
-> > -	ret = component_add(&pdev->dev, &mtk_dsi_component_ops);
-> > -	if (ret) {
-> > -		dev_err(&pdev->dev, "failed to add component: %d\n",
-> > ret);
-> > -		goto err_unregister_host;
-> > -	}
-> > -
-> >  	return 0;
-> >  
-> >  err_unregister_host:
-> > @@ -1118,8 +1121,6 @@ static int mtk_dsi_remove(struct
-> > platform_device *pdev)
-> >  	struct mtk_dsi *dsi = platform_get_drvdata(pdev);
-> >  
-> >  	mtk_output_dsi_disable(dsi);
-> > -	drm_bridge_remove(&dsi->bridge);
-> > -	component_del(&pdev->dev, &mtk_dsi_component_ops);
-> >  	mipi_dsi_host_unregister(&dsi->host);
-> >  
-> >  	return 0;
+## Build
+* kernel: 4.19.228-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.19.y
+* git commit: b06b07466af8a89d8b0f135c98ada13f5f373d7a
+* git describe: v4.19.227-87-gb06b07466af8
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
+.227-87-gb06b07466af8
 
+## Test Regressions (compared to v4.19.227-54-gcc8f3cd8ea90)
+No test regressions found.
+
+## Metric Regressions (compared to v4.19.227-54-gcc8f3cd8ea90)
+No metric regressions found.
+
+## Test Fixes (compared to v4.19.227-54-gcc8f3cd8ea90)
+No test fixes found.
+
+## Metric Fixes (compared to v4.19.227-54-gcc8f3cd8ea90)
+No metric fixes found.
+
+## Test result summary
+total: 85003, pass: 69288, fail: 738, skip: 13031, xfail: 1946
+
+## Build Summary
+* arm: 250 total, 246 passed, 4 failed
+* arm64: 35 total, 35 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 19 total, 19 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 26 total, 26 passed, 0 failed
+* powerpc: 52 total, 48 passed, 4 failed
+* s390: 12 total, 12 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 34 total, 34 passed, 0 failed
+
+## Test suites summary
+* fwts
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
