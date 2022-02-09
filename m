@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2A1E4AFB40
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:44:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5985C4AFB37
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:44:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238088AbiBISom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:44:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34816 "EHLO
+        id S240406AbiBISol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:44:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240553AbiBISny (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:43:54 -0500
+        with ESMTP id S240508AbiBISn6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:43:58 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8B77C094CA5;
-        Wed,  9 Feb 2022 10:42:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D9D4C094CAE;
+        Wed,  9 Feb 2022 10:42:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2A65B821BD;
+        by ams.source.kernel.org (Postfix) with ESMTPS id E84B8B82381;
+        Wed,  9 Feb 2022 18:42:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92E95C340E9;
         Wed,  9 Feb 2022 18:42:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8BA5C340ED;
-        Wed,  9 Feb 2022 18:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432148;
-        bh=suJKmzrOF/tZPhzi4HoXLU0tOFV3oTTcddXjrt1lGu8=;
+        s=k20201202; t=1644432150;
+        bh=PuqeZjP8n5+z4Xnrox4z6+i3H+J6DathD7t+AFuJ8nM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pl2coBZ2wriT7RDsF6Lr82T5oDBnQMVgQwVwE6sN8+/Hy1C7p9mUqiwYTY1fknctX
-         /0vLr3pChnLSDxSxM5UXBOoTwFXGDk4ID2GkSHRTbDklpmCDVfEXTXIu4LU/KH1WXn
-         tOX8Lomx75UpU7GlhBhfsb3uAxNXodVUE1OfXDCilAxPm/VxUV+FzFuH3SSpKpUHNP
-         jEjQgA0rQrxKh2XnO2Urn54ia4ACY6SQZGRuASMBYBYaeTlc3UIMQAno+Sb84rIPlv
-         GxHe4wVdDY1g1P7oUzu4gwlec4kaEcS3bMgisY6RnYtTgZd2rO1YZ3O5IPHZ5/cyoe
-         QjrYlKNmwVuYQ==
+        b=UX4sncMWVWClF91jocd99ZJXKWxDAT5118WzUblr6zoiJWKyV47nVJ51tUwXja3r1
+         Xt326J1Kzhbz0I0ECdE3YXK8qntowF/+g6Qsrb8VcV9zZp+pwfTZEFdwf6RCFFwLF4
+         Vjkfaq6TMTVmQClczbWvfx3YBCToUqD7vGC1po7V7gh6jPQaND8RLXn6OZQsJXPNcQ
+         90+GgXbBxnNieLBf92dNoUl5h0W1wBHHUNlBl3sOO/WmxS1GsFUX7cXEv40ZIkNGvx
+         qW+nQKaKrmRxTDa5208CZ+3V0CPpS8r6LrrOdK/mkL2937QmIH0WJkhqFESj3pKN4U
+         WZRXF9Khci0lw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vijayanand Jitta <quic_vjitta@quicinc.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>, joro@8bytes.org,
-        will@kernel.org, iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.10 17/27] iommu: Fix potential use-after-free during probe
-Date:   Wed,  9 Feb 2022 13:40:53 -0500
-Message-Id: <20220209184103.47635-17-sashal@kernel.org>
+Cc:     John Garry <john.garry@huawei.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jinpu.wang@cloud.ionos.com,
+        jejb@linux.ibm.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 18/27] scsi: pm8001: Fix use-after-free for aborted TMF sas_task
+Date:   Wed,  9 Feb 2022 13:40:54 -0500
+Message-Id: <20220209184103.47635-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209184103.47635-1-sashal@kernel.org>
 References: <20220209184103.47635-1-sashal@kernel.org>
@@ -58,147 +59,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijayanand Jitta <quic_vjitta@quicinc.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit b54240ad494300ff0994c4539a531727874381f4 ]
+[ Upstream commit 61f162aa4381845acbdc7f2be4dfb694d027c018 ]
 
-Kasan has reported the following use after free on dev->iommu.
-when a device probe fails and it is in process of freeing dev->iommu
-in dev_iommu_free function, a deferred_probe_work_func runs in parallel
-and tries to access dev->iommu->fwspec in of_iommu_configure path thus
-causing use after free.
+Currently a use-after-free may occur if a TMF sas_task is aborted before we
+handle the IO completion in mpi_ssp_completion(). The abort occurs due to
+timeout.
 
-BUG: KASAN: use-after-free in of_iommu_configure+0xb4/0x4a4
-Read of size 8 at addr ffffff87a2f1acb8 by task kworker/u16:2/153
+When the timeout occurs, the SAS_TASK_STATE_ABORTED flag is set and the
+sas_task is freed in pm8001_exec_internal_tmf_task().
 
-Workqueue: events_unbound deferred_probe_work_func
-Call trace:
- dump_backtrace+0x0/0x33c
- show_stack+0x18/0x24
- dump_stack_lvl+0x16c/0x1e0
- print_address_description+0x84/0x39c
- __kasan_report+0x184/0x308
- kasan_report+0x50/0x78
- __asan_load8+0xc0/0xc4
- of_iommu_configure+0xb4/0x4a4
- of_dma_configure_id+0x2fc/0x4d4
- platform_dma_configure+0x40/0x5c
- really_probe+0x1b4/0xb74
- driver_probe_device+0x11c/0x228
- __device_attach_driver+0x14c/0x304
- bus_for_each_drv+0x124/0x1b0
- __device_attach+0x25c/0x334
- device_initial_probe+0x24/0x34
- bus_probe_device+0x78/0x134
- deferred_probe_work_func+0x130/0x1a8
- process_one_work+0x4c8/0x970
- worker_thread+0x5c8/0xaec
- kthread+0x1f8/0x220
- ret_from_fork+0x10/0x18
+However, if the I/O completion occurs later, the I/O completion still
+thinks that the sas_task is available. Fix this by clearing the ccb->task
+if the TMF times out - the I/O completion handler does nothing if this
+pointer is cleared.
 
-Allocated by task 1:
- ____kasan_kmalloc+0xd4/0x114
- __kasan_kmalloc+0x10/0x1c
- kmem_cache_alloc_trace+0xe4/0x3d4
- __iommu_probe_device+0x90/0x394
- probe_iommu_group+0x70/0x9c
- bus_for_each_dev+0x11c/0x19c
- bus_iommu_probe+0xb8/0x7d4
- bus_set_iommu+0xcc/0x13c
- arm_smmu_bus_init+0x44/0x130 [arm_smmu]
- arm_smmu_device_probe+0xb88/0xc54 [arm_smmu]
- platform_drv_probe+0xe4/0x13c
- really_probe+0x2c8/0xb74
- driver_probe_device+0x11c/0x228
- device_driver_attach+0xf0/0x16c
- __driver_attach+0x80/0x320
- bus_for_each_dev+0x11c/0x19c
- driver_attach+0x38/0x48
- bus_add_driver+0x1dc/0x3a4
- driver_register+0x18c/0x244
- __platform_driver_register+0x88/0x9c
- init_module+0x64/0xff4 [arm_smmu]
- do_one_initcall+0x17c/0x2f0
- do_init_module+0xe8/0x378
- load_module+0x3f80/0x4a40
- __se_sys_finit_module+0x1a0/0x1e4
- __arm64_sys_finit_module+0x44/0x58
- el0_svc_common+0x100/0x264
- do_el0_svc+0x38/0xa4
- el0_svc+0x20/0x30
- el0_sync_handler+0x68/0xac
- el0_sync+0x160/0x180
-
-Freed by task 1:
- kasan_set_track+0x4c/0x84
- kasan_set_free_info+0x28/0x4c
- ____kasan_slab_free+0x120/0x15c
- __kasan_slab_free+0x18/0x28
- slab_free_freelist_hook+0x204/0x2fc
- kfree+0xfc/0x3a4
- __iommu_probe_device+0x284/0x394
- probe_iommu_group+0x70/0x9c
- bus_for_each_dev+0x11c/0x19c
- bus_iommu_probe+0xb8/0x7d4
- bus_set_iommu+0xcc/0x13c
- arm_smmu_bus_init+0x44/0x130 [arm_smmu]
- arm_smmu_device_probe+0xb88/0xc54 [arm_smmu]
- platform_drv_probe+0xe4/0x13c
- really_probe+0x2c8/0xb74
- driver_probe_device+0x11c/0x228
- device_driver_attach+0xf0/0x16c
- __driver_attach+0x80/0x320
- bus_for_each_dev+0x11c/0x19c
- driver_attach+0x38/0x48
- bus_add_driver+0x1dc/0x3a4
- driver_register+0x18c/0x244
- __platform_driver_register+0x88/0x9c
- init_module+0x64/0xff4 [arm_smmu]
- do_one_initcall+0x17c/0x2f0
- do_init_module+0xe8/0x378
- load_module+0x3f80/0x4a40
- __se_sys_finit_module+0x1a0/0x1e4
- __arm64_sys_finit_module+0x44/0x58
- el0_svc_common+0x100/0x264
- do_el0_svc+0x38/0xa4
- el0_svc+0x20/0x30
- el0_sync_handler+0x68/0xac
- el0_sync+0x160/0x180
-
-Fix this by setting dev->iommu to NULL first and
-then freeing dev_iommu structure in dev_iommu_free
-function.
-
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Vijayanand Jitta <quic_vjitta@quicinc.com>
-Link: https://lore.kernel.org/r/1643613155-20215-1-git-send-email-quic_vjitta@quicinc.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Link: https://lore.kernel.org/r/1643289172-165636-3-git-send-email-john.garry@huawei.com
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Acked-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iommu.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/scsi/pm8001/pm8001_sas.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index bcf060b5cf85b..9d65557dfb2ce 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -185,9 +185,14 @@ static struct dev_iommu *dev_iommu_get(struct device *dev)
- 
- static void dev_iommu_free(struct device *dev)
- {
--	iommu_fwspec_free(dev);
--	kfree(dev->iommu);
-+	struct dev_iommu *param = dev->iommu;
+diff --git a/drivers/scsi/pm8001/pm8001_sas.c b/drivers/scsi/pm8001/pm8001_sas.c
+index c3bb58885033b..75ac4d86d9c4b 100644
+--- a/drivers/scsi/pm8001/pm8001_sas.c
++++ b/drivers/scsi/pm8001/pm8001_sas.c
+@@ -753,8 +753,13 @@ static int pm8001_exec_internal_tmf_task(struct domain_device *dev,
+ 		res = -TMF_RESP_FUNC_FAILED;
+ 		/* Even TMF timed out, return direct. */
+ 		if (task->task_state_flags & SAS_TASK_STATE_ABORTED) {
++			struct pm8001_ccb_info *ccb = task->lldd_task;
 +
- 	dev->iommu = NULL;
-+	if (param->fwspec) {
-+		fwnode_handle_put(param->fwspec->iommu_fwnode);
-+		kfree(param->fwspec);
-+	}
-+	kfree(param);
- }
+ 			pm8001_dbg(pm8001_ha, FAIL, "TMF task[%x]timeout.\n",
+ 				   tmf->tmf);
++
++			if (ccb)
++				ccb->task = NULL;
+ 			goto ex_err;
+ 		}
  
- static int __iommu_probe_device(struct device *dev, struct list_head *group_list)
 -- 
 2.34.1
 
