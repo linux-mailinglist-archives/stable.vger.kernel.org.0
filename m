@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FC084AFC3B
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:58:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBBB04AFC5A
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:58:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241379AbiBIS5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:57:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59370 "EHLO
+        id S241421AbiBIS5k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:57:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238358AbiBIS5J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:57:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BB09C050CCF;
-        Wed,  9 Feb 2022 10:57:12 -0800 (PST)
+        with ESMTP id S241450AbiBIS5N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:57:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E28C050CD3;
+        Wed,  9 Feb 2022 10:57:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DBA93B82378;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 986E8B82386;
+        Wed,  9 Feb 2022 18:57:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 131B0C340EE;
         Wed,  9 Feb 2022 18:57:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54D8EC340E7;
-        Wed,  9 Feb 2022 18:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644433029;
-        bh=HdxsNJrs1dfFv6By4Y8htW+gcjuci9yJxmsfAA5eDYQ=;
+        s=k20201202; t=1644433032;
+        bh=TyD2aMjxLMkZUzR4ycHZFT9SUVAGZ7tCb5EfJ04mpnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lc071oJPHGtBh7Z2zdrHsaDVlydwFMZDFjP+AdyhIc6oa6ehRgyi3B0v0M1NqVlVc
-         yZKoyx6ym+lINULAojQAfnO55d29YUSKkZv503sd3kKfvy6WUsEt4PEkd8/152sU2l
-         CKZohJDqVfxpFoGKelaw0ThXj7zjc3iPM8D+gv7WqAeNDskz/plfGGJixH0zvG43zz
-         YhWBbvGhZ5NcjFmCt5l/X2wvd8F2QjxZgttMPtb/GDSUnfeJPckKeJg7Dp6Z/Cp6es
-         KEwtSyzgaQKXvsKIRO5QDEp0wLC9iMrf8lljbWKXVIHyp0jrTA5Q2l8tGwJutYdDHJ
-         4RxW4M0d5ri0w==
+        b=JVblF0VZsjEITi4STb8jsL+0lu7RM6DApmzo9wYvxk2X2v2LX0ZySTZqg75Y5RQIm
+         caGhRbAoSOFEIUbTvPs8Rh5bG0bWzqUQjOhhXLU10GQ2PQBsWKFEHga4AnffFfdPlI
+         bMy4a118D9PDDRS3GBCf96glWKMcdjvq1vIqGGdwfqD5beGUqdbkdidMQbF12egXp8
+         oCQiK+MflocQsq+k+EBjaDTnfggvzTVLhbiHSPRNIyZ1rdVLKIST3LQbXYkg2+kOwC
+         0C52XpAzVZBvELAjThRK3fg0ASmNPuk16k1gGntVxI5kibBKB0TfzITS4r9HqHOCiU
+         0ee55MS8RFL0g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Christopherson <seanjc@google.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Alexander Graf <graf@amazon.de>,
+Cc:     Jim Mattson <jmattson@google.com>,
+        Aaron Lewis <aaronlewis@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
         mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
         x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.15 7/8] KVM: VMX: Set vmcs.PENDING_DBG.BS on #DB in STI/MOVSS blocking shadow
-Date:   Wed,  9 Feb 2022 13:56:52 -0500
-Message-Id: <20220209185653.48833-7-sashal@kernel.org>
+Subject: [PATCH MANUALSEL 5.15 8/8] KVM: x86: Report deprecated x87 features in supported CPUID
+Date:   Wed,  9 Feb 2022 13:56:53 -0500
+Message-Id: <20220209185653.48833-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209185653.48833-1-sashal@kernel.org>
 References: <20220209185653.48833-1-sashal@kernel.org>
@@ -60,99 +59,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Jim Mattson <jmattson@google.com>
 
-[ Upstream commit b9bed78e2fa9571b7c983b20666efa0009030c71 ]
+[ Upstream commit e3bcfda012edd3564e12551b212afbd2521a1f68 ]
 
-Set vmcs.GUEST_PENDING_DBG_EXCEPTIONS.BS, a.k.a. the pending single-step
-breakpoint flag, when re-injecting a #DB with RFLAGS.TF=1, and STI or
-MOVSS blocking is active.  Setting the flag is necessary to make VM-Entry
-consistency checks happy, as VMX has an invariant that if RFLAGS.TF is
-set and STI/MOVSS blocking is true, then the previous instruction must
-have been STI or MOV/POP, and therefore a single-step #DB must be pending
-since the RFLAGS.TF cannot have been set by the previous instruction,
-i.e. the one instruction delay after setting RFLAGS.TF must have already
-expired.
+CPUID.(EAX=7,ECX=0):EBX.FDP_EXCPTN_ONLY[bit 6] and
+CPUID.(EAX=7,ECX=0):EBX.ZERO_FCS_FDS[bit 13] are "defeature"
+bits. Unlike most of the other CPUID feature bits, these bits are
+clear if the features are present and set if the features are not
+present. These bits should be reported in KVM_GET_SUPPORTED_CPUID,
+because if these bits are set on hardware, they cannot be cleared in
+the guest CPUID. Doing so would claim guest support for a feature that
+the hardware doesn't support and that can't be efficiently emulated.
 
-Normally, the CPU sets vmcs.GUEST_PENDING_DBG_EXCEPTIONS.BS appropriately
-when recording guest state as part of a VM-Exit, but #DB VM-Exits
-intentionally do not treat the #DB as "guest state" as interception of
-the #DB effectively makes the #DB host-owned, thus KVM needs to manually
-set PENDING_DBG.BS when forwarding/re-injecting the #DB to the guest.
+Of course, any software (e.g WIN87EM.DLL) expecting these features to
+be present likely predates these CPUID feature bits and therefore
+doesn't know to check for them anyway.
 
-Note, although this bug can be triggered by guest userspace, doing so
-requires IOPL=3, and guest userspace running with IOPL=3 has full access
-to all I/O ports (from the guest's perspective) and can crash/reboot the
-guest any number of ways.  IOPL=3 is required because STI blocking kicks
-in if and only if RFLAGS.IF is toggled 0=>1, and if CPL>IOPL, STI either
-takes a #GP or modifies RFLAGS.VIF, not RFLAGS.IF.
+Aaron Lewis added the corresponding X86_FEATURE macros in
+commit cbb99c0f5887 ("x86/cpufeatures: Add FDP_EXCPTN_ONLY and
+ZERO_FCS_FDS"), with the intention of reporting these bits in
+KVM_GET_SUPPORTED_CPUID, but I was unable to find a proposed patch on
+the kvm list.
 
-MOVSS blocking can be initiated by userspace, but can be coincident with
-a #DB if and only if DR7.GD=1 (General Detect enabled) and a MOV DR is
-executed in the MOVSS shadow.  MOV DR #GPs at CPL>0, thus MOVSS blocking
-is problematic only for CPL0 (and only if the guest is crazy enough to
-access a DR in a MOVSS shadow).  All other sources of #DBs are either
-suppressed by MOVSS blocking (single-step, code fetch, data, and I/O),
-are mutually exclusive with MOVSS blocking (T-bit task switch), or are
-already handled by KVM (ICEBP, a.k.a. INT1).
+Opportunistically reordered the CPUID_7_0_EBX capability bits from
+least to most significant.
 
-This bug was originally found by running tests[1] created for XSA-308[2].
-Note that Xen's userspace test emits ICEBP in the MOVSS shadow, which is
-presumably why the Xen bug was deemed to be an exploitable DOS from guest
-userspace.  KVM already handles ICEBP by skipping the ICEBP instruction
-and thus clears MOVSS blocking as a side effect of its "emulation".
-
-[1] http://xenbits.xenproject.org/docs/xtf/xsa-308_2main_8c_source.html
-[2] https://xenbits.xen.org/xsa/advisory-308.html
-
-Reported-by: David Woodhouse <dwmw2@infradead.org>
-Reported-by: Alexander Graf <graf@amazon.de>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220120000624.655815-1-seanjc@google.com>
+Cc: Aaron Lewis <aaronlewis@google.com>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Message-Id: <20220204001348.2844660-1-jmattson@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ arch/x86/kvm/cpuid.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 2ab0e997e39fa..44da933a756b3 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -4791,8 +4791,33 @@ static int handle_exception_nmi(struct kvm_vcpu *vcpu)
- 		dr6 = vmx_get_exit_qual(vcpu);
- 		if (!(vcpu->guest_debug &
- 		      (KVM_GUESTDBG_SINGLESTEP | KVM_GUESTDBG_USE_HW_BP))) {
-+			/*
-+			 * If the #DB was due to ICEBP, a.k.a. INT1, skip the
-+			 * instruction.  ICEBP generates a trap-like #DB, but
-+			 * despite its interception control being tied to #DB,
-+			 * is an instruction intercept, i.e. the VM-Exit occurs
-+			 * on the ICEBP itself.  Note, skipping ICEBP also
-+			 * clears STI and MOVSS blocking.
-+			 *
-+			 * For all other #DBs, set vmcs.PENDING_DBG_EXCEPTIONS.BS
-+			 * if single-step is enabled in RFLAGS and STI or MOVSS
-+			 * blocking is active, as the CPU doesn't set the bit
-+			 * on VM-Exit due to #DB interception.  VM-Entry has a
-+			 * consistency check that a single-step #DB is pending
-+			 * in this scenario as the previous instruction cannot
-+			 * have toggled RFLAGS.TF 0=>1 (because STI and POP/MOV
-+			 * don't modify RFLAGS), therefore the one instruction
-+			 * delay when activating single-step breakpoints must
-+			 * have already expired.  Note, the CPU sets/clears BS
-+			 * as appropriate for all other VM-Exits types.
-+			 */
- 			if (is_icebp(intr_info))
- 				WARN_ON(!skip_emulated_instruction(vcpu));
-+			else if ((vmx_get_rflags(vcpu) & X86_EFLAGS_TF) &&
-+				 (vmcs_read32(GUEST_INTERRUPTIBILITY_INFO) &
-+				  (GUEST_INTR_STATE_STI | GUEST_INTR_STATE_MOV_SS)))
-+				vmcs_writel(GUEST_PENDING_DBG_EXCEPTIONS,
-+					    vmcs_readl(GUEST_PENDING_DBG_EXCEPTIONS) | DR6_BS);
+diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
+index f666fd79d8ad6..5f1d4a5aa8716 100644
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -421,12 +421,13 @@ void kvm_set_cpu_caps(void)
+ 	);
  
- 			kvm_queue_exception_p(vcpu, DB_VECTOR, dr6);
- 			return 1;
+ 	kvm_cpu_cap_mask(CPUID_7_0_EBX,
+-		F(FSGSBASE) | F(SGX) | F(BMI1) | F(HLE) | F(AVX2) | F(SMEP) |
+-		F(BMI2) | F(ERMS) | F(INVPCID) | F(RTM) | 0 /*MPX*/ | F(RDSEED) |
+-		F(ADX) | F(SMAP) | F(AVX512IFMA) | F(AVX512F) | F(AVX512PF) |
+-		F(AVX512ER) | F(AVX512CD) | F(CLFLUSHOPT) | F(CLWB) | F(AVX512DQ) |
+-		F(SHA_NI) | F(AVX512BW) | F(AVX512VL) | 0 /*INTEL_PT*/
+-	);
++		F(FSGSBASE) | F(SGX) | F(BMI1) | F(HLE) | F(AVX2) |
++		F(FDP_EXCPTN_ONLY) | F(SMEP) | F(BMI2) | F(ERMS) | F(INVPCID) |
++		F(RTM) | F(ZERO_FCS_FDS) | 0 /*MPX*/ | F(AVX512F) |
++		F(AVX512DQ) | F(RDSEED) | F(ADX) | F(SMAP) | F(AVX512IFMA) |
++		F(CLFLUSHOPT) | F(CLWB) | 0 /*INTEL_PT*/ | F(AVX512PF) |
++		F(AVX512ER) | F(AVX512CD) | F(SHA_NI) | F(AVX512BW) |
++		F(AVX512VL));
+ 
+ 	kvm_cpu_cap_mask(CPUID_7_ECX,
+ 		F(AVX512VBMI) | F(LA57) | F(PKU) | 0 /*OSPKE*/ | F(RDPID) |
 -- 
 2.34.1
 
