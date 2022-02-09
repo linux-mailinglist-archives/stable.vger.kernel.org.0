@@ -2,74 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6539A4AEEE7
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 11:06:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56EA34AF04E
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 12:57:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233468AbiBIKGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 05:06:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52516 "EHLO
+        id S231701AbiBIL5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 06:57:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233109AbiBIKGJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 05:06:09 -0500
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1412AE0F7598
-        for <stable@vger.kernel.org>; Wed,  9 Feb 2022 02:05:29 -0800 (PST)
-Received: by mail-pf1-x435.google.com with SMTP id i21so1899326pfd.13
-        for <stable@vger.kernel.org>; Wed, 09 Feb 2022 02:05:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=1wTIjLivrgPfop/XqqzPH2ki4x3bw9zR7SXERTNkUpE=;
-        b=u0bP8AcW4JKB6uFPlD/6EvDc6OH2J6/QxPLfzzO9DCbpuvMHItjEAFwH7YyYYboBw6
-         n704pOV6iN12VEXGWjdJAy8jLxl2JVi8CyjVBv7b97FDS4qM44lN84ibhSIYL2xS2+Rl
-         4c30rMEmepmRtjGts85Joc+ChxcZtmQLpAA22EJEktgcysoVikUTInL7Wxg/mMWkGgxe
-         3qlIEGaCahMU78Rd7mFpd2odqQfmFdsBd9K3+EpiySbUVzR+7Opwp3mwluvWBngpJlwG
-         xxSj1WM4DdwS2vNRi64NO5hMpHnso/HUg7cS7v9/U+eUJPjJgRE0RRvmSRGQTm3/cmTe
-         npfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=1wTIjLivrgPfop/XqqzPH2ki4x3bw9zR7SXERTNkUpE=;
-        b=qYPAfmf17dC11/NjLYo68pdiCQu0ukKZ12fcyg9aOUh14vmgM/eFaeZPv1TbC2vlxv
-         2JMzm8maBAtf9i9WBYzTgyKrxAdyB/itwcSV6PXExbEwxDliTfcS7IyjWAUmiQQlZXeY
-         4X2BdXDHVOHirRUlW4iwV9PVr6mR8PPdFJBKfEbrNNWVY9Cmq/SaWzwrvorBLnQdTuWf
-         HuqzKW8CYubZk/AKvrBeUcEGV+Dqc6fSTkduBFcuBK/+R1s29ZI4l14TS150P/v1f0iN
-         c5PDFYSgN1SJTSmQZb/d7Ipd6spIGy3xcqAkNB0hdLNfhEiT14ZzNXnxQRWU7s4bAjqd
-         zWaw==
-X-Gm-Message-State: AOAM533w59clEmVC9crf0P+QDrIokRzNnjg+6E6D4ZhRjv3sNi+PFThi
-        +VIG8T+Hj1Oa1BXm1P6jGiov
-X-Google-Smtp-Source: ABdhPJwimw0vUk+r3YV1nDhN9CvOyCMAaHzUFNankW6HvnxTLCRTmuCcdkUNnGtmQeAXMU19hUmhPA==
-X-Received: by 2002:a63:d14c:: with SMTP id c12mr1292263pgj.300.1644401113548;
-        Wed, 09 Feb 2022 02:05:13 -0800 (PST)
-Received: from localhost.localdomain ([117.217.179.178])
-        by smtp.gmail.com with ESMTPSA id p2sm6722024pfo.125.2022.02.09.02.05.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Feb 2022 02:05:13 -0800 (PST)
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     mhi@lists.linux.dev
-Cc:     quic_hemantk@quicinc.com, quic_bbhatt@quicinc.com,
-        quic_jhugo@quicinc.com, vinod.koul@linaro.org,
-        bjorn.andersson@linaro.org, dmitry.baryshkov@linaro.org,
-        vbadigan@codeaurora.org, quic_cang@quicinc.com,
-        quic_skananth@quicinc.com, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, elder@linaro.org,
-        Paul Davey <paul.davey@alliedtelesis.co.nz>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Hemant Kumar <hemantk@codeaurora.org>, stable@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH v2 01/23] bus: mhi: Fix pm_state conversion to string
-Date:   Wed,  9 Feb 2022 15:26:02 +0530
-Message-Id: <20220209095624.26389-2-manivannan.sadhasivam@linaro.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220209095624.26389-1-manivannan.sadhasivam@linaro.org>
-References: <20220209095624.26389-1-manivannan.sadhasivam@linaro.org>
+        with ESMTP id S231818AbiBIL4G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 06:56:06 -0500
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3AAEE03E231;
+        Wed,  9 Feb 2022 02:56:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644404201; x=1675940201;
+  h=to:cc:references:from:subject:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=W/ACr337dCWxZ64atnDXrvUA4xLsoa1IEFVrCd8GQkg=;
+  b=Gzx/SQzb6dbXgj88lUo6DajTK4slC/uXScqj3biG0Vge3JEzC98lC3uk
+   RM2GYo5571PRBN9RwVtx0VD/Zu7WiRloIPkNoFeRlN8JtljFAx198I6VW
+   ltHWBkLe0aK2sufNjV0tqLSV4rcvQfcRWdNOG1tf+kfBSLuwSeORYeEem
+   87bOw3zvNE9OKWgM8SCJ6Ucw/ssvF98WbuN4qrkfgHBRC6xTGvuWBULcq
+   rDqZBigRTrB4jItnlnqMfnOkjgi6co1gMqefMDPQKoIdVkle1ce2CkT3m
+   MhOtr35XzYIpObiBcynOqcF/wtnighFDJA4JVEk9D3mAVo0raJ425kCUd
+   A==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10252"; a="229135463"
+X-IronPort-AV: E=Sophos;i="5.88,355,1635231600"; 
+   d="scan'208";a="229135463"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Feb 2022 01:27:50 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,355,1635231600"; 
+   d="scan'208";a="568178958"
+Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.199]) ([10.237.72.199])
+  by orsmga001.jf.intel.com with ESMTP; 09 Feb 2022 01:27:47 -0800
+To:     Hongyu Xie <xy521521@gmail.com>, gregkh@linuxfoundation.org,
+        mathias.nyman@intel.com
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Hongyu Xie <xiehongyu1@kylinos.cn>, stable@vger.kernel.org
+References: <20220209025234.25230-1-xy521521@gmail.com>
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: Re: [PATCH -next v2] xhci: fix two places when dealing with return
+ value of function xhci_check_args
+Message-ID: <89d59749-8ca3-b30b-4da6-a6e567528d1b@linux.intel.com>
+Date:   Wed, 9 Feb 2022 11:29:22 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.14.0
 MIME-Version: 1.0
+In-Reply-To: <20220209025234.25230-1-xy521521@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,53 +64,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Davey <paul.davey@alliedtelesis.co.nz>
+On 9.2.2022 4.52, Hongyu Xie wrote:
+> From: Hongyu Xie <xiehongyu1@kylinos.cn>
+> 
+> xhci_check_args returns 4 types of value, -ENODEV, -EINVAL, 1 and 0.
+> xhci_urb_enqueue and xhci_check_streams_endpoint return -EINVAL if
+> the return value of xhci_check_args <= 0.
+> This will cause a problem.
+> For example, r8152_submit_rx calling usb_submit_urb in
+> drivers/net/usb/r8152.c.
+> r8152_submit_rx will never get -ENODEV after submiting an urb
+> when xHC is halted,
+> because xhci_urb_enqueue returns -EINVAL in the very beginning.
+> 
+> Fixes: 203a86613fb3 ("xhci: Avoid NULL pointer deref when host dies.")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Hongyu Xie <xiehongyu1@kylinos.cn>
+> ---
 
-On big endian architectures the mhi debugfs files which report pm state
-give "Invalid State" for all states.  This is caused by using
-find_last_bit which takes an unsigned long* while the state is passed in
-as an enum mhi_pm_state which will be of int size.
+Thanks, added to queue.
+Changed the commit message and header a bit:
 
-Fix by using __fls to pass the value of state instead of find_last_bit.
+"xhci: Prevent futile URB re-submissions due to incorrect return value.
+    
+The -ENODEV return value from xhci_check_args() is incorrectly changed
+to -EINVAL in a couple places before propagated further.
+    
+xhci_check_args() returns 4 types of value, -ENODEV, -EINVAL, 1 and 0.
+xhci_urb_enqueue and xhci_check_streams_endpoint return -EINVAL if
+the return value of xhci_check_args <= 0.
+This causes problems for example r8152_submit_rx, calling usb_submit_urb
+in drivers/net/usb/r8152.c.
+r8152_submit_rx will never get -ENODEV after submiting an urb when xHC
+is halted because xhci_urb_enqueue returns -EINVAL in the very beginning."
 
-Fixes: a6e2e3522f29 ("bus: mhi: core: Add support for PM state transitions")
-Signed-off-by: Paul Davey <paul.davey@alliedtelesis.co.nz>
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
-Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
----
- drivers/bus/mhi/core/init.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+Let me know if you disagree with this.
 
-diff --git a/drivers/bus/mhi/core/init.c b/drivers/bus/mhi/core/init.c
-index 046f407dc5d6..0d588b60929e 100644
---- a/drivers/bus/mhi/core/init.c
-+++ b/drivers/bus/mhi/core/init.c
-@@ -79,10 +79,12 @@ static const char * const mhi_pm_state_str[] = {
- 
- const char *to_mhi_pm_state_str(enum mhi_pm_state state)
- {
--	unsigned long pm_state = state;
--	int index = find_last_bit(&pm_state, 32);
-+	int index;
- 
--	if (index >= ARRAY_SIZE(mhi_pm_state_str))
-+	if (state)
-+		index = __fls(state);
-+
-+	if (!state || index >= ARRAY_SIZE(mhi_pm_state_str))
- 		return "Invalid State";
- 
- 	return mhi_pm_state_str[index];
-@@ -789,7 +791,6 @@ static int parse_ch_cfg(struct mhi_controller *mhi_cntrl,
- 		mhi_chan->offload_ch = ch_cfg->offload_channel;
- 		mhi_chan->db_cfg.reset_req = ch_cfg->doorbell_mode_switch;
- 		mhi_chan->pre_alloc = ch_cfg->auto_queue;
--		mhi_chan->wake_capable = ch_cfg->wake_capable;
- 
- 		/*
- 		 * If MHI host allocates buffers, then the channel direction
--- 
-2.25.1
-
+Thanks
+-Mathias
