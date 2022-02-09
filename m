@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B1F4AFB79
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:47:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C39B34AFB88
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:47:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240666AbiBISr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:47:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43514 "EHLO
+        id S240829AbiBISr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:47:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241273AbiBISqh (ORCPT
+        with ESMTP id S241271AbiBISqh (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:46:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF88BC0302C1;
-        Wed,  9 Feb 2022 10:43:54 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56562C033259;
+        Wed,  9 Feb 2022 10:43:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F00C611B8;
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA902B82380;
+        Wed,  9 Feb 2022 18:43:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0EDBC340E9;
         Wed,  9 Feb 2022 18:43:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D1FEC36AE2;
-        Wed,  9 Feb 2022 18:43:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432228;
-        bh=GzgRzBVPN10UsBMAviLvVNgKxRB0wrMMqXuJINL/qbI=;
+        s=k20201202; t=1644432230;
+        bh=NF7bdpEtaimpaeLESco45AbjdDq6hHf0+u3NDa3F2lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHCSofJWcyOe2GvNvx8YtwkZ+PdCmq+joNn9pkiC7/vO9oW4sdtyU7ADkx5S9HLqw
-         SXXWRLibyKsZTLe4tzdbtWc8K37JQv+RVjaj33ftBlmHyjkFqpPuogqv5Xj4PFKRdJ
-         KXf3179JemfolFQLSblZ/fWGnLBAyas98y2c8xRveoY3Jlia7i/FvAGR0IeGmI7rTF
-         tILnKnz6t4PwEdeHBbe27LE/q19Noy5eQRCkqSSqin2pvO62OBuVUcm+6IgFdGpy4a
-         UiZUbmLASr87hVHqAWs+odXxZvFOLUAq21qA25FAm+0vilGa0yYhcmYzWhxnNUKimu
-         IpSpWvnLQKRlQ==
+        b=kxn7pHNRoELDApvPska0m3txiJVXoAo3mGYwanxt3sF5rxxVBIN3g5kmj0geek1K4
+         oA3HM6DoqwVHUfIMi4IsM8nKg5YFvbVKXViMZWclJSYbQbCpMoZNnF4XyYOVvC6sUf
+         tvHCWA5MSUz/zdyx1WSQ7X0zqu8qGe03BobQE6Co/TgT71Rmbt4B7kzfZPrZL53nZQ
+         Qrz4lV1ZgUjsP7eugS0HJfcbkrEh5obj8ZAcbaSjxkrSJj4tayn5lTzs8drj08pGur
+         +BN9dEuSFCvjRP8HDiIldd2t2iNSTi0FvUh5Q9gumGRdYj2uTy3BZ2xUg8TRaVzTdI
+         1jmlhaedcm2qg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>, Sasha Levin <sashal@kernel.org>,
-        kbusch@kernel.org, axboe@fb.com, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 11/15] nvme: fix a possible use-after-free in controller reset during load
-Date:   Wed,  9 Feb 2022 13:42:57 -0500
-Message-Id: <20220209184305.47983-11-sashal@kernel.org>
+Cc:     Sagi Grimberg <sagi@grimberg.me>, Chris Leech <cleech@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
+        axboe@fb.com, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 12/15] nvme-tcp: fix possible use-after-free in transport error_recovery work
+Date:   Wed,  9 Feb 2022 13:42:58 -0500
+Message-Id: <20220209184305.47983-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209184305.47983-1-sashal@kernel.org>
 References: <20220209184305.47983-1-sashal@kernel.org>
@@ -57,59 +58,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 0fa0f99fc84e41057cbdd2efbfe91c6b2f47dd9d ]
+[ Upstream commit ff9fc7ebf5c06de1ef72a69f9b1ab40af8b07f9e ]
 
-Unlike .queue_rq, in .submit_async_event drivers may not check the ctrl
-readiness for AER submission. This may lead to a use-after-free
-condition that was observed with nvme-tcp.
+While nvme_tcp_submit_async_event_work is checking the ctrl and queue
+state before preparing the AER command and scheduling io_work, in order
+to fully prevent a race where this check is not reliable the error
+recovery work must flush async_event_work before continuing to destroy
+the admin queue after setting the ctrl state to RESETTING such that
+there is no race .submit_async_event and the error recovery handler
+itself changing the ctrl state.
 
-The race condition may happen in the following scenario:
-1. driver executes its reset_ctrl_work
-2. -> nvme_stop_ctrl - flushes ctrl async_event_work
-3. ctrl sends AEN which is received by the host, which in turn
-   schedules AEN handling
-4. teardown admin queue (which releases the queue socket)
-5. AEN processed, submits another AER, calling the driver to submit
-6. driver attempts to send the cmd
-==> use-after-free
-
-In order to fix that, add ctrl state check to validate the ctrl
-is actually able to accept the AER submission.
-
-This addresses the above race in controller resets because the driver
-during teardown should:
-1. change ctrl state to RESETTING
-2. flush async_event_work (as well as other async work elements)
-
-So after 1,2, any other AER command will find the
-ctrl state to be RESETTING and bail out without submitting the AER.
-
+Tested-by: Chris Leech <cleech@redhat.com>
 Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/nvme/host/tcp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index a5b5a2305791d..6a9a42809f972 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3896,7 +3896,14 @@ static void nvme_async_event_work(struct work_struct *work)
- 		container_of(work, struct nvme_ctrl, async_event_work);
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index ff0d06e8ebb53..284d5e756bd6d 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1947,6 +1947,7 @@ static void nvme_tcp_error_recovery_work(struct work_struct *work)
+ 	struct nvme_ctrl *ctrl = &tcp_ctrl->ctrl;
  
- 	nvme_aen_uevent(ctrl);
--	ctrl->ops->submit_async_event(ctrl);
-+
-+	/*
-+	 * The transport drivers must guarantee AER submission here is safe by
-+	 * flushing ctrl async_event_work after changing the controller state
-+	 * from LIVE and before freeing the admin queue.
-+	*/
-+	if (ctrl->state == NVME_CTRL_LIVE)
-+		ctrl->ops->submit_async_event(ctrl);
- }
- 
- static bool nvme_ctrl_pp_status(struct nvme_ctrl *ctrl)
+ 	nvme_stop_keep_alive(ctrl);
++	flush_work(&ctrl->async_event_work);
+ 	nvme_tcp_teardown_io_queues(ctrl, false);
+ 	/* unquiesce to fail fast pending requests */
+ 	nvme_start_queues(ctrl);
 -- 
 2.34.1
 
