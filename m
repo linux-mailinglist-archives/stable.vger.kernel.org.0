@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F278A4AFA2C
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:36:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB5034AFA3A
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:36:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239530AbiBISfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232618AbiBISfn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 9 Feb 2022 13:35:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53032 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239593AbiBISfe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:35:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4552C050CD1;
-        Wed,  9 Feb 2022 10:35:37 -0800 (PST)
+        with ESMTP id S239549AbiBISfi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:35:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2988DC05CBA5;
+        Wed,  9 Feb 2022 10:35:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 624B061C15;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2613B82378;
+        Wed,  9 Feb 2022 18:35:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A806FC340E7;
         Wed,  9 Feb 2022 18:35:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7291C36AE2;
-        Wed,  9 Feb 2022 18:35:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644431736;
-        bh=dzgvD5fCB9/BzXR2I4sstOpNngSBG7g9smFuubhhq2Q=;
+        s=k20201202; t=1644431738;
+        bh=ThG/+Gd9ta56OPtFM3T/EEq/XFxpoRWYUP0PR2/q2SU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V0rNYQebGGrg4ViH13Pcs/M2zgJCl3pEIipt/6iDof5jMVtxOu9/zYD7+s68C+EEK
-         mV/vnUM8o7zxFZZvG3EJ1Q7BbOPNQETv6F9KVxZV54sYAke8scYmNX3TtGfN1WtVUi
-         XXrZUKbbQ4kpKd8WGjSGgZk280ga4uP5OTmqOP6QXWwZdyC/UN6fZNpOw448b3nBs6
-         ILx3s/Jku7p89nmyRvBO23AFRKv8bXudsCOP2KTUJdbkWArdIBHG/8hwe7UirVqEQ0
-         4lIPgU1VpjA62EHkHZF/ls6xFOvX3gipp0gkPSY+Q2O15VWBkUCfPVSD3TL4KxZRE1
-         +b84oN7jAp4hQ==
+        b=gl/n5sARnAEzqop9HB0fBeqOTXvTY2e4PpDMwG1+t2zpOlfGph9mdIvYtyAW7Bf7Z
+         VCHCjUNf6X31s1uqVbHIltQTCiy1ORbsgtrnmm7ZuFlspalJGhdoddYA4i1h0/GCm4
+         0ZIijgp7pM4NPErxIfznQisYzR9lEbtEpo1ZAF+MP0DUP9py/3CHdVbIzNzrWDuyCf
+         T0jz6UP29QGkyCOZ+0LMz4ZHF3E669K31xaTG97fLOAV3/rt4s97p26UIGGWbpXG9N
+         024YsZwFrPq9iZUasq8aRcQYgFsPzySH48on0WYGPSJze90wc8s9WOIRE7DXiil4yb
+         LLzS6+rFBU43Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Duoming Zhou <duoming@zju.edu.cn>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, jreuter@yaina.de,
-        kuba@kernel.org, linux-hams@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 18/42] ax25: improve the incomplete fix to avoid UAF and NPD bugs
-Date:   Wed,  9 Feb 2022 13:32:50 -0500
-Message-Id: <20220209183335.46545-18-sashal@kernel.org>
+Cc:     Shyam Prasad N <sprasad@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
+        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.16 19/42] cifs: unlock chan_lock before calling cifs_put_tcp_session
+Date:   Wed,  9 Feb 2022 13:32:51 -0500
+Message-Id: <20220209183335.46545-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209183335.46545-1-sashal@kernel.org>
 References: <20220209183335.46545-1-sashal@kernel.org>
@@ -57,88 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-[ Upstream commit 4e0f718daf97d47cf7dec122da1be970f145c809 ]
+[ Upstream commit 489f710a738e24d887823a010b8b206b4124e26f ]
 
-The previous commit 1ade48d0c27d ("ax25: NPD bug when detaching
-AX25 device") introduce lock_sock() into ax25_kill_by_device to
-prevent NPD bug. But the concurrency NPD or UAF bug will occur,
-when lock_sock() or release_sock() dereferences the ax25_cb->sock.
+While removing an smb session, we need to free up the
+tcp session for each channel for that session. We were
+doing this with chan_lock held. This results in a
+cyclic dependency with cifs_tcp_ses_lock.
 
-The NULL pointer dereference bug can be shown as below:
+For now, unlock the chan_lock temporarily before calling
+cifs_put_tcp_session. This should not cause any problem
+for now, since we do not remove channels anywhere else.
+And this code segment will not be called by two threads.
 
-ax25_kill_by_device()        | ax25_release()
-                             |   ax25_destroy_socket()
-                             |     ax25_cb_del()
-  ...                        |     ...
-                             |     ax25->sk=NULL;
-  lock_sock(s->sk); //(1)    |
-  s->ax25_dev = NULL;        |     ...
-  release_sock(s->sk); //(2) |
-  ...                        |
+When we do implement the code for removing channels, we
+will need to execute proper ref counting here.
 
-The root cause is that the sock is set to null before dereference
-site (1) or (2). Therefore, this patch extracts the ax25_cb->sock
-in advance, and uses ax25_list_lock to protect it, which can synchronize
-with ax25_cb_del() and ensure the value of sock is not null before
-dereference sites.
-
-The concurrency UAF bug can be shown as below:
-
-ax25_kill_by_device()        | ax25_release()
-                             |   ax25_destroy_socket()
-  ...                        |   ...
-                             |   sock_put(sk); //FREE
-  lock_sock(s->sk); //(1)    |
-  s->ax25_dev = NULL;        |   ...
-  release_sock(s->sk); //(2) |
-  ...                        |
-
-The root cause is that the sock is released before dereference
-site (1) or (2). Therefore, this patch uses sock_hold() to increase
-the refcount of sock and uses ax25_list_lock to protect it, which
-can synchronize with ax25_cb_del() in ax25_destroy_socket() and
-ensure the sock wil not be released before dereference sites.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ax25/af_ax25.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/cifs/connect.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index 02f43f3e2c564..44a8730c26acc 100644
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -77,6 +77,7 @@ static void ax25_kill_by_device(struct net_device *dev)
- {
- 	ax25_dev *ax25_dev;
- 	ax25_cb *s;
-+	struct sock *sk;
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 1060164b984a7..4c8db1a91e940 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -1796,13 +1796,9 @@ void cifs_put_smb_ses(struct cifs_ses *ses)
+ 		int i;
  
- 	if ((ax25_dev = ax25_dev_ax25dev(dev)) == NULL)
- 		return;
-@@ -85,13 +86,15 @@ static void ax25_kill_by_device(struct net_device *dev)
- again:
- 	ax25_for_each(s, &ax25_list) {
- 		if (s->ax25_dev == ax25_dev) {
-+			sk = s->sk;
-+			sock_hold(sk);
- 			spin_unlock_bh(&ax25_list_lock);
--			lock_sock(s->sk);
-+			lock_sock(sk);
- 			s->ax25_dev = NULL;
--			release_sock(s->sk);
-+			release_sock(sk);
- 			ax25_disconnect(s, ENETUNREACH);
- 			spin_lock_bh(&ax25_list_lock);
--
-+			sock_put(sk);
- 			/* The entry could have been deleted from the
- 			 * list meanwhile and thus the next pointer is
- 			 * no longer valid.  Play it safe and restart
+ 		for (i = 1; i < chan_count; i++) {
+-			/*
+-			 * note: for now, we're okay accessing ses->chans
+-			 * without chan_lock. But when chans can go away, we'll
+-			 * need to introduce ref counting to make sure that chan
+-			 * is not freed from under us.
+-			 */
++			spin_unlock(&ses->chan_lock);
+ 			cifs_put_tcp_session(ses->chans[i].server, 0);
++			spin_lock(&ses->chan_lock);
+ 			ses->chans[i].server = NULL;
+ 		}
+ 	}
 -- 
 2.34.1
 
