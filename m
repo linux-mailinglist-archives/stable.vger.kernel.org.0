@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A00B4AFA65
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:37:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 346084AFA7C
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:37:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239702AbiBIShC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:37:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53562 "EHLO
+        id S239692AbiBIShe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:37:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239783AbiBISgz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:36:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81BAEC050CC2;
-        Wed,  9 Feb 2022 10:36:38 -0800 (PST)
+        with ESMTP id S239786AbiBIShP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:37:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EC2FC05CBB5;
+        Wed,  9 Feb 2022 10:37:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D2B461C2C;
-        Wed,  9 Feb 2022 18:36:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D572CC340E7;
-        Wed,  9 Feb 2022 18:36:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AA9D61BAA;
+        Wed,  9 Feb 2022 18:37:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61415C340E7;
+        Wed,  9 Feb 2022 18:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644431797;
-        bh=uOGHB0PhJWRjRJyytDv6xrbR6xnITxBkeN0s7zIIQGY=;
+        s=k20201202; t=1644431830;
+        bh=06AEE+dTILRtwDY8oQbRofaIwu30iB9WUEgyuAH6rvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=agDiyi8/ppbrezpJ0YvzzzJoZi57pObPBBbx47LuSJ9zkiYSooCa4EaMDWOhpfuAq
-         NbOtVlgWZHkthtzPyhMnIPGP+S1hUhuH5xYz3m5xAir0+5B4Vw47LnPJia/Olr+yJ8
-         k+JGn2wH3w0YVzX7IRI0XocQSw4hMODu8gkhARL8akCI5JsWJd6JL7JaU500ZdNSlM
-         85p3NouMAZY8KZnq+9w4iPHCNgpW0X/+rZMqh14pN1OtjMfq233jTzE+Dzch4AWQNl
-         j6r3j8gO1oQgeHqZ6iTpE46HCmjkOW6Pd+fcaK39ItdJRvufRM1FLqa7l+6vXlQmSQ
-         27nPSOFiLRUYA==
+        b=lJLdHtCKCdfG4J9yy3VphtyUaZslzGK+1G6hP2P288TGsFtY3nTJJlAaAk9RsgKXM
+         bdWumdDfkDEFKUm+Va4rmlEZxt2TUVniJF/mt0xgn0iN4VPjIwieBOX50CrK8o2Ft4
+         ZD/m/MfhXr0xzbory/wl8e1RyUqy71suGD3BeRAkCQCL4ixYZ08UjspZDKw8VkiHIG
+         iX+yFjzEIEJOIkKih4W9ikp/SjumtvNtGV7tyFMvHPY116j+S+zEQ9+/IeXut8HUjN
+         GsDTNLvvE096O+XzXjqDYWtpa7gXjt51s64op6p+m8e7NGYk/vSJXmd5+WMKDi52A3
+         71Bf3kmE24Emg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>, Sasha Levin <sashal@kernel.org>,
-        kbusch@kernel.org, axboe@fb.com, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.16 34/42] nvme-rdma: fix possible use-after-free in transport error_recovery work
-Date:   Wed,  9 Feb 2022 13:33:06 -0500
-Message-Id: <20220209183335.46545-34-sashal@kernel.org>
+Cc:     Steen Hegelund <steen.hegelund@microchip.com>,
+        kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        lars.povlsen@microchip.com, Steen.Hegelund@microchip.com,
+        UNGLinuxDriver@microchip.com, bjarni.jonasson@microchip.com,
+        netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.16 35/42] net: sparx5: do not refer to skb after passing it on
+Date:   Wed,  9 Feb 2022 13:33:07 -0500
+Message-Id: <20220209183335.46545-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209183335.46545-1-sashal@kernel.org>
 References: <20220209183335.46545-1-sashal@kernel.org>
@@ -55,36 +61,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Steen Hegelund <steen.hegelund@microchip.com>
 
-[ Upstream commit b6bb1722f34bbdbabed27acdceaf585d300c5fd2 ]
+[ Upstream commit 81eb8b0b18789e647e65579303529fd52d861cc2 ]
 
-While nvme_rdma_submit_async_event_work is checking the ctrl and queue
-state before preparing the AER command and scheduling io_work, in order
-to fully prevent a race where this check is not reliable the error
-recovery work must flush async_event_work before continuing to destroy
-the admin queue after setting the ctrl state to RESETTING such that
-there is no race .submit_async_event and the error recovery handler
-itself changing the ctrl state.
+Do not try to use any SKB fields after the packet has been passed up in the
+receive stack.
 
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Steen Hegelund <steen.hegelund@microchip.com>
+Link: https://lore.kernel.org/r/20220202083039.3774851-1-steen.hegelund@microchip.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/rdma.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/microchip/sparx5/sparx5_packet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index 850f84d204d05..9c55e4be8a398 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -1200,6 +1200,7 @@ static void nvme_rdma_error_recovery_work(struct work_struct *work)
- 			struct nvme_rdma_ctrl, err_work);
+diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
+index dc7e5ea6ec158..148d431fcde42 100644
+--- a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
++++ b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
+@@ -145,9 +145,9 @@ static void sparx5_xtr_grp(struct sparx5 *sparx5, u8 grp, bool byte_swap)
+ 	skb_put(skb, byte_cnt - ETH_FCS_LEN);
+ 	eth_skb_pad(skb);
+ 	skb->protocol = eth_type_trans(skb, netdev);
+-	netif_rx(skb);
+ 	netdev->stats.rx_bytes += skb->len;
+ 	netdev->stats.rx_packets++;
++	netif_rx(skb);
+ }
  
- 	nvme_stop_keep_alive(&ctrl->ctrl);
-+	flush_work(&ctrl->ctrl.async_event_work);
- 	nvme_rdma_teardown_io_queues(ctrl, false);
- 	nvme_start_queues(&ctrl->ctrl);
- 	nvme_rdma_teardown_admin_queue(ctrl, false);
+ static int sparx5_inject(struct sparx5 *sparx5,
 -- 
 2.34.1
 
