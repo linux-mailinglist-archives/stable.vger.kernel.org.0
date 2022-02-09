@@ -2,64 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 598544AFED4
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 22:01:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3D944AFEDB
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 22:03:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232566AbiBIVAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 16:00:03 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:44630 "EHLO
+        id S232694AbiBIVB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 16:01:58 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:51540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232506AbiBIVAB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 16:00:01 -0500
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43A01C043181
-        for <stable@vger.kernel.org>; Wed,  9 Feb 2022 13:00:03 -0800 (PST)
-Received: by mail-wr1-x42b.google.com with SMTP id w11so6136695wra.4
-        for <stable@vger.kernel.org>; Wed, 09 Feb 2022 13:00:03 -0800 (PST)
+        with ESMTP id S232649AbiBIVB6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 16:01:58 -0500
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DC50C03BFE8
+        for <stable@vger.kernel.org>; Wed,  9 Feb 2022 13:02:00 -0800 (PST)
+Received: by mail-wm1-x32e.google.com with SMTP id k3-20020a1ca103000000b0037bdea84f9cso2553862wme.1
+        for <stable@vger.kernel.org>; Wed, 09 Feb 2022 13:02:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=mdWU87qJ15uoRi0XKUmRR60YpikgIJSqzx1OaJpO/0Q=;
-        b=ikHBECuyCT9xwNZWyq3J0rWOGuQLctq3eUjjfRNgjGZUgP5+pHtnHrnlZFkZ1cvlHg
-         /VsePF0xg4+T8XQ5ZgL7ozYDFAgAd72YK9eJd63nULnxu642Q6K/jz0v31ca4nQpFKqb
-         Eo8cDLZAKw375q7qyhNG++Qu4X+zsroESecHLOs/ezsk9ARl9Ielb+U8jvZNDvOEXQYG
-         dg8cBVtvsIs+KEWG9/IBaMo7EDQEffkGhOB+/MryljA6o2GcOLczjupdrcuxfqIJ1vfI
-         EZP1+2DaJ2wLoPxIysxaLGFVnCRyQyJYDj2K2MSTuA7wWAxOf0q4A7rHNlowP1ARdJZn
-         bAew==
+        bh=vIDZZgKiowrOIvh2VmzMX7Q8T/Ps00jsD26KxMfXAZM=;
+        b=UNg7gBs0ennVyq16LSWyYm7nopFlKyyH/6xYI8YAmVLBY/Ro0gzNXdcZnhNi1Lhtjq
+         Xj/fpFEDNk7a/gq6cMbmOWzRmC3oUxGEvX8JmjGYMJndAjgUcj0poxRCO3oWuDKjxyEH
+         pSTlfgc9iT1ApmAYhEkJdU4vmY5HZOFvh8rwaDuKj+p/oR1DKYd18nJJm85N+HzF8pTT
+         T0vytO4cQypbS3jhVCp0X8As+9smzLTD1ZRYQgEkEgzzRLSfFeIGWIAM6IIIl22WZ2K+
+         l5UiL16caJRVZ+3hlvlPn0CSomuJVmhbOMQ3flUJYXKpDWBkJoeeB7BnHq/rTDCZOXeN
+         Ex0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=mdWU87qJ15uoRi0XKUmRR60YpikgIJSqzx1OaJpO/0Q=;
-        b=TJ++aIe2cfLqGiO6OyeP9AA+vHnOHwqG8C5JVYVyNYHZq8IeqpH+6n+ik6T7V5P++Q
-         qrXVcHKhfcTD3BMF18o1252qvL5MHpeenWbxg+HHk54cxS8qrjaYqkOsdQoN61ECYiGp
-         qncCZiFkwvWJNiC74vdtKjUVz5qPBuWeGIyYl/L524nnwUFk7jKfcomG9VpKylksHgjz
-         yFXUbkjSoeyfA+A7G9ZRbaTHwEqr4RgJSi1V+tJ7k/VB/ky8BShN6sMFZ3pEFMIiDZvF
-         ZWzinoFH/QT/0DVV7jZGTzdNhl5Y/Q0Plc5nAzjInjhPKoQzYuOVnyhEgu1zrWgZEo5D
-         thWw==
-X-Gm-Message-State: AOAM532YxKreeU+WxiNGLaloFrz+WXrLc3f9joZ1srqTte7FnqHb+Gcu
-        TR1r3k/hHvHEVSPjPkNIGMj9u/njOJTRPg==
-X-Google-Smtp-Source: ABdhPJx12Nh3HzI9tlKjRJ+lhPLedHWdDG6elBeT0VlePIz6LiBaSiLeldBu87YwGRvWAgCHIIcRaQ==
-X-Received: by 2002:adf:f710:: with SMTP id r16mr3462057wrp.327.1644440401662;
-        Wed, 09 Feb 2022 13:00:01 -0800 (PST)
+        bh=vIDZZgKiowrOIvh2VmzMX7Q8T/Ps00jsD26KxMfXAZM=;
+        b=lVdwjV8X1eCiwc+KN69t/6uNmwRDU6HrA40p1prKIlEOHgVrFtniMBCZayfPe97gW0
+         k7yT+AmY2ZAdkwrPnwYseLjQAbKLFeGurgLhqFc2AmhlJLz9bAciSqLAP+BxVHyvFJ10
+         UgB7dYz8Lg2sStK2VoJSwq9FU+w+cFe4dLpCcVhJpytxli5rQdyz2gnX7ofusQkcDREX
+         UlZie3g5Zyoi8hJtTuUgG0Rx+JE4CX8p1wztguzgFq8lvDsi+iuQmYeI0BoSScM79GXu
+         i5auQZCAljrPI/mRLBH5Q0TEG6UMxWIOocaLRTvV9v1WuWMCqZo6VxEibLabSYwsWjAM
+         AhjA==
+X-Gm-Message-State: AOAM532mSwfW0lIAo8hXduDhDUtVuzkbRfsPjx6GYf4nfBh2H7xeoYxm
+        s07bk+UAC63Z5Lec7aUoLBZsFl9j5cko4w==
+X-Google-Smtp-Source: ABdhPJwDjfBy9lGfCCkKeCsVi7FW7nZjn2jcFn4Evx1vi7sQt2MNoqijobgUQJaByrJefnge6A5tmQ==
+X-Received: by 2002:a05:600c:4ed0:: with SMTP id g16mr3769852wmq.19.1644440518957;
+        Wed, 09 Feb 2022 13:01:58 -0800 (PST)
 Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
-        by smtp.gmail.com with ESMTPSA id i15sm1978194wmq.23.2022.02.09.13.00.00
+        by smtp.gmail.com with ESMTPSA id u15sm16642449wrs.18.2022.02.09.13.01.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Feb 2022 13:00:00 -0800 (PST)
-Date:   Wed, 9 Feb 2022 20:59:59 +0000
+        Wed, 09 Feb 2022 13:01:58 -0800 (PST)
+Date:   Wed, 9 Feb 2022 21:01:56 +0000
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To:     gregkh@linuxfoundation.org
 Cc:     zanussi@kernel.org, rostedt@goodmis.org, ykaradzhov@vmware.com,
         stable@vger.kernel.org
 Subject: Re: FAILED: patch "[PATCH] tracing: Propagate is_signed to
- expression" failed to apply to 5.15-stable tree
-Message-ID: <YgQrT+dZfEvlgEmt@debian>
-References: <16434604001373@kroah.com>
+ expression" failed to apply to 5.10-stable tree
+Message-ID: <YgQrxOy8MRLHDXis@debian>
+References: <16434603997718@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="MAMyE9upMT7QF7ib"
+Content-Type: multipart/mixed; boundary="50Tsk5X8MI3K+nUr"
 Content-Disposition: inline
-In-Reply-To: <16434604001373@kroah.com>
+In-Reply-To: <16434603997718@kroah.com>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -71,31 +71,31 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---MAMyE9upMT7QF7ib
+--50Tsk5X8MI3K+nUr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hi Greg,
 
-On Sat, Jan 29, 2022 at 01:46:40PM +0100, gregkh@linuxfoundation.org wrote:
+On Sat, Jan 29, 2022 at 01:46:39PM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 5.15-stable tree.
+> The patch below does not apply to the 5.10-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
 
-Here is the backport.
+Here is the backport, will also apply to 5.4-stable and 4.19-stable trees.
 
 --
 Regards
 Sudip
 
---MAMyE9upMT7QF7ib
+--50Tsk5X8MI3K+nUr
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment;
 	filename="0001-tracing-Propagate-is_signed-to-expression.patch"
 
-From 3992cdc5734342773551436a7270a424240edba5 Mon Sep 17 00:00:00 2001
+From fc4baa0de214ec68a02e9155b739c2088b098095 Mon Sep 17 00:00:00 2001
 From: Tom Zanussi <zanussi@kernel.org>
 Date: Thu, 27 Jan 2022 15:44:17 -0600
 Subject: [PATCH] tracing: Propagate is_signed to expression
@@ -124,10 +124,10 @@ Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
  1 file changed, 3 insertions(+)
 
 diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index 83efce3a87ca..918f969dffcf 100644
+index 1557a20b6500..41a9bd52e1fd 100644
 --- a/kernel/trace/trace_events_hist.c
 +++ b/kernel/trace/trace_events_hist.c
-@@ -2220,6 +2220,8 @@ static struct hist_field *parse_unary(struct hist_trigger_data *hist_data,
+@@ -2154,6 +2154,8 @@ static struct hist_field *parse_unary(struct hist_trigger_data *hist_data,
  		(HIST_FIELD_FL_TIMESTAMP | HIST_FIELD_FL_TIMESTAMP_USECS);
  	expr->fn = hist_field_unary_minus;
  	expr->operands[0] = operand1;
@@ -135,8 +135,8 @@ index 83efce3a87ca..918f969dffcf 100644
 +	expr->is_signed = operand1->is_signed;
  	expr->operator = FIELD_OP_UNARY_MINUS;
  	expr->name = expr_str(expr, 0);
- 	expr->type = kstrdup_const(operand1->type, GFP_KERNEL);
-@@ -2359,6 +2361,7 @@ static struct hist_field *parse_expr(struct hist_trigger_data *hist_data,
+ 	expr->type = kstrdup(operand1->type, GFP_KERNEL);
+@@ -2293,6 +2295,7 @@ static struct hist_field *parse_expr(struct hist_trigger_data *hist_data,
  
  	/* The operand sizes should be the same, so just pick one */
  	expr->size = operand1->size;
@@ -148,4 +148,4 @@ index 83efce3a87ca..918f969dffcf 100644
 2.30.2
 
 
---MAMyE9upMT7QF7ib--
+--50Tsk5X8MI3K+nUr--
