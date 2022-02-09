@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C4B64AFB77
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:47:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B414B4AFB8B
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:47:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240640AbiBISrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:47:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34888 "EHLO
+        id S240875AbiBISrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:47:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241487AbiBISqs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:46:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC6F0C001914;
-        Wed,  9 Feb 2022 10:44:05 -0800 (PST)
+        with ESMTP id S241575AbiBISqv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:46:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0546C0DE7E2;
+        Wed,  9 Feb 2022 10:44:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 874A8B82384;
-        Wed,  9 Feb 2022 18:44:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B77E0C340ED;
-        Wed,  9 Feb 2022 18:43:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0AB6B82215;
+        Wed,  9 Feb 2022 18:44:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E2E4C340E9;
+        Wed,  9 Feb 2022 18:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432240;
-        bh=68TEqlEr7oRnJi0vtYWnGuAH20gM7jHIJnUnx/9lt/Y=;
+        s=k20201202; t=1644432246;
+        bh=P3udYnsCbEskvoh3uxv97i0MEqlxnGDxof8wHmeN2IQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eH4LDAyEpu7X683H+Yf+tUrEaE1giN+0dXrzwBE1ggDvdkKJEkZ3Mg/7I744WkcFw
-         FpZpPLa4QkkesduaJtHNEqo0p72bUOr35B746cxkqVTzlDdk34ugpYZg1MNiY1BN52
-         7UvTlfK41dLjQILckKAG5UTYDtereKetGz4Ef8EOuPB7h8PmNxFfn5W2ZlGVxDAqi2
-         NNKs1N9Qs/m2/IUQ9lSAD9B1JZ+CFKEpJuVI5mO15UdHnCnlDgMutReCvo2FajsrXQ
-         f7jXpc5jOyVJCr8KWg23mNMN4bdCdub8/wqTp9bTfQZhN9ri1yWT39JcWPPVYzt7Nq
-         +xX7R5oCmoMuw==
+        b=QfSOom6qSQhY3i1meRvKZ9A3SiClfINGPQGLPOcRF6IwPCQQ1a4GD28kC7EUJQBUd
+         li1yvMqizp0FlYJD1jqEG+uvfkRxrmQzRdemRyKBqCaIdT3vn3sbberQMaTMC+sC4f
+         VYfhhH8uguiIUf2ovBMb7HPZ2D9kBFv7XEXeSbpY/KCsLSA06VcUCC7MafqjFZ43OC
+         d23WWt963PN9fgetshU0lPNOD6jgE8z6csGzQ28N5mYzpWxJwFuY8DEQpl0yysbNug
+         NRou00vV8t5tpqaNnT/QRwZb8JPwJtDddLYhpUKVmYXCxWC9AQD5T4xRjJHqErY1P+
+         evTYOzMmzSCBA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, Xinhui.Pan@amd.com,
-        airlied@linux.ie, daniel@ffwll.ch, nirmoy.das@amd.com,
-        Oak.Zeng@amd.com, kevin1.wang@amd.com, tzimmermann@suse.de,
-        Philip.Yang@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 14/15] drm/amdgpu: fix logic inversion in check
-Date:   Wed,  9 Feb 2022 13:43:00 -0500
-Message-Id: <20220209184305.47983-14-sashal@kernel.org>
+Cc:     Igor Pylypiv <ipylypiv@google.com>,
+        Changyuan Lyu <changyuanl@google.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Tejun Heo <tj@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        peterz@infradead.org, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, akpm@linux-foundation.org,
+        linux@rasmusvillemoes.dk, linux-modules@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 15/15] Revert "module, async: async_synchronize_full() on module init iff async is used"
+Date:   Wed,  9 Feb 2022 13:43:01 -0500
+Message-Id: <20220209184305.47983-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209184305.47983-1-sashal@kernel.org>
 References: <20220209184305.47983-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -62,34 +62,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Igor Pylypiv <ipylypiv@google.com>
 
-[ Upstream commit e8ae38720e1a685fd98cfa5ae118c9d07b45ca79 ]
+[ Upstream commit 67d6212afda218d564890d1674bab28e8612170f ]
 
-We probably never trigger this, but the logic inside the check is
-inverted.
+This reverts commit 774a1221e862b343388347bac9b318767336b20b.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+We need to finish all async code before the module init sequence is
+done.  In the reverted commit the PF_USED_ASYNC flag was added to mark a
+thread that called async_schedule().  Then the PF_USED_ASYNC flag was
+used to determine whether or not async_synchronize_full() needs to be
+invoked.  This works when modprobe thread is calling async_schedule(),
+but it does not work if module dispatches init code to a worker thread
+which then calls async_schedule().
+
+For example, PCI driver probing is invoked from a worker thread based on
+a node where device is attached:
+
+	if (cpu < nr_cpu_ids)
+		error = work_on_cpu(cpu, local_pci_probe, &ddi);
+	else
+		error = local_pci_probe(&ddi);
+
+We end up in a situation where a worker thread gets the PF_USED_ASYNC
+flag set instead of the modprobe thread.  As a result,
+async_synchronize_full() is not invoked and modprobe completes without
+waiting for the async code to finish.
+
+The issue was discovered while loading the pm80xx driver:
+(scsi_mod.scan=async)
+
+modprobe pm80xx                      worker
+...
+  do_init_module()
+  ...
+    pci_call_probe()
+      work_on_cpu(local_pci_probe)
+                                     local_pci_probe()
+                                       pm8001_pci_probe()
+                                         scsi_scan_host()
+                                           async_schedule()
+                                           worker->flags |= PF_USED_ASYNC;
+                                     ...
+      < return from worker >
+  ...
+  if (current->flags & PF_USED_ASYNC) <--- false
+  	async_synchronize_full();
+
+Commit 21c3c5d28007 ("block: don't request module during elevator init")
+fixed the deadlock issue which the reverted commit 774a1221e862
+("module, async: async_synchronize_full() on module init iff async is
+used") tried to fix.
+
+Since commit 0fdff3ec6d87 ("async, kmod: warn on synchronous
+request_module() from async workers") synchronous module loading from
+async is not allowed.
+
+Given that the original deadlock issue is fixed and it is no longer
+allowed to call synchronous request_module() from async we can remove
+PF_USED_ASYNC flag to make module init consistently invoke
+async_synchronize_full() unless async module probe is requested.
+
+Signed-off-by: Igor Pylypiv <ipylypiv@google.com>
+Reviewed-by: Changyuan Lyu <changyuanl@google.com>
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/sched.h |  1 -
+ kernel/async.c        |  3 ---
+ kernel/module.c       | 25 +++++--------------------
+ 3 files changed, 5 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index 58e14d3040f03..870dd78d5a21a 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -1976,7 +1976,7 @@ int amdgpu_copy_buffer(struct amdgpu_ring *ring, uint64_t src_offset,
- 	unsigned i;
- 	int r;
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index afee5d5eb9458..b341471de9d60 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1454,7 +1454,6 @@ extern struct pid *cad_pid;
+ #define PF_MEMALLOC		0x00000800	/* Allocating memory */
+ #define PF_NPROC_EXCEEDED	0x00001000	/* set_user() noticed that RLIMIT_NPROC was exceeded */
+ #define PF_USED_MATH		0x00002000	/* If unset the fpu must be initialized before use */
+-#define PF_USED_ASYNC		0x00004000	/* Used async_schedule*(), used by module init */
+ #define PF_NOFREEZE		0x00008000	/* This thread should not be frozen */
+ #define PF_FROZEN		0x00010000	/* Frozen for system suspend */
+ #define PF_KSWAPD		0x00020000	/* I am kswapd */
+diff --git a/kernel/async.c b/kernel/async.c
+index 4f9c1d6140168..74660f611b97d 100644
+--- a/kernel/async.c
++++ b/kernel/async.c
+@@ -205,9 +205,6 @@ async_cookie_t async_schedule_node_domain(async_func_t func, void *data,
+ 	atomic_inc(&entry_count);
+ 	spin_unlock_irqrestore(&async_lock, flags);
  
--	if (direct_submit && !ring->sched.ready) {
-+	if (!direct_submit && !ring->sched.ready) {
- 		DRM_ERROR("Trying to move memory with ring turned off.\n");
- 		return -EINVAL;
+-	/* mark that this task has queued an async job, used by module init */
+-	current->flags |= PF_USED_ASYNC;
+-
+ 	/* schedule for execution */
+ 	queue_work_node(node, system_unbound_wq, &entry->work);
+ 
+diff --git a/kernel/module.c b/kernel/module.c
+index 59d487b8d8dad..e7656cf1652c9 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3711,12 +3711,6 @@ static noinline int do_init_module(struct module *mod)
  	}
+ 	freeinit->module_init = mod->init_layout.base;
+ 
+-	/*
+-	 * We want to find out whether @mod uses async during init.  Clear
+-	 * PF_USED_ASYNC.  async_schedule*() will set it.
+-	 */
+-	current->flags &= ~PF_USED_ASYNC;
+-
+ 	do_mod_ctors(mod);
+ 	/* Start the module */
+ 	if (mod->init != NULL)
+@@ -3742,22 +3736,13 @@ static noinline int do_init_module(struct module *mod)
+ 
+ 	/*
+ 	 * We need to finish all async code before the module init sequence
+-	 * is done.  This has potential to deadlock.  For example, a newly
+-	 * detected block device can trigger request_module() of the
+-	 * default iosched from async probing task.  Once userland helper
+-	 * reaches here, async_synchronize_full() will wait on the async
+-	 * task waiting on request_module() and deadlock.
+-	 *
+-	 * This deadlock is avoided by perfomring async_synchronize_full()
+-	 * iff module init queued any async jobs.  This isn't a full
+-	 * solution as it will deadlock the same if module loading from
+-	 * async jobs nests more than once; however, due to the various
+-	 * constraints, this hack seems to be the best option for now.
+-	 * Please refer to the following thread for details.
++	 * is done. This has potential to deadlock if synchronous module
++	 * loading is requested from async (which is not allowed!).
+ 	 *
+-	 * http://thread.gmane.org/gmane.linux.kernel/1420814
++	 * See commit 0fdff3ec6d87 ("async, kmod: warn on synchronous
++	 * request_module() from async workers") for more details.
+ 	 */
+-	if (!mod->async_probe_requested && (current->flags & PF_USED_ASYNC))
++	if (!mod->async_probe_requested)
+ 		async_synchronize_full();
+ 
+ 	ftrace_free_mem(mod, mod->init_layout.base, mod->init_layout.base +
 -- 
 2.34.1
 
