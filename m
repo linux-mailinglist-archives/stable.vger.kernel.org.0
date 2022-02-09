@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF8344AFAC8
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:40:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 137964AFAF3
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:41:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240199AbiBISkB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:40:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55818 "EHLO
+        id S240112AbiBISkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:40:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240066AbiBISjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:39:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECF1BC03E94A;
-        Wed,  9 Feb 2022 10:39:11 -0800 (PST)
+        with ESMTP id S240174AbiBISjy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:39:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CF98C08ED09;
+        Wed,  9 Feb 2022 10:39:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A8E060C81;
-        Wed,  9 Feb 2022 18:39:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0736CC340E9;
-        Wed,  9 Feb 2022 18:39:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11CE5B82380;
+        Wed,  9 Feb 2022 18:39:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBADEC340ED;
+        Wed,  9 Feb 2022 18:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644431951;
-        bh=AmJ88brCUlZqtikAlLHcWYvv3MfLZ/dBUHwKlvKvL8o=;
+        s=k20201202; t=1644431958;
+        bh=Pyle2Jv95r7tRGL+Wt4CcA9lvvZjHbaudDrcD8CL6tU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qj9I/vq+STJTvEXCBRN4FawlvKjqgQASlfpH8C8+M3lt7Ys7HzdhHgi/a6Pl5Lqp0
-         zrXqa0c+7Cmod/YDkl6Sgd9qX2Pm5AzytAdil8y0XaJg6vizx+DxteQ8TSdD1B/yHd
-         4YVeVg8ZRldTxkE+puTl6xMxBr5NsOr6GybVWE9ZtUdjlMQvsIZlaFXMclfskWegJM
-         kKAXBThTVqLnc17YZJ7P0ESJKV9xKRgv85FUEXW5LLVEWFdt85E9wDV0ZUcNomS+It
-         bIIgjY4OST4jvqDZpFRgMNlDF585iFrZAXz4uBClcrIvuXI/3PyB2yOgRLsP9SZPCO
-         x16I1U5r1UnzQ==
+        b=lTbY5p+eAlciV4yNP3o9Y63FiAXFQKWmU4IWuqUz3CQ4JBAksk12pm2MZ5rmG2HuP
+         0rG/THBLv0XAnbpHTvv6M2uFcgdgceIUoJZl3HBDskQl12xXGumss8QK84R34D2Col
+         k23RHZ70rMNjax70sXmpnu7QpE1fk7QbYclKsLcmrJwc2SA5rHTJSjf9M4RiroWFv5
+         QN0kr9Xz3oi8p4FKwUrYzCJqrlH3gZ1DX09BaUzyCeD6pptqhq+1AbpCRAh9IM6NvO
+         9EjGRnqPn+sVQi7nLDE7hyDi32JkyWA2GTQjkGjJ9MLHMVVcKkg4nfOVZ4F/6y9nYf
+         a0s93AkOAq1PQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Duoming Zhou <duoming@zju.edu.cn>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, jreuter@yaina.de,
-        kuba@kernel.org, linux-hams@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 15/36] ax25: improve the incomplete fix to avoid UAF and NPD bugs
-Date:   Wed,  9 Feb 2022 13:37:38 -0500
-Message-Id: <20220209183759.47134-15-sashal@kernel.org>
+Cc:     Julian Braha <julianbraha@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, noltari@gmail.com,
+        jonas.gorski@gmail.com, f.fainelli@gmail.com, rafal@milecki.pl,
+        rdunlap@infradead.org, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 16/36] pinctrl: bcm63xx: fix unmet dependency on REGMAP for GPIO_REGMAP
+Date:   Wed,  9 Feb 2022 13:37:39 -0500
+Message-Id: <20220209183759.47134-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209183759.47134-1-sashal@kernel.org>
 References: <20220209183759.47134-1-sashal@kernel.org>
@@ -57,88 +58,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Julian Braha <julianbraha@gmail.com>
 
-[ Upstream commit 4e0f718daf97d47cf7dec122da1be970f145c809 ]
+[ Upstream commit 3a5286955bf5febc3d151bcb2c5e272e383b64aa ]
 
-The previous commit 1ade48d0c27d ("ax25: NPD bug when detaching
-AX25 device") introduce lock_sock() into ax25_kill_by_device to
-prevent NPD bug. But the concurrency NPD or UAF bug will occur,
-when lock_sock() or release_sock() dereferences the ax25_cb->sock.
+When PINCTRL_BCM63XX is selected,
+and REGMAP is not selected,
+Kbuild gives the following warning:
 
-The NULL pointer dereference bug can be shown as below:
+WARNING: unmet direct dependencies detected for GPIO_REGMAP
+  Depends on [n]: GPIOLIB [=y] && REGMAP [=n]
+  Selected by [y]:
+  - PINCTRL_BCM63XX [=y] && PINCTRL [=y]
 
-ax25_kill_by_device()        | ax25_release()
-                             |   ax25_destroy_socket()
-                             |     ax25_cb_del()
-  ...                        |     ...
-                             |     ax25->sk=NULL;
-  lock_sock(s->sk); //(1)    |
-  s->ax25_dev = NULL;        |     ...
-  release_sock(s->sk); //(2) |
-  ...                        |
+This is because PINCTRL_BCM63XX
+selects GPIO_REGMAP without selecting or depending on
+REGMAP, despite GPIO_REGMAP depending on REGMAP.
 
-The root cause is that the sock is set to null before dereference
-site (1) or (2). Therefore, this patch extracts the ax25_cb->sock
-in advance, and uses ax25_list_lock to protect it, which can synchronize
-with ax25_cb_del() and ensure the value of sock is not null before
-dereference sites.
+This unmet dependency bug was detected by Kismet,
+a static analysis tool for Kconfig. Please advise
+if this is not the appropriate solution.
 
-The concurrency UAF bug can be shown as below:
-
-ax25_kill_by_device()        | ax25_release()
-                             |   ax25_destroy_socket()
-  ...                        |   ...
-                             |   sock_put(sk); //FREE
-  lock_sock(s->sk); //(1)    |
-  s->ax25_dev = NULL;        |   ...
-  release_sock(s->sk); //(2) |
-  ...                        |
-
-The root cause is that the sock is released before dereference
-site (1) or (2). Therefore, this patch uses sock_hold() to increase
-the refcount of sock and uses ax25_list_lock to protect it, which
-can synchronize with ax25_cb_del() in ax25_destroy_socket() and
-ensure the sock wil not be released before dereference sites.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Julian Braha <julianbraha@gmail.com>
+Link: https://lore.kernel.org/r/20220117062557.89568-1-julianbraha@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ax25/af_ax25.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/pinctrl/bcm/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index 7473e0cc6d469..ea3431ac46a14 100644
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -77,6 +77,7 @@ static void ax25_kill_by_device(struct net_device *dev)
- {
- 	ax25_dev *ax25_dev;
- 	ax25_cb *s;
-+	struct sock *sk;
+diff --git a/drivers/pinctrl/bcm/Kconfig b/drivers/pinctrl/bcm/Kconfig
+index c9c5efc927311..5973a279e6b8c 100644
+--- a/drivers/pinctrl/bcm/Kconfig
++++ b/drivers/pinctrl/bcm/Kconfig
+@@ -35,6 +35,7 @@ config PINCTRL_BCM63XX
+ 	select PINCONF
+ 	select GENERIC_PINCONF
+ 	select GPIOLIB
++	select REGMAP
+ 	select GPIO_REGMAP
  
- 	if ((ax25_dev = ax25_dev_ax25dev(dev)) == NULL)
- 		return;
-@@ -85,13 +86,15 @@ static void ax25_kill_by_device(struct net_device *dev)
- again:
- 	ax25_for_each(s, &ax25_list) {
- 		if (s->ax25_dev == ax25_dev) {
-+			sk = s->sk;
-+			sock_hold(sk);
- 			spin_unlock_bh(&ax25_list_lock);
--			lock_sock(s->sk);
-+			lock_sock(sk);
- 			s->ax25_dev = NULL;
--			release_sock(s->sk);
-+			release_sock(sk);
- 			ax25_disconnect(s, ENETUNREACH);
- 			spin_lock_bh(&ax25_list_lock);
--
-+			sock_put(sk);
- 			/* The entry could have been deleted from the
- 			 * list meanwhile and thus the next pointer is
- 			 * no longer valid.  Play it safe and restart
+ config PINCTRL_BCM6318
 -- 
 2.34.1
 
