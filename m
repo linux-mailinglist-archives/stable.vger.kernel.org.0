@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AFD54AFD27
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 20:18:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B0024AFD17
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 20:16:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231761AbiBITQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 14:16:55 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:47824 "EHLO
+        id S231484AbiBITPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 14:15:53 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:43392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229696AbiBITQy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 14:16:54 -0500
+        with ESMTP id S233785AbiBITPw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 14:15:52 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0E7CC1DF83A;
-        Wed,  9 Feb 2022 11:16:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 398CAC0045BE;
+        Wed,  9 Feb 2022 11:15:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D5B5B8203E;
-        Wed,  9 Feb 2022 19:14:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F24EC340E7;
-        Wed,  9 Feb 2022 19:14:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1192FB82390;
+        Wed,  9 Feb 2022 19:15:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42808C340E7;
+        Wed,  9 Feb 2022 19:15:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644434097;
-        bh=HlrvHszmOPzZvC/45NYDPTxlVyeEu3zcrd4ZkcS/HaI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=gxYtTQW/dO03C98JqIiq3QW5rGzrPKNUXKG8nI/0mTxE8JykM/AiWKLoDPssZLoeZ
-         SOqqdnOBr088GetFw4yXFgW12LEDky4gEY7pDuQYAwx5kUczxm9rpkIPtBvJ3vsh9I
-         ImtBQEG6d+qOw5kMIOuYg91T95otWMhLKfxykXC8=
+        s=korg; t=1644434106;
+        bh=w5dkYAz3sy98SI4aS3c2yCQau3NSXZfCNaqkaqy/TBc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=muBZmCl1ssg9g0xoUpyW8v/HtQty3JmFvYPCIQYecg1GIm0B4nfFN3s1cRctwe6eU
+         5/ZAmDtnd/4A9uX3wvFDeTrEm16Sjxfb4EE2/U0vWPaFVvjAOg/saCkPud55Av79EB
+         VTa4YEgTaPYBUNX5jxFlhYc9hosfw/btAvR2teXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 4.14 0/3] 4.14.266-rc1 review
-Date:   Wed,  9 Feb 2022 20:13:37 +0100
-Message-Id: <20220209191248.659458918@linuxfoundation.org>
+        stable@vger.kernel.org, Tabitha Sable <tabitha.c.sable@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Tejun Heo <tj@kernel.org>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>
+Subject: [PATCH 4.14 1/3] cgroup-v1: Require capabilities to set release_agent
+Date:   Wed,  9 Feb 2022 20:13:38 +0100
+Message-Id: <20220209191248.708176141@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-MIME-Version: 1.0
+In-Reply-To: <20220209191248.659458918@linuxfoundation.org>
+References: <20220209191248.659458918@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.266-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.266-rc1
-X-KernelTest-Deadline: 2022-02-11T19:12+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,48 +57,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.266 release.
-There are 3 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-Responses should be made by Fri, 11 Feb 2022 19:12:41 +0000.
-Anything received after that time might be too late.
+commit 24f6008564183aa120d07c03d9289519c2fe02af upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.266-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+The cgroup release_agent is called with call_usermodehelper.  The function
+call_usermodehelper starts the release_agent with a full set fo capabilities.
+Therefore require capabilities when setting the release_agaent.
 
-thanks,
+Reported-by: Tabitha Sable <tabitha.c.sable@gmail.com>
+Tested-by: Tabitha Sable <tabitha.c.sable@gmail.com>
+Fixes: 81a6a5cdd2c5 ("Task Control Groups: automatic userspace notification of idle cgroups")
+Cc: stable@vger.kernel.org # v2.6.24+
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+[mkoutny: Adjust for pre-fs_context, duplicate mount/remount check, drop log messages.]
+Acked-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ kernel/cgroup/cgroup-v1.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.266-rc1
-
-luofei <luofei@unicloud.com>
-    x86/mm, mm/hwpoison: Fix the unmap kernel 1:1 pages check condition
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    moxart: fix potential use-after-free on remove path
-
-Eric W. Biederman <ebiederm@xmission.com>
-    cgroup-v1: Require capabilities to set release_agent
-
-
--------------
-
-Diffstat:
-
- Makefile                         |  4 ++--
- arch/x86/kernel/cpu/mcheck/mce.c |  2 +-
- drivers/mmc/host/moxart-mmc.c    |  2 +-
- kernel/cgroup/cgroup-v1.c        | 24 ++++++++++++++++++++++++
- 4 files changed, 28 insertions(+), 4 deletions(-)
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -577,6 +577,14 @@ static ssize_t cgroup_release_agent_writ
+ 
+ 	BUILD_BUG_ON(sizeof(cgrp->root->release_agent_path) < PATH_MAX);
+ 
++	/*
++	 * Release agent gets called with all capabilities,
++	 * require capabilities to set release agent.
++	 */
++	if ((of->file->f_cred->user_ns != &init_user_ns) ||
++	    !capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	cgrp = cgroup_kn_lock_live(of->kn, false);
+ 	if (!cgrp)
+ 		return -ENODEV;
+@@ -1060,6 +1068,7 @@ static int cgroup1_remount(struct kernfs
+ {
+ 	int ret = 0;
+ 	struct cgroup_root *root = cgroup_root_from_kf(kf_root);
++	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
+ 	struct cgroup_sb_opts opts;
+ 	u16 added_mask, removed_mask;
+ 
+@@ -1073,6 +1082,12 @@ static int cgroup1_remount(struct kernfs
+ 	if (opts.subsys_mask != root->subsys_mask || opts.release_agent)
+ 		pr_warn("option changes via remount are deprecated (pid=%d comm=%s)\n",
+ 			task_tgid_nr(current), current->comm);
++	/* See cgroup1_mount release_agent handling */
++	if (opts.release_agent &&
++	    ((ns->user_ns != &init_user_ns) || !capable(CAP_SYS_ADMIN))) {
++		ret = -EINVAL;
++		goto out_unlock;
++	}
+ 
+ 	added_mask = opts.subsys_mask & ~root->subsys_mask;
+ 	removed_mask = root->subsys_mask & ~opts.subsys_mask;
+@@ -1236,6 +1251,15 @@ struct dentry *cgroup1_mount(struct file
+ 		ret = -EPERM;
+ 		goto out_unlock;
+ 	}
++	/*
++	 * Release agent gets called with all capabilities,
++	 * require capabilities to set release agent.
++	 */
++	if (opts.release_agent &&
++	    ((ns->user_ns != &init_user_ns) || !capable(CAP_SYS_ADMIN))) {
++		ret = -EINVAL;
++		goto out_unlock;
++	}
+ 
+ 	root = kzalloc(sizeof(*root), GFP_KERNEL);
+ 	if (!root) {
 
 
