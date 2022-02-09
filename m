@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 866534AFB18
+	by mail.lfdr.de (Postfix) with ESMTP id CE5104AFB19
 	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:42:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235131AbiBISlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:41:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55092 "EHLO
+        id S239028AbiBISls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:41:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240613AbiBISlV (ORCPT
+        with ESMTP id S240612AbiBISlV (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:41:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01B10C043182;
-        Wed,  9 Feb 2022 10:41:21 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC4A2C05CB8F;
+        Wed,  9 Feb 2022 10:41:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B9D7B82215;
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5C79B82389;
+        Wed,  9 Feb 2022 18:41:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 342BFC340E9;
         Wed,  9 Feb 2022 18:41:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BAC7C340E7;
-        Wed,  9 Feb 2022 18:41:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432078;
-        bh=qpsCYUiuoWE+U9Xh6jlyhtneJgquaAruAQbkMcQUG7Y=;
+        s=k20201202; t=1644432080;
+        bh=VIQquFzGDHKbKcmGm6RKoojybnkJGoVldTQZYNSMAJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Svg/JfC0FVWDfqNZJiYzpu0e5w/37iFv9jjb+YL2QtAgnsNUQ2R4+Sqzl5OQnQ19H
-         v9CtQy8vvUuu4V9toDpXGxY4Ayx+Lcud37X6e2okkJhMdi69Q6YBBOhRLssmmMzFNp
-         E/6wS4y8/RdqxzOv3a6Zl3sVokrWQkHgpTm3VYhSZqA0S8nlqbPbKjkvmMmhRti9EL
-         OcCIDFsHpgGhbZcw1TRhSutmOEAViOacxpSwT8YbGHqBCgFGrXmvpe+fwBM82uRpzW
-         Ry0ff9GeBXfdK5JtREHSNl1G6vjsr6ieJV/VrNolYZnNLu6Kg3s8Cvqvk766j/IJCd
-         XLJn1m83UW7CA==
+        b=YMLoX3ykDV8D/jnEfLsSfVaHWBJfuUpGRVuAviE9eBodhVfJeR5fFvcQSdS/AGpzT
+         6rafXjNjRPT+HHxIvDUCrGDrHwBDAd99y3EPGhqlVzrZiOBeXUBAQ/67ryEP/xf7H1
+         itIcA1ShmJi7Ii6O2fG4fdb6z+xmaq22N25sEW2ruIpRMbOcNe6zwEY3SCV/g7TXCW
+         uDCyhcVYdIxpJwFloZhgoS68S5/3K2slSu9Z3Rnj8AAJn52c4SbqXNeDZ637jQVZZE
+         Ugi/f6OkIPwbq3j2vEN7N9oHCsUVS5YTubyzrXXTWOC73a8aHxYFLWR6jP2rsROqXa
+         vpzHRKwo+0UUQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Li Zhijian <lizhijian@cn.fujitsu.com>,
-        yang xu <xuyang2018.jy@cn.fujitsu.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, keescook@chromium.org,
-        shuah@kernel.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 04/27] kselftest: signal all child processes
-Date:   Wed,  9 Feb 2022 13:40:40 -0500
-Message-Id: <20220209184103.47635-4-sashal@kernel.org>
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Alexander Aring <alex.aring@gmail.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        kuba@kernel.org, linux-wpan@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 05/27] net: ieee802154: at86rf230: Stop leaking skb's
+Date:   Wed,  9 Feb 2022 13:40:41 -0500
+Message-Id: <20220209184103.47635-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209184103.47635-1-sashal@kernel.org>
 References: <20220209184103.47635-1-sashal@kernel.org>
@@ -59,52 +59,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zhijian <lizhijian@cn.fujitsu.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 92d25637a3a45904292c93f1863c6bbda4e3e38f ]
+[ Upstream commit e5ce576d45bf72fd0e3dc37eff897bfcc488f6a9 ]
 
-We have some many cases that will create child process as well, such as
-pidfd_wait. Previously, we will signal/kill the parent process when it
-is time out, but this signal will not be sent to its child process. In
-such case, if child process doesn't terminate itself, ksefltest framework
-will hang forever.
+Upon error the ieee802154_xmit_complete() helper is not called. Only
+ieee802154_wake_queue() is called manually. In the Tx case we then leak
+the skb structure.
 
-Here we group all its child processes so that kill() can signal all of
-them in timeout.
+Free the skb structure upon error before returning when appropriate.
 
-Fixed change log: Shuah Khan <skhan@linuxfoundation.org>
+As the 'is_tx = 0' cannot be moved in the complete handler because of a
+possible race between the delay in switching to STATE_RX_AACK_ON and a
+new interrupt, we introduce an intermediate 'was_tx' boolean just for
+this purpose.
 
-Suggested-by: yang xu <xuyang2018.jy@cn.fujitsu.com>
-Signed-off-by: Li Zhijian <lizhijian@cn.fujitsu.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+There is no Fixes tag applying here, many changes have been made on this
+area and the issue kind of always existed.
+
+Suggested-by: Alexander Aring <alex.aring@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20220125121426.848337-4-miquel.raynal@bootlin.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kselftest_harness.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ieee802154/at86rf230.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/kselftest_harness.h b/tools/testing/selftests/kselftest_harness.h
-index 5ecb9718e1616..3e7b2e521cde4 100644
---- a/tools/testing/selftests/kselftest_harness.h
-+++ b/tools/testing/selftests/kselftest_harness.h
-@@ -871,7 +871,8 @@ static void __timeout_handler(int sig, siginfo_t *info, void *ucontext)
- 	}
+diff --git a/drivers/net/ieee802154/at86rf230.c b/drivers/net/ieee802154/at86rf230.c
+index 7d67f41387f55..4f5ef8a9a9a87 100644
+--- a/drivers/net/ieee802154/at86rf230.c
++++ b/drivers/net/ieee802154/at86rf230.c
+@@ -100,6 +100,7 @@ struct at86rf230_local {
+ 	unsigned long cal_timeout;
+ 	bool is_tx;
+ 	bool is_tx_from_off;
++	bool was_tx;
+ 	u8 tx_retry;
+ 	struct sk_buff *tx_skb;
+ 	struct at86rf230_state_change tx;
+@@ -343,7 +344,11 @@ at86rf230_async_error_recover_complete(void *context)
+ 	if (ctx->free)
+ 		kfree(ctx);
  
- 	t->timed_out = true;
--	kill(t->pid, SIGKILL);
-+	// signal process group
-+	kill(-(t->pid), SIGKILL);
+-	ieee802154_wake_queue(lp->hw);
++	if (lp->was_tx) {
++		lp->was_tx = 0;
++		dev_kfree_skb_any(lp->tx_skb);
++		ieee802154_wake_queue(lp->hw);
++	}
  }
  
- void __wait_for_test(struct __test_metadata *t)
-@@ -981,6 +982,7 @@ void __run_test(struct __fixture_metadata *f,
- 		ksft_print_msg("ERROR SPAWNING TEST CHILD\n");
- 		t->passed = 0;
- 	} else if (t->pid == 0) {
-+		setpgrp();
- 		t->fn(t, variant);
- 		if (t->skip)
- 			_exit(255);
+ static void
+@@ -352,7 +357,11 @@ at86rf230_async_error_recover(void *context)
+ 	struct at86rf230_state_change *ctx = context;
+ 	struct at86rf230_local *lp = ctx->lp;
+ 
+-	lp->is_tx = 0;
++	if (lp->is_tx) {
++		lp->was_tx = 1;
++		lp->is_tx = 0;
++	}
++
+ 	at86rf230_async_state_change(lp, ctx, STATE_RX_AACK_ON,
+ 				     at86rf230_async_error_recover_complete);
+ }
 -- 
 2.34.1
 
