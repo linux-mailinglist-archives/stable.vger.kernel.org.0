@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF24A4AFD52
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 20:27:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DACEC4AFD6E
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 20:29:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233414AbiBIT0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 14:26:30 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:45194 "EHLO
+        id S234063AbiBIT24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 14:28:56 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:47010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234758AbiBIT0K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 14:26:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFD88C1DC5FA;
-        Wed,  9 Feb 2022 11:19:14 -0800 (PST)
+        with ESMTP id S235171AbiBIT10 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 14:27:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1379EC1DC5C6;
+        Wed,  9 Feb 2022 11:19:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E31A6B82393;
-        Wed,  9 Feb 2022 19:15:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06E4CC340E7;
-        Wed,  9 Feb 2022 19:15:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 202C361990;
+        Wed,  9 Feb 2022 19:16:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F06E0C340E7;
+        Wed,  9 Feb 2022 19:16:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644434158;
-        bh=IrgqHa2QwSbIxMhpEksDKoTT5fvgIWnKZ7/Ytsgb0oY=;
+        s=korg; t=1644434161;
+        bh=NKitg86III0HiHKNBq7FPeJryZj/1Ffg7YHGquOQJFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQ9CET9EWCYBZ65v4/no2lhFxSBHPHFufGKjdv/jVC0GUiupeypFKhr3gdJWYe1Og
-         w9qTd10FvFzoSvQLwO02FBEm+JFOFo7Eh4uibD0aLxZ0EsRd8kkxq7QEqoO4CDWobz
-         MFqVDPz9+pak2CyqskHDBFTZhNi5LCz6LhqgTXhI=
+        b=RWm3kFFwZC6unQ3FHu2q+ElQ9T6UHXeQYo3t4XTWmSDaAn8Ma2sq6wDkt1AkKiXjF
+         gG6k8kChRCdO9x5AxkFKs1hhiB0AxH8dXhQD7E2OUQx2I245Vtcy9vjH258zzr0N2M
+         fKU8POlPTDyDbT3dSqzqD654WzLteg0VygpHxdvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: [PATCH 5.16 3/5] KVM: s390: Return error on SIDA memop on normal guest
-Date:   Wed,  9 Feb 2022 20:14:35 +0100
-Message-Id: <20220209191250.009221364@linuxfoundation.org>
+        stable@vger.kernel.org, Steve French <smfrench@gmail.com>,
+        Steve French <stfrench@microsoft.com>,
+        Namjae Jeon <linkinjeon@kernel.org>
+Subject: [PATCH 5.16 4/5] ksmbd: fix SMB 3.11 posix extension mount failure
+Date:   Wed,  9 Feb 2022 20:14:36 +0100
+Message-Id: <20220209191250.048258338@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220209191249.887150036@linuxfoundation.org>
 References: <20220209191249.887150036@linuxfoundation.org>
@@ -54,33 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-commit 2c212e1baedcd782b2535a3f86bc491977677c0e upstream.
+commit 9ca8581e79e51c57e60b3b8e3b89d816448f49fe upstream.
 
-Refuse SIDA memops on guests which are not protected.
-For normal guests, the secure instruction data address designation,
-which determines the location we access, is not under control of KVM.
+cifs client set 4 to DataLength of create_posix context, which mean
+Mode variable of create_posix context is only available. So buffer
+validation of ksmbd should check only the size of Mode except for
+the size of Reserved variable.
 
-Fixes: 19e122776886 (KVM: S390: protvirt: Introduce instruction data area bounce buffer)
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Fixes: 8f77150c15f8 ("ksmbd: add buffer validation for SMB2_CREATE_CONTEXT")
+Cc: stable@vger.kernel.org # v5.15+
+Reported-by: Steve French <smfrench@gmail.com>
+Tested-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kvm/kvm-s390.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/ksmbd/smb2pdu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4711,6 +4711,8 @@ static long kvm_s390_guest_sida_op(struc
- 		return -EINVAL;
- 	if (mop->size + mop->sida_offset > sida_size(vcpu->arch.sie_block))
- 		return -E2BIG;
-+	if (!kvm_s390_pv_cpu_is_protected(vcpu))
-+		return -EINVAL;
- 
- 	switch (mop->op) {
- 	case KVM_S390_MEMOP_SIDA_READ:
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -2688,7 +2688,7 @@ int smb2_open(struct ksmbd_work *work)
+ 					(struct create_posix *)context;
+ 				if (le16_to_cpu(context->DataOffset) +
+ 				    le32_to_cpu(context->DataLength) <
+-				    sizeof(struct create_posix)) {
++				    sizeof(struct create_posix) - 4) {
+ 					rc = -EINVAL;
+ 					goto err_out1;
+ 				}
 
 
