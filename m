@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 541364AFB41
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:44:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D4D4AFB43
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:44:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240390AbiBISnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:43:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34796 "EHLO
+        id S240447AbiBISn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:43:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240384AbiBISno (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:43:44 -0500
+        with ESMTP id S240503AbiBISnr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:43:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4FECC094C8D;
-        Wed,  9 Feb 2022 10:42:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05DBBC050CC9;
+        Wed,  9 Feb 2022 10:42:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6CCBCB82384;
-        Wed,  9 Feb 2022 18:42:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02115C340E7;
-        Wed,  9 Feb 2022 18:42:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 972D6B82215;
+        Wed,  9 Feb 2022 18:42:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 460A8C340E7;
+        Wed,  9 Feb 2022 18:42:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432135;
-        bh=T0e5nwJQ1XBpLrbjbW/hRHChfr9mGV7tWN6MZ1JrH7w=;
+        s=k20201202; t=1644432140;
+        bh=GDe3jRGeoV8MhQkHc5TTNRZYGcruBsUt0qonQe0epg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lK3TfzWBeI7w1uMp4ThqL4dtsyk7P8S3l4kXwlhCKEwfQ+raNZzo87eLFuGk3VZur
-         PzWwXM9KADmLEwCCpBcnS4KVx5yRtS2/yRXWU0IfuHYdiCia2u6MDJ4vCepRZh7dpK
-         HWPIw2jjY7GfslnDC5O/hEjVUe6T0yuwzfBuNbo6d/xoL1jZU9rXAVJOeQmmmD7/lS
-         VMvdYvygjQLZSQeXHhS0c/wwjWaizCngu5EOj6zxEs++fnz/mWz1o3q4Ayssd0CUzi
-         yZh6+iYX7q4eQjtXJKrY5VGksOsxULPOC1keA2B4lLIkiBfEShcotZbUS1naRu6Ncz
-         HMFxnzM2QYSRQ==
+        b=ZTSatPKyrAR7H4cSInKMobzWoQirryrhjLGcTOwgKIH94ghJH7qawdMG130JrN5mA
+         YLPdW63s2z4M3HYtOuagSP+BBS+5eyjGDGZCJ9tXgA4tMECr5jGWl4/4xK3E7O6MCC
+         o2SI1vBQdbt6o4+eoL2Oiz1RsSr52gYtY2sUr+DYuC02KHbFnTsaLD7buc2BtLwi3w
+         1G2VaZ29QWu85NKwwkdIUhsRMGO2iEWQ7DmLk669YNh039orxKKYlTx3F6Ea4F9mVY
+         Wr+wdE9zE6drLIG0qYylKgHP1lxcMJwPnbz3ezRE53pd7ok779Ol9gVUdvECMm6tR9
+         u0ON5BRB/9w5g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Cristian Marussi <cristian.marussi@arm.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
+        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
         Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        brauner@kernel.org, rgb@redhat.com, baolin.wang@linux.alibaba.com,
+        zhang.yunkai@zte.com.cn, akpm@linux-foundation.org,
         linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 11/27] selftests: openat2: Skip testcases that fail with EOPNOTSUPP
-Date:   Wed,  9 Feb 2022 13:40:47 -0500
-Message-Id: <20220209184103.47635-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 12/27] selftests: skip mincore.check_file_mmap when fs lacks needed support
+Date:   Wed,  9 Feb 2022 13:40:48 -0500
+Message-Id: <20220209184103.47635-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209184103.47635-1-sashal@kernel.org>
 References: <20220209184103.47635-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,49 +62,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit ac9e0a250bb155078601a5b999aab05f2a04d1ab ]
+[ Upstream commit dae1d8ac31896988e7313384c0370176a75e9b45 ]
 
-Skip testcases that fail since the requested valid flags combination is not
-supported by the underlying filesystem.
+Report mincore.check_file_mmap as SKIP instead of FAIL if the underlying
+filesystem lacks support of O_TMPFILE or fallocate since such failures
+are not really related to mincore functionality.
 
-Cc: Aleksa Sarai <cyphar@cyphar.com>
+Cc: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
 Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/openat2/openat2_test.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ .../selftests/mincore/mincore_selftest.c      | 20 +++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/tools/testing/selftests/openat2/openat2_test.c b/tools/testing/selftests/openat2/openat2_test.c
-index b386367c606b1..453152b58e7f0 100644
---- a/tools/testing/selftests/openat2/openat2_test.c
-+++ b/tools/testing/selftests/openat2/openat2_test.c
-@@ -244,6 +244,16 @@ void test_openat2_flags(void)
- 		unlink(path);
+diff --git a/tools/testing/selftests/mincore/mincore_selftest.c b/tools/testing/selftests/mincore/mincore_selftest.c
+index 5a1e85ff5d32a..2cf6f2f277ab8 100644
+--- a/tools/testing/selftests/mincore/mincore_selftest.c
++++ b/tools/testing/selftests/mincore/mincore_selftest.c
+@@ -208,15 +208,21 @@ TEST(check_file_mmap)
  
- 		fd = sys_openat2(AT_FDCWD, path, &test->how);
-+		if (fd < 0 && fd == -EOPNOTSUPP) {
-+			/*
-+			 * Skip the testcase if it failed because not supported
-+			 * by FS. (e.g. a valid O_TMPFILE combination on NFS)
-+			 */
-+			ksft_test_result_skip("openat2 with %s fails with %d (%s)\n",
-+					      test->name, fd, strerror(-fd));
-+			goto next;
+ 	errno = 0;
+ 	fd = open(".", O_TMPFILE | O_RDWR, 0600);
+-	ASSERT_NE(-1, fd) {
+-		TH_LOG("Can't create temporary file: %s",
+-			strerror(errno));
++	if (fd < 0) {
++		ASSERT_EQ(errno, EOPNOTSUPP) {
++			TH_LOG("Can't create temporary file: %s",
++			       strerror(errno));
 +		}
-+
- 		if (test->err >= 0)
- 			failed = (fd < 0);
- 		else
-@@ -288,7 +298,7 @@ void test_openat2_flags(void)
- 		else
- 			resultfn("openat2 with %s fails with %d (%s)\n",
- 				 test->name, test->err, strerror(-test->err));
--
-+next:
- 		free(fdpath);
- 		fflush(stdout);
++		SKIP(goto out_free, "O_TMPFILE not supported by filesystem.");
  	}
+ 	errno = 0;
+ 	retval = fallocate(fd, 0, 0, FILE_SIZE);
+-	ASSERT_EQ(0, retval) {
+-		TH_LOG("Error allocating space for the temporary file: %s",
+-			strerror(errno));
++	if (retval) {
++		ASSERT_EQ(errno, EOPNOTSUPP) {
++			TH_LOG("Error allocating space for the temporary file: %s",
++			       strerror(errno));
++		}
++		SKIP(goto out_close, "fallocate not supported by filesystem.");
+ 	}
+ 
+ 	/*
+@@ -272,7 +278,9 @@ TEST(check_file_mmap)
+ 	}
+ 
+ 	munmap(addr, FILE_SIZE);
++out_close:
+ 	close(fd);
++out_free:
+ 	free(vec);
+ }
+ 
 -- 
 2.34.1
 
