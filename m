@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C54FC4AFB92
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:48:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77EA44AFB82
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:47:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240764AbiBISrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:47:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35034 "EHLO
+        id S240765AbiBISr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:47:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241182AbiBISqf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:46:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0BDCC0364A2;
-        Wed,  9 Feb 2022 10:43:49 -0800 (PST)
+        with ESMTP id S241232AbiBISqg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:46:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 157ABC033245;
+        Wed,  9 Feb 2022 10:43:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A89D5B82385;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFBCE61194;
+        Wed,  9 Feb 2022 18:43:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CCF2C340EE;
         Wed,  9 Feb 2022 18:43:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABFF7C340E7;
-        Wed,  9 Feb 2022 18:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432225;
-        bh=RXq67GvkhOqpiFgYKxHSEzQ8PbXpiceR3UhiQ5ibA7A=;
+        s=k20201202; t=1644432227;
+        bh=rU+l+UW0khed3sG8o6fuTidWsmMBuScY+PYN/6e420o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jRUZW9D0MV4VDTbQxyK6NDF963HmLNZeuoAF83kVbph3wAT3C3vVejmpeOaCAzjG+
-         QYzx3W5Trmh6jtVbNxcRCU9Xjc+vitUmUoOJgIr7Hu6+h1lNUoi0RgsUPxN35cK6u4
-         0+QsJUVp6gAtJ1cx7GzVSZgbtclv/qZoHTM26Mb2AQJkNqSP10lnztQylyCCTGBGC2
-         OgU4Rx4SYSFnCiHk8l273kgLPXxoQ7Eo9l3zmlyDDz8ki6Whn11dN7kLn2r7vev0y6
-         OvIWZeWuEYPxaEmsxp453SQJFCl13jeFOS1BOkMFnWtTX12vnxzLuRIPbeaXZcQ0Y3
-         ikNzDd0Tmc9nw==
+        b=PsaSEqsWOpQXpcAb1qinAvsWLBGH1WwcCtefctxtloAfw5Uv2QpUEDnBcx4tjP3Xu
+         lXztN9AE4C0DBoMpFeOHvKT4xdnQNT0TZ8u8GjCJ6NzglhhSvQg3+43N9Jj6lOdrB8
+         9yCdTBGvlfvvcEQdz9xpFWwowdfbh77ppB3yyo3V6XbKC2XSpOkdU6LwVoq/XQQmk1
+         Z73u55cSPHblzPhiNY7IlRsiQ7G7AeDytrnTMnc+maW5tUUgrcAi5b9R/3jXIjsUSW
+         yN0dVNlBr3epSvj7FZsi0WxcQMDwYgs6NDcj7R7J99BXPgUjRr4SPU9SMfEvfDWDAq
+         HrdexQqU6imng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Darrick J. Wong" <djwong@kernel.org>, Jan Kara <jack@suse.cz>,
-        Christoph Hellwig <hch@lst.de>,
-        Christian Brauner <brauner@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, jack@suse.com
-Subject: [PATCH AUTOSEL 5.4 09/15] quota: make dquot_quota_sync return errors from ->sync_fs
-Date:   Wed,  9 Feb 2022 13:42:55 -0500
-Message-Id: <20220209184305.47983-9-sashal@kernel.org>
+Cc:     Su Yue <l@damenly.su>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, clm@fb.com,
+        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 10/15] btrfs: tree-checker: check item_size for dev_item
+Date:   Wed,  9 Feb 2022 13:42:56 -0500
+Message-Id: <20220209184305.47983-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209184305.47983-1-sashal@kernel.org>
 References: <20220209184305.47983-1-sashal@kernel.org>
@@ -57,45 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+From: Su Yue <l@damenly.su>
 
-[ Upstream commit dd5532a4994bfda0386eb2286ec00758cee08444 ]
+[ Upstream commit ea1d1ca4025ac6c075709f549f9aa036b5b6597d ]
 
-Strangely, dquot_quota_sync ignores the return code from the ->sync_fs
-call, which means that quotacalls like Q_SYNC never see the error.  This
-doesn't seem right, so fix that.
+Check item size before accessing the device item to avoid out of bound
+access, similar to inode_item check.
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Christian Brauner <brauner@kernel.org>
+Signed-off-by: Su Yue <l@damenly.su>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/quota/dquot.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ fs/btrfs/tree-checker.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
-index 7abc3230c21a4..dc5f8654b277d 100644
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -693,9 +693,14 @@ int dquot_quota_sync(struct super_block *sb, int type)
- 	/* This is not very clever (and fast) but currently I don't know about
- 	 * any other simple way of getting quota data to disk and we must get
- 	 * them there for userspace to be visible... */
--	if (sb->s_op->sync_fs)
--		sb->s_op->sync_fs(sb, 1);
--	sync_blockdev(sb->s_bdev);
-+	if (sb->s_op->sync_fs) {
-+		ret = sb->s_op->sync_fs(sb, 1);
-+		if (ret)
-+			return ret;
-+	}
-+	ret = sync_blockdev(sb->s_bdev);
-+	if (ret)
-+		return ret;
+diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
+index 368c43c6cbd08..d6e0eeb82fa9e 100644
+--- a/fs/btrfs/tree-checker.c
++++ b/fs/btrfs/tree-checker.c
+@@ -764,6 +764,7 @@ static int check_dev_item(struct extent_buffer *leaf,
+ 			  struct btrfs_key *key, int slot)
+ {
+ 	struct btrfs_dev_item *ditem;
++	const u32 item_size = btrfs_item_size(leaf, slot);
  
- 	/*
- 	 * Now when everything is written we can discard the pagecache so
+ 	if (key->objectid != BTRFS_DEV_ITEMS_OBJECTID) {
+ 		dev_item_err(leaf, slot,
+@@ -771,6 +772,13 @@ static int check_dev_item(struct extent_buffer *leaf,
+ 			     key->objectid, BTRFS_DEV_ITEMS_OBJECTID);
+ 		return -EUCLEAN;
+ 	}
++
++	if (unlikely(item_size != sizeof(*ditem))) {
++		dev_item_err(leaf, slot, "invalid item size: has %u expect %zu",
++			     item_size, sizeof(*ditem));
++		return -EUCLEAN;
++	}
++
+ 	ditem = btrfs_item_ptr(leaf, slot, struct btrfs_dev_item);
+ 	if (btrfs_device_id(leaf, ditem) != key->offset) {
+ 		dev_item_err(leaf, slot,
 -- 
 2.34.1
 
