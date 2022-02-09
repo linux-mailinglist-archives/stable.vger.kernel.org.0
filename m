@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05A4C4AF9FB
+	by mail.lfdr.de (Postfix) with ESMTP id 4FA674AF9FC
 	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:33:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238242AbiBISdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:33:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50674 "EHLO
+        id S238768AbiBISdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:33:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235023AbiBISdi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:33:38 -0500
+        with ESMTP id S238643AbiBISdl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:33:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9414C0613C9;
-        Wed,  9 Feb 2022 10:33:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E96BC0613C9;
+        Wed,  9 Feb 2022 10:33:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48EF461C16;
-        Wed,  9 Feb 2022 18:33:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DEC4C340E7;
-        Wed,  9 Feb 2022 18:33:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E04461C16;
+        Wed,  9 Feb 2022 18:33:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB53EC340ED;
+        Wed,  9 Feb 2022 18:33:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644431620;
-        bh=bFy7XXY2ACITulTCUKRC7dk/O8gBIpyeMZ3F7CKr/7s=;
-        h=From:To:Cc:Subject:Date:From;
-        b=LM5akZrXHkGfyoqM4hv2SRCV7HhZHvzf62xiVBHchXCZqPnwd5f8o8ngdOUFo7y88
-         rg4zM9YfQoDMw/+7X2C23aKSqHqst6wtIg+XPRrvsdOmLdqMLzZiLQHK3s2RD/v7tq
-         /GhGKf+poi2xoCSBkSdbJ+Q0apl3UgnEQL5s0H14SM85FvDuL0Ucyxfl2ybMNGmmP1
-         2tDKdAsQAVlYEgDKlBmmYOQpLI/mqYtZ4FArNoIFEuwMsK8PQFjx1lyAi264/YrsWq
-         vR7XI8J5QEAyLlkrF2xPOOkJWHPEihsW+8vbjckFSuSUwNSks9/9adyJjflhZZkuq9
-         Kzy5DS6QS3S1A==
+        s=k20201202; t=1644431623;
+        bh=ysQjc3cjbNtOKFPnq5TsGdaq+5xjsHmtSp9extAhfzg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=lKTzXUM7zVlKlOIeSwO4PoI3zKy6gTlvnXzMFYbl/86g/jZXfp89T0q4Hs+EBLz0c
+         Ei5t0MV8dkk8/5P6UXUORo8oWQpfX0TktQn+OuTAoBzEBNTBVr/c8wqTYiiZUdII1e
+         LsWmxKMvJyTay51fTrwZ/7KScf5kKz3eOvweOBY7zqE+38lRnxuejItBkMDqE0DhqA
+         hWheUV28Y8eNO9oq2ijrk1S45k8rKHDezURW6Jw1K1ALF0mo5mXq+20yry+hewKB+x
+         Lk5FC2j5jm6HQU/3PLGfOHPZhjiXAg4Y2Ld1duEs/qL3uC3wdN9d/ZDt6/+qqrsJQW
+         IPmqqsL7c0pJA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Braha <julianbraha@gmail.com>,
-        Tzung-Bi Shih <tzungbi@google.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, matthias.bgg@gmail.com,
-        trevor.wu@mediatek.com, rdunlap@infradead.org,
-        geert+renesas@glider.be, alsa-devel@alsa-project.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.16 01/42] ASoC: mediatek: fix unmet dependency on GPIOLIB for SND_SOC_DMIC
-Date:   Wed,  9 Feb 2022 13:32:33 -0500
-Message-Id: <20220209183335.46545-1-sashal@kernel.org>
+Cc:     Yuka Kawajiri <yukx00@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
+        linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 02/42] platform/x86: touchscreen_dmi: Add info for the RWC NANOTE P8 AY07J 2-in-1
+Date:   Wed,  9 Feb 2022 13:32:34 -0500
+Message-Id: <20220209183335.46545-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220209183335.46545-1-sashal@kernel.org>
+References: <20220209183335.46545-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -60,49 +57,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Braha <julianbraha@gmail.com>
+From: Yuka Kawajiri <yukx00@gmail.com>
 
-[ Upstream commit 579b2c8f72d974f27d85bbd53846f34675ee3b01 ]
+[ Upstream commit 512eb73cfd1208898cf10cb06094e0ee0bb53b58 ]
 
-When SND_SOC_MT8195_MT6359_RT1011_RT5682 is selected,
-and GPIOLIB is not selected,
-Kbuild gives the following warning:
+Add touchscreen info for RWC NANOTE P8 (AY07J) 2-in-1.
 
-WARNING: unmet direct dependencies detected for SND_SOC_DMIC
-  Depends on [n]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && GPIOLIB [=n]
-  Selected by [y]:
-  - SND_SOC_MT8195_MT6359_RT1011_RT5682 [=y] && SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && I2C [=y] && SND_SOC_MT8195 [=y] && MTK_PMIC_WRAP [=y]
-
-This is because SND_SOC_MT8195_MT6359_RT1011_RT5682
-selects SND_SOC_DMIC without selecting or depending on
-GPIOLIB, depsite SND_SOC_DMIC depending on GPIOLIB.
-
-This unmet dependency bug was detected by Kismet,
-a static analysis tool for Kconfig. Please advise
-if this is not the appropriate solution.
-
-Signed-off-by: Julian Braha <julianbraha@gmail.com>
-Reviewed-by: Tzung-Bi Shih <tzungbi@google.com>
-Link: https://lore.kernel.org/r/20220117050324.68371-1-julianbraha@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Yuka Kawajiri <yukx00@gmail.com>
+Link: https://lore.kernel.org/r/20220111154019.4599-1-yukx00@gmail.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/touchscreen_dmi.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/sound/soc/mediatek/Kconfig b/sound/soc/mediatek/Kconfig
-index 3b1ddea26a9ef..76f191ec7bf84 100644
---- a/sound/soc/mediatek/Kconfig
-+++ b/sound/soc/mediatek/Kconfig
-@@ -215,7 +215,7 @@ config SND_SOC_MT8195_MT6359_RT1019_RT5682
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 17dd54d4b783c..e318b40949679 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -773,6 +773,21 @@ static const struct ts_dmi_data predia_basic_data = {
+ 	.properties	= predia_basic_props,
+ };
  
- config SND_SOC_MT8195_MT6359_RT1011_RT5682
- 	tristate "ASoC Audio driver for MT8195 with MT6359 RT1011 RT5682 codec"
--	depends on I2C
-+	depends on I2C && GPIOLIB
- 	depends on SND_SOC_MT8195 && MTK_PMIC_WRAP
- 	select SND_SOC_MT6359
- 	select SND_SOC_RT1011
++static const struct property_entry rwc_nanote_p8_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 46),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1140),
++	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-rwc-nanote-p8.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	{ }
++};
++
++static const struct ts_dmi_data rwc_nanote_p8_data = {
++	.acpi_name = "MSSL1680:00",
++	.properties = rwc_nanote_p8_props,
++};
++
+ static const struct property_entry schneider_sct101ctm_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-size-x", 1715),
+ 	PROPERTY_ENTRY_U32("touchscreen-size-y", 1140),
+@@ -1406,6 +1421,15 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_EXACT_MATCH(DMI_BOARD_NAME, "0E57"),
+ 		},
+ 	},
++	{
++		/* RWC NANOTE P8 */
++		.driver_data = (void *)&rwc_nanote_p8_data,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Default string"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "AY07J"),
++			DMI_MATCH(DMI_PRODUCT_SKU, "0001")
++		},
++	},
+ 	{
+ 		/* Schneider SCT101CTM */
+ 		.driver_data = (void *)&schneider_sct101ctm_data,
 -- 
 2.34.1
 
