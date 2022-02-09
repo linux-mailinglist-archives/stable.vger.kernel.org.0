@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6D14AFAE7
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:41:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B7D04AFAF4
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:41:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240075AbiBISla (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:41:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55248 "EHLO
+        id S240216AbiBISlh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:41:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240411AbiBISlJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:41:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EC37C03BFC0;
-        Wed,  9 Feb 2022 10:40:24 -0800 (PST)
+        with ESMTP id S240476AbiBISlO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:41:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A90C05CB87;
+        Wed,  9 Feb 2022 10:40:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C00FC60906;
-        Wed,  9 Feb 2022 18:40:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 377D8C340E7;
-        Wed,  9 Feb 2022 18:40:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0313F6006F;
+        Wed,  9 Feb 2022 18:40:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD310C340E7;
+        Wed,  9 Feb 2022 18:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432023;
-        bh=wGO2C/+5/UpsUQ1fbHIpV6d7ywQrzR6tQA1uBrprlcE=;
+        s=k20201202; t=1644432031;
+        bh=SUV0sQS/PjrAEiqU1+IwNp58SrzXlY55YbhJgIcd5Rc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fzCJFXeqsTy6MepEezoxKWEZVdAPH+3CqCs89Aq8wuyiP8tmxh93bBlhmKiWCaKDo
-         ufxmK4kaB6eBVZd+kzx2fcrfALSTCgmpbmI+mwW2KyVDLUJfBY2IT1PMNUxTuyU+Ps
-         y8eVQQzG50MWW4f/6ZJa54S9xSvwKPvpDS2CItcSxK9w3RqO+veyiYFzVn9dKobfSa
-         sTn6jLtMZMs0Q0FTTT865uK0TmlwOCBY1xOXwpBTYw49+zvHlyfFe19MF76XdyZFP6
-         V+AeoTZ3ms29Kak2D94duLfPsuJZtB7kfJfpMtTm/ZhsveCjqVcaZbWfVllIOjrTY4
-         cfv31JxRQYngQ==
+        b=WBuUhbMajWJl1YfJoVdAzBCxZnXa7u6sSeC1x9Fwi47cKfKEYYh7UHc6w7MjoUArx
+         b91nReHGmrQkz/T95EdE5Hk88J7wdpYaz45H9/nG6txeln7IFXIrfN+0AECP9ZQSjb
+         BDs31taFheKoSU5CBmLR/l8Fo1iAfnXIqt6C1pPJjhgQnJ1KbCgOCgormC8II0WTzE
+         rsmwmXhHY698ew4VRkPNq+JtNzVOpNulGRpEtMTYmJTr39hVKxKf3/mglYRSyxXP2q
+         rzYV2FEgdA34wsU0vCrNCaSRWRF2TdpCL0A9DBbKsYjsvRK8uwjxvEFVJ3nIUtyswc
+         p+AqQkVyfFm6Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mario Limonciello <mario.limonciello@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
         Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        lijo.lazar@amd.com, Hawking.Zhang@amd.com, guchun.chen@amd.com,
-        sathishkumar.sundararaju@amd.com, shaoyun.liu@amd.com,
-        veerabadhran.gopalakrishnan@amd.com, nirmoy.das@amd.com,
-        Prike.Liang@amd.com, Pratik.Vishwakarma@amd.com, bp@suse.de,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 30/36] drm/amd: add support to check whether the system is set to s3
-Date:   Wed,  9 Feb 2022 13:37:53 -0500
-Message-Id: <20220209183759.47134-30-sashal@kernel.org>
+        evan.quan@amd.com, Hawking.Zhang@amd.com,
+        andrey.grodzovsky@amd.com, shaoyun.liu@amd.com,
+        aurabindo.pillai@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 31/36] drm/amd: Only run s3 or s0ix if system is configured properly
+Date:   Wed,  9 Feb 2022 13:37:54 -0500
+Message-Id: <20220209183759.47134-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209183759.47134-1-sashal@kernel.org>
 References: <20220209183759.47134-1-sashal@kernel.org>
@@ -64,62 +63,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit f52a2b8badbd24faf73a13c9c07fdb9d07352944 ]
+[ Upstream commit 04ef860469fda6a646dc841190d05b31fae68e8c ]
 
-This will be used to help make decisions on what to do in
-misconfigured systems.
+This will cause misconfigured systems to not run the GPU suspend
+routines.
 
-v2: squash in semicolon fix from Stephen Rothwell
+* In APUs that are properly configured system will go into s2idle.
+* In APUs that are intended to be S3 but user selects
+  s2idle the GPU will stay fully powered for the suspend.
+* In APUs that are intended to be s2idle and system misconfigured
+  the GPU will stay fully powered for the suspend.
+* In systems that are intended to be s2idle, but AMD dGPU is also
+  present, the dGPU will go through S3
 
 Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu.h      |  2 ++
- drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c | 13 +++++++++++++
- 2 files changed, 15 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu.h b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-index c8d31a22176f3..7e73ac6fb21db 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-@@ -1410,9 +1410,11 @@ static inline int amdgpu_acpi_smart_shift_update(struct drm_device *dev,
- #endif
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index 41677f99c67b1..f5852bda59349 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -1499,6 +1499,7 @@ static void amdgpu_drv_delayed_reset_work_handler(struct work_struct *work)
+ static int amdgpu_pmops_prepare(struct device *dev)
+ {
+ 	struct drm_device *drm_dev = dev_get_drvdata(dev);
++	struct amdgpu_device *adev = drm_to_adev(drm_dev);
  
- #if defined(CONFIG_ACPI) && defined(CONFIG_SUSPEND)
-+bool amdgpu_acpi_is_s3_active(struct amdgpu_device *adev);
- bool amdgpu_acpi_is_s0ix_active(struct amdgpu_device *adev);
- #else
- static inline bool amdgpu_acpi_is_s0ix_active(struct amdgpu_device *adev) { return false; }
-+static inline bool amdgpu_acpi_is_s3_active(struct amdgpu_device *adev) { return false; }
- #endif
+ 	/* Return a positive number here so
+ 	 * DPM_FLAG_SMART_SUSPEND works properly
+@@ -1507,6 +1508,13 @@ static int amdgpu_pmops_prepare(struct device *dev)
+ 		return pm_runtime_suspended(dev) &&
+ 			pm_suspend_via_firmware();
  
- int amdgpu_cs_find_mapping(struct amdgpu_cs_parser *parser,
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
-index b19d407518024..0e12315fa0cb8 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
-@@ -1032,6 +1032,19 @@ void amdgpu_acpi_detect(void)
++	/* if we will not support s3 or s2i for the device
++	 *  then skip suspend
++	 */
++	if (!amdgpu_acpi_is_s0ix_active(adev) &&
++	    !amdgpu_acpi_is_s3_active(adev))
++		return 1;
++
+ 	return 0;
  }
  
- #if IS_ENABLED(CONFIG_SUSPEND)
-+/**
-+ * amdgpu_acpi_is_s3_active
-+ *
-+ * @adev: amdgpu_device_pointer
-+ *
-+ * returns true if supported, false if not.
-+ */
-+bool amdgpu_acpi_is_s3_active(struct amdgpu_device *adev)
-+{
-+	return !(adev->flags & AMD_IS_APU) ||
-+		(pm_suspend_target_state == PM_SUSPEND_MEM);
-+}
-+
- /**
-  * amdgpu_acpi_is_s0ix_active
-  *
 -- 
 2.34.1
 
