@@ -2,96 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 718EA4AFF70
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 22:51:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1F794B0097
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 23:48:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233868AbiBIVvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 16:51:09 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:38224 "EHLO
+        id S236271AbiBIWsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 17:48:01 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:49714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233860AbiBIVvI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 16:51:08 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C9870C0DE7EB
-        for <stable@vger.kernel.org>; Wed,  9 Feb 2022 13:51:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1644443468;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=cf340JweVJoiHiod04EEzHBmoPbI4MxHx4i63YpUZFY=;
-        b=WSpz13nfXLS1pUxP4Gor2oB71Cg70QhY0OPG1ocAU+l0XFiOBY8dCycZL1MJYPWLfvcSGv
-        cxwGmW7m8g1betAePHo6ji4OnBRKGT5NREZ/t49dG9iKdJmibTu2ldShnJ1aKUUzIVtOVC
-        /h2fIJszWA0hCm7blNXWsa3IYuqflgs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-264-CpgCBT5vNK2JIAd4BOXBlA-1; Wed, 09 Feb 2022 16:51:07 -0500
-X-MC-Unique: CpgCBT5vNK2JIAd4BOXBlA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 28E00100C665;
-        Wed,  9 Feb 2022 21:51:06 +0000 (UTC)
-Received: from madcap2.tricolour.com (unknown [10.22.48.17])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 891964CEC7;
-        Wed,  9 Feb 2022 21:50:07 +0000 (UTC)
-From:   Richard Guy Briggs <rgb@redhat.com>
-To:     Linux-Audit Mailing List <linux-audit@redhat.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Steve Grubb <sgrubb@redhat.com>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Arnd Bergmann <arnd@kernel.org>, stable@vger.kernel.org,
-        Jeff Mahoney <jeffm@suse.com>
-Subject: [PATCH v1] audit: fix illegal pointer dereference for openat2
-Date:   Wed,  9 Feb 2022 16:50:04 -0500
-Message-Id: <a112a586b0a7e6a1a2364a284fb50cf8fcbf7351.1644442795.git.rgb@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S236164AbiBIWr7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 17:47:59 -0500
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D8DE01644C;
+        Wed,  9 Feb 2022 14:48:02 -0800 (PST)
+Received: by mail-pj1-x1034.google.com with SMTP id v13-20020a17090ac90d00b001b87bc106bdso6656528pjt.4;
+        Wed, 09 Feb 2022 14:48:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=KXc1sqyU2Qd7WQy9J1rum8wM80ISZeqcdXY4bjyOVmg=;
+        b=RJoS/D+pCheo/4MzOz0AdAlQsEred3Y17syMeJcS2OQxl049MoB7xQ3sDmUuZKI0no
+         BPjQSUwQLhUbyfNZ0Oi1B8W7Xlgg/9WHHmffv6TKffiwVLA8qQyyDHo/iXLnNvDTUGZq
+         khNLvzT1As7jOtP4kKZl6uVGbK0/lLrmaXtX/iSHgwrlH8TugatOaeoBcjV01baSnLfF
+         7B0gk2/Q0THvxfCUfcARX9gIEgc7bMX0LWbXPR3iIGv073uL5+R2kReHpXxaHmF7Qep9
+         xeNlmnWHPs44BLnKJ4sIHEG1ziqoJHW+RWmqEiXwn/urRdTKSDuA8444lNKt9HXnePy0
+         jMIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=KXc1sqyU2Qd7WQy9J1rum8wM80ISZeqcdXY4bjyOVmg=;
+        b=YF7/tWGIn4zhxJ7QRZI7G6crPoW+pwyIYa87tVU3esG7csB2i9LI21bEfrdKkZFLZ8
+         BDI9+oSNSDss/sRzXziwH708ckql3jDKcFVEnZ65yqr6u/dmxfoXtsDpilw+1PDKzVxD
+         qAEDhSBqORiooF2wDH5TWFgKAcn5b1XhjY7NIU19tFnQH7gCRDuXw48H9RXjV22+pteK
+         AhhJwbOL3fD75xesTLJmy7CIMHdcXXwe+AOOClTCuttfbB8i0rwo9xDv2U6uEPElbaLR
+         IRVofTluipaiLqZht+O6ZqdztWQMSu6phIUwM3kjmDdfH+IQ/gkKLTEIfCP4Gr9m7sRG
+         fTCw==
+X-Gm-Message-State: AOAM5339qpfeLqHf7yZuirCfE3sem9eSKLVvqtwm/wbQ75K/knpbkV4I
+        BSUtpZi/30nn+Hi1sME/oQaDEGmmo1ritZyhU1KALg==
+X-Google-Smtp-Source: ABdhPJyThSBmBM2LV3bKOXvGwHD6J/HGztn5/d/UZGnKv84QhsHzmiJczkjkm3O/iWjI1mEM0S70FQ==
+X-Received: by 2002:a17:903:228c:: with SMTP id b12mr4714648plh.39.1644446881046;
+        Wed, 09 Feb 2022 14:48:01 -0800 (PST)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
+        by smtp.gmail.com with ESMTPSA id k21sm20985332pff.33.2022.02.09.14.47.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Feb 2022 14:48:00 -0800 (PST)
+Message-ID: <620444a0.1c69fb81.12f9e.457f@mx.google.com>
+Date:   Wed, 09 Feb 2022 14:48:00 -0800 (PST)
+X-Google-Original-Date: Wed, 09 Feb 2022 22:47:53 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20220209191249.887150036@linuxfoundation.org>
+Subject: RE: [PATCH 5.16 0/5] 5.16.9-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The user pointer was being illegally dereferenced directly to get the
-open_how flags data in audit_match_perm.  Use the previously saved flags
-data elsewhere in the context instead.
+On Wed,  9 Feb 2022 20:14:32 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.16.9 release.
+> There are 5 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 11 Feb 2022 19:12:41 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.9-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Coverage is provided by the audit-testsuite syscalls_file test case.
-
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/c96031b4-b76d-d82c-e232-1cccbbf71946@suse.com
-Fixes: 1c30e3af8a79 ("audit: add support for the openat2 syscall")
-Reported-by: Jeff Mahoney <jeffm@suse.com>
-Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
----
- kernel/auditsc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index fce5d43a933f..81ab510a7be4 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -185,7 +185,7 @@ static int audit_match_perm(struct audit_context *ctx, int mask)
- 	case AUDITSC_EXECVE:
- 		return mask & AUDIT_PERM_EXEC;
- 	case AUDITSC_OPENAT2:
--		return mask & ACC_MODE((u32)((struct open_how *)ctx->argv[2])->flags);
-+		return mask & ACC_MODE((u32)(ctx->openat2.flags));
- 	default:
- 		return 0;
- 	}
--- 
-2.27.0
+5.16.9-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
