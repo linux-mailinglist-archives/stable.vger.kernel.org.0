@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B154AFBE6
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:52:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 702954AFBE9
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:52:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240794AbiBISvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:51:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43750 "EHLO
+        id S239727AbiBISvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:51:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241256AbiBISuz (ORCPT
+        with ESMTP id S241261AbiBISuz (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:50:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE557C03E941;
-        Wed,  9 Feb 2022 10:46:32 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A14C03E95E;
+        Wed,  9 Feb 2022 10:46:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8367BB82385;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97285B82215;
+        Wed,  9 Feb 2022 18:46:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B090C340ED;
         Wed,  9 Feb 2022 18:46:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B4E9C340E7;
-        Wed,  9 Feb 2022 18:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432390;
-        bh=M3g5niZDmS2QGRzOcEgr6nK0pvMXu9h0RVKKGiXxNIM=;
+        s=k20201202; t=1644432392;
+        bh=GttMzeaofkNMOCaqUHy7gLUshl9uBtQS37tupBrwCDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ELE5wEbTYfhH08ruRYQI1lPqk0gZsjO8tMHxUHCBcByr/EiUIC83afh2s+7V3UgrE
-         zHchVWvKJQmN9rjs+cTlq6FWmoBxkep2yhv2ElF84h2d2zT0g8u9OG8+JXUaXDKM3O
-         l69YoDKwFGQJ4iICA5WZBaBEajfEJ86FFY+00xr2uHK2w8mSE+zSTzT8qe6l3VbY6M
-         jw0ouXiA91LmmpsbSEfpDJQlLbr8sEyCrqAL2uHFCH6kXLpLI+6WvO4xqhMYm86pr6
-         sJ6FWfZwG9ip/UdfWScw3BpSW34uq46eic3/RRUuE2FNL4hETqrvtmV+4x3HR1gGi8
-         R9YGJO9SaEnQg==
+        b=NSymINvo3vn1ZQmlJbCXBRGCQvBBtgiP5C6WZ4GlR5dLTErs2UQimYREPYJfnTV14
+         vjaYrnh7R7BLQe5HfKFEfQWofIXt82/SypcmUafBC6htHGuoKRr57OCFdkMfiht+30
+         FRhnRLYSHgsfyGo8/yHiaTkbcdtmNcae6S30/oAGtaEHH4EYH2lwyHBJa1N9np5dHX
+         pjp451HyxII1Efd6g1fe+9HEAqsy2h9l/gbv/BX6jaBB2OcthJXhFmiy1XUCXMklXF
+         Ccxg8f2BqoUC5qsPXF7RqpAb74FsN8mnhvaamhCrrnlFJMdXHLJU+xF12CnfRT7HpR
+         AON4tmMLkv5NA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     "Darrick J. Wong" <djwong@kernel.org>, Jan Kara <jack@suse.cz>,
         Christoph Hellwig <hch@lst.de>,
         Christian Brauner <brauner@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, viro@zeniv.linux.org.uk,
-        linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 6/7] vfs: make freeze_super abort when sync_filesystem returns error
-Date:   Wed,  9 Feb 2022 13:45:49 -0500
-Message-Id: <20220209184550.48481-6-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jack@suse.com
+Subject: [PATCH AUTOSEL 4.9 7/7] quota: make dquot_quota_sync return errors from ->sync_fs
+Date:   Wed,  9 Feb 2022 13:45:50 -0500
+Message-Id: <20220209184550.48481-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209184550.48481-1-sashal@kernel.org>
 References: <20220209184550.48481-1-sashal@kernel.org>
@@ -60,10 +59,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Darrick J. Wong" <djwong@kernel.org>
 
-[ Upstream commit 2719c7160dcfaae1f73a1c0c210ad3281c19022e ]
+[ Upstream commit dd5532a4994bfda0386eb2286ec00758cee08444 ]
 
-If we fail to synchronize the filesystem while preparing to freeze the
-fs, abort the freeze.
+Strangely, dquot_quota_sync ignores the return code from the ->sync_fs
+call, which means that quotacalls like Q_SYNC never see the error.  This
+doesn't seem right, so fix that.
 
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
 Reviewed-by: Jan Kara <jack@suse.cz>
@@ -71,61 +71,31 @@ Reviewed-by: Christoph Hellwig <hch@lst.de>
 Acked-by: Christian Brauner <brauner@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/super.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ fs/quota/dquot.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/fs/super.c b/fs/super.c
-index 377c439477b74..20e9cd2b6488d 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -1298,11 +1298,9 @@ static void lockdep_sb_freeze_acquire(struct super_block *sb)
- 		percpu_rwsem_acquire(sb->s_writers.rw_sem + level, 0, _THIS_IP_);
- }
- 
--static void sb_freeze_unlock(struct super_block *sb)
-+static void sb_freeze_unlock(struct super_block *sb, int level)
- {
--	int level;
--
--	for (level = SB_FREEZE_LEVELS - 1; level >= 0; level--)
-+	for (level--; level >= 0; level--)
- 		percpu_up_write(sb->s_writers.rw_sem + level);
- }
- 
-@@ -1373,7 +1371,14 @@ int freeze_super(struct super_block *sb)
- 	sb_wait_write(sb, SB_FREEZE_PAGEFAULT);
- 
- 	/* All writers are done so after syncing there won't be dirty data */
--	sync_filesystem(sb);
-+	ret = sync_filesystem(sb);
-+	if (ret) {
-+		sb->s_writers.frozen = SB_UNFROZEN;
-+		sb_freeze_unlock(sb, SB_FREEZE_PAGEFAULT);
-+		wake_up(&sb->s_writers.wait_unfrozen);
-+		deactivate_locked_super(sb);
-+		return ret;
+diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
+index 82a5ecbe2da96..022b237c6a134 100644
+--- a/fs/quota/dquot.c
++++ b/fs/quota/dquot.c
+@@ -676,9 +676,14 @@ int dquot_quota_sync(struct super_block *sb, int type)
+ 	/* This is not very clever (and fast) but currently I don't know about
+ 	 * any other simple way of getting quota data to disk and we must get
+ 	 * them there for userspace to be visible... */
+-	if (sb->s_op->sync_fs)
+-		sb->s_op->sync_fs(sb, 1);
+-	sync_blockdev(sb->s_bdev);
++	if (sb->s_op->sync_fs) {
++		ret = sb->s_op->sync_fs(sb, 1);
++		if (ret)
++			return ret;
 +	}
++	ret = sync_blockdev(sb->s_bdev);
++	if (ret)
++		return ret;
  
- 	/* Now wait for internal filesystem counter */
- 	sb->s_writers.frozen = SB_FREEZE_FS;
-@@ -1385,7 +1390,7 @@ int freeze_super(struct super_block *sb)
- 			printk(KERN_ERR
- 				"VFS:Filesystem freeze failed\n");
- 			sb->s_writers.frozen = SB_UNFROZEN;
--			sb_freeze_unlock(sb);
-+			sb_freeze_unlock(sb, SB_FREEZE_FS);
- 			wake_up(&sb->s_writers.wait_unfrozen);
- 			deactivate_locked_super(sb);
- 			return ret;
-@@ -1437,7 +1442,7 @@ int thaw_super(struct super_block *sb)
- 	}
- 
- 	sb->s_writers.frozen = SB_UNFROZEN;
--	sb_freeze_unlock(sb);
-+	sb_freeze_unlock(sb, SB_FREEZE_FS);
- out:
- 	wake_up(&sb->s_writers.wait_unfrozen);
- 	deactivate_locked_super(sb);
+ 	/*
+ 	 * Now when everything is written we can discard the pagecache so
 -- 
 2.34.1
 
