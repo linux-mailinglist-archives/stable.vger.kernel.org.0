@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39BB54AFD73
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 20:29:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1148B4AFD50
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 20:27:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231782AbiBIT2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 14:28:53 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:46724 "EHLO
+        id S234700AbiBIT0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 14:26:09 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:47158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235095AbiBIT1Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 14:27:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 149E8C1DC5EB;
+        with ESMTP id S234815AbiBIT0A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 14:26:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1D72C1DC703;
         Wed,  9 Feb 2022 11:19:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EB9D6193E;
-        Wed,  9 Feb 2022 19:15:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31B54C340E7;
-        Wed,  9 Feb 2022 19:15:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6F48B821BD;
+        Wed,  9 Feb 2022 19:15:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 164FEC340E7;
+        Wed,  9 Feb 2022 19:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644434152;
-        bh=QeCxUFHPZAtlfe87gmSrJSiGPfQECvhSaF7Kp7KD990=;
+        s=korg; t=1644434155;
+        bh=NoYfRKvg94/26C90i9BW28UUtPlRTuDUjNMESDy43NU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0xcBux5VdCY2jXKbJZS73gpMPfAwHbT7qFTP8mnACGBgrovWLFvqSmzTOWrtbBkPa
-         D/FRzL5y95Qslq2+jjLUr/8ETryEqjuGvKB8N8fNWo8mEzrlO9QKOSLtEQilQp6LE/
-         f7VH5OHonKOfsCugFMh/vdYLEmkRJ+mmKINeZTSY=
+        b=eTWlEXS/0Y35dKA6PiAmObkPYW8FIkFAGa5rkK2HXeL0K6PLYOfI3JCvLq6YhLsf4
+         gxCQcwDh6VswUCtApPplS3CYreRgaQEkROKYf6rfdM8rWXaz3LGgosyHwhVsVw9PcG
+         EMQ90KJKTrE7Fk++tX2HMDk2AwzHTHTIYnW1eOok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Abderraouf Adjal <adjal.arf@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.16 1/5] ata: libata-core: Fix ata_dev_config_cpr()
-Date:   Wed,  9 Feb 2022 20:14:33 +0100
-Message-Id: <20220209191249.945825874@linuxfoundation.org>
+        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        linux-mmc@vger.kernel.org, whitehat002 <hackyzh002@gmail.com>
+Subject: [PATCH 5.16 2/5] moxart: fix potential use-after-free on remove path
+Date:   Wed,  9 Feb 2022 20:14:34 +0100
+Message-Id: <20220209191249.977151443@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220209191249.887150036@linuxfoundation.org>
 References: <20220209191249.887150036@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,84 +58,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit fda17afc6166e975bec1197bd94cd2a3317bce3f upstream.
+commit bd2db32e7c3e35bd4d9b8bbff689434a50893546 upstream.
 
-The concurrent positioning ranges log page 47h is a general purpose log
-page and not a subpage of the indentify device log. Using
-ata_identify_page_supported() to test for concurrent positioning ranges
-support is thus wrong. ata_log_supported() must be used.
+It was reported that the mmc host structure could be accessed after it
+was freed in moxart_remove(), so fix this by saving the base register of
+the device and using it instead of the pointer dereference.
 
-Furthermore, unlike other advanced ATA features (e.g. NCQ priority),
-accesses to the concurrent positioning ranges log page are not gated by
-a feature bit from the device IDENTIFY data. Since many older drives
-react badly to the READ LOG EXT and/or READ LOG DMA EXT commands isued
-to read device log pages, avoid problems with older drives by limiting
-the concurrent positioning ranges support detection to drives
-implementing at least the ACS-4 ATA standard (major version 11). This
-additional condition effectively turns ata_dev_config_cpr() into a nop
-for older drives, avoiding problems in the field.
-
-Fixes: fe22e1c2f705 ("libata: support concurrent positioning ranges log")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215519
-Cc: stable@vger.kernel.org
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Tested-by: Abderraouf Adjal <adjal.arf@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Cc: Xin Xiong <xiongx18@fudan.edu.cn>
+Cc: Xin Tan <tanxin.ctf@gmail.com>
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Yang Li <yang.lee@linux.alibaba.com>
+Cc: linux-mmc@vger.kernel.org
+Cc: stable <stable@vger.kernel.org>
+Reported-by: whitehat002 <hackyzh002@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220127071638.4057899-1-gregkh@linuxfoundation.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libata-core.c |   14 ++++++--------
- include/linux/ata.h       |    2 +-
- 2 files changed, 7 insertions(+), 9 deletions(-)
+ drivers/mmc/host/moxart-mmc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -2486,23 +2486,21 @@ static void ata_dev_config_cpr(struct at
- 	struct ata_cpr_log *cpr_log = NULL;
- 	u8 *desc, *buf = NULL;
+--- a/drivers/mmc/host/moxart-mmc.c
++++ b/drivers/mmc/host/moxart-mmc.c
+@@ -705,12 +705,12 @@ static int moxart_remove(struct platform
+ 	if (!IS_ERR_OR_NULL(host->dma_chan_rx))
+ 		dma_release_channel(host->dma_chan_rx);
+ 	mmc_remove_host(mmc);
+-	mmc_free_host(mmc);
  
--	if (!ata_identify_page_supported(dev,
--				 ATA_LOG_CONCURRENT_POSITIONING_RANGES))
-+	if (ata_id_major_version(dev->id) < 11 ||
-+	    !ata_log_supported(dev, ATA_LOG_CONCURRENT_POSITIONING_RANGES))
- 		goto out;
+ 	writel(0, host->base + REG_INTERRUPT_MASK);
+ 	writel(0, host->base + REG_POWER_CONTROL);
+ 	writel(readl(host->base + REG_CLOCK_CONTROL) | CLK_OFF,
+ 	       host->base + REG_CLOCK_CONTROL);
++	mmc_free_host(mmc);
  
- 	/*
--	 * Read IDENTIFY DEVICE data log, page 0x47
--	 * (concurrent positioning ranges). We can have at most 255 32B range
--	 * descriptors plus a 64B header.
-+	 * Read the concurrent positioning ranges log (0x47). We can have at
-+	 * most 255 32B range descriptors plus a 64B header.
- 	 */
- 	buf_len = (64 + 255 * 32 + 511) & ~511;
- 	buf = kzalloc(buf_len, GFP_KERNEL);
- 	if (!buf)
- 		goto out;
- 
--	err_mask = ata_read_log_page(dev, ATA_LOG_IDENTIFY_DEVICE,
--				     ATA_LOG_CONCURRENT_POSITIONING_RANGES,
--				     buf, buf_len >> 9);
-+	err_mask = ata_read_log_page(dev, ATA_LOG_CONCURRENT_POSITIONING_RANGES,
-+				     0, buf, buf_len >> 9);
- 	if (err_mask)
- 		goto out;
- 
---- a/include/linux/ata.h
-+++ b/include/linux/ata.h
-@@ -324,12 +324,12 @@ enum {
- 	ATA_LOG_NCQ_NON_DATA	= 0x12,
- 	ATA_LOG_NCQ_SEND_RECV	= 0x13,
- 	ATA_LOG_IDENTIFY_DEVICE	= 0x30,
-+	ATA_LOG_CONCURRENT_POSITIONING_RANGES = 0x47,
- 
- 	/* Identify device log pages: */
- 	ATA_LOG_SECURITY	  = 0x06,
- 	ATA_LOG_SATA_SETTINGS	  = 0x08,
- 	ATA_LOG_ZONED_INFORMATION = 0x09,
--	ATA_LOG_CONCURRENT_POSITIONING_RANGES = 0x47,
- 
- 	/* Identify device SATA settings log:*/
- 	ATA_LOG_DEVSLP_OFFSET	  = 0x30,
+ 	return 0;
+ }
 
 
