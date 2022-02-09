@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F9004AFB15
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:42:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B56C84AFAED
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:41:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235574AbiBISlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:41:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55190 "EHLO
+        id S240148AbiBISle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:41:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240587AbiBISlT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:41:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A235C050CF6;
+        with ESMTP id S240590AbiBISlU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:41:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C4D9C050CF8;
         Wed,  9 Feb 2022 10:41:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C12A8B82215;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD73060AF2;
+        Wed,  9 Feb 2022 18:41:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DFCAC340E9;
         Wed,  9 Feb 2022 18:41:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F32BC340E7;
-        Wed,  9 Feb 2022 18:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432074;
-        bh=Zb4ckic5Z4dK9ZXht8SRcy2CHoG81Msof9yeNXjcFVc=;
+        s=k20201202; t=1644432076;
+        bh=Kp3T8Uq/wmdAQIvGZCoRhZ+9BMeChwVbO3ac4eqCP1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gi4O68u8u0p54m2W3S+ffQ8B7cvIxGpvp6A/k1ihFWB/3tSPzjAR8tm6iJ7uty3Np
-         lU/xryyQ4A3HguHvVkedyPXT9ojdzXG1hfFirfp4H7GpeEBQD9Xd8yjaXaLGmo2lhf
-         jXwSwPWyvGOv557aGn/fawMJcHVATx6sFEnKkybA9c5yWo8D4QMsMTG+HXsltazXxk
-         /WzOp3eyIh+h3NhTDl4k0redhW/pmOmqUSVL31EkwoxydGWm1IVdSsD/iIZOFVd9n5
-         7uVdiC1jzHQBc0HYIlXWAlBJfXoC/thYT592vLsQqurhnzXkirC+S+rfwgrDto/ztE
-         yESLCpi4rDi2w==
+        b=DIYILLr9rUd434SzQmWIfr7bQW6GKSqaZUXnqN7RjrcuOLwZGvL8DWa9mOuQ5vgzb
+         mag+6k1QsMmtphuayxgDMmwLazGsqjktHT8TFxjQ7bGVhyXU6B9jzTZqxi2YrphwS1
+         MGruwFmDthHK9jNGKKcWpyl/sFkVj0L7qdyGS6ceXToFJfMiuFlNDW4jANICCQYCkk
+         1/Jtb2ZorDV+ZwGrzcJ6ikRrynAdU9h0Fx2sQpLrS7ldWHt3GBPPL2YyNrhFtXEiaJ
+         al+mxTg0K3oysUmfgS6OEuPDcSWfraApSbuk2crqvCWvalLltAwhcLsFAmuKOYmSQR
+         JD2ng4b3LtUgQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Liwei Song <liwei.song@windriver.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
-        andriy.shevchenko@linux.intel.com, hpa@redhat.com,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 02/27] platform/x86: ISST: Fix possible circular locking dependency detected
-Date:   Wed,  9 Feb 2022 13:40:38 -0500
-Message-Id: <20220209184103.47635-2-sashal@kernel.org>
+Cc:     =?UTF-8?q?N=C3=ADcolas=20F=2E=20R=2E=20A=2E=20Prado?= 
+        <nfraprado@collabora.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
+        shuah@kernel.org, linux-rtc@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 03/27] selftests: rtc: Increase test timeout so that all tests run
+Date:   Wed,  9 Feb 2022 13:40:39 -0500
+Message-Id: <20220209184103.47635-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209184103.47635-1-sashal@kernel.org>
 References: <20220209184103.47635-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,252 +61,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Nícolas F. R. A. Prado <nfraprado@collabora.com>
 
-[ Upstream commit 17da2d5f93692086dd096a975225ffd5622d0bf8 ]
+[ Upstream commit f034cc1301e7d83d4ec428dd6b8ffb57ca446efb ]
 
-As reported:
+The timeout setting for the rtc kselftest is currently 90 seconds. This
+setting is used by the kselftest runner to stop running a test if it
+takes longer than the assigned value.
 
-[  256.104522] ======================================================
-[  256.113783] WARNING: possible circular locking dependency detected
-[  256.120093] 5.16.0-rc6-yocto-standard+ #99 Not tainted
-[  256.125362] ------------------------------------------------------
-[  256.131673] intel-speed-sel/844 is trying to acquire lock:
-[  256.137290] ffffffffc036f0d0 (punit_misc_dev_lock){+.+.}-{3:3}, at: isst_if_open+0x18/0x90 [isst_if_common]
-[  256.147171]
-[  256.147171] but task is already holding lock:
-[  256.153135] ffffffff8ee7cb50 (misc_mtx){+.+.}-{3:3}, at: misc_open+0x2a/0x170
-[  256.160407]
-[  256.160407] which lock already depends on the new lock.
-[  256.160407]
-[  256.168712]
-[  256.168712] the existing dependency chain (in reverse order) is:
-[  256.176327]
-[  256.176327] -> #1 (misc_mtx){+.+.}-{3:3}:
-[  256.181946]        lock_acquire+0x1e6/0x330
-[  256.186265]        __mutex_lock+0x9b/0x9b0
-[  256.190497]        mutex_lock_nested+0x1b/0x20
-[  256.195075]        misc_register+0x32/0x1a0
-[  256.199390]        isst_if_cdev_register+0x65/0x180 [isst_if_common]
-[  256.205878]        isst_if_probe+0x144/0x16e [isst_if_mmio]
-...
-[  256.241976]
-[  256.241976] -> #0 (punit_misc_dev_lock){+.+.}-{3:3}:
-[  256.248552]        validate_chain+0xbc6/0x1750
-[  256.253131]        __lock_acquire+0x88c/0xc10
-[  256.257618]        lock_acquire+0x1e6/0x330
-[  256.261933]        __mutex_lock+0x9b/0x9b0
-[  256.266165]        mutex_lock_nested+0x1b/0x20
-[  256.270739]        isst_if_open+0x18/0x90 [isst_if_common]
-[  256.276356]        misc_open+0x100/0x170
-[  256.280409]        chrdev_open+0xa5/0x1e0
-...
+However, two of the test cases inside rtc set alarms. These alarms are
+set to the next beginning of the minute, so each of these test cases may
+take up to, in the worst case, 60 seconds.
 
-The call sequence suggested that misc_device /dev file can be opened
-before misc device is yet to be registered, which is done only once.
+In order to allow for all test cases in rtc to run, even in the worst
+case, when using the kselftest runner, the timeout value should be
+increased to at least 120. Set it to 180, so there's some additional
+slack.
 
-Here punit_misc_dev_lock was used as common lock, to protect the
-registration by multiple ISST HW drivers, one time setup, prevent
-duplicate registry of misc device and prevent load/unload when device
-is open.
+Correct operation can be tested by running the following command right
+after the start of a minute (low second count), and checking that all
+test cases run:
 
-We can split into locks:
-- One which just prevent duplicate call to misc_register() and one
-time setup. Also never call again if the misc_register() failed or
-required one time setup is failed. This lock is not shared with
-any misc device callbacks.
+	./run_kselftest.sh -c rtc
 
-- The other lock protects registry, load and unload of HW drivers.
-
-Sequence in isst_if_cdev_register()
-- Register callbacks under punit_misc_dev_open_lock
-- Call isst_misc_reg() which registers misc_device on the first
-registry which is under punit_misc_dev_reg_lock, which is not
-shared with callbacks.
-
-Sequence in isst_if_cdev_unregister
-Just opposite of isst_if_cdev_register
-
-Reported-and-tested-by: Liwei Song <liwei.song@windriver.com>
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Link: https://lore.kernel.org/r/20220112022521.54669-1-srinivas.pandruvada@linux.intel.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../intel_speed_select_if/isst_if_common.c    | 97 ++++++++++++-------
- 1 file changed, 63 insertions(+), 34 deletions(-)
+ tools/testing/selftests/rtc/settings | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/intel_speed_select_if/isst_if_common.c b/drivers/platform/x86/intel_speed_select_if/isst_if_common.c
-index 0c2aa22c7a12e..407afafc7e83f 100644
---- a/drivers/platform/x86/intel_speed_select_if/isst_if_common.c
-+++ b/drivers/platform/x86/intel_speed_select_if/isst_if_common.c
-@@ -532,7 +532,10 @@ static long isst_if_def_ioctl(struct file *file, unsigned int cmd,
- 	return ret;
- }
- 
--static DEFINE_MUTEX(punit_misc_dev_lock);
-+/* Lock to prevent module registration when already opened by user space */
-+static DEFINE_MUTEX(punit_misc_dev_open_lock);
-+/* Lock to allow one share misc device for all ISST interace */
-+static DEFINE_MUTEX(punit_misc_dev_reg_lock);
- static int misc_usage_count;
- static int misc_device_ret;
- static int misc_device_open;
-@@ -542,7 +545,7 @@ static int isst_if_open(struct inode *inode, struct file *file)
- 	int i, ret = 0;
- 
- 	/* Fail open, if a module is going away */
--	mutex_lock(&punit_misc_dev_lock);
-+	mutex_lock(&punit_misc_dev_open_lock);
- 	for (i = 0; i < ISST_IF_DEV_MAX; ++i) {
- 		struct isst_if_cmd_cb *cb = &punit_callbacks[i];
- 
-@@ -564,7 +567,7 @@ static int isst_if_open(struct inode *inode, struct file *file)
- 	} else {
- 		misc_device_open++;
- 	}
--	mutex_unlock(&punit_misc_dev_lock);
-+	mutex_unlock(&punit_misc_dev_open_lock);
- 
- 	return ret;
- }
-@@ -573,7 +576,7 @@ static int isst_if_relase(struct inode *inode, struct file *f)
- {
- 	int i;
- 
--	mutex_lock(&punit_misc_dev_lock);
-+	mutex_lock(&punit_misc_dev_open_lock);
- 	misc_device_open--;
- 	for (i = 0; i < ISST_IF_DEV_MAX; ++i) {
- 		struct isst_if_cmd_cb *cb = &punit_callbacks[i];
-@@ -581,7 +584,7 @@ static int isst_if_relase(struct inode *inode, struct file *f)
- 		if (cb->registered)
- 			module_put(cb->owner);
- 	}
--	mutex_unlock(&punit_misc_dev_lock);
-+	mutex_unlock(&punit_misc_dev_open_lock);
- 
- 	return 0;
- }
-@@ -598,6 +601,43 @@ static struct miscdevice isst_if_char_driver = {
- 	.fops		= &isst_if_char_driver_ops,
- };
- 
-+static int isst_misc_reg(void)
-+{
-+	mutex_lock(&punit_misc_dev_reg_lock);
-+	if (misc_device_ret)
-+		goto unlock_exit;
-+
-+	if (!misc_usage_count) {
-+		misc_device_ret = isst_if_cpu_info_init();
-+		if (misc_device_ret)
-+			goto unlock_exit;
-+
-+		misc_device_ret = misc_register(&isst_if_char_driver);
-+		if (misc_device_ret) {
-+			isst_if_cpu_info_exit();
-+			goto unlock_exit;
-+		}
-+	}
-+	misc_usage_count++;
-+
-+unlock_exit:
-+	mutex_unlock(&punit_misc_dev_reg_lock);
-+
-+	return misc_device_ret;
-+}
-+
-+static void isst_misc_unreg(void)
-+{
-+	mutex_lock(&punit_misc_dev_reg_lock);
-+	if (misc_usage_count)
-+		misc_usage_count--;
-+	if (!misc_usage_count && !misc_device_ret) {
-+		misc_deregister(&isst_if_char_driver);
-+		isst_if_cpu_info_exit();
-+	}
-+	mutex_unlock(&punit_misc_dev_reg_lock);
-+}
-+
- /**
-  * isst_if_cdev_register() - Register callback for IOCTL
-  * @device_type: The device type this callback handling.
-@@ -615,38 +655,31 @@ static struct miscdevice isst_if_char_driver = {
-  */
- int isst_if_cdev_register(int device_type, struct isst_if_cmd_cb *cb)
- {
--	if (misc_device_ret)
--		return misc_device_ret;
-+	int ret;
- 
- 	if (device_type >= ISST_IF_DEV_MAX)
- 		return -EINVAL;
- 
--	mutex_lock(&punit_misc_dev_lock);
-+	mutex_lock(&punit_misc_dev_open_lock);
-+	/* Device is already open, we don't want to add new callbacks */
- 	if (misc_device_open) {
--		mutex_unlock(&punit_misc_dev_lock);
-+		mutex_unlock(&punit_misc_dev_open_lock);
- 		return -EAGAIN;
- 	}
--	if (!misc_usage_count) {
--		int ret;
--
--		misc_device_ret = misc_register(&isst_if_char_driver);
--		if (misc_device_ret)
--			goto unlock_exit;
--
--		ret = isst_if_cpu_info_init();
--		if (ret) {
--			misc_deregister(&isst_if_char_driver);
--			misc_device_ret = ret;
--			goto unlock_exit;
--		}
--	}
- 	memcpy(&punit_callbacks[device_type], cb, sizeof(*cb));
- 	punit_callbacks[device_type].registered = 1;
--	misc_usage_count++;
--unlock_exit:
--	mutex_unlock(&punit_misc_dev_lock);
-+	mutex_unlock(&punit_misc_dev_open_lock);
- 
--	return misc_device_ret;
-+	ret = isst_misc_reg();
-+	if (ret) {
-+		/*
-+		 * No need of mutex as the misc device register failed
-+		 * as no one can open device yet. Hence no contention.
-+		 */
-+		punit_callbacks[device_type].registered = 0;
-+		return ret;
-+	}
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(isst_if_cdev_register);
- 
-@@ -661,16 +694,12 @@ EXPORT_SYMBOL_GPL(isst_if_cdev_register);
-  */
- void isst_if_cdev_unregister(int device_type)
- {
--	mutex_lock(&punit_misc_dev_lock);
--	misc_usage_count--;
-+	isst_misc_unreg();
-+	mutex_lock(&punit_misc_dev_open_lock);
- 	punit_callbacks[device_type].registered = 0;
- 	if (device_type == ISST_IF_DEV_MBOX)
- 		isst_delete_hash();
--	if (!misc_usage_count && !misc_device_ret) {
--		misc_deregister(&isst_if_char_driver);
--		isst_if_cpu_info_exit();
--	}
--	mutex_unlock(&punit_misc_dev_lock);
-+	mutex_unlock(&punit_misc_dev_open_lock);
- }
- EXPORT_SYMBOL_GPL(isst_if_cdev_unregister);
- 
+diff --git a/tools/testing/selftests/rtc/settings b/tools/testing/selftests/rtc/settings
+index ba4d85f74cd6b..a953c96aa16e1 100644
+--- a/tools/testing/selftests/rtc/settings
++++ b/tools/testing/selftests/rtc/settings
+@@ -1 +1 @@
+-timeout=90
++timeout=180
 -- 
 2.34.1
 
