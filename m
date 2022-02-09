@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A692A4AFB3B
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:44:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 541364AFB41
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:44:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240411AbiBISnq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:43:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34880 "EHLO
+        id S240390AbiBISnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:43:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240406AbiBISnj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:43:39 -0500
+        with ESMTP id S240384AbiBISno (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:43:44 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B10C03324A;
-        Wed,  9 Feb 2022 10:42:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4FECC094C8D;
+        Wed,  9 Feb 2022 10:42:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3193CB82380;
-        Wed,  9 Feb 2022 18:42:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E29AFC340E7;
-        Wed,  9 Feb 2022 18:42:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6CCBCB82384;
+        Wed,  9 Feb 2022 18:42:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02115C340E7;
+        Wed,  9 Feb 2022 18:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432128;
-        bh=LbpS3Y/VfwBZOHuEtHeMd4iAvaPoeairLJWLJwAYa1A=;
+        s=k20201202; t=1644432135;
+        bh=T0e5nwJQ1XBpLrbjbW/hRHChfr9mGV7tWN6MZ1JrH7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVlB2ZYuvLX3Wh/m//ngegNc3S2Tlp9z26JkvmcF6nE3tQf9oiNQxxnQAyxAWi64s
-         aYEFtk6iak7D5Nc6VgQ5LMYuU5idz/S6wR2nFunUAy7QGHnUtWbbIOldq4uDh9gN48
-         HK8kfGU2X8OUtdMgSmLXz8GKlpr0ZqufG1BygZk0UUxiawQzX+HuvfAgG8LfYX+Sa1
-         zGLmQi2irdR6r4yPscQx/s8hfnm0vEQJAdPhtne2pD5M/leM0J+V4W0WD9Bv3OICQg
-         /SwBW6BIr3YR7h3jbV2Hnn7mk5QItZIvR+dH5a0JTvLRRSO6CLyTffplNIIsHFYJjV
-         6edN4zGtN3TFA==
+        b=lK3TfzWBeI7w1uMp4ThqL4dtsyk7P8S3l4kXwlhCKEwfQ+raNZzo87eLFuGk3VZur
+         PzWwXM9KADmLEwCCpBcnS4KVx5yRtS2/yRXWU0IfuHYdiCia2u6MDJ4vCepRZh7dpK
+         HWPIw2jjY7GfslnDC5O/hEjVUe6T0yuwzfBuNbo6d/xoL1jZU9rXAVJOeQmmmD7/lS
+         VMvdYvygjQLZSQeXHhS0c/wwjWaizCngu5EOj6zxEs++fnz/mWz1o3q4Ayssd0CUzi
+         yZh6+iYX7q4eQjtXJKrY5VGksOsxULPOC1keA2B4lLIkiBfEShcotZbUS1naRu6Ncz
+         HMFxnzM2QYSRQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Cristian Marussi <cristian.marussi@arm.com>,
         Aleksa Sarai <cyphar@cyphar.com>,
         Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        brauner@kernel.org, rgb@redhat.com, baolin.wang@linux.alibaba.com,
         linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 10/27] selftests: openat2: Add missing dependency in Makefile
-Date:   Wed,  9 Feb 2022 13:40:46 -0500
-Message-Id: <20220209184103.47635-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 11/27] selftests: openat2: Skip testcases that fail with EOPNOTSUPP
+Date:   Wed,  9 Feb 2022 13:40:47 -0500
+Message-Id: <20220209184103.47635-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209184103.47635-1-sashal@kernel.org>
 References: <20220209184103.47635-1-sashal@kernel.org>
@@ -60,42 +61,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit ea3396725aa143dd42fe388cb67e44c90d2fb719 ]
+[ Upstream commit ac9e0a250bb155078601a5b999aab05f2a04d1ab ]
 
-Add a dependency on header helpers.h to the main target; while at that add
-to helpers.h also a missing include for bool types.
+Skip testcases that fail since the requested valid flags combination is not
+supported by the underlying filesystem.
 
 Cc: Aleksa Sarai <cyphar@cyphar.com>
 Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/openat2/Makefile  | 2 +-
- tools/testing/selftests/openat2/helpers.h | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/openat2/openat2_test.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/openat2/Makefile b/tools/testing/selftests/openat2/Makefile
-index 4b93b1417b862..843ba56d8e49e 100644
---- a/tools/testing/selftests/openat2/Makefile
-+++ b/tools/testing/selftests/openat2/Makefile
-@@ -5,4 +5,4 @@ TEST_GEN_PROGS := openat2_test resolve_test rename_attack_test
+diff --git a/tools/testing/selftests/openat2/openat2_test.c b/tools/testing/selftests/openat2/openat2_test.c
+index b386367c606b1..453152b58e7f0 100644
+--- a/tools/testing/selftests/openat2/openat2_test.c
++++ b/tools/testing/selftests/openat2/openat2_test.c
+@@ -244,6 +244,16 @@ void test_openat2_flags(void)
+ 		unlink(path);
  
- include ../lib.mk
- 
--$(TEST_GEN_PROGS): helpers.c
-+$(TEST_GEN_PROGS): helpers.c helpers.h
-diff --git a/tools/testing/selftests/openat2/helpers.h b/tools/testing/selftests/openat2/helpers.h
-index ad5d0ba5b6ce9..7056340b9339e 100644
---- a/tools/testing/selftests/openat2/helpers.h
-+++ b/tools/testing/selftests/openat2/helpers.h
-@@ -9,6 +9,7 @@
- 
- #define _GNU_SOURCE
- #include <stdint.h>
-+#include <stdbool.h>
- #include <errno.h>
- #include <linux/types.h>
- #include "../kselftest.h"
+ 		fd = sys_openat2(AT_FDCWD, path, &test->how);
++		if (fd < 0 && fd == -EOPNOTSUPP) {
++			/*
++			 * Skip the testcase if it failed because not supported
++			 * by FS. (e.g. a valid O_TMPFILE combination on NFS)
++			 */
++			ksft_test_result_skip("openat2 with %s fails with %d (%s)\n",
++					      test->name, fd, strerror(-fd));
++			goto next;
++		}
++
+ 		if (test->err >= 0)
+ 			failed = (fd < 0);
+ 		else
+@@ -288,7 +298,7 @@ void test_openat2_flags(void)
+ 		else
+ 			resultfn("openat2 with %s fails with %d (%s)\n",
+ 				 test->name, test->err, strerror(-test->err));
+-
++next:
+ 		free(fdpath);
+ 		fflush(stdout);
+ 	}
 -- 
 2.34.1
 
