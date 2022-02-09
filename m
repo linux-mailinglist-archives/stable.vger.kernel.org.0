@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 503114AFC50
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:58:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E37974AFC2F
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:58:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236580AbiBIS5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:57:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33810 "EHLO
+        id S241342AbiBIS5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:57:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241309AbiBIS5D (ORCPT
+        with ESMTP id S241312AbiBIS5D (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:57:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C162FC05CBA1;
-        Wed,  9 Feb 2022 10:57:02 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97EC2C05CBA6;
+        Wed,  9 Feb 2022 10:57:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80BE9B82378;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 343B6617DF;
+        Wed,  9 Feb 2022 18:57:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BB36C340E7;
         Wed,  9 Feb 2022 18:57:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3554BC340F0;
-        Wed,  9 Feb 2022 18:56:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644433020;
-        bh=dd6WbKNZ33w+gnV1v1eV3MJ6z2zoizjcLKhUjHLvfUA=;
+        s=k20201202; t=1644433022;
+        bh=9JqxdxS3FieQzWxDZYWx4qtMJ9OU9FYiIxMk7YLJRdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qQiDCe1qqCWHFqU1dPjYVnnW/W3i+GrUj3RPue9FcLU/faBXTtJn4wV95Pj1nHAaF
-         2byJTKNnlV1OP6VOAi90WSxpf3q39TZRHh7hqofVaN9J3NZ7ACpz72IKCzJvOowzL/
-         Oqwj/PDheFb8K9x1qeAJ77nCwyTGJyFzXf4bida+FyD1uVkzl63K8diLTWI6uxbybH
-         +ZX8T0rICSZjXRtd2v/WaxEnKn0BV4nEfgpgnE7BFhJ/2g7GoPD0d7c5cmK86Gl25j
-         ww7427ZUiylAzpYM9pNMy2Y6ghuWPYKU4N1ptn7L+0Ue07dYwoICkWrlkUa/N3iPIK
-         P+GN7X/yEbnAw==
+        b=jkoGJ8RGj/WJhl1eGW03PUd7YrzR3Fa9ECKQD3ZtEdcnIeuaFG8eJemezC+RerHsC
+         /u9dYkwjv67AnFH57lqq8XkZDPKu7ynbNJYB1+Y2/yuHSsWK80YZP8pX5P+wKUYLKH
+         aRK7oJ+CElc+GlU24JUGv7V4HLGzagcm5q0PAg/a7p9+wPligEmINNKCI/2uVlecY2
+         dgqt/3KBwMjZIPXXTDMv2WVLuI8Gamp+cH/7THPiXWlLvJUjnD0PhEXTA7y1iujjaO
+         +ztioyEJd8aj+nxRBWDENPQkGQMuUlp1NneIkOOTNSAw+c7ohyxn5/KeFeY/XMhcRi
+         Udo6MNfhqUGWg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
+Cc:     Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
         mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
         x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.15 3/8] KVM: nVMX: Also filter MSR_IA32_VMX_TRUE_PINBASED_CTLS when eVMCS
-Date:   Wed,  9 Feb 2022 13:56:48 -0500
-Message-Id: <20220209185653.48833-3-sashal@kernel.org>
+Subject: [PATCH MANUALSEL 5.15 4/8] KVM: nVMX: WARN on any attempt to allocate shadow VMCS for vmcs02
+Date:   Wed,  9 Feb 2022 13:56:49 -0500
+Message-Id: <20220209185653.48833-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209185653.48833-1-sashal@kernel.org>
 References: <20220209185653.48833-1-sashal@kernel.org>
@@ -58,40 +58,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit f80ae0ef089a09e8c18da43a382c3caac9a424a7 ]
+[ Upstream commit d6e656cd266cdcc95abd372c7faef05bee271d1a ]
 
-Similar to MSR_IA32_VMX_EXIT_CTLS/MSR_IA32_VMX_TRUE_EXIT_CTLS,
-MSR_IA32_VMX_ENTRY_CTLS/MSR_IA32_VMX_TRUE_ENTRY_CTLS pair,
-MSR_IA32_VMX_TRUE_PINBASED_CTLS needs to be filtered the same way
-MSR_IA32_VMX_PINBASED_CTLS is currently filtered as guests may solely rely
-on 'true' MSR data.
+WARN if KVM attempts to allocate a shadow VMCS for vmcs02.  KVM emulates
+VMCS shadowing but doesn't virtualize it, i.e. KVM should never allocate
+a "real" shadow VMCS for L2.
 
-Note, none of the currently existing Windows/Hyper-V versions are known
-to stumble upon the unfiltered MSR_IA32_VMX_TRUE_PINBASED_CTLS, the change
-is aimed at making the filtering future proof.
+The previous code WARNed but continued anyway with the allocation,
+presumably in an attempt to avoid NULL pointer dereference.
+However, alloc_vmcs (and hence alloc_shadow_vmcs) can fail, and
+indeed the sole caller does:
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220112170134.1904308-2-vkuznets@redhat.com>
+	if (enable_shadow_vmcs && !alloc_shadow_vmcs(vcpu))
+		goto out_shadow_vmcs;
+
+which makes it not a useful attempt.
+
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220125220527.2093146-1-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/evmcs.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kvm/vmx/nested.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/evmcs.c b/arch/x86/kvm/vmx/evmcs.c
-index ba6f99f584ac3..a7ed30d5647af 100644
---- a/arch/x86/kvm/vmx/evmcs.c
-+++ b/arch/x86/kvm/vmx/evmcs.c
-@@ -362,6 +362,7 @@ void nested_evmcs_filter_control_msr(u32 msr_index, u64 *pdata)
- 	case MSR_IA32_VMX_PROCBASED_CTLS2:
- 		ctl_high &= ~EVMCS1_UNSUPPORTED_2NDEXEC;
- 		break;
-+	case MSR_IA32_VMX_TRUE_PINBASED_CTLS:
- 	case MSR_IA32_VMX_PINBASED_CTLS:
- 		ctl_high &= ~EVMCS1_UNSUPPORTED_PINCTRL;
- 		break;
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index a0193b11c381d..42559c21fb2cc 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -4840,18 +4840,20 @@ static struct vmcs *alloc_shadow_vmcs(struct kvm_vcpu *vcpu)
+ 	struct loaded_vmcs *loaded_vmcs = vmx->loaded_vmcs;
+ 
+ 	/*
+-	 * We should allocate a shadow vmcs for vmcs01 only when L1
+-	 * executes VMXON and free it when L1 executes VMXOFF.
+-	 * As it is invalid to execute VMXON twice, we shouldn't reach
+-	 * here when vmcs01 already have an allocated shadow vmcs.
++	 * KVM allocates a shadow VMCS only when L1 executes VMXON and frees it
++	 * when L1 executes VMXOFF or the vCPU is forced out of nested
++	 * operation.  VMXON faults if the CPU is already post-VMXON, so it
++	 * should be impossible to already have an allocated shadow VMCS.  KVM
++	 * doesn't support virtualization of VMCS shadowing, so vmcs01 should
++	 * always be the loaded VMCS.
+ 	 */
+-	WARN_ON(loaded_vmcs == &vmx->vmcs01 && loaded_vmcs->shadow_vmcs);
++	if (WARN_ON(loaded_vmcs != &vmx->vmcs01 || loaded_vmcs->shadow_vmcs))
++		return loaded_vmcs->shadow_vmcs;
++
++	loaded_vmcs->shadow_vmcs = alloc_vmcs(true);
++	if (loaded_vmcs->shadow_vmcs)
++		vmcs_clear(loaded_vmcs->shadow_vmcs);
+ 
+-	if (!loaded_vmcs->shadow_vmcs) {
+-		loaded_vmcs->shadow_vmcs = alloc_vmcs(true);
+-		if (loaded_vmcs->shadow_vmcs)
+-			vmcs_clear(loaded_vmcs->shadow_vmcs);
+-	}
+ 	return loaded_vmcs->shadow_vmcs;
+ }
+ 
 -- 
 2.34.1
 
