@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FBA74AFC78
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:59:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B16FD4AFC74
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:59:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241423AbiBIS67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:58:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33900 "EHLO
+        id S241413AbiBIS66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:58:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241407AbiBIS51 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:57:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 053BAC043180;
-        Wed,  9 Feb 2022 10:57:27 -0800 (PST)
+        with ESMTP id S238908AbiBIS5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:57:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EA90C0401D1;
+        Wed,  9 Feb 2022 10:57:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE4F7B82385;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB2C661736;
+        Wed,  9 Feb 2022 18:57:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0412C340E7;
         Wed,  9 Feb 2022 18:57:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41659C340F3;
-        Wed,  9 Feb 2022 18:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644433044;
-        bh=F4fEM+htzKFwGyOFd7YZDhR3KECeSg5QOtFhkNzpio4=;
+        s=k20201202; t=1644433047;
+        bh=a6lTLUlCPFqhaJW682/k6YpdxQGr5eC5ep3SweaQk3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L53gmdvKlrI03tKu35QUF3/HEKSqJkeAnMToC5+8+oTvZjADwUiguvlbX2zbvspK7
-         ULdY6K2+Wqun9AmMs7wpHQNkMlnI4AWCR6SzMkLGXR6Gh5eE2GXqCLGWjuxIhfKKil
-         L1C7InHBKU7ZUwxKuv3rt+PPSUfGVY8/IKl0bsEz+trQ3fJzGko8G4uX1nvFCF+1iO
-         AEQHGZVMSsabMx2+ljp47ipiAXG/bZGsBUh5RsBu97aNyBhkBqq6LrlzVd+zwbbuHE
-         3zEJNcfUO/qWUwOTQdx+u72+1Zu8xxyqS5J4z5V10tE38mQGJ77Bus6aBofwN5169T
-         ODeZCYYDOoCcg==
+        b=rmkDeAlqRMpoA13xSxZGfs1642qIMoweeKl6Goo6vzt9DpVFc5Y+E7W7OF5YNu2sP
+         nepV954WisEQj86P3sUJVzrPvRHmyLJFK2M+W+iAp63P9JVxC/rhR/5SsJ/hSZNEOp
+         G/r1nKLIR8fQT02JYlnjfOLSagJ6Kd0MLfvGTH1FzU0PE9h4HIVCoSNEVqbtH5MbPD
+         EjRiLVQ76NxqY5WAXHFydMhldHDgqjlyoomcTCA+6yrTMjGV43rFoYwcQzghaeRctR
+         Y9XNBbYXg2speTDKw8RzqFWZlEJgEHFWgi9JL0l3CFrsCFtVQIj9xe+qc3hGA8MjoB
+         QxPuv7fmI1I2A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Sean Christopherson <seanjc@google.com>,
+        Liam Merwick <liam.merwick@oracle.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
         mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
         x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.10 4/6] KVM: nVMX: WARN on any attempt to allocate shadow VMCS for vmcs02
-Date:   Wed,  9 Feb 2022 13:57:11 -0500
-Message-Id: <20220209185714.48936-4-sashal@kernel.org>
+Subject: [PATCH MANUALSEL 5.10 5/6] KVM: SVM: Don't kill SEV guest if SMAP erratum triggers in usermode
+Date:   Wed,  9 Feb 2022 13:57:12 -0500
+Message-Id: <20220209185714.48936-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209185714.48936-1-sashal@kernel.org>
 References: <20220209185714.48936-1-sashal@kernel.org>
@@ -60,65 +61,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit d6e656cd266cdcc95abd372c7faef05bee271d1a ]
+[ Upstream commit cdf85e0c5dc766fc7fc779466280e454a6d04f87 ]
 
-WARN if KVM attempts to allocate a shadow VMCS for vmcs02.  KVM emulates
-VMCS shadowing but doesn't virtualize it, i.e. KVM should never allocate
-a "real" shadow VMCS for L2.
-
-The previous code WARNed but continued anyway with the allocation,
-presumably in an attempt to avoid NULL pointer dereference.
-However, alloc_vmcs (and hence alloc_shadow_vmcs) can fail, and
-indeed the sole caller does:
-
-	if (enable_shadow_vmcs && !alloc_shadow_vmcs(vcpu))
-		goto out_shadow_vmcs;
-
-which makes it not a useful attempt.
+Inject a #GP instead of synthesizing triple fault to try to avoid killing
+the guest if emulation of an SEV guest fails due to encountering the SMAP
+erratum.  The injected #GP may still be fatal to the guest, e.g. if the
+userspace process is providing critical functionality, but KVM should
+make every attempt to keep the guest alive.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220125220527.2093146-1-seanjc@google.com>
+Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
+Message-Id: <20220120010719.711476-10-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ arch/x86/kvm/svm/svm.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 0c2389d0fdafe..0734a98eaaad1 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -4786,18 +4786,20 @@ static struct vmcs *alloc_shadow_vmcs(struct kvm_vcpu *vcpu)
- 	struct loaded_vmcs *loaded_vmcs = vmx->loaded_vmcs;
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index fa543c355fbdb..d515c8e68314c 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -4155,7 +4155,21 @@ static bool svm_can_emulate_instruction(struct kvm_vcpu *vcpu, void *insn, int i
+ 			return true;
  
- 	/*
--	 * We should allocate a shadow vmcs for vmcs01 only when L1
--	 * executes VMXON and free it when L1 executes VMXOFF.
--	 * As it is invalid to execute VMXON twice, we shouldn't reach
--	 * here when vmcs01 already have an allocated shadow vmcs.
-+	 * KVM allocates a shadow VMCS only when L1 executes VMXON and frees it
-+	 * when L1 executes VMXOFF or the vCPU is forced out of nested
-+	 * operation.  VMXON faults if the CPU is already post-VMXON, so it
-+	 * should be impossible to already have an allocated shadow VMCS.  KVM
-+	 * doesn't support virtualization of VMCS shadowing, so vmcs01 should
-+	 * always be the loaded VMCS.
- 	 */
--	WARN_ON(loaded_vmcs == &vmx->vmcs01 && loaded_vmcs->shadow_vmcs);
-+	if (WARN_ON(loaded_vmcs != &vmx->vmcs01 || loaded_vmcs->shadow_vmcs))
-+		return loaded_vmcs->shadow_vmcs;
+ 		pr_err_ratelimited("KVM: SEV Guest triggered AMD Erratum 1096\n");
+-		kvm_make_request(KVM_REQ_TRIPLE_FAULT, vcpu);
 +
-+	loaded_vmcs->shadow_vmcs = alloc_vmcs(true);
-+	if (loaded_vmcs->shadow_vmcs)
-+		vmcs_clear(loaded_vmcs->shadow_vmcs);
++		/*
++		 * If the fault occurred in userspace, arbitrarily inject #GP
++		 * to avoid killing the guest and to hopefully avoid confusing
++		 * the guest kernel too much, e.g. injecting #PF would not be
++		 * coherent with respect to the guest's page tables.  Request
++		 * triple fault if the fault occurred in the kernel as there's
++		 * no fault that KVM can inject without confusing the guest.
++		 * In practice, the triple fault is moot as no sane SEV kernel
++		 * will execute from user memory while also running with SMAP=1.
++		 */
++		if (is_user)
++			kvm_inject_gp(vcpu, 0);
++		else
++			kvm_make_request(KVM_REQ_TRIPLE_FAULT, vcpu);
+ 	}
  
--	if (!loaded_vmcs->shadow_vmcs) {
--		loaded_vmcs->shadow_vmcs = alloc_vmcs(true);
--		if (loaded_vmcs->shadow_vmcs)
--			vmcs_clear(loaded_vmcs->shadow_vmcs);
--	}
- 	return loaded_vmcs->shadow_vmcs;
- }
- 
+ 	return false;
 -- 
 2.34.1
 
