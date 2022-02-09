@@ -2,123 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94F374AFC96
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 20:01:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3C2F4AFD3A
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 20:18:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238869AbiBIS7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:59:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33960 "EHLO
+        id S229734AbiBITSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 14:18:08 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:52722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241615AbiBIS7j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:59:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BED76C03BFD7;
-        Wed,  9 Feb 2022 10:57:43 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74A80B8238B;
-        Wed,  9 Feb 2022 18:57:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F120DC340E9;
-        Wed,  9 Feb 2022 18:57:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644433061;
-        bh=XsjJlOdpGpZb296y+UI/bJTYqDpon73xor3FNeJnAYE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RdE6g74YQ9ADFoHrVf2Yk3dlnTpE2v1V87I0QnAuHcjrocebjJZhgoiuFnTAu7JUn
-         pO1ih2l7R1xmTnpigEYNS9c8La+/Vp1HBGs9K2kbng7QY1h0n+HZbA7KmV+f/r/LMk
-         RGK8mmDrjkvWQEUiJkutvsulGJQ0lgzpJaa9Cv0F9d6WEgbk6/dpyPgcjBEJpzTFJp
-         wu/GlQ6W02oOPa4XNiZtNuERTar7CT8zZ8/YeVSuku67eW4oIP8B23Jg1RKZKxo+6M
-         gGuM5tn73iLwv6OaxBJxdF7T3eOVx2qs6ZfGw56ES/L44du3PF6yllzSW/Z+KowdQ4
-         xPm9Ft3gHadgw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.4 2/2] KVM: nVMX: WARN on any attempt to allocate shadow VMCS for vmcs02
-Date:   Wed,  9 Feb 2022 13:57:31 -0500
-Message-Id: <20220209185733.49157-2-sashal@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220209185733.49157-1-sashal@kernel.org>
-References: <20220209185733.49157-1-sashal@kernel.org>
+        with ESMTP id S230497AbiBITSH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 14:18:07 -0500
+X-Greylist: delayed 502 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 09 Feb 2022 11:18:00 PST
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [IPv6:2a00:da80:fff0:2::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEBCDC00693D;
+        Wed,  9 Feb 2022 11:18:00 -0800 (PST)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 47EA71C0B7A; Wed,  9 Feb 2022 20:07:02 +0100 (CET)
+Date:   Wed, 9 Feb 2022 20:07:01 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 4.19 77/86] ASoC: fsl: Add missing error handling in
+ pcm030_fabric_probe
+Message-ID: <20220209190701.GA10459@duo.ucw.cz>
+References: <20220207103757.550973048@linuxfoundation.org>
+ <20220207103800.195504006@linuxfoundation.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
+Content-Disposition: inline
+In-Reply-To: <20220207103800.195504006@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit d6e656cd266cdcc95abd372c7faef05bee271d1a ]
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-WARN if KVM attempts to allocate a shadow VMCS for vmcs02.  KVM emulates
-VMCS shadowing but doesn't virtualize it, i.e. KVM should never allocate
-a "real" shadow VMCS for L2.
+Hi!
 
-The previous code WARNed but continued anyway with the allocation,
-presumably in an attempt to avoid NULL pointer dereference.
-However, alloc_vmcs (and hence alloc_shadow_vmcs) can fail, and
-indeed the sole caller does:
+> commit fb25621da5702c104ce0a48de5b174ced09e5b4e upstream.
+>=20
+> Add the missing platform_device_put() and platform_device_del()
+> before return from pcm030_fabric_probe in the error handling case.
 
-	if (enable_shadow_vmcs && !alloc_shadow_vmcs(vcpu))
-		goto out_shadow_vmcs;
+Are you sure?
 
-which makes it not a useful attempt.
+> --- a/sound/soc/fsl/pcm030-audio-fabric.c
+> +++ b/sound/soc/fsl/pcm030-audio-fabric.c
+> @@ -90,16 +90,21 @@ static int pcm030_fabric_probe(struct pl
+>  		dev_err(&op->dev, "platform_device_alloc() failed\n");
+> =20
+>  	ret =3D platform_device_add(pdata->codec_device);
+> -	if (ret)
+> +	if (ret) {
+>  		dev_err(&op->dev, "platform_device_add() failed: %d\n", ret);
+> +		platform_device_put(pdata->codec_device);
+> +	}
+> =20
+>  	ret =3D snd_soc_register_card(card);
+> -	if (ret)
+> +	if (ret) {
+>  		dev_err(&op->dev, "snd_soc_register_card() failed: %d\n", ret);
+> +		platform_device_del(pdata->codec_device);
+> +		platform_device_put(pdata->codec_device);
+> +	}
+> =20
+>  	platform_set_drvdata(op, pdata);
+> -
+>  	return ret;
+> +
+>  }
 
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220125220527.2093146-1-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/x86/kvm/vmx/nested.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+Besides interesting whitespace, this will happily do
+platform_device_put() twice. I suspect it should return or
+something. This does not look right.
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 3041015b05f71..44e11f6db3efe 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -4360,18 +4360,20 @@ static struct vmcs *alloc_shadow_vmcs(struct kvm_vcpu *vcpu)
- 	struct loaded_vmcs *loaded_vmcs = vmx->loaded_vmcs;
- 
- 	/*
--	 * We should allocate a shadow vmcs for vmcs01 only when L1
--	 * executes VMXON and free it when L1 executes VMXOFF.
--	 * As it is invalid to execute VMXON twice, we shouldn't reach
--	 * here when vmcs01 already have an allocated shadow vmcs.
-+	 * KVM allocates a shadow VMCS only when L1 executes VMXON and frees it
-+	 * when L1 executes VMXOFF or the vCPU is forced out of nested
-+	 * operation.  VMXON faults if the CPU is already post-VMXON, so it
-+	 * should be impossible to already have an allocated shadow VMCS.  KVM
-+	 * doesn't support virtualization of VMCS shadowing, so vmcs01 should
-+	 * always be the loaded VMCS.
- 	 */
--	WARN_ON(loaded_vmcs == &vmx->vmcs01 && loaded_vmcs->shadow_vmcs);
-+	if (WARN_ON(loaded_vmcs != &vmx->vmcs01 || loaded_vmcs->shadow_vmcs))
-+		return loaded_vmcs->shadow_vmcs;
-+
-+	loaded_vmcs->shadow_vmcs = alloc_vmcs(true);
-+	if (loaded_vmcs->shadow_vmcs)
-+		vmcs_clear(loaded_vmcs->shadow_vmcs);
- 
--	if (!loaded_vmcs->shadow_vmcs) {
--		loaded_vmcs->shadow_vmcs = alloc_vmcs(true);
--		if (loaded_vmcs->shadow_vmcs)
--			vmcs_clear(loaded_vmcs->shadow_vmcs);
--	}
- 	return loaded_vmcs->shadow_vmcs;
- }
- 
--- 
-2.34.1
+Best regards,
+							Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
+--SUOF0GtieIMvvwua
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYgQQ1QAKCRAw5/Bqldv6
+8r6yAJ0b32yBnFzeOQ+ZKSYI5cF+pD0jXQCfUFZuWjyWGVZtzMvCNHmWiEODMZs=
+=FNvY
+-----END PGP SIGNATURE-----
+
+--SUOF0GtieIMvvwua--
