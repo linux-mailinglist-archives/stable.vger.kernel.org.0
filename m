@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EB114AFC31
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:58:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40E294AFC40
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:58:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239018AbiBIS5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:57:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59400 "EHLO
+        id S241509AbiBIS5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:57:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241386AbiBIS4t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:56:49 -0500
+        with ESMTP id S241043AbiBIS4y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:56:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 597B9C05CB86;
-        Wed,  9 Feb 2022 10:56:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66876C05CB88;
+        Wed,  9 Feb 2022 10:56:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECB10612CC;
-        Wed,  9 Feb 2022 18:56:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31742C36AE2;
-        Wed,  9 Feb 2022 18:56:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0481D617F4;
+        Wed,  9 Feb 2022 18:56:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2401C36AE9;
+        Wed,  9 Feb 2022 18:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644433011;
-        bh=ZUacl007zA4k+q0kyD4PfVFmSEOT8YIduCKetp5Er64=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tQhukoaaJP/aHyWmZAJnnEX/9nEMcJbnH8EBAR4Hwq1rdJ+O73fnWf3e7dZS95+rc
-         yDNxxC6TbCrDU06NNV1VN2q9FkDLB4A33RbQyIdb1TviiZOR3XVARqmBebTfxC7DRP
-         YVkxqySQjnHM1kxX2dBX1eINb20L0mOozThi8WRhRyNiiW/BPQzPvMDAx9UdFdO6qi
-         1aSw6yoYdAC19VZU8Icy14EhJQ8sMPjHqaR+MmH+A3g2fNhWNHK5ZKzgW7BCP46sCZ
-         dYFquRl7v/nPglFs3gkAHFzhpE8yn25WD0hqfo2awdCGTMhEwXLMeRMsXNf7XkNUGJ
-         8JmcQ3vOBoOhA==
+        s=k20201202; t=1644433016;
+        bh=Y1O2CIN5EafAGmWxHeytfPsnxX2uH0gjcXAlhd6vK4E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=uAbtZrTG2ed+w156dyvOR6Rw9pS3Kj9qdiJqZNXxmUT/0/LKIQi8mlBZXU8/e0pUN
+         ZLK9ssiFEuwYbWBdNHpbcibZ0eDWT3ysZX9pm4KKzbkElHI4cMGSJJIAlJishkOLlt
+         T+Zaa2GXJ5PJ6SQPp76rMX1vjoaLyVA2GHkaPoUAJY1nMxr8fp67zVezkOUUtVgvlg
+         WRf1aT+blnlm5OEYsPdK0TGmefSq3JM+jJR5VmDJouUq77ha/zhkgdH4f0XPACj6Sj
+         z0XRvz2jWsZFdpejmZoPh1Oh3ywRRVmiDD6N1so7HuEWad4gg6m1vLMwVA9vjkXogX
+         DccN/1AWe5/PA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jim Mattson <jmattson@google.com>,
-        Aaron Lewis <aaronlewis@google.com>,
+Cc:     Hou Wenlong <houwenlong93@linux.alibaba.com>,
+        Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.16 8/8] KVM: x86: Report deprecated x87 features in supported CPUID
-Date:   Wed,  9 Feb 2022 13:56:34 -0500
-Message-Id: <20220209185635.48730-8-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH MANUALSEL 5.15 1/8] KVM: eventfd: Fix false positive RCU usage warning
+Date:   Wed,  9 Feb 2022 13:56:46 -0500
+Message-Id: <20220209185653.48833-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220209185635.48730-1-sashal@kernel.org>
-References: <20220209185635.48730-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,65 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Hou Wenlong <houwenlong93@linux.alibaba.com>
 
-[ Upstream commit e3bcfda012edd3564e12551b212afbd2521a1f68 ]
+[ Upstream commit 6a0c61703e3a5d67845a4b275e1d9d7bc1b5aad7 ]
 
-CPUID.(EAX=7,ECX=0):EBX.FDP_EXCPTN_ONLY[bit 6] and
-CPUID.(EAX=7,ECX=0):EBX.ZERO_FCS_FDS[bit 13] are "defeature"
-bits. Unlike most of the other CPUID feature bits, these bits are
-clear if the features are present and set if the features are not
-present. These bits should be reported in KVM_GET_SUPPORTED_CPUID,
-because if these bits are set on hardware, they cannot be cleared in
-the guest CPUID. Doing so would claim guest support for a feature that
-the hardware doesn't support and that can't be efficiently emulated.
+Fix the following false positive warning:
+ =============================
+ WARNING: suspicious RCU usage
+ 5.16.0-rc4+ #57 Not tainted
+ -----------------------------
+ arch/x86/kvm/../../../virt/kvm/eventfd.c:484 RCU-list traversed in non-reader section!!
 
-Of course, any software (e.g WIN87EM.DLL) expecting these features to
-be present likely predates these CPUID feature bits and therefore
-doesn't know to check for them anyway.
+ other info that might help us debug this:
 
-Aaron Lewis added the corresponding X86_FEATURE macros in
-commit cbb99c0f5887 ("x86/cpufeatures: Add FDP_EXCPTN_ONLY and
-ZERO_FCS_FDS"), with the intention of reporting these bits in
-KVM_GET_SUPPORTED_CPUID, but I was unable to find a proposed patch on
-the kvm list.
+ rcu_scheduler_active = 2, debug_locks = 1
+ 3 locks held by fc_vcpu 0/330:
+  #0: ffff8884835fc0b0 (&vcpu->mutex){+.+.}-{3:3}, at: kvm_vcpu_ioctl+0x88/0x6f0 [kvm]
+  #1: ffffc90004c0bb68 (&kvm->srcu){....}-{0:0}, at: vcpu_enter_guest+0x600/0x1860 [kvm]
+  #2: ffffc90004c0c1d0 (&kvm->irq_srcu){....}-{0:0}, at: kvm_notify_acked_irq+0x36/0x180 [kvm]
 
-Opportunistically reordered the CPUID_7_0_EBX capability bits from
-least to most significant.
+ stack backtrace:
+ CPU: 26 PID: 330 Comm: fc_vcpu 0 Not tainted 5.16.0-rc4+
+ Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+ Call Trace:
+  <TASK>
+  dump_stack_lvl+0x44/0x57
+  kvm_notify_acked_gsi+0x6b/0x70 [kvm]
+  kvm_notify_acked_irq+0x8d/0x180 [kvm]
+  kvm_ioapic_update_eoi+0x92/0x240 [kvm]
+  kvm_apic_set_eoi_accelerated+0x2a/0xe0 [kvm]
+  handle_apic_eoi_induced+0x3d/0x60 [kvm_intel]
+  vmx_handle_exit+0x19c/0x6a0 [kvm_intel]
+  vcpu_enter_guest+0x66e/0x1860 [kvm]
+  kvm_arch_vcpu_ioctl_run+0x438/0x7f0 [kvm]
+  kvm_vcpu_ioctl+0x38a/0x6f0 [kvm]
+  __x64_sys_ioctl+0x89/0xc0
+  do_syscall_64+0x3a/0x90
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Cc: Aaron Lewis <aaronlewis@google.com>
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Message-Id: <20220204001348.2844660-1-jmattson@google.com>
+Since kvm_unregister_irq_ack_notifier() does synchronize_srcu(&kvm->irq_srcu),
+kvm->irq_ack_notifier_list is protected by kvm->irq_srcu. In fact,
+kvm->irq_srcu SRCU read lock is held in kvm_notify_acked_irq(), making it
+a false positive warning. So use hlist_for_each_entry_srcu() instead of
+hlist_for_each_entry_rcu().
+
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Hou Wenlong <houwenlong93@linux.alibaba.com>
+Message-Id: <f98bac4f5052bad2c26df9ad50f7019e40434512.1643265976.git.houwenlong.hwl@antgroup.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/cpuid.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ virt/kvm/eventfd.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
-index add8f58d686e3..bf18679757c70 100644
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -532,12 +532,13 @@ void kvm_set_cpu_caps(void)
- 	);
+diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
+index e996989cd580e..5b874e7ba36fd 100644
+--- a/virt/kvm/eventfd.c
++++ b/virt/kvm/eventfd.c
+@@ -456,8 +456,8 @@ bool kvm_irq_has_notifier(struct kvm *kvm, unsigned irqchip, unsigned pin)
+ 	idx = srcu_read_lock(&kvm->irq_srcu);
+ 	gsi = kvm_irq_map_chip_pin(kvm, irqchip, pin);
+ 	if (gsi != -1)
+-		hlist_for_each_entry_rcu(kian, &kvm->irq_ack_notifier_list,
+-					 link)
++		hlist_for_each_entry_srcu(kian, &kvm->irq_ack_notifier_list,
++					  link, srcu_read_lock_held(&kvm->irq_srcu))
+ 			if (kian->gsi == gsi) {
+ 				srcu_read_unlock(&kvm->irq_srcu, idx);
+ 				return true;
+@@ -473,8 +473,8 @@ void kvm_notify_acked_gsi(struct kvm *kvm, int gsi)
+ {
+ 	struct kvm_irq_ack_notifier *kian;
  
- 	kvm_cpu_cap_mask(CPUID_7_0_EBX,
--		F(FSGSBASE) | F(SGX) | F(BMI1) | F(HLE) | F(AVX2) | F(SMEP) |
--		F(BMI2) | F(ERMS) | F(INVPCID) | F(RTM) | 0 /*MPX*/ | F(RDSEED) |
--		F(ADX) | F(SMAP) | F(AVX512IFMA) | F(AVX512F) | F(AVX512PF) |
--		F(AVX512ER) | F(AVX512CD) | F(CLFLUSHOPT) | F(CLWB) | F(AVX512DQ) |
--		F(SHA_NI) | F(AVX512BW) | F(AVX512VL) | 0 /*INTEL_PT*/
--	);
-+		F(FSGSBASE) | F(SGX) | F(BMI1) | F(HLE) | F(AVX2) |
-+		F(FDP_EXCPTN_ONLY) | F(SMEP) | F(BMI2) | F(ERMS) | F(INVPCID) |
-+		F(RTM) | F(ZERO_FCS_FDS) | 0 /*MPX*/ | F(AVX512F) |
-+		F(AVX512DQ) | F(RDSEED) | F(ADX) | F(SMAP) | F(AVX512IFMA) |
-+		F(CLFLUSHOPT) | F(CLWB) | 0 /*INTEL_PT*/ | F(AVX512PF) |
-+		F(AVX512ER) | F(AVX512CD) | F(SHA_NI) | F(AVX512BW) |
-+		F(AVX512VL));
- 
- 	kvm_cpu_cap_mask(CPUID_7_ECX,
- 		F(AVX512VBMI) | F(LA57) | F(PKU) | 0 /*OSPKE*/ | F(RDPID) |
+-	hlist_for_each_entry_rcu(kian, &kvm->irq_ack_notifier_list,
+-				 link)
++	hlist_for_each_entry_srcu(kian, &kvm->irq_ack_notifier_list,
++				  link, srcu_read_lock_held(&kvm->irq_srcu))
+ 		if (kian->gsi == gsi)
+ 			kian->irq_acked(kian);
+ }
 -- 
 2.34.1
 
