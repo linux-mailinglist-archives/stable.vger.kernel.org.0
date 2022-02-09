@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B674AFB7C
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:47:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4682B4AFB8E
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:48:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240695AbiBISr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:47:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34996 "EHLO
+        id S240910AbiBISrd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:47:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240688AbiBISpl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:45:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 704EAC0045EC;
-        Wed,  9 Feb 2022 10:43:15 -0800 (PST)
+        with ESMTP id S240834AbiBISpy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:45:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70B06C03F93C;
+        Wed,  9 Feb 2022 10:43:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E727EB82386;
-        Wed,  9 Feb 2022 18:43:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88BE5C340ED;
-        Wed,  9 Feb 2022 18:43:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46C5CB82215;
+        Wed,  9 Feb 2022 18:43:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 470F7C340E7;
+        Wed,  9 Feb 2022 18:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432190;
-        bh=VIQquFzGDHKbKcmGm6RKoojybnkJGoVldTQZYNSMAJU=;
+        s=k20201202; t=1644432194;
+        bh=OSHo2PJpIYtB2DIHy0v4CkW2SRFnO9seM4Vk8G09WJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=amz3wqP2LXpQ2IDvReghP2WL61hqVf3QfsLxChZ9EbqSPbB/i2r67sxxCAesvXCX7
-         gdeNb8E1nttoX07Z9rpw6IMkToXZeY7CjCvYeGfU444mMN5HZb978oMcG/ohRn5H9S
-         Cwk2+xpZlQDKu9YnVSRjrCyHAGfXfnSrfOXWJ7YSH9vl19dFo7e0RnGrP1sGnXijPo
-         9w51ambTghL2se1svGRxHPjLuqk4UuvbzUXD5x6503JEjg+MKuHfWMkG6Nqb73ctHy
-         yvZTCuopTh6usNMZEuAHP4BvUjup+W1/qyLi9BzObNRXrXDjOPJmpy2EhLnIjbMVuA
-         Wh7e8e1961zkA==
+        b=qmyw8nhLqHFXjx1RJSrJ0PKNOnw7N0YWvo60eDDuyoX9qW90iNWXHL5jtlSbhiFs4
+         vI5qgcAFywLpQUxpvOQlWYqh8tl1CNLrib2szxP7v3NX2TxAzH1YCV1Fh3sojftj+A
+         21VkXtZn+mCCx84GiVEq9AbjKAt5oGV3rZQYJ/ae4Afp51efuW3Fvq2XLz0vMLFrbB
+         m0pv5Jbh+sVeKBwypgoJkY4v8J9vXzzzm6SVcfoFlof2NJAC/EE3eU3HLOlgQkp477
+         raxc7CXdY/WWSkhvJ/HBtHOck2UN/0zLUb/pwrLnAiVVPzL4dRGVsPTHjZEToa4mOc
+         apx8XEMfXKB+g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Alexander Aring <alex.aring@gmail.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        kuba@kernel.org, linux-wpan@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 03/15] net: ieee802154: at86rf230: Stop leaking skb's
-Date:   Wed,  9 Feb 2022 13:42:49 -0500
-Message-Id: <20220209184305.47983-3-sashal@kernel.org>
+Cc:     Yang Xu <xuyang2018.jy@fujitsu.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 04/15] selftests/zram: Skip max_comp_streams interface on newer kernel
+Date:   Wed,  9 Feb 2022 13:42:50 -0500
+Message-Id: <20220209184305.47983-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209184305.47983-1-sashal@kernel.org>
 References: <20220209184305.47983-1-sashal@kernel.org>
@@ -59,72 +57,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Yang Xu <xuyang2018.jy@fujitsu.com>
 
-[ Upstream commit e5ce576d45bf72fd0e3dc37eff897bfcc488f6a9 ]
+[ Upstream commit fc4eb486a59d70bd35cf1209f0e68c2d8b979193 ]
 
-Upon error the ieee802154_xmit_complete() helper is not called. Only
-ieee802154_wake_queue() is called manually. In the Tx case we then leak
-the skb structure.
+Since commit 43209ea2d17a ("zram: remove max_comp_streams internals"), zram
+has switched to per-cpu streams. Even kernel still keep this interface for
+some reasons, but writing to max_comp_stream doesn't take any effect. So
+skip it on newer kernel ie 4.7.
 
-Free the skb structure upon error before returning when appropriate.
+The code that comparing kernel version is from xfstests testsuite ext4/053.
 
-As the 'is_tx = 0' cannot be moved in the complete handler because of a
-possible race between the delay in switching to STATE_RX_AACK_ON and a
-new interrupt, we introduce an intermediate 'was_tx' boolean just for
-this purpose.
-
-There is no Fixes tag applying here, many changes have been made on this
-area and the issue kind of always existed.
-
-Suggested-by: Alexander Aring <alex.aring@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20220125121426.848337-4-miquel.raynal@bootlin.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Yang Xu <xuyang2018.jy@fujitsu.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/at86rf230.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ tools/testing/selftests/zram/zram_lib.sh | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/net/ieee802154/at86rf230.c b/drivers/net/ieee802154/at86rf230.c
-index 7d67f41387f55..4f5ef8a9a9a87 100644
---- a/drivers/net/ieee802154/at86rf230.c
-+++ b/drivers/net/ieee802154/at86rf230.c
-@@ -100,6 +100,7 @@ struct at86rf230_local {
- 	unsigned long cal_timeout;
- 	bool is_tx;
- 	bool is_tx_from_off;
-+	bool was_tx;
- 	u8 tx_retry;
- 	struct sk_buff *tx_skb;
- 	struct at86rf230_state_change tx;
-@@ -343,7 +344,11 @@ at86rf230_async_error_recover_complete(void *context)
- 	if (ctx->free)
- 		kfree(ctx);
+diff --git a/tools/testing/selftests/zram/zram_lib.sh b/tools/testing/selftests/zram/zram_lib.sh
+index 6f872f266fd11..f47fc0f27e99e 100755
+--- a/tools/testing/selftests/zram/zram_lib.sh
++++ b/tools/testing/selftests/zram/zram_lib.sh
+@@ -11,6 +11,9 @@ dev_mounted=-1
  
--	ieee802154_wake_queue(lp->hw);
-+	if (lp->was_tx) {
-+		lp->was_tx = 0;
-+		dev_kfree_skb_any(lp->tx_skb);
-+		ieee802154_wake_queue(lp->hw);
-+	}
+ # Kselftest framework requirement - SKIP code is 4.
+ ksft_skip=4
++kernel_version=`uname -r | cut -d'.' -f1,2`
++kernel_major=${kernel_version%.*}
++kernel_minor=${kernel_version#*.}
+ 
+ trap INT
+ 
+@@ -25,6 +28,20 @@ check_prereqs()
+ 	fi
  }
  
- static void
-@@ -352,7 +357,11 @@ at86rf230_async_error_recover(void *context)
- 	struct at86rf230_state_change *ctx = context;
- 	struct at86rf230_local *lp = ctx->lp;
- 
--	lp->is_tx = 0;
-+	if (lp->is_tx) {
-+		lp->was_tx = 1;
-+		lp->is_tx = 0;
-+	}
++kernel_gte()
++{
++	major=${1%.*}
++	minor=${1#*.}
 +
- 	at86rf230_async_state_change(lp, ctx, STATE_RX_AACK_ON,
- 				     at86rf230_async_error_recover_complete);
- }
++	if [ $kernel_major -gt $major ]; then
++		return 0
++	elif [[ $kernel_major -eq $major && $kernel_minor -ge $minor ]]; then
++		return 0
++	fi
++
++	return 1
++}
++
+ zram_cleanup()
+ {
+ 	echo "zram cleanup"
+@@ -86,6 +103,13 @@ zram_max_streams()
+ {
+ 	echo "set max_comp_streams to zram device(s)"
+ 
++	kernel_gte 4.7
++	if [ $? -eq 0 ]; then
++		echo "The device attribute max_comp_streams was"\
++		               "deprecated in 4.7"
++		return 0
++	fi
++
+ 	local i=0
+ 	for max_s in $zram_max_streams; do
+ 		local sys_path="/sys/block/zram${i}/max_comp_streams"
 -- 
 2.34.1
 
