@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF7A74AFB0D
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F6D14AFAE7
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:41:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240281AbiBISlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:41:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53558 "EHLO
+        id S240075AbiBISla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:41:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240159AbiBISkm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:40:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D491C03E941;
-        Wed,  9 Feb 2022 10:40:13 -0800 (PST)
+        with ESMTP id S240411AbiBISlJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:41:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EC37C03BFC0;
+        Wed,  9 Feb 2022 10:40:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFFF2B8238E;
-        Wed,  9 Feb 2022 18:40:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0557FC340EF;
-        Wed,  9 Feb 2022 18:40:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C00FC60906;
+        Wed,  9 Feb 2022 18:40:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 377D8C340E7;
+        Wed,  9 Feb 2022 18:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432010;
-        bh=06AEE+dTILRtwDY8oQbRofaIwu30iB9WUEgyuAH6rvs=;
+        s=k20201202; t=1644432023;
+        bh=wGO2C/+5/UpsUQ1fbHIpV6d7ywQrzR6tQA1uBrprlcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hteFlor3t86fgNkY2YFhewQuK9vhMWBn40QM2BrO5qrebYE1yPDgEW7dwCGMneTBz
-         OFDdWLKv+8fiIt2SjgKidAyglOGMIWCseqSd7gVLPKJgpwhWUPdJn5qwsWf1PQtK+T
-         ZSuJ2Gw4URcWjxRb9wSCoR0hDuvQqYAUpmS8y9I3ElIzunyzk9cLHFO1Stlg++yk/o
-         d7G8miyx3RmSje6o0NoBbpSFC7icUxAUHDzrHCUANqKgH50QP2AVZmiTkeBveCK4v1
-         dUdWajaYW8XbPlINV/fou6XnSdJUas5iXjF3hFD2dkGKYRJ4hI7ZnmB9GsmX/7rUkS
-         x+yADA+5cT84w==
+        b=fzCJFXeqsTy6MepEezoxKWEZVdAPH+3CqCs89Aq8wuyiP8tmxh93bBlhmKiWCaKDo
+         ufxmK4kaB6eBVZd+kzx2fcrfALSTCgmpbmI+mwW2KyVDLUJfBY2IT1PMNUxTuyU+Ps
+         y8eVQQzG50MWW4f/6ZJa54S9xSvwKPvpDS2CItcSxK9w3RqO+veyiYFzVn9dKobfSa
+         sTn6jLtMZMs0Q0FTTT865uK0TmlwOCBY1xOXwpBTYw49+zvHlyfFe19MF76XdyZFP6
+         V+AeoTZ3ms29Kak2D94duLfPsuJZtB7kfJfpMtTm/ZhsveCjqVcaZbWfVllIOjrTY4
+         cfv31JxRQYngQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steen Hegelund <steen.hegelund@microchip.com>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        lars.povlsen@microchip.com, Steen.Hegelund@microchip.com,
-        UNGLinuxDriver@microchip.com, bjarni.jonasson@microchip.com,
-        netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 29/36] net: sparx5: do not refer to skb after passing it on
-Date:   Wed,  9 Feb 2022 13:37:52 -0500
-Message-Id: <20220209183759.47134-29-sashal@kernel.org>
+Cc:     Mario Limonciello <mario.limonciello@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        lijo.lazar@amd.com, Hawking.Zhang@amd.com, guchun.chen@amd.com,
+        sathishkumar.sundararaju@amd.com, shaoyun.liu@amd.com,
+        veerabadhran.gopalakrishnan@amd.com, nirmoy.das@amd.com,
+        Prike.Liang@amd.com, Pratik.Vishwakarma@amd.com, bp@suse.de,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 30/36] drm/amd: add support to check whether the system is set to s3
+Date:   Wed,  9 Feb 2022 13:37:53 -0500
+Message-Id: <20220209183759.47134-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209183759.47134-1-sashal@kernel.org>
 References: <20220209183759.47134-1-sashal@kernel.org>
@@ -61,38 +62,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steen Hegelund <steen.hegelund@microchip.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 81eb8b0b18789e647e65579303529fd52d861cc2 ]
+[ Upstream commit f52a2b8badbd24faf73a13c9c07fdb9d07352944 ]
 
-Do not try to use any SKB fields after the packet has been passed up in the
-receive stack.
+This will be used to help make decisions on what to do in
+misconfigured systems.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Steen Hegelund <steen.hegelund@microchip.com>
-Link: https://lore.kernel.org/r/20220202083039.3774851-1-steen.hegelund@microchip.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+v2: squash in semicolon fix from Stephen Rothwell
+
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/sparx5/sparx5_packet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu.h      |  2 ++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c | 13 +++++++++++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
-index dc7e5ea6ec158..148d431fcde42 100644
---- a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
-+++ b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
-@@ -145,9 +145,9 @@ static void sparx5_xtr_grp(struct sparx5 *sparx5, u8 grp, bool byte_swap)
- 	skb_put(skb, byte_cnt - ETH_FCS_LEN);
- 	eth_skb_pad(skb);
- 	skb->protocol = eth_type_trans(skb, netdev);
--	netif_rx(skb);
- 	netdev->stats.rx_bytes += skb->len;
- 	netdev->stats.rx_packets++;
-+	netif_rx(skb);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu.h b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
+index c8d31a22176f3..7e73ac6fb21db 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
+@@ -1410,9 +1410,11 @@ static inline int amdgpu_acpi_smart_shift_update(struct drm_device *dev,
+ #endif
+ 
+ #if defined(CONFIG_ACPI) && defined(CONFIG_SUSPEND)
++bool amdgpu_acpi_is_s3_active(struct amdgpu_device *adev);
+ bool amdgpu_acpi_is_s0ix_active(struct amdgpu_device *adev);
+ #else
+ static inline bool amdgpu_acpi_is_s0ix_active(struct amdgpu_device *adev) { return false; }
++static inline bool amdgpu_acpi_is_s3_active(struct amdgpu_device *adev) { return false; }
+ #endif
+ 
+ int amdgpu_cs_find_mapping(struct amdgpu_cs_parser *parser,
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
+index b19d407518024..0e12315fa0cb8 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
+@@ -1032,6 +1032,19 @@ void amdgpu_acpi_detect(void)
  }
  
- static int sparx5_inject(struct sparx5 *sparx5,
+ #if IS_ENABLED(CONFIG_SUSPEND)
++/**
++ * amdgpu_acpi_is_s3_active
++ *
++ * @adev: amdgpu_device_pointer
++ *
++ * returns true if supported, false if not.
++ */
++bool amdgpu_acpi_is_s3_active(struct amdgpu_device *adev)
++{
++	return !(adev->flags & AMD_IS_APU) ||
++		(pm_suspend_target_state == PM_SUSPEND_MEM);
++}
++
+ /**
+  * amdgpu_acpi_is_s0ix_active
+  *
 -- 
 2.34.1
 
