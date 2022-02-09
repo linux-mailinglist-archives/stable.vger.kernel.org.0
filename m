@@ -2,51 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72B184AFA33
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:36:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F278A4AFA2C
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:36:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239550AbiBISfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:35:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53018 "EHLO
+        id S239530AbiBISfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:35:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239591AbiBISfe (ORCPT
+        with ESMTP id S239593AbiBISfe (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:35:34 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AFADC050CCC;
-        Wed,  9 Feb 2022 10:35:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4552C050CD1;
+        Wed,  9 Feb 2022 10:35:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F7EE61C2C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 624B061C15;
+        Wed,  9 Feb 2022 18:35:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7291C36AE2;
         Wed,  9 Feb 2022 18:35:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BC41C340E7;
-        Wed,  9 Feb 2022 18:35:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644431735;
-        bh=Y4lticyda0JJhfUxP3JKpsyz7hPDielaAkyHNjgAZRI=;
+        s=k20201202; t=1644431736;
+        bh=dzgvD5fCB9/BzXR2I4sstOpNngSBG7g9smFuubhhq2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JoAItjmaQFrVmgG3VVYU/bighMBjahF8rr7tzj0lD1RCEmBOZUyV5xZ4AlBV5BmJ5
-         FG3FuhldC7Ded6EXON3EYos/abxj0/56WU2BrmUmPPVXRZ62GgM/qcSQqWvNJUyiPf
-         Avr+tccg4DoNs2TgVay8kstbDBe+IlQzNZtB20Wcty5tHLhOsOL6B0ceClGB9evM/4
-         JaKMD2EZuUP6JdzHLj2ivjiwXq3Lgf7Tf2DmG12+gVuvD4ShsXLc6S7aSDqk9P48Va
-         kU8ATnLSX8HCrSeCg0F6d7jYkjqHq3Oga1vZVFOcPRKMtMmI3eiOUx5I0QJC0LhLpH
-         Ij9wJaOp8c4IQ==
+        b=V0rNYQebGGrg4ViH13Pcs/M2zgJCl3pEIipt/6iDof5jMVtxOu9/zYD7+s68C+EEK
+         mV/vnUM8o7zxFZZvG3EJ1Q7BbOPNQETv6F9KVxZV54sYAke8scYmNX3TtGfN1WtVUi
+         XXrZUKbbQ4kpKd8WGjSGgZk280ga4uP5OTmqOP6QXWwZdyC/UN6fZNpOw448b3nBs6
+         ILx3s/Jku7p89nmyRvBO23AFRKv8bXudsCOP2KTUJdbkWArdIBHG/8hwe7UirVqEQ0
+         4lIPgU1VpjA62EHkHZF/ls6xFOvX3gipp0gkPSY+Q2O15VWBkUCfPVSD3TL4KxZRE1
+         +b84oN7jAp4hQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cristian Marussi <cristian.marussi@arm.com>,
-        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        zhang.yunkai@zte.com.cn, akpm@linux-foundation.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 17/42] selftests: skip mincore.check_file_mmap when fs lacks needed support
-Date:   Wed,  9 Feb 2022 13:32:49 -0500
-Message-Id: <20220209183335.46545-17-sashal@kernel.org>
+Cc:     Duoming Zhou <duoming@zju.edu.cn>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, jreuter@yaina.de,
+        kuba@kernel.org, linux-hams@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 18/42] ax25: improve the incomplete fix to avoid UAF and NPD bugs
+Date:   Wed,  9 Feb 2022 13:32:50 -0500
+Message-Id: <20220209183335.46545-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209183335.46545-1-sashal@kernel.org>
 References: <20220209183335.46545-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,64 +57,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit dae1d8ac31896988e7313384c0370176a75e9b45 ]
+[ Upstream commit 4e0f718daf97d47cf7dec122da1be970f145c809 ]
 
-Report mincore.check_file_mmap as SKIP instead of FAIL if the underlying
-filesystem lacks support of O_TMPFILE or fallocate since such failures
-are not really related to mincore functionality.
+The previous commit 1ade48d0c27d ("ax25: NPD bug when detaching
+AX25 device") introduce lock_sock() into ax25_kill_by_device to
+prevent NPD bug. But the concurrency NPD or UAF bug will occur,
+when lock_sock() or release_sock() dereferences the ax25_cb->sock.
 
-Cc: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+The NULL pointer dereference bug can be shown as below:
+
+ax25_kill_by_device()        | ax25_release()
+                             |   ax25_destroy_socket()
+                             |     ax25_cb_del()
+  ...                        |     ...
+                             |     ax25->sk=NULL;
+  lock_sock(s->sk); //(1)    |
+  s->ax25_dev = NULL;        |     ...
+  release_sock(s->sk); //(2) |
+  ...                        |
+
+The root cause is that the sock is set to null before dereference
+site (1) or (2). Therefore, this patch extracts the ax25_cb->sock
+in advance, and uses ax25_list_lock to protect it, which can synchronize
+with ax25_cb_del() and ensure the value of sock is not null before
+dereference sites.
+
+The concurrency UAF bug can be shown as below:
+
+ax25_kill_by_device()        | ax25_release()
+                             |   ax25_destroy_socket()
+  ...                        |   ...
+                             |   sock_put(sk); //FREE
+  lock_sock(s->sk); //(1)    |
+  s->ax25_dev = NULL;        |   ...
+  release_sock(s->sk); //(2) |
+  ...                        |
+
+The root cause is that the sock is released before dereference
+site (1) or (2). Therefore, this patch uses sock_hold() to increase
+the refcount of sock and uses ax25_list_lock to protect it, which
+can synchronize with ax25_cb_del() in ax25_destroy_socket() and
+ensure the sock wil not be released before dereference sites.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/mincore/mincore_selftest.c      | 20 +++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ net/ax25/af_ax25.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/mincore/mincore_selftest.c b/tools/testing/selftests/mincore/mincore_selftest.c
-index e54106643337b..4c88238fc8f05 100644
---- a/tools/testing/selftests/mincore/mincore_selftest.c
-+++ b/tools/testing/selftests/mincore/mincore_selftest.c
-@@ -207,15 +207,21 @@ TEST(check_file_mmap)
+diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
+index 02f43f3e2c564..44a8730c26acc 100644
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -77,6 +77,7 @@ static void ax25_kill_by_device(struct net_device *dev)
+ {
+ 	ax25_dev *ax25_dev;
+ 	ax25_cb *s;
++	struct sock *sk;
  
- 	errno = 0;
- 	fd = open(".", O_TMPFILE | O_RDWR, 0600);
--	ASSERT_NE(-1, fd) {
--		TH_LOG("Can't create temporary file: %s",
--			strerror(errno));
-+	if (fd < 0) {
-+		ASSERT_EQ(errno, EOPNOTSUPP) {
-+			TH_LOG("Can't create temporary file: %s",
-+			       strerror(errno));
-+		}
-+		SKIP(goto out_free, "O_TMPFILE not supported by filesystem.");
- 	}
- 	errno = 0;
- 	retval = fallocate(fd, 0, 0, FILE_SIZE);
--	ASSERT_EQ(0, retval) {
--		TH_LOG("Error allocating space for the temporary file: %s",
--			strerror(errno));
-+	if (retval) {
-+		ASSERT_EQ(errno, EOPNOTSUPP) {
-+			TH_LOG("Error allocating space for the temporary file: %s",
-+			       strerror(errno));
-+		}
-+		SKIP(goto out_close, "fallocate not supported by filesystem.");
- 	}
- 
- 	/*
-@@ -271,7 +277,9 @@ TEST(check_file_mmap)
- 	}
- 
- 	munmap(addr, FILE_SIZE);
-+out_close:
- 	close(fd);
-+out_free:
- 	free(vec);
- }
- 
+ 	if ((ax25_dev = ax25_dev_ax25dev(dev)) == NULL)
+ 		return;
+@@ -85,13 +86,15 @@ static void ax25_kill_by_device(struct net_device *dev)
+ again:
+ 	ax25_for_each(s, &ax25_list) {
+ 		if (s->ax25_dev == ax25_dev) {
++			sk = s->sk;
++			sock_hold(sk);
+ 			spin_unlock_bh(&ax25_list_lock);
+-			lock_sock(s->sk);
++			lock_sock(sk);
+ 			s->ax25_dev = NULL;
+-			release_sock(s->sk);
++			release_sock(sk);
+ 			ax25_disconnect(s, ENETUNREACH);
+ 			spin_lock_bh(&ax25_list_lock);
+-
++			sock_put(sk);
+ 			/* The entry could have been deleted from the
+ 			 * list meanwhile and thus the next pointer is
+ 			 * no longer valid.  Play it safe and restart
 -- 
 2.34.1
 
