@@ -1,49 +1,50 @@
 Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
-Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 918904AFD15
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 20:16:10 +0100 (CET)
+Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
+	by mail.lfdr.de (Postfix) with ESMTP id 9DD054AFD56
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 20:27:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230168AbiBITPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 14:15:05 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:40100 "EHLO
+        id S232854AbiBIT02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 14:26:28 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:46152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232298AbiBITPD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 14:15:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA6BAC0086EA;
-        Wed,  9 Feb 2022 11:14:55 -0800 (PST)
+        with ESMTP id S234385AbiBIT0I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 14:26:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 049D5C102FED;
+        Wed,  9 Feb 2022 11:19:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C144C61921;
-        Wed,  9 Feb 2022 19:14:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB5AC340E7;
-        Wed,  9 Feb 2022 19:14:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C3DEB8238C;
+        Wed,  9 Feb 2022 19:14:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C001C340E7;
+        Wed,  9 Feb 2022 19:14:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644434089;
-        bh=t5k1chf6+v5HfwvAbZWz1wYKfDCyFxon6T1Ca+KqJUM=;
+        s=korg; t=1644434092;
+        bh=eoZDwWkV4rsrAJOY5F0LAs5kTxbQ7KPvapYjwLwSSJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aFbai6LqRQ8srZp+gK3iEPk57GtPiSiLANXxwCm2tdcPdvr+SulJblCi3rSQeN7ZQ
-         RRkxRRLes7GIMVity6H1DSioOnCQkmJHMU+zlGeM4YY0xRCmovcIZ4ZpgdIfjbSlTO
-         Mv8TENmDS8gkpKBW5CJG4D/UiTVsVVycfzNRkhTM=
+        b=kEi4yUF0j+4L2R7nkzZenYZutTMROVoJH+mMSQYop0n9IQFzvo6F2PAOTCsmbOrxf
+         d7Wj+PUuuR3EYo3YlCcJJALAnj10VbXMvVpvCVcW8zg5VelhDKsgpU/+tEQfEfox0f
+         nQO7lcjw4dXIuKbyKihcJegDtcw5kK2pKGMxnxvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tabitha Sable <tabitha.c.sable@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Tejun Heo <tj@kernel.org>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>
-Subject: [PATCH 4.9 1/2] cgroup-v1: Require capabilities to set release_agent
-Date:   Wed,  9 Feb 2022 20:13:32 +0100
-Message-Id: <20220209191247.878529283@linuxfoundation.org>
+        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        linux-mmc@vger.kernel.org, whitehat002 <hackyzh002@gmail.com>
+Subject: [PATCH 4.9 2/2] moxart: fix potential use-after-free on remove path
+Date:   Wed,  9 Feb 2022 20:13:33 +0100
+Message-Id: <20220209191247.913724368@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220209191247.830371456@linuxfoundation.org>
 References: <20220209191247.830371456@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,82 +58,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 24f6008564183aa120d07c03d9289519c2fe02af upstream.
+commit bd2db32e7c3e35bd4d9b8bbff689434a50893546 upstream.
 
-The cgroup release_agent is called with call_usermodehelper.  The function
-call_usermodehelper starts the release_agent with a full set fo capabilities.
-Therefore require capabilities when setting the release_agaent.
+It was reported that the mmc host structure could be accessed after it
+was freed in moxart_remove(), so fix this by saving the base register of
+the device and using it instead of the pointer dereference.
 
-Reported-by: Tabitha Sable <tabitha.c.sable@gmail.com>
-Tested-by: Tabitha Sable <tabitha.c.sable@gmail.com>
-Fixes: 81a6a5cdd2c5 ("Task Control Groups: automatic userspace notification of idle cgroups")
-Cc: stable@vger.kernel.org # v2.6.24+
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-[mkoutny: Adjust for pre-fs_context, duplicate mount/remount check, drop log messages.]
-Acked-by: Michal Koutný <mkoutny@suse.com>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Cc: Xin Xiong <xiongx18@fudan.edu.cn>
+Cc: Xin Tan <tanxin.ctf@gmail.com>
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Yang Li <yang.lee@linux.alibaba.com>
+Cc: linux-mmc@vger.kernel.org
+Cc: stable <stable@vger.kernel.org>
+Reported-by: whitehat002 <hackyzh002@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220127071638.4057899-1-gregkh@linuxfoundation.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup.c |   26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ drivers/mmc/host/moxart-mmc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/cgroup.c
-+++ b/kernel/cgroup.c
-@@ -1854,6 +1854,7 @@ static int cgroup_remount(struct kernfs_
- {
- 	int ret = 0;
- 	struct cgroup_root *root = cgroup_root_from_kf(kf_root);
-+	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
- 	struct cgroup_sb_opts opts;
- 	u16 added_mask, removed_mask;
+--- a/drivers/mmc/host/moxart-mmc.c
++++ b/drivers/mmc/host/moxart-mmc.c
+@@ -698,12 +698,12 @@ static int moxart_remove(struct platform
+ 		if (!IS_ERR(host->dma_chan_rx))
+ 			dma_release_channel(host->dma_chan_rx);
+ 		mmc_remove_host(mmc);
+-		mmc_free_host(mmc);
  
-@@ -1873,6 +1874,13 @@ static int cgroup_remount(struct kernfs_
- 		pr_warn("option changes via remount are deprecated (pid=%d comm=%s)\n",
- 			task_tgid_nr(current), current->comm);
- 
-+	/* See cgroup_mount release_agent handling */
-+	if (opts.release_agent &&
-+	    ((ns->user_ns != &init_user_ns) || !capable(CAP_SYS_ADMIN))) {
-+		ret = -EINVAL;
-+		goto out_unlock;
-+	}
-+
- 	added_mask = opts.subsys_mask & ~root->subsys_mask;
- 	removed_mask = root->subsys_mask & ~opts.subsys_mask;
- 
-@@ -2248,6 +2256,16 @@ static struct dentry *cgroup_mount(struc
- 		goto out_unlock;
+ 		writel(0, host->base + REG_INTERRUPT_MASK);
+ 		writel(0, host->base + REG_POWER_CONTROL);
+ 		writel(readl(host->base + REG_CLOCK_CONTROL) | CLK_OFF,
+ 		       host->base + REG_CLOCK_CONTROL);
++		mmc_free_host(mmc);
  	}
- 
-+	/*
-+	 * Release agent gets called with all capabilities,
-+	 * require capabilities to set release agent.
-+	 */
-+	if (opts.release_agent &&
-+	    ((ns->user_ns != &init_user_ns) || !capable(CAP_SYS_ADMIN))) {
-+		ret = -EINVAL;
-+		goto out_unlock;
-+	}
-+
- 	root = kzalloc(sizeof(*root), GFP_KERNEL);
- 	if (!root) {
- 		ret = -ENOMEM;
-@@ -3026,6 +3044,14 @@ static ssize_t cgroup_release_agent_writ
- 
- 	BUILD_BUG_ON(sizeof(cgrp->root->release_agent_path) < PATH_MAX);
- 
-+	/*
-+	 * Release agent gets called with all capabilities,
-+	 * require capabilities to set release agent.
-+	 */
-+	if ((of->file->f_cred->user_ns != &init_user_ns) ||
-+	    !capable(CAP_SYS_ADMIN))
-+		return -EPERM;
-+
- 	cgrp = cgroup_kn_lock_live(of->kn, false);
- 	if (!cgrp)
- 		return -ENODEV;
+ 	return 0;
+ }
 
 
