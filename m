@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 275474AFAD6
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:41:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0224E4AFAEB
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:41:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239998AbiBISkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:40:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53566 "EHLO
+        id S240153AbiBISkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:40:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240229AbiBISkW (ORCPT
+        with ESMTP id S240228AbiBISkW (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:40:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20EA8C03326C;
-        Wed,  9 Feb 2022 10:39:35 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 216EDC0302C3;
+        Wed,  9 Feb 2022 10:39:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94C1EB82384;
-        Wed,  9 Feb 2022 18:39:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40096C340E9;
-        Wed,  9 Feb 2022 18:39:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D6A96006F;
+        Wed,  9 Feb 2022 18:39:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EC9FC340ED;
+        Wed,  9 Feb 2022 18:39:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644431973;
-        bh=lBS1PiFdP3yxD/PYLR6hsDp3zi/r/zvvJWP4zHDftYk=;
+        s=k20201202; t=1644431975;
+        bh=a5z1qJjCuNm4itE6vzeRJiyvc82uzHYi8mzCBjw+F64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E4/fJfWCPRe+3tKhdIvn5p4zsZvksEfSG856g/jED4VaEwfBye+NZOU8OQEYs3GLF
-         XfPLKRnZQSJcNPaa71OkCgcRXUtg1b33fuh/JnfkrJzB8TgYj1mafKyQg60i3isust
-         gTq51CXiKp9GOaWOKRkH2dSsC6bNqTMLRT2t5LFKW/4hF+evPq5Yi3QFnCTo+7i7PM
-         qztMzIDJ7ModIchaGtPRSsFynjTPRrgcbURtqCpRQkGK0BW8wUKt0hVCFgUVUlUPqa
-         wNfEWbfmkker24vGXV1CDadnnsvybKc7JHuKbW0iSyu24WAxYcGWKP93j1eeucL+3I
-         C0oLYvc1gzwBA==
+        b=u0LYmu9o0kIIM0bUe61vFtqisEpaYd2xfz3U51qC1IvQhCl/By/5MJaLAboYg+WxC
+         EfQfmrQwSUamUXSFdOCI0BkG+lmJy56jA/RvNUp64EySvCNiU+sw4FmBYVUE16lp0Q
+         uh5mqJY0hx8wSY/TBFdzbVYM0R6N5vC1aBRLe/bikzxDHX00b/gRNVI67a8JybdcoP
+         WxsMf7q0XKhjL0y6tpWDyiT0n56SQDnc4xg9nTTVqeMXe8b68AvOECcw3tHRNFcgST
+         FEFcjd4DS3PWvswmLcZxj28bq/yuFge8LVXv4+88dUYLq0uy9OiKcVhujdJ6E3XzPz
+         6fe8lgVMvpdMQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Martin Wilck <martin.wilck@suse.com>,
-        Martin Wilck <mwilck@suse.com>,
+Cc:     John Garry <john.garry@huawei.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 22/36] scsi: core: Reallocate device's budget map on queue depth change
-Date:   Wed,  9 Feb 2022 13:37:45 -0500
-Message-Id: <20220209183759.47134-22-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jinpu.wang@cloud.ionos.com,
+        jejb@linux.ibm.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 23/36] scsi: pm8001: Fix use-after-free for aborted TMF sas_task
+Date:   Wed,  9 Feb 2022 13:37:46 -0500
+Message-Id: <20220209183759.47134-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209183759.47134-1-sashal@kernel.org>
 References: <20220209183759.47134-1-sashal@kernel.org>
@@ -60,118 +59,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit edb854a3680bacc9ef9b91ec0c5ff6105886f6f3 ]
+[ Upstream commit 61f162aa4381845acbdc7f2be4dfb694d027c018 ]
 
-We currently use ->cmd_per_lun as initial queue depth for setting up the
-budget_map. Martin Wilck reported that it is common for the queue_depth to
-be subsequently updated in slave_configure() based on detected hardware
-characteristics.
+Currently a use-after-free may occur if a TMF sas_task is aborted before we
+handle the IO completion in mpi_ssp_completion(). The abort occurs due to
+timeout.
 
-As a result, for some drivers, the static host template settings for
-cmd_per_lun and can_queue won't actually get used in practice. And if the
-default values are used to allocate the budget_map, memory may be consumed
-unnecessarily.
+When the timeout occurs, the SAS_TASK_STATE_ABORTED flag is set and the
+sas_task is freed in pm8001_exec_internal_tmf_task().
 
-Fix the issue by reallocating the budget_map after ->slave_configure()
-returns. At that time the device queue_depth should accurately reflect what
-the hardware needs.
+However, if the I/O completion occurs later, the I/O completion still
+thinks that the sas_task is available. Fix this by clearing the ccb->task
+if the TMF times out - the I/O completion handler does nothing if this
+pointer is cleared.
 
-Link: https://lore.kernel.org/r/20220127153733.409132-1-ming.lei@redhat.com
-Cc: Bart Van Assche <bvanassche@acm.org>
-Reported-by: Martin Wilck <martin.wilck@suse.com>
-Suggested-by: Martin Wilck <martin.wilck@suse.com>
-Tested-by: Martin Wilck <mwilck@suse.com>
-Reviewed-by: Martin Wilck <mwilck@suse.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/1643289172-165636-3-git-send-email-john.garry@huawei.com
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Acked-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_scan.c | 55 ++++++++++++++++++++++++++++++++++++----
- 1 file changed, 50 insertions(+), 5 deletions(-)
+ drivers/scsi/pm8001/pm8001_sas.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
-index fe22191522a3b..7266880c70c21 100644
---- a/drivers/scsi/scsi_scan.c
-+++ b/drivers/scsi/scsi_scan.c
-@@ -198,6 +198,48 @@ static void scsi_unlock_floptical(struct scsi_device *sdev,
- 			 SCSI_TIMEOUT, 3, NULL);
- }
- 
-+static int scsi_realloc_sdev_budget_map(struct scsi_device *sdev,
-+					unsigned int depth)
-+{
-+	int new_shift = sbitmap_calculate_shift(depth);
-+	bool need_alloc = !sdev->budget_map.map;
-+	bool need_free = false;
-+	int ret;
-+	struct sbitmap sb_backup;
+diff --git a/drivers/scsi/pm8001/pm8001_sas.c b/drivers/scsi/pm8001/pm8001_sas.c
+index 32e60f0c3b148..491cecbbe1aa7 100644
+--- a/drivers/scsi/pm8001/pm8001_sas.c
++++ b/drivers/scsi/pm8001/pm8001_sas.c
+@@ -753,8 +753,13 @@ static int pm8001_exec_internal_tmf_task(struct domain_device *dev,
+ 		res = -TMF_RESP_FUNC_FAILED;
+ 		/* Even TMF timed out, return direct. */
+ 		if (task->task_state_flags & SAS_TASK_STATE_ABORTED) {
++			struct pm8001_ccb_info *ccb = task->lldd_task;
 +
-+	/*
-+	 * realloc if new shift is calculated, which is caused by setting
-+	 * up one new default queue depth after calling ->slave_configure
-+	 */
-+	if (!need_alloc && new_shift != sdev->budget_map.shift)
-+		need_alloc = need_free = true;
+ 			pm8001_dbg(pm8001_ha, FAIL, "TMF task[%x]timeout.\n",
+ 				   tmf->tmf);
 +
-+	if (!need_alloc)
-+		return 0;
-+
-+	/*
-+	 * Request queue has to be frozen for reallocating budget map,
-+	 * and here disk isn't added yet, so freezing is pretty fast
-+	 */
-+	if (need_free) {
-+		blk_mq_freeze_queue(sdev->request_queue);
-+		sb_backup = sdev->budget_map;
-+	}
-+	ret = sbitmap_init_node(&sdev->budget_map,
-+				scsi_device_max_queue_depth(sdev),
-+				new_shift, GFP_KERNEL,
-+				sdev->request_queue->node, false, true);
-+	if (need_free) {
-+		if (ret)
-+			sdev->budget_map = sb_backup;
-+		else
-+			sbitmap_free(&sb_backup);
-+		ret = 0;
-+		blk_mq_unfreeze_queue(sdev->request_queue);
-+	}
-+	return ret;
-+}
-+
- /**
-  * scsi_alloc_sdev - allocate and setup a scsi_Device
-  * @starget: which target to allocate a &scsi_device for
-@@ -291,11 +333,7 @@ static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
- 	 * default device queue depth to figure out sbitmap shift
- 	 * since we use this queue depth most of times.
- 	 */
--	if (sbitmap_init_node(&sdev->budget_map,
--				scsi_device_max_queue_depth(sdev),
--				sbitmap_calculate_shift(depth),
--				GFP_KERNEL, sdev->request_queue->node,
--				false, true)) {
-+	if (scsi_realloc_sdev_budget_map(sdev, depth)) {
- 		put_device(&starget->dev);
- 		kfree(sdev);
- 		goto out;
-@@ -1001,6 +1039,13 @@ static int scsi_add_lun(struct scsi_device *sdev, unsigned char *inq_result,
- 			}
- 			return SCSI_SCAN_NO_RESPONSE;
++			if (ccb)
++				ccb->task = NULL;
+ 			goto ex_err;
  		}
-+
-+		/*
-+		 * The queue_depth is often changed in ->slave_configure.
-+		 * Set up budget map again since memory consumption of
-+		 * the map depends on actual queue depth.
-+		 */
-+		scsi_realloc_sdev_budget_map(sdev, sdev->queue_depth);
- 	}
  
- 	if (sdev->scsi_level >= SCSI_3)
 -- 
 2.34.1
 
