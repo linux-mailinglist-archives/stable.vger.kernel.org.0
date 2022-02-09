@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CFAA4AFBAF
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:48:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C2084AFBB9
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:49:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235583AbiBISsj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:48:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43776 "EHLO
+        id S240671AbiBISss (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:48:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240917AbiBISsN (ORCPT
+        with ESMTP id S240945AbiBISsN (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:48:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA95C1DC2F1;
-        Wed,  9 Feb 2022 10:44:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D72C1DC5C5;
+        Wed,  9 Feb 2022 10:44:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FC6B61197;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 501D0612CC;
+        Wed,  9 Feb 2022 18:44:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0578C340E7;
         Wed,  9 Feb 2022 18:44:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 361F9C36AE3;
-        Wed,  9 Feb 2022 18:44:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432290;
-        bh=QLgNFFjgZ6DaDTAvrvKsCZ9z3EEri2BOYUICe27mOcY=;
+        s=k20201202; t=1644432291;
+        bh=IbxYndShaUN1LdttA6NiRREW3GWMiaYelf0xxIh24h0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ahf8Q9X6XBvpDpt+NxMtxJ8baySuQZIAUqefsMTRoYcrlCSHU6PF1ghzayrRA3/mK
-         eir7ew2B+DCtguvTjeus1muFe882a8P9ZeFnUEc4GqbdQ10ojWaBpKkzVmgLGEL9iK
-         iF0aJR/OxUiVd5C6he5dpHD34BW4uEVJHFolSugwRabS+HI9qCMiN2VZVd9OokILRE
-         PKBDk/jpv0JYKl9w/r+0nM3H19vZ9u/WtUtqOwccFRmNuvF9GGsP8L5wUGn4lSKo+n
-         D+nHg66V9iXXBSTz7BDbYrtSVOW433X+saL88BQIjavLHzO4eBfoOk+WnyzA3fz2uL
-         lAUo7Skr1fKTg==
+        b=mPBxjhT8X5M2HLhLw8ztfnXZmm1it9w0HBHDROIug6nvCWqdUeCc0JTcnkitZAAT8
+         UbKYCsCMB3IJUSO/h0zizlRSox8E427Lge8YrFGxSaVDI/PZEwiOIpBSRelvePEz6m
+         0HYtv2T5rmfgomBuuByEj7BHKqIdSFg3RRGbNRbXfbTgiFZLBlJGH0C0DNKHECiM1c
+         DoHmPRRk2qjfHaPGujiyto5djWJFkyMZoxnTR91wiPg+aMdm3NrX8PocNXlJDsdoil
+         2FP4zXA6K56EKFtv080ToCCOeiMW2zWecGrWF2q4m6sPtHZ4E9xvnS5n14FC7JqkiQ
+         A+woWHOSgSm3g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Darrick J. Wong" <djwong@kernel.org>, Jan Kara <jack@suse.cz>,
-        Christoph Hellwig <hch@lst.de>,
-        Christian Brauner <brauner@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, jack@suse.com
-Subject: [PATCH AUTOSEL 4.19 07/10] quota: make dquot_quota_sync return errors from ->sync_fs
-Date:   Wed,  9 Feb 2022 13:44:06 -0500
-Message-Id: <20220209184410.48223-7-sashal@kernel.org>
+Cc:     Sagi Grimberg <sagi@grimberg.me>, Sasha Levin <sashal@kernel.org>,
+        kbusch@kernel.org, axboe@fb.com, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 08/10] nvme: fix a possible use-after-free in controller reset during load
+Date:   Wed,  9 Feb 2022 13:44:07 -0500
+Message-Id: <20220209184410.48223-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209184410.48223-1-sashal@kernel.org>
 References: <20220209184410.48223-1-sashal@kernel.org>
@@ -57,45 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit dd5532a4994bfda0386eb2286ec00758cee08444 ]
+[ Upstream commit 0fa0f99fc84e41057cbdd2efbfe91c6b2f47dd9d ]
 
-Strangely, dquot_quota_sync ignores the return code from the ->sync_fs
-call, which means that quotacalls like Q_SYNC never see the error.  This
-doesn't seem right, so fix that.
+Unlike .queue_rq, in .submit_async_event drivers may not check the ctrl
+readiness for AER submission. This may lead to a use-after-free
+condition that was observed with nvme-tcp.
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Christian Brauner <brauner@kernel.org>
+The race condition may happen in the following scenario:
+1. driver executes its reset_ctrl_work
+2. -> nvme_stop_ctrl - flushes ctrl async_event_work
+3. ctrl sends AEN which is received by the host, which in turn
+   schedules AEN handling
+4. teardown admin queue (which releases the queue socket)
+5. AEN processed, submits another AER, calling the driver to submit
+6. driver attempts to send the cmd
+==> use-after-free
+
+In order to fix that, add ctrl state check to validate the ctrl
+is actually able to accept the AER submission.
+
+This addresses the above race in controller resets because the driver
+during teardown should:
+1. change ctrl state to RESETTING
+2. flush async_event_work (as well as other async work elements)
+
+So after 1,2, any other AER command will find the
+ctrl state to be RESETTING and bail out without submitting the AER.
+
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/quota/dquot.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/nvme/host/core.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
-index 1d1d393f4208d..ddb379abd919d 100644
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -687,9 +687,14 @@ int dquot_quota_sync(struct super_block *sb, int type)
- 	/* This is not very clever (and fast) but currently I don't know about
- 	 * any other simple way of getting quota data to disk and we must get
- 	 * them there for userspace to be visible... */
--	if (sb->s_op->sync_fs)
--		sb->s_op->sync_fs(sb, 1);
--	sync_blockdev(sb->s_bdev);
-+	if (sb->s_op->sync_fs) {
-+		ret = sb->s_op->sync_fs(sb, 1);
-+		if (ret)
-+			return ret;
-+	}
-+	ret = sync_blockdev(sb->s_bdev);
-+	if (ret)
-+		return ret;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index e64310f2296f8..a0a805a5ab6b2 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3463,7 +3463,14 @@ static void nvme_async_event_work(struct work_struct *work)
+ 		container_of(work, struct nvme_ctrl, async_event_work);
  
- 	/*
- 	 * Now when everything is written we can discard the pagecache so
+ 	nvme_aen_uevent(ctrl);
+-	ctrl->ops->submit_async_event(ctrl);
++
++	/*
++	 * The transport drivers must guarantee AER submission here is safe by
++	 * flushing ctrl async_event_work after changing the controller state
++	 * from LIVE and before freeing the admin queue.
++	*/
++	if (ctrl->state == NVME_CTRL_LIVE)
++		ctrl->ops->submit_async_event(ctrl);
+ }
+ 
+ static bool nvme_ctrl_pp_status(struct nvme_ctrl *ctrl)
 -- 
 2.34.1
 
