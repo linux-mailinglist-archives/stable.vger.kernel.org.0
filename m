@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65B914AFB50
-	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:44:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2B3C4AFB58
+	for <lists+stable@lfdr.de>; Wed,  9 Feb 2022 19:47:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240591AbiBISof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 13:44:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33338 "EHLO
+        id S240613AbiBISo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 13:44:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240565AbiBISn7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:43:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A0DC02B74A;
-        Wed,  9 Feb 2022 10:42:38 -0800 (PST)
+        with ESMTP id S234460AbiBISoa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 13:44:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94011C02B65F;
+        Wed,  9 Feb 2022 10:42:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CC1DB8238B;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A618612B3;
+        Wed,  9 Feb 2022 18:42:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38A6FC340E7;
         Wed,  9 Feb 2022 18:42:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CDB6C36AF6;
-        Wed,  9 Feb 2022 18:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644432152;
-        bh=vffZ10f8/j+9tvoaDA/FsdCCi82qif61hrB3VuPGUuQ=;
+        s=k20201202; t=1644432154;
+        bh=25qGAk3OMopHHcAoP54ETaPWw5tGE/HxiBNZo81UwnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HpthRMaJfV4YlFWC1guSGz10VegHSbMpi5o63rT8lRE6EBn4GcaZAg/Ku+M0TxH0L
-         64T5YgOi96LKQAm2G12jdpXBN3T9P8dfJdC+QJzcdJMvyyxlq5S2NkvTLs+VTPfGHi
-         hj+u0KasfCdHBN5Q6Bgtxmb20LQqPVhIwVLfx7Uc7JqDX2pqJ5Mxn6Th6YA5ORJuEy
-         7LWKWVPWPcsSMFE65EwR8uf1j9vkQCZjEY7wNx8B/9+ugfwXDP7VMFr63ufqKyaHwZ
-         F9e7dWNBB1LvIidAm76Cdjn5TAVazPsbGnvm188nsZWrzLMIvHASn4fZalx1y8iKy5
-         IuziKOm0zMGiA==
+        b=ud0FkA0qFraCDHzCu7Zw7eNY4nAwfYjywKLcj5uFQkmi2f2AYUk6UJt17O3LZy0IH
+         gTNxCYM0eHUbleozenE5VRyCNPf/tnzEzEpOOmxKD1/8+SHciQcWSD61aOwlOIGzFW
+         QRQIrPgStKGkAmf88WNn1XJ/f8+hEkdy70L+W+jgqaeBi8gun+t32C5N2Uk/qPMvo8
+         ugTvm8525LW2PkTcPcmd3cCd+wRV9Bcee3uMGGj6qVKGfBiBy67bQiG8y2v1H7SaoN
+         4Pntxk247Q2WbFCCzCvBRU/R3V/i4vbwkURcDC2AXM8OjAiLFF1lFTjeAUtVnJzsM6
+         shrcIMyMle9Fg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Garry <john.garry@huawei.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jinpu.wang@cloud.ionos.com,
-        jejb@linux.ibm.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 19/27] scsi: pm8001: Fix use-after-free for aborted SSP/STP sas_task
-Date:   Wed,  9 Feb 2022 13:40:55 -0500
-Message-Id: <20220209184103.47635-19-sashal@kernel.org>
+Cc:     Sagi Grimberg <sagi@grimberg.me>, Sasha Levin <sashal@kernel.org>,
+        kbusch@kernel.org, axboe@fb.com, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 20/27] nvme: fix a possible use-after-free in controller reset during load
+Date:   Wed,  9 Feb 2022 13:40:56 -0500
+Message-Id: <20220209184103.47635-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220209184103.47635-1-sashal@kernel.org>
 References: <20220209184103.47635-1-sashal@kernel.org>
@@ -59,65 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit df7abcaa1246e2537ab4016077b5443bb3c09378 ]
+[ Upstream commit 0fa0f99fc84e41057cbdd2efbfe91c6b2f47dd9d ]
 
-Currently a use-after-free may occur if a sas_task is aborted by the upper
-layer before we handle the I/O completion in mpi_ssp_completion() or
-mpi_sata_completion().
+Unlike .queue_rq, in .submit_async_event drivers may not check the ctrl
+readiness for AER submission. This may lead to a use-after-free
+condition that was observed with nvme-tcp.
 
-In this case, the following are the two steps in handling those I/O
-completions:
+The race condition may happen in the following scenario:
+1. driver executes its reset_ctrl_work
+2. -> nvme_stop_ctrl - flushes ctrl async_event_work
+3. ctrl sends AEN which is received by the host, which in turn
+   schedules AEN handling
+4. teardown admin queue (which releases the queue socket)
+5. AEN processed, submits another AER, calling the driver to submit
+6. driver attempts to send the cmd
+==> use-after-free
 
- - Call complete() to inform the upper layer handler of completion of
-   the I/O.
+In order to fix that, add ctrl state check to validate the ctrl
+is actually able to accept the AER submission.
 
- - Release driver resources associated with the sas_task in
-   pm8001_ccb_task_free() call.
+This addresses the above race in controller resets because the driver
+during teardown should:
+1. change ctrl state to RESETTING
+2. flush async_event_work (as well as other async work elements)
 
-When complete() is called, the upper layer may free the sas_task. As such,
-we should not touch the associated sas_task afterwards, but we do so in the
-pm8001_ccb_task_free() call.
+So after 1,2, any other AER command will find the
+ctrl state to be RESETTING and bail out without submitting the AER.
 
-Fix by swapping the complete() and pm8001_ccb_task_free() calls ordering.
-
-Link: https://lore.kernel.org/r/1643289172-165636-4-git-send-email-john.garry@huawei.com
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Acked-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm80xx_hwi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvme/host/core.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index a203a4fc2674a..b08e285e7fff6 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -2133,9 +2133,9 @@ mpi_ssp_completion(struct pm8001_hba_info *pm8001_ha , void *piomb)
- 		pm8001_dbg(pm8001_ha, FAIL,
- 			   "task 0x%p done with io_status 0x%x resp 0x%x stat 0x%x but aborted by upper layer!\n",
- 			   t, status, ts->resp, ts->stat);
-+		pm8001_ccb_task_free(pm8001_ha, t, ccb, tag);
- 		if (t->slow_task)
- 			complete(&t->slow_task->completion);
--		pm8001_ccb_task_free(pm8001_ha, t, ccb, tag);
- 	} else {
- 		spin_unlock_irqrestore(&t->task_state_lock, flags);
- 		pm8001_ccb_task_free(pm8001_ha, t, ccb, tag);
-@@ -2726,9 +2726,9 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 		pm8001_dbg(pm8001_ha, FAIL,
- 			   "task 0x%p done with io_status 0x%x resp 0x%x stat 0x%x but aborted by upper layer!\n",
- 			   t, status, ts->resp, ts->stat);
-+		pm8001_ccb_task_free(pm8001_ha, t, ccb, tag);
- 		if (t->slow_task)
- 			complete(&t->slow_task->completion);
--		pm8001_ccb_task_free(pm8001_ha, t, ccb, tag);
- 	} else {
- 		spin_unlock_irqrestore(&t->task_state_lock, flags);
- 		pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 99b5152482fe4..71c85c99e86c6 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -4259,7 +4259,14 @@ static void nvme_async_event_work(struct work_struct *work)
+ 		container_of(work, struct nvme_ctrl, async_event_work);
+ 
+ 	nvme_aen_uevent(ctrl);
+-	ctrl->ops->submit_async_event(ctrl);
++
++	/*
++	 * The transport drivers must guarantee AER submission here is safe by
++	 * flushing ctrl async_event_work after changing the controller state
++	 * from LIVE and before freeing the admin queue.
++	*/
++	if (ctrl->state == NVME_CTRL_LIVE)
++		ctrl->ops->submit_async_event(ctrl);
+ }
+ 
+ static bool nvme_ctrl_pp_status(struct nvme_ctrl *ctrl)
 -- 
 2.34.1
 
