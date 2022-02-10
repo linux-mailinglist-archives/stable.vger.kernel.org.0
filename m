@@ -2,102 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E3CF4B0244
-	for <lists+stable@lfdr.de>; Thu, 10 Feb 2022 02:30:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11CDE4B01D7
+	for <lists+stable@lfdr.de>; Thu, 10 Feb 2022 02:20:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232500AbiBJB3H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Feb 2022 20:29:07 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:57564 "EHLO
+        id S230239AbiBJBUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Feb 2022 20:20:25 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:36226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232445AbiBJB3E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 20:29:04 -0500
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 896E8205E7
-        for <stable@vger.kernel.org>; Wed,  9 Feb 2022 17:29:06 -0800 (PST)
-Received: by mail-pf1-x429.google.com with SMTP id y5so7498293pfe.4
-        for <stable@vger.kernel.org>; Wed, 09 Feb 2022 17:29:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=vEXae9Jn1YGDAQ8qzBe4eMP1XH/dd4B8lowp92SBv64=;
-        b=dQUUuQSGt2xhvzqU4tBVyTrJQ674Zap7OID/BvZsKtGx3TXJ9+5e3UJyt9XUBDO/hL
-         cyPIvcYm0tRKMgLHbTfvUNuLquAvtFhWZHSmaDWdac+uXsLHR083G/NyByO3rm/GDhp+
-         ii/K7nUrgxcg1NgBkexQJFrHj6O6wEiK6hRaY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=vEXae9Jn1YGDAQ8qzBe4eMP1XH/dd4B8lowp92SBv64=;
-        b=dmycCu3yCShg/EC0DxUA1LVABYRCLrrl/k6D2WJA3awhx5orbZdYX0I4W+tERM4DKu
-         BQr3fAoMZR0WH0ew56kW6h7xwuHdD6ISFv+Yhf0Znjsg8mr9VbumeyXk/tloaRWZQoMH
-         bqFX5KtLA7op+D/tWuAeSKUckjeiFq9B97O1cVyQFt3tSgyIpH0F4hxwHqhD9vJbc3M0
-         WFVCq8tEeiczZT75pZfgFED/NaeWRU9D8CTJ2c1ubey/W3ffCHOMgJMbPx6mR7/Iwyox
-         IZ3m45HHK9zgj8EbjhS89nU4KcnBo11FFn11HKUtuyOJo4mhyRfay6GNJmnmlmj8rlSv
-         cDEw==
-X-Gm-Message-State: AOAM531atJ0R3UzCmFO2gi7KGACMADx3dR3z0hJw7kzfYn9bca33cwUo
-        M1QQWXcBQqgPQJWJwmziea/IKIteow6VSQ==
-X-Google-Smtp-Source: ABdhPJwyULpMqZaN14jtHBDgSmjZGU4tx6Sloz/BBfiTMfMoD/2lU+BmuF4tV+NdUpSM6kQXSBH81g==
-X-Received: by 2002:a05:6e02:144b:: with SMTP id p11mr2707646ilo.100.1644454795049;
-        Wed, 09 Feb 2022 16:59:55 -0800 (PST)
-Received: from [192.168.1.128] ([71.205.29.0])
-        by smtp.gmail.com with ESMTPSA id w4sm6990890ilo.53.2022.02.09.16.59.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Feb 2022 16:59:54 -0800 (PST)
-Subject: Re: [PATCH 4.9 0/2] 4.9.301-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20220209191247.830371456@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <08949c74-98be-f824-359e-419b9759b75b@linuxfoundation.org>
-Date:   Wed, 9 Feb 2022 17:59:54 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        with ESMTP id S229469AbiBJBUV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Feb 2022 20:20:21 -0500
+Received: from nksmu.kylinos.cn (mailgw.kylinos.cn [123.150.8.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C92E84;
+        Wed,  9 Feb 2022 17:20:18 -0800 (PST)
+X-UUID: f752996293804c03af1205c5fae73d9a-20220210
+X-CPASD-INFO: 10bbcf6a07a64175b9b2a3889822b914@eoCcgpCYZJFcV6OCg3SCb4JqkmKRX1i
+        He3JSYpBpXVSVhH5xTWJsXVKBfG5QZWNdYVN_eGpQYl9gZFB5i3-XblBgXoZgUZB3gHKcgpOUZg==
+X-CPASD-FEATURE: 0.0
+X-CLOUD-ID: 10bbcf6a07a64175b9b2a3889822b914
+X-CPASD-SUMMARY: SIP:-1,APTIP:-2.0,KEY:0.0,FROMBLOCK:1,EXT:0.0,OB:0.0,URL:-5,T
+        VAL:133.0,ESV:0.0,ECOM:-5.0,ML:0.0,FD:0.0,CUTS:151.0,IP:-2.0,MAL:0.0,ATTNUM:0
+        .0,PHF:-5.0,PHC:-5.0,SPF:4.0,EDMS:-3,IPLABEL:4480.0,FROMTO:0,AD:0,FFOB:0.0,CF
+        OB:0.0,SPC:0.0,SIG:-5,AUF:15,DUF:32547,ACD:190,DCD:292,SL:0,AG:0,CFC:0.522,CF
+        SR:0.063,UAT:0,RAF:2,VERSION:2.3.4
+X-CPASD-ID: f752996293804c03af1205c5fae73d9a-20220210
+X-CPASD-BLOCK: 1000
+X-CPASD-STAGE: 1, 1
+X-UUID: f752996293804c03af1205c5fae73d9a-20220210
+X-User: xiehongyu1@kylinos.cn
+Received: from [172.20.4.10] [(116.128.244.169)] by nksmu.kylinos.cn
+        (envelope-from <xiehongyu1@kylinos.cn>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256 128/128)
+        with ESMTP id 1501960626; Thu, 10 Feb 2022 09:17:13 +0800
+Message-ID: <59231732-82a3-3a0c-db0c-eec252b35d3b@kylinos.cn>
+Date:   Thu, 10 Feb 2022 09:04:40 +0800
 MIME-Version: 1.0
-In-Reply-To: <20220209191247.830371456@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH -next v2] xhci: fix two places when dealing with return
+ value of function xhci_check_args
 Content-Language: en-US
+To:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Hongyu Xie <xy521521@gmail.com>, gregkh@linuxfoundation.org,
+        mathias.nyman@intel.com
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20220209025234.25230-1-xy521521@gmail.com>
+ <89d59749-8ca3-b30b-4da6-a6e567528d1b@linux.intel.com>
+From:   =?UTF-8?B?6LCi5rOT5a6H?= <xiehongyu1@kylinos.cn>
+In-Reply-To: <89d59749-8ca3-b30b-4da6-a6e567528d1b@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,KHOP_HELO_FCRDNS,
+        NICE_REPLY_A,SPF_HELO_NONE,T_SCC_BODY_TEXT_LINE,T_SPF_PERMERROR
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/9/22 12:13 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.301 release.
-> There are 2 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 11 Feb 2022 19:12:41 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.301-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Hi,
 
-Compiled and booted on my test system. No dmesg regressions.
+On 2022/2/9 17:29, Mathias Nyman wrote:
+> On 9.2.2022 4.52, Hongyu Xie wrote:
+>> From: Hongyu Xie <xiehongyu1@kylinos.cn>
+>>
+>> xhci_check_args returns 4 types of value, -ENODEV, -EINVAL, 1 and 0.
+>> xhci_urb_enqueue and xhci_check_streams_endpoint return -EINVAL if
+>> the return value of xhci_check_args <= 0.
+>> This will cause a problem.
+>> For example, r8152_submit_rx calling usb_submit_urb in
+>> drivers/net/usb/r8152.c.
+>> r8152_submit_rx will never get -ENODEV after submiting an urb
+>> when xHC is halted,
+>> because xhci_urb_enqueue returns -EINVAL in the very beginning.
+>>
+>> Fixes: 203a86613fb3 ("xhci: Avoid NULL pointer deref when host dies.")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Hongyu Xie <xiehongyu1@kylinos.cn>
+>> ---
+> Thanks, added to queue.
+> Changed the commit message and header a bit:
+>
+> "xhci: Prevent futile URB re-submissions due to incorrect return value.
+>      
+> The -ENODEV return value from xhci_check_args() is incorrectly changed
+> to -EINVAL in a couple places before propagated further.
+>      
+> xhci_check_args() returns 4 types of value, -ENODEV, -EINVAL, 1 and 0.
+> xhci_urb_enqueue and xhci_check_streams_endpoint return -EINVAL if
+> the return value of xhci_check_args <= 0.
+> This causes problems for example r8152_submit_rx, calling usb_submit_urb
+> in drivers/net/usb/r8152.c.
+> r8152_submit_rx will never get -ENODEV after submiting an urb when xHC
+> is halted because xhci_urb_enqueue returns -EINVAL in the very beginning."
+>
+> Let me know if you disagree with this.
+>
+> Thanks
+> -Mathias
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+Sounds good to me.
 
-thanks,
--- Shuah
+Do I have to send another patch with commit message and header changed?
+
+Thanks
+
+Hongyu Xie
+
