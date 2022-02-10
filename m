@@ -2,148 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75E914B1504
-	for <lists+stable@lfdr.de>; Thu, 10 Feb 2022 19:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 691394B154B
+	for <lists+stable@lfdr.de>; Thu, 10 Feb 2022 19:35:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245585AbiBJSLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Feb 2022 13:11:38 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37112 "EHLO
+        id S231605AbiBJSes convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 10 Feb 2022 13:34:48 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245583AbiBJSLi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 13:11:38 -0500
-Received: from mail-vs1-xe2f.google.com (mail-vs1-xe2f.google.com [IPv6:2607:f8b0:4864:20::e2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2E6A1169
-        for <stable@vger.kernel.org>; Thu, 10 Feb 2022 10:11:38 -0800 (PST)
-Received: by mail-vs1-xe2f.google.com with SMTP id r13so2871086vsg.6
-        for <stable@vger.kernel.org>; Thu, 10 Feb 2022 10:11:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=m+hInPGeofgQvr+B+jVJK410sDOyGMUjmtcn9HJ0ffY=;
-        b=flqnBBPVANSD1q26AJK1xKHd6Pz8XsN5l5tNUv0zrjZ6RUkvAhmsCcb2usX76C3vze
-         BKQrSKHOjwhTWQ8zLtP0DwlqZU2SZ1gutMd+mUC2qMxIBtTl+AZrnhS8Ud7gT9mdwbxi
-         5BDCER/FC7wNbWpnFp5+7hKfdPu2ON2BDi0AWBt9Q/lbujogRcsefNa6QEIFX42OADob
-         kQ50VLfgVRE2YphEk0I5jOQvXDCXzqj2VfDbkAFstqP0CW3rjHIZ/2kOGpi+2ej68ixh
-         swkWO+3eL+q68NYwP5EkES500gpKk9md4DW9TPEE87u0QzYq/Lr6RF9kWQd2Jiwq8Fpi
-         MJnA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=m+hInPGeofgQvr+B+jVJK410sDOyGMUjmtcn9HJ0ffY=;
-        b=1TJSfBlTQef+ImuWDuwhs8yL4UNbhajkioJ1a34xFaoLH9rcQAORIMvvLCpFEfW0ia
-         PCHqsAoq+9a+0ry3zC1FWK/37eDI5HF3krx2qE8wM/zzeR8sMCKikYbIXotu0Iw4ZNpA
-         dFxX4MvZt43hVbhJYcrHF2WX9JkbP/bZioduw53jrxQUttRhQIlph0mIJbepdS6MBGLC
-         7dK1evVkCW4Xei3w6sAu5n2wpxGN4kMcjaE0I5fXyZDntjuJm47EeMtv57uKHjy2jKv3
-         D7LNz3xVf7nAjnDnWbHzKbbFqX9P56PM1hRG4m/pYC6hNWveb1MXGa0fgijlQzSo5EdN
-         by0w==
-X-Gm-Message-State: AOAM532N7LNILxvPtlgAm923v6N4UopbGeK50om29nntTnnrRPWjfeRt
-        rqE30XlEJp4NVDUoREhq/uWw3O1/ub1rPh6nYR/yQA==
-X-Google-Smtp-Source: ABdhPJw0wrjMPSV0KitDigRahLC/42LEA2IINh4KLCyn8gAYrV3PQkar+WOmsLQ0V6q190C4yh2BfHWfFZg0RMqQ4wo=
-X-Received: by 2002:a67:ff0a:: with SMTP id v10mr1811061vsp.3.1644516698069;
- Thu, 10 Feb 2022 10:11:38 -0800 (PST)
+        with ESMTP id S230310AbiBJSes (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 13:34:48 -0500
+Received: from out02.mta.xmission.com (out02.mta.xmission.com [166.70.13.232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2286192;
+        Thu, 10 Feb 2022 10:34:48 -0800 (PST)
+Received: from in01.mta.xmission.com ([166.70.13.51]:57436)
+        by out02.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1nIDvq-003N6V-Oc; Thu, 10 Feb 2022 11:12:38 -0700
+Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:41284 helo=email.froward.int.ebiederm.org.xmission.com)
+        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1nIDvo-00DaTn-8A; Thu, 10 Feb 2022 11:12:38 -0700
+From:   "Eric W. Biederman" <ebiederm@xmission.com>
+To:     Jann Horn <jannh@google.com>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Robert =?utf-8?B?xZp3acSZY2tp?= <robert@swiecki.net>,
+        stable@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>,
+        Will Drewry <wad@chromium.org>, linux-kernel@vger.kernel.org,
+        linux-hardening@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>
+References: <20220210025321.787113-1-keescook@chromium.org>
+        <20220210025321.787113-2-keescook@chromium.org>
+        <CAG48ez1m7XJ1wJvTHtNorH480jTWNgdrn5Q1LTZZQ4uve3r4Sw@mail.gmail.com>
+        <202202100935.FB3E60FA5@keescook>
+        <CAG48ez3fG7S1dfE2-JAtyOZUK=0_iZ03scf+oD6gwVyD1Qp33g@mail.gmail.com>
+Date:   Thu, 10 Feb 2022 12:12:03 -0600
+In-Reply-To: <CAG48ez3fG7S1dfE2-JAtyOZUK=0_iZ03scf+oD6gwVyD1Qp33g@mail.gmail.com>
+        (Jann Horn's message of "Thu, 10 Feb 2022 19:01:39 +0100")
+Message-ID: <87h7968ubw.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-References: <20220209191248.596319706@linuxfoundation.org>
-In-Reply-To: <20220209191248.596319706@linuxfoundation.org>
-From:   Jeffrin Thalakkottoor <jeffrin@rajagiritech.edu.in>
-Date:   Thu, 10 Feb 2022 13:11:01 -0500
-Message-ID: <CAG=yYwk2JyJsUsBR_aRxY2j=i=snjoCTx+D70x78BRwN-X53=Q@mail.gmail.com>
-Subject: Re: [PATCH 4.19 0/2] 4.19.229-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     lkml <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        torvalds@linux-foundation.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Content-Type: multipart/mixed; boundary="0000000000009ddee705d7ade1bc"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+X-XM-SPF: eid=1nIDvo-00DaTn-8A;;;mid=<87h7968ubw.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX18hse56qt4MsIN6aEqx2RTHnzkFuCzJSn8=
+X-SA-Exim-Connect-IP: 68.227.174.4
+X-SA-Exim-Mail-From: ebiederm@xmission.com
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
+X-Spam-DCC: XMission; sa07 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: **;Jann Horn <jannh@google.com>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 1842 ms - load_scoreonly_sql: 0.06 (0.0%),
+        signal_user_changed: 12 (0.6%), b_tie_ro: 10 (0.5%), parse: 1.19
+        (0.1%), extract_message_metadata: 25 (1.3%), get_uri_detail_list: 2.8
+        (0.2%), tests_pri_-1000: 46 (2.5%), tests_pri_-950: 1.33 (0.1%),
+        tests_pri_-900: 1.08 (0.1%), tests_pri_-90: 358 (19.4%), check_bayes:
+        356 (19.3%), b_tokenize: 10 (0.6%), b_tok_get_all: 9 (0.5%),
+        b_comp_prob: 3.4 (0.2%), b_tok_touch_all: 329 (17.8%), b_finish: 1.05
+        (0.1%), tests_pri_0: 1378 (74.8%), check_dkim_signature: 0.64 (0.0%),
+        check_dkim_adsp: 2.8 (0.2%), poll_dns_idle: 0.88 (0.0%), tests_pri_10:
+        3.7 (0.2%), tests_pri_500: 12 (0.7%), rewrite_mail: 0.00 (0.0%)
+Subject: Re: [PATCH 1/3] signal: HANDLER_EXIT should clear SIGNAL_UNKILLABLE
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---0000000000009ddee705d7ade1bc
-Content-Type: text/plain; charset="UTF-8"
+Jann Horn <jannh@google.com> writes:
 
-On Wed, Feb 9, 2022 at 2:25 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+> On Thu, Feb 10, 2022 at 6:37 PM Kees Cook <keescook@chromium.org> wrote:
+>> On Thu, Feb 10, 2022 at 05:18:39PM +0100, Jann Horn wrote:
+>> > On Thu, Feb 10, 2022 at 3:53 AM Kees Cook <keescook@chromium.org> wrote:
+>> > > Fatal SIGSYS signals were not being delivered to pid namespace init
+>> > > processes. Make sure the SIGNAL_UNKILLABLE doesn't get set for these
+>> > > cases.
+>> > >
+>> > > Reported-by: Robert Święcki <robert@swiecki.net>
+>> > > Suggested-by: "Eric W. Biederman" <ebiederm@xmission.com>
+>> > > Fixes: 00b06da29cf9 ("signal: Add SA_IMMUTABLE to ensure forced siganls do not get changed")
+>> > > Cc: stable@vger.kernel.org
+>> > > Signed-off-by: Kees Cook <keescook@chromium.org>
+>> > > ---
+>> > >  kernel/signal.c | 5 +++--
+>> > >  1 file changed, 3 insertions(+), 2 deletions(-)
+>> > >
+>> > > diff --git a/kernel/signal.c b/kernel/signal.c
+>> > > index 38602738866e..33e3ee4f3383 100644
+>> > > --- a/kernel/signal.c
+>> > > +++ b/kernel/signal.c
+>> > > @@ -1342,9 +1342,10 @@ force_sig_info_to_task(struct kernel_siginfo *info, struct task_struct *t,
+>> > >         }
+>> > >         /*
+>> > >          * Don't clear SIGNAL_UNKILLABLE for traced tasks, users won't expect
+>> > > -        * debugging to leave init killable.
+>> > > +        * debugging to leave init killable, unless it is intended to exit.
+>> > >          */
+>> > > -       if (action->sa.sa_handler == SIG_DFL && !t->ptrace)
+>> > > +       if (action->sa.sa_handler == SIG_DFL &&
+>> > > +           (!t->ptrace || (handler == HANDLER_EXIT)))
+>> > >                 t->signal->flags &= ~SIGNAL_UNKILLABLE;
+>> >
+>> > You're changing the subclause:
+>> >
+>> > !t->ptrace
+>> >
+>> > to:
+>> >
+>> > (!t->ptrace || (handler == HANDLER_EXIT))
+>> >
+>> > which means that the change only affects cases where the process has a
+>> > ptracer, right? That's not the scenario the commit message is talking
+>> > about...
+>>
+>> Sorry, yes, I was not as accurate as I should have been in the commit
+>> log. I have changed it to:
+>>
+>> Fatal SIGSYS signals (i.e. seccomp RET_KILL_* syscall filter actions)
+>> were not being delivered to ptraced pid namespace init processes. Make
+>> sure the SIGNAL_UNKILLABLE doesn't get set for these cases.
 >
-> This is the start of the stable review cycle for the 4.19.229 release.
-> There are 2 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> So basically force_sig_info() is trying to figure out whether
+> get_signal() will later on check for SIGNAL_UNKILLABLE (the SIG_DFL
+> case), and if so, it clears the flag from the target's signal_struct
+> that marks the process as unkillable?
 >
-> Responses should be made by Fri, 11 Feb 2022 19:12:41 +0000.
-> Anything received after that time might be too late.
+> This used to be:
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.229-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
+> if (action->sa.sa_handler == SIG_DFL)
+>     t->signal->flags &= ~SIGNAL_UNKILLABLE;
 >
-> thanks,
+> Then someone noticed that in the ptrace case, the signal might not
+> actually end up being consumed by the target process, and added the
+> "&& !t->ptrace" clause in commit
+> eb61b5911bdc923875cde99eb25203a0e2b06d43.
 >
-> greg k-h
+> And now Robert Swiecki noticed that that still didn't accurately model
+> what'll happen in get_signal().
+>
+>
+> This seems hacky to me, and also racy: What if, while you're going
+> through a SECCOMP_RET_KILL_PROCESS in an unkillable process, some
+> other thread e.g. concurrently changes the disposition of SIGSYS from
+> a custom handler to SIG_DFL?
+>
+> Instead of trying to figure out whether the signal would have been
+> fatal without SIGNAL_UNKILLABLE, I think it would be better to find a
+> way to tell the signal-handling code that SIGNAL_UNKILLABLE should be
+> bypassed for this specific signal, or something along those lines...
+> but of course that's also kind of messy because the signal-sending
+> code might fall back to just using the pending signal mask on
+> allocation failure IIRC?
 
-hello,
-Compiled  and booted kernel 4.19.229-rc1+ on :
+I am actively working on this.  I think I know how to get there but
+it requires cleanups elsewhere as well, so it is not really an approach
+that is appropriate for backporting.
 
-Processor Information:
-    Socket Designation: FM2
-    Type: Central Processor
-    Family: A-Series
-    Manufacturer: AuthenticAMD
-    ID: 31 0F 61 00 FF FB 8B 17
-    Signature: Family 21, Model 19, Stepping 1
+The big bottleneck is that we need to make signals that trigger
+coredumps eligible for short circuit delivery, and that takes a little
+doing.
 
+Eric
 
-i have a new  display card of nvidia chipset. iam using non-free drivers here.
-01:00.0 VGA compatible controller: NVIDIA Corporation GP108 [GeForce
-GT 1030] (rev a1) (from lspci output)
-resources: irq:29 memory:fd000000-fdffffff memory:c0000000-cfffffff
-memory:d0000000-d1ffffff ioport:e000(size=128) memory:c0000-dffff
-(from "sudo lshw -c video"  output)
-
-dmesg related actions attached.
-
-Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
---
-software engineer
-rajagiri school of engineering and technology  -  autonomous
-
---0000000000009ddee705d7ade1bc
-Content-Type: text/plain; charset="US-ASCII"; name="dmesg0.txt"
-Content-Disposition: attachment; filename="dmesg0.txt"
-Content-Transfer-Encoding: base64
-Content-ID: <f_kzhaqwpy0>
-X-Attachment-Id: f_kzhaqwpy0
-
-JHN1ZG8gc3lzY3RsIC13IGtlcm5lbC5kbWVzZ19yZXN0cmljdD0wCmtlcm5lbC5kbWVzZ19yZXN0
-cmljdCA9IDAKJGRtZXNnIC1sIGVtZXJnCiRkbWVzZyAtbCBhbGVydAokZG1lc2cgLWwgY3JpdAok
-ZG1lc2cgLWwgZXJyClsgICAgMS4yNzAwOTJdIG52aWRpYWZiOiB1bmtub3duIE5WX0FSQ0gKWyAg
-ICA1LjUzMTk5Ml0gY2dyb3VwOiBjZ3JvdXAyOiB1bmtub3duIG9wdGlvbiAibWVtb3J5X3JlY3Vy
-c2l2ZXByb3QiCiRkbWVzZyAtbCB3YXJuClsgICAgMC4wMTczODRdIEFDUEkgQklPUyBXYXJuaW5n
-IChidWcpOiBPcHRpb25hbCBGQURUIGZpZWxkIFBtMkNvbnRyb2xCbG9jayBoYXMgdmFsaWQgTGVu
-Z3RoIGJ1dCB6ZXJvIEFkZHJlc3M6IDB4MDAwMDAwMDAwMDAwMDAwMC8weDEgKDIwMTgwODEwL3Ri
-ZmFkdC02MTUpClsgICAgMS4yNzAwNDBdIG52aWRpYWZiX3NldHVwIFNUQVJUClsgICAgMS4yNzAw
-NDddIG52aWRpYWZiX3Byb2JlIFNUQVJUClsgICAxMi4zMjk2OTZdIG52aWRpYTogbG9hZGluZyBv
-dXQtb2YtdHJlZSBtb2R1bGUgdGFpbnRzIGtlcm5lbC4KWyAgIDEyLjMyOTcxMF0gbnZpZGlhOiBt
-b2R1bGUgbGljZW5zZSAnTlZJRElBJyB0YWludHMga2VybmVsLgpbICAgMTIuMzI5NzExXSBEaXNh
-YmxpbmcgbG9jayBkZWJ1Z2dpbmcgZHVlIHRvIGtlcm5lbCB0YWludApbICAgMTIuNDg2Mjg5XSBO
-VlJNOiBsb2FkaW5nIE5WSURJQSBVTklYIHg4Nl82NCBLZXJuZWwgTW9kdWxlICA0NzAuMTAzLjAx
-ICBUaHUgSmFuICA2IDEyOjEwOjA0IFVUQyAyMDIyClsgICAzMS41NDcwNzNdIHJlc291cmNlIHNh
-bml0eSBjaGVjazogcmVxdWVzdGluZyBbbWVtIDB4MDAwYzAwMDAtMHgwMDBmZmZmZl0sIHdoaWNo
-IHNwYW5zIG1vcmUgdGhhbiBQQ0kgQnVzIDAwMDA6MDAgW21lbSAweDAwMGMwMDAwLTB4MDAwZGZm
-ZmYgd2luZG93XQpbICAgMzEuNTQ3NDgzXSBjYWxsZXIgX252MDAwNzIycm0rMHgxYWQvMHgyMDAg
-W252aWRpYV0gbWFwcGluZyBtdWx0aXBsZSBCQVJzClsgICA0MC4wOTk0MDJdIGthdWRpdGRfcHJp
-bnRrX3NrYjogMTEgY2FsbGJhY2tzIHN1cHByZXNzZWQKJAo=
---0000000000009ddee705d7ade1bc--
