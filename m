@@ -2,95 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 467F64B0E1D
-	for <lists+stable@lfdr.de>; Thu, 10 Feb 2022 14:08:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D85F4B1074
+	for <lists+stable@lfdr.de>; Thu, 10 Feb 2022 15:31:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241954AbiBJNHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Feb 2022 08:07:49 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43558 "EHLO
+        id S242938AbiBJOb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Feb 2022 09:31:56 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233456AbiBJNHs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 08:07:48 -0500
-Received: from mail-vk1-f181.google.com (mail-vk1-f181.google.com [209.85.221.181])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD56C1A7;
-        Thu, 10 Feb 2022 05:07:49 -0800 (PST)
-Received: by mail-vk1-f181.google.com with SMTP id b2so3026779vkl.1;
-        Thu, 10 Feb 2022 05:07:49 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=9xSDkfGA7Gbw9lubbu8lfvfHIM/jNHECsHfMyY0SuGE=;
-        b=bO6RaScuERw3GXVA1DRl1JfheXTC9eP+i0yiS4PhaE58qtBR/633FNWC10gxVpRfaL
-         hz+srg73qHj43kG+d73xS9Hz6mQDPmjqoxjfChXrp0YgEJn6R4Ba9PqDqUpZwyBsROyZ
-         PED5b8G4G2OMfvc70Q3B40VkLXNKg7dzMCP2Avv5ObYJUJBtb1m27VbzUrvNiE7+scn1
-         AL5BahMBzw0fxL2v9nkD/nM3BTO7yuBMR2BGEdk4YqdT+3Q+yLTBFgSwZZUBhI56UwRP
-         jMzOdNGDp/zoRELmzIHZxj9aArCUH2mMFjYx0nZYWQB/8gdJMxcq3x8co5neVEC9O+Eq
-         xmzQ==
-X-Gm-Message-State: AOAM530eqhXHZMhigdTH5Tgx98OXm9vNQE96GRvh6N4yllSs2CoAgZZQ
-        IGsAfDf5CIdZcNFXRKBhRpAbab+4AS2Phg==
-X-Google-Smtp-Source: ABdhPJzsuCoIpxIyzoLNmr4cvl9yb0J3mW4bbHtKwyfaLdkjoo0STed/5HGv4Mfp8fADBo4HBC+ZAw==
-X-Received: by 2002:a05:6122:588:: with SMTP id i8mr2560846vko.41.1644498468895;
-        Thu, 10 Feb 2022 05:07:48 -0800 (PST)
-Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com. [209.85.217.47])
-        by smtp.gmail.com with ESMTPSA id g27sm1394621vkd.17.2022.02.10.05.07.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Feb 2022 05:07:48 -0800 (PST)
-Received: by mail-vs1-f47.google.com with SMTP id z62so4070774vsz.2;
-        Thu, 10 Feb 2022 05:07:48 -0800 (PST)
-X-Received: by 2002:a05:6102:34d9:: with SMTP id a25mr2360386vst.68.1644498468038;
- Thu, 10 Feb 2022 05:07:48 -0800 (PST)
+        with ESMTP id S236150AbiBJObz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 09:31:55 -0500
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C1F9B37;
+        Thu, 10 Feb 2022 06:31:55 -0800 (PST)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: kholk11)
+        with ESMTPSA id 905F61F465B9
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1644503514;
+        bh=vnMYZtzLYUlEjqvEffkcsiOlW+x9zxo48b5WEnCoJBc=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=VJnEf5dXMaVgu7QFE/IW21kmLJ+XXHAjjPtyT0rtTTImZtBbVRXTV0mVIUz9Xgib6
+         isHyrOcpGK9FfvZC+KidtsgsIu4DGevJQoms3+BKSUi90ikZQSkKp/ExbB1gEFkOeG
+         /44ffKLTzSQPg6N27CouFvUb2McyUj+yogaNXgHFTKhW/ode6pMy4JdkwwiIp+Iv8c
+         44cpJbZuu/8e4+B2P7pCEvofXYC1hmg/4rCMcg4pCai8ylMNiC7g1M6aPea2MxspvM
+         pP43/V7+J7RI5JQ8T0gpMMs+VmIwtZvdFvxwzAWH5qwFu8lvPm22/NB4rt/L5pVxTV
+         y8gLMNi/amv2w==
+Message-ID: <06446828-b589-5d7a-0e9f-25f6321e0da6@collabora.com>
+Date:   Thu, 10 Feb 2022 15:31:50 +0100
 MIME-Version: 1.0
-References: <20220130143333.552646-1-laurent@vivier.eu> <20220130143333.552646-3-laurent@vivier.eu>
-In-Reply-To: <20220130143333.552646-3-laurent@vivier.eu>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Thu, 10 Feb 2022 14:07:37 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdVX_DTZDTad9iU2DkTT_KTyducGJWtisj8wpTOzWdZMgg@mail.gmail.com>
-Message-ID: <CAMuHMdVX_DTZDTad9iU2DkTT_KTyducGJWtisj8wpTOzWdZMgg@mail.gmail.com>
-Subject: Re: [PATCH v14 2/5] tty: goldfish: introduce gf_ioread32()/gf_iowrite32()
-To:     Laurent Vivier <laurent@vivier.eu>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, linux-rtc@vger.kernel.org,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.1
+Subject: Re: [PATCH v2] PCI: mediatek: Clear interrupt status before
+ dispatching handler
+Content-Language: en-US
+To:     qizhong cheng <qizhong.cheng@mediatek.com>,
+        Ryder Lee <ryder.lee@mediatek.com>,
+        Jianjun Wang <jianjun.wang@mediatek.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?Q?Krzysztof_Wilczy=c5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Cc:     linux-pci@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org, chuanjia.liu@mediatek.com
+References: <20220210012125.6420-1-qizhong.cheng@mediatek.com>
+From:   AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>
+In-Reply-To: <20220210012125.6420-1-qizhong.cheng@mediatek.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 30, 2022 at 3:33 PM Laurent Vivier <laurent@vivier.eu> wrote:
-> Revert
-> commit da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
->
-> and define gf_ioread32()/gf_iowrite32() to be able to use accessors
-> defined by the architecture.
->
-> Cc: stable@vger.kernel.org # v5.11+
-> Fixes: da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
-> Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+Il 10/02/22 02:21, qizhong cheng ha scritto:
+> We found a failure when used iperf tool for wifi performance testing,
+> there are some MSIs received while clearing the interrupt status,
+> these MSIs cannot be serviced.
+> 
+> The interrupt status can be cleared even the MSI status still remaining,
+> as an edge-triggered interrupts, its interrupt status should be cleared
+> before dispatching to the handler of device.
+> 
+> Signed-off-by: qizhong cheng <qizhong.cheng@mediatek.com>
 
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Hello Qizhong,
 
-Gr{oetje,eeting}s,
+This commit is fixing an issue, which means that you *have to* add a proper
+Fixes tag.
 
-                        Geert
+I believe that this is fixing commit
+43e6409db64d ("PCI: mediatek: Add MSI support for MT2712 and MT7622").
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Please add the tag and send a v3, after which:
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+
+> ---
+> v2:
+>   - Update the subject line.
+>   - Improve the commit log and code comments.
+> 
+>   drivers/pci/controller/pcie-mediatek.c | 9 +++++++--
+>   1 file changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/pci/controller/pcie-mediatek.c b/drivers/pci/controller/pcie-mediatek.c
+> index 2f3f974977a3..2856d74b2513 100644
+> --- a/drivers/pci/controller/pcie-mediatek.c
+> +++ b/drivers/pci/controller/pcie-mediatek.c
+> @@ -624,12 +624,17 @@ static void mtk_pcie_intr_handler(struct irq_desc *desc)
+>   		if (status & MSI_STATUS){
+>   			unsigned long imsi_status;
+>   
+> +			/*
+> +			 * The interrupt status can be cleared even the MSI
+> +			 * status still remaining, hence as an edge-triggered
+> +			 * interrupts, its interrupt status should be cleared
+> +			 * before dispatching handler.
+> +			 */
+> +			writel(MSI_STATUS, port->base + PCIE_INT_STATUS);
+>   			while ((imsi_status = readl(port->base + PCIE_IMSI_STATUS))) {
+>   				for_each_set_bit(bit, &imsi_status, MTK_MSI_IRQS_NUM)
+>   					generic_handle_domain_irq(port->inner_domain, bit);
+>   			}
+> -			/* Clear MSI interrupt status */
+> -			writel(MSI_STATUS, port->base + PCIE_INT_STATUS);
+>   		}
+>   	}
+>   
+> 
+
+
