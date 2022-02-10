@@ -2,115 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B58534B0771
-	for <lists+stable@lfdr.de>; Thu, 10 Feb 2022 08:47:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A11424B07F1
+	for <lists+stable@lfdr.de>; Thu, 10 Feb 2022 09:17:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236456AbiBJHrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Feb 2022 02:47:20 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56764 "EHLO
+        id S237245AbiBJIQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Feb 2022 03:16:54 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:53326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232529AbiBJHrS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 02:47:18 -0500
-Received: from qproxy5-pub.mail.unifiedlayer.com (qproxy5-pub.mail.unifiedlayer.com [69.89.21.30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86696D7A
-        for <stable@vger.kernel.org>; Wed,  9 Feb 2022 23:47:18 -0800 (PST)
-Received: from gproxy1-pub.mail.unifiedlayer.com (gproxy1-pub.mail.unifiedlayer.com [69.89.25.95])
-        by qproxy5.mail.unifiedlayer.com (Postfix) with ESMTP id C879A8030023
-        for <stable@vger.kernel.org>; Thu, 10 Feb 2022 07:47:17 +0000 (UTC)
-Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
-        by progateway3.mail.pro1.eigbox.com (Postfix) with ESMTP id 2DD5010047DB0
-        for <stable@vger.kernel.org>; Thu, 10 Feb 2022 07:47:17 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id I4AenGq1GXOyfI4AenFeZI; Thu, 10 Feb 2022 07:47:17 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=EucXEQQA c=1 sm=1 tr=0 ts=6204c305
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=oGFeUVbbRNcA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=dr0bLraTQWPAqmSC3au7EoBh3glfgjvbu8yHxdsY1Lc=; b=I2RuRv0Rsc52TZ1jPjqROWaZex
-        Gxvu+3VY/fXSGFZYDSerAKMYsILMcmf/w9mmSHXQZqpzReNJhCmkcRXZHE53aYl+Tz0gY1t4yFcKI
-        6paJu1wzdtcFJ+dA9xCIR74s4;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53918 helo=[10.0.1.23])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1nI4Ae-001pw3-4e; Thu, 10 Feb 2022 00:47:16 -0700
-Message-ID: <0ccc1c8b-e056-599e-80e1-ec45f4aef047@w6rz.net>
-Date:   Wed, 9 Feb 2022 23:47:14 -0800
+        with ESMTP id S237105AbiBJIQw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 03:16:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EC63109E;
+        Thu, 10 Feb 2022 00:16:54 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E05E46128D;
+        Thu, 10 Feb 2022 08:16:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65074C004E1;
+        Thu, 10 Feb 2022 08:16:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1644481013;
+        bh=pY+kYYBMcgXvvd1QLrlQo1EVEtYJtXoEbZCyjGohZH4=;
+        h=Subject:From:In-Reply-To:References:To:Cc:Date:From;
+        b=l0PrDUi/YOlJDb3awfaQpXLyrwOJKeg/EJwZfN8ENdU3lrA/MsZsmizYBxuJLbdFC
+         DQk2rLTIo0xE6Hu3v8wbiwez6hXg7SuR7fG8qxidrQy+dCTxPkc+/hlklyyPzla4Wb
+         OLLoUQt5BF6gnOCW7RLmv3r6ICK3Vdvopmhi76jogVz5wSQoKTrUiOuKuawUGHErsT
+         0rcmhq5AVdAWhoKpiTc/asL7bK5TYS+2BmW70VEyhj+XGEMy8Tl6LZpo61ONw5zQ+y
+         W2pWf3bXCNmvkzJw0i5s0Ou5qbyxnMVW4F3svNw9Dy4AecZumfIbPDmKCD2oxGqUPP
+         ySRoEwnhB2hsQ==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 5.15 0/5] 5.15.23-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220209191249.980911721@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-In-Reply-To: <20220209191249.980911721@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1nI4Ae-001pw3-4e
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:53918
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 12
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH] iwlwifi: fix use-after-free
+From:   Kalle Valo <kvalo@kernel.org>
+In-Reply-To: <20220208114728.e6b514cf4c85.Iffb575ca2a623d7859b542c33b2a507d01554251@changeid>
+References: <20220208114728.e6b514cf4c85.Iffb575ca2a623d7859b542c33b2a507d01554251@changeid>
+To:     Johannes Berg <johannes@sipsolutions.net>
+Cc:     linux-wireless@vger.kernel.org,
+        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
+        Wolfgang Walter <linux@stwm.de>,
+        Jason Self <jason@bluehome.net>,
+        Dominik Behr <dominik@dominikbehr.com>,
+        =?utf-8?q?Marek_Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>
+User-Agent: pwcli/0.1.0-git (https://github.com/kvalo/pwcli/) Python/3.7.3
+Message-ID: <164448100914.10463.9523338503936670263.kvalo@kernel.org>
+Date:   Thu, 10 Feb 2022 08:16:51 +0000 (UTC)
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/9/22 11:14, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.23 release.
-> There are 5 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 11 Feb 2022 19:12:41 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.23-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Johannes Berg <johannes@sipsolutions.net> wrote:
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+> From: Johannes Berg <johannes.berg@intel.com>
+> 
+> If no firmware was present at all (or, presumably, all of the
+> firmware files failed to parse), we end up unbinding by calling
+> device_release_driver(), which calls remove(), which then in
+> iwlwifi calls iwl_drv_stop(), freeing the 'drv' struct. However
+> the new code I added will still erroneously access it after it
+> was freed.
+> 
+> Set 'failure=false' in this case to avoid the access, all data
+> was already freed anyway.
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: Stefan Agner <stefan@agner.ch>
+> Reported-by: Wolfgang Walter <linux@stwm.de>
+> Reported-by: Jason Self <jason@bluehome.net>
+> Reported-by: Dominik Behr <dominik@dominikbehr.com>
+> Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+> Fixes: ab07506b0454 ("iwlwifi: fix leaks/bad data after failed firmware load")
+> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
-Tested-by: Ron Economos <re@w6rz.net>
+Patch applied to wireless.git, thanks.
+
+bea2662e7818 iwlwifi: fix use-after-free
+
+-- 
+https://patchwork.kernel.org/project/linux-wireless/patch/20220208114728.e6b514cf4c85.Iffb575ca2a623d7859b542c33b2a507d01554251@changeid/
+
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
 
