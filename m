@@ -2,80 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 817664B0B4A
-	for <lists+stable@lfdr.de>; Thu, 10 Feb 2022 11:49:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AF964B0B5D
+	for <lists+stable@lfdr.de>; Thu, 10 Feb 2022 11:50:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240105AbiBJKrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Feb 2022 05:47:47 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57198 "EHLO
+        id S240184AbiBJKuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Feb 2022 05:50:04 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240153AbiBJKrp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 05:47:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D6731013;
-        Thu, 10 Feb 2022 02:47:45 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BBC0FB8243C;
-        Thu, 10 Feb 2022 10:47:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B128C340F1;
-        Thu, 10 Feb 2022 10:47:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644490062;
-        bh=9wxC2ohwSsmxyDPagb62w902qK6d55OxtY0vmSam7j0=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=tRWgrSV6WZxbdD9PioGgHF+AT89TpZJnkw5Pc7sbO2VIOkt2lh21eVMQ50gVR3qaA
-         traACGQG7ATmTZwWrAmTtKWC4FpKgqJUm7c7Hn+pAwlC6WVK0271hDotJRTGMksxsb
-         GNJvmDE+D5uZg3pGiuS5Y+4oLkhsrpE5jjpYUA5dYs1yVmm8OEvqGFjx8xVHXOPTmG
-         oXP64J6ECuE/SZJ7pVz/t6ssGhKEeGPmWpII/GRG7ngRYit32ikXqt6X41L9pWJreh
-         JYJEDOIloSe9DnD4C6Dnvyd9FtOvcJBxk4cXb5ohogRs/B5QDFI1Jw92g7w/S+XSo6
-         9gbvg9IDCxelA==
-Received: by mail-wr1-f44.google.com with SMTP id q7so8673918wrc.13;
-        Thu, 10 Feb 2022 02:47:42 -0800 (PST)
-X-Gm-Message-State: AOAM532DWKAZyznh9tYrBgYnbLxO0dPaTcAD30SgILLj1/TA18mGDBMR
-        eHvPsNWuyhc232WL3ooavL1Sc7jpeRX3Gs8gSJs=
-X-Google-Smtp-Source: ABdhPJzQUjs7BxoWJcRm1HjlvVFqrwf0ZBI2C9GRDqkM5lZAUSddNkkZ6PCOvFq9jZnm5l5laSR+g/93w+Wp0DGvwzc=
-X-Received: by 2002:a05:6000:15ca:: with SMTP id y10mr5852990wry.417.1644490060790;
- Thu, 10 Feb 2022 02:47:40 -0800 (PST)
+        with ESMTP id S240164AbiBJKuE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 05:50:04 -0500
+Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B44DF101
+        for <stable@vger.kernel.org>; Thu, 10 Feb 2022 02:50:05 -0800 (PST)
+Received: by mail-yb1-xb35.google.com with SMTP id m6so14077536ybc.9
+        for <stable@vger.kernel.org>; Thu, 10 Feb 2022 02:50:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=5r/KOmabvwfACUVjtuB3yUeJeF7bxhYRxcHnGYT5KbE=;
+        b=EhOfGx8zrnhEVI+lDTZsOqqPxLNEcv5SCT92uQ6q2ByjTJ0ryuBTKtKcCeDlrova4Z
+         V6wGkW/f1nfFXW4xVyLbk+gQfsmJkaK40RWYzjwXKOjFT08tGPIcDmh+V5NNy39QvRuc
+         XPVkCymTn0QaJwz8QKXDcWw2plRd6df+jPMhNDpLJW5wJl2Kyb0Nadfvux5yK6/mHWvP
+         0zSMf1sgfqCiKs78iTp9K+Gj28G9xE0UOTj7xWgTy8k5DkpPI1BOtPRAe+4p0jHlq2GQ
+         cOXklaWKhj6rq1LSGSYYw0Ivc9OBOcln/aaOmlE8THtdKk6dmBF8xu/XsXlXoTluzvTY
+         4IdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=5r/KOmabvwfACUVjtuB3yUeJeF7bxhYRxcHnGYT5KbE=;
+        b=y16ZuQ2+c2I9cjhL4ewQ4yHmA8nisR2QczPk+bC9NoqsO50rvBxCo0l/BziIHLtG7h
+         LZJ89CZ2ClWNjlw8AZHs4NI5omwhrjzCJP2DBUxWYlw3+qwmVQt6wGopietoBNmiyr5Y
+         dBrE5wiqKbAtXAa06a4QdrfVGZ5om2lWaQTRX2Pb8LWym5wgI48jj0Q3fjs+Sq2bl7M1
+         R/TU8h8iCwZ2dGfKOf5B9rfFEaRZjPywmrKp7hGeRxcKrAR5o22JsNxTXfcPLegslWau
+         JTxS4jp21kDn7b1k7F94dme9TOGZ/08nfzdyEPJyrNS968bqJiOOBitUqPBKKSY4MAx8
+         kutQ==
+X-Gm-Message-State: AOAM5326nFvWc+zBU9scZ3KjFihDKUmh/uHPdzYAFdTeZa7cbdl/+aAc
+        qOT5keKmgFBZQvvD/zNZlnooYS/VzqGoGOU0vDzaF82bo33nnw==
+X-Google-Smtp-Source: ABdhPJz5BIWFzsJBDhZTw0AIWDCQkQvkRSyMkQrExAECwf4xMEyBOSrT80eg9SAbb1LRekvtSn0VA+ZdFRSBtPLwAbE=
+X-Received: by 2002:a81:a403:: with SMTP id b3mr6383105ywh.310.1644490204701;
+ Thu, 10 Feb 2022 02:50:04 -0800 (PST)
 MIME-Version: 1.0
-References: <9D0C961D-9999-4C41-A44B-22FEAF0DAB7F@live.com>
- <755cffe1dfaf43ea87cfeea124160fe0@AcuMS.aculab.com> <B6D697AB-2AC5-4925-8300-26BBB4AC3D99@live.com>
- <20103919-A276-4CA6-B1AD-6E45DB58500B@live.com>
-In-Reply-To: <20103919-A276-4CA6-B1AD-6E45DB58500B@live.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Thu, 10 Feb 2022 11:47:29 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXFCibuLxbv2VxVsS0mWJ=6Lv8Q8sNq2GfPQDJ9qi5XB8w@mail.gmail.com>
-Message-ID: <CAMj1kXFCibuLxbv2VxVsS0mWJ=6Lv8Q8sNq2GfPQDJ9qi5XB8w@mail.gmail.com>
-Subject: Re: [PATCH v2] efi: Do not import certificates from UEFI Secure Boot
- for T2 Macs
-To:     Aditya Garg <gargaditya08@live.com>
-Cc:     David Laight <David.Laight@aculab.com>,
-        Matthew Garrett <mjg59@srcf.ucam.org>,
-        Jeremy Kerr <jk@ozlabs.org>,
-        "joeyli.kernel@gmail.com" <joeyli.kernel@gmail.com>,
-        "zohar@linux.ibm.com" <zohar@linux.ibm.com>,
-        "jmorris@namei.org" <jmorris@namei.org>,
-        "eric.snowberg@oracle.com" <eric.snowberg@oracle.com>,
-        "dhowells@redhat.com" <dhowells@redhat.com>,
-        "jlee@suse.com" <jlee@suse.com>,
-        "James.Bottomley@hansenpartnership.com" 
-        <James.Bottomley@hansenpartnership.com>,
-        "jarkko@kernel.org" <jarkko@kernel.org>,
-        "mic@digikod.net" <mic@digikod.net>,
-        "dmitry.kasatkin@gmail.com" <dmitry.kasatkin@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Aun-Ali Zaidi <admin@kodeit.net>
+References: <20220209191249.980911721@linuxfoundation.org>
+In-Reply-To: <20220209191249.980911721@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 10 Feb 2022 16:19:53 +0530
+Message-ID: <CA+G9fYuXGCtb20onu-yFaAMSPbEwPxSDUcbprnRr1_yxGXr1yw@mail.gmail.com>
+Subject: Re: [PATCH 5.15 0/5] 5.15.23-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -84,183 +69,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 10 Feb 2022 at 11:45, Aditya Garg <gargaditya08@live.com> wrote:
+On Thu, 10 Feb 2022 at 00:45, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> From: Aditya Garg <gargaditya08@live.com>
+> This is the start of the stable review cycle for the 5.15.23 release.
+> There are 5 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> On T2 Macs, the secure boot is handled by the T2 Chip. If enabled, only
-> macOS and Windows are allowed to boot on these machines. Thus we need to
-> disable secure boot for Linux. If we boot into Linux after disabling
-> secure boot, if CONFIG_LOAD_UEFI_KEYS is enabled, EFI Runtime services
-> fail to start, with the following logs in dmesg
+> Responses should be made by Fri, 11 Feb 2022 19:12:41 +0000.
+> Anything received after that time might be too late.
 >
-> Call Trace:
->  <TASK>
->  page_fault_oops+0x4f/0x2c0
->  ? search_bpf_extables+0x6b/0x80
->  ? search_module_extables+0x50/0x80
->  ? search_exception_tables+0x5b/0x60
->  kernelmode_fixup_or_oops+0x9e/0x110
->  __bad_area_nosemaphore+0x155/0x190
->  bad_area_nosemaphore+0x16/0x20
->  do_kern_addr_fault+0x8c/0xa0
->  exc_page_fault+0xd8/0x180
->  asm_exc_page_fault+0x1e/0x30
-> (Removed some logs from here)
->  ? __efi_call+0x28/0x30
->  ? switch_mm+0x20/0x30
->  ? efi_call_rts+0x19a/0x8e0
->  ? process_one_work+0x222/0x3f0
->  ? worker_thread+0x4a/0x3d0
->  ? kthread+0x17a/0x1a0
->  ? process_one_work+0x3f0/0x3f0
->  ? set_kthread_struct+0x40/0x40
->  ? ret_from_fork+0x22/0x30
->  </TASK>
-> ---[ end trace 1f82023595a5927f ]---
-> efi: Froze efi_rts_wq and disabled EFI Runtime Services
-> integrity: Couldn't get size: 0x8000000000000015
-> integrity: MODSIGN: Couldn't get UEFI db list
-> efi: EFI Runtime Services are disabled!
-> integrity: Couldn't get size: 0x8000000000000015
-> integrity: Couldn't get UEFI dbx list
-> integrity: Couldn't get size: 0x8000000000000015
-> integrity: Couldn't get mokx list
-> integrity: Couldn't get size: 0x80000000
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.23-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.15.y
+> and the diffstat can be found below.
 >
-> This patch prevents querying of these UEFI variables, since these Macs
-> seem to use a non-standard EFI hardware
+> thanks,
 >
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Aditya Garg <gargaditya08@live.com>
-> ---
-> v2 :- Reduce code size of the table.
+> greg k-h
 
-NAK. As Matthew pointed out, other reads of the same variables may
-still trigger the same issue.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
->  .../platform_certs/keyring_handler.h          |  8 ++++
->  security/integrity/platform_certs/load_uefi.c | 48 +++++++++++++++++++
->  2 files changed, 56 insertions(+)
->
-> diff --git a/security/integrity/platform_certs/keyring_handler.h b/security/integrity/platform_certs/keyring_handler.h
-> index 2462bfa08..cd06bd607 100644
-> --- a/security/integrity/platform_certs/keyring_handler.h
-> +++ b/security/integrity/platform_certs/keyring_handler.h
-> @@ -30,3 +30,11 @@ efi_element_handler_t get_handler_for_db(const efi_guid_t *sig_type);
->  efi_element_handler_t get_handler_for_dbx(const efi_guid_t *sig_type);
->
->  #endif
-> +
-> +#ifndef UEFI_QUIRK_SKIP_CERT
-> +#define UEFI_QUIRK_SKIP_CERT(vendor, product) \
-> +                .matches = { \
-> +                       DMI_MATCH(DMI_BOARD_VENDOR, vendor), \
-> +                       DMI_MATCH(DMI_PRODUCT_NAME, product), \
-> +               },
-> +#endif
-> diff --git a/security/integrity/platform_certs/load_uefi.c b/security/integrity/platform_certs/load_uefi.c
-> index 08b6d12f9..f246c8732 100644
-> --- a/security/integrity/platform_certs/load_uefi.c
-> +++ b/security/integrity/platform_certs/load_uefi.c
-> @@ -3,6 +3,7 @@
->  #include <linux/kernel.h>
->  #include <linux/sched.h>
->  #include <linux/cred.h>
-> +#include <linux/dmi.h>
->  #include <linux/err.h>
->  #include <linux/efi.h>
->  #include <linux/slab.h>
-> @@ -12,6 +13,32 @@
->  #include "../integrity.h"
->  #include "keyring_handler.h"
->
-> +/* Apple Macs with T2 Security chip don't support these UEFI variables.
-> + * The T2 chip manages the Secure Boot and does not allow Linux to boot
-> + * if it is turned on. If turned off, an attempt to get certificates
-> + * causes a crash, so we simply return 0 for them in each function.
-> + */
-> +
-> +static const struct dmi_system_id uefi_skip_cert[] = {
-> +
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,1" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,2" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,3" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro15,4" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,1" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,2" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,3" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookPro16,4" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,1" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir8,2" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacBookAir9,1" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacMini8,1" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1" },
-> +       { UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2" },
-> +       { }
-> +};
-> +
->  /*
->   * Look to see if a UEFI variable called MokIgnoreDB exists and return true if
->   * it does.
-> @@ -21,12 +48,18 @@
->   * is set, we should ignore the db variable also and the true return indicates
->   * this.
->   */
-> +
->  static __init bool uefi_check_ignore_db(void)
->  {
->         efi_status_t status;
->         unsigned int db = 0;
->         unsigned long size = sizeof(db);
->         efi_guid_t guid = EFI_SHIM_LOCK_GUID;
-> +       const struct dmi_system_id *dmi_id;
-> +
-> +       dmi_id = dmi_first_match(uefi_skip_cert);
-> +       if (dmi_id)
-> +               return 0;
->
->         status = efi.get_variable(L"MokIgnoreDB", &guid, NULL, &size, &db);
->         return status == EFI_SUCCESS;
-> @@ -41,6 +74,11 @@ static __init void *get_cert_list(efi_char16_t *name, efi_guid_t *guid,
->         unsigned long lsize = 4;
->         unsigned long tmpdb[4];
->         void *db;
-> +       const struct dmi_system_id *dmi_id;
-> +
-> +       dmi_id = dmi_first_match(uefi_skip_cert);
-> +       if (dmi_id)
-> +               return 0;
->
->         *status = efi.get_variable(name, guid, NULL, &lsize, &tmpdb);
->         if (*status == EFI_NOT_FOUND)
-> @@ -85,6 +123,11 @@ static int __init load_moklist_certs(void)
->         unsigned long moksize;
->         efi_status_t status;
->         int rc;
-> +       const struct dmi_system_id *dmi_id;
-> +
-> +       dmi_id = dmi_first_match(uefi_skip_cert);
-> +       if (dmi_id)
-> +               return 0;
->
->         /* First try to load certs from the EFI MOKvar config table.
->          * It's not an error if the MOKvar config table doesn't exist
-> @@ -138,6 +181,11 @@ static int __init load_uefi_certs(void)
->         unsigned long dbsize = 0, dbxsize = 0, mokxsize = 0;
->         efi_status_t status;
->         int rc = 0;
-> +       const struct dmi_system_id *dmi_id;
-> +
-> +       dmi_id = dmi_first_match(uefi_skip_cert);
-> +       if (dmi_id)
-> +               return 0;
->
->         if (!efi_rt_services_supported(EFI_RT_SUPPORTED_GET_VARIABLE))
->                 return false;
-> --
-> 2.25.1
->
->
+## Build
+* kernel: 5.15.23-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.15.y
+* git commit: 722769939d600370e0f75656c6076add1736919a
+* git describe: v5.15.21-118-g722769939d60
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.21-118-g722769939d60
+
+## Test Regressions (compared to v5.15.21-112-g0472630a5621)
+No test regressions found.
+
+## Metric Regressions (compared to v5.15.21-112-g0472630a5621)
+No metric regressions found.
+
+## Test Fixes (compared to v5.15.21-112-g0472630a5621)
+No test fixes found.
+
+## Metric Fixes (compared to v5.15.21-112-g0472630a5621)
+No metric fixes found.
+
+## Test result summary
+total: 87812, pass: 74191, fail: 495, skip: 10102, xfail: 824
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 259 total, 259 passed, 0 failed
+* arm64: 37 total, 37 passed, 0 failed
+* i386: 35 total, 35 passed, 0 failed
+* mips: 34 total, 34 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 52 total, 39 passed, 13 failed
+* riscv: 24 total, 20 passed, 4 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 37 total, 37 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
