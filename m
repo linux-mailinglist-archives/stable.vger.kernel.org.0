@@ -2,105 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DF834B1461
+	by mail.lfdr.de (Postfix) with ESMTP id 20A6C4B1460
 	for <lists+stable@lfdr.de>; Thu, 10 Feb 2022 18:38:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245173AbiBJRhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Feb 2022 12:37:16 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46312 "EHLO
+        id S245230AbiBJRhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Feb 2022 12:37:37 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240449AbiBJRhP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 12:37:15 -0500
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49AFAF03;
-        Thu, 10 Feb 2022 09:37:16 -0800 (PST)
-Received: by mail-pf1-x434.google.com with SMTP id d187so11475160pfa.10;
-        Thu, 10 Feb 2022 09:37:16 -0800 (PST)
+        with ESMTP id S245231AbiBJRhh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 12:37:37 -0500
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75ED2264E
+        for <stable@vger.kernel.org>; Thu, 10 Feb 2022 09:37:37 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id i21so10012080pfd.13
+        for <stable@vger.kernel.org>; Thu, 10 Feb 2022 09:37:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:subject:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=j9chVedjPveRS2egNejZPxBiCg/i8KLfGe+nH/dm594=;
-        b=b/mYvT3TaftybpPKjycoZcETyoiur0ClFuh04DeTKACYPTRehG3RpJR5aE9kgbjhEt
-         sJp9Vrm8kEf1VSeAItyjMnGGgqu+G0MqsEcWDUmymh4Eg+8ZXXX6MAJcgt2gUeefob/H
-         7zT0Wtee3k6xsQpCIXP3EjuNwZGmlC8+KjyhBtZYOLJpUSNUZjDKAHxmJBtPXG8QzYdH
-         NRpiiAHbdlqN+GZ/BtQxrbS/UYuyXWdXvXEn/58DiCc5oQ6MD8I7Klm198dSsRHvdyIL
-         +uKYNPHqEuko9u1IWFUhnKsFr7B0NhgveCOxv7X635rzcbQll0MeW9pxYxsdKs51/2oa
-         vfIA==
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=N0oLRk9WeOqKeOJsm7SffWghsKhMRhJhnNCJ7hAOzHs=;
+        b=TuUkbtECnMw5pstxW8Vf9MzxmHFnzQ3VrFEtni7dbPixYPAbEo7NkMJuM1Qgj661KE
+         VJk9b0PYPRSKeDN+YxctUa3QcAVCD7gNix6N+IkF65J+3xW2bM603Gziaqz6EhHSn7Mb
+         /8xvocsd5u5OmtK/6qYupEdGZ7DajwT8DsAUM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:subject:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=j9chVedjPveRS2egNejZPxBiCg/i8KLfGe+nH/dm594=;
-        b=Z7XpU9Nv1Zqq7ljKwM5REHgIZLmiwZzelOBMOWo0+mjgPEDpDUoST3yrSjgVa59lnI
-         iSxJQydjkLy8Xx6AomsbhE8ohirI+HKZW8GlMf9T+MhygNSHK1ORBJ7GNwqOKCg132xW
-         Ste9DrHTn0VqfyIid250w3PByzgpDVdaPNtf/5LUkDYfFxBH1rcP9qpNRuIfEyXh92tV
-         5MXs7v3vbydiHLj+c/eKtsONZV/qLL/mULi/FAc2lOLmknzZPOzlxjnPRq+vUmXPKp0h
-         ZhX/u7YYdLpKIh4oLcPjINK73QpYVEScdOkkTS8z6sad0L6moTE1Tr1jJgBUeYUmioSs
-         PKRA==
-X-Gm-Message-State: AOAM5305SZlGx6dlevmgXU+TIpfIkEvQoMBQrZP80HK7CSLW3BaKrb74
-        tBk3RZzCDSmfrCwR81rvUvI=
-X-Google-Smtp-Source: ABdhPJyz/IBTD0t5tBW0miqVPUmA8MzME/0u33MwkywpiaL9uVeHgC2Biaq6P85yAX1hbe1oKcpxbA==
-X-Received: by 2002:a63:2a45:: with SMTP id q66mr6956953pgq.484.1644514635682;
-        Thu, 10 Feb 2022 09:37:15 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id f30sm9574952pgf.7.2022.02.10.09.37.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Feb 2022 09:37:15 -0800 (PST)
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH 5.10 0/3] 5.10.100-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220209191248.892853405@linuxfoundation.org>
-Message-ID: <5ef8faf0-dc42-2313-efca-17030e24c4c2@gmail.com>
-Date:   Thu, 10 Feb 2022 09:37:09 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=N0oLRk9WeOqKeOJsm7SffWghsKhMRhJhnNCJ7hAOzHs=;
+        b=587pZHLbXAlq1W2JD8MCrU2Lt1OV7Ol1dl0PJ7bCD6K1U1Wq3AcEJiDfx9jWkVaqCB
+         ikbST6s02Y9VrRgaU6edpWFMUxsfPcdE2eeJ0uJZyEsU4lsk5AYQRO12pNTozR8KWhsm
+         2K0348osC9++OTZnarCQKZmf3+PSUQHwSfIlLr6kFbCCllF+o1GM1/V5BfbJWn6KQLY9
+         HAv6bE24Aq7tVjm0p0VQ9hx7LG3lwCZ22dOl0R/3zQOL9iCLsay5N0KvEqqYulMKZVx6
+         2eEZ/vNCaTBg05IqtQNVlI2pcrbaFPGjYECX7j1mdH+Pefcinrb0w6VSEAAmpzCkY+Ww
+         PoMQ==
+X-Gm-Message-State: AOAM531FFfYtLi3/+oObKJgTckZoZ8tQtNBrm2Ms1bnoXekzno2eKshs
+        sUt4lQLSpdqRbmXF1kfk62ZBIA==
+X-Google-Smtp-Source: ABdhPJxa+zZlprJsPdRL16Vv3RjWBcmKKx4NXwfBhSgmfxd679Na+4oIMIPpYFm1OsZM+mHYkOu5PQ==
+X-Received: by 2002:a05:6a00:134b:: with SMTP id k11mr8674137pfu.33.1644514656966;
+        Thu, 10 Feb 2022 09:37:36 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id 13sm23620222pfm.161.2022.02.10.09.37.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Feb 2022 09:37:36 -0800 (PST)
+Date:   Thu, 10 Feb 2022 09:37:36 -0800
+From:   Kees Cook <keescook@chromium.org>
+To:     Jann Horn <jannh@google.com>
+Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Robert =?utf-8?B?xZp3acSZY2tp?= <robert@swiecki.net>,
+        stable@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>,
+        Will Drewry <wad@chromium.org>, linux-kernel@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: Re: [PATCH 1/3] signal: HANDLER_EXIT should clear SIGNAL_UNKILLABLE
+Message-ID: <202202100935.FB3E60FA5@keescook>
+References: <20220210025321.787113-1-keescook@chromium.org>
+ <20220210025321.787113-2-keescook@chromium.org>
+ <CAG48ez1m7XJ1wJvTHtNorH480jTWNgdrn5Q1LTZZQ4uve3r4Sw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20220209191248.892853405@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAG48ez1m7XJ1wJvTHtNorH480jTWNgdrn5Q1LTZZQ4uve3r4Sw@mail.gmail.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2/9/2022 11:14 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.100 release.
-> There are 3 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, Feb 10, 2022 at 05:18:39PM +0100, Jann Horn wrote:
+> On Thu, Feb 10, 2022 at 3:53 AM Kees Cook <keescook@chromium.org> wrote:
+> > Fatal SIGSYS signals were not being delivered to pid namespace init
+> > processes. Make sure the SIGNAL_UNKILLABLE doesn't get set for these
+> > cases.
+> >
+> > Reported-by: Robert Święcki <robert@swiecki.net>
+> > Suggested-by: "Eric W. Biederman" <ebiederm@xmission.com>
+> > Fixes: 00b06da29cf9 ("signal: Add SA_IMMUTABLE to ensure forced siganls do not get changed")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Kees Cook <keescook@chromium.org>
+> > ---
+> >  kernel/signal.c | 5 +++--
+> >  1 file changed, 3 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/kernel/signal.c b/kernel/signal.c
+> > index 38602738866e..33e3ee4f3383 100644
+> > --- a/kernel/signal.c
+> > +++ b/kernel/signal.c
+> > @@ -1342,9 +1342,10 @@ force_sig_info_to_task(struct kernel_siginfo *info, struct task_struct *t,
+> >         }
+> >         /*
+> >          * Don't clear SIGNAL_UNKILLABLE for traced tasks, users won't expect
+> > -        * debugging to leave init killable.
+> > +        * debugging to leave init killable, unless it is intended to exit.
+> >          */
+> > -       if (action->sa.sa_handler == SIG_DFL && !t->ptrace)
+> > +       if (action->sa.sa_handler == SIG_DFL &&
+> > +           (!t->ptrace || (handler == HANDLER_EXIT)))
+> >                 t->signal->flags &= ~SIGNAL_UNKILLABLE;
 > 
-> Responses should be made by Fri, 11 Feb 2022 19:12:41 +0000.
-> Anything received after that time might be too late.
+> You're changing the subclause:
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.100-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
+> !t->ptrace
 > 
-> thanks,
+> to:
 > 
-> greg k-h
+> (!t->ptrace || (handler == HANDLER_EXIT))
+> 
+> which means that the change only affects cases where the process has a
+> ptracer, right? That's not the scenario the commit message is talking
+> about...
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+Sorry, yes, I was not as accurate as I should have been in the commit
+log. I have changed it to:
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+Fatal SIGSYS signals (i.e. seccomp RET_KILL_* syscall filter actions)
+were not being delivered to ptraced pid namespace init processes. Make
+sure the SIGNAL_UNKILLABLE doesn't get set for these cases.
+
+> 
+> >         ret = send_signal(sig, info, t, PIDTYPE_PID);
+> >         spin_unlock_irqrestore(&t->sighand->siglock, flags);
+> > --
+> > 2.30.2
+> >
+
 -- 
-Florian
-
+Kees Cook
