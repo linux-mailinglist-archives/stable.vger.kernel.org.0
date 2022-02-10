@@ -2,151 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E218F4B05E9
-	for <lists+stable@lfdr.de>; Thu, 10 Feb 2022 06:55:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8BEC4B05FD
+	for <lists+stable@lfdr.de>; Thu, 10 Feb 2022 07:01:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234524AbiBJFym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Feb 2022 00:54:42 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47224 "EHLO
+        id S231366AbiBJGAa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Feb 2022 01:00:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231797AbiBJFyk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 00:54:40 -0500
-Received: from IND01-MA1-obe.outbound.protection.outlook.com (mail-ma1ind01olkn0168.outbound.protection.outlook.com [104.47.100.168])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A3E71D6;
-        Wed,  9 Feb 2022 21:54:42 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=LLMqN5W8Wd1Y9NbGyFlDiN/dCsm6QbsnFCTVBv/ZGyUv/fIe8r+Fn7nLTPsSeWbMAZ0iCSYKLWH1tq6xN5MbbyJibAsY7ytj2cNkegINsRUYlBHFp0TWj3IoBhVayPRxYThhFDIVfXwaqHo7sxk0IseI+uOvpBKdZNNEQtEETj5TWRRCDYRFyI+iRnQWwVfn0KuwVd9Urn0Mk/mM+dPsEg9FC7wlrdU7QvXFPcmS5IQZ5QAfvOXLfWVMjMbutTE8KQSZo10nZ3W1J8K57zqNq53X/bpHYAMaTYszyEuQyCVXmaWQ7RpgkJRqH+o0deYuMWnrd2VOZH4SscVwr7YNdw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=JqtCOiZqURTFMZ+gtzsSxcOqfT6krkYRHwNRIJ3LFWA=;
- b=JKp+DthAemMTE/N7YrVap0xjV5iXhNOL7M9z2h3KC+eS1Z6YLv4XZueWkyXtXu3qdZGwC49yN9SNGyqI5NkWC4nUgtf6ZnmpzhhHsarkDTDpkFbMJisH86H3nqCp7I+iAlOCAHxQCdHMzvBHJyKZXX8opVCIvZS+RxcD4kQzt9IWczu3p9Fc+XmZw243tmocxwQ1/b2V3+pJBDYrd+1fWuS4BIjucG0RtMujGC5i8ZIWUklKXism/Icl5eb1UyVUPE2iK6mNrv3jmL/o91X4Y4ZE7jQvbhjiTY/2to1hyIcgrqZfWJN4g0xHB9cYP1zB9K7xktewkFQhGG6xmAj1fA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JqtCOiZqURTFMZ+gtzsSxcOqfT6krkYRHwNRIJ3LFWA=;
- b=klBsvJp6yfRmpjbyntlu1x72/jtPR7OwsALGAc1rp0PBYIqr8NFkfwtwOswIBG0eDRAc9l+/1b5Yb6P3FhAT7hm3IDCdzEWaySLK0zfI7chNvJs78hhfz9KwVr2+5NWOkLPJh+wULKDKDdyiWJYUIo1tRrFoz+POVYNcgo4fxUPiRZxUBrLTbDHvP8sxspbu61FTl4nUAh8d51t4hHFYElOMfdbkBh2k33BDnwqjcLvuH2hWvPuO0k02F33IOUQNupGnxa81lKz8wYu1fb+Nua19eOgxlS+TVY6hD+jkl87VJohXsxYj/bOYFC63YQITAltoaehU691Ii+9GrQFGVA==
-Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:1b::13)
- by BM1PR0101MB1220.INDPRD01.PROD.OUTLOOK.COM (2603:1096:b00:25::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4975.11; Thu, 10 Feb
- 2022 05:54:34 +0000
-Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::d19b:7cd1:3760:b055]) by PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::d19b:7cd1:3760:b055%9]) with mapi id 15.20.4975.011; Thu, 10 Feb 2022
- 05:54:34 +0000
-From:   Aditya Garg <gargaditya08@live.com>
-To:     Matthew Garrett <mjg59@srcf.ucam.org>
-CC:     Ard Biesheuvel <ardb@kernel.org>, Jeremy Kerr <jk@ozlabs.org>,
-        "joeyli.kernel@gmail.com" <joeyli.kernel@gmail.com>,
-        "zohar@linux.ibm.com" <zohar@linux.ibm.com>,
-        "jmorris@namei.org" <jmorris@namei.org>,
-        "eric.snowberg@oracle.com" <eric.snowberg@oracle.com>,
-        "dhowells@redhat.com" <dhowells@redhat.com>,
-        "jlee@suse.com" <jlee@suse.com>,
-        "James.Bottomley@hansenpartnership.com" 
-        <James.Bottomley@HansenPartnership.com>,
-        "jarkko@kernel.org" <jarkko@kernel.org>,
-        "mic@digikod.net" <mic@digikod.net>,
-        "dmitry.kasatkin@gmail.com" <dmitry.kasatkin@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Aun-Ali Zaidi <admin@kodeit.net>
-Subject: Re: [PATCH] efi: Do not import certificates from UEFI Secure Boot for
- T2 Macs
-Thread-Topic: [PATCH] efi: Do not import certificates from UEFI Secure Boot
- for T2 Macs
-Thread-Index: AQHYHcE4ht34Z1CESEaNjR8+yzmieayLbqGAgAAURwCAAAlIgIAAvaYA
-Date:   Thu, 10 Feb 2022 05:54:34 +0000
-Message-ID: <A069AC2B-7F37-414E-A411-291DCF407AF8@live.com>
-References: <9D0C961D-9999-4C41-A44B-22FEAF0DAB7F@live.com>
- <20220209164957.GB12763@srcf.ucam.org>
- <5A3C2EBF-13FF-4C37-B2A0-1533A818109F@live.com>
- <20220209183545.GA14552@srcf.ucam.org>
-In-Reply-To: <20220209183545.GA14552@srcf.ucam.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [UaDD2WGAm/O1gcf9fqoyIgMNS3CC01GJcZwpzTSxae16H4Xxil6PobQbOWV5LFVG]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 7dc7c251-fdc3-48f4-c01e-08d9ec59d09e
-x-ms-traffictypediagnostic: BM1PR0101MB1220:EE_
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: sf75rDWroWd5tIq/jIhi7GxRnTB5dwWpsVEsgJBC7f5xecHYjduUmiMUsVx9tySHLcDHa1Y8WXkSnt+cLQ8oBZFGUE6bgAj3Uv4ZzcVRrNs+XI6A31CdUaJhfiydihsXfixjav35/jHv7NJKtW1q7vPa/9fh7IHKfr9B0doGWI3QyeYrwxLAV+EFnc4PYoAO/TMJeNz4kkvT8JnNR8Ie9qGtZNNKzJCHuGaj1lz/b759t55SO2hBGMc2NLQMuEs+FdDbjjBCH2MFn70FQ00O+S9ZKvACg9TEFRFtqx6oTD2/BVjyPXZIiuC3KqUwojOBnaoj30n5WdI6bqamMcTRHCMZy2rE8G1UU0hzQZ15XrQuLKyD5lIK++VhmyQ1LJh+5u6zxv6V439mxqv7LghaEJa6VJ/mi2DzGvWxpbvBsDwxGD6vnT4Oc5u7MnKu3ekY4wpoNEkRjTiI2HdAsHpDWkWgn+o8rPzjAMDkioso+G9eixornw/p++UIfBPYEd5lXpPxjDU7fxibT/h/UB2iKUz7/RmM791W8mZVbeop9MyGz/VxK7m2a6TlP5/3UxlOsVNauq8Bbf254gjrHG3taw==
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?n0oaiaq2kP/y+aj6D+eH68bYGrtG+cge2mmPSJzothDyucqjJ+1aoWL95kxj?=
- =?us-ascii?Q?k6x6zsdwdQvgPGr/tki5qOwyLgz2dXS4tj3u3W6DHtpeiuPkbtMwOjMd9PEe?=
- =?us-ascii?Q?x8X0HgPozp9RDLyoat9JIGmSrYztHEj6wJSi8exgSHXtZZYyZK1CgImJZSkY?=
- =?us-ascii?Q?bdmki7QaHBWVuEPVinIUpJ7n6LdFRylWYibY7Z2cagN0ERr1x+ReruAzI6zO?=
- =?us-ascii?Q?eIufQntCUNS7Tek64UX1wy6sZ8wXu2nFMZE2TgieRwhC3mQZQa1hEVBozq2x?=
- =?us-ascii?Q?FlyP9lvtM8jIHUgHs4yFPTdGMPNv1YPjbWYXqpD/Fd+1raE4scniM1HYbeWn?=
- =?us-ascii?Q?bRpoQ/2aaU7YPGkEJ4KoRlkbRWseIATzureyrel0r/sdRE4irm9FFS2NzDLG?=
- =?us-ascii?Q?iEP7+MMiXlNFcXHffRTu3Lug22aJNqZKOSyv9fNaqdZdxU3exWKLbAkrs2gE?=
- =?us-ascii?Q?dBbNOxW8vMrHcMZSFQTwR0lD6KlBtpMm0cjbXrjFn4vA8B0TPx8f3K5HPAow?=
- =?us-ascii?Q?MiwUcjPVPQ3SPm5qsl2ztPQ5TccwoxP4xoCqYKlM+8Q7Vq8B8JkD1aWt00lS?=
- =?us-ascii?Q?eijM6K6V1m7BBdUKMNJcH/0EH5CpOAUdWv1hzOwSYbL3S5gDBI+/nJIYRcNY?=
- =?us-ascii?Q?evcyCTqJ+AAjKPPBXCHFOcz8iO9MYXXSKQ6kNiICelzdztOpdLxEnoWCXNk+?=
- =?us-ascii?Q?R3vSufEAiaTcvOjNmdgxcpbO2tWskr+g69MAqlHlnsPJP7sbFN74VhAoEJr7?=
- =?us-ascii?Q?bHp5nuxYzlaF8mEFoJ8vg7drugM8YAvAWtMWGpCuIlbPypbySKfmg32KW89D?=
- =?us-ascii?Q?o+00eSOJtYh/KTW2FDWuGHAgpBKWnDBL77+/bxEEQstNzlYB/nPYwTL8GEIx?=
- =?us-ascii?Q?2CrHCyJ1on4echB+tqEEEk0rt38E1hzUoPJgw2yBILwH2LPP0YFRRaZ7QTOu?=
- =?us-ascii?Q?greinLiwq/NtHfXbRGTn/YRsJki4fKLuwXcHrY6im0Swc+NuoieGOakM4b5a?=
- =?us-ascii?Q?N6vT1cN2KcVFim7Aq96y6DApmw=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <A0A64CBA3BE0714DB71E34B4491AE05B@INDPRD01.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S234925AbiBJGA1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 01:00:27 -0500
+X-Greylist: delayed 64 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 09 Feb 2022 22:00:29 PST
+Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B2581C5;
+        Wed,  9 Feb 2022 22:00:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1644472829; x=1676008829;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=BskrxKkk4ZgB0vbGwHcFCr4Bnt7JqRs+SAZMxpuzF6U=;
+  b=IlICHxOt5IVJiJsg7T2C7Mnr6SjDWwOBzGtXSO+4Zgg1XI3nmQaKHNh3
+   NiqY/T9hywLMYZ5rUEaKKQMTPncAKr1VxpfztTxzFAj97TN1WvDbnPlWN
+   OVgs/rmLWnm6P+0i2QdBXeKEzKmILVXMQ9ISBfSgJPdG7TjClehDut2AL
+   n004u/izmAueymMC8MunGda7uBeaBnIWkdib/aVbWTg1QgEUUHsIUqJI3
+   d7NmLLQKmxdJ0dx46UzoAUpDbJMWmmsEmELAtQcDyFi6hqkzWZpbrrx55
+   /pHsHljzLL3DE4B25SN+hNV9OXrm5VOnitZi/Op0mzF67Crgb1B0AP0+Y
+   A==;
+X-IronPort-AV: E=Sophos;i="5.88,357,1635177600"; 
+   d="scan'208";a="191512599"
+Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 10 Feb 2022 13:59:23 +0800
+IronPort-SDR: 4eFZiF35f47U4Jvn8873x1hapHzSxj3uJoA7HR8P+RqLdwZ2OWFJp7JOCgi0Jz74fw51qZikVl
+ P3OTMFkjlDc4/Iyr+GLx76x4L/RiPDarQFOqxKuj9LG6fzvgTpvVAhQ0eUQO7Mb4vCdJP5ByDq
+ TrjE0CDLximwvFUmaIYjnIxQK0ONsowwG6NZ+ra3y++tOBAQ9eAIdHdLe3IU8qTUFtwY26v53x
+ wN+zJ99T/LmCiYsXcwi8ZsK+hWc4s1Mp/LgxZNPhH9THNkD+vR6Ss5X1LUqvxM044sW83qxawD
+ LktA7yOKqPzFcu8BGF2mccxx
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Feb 2022 21:32:21 -0800
+IronPort-SDR: EhaxfJoriGF0CnzQ2z5+VDI7p/jAwtYYk7HME3QWqhk2ud4vsK8HpojGeEwopOHe3q1JAxT6LK
+ ICdYBK+C8x3lE8G+D4wDP5IxIoGpoU2WOI4mbO3LvD2N/uhqp/VBzwAwsgi+gwGrYnjjSt8VrR
+ yAv3/0ir0XiChz7e+KApJvr202xnT/M1x/OGUeFiIu0G4zJ9Urjg6fKCUCXNIQ9/K3D/k6S+tr
+ TBpmnYLshQblEmYcYBpLICsUg0uGQT9TZS6VRT+MgHqs6p1RfmCfJeYLVuNPK8zkKsZKInWn4E
+ wiY=
+WDCIronportException: Internal
+Received: from chmc3h2.ad.shared (HELO naota-xeon.wdc.com) ([10.225.51.94])
+  by uls-op-cesaip02.wdc.com with ESMTP; 09 Feb 2022 21:59:24 -0800
+From:   Naohiro Aota <naohiro.aota@wdc.com>
+To:     linux-btrfs@vger.kernel.org
+Cc:     johannes.thumshirn@wdc.com, linux-fsdevel@vger.kernel.org,
+        viro@zeniv.linux.org.uk, Naohiro Aota <naohiro.aota@wdc.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 2/2] btrfs: zoned: mark relocation as writing
+Date:   Thu, 10 Feb 2022 14:59:05 +0900
+Message-Id: <dd8886a3948042b8c1f0ddd839dab18a5872808d.1644469146.git.naohiro.aota@wdc.com>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <cover.1644469146.git.naohiro.aota@wdc.com>
+References: <cover.1644469146.git.naohiro.aota@wdc.com>
 MIME-Version: 1.0
-X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-42ed3.templateTenant
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7dc7c251-fdc3-48f4-c01e-08d9ec59d09e
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Feb 2022 05:54:34.2820
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BM1PR0101MB1220
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+There is a hung_task issue with running generic/068 on an SMR
+device. The hang occurs while a process is trying to thaw the
+filesystem. The process is trying to take sb->s_umount to thaw the
+FS. The lock is held by fsstress, which calls btrfs_sync_fs() and is
+waiting for an ordered extent to finish. However, as the FS is frozen,
+the ordered extent never finish.
 
->=20
-> The LOAD_UEFI_KEYS code isn't doing anything special here - it's just=20
-> trying to read some variables. If we simply disable that then the=20
-> expectation would be that reading the same variables from userland would=
-=20
-> trigger the same failure. So the question is which of the variables that=
-=20
-> LOAD_UEFI_KEYS accesses is triggering the failure, and what's special=20
-> about that? If it's a specific variable GUID or name that's failing, we=20
-> should block that on Apple hardware in order to avoid issues caused by=20
-> userland performing equivalent accesses.
+Having an ordered extent while the FS is frozen is the root cause of
+the hang. The ordered extent is initiated from btrfs_relocate_chunk()
+which is called from btrfs_reclaim_bgs_work().
 
-The size log seems to be extra when crash occurs
+This commit add sb_*_write() around btrfs_relocate_chunk() call
+site. For the usual "btrfs balance" command, we already call it with
+mnt_want_file() in btrfs_ioctl_balance().
 
-integrity: Couldn't get size: 0x8000000000000015
-integrity: MODSIGN: Couldn't get UEFI db list
-efi: EFI Runtime Services are disabled!
-integrity: Couldn't get size: 0x8000000000000015
-integrity: Couldn't get UEFI dbx list
-integrity: Couldn't get size: 0x8000000000000015
-integrity: Couldn't get mokx list
-integrity: Couldn't get size: 0x80000000
+Additionally, add an ASSERT in btrfs_relocate_chunk() to check it is
+properly called.
+
+Fixes: 18bb8bbf13c1 ("btrfs: zoned: automatically reclaim zones")
+Cc: stable@vger.kernel.org # 5.13+
+Link: https://github.com/naota/linux/issues/56
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+---
+ fs/btrfs/block-group.c | 8 +++++++-
+ fs/btrfs/volumes.c     | 6 ++++++
+ 2 files changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index 68feabc83a27..f9ca58a90630 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -1513,8 +1513,12 @@ void btrfs_reclaim_bgs_work(struct work_struct *work)
+ 	if (!test_bit(BTRFS_FS_OPEN, &fs_info->flags))
+ 		return;
+ 
+-	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE))
++	sb_start_write(fs_info->sb);
++
++	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE)) {
++		sb_end_write(fs_info->sb);
+ 		return;
++	}
+ 
+ 	/*
+ 	 * Long running balances can keep us blocked here for eternity, so
+@@ -1522,6 +1526,7 @@ void btrfs_reclaim_bgs_work(struct work_struct *work)
+ 	 */
+ 	if (!mutex_trylock(&fs_info->reclaim_bgs_lock)) {
+ 		btrfs_exclop_finish(fs_info);
++		sb_end_write(fs_info->sb);
+ 		return;
+ 	}
+ 
+@@ -1596,6 +1601,7 @@ void btrfs_reclaim_bgs_work(struct work_struct *work)
+ 	spin_unlock(&fs_info->unused_bgs_lock);
+ 	mutex_unlock(&fs_info->reclaim_bgs_lock);
+ 	btrfs_exclop_finish(fs_info);
++	sb_end_write(fs_info->sb);
+ }
+ 
+ void btrfs_reclaim_bgs(struct btrfs_fs_info *fs_info)
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index b07d382d53a8..e415fb4a698e 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -3251,6 +3251,9 @@ int btrfs_relocate_chunk(struct btrfs_fs_info *fs_info, u64 chunk_offset)
+ 	u64 length;
+ 	int ret;
+ 
++	/* Assert we called sb_start_write(), not to race with FS freezing */
++	sb_assert_write_started(fs_info->sb);
++
+ 	/*
+ 	 * Prevent races with automatic removal of unused block groups.
+ 	 * After we relocate and before we remove the chunk with offset
+@@ -8299,10 +8302,12 @@ static int relocating_repair_kthread(void *data)
+ 	target = cache->start;
+ 	btrfs_put_block_group(cache);
+ 
++	sb_start_write(fs_info->sb);
+ 	if (!btrfs_exclop_start(fs_info, BTRFS_EXCLOP_BALANCE)) {
+ 		btrfs_info(fs_info,
+ 			   "zoned: skip relocating block group %llu to repair: EBUSY",
+ 			   target);
++		sb_end_write(fs_info->sb);
+ 		return -EBUSY;
+ 	}
+ 
+@@ -8330,6 +8335,7 @@ static int relocating_repair_kthread(void *data)
+ 		btrfs_put_block_group(cache);
+ 	mutex_unlock(&fs_info->reclaim_bgs_lock);
+ 	btrfs_exclop_finish(fs_info);
++	sb_end_write(fs_info->sb);
+ 
+ 	return ret;
+ }
+-- 
+2.35.1
 
