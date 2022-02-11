@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC42C4B214A
-	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:16:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 239024B214B
+	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:16:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234424AbiBKJOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Feb 2022 04:14:45 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56824 "EHLO
+        id S240029AbiBKJPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Feb 2022 04:15:51 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233855AbiBKJOp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:14:45 -0500
+        with ESMTP id S235530AbiBKJPu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:15:50 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3963102A
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:14:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4042E102D
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:15:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6879CB828BA
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:14:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76A49C340E9;
-        Fri, 11 Feb 2022 09:14:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7A15B828BB
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:15:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E7F9C340E9;
+        Fri, 11 Feb 2022 09:15:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644570882;
-        bh=QMkejOSBEi3VndTOsVVrKwPevqpbD87VeTfzCtbUX1w=;
+        s=korg; t=1644570947;
+        bh=EPGPXnPgqc/qgRpX6kmuUn4gxzhOy2HuJxNdRmY40Yw=;
         h=Subject:To:Cc:From:Date:From;
-        b=MRDxDatg7sN7s/wtwbuP4Pi88REXUJUAXfVEqLijFslwsXe1bxk5DvaLqSd30A+yg
-         pEOAw09mINyoT6TBIuahMHWHZy4u8mM3+a2UHhSV7/O4BICddZWaT/Toxb0lpsRgtH
-         meckbh2mUqNxOb0V6zgSlI0E7x0o+aIFPLSxlz5M=
-Subject: FAILED: patch "[PATCH] net: phy: marvell: Fix MDI-x polarity setting in" failed to apply to 4.9-stable tree
-To:     Pavel.Parkhomenko@baikalelectronics.ru, andrew@lunn.ch,
-        davem@davemloft.net, fancer.lancer@gmail.com
+        b=kD18icNfqYazjaNxAhAjEC7++P6gQj/cst5jKZN/wksFRsylbQR5aMEJvfoX0igss
+         qmcy18kT7yL19gJuPHSWvQY8V8aXtTyhJyHFiQ0GfOlYamC7HD/pUfsq7gpKtXuooa
+         Tad9WPMejMThFi4FL1W7FJC6VUkP5Q42KOb50iQw=
+Subject: FAILED: patch "[PATCH] NFSD: Fix NFSv3 SETATTR/CREATE's handling of large file sizes" failed to apply to 5.10-stable tree
+To:     chuck.lever@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 11 Feb 2022 10:14:39 +0100
-Message-ID: <164457087916449@kroah.com>
+Date:   Fri, 11 Feb 2022 10:15:45 +0100
+Message-ID: <164457094520260@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,50 +59,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From aec12836e7196e4d360b2cbf20cf7aa5139ad2ec Mon Sep 17 00:00:00 2001
-From: Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>
-Date: Sun, 6 Feb 2022 00:49:51 +0300
-Subject: [PATCH] net: phy: marvell: Fix MDI-x polarity setting in
- 88e1118-compatible PHYs
+From a648fdeb7c0e17177a2280344d015dba3fbe3314 Mon Sep 17 00:00:00 2001
+From: Chuck Lever <chuck.lever@oracle.com>
+Date: Tue, 25 Jan 2022 15:59:57 -0500
+Subject: [PATCH] NFSD: Fix NFSv3 SETATTR/CREATE's handling of large file sizes
 
-When setting up autonegotiation for 88E1118R and compatible PHYs,
-a software reset of PHY is issued before setting up polarity.
-This is incorrect as changes of MDI Crossover Mode bits are
-disruptive to the normal operation and must be followed by a
-software reset to take effect. Let's patch m88e1118_config_aneg()
-to fix the issue mentioned before by invoking software reset
-of the PHY just after setting up MDI-x polarity.
+iattr::ia_size is a loff_t, so these NFSv3 procedures must be
+careful to deal with incoming client size values that are larger
+than s64_max without corrupting the value.
 
-Fixes: 605f196efbf8 ("phy: Add support for Marvell 88E1118 PHY")
-Signed-off-by: Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Suggested-by: Andrew Lunn <andrew@lunn.ch>
+Silently capping the value results in storing a different value
+than the client passed in which is unexpected behavior, so remove
+the min_t() check in decode_sattr3().
+
+Note that RFC 1813 permits only the WRITE procedure to return
+NFS3ERR_FBIG. We believe that NFSv3 reference implementations
+also return NFS3ERR_FBIG when ia_size is too large.
+
 Cc: stable@vger.kernel.org
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 
-diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
-index fa71fb7a66b5..ab063961ac00 100644
---- a/drivers/net/phy/marvell.c
-+++ b/drivers/net/phy/marvell.c
-@@ -1213,16 +1213,15 @@ static int m88e1118_config_aneg(struct phy_device *phydev)
- {
- 	int err;
- 
--	err = genphy_soft_reset(phydev);
-+	err = marvell_set_polarity(phydev, phydev->mdix_ctrl);
- 	if (err < 0)
- 		return err;
- 
--	err = marvell_set_polarity(phydev, phydev->mdix_ctrl);
-+	err = genphy_config_aneg(phydev);
- 	if (err < 0)
- 		return err;
- 
--	err = genphy_config_aneg(phydev);
--	return 0;
-+	return genphy_soft_reset(phydev);
- }
- 
- static int m88e1118_config_init(struct phy_device *phydev)
+diff --git a/fs/nfsd/nfs3xdr.c b/fs/nfsd/nfs3xdr.c
+index 7c45ba4db61b..2e47a07029f1 100644
+--- a/fs/nfsd/nfs3xdr.c
++++ b/fs/nfsd/nfs3xdr.c
+@@ -254,7 +254,7 @@ svcxdr_decode_sattr3(struct svc_rqst *rqstp, struct xdr_stream *xdr,
+ 		if (xdr_stream_decode_u64(xdr, &newsize) < 0)
+ 			return false;
+ 		iap->ia_valid |= ATTR_SIZE;
+-		iap->ia_size = min_t(u64, newsize, NFS_OFFSET_MAX);
++		iap->ia_size = newsize;
+ 	}
+ 	if (xdr_stream_decode_u32(xdr, &set_it) < 0)
+ 		return false;
 
