@@ -2,92 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FF814B1F6D
-	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 08:40:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88D2E4B1FB7
+	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 08:55:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347717AbiBKHju (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Feb 2022 02:39:50 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48902 "EHLO
+        id S1347824AbiBKHzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Feb 2022 02:55:42 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237700AbiBKHjt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 02:39:49 -0500
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DF31A4;
-        Thu, 10 Feb 2022 23:39:49 -0800 (PST)
-Received: by mail-pl1-x62e.google.com with SMTP id x4so4014220plb.4;
-        Thu, 10 Feb 2022 23:39:49 -0800 (PST)
+        with ESMTP id S1347859AbiBKHzl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 02:55:41 -0500
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84E7FBFD
+        for <stable@vger.kernel.org>; Thu, 10 Feb 2022 23:55:41 -0800 (PST)
+Received: by mail-oi1-x235.google.com with SMTP id x193so8803272oix.0
+        for <stable@vger.kernel.org>; Thu, 10 Feb 2022 23:55:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:from:subject:to:cc
-         :references:content-language:in-reply-to:content-transfer-encoding;
-        bh=+ebSMBokgiae6CJ5gH8PB6DHwwDMjURK1ERUiTJclcI=;
-        b=cZ+bUsA406+qaEEeJG4Lk3aTkio+IuE+cyQt7Q4Mw4MOtjLFXpMEdj3ETxfEmp0I7V
-         FogTLiWVPpjuDCJRE/5RDC8QXkHUdpvvLIiWCnY+a2ScwkOKyGWL+KHSHP6IRoyQG3aF
-         /Ju3s8fNTNAn62/ENUdpDpWY7GV2qvUDddu4JKcTwdPMKCraduzMfMRHErg8LuTwKjfh
-         lNs1xVBAI6eG3oLpxKywphtujjX3VVOTYriKRl+5d0LlY8q+1PwdrgKst08k5AZeE0WS
-         JOmAwOHI6IUfIWjmbAUGvfIO8rMStggFMqqlIs8xuAOKCab+zywRhiw7rDRtwOGpMidy
-         qKkA==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=/fuJxEvQ8hWJBVA+YQn5WV9w4flp3A4j0tI4rSSd1Ck=;
+        b=bYfrACZ/82k8m4Scpa+uLDQ5ijrxB+YX/YzyNGVB/u4sLEbZZqagL+D7QcgkzVKtUP
+         XwyPhN3tZAGXxQI2GYnQyWfmDD6lRekGimwntvwsGnIVsWk5xyt3uRu34Uo2jUL1sCp9
+         Tne063YaeROzLIZml9AuAZOgbJ2PosVi7BZ4ua1h+7Y9mlyWoBS41a+yrH/a4Sr1Sf5D
+         6JMrumX5BZQRNElOb0nj4G84wJLRn5ynGGtFTZJW3MdwONKkaPr4l/c8fCUNXSwM9iMl
+         exb+fwZ6+heQN942XW8sPRGn+ONsQENA7+yDDiJ0t255meJdZVum8HEGqijpfXNlp9NP
+         1rQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
-         :subject:to:cc:references:content-language:in-reply-to
-         :content-transfer-encoding;
-        bh=+ebSMBokgiae6CJ5gH8PB6DHwwDMjURK1ERUiTJclcI=;
-        b=A5FbCcdjbexi0zDYiEZx+mERzzSQtmSKxt5vqTXEpZqX7bUnIHJWUnKoQCGJXsCxyr
-         Ab6uAjkdbgCpIvIf+s1MWeNNHEC3mnedmMPib6DEuRdF9qgV8l5u4maeseTBBFfrl6wB
-         uTpmI8f4P/WD3k1xOEParOvm1hrizxiu+CPTKxh85jMyGrp2kpg5rmm/WO6nd8vIaaVJ
-         feCWT3KCh3hmMSu8y6rSOdxvxpxe3p1QBnfbi3jIym4b7QxRICS2w+SA39fqckHJ//kR
-         KhkEx9tnTsYV8g9500xNTqObzmDrIjoaQrZAhEXd4HLyanvXbvA/+k2/hT+O9oqWi5E0
-         rjEw==
-X-Gm-Message-State: AOAM531zOnPlXxpyJtKVrokECDZq0pxYwEtqhpdWLiw6yscpB3qwovJ+
-        4hRlPeesKQA1wJwmn8epKDE=
-X-Google-Smtp-Source: ABdhPJzJzd1ESF/pMfu5F/QYgJD82aXJA2+YgaGQLVxUuJ0UZGChBRe3ZhsrsImca4RRa4AP8aSs+g==
-X-Received: by 2002:a17:90a:343:: with SMTP id 3mr484123pjf.224.1644565189125;
-        Thu, 10 Feb 2022 23:39:49 -0800 (PST)
-Received: from [192.168.43.80] (subs02-180-214-232-21.three.co.id. [180.214.232.21])
-        by smtp.gmail.com with ESMTPSA id h17sm26288465pfv.198.2022.02.10.23.39.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Feb 2022 23:39:48 -0800 (PST)
-Message-ID: <11d84e6d-bfd0-d82f-6e57-5d7290f354b5@gmail.com>
-Date:   Fri, 11 Feb 2022 14:39:43 +0700
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=/fuJxEvQ8hWJBVA+YQn5WV9w4flp3A4j0tI4rSSd1Ck=;
+        b=uJna68/boHBJnhMOrnixSTJgiRtenrgzgakQvvO6p+EVOQXVnkPpP5e94Q/1rjBZTD
+         KBq1z34xkPQt7GM30aMGQPbsDFiRFbtYRKHh/uDcnjrrWtjNM0rYJd24uB9cSfftRHf2
+         liJHHFOkJ9YRc4gfzy6Z7zSgX841YhNTgaThB2N5C4W0433tyeu6Optt02fcq4CLuw/P
+         OVysh8F4sM7mdgrAKBjULzf0phkEplo/GbCM5/OZCFMayt2Ijm/xNCvq2L7Y5MOOZ9lg
+         al33UFXt9zo8kz0U2gRkAyW/aqmxiMd7i1BqhAxdcjtKA86xQGesb/s1/GRS50G57UVb
+         9K0w==
+X-Gm-Message-State: AOAM5325PlPMVsybf0174BG+pXZHUMecio4q9ZGat5V2L4ldUGzyHkvQ
+        XDs3uE/Tee5Fo8mdJogc2PWZg2T855C23xzZcWc=
+X-Google-Smtp-Source: ABdhPJxJuNGRxt62wZcIVf2WeNeYgxacD5VsvEINi0ngv4C/cyi4DZGsMap60a4wLENO2TOUzk+seu2YyWeP0EXd8KI=
+X-Received: by 2002:a05:6808:13cd:: with SMTP id d13mr171252oiw.37.1644566140477;
+ Thu, 10 Feb 2022 23:55:40 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.0
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-Subject: Re: [PATCH 5.16 0/5] 5.16.9-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220209191249.887150036@linuxfoundation.org>
-Content-Language: en-US
-In-Reply-To: <20220209191249.887150036@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+Received: by 2002:a05:6808:180c:0:0:0:0 with HTTP; Thu, 10 Feb 2022 23:55:40
+ -0800 (PST)
+Reply-To: daniel.seyba@yahoo.com
+From:   Seyba Daniel <joynelly70@gmail.com>
+Date:   Fri, 11 Feb 2022 08:55:40 +0100
+Message-ID: <CANHFshJOXmpDgcrNAkCs4KfWGBrhnUmTQ5t+poOPvziqTNT=Ww@mail.gmail.com>
+Subject: Seyba Daniel
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=4.4 required=5.0 tests=BAYES_40,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/02/22 02.14, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.9 release.
-> There are 5 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
+I urgently seek your service to represent me in investing in
+your region / country and you will be rewarded for your service without
+affecting your present job with very little time invested in it, which you will
+be communicated in details upon response.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, gcc 10.2.0)
-and powerpc (ps3_defconfig, gcc 11.2.0).
+My dearest regards
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
--- 
-An old man doll... just what I always wanted! - Clara
+Seyba Daniel
