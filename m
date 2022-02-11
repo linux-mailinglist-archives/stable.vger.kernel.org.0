@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D5304B2116
-	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:11:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A05D4B213A
+	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235680AbiBKJKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Feb 2022 04:10:08 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54130 "EHLO
+        id S235793AbiBKJOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Feb 2022 04:14:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348119AbiBKJKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:10:08 -0500
+        with ESMTP id S235169AbiBKJOB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:14:01 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 126BD1029
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:10:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE792F01
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:14:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ACDA1B828B9
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:10:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0103C340E9;
-        Fri, 11 Feb 2022 09:10:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92787B828BB
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:13:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A87B3C340E9;
+        Fri, 11 Feb 2022 09:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644570604;
-        bh=CKGYqsBWEbxJ2UxpeNJw9WMzg9O76RRM6o4smLFMEuk=;
+        s=korg; t=1644570838;
+        bh=if/7nze3wDf09DTJSKQqW1G5ZGZQDzTWIMkvOKNBqEU=;
         h=Subject:To:Cc:From:Date:From;
-        b=s4sdm7eMEBwhIBAS8iLCSSFrBjyaqeVOvPyE0a+0hAKWNcATzsMwI5Ncfn6/vZmHo
-         ilUjceL0dNNYyHDXtWZXTIewHfQRD6qMC9hJJ5ZJWII6FHvpw+YSur0gUZTso30FJK
-         SazIXPwZuaWynHuPyT8KDDj12o5OaG1I9xLaJbrQ=
-Subject: FAILED: patch "[PATCH] ima: Allow template selection with ima_template[_fmt]= after" failed to apply to 4.9-stable tree
-To:     roberto.sassu@huawei.com, guozihua@huawei.com, zohar@linux.ibm.com
+        b=mKn/p9yPgnTD08/HZo3TaD3w0LRhg0KiYmiWoXcZ90VUtgk+sTWnDHi24RLpZnlEZ
+         idTu7QnBPSTF8zGzU9WgK5238+1HYJAu9FOtwCSCME/Zpw+Y6uWkAeRoM+/9x3tQ7T
+         1J8NMfkOUIlkYjEtXVBQN3NJwQRnSWg5PbflGIlY=
+Subject: FAILED: patch "[PATCH] can: isotp: fix error path in isotp_sendmsg() to unlock wait" failed to apply to 5.10-stable tree
+To:     socketcan@hartkopp.net, mkl@pengutronix.de,
+        william.xuanziyang@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 11 Feb 2022 10:10:01 +0100
-Message-ID: <1644570601134252@kroah.com>
+Date:   Fri, 11 Feb 2022 10:13:55 +0100
+Message-ID: <1644570835151211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,83 +60,85 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From bb8e52e4906f148c2faf6656b5106cf7233e9301 Mon Sep 17 00:00:00 2001
-From: Roberto Sassu <roberto.sassu@huawei.com>
-Date: Mon, 31 Jan 2022 18:11:39 +0100
-Subject: [PATCH] ima: Allow template selection with ima_template[_fmt]= after
- ima_hash=
+From 8375dfac4f683e1b2c5956d919d36aeedad46699 Mon Sep 17 00:00:00 2001
+From: Oliver Hartkopp <socketcan@hartkopp.net>
+Date: Wed, 9 Feb 2022 08:36:01 +0100
+Subject: [PATCH] can: isotp: fix error path in isotp_sendmsg() to unlock wait
+ queue
 
-Commit c2426d2ad5027 ("ima: added support for new kernel cmdline parameter
-ima_template_fmt") introduced an additional check on the ima_template
-variable to avoid multiple template selection.
+Commit 43a08c3bdac4 ("can: isotp: isotp_sendmsg(): fix TX buffer concurrent
+access in isotp_sendmsg()") introduced a new locking scheme that may render
+the userspace application in a locking state when an error is detected.
+This issue shows up under high load on simultaneously running isotp channels
+with identical configuration which is against the ISO specification and
+therefore breaks any reasonable PDU communication anyway.
 
-Unfortunately, ima_template could be also set by the setup function of the
-ima_hash= parameter, when it calls ima_template_desc_current(). This causes
-attempts to choose a new template with ima_template= or with
-ima_template_fmt=, after ima_hash=, to be ignored.
-
-Achieve the goal of the commit mentioned with the new static variable
-template_setup_done, so that template selection requests after ima_hash=
-are not ignored.
-
-Finally, call ima_init_template_list(), if not already done, to initialize
-the list of templates before lookup_template_desc() is called.
-
-Reported-by: Guo Zihua <guozihua@huawei.com>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Fixes: 43a08c3bdac4 ("can: isotp: isotp_sendmsg(): fix TX buffer concurrent access in isotp_sendmsg()")
+Link: https://lore.kernel.org/all/20220209073601.25728-1-socketcan@hartkopp.net
 Cc: stable@vger.kernel.org
-Fixes: c2426d2ad5027 ("ima: added support for new kernel cmdline parameter ima_template_fmt")
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Cc: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 
-diff --git a/security/integrity/ima/ima_template.c b/security/integrity/ima/ima_template.c
-index 694560396be0..db1ad6d7a57f 100644
---- a/security/integrity/ima/ima_template.c
-+++ b/security/integrity/ima/ima_template.c
-@@ -29,6 +29,7 @@ static struct ima_template_desc builtin_templates[] = {
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index 9149e8d8aefc..d2a430b6a13b 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -887,7 +887,7 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
  
- static LIST_HEAD(defined_templates);
- static DEFINE_SPINLOCK(template_list);
-+static int template_setup_done;
- 
- static const struct ima_template_field supported_fields[] = {
- 	{.field_id = "d", .field_init = ima_eventdigest_init,
-@@ -101,10 +102,11 @@ static int __init ima_template_setup(char *str)
- 	struct ima_template_desc *template_desc;
- 	int template_len = strlen(str);
- 
--	if (ima_template)
-+	if (template_setup_done)
- 		return 1;
- 
--	ima_init_template_list();
-+	if (!ima_template)
-+		ima_init_template_list();
- 
- 	/*
- 	 * Verify that a template with the supplied name exists.
-@@ -128,6 +130,7 @@ static int __init ima_template_setup(char *str)
+ 	if (!size || size > MAX_MSG_LENGTH) {
+ 		err = -EINVAL;
+-		goto err_out;
++		goto err_out_drop;
  	}
  
- 	ima_template = template_desc;
-+	template_setup_done = 1;
- 	return 1;
- }
- __setup("ima_template=", ima_template_setup);
-@@ -136,7 +139,7 @@ static int __init ima_template_fmt_setup(char *str)
- {
- 	int num_templates = ARRAY_SIZE(builtin_templates);
+ 	/* take care of a potential SF_DL ESC offset for TX_DL > 8 */
+@@ -897,24 +897,24 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 	if ((so->opt.flags & CAN_ISOTP_SF_BROADCAST) &&
+ 	    (size > so->tx.ll_dl - SF_PCI_SZ4 - ae - off)) {
+ 		err = -EINVAL;
+-		goto err_out;
++		goto err_out_drop;
+ 	}
  
--	if (ima_template)
-+	if (template_setup_done)
- 		return 1;
+ 	err = memcpy_from_msg(so->tx.buf, msg, size);
+ 	if (err < 0)
+-		goto err_out;
++		goto err_out_drop;
  
- 	if (template_desc_init_fields(str, NULL, NULL) < 0) {
-@@ -147,6 +150,7 @@ static int __init ima_template_fmt_setup(char *str)
+ 	dev = dev_get_by_index(sock_net(sk), so->ifindex);
+ 	if (!dev) {
+ 		err = -ENXIO;
+-		goto err_out;
++		goto err_out_drop;
+ 	}
  
- 	builtin_templates[num_templates - 1].fmt = str;
- 	ima_template = builtin_templates + num_templates - 1;
-+	template_setup_done = 1;
+ 	skb = sock_alloc_send_skb(sk, so->ll.mtu + sizeof(struct can_skb_priv),
+ 				  msg->msg_flags & MSG_DONTWAIT, &err);
+ 	if (!skb) {
+ 		dev_put(dev);
+-		goto err_out;
++		goto err_out_drop;
+ 	}
  
- 	return 1;
- }
+ 	can_skb_reserve(skb);
+@@ -976,7 +976,7 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 	if (err) {
+ 		pr_notice_once("can-isotp: %s: can_send_ret %pe\n",
+ 			       __func__, ERR_PTR(err));
+-		goto err_out;
++		goto err_out_drop;
+ 	}
+ 
+ 	if (wait_tx_done) {
+@@ -989,6 +989,9 @@ static int isotp_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 
+ 	return size;
+ 
++err_out_drop:
++	/* drop this PDU and unlock a potential wait queue */
++	old_state = ISOTP_IDLE;
+ err_out:
+ 	so->tx.state = old_state;
+ 	if (so->tx.state == ISOTP_IDLE)
 
