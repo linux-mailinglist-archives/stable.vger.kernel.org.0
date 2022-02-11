@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D6AC4B214C
-	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:16:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 137AA4B2152
+	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:16:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348414AbiBKJQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Feb 2022 04:16:01 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57560 "EHLO
+        id S1348348AbiBKJQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Feb 2022 04:16:06 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348348AbiBKJQB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:16:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A04021030
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:16:00 -0800 (PST)
+        with ESMTP id S1348363AbiBKJQF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:16:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10B19102D
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:16:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E39D61E85
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:16:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4976AC340E9;
-        Fri, 11 Feb 2022 09:15:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4422B828BE
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:16:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 002B0C340E9;
+        Fri, 11 Feb 2022 09:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644570959;
-        bh=cPBTTis4Gt9Bja8Nex1QAcnRajsNds4NlKHjyCXnx9w=;
+        s=korg; t=1644570962;
+        bh=PLu4AxzIfBITM3oRJTRfZvxkG/Q6pG9tbctQuWBFg54=;
         h=Subject:To:Cc:From:Date:From;
-        b=R8A8fUm7ZlvkU7oJBSEJqUc1Tgly/yC+HqKcctuFAliS+athD48C7KVD48werMDk7
-         rOAkrvPXhZzaqVPW7/iwMQ+UxEkc+neqNWcQjh65BzUgUAKhxMz+y17FGZ94F+CPEe
-         6JJKQFNeuF6iPiMd9pvBn7n6ncnfu6o2eEhjtBzg=
-Subject: FAILED: patch "[PATCH] NFSD: Fix NFSv3 SETATTR/CREATE's handling of large file sizes" failed to apply to 4.9-stable tree
+        b=qJFNgpCvNzjRGl9GWXCJlwlnoUxhXxTRuaaNl/eg+1K5zrL+hRpByICGfwJ8q8USU
+         9Ky2OPNRiUYe2f5P2uAHFmkLe68edGiSYh4qYQlNr8oQoZIibu8tSRe582OlUAYK4f
+         +VuDI4JlgpHbQP/GVwuiqBcqp1N8KXz6DWmV9vv0=
+Subject: FAILED: patch "[PATCH] NFSD: Fix NFSv3 SETATTR/CREATE's handling of large file sizes" failed to apply to 4.19-stable tree
 To:     chuck.lever@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 11 Feb 2022 10:15:46 +0100
-Message-ID: <16445709463381@kroah.com>
+Message-ID: <164457094620926@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
