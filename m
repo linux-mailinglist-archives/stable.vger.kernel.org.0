@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE5894B2168
+	by mail.lfdr.de (Postfix) with ESMTP id 0F0114B2166
 	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:18:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348471AbiBKJSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1348464AbiBKJSD (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 11 Feb 2022 04:18:03 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59370 "EHLO
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348434AbiBKJRz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:17:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92FD29F
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:17:54 -0800 (PST)
+        with ESMTP id S1348441AbiBKJR5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:17:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E1FE29F
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:17:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B54FB828BE
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:17:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78176C340E9;
-        Fri, 11 Feb 2022 09:17:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFBCE61EBC
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:17:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88FB6C340E9;
+        Fri, 11 Feb 2022 09:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644571072;
-        bh=XtsOSvfHF9i4ZAVk/W5DhqQRtXW+fpYC72CjCWCNyV0=;
+        s=korg; t=1644571075;
+        bh=uznLoNQ6yDJ7AWLGRPvaUAoE7sw0d6QuFOzvPYB7Ces=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ll7OS+HO9GrUrWxZD+lJ7u/i6Izuh6nNyC5MCdakC3ARRG9O5N2NlDy43VSu1Ss3C
-         giurDLLq6twGfDXwltOQjebDG819KJy2nwr0Rhg2JqUdxfnIGmMlhi1i5hVs7LoGmM
-         DFIkJ9k6diOOCOntQSbfLlr3xjALn+TqKaMmacew=
-Subject: FAILED: patch "[PATCH] NFSD: COMMIT operations must not return NFS?ERR_INVAL" failed to apply to 5.16-stable tree
+        b=HyLQq8SWXr4U52LySLV0ZxilhAxWWyISueKUMg6zPHQkEOHwLKfGyi/+oP7f8VkpD
+         t0p1nfl4DqQdOOZQ109si3spo1Kftm8Pkt35ZUuBUdmqDB4xxv6fp1rAtb9WX4nEJA
+         AQAuaLwz+ZQQf1mImTXJDxKKAUpLHf9RVc/Hl7ac=
+Subject: FAILED: patch "[PATCH] NFSD: COMMIT operations must not return NFS?ERR_INVAL" failed to apply to 5.15-stable tree
 To:     chuck.lever@oracle.com, bfields@fieldses.org,
         dan.aloni@vastdata.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 11 Feb 2022 10:17:49 +0100
-Message-ID: <1644571069698@kroah.com>
+Date:   Fri, 11 Feb 2022 10:17:50 +0100
+Message-ID: <1644571070171168@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
