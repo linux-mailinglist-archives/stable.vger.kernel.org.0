@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA5AC4B2147
-	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:16:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3627C4B2148
+	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:16:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348345AbiBKJPN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Feb 2022 04:15:13 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57070 "EHLO
+        id S242482AbiBKJPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Feb 2022 04:15:16 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233855AbiBKJPM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:15:12 -0500
+        with ESMTP id S233855AbiBKJPP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:15:15 -0500
 Received: from mga06.intel.com (mga06.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84858102D
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:15:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E528A102D
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:15:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644570912; x=1676106912;
+  t=1644570914; x=1676106914;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references;
-  bh=16PzWI/Zh3nEwNsaZ5vSi/iBYvqMb+/qnl7qLjco514=;
-  b=glGHbcwc7HUnKtOLJWT/gHdhJx9hqPKVpu/aoYXUDoPBkZ4nq69BH+qZ
-   sYEi5oPUtZSXPQW8xyEB5GAEw45+tsu1YzaJ8fXi5DjK4PL6HsI1/nI2u
-   6txYXIMM3ur1AyBDlewRTsXz/TcTNX59yV0B/PLQYnzMIBrwyqvxLLmwy
-   mf1O1CrQI5HsN4rq4lHRLoLc3Jc+0+CqRppHiOUiCH3O05Bib1dbEhhCr
-   VsQhaaKH/GQKAdQ5QhSxJIZBaKTHNva6QUwHHWNU4RHZwrUUdXVj6bXd3
-   OamhjIILI6WFHIJu9hitSoyXrBrNGJi5quqAY7xS0bH5YJpyCGS8F7P71
+  bh=5pUUYrj/SJu/uTiaKQ77ubNuyQPO2HBnVbyYzmG9p5I=;
+  b=fMf7VtwZSLj4n26ihRe4HwEn4wu9GwYuPiZ/SO73uK20+F9nq4qZCRWS
+   lFDXbHMjrEFZGIioWjRUBUAPrlqSGeZZ4X/q1cz+7TDRUg2+wIWo5OROb
+   7/o59ZwRifSZCRlJVdQ/Sc+5cVR16Es7IeDP29oxEo0p04jMyyMQVuKm6
+   mUCyJVaDjtwZ4Ntup6UR88lxNjJzuv0gUYQmsqJMuqVcZCMeeAqJHy9wP
+   0c1LIBvyGEJFCGOfD8FOdEiIufej/zUqv3+bKYgxWG6HKXTzjcdEIaRjf
+   1zzqYUuJ2puJXneR4lEFERwIuoNSKlps4tBAK8uKRVli/uLssxbBUvgxl
    g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10254"; a="310432791"
+X-IronPort-AV: E=McAfee;i="6200,9189,10254"; a="310432797"
 X-IronPort-AV: E=Sophos;i="5.88,360,1635231600"; 
-   d="scan'208";a="310432791"
+   d="scan'208";a="310432797"
 Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Feb 2022 01:15:12 -0800
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Feb 2022 01:15:14 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.88,360,1635231600"; 
-   d="scan'208";a="702037660"
+   d="scan'208";a="702037677"
 Received: from srpawnik-desktop.iind.intel.com ([10.223.141.132])
-  by orsmga005.jf.intel.com with ESMTP; 11 Feb 2022 01:15:10 -0800
+  by orsmga005.jf.intel.com with ESMTP; 11 Feb 2022 01:15:12 -0800
 From:   Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
 To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
         rafael.j.wysocki@intel.com, srinivas.pandruvada@linux.intel.com
-Cc:     sumeet.r.pawnikar@intel.com, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH  3/4] thermal: int340x: Limit Kconfig to 64-bit
-Date:   Fri, 11 Feb 2022 15:04:36 +0530
-Message-Id: <20220211093437.8713-4-sumeet.r.pawnikar@intel.com>
+Cc:     sumeet.r.pawnikar@intel.com
+Subject: [PATCH  4/4] thermal/drivers/int340x: Fix RFIM mailbox write commands
+Date:   Fri, 11 Feb 2022 15:04:37 +0530
+Message-Id: <20220211093437.8713-5-sumeet.r.pawnikar@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20220211093437.8713-1-sumeet.r.pawnikar@intel.com>
 References: <20220211093437.8713-1-sumeet.r.pawnikar@intel.com>
@@ -57,50 +57,300 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+The existing mail mechanism only supports writing of workload types.
 
-32-bit processors cannot generally access 64-bit MMIO registers
-atomically, and it is unknown in which order the two halves of
-this registers would need to be read:
+However, mailbox command for RFIM (cmd = 0x08) also requires write
+operation which is ignored. This results in failing to store RFI
+restriction.
 
-drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c: In function 'send_mbox_cmd':
-drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c:79:37: error: implicit declaration of function 'readq'; did you mean 'readl'? [-Werror=implicit-function-declaration]
-   79 |                         *cmd_resp = readq((void __iomem *) (proc_priv->mmio_base + MBOX_OFFSET_DATA));
-      |                                     ^~~~~
-      |                                     readl
+Fixint this requires enhancing mailbox writes for non workload
+commands too, so remove the check for MBOX_CMD_WORKLOAD_TYPE_WRITE
+in mailbox write to allow this other write commands to be supoorted.
 
-The driver already does not build for anything other than x86,
-so limit it further to x86-64.
+At the same time, however, we have to make sure that there is no
+impact on read commands, by avoiding to write anything into the
+mailbox data register.
 
-Fixes: aeb58c860dc5 ("thermal/drivers/int340x: processor_thermal: Suppot 64 bit RFIM responses")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+To properly implement that, add two separate functions for mbox read
+and write commands for the processor thermal workload command type.
+This helps to distinguish the read and write workload command types
+from each other while sending mbox commands.
+
+Fixes: 5d6fbc96bd36 ("thermal/drivers/int340x: processor_thermal: Export additional attributes")
 Signed-off-by: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
+Cc: 5.14+ <stable@vger.kernel.org> # 5.14+
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+[ rjw: Changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 ---
- drivers/thermal/intel/int340x_thermal/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../processor_thermal_device.h                |   3 +-
+ .../int340x_thermal/processor_thermal_mbox.c  | 100 +++++++++++-------
+ .../int340x_thermal/processor_thermal_rfim.c  |  23 ++--
+ 3 files changed, 73 insertions(+), 53 deletions(-)
 
-diff --git a/drivers/thermal/intel/int340x_thermal/Kconfig b/drivers/thermal/intel/int340x_thermal/Kconfig
-index 45c31f3d6054..5d046de96a5d 100644
---- a/drivers/thermal/intel/int340x_thermal/Kconfig
-+++ b/drivers/thermal/intel/int340x_thermal/Kconfig
-@@ -5,12 +5,12 @@
+diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h
+index be27f633e40a..9b2a64ef55d0 100644
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h
+@@ -80,7 +80,8 @@ void proc_thermal_rfim_remove(struct pci_dev *pdev);
+ int proc_thermal_mbox_add(struct pci_dev *pdev, struct proc_thermal_device *proc_priv);
+ void proc_thermal_mbox_remove(struct pci_dev *pdev);
  
- config INT340X_THERMAL
- 	tristate "ACPI INT340X thermal drivers"
--	depends on X86 && ACPI && PCI
-+	depends on X86_64 && ACPI && PCI
- 	select THERMAL_GOV_USER_SPACE
- 	select ACPI_THERMAL_REL
- 	select ACPI_FAN
- 	select INTEL_SOC_DTS_IOSF_CORE
--	select PROC_THERMAL_MMIO_RAPL if X86_64 && POWERCAP
-+	select PROC_THERMAL_MMIO_RAPL if POWERCAP
- 	help
- 	  Newer laptops and tablets that use ACPI may have thermal sensors and
- 	  other devices with thermal control capabilities outside the core
+-int processor_thermal_send_mbox_cmd(struct pci_dev *pdev, u16 cmd_id, u32 cmd_data, u64 *cmd_resp);
++int processor_thermal_send_mbox_read_cmd(struct pci_dev *pdev, u16 id, u64 *resp);
++int processor_thermal_send_mbox_write_cmd(struct pci_dev *pdev, u16 id, u32 data);
+ int proc_thermal_add(struct device *dev, struct proc_thermal_device *priv);
+ void proc_thermal_remove(struct proc_thermal_device *proc_priv);
+ int proc_thermal_suspend(struct device *dev);
+diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c b/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c
+index 01008ae00e7f..0b89a4340ff4 100644
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c
+@@ -24,19 +24,15 @@
+ 
+ static DEFINE_MUTEX(mbox_lock);
+ 
+-static int send_mbox_cmd(struct pci_dev *pdev, u16 cmd_id, u32 cmd_data, u64 *cmd_resp)
++static int wait_for_mbox_ready(struct proc_thermal_device *proc_priv)
+ {
+-	struct proc_thermal_device *proc_priv;
+ 	u32 retries, data;
+ 	int ret;
+ 
+-	mutex_lock(&mbox_lock);
+-	proc_priv = pci_get_drvdata(pdev);
+-
+ 	/* Poll for rb bit == 0 */
+ 	retries = MBOX_RETRY_COUNT;
+ 	do {
+-		data = readl((void __iomem *) (proc_priv->mmio_base + MBOX_OFFSET_INTERFACE));
++		data = readl(proc_priv->mmio_base + MBOX_OFFSET_INTERFACE);
+ 		if (data & BIT_ULL(MBOX_BUSY_BIT)) {
+ 			ret = -EBUSY;
+ 			continue;
+@@ -45,53 +41,78 @@ static int send_mbox_cmd(struct pci_dev *pdev, u16 cmd_id, u32 cmd_data, u64 *cm
+ 		break;
+ 	} while (--retries);
+ 
++	return ret;
++}
++
++static int send_mbox_write_cmd(struct pci_dev *pdev, u16 id, u32 data)
++{
++	struct proc_thermal_device *proc_priv;
++	u32 reg_data;
++	int ret;
++
++	proc_priv = pci_get_drvdata(pdev);
++
++	mutex_lock(&mbox_lock);
++
++	ret = wait_for_mbox_ready(proc_priv);
+ 	if (ret)
+ 		goto unlock_mbox;
+ 
+-	if (cmd_id == MBOX_CMD_WORKLOAD_TYPE_WRITE)
+-		writel(cmd_data, (void __iomem *) ((proc_priv->mmio_base + MBOX_OFFSET_DATA)));
+-
++	writel(data, (proc_priv->mmio_base + MBOX_OFFSET_DATA));
+ 	/* Write command register */
+-	data = BIT_ULL(MBOX_BUSY_BIT) | cmd_id;
+-	writel(data, (void __iomem *) ((proc_priv->mmio_base + MBOX_OFFSET_INTERFACE)));
++	reg_data = BIT_ULL(MBOX_BUSY_BIT) | id;
++	writel(reg_data, (proc_priv->mmio_base + MBOX_OFFSET_INTERFACE));
+ 
+-	/* Poll for rb bit == 0 */
+-	retries = MBOX_RETRY_COUNT;
+-	do {
+-		data = readl((void __iomem *) (proc_priv->mmio_base + MBOX_OFFSET_INTERFACE));
+-		if (data & BIT_ULL(MBOX_BUSY_BIT)) {
+-			ret = -EBUSY;
+-			continue;
+-		}
++	ret = wait_for_mbox_ready(proc_priv);
+ 
+-		if (data) {
+-			ret = -ENXIO;
+-			goto unlock_mbox;
+-		}
++unlock_mbox:
++	mutex_unlock(&mbox_lock);
++	return ret;
++}
+ 
+-		ret = 0;
++static int send_mbox_read_cmd(struct pci_dev *pdev, u16 id, u64 *resp)
++{
++	struct proc_thermal_device *proc_priv;
++	u32 reg_data;
++	int ret;
+ 
+-		if (!cmd_resp)
+-			break;
++	proc_priv = pci_get_drvdata(pdev);
+ 
+-		if (cmd_id == MBOX_CMD_WORKLOAD_TYPE_READ)
+-			*cmd_resp = readl((void __iomem *) (proc_priv->mmio_base + MBOX_OFFSET_DATA));
+-		else
+-			*cmd_resp = readq((void __iomem *) (proc_priv->mmio_base + MBOX_OFFSET_DATA));
++	mutex_lock(&mbox_lock);
+ 
+-		break;
+-	} while (--retries);
++	ret = wait_for_mbox_ready(proc_priv);
++	if (ret)
++		goto unlock_mbox;
++
++	/* Write command register */
++	reg_data = BIT_ULL(MBOX_BUSY_BIT) | id;
++	writel(reg_data, (proc_priv->mmio_base + MBOX_OFFSET_INTERFACE));
++
++	ret = wait_for_mbox_ready(proc_priv);
++	if (ret)
++		goto unlock_mbox;
++
++	if (id == MBOX_CMD_WORKLOAD_TYPE_READ)
++		*resp = readl(proc_priv->mmio_base + MBOX_OFFSET_DATA);
++	else
++		*resp = readq(proc_priv->mmio_base + MBOX_OFFSET_DATA);
+ 
+ unlock_mbox:
+ 	mutex_unlock(&mbox_lock);
+ 	return ret;
+ }
+ 
+-int processor_thermal_send_mbox_cmd(struct pci_dev *pdev, u16 cmd_id, u32 cmd_data, u64 *cmd_resp)
++int processor_thermal_send_mbox_read_cmd(struct pci_dev *pdev, u16 id, u64 *resp)
+ {
+-	return send_mbox_cmd(pdev, cmd_id, cmd_data, cmd_resp);
++	return send_mbox_read_cmd(pdev, id, resp);
+ }
+-EXPORT_SYMBOL_GPL(processor_thermal_send_mbox_cmd);
++EXPORT_SYMBOL_NS_GPL(processor_thermal_send_mbox_read_cmd, INT340X_THERMAL);
++
++int processor_thermal_send_mbox_write_cmd(struct pci_dev *pdev, u16 id, u32 data)
++{
++	return send_mbox_write_cmd(pdev, id, data);
++}
++EXPORT_SYMBOL_NS_GPL(processor_thermal_send_mbox_write_cmd, INT340X_THERMAL);
+ 
+ /* List of workload types */
+ static const char * const workload_types[] = {
+@@ -104,7 +125,6 @@ static const char * const workload_types[] = {
+ 	NULL
+ };
+ 
+-
+ static ssize_t workload_available_types_show(struct device *dev,
+ 					       struct device_attribute *attr,
+ 					       char *buf)
+@@ -146,7 +166,7 @@ static ssize_t workload_type_store(struct device *dev,
+ 
+ 	data |= ret;
+ 
+-	ret = send_mbox_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_WRITE, data, NULL);
++	ret = send_mbox_write_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_WRITE, data);
+ 	if (ret)
+ 		return false;
+ 
+@@ -161,7 +181,7 @@ static ssize_t workload_type_show(struct device *dev,
+ 	u64 cmd_resp;
+ 	int ret;
+ 
+-	ret = send_mbox_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_READ, 0, &cmd_resp);
++	ret = send_mbox_read_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_READ, &cmd_resp);
+ 	if (ret)
+ 		return false;
+ 
+@@ -186,8 +206,6 @@ static const struct attribute_group workload_req_attribute_group = {
+ 	.name = "workload_request"
+ };
+ 
+-
+-
+ static bool workload_req_created;
+ 
+ int proc_thermal_mbox_add(struct pci_dev *pdev, struct proc_thermal_device *proc_priv)
+@@ -196,7 +214,7 @@ int proc_thermal_mbox_add(struct pci_dev *pdev, struct proc_thermal_device *proc
+ 	int ret;
+ 
+ 	/* Check if there is a mailbox support, if fails return success */
+-	ret = send_mbox_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_READ, 0, &cmd_resp);
++	ret = send_mbox_read_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_READ, &cmd_resp);
+ 	if (ret)
+ 		return 0;
+ 
+diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c b/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
+index e693ec8234fb..8c42e7662033 100644
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
+@@ -9,6 +9,8 @@
+ #include <linux/pci.h>
+ #include "processor_thermal_device.h"
+ 
++MODULE_IMPORT_NS(INT340X_THERMAL);
++
+ struct mmio_reg {
+ 	int read_only;
+ 	u32 offset;
+@@ -194,8 +196,7 @@ static ssize_t rfi_restriction_store(struct device *dev,
+ 				     struct device_attribute *attr,
+ 				     const char *buf, size_t count)
+ {
+-	u16 cmd_id = 0x0008;
+-	u64 cmd_resp;
++	u16 id = 0x0008;
+ 	u32 input;
+ 	int ret;
+ 
+@@ -203,7 +204,7 @@ static ssize_t rfi_restriction_store(struct device *dev,
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = processor_thermal_send_mbox_cmd(to_pci_dev(dev), cmd_id, input, &cmd_resp);
++	ret = processor_thermal_send_mbox_write_cmd(to_pci_dev(dev), id, input);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -214,30 +215,30 @@ static ssize_t rfi_restriction_show(struct device *dev,
+ 				    struct device_attribute *attr,
+ 				    char *buf)
+ {
+-	u16 cmd_id = 0x0007;
+-	u64 cmd_resp;
++	u16 id = 0x0007;
++	u64 resp;
+ 	int ret;
+ 
+-	ret = processor_thermal_send_mbox_cmd(to_pci_dev(dev), cmd_id, 0, &cmd_resp);
++	ret = processor_thermal_send_mbox_read_cmd(to_pci_dev(dev), id, &resp);
+ 	if (ret)
+ 		return ret;
+ 
+-	return sprintf(buf, "%llu\n", cmd_resp);
++	return sprintf(buf, "%llu\n", resp);
+ }
+ 
+ static ssize_t ddr_data_rate_show(struct device *dev,
+ 				  struct device_attribute *attr,
+ 				  char *buf)
+ {
+-	u16 cmd_id = 0x0107;
+-	u64 cmd_resp;
++	u16 id = 0x0107;
++	u64 resp;
+ 	int ret;
+ 
+-	ret = processor_thermal_send_mbox_cmd(to_pci_dev(dev), cmd_id, 0, &cmd_resp);
++	ret = processor_thermal_send_mbox_read_cmd(to_pci_dev(dev), id, &resp);
+ 	if (ret)
+ 		return ret;
+ 
+-	return sprintf(buf, "%llu\n", cmd_resp);
++	return sprintf(buf, "%llu\n", resp);
+ }
+ 
+ static DEVICE_ATTR_RW(rfi_restriction);
 -- 
 2.17.1
 
