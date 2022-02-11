@@ -2,109 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EB0E4B1AE1
-	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 02:01:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D308A4B1AF5
+	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 02:10:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240408AbiBKBB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Feb 2022 20:01:29 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46314 "EHLO
+        id S1346663AbiBKBIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Feb 2022 20:08:54 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346601AbiBKBB3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 20:01:29 -0500
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0F47272E;
-        Thu, 10 Feb 2022 17:01:29 -0800 (PST)
-Received: from kwepemi100026.china.huawei.com (unknown [172.30.72.57])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4JvwJB5sLjz9sXn;
-        Fri, 11 Feb 2022 08:59:54 +0800 (CST)
-Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
- kwepemi100026.china.huawei.com (7.221.188.60) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.21; Fri, 11 Feb 2022 09:01:27 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.21; Fri, 11 Feb 2022 09:01:26 +0800
-Subject: Re: [PATCH 5.10 0/3] 5.10.100-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
-        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
-        <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>
-References: <20220209191248.892853405@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <0b23e2f8-ffc4-233e-a43e-33e896146d5c@huawei.com>
-Date:   Fri, 11 Feb 2022 09:01:25 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        with ESMTP id S239061AbiBKBIx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 20:08:53 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FAE9B3F;
+        Thu, 10 Feb 2022 17:08:53 -0800 (PST)
+Date:   Fri, 11 Feb 2022 01:08:49 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1644541730;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=lJG2K6yK6beclfHEUgTRPm0L+hZjgYhcQ+rfNcW2yCA=;
+        b=ABdioSNRvNJ1NwBmAJkgqVWQSYABc8LKhsFmzstsNIY/sVsAVoi34QylwpKWfqv66Lubf7
+        1c2RhTfRDnJP+kqVip4b5SqnmCnE7JdlFEQjD46DvsAaKOglZpmj5s/hzkYS4FdE4qp5lp
+        vojGVwya2/AUZogY09q0JVeM3SRDOabiT/JDiBesUSm2336ULfUsTTJaGp1ERFy1FEw780
+        +uIo2VUk9PhgEKRV0nC3Myvjp892xRefrzLSIpXjOkUYRCv9AT6xv9xMUEEYufmE8JaMxy
+        LwB9Zqv70UAspG/YAe79wgs4ZdM1FWPyTV0BXolnygeBA2HmCj09y9FzBuN6Uw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1644541730;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=lJG2K6yK6beclfHEUgTRPm0L+hZjgYhcQ+rfNcW2yCA=;
+        b=glroVRquyhDYs+oEDXrq27+SnCMwxRe1Kxjs1scQvc3aPDCzXSwSZU8LwHGunyV2uJJk5o
+        Qbh8Oza/1zLNy4Dg==
+From:   "tip-bot2 for Reinette Chatre" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/sgx: Silence softlockup detection when
+ releasing large enclaves
+Cc:     stable@vger.kernel.org, Vijay Dhanraj <vijay.dhanraj@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: =?utf-8?q?=3Cced01cac1e75f900251b0a4ae1150aa8ebd295ec=2E16443?=
+ =?utf-8?q?45232=2Egit=2Ereinette=2Echatre=40intel=2Ecom=3E?=
+References: =?utf-8?q?=3Cced01cac1e75f900251b0a4ae1150aa8ebd295ec=2E164434?=
+ =?utf-8?q?5232=2Egit=2Ereinette=2Echatre=40intel=2Ecom=3E?=
 MIME-Version: 1.0
-In-Reply-To: <20220209191248.892853405@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
+Message-ID: <164454172947.16921.6907341093129074331.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- kwepemm600013.china.huawei.com (7.193.23.68)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following commit has been merged into the x86/urgent branch of tip:
 
+Commit-ID:     8795359e35bc33bf86b6d0765aa7f37431db3b9c
+Gitweb:        https://git.kernel.org/tip/8795359e35bc33bf86b6d0765aa7f37431db3b9c
+Author:        Reinette Chatre <reinette.chatre@intel.com>
+AuthorDate:    Tue, 08 Feb 2022 10:48:07 -08:00
+Committer:     Dave Hansen <dave.hansen@linux.intel.com>
+CommitterDate: Thu, 10 Feb 2022 15:58:14 -08:00
 
-On 2022/2/10 3:14, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.100 release.
-> There are 3 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 11 Feb 2022 19:12:41 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.100-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+x86/sgx: Silence softlockup detection when releasing large enclaves
 
-Tested on arm64 and x86 for 5.10.100-rc1,
+Vijay reported that the "unclobbered_vdso_oversubscribed" selftest
+triggers the softlockup detector.
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.100-rc1
-Commit: f1b074cc52b4cb5f2f78985508ae344e6f066252
-Compiler: gcc version 7.3.0 (GCC)
+Actual SGX systems have 128GB of enclave memory or more.  The
+"unclobbered_vdso_oversubscribed" selftest creates one enclave which
+consumes all of the enclave memory on the system. Tearing down such a
+large enclave takes around a minute, most of it in the loop where
+the EREMOVE instruction is applied to each individual 4k enclave page.
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9013
-passed: 9013
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+Spending one minute in a loop triggers the softlockup detector.
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9013
-passed: 9013
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+Add a cond_resched() to give other tasks a chance to run and placate
+the softlockup detector.
 
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+Cc: stable@vger.kernel.org
+Fixes: 1728ab54b4be ("x86/sgx: Add a page reclaimer")
+Reported-by: Vijay Dhanraj <vijay.dhanraj@intel.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+Tested-by: Jarkko Sakkinen <jarkko@kernel.org>  (kselftest as sanity check)
+Link: https://lkml.kernel.org/r/ced01cac1e75f900251b0a4ae1150aa8ebd295ec.1644345232.git.reinette.chatre@intel.com
+---
+ arch/x86/kernel/cpu/sgx/encl.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
+index 001808e..48afe96 100644
+--- a/arch/x86/kernel/cpu/sgx/encl.c
++++ b/arch/x86/kernel/cpu/sgx/encl.c
+@@ -410,6 +410,8 @@ void sgx_encl_release(struct kref *ref)
+ 		}
+ 
+ 		kfree(entry);
++		/* Invoke scheduler to prevent soft lockups. */
++		cond_resched();
+ 	}
+ 
+ 	xa_destroy(&encl->page_array);
