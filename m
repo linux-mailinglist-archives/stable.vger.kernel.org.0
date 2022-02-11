@@ -2,222 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D943D4B1B6D
-	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 02:44:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02E024B1C01
+	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 03:14:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346951AbiBKBnl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Feb 2022 20:43:41 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48494 "EHLO
+        id S242102AbiBKCOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Feb 2022 21:14:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235662AbiBKBnk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 20:43:40 -0500
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2109.outbound.protection.outlook.com [40.107.92.109])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AE825F8E;
-        Thu, 10 Feb 2022 17:43:40 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RFfDBRrTxz5F0y5KZDpA6waEPb1Gus6jEX6WiKbRIftfIgAiyM4y1+9gY2q74ikhB1FraaCY6KzsFguCBXOySL+ZVse3bj51Ws0y/VhtxtSd+IGtb0Bny2z7NJj9+CLZwFPc+ePV5sEay8hLsPlXckiqIQAyJFCs1X8PQERNcwtZUYzL3BttRQzVgqMMrbb1N0163qvrFekVCfzk1+N1oLxTZsBkAVYGyajurE+A+WS44Muz5NYmB4egoVmFFZ/Nu6p3kJzsluGZiwa5kc3QJP5Mlt8rfNIDI2TZtbtUWtzflDdO2Ci7yEuvWx4cLqx3ni12LzgVLeMCusGILNcFvA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=lkF0w2sbmEJ+/ZgywEQYcBcmTzLUhcmf4ILE6Zaz3+Y=;
- b=bHd3VKoRb+srmkyqJJuqKAn1f9yGtxXvLgS+Mg9eOcK2+zM1q3Z5ZRZu4kPb5Q4e0/vb2yn+UauhzHQcEENrbhrWaitkcVyLkefvRPZ/22GGBN/XrvnKiFU6c+wRshCIOVe30JG+8Qkl4nBe+kKGHWtczHQjhUciBr/uJD9kAZmJtdoK37//eZXMlXL5j5RW0c/mJ+WC1cXt2aV15vKr0LA8EOXQdTJ0Qwethxp3flJvGGfTmX8MQhnY1iuZZ+ry8zzzEBQKB7znC47U0sRM6qbVELB7SaJ7fTDjznVGe8smkFpi7hKIo6FaW3yQl/qKmFoa7I6HVc+0UJMFbp5Yqg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=os.amperecomputing.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=lkF0w2sbmEJ+/ZgywEQYcBcmTzLUhcmf4ILE6Zaz3+Y=;
- b=OhOKiaBbwCE47Ccq5lCJO+mV6s6FeOjGu2rINPgpsmN7TR8CZyAFttJfjGmjSbXzGcT7TQISE2NBXWmOhHIBy+Z5xbpIeml1c+oRvaIo2aUMIDO8AjNUxR8khGnClWcw7qcDEiVBf4q4mhTrK2xfu+2i1nwvK8h3jpNMpK4Xi0Q=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
-Received: from SA0PR01MB6329.prod.exchangelabs.com (2603:10b6:806:ee::12) by
- SN6PR01MB4640.prod.exchangelabs.com (2603:10b6:805:d3::18) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4951.18; Fri, 11 Feb 2022 01:43:38 +0000
-Received: from SA0PR01MB6329.prod.exchangelabs.com
- ([fe80::7cd6:6594:ce3c:6941]) by SA0PR01MB6329.prod.exchangelabs.com
- ([fe80::7cd6:6594:ce3c:6941%9]) with mapi id 15.20.4951.019; Fri, 11 Feb 2022
- 01:43:38 +0000
-From:   Darren Hart <darren@os.amperecomputing.com>
-To:     LKML <linux-kernel@vger.kernel.org>,
-        Linux Arm <linux-arm-kernel@lists.infradead.org>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Barry Song <song.bao.hua@hisilicon.com>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        "D . Scott Phillips" <scott@os.amperecomputing.com>,
-        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] arm64: smp: Skip MC domain for SoCs without shared cache
-Date:   Thu, 10 Feb 2022 17:42:46 -0800
-Message-Id: <8c4a69eca4d0591f30c112df59c5098c24923bd3.1644543449.git.darren@os.amperecomputing.com>
-X-Mailer: git-send-email 2.31.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: CH2PR15CA0021.namprd15.prod.outlook.com
- (2603:10b6:610:51::31) To SA0PR01MB6329.prod.exchangelabs.com
- (2603:10b6:806:ee::12)
+        with ESMTP id S237351AbiBKCOA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Feb 2022 21:14:00 -0500
+Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDF4E5FB0;
+        Thu, 10 Feb 2022 18:14:00 -0800 (PST)
+Received: from in01.mta.xmission.com ([166.70.13.51]:56772)
+        by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1nILRe-000fPs-PC; Thu, 10 Feb 2022 19:13:59 -0700
+Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:52650 helo=localhost.localdomain)
+        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1nILRc-00FMXV-OH; Thu, 10 Feb 2022 19:13:58 -0700
+From:   "Eric W. Biederman" <ebiederm@xmission.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Alexey Gladkov <legion@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Solar Designer <solar@openwall.com>,
+        Ran Xiaokai <ran.xiaokai@zte.com.cn>,
+        containers@lists.linux-foundation.org,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>, stable@vger.kernel.org
+Date:   Thu, 10 Feb 2022 20:13:17 -0600
+Message-Id: <20220211021324.4116773-1-ebiederm@xmission.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <87o83e2mbu.fsf@email.froward.int.ebiederm.org>
+References: <87o83e2mbu.fsf@email.froward.int.ebiederm.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 43a592cd-70b6-4ea0-65d7-08d9ecffeccc
-X-MS-TrafficTypeDiagnostic: SN6PR01MB4640:EE_
-X-Microsoft-Antispam-PRVS: <SN6PR01MB4640585675850C30BD570750F7309@SN6PR01MB4640.prod.exchangelabs.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:3383;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: jpiMyMgtYffuITPCqA55JWRA2DUVBd8vmZ50F2FhnZsRKB13nMOn6k/42ltwA8xYw0QobrIyr5C4cjk3XOlG+wQnwgPlqnlHUsUq8sftpkGXYpUBe1A5cIArztMz312KnjWDaEk3kMzjaJdQs5JmGB+GRzH3/DTT2oWciQZgu1zjbGOTDEM7SfkWNEmeZ2YYjFnj3uK65Ehdx2qEThzWHx8Z4OZSGLIbgPzithLRMfUyJhb6PkeAovdka79ew9/Muz2OdmFUoRANi42s8ytkNwFdN/tuoh1w4sRGa4h2W3DlzWxKZEUROWjl9NUCLiQBCwTiD11r/qeYTaJfYd241sgzyFqib+rBOHixeUR3DPhAq8J/WotHqkSwnWldzTovGAZ+bAC27zYpUTnSY235igJ5ATiZD6uOkdBYeNPZQ/EJKL2SOP8BzFkYymnW1n34Ge94qj+GXoafCBWZmCuLSDcW7qHgOgGMgxAqQUG8ce/6Sx5mwXGzWSDzVtOs0KQ/l51/rXoyTD5+B9SXp/dl/r1viCFIc8t8eTBTGh7tREdHcz6bwW2idllqM31cgig5cLv3eiJk3AKC8TQM8ygPGRca8SGot0cC5lGl9lkXkJNeyZO3fadbA0lApdqk8HU2IslE+8TtB9WoHe9iXK31b30TVwIpYPngSQkE7HOpKsnf9VDgEOWk9caseE+udDhYfM0apKb1KzqhbmA8x4HcSg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA0PR01MB6329.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230001)(6029001)(4636009)(366004)(110136005)(4326008)(6666004)(8676002)(6506007)(6512007)(5660300002)(508600001)(38350700002)(6486002)(86362001)(52116002)(316002)(83380400001)(8936002)(54906003)(186003)(2616005)(38100700002)(26005)(66946007)(66556008)(66476007)(2906002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?QmAAyHNwK1nXUcU7V8znqC7mzooBLEO8BrOzxmln3/dyVNvHsogxTpj8RiBr?=
- =?us-ascii?Q?DY8aha6kvUgvDEW+xO7O4INYOa5QmQACBCGOiGRC4XRs/E8ruhwgZW4TJs3N?=
- =?us-ascii?Q?BrWywiJU0EHhI0dSrtR9NyubtLnB5ePFjcsslAZKNBuB2P83pp4RM9qWRQ85?=
- =?us-ascii?Q?jiTQ3pM1UO6/CWhGEijkRNnFY7XDvfHxkBeIoJZ4ZePW4UVTK6OE1lsSbHUu?=
- =?us-ascii?Q?DDs+hI/qR/rYMLS0lyvVn1GZhWQaluCSlLk2/GVBXhHxjiH/40TO8pQnezFo?=
- =?us-ascii?Q?BAhXqwSlD9SsEa+bYRgQtTBnAalZa6YEvVrqN7kbqZxyYC8M9h7553Sa7Ba6?=
- =?us-ascii?Q?PzCksbOpTi32Uc7AOz2681N5OkwMy6PqjehLqCUsHRlKCYNBDwgf/6yofR8S?=
- =?us-ascii?Q?qx6jcStTPvVCVcPdH3lGP3jDaeJtDwQaCXWxD3vMkV6APmKzjSbAAdV/uwqJ?=
- =?us-ascii?Q?A6P+ZyzzH4iGinTmwC4KkFzzXE6R3xKAbWDPlOYfZTqM2gxIXtchLvUQfgpU?=
- =?us-ascii?Q?s8t+XNktf+Hgu/0abqYX7BzBXWheoNKgbBlSTsnAsE0uGbokyuDgC9yULQee?=
- =?us-ascii?Q?2XQ1UwxOQnY43328L7b+XgkKzx/wajAVpYGMQR5rDy+fU0F4UtRyyfbSpDdP?=
- =?us-ascii?Q?Hfz6c5ow+RaBR4i3oPT1/KsaRiB5vBnUd92j1Tq0sE5ADZXHC4QusGkLQaFh?=
- =?us-ascii?Q?tz2oYkjB4T0JWeN8SXa+Ka+w0ZAtb4h6E5XgVTYux+CpiHPtkga8ch3BIQIR?=
- =?us-ascii?Q?//1fpXWRXVFUaIa8s8od8oWZSmjLaskJjq+ydjxPSrc7HNIKK4smWZPvrySc?=
- =?us-ascii?Q?q70v9p4YCSHr2jIAjhzMrllLjBae6LxulxQUQE4P2E04fs02LAR/kgw1Mvs8?=
- =?us-ascii?Q?tsmYKbj9ODwTZNJM1N8ChbLwk8fqZiIrCIoXPTmN9W4JHPgclntA+SZzVetP?=
- =?us-ascii?Q?ybIzNY9h/SzX1+Zbtjv4cOKGMJWvxw/GBwIHbS20wymHmxVgGthkyiWxW5LO?=
- =?us-ascii?Q?chQOlz5RSBC9Vx+AabRPi3Z7pThqfg4Sy88CJaNTDQ4vGdjmIFOb4eeceUuU?=
- =?us-ascii?Q?9nv/72ByyLQtEm8XVEfVSQUx00KAh/GidZ8hIz9Vu1DGMtoCwe08sb1tGb9r?=
- =?us-ascii?Q?qjfEkUrWuYzqNIjJmm0DMTZJa6NXbSo3iHa0patrVjP5oDCJ1OM8drl03cWq?=
- =?us-ascii?Q?vizJoFUxJrU6IusvmW/OURyRX8T4AuHFv5hCF9JVNJIfKxnMrmcZ8B6kLJjv?=
- =?us-ascii?Q?8KwbpyIBLl4DZdVfj1H4IHaX45lb1/hkE22d8qy6/eQF9jD6avVyIluzOrqx?=
- =?us-ascii?Q?F65g+JRJfS/xSxgRGe8rbCVI71Ve76OB5EY3UY4fEOP/XAK9UZcZbwTEL3IH?=
- =?us-ascii?Q?m29MGsPHUTqVYzIvzQQ9Y+Ngvxst6xhTgXMj2lLhzINdR1PJmZ1oNrCo8OvL?=
- =?us-ascii?Q?plOi7PwrBw75vGBIWdL1JuqRdL2tuHqbKTNjXKiBf8VWEpfCkGBg0EPJ8t0e?=
- =?us-ascii?Q?Ne15IrX2Ha43rIgrj08kUo05Kt9OdAGlL1Zn1RNIFjdIEPbkk0CUzckXIYUu?=
- =?us-ascii?Q?LmnUo7c7DFKTYIVsCS8QYPaHglfAAHjDi2tahWkQODVSGC3P0rebTQmOxTV/?=
- =?us-ascii?Q?yC7tkFPiL5pPVgvfKOBY0Pnq7wo92Zcw0nm6KUgFJ5DBZbJXGn/SDeQz1z5f?=
- =?us-ascii?Q?iuaSpnL4u5KuRWWGNYsS/2u6/3vg2Ox9w8lCQ8NNnlwmEU1PfIlAXl0G6q5f?=
- =?us-ascii?Q?FKVQCX4uVA=3D=3D?=
-X-OriginatorOrg: os.amperecomputing.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 43a592cd-70b6-4ea0-65d7-08d9ecffeccc
-X-MS-Exchange-CrossTenant-AuthSource: SA0PR01MB6329.prod.exchangelabs.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Feb 2022 01:43:38.5300
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: wjHvNDjHJXU6h/5wU/YvGCmEqesr0/+uMdmALHLWK+D+5+RY/hihkkUvWPCRjBcfuCMVvxiaIcGFwZwzpI1f4STlknhY6dzCk7g+1LnsSWhMbbt+gi8sJW8KUkeXEIXD
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR01MB4640
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-XM-SPF: eid=1nILRc-00FMXV-OH;;;mid=<20220211021324.4116773-1-ebiederm@xmission.com>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX1/PfBild3s35N2DnDkS1MpwyGk5lTzuMOo=
+X-SA-Exim-Connect-IP: 68.227.174.4
+X-SA-Exim-Mail-From: ebiederm@xmission.com
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-DCC: XMission; sa06 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: *;linux-kernel@vger.kernel.org
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 1422 ms - load_scoreonly_sql: 0.04 (0.0%),
+        signal_user_changed: 11 (0.8%), b_tie_ro: 10 (0.7%), parse: 1.03
+        (0.1%), extract_message_metadata: 16 (1.1%), get_uri_detail_list: 1.89
+        (0.1%), tests_pri_-1000: 24 (1.7%), tests_pri_-950: 1.29 (0.1%),
+        tests_pri_-900: 1.06 (0.1%), tests_pri_-90: 65 (4.6%), check_bayes: 64
+        (4.5%), b_tokenize: 10 (0.7%), b_tok_get_all: 9 (0.6%), b_comp_prob:
+        2.5 (0.2%), b_tok_touch_all: 39 (2.7%), b_finish: 0.85 (0.1%),
+        tests_pri_0: 1285 (90.3%), check_dkim_signature: 0.55 (0.0%),
+        check_dkim_adsp: 2.7 (0.2%), poll_dns_idle: 0.95 (0.1%), tests_pri_10:
+        2.4 (0.2%), tests_pri_500: 12 (0.9%), rewrite_mail: 0.00 (0.0%)
+Subject: [PATCH 1/8] ucounts: Fix RLIMIT_NPROC regression
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SoCs such as the Ampere Altra define clusters but have no shared
-processor-side cache. As of v5.16 with CONFIG_SCHED_CLUSTER and
-CONFIG_SCHED_MC, build_sched_domain() will BUG() with:
+Michal Koutný <mkoutny@suse.com> wrote:
 
-BUG: arch topology borken
-     the CLS domain not a subset of the MC domain
+> It was reported that v5.14 behaves differently when enforcing
+> RLIMIT_NPROC limit, namely, it allows one more task than previously.
+> This is consequence of the commit 21d1c5e386bc ("Reimplement
+> RLIMIT_NPROC on top of ucounts") that missed the sharpness of
+> equality in the forking path.
 
-for each CPU (160 times for a 2 socket 80 core Altra system). The MC
-level cpu mask is then extended to that of the CLS child, and is later
-removed entirely as redundant.
+This can be fixed either by fixing the test or by moving the increment
+to be before the test.  Fix it my moving copy_creds which contains
+the increment before is_ucounts_overlimit.
 
-This change detects when all cpu_coregroup_mask weights=1 and uses an
-alternative sched_domain_topology equivalent to the default if
-CONFIG_SCHED_MC were disabled.
+This is necessary so that in the case of CLONE_NEWUSER the new credential
+with the new ucounts is available of is_ucounts_overlimit to test.
 
-The final resulting sched domain topology is unchanged with or without
-CONFIG_SCHED_CLUSTER, and the BUG is avoided:
+Both the test in fork and the test in set_user were semantically
+changed when the code moved to ucounts.  The change of the test in
+fork was bad because it was before the increment.  The test in
+set_user was wrong and the change to ucounts fixed it.  So this
+fix is only restore the old behavior in one lcatio not two.
 
-For CPU0:
-
-With CLS:
-CLS  [0-1]
-DIE  [0-79]
-NUMA [0-159]
-
-Without CLS:
-DIE  [0-79]
-NUMA [0-159]
-
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Barry Song <song.bao.hua@hisilicon.com>
-Cc: Valentin Schneider <valentin.schneider@arm.com>
-Cc: D. Scott Phillips <scott@os.amperecomputing.com>
-Cc: Ilkka Koskinen <ilkka@os.amperecomputing.com>
-Cc: <stable@vger.kernel.org> # 5.16.x
-Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
+Link: https://lkml.kernel.org/r/20220204181144.24462-1-mkoutny@suse.com
+Cc: stable@vger.kernel.org
+Reported-by: Michal Koutný <mkoutny@suse.com>
+Fixes: 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of ucounts")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 ---
- arch/arm64/kernel/smp.c | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ kernel/fork.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-index 27df5c1e6baa..0a78ac5c8830 100644
---- a/arch/arm64/kernel/smp.c
-+++ b/arch/arm64/kernel/smp.c
-@@ -715,9 +715,22 @@ void __init smp_init_cpus(void)
+diff --git a/kernel/fork.c b/kernel/fork.c
+index d75a528f7b21..17d8a8c85e3b 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2021,18 +2021,18 @@ static __latent_entropy struct task_struct *copy_process(
+ #ifdef CONFIG_PROVE_LOCKING
+ 	DEBUG_LOCKS_WARN_ON(!p->softirqs_enabled);
+ #endif
++	retval = copy_creds(p, clone_flags);
++	if (retval < 0)
++		goto bad_fork_free;
++
+ 	retval = -EAGAIN;
+ 	if (is_ucounts_overlimit(task_ucounts(p), UCOUNT_RLIMIT_NPROC, rlimit(RLIMIT_NPROC))) {
+ 		if (p->real_cred->user != INIT_USER &&
+ 		    !capable(CAP_SYS_RESOURCE) && !capable(CAP_SYS_ADMIN))
+-			goto bad_fork_free;
++			goto bad_fork_cleanup_count;
  	}
- }
+ 	current->flags &= ~PF_NPROC_EXCEEDED;
  
-+static struct sched_domain_topology_level arm64_no_mc_topology[] = {
-+#ifdef CONFIG_SCHED_SMT
-+	{ cpu_smt_mask, cpu_smt_flags, SD_INIT_NAME(SMT) },
-+#endif
-+
-+#ifdef CONFIG_SCHED_CLUSTER
-+	{ cpu_clustergroup_mask, cpu_cluster_flags, SD_INIT_NAME(CLS) },
-+#endif
-+	{ cpu_cpu_mask, SD_INIT_NAME(DIE) },
-+	{ NULL, },
-+};
-+
- void __init smp_prepare_cpus(unsigned int max_cpus)
- {
- 	const struct cpu_operations *ops;
-+	bool use_no_mc_topology = true;
- 	int err;
- 	unsigned int cpu;
- 	unsigned int this_cpu;
-@@ -758,6 +771,25 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
- 
- 		set_cpu_present(cpu, true);
- 		numa_store_cpu_info(cpu);
-+
-+		/*
-+		 * Only use no_mc topology if all cpu_coregroup_mask weights=1
-+		 */
-+		if (cpumask_weight(cpu_coregroup_mask(cpu)) > 1)
-+			use_no_mc_topology = false;
-+	}
-+
-+	/*
-+	 * SoCs with no shared processor-side cache will have cpu_coregroup_mask
-+	 * weights=1. If they also define clusters with cpu_clustergroup_mask
-+	 * weights > 1, build_sched_domain() will trigger a BUG as the CLS
-+	 * cpu_mask will not be a subset of MC. It will extend the MC cpu_mask
-+	 * to match CLS, and later discard the MC level. Avoid the bug by using
-+	 * a topology without the MC if the cpu_coregroup_mask weights=1.
-+	 */
-+	if (use_no_mc_topology) {
-+		pr_info("cpu_coregroup_mask weights=1, skipping MC topology level");
-+		set_sched_topology(arm64_no_mc_topology);
- 	}
- }
- 
+-	retval = copy_creds(p, clone_flags);
+-	if (retval < 0)
+-		goto bad_fork_free;
+-
+ 	/*
+ 	 * If multiple threads are within copy_process(), then this check
+ 	 * triggers too late. This doesn't hurt, the check is only there
 -- 
-2.31.1
+2.29.2
 
