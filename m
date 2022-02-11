@@ -2,104 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90FD64B1E39
-	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 07:13:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D47144B1E8F
+	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 07:32:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343495AbiBKGNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Feb 2022 01:13:11 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54678 "EHLO
+        id S235526AbiBKGcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Feb 2022 01:32:51 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234689AbiBKGNL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 01:13:11 -0500
-Received: from new4-smtp.messagingengine.com (new4-smtp.messagingengine.com [66.111.4.230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D543B25CC;
-        Thu, 10 Feb 2022 22:13:10 -0800 (PST)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id EBB865801CE;
-        Fri, 11 Feb 2022 01:13:09 -0500 (EST)
-Received: from imap49 ([10.202.2.99])
-  by compute2.internal (MEProxy); Fri, 11 Feb 2022 01:13:09 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        sladewatkins.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to; s=fm1; bh=hw8XwxUa3faDPm
-        MGDrpUyGNrmixSLr/NruIMilhhvks=; b=Zp1KTUo2UhGSqJl4hU3I4HwDC/9OA7
-        v39wkw8ZkjA3pOjLfgklDlMG2O2Fz3sPPqaxDzL3H/X7t/YfLsXmOUpOtVhcreyz
-        1LHZncbepuarcCWvnRgEo6cHtRz0By45eGlG6fEYAKkbS9ftG0xFFBgSpwPf7Q0L
-        xFR1Q24hYgZzbBUd4uOtebhyBQ3qISaLTvscEZmVnqijo4HMpDwiBk78PEvk1zbk
-        yyUk8/Xeto8YaMdrO1Z1lQItCsfg8thL5WrKgceRWH/Gs+3R5UYZ8joO+VAoQD2s
-        0AtsAblVZjcSwXhJxWYdxYUh0LBBCHagXVC3IK6TQ4tKr10yoSLnPEGA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=hw8XwxUa3faDPmMGD
-        rpUyGNrmixSLr/NruIMilhhvks=; b=fCSMWrNGQOrWZFyHY5yPEADcRluciTsxD
-        mjATn1o6uWuDMEg6qw/Wq23dpahaCSVPxoD//PbH5VAuJLd4pXiBI8qJXCM9cGvH
-        wv+YVvjNHMHHJlbF0G/dxTqpbax4ou7w3yNoR/G+2Zw0YegRboImf7SZLFX9ZvJ9
-        AShIPenn7p4/AZSi+kxqgBDf36Vx9KjDZXq+KbC35t5WPlwiJwvttS4k80nDjgAI
-        X/G9sjjljbsoqS3R06yAN/a0kAGIc15/L8VrIo5+rXhcRGoRew+6GkrQEoSCIT62
-        fbZ8mM+WyyuJjNMZ0K7lkLVWur5ofMPS3BNcIvuKxx2/Ii4ECQbaQ==
-X-ME-Sender: <xms:df4FYjyZh97A6Qv9-a7-w-ghdXIbRv2WG1Dj4hTI26lcMgquJPSZzw>
-    <xme:df4FYrRCriZQORvGyXx-uLA6eUipsGpM0sVvW34oChFy61z-huvTqidcQCE4pWWFq
-    YwFQbgLrP5E2G_RKeE>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddriedvgdekjecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefofgggkfgjfhffhffvufgtsehttdertderredtnecuhfhrohhmpedfufhlrggu
-    vgcuhggrthhkihhnshdfuceoshhlrgguvgesshhlrgguvgifrghtkhhinhhsrdgtohhmqe
-    enucggtffrrghtthgvrhhnpeeuieffteejieetgfevteelheevudehteeihffhteehtdet
-    leegtedtvdevvddugeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehslhgruggvsehslhgruggvfigrthhkihhnshdrtghomh
-X-ME-Proxy: <xmx:df4FYtV2cJVHovnmE5E2oBW71vbw8FwFgcPE1_VDMoGsi6YvrN_Irw>
-    <xmx:df4FYthi5TJuvABz04O44R0Krp3hR4uwZ5ck0J2T6GeqAnIxGppCdA>
-    <xmx:df4FYlDq3G2npx0CQplopqcKPG0rGlRasRVbvZwDaLfKBkSIYSwlGQ>
-    <xmx:df4FYp6wkltfoJlQC-TyCCYAJQVqOCFG1kSDoKiqVJvKpmhTDgkwJwPcEg0>
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id A8058F6007E; Fri, 11 Feb 2022 01:13:09 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.5.0-alpha0-4748-g31a5b5f50e-fm-cal2020-20220204.001-g31a5b5f5
-Mime-Version: 1.0
-Message-Id: <81f1a5c7-1080-40f7-9716-3111debf7d7a@www.fastmail.com>
-In-Reply-To: <20220209191249.887150036@linuxfoundation.org>
-References: <20220209191249.887150036@linuxfoundation.org>
-Date:   Fri, 11 Feb 2022 01:13:07 -0500
-From:   "Slade Watkins" <slade@sladewatkins.com>
-To:     "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Andrew Morton" <akpm@linux-foundation.org>,
-        "Guenter Roeck" <linux@roeck-us.net>, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        "Pavel Machek" <pavel@denx.de>,
-        "Jon Hunter" <jonathanh@nvidia.com>,
-        "Florian Fainelli" <f.fainelli@gmail.com>,
-        "Sudip Mukherjee" <sudipm.mukherjee@gmail.com>
-Subject: Re: [PATCH 5.16 0/5] 5.16.9-rc1 review
-Content-Type: text/plain
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S235382AbiBKGcv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 01:32:51 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 053D1B41
+        for <stable@vger.kernel.org>; Thu, 10 Feb 2022 22:32:47 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21B3MEjK000415;
+        Fri, 11 Feb 2022 06:32:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=jXKheFElz2tshFDk5RL8mCXwO8Jt4F7/tSt2PA8b5s4=;
+ b=R/8sIOE3QknCiNC9lY3Q7Qx+6gHrd0SD9tzWJJzPzEVD8trU0Hee58z88XFofvl6BW0S
+ qciis18E1onHs/4dBgxBE9yZdP2IEx6ud/nVwFIIeLP/PjbNkLM9MlXSKR7EEN/gD5hX
+ 9FS4HQocqbJ1MKT778XlO3U8WY5ERtqXc9qMMXn/BtfSlgHcBshZMOXykqoOf3L8Dkc3
+ /VbSBbjz+qOMjGHLhL8Rbra9995BcW90MCx+CcuHyyz3S1lAYJ8Txxe7Q84P+NDeKohb
+ JokSsOZaOAeumQz20ks/FpdxB7eeruEmLAbdZ7nlyZz5Y8ihd1BKUcFc04FwABQ83Tk0 TA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3e5ekfkmpy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Feb 2022 06:32:35 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21B6SkQB017507;
+        Fri, 11 Feb 2022 06:32:34 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3e5ekfkmpr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Feb 2022 06:32:34 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21B6WH8Y014906;
+        Fri, 11 Feb 2022 06:32:33 GMT
+Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
+        by ppma03dal.us.ibm.com with ESMTP id 3e1gvd3ubw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 11 Feb 2022 06:32:33 +0000
+Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
+        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21B6WWS930671210
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 11 Feb 2022 06:32:32 GMT
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C530BC605D;
+        Fri, 11 Feb 2022 06:32:32 +0000 (GMT)
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E6004C6059;
+        Fri, 11 Feb 2022 06:32:29 +0000 (GMT)
+Received: from skywalker.ibmuc.com (unknown [9.43.41.36])
+        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Fri, 11 Feb 2022 06:32:29 +0000 (GMT)
+From:   "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+To:     linux-mm@kvack.org, akpm@linux-foundation.org
+Cc:     mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Mina Almasry <almasrymina@google.com>
+Subject: [PATCH v2] mm/hugetlb: Fix kernel crash with hugetlb mremap
+Date:   Fri, 11 Feb 2022 12:02:21 +0530
+Message-Id: <20220211063221.99293-1-aneesh.kumar@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: M1yUpzTDts4qnUh1Jw9q69F_vffwFjPG
+X-Proofpoint-GUID: os46sPutW89i6yH1VFuTiTong4Yq63rq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-02-11_02,2022-02-09_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ phishscore=0 suspectscore=0 bulkscore=0 adultscore=0 spamscore=0
+ clxscore=1011 priorityscore=1501 lowpriorityscore=0 mlxlogscore=999
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2201110000 definitions=main-2202110036
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 9, 2022, at 2:14 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.9 release.
-> There are 5 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 11 Feb 2022 19:12:41 +0000.
-> Anything received after that time might be too late.
+This fixes the below crash:
 
-Compiled and booted 5.16.9-rc1 on my x86_64 test system successfully without errors or regressions.
+kernel BUG at include/linux/mm.h:2373!
+cpu 0x5d: Vector: 700 (Program Check) at [c00000003c6e76e0]
+    pc: c000000000581a54: pmd_to_page+0x54/0x80
+    lr: c00000000058d184: move_hugetlb_page_tables+0x4e4/0x5b0
+    sp: c00000003c6e7980
+   msr: 9000000000029033
+  current = 0xc00000003bd8d980
+  paca    = 0xc000200fff610100   irqmask: 0x03   irq_happened: 0x01
+    pid   = 9349, comm = hugepage-mremap
+kernel BUG at include/linux/mm.h:2373!
+[link register   ] c00000000058d184 move_hugetlb_page_tables+0x4e4/0x5b0
+[c00000003c6e7980] c00000000058cecc move_hugetlb_page_tables+0x22c/0x5b0 (unreliable)
+[c00000003c6e7a90] c00000000053b78c move_page_tables+0xdbc/0x1010
+[c00000003c6e7bd0] c00000000053bc34 move_vma+0x254/0x5f0
+[c00000003c6e7c90] c00000000053c790 sys_mremap+0x7c0/0x900
+[c00000003c6e7db0] c00000000002c450 system_call_exception+0x160/0x2c0
 
-Tested-by: Slade Watkins <slade@sladewatkins.com>
+the kernel can't use huge_pte_offset before it set the pte entry because a page table
+lookup check for huge PTE bit in the page table to differentiate between a
+huge pte entry and a pointer to pte page. A huge_pte_alloc won't mark the
+page table entry huge and hence kernel should not use huge_pte_offset after
+a huge_pte_alloc.
 
-Thanks,
-Slade
+Fixes: 550a7d60bd5e ("mm, hugepages: add mremap() support for hugepage backed vma")
+
+Cc: stable@vger.kernel.org
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Mina Almasry <almasrymina@google.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+---
+ mm/hugetlb.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+Changes from v1:
+* Add Fixes: tag
+* Add Reviewed-by: 
+
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 61895cc01d09..e57650a9404f 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4851,14 +4851,13 @@ int copy_hugetlb_page_range(struct mm_struct *dst, struct mm_struct *src,
+ }
+ 
+ static void move_huge_pte(struct vm_area_struct *vma, unsigned long old_addr,
+-			  unsigned long new_addr, pte_t *src_pte)
++			  unsigned long new_addr, pte_t *src_pte, pte_t *dst_pte)
+ {
+ 	struct hstate *h = hstate_vma(vma);
+ 	struct mm_struct *mm = vma->vm_mm;
+-	pte_t *dst_pte, pte;
+ 	spinlock_t *src_ptl, *dst_ptl;
++	pte_t pte;
+ 
+-	dst_pte = huge_pte_offset(mm, new_addr, huge_page_size(h));
+ 	dst_ptl = huge_pte_lock(h, mm, dst_pte);
+ 	src_ptl = huge_pte_lockptr(h, mm, src_pte);
+ 
+@@ -4917,7 +4916,7 @@ int move_hugetlb_page_tables(struct vm_area_struct *vma,
+ 		if (!dst_pte)
+ 			break;
+ 
+-		move_huge_pte(vma, old_addr, new_addr, src_pte);
++		move_huge_pte(vma, old_addr, new_addr, src_pte, dst_pte);
+ 	}
+ 	flush_tlb_range(vma, old_end - len, old_end);
+ 	mmu_notifier_invalidate_range_end(&range);
+-- 
+2.34.1
+
