@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7003B4B2155
-	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:16:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB8344B2157
+	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:16:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348416AbiBKJQT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Feb 2022 04:16:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57760 "EHLO
+        id S1348417AbiBKJQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Feb 2022 04:16:23 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348363AbiBKJQT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:16:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84B07102D
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:16:18 -0800 (PST)
+        with ESMTP id S1348363AbiBKJQX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:16:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07990102D
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:16:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2AB92B828BB
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:16:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6724BC340E9;
-        Fri, 11 Feb 2022 09:16:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98EEC61EB6
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:16:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8104DC340E9;
+        Fri, 11 Feb 2022 09:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644570975;
-        bh=FEc087FpT+5s1Ym8a3rV0hXT8lDAZfG5M/kRxYZ37vU=;
+        s=korg; t=1644570982;
+        bh=f0ckFNH85dDWN3qwt2iW3PuByDbDjn9g4mCXPnHVDoI=;
         h=Subject:To:Cc:From:Date:From;
-        b=oD1wiqBriAuo7K5cM2xqyk76Un/LZPDAn5K3JgmgROR5MxTjf2rBVpMkvbIHW4eJY
-         Yjj/C0Fw3IMHMmp39kUSdRjO9UzYb94c3KcsTWRcqlVLb7bWrzWwk9LXUuxXU1pG7E
-         Ig52jI7Rqb3iKJ7ZT5WHyMbLyv5/QX9Ova98aeiw=
-Subject: FAILED: patch "[PATCH] NFSD: Fix ia_size underflow" failed to apply to 4.14-stable tree
+        b=rU/TQhGUKLwZrqmmvcq8GHAlLZ553VJR5xv54fiGVSlnZCqr2oilib4IczsnezhqP
+         0sFVgEubMrjLs+L19m7BLvhXitxQyIgaFSo6+LvarfyKINV6cSOK760UkqbXxBGOiN
+         8du64sUzHp6BrW/ogyM0GQBxCgD4gXr3T7AGbMGY=
+Subject: FAILED: patch "[PATCH] NFSD: Fix ia_size underflow" failed to apply to 4.9-stable tree
 To:     chuck.lever@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 11 Feb 2022 10:16:06 +0100
-Message-ID: <1644570966149219@kroah.com>
+Date:   Fri, 11 Feb 2022 10:16:07 +0100
+Message-ID: <1644570967130180@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
