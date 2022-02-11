@@ -2,95 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 233604B273F
-	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 14:34:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D3414B2815
+	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 15:38:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350595AbiBKNdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Feb 2022 08:33:39 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55874 "EHLO
+        id S1350942AbiBKOhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Feb 2022 09:37:21 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350596AbiBKNdj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 08:33:39 -0500
-Received: from nef.ens.fr (nef2.ens.fr [129.199.96.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 752A3EB
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 05:33:37 -0800 (PST)
-X-ENS-nef-client:   129.199.1.22 ( name = clipper-gw.ens.fr )
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ens.fr; s=default;
-        t=1644586415; bh=gtfGSbJudpm7fEqELqArITnOxAKsfdSIEQZ+DtCv+6M=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cSf+K6h3mTulZjLblS5is9/YVXA61QgIxILaR/HgE2QqNeOY554Jb5u/B/8UPG8cN
-         S6bu9wEIIUqqle4c5Bk5WJWccWXR9SOqMGH2wu66Gen7TpfZpBMLRevkKc4ocuaXaO
-         N/48btCm+FdzvoU0VIoM5mfdaQ0y/EvzG+t3JQK0=
-Received: from clipper.ens.fr (clipper-gw.ens.fr [129.199.1.22])
-          by nef.ens.fr (8.14.4/1.01.28121999) with ESMTP id 21BDXYbS020927
-          ; Fri, 11 Feb 2022 14:33:34 +0100
-Received: from  optiplex-7.sg.lan using smtps by clipper.ens.fr (8.14.4/jb-1.1)
-       id 21BDXRX6103246 ; Fri, 11 Feb 2022 14:33:34 +0100 (authenticated user gbertholon)
-X-ENS-Received:  (maths.r-prg.net.univ-paris7.fr [81.194.27.158])
-From:   Guillaume Bertholon <guillaume.bertholon@ens.fr>
-To:     gregkh@linuxfoundation.org
-Cc:     guillaume.bertholon@ens.fr, stable@vger.kernel.org
-Subject: [PATCH 4.9] Revert "net: axienet: Wait for PhyRstCmplt after core reset"
-Date:   Fri, 11 Feb 2022 14:33:01 +0100
-Message-Id: <1644586381-5078-1-git-send-email-guillaume.bertholon@ens.fr>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <YgZPADnzN12UXAr6@kroah.com>
-References: <YgZPADnzN12UXAr6@kroah.com>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.4.3 (nef.ens.fr [129.199.96.32]); Fri, 11 Feb 2022 14:33:35 +0100 (CET)
+        with ESMTP id S242516AbiBKOhU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 09:37:20 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 347CC188;
+        Fri, 11 Feb 2022 06:37:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=xDS2cI/G7I7Pz1FO/b0GGCLA/neDA3CUGtTdIi3Kxmw=; b=DiwyC2U1oICQI8XH4WIMg6OoP1
+        da2zROQJylJHR/am2VUi7ytvDHVJrPRl4sNIbRymv3jjuN55pqSKvmP3kqaGmCnr/1wOP5Vq2tlmq
+        6tRpYF8Xekva5k0MKJRwl6L4nDPgOG3VIzFlIq0ExyRpChMgkKHFVgshddkUjWGNxDByZMsX9xZBn
+        V2viILZgRTn1yFTHZPFymlzptBy68x8h0PeGfQcKxODbBo83AYxG5Cr0oxdkYLaMz9QCtVWzsNQ5V
+        KU8wCsZHrkHfW3+rCRJ96XL5PuFqPhKNVNjSi8dxC42ECSAVzPXyrXx8lxmupOj/bvr7sRMP4ihEq
+        aHCs6y1A==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nIX2t-00AThU-BS; Fri, 11 Feb 2022 14:37:11 +0000
+Date:   Fri, 11 Feb 2022 14:37:11 +0000
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     "Darrick J. Wong" <djwong@kernel.org>,
+        linux-kernel@vger.kernel.org, Stable <stable@vger.kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <dchinner@redhat.com>,
+        Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Bob Peterson <rpeterso@redhat.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Theodore Ts'o <tytso@mit.edu>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Johannes Thumshirn <jth@kernel.org>, linux-xfs@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
+        cluster-devel@redhat.com,
+        syzbot+0ed9f769264276638893@syzkaller.appspotmail.com
+Subject: Re: [PATCH 1/1] Revert "iomap: fall back to buffered writes for
+ invalidation failures"
+Message-ID: <YgZ0lyr91jw6JaHg@casper.infradead.org>
+References: <20220209085243.3136536-1-lee.jones@linaro.org>
+ <20220210045911.GF8338@magnolia>
+ <YgTl2Lm9Vk50WNSj@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YgTl2Lm9Vk50WNSj@google.com>
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 9f1a3c13342b4d96b9baa337ec5fb7d453828709.
+On Thu, Feb 10, 2022 at 10:15:52AM +0000, Lee Jones wrote:
+> On Wed, 09 Feb 2022, Darrick J. Wong wrote:
+> 
+> > On Wed, Feb 09, 2022 at 08:52:43AM +0000, Lee Jones wrote:
+> > > This reverts commit 60263d5889e6dc5987dc51b801be4955ff2e4aa7.
+> > > 
+> > > Reverting since this commit opens a potential avenue for abuse.
+> > 
+> > What kind of abuse?  Did you conclude there's an avenue solely because
+> > some combination of userspace rigging produced a BUG warning?  Or is
+> > this a real problem that someone found?
+> 
+> Genuine question: Is the ability for userspace to crash the kernel
+> not enough to cause concern?  I would have thought that we'd want to
+> prevent this.
 
-The upstream commit b400c2f4f4c5 ("net: axienet: Wait for PhyRstCmplt
-after core reset") add new instructions in the `__axienet_device_reset`
-function to wait until PhyRstCmplt bit is set, and return a non zero-exit
-value if this exceeds a timeout.
+The kernel doesn't crash.  It's a BUG().  That means it kills the
+task which caused the BUG().  If you've specified that the kernel should
+crash on seeing a BUG(), well, you made that decision, and you get to
+live with the consequences.
 
-However, its backported version in 4.9 (commit 9f1a3c13342b ("net:
-axienet: Wait for PhyRstCmplt after core reset")) insert these
-instructions in `axienet_dma_bd_init` instead.
+> The link provided doesn't contain any further analysis.  Only the
+> reproducer and kernel configuration used, which are both too large to
+> enter into a Git commit.
 
-Unlike upstream, the version of `__axienet_device_reset` currently present
-in branch stable/linux-4.9.y does not return an integer for error codes.
-Therefore fixing the backport cannot be as simple as moving the inserted
-instructions in the right place, and we simply revert it instead.
+But not too large to put in an email.  Which you should have sent to
+begin with, not a stupid reversion commit.
 
-Fixes: 9f1a3c13342b ("net: axienet: Wait for PhyRstCmplt after core reset")
-Signed-off-by: Guillaume Bertholon <guillaume.bertholon@ens.fr>
----
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c | 10 ----------
- 1 file changed, 10 deletions(-)
+> > OH WAIT, you're running this on the Android 5.10 kernel, aren't you?
+> > The BUG report came from page_buffers failing to find any buffer heads
+> > attached to the page.
+> > https://android.googlesource.com/kernel/common/+/refs/heads/android12-5.10-2022-02/fs/ext4/inode.c#2647
+> 
+> Yes, the H/W I have to prototype these on is a phone and the report
+> that came in was specifically built against the aforementioned
+> kernel.
+> 
+> > Yeah, don't care.
+> 
+> "There is nothing to worry about, as it's intended behaviour"?
 
-diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-index 46998a5..467dc0c 100644
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -278,16 +278,6 @@ static int axienet_dma_bd_init(struct net_device *ndev)
- 	axienet_dma_out32(lp, XAXIDMA_TX_CR_OFFSET,
- 			  cr | XAXIDMA_CR_RUNSTOP_MASK);
-
--	/* Wait for PhyRstCmplt bit to be set, indicating the PHY reset has finished */
--	ret = read_poll_timeout(axienet_ior, value,
--				value & XAE_INT_PHYRSTCMPLT_MASK,
--				DELAY_OF_ONE_MILLISEC, 50000, false, lp,
--				XAE_IS_OFFSET);
--	if (ret) {
--		dev_err(lp->dev, "%s: timeout waiting for PhyRstCmplt\n", __func__);
--		return ret;
--	}
--
- 	return 0;
- out:
- 	axienet_dma_bd_release(ndev);
---
-2.7.4
-
+No.  You've come in like a fucking meteorite full of arrogance and
+ignorance.  Nobody's reacting well to you right now.  Start again,
+write a good bug report in a new thread.
