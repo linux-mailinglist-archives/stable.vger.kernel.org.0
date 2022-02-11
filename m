@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF32E4B216B
+	by mail.lfdr.de (Postfix) with ESMTP id 108F04B2169
 	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:18:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245016AbiBKJRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Feb 2022 04:17:48 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59260 "EHLO
+        id S1348429AbiBKJRw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Feb 2022 04:17:52 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237952AbiBKJRs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:17:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE364F5
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:17:46 -0800 (PST)
+        with ESMTP id S237952AbiBKJRv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:17:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F4C21D
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:17:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E6DCB828BF
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:17:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C00ABC340E9;
-        Fri, 11 Feb 2022 09:17:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0173B828BB
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:17:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D342AC340E9;
+        Fri, 11 Feb 2022 09:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644571064;
-        bh=GX6j3dA/y3R8dVEdTr+FcqE4XdUIrHG5EW9vJPrLt60=;
+        s=korg; t=1644571067;
+        bh=cBZ9JSI16+AD6VKERcD0WXNdDPC6doy8F9LXDqrfO3I=;
         h=Subject:To:Cc:From:Date:From;
-        b=al3bVsxJYFvokkGNQCVMx4sr0XKpaEMwWnEpbIkWq9250NR845lSnUMKmK4FMAfHM
-         nvFYSpiYdvS0wtYscEMdMqA25+H+LAUMIeLbeo9mxI53Kr/L4vbg7BXzPli88mQSi2
-         cEU4zFeVq8NF+9lqpyI7um1HP7c+NJf0rJcPjL4I=
-Subject: FAILED: patch "[PATCH] NFSD: Fix the behavior of READ near OFFSET_MAX" failed to apply to 4.14-stable tree
+        b=VGqbOiDAuDZWzDLPFuHOOarYgQpXxR9tOEiIYfVbAtoKBzWNFNldAi9+guiPlUdyU
+         ww2C3dvzt/S7jwxY0Ec5/8a7dcFYKEI2rHx1nPlMKmwEzegFhfPEs62Rec5sz5wisE
+         jvATZcWQmhyysDEmunHBlYM9u3aSL0kIYgJS3OvA=
+Subject: FAILED: patch "[PATCH] NFSD: Fix the behavior of READ near OFFSET_MAX" failed to apply to 4.9-stable tree
 To:     chuck.lever@oracle.com, dan.aloni@vastdata.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 11 Feb 2022 10:17:33 +0100
-Message-ID: <1644571053131226@kroah.com>
+Date:   Fri, 11 Feb 2022 10:17:34 +0100
+Message-ID: <164457105486107@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
