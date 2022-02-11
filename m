@@ -2,64 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 733C24B2C0A
-	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 18:48:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B04D14B2C18
+	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 18:51:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232454AbiBKRsp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Feb 2022 12:48:45 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41122 "EHLO
+        id S1347132AbiBKRtS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Feb 2022 12:49:18 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344774AbiBKRsp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 12:48:45 -0500
-Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEE352C9
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:48:43 -0800 (PST)
+        with ESMTP id S1344922AbiBKRtR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 12:49:17 -0500
+Received: from smtp-fw-9103.amazon.com (smtp-fw-9103.amazon.com [207.171.188.200])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD89AE
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:49:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1644601724; x=1676137724;
+  t=1644601756; x=1676137756;
   h=from:to:cc:subject:date:message-id:mime-version:
    content-transfer-encoding;
-  bh=qcVFmgrI7ZLuGbzKFC8xHtpP4rF2JSBJAsVk6nCscPg=;
-  b=ER8rIed/LX7LhYvqd8iOmuP1nt/OH+MZwVg1skN1tq/e/vywhYApakfN
-   2eNRXGfmMX8F1hX4GLz7oL4lFTPw5ugNc95Ylh/IpJku9Zg4010DvFYd0
-   5vgR3HW+IWNc/ehI08Wmh3lY2Y++AYdI9Ap9ck6QxRFlM/vdoXhQqFsBM
-   k=;
+  bh=ipt/VilkN22Mf9ExO8hBTkfWqgUC+CwYsHKY9rcI0zE=;
+  b=PT+5OWz15CNNbiGyyrVWGpDczVwTZIAGEZYKnIwJi2Wb3SydCpsvJaoj
+   ZTZ9IVcu+HpMZaVXzsMrAIYqUbMoS7RnjOjdBm5jm72A6YkvPL0CdLLyW
+   qB7dNd5Z/ub2jlC0dSKrMpHDxJk1DJa32fTNN8JjYHY7tKiA/36R8e2Sj
+   Y=;
 X-IronPort-AV: E=Sophos;i="5.88,361,1635206400"; 
-   d="scan'208";a="194120161"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-iad-1e-0bfdb89e.us-east-1.amazon.com) ([10.25.36.214])
-  by smtp-border-fw-9102.sea19.amazon.com with ESMTP; 11 Feb 2022 17:48:37 +0000
+   d="scan'208";a="991450754"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-iad-1e-ccb3efe0.us-east-1.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-9103.sea19.amazon.com with ESMTP; 11 Feb 2022 17:49:15 +0000
 Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-iad-1e-0bfdb89e.us-east-1.amazon.com (Postfix) with ESMTPS id 0A8C0E0019;
-        Fri, 11 Feb 2022 17:48:35 +0000 (UTC)
-Received: from EX13D13UWB002.ant.amazon.com (10.43.161.21) by
+        by email-inbound-relay-iad-1e-ccb3efe0.us-east-1.amazon.com (Postfix) with ESMTPS id 130F4C082F;
+        Fri, 11 Feb 2022 17:49:15 +0000 (UTC)
+Received: from EX13D13UWB004.ant.amazon.com (10.43.161.218) by
  EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
- id 15.0.1497.28; Fri, 11 Feb 2022 17:48:34 +0000
-Received: from EX13MTAUEE002.ant.amazon.com (10.43.62.24) by
- EX13D13UWB002.ant.amazon.com (10.43.161.21) with Microsoft SMTP Server (TLS)
- id 15.0.1497.28; Fri, 11 Feb 2022 17:48:34 +0000
+ id 15.0.1497.28; Fri, 11 Feb 2022 17:49:14 +0000
+Received: from EX13MTAUEA001.ant.amazon.com (10.43.61.82) by
+ EX13D13UWB004.ant.amazon.com (10.43.161.218) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.28; Fri, 11 Feb 2022 17:49:14 +0000
 Received: from dev-dsk-fllinden-2c-d7720709.us-west-2.amazon.com
- (172.19.206.175) by mail-relay.amazon.com (10.43.62.224) with Microsoft SMTP
- Server id 15.0.1497.28 via Frontend Transport; Fri, 11 Feb 2022 17:48:33
+ (172.19.206.175) by mail-relay.amazon.com (10.43.61.243) with Microsoft SMTP
+ Server id 15.0.1497.28 via Frontend Transport; Fri, 11 Feb 2022 17:49:13
  +0000
 Received: by dev-dsk-fllinden-2c-d7720709.us-west-2.amazon.com (Postfix, from userid 6262777)
-        id 67E47E59; Fri, 11 Feb 2022 17:48:33 +0000 (UTC)
+        id 60668E59; Fri, 11 Feb 2022 17:49:13 +0000 (UTC)
 From:   Frank van der Linden <fllinden@amazon.com>
 To:     <stable@vger.kernel.org>
 CC:     Daniel Borkmann <daniel@iogearbox.net>,
         Alexei Starovoitov <ast@kernel.org>,
         Frank van der Linden <fllinden@amazon.com>
-Subject: [PATCH 4.19] bpf: Add kconfig knob for disabling unpriv bpf by default
-Date:   Fri, 11 Feb 2022 17:48:24 +0000
-Message-ID: <20220211174824.26484-1-fllinden@amazon.com>
+Subject: [PATCH 4.14] bpf: Add kconfig knob for disabling unpriv bpf by default
+Date:   Fri, 11 Feb 2022 17:49:09 +0000
+Message-ID: <20220211174909.27148-1-fllinden@amazon.com>
 X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-Spam-Status: No, score=-14.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_SPF_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-11.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -86,7 +85,7 @@ that we added a while ago.
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Link: https://lore.kernel.org/bpf/74ec548079189e4e4dffaeb42b8987bb3c852eee.1620765074.git.daniel@iogearbox.net
-[fllinden@amazon.com: backported to 4.19]
+[fllinden@amazon.com: backported to 4.14]
 Signed-off-by: Frank van der Linden <fllinden@amazon.com>
 ---
  Documentation/sysctl/kernel.txt | 21 +++++++++++++++++++++
@@ -96,10 +95,10 @@ Signed-off-by: Frank van der Linden <fllinden@amazon.com>
  4 files changed, 58 insertions(+), 5 deletions(-)
 
 diff --git a/Documentation/sysctl/kernel.txt b/Documentation/sysctl/kernel.txt
-index 37a679501ddc..8bd3b0153959 100644
+index 694968c7523c..3c8f5bfdf6da 100644
 --- a/Documentation/sysctl/kernel.txt
 +++ b/Documentation/sysctl/kernel.txt
-@@ -94,6 +94,7 @@ show up in /proc/sys/kernel:
+@@ -91,6 +91,7 @@ show up in /proc/sys/kernel:
  - sysctl_writes_strict
  - tainted
  - threads-max
@@ -107,7 +106,7 @@ index 37a679501ddc..8bd3b0153959 100644
  - unknown_nmi_panic
  - watchdog
  - watchdog_thresh
-@@ -1041,6 +1042,26 @@ available RAM pages threads-max is reduced accordingly.
+@@ -999,6 +1000,26 @@ available RAM pages threads-max is reduced accordingly.
  
  ==============================================================
  
@@ -135,12 +134,12 @@ index 37a679501ddc..8bd3b0153959 100644
  
  The value in this file affects behavior of handling NMI. When the
 diff --git a/init/Kconfig b/init/Kconfig
-index b56a125b5a76..0fe4f60c974d 100644
+index be58f0449c68..c87858c434cc 100644
 --- a/init/Kconfig
 +++ b/init/Kconfig
-@@ -1474,6 +1474,16 @@ config BPF_JIT_ALWAYS_ON
- 	  Enables BPF JIT and removes BPF interpreter to avoid
- 	  speculative execution of BPF instructions by the interpreter
+@@ -1378,6 +1378,16 @@ config ADVISE_SYSCALLS
+ 	  applications use these syscalls, you can disable this option to save
+ 	  space.
  
 +config BPF_UNPRIV_DEFAULT_OFF
 +	bool "Disable unprivileged BPF by default"
@@ -156,10 +155,10 @@ index b56a125b5a76..0fe4f60c974d 100644
  	bool "Enable userfaultfd() system call"
  	select ANON_INODES
 diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 353a8d672302..e940c1f65938 100644
+index 21073682061d..59d44f1ad958 100644
 --- a/kernel/bpf/syscall.c
 +++ b/kernel/bpf/syscall.c
-@@ -48,7 +48,8 @@ static DEFINE_SPINLOCK(prog_idr_lock);
+@@ -37,7 +37,8 @@ static DEFINE_SPINLOCK(prog_idr_lock);
  static DEFINE_IDR(map_idr);
  static DEFINE_SPINLOCK(map_idr_lock);
  
@@ -170,10 +169,10 @@ index 353a8d672302..e940c1f65938 100644
  static const struct bpf_map_ops * const bpf_map_types[] = {
  #define BPF_PROG_TYPE(_id, _ops)
 diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index a5d75bc38eea..03af4a493aff 100644
+index 74fc3a9d1923..c9a3e61c88f8 100644
 --- a/kernel/sysctl.c
 +++ b/kernel/sysctl.c
-@@ -250,6 +250,28 @@ static int sysrq_sysctl_handler(struct ctl_table *table, int write,
+@@ -242,6 +242,28 @@ static int sysrq_sysctl_handler(struct ctl_table *table, int write,
  
  #endif
  
@@ -202,7 +201,7 @@ index a5d75bc38eea..03af4a493aff 100644
  static struct ctl_table kern_table[];
  static struct ctl_table vm_table[];
  static struct ctl_table fs_table[];
-@@ -1220,10 +1242,9 @@ static struct ctl_table kern_table[] = {
+@@ -1201,10 +1223,9 @@ static struct ctl_table kern_table[] = {
  		.data		= &sysctl_unprivileged_bpf_disabled,
  		.maxlen		= sizeof(sysctl_unprivileged_bpf_disabled),
  		.mode		= 0644,
