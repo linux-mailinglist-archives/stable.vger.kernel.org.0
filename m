@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22FDB4B214D
-	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:16:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8469F4B2153
+	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 10:16:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348412AbiBKJQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Feb 2022 04:16:10 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57686 "EHLO
+        id S243287AbiBKJQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Feb 2022 04:16:14 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348363AbiBKJQJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:16:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D17B1031
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:16:08 -0800 (PST)
+        with ESMTP id S1348363AbiBKJQL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 04:16:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14F3E102D
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 01:16:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B361EB828BE
-        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:16:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 125CBC340E9;
-        Fri, 11 Feb 2022 09:16:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C26EEB828BB
+        for <stable@vger.kernel.org>; Fri, 11 Feb 2022 09:16:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7439C340E9;
+        Fri, 11 Feb 2022 09:16:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644570965;
-        bh=mhGG2AjV49O06CdLmEDq2wegksXaq+r7Jsgikl+Nk3o=;
+        s=korg; t=1644570968;
+        bh=/qyRzz6yxbDIoDZ4UGLVdLH2e+3tyq1AN49kQedYeoU=;
         h=Subject:To:Cc:From:Date:From;
-        b=Giz9P8OxgFB0ZWvt0nfwFlY5ComYiIPQ9AKJiZWUnWp1sUeDzOkfF3rwznFi5bovI
-         rnjxRZ+LXQ4jZCKZZvme64CFMX9Y7Cei+QVlC06HyxGwETkXfbsCfQxM8SWHNyg0MQ
-         RN8sB58TFw6QAKtsc2rY1qkvB1IlUMFIhGkA/sMw=
-Subject: FAILED: patch "[PATCH] NFSD: Fix NFSv3 SETATTR/CREATE's handling of large file sizes" failed to apply to 4.14-stable tree
+        b=XZth5NmeYn485vnOTEX0DlBPSlJVobm4wvOZ6YrwW6iweov0ZknCPwcjfhUGknun+
+         wOAw0QG0C6UJ9u5ponphxbx4gviWA7OdbTz2X6fB2ZFjeoi1Pqdexpv0ItnDqVGzSB
+         XKMStijWI/Q8gEg8mXihc197fwHHpJ48IrHxl70I=
+Subject: FAILED: patch "[PATCH] NFSD: Fix ia_size underflow" failed to apply to 5.4-stable tree
 To:     chuck.lever@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 11 Feb 2022 10:15:47 +0100
-Message-ID: <16445709476763@kroah.com>
+Date:   Fri, 11 Feb 2022 10:16:05 +0100
+Message-ID: <16445709652235@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,37 +59,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a648fdeb7c0e17177a2280344d015dba3fbe3314 Mon Sep 17 00:00:00 2001
+From e6faac3f58c7c4176b66f63def17a34232a17b0e Mon Sep 17 00:00:00 2001
 From: Chuck Lever <chuck.lever@oracle.com>
-Date: Tue, 25 Jan 2022 15:59:57 -0500
-Subject: [PATCH] NFSD: Fix NFSv3 SETATTR/CREATE's handling of large file sizes
+Date: Mon, 31 Jan 2022 13:01:53 -0500
+Subject: [PATCH] NFSD: Fix ia_size underflow
 
-iattr::ia_size is a loff_t, so these NFSv3 procedures must be
-careful to deal with incoming client size values that are larger
-than s64_max without corrupting the value.
+iattr::ia_size is a loff_t, which is a signed 64-bit type. NFSv3 and
+NFSv4 both define file size as an unsigned 64-bit type. Thus there
+is a range of valid file size values an NFS client can send that is
+already larger than Linux can handle.
 
-Silently capping the value results in storing a different value
-than the client passed in which is unexpected behavior, so remove
-the min_t() check in decode_sattr3().
-
-Note that RFC 1813 permits only the WRITE procedure to return
-NFS3ERR_FBIG. We believe that NFSv3 reference implementations
-also return NFS3ERR_FBIG when ia_size is too large.
+Currently decode_fattr4() dumps a full u64 value into ia_size. If
+that value happens to be larger than S64_MAX, then ia_size
+underflows. I'm about to fix up the NFSv3 behavior as well, so let's
+catch the underflow in the common code path: nfsd_setattr().
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 
-diff --git a/fs/nfsd/nfs3xdr.c b/fs/nfsd/nfs3xdr.c
-index 7c45ba4db61b..2e47a07029f1 100644
---- a/fs/nfsd/nfs3xdr.c
-+++ b/fs/nfsd/nfs3xdr.c
-@@ -254,7 +254,7 @@ svcxdr_decode_sattr3(struct svc_rqst *rqstp, struct xdr_stream *xdr,
- 		if (xdr_stream_decode_u64(xdr, &newsize) < 0)
- 			return false;
- 		iap->ia_valid |= ATTR_SIZE;
--		iap->ia_size = min_t(u64, newsize, NFS_OFFSET_MAX);
-+		iap->ia_size = newsize;
- 	}
- 	if (xdr_stream_decode_u32(xdr, &set_it) < 0)
- 		return false;
+diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
+index 99c2b9dfbb10..0cccceb105e7 100644
+--- a/fs/nfsd/vfs.c
++++ b/fs/nfsd/vfs.c
+@@ -435,6 +435,10 @@ nfsd_setattr(struct svc_rqst *rqstp, struct svc_fh *fhp, struct iattr *iap,
+ 			.ia_size	= iap->ia_size,
+ 		};
+ 
++		host_err = -EFBIG;
++		if (iap->ia_size < 0)
++			goto out_unlock;
++
+ 		host_err = notify_change(&init_user_ns, dentry, &size_attr, NULL);
+ 		if (host_err)
+ 			goto out_unlock;
 
