@@ -2,162 +2,283 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D47144B1E8F
-	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 07:32:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B15D4B1EA2
+	for <lists+stable@lfdr.de>; Fri, 11 Feb 2022 07:42:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235526AbiBKGcv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Feb 2022 01:32:51 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35168 "EHLO
+        id S243409AbiBKGmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Feb 2022 01:42:06 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235382AbiBKGcv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 01:32:51 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 053D1B41
-        for <stable@vger.kernel.org>; Thu, 10 Feb 2022 22:32:47 -0800 (PST)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 21B3MEjK000415;
-        Fri, 11 Feb 2022 06:32:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=jXKheFElz2tshFDk5RL8mCXwO8Jt4F7/tSt2PA8b5s4=;
- b=R/8sIOE3QknCiNC9lY3Q7Qx+6gHrd0SD9tzWJJzPzEVD8trU0Hee58z88XFofvl6BW0S
- qciis18E1onHs/4dBgxBE9yZdP2IEx6ud/nVwFIIeLP/PjbNkLM9MlXSKR7EEN/gD5hX
- 9FS4HQocqbJ1MKT778XlO3U8WY5ERtqXc9qMMXn/BtfSlgHcBshZMOXykqoOf3L8Dkc3
- /VbSBbjz+qOMjGHLhL8Rbra9995BcW90MCx+CcuHyyz3S1lAYJ8Txxe7Q84P+NDeKohb
- JokSsOZaOAeumQz20ks/FpdxB7eeruEmLAbdZ7nlyZz5Y8ihd1BKUcFc04FwABQ83Tk0 TA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e5ekfkmpy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Feb 2022 06:32:35 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 21B6SkQB017507;
-        Fri, 11 Feb 2022 06:32:34 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 3e5ekfkmpr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Feb 2022 06:32:34 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 21B6WH8Y014906;
-        Fri, 11 Feb 2022 06:32:33 GMT
-Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
-        by ppma03dal.us.ibm.com with ESMTP id 3e1gvd3ubw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 11 Feb 2022 06:32:33 +0000
-Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
-        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 21B6WWS930671210
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 11 Feb 2022 06:32:32 GMT
-Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C530BC605D;
-        Fri, 11 Feb 2022 06:32:32 +0000 (GMT)
-Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E6004C6059;
-        Fri, 11 Feb 2022 06:32:29 +0000 (GMT)
-Received: from skywalker.ibmuc.com (unknown [9.43.41.36])
-        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Fri, 11 Feb 2022 06:32:29 +0000 (GMT)
-From:   "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-To:     linux-mm@kvack.org, akpm@linux-foundation.org
-Cc:     mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        Mina Almasry <almasrymina@google.com>
-Subject: [PATCH v2] mm/hugetlb: Fix kernel crash with hugetlb mremap
-Date:   Fri, 11 Feb 2022 12:02:21 +0530
-Message-Id: <20220211063221.99293-1-aneesh.kumar@linux.ibm.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S231462AbiBKGmF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Feb 2022 01:42:05 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09DFD108B;
+        Thu, 10 Feb 2022 22:42:04 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 59B581F3A6;
+        Fri, 11 Feb 2022 06:42:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1644561723; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=5agpn8SSQ2ZS95w4adiIiliOAUBKioisCXUPuhLxlvo=;
+        b=aPPy7FpLVnFhIWnoK2oq+VINCTzLrRgmMdoNiz0yqbGtymTaLAsTgWjQRhZtKHTUZLI3ZB
+        JeNKx0XVCy5DcC7jKs4kFzLdeR67flJ1QXjSII7K/x9eLWu3EfSDJ0gsxkkQYKNFl0L79g
+        McmpvrwWPj4Fiu5uidCyJxtkxYjfXok=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 4ABA813345;
+        Fri, 11 Feb 2022 06:42:02 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id AFTOBToFBmLmUAAAMHmgww
+        (envelope-from <wqu@suse.com>); Fri, 11 Feb 2022 06:42:02 +0000
+From:   Qu Wenruo <wqu@suse.com>
+To:     linux-btrfs@vger.kernel.org
+Cc:     stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>
+Subject: [PATCH v4 1/5] btrfs: defrag: allow defrag_one_cluster() to skip large extent which is not a target
+Date:   Fri, 11 Feb 2022 14:41:39 +0800
+Message-Id: <7eb1b68aa7fee656d18dc552c3557cc1be05be68.1644561438.git.wqu@suse.com>
+X-Mailer: git-send-email 2.35.0
+In-Reply-To: <cover.1644561438.git.wqu@suse.com>
+References: <cover.1644561438.git.wqu@suse.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: M1yUpzTDts4qnUh1Jw9q69F_vffwFjPG
-X-Proofpoint-GUID: os46sPutW89i6yH1VFuTiTong4Yq63rq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-11_02,2022-02-09_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- phishscore=0 suspectscore=0 bulkscore=0 adultscore=0 spamscore=0
- clxscore=1011 priorityscore=1501 lowpriorityscore=0 mlxlogscore=999
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2201110000 definitions=main-2202110036
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This fixes the below crash:
+In the rework of btrfs_defrag_file(), we always call
+defrag_one_cluster() and increase the offset by cluster size, which is
+only 256K.
 
-kernel BUG at include/linux/mm.h:2373!
-cpu 0x5d: Vector: 700 (Program Check) at [c00000003c6e76e0]
-    pc: c000000000581a54: pmd_to_page+0x54/0x80
-    lr: c00000000058d184: move_hugetlb_page_tables+0x4e4/0x5b0
-    sp: c00000003c6e7980
-   msr: 9000000000029033
-  current = 0xc00000003bd8d980
-  paca    = 0xc000200fff610100   irqmask: 0x03   irq_happened: 0x01
-    pid   = 9349, comm = hugepage-mremap
-kernel BUG at include/linux/mm.h:2373!
-[link register   ] c00000000058d184 move_hugetlb_page_tables+0x4e4/0x5b0
-[c00000003c6e7980] c00000000058cecc move_hugetlb_page_tables+0x22c/0x5b0 (unreliable)
-[c00000003c6e7a90] c00000000053b78c move_page_tables+0xdbc/0x1010
-[c00000003c6e7bd0] c00000000053bc34 move_vma+0x254/0x5f0
-[c00000003c6e7c90] c00000000053c790 sys_mremap+0x7c0/0x900
-[c00000003c6e7db0] c00000000002c450 system_call_exception+0x160/0x2c0
+But there are cases where we have a large extent (e.g. 128M) which
+doesn't need to be defragged at all.
 
-the kernel can't use huge_pte_offset before it set the pte entry because a page table
-lookup check for huge PTE bit in the page table to differentiate between a
-huge pte entry and a pointer to pte page. A huge_pte_alloc won't mark the
-page table entry huge and hence kernel should not use huge_pte_offset after
-a huge_pte_alloc.
+Before the refactor, we can directly skip the range, but now we have to
+scan that extent map again and again until the cluster moves after the
+non-target extent.
 
-Fixes: 550a7d60bd5e ("mm, hugepages: add mremap() support for hugepage backed vma")
+Fix the problem by allow defrag_one_cluster() to increase
+btrfs_defrag_ctrl::last_scanned to the end of an extent, if and only if
+the last extent of the cluster is not a target.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Mina Almasry <almasrymina@google.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+The test script looks like this:
+
+	mkfs.btrfs -f $dev > /dev/null
+
+	mount $dev $mnt
+
+	# As btrfs ioctl uses 32M as extent_threshold
+	xfs_io -f -c "pwrite 0 64M" $mnt/file1
+	sync
+	# Some fragemented range to defrag
+	xfs_io -s -c "pwrite 65548k 4k" \
+		  -c "pwrite 65544k 4k" \
+		  -c "pwrite 65540k 4k" \
+		  -c "pwrite 65536k 4k" \
+		  $mnt/file1
+	sync
+
+	echo "=== before ==="
+	xfs_io -c "fiemap -v" $mnt/file1
+	echo "=== after ==="
+	btrfs fi defrag $mnt/file1
+	sync
+	xfs_io -c "fiemap -v" $mnt/file1
+	umount $mnt
+
+With extra ftrace put into defrag_one_cluster(), before the patch it
+would result tons of loops:
+
+(As defrag_one_cluster() is inlined, the function name is its caller)
+
+  btrfs-126062  [005] .....  4682.816026: btrfs_defrag_file: r/i=5/257 start=0 len=262144
+  btrfs-126062  [005] .....  4682.816027: btrfs_defrag_file: r/i=5/257 start=262144 len=262144
+  btrfs-126062  [005] .....  4682.816028: btrfs_defrag_file: r/i=5/257 start=524288 len=262144
+  btrfs-126062  [005] .....  4682.816028: btrfs_defrag_file: r/i=5/257 start=786432 len=262144
+  btrfs-126062  [005] .....  4682.816028: btrfs_defrag_file: r/i=5/257 start=1048576 len=262144
+  ...
+  btrfs-126062  [005] .....  4682.816043: btrfs_defrag_file: r/i=5/257 start=67108864 len=262144
+
+But with this patch there will be just one loop, then directly to the
+end of the extent:
+
+  btrfs-130471  [014] .....  5434.029558: defrag_one_cluster: r/i=5/257 start=0 len=262144
+  btrfs-130471  [014] .....  5434.029559: defrag_one_cluster: r/i=5/257 start=67108864 len=16384
+
+Cc: stable@vger.kernel.org # 5.16
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
 ---
- mm/hugetlb.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ fs/btrfs/ioctl.c | 50 ++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 40 insertions(+), 10 deletions(-)
 
-Changes from v1:
-* Add Fixes: tag
-* Add Reviewed-by: 
-
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 61895cc01d09..e57650a9404f 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4851,14 +4851,13 @@ int copy_hugetlb_page_range(struct mm_struct *dst, struct mm_struct *src,
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index e7a284239393..fa4d29026275 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -1204,9 +1204,11 @@ struct defrag_target_range {
+  */
+ static int defrag_collect_targets(struct btrfs_inode *inode,
+ 				  u64 start, u64 len, u32 extent_thresh,
+-				  u64 newer_than, bool do_compress,
+-				  bool locked, struct list_head *target_list)
++				  u64 newer_than, bool do_compress, bool locked,
++				  struct list_head *target_list,
++				  u64 *last_scanned_ret)
+ {
++	bool last_is_target = false;
+ 	u64 cur = start;
+ 	int ret = 0;
+ 
+@@ -1216,6 +1218,7 @@ static int defrag_collect_targets(struct btrfs_inode *inode,
+ 		bool next_mergeable = true;
+ 		u64 range_len;
+ 
++		last_is_target = false;
+ 		em = defrag_lookup_extent(&inode->vfs_inode, cur, locked);
+ 		if (!em)
+ 			break;
+@@ -1298,6 +1301,7 @@ static int defrag_collect_targets(struct btrfs_inode *inode,
+ 		}
+ 
+ add:
++		last_is_target = true;
+ 		range_len = min(extent_map_end(em), start + len) - cur;
+ 		/*
+ 		 * This one is a good target, check if it can be merged into
+@@ -1341,6 +1345,17 @@ static int defrag_collect_targets(struct btrfs_inode *inode,
+ 			kfree(entry);
+ 		}
+ 	}
++	if (!ret && last_scanned_ret) {
++		/*
++		 * If the last extent is not a target, the caller can skip to
++		 * the end of that extent.
++		 * Otherwise, we can only go the end of the spcified range.
++		 */
++		if (!last_is_target)
++			*last_scanned_ret = max(cur, *last_scanned_ret);
++		else
++			*last_scanned_ret = max(start + len, *last_scanned_ret);
++	}
+ 	return ret;
  }
  
- static void move_huge_pte(struct vm_area_struct *vma, unsigned long old_addr,
--			  unsigned long new_addr, pte_t *src_pte)
-+			  unsigned long new_addr, pte_t *src_pte, pte_t *dst_pte)
+@@ -1400,7 +1415,8 @@ static int defrag_one_locked_target(struct btrfs_inode *inode,
+ }
+ 
+ static int defrag_one_range(struct btrfs_inode *inode, u64 start, u32 len,
+-			    u32 extent_thresh, u64 newer_than, bool do_compress)
++			    u32 extent_thresh, u64 newer_than, bool do_compress,
++			    u64 *last_scanned_ret)
  {
- 	struct hstate *h = hstate_vma(vma);
- 	struct mm_struct *mm = vma->vm_mm;
--	pte_t *dst_pte, pte;
- 	spinlock_t *src_ptl, *dst_ptl;
-+	pte_t pte;
+ 	struct extent_state *cached_state = NULL;
+ 	struct defrag_target_range *entry;
+@@ -1446,7 +1462,7 @@ static int defrag_one_range(struct btrfs_inode *inode, u64 start, u32 len,
+ 	 */
+ 	ret = defrag_collect_targets(inode, start, len, extent_thresh,
+ 				     newer_than, do_compress, true,
+-				     &target_list);
++				     &target_list, last_scanned_ret);
+ 	if (ret < 0)
+ 		goto unlock_extent;
  
--	dst_pte = huge_pte_offset(mm, new_addr, huge_page_size(h));
- 	dst_ptl = huge_pte_lock(h, mm, dst_pte);
- 	src_ptl = huge_pte_lockptr(h, mm, src_pte);
+@@ -1481,7 +1497,8 @@ static int defrag_one_cluster(struct btrfs_inode *inode,
+ 			      u64 start, u32 len, u32 extent_thresh,
+ 			      u64 newer_than, bool do_compress,
+ 			      unsigned long *sectors_defragged,
+-			      unsigned long max_sectors)
++			      unsigned long max_sectors,
++			      u64 *last_scanned_ret)
+ {
+ 	const u32 sectorsize = inode->root->fs_info->sectorsize;
+ 	struct defrag_target_range *entry;
+@@ -1491,7 +1508,7 @@ static int defrag_one_cluster(struct btrfs_inode *inode,
  
-@@ -4917,7 +4916,7 @@ int move_hugetlb_page_tables(struct vm_area_struct *vma,
- 		if (!dst_pte)
+ 	ret = defrag_collect_targets(inode, start, len, extent_thresh,
+ 				     newer_than, do_compress, false,
+-				     &target_list);
++				     &target_list, NULL);
+ 	if (ret < 0)
+ 		goto out;
+ 
+@@ -1508,6 +1525,15 @@ static int defrag_one_cluster(struct btrfs_inode *inode,
+ 			range_len = min_t(u32, range_len,
+ 				(max_sectors - *sectors_defragged) * sectorsize);
+ 
++		/*
++		 * If defrag_one_range() has updated last_scanned_ret,
++		 * our range may already be invalid (e.g. hole punched).
++		 * Skip if our range is before last_scanned_ret, as there is
++		 * no need to defrag the range anymore.
++		 */
++		if (entry->start + range_len <= *last_scanned_ret)
++			continue;
++
+ 		if (ra)
+ 			page_cache_sync_readahead(inode->vfs_inode.i_mapping,
+ 				ra, NULL, entry->start >> PAGE_SHIFT,
+@@ -1520,7 +1546,8 @@ static int defrag_one_cluster(struct btrfs_inode *inode,
+ 		 * accounting.
+ 		 */
+ 		ret = defrag_one_range(inode, entry->start, range_len,
+-				       extent_thresh, newer_than, do_compress);
++				       extent_thresh, newer_than, do_compress,
++				       last_scanned_ret);
+ 		if (ret < 0)
  			break;
- 
--		move_huge_pte(vma, old_addr, new_addr, src_pte);
-+		move_huge_pte(vma, old_addr, new_addr, src_pte, dst_pte);
+ 		*sectors_defragged += range_len >>
+@@ -1531,6 +1558,8 @@ static int defrag_one_cluster(struct btrfs_inode *inode,
+ 		list_del_init(&entry->list);
+ 		kfree(entry);
  	}
- 	flush_tlb_range(vma, old_end - len, old_end);
- 	mmu_notifier_invalidate_range_end(&range);
++	if (ret >= 0)
++		*last_scanned_ret = max(*last_scanned_ret, start + len);
+ 	return ret;
+ }
+ 
+@@ -1616,6 +1645,7 @@ int btrfs_defrag_file(struct inode *inode, struct file_ra_state *ra,
+ 
+ 	while (cur < last_byte) {
+ 		const unsigned long prev_sectors_defragged = sectors_defragged;
++		u64 last_scanned = cur;
+ 		u64 cluster_end;
+ 
+ 		if (btrfs_defrag_cancelled(fs_info)) {
+@@ -1642,8 +1672,8 @@ int btrfs_defrag_file(struct inode *inode, struct file_ra_state *ra,
+ 			BTRFS_I(inode)->defrag_compress = compress_type;
+ 		ret = defrag_one_cluster(BTRFS_I(inode), ra, cur,
+ 				cluster_end + 1 - cur, extent_thresh,
+-				newer_than, do_compress,
+-				&sectors_defragged, max_to_defrag);
++				newer_than, do_compress, &sectors_defragged,
++				max_to_defrag, &last_scanned);
+ 
+ 		if (sectors_defragged > prev_sectors_defragged)
+ 			balance_dirty_pages_ratelimited(inode->i_mapping);
+@@ -1651,7 +1681,7 @@ int btrfs_defrag_file(struct inode *inode, struct file_ra_state *ra,
+ 		btrfs_inode_unlock(inode, 0);
+ 		if (ret < 0)
+ 			break;
+-		cur = cluster_end + 1;
++		cur = max(cluster_end + 1, last_scanned);
+ 		if (ret > 0) {
+ 			ret = 0;
+ 			break;
 -- 
-2.34.1
+2.35.0
 
