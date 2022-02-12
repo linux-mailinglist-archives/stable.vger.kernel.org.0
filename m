@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A26274B33F6
-	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 09:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 364F14B33FF
+	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 10:17:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232632AbiBLI7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Feb 2022 03:59:24 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59058 "EHLO
+        id S232844AbiBLJRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Feb 2022 04:17:48 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229726AbiBLI7Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 03:59:24 -0500
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF3162613A
-        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 00:59:19 -0800 (PST)
-Received: by mail-pf1-x434.google.com with SMTP id m22so1135234pfk.6
-        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 00:59:19 -0800 (PST)
+        with ESMTP id S229726AbiBLJRs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 04:17:48 -0500
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7508926562
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 01:17:43 -0800 (PST)
+Received: by mail-pf1-x42e.google.com with SMTP id a39so19581774pfx.7
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 01:17:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=pPPEUc4qyMDUNwJ4FZgXQAOmTS+NGKw/jTxOkahTnlM=;
-        b=24r/r46KBvaTK0yoXI4Nbc/44Ya5bsffyGsx09J5q6z5pXv8jFl7vjJiQ9WSCn5LT5
-         C9bpo4vUpnH1BPj8wJsDRNFQhI9Vyw48iGPQeJZu+QPLROy7f+k4kmdkTGSlSiX4ScXP
-         JE40U5fT/D2L8Yc+NrmZik3UHR2R8I8my/GzmPBL84564FxDuVhi50vgdbmOLP0HN0h1
-         E2Pt9H8KevkeQCmWHhpnA2cvvE8G4/MGVUg6MXMgh1CI1T3mBEtGDdXNor5V0DfChLsx
-         XnUlP+0VIJkU35yslzp1k2+gOj54eKQ4pFD/hxRdfRwTPLYS0PkzHY20bykcBxgEdiaM
-         at2Q==
+        bh=uUYtyT1D/a76hYgu/2QYGg2RSNLRQZUZqN8H9RpA66k=;
+        b=veSdkC2axW2PSZMNiTlieeN0+vgi76ZqAcgEwgLgK9ztWCTljDIgfe5awy4lsVN0Wt
+         Ha5Cu9KaMl6qK2Ne6hbHFl6U01mTjSDNU4No4zU6Gx2tlm3rWApPh+/ZCLRDBRcZoHzn
+         PW2vw4KrcbN/VALZOBcNeJhfmUE9W08fvjSWLP2snz3lkkF+VNNtcbn1AuL6sJaCiptL
+         wkwXbyzx+C4h+smBn0kGwzvsQm9vNMmgAk6jiR+4GZuL/j9NZoTnRNSbSuj1VoJW1A+4
+         ZRzoOkd6NEfA03qGcHh7LvpKd0lvahaAcWGxJxRrhxHlsJUYclVmX7qCvq3JjW9dAFoe
+         +ngw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=pPPEUc4qyMDUNwJ4FZgXQAOmTS+NGKw/jTxOkahTnlM=;
-        b=JN7IIjY597G9yn23u5UddNM+oFnY9IuOyX031Mez8JHGvI3iQWeSnAx3EdDEEJyWEW
-         wQb9+xbDdCP+Uhpy99ALgwVidzGKoaA82IT23Djw/VOjhHfB+MS+64V05hOCqV1VPXA5
-         DHZj0DFL3zDM7aO/bBuGkBrOxI7j//wU6oWgV8I0r1KsfkG8Btl/pADWuIyXHyFmYL4V
-         sX37MUNY+yjZsaGL+11ka94Sam8AXVld6NI19QG5mf2Mb+Cr0FAqh4kRaY8kalkd6nDP
-         HzmIz/ur0jorOXxAXAvazUkZ8r9eGTxZeSQ6uiyXgtCAsNQNq7Kl8tT1Lh/dlOLPROs3
-         lVuw==
-X-Gm-Message-State: AOAM531xh3c1upUbzPHJsaLEZFNBdg2kuDHbfN5G+QBuzqxMRHR/Ze61
-        6aTJrwKf8H0BybCwpuMeKe1sUzkNlnQ/0FTP
-X-Google-Smtp-Source: ABdhPJxwgvqFFKdi+tSoxnmdRpr0ebKMWfzn3+HMF5x9ZmUjBMdlr1pj6vVbzC5Xc/dXjRM3xQzSAg==
-X-Received: by 2002:aa7:8082:: with SMTP id v2mr5379292pff.17.1644656358410;
-        Sat, 12 Feb 2022 00:59:18 -0800 (PST)
+        bh=uUYtyT1D/a76hYgu/2QYGg2RSNLRQZUZqN8H9RpA66k=;
+        b=IpNeYDNNQcdgGjyZSaHuxqG6xHGVY4L1+tGT0Gb9qL02uoYCCuc+PP3wj10YJOWSgL
+         jP75emBj+m8uq8jusqHlBmtRVF0ibK4F/4BHT+t8h2h7NtySnt4b/nsw9CGY7M6P6Gvt
+         EtxmXUGE8s+DRm6JmiG9h/u5jWRLeBDMaTw+2vGP7p0xGbZjvTv1QNVuo3rI6gKnBRxM
+         3H6Jb4h2vyuIQMCUFzHMt7Ab8pyVnSJRSikbgKOMupF0BW2/IaKbsqwjRmd0uv2z9ZaR
+         slXEAfHkLSo8xbEJUqIz+KnXzYUdfzko25RA5x27A+WvcPkrCF7u9yKRRH+f5iHaQjYg
+         S7Pg==
+X-Gm-Message-State: AOAM531km8kyKSGuOUHs779Qy9vE0148CF1ww5fZWy+VTAoeP/2xMEm7
+        OJudAbfqh74Znc6Gm9tLqXnR0mrecQujO5w9
+X-Google-Smtp-Source: ABdhPJyaImxuqZ6Wic5AwOVnYlYTem6wf0zKbgxCcC+NdpXP9NhlSZcn47D9RurhUfz71Fvpe/CrjQ==
+X-Received: by 2002:a62:e508:: with SMTP id n8mr5355121pff.83.1644657461939;
+        Sat, 12 Feb 2022 01:17:41 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j5sm8178652pjs.45.2022.02.12.00.59.17
+        by smtp.gmail.com with ESMTPSA id l12sm7563883pjq.57.2022.02.12.01.17.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 12 Feb 2022 00:59:18 -0800 (PST)
-Message-ID: <620776e6.1c69fb81.86f8.36cb@mx.google.com>
-Date:   Sat, 12 Feb 2022 00:59:18 -0800 (PST)
+        Sat, 12 Feb 2022 01:17:41 -0800 (PST)
+Message-ID: <62077b35.1c69fb81.a14b9.2f39@mx.google.com>
+Date:   Sat, 12 Feb 2022 01:17:41 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Kernel: v4.14.266-16-g40c28e8427e1
-Subject: stable-rc/queue/4.14 build: 189 builds: 3 failed, 186 passed, 2 errors,
- 31 warnings (v4.14.266-16-g40c28e8427e1)
+X-Kernelci-Branch: queue/5.16
+X-Kernelci-Kernel: v5.16.9-72-gf3bfd09ed60d
+Subject: stable-rc/queue/5.16 build: 161 builds: 5 failed, 156 passed,
+ 100 errors, 4 warnings (v5.16.9-72-gf3bfd09ed60d)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,19 +70,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 build: 189 builds: 3 failed, 186 passed, 2 errors, 31 =
-warnings (v4.14.266-16-g40c28e8427e1)
+stable-rc/queue/5.16 build: 161 builds: 5 failed, 156 passed, 100 errors, 4=
+ warnings (v5.16.9-72-gf3bfd09ed60d)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-4/kernel/v4.14.266-16-g40c28e8427e1/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+6/kernel/v5.16.9-72-gf3bfd09ed60d/
 
 Tree: stable-rc
-Branch: queue/4.14
-Git Describe: v4.14.266-16-g40c28e8427e1
-Git Commit: 40c28e8427e18f2bd65b53b158b32da5e26a87e8
+Branch: queue/5.16
+Git Describe: v5.16.9-72-gf3bfd09ed60d
+Git Commit: f3bfd09ed60d0a14055aaacc639d1ff70bfc4750
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 6 unique architectures
+Built: 7 unique architectures
 
 Build Failures Detected:
 
@@ -90,64 +90,243 @@ arm:
     rpc_defconfig: (gcc-10) FAIL
 
 mips:
+    cavium_octeon_defconfig: (gcc-10) FAIL
+    decstation_64_defconfig: (gcc-10) FAIL
     ip27_defconfig: (gcc-10) FAIL
     ip28_defconfig: (gcc-10) FAIL
 
 Errors and Warnings Detected:
 
 arc:
+    tinyconfig (gcc-10): 1 warning
 
 arm64:
 
 arm:
-    omap1_defconfig (gcc-10): 1 warning
     rpc_defconfig (gcc-10): 2 errors
-    s3c2410_defconfig (gcc-10): 1 warning
 
 i386:
-    allnoconfig (gcc-10): 3 warnings
-    i386_defconfig (gcc-10): 3 warnings
-    tinyconfig (gcc-10): 3 warnings
 
 mips:
-    malta_qemu_32r6_defconfig (gcc-10): 1 warning
-    mtx1_defconfig (gcc-10): 3 warnings
+    32r2el_defconfig (gcc-10): 1 warning
+    bigsur_defconfig (gcc-10): 1 error
+    cavium_octeon_defconfig (gcc-10): 92 errors
+    ci20_defconfig (gcc-10): 1 warning
+    decstation_64_defconfig (gcc-10): 1 error
+    fuloong2e_defconfig (gcc-10): 1 error
+    loongson2k_defconfig (gcc-10): 1 error
+    loongson3_defconfig (gcc-10): 1 error
+    rm200_defconfig (gcc-10): 1 warning
+    sb1250_swarm_defconfig (gcc-10): 1 error
+
+riscv:
 
 x86_64:
-    allnoconfig (gcc-10): 4 warnings
-    tinyconfig (gcc-10): 4 warnings
-    x86_64_defconfig (gcc-10): 4 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 4 warnings
 
 Errors summary:
 
-    1    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
-    1    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
-h=3D=E2=80=99
+    6    expr: syntax error: unexpected argument =E2=80=980xffffffff8000000=
+0=E2=80=99
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:399: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:375: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:372: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:371: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:371: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:370: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:370: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:369: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:369: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:368: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:368: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:367: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:367: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:366: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:366: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:350: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:348: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:347: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:337: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:336: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p2u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:335: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p3u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:334: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p4u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:332: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:331: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:330: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:329: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:328: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:327: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:325: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:324: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:310: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:305: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:298: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:295: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:288: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:285: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:270: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:269: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p2u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:268: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p3u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:267: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p4u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:265: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:264: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:263: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:262: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:251: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:250: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p2u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:249: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p3u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:248: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p4u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:247: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:246: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:245: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:244: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:243: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p5u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:242: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p6u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:241: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p7u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:240: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p8u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:238: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:237: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:236: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:235: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:221: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p1u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:220: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p2u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:219: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p3u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:218: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p4u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:217: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy_rewind16'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:216: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy_rewind16'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:215: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy_rewind16'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:214: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy_rewind16'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:213: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p5u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:212: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p6u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:211: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p7u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:210: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p8u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:209: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy_rewind16'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:208: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy_rewind16'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:207: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy_rewind16'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:206: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy_rewind16'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:204: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p9u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:202: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p10u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:201: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p11u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:200: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p12u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:199: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:198: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:197: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:196: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:195: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p13u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:194: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p14u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:193: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p15u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:192: Error: unrecognized o=
+pcode `ptr 9b,s_exc_p16u'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:190: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:189: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:188: Error: unrecognized o=
+pcode `ptr 9b,l_exc_copy'
+    1    arch/mips/cavium-octeon/octeon-memcpy.S:187: Error: unrecognized o=
+pcode `ptr 9b,l_exc'
+    1    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r7,=
+=3D0x'
+    1    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r3,=
+=3D0x'
 
 Warnings summary:
 
-    7    ld: warning: creating DT_TEXTREL in a PIE
-    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
-d-only section `.head.text'
-    4    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic s=
-uffix given and no register operands; using default for `sysret'
-    4    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
-' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
-    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
-d-only section `.head.text'
-    3    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
-    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    {standard input}:30: Warning: macro instruction expanded into mult=
-iple instructions
-    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    drivers/tty/serial/samsung.c:1794:34: warning: array =E2=80=98s3c2=
-4xx_uart_dt_match=E2=80=99 assumed to have one element
-    1    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpi=
-o_match=E2=80=99 assumed to have one element
+    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    1    arch/mips/boot/dts/ingenic/jz4780.dtsi:473.33-475.6: Warning (unit=
+_address_format): /nemc@13410000/efuse@d0/eth-mac-addr@0x22: unit name shou=
+ld not have leading "0x"
+    1    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_devic=
+e_reg): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expec=
+ted "0,0"
+    1    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' i=
+s unknown, fallback to ''
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -158,44 +337,18 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
-mismatches
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
 
 Warnings:
-    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_device_reg=
+): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expected "=
+0,0"
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
@@ -204,7 +357,7 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
 mismatches
 
 ---------------------------------------------------------------------------=
@@ -279,6 +432,15 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
 bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
 
@@ -294,8 +456,194 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 FAIL, 92 errors, 0 warning=
+s, 0 section mismatches
+
+Errors:
+    arch/mips/cavium-octeon/octeon-memcpy.S:187: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:188: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:189: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:190: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:192: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p16u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:193: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p15u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:194: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p14u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:195: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p13u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:196: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:197: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:198: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:199: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:200: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p12u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:201: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p11u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:202: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p10u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:204: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p9u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:206: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy_rewind16'
+    arch/mips/cavium-octeon/octeon-memcpy.S:207: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy_rewind16'
+    arch/mips/cavium-octeon/octeon-memcpy.S:208: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy_rewind16'
+    arch/mips/cavium-octeon/octeon-memcpy.S:209: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy_rewind16'
+    arch/mips/cavium-octeon/octeon-memcpy.S:210: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p8u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:211: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p7u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:212: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p6u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:213: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p5u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:214: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy_rewind16'
+    arch/mips/cavium-octeon/octeon-memcpy.S:215: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy_rewind16'
+    arch/mips/cavium-octeon/octeon-memcpy.S:216: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy_rewind16'
+    arch/mips/cavium-octeon/octeon-memcpy.S:217: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy_rewind16'
+    arch/mips/cavium-octeon/octeon-memcpy.S:218: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p4u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:219: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p3u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:220: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p2u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:221: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:235: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:236: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:237: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:238: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:240: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p8u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:241: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p7u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:242: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p6u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:243: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p5u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:244: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:245: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:246: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:247: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:248: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p4u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:249: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p3u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:250: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p2u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:251: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:262: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:263: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:264: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:265: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:267: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p4u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:268: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p3u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:269: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p2u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:270: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:285: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:288: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:295: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:298: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:305: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:310: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:324: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:325: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:327: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:328: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:329: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:330: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:331: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:332: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:334: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p4u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:335: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p3u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:336: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p2u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:337: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:347: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:348: Error: unrecognized opcode=
+ `ptr 9b,l_exc_copy'
+    arch/mips/cavium-octeon/octeon-memcpy.S:350: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1u'
+    arch/mips/cavium-octeon/octeon-memcpy.S:366: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:366: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1'
+    arch/mips/cavium-octeon/octeon-memcpy.S:367: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:367: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1'
+    arch/mips/cavium-octeon/octeon-memcpy.S:368: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:368: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1'
+    arch/mips/cavium-octeon/octeon-memcpy.S:369: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:369: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1'
+    arch/mips/cavium-octeon/octeon-memcpy.S:370: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:370: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1'
+    arch/mips/cavium-octeon/octeon-memcpy.S:371: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:371: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1'
+    arch/mips/cavium-octeon/octeon-memcpy.S:372: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
+    arch/mips/cavium-octeon/octeon-memcpy.S:375: Error: unrecognized opcode=
+ `ptr 9b,s_exc_p1'
+    arch/mips/cavium-octeon/octeon-memcpy.S:399: Error: unrecognized opcode=
+ `ptr 9b,l_exc'
 
 ---------------------------------------------------------------------------=
 -----
@@ -304,17 +652,22 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
 
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+Warnings:
+    arch/mips/boot/dts/ingenic/jz4780.dtsi:473.33-475.6: Warning (unit_addr=
+ess_format): /nemc@13410000/efuse@d0/eth-mac-addr@0x22: unit name should no=
+t have leading "0x"
 
 ---------------------------------------------------------------------------=
 -----
 cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 ---------------------------------------------------------------------------=
@@ -339,6 +692,16 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
 davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
@@ -349,8 +712,17 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings,=
+ 0 section mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -359,8 +731,8 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
-ings, 0 section mismatches
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -374,23 +746,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
 ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -409,8 +766,17 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -454,20 +820,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
@@ -491,17 +845,7 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
 iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
@@ -517,11 +861,6 @@ on mismatches
 ---------------------------------------------------------------------------=
 -----
 ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
 ---------------------------------------------------------------------------=
@@ -551,26 +890,6 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
 loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
@@ -581,8 +900,21 @@ loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+loongson2k_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 =
 section mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -611,11 +943,6 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
 malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -626,17 +953,8 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
 gs, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
-g, 0 section mismatches
-
-Warnings:
-    {standard input}:30: Warning: macro instruction expanded into multiple =
-instructions
 
 ---------------------------------------------------------------------------=
 -----
@@ -665,13 +983,13 @@ maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 
 ---------------------------------------------------------------------------=
 -----
-markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -690,21 +1008,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
-Warnings:
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
 
 ---------------------------------------------------------------------------=
 -----
@@ -728,16 +1033,6 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
 neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
@@ -748,33 +1043,18 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
 nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+nommu_k210_sdcard_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 war=
+nings, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -788,27 +1068,8 @@ s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpio_mat=
-ch=E2=80=99 assumed to have one element
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -827,6 +1088,11 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -842,23 +1108,8 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
 pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -887,17 +1138,7 @@ pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
 qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 ---------------------------------------------------------------------------=
@@ -917,8 +1158,11 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/block/paride/bpck.c:32: warning: "PC" redefined
 
 ---------------------------------------------------------------------------=
 -----
@@ -926,9 +1170,13 @@ rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
  mismatches
 
 Errors:
-    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
-    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
-=E2=80=99
+    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r7,=3D0x'
+    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r3,=3D0x'
+
+---------------------------------------------------------------------------=
+-----
+rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -937,12 +1185,13 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
-Warnings:
-    drivers/tty/serial/samsung.c:1794:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -956,8 +1205,17 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
+sama7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, =
+0 section mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -991,11 +1249,6 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
 spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
@@ -1008,11 +1261,6 @@ on mismatches
 -----
 sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1041,39 +1289,22 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
-ismatches
-
-Warnings:
-    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
 
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
 Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' is unk=
+nown, fallback to ''
 
 ---------------------------------------------------------------------------=
 -----
@@ -1082,18 +1313,8 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
 u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1112,6 +1333,11 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
+vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
 viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
@@ -1122,41 +1348,18 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
 workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 s=
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-4 warnings, 0 section mismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
+0 warnings, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1165,18 +1368,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
 zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
 
 ---
 For more info write to <info@kernelci.org>
