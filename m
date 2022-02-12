@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C9DF4B3409
-	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 10:27:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A6E54B3408
+	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 10:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232997AbiBLJ17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Feb 2022 04:27:59 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38780 "EHLO
+        id S232984AbiBLJ1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Feb 2022 04:27:49 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229595AbiBLJ16 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 04:27:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 996DA2655A
-        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 01:27:55 -0800 (PST)
+        with ESMTP id S229595AbiBLJ1s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 04:27:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5815A2655A
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 01:27:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E1AAB800A0
-        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 09:27:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 160A0C340EB;
-        Sat, 12 Feb 2022 09:27:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7E8F60B43
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 09:27:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8F1CC340EB;
+        Sat, 12 Feb 2022 09:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644658072;
-        bh=Ojw7i9gM36r0bSeAMsXDcHoGSCSHp+DD/Wf31s8yspg=;
+        s=korg; t=1644658064;
+        bh=VwCmHRxdIcYFbHO8SAUvHJVwfxwN7gGmUzfnSeIM53o=;
         h=Subject:To:Cc:From:Date:From;
-        b=kBcg7+S9s/9zUbAjrwAlyZ3/X6SWLdMDewNMDwattZa6Drd3uDBBsZjD/Mi375byH
-         U5FcdSMEAcso+Hoxk3EyH0JdH9xUGh157JMpqgWhdjolyWxS++1+ybeMFLaI9Dh4yH
-         5/9kjGlH0M8p5DAfd7mvKoFEOqzL/QLe0Kj1yWpI=
-Subject: FAILED: patch "[PATCH] riscv/mm: Add XIP_FIXUP for riscv_pfn_base" failed to apply to 5.15-stable tree
+        b=USR0MEltWU86cywbaC3EiWI8SqXdfmxB9zz8I7MiXhslbRAxZ9pkS0TYAOUjMMziW
+         1YQLdyVwtlDyfzkZX4E3wLUXnnCHL9dwpLUY6DWHIB/NgcyZIKjZoCFajrMw6GvlqJ
+         qTHTDTq1av4NMpEPOS91f2nBi6zaHDiZeGFTrFPI=
+Subject: FAILED: patch "[PATCH] riscv/mm: Add XIP_FIXUP for riscv_pfn_base" failed to apply to 5.16-stable tree
 To:     palmer@rivosinc.com, gatecat@ds0.me
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 12 Feb 2022 10:27:41 +0100
-Message-ID: <16446580617237@kroah.com>
+Message-ID: <1644658061145163@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
