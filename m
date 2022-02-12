@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F05B34B340A
-	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 10:30:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5848B4B340B
+	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 10:30:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229660AbiBLJa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Feb 2022 04:30:26 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39344 "EHLO
+        id S233046AbiBLJae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Feb 2022 04:30:34 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229595AbiBLJaZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 04:30:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB7F2655A
-        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 01:30:21 -0800 (PST)
+        with ESMTP id S229595AbiBLJae (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 04:30:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 225DB2655A
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 01:30:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E946C60B43
-        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 09:30:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83F6FC340E7;
-        Sat, 12 Feb 2022 09:30:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3824B8009F
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 09:30:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E06EAC340E7;
+        Sat, 12 Feb 2022 09:30:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644658220;
-        bh=/C+bZG6fa04eVWm6q4wo5IJoRsIVHpMYUoHoL35RAMM=;
+        s=korg; t=1644658228;
+        bh=nmkVN70O0Ih6sUbvr4603fopfuznLFDeQ9IySXTg3Tc=;
         h=Subject:To:Cc:From:Date:From;
-        b=0zZXplS6H6x2LeOpmSfAgFc690+uqAYA7JJKG4R7THndFBrTMgUtJ5CejdvM49WPi
-         neSu9Horbexn8awCfVuKo+BGj4yXbWUjKq78hRcsUP0KA0dtWQdWrdebxYi+77Iexc
-         JFBAD9PhawxWtR60IyS/as3QpOqupCyEvo1MXdbo=
-Subject: FAILED: patch "[PATCH] optee: use driver internal tee_context for some rpc" failed to apply to 5.16-stable tree
+        b=OtYcTfKMANFkiwS4dmJp4285hT8fCE3fduH/z+GD0LnMaEGDP/5uN9F9Pu6LJezQN
+         DAW35mjmOc1PaGciu+HNwN7exgLF05X2xD9/PXYe2rAReIEUmGCBt7tlYGJXfONMez
+         ZBxbQqz+eiRicsujsa5yr7rXECIbHvkF/1NUDuLc=
+Subject: FAILED: patch "[PATCH] optee: use driver internal tee_context for some rpc" failed to apply to 5.15-stable tree
 To:     jens.wiklander@linaro.org, larper@axis.com, sumit.garg@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 12 Feb 2022 10:30:16 +0100
-Message-ID: <1644658216248129@kroah.com>
+Date:   Sat, 12 Feb 2022 10:30:17 +0100
+Message-ID: <164465821713830@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
