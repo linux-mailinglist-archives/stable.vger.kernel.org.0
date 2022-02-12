@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED3714B36CF
-	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 18:26:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E1574B36DC
+	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 18:45:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234230AbiBLR0u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Feb 2022 12:26:50 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44506 "EHLO
+        id S230479AbiBLRpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Feb 2022 12:45:42 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:51418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230185AbiBLR0t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 12:26:49 -0500
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 800A1240A4
-        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 09:26:45 -0800 (PST)
-Received: by mail-pl1-x636.google.com with SMTP id l8so1172684pls.7
-        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 09:26:45 -0800 (PST)
+        with ESMTP id S229697AbiBLRpl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 12:45:41 -0500
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35C142FFCC
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 09:45:37 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id l19so16036934pfu.2
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 09:45:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=RadtJeIevydZ6H5rlO6K03w6REkSqYlDfDusG8jGGwo=;
-        b=55qSNUpTtc0Hs6iOk7bVYa2lK1ScR7W9Ry9gIynSmFZBd9chJxGbPrGvO2G76HHoTm
-         hbBybXG7RNl5qsNMkwud9uXw5zGWxHyp6AFD3WDGXTJbNFNYoP96F1LTrtVvGwhQhbaf
-         FAjClOtruXNznDqshuQKMvbAjBGsFaB2fHRIM3hVq06svoit0CzYUAHZV+nuVRcJyWba
-         gpdEOWCusWFMKhSxqz1YK9YH2WvJJHpQZBSCE0hhw1/a1XoQ+30UX3c7zowYDFDMLAe9
-         zvS+ZIyhi3AGVgTkpt18JmiJpbWwufB2s3r0QC5Rr++AqdpgRbOC5lhNa++1dWuCl08x
-         y3/w==
+        bh=LMu4ThFUzmTNV1yb1w82rOLBXmQDfPJDAn/jnGPQdjw=;
+        b=kwpna2xfnN+8Lk7gEeOHsTT21Q9mzHv1AkstPu4nzAmdq4vMsemZXW75ol5CxNhp8s
+         omUbx6J51OhflZoruIDX/XlV8fvL3EsaCZG+NaQmrdTrzoetdYpiUMOJ0TQfcGF+SQFF
+         rWeR95ttGRa2mkNCi7QsMwsYDJ6E7l6G21BWyK0TXScu46Qk/7u/fdE5mvKTtnvZoLst
+         5sSaVFCqiRCWfKUoI5W0w6iyoj+vJsrplFprDwEGmv+VabJpxwp08ioBbYjI8yYvKsGe
+         CDh+KuOaQqc3b3fVWpmykfXMMAMHZ0JTqP4yMzGMAlIfTDvwIiuhTxy/Z8Em8YPba7OL
+         NGWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=RadtJeIevydZ6H5rlO6K03w6REkSqYlDfDusG8jGGwo=;
-        b=P8r4eiHXVrJA/wB6FIPB7MJcHEd1Z0AY7VoIHHSQYv/xqWpDr+ma6pm7phaECo+ujT
-         etIB82rHDsOEM03WgIM0D7nFzGxIBOppY2GufJFDdJfUeXirsO8vUz67ViPyMfwH7Ppz
-         uB5ljfs1xnkKeZ/Iu+qo5KLvp+JcvQPW71FoZCNICekIkYKCvn8FRieJQLW2V3ze5aG3
-         kN3c6UNNKyf6fOfKLjSaSyTi1JEwxoNgpI7tQVUgsmk91bwH8glA/S4/Yvi5WbDpu7jA
-         hct6J94uXVkOEwl8tu/uDJOc+tZ+djLVlXS4sFAdks6c7NP6C6KSAfm+b5UFm15sgSy+
-         p9TA==
-X-Gm-Message-State: AOAM530Ig2QK6vxhBz2y0VtBVxjiPo4gPBqIFAqrD4foMsDL/ZEsU5FW
-        CNNv77eAiv5//txkfokS3Hh1fEYAfVL9OYgq
-X-Google-Smtp-Source: ABdhPJzFeA9x1wBKDi4E+Dvw0Gt3L3rEE0Dk7CCBPPDhR4Rv4qXbxDtC5xOlntBY1aysG72YweKiJw==
-X-Received: by 2002:a17:90a:df13:: with SMTP id gp19mr6173968pjb.170.1644686804794;
-        Sat, 12 Feb 2022 09:26:44 -0800 (PST)
+        bh=LMu4ThFUzmTNV1yb1w82rOLBXmQDfPJDAn/jnGPQdjw=;
+        b=P8kj2b7MO23kVIf/Lqejgs1TsbQkancAj4EP1bPAKWmUrKALaCNHWjqfERpcwsBWzH
+         WjfrQdAxMOofI+VJln4asZnGRnVBxO172tDcRtibXxwIlnk5pEwU0AKQUv0bAPaYrNmE
+         kNJEE3zvtpp2ovzRaPG65t4TGLPAP4PxgOm87+QTUehMv35vpVqDCQGF2Hell5pozwBY
+         tzBLCsGQNwGy8FS+cgX26FkcbaVCEjEM1x8B0pmT3WwpHkdkyHpdggpwZQEL2MfyTZJF
+         WoxVjnsHS6nHZnARyFeCn7dBpuqdE+goADb6bTGSZEKmiQg+l7uYoQRoSAcGTBWzQxWU
+         fT5Q==
+X-Gm-Message-State: AOAM533JXaKoopwMyOZYyySO9SaFJyqJWQnQ9wpQX82qhoB+5CUBstB+
+        V009nS6gEcuzWQYrbqy4zCDq6s1nBsiokKY9
+X-Google-Smtp-Source: ABdhPJzD5RpUMVspoiHfIz7rD7UiHOYqqaFWzcOVWEi4hI7Jac89qDA8+e68I0d9IU1iw1vFmfcweQ==
+X-Received: by 2002:a63:1d4:: with SMTP id 203mr5640920pgb.462.1644687936445;
+        Sat, 12 Feb 2022 09:45:36 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o1sm33988674pfu.88.2022.02.12.09.26.44
+        by smtp.gmail.com with ESMTPSA id l2sm8708378pju.52.2022.02.12.09.45.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 12 Feb 2022 09:26:44 -0800 (PST)
-Message-ID: <6207edd4.1c69fb81.a9ca0.190e@mx.google.com>
-Date:   Sat, 12 Feb 2022 09:26:44 -0800 (PST)
+        Sat, 12 Feb 2022 09:45:36 -0800 (PST)
+Message-ID: <6207f240.1c69fb81.82990.4f6d@mx.google.com>
+Date:   Sat, 12 Feb 2022 09:45:36 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: test
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Kernel: v5.15.23-79-g21ea1dc6c11d
-Subject: stable-rc/queue/5.15 baseline: 132 runs,
- 8 regressions (v5.15.23-79-g21ea1dc6c11d)
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Kernel: v4.9.301-14-gb2fc517490ad
+Subject: stable-rc/queue/4.9 baseline: 122 runs,
+ 16 regressions (v4.9.301-14-gb2fc517490ad)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,51 +70,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 132 runs, 8 regressions (v5.15.23-79-g21ea1d=
-c6c11d)
+stable-rc/queue/4.9 baseline: 122 runs, 16 regressions (v4.9.301-14-gb2fc51=
+7490ad)
 
 Regressions Summary
 -------------------
 
-platform                   | arch  | lab          | compiler | defconfig | =
-regressions
----------------------------+-------+--------------+----------+-----------+-=
------------
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig | =
-1          =
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig | =
-1          =
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
 
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig | =
-1          =
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig | =
-1          =
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
 
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig | =
-1          =
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig | =
-1          =
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
 
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig | =
-1          =
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig | =
-1          =
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
+
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
+
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.23-79-g21ea1dc6c11d/plan/baseline/
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.301-14-gb2fc517490ad/plan/baseline/
 
   Test:     baseline
   Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.23-79-g21ea1dc6c11d
+  Branch:   queue/4.9
+  Describe: v4.9.301-14-gb2fc517490ad
   URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
 able-rc.git
-  SHA:      21ea1dc6c11d392029437798bfaafb1d7dda4d85 =
+  SHA:      b2fc517490ad6fdbc99e5757a00ddc30b624f66a =
 
 
 
@@ -123,272 +147,544 @@ Test Regressions
 
 
 
-platform                   | arch  | lab          | compiler | defconfig | =
-regressions
----------------------------+-------+--------------+----------+-----------+-=
------------
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig | =
-1          =
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
 
-  Details:     https://kernelci.org/test/plan/id/6207b531a60d22c6e5c62991
+  Details:     https://kernelci.org/test/plan/id/6207b80463a7be8636c629a1
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
+  Full config: defconfig+arm64-chromebook
   Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
 110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vi=
-rt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vi=
-rt-gicv2.html
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
+ne-qemu_arm64-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
+ne-qemu_arm64-virt-gicv2.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
 t-baseline/20220121.0/arm64/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/6207b531a60d22c6e5c62=
-992
-        failing since 3 days (last pass: v5.15.21-111-g6704c2c1f104, first =
-fail: v5.15.21-111-gbc928abfc73d) =
+  * baseline.login: https://kernelci.org/test/case/id/6207b80463a7be8636c62=
+9a2
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
 
  =
 
 
 
-platform                   | arch  | lab          | compiler | defconfig | =
-regressions
----------------------------+-------+--------------+----------+-----------+-=
------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig | =
-1          =
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
 
 
-  Details:     https://kernelci.org/test/plan/id/6207b530a60d22c6e5c6298e
+  Details:     https://kernelci.org/test/plan/id/6207b92d7f53f8d8f6c62990
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
   Full config: defconfig
   Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
 110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
 t-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
 t-gicv2.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
 t-baseline/20220121.0/arm64/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/6207b530a60d22c6e5c62=
-98f
-        failing since 3 days (last pass: v5.15.21-111-g6704c2c1f104, first =
-fail: v5.15.21-111-gbc928abfc73d) =
+  * baseline.login: https://kernelci.org/test/case/id/6207b92d7f53f8d8f6c62=
+991
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
 
  =
 
 
 
-platform                   | arch  | lab          | compiler | defconfig | =
-regressions
----------------------------+-------+--------------+----------+-----------+-=
------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig | =
-1          =
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
 
-  Details:     https://kernelci.org/test/plan/id/6207b533a60d22c6e5c62994
+  Details:     https://kernelci.org/test/plan/id/6207b7f01f42a68b46c62976
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
+  Full config: defconfig+arm64-chromebook
   Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
 110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vi=
-rt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vi=
-rt-gicv2-uefi.html
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
+e-qemu_arm64-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
+e-qemu_arm64-virt-gicv2.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
 t-baseline/20220121.0/arm64/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/6207b533a60d22c6e5c62=
-995
-        failing since 3 days (last pass: v5.15.21-111-g6704c2c1f104, first =
-fail: v5.15.21-111-gbc928abfc73d) =
+  * baseline.login: https://kernelci.org/test/case/id/6207b7f01f42a68b46c62=
+977
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
 
  =
 
 
 
-platform                   | arch  | lab          | compiler | defconfig | =
-regressions
----------------------------+-------+--------------+----------+-----------+-=
------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig | =
-1          =
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
 
 
-  Details:     https://kernelci.org/test/plan/id/6207b54391ecf9e150c6296d
+  Details:     https://kernelci.org/test/plan/id/6207b917151dbe2d3ac6297b
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
   Full config: defconfig
   Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
 110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6207b917151dbe2d3ac62=
+97c
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6207b7ef63a7be8636c6296d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
+ne-qemu_arm64-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
+ne-qemu_arm64-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6207b7ef63a7be8636c62=
+96e
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6207b8f2541a31acacc629b3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
 t-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
 t-gicv2-uefi.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
 t-baseline/20220121.0/arm64/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/6207b54391ecf9e150c62=
-96e
-        failing since 3 days (last pass: v5.15.21-111-g6704c2c1f104, first =
-fail: v5.15.21-111-gbc928abfc73d) =
+  * baseline.login: https://kernelci.org/test/case/id/6207b8f2541a31acacc62=
+9b4
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
 
  =
 
 
 
-platform                   | arch  | lab          | compiler | defconfig | =
-regressions
----------------------------+-------+--------------+----------+-----------+-=
------------
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig | =
-1          =
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
 
-  Details:     https://kernelci.org/test/plan/id/6207b534d38adfc03fc6299b
+  Details:     https://kernelci.org/test/plan/id/6207b80063a7be8636c62987
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
+  Full config: defconfig+arm64-chromebook
   Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
 110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vi=
-rt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vi=
-rt-gicv3.html
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
+e-qemu_arm64-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
+e-qemu_arm64-virt-gicv2-uefi.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
 t-baseline/20220121.0/arm64/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/6207b534d38adfc03fc62=
-99c
-        failing since 3 days (last pass: v5.15.21-111-g6704c2c1f104, first =
-fail: v5.15.21-111-gbc928abfc73d) =
+  * baseline.login: https://kernelci.org/test/case/id/6207b80063a7be8636c62=
+988
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
 
  =
 
 
 
-platform                   | arch  | lab          | compiler | defconfig | =
-regressions
----------------------------+-------+--------------+----------+-----------+-=
------------
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig | =
-1          =
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
 
 
-  Details:     https://kernelci.org/test/plan/id/6207b54491ecf9e150c62970
+  Details:     https://kernelci.org/test/plan/id/6207b8f1541a31acacc629b0
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
   Full config: defconfig
   Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
 110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6207b8f1541a31acacc62=
+9b1
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6207b7f063a7be8636c62972
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
+ne-qemu_arm64-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
+ne-qemu_arm64-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6207b7f063a7be8636c62=
+973
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6207b8f3541a31acacc629b9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
 t-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
 t-gicv3.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
 t-baseline/20220121.0/arm64/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/6207b54491ecf9e150c62=
-971
-        failing since 3 days (last pass: v5.15.21-111-g6704c2c1f104, first =
-fail: v5.15.21-111-gbc928abfc73d) =
+  * baseline.login: https://kernelci.org/test/case/id/6207b8f3541a31acacc62=
+9ba
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
 
  =
 
 
 
-platform                   | arch  | lab          | compiler | defconfig | =
-regressions
----------------------------+-------+--------------+----------+-----------+-=
------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig | =
-1          =
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
 
-  Details:     https://kernelci.org/test/plan/id/6207b547253634c055c6297c
+  Details:     https://kernelci.org/test/plan/id/6207b7ef1f42a68b46c62971
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
+  Full config: defconfig+arm64-chromebook
   Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
 110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vi=
-rt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vi=
-rt-gicv3-uefi.html
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
+e-qemu_arm64-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
+e-qemu_arm64-virt-gicv3.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
 t-baseline/20220121.0/arm64/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/6207b547253634c055c62=
-97d
-        failing since 3 days (last pass: v5.15.21-111-g6704c2c1f104, first =
-fail: v5.15.21-111-gbc928abfc73d) =
+  * baseline.login: https://kernelci.org/test/case/id/6207b7ef1f42a68b46c62=
+972
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
 
  =
 
 
 
-platform                   | arch  | lab          | compiler | defconfig | =
-regressions
----------------------------+-------+--------------+----------+-----------+-=
------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig | =
-1          =
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
 
 
-  Details:     https://kernelci.org/test/plan/id/6207b54691ecf9e150c62980
+  Details:     https://kernelci.org/test/plan/id/6207b905eabd7788cec62987
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
   Full config: defconfig
   Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
 110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6207b905eabd7788cec62=
+988
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6207b7edefeaf244b6c62977
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
+ne-qemu_arm64-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseli=
+ne-qemu_arm64-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6207b7edefeaf244b6c62=
+978
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6207b90780b2d64777c6296b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
 t-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
-79-g21ea1dc6c11d/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vir=
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-vir=
 t-gicv3-uefi.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
 t-baseline/20220121.0/arm64/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/6207b54691ecf9e150c62=
-981
-        failing since 3 days (last pass: v5.15.21-111-g6704c2c1f104, first =
-fail: v5.15.21-111-gbc928abfc73d) =
+  * baseline.login: https://kernelci.org/test/case/id/6207b90780b2d64777c62=
+96c
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6207b7ede2f2324bb8c629c3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
+e-qemu_arm64-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baselin=
+e-qemu_arm64-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6207b7ede2f2324bb8c62=
+9c4
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6207b906702eeaf7bcc6298a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.301-1=
+4-gb2fc517490ad/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt=
+-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6207b906702eeaf7bcc62=
+98b
+        failing since 2 days (last pass: v4.9.299-48-gc8f4542c907b, first f=
+ail: v4.9.299-51-g1910142c7cca) =
 
  =20
