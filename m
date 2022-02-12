@@ -2,127 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 718BB4B386E
-	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 23:44:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A62714B3875
+	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 23:59:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232187AbiBLWol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Feb 2022 17:44:41 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57736 "EHLO
+        id S232209AbiBLW7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Feb 2022 17:59:44 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229930AbiBLWol (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 17:44:41 -0500
-X-Greylist: delayed 401 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 12 Feb 2022 14:44:36 PST
-Received: from mother.openwall.net (mother.openwall.net [195.42.179.200])
-        by lindbergh.monkeyblade.net (Postfix) with SMTP id 976DD23BD5
-        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 14:44:36 -0800 (PST)
-Received: (qmail 22387 invoked from network); 12 Feb 2022 22:37:54 -0000
-Received: from localhost (HELO pvt.openwall.com) (127.0.0.1)
-  by localhost with SMTP; 12 Feb 2022 22:37:54 -0000
-Received: by pvt.openwall.com (Postfix, from userid 503)
-        id 2BA26AB88C; Sat, 12 Feb 2022 23:36:39 +0100 (CET)
-Date:   Sat, 12 Feb 2022 23:36:39 +0100
-From:   Solar Designer <solar@openwall.com>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     linux-kernel@vger.kernel.org, Alexey Gladkov <legion@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Ran Xiaokai <ran.xiaokai@zte.com.cn>,
-        Michal Koutn?? <mkoutny@suse.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 5/8] ucounts: Handle wrapping in is_ucounts_overlimit
-Message-ID: <20220212223638.GB29214@openwall.com>
-References: <87o83e2mbu.fsf@email.froward.int.ebiederm.org> <20220211021324.4116773-5-ebiederm@xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220211021324.4116773-5-ebiederm@xmission.com>
-User-Agent: Mutt/1.4.2.3i
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        with ESMTP id S231432AbiBLW7m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 17:59:42 -0500
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.15])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD6A5C378
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 14:59:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1644706776;
+        bh=BFwPTU7Ico0TNSQECgxLXKSg/Dk6YtTM1/szrVGvp/Y=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=i3qGFnXwxo8eOoWa+YYlWukzZ30Lz+LWCMGwIOB7Wk+dHu7VEUhyPNqzaFf4hL/lH
+         qUOdbY5GLR+2dp5Eetn6n9WToGXprw8xShmaHQN4TEfO1PE2GInzwxSnxRqxWEoPWn
+         /b+oQJ9fiqBJTS9wnfiFJvMqawpjjWv6HF6NAmxQ=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from esprimo-mx.users.agdsn.de ([141.30.226.129]) by mail.gmx.net
+ (mrgmx004 [212.227.17.190]) with ESMTPSA (Nemesis) id
+ 1MRmfo-1nhnA02aC2-00TCUa; Sat, 12 Feb 2022 23:54:26 +0100
+From:   Armin Wolf <W_Armin@gmx.de>
+To:     stable@vger.kernel.org
+Cc:     pali@kernel.org
+Subject: [PATCH] hwmon: (dell-smm) Speed up setting of fan speed
+Date:   Sat, 12 Feb 2022 23:54:18 +0100
+Message-Id: <20220212225418.16662-1-W_Armin@gmx.de>
+X-Mailer: git-send-email 2.30.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:uqyYr0IVEQXGNkBH9HeL2fPwPZlflxUAplai8CTyVnS1TsOiS21
+ ofhmdVsw4TipW13mb77w/0EhiViHt14H/S+5a41QPyk7CeosLRpXETmm6tLqo6CQvSZWcuT
+ yRle3gTIlQ04IibbKc6OhS4rh3TC3lwA2nWALdvuV54lPwSOf4kSW4nw6ko88QVckdl4jBT
+ y2oDgSNEj4qGqpve6JH6A==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:7gMmFhYj1gA=:IoTP35qarkZn7gYMXIeo67
+ QCEqHkhlRDHp0LqW1YyGrDkPLHCCuSqwXHtUoGO0OtAXV7C/ZJIdxZTN9LuYMUkRYwzF2xcby
+ HW+HkxynTMkZHLSJrKEtbw3wfP32CntUsKaJSfMIG9EEOxfVL0Kc/BH1HKpvHFQLmq0Os5X8s
+ f7Y64fTfPAb0eTg1Yyx+lS3oJky/loETv09XR6pfEk+fjdrnFRehV188nyz5UJo3uD/IQvz+p
+ VEhBwyaWvKNnDHrcHeERVg0jQ0zXsOlNIPMc+aTSpvOBVK32Y0DoiP2rMPYE3LycFgF6Pq9Vs
+ RdFIwvG6eoJhC/DPwvkk0tFNCYrZF284bqplXaVha31NtU+sddnWtu2KNp+jf70iE9r4akN6U
+ 2h6iN5IpK4MtJ/I7CFy+B0K7Zu1xy+/PbTyC+lZlWWuiSK/WNEIjDgg8eFoglTnE7CEwrlPOo
+ Bj2xCkdod2V4xXntgh7Lz6IxcKgxtIPLJHqUSJEH9b//lT2MZ8IUUNJje74QJNGlak+KFAbDy
+ Nbekcsz1spT6hOrT2RYDqREPFyy3HihA2kX2lPzUf4kLq0YF4kWg8mTNJq+UXSzox8evBWcrJ
+ SKopkf06H4ZE855e0K46oBJwoI6L1RytdHa2qOhS65my5qpBAz8ZjNQH3wRK7eULYq/b80Kh8
+ gcPKzgtG+w/efkwZYOM9zts9WF16+7Cmc5amazA2dHVGjJjODhLjNCyZIkS0U/Tyii42g3LPb
+ b1qbtXdVX2+e1IfWtIY0WhmF2eCr4KrWzgATj5yo3OkPZxm+B4Y8UfhgtXSDiE3jzCFXnmBcZ
+ vM5Xgy57ULFZpH8aYjmXrSFYv0QlDeQ/suCB5PYqG5CpcEwtwjMLXqPvifj/xJ0DxDcIhsGcX
+ sAj4tIS55V0oOUIhfK+A84UtLPC7fjXJJ45FNKHuvjHQGwLrAE4mZCwYLtqDQt8GVBCB7xSyw
+ yI+4o5VwMK0EGX5jnkJkBTf10/Y5nYZuIByYc83X7FQFIUqjzb23Y5Z56Etf8YySFFDrO0hRg
+ YspipKCdDcGjCylpdG0CCcAJQF/5MWFpfpZEnrzWKUpG1BGBA0Z4iY1OTSreEezIvt0dhh8Mj
+ XnCCUoogFdOLS0=
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 10, 2022 at 08:13:21PM -0600, Eric W. Biederman wrote:
-> While examining is_ucounts_overlimit and reading the various messages
-> I realized that is_ucounts_overlimit fails to deal with counts that
-> may have wrapped.
-> 
-> Being wrapped should be a transitory state for counts and they should
-> never be wrapped for long, but it can happen so handle it.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of ucounts")
-> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-> ---
->  kernel/ucount.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/kernel/ucount.c b/kernel/ucount.c
-> index 65b597431c86..06ea04d44685 100644
-> --- a/kernel/ucount.c
-> +++ b/kernel/ucount.c
-> @@ -350,7 +350,8 @@ bool is_ucounts_overlimit(struct ucounts *ucounts, enum ucount_type type, unsign
->  	if (rlimit > LONG_MAX)
->  		max = LONG_MAX;
->  	for (iter = ucounts; iter; iter = iter->ns->ucounts) {
-> -		if (get_ucounts_value(iter, type) > max)
-> +		long val = get_ucounts_value(iter, type);
-> +		if (val < 0 || val > max)
->  			return true;
->  		max = READ_ONCE(iter->ns->ucount_max[type]);
->  	}
+commit c0d79987a0d82671bff374c07f2201f9bdf4aaa2 upstream.
 
-You probably deliberately assume "gcc -fwrapv", but otherwise:
+When setting the fan speed, i8k_set_fan() calls i8k_get_fan_status(),
+causing an unnecessary SMM call since from the two users of this
+function, only i8k_ioctl_unlocked() needs to know the new fan status
+while dell_smm_write() ignores the new fan status.
+Since SMM calls can be very slow while also making error reporting
+difficult for dell_smm_write(), remove the function call from
+i8k_set_fan() and call it separately in i8k_ioctl_unlocked().
 
-As you're probably aware, a signed integer wrapping is undefined
-behavior in C.  In the function above, "val" having wrapped to negative
-assumes we had occurred UB elsewhere.  Further, there's an instance of
-UB in the function itself:
+Since this patch was backported from kernel 5.16, the data argument
+of i8k_set_fan and i8k_get_fan_status was omitted (it exists since
+kernel 5.15).
 
-bool is_ucounts_overlimit(struct ucounts *ucounts, enum ucount_type type, unsigned long rlimit)
-{
-	struct ucounts *iter;
-	long max = rlimit;
-	if (rlimit > LONG_MAX)
-		max = LONG_MAX;
+This patch was originally a performance optimization, but it turned
+out a user with a buggy machine requires this patch since it also
+fixes error reporting when i8k_get_fan_status fails.
+https://github.com/lm-sensors/lm-sensors/pull/383
 
-The assignment on "long max = rlimit;" would have already been UB if
-"rlimit > LONG_MAX", which is only checked afterwards.  I think the
-above would be better written as:
+Tested on a Dell Inspiron 3505.
 
-	if (rlimit > LONG_MAX)
-		rlimit = LONG_MAX;
-	long max = rlimit;
+Cc: <stable@vger.kernel.org> # 5.10.x
+Cc: <stable@vger.kernel.org> # 5.4.x
+Cc: <stable@vger.kernel.org> # 4.x.x
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+=2D--
+ drivers/hwmon/dell-smm-hwmon.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-considering that "rlimit" is never used further in that function.
+diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon=
+.c
+index 87f401100466..10c7b6295b02 100644
+=2D-- a/drivers/hwmon/dell-smm-hwmon.c
++++ b/drivers/hwmon/dell-smm-hwmon.c
+@@ -317,7 +317,7 @@ static int i8k_enable_fan_auto_mode(bool enable)
+ }
 
-And to more likely avoid wraparound of "val", perhaps have the limit at
-a value significantly lower than LONG_MAX, like half that?  So:
+ /*
+- * Set the fan speed (off, low, high). Returns the new fan status.
++ * Set the fan speed (off, low, high, ...).
+  */
+ static int i8k_set_fan(int fan, int speed)
+ {
+@@ -329,7 +329,7 @@ static int i8k_set_fan(int fan, int speed)
+ 	speed =3D (speed < 0) ? 0 : ((speed > i8k_fan_max) ? i8k_fan_max : speed=
+);
+ 	regs.ebx =3D (fan & 0xff) | (speed << 8);
 
-	if (rlimit > LONG_MAX / 2)
-		rlimit = LONG_MAX / 2;
-	long max = rlimit;
+-	return i8k_smm(&regs) ? : i8k_get_fan_status(fan);
++	return i8k_smm(&regs);
+ }
 
-And sure, also keep the "val < 0" check as defensive programming, or you
-can do:
+ static int i8k_get_temp_type(int sensor)
+@@ -443,7 +443,7 @@ static int
+ i8k_ioctl_unlocked(struct file *fp, unsigned int cmd, unsigned long arg)
+ {
+ 	int val =3D 0;
+-	int speed;
++	int speed, err;
+ 	unsigned char buff[16];
+ 	int __user *argp =3D (int __user *)arg;
 
-	if (rlimit > LONG_MAX / 2)
-		rlimit = LONG_MAX / 2;
-[...]
-		if ((unsigned long)get_ucounts_value(iter, type) > rlimit)
-			return true;
+@@ -504,7 +504,11 @@ i8k_ioctl_unlocked(struct file *fp, unsigned int cmd,=
+ unsigned long arg)
+ 		if (copy_from_user(&speed, argp + 1, sizeof(int)))
+ 			return -EFAULT;
 
-and drop both "val" and "max".  However, this also assumes the return
-type of get_ucounts_value() doesn't become larger than "unsigned long".
+-		val =3D i8k_set_fan(val, speed);
++		err =3D i8k_set_fan(val, speed);
++		if (err < 0)
++			return err;
++
++		val =3D i8k_get_fan_status(val);
+ 		break;
 
-I assume that once is_ucounts_overlimit() returned true, it is expected
-the value would almost not grow further (except a little due to races).
+ 	default:
+=2D-
+2.30.2
 
-I also assume there's some reason a signed type is used there.
-
-Alexander
