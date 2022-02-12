@@ -2,143 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A4444B3879
-	for <lists+stable@lfdr.de>; Sun, 13 Feb 2022 00:05:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 522F04B388C
+	for <lists+stable@lfdr.de>; Sun, 13 Feb 2022 00:17:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232244AbiBLXFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Feb 2022 18:05:40 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36212 "EHLO
+        id S232429AbiBLXRO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Feb 2022 18:17:14 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232259AbiBLXFj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 18:05:39 -0500
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11C545F8CB
-        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 15:05:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1644707132;
-        bh=MxDe+n2MqdtfQ4AoX9ocFP9x6Ub65RVrW6/eLRcuZuA=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=ecmtyj7PYzXQIqS5i0ioEo8iFV1Jae/qlXhYv7WKqzeEvJ2t90KYfIkBaKjybjIrs
-         egz/FIaFTDSn0WnKfVWR5+00lmWUqP/gXQt/0IioYnXbGAUvNUdQIBNhSk8COgE9mz
-         I734+96fhF2VoJ77J1LhKkE6KlvIzX/zl5DVeyQ4=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from esprimo-mx.users.agdsn.de ([141.30.226.129]) by mail.gmx.net
- (mrgmx105 [212.227.17.168]) with ESMTPSA (Nemesis) id
- 1M2f5T-1nIjjE3jd1-0049cI; Sun, 13 Feb 2022 00:00:23 +0100
-From:   Armin Wolf <W_Armin@gmx.de>
-To:     stable@vger.kernel.org
-Cc:     pali@kernel.org
-Subject: [PATCH] hwmon: (dell-smm) Speed up setting of fan speed
-Date:   Sun, 13 Feb 2022 00:00:21 +0100
-Message-Id: <20220212230021.18725-1-W_Armin@gmx.de>
-X-Mailer: git-send-email 2.30.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:9YBEOE/0ksjmt2wjWNJn0556d4Eyvekd8JmtnGeTGa3spzkehYT
- DwspkFn4Pw6cAIhUBshRXDtwRwe9tuprNj1FzuhJ57T6SdWdR4nDmEfUseSeoXa3zUqXiiJ
- WGC8CXg5E0kPEOzjhngcAtRtITGu/HuEjqbAHfbdKo1yTGXUmYTtWE4/zgmr9teDU+I521k
- jcza1UKMipD7GhpjFloUA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:NropN14ZhH4=:11clsb5zMIgUCXpdA3n9Uo
- 3SXd6bYtyNQs+IHGllJAvZoWN7XnSGh1u+k+ipbSLjCXP892dOz3hP1hBxFRRNJRvnj6B0iPM
- MO67ZBIURws8aOOULKOFwHT6vWy4NMFa7JkPoB57820LA/fXuZPaPN3VR7fhVsK0RVeki2Y1e
- lSTJWeRIqOTj69l2EvtMlVWvfPb3764Zixbbvfq2vsPsjV0A37G86Zp/6pP6IRFnwgqsbXJXs
- QIjZePFIhkIAEvZxTt11cxUxiiIZf883z9dALtbQGt2ScBnH47pRkkJZ6L7Tb3OLSgDXrDB4T
- nXvfX6GjhUf84VcbLJdpAqlroZeI03fWG9fzkAPZnAXoZTPr/yHJkgkeAvOVkFwfPCEcHZ4Er
- qblXksGwS4OL7VKPUeMpVbpdVm1WhGncl6/+ZbVqlqG0LsLwpD0LAoPv+PBQ5W3xa7JKbU9Gz
- 6f2MAQgf84mYs8cY0m20sK7OF/uORmkERgzFrRdOiZqzSdfNEVzdEGtJFXwP7XHSRMXEn+ZrY
- rCUqJvT9JpSocVhPHFF7Je7bmtRvkKWnt6P4QT8DXp+/Z9dX/rt3I0ypCMIBnSmEVW3ZBTJ3z
- qSzf6KjHmaxWwKxgjbjbw9KxH2DYMw+GQZ+JgsgO0j3QBHbds8Mc/3uXFwzZrlujjlwpIoZae
- 44Q02CE9tCEsrHeBX1WaPGHy4V0/zUyViCdX2B/V4nnCJVdFucU5EsRJ0Q8Tmdqu/ziV9B6Xr
- Wm8yeOWFR1SHnUndddSiuealtRkR+RItlGjkUpR/sKHBkqgixI0TTQRoIv8Mih3s8GgH+1U+X
- YWaHJIWtaiaFCKBejNrZUTrDm/7HFR8u152oB85Fmdj9c+dd+cd1cAoqUl1JiXd6oeiA9ucSr
- HdtwjNleJh+W0QR3M9VF73yqLkS9Qwk4A2UrgU4MXKo52B7XbJ1Qyc/5aPkrhr9aMxJyfk+ew
- 7t+m175849xdBRRbgrqah+M05kIt9z41QpgAGNe7DKeVWl5w09WpSWnu1VxvcYUn4vZvJS1F1
- PkCr7EsYGDoQludvAGdeOpoFNhyNSeJn35URzSCfJ0FKmTDPzxCQs5kXB9iuActev0gjAeudR
- dTZaHIChcIr9fs=
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S232399AbiBLXRN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 18:17:13 -0500
+Received: from mother.openwall.net (mother.openwall.net [195.42.179.200])
+        by lindbergh.monkeyblade.net (Postfix) with SMTP id 306755F8D4
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 15:17:07 -0800 (PST)
+Received: (qmail 6042 invoked from network); 12 Feb 2022 23:17:06 -0000
+Received: from localhost (HELO pvt.openwall.com) (127.0.0.1)
+  by localhost with SMTP; 12 Feb 2022 23:17:06 -0000
+Received: by pvt.openwall.com (Postfix, from userid 503)
+        id D1CBDAB88C; Sun, 13 Feb 2022 00:17:01 +0100 (CET)
+Date:   Sun, 13 Feb 2022 00:17:01 +0100
+From:   Solar Designer <solar@openwall.com>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     linux-kernel@vger.kernel.org, Alexey Gladkov <legion@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Ran Xiaokai <ran.xiaokai@zte.com.cn>,
+        Michal Koutn?? <mkoutny@suse.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 3/8] ucounts: Fix and simplify RLIMIT_NPROC handling during setuid()+execve
+Message-ID: <20220212231701.GA29483@openwall.com>
+References: <87o83e2mbu.fsf@email.froward.int.ebiederm.org> <20220211021324.4116773-3-ebiederm@xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220211021324.4116773-3-ebiederm@xmission.com>
+User-Agent: Mutt/1.4.2.3i
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit c0d79987a0d82671bff374c07f2201f9bdf4aaa2 upstream.
+On Thu, Feb 10, 2022 at 08:13:19PM -0600, Eric W. Biederman wrote:
+> As of commit 2863643fb8b9 ("set_user: add capability check when
+> rlimit(RLIMIT_NPROC) exceeds") setting the flag to see if execve
+> should check RLIMIT_NPROC is buggy, as it tests the capabilites from
+> before the credential change and not aftwards.
+> 
+> As of commit 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of
+> ucounts") examining the rlimit is buggy as cred->ucounts has not yet
+> been properly set in the new credential.
+> 
+> Make the code correct and more robust moving the test to see if
+> execve() needs to test RLIMIT_NPROC into commit_creds, and defer all
+> of the rest of the logic into execve() itself.
+> 
+> As the flag only indicateds that RLIMIT_NPROC should be checked
+> in execve rename it from PF_NPROC_EXCEEDED to PF_NPROC_CHECK.
+> 
+> Cc: stable@vger.kernel.org
+> Link: https://lkml.kernel.org/r/20220207121800.5079-2-mkoutny@suse.com
+> Link: https://lkml.kernel.org/r/20220207121800.5079-3-mkoutny@suse.com
+> Reported-by: Michal Koutn?? <mkoutny@suse.com>
+> Fixes: 2863643fb8b9 ("set_user: add capability check when rlimit(RLIMIT_NPROC) exceeds")
+> Fixes: 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of ucounts")
+> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 
-When setting the fan speed, i8k_set_fan() calls i8k_get_fan_status(),
-causing an unnecessary SMM call since from the two users of this
-function, only i8k_ioctl_unlocked() needs to know the new fan status
-while dell_smm_write() ignores the new fan status.
-Since SMM calls can be very slow while also making error reporting
-difficult for dell_smm_write(), remove the function call from
-i8k_set_fan() and call it separately in i8k_ioctl_unlocked().
+On one hand, this looks good.
 
-This patch was originally a performance optimization, but it turned
-out a user with a buggy machine requires this patch since it also
-fixes error reporting when i8k_get_fan_status fails.
-https://github.com/lm-sensors/lm-sensors/pull/383
+On the other, you asked about the Apache httpd suexec scenario in the
+other thread, and here's what this means for it (per my code review):
 
-Tested on a Dell Inspiron 3505.
+In that scenario, we have two execve(): first from httpd to suexec, then
+from suexec to the CGI script.  Previously, the limit check only
+occurred on the setuid() call by suexec, and its effect was deferred
+until execve() of the script.  Now wouldn't it occur on both execve()
+calls, because commit_creds() is also called on execve() (such as in
+case the program is SUID, which suexec actually is)?  Since the check is
+kind of against real uid (not the euid=0 that suexec gains), it'd apply
+the limit against httpd pseudo-user's process count.  While it could be
+a reasonable kernel policy to impose this limit in more places, this is
+a change of behavior for Apache httpd, and is not the intended behavior
+there.  However, I think the answer to my question earlier in this
+paragraph is actually a "no", the check wouldn't occur on the execve()
+of suexec, because "new->user != old->user" would be false.  Right?
 
-Cc: <stable@vger.kernel.org> # 5.15.x
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-=2D--
- drivers/hwmon/dell-smm-hwmon.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+As an alternative, you could keep setting the (renamed and reused) flag
+in set_user().  That would avoid the (non-)issue I described above - but
+again, your patch is probably fine as-is.
 
-diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon=
-.c
-index 47fce97996de..9cb1c3588038 100644
-=2D-- a/drivers/hwmon/dell-smm-hwmon.c
-+++ b/drivers/hwmon/dell-smm-hwmon.c
-@@ -326,7 +326,7 @@ static int i8k_enable_fan_auto_mode(const struct dell_=
-smm_data *data, bool enabl
- }
+I do see it's logical to have these two lines next to each other:
 
- /*
-- * Set the fan speed (off, low, high). Returns the new fan status.
-+ * Set the fan speed (off, low, high, ...).
-  */
- static int i8k_set_fan(const struct dell_smm_data *data, int fan, int spe=
-ed)
- {
-@@ -338,7 +338,7 @@ static int i8k_set_fan(const struct dell_smm_data *dat=
-a, int fan, int speed)
- 	speed =3D (speed < 0) ? 0 : ((speed > data->i8k_fan_max) ? data->i8k_fan=
-_max : speed);
- 	regs.ebx =3D (fan & 0xff) | (speed << 8);
+>  		inc_rlimit_ucounts(new->ucounts, UCOUNT_RLIMIT_NPROC, 1);
+> +		task->flags |= PF_NPROC_CHECK;
 
--	return i8k_smm(&regs) ? : i8k_get_fan_status(data, fan);
-+	return i8k_smm(&regs);
- }
+Of course, someone would need to actually test this.
 
- static int __init i8k_get_temp_type(int sensor)
-@@ -452,7 +452,7 @@ static int
- i8k_ioctl_unlocked(struct file *fp, struct dell_smm_data *data, unsigned =
-int cmd, unsigned long arg)
- {
- 	int val =3D 0;
--	int speed;
-+	int speed, err;
- 	unsigned char buff[16];
- 	int __user *argp =3D (int __user *)arg;
-
-@@ -513,7 +513,11 @@ i8k_ioctl_unlocked(struct file *fp, struct dell_smm_d=
-ata *data, unsigned int cmd
- 		if (copy_from_user(&speed, argp + 1, sizeof(int)))
- 			return -EFAULT;
-
--		val =3D i8k_set_fan(data, val, speed);
-+		err =3D i8k_set_fan(data, val, speed);
-+		if (err < 0)
-+			return err;
-+
-+		val =3D i8k_get_fan_status(data, val);
- 		break;
-
- 	default:
-=2D-
-2.30.2
-
+Alexander
