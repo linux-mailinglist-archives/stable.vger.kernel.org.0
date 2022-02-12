@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C54894B3407
-	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 10:27:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C9DF4B3409
+	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 10:27:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233022AbiBLJ1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Feb 2022 04:27:09 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38576 "EHLO
+        id S232997AbiBLJ17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Feb 2022 04:27:59 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229595AbiBLJ1I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 04:27:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D169F2655A
-        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 01:27:05 -0800 (PST)
+        with ESMTP id S229595AbiBLJ16 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 04:27:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 996DA2655A
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 01:27:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C472B800A0
-        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 09:27:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 977C9C340EB;
-        Sat, 12 Feb 2022 09:27:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E1AAB800A0
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 09:27:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 160A0C340EB;
+        Sat, 12 Feb 2022 09:27:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644658023;
-        bh=hALC3Dg5BgXmtSqBgpKrk2kW3gHZkAcfln7y4swIaxA=;
+        s=korg; t=1644658072;
+        bh=Ojw7i9gM36r0bSeAMsXDcHoGSCSHp+DD/Wf31s8yspg=;
         h=Subject:To:Cc:From:Date:From;
-        b=KdehhUQKH/JtNONR7kGb4hbgw+1F0ujI8wNataX6D3mTBSnMCoTYLHnIH7OFxle/U
-         s+qmBuRLVM0pgOsrVAl/fEsVxAr7fJqgEhCLZv/Zln+h2Xy4K3hXQDvr8UWKcJ5AeS
-         XkJHGFZQj7nUKzubyelH/as8crRxlweQG/Z/8JTo=
-Subject: FAILED: patch "[PATCH] riscv/mm: Add XIP_FIXUP for phys_ram_base" failed to apply to 5.15-stable tree
+        b=kBcg7+S9s/9zUbAjrwAlyZ3/X6SWLdMDewNMDwattZa6Drd3uDBBsZjD/Mi375byH
+         U5FcdSMEAcso+Hoxk3EyH0JdH9xUGh157JMpqgWhdjolyWxS++1+ybeMFLaI9Dh4yH
+         5/9kjGlH0M8p5DAfd7mvKoFEOqzL/QLe0Kj1yWpI=
+Subject: FAILED: patch "[PATCH] riscv/mm: Add XIP_FIXUP for riscv_pfn_base" failed to apply to 5.15-stable tree
 To:     palmer@rivosinc.com, gatecat@ds0.me
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 12 Feb 2022 10:27:00 +0100
-Message-ID: <1644658020119206@kroah.com>
+Date:   Sat, 12 Feb 2022 10:27:41 +0100
+Message-ID: <16446580617237@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,29 +59,29 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4b1c70aa8ed8249608bb991380cb8ff423edf49e Mon Sep 17 00:00:00 2001
+From ca0cb9a60f6d86d4b2139c6f393a78f39edcd7cb Mon Sep 17 00:00:00 2001
 From: Palmer Dabbelt <palmer@rivosinc.com>
-Date: Fri, 4 Feb 2022 13:13:37 -0800
-Subject: [PATCH] riscv/mm: Add XIP_FIXUP for phys_ram_base
+Date: Fri, 4 Feb 2022 13:14:08 -0800
+Subject: [PATCH] riscv/mm: Add XIP_FIXUP for riscv_pfn_base
 
 This manifests as a crash early in boot on VexRiscv.
 
 Signed-off-by: Myrtle Shah <gatecat@ds0.me>
 [Palmer: split commit]
-Fixes: 6d7f91d914bc ("riscv: Get rid of CONFIG_PHYS_RAM_BASE in kernel physical address conversion")
+Fixes: 44c922572952 ("RISC-V: enable XIP")
 Cc: stable@vger.kernel.org
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 
 diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index cf4d018b7d66..eecfacac2cc5 100644
+index eecfacac2cc5..c27294128e18 100644
 --- a/arch/riscv/mm/init.c
 +++ b/arch/riscv/mm/init.c
-@@ -522,6 +522,7 @@ static uintptr_t __init best_map_size(phys_addr_t base, phys_addr_t size)
- }
+@@ -232,6 +232,7 @@ static pmd_t __maybe_unused early_dtb_pmd[PTRS_PER_PMD] __initdata __aligned(PAG
  
  #ifdef CONFIG_XIP_KERNEL
-+#define phys_ram_base  (*(phys_addr_t *)XIP_FIXUP(&phys_ram_base))
- extern char _xiprom[], _exiprom[], __data_loc;
- 
- /* called from head.S with MMU off */
+ #define pt_ops			(*(struct pt_alloc_ops *)XIP_FIXUP(&pt_ops))
++#define riscv_pfn_base         (*(unsigned long  *)XIP_FIXUP(&riscv_pfn_base))
+ #define trampoline_pg_dir      ((pgd_t *)XIP_FIXUP(trampoline_pg_dir))
+ #define fixmap_pte             ((pte_t *)XIP_FIXUP(fixmap_pte))
+ #define early_pg_dir           ((pgd_t *)XIP_FIXUP(early_pg_dir))
 
