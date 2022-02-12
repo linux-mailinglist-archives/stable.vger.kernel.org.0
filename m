@@ -2,59 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A62714B3875
-	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 23:59:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A4444B3879
+	for <lists+stable@lfdr.de>; Sun, 13 Feb 2022 00:05:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232209AbiBLW7o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Feb 2022 17:59:44 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34676 "EHLO
+        id S232244AbiBLXFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Feb 2022 18:05:40 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231432AbiBLW7m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 17:59:42 -0500
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.15])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD6A5C378
-        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 14:59:37 -0800 (PST)
+        with ESMTP id S232259AbiBLXFj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 18:05:39 -0500
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11C545F8CB
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 15:05:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1644706776;
-        bh=BFwPTU7Ico0TNSQECgxLXKSg/Dk6YtTM1/szrVGvp/Y=;
+        s=badeba3b8450; t=1644707132;
+        bh=MxDe+n2MqdtfQ4AoX9ocFP9x6Ub65RVrW6/eLRcuZuA=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=i3qGFnXwxo8eOoWa+YYlWukzZ30Lz+LWCMGwIOB7Wk+dHu7VEUhyPNqzaFf4hL/lH
-         qUOdbY5GLR+2dp5Eetn6n9WToGXprw8xShmaHQN4TEfO1PE2GInzwxSnxRqxWEoPWn
-         /b+oQJ9fiqBJTS9wnfiFJvMqawpjjWv6HF6NAmxQ=
+        b=ecmtyj7PYzXQIqS5i0ioEo8iFV1Jae/qlXhYv7WKqzeEvJ2t90KYfIkBaKjybjIrs
+         egz/FIaFTDSn0WnKfVWR5+00lmWUqP/gXQt/0IioYnXbGAUvNUdQIBNhSk8COgE9mz
+         I734+96fhF2VoJ77J1LhKkE6KlvIzX/zl5DVeyQ4=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
 Received: from esprimo-mx.users.agdsn.de ([141.30.226.129]) by mail.gmx.net
- (mrgmx004 [212.227.17.190]) with ESMTPSA (Nemesis) id
- 1MRmfo-1nhnA02aC2-00TCUa; Sat, 12 Feb 2022 23:54:26 +0100
+ (mrgmx105 [212.227.17.168]) with ESMTPSA (Nemesis) id
+ 1M2f5T-1nIjjE3jd1-0049cI; Sun, 13 Feb 2022 00:00:23 +0100
 From:   Armin Wolf <W_Armin@gmx.de>
 To:     stable@vger.kernel.org
 Cc:     pali@kernel.org
 Subject: [PATCH] hwmon: (dell-smm) Speed up setting of fan speed
-Date:   Sat, 12 Feb 2022 23:54:18 +0100
-Message-Id: <20220212225418.16662-1-W_Armin@gmx.de>
+Date:   Sun, 13 Feb 2022 00:00:21 +0100
+Message-Id: <20220212230021.18725-1-W_Armin@gmx.de>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:uqyYr0IVEQXGNkBH9HeL2fPwPZlflxUAplai8CTyVnS1TsOiS21
- ofhmdVsw4TipW13mb77w/0EhiViHt14H/S+5a41QPyk7CeosLRpXETmm6tLqo6CQvSZWcuT
- yRle3gTIlQ04IibbKc6OhS4rh3TC3lwA2nWALdvuV54lPwSOf4kSW4nw6ko88QVckdl4jBT
- y2oDgSNEj4qGqpve6JH6A==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:7gMmFhYj1gA=:IoTP35qarkZn7gYMXIeo67
- QCEqHkhlRDHp0LqW1YyGrDkPLHCCuSqwXHtUoGO0OtAXV7C/ZJIdxZTN9LuYMUkRYwzF2xcby
- HW+HkxynTMkZHLSJrKEtbw3wfP32CntUsKaJSfMIG9EEOxfVL0Kc/BH1HKpvHFQLmq0Os5X8s
- f7Y64fTfPAb0eTg1Yyx+lS3oJky/loETv09XR6pfEk+fjdrnFRehV188nyz5UJo3uD/IQvz+p
- VEhBwyaWvKNnDHrcHeERVg0jQ0zXsOlNIPMc+aTSpvOBVK32Y0DoiP2rMPYE3LycFgF6Pq9Vs
- RdFIwvG6eoJhC/DPwvkk0tFNCYrZF284bqplXaVha31NtU+sddnWtu2KNp+jf70iE9r4akN6U
- 2h6iN5IpK4MtJ/I7CFy+B0K7Zu1xy+/PbTyC+lZlWWuiSK/WNEIjDgg8eFoglTnE7CEwrlPOo
- Bj2xCkdod2V4xXntgh7Lz6IxcKgxtIPLJHqUSJEH9b//lT2MZ8IUUNJje74QJNGlak+KFAbDy
- Nbekcsz1spT6hOrT2RYDqREPFyy3HihA2kX2lPzUf4kLq0YF4kWg8mTNJq+UXSzox8evBWcrJ
- SKopkf06H4ZE855e0K46oBJwoI6L1RytdHa2qOhS65my5qpBAz8ZjNQH3wRK7eULYq/b80Kh8
- gcPKzgtG+w/efkwZYOM9zts9WF16+7Cmc5amazA2dHVGjJjODhLjNCyZIkS0U/Tyii42g3LPb
- b1qbtXdVX2+e1IfWtIY0WhmF2eCr4KrWzgATj5yo3OkPZxm+B4Y8UfhgtXSDiE3jzCFXnmBcZ
- vM5Xgy57ULFZpH8aYjmXrSFYv0QlDeQ/suCB5PYqG5CpcEwtwjMLXqPvifj/xJ0DxDcIhsGcX
- sAj4tIS55V0oOUIhfK+A84UtLPC7fjXJJ45FNKHuvjHQGwLrAE4mZCwYLtqDQt8GVBCB7xSyw
- yI+4o5VwMK0EGX5jnkJkBTf10/Y5nYZuIByYc83X7FQFIUqjzb23Y5Z56Etf8YySFFDrO0hRg
- YspipKCdDcGjCylpdG0CCcAJQF/5MWFpfpZEnrzWKUpG1BGBA0Z4iY1OTSreEezIvt0dhh8Mj
- XnCCUoogFdOLS0=
+X-Provags-ID: V03:K1:9YBEOE/0ksjmt2wjWNJn0556d4Eyvekd8JmtnGeTGa3spzkehYT
+ DwspkFn4Pw6cAIhUBshRXDtwRwe9tuprNj1FzuhJ57T6SdWdR4nDmEfUseSeoXa3zUqXiiJ
+ WGC8CXg5E0kPEOzjhngcAtRtITGu/HuEjqbAHfbdKo1yTGXUmYTtWE4/zgmr9teDU+I521k
+ jcza1UKMipD7GhpjFloUA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:NropN14ZhH4=:11clsb5zMIgUCXpdA3n9Uo
+ 3SXd6bYtyNQs+IHGllJAvZoWN7XnSGh1u+k+ipbSLjCXP892dOz3hP1hBxFRRNJRvnj6B0iPM
+ MO67ZBIURws8aOOULKOFwHT6vWy4NMFa7JkPoB57820LA/fXuZPaPN3VR7fhVsK0RVeki2Y1e
+ lSTJWeRIqOTj69l2EvtMlVWvfPb3764Zixbbvfq2vsPsjV0A37G86Zp/6pP6IRFnwgqsbXJXs
+ QIjZePFIhkIAEvZxTt11cxUxiiIZf883z9dALtbQGt2ScBnH47pRkkJZ6L7Tb3OLSgDXrDB4T
+ nXvfX6GjhUf84VcbLJdpAqlroZeI03fWG9fzkAPZnAXoZTPr/yHJkgkeAvOVkFwfPCEcHZ4Er
+ qblXksGwS4OL7VKPUeMpVbpdVm1WhGncl6/+ZbVqlqG0LsLwpD0LAoPv+PBQ5W3xa7JKbU9Gz
+ 6f2MAQgf84mYs8cY0m20sK7OF/uORmkERgzFrRdOiZqzSdfNEVzdEGtJFXwP7XHSRMXEn+ZrY
+ rCUqJvT9JpSocVhPHFF7Je7bmtRvkKWnt6P4QT8DXp+/Z9dX/rt3I0ypCMIBnSmEVW3ZBTJ3z
+ qSzf6KjHmaxWwKxgjbjbw9KxH2DYMw+GQZ+JgsgO0j3QBHbds8Mc/3uXFwzZrlujjlwpIoZae
+ 44Q02CE9tCEsrHeBX1WaPGHy4V0/zUyViCdX2B/V4nnCJVdFucU5EsRJ0Q8Tmdqu/ziV9B6Xr
+ Wm8yeOWFR1SHnUndddSiuealtRkR+RItlGjkUpR/sKHBkqgixI0TTQRoIv8Mih3s8GgH+1U+X
+ YWaHJIWtaiaFCKBejNrZUTrDm/7HFR8u152oB85Fmdj9c+dd+cd1cAoqUl1JiXd6oeiA9ucSr
+ HdtwjNleJh+W0QR3M9VF73yqLkS9Qwk4A2UrgU4MXKo52B7XbJ1Qyc/5aPkrhr9aMxJyfk+ew
+ 7t+m175849xdBRRbgrqah+M05kIt9z41QpgAGNe7DKeVWl5w09WpSWnu1VxvcYUn4vZvJS1F1
+ PkCr7EsYGDoQludvAGdeOpoFNhyNSeJn35URzSCfJ0FKmTDPzxCQs5kXB9iuActev0gjAeudR
+ dTZaHIChcIr9fs=
 X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -75,10 +75,6 @@ Since SMM calls can be very slow while also making error reporting
 difficult for dell_smm_write(), remove the function call from
 i8k_set_fan() and call it separately in i8k_ioctl_unlocked().
 
-Since this patch was backported from kernel 5.16, the data argument
-of i8k_set_fan and i8k_get_fan_status was omitted (it exists since
-kernel 5.15).
-
 This patch was originally a performance optimization, but it turned
 out a user with a buggy machine requires this patch since it also
 fixes error reporting when i8k_get_fan_status fails.
@@ -86,9 +82,7 @@ https://github.com/lm-sensors/lm-sensors/pull/383
 
 Tested on a Dell Inspiron 3505.
 
-Cc: <stable@vger.kernel.org> # 5.10.x
-Cc: <stable@vger.kernel.org> # 5.4.x
-Cc: <stable@vger.kernel.org> # 4.x.x
+Cc: <stable@vger.kernel.org> # 5.15.x
 Signed-off-by: Armin Wolf <W_Armin@gmx.de>
 =2D--
  drivers/hwmon/dell-smm-hwmon.c | 12 ++++++++----
@@ -96,30 +90,34 @@ Signed-off-by: Armin Wolf <W_Armin@gmx.de>
 
 diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon=
 .c
-index 87f401100466..10c7b6295b02 100644
+index 47fce97996de..9cb1c3588038 100644
 =2D-- a/drivers/hwmon/dell-smm-hwmon.c
 +++ b/drivers/hwmon/dell-smm-hwmon.c
-@@ -317,7 +317,7 @@ static int i8k_enable_fan_auto_mode(bool enable)
+@@ -326,7 +326,7 @@ static int i8k_enable_fan_auto_mode(const struct dell_=
+smm_data *data, bool enabl
  }
 
  /*
 - * Set the fan speed (off, low, high). Returns the new fan status.
 + * Set the fan speed (off, low, high, ...).
   */
- static int i8k_set_fan(int fan, int speed)
+ static int i8k_set_fan(const struct dell_smm_data *data, int fan, int spe=
+ed)
  {
-@@ -329,7 +329,7 @@ static int i8k_set_fan(int fan, int speed)
- 	speed =3D (speed < 0) ? 0 : ((speed > i8k_fan_max) ? i8k_fan_max : speed=
-);
+@@ -338,7 +338,7 @@ static int i8k_set_fan(const struct dell_smm_data *dat=
+a, int fan, int speed)
+ 	speed =3D (speed < 0) ? 0 : ((speed > data->i8k_fan_max) ? data->i8k_fan=
+_max : speed);
  	regs.ebx =3D (fan & 0xff) | (speed << 8);
 
--	return i8k_smm(&regs) ? : i8k_get_fan_status(fan);
+-	return i8k_smm(&regs) ? : i8k_get_fan_status(data, fan);
 +	return i8k_smm(&regs);
  }
 
- static int i8k_get_temp_type(int sensor)
-@@ -443,7 +443,7 @@ static int
- i8k_ioctl_unlocked(struct file *fp, unsigned int cmd, unsigned long arg)
+ static int __init i8k_get_temp_type(int sensor)
+@@ -452,7 +452,7 @@ static int
+ i8k_ioctl_unlocked(struct file *fp, struct dell_smm_data *data, unsigned =
+int cmd, unsigned long arg)
  {
  	int val =3D 0;
 -	int speed;
@@ -127,17 +125,17 @@ index 87f401100466..10c7b6295b02 100644
  	unsigned char buff[16];
  	int __user *argp =3D (int __user *)arg;
 
-@@ -504,7 +504,11 @@ i8k_ioctl_unlocked(struct file *fp, unsigned int cmd,=
- unsigned long arg)
+@@ -513,7 +513,11 @@ i8k_ioctl_unlocked(struct file *fp, struct dell_smm_d=
+ata *data, unsigned int cmd
  		if (copy_from_user(&speed, argp + 1, sizeof(int)))
  			return -EFAULT;
 
--		val =3D i8k_set_fan(val, speed);
-+		err =3D i8k_set_fan(val, speed);
+-		val =3D i8k_set_fan(data, val, speed);
++		err =3D i8k_set_fan(data, val, speed);
 +		if (err < 0)
 +			return err;
 +
-+		val =3D i8k_get_fan_status(val);
++		val =3D i8k_get_fan_status(data, val);
  		break;
 
  	default:
