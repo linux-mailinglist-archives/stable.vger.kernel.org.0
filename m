@@ -2,83 +2,219 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A0B84B37AA
-	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 20:42:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82E104B3834
+	for <lists+stable@lfdr.de>; Sat, 12 Feb 2022 22:22:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231195AbiBLTmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Feb 2022 14:42:51 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55556 "EHLO
+        id S231793AbiBLVWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Feb 2022 16:22:11 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230072AbiBLTmt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 14:42:49 -0500
-Received: from cavan.codon.org.uk (irc.codon.org.uk [IPv6:2a00:1098:84:22e::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B53FA606CC;
-        Sat, 12 Feb 2022 11:42:42 -0800 (PST)
-Received: by cavan.codon.org.uk (Postfix, from userid 1000)
-        id 4E74840A64; Sat, 12 Feb 2022 19:42:40 +0000 (GMT)
-Date:   Sat, 12 Feb 2022 19:42:40 +0000
-From:   Matthew Garrett <mjg59@srcf.ucam.org>
-To:     Aditya Garg <gargaditya08@live.com>
-Cc:     Ard Biesheuvel <ardb@kernel.org>, Jeremy Kerr <jk@ozlabs.org>,
-        "joeyli.kernel@gmail.com" <joeyli.kernel@gmail.com>,
-        "zohar@linux.ibm.com" <zohar@linux.ibm.com>,
-        "jmorris@namei.org" <jmorris@namei.org>,
-        "eric.snowberg@oracle.com" <eric.snowberg@oracle.com>,
-        "dhowells@redhat.com" <dhowells@redhat.com>,
-        "jlee@suse.com" <jlee@suse.com>,
-        "James.Bottomley@hansenpartnership.com" 
-        <James.Bottomley@HansenPartnership.com>,
-        "jarkko@kernel.org" <jarkko@kernel.org>,
-        "mic@digikod.net" <mic@digikod.net>,
-        "dmitry.kasatkin@gmail.com" <dmitry.kasatkin@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Aun-Ali Zaidi <admin@kodeit.net>
-Subject: Re: [PATCH] efi: Do not import certificates from UEFI Secure Boot
- for T2 Macs
-Message-ID: <20220212194240.GA4131@srcf.ucam.org>
-References: <9D0C961D-9999-4C41-A44B-22FEAF0DAB7F@live.com>
- <20220209164957.GB12763@srcf.ucam.org>
- <5A3C2EBF-13FF-4C37-B2A0-1533A818109F@live.com>
- <20220209183545.GA14552@srcf.ucam.org>
- <20220209193705.GA15463@srcf.ucam.org>
- <2F1CC5DE-5A03-46D2-95E7-DD07A4EF2766@live.com>
- <20220210180905.GB18445@srcf.ucam.org>
- <99BB011C-71DE-49FA-81CB-BE2AC9613030@live.com>
- <20220211162857.GB10606@srcf.ucam.org>
- <F078BEBE-3DED-4EE3-A2B8-2C5744B5454C@live.com>
+        with ESMTP id S230000AbiBLVWJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Feb 2022 16:22:09 -0500
+Received: from smtp-fw-33001.amazon.com (smtp-fw-33001.amazon.com [207.171.190.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C853D606F6
+        for <stable@vger.kernel.org>; Sat, 12 Feb 2022 13:22:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1644700926; x=1676236926;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=SbYmmVQYBuDSGucqYS1ajanUr27AWqzO8MwabkTshuI=;
+  b=p23gxqiP1+wR5yOeL/9LSTdewNlh/EPI7pZDW2ZqN9gleV1kw3VuR4mW
+   y2IRBCZlhcP9lgQ3CLq+mOeWErsFL9adPXp0mcqb0gknxVnx5Dpuel7Jp
+   JFvT9yimEM5Ds2ETTpE1eyDuQCV95oB9MHtcD1gs3g67jvJb9o3to4Tz/
+   A=;
+X-IronPort-AV: E=Sophos;i="5.88,364,1635206400"; 
+   d="scan'208";a="175657573"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-iad-1a-2d7489a4.us-east-1.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-33001.sea14.amazon.com with ESMTP; 12 Feb 2022 21:22:04 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-iad-1a-2d7489a4.us-east-1.amazon.com (Postfix) with ESMTPS id 39890C1650;
+        Sat, 12 Feb 2022 21:22:03 +0000 (UTC)
+Received: from EX13D13UWA001.ant.amazon.com (10.43.160.136) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.28; Sat, 12 Feb 2022 21:22:02 +0000
+Received: from EX13MTAUEE002.ant.amazon.com (10.43.62.24) by
+ EX13D13UWA001.ant.amazon.com (10.43.160.136) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.28; Sat, 12 Feb 2022 21:22:02 +0000
+Received: from dev-dsk-fllinden-2c-d7720709.us-west-2.amazon.com
+ (172.19.206.175) by mail-relay.amazon.com (10.43.62.224) with Microsoft SMTP
+ Server id 15.0.1497.28 via Frontend Transport; Sat, 12 Feb 2022 21:22:01
+ +0000
+Received: by dev-dsk-fllinden-2c-d7720709.us-west-2.amazon.com (Postfix, from userid 6262777)
+        id 581D08CD; Sat, 12 Feb 2022 21:22:01 +0000 (UTC)
+From:   Frank van der Linden <fllinden@amazon.com>
+To:     <stable@vger.kernel.org>
+CC:     Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Frank van der Linden <fllinden@amazon.com>
+Subject: [PATCH 4.9] bpf: Add kconfig knob for disabling unpriv bpf by default
+Date:   Sat, 12 Feb 2022 21:21:49 +0000
+Message-ID: <20220212212149.6421-1-fllinden@amazon.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F078BEBE-3DED-4EE3-A2B8-2C5744B5454C@live.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-0.8 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,KHOP_HELO_FCRDNS,SPF_HELO_NEUTRAL,
-        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Spam-Status: No, score=-11.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Feb 12, 2022 at 05:53:47AM +0000, Aditya Garg wrote:
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-> Feb 12 11:01:52 MacBook kernel: Reading EFI variable db-d719b2cb-3d3a-4596-a3bc-dad00e67656f
+commit 08389d888287c3823f80b0216766b71e17f0aba5 upstream.
 
-Ok. With CONFIG_LOAD_UEFI_KEYS=n, can you run:
+Add a kconfig knob which allows for unprivileged bpf to be disabled by default.
+If set, the knob sets /proc/sys/kernel/unprivileged_bpf_disabled to value of 2.
 
-cat /sys/firmware/efi/efivars/db-d719b2cb-3d3a-4596-a3bc-dad00e67656f
+This still allows a transition of 2 -> {0,1} through an admin. Similarly,
+this also still keeps 1 -> {1} behavior intact, so that once set to permanently
+disabled, it cannot be undone aside from a reboot.
 
-and see whether it generates the same failure? If so then my (handwavy) 
-guess is that something's going wrong with a firmware codepath for the 
-d719b2cb-3d3a-4596-a3bc-dad00e67656f GUID. Someone could potentially 
-then figure out whether the same happens under Windows, but the easiest 
-thing is probably to just return a failure on Apple hardware when 
-someone tries to access anything with that GUID.
+We've also added extra2 with max of 2 for the procfs handler, so that an admin
+still has a chance to toggle between 0 <-> 2.
+
+Either way, as an additional alternative, applications can make use of CAP_BPF
+that we added a while ago.
+
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/74ec548079189e4e4dffaeb42b8987bb3c852eee.1620765074.git.daniel@iogearbox.net
+[fllinden@amazon.com: backported to 4.9]
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
+---
+ Documentation/sysctl/kernel.txt | 21 +++++++++++++++++++++
+ init/Kconfig                    | 10 ++++++++++
+ kernel/bpf/syscall.c            |  3 ++-
+ kernel/sysctl.c                 | 29 +++++++++++++++++++++++++----
+ 4 files changed, 58 insertions(+), 5 deletions(-)
+
+diff --git a/Documentation/sysctl/kernel.txt b/Documentation/sysctl/kernel.txt
+index ffab8b5caa60..30ba179392d8 100644
+--- a/Documentation/sysctl/kernel.txt
++++ b/Documentation/sysctl/kernel.txt
+@@ -90,6 +90,7 @@ show up in /proc/sys/kernel:
+ - sysctl_writes_strict
+ - tainted
+ - threads-max
++- unprivileged_bpf_disabled
+ - unknown_nmi_panic
+ - watchdog
+ - watchdog_thresh
+@@ -995,6 +996,26 @@ available RAM pages threads-max is reduced accordingly.
+ 
+ ==============================================================
+ 
++unprivileged_bpf_disabled:
++
++Writing 1 to this entry will disable unprivileged calls to bpf();
++once disabled, calling bpf() without CAP_SYS_ADMIN will return
++-EPERM. Once set to 1, this can't be cleared from the running kernel
++anymore.
++
++Writing 2 to this entry will also disable unprivileged calls to bpf(),
++however, an admin can still change this setting later on, if needed, by
++writing 0 or 1 to this entry.
++
++If BPF_UNPRIV_DEFAULT_OFF is enabled in the kernel config, then this
++entry will default to 2 instead of 0.
++
++  0 - Unprivileged calls to bpf() are enabled
++  1 - Unprivileged calls to bpf() are disabled without recovery
++  2 - Unprivileged calls to bpf() are disabled
++
++==============================================================
++
+ unknown_nmi_panic:
+ 
+ The value in this file affects behavior of handling NMI. When the
+diff --git a/init/Kconfig b/init/Kconfig
+index 07570008e2fd..7e09227b976f 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1645,6 +1645,16 @@ config ADVISE_SYSCALLS
+ 	  applications use these syscalls, you can disable this option to save
+ 	  space.
+ 
++config BPF_UNPRIV_DEFAULT_OFF
++	bool "Disable unprivileged BPF by default"
++	depends on BPF_SYSCALL
++	help
++	  Disables unprivileged BPF by default by setting the corresponding
++	  /proc/sys/kernel/unprivileged_bpf_disabled knob to 2. An admin can
++	  still reenable it by setting it to 0 later on, or permanently
++	  disable it by setting it to 1 (from which no other transition to
++	  0 is possible anymore).
++
+ config USERFAULTFD
+ 	bool "Enable userfaultfd() system call"
+ 	select ANON_INODES
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index e10314223cbf..e30ad1be6841 100644
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -22,7 +22,8 @@
+ 
+ DEFINE_PER_CPU(int, bpf_prog_active);
+ 
+-int sysctl_unprivileged_bpf_disabled __read_mostly;
++int sysctl_unprivileged_bpf_disabled __read_mostly =
++	IS_BUILTIN(CONFIG_BPF_UNPRIV_DEFAULT_OFF) ? 2 : 0;
+ 
+ static LIST_HEAD(bpf_map_types);
+ 
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 513e6da318c4..78b445562b81 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -221,6 +221,28 @@ static int sysrq_sysctl_handler(struct ctl_table *table, int write,
+ 
+ #endif
+ 
++#ifdef CONFIG_BPF_SYSCALL
++static int bpf_unpriv_handler(struct ctl_table *table, int write,
++                             void *buffer, size_t *lenp, loff_t *ppos)
++{
++	int ret, unpriv_enable = *(int *)table->data;
++	bool locked_state = unpriv_enable == 1;
++	struct ctl_table tmp = *table;
++
++	if (write && !capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
++	tmp.data = &unpriv_enable;
++	ret = proc_dointvec_minmax(&tmp, write, buffer, lenp, ppos);
++	if (write && !ret) {
++		if (locked_state && unpriv_enable != 1)
++			return -EPERM;
++		*(int *)table->data = unpriv_enable;
++	}
++	return ret;
++}
++#endif
++
+ static struct ctl_table kern_table[];
+ static struct ctl_table vm_table[];
+ static struct ctl_table fs_table[];
+@@ -1202,10 +1224,9 @@ static struct ctl_table kern_table[] = {
+ 		.data		= &sysctl_unprivileged_bpf_disabled,
+ 		.maxlen		= sizeof(sysctl_unprivileged_bpf_disabled),
+ 		.mode		= 0644,
+-		/* only handle a transition from default "0" to "1" */
+-		.proc_handler	= proc_dointvec_minmax,
+-		.extra1		= &one,
+-		.extra2		= &one,
++		.proc_handler	= bpf_unpriv_handler,
++		.extra1		= &zero,
++		.extra2		= &two,
+ 	},
+ #endif
+ #if defined(CONFIG_TREE_RCU) || defined(CONFIG_PREEMPT_RCU)
+-- 
+2.32.0
+
