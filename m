@@ -2,367 +2,497 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 325964B3D02
-	for <lists+stable@lfdr.de>; Sun, 13 Feb 2022 19:54:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B85254B3D23
+	for <lists+stable@lfdr.de>; Sun, 13 Feb 2022 20:32:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237882AbiBMSyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Feb 2022 13:54:22 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54382 "EHLO
+        id S238006AbiBMTcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Feb 2022 14:32:53 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237904AbiBMSyV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Feb 2022 13:54:21 -0500
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE765583B4
-        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 10:54:13 -0800 (PST)
-Received: by mail-lf1-x12e.google.com with SMTP id m14so5258305lfu.4
-        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 10:54:13 -0800 (PST)
+        with ESMTP id S229737AbiBMTcx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Feb 2022 14:32:53 -0500
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85A1156C1E
+        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 11:32:46 -0800 (PST)
+Received: by mail-pf1-x433.google.com with SMTP id c10so16069pfv.8
+        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 11:32:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=telus.net; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=uyV0fZKMNLC1nnke8AH8O+k077KaRJMIe5yNZP+9XIg=;
-        b=duQB88ECPfjSiqqAgQLWneeDJrziiE8aLxper/a2bH+uPpM7xX3D9nKiH5AXZ9H/WT
-         pHqQ0PaMt1bO3GXnnGII3LNjjxAzQzOI0NwupfO0b0UVw1gKqLV2j59z/Q+q2xdAbUpr
-         kL4jaeTWaQ2JNsC3zQBHoMr6IsSErKgnfL7CZRkgFUCcb5UioV6HA4jkB0H88KktTt1W
-         2J1NAAevOG/6DA+pmJQ1vq8z3avqjxINeF8EHTDS1LmkkitVgWElCQd56iitEDaK3JV3
-         q8TRHgdUjb29hOEZ5CVSKS9DPNknY6FKb1IrMQ+LKocVozar3bu9hUjIYU87VucNj6lX
-         5CbQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=4QBEFxchFjd8WMum8Gf4qu95ZB7xs25vTo9RvtckL2M=;
+        b=HWlQV5XkUMNAZlcWAMtFKSAqAusC+FTvi0gPpFrCwAhRBKn5uKUkV7eytYykv9jGMd
+         5lf5IjCeT8xrusOmGs4iLWehmUkY7plcA4WTwF+y0Mle08qzPInyhqQUJRLigSL+4KkY
+         MX+4Zztw8vK7Yj0715gYtjM8k5Elt5gXe4sgvdZnIR3jkikDFJCuIfZP6D7oge3mGK+i
+         51UiKjLQwjuZtvn4dHWHimP0LOG7mOaoESwOpiBuMj+LA/cmLaLg6fl84AEAEMRwx9Vu
+         HS/ePrxcCNB8YRGbP0PC9NlO8Vt03QW63V/jwXlOyAH/VzZYfkmFAQmnEuLTPgQJPp7K
+         2wZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=uyV0fZKMNLC1nnke8AH8O+k077KaRJMIe5yNZP+9XIg=;
-        b=c3buGIXKydgNihfV9SFuHFjA4yKSTocFQWMcgJu+8N2c/+jCsE4EIbCZxXNnDUSQVk
-         EL8sXcwk20mNGj4qyPyNeoTnKboqCcplv+8BF6QiDO9wkzvUtAghIcwRdOh/6ppT9n6h
-         GJL1Ybfwyn9AOwbjPRemQrx6RP1exBQa5HmQmrXZNI+hBh7KrQniBSuTjwYqUu0Ketl7
-         HnO/t4Bk04d46U+P31vCE6dCON8YOEwqFKdqLP2fJTxAVkVrw+vlq28EWT3nsNTAHaqM
-         uKgcOzkQ/MQVQjqtaV+G9wuaTRFXFgNcr62jtCltPhy4aBdIrcxcequ1rMaRJxYhPVhB
-         9Eig==
-X-Gm-Message-State: AOAM531GPXHreegwt4qttShlxZ8fGLn/41Mcwr9sMsYxODNt8X7Q7FkP
-        812KqXKT58jgQfjVBZ2wldsxfI6Wh0wCgka8fWhyMg==
-X-Google-Smtp-Source: ABdhPJxzZ8OOVzkk/aqg1HvZOn4VA5n8ahHkOaGvBw3dhJv8iyvntOkDnbvm1uFEYNYI8LTqDqJaI+rA6/ZmJ1UdEYM=
-X-Received: by 2002:a05:6512:6c9:: with SMTP id u9mr7968198lff.207.1644778452055;
- Sun, 13 Feb 2022 10:54:12 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=4QBEFxchFjd8WMum8Gf4qu95ZB7xs25vTo9RvtckL2M=;
+        b=UFZkm/nCJIy+lvX7O3yaO0sdG0Inm+oRTPFgInW9ReZedUZ+9ha7hwaXdp4ZRDLVBF
+         KvFr/hMR5TRpohnUcmOcnd5ApQQxGXt6Cy+5iEDV8OGPeCBBrIYDzpypliGo2LkVI0rW
+         FwyYT9QRdojj7UNSVq7RaqjdjJAV6jTFaTIwww41QLWjRjzFhUEPVdv1hHRBAGzZaeN1
+         CBYpOojSk7ElklRYIQUEBzB03vFaLDwJvQsqK9AqXzUIMx1U/5TJNH+wXLQjjKqTb828
+         MEPUCBJOYNAwC7bsOsx8BS3HhQ7D6XUiC6BruY0h+elW35q8MwcMdTfNPUrQZAOFCTVB
+         4pzg==
+X-Gm-Message-State: AOAM531H3GhSQwrbUfY0EG29gFgkqv+oyizQFECOPLcxe7rwQ9g8GexF
+        K2wPJeZoAvg3lwEXYjwN3D+MafpyH674alz1
+X-Google-Smtp-Source: ABdhPJxR65zcSga9oi0/MmS/j5bCuNXvEIK9YijbznXXLwGTb/uMRLdwhphxV1h7XQuKqUZtdP5Stg==
+X-Received: by 2002:a63:6aca:: with SMTP id f193mr9009455pgc.85.1644780765573;
+        Sun, 13 Feb 2022 11:32:45 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l17sm33494399pfu.61.2022.02.13.11.32.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 13 Feb 2022 11:32:45 -0800 (PST)
+Message-ID: <62095cdd.1c69fb81.5be43.2d27@mx.google.com>
+Date:   Sun, 13 Feb 2022 11:32:45 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <003f01d81c8c$d20ee3e0$762caba0$@telus.net> <20220208023940.GA5558@shbuild999.sh.intel.com>
- <CAAYoRsXrwOQgzAcED+JfVG0=JQNEXuyGcSGghL4Z5xnFgkp+TQ@mail.gmail.com>
- <20220208091525.GA7898@shbuild999.sh.intel.com> <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
- <e185b89fb97f47758a5e10239fc3eed0@intel.com>
-In-Reply-To: <e185b89fb97f47758a5e10239fc3eed0@intel.com>
-From:   Doug Smythies <dsmythies@telus.net>
-Date:   Sun, 13 Feb 2022 10:54:00 -0800
-Message-ID: <CAAYoRsXbBJtvJzh91nTXATLL1eb2EKbTVb8vEWa3Y6DfCWhZeg@mail.gmail.com>
-Subject: Re: CPU excessively long times between frequency scaling driver calls
- - bisected
-To:     "Zhang, Rui" <rui.zhang@intel.com>
-Cc:     "Tang, Feng" <feng.tang@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "paulmck@kernel.org" <paulmck@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
-        dsmythies <dsmythies@telus.net>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Kernel: v5.15.23-163-g45e450825953
+Subject: stable-rc/queue/5.15 baseline: 114 runs,
+ 11 regressions (v5.15.23-163-g45e450825953)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Rui,
+stable-rc/queue/5.15 baseline: 114 runs, 11 regressions (v5.15.23-163-g45e4=
+50825953)
 
-On Wed, Feb 9, 2022 at 11:45 PM Zhang, Rui <rui.zhang@intel.com> wrote:
-> On 2022.02.09 14:23 Doug wrote:
-> > On Tue, Feb 8, 2022 at 1:15 AM Feng Tang <feng.tang@intel.com> wrote:
-> > > On Mon, Feb 07, 2022 at 11:13:00PM -0800, Doug Smythies wrote:
-> > > > > >
-> > > > > > Since kernel 5.16-rc4 and commit:
-> > > > > > b50db7095fe002fa3e16605546cba66bf1b68a3e
-> > > > > > " x86/tsc: Disable clocksource watchdog for TSC on qualified platorms"
-> > > > > >
-> > > > > > There are now occasions where times between calls to the driver
-> > > > > > can be over 100's of seconds and can result in the CPU frequency
-> > > > > > being left unnecessarily high for extended periods.
-> > > > > >
-> > > > > > From the number of clock cycles executed between these long
-> > > > > > durations one can tell that the CPU has been running code, but
-> > > > > > the driver never got called.
-> > > > > >
-> > > > > > Attached are some graphs from some trace data acquired using
-> > > > > > intel_pstate_tracer.py where one can observe an idle system
-> > > > > > between about 42 and well over 200 seconds elapsed time, yet
-> > > > > > CPU10 never gets called, which would have resulted in reducing
-> > > > > > it's pstate request, until an elapsed time of 167.616 seconds,
-> > > > > > 126 seconds since the last call. The CPU frequency never does go to
-> > minimum.
-> > > > > >
-> > > > > > For reference, a similar CPU frequency graph is also attached,
-> > > > > > with the commit reverted. The CPU frequency drops to minimum,
-> > > > > > over about 10 or 15 seconds.,
-> > > > >
-> > > > > commit b50db7095fe0 essentially disables the clocksource watchdog,
-> > > > > which literally doesn't have much to do with cpufreq code.
-> > > > >
-> > > > > One thing I can think of is, without the patch, there is a
-> > > > > periodic clocksource timer running every 500 ms, and it loops to
-> > > > > run on all CPUs in turn. For your HW, it has 12 CPUs (from the
-> > > > > graph), so each CPU will get a timer (HW timer interrupt backed)
-> > > > > every 6 seconds. Could this affect the cpufreq governor's work
-> > > > > flow (I just quickly read some cpufreq code, and seem there is
-> > > > > irq_work/workqueue involved).
-> > > >
-> > > > 6 Seconds is the longest duration I have ever seen on this processor
-> > > > before commit b50db7095fe0.
-> > > >
-> > > > I said "the times between calls to the driver have never exceeded 10
-> > > > seconds" originally, but that involved other processors.
-> > > >
-> > > > I also did longer, 9000 second tests:
-> > > >
-> > > > For a reverted kernel the driver was called 131,743, and 0 times the
-> > > > duration was longer than 6.1 seconds.
-> > > >
-> > > > For a non-reverted kernel the driver was called 110,241 times, and
-> > > > 1397 times the duration was longer than 6.1 seconds, and the maximum
-> > > > duration was 303.6 seconds
-> > >
-> > > Thanks for the data, which shows it is related to the removal of
-> > > clocksource watchdog timers. And under this specific configurations,
-> > > the cpufreq work flow has some dependence on that watchdog timers.
-> > >
-> > > Also could you share you kernel config, boot message and some system
-> > > settings like for tickless mode, so that other people can try to
-> > > reproduce? thanks
-> >
-> > I steal the kernel configuration file from the Ubuntu mainline PPA [1], what
-> > they call "lowlatency", or 1000Hz tick. I make these changes before compile:
-> >
-> > scripts/config --disable DEBUG_INFO
-> > scripts/config --disable SYSTEM_TRUSTED_KEYS scripts/config --disable
-> > SYSTEM_REVOCATION_KEYS
-> >
-> > I also send you the config and dmesg files in an off-list email.
-> >
-> > This is an idle, and very low periodic loads, system type test.
-> > My test computer has no GUI and very few services running.
-> > Notice that I have not used the word "regression" yet in this thread, because
-> > I don't know for certain that it is. In the end, we don't care about CPU
-> > frequency, we care about wasting energy.
-> > It is definitely a change, and I am able to measure small increases in energy
-> > use, but this is all at the low end of the power curve.
+Regressions Summary
+-------------------
 
-Please keep the above statement in mind. The differences were rather minor,
-Since Rui asks for data below, I have tried to find better examples.
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+ox820-clouden...lug-series-3 | arm   | lab-baylibre | gcc-10   | oxnas_v6_d=
+efconfig | 3          =
 
-> What do you use to measure the energy use? And what difference do you observe?
+qemu_arm64-virt-gicv2        | arm64 | lab-baylibre | gcc-10   | defconfig =
+         | 1          =
 
-I use both turbostat and a processor power monitoring tool of my own.
-Don't get me wrong, I love turbostat, but it has become somewhat heavy
-(lots of code per interval) over recent years. My own utility has minimal
-code per interval, only uses pre-allocated memory with no disk or terminal
-interaction during the sampling phase, resulting in minimal system perturbation
-due to itself.
+qemu_arm64-virt-gicv2        | arm64 | lab-broonie  | gcc-10   | defconfig =
+         | 1          =
 
-> > So far I have not found a significant example of increased power use, but I
-> > also have not looked very hard.
+qemu_arm64-virt-gicv2-uefi   | arm64 | lab-baylibre | gcc-10   | defconfig =
+         | 1          =
 
-I looked a little harder for this reply, searching all single CPU
-loads for a few
-work/sleep frequencies (73, 113, 211, 347, 401 hertz) fixed work packet
-per work interval.
+qemu_arm64-virt-gicv2-uefi   | arm64 | lab-broonie  | gcc-10   | defconfig =
+         | 1          =
 
-> > During any test, many monitoring tools might shorten durations.
-> > For example if I run turbostat, say:
-> >
-> > sudo turbostat --Summary --quiet --show
-> > Busy%,Bzy_MHz,IRQ,PkgWatt,PkgTmp,RAMWatt,GFXWatt,CorWatt --
-> > interval
-> > 2.5
-> >
-> > Well, yes then the maximum duration would be 2.5 seconds, because
-> > turbostat wakes up each CPU to inquire about things causing a call to the CPU
-> > scaling driver. (I tested this, for about
-> > 900 seconds.)
-> >
-> > For my power tests I use a sample interval of >= 300 seconds.
->
-> So you use something like "turbostat sleep 900" for power test,
+qemu_arm64-virt-gicv3        | arm64 | lab-baylibre | gcc-10   | defconfig =
+         | 1          =
 
-Typically I use 300 seconds for turbostat for this work.
-It was only the other day, that I saw a duration of 302 seconds, so
-yes I should try even longer, but it is becoming a tradeoff between
-experiments taking many many hours and time available.
+qemu_arm64-virt-gicv3        | arm64 | lab-broonie  | gcc-10   | defconfig =
+         | 1          =
 
-> and the RAPL Energy counters show the power difference?
+qemu_arm64-virt-gicv3-uefi   | arm64 | lab-baylibre | gcc-10   | defconfig =
+         | 1          =
 
-Yes.
+qemu_arm64-virt-gicv3-uefi   | arm64 | lab-broonie  | gcc-10   | defconfig =
+         | 1          =
 
-> Can you paste the turbostat output both w/ and w/o the watchdog?
 
-Workflow:
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.23-163-g45e450825953/plan/baseline/
 
-Task 1: Purpose: main periodic load.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.23-163-g45e450825953
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      45e45082595304779744c5b9469dc0341305bfc3 =
 
-411 hertz work sleep frequency and about 26.6% load at 4.8 Ghz,
-max_turbo (it would limit out at 100% duty cycle at about pstate 13)
 
-Note: this is a higher load than I was using when I started this
-email thread.
 
-Task 2: Purpose: To assist in promoting manifestation of the
-issue of potential concern with commit b50db7095fe0.
+Test Regressions
+---------------- =
 
-A short burst of work (about 30 milliseconds @ max turbo,
-longer at lower frequencies), then sleep for 45 seconds.
-Say, almost 0 load at 0.022 hertz.
-Greater than or equal to 30 milliseconds at full load, ensures
-that the intel_pstate driver will be called at least 2 or 3 times,
-raising the requested pstate for that CPU.
 
-Task 3: Purpose: Acquire power data with minimum system
-perturbation due to this very monitoring task.
 
-Both turbostat and my own power monitor were used, never
-at the same time (unless just to prove they reported the same
-power). This turbostat command:
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+ox820-clouden...lug-series-3 | arm   | lab-baylibre | gcc-10   | oxnas_v6_d=
+efconfig | 3          =
 
-turbostat --Summary --quiet --show
-Busy%,Bzy_MHz,IRQ,PkgWatt,PkgTmp,RAMWatt,GFXWatt,CorWatt --interval
-300
 
-and my program also sampled at 300 second per sample,
-typically 5 samples, and after 1/2 hour since boot.
+  Details:     https://kernelci.org/test/plan/id/6209256c01c259680ac62996
 
-Kernels:
-stock: 5.17-rc3 as is.
-revert: 5.17-rc3 with b50db7095fe0 reverted.
+  Results:     2 PASS, 3 FAIL, 1 SKIP
+  Full config: oxnas_v6_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm/oxnas_v6_defconfig/gcc-10/lab-baylibre/baseline-ox820=
+-cloudengines-pogoplug-series-3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm/oxnas_v6_defconfig/gcc-10/lab-baylibre/baseline-ox820=
+-cloudengines-pogoplug-series-3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
 
-Test 1: no-hwp/active/powersave:
 
-Doug's cpu_power_mon:
 
-Stock: 5 samples @ 300 seconds per sample:
-average: 4.7 watts +9%
-minimum: 4.3 watts
-maximum: 4.9 watts
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/6209256c01c25968=
+0ac62999
+        new failure (last pass: v5.15.23-79-g21ea1dc6c11d)
+        1 lines
 
-Revert: 5 samples @ 300 seconds per sample:
-average: 4.3 watts
-minimum: 4.2 watts
-maximum: 4.5 watts
+    2022-02-13T15:35:48.608795  / # =
 
-Test 2: no-hwp/passive/schedutil:
+    2022-02-13T15:35:48.714665  #
+    2022-02-13T15:35:48.715400  =
 
-In the beginning active/powersave was used
-because it is the easiest (at least for me) to
-understand and interpret the intel_pstate_tracer.py
-results. Long durations are common in passive mode,
-because something higher up can decide not to call the driver
-because nothing changed. Very valuable lost information
-in my opinion.
+    2022-02-13T15:35:48.817010  / # #export SHELL=3D/bin/sh
+    2022-02-13T15:35:48.817810  =
 
-I didn't figure it out for awhile, but schedutil is bi-stable
-with this workflow, depending on if it approaches steady
-state from a higher or lower previous load (i.e. hysteresis).
-With either kernel it might run for hours and hours at an
-average of 6.1 watts or 4.9 watts. This difference dominates,
-so trying to reveal if there is any contribution from the commit
-of this thread is useless.
+    2022-02-13T15:35:48.919739  / # export SHELL=3D/bin/sh. /lava-1557696/e=
+nvironment
+    2022-02-13T15:35:48.922397  =
 
-Test 3: Similar workflow as test1, but 347 Hertz and
-a little less work per work period.
+    2022-02-13T15:35:49.024060  / # . /lava-1557696/environment/lava-155769=
+6/bin/lava-test-runner /lava-1557696/0
+    2022-02-13T15:35:49.026509  =
 
-Task 2 was changed to use more CPUs to try
-to potentially amplify manifestation of the effect.
+    2022-02-13T15:35:49.034134  / # /lava-1557696/bin/lava-test-runner /lav=
+a-1557696/0 =
 
- Doug's cpu_power_mon:
+    ... (9 line(s) more)  =
 
-Stock: 5 samples @ 300 seconds per sample:
-average: 4.2 watts +31%
-minimum: 3.5 watts
-maximum: 4.9 watts
 
-Revert: 5 samples @ 300 seconds per sample:
-average: 3.2 watts
-minimum: 3.1 watts
-maximum: 3.2 watts
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/6209256c01c2596=
+80ac6299a
+        new failure (last pass: v5.15.23-79-g21ea1dc6c11d)
+        13 lines
 
-Re-do test 1, but with the improved task 2:
+    2022-02-13T15:35:49.288728  kern  :alert : Register r0 information: sla=
+b kmalloc-2k start c19cb000 pointer offset 64 size 2048
+    2022-02-13T15:35:49.289348  kern  :alert : Register r1 information: NUL=
+L pointer
+    2022-02-13T15:35:49.289580  kern  :alert : Register r2 information: sla=
+b kmalloc-1k start c305d400 pointer offset 0 size 1024
+    2022-02-13T15:35:49.289775  ker<8>[   11.464399] <LAVA_SIGNAL_TESTCASE =
+TEST_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D13>
+    2022-02-13T15:35:49.289958  n  :alert : Register r3 information: non-pa=
+ged memory   =
 
-Turbostat:
 
-Stock:
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6209256c01c2596=
+80ac6299b
+        new failure (last pass: v5.15.23-79-g21ea1dc6c11d)
+        26 lines
 
-doug@s19:~$ sudo
-/home/doug/kernel/linux/tools/power/x86/turbostat/turbostat --Summary
---quiet --show Busy%,Bzy_MHz,IRQ,PkgWatt,PkgTmp,RAMWatt,GFXWatt,CorWatt
---interval 300
-Busy%   Bzy_MHz IRQ     PkgTmp  PkgWatt CorWatt GFXWatt RAMWatt
-4.09    3335    282024  36      5.79    5.11    0.00    0.89
-4.11    3449    283286  34      6.06    5.40    0.00    0.89
-4.11    3504    284532  35      6.35    5.70    0.00    0.89
-4.11    3493    283908  35      6.26    5.60    0.00    0.89
-4.11    3499    284243  34      6.27    5.62    0.00    0.89
+    2022-02-13T15:35:49.331549  kern  :alert : Register r4 information: sla=
+b kmalloc-2k start c19cb000 pointer offset 64 size 2048
+    2022-02-13T15:35:49.331921  kern  :alert : Register r5 information: sla=
+b kmalloc-192 start c1fc7e40 pointer offset 16 size 192
+    2022-02-13T15:35:49.332615  kern  :alert : Register r6 information: sla=
+b kmalloc-192 start c3780180 pointer offset 0 size 192
+    2022-02-13T15:35:49.332967  kern  :alert : Register r7 information: sla=
+b kmalloc-192 start c3780180 pointer offset 84 size 192
+    2022-02-13T15:35:49.333318  kern  :alert : Register r8 information: sla=
+b filp start c1a49300 pointer offset 16
+    2022-02-13T15:35:49.333924  kern  :alert : Register r9 information: sla=
+b task_struct start c1a33c00 pointer offset 1152
+    2022-02-13T15:35:49.374584  kern  :alert : Register r10 information: no=
+n-paged memory
+    2022-02-13T15:35:49.375240  kern  :alert :<8>[   11.533744] <LAVA_SIGNA=
+L_TESTCASE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2=
+6>
+    2022-02-13T15:35:49.375462   Register r11 information: non-s<8>[   11.5=
+45804] <LAVA_SIGNAL_ENDRUN 0_dmesg 1557696_1.5.2.4.1>
+    2022-02-13T15:35:49.375649  lab/vmalloc memory =
 
-Revert:
+    ... (2 line(s) more)  =
 
-doug@s19:~/freq-scalers/long_dur$ sudo
-/home/doug/kernel/linux/tools/power/x86/turbostat/turbostat --Summary
---quiet --show Busy%,Bzy_MHz,IRQ,PkgWatt,PkgTmp,RAMWatt,GFXWatt,CorWatt
---interval 300
-Busy%   Bzy_MHz IRQ     PkgTmp  PkgWatt CorWatt GFXWatt RAMWatt
-4.12    3018    283114  34      4.57    3.91    0.00    0.89
-4.12    3023    283482  34      4.59    3.94    0.00    0.89
-4.12    3017    282609  34      4.71    4.05    0.00    0.89
-4.12    3013    282898  34      4.64    3.99    0.00    0.89
-4.12    3013    282956  36      4.56    3.90    0.00    0.89
-4.12    3026    282807  34      4.61    3.95    0.00    0.89
-4.12    3026    282738  35      4.50    3.84    0.00    0.89
+ =
 
-Or average of 6.2 watts versus 4.6 watts, +35%.
 
-Several other tests had undetectable power differences
-between kernels, but I did not go back and re-test with
-the improved task 2.
 
->
-> Thanks,
-> rui
->
-> > For duration only tests, turbostat is not run at the same time.
-> >
-> > My grub line:
-> >
-> > GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 consoleblank=314
-> > intel_pstate=active intel_pstate=no_hwp msr.allow_writes=on
-> > cpuidle.governor=teo"
-> >
-> > A typical pstate tracer command (with the script copied to the directory
-> > where I run this stuff:):
-> >
-> > sudo ./intel_pstate_tracer.py --interval 600 --name vnew02 --memory
-> > 800000
-> >
-> > >
-> > > > > Can you try one test that keep all the current setting and change
-> > > > > the irq affinity of disk/network-card to 0xfff to let interrupts
-> > > > > from them be distributed to all CPUs?
-> > > >
-> > > > I am willing to do the test, but I do not know how to change the irq
-> > > > affinity.
-> > >
-> > > I might say that too soon. I used to "echo fff > /proc/irq/xxx/smp_affinity"
-> > > (xx is the irq number of a device) to let interrupts be distributed to
-> > > all CPUs long time ago, but it doesn't work on my 2 desktops at hand.
-> > > Seems it only support one-cpu irq affinity in recent kernel.
-> > >
-> > > You can still try that command, though it may not work.
-> >
-> > I did not try this yet.
-> >
-> > [1] https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.17-rc3/
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+qemu_arm64-virt-gicv2        | arm64 | lab-baylibre | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62092b4f799d3081e9c62988
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62092b4f799d3081e9c62=
+989
+        failing since 4 days (last pass: v5.15.21-111-g6704c2c1f104, first =
+fail: v5.15.21-111-gbc928abfc73d) =
+
+ =
+
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+qemu_arm64-virt-gicv2        | arm64 | lab-broonie  | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62092b47799d3081e9c6297b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62092b47799d3081e9c62=
+97c
+        failing since 4 days (last pass: v5.15.21-111-g6704c2c1f104, first =
+fail: v5.15.21-111-gbc928abfc73d) =
+
+ =
+
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+qemu_arm64-virt-gicv2-uefi   | arm64 | lab-baylibre | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62092b51c971c55b62c62968
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62092b51c971c55b62c62=
+969
+        failing since 4 days (last pass: v5.15.21-111-g6704c2c1f104, first =
+fail: v5.15.21-111-gbc928abfc73d) =
+
+ =
+
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+qemu_arm64-virt-gicv2-uefi   | arm64 | lab-broonie  | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62092b48799d3081e9c62981
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62092b48799d3081e9c62=
+982
+        failing since 4 days (last pass: v5.15.21-111-g6704c2c1f104, first =
+fail: v5.15.21-111-gbc928abfc73d) =
+
+ =
+
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+qemu_arm64-virt-gicv3        | arm64 | lab-baylibre | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62092b4ec2b80a2e6cc62995
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62092b4ec2b80a2e6cc62=
+996
+        failing since 4 days (last pass: v5.15.21-111-g6704c2c1f104, first =
+fail: v5.15.21-111-gbc928abfc73d) =
+
+ =
+
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+qemu_arm64-virt-gicv3        | arm64 | lab-broonie  | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62092b46c2b80a2e6cc6297d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62092b46c2b80a2e6cc62=
+97e
+        failing since 4 days (last pass: v5.15.21-111-g6704c2c1f104, first =
+fail: v5.15.21-111-gbc928abfc73d) =
+
+ =
+
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+qemu_arm64-virt-gicv3-uefi   | arm64 | lab-baylibre | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62092b52e44fbf1375c62969
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
+irt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62092b52e44fbf1375c62=
+96a
+        failing since 4 days (last pass: v5.15.21-111-g6704c2c1f104, first =
+fail: v5.15.21-111-gbc928abfc73d) =
+
+ =
+
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+qemu_arm64-virt-gicv3-uefi   | arm64 | lab-broonie  | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62092b49c2b80a2e6cc6298f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.23-=
+163-g45e450825953/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
+rt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62092b49c2b80a2e6cc62=
+990
+        failing since 4 days (last pass: v5.15.21-111-g6704c2c1f104, first =
+fail: v5.15.21-111-gbc928abfc73d) =
+
+ =20
