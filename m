@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 664294B3B0A
-	for <lists+stable@lfdr.de>; Sun, 13 Feb 2022 12:17:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE6A54B3B0D
+	for <lists+stable@lfdr.de>; Sun, 13 Feb 2022 12:19:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235262AbiBMLRW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Feb 2022 06:17:22 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38950 "EHLO
+        id S234794AbiBMLTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Feb 2022 06:19:11 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229597AbiBMLRV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Feb 2022 06:17:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0997E656F
-        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 03:17:13 -0800 (PST)
+        with ESMTP id S229597AbiBMLTK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Feb 2022 06:19:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36D045B3F6
+        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 03:19:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8204361031
-        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 11:17:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BB28C004E1;
-        Sun, 13 Feb 2022 11:17:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7F3660FF8
+        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 11:19:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74D52C004E1;
+        Sun, 13 Feb 2022 11:19:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644751032;
-        bh=lROMolnrYJCthKUL4Up6TBQjFOf1lsZIyAOKw50C8RA=;
+        s=korg; t=1644751144;
+        bh=zpVANh9yi+8/Qsk3TW0eLVVJSHcw/jDvmG9uDVdSG1E=;
         h=Subject:To:Cc:From:Date:From;
-        b=GZBNYUo9U8YuaS1FdWkHN2OZfsXMcWWN+867P97DxIxZPhGRmLmlkWcsv5qmPsB42
-         60bjrf41dlnArELRW1hH5vLLNyLdBSmvcZP0m9K92NggGivDL5XAsV73e6Jls5U4h7
-         k4Z0epln74BoVUBijwMnpsZK74BrmzwjFLncsHCc=
-Subject: FAILED: patch "[PATCH] net: usb: ax88179_178a: Fix out-of-bounds accesses in RX" failed to apply to 4.19-stable tree
-To:     jannh@google.com, gregkh@linuxfoundation.org
+        b=HmBY8FXy54OQc8EimC5NKNIpqB9Ota8cJ31hjwD+NZfCU8969O36R7IX9l7t50zgR
+         Uz6eqdTiEweHR1MbH74b3t8cTAuObO5OeqlOxN4zKTQuBo4ycmI5WIPagIW5u6wUu0
+         7jvBxFBDMgp1kQX7VOTZDlmjGq5ODtefBdaGSJ4w=
+Subject: FAILED: patch "[PATCH] usb: dwc3: xilinx: fix uninitialized return value" failed to apply to 5.15-stable tree
+To:     robert.hancock@calian.com, gregkh@linuxfoundation.org,
+        nathan@kernel.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Feb 2022 12:16:59 +0100
-Message-ID: <164475101912954@kroah.com>
+Date:   Sun, 13 Feb 2022 12:18:56 +0100
+Message-ID: <164475113621278@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,136 +60,33 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 57bc3d3ae8c14df3ceb4e17d26ddf9eeab304581 Mon Sep 17 00:00:00 2001
-From: Jann Horn <jannh@google.com>
-Date: Wed, 26 Jan 2022 14:14:52 +0100
-Subject: [PATCH] net: usb: ax88179_178a: Fix out-of-bounds accesses in RX
- fixup
+From b470947c3672f7eb7c4c271d510383d896831cc2 Mon Sep 17 00:00:00 2001
+From: Robert Hancock <robert.hancock@calian.com>
+Date: Thu, 27 Jan 2022 16:15:00 -0600
+Subject: [PATCH] usb: dwc3: xilinx: fix uninitialized return value
 
-ax88179_rx_fixup() contains several out-of-bounds accesses that can be
-triggered by a malicious (or defective) USB device, in particular:
+A previous patch to skip part of the initialization when a USB3 PHY was
+not present could result in the return value being uninitialized in that
+case, causing spurious probe failures. Initialize ret to 0 to avoid this.
 
- - The metadata array (hdr_off..hdr_off+2*pkt_cnt) can be out of bounds,
-   causing OOB reads and (on big-endian systems) OOB endianness flips.
- - A packet can overlap the metadata array, causing a later OOB
-   endianness flip to corrupt data used by a cloned SKB that has already
-   been handed off into the network stack.
- - A packet SKB can be constructed whose tail is far beyond its end,
-   causing out-of-bounds heap data to be considered part of the SKB's
-   data.
-
-I have tested that this can be used by a malicious USB device to send a
-bogus ICMPv6 Echo Request and receive an ICMPv6 Echo Reply in response
-that contains random kernel heap data.
-It's probably also possible to get OOB writes from this on a
-little-endian system somehow - maybe by triggering skb_cow() via IP
-options processing -, but I haven't tested that.
-
-Fixes: e2ca90c276e1 ("ax88179_178a: ASIX AX88179_178A USB 3.0/2.0 to gigabit ethernet adapter driver")
-Cc: stable@kernel.org
-Signed-off-by: Jann Horn <jannh@google.com>
+Fixes: 9678f3361afc ("usb: dwc3: xilinx: Skip resets and USB3 register settings for USB2.0 mode")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Link: https://lore.kernel.org/r/20220127221500.177021-1-robert.hancock@calian.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
-index 1a627ba4b850..a31098981a65 100644
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1468,58 +1468,68 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 	u16 hdr_off;
- 	u32 *pkt_hdr;
+diff --git a/drivers/usb/dwc3/dwc3-xilinx.c b/drivers/usb/dwc3/dwc3-xilinx.c
+index e14ac15e24c3..a6f3a9b38789 100644
+--- a/drivers/usb/dwc3/dwc3-xilinx.c
++++ b/drivers/usb/dwc3/dwc3-xilinx.c
+@@ -99,7 +99,7 @@ static int dwc3_xlnx_init_zynqmp(struct dwc3_xlnx *priv_data)
+ 	struct device		*dev = priv_data->dev;
+ 	struct reset_control	*crst, *hibrst, *apbrst;
+ 	struct phy		*usb3_phy;
+-	int			ret;
++	int			ret = 0;
+ 	u32			reg;
  
--	/* This check is no longer done by usbnet */
--	if (skb->len < dev->net->hard_header_len)
-+	/* At the end of the SKB, there's a header telling us how many packets
-+	 * are bundled into this buffer and where we can find an array of
-+	 * per-packet metadata (which contains elements encoded into u16).
-+	 */
-+	if (skb->len < 4)
- 		return 0;
--
- 	skb_trim(skb, skb->len - 4);
- 	rx_hdr = get_unaligned_le32(skb_tail_pointer(skb));
--
- 	pkt_cnt = (u16)rx_hdr;
- 	hdr_off = (u16)(rx_hdr >> 16);
-+
-+	if (pkt_cnt == 0)
-+		return 0;
-+
-+	/* Make sure that the bounds of the metadata array are inside the SKB
-+	 * (and in front of the counter at the end).
-+	 */
-+	if (pkt_cnt * 2 + hdr_off > skb->len)
-+		return 0;
- 	pkt_hdr = (u32 *)(skb->data + hdr_off);
- 
--	while (pkt_cnt--) {
-+	/* Packets must not overlap the metadata array */
-+	skb_trim(skb, hdr_off);
-+
-+	for (; ; pkt_cnt--, pkt_hdr++) {
- 		u16 pkt_len;
- 
- 		le32_to_cpus(pkt_hdr);
- 		pkt_len = (*pkt_hdr >> 16) & 0x1fff;
- 
--		/* Check CRC or runt packet */
--		if ((*pkt_hdr & AX_RXHDR_CRC_ERR) ||
--		    (*pkt_hdr & AX_RXHDR_DROP_ERR)) {
--			skb_pull(skb, (pkt_len + 7) & 0xFFF8);
--			pkt_hdr++;
--			continue;
--		}
--
--		if (pkt_cnt == 0) {
--			skb->len = pkt_len;
--			/* Skip IP alignment pseudo header */
--			skb_pull(skb, 2);
--			skb_set_tail_pointer(skb, skb->len);
--			skb->truesize = pkt_len + sizeof(struct sk_buff);
--			ax88179_rx_checksum(skb, pkt_hdr);
--			return 1;
--		}
-+		if (pkt_len > skb->len)
-+			return 0;
- 
--		ax_skb = skb_clone(skb, GFP_ATOMIC);
--		if (ax_skb) {
-+		/* Check CRC or runt packet */
-+		if (((*pkt_hdr & (AX_RXHDR_CRC_ERR | AX_RXHDR_DROP_ERR)) == 0) &&
-+		    pkt_len >= 2 + ETH_HLEN) {
-+			bool last = (pkt_cnt == 0);
-+
-+			if (last) {
-+				ax_skb = skb;
-+			} else {
-+				ax_skb = skb_clone(skb, GFP_ATOMIC);
-+				if (!ax_skb)
-+					return 0;
-+			}
- 			ax_skb->len = pkt_len;
- 			/* Skip IP alignment pseudo header */
- 			skb_pull(ax_skb, 2);
- 			skb_set_tail_pointer(ax_skb, ax_skb->len);
- 			ax_skb->truesize = pkt_len + sizeof(struct sk_buff);
- 			ax88179_rx_checksum(ax_skb, pkt_hdr);
-+
-+			if (last)
-+				return 1;
-+
- 			usbnet_skb_return(dev, ax_skb);
--		} else {
--			return 0;
- 		}
- 
--		skb_pull(skb, (pkt_len + 7) & 0xFFF8);
--		pkt_hdr++;
-+		/* Trim this packet away from the SKB */
-+		if (!skb_pull(skb, (pkt_len + 7) & 0xFFF8))
-+			return 0;
- 	}
--	return 1;
- }
- 
- static struct sk_buff *
+ 	usb3_phy = devm_phy_optional_get(dev, "usb3-phy");
 
