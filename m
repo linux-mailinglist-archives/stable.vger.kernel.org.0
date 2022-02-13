@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34A614B3B18
-	for <lists+stable@lfdr.de>; Sun, 13 Feb 2022 12:23:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47AFE4B3B1A
+	for <lists+stable@lfdr.de>; Sun, 13 Feb 2022 12:23:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235300AbiBMLXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Feb 2022 06:23:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48702 "EHLO
+        id S235265AbiBMLXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Feb 2022 06:23:42 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235265AbiBMLXS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Feb 2022 06:23:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24A5A5B886
-        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 03:23:13 -0800 (PST)
+        with ESMTP id S235333AbiBMLXj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Feb 2022 06:23:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DCD75B886
+        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 03:23:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE45FB80ADB
-        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 11:23:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1BEFC004E1;
-        Sun, 13 Feb 2022 11:23:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1E1160FF8
+        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 11:23:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92AF0C340EF;
+        Sun, 13 Feb 2022 11:23:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644751390;
-        bh=RClo1tlWPQ2FFJrTJ4INsoDUpYvH7a51wQVcxHXQvbE=;
+        s=korg; t=1644751413;
+        bh=xwX/IgDZ1t4bn9x1YiktECnx8z8DGuY1BL6qo+wc3fo=;
         h=Subject:To:Cc:From:Date:From;
-        b=KrOU9ImwB4ndhq1DBbLkrnSS/1v4ti/MjbALRejSrXmH5JI88SkI7Vumu4468GaBc
-         1s2qF9wedwWivzNqFiqTm0Nl2eY08iJfTaDwAqZk+GBwZd4SK/RtVABE7gQt7W26be
-         VYnmXCk03etRpvGwCptJe4GG0F7sF49ED1Jauhx0=
-Subject: FAILED: patch "[PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry" failed to apply to 5.15-stable tree
-To:     shy828301@gmail.com, adobriyan@gmail.com,
-        akpm@linux-foundation.org, david@redhat.com, jannh@google.com,
-        kirill.shutemov@linux.intel.com, nathan@kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        willy@infradead.org
+        b=aBY2yNqETQ0HwL3wFKToTMHaapIfJ5Y77IVKGkI1KCZIfd0QNK/yEhapNRmSZXotx
+         x9G+8bg0rDBsoxNlQcdODgWG80eV65NImiBRays9KXlwnW1OmLBsPTI2R+Dfp95mCU
+         JPFjhZLXRbkBkKHtgE61vbxAILmwbflFTdM3bsJ0=
+Subject: FAILED: patch "[PATCH] mm: memcg: synchronize objcg lists with a dedicated spinlock" failed to apply to 5.10-stable tree
+To:     guro@fb.com, akpm@linux-foundation.org, egorenar@linux.ibm.com,
+        hannes@cmpxchg.org, jeremy.linton@arm.com, longman@redhat.com,
+        shakeelb@google.com, stable@vger.kernel.org, tj@kernel.org,
+        torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Feb 2022 12:22:58 +0100
-Message-ID: <164475137849146@kroah.com>
+Date:   Sun, 13 Feb 2022 12:23:25 +0100
+Message-ID: <164475140586254@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -52,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -63,229 +62,195 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 24d7275ce2791829953ed4e72f68277ceb2571c6 Mon Sep 17 00:00:00 2001
-From: Yang Shi <shy828301@gmail.com>
-Date: Fri, 11 Feb 2022 16:32:26 -0800
-Subject: [PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry
+From 0764db9b49c932b89ee4d9e3236dff4bb07b4a66 Mon Sep 17 00:00:00 2001
+From: Roman Gushchin <guro@fb.com>
+Date: Fri, 11 Feb 2022 16:32:32 -0800
+Subject: [PATCH] mm: memcg: synchronize objcg lists with a dedicated spinlock
 
-The syzbot reported the below BUG:
+Alexander reported a circular lock dependency revealed by the mmap1 ltp
+test:
 
-  kernel BUG at include/linux/page-flags.h:785!
-  invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-  CPU: 1 PID: 4392 Comm: syz-executor560 Not tainted 5.16.0-rc6-syzkaller #0
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  RIP: 0010:PageDoubleMap include/linux/page-flags.h:785 [inline]
-  RIP: 0010:__page_mapcount+0x2d2/0x350 mm/util.c:744
-  Call Trace:
-    page_mapcount include/linux/mm.h:837 [inline]
-    smaps_account+0x470/0xb10 fs/proc/task_mmu.c:466
-    smaps_pte_entry fs/proc/task_mmu.c:538 [inline]
-    smaps_pte_range+0x611/0x1250 fs/proc/task_mmu.c:601
-    walk_pmd_range mm/pagewalk.c:128 [inline]
-    walk_pud_range mm/pagewalk.c:205 [inline]
-    walk_p4d_range mm/pagewalk.c:240 [inline]
-    walk_pgd_range mm/pagewalk.c:277 [inline]
-    __walk_page_range+0xe23/0x1ea0 mm/pagewalk.c:379
-    walk_page_vma+0x277/0x350 mm/pagewalk.c:530
-    smap_gather_stats.part.0+0x148/0x260 fs/proc/task_mmu.c:768
-    smap_gather_stats fs/proc/task_mmu.c:741 [inline]
-    show_smap+0xc6/0x440 fs/proc/task_mmu.c:822
-    seq_read_iter+0xbb0/0x1240 fs/seq_file.c:272
-    seq_read+0x3e0/0x5b0 fs/seq_file.c:162
-    vfs_read+0x1b5/0x600 fs/read_write.c:479
-    ksys_read+0x12d/0x250 fs/read_write.c:619
-    do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-    entry_SYSCALL_64_after_hwframe+0x44/0xae
+  LOCKDEP_CIRCULAR (suite: ltp, case: mtest06 (mmap1))
+          WARNING: possible circular locking dependency detected
+          5.17.0-20220113.rc0.git0.f2211f194038.300.fc35.s390x+debug #1 Not tainted
+          ------------------------------------------------------
+          mmap1/202299 is trying to acquire lock:
+          00000001892c0188 (css_set_lock){..-.}-{2:2}, at: obj_cgroup_release+0x4a/0xe0
+          but task is already holding lock:
+          00000000ca3b3818 (&sighand->siglock){-.-.}-{2:2}, at: force_sig_info_to_task+0x38/0x180
+          which lock already depends on the new lock.
+          the existing dependency chain (in reverse order) is:
+          -> #1 (&sighand->siglock){-.-.}-{2:2}:
+                 __lock_acquire+0x604/0xbd8
+                 lock_acquire.part.0+0xe2/0x238
+                 lock_acquire+0xb0/0x200
+                 _raw_spin_lock_irqsave+0x6a/0xd8
+                 __lock_task_sighand+0x90/0x190
+                 cgroup_freeze_task+0x2e/0x90
+                 cgroup_migrate_execute+0x11c/0x608
+                 cgroup_update_dfl_csses+0x246/0x270
+                 cgroup_subtree_control_write+0x238/0x518
+                 kernfs_fop_write_iter+0x13e/0x1e0
+                 new_sync_write+0x100/0x190
+                 vfs_write+0x22c/0x2d8
+                 ksys_write+0x6c/0xf8
+                 __do_syscall+0x1da/0x208
+                 system_call+0x82/0xb0
+          -> #0 (css_set_lock){..-.}-{2:2}:
+                 check_prev_add+0xe0/0xed8
+                 validate_chain+0x736/0xb20
+                 __lock_acquire+0x604/0xbd8
+                 lock_acquire.part.0+0xe2/0x238
+                 lock_acquire+0xb0/0x200
+                 _raw_spin_lock_irqsave+0x6a/0xd8
+                 obj_cgroup_release+0x4a/0xe0
+                 percpu_ref_put_many.constprop.0+0x150/0x168
+                 drain_obj_stock+0x94/0xe8
+                 refill_obj_stock+0x94/0x278
+                 obj_cgroup_charge+0x164/0x1d8
+                 kmem_cache_alloc+0xac/0x528
+                 __sigqueue_alloc+0x150/0x308
+                 __send_signal+0x260/0x550
+                 send_signal+0x7e/0x348
+                 force_sig_info_to_task+0x104/0x180
+                 force_sig_fault+0x48/0x58
+                 __do_pgm_check+0x120/0x1f0
+                 pgm_check_handler+0x11e/0x180
+          other info that might help us debug this:
+           Possible unsafe locking scenario:
+                 CPU0                    CPU1
+                 ----                    ----
+            lock(&sighand->siglock);
+                                         lock(css_set_lock);
+                                         lock(&sighand->siglock);
+            lock(css_set_lock);
+           *** DEADLOCK ***
+          2 locks held by mmap1/202299:
+           #0: 00000000ca3b3818 (&sighand->siglock){-.-.}-{2:2}, at: force_sig_info_to_task+0x38/0x180
+           #1: 00000001892ad560 (rcu_read_lock){....}-{1:2}, at: percpu_ref_put_many.constprop.0+0x0/0x168
+          stack backtrace:
+          CPU: 15 PID: 202299 Comm: mmap1 Not tainted 5.17.0-20220113.rc0.git0.f2211f194038.300.fc35.s390x+debug #1
+          Hardware name: IBM 3906 M04 704 (LPAR)
+          Call Trace:
+            dump_stack_lvl+0x76/0x98
+            check_noncircular+0x136/0x158
+            check_prev_add+0xe0/0xed8
+            validate_chain+0x736/0xb20
+            __lock_acquire+0x604/0xbd8
+            lock_acquire.part.0+0xe2/0x238
+            lock_acquire+0xb0/0x200
+            _raw_spin_lock_irqsave+0x6a/0xd8
+            obj_cgroup_release+0x4a/0xe0
+            percpu_ref_put_many.constprop.0+0x150/0x168
+            drain_obj_stock+0x94/0xe8
+            refill_obj_stock+0x94/0x278
+            obj_cgroup_charge+0x164/0x1d8
+            kmem_cache_alloc+0xac/0x528
+            __sigqueue_alloc+0x150/0x308
+            __send_signal+0x260/0x550
+            send_signal+0x7e/0x348
+            force_sig_info_to_task+0x104/0x180
+            force_sig_fault+0x48/0x58
+            __do_pgm_check+0x120/0x1f0
+            pgm_check_handler+0x11e/0x180
+          INFO: lockdep is turned off.
 
-The reproducer was trying to read /proc/$PID/smaps when calling
-MADV_FREE at the mean time.  MADV_FREE may split THPs if it is called
-for partial THP.  It may trigger the below race:
+In this example a slab allocation from __send_signal() caused a
+refilling and draining of a percpu objcg stock, resulted in a releasing
+of another non-related objcg.  Objcg release path requires taking the
+css_set_lock, which is used to synchronize objcg lists.
 
-           CPU A                         CPU B
-           -----                         -----
-  smaps walk:                      MADV_FREE:
-  page_mapcount()
-    PageCompound()
-                                   split_huge_page()
-    page = compound_head(page)
-    PageDoubleMap(page)
+This can create a circular dependency with the sighandler lock, which is
+taken with the locked css_set_lock by the freezer code (to freeze a
+task).
 
-When calling PageDoubleMap() this page is not a tail page of THP anymore
-so the BUG is triggered.
+In general it seems that using css_set_lock to synchronize objcg lists
+makes any slab allocations and deallocation with the locked css_set_lock
+and any intervened locks risky.
 
-This could be fixed by elevated refcount of the page before calling
-mapcount, but that would prevent it from counting migration entries, and
-it seems overkilling because the race just could happen when PMD is
-split so all PTE entries of tail pages are actually migration entries,
-and smaps_account() does treat migration entries as mapcount == 1 as
-Kirill pointed out.
+To fix the problem and make the code more robust let's stop using
+css_set_lock to synchronize objcg lists and use a new dedicated spinlock
+instead.
 
-Add a new parameter for smaps_account() to tell this entry is migration
-entry then skip calling page_mapcount().  Don't skip getting mapcount
-for device private entries since they do track references with mapcount.
-
-Pagemap also has the similar issue although it was not reported.  Fixed
-it as well.
-
-[shy828301@gmail.com: v4]
-  Link: https://lkml.kernel.org/r/20220203182641.824731-1-shy828301@gmail.com
-[nathan@kernel.org: avoid unused variable warning in pagemap_pmd_range()]
-  Link: https://lkml.kernel.org/r/20220207171049.1102239-1-nathan@kernel.org
-Link: https://lkml.kernel.org/r/20220120202805.3369-1-shy828301@gmail.com
-Fixes: e9b61f19858a ("thp: reintroduce split_huge_page()")
-Signed-off-by: Yang Shi <shy828301@gmail.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reported-by: syzbot+1f52b3a18d5633fa7f82@syzkaller.appspotmail.com
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Link: https://lkml.kernel.org/r/Yfm1IHmoGdyUR81T@carbon.dhcp.thefacebook.com
+Fixes: bf4f059954dc ("mm: memcg/slab: obj_cgroup API")
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Reviewed-by: Waiman Long <longman@redhat.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Jeremy Linton <jeremy.linton@arm.com>
+Tested-by: Jeremy Linton <jeremy.linton@arm.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 18f8c3acbb85..6e97ed775074 100644
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -440,7 +440,8 @@ static void smaps_page_accumulate(struct mem_size_stats *mss,
- }
- 
- static void smaps_account(struct mem_size_stats *mss, struct page *page,
--		bool compound, bool young, bool dirty, bool locked)
-+		bool compound, bool young, bool dirty, bool locked,
-+		bool migration)
- {
- 	int i, nr = compound ? compound_nr(page) : 1;
- 	unsigned long size = nr * PAGE_SIZE;
-@@ -467,8 +468,15 @@ static void smaps_account(struct mem_size_stats *mss, struct page *page,
- 	 * page_count(page) == 1 guarantees the page is mapped exactly once.
- 	 * If any subpage of the compound page mapped with PTE it would elevate
- 	 * page_count().
-+	 *
-+	 * The page_mapcount() is called to get a snapshot of the mapcount.
-+	 * Without holding the page lock this snapshot can be slightly wrong as
-+	 * we cannot always read the mapcount atomically.  It is not safe to
-+	 * call page_mapcount() even with PTL held if the page is not mapped,
-+	 * especially for migration entries.  Treat regular migration entries
-+	 * as mapcount == 1.
- 	 */
--	if (page_count(page) == 1) {
-+	if ((page_count(page) == 1) || migration) {
- 		smaps_page_accumulate(mss, page, size, size << PSS_SHIFT, dirty,
- 			locked, true);
- 		return;
-@@ -517,6 +525,7 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
- 	struct vm_area_struct *vma = walk->vma;
- 	bool locked = !!(vma->vm_flags & VM_LOCKED);
- 	struct page *page = NULL;
-+	bool migration = false;
- 
- 	if (pte_present(*pte)) {
- 		page = vm_normal_page(vma, addr, *pte);
-@@ -536,8 +545,11 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
- 			} else {
- 				mss->swap_pss += (u64)PAGE_SIZE << PSS_SHIFT;
- 			}
--		} else if (is_pfn_swap_entry(swpent))
-+		} else if (is_pfn_swap_entry(swpent)) {
-+			if (is_migration_entry(swpent))
-+				migration = true;
- 			page = pfn_swap_entry_to_page(swpent);
-+		}
- 	} else {
- 		smaps_pte_hole_lookup(addr, walk);
- 		return;
-@@ -546,7 +558,8 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
- 	if (!page)
- 		return;
- 
--	smaps_account(mss, page, false, pte_young(*pte), pte_dirty(*pte), locked);
-+	smaps_account(mss, page, false, pte_young(*pte), pte_dirty(*pte),
-+		      locked, migration);
- }
- 
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-@@ -557,6 +570,7 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
- 	struct vm_area_struct *vma = walk->vma;
- 	bool locked = !!(vma->vm_flags & VM_LOCKED);
- 	struct page *page = NULL;
-+	bool migration = false;
- 
- 	if (pmd_present(*pmd)) {
- 		/* FOLL_DUMP will return -EFAULT on huge zero page */
-@@ -564,8 +578,10 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
- 	} else if (unlikely(thp_migration_supported() && is_swap_pmd(*pmd))) {
- 		swp_entry_t entry = pmd_to_swp_entry(*pmd);
- 
--		if (is_migration_entry(entry))
-+		if (is_migration_entry(entry)) {
-+			migration = true;
- 			page = pfn_swap_entry_to_page(entry);
-+		}
- 	}
- 	if (IS_ERR_OR_NULL(page))
- 		return;
-@@ -577,7 +593,9 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
- 		/* pass */;
- 	else
- 		mss->file_thp += HPAGE_PMD_SIZE;
--	smaps_account(mss, page, true, pmd_young(*pmd), pmd_dirty(*pmd), locked);
-+
-+	smaps_account(mss, page, true, pmd_young(*pmd), pmd_dirty(*pmd),
-+		      locked, migration);
- }
- #else
- static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
-@@ -1378,6 +1396,7 @@ static pagemap_entry_t pte_to_pagemap_entry(struct pagemapread *pm,
- {
- 	u64 frame = 0, flags = 0;
- 	struct page *page = NULL;
-+	bool migration = false;
- 
- 	if (pte_present(pte)) {
- 		if (pm->show_pfn)
-@@ -1399,13 +1418,14 @@ static pagemap_entry_t pte_to_pagemap_entry(struct pagemapread *pm,
- 			frame = swp_type(entry) |
- 				(swp_offset(entry) << MAX_SWAPFILES_SHIFT);
- 		flags |= PM_SWAP;
-+		migration = is_migration_entry(entry);
- 		if (is_pfn_swap_entry(entry))
- 			page = pfn_swap_entry_to_page(entry);
- 	}
- 
- 	if (page && !PageAnon(page))
- 		flags |= PM_FILE;
--	if (page && page_mapcount(page) == 1)
-+	if (page && !migration && page_mapcount(page) == 1)
- 		flags |= PM_MMAP_EXCLUSIVE;
- 	if (vma->vm_flags & VM_SOFTDIRTY)
- 		flags |= PM_SOFT_DIRTY;
-@@ -1421,8 +1441,9 @@ static int pagemap_pmd_range(pmd_t *pmdp, unsigned long addr, unsigned long end,
- 	spinlock_t *ptl;
- 	pte_t *pte, *orig_pte;
- 	int err = 0;
--
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+	bool migration = false;
-+
- 	ptl = pmd_trans_huge_lock(pmdp, vma);
- 	if (ptl) {
- 		u64 flags = 0, frame = 0;
-@@ -1461,11 +1482,12 @@ static int pagemap_pmd_range(pmd_t *pmdp, unsigned long addr, unsigned long end,
- 			if (pmd_swp_uffd_wp(pmd))
- 				flags |= PM_UFFD_WP;
- 			VM_BUG_ON(!is_pmd_migration_entry(pmd));
-+			migration = is_migration_entry(entry);
- 			page = pfn_swap_entry_to_page(entry);
- 		}
+diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
+index b72d75141e12..0abbd685703b 100644
+--- a/include/linux/memcontrol.h
++++ b/include/linux/memcontrol.h
+@@ -219,7 +219,7 @@ struct obj_cgroup {
+ 	struct mem_cgroup *memcg;
+ 	atomic_t nr_charged_bytes;
+ 	union {
+-		struct list_head list;
++		struct list_head list; /* protected by objcg_lock */
+ 		struct rcu_head rcu;
+ 	};
+ };
+@@ -315,7 +315,8 @@ struct mem_cgroup {
+ #ifdef CONFIG_MEMCG_KMEM
+ 	int kmemcg_id;
+ 	struct obj_cgroup __rcu *objcg;
+-	struct list_head objcg_list; /* list of inherited objcgs */
++	/* list of inherited objcgs, protected by objcg_lock */
++	struct list_head objcg_list;
  #endif
  
--		if (page && page_mapcount(page) == 1)
-+		if (page && !migration && page_mapcount(page) == 1)
- 			flags |= PM_MMAP_EXCLUSIVE;
+ 	MEMCG_PADDING(_pad2_);
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index 09d342c7cbd0..36e9f38c919d 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -254,7 +254,7 @@ struct mem_cgroup *vmpressure_to_memcg(struct vmpressure *vmpr)
+ }
  
- 		for (; addr != end; addr += PAGE_SIZE) {
+ #ifdef CONFIG_MEMCG_KMEM
+-extern spinlock_t css_set_lock;
++static DEFINE_SPINLOCK(objcg_lock);
+ 
+ bool mem_cgroup_kmem_disabled(void)
+ {
+@@ -298,9 +298,9 @@ static void obj_cgroup_release(struct percpu_ref *ref)
+ 	if (nr_pages)
+ 		obj_cgroup_uncharge_pages(objcg, nr_pages);
+ 
+-	spin_lock_irqsave(&css_set_lock, flags);
++	spin_lock_irqsave(&objcg_lock, flags);
+ 	list_del(&objcg->list);
+-	spin_unlock_irqrestore(&css_set_lock, flags);
++	spin_unlock_irqrestore(&objcg_lock, flags);
+ 
+ 	percpu_ref_exit(ref);
+ 	kfree_rcu(objcg, rcu);
+@@ -332,7 +332,7 @@ static void memcg_reparent_objcgs(struct mem_cgroup *memcg,
+ 
+ 	objcg = rcu_replace_pointer(memcg->objcg, NULL, true);
+ 
+-	spin_lock_irq(&css_set_lock);
++	spin_lock_irq(&objcg_lock);
+ 
+ 	/* 1) Ready to reparent active objcg. */
+ 	list_add(&objcg->list, &memcg->objcg_list);
+@@ -342,7 +342,7 @@ static void memcg_reparent_objcgs(struct mem_cgroup *memcg,
+ 	/* 3) Move already reparented objcgs to the parent's list */
+ 	list_splice(&memcg->objcg_list, &parent->objcg_list);
+ 
+-	spin_unlock_irq(&css_set_lock);
++	spin_unlock_irq(&objcg_lock);
+ 
+ 	percpu_ref_kill(&objcg->refcnt);
+ }
 
