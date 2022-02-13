@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 349EB4B3B16
-	for <lists+stable@lfdr.de>; Sun, 13 Feb 2022 12:23:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B9E94B3B17
+	for <lists+stable@lfdr.de>; Sun, 13 Feb 2022 12:23:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231781AbiBMLXK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Feb 2022 06:23:10 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48636 "EHLO
+        id S235293AbiBMLXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Feb 2022 06:23:14 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235265AbiBMLXK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Feb 2022 06:23:10 -0500
+        with ESMTP id S235265AbiBMLXN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Feb 2022 06:23:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CCAC5B883
-        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 03:23:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E65E5B3FD
+        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 03:23:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 380F060FF8
-        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 11:23:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDE88C004E1;
-        Sun, 13 Feb 2022 11:23:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADB8361030
+        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 11:23:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 887B5C004E1;
+        Sun, 13 Feb 2022 11:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644751383;
-        bh=ICJDNxq+vv1kQXvjaJGDJ3MH5qyRZqk1wCkbSdCXWag=;
+        s=korg; t=1644751387;
+        bh=9lRYGpLtLXtlzE5BfG8IDTAFFKpLNZswaSfuOFJmxWo=;
         h=Subject:To:Cc:From:Date:From;
-        b=POeN0g+0C/iYPVOS2S66X65xez2RWU+sOi2bWMLeUAja4xCCzAONaOXoa0sN4aNaa
-         OB1wK2SYnNoduZ0OKkMfr9STsPEwhwn/Z00UYflcppSUoCOciI66UmRzoOsrRi738j
-         Ub6JVf7t0WXX97f7KkuBGE5XmFuPshq1+/xLbkyw=
-Subject: FAILED: patch "[PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry" failed to apply to 5.4-stable tree
+        b=LbbposcUuYRNtRFW5t8BRpzqDFqVZNLzbL2M6INrtaOBvkF+MPu1zk0g5cffuc79n
+         mHCBwpd7Agw3eM64EWvpKNbQsDGH/fMrq0viLwpH1flm21wvkPTfdIqR+WjbxV9YAD
+         1akdmuF168THpyW4qfQCczIUAi57Uee8ulEezlU0=
+Subject: FAILED: patch "[PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry" failed to apply to 5.10-stable tree
 To:     shy828301@gmail.com, adobriyan@gmail.com,
         akpm@linux-foundation.org, david@redhat.com, jannh@google.com,
         kirill.shutemov@linux.intel.com, nathan@kernel.org,
@@ -36,8 +36,8 @@ To:     shy828301@gmail.com, adobriyan@gmail.com,
         willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Feb 2022 12:22:54 +0100
-Message-ID: <164475137413510@kroah.com>
+Date:   Sun, 13 Feb 2022 12:22:56 +0100
+Message-ID: <16447513769731@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -52,7 +52,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
