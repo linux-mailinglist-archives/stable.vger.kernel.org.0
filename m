@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2BB44B3B13
-	for <lists+stable@lfdr.de>; Sun, 13 Feb 2022 12:23:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D1044B3B14
+	for <lists+stable@lfdr.de>; Sun, 13 Feb 2022 12:23:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233081AbiBMLXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Feb 2022 06:23:04 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48580 "EHLO
+        id S235237AbiBMLXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Feb 2022 06:23:06 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231781AbiBMLXC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Feb 2022 06:23:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FE8E5B3FD
-        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 03:22:55 -0800 (PST)
+        with ESMTP id S231781AbiBMLXG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Feb 2022 06:23:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 183245B3FD
+        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 03:23:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E26E7B80AD8
-        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 11:22:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2109C004E1;
-        Sun, 13 Feb 2022 11:22:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8EB6FB80ACB
+        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 11:22:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4927C004E1;
+        Sun, 13 Feb 2022 11:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644751372;
-        bh=K5IMGPP77G4/dxEU+K6OZqkBQAmb8FIDdws+6CArNTg=;
+        s=korg; t=1644751377;
+        bh=jbUs69DTGqAkNn+1matdVObo4OTIKGSZgFNLP61TldI=;
         h=Subject:To:Cc:From:Date:From;
-        b=oknSInfV6Ez73ldM6kEmYnhJC37xlvhQnBwgE6tkrd4bOEhfk1i28gn6PORHTM6DP
-         AYWHp9nJ0U2GHhbcFRvzR+3DIeIas7qbdMDY3ywCs02KDp7gkfLXVB1gs6A1rpoASs
-         /26S8OIdo7CyV88QbpUyVLO5HU07DCQwoZl+ts1M=
-Subject: FAILED: patch "[PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry" failed to apply to 4.9-stable tree
+        b=HBeHA50yHyptfWyuO9qqLLw2YGUJ+RYqI/RGGl/kWSO/GvaN9W6bnb54qnTQOeIL0
+         R1bfgdhAjPPe1J2IMpZCvG/GKgu1YTAbBK9Ip7dPZ6nbwoKNUU03qMhyelI4XAtlwv
+         jE0ugiBqv4lbiR2/LvZqSjas12hDlGCfUuhZHSHE=
+Subject: FAILED: patch "[PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry" failed to apply to 4.14-stable tree
 To:     shy828301@gmail.com, adobriyan@gmail.com,
         akpm@linux-foundation.org, david@redhat.com, jannh@google.com,
         kirill.shutemov@linux.intel.com, nathan@kernel.org,
@@ -36,8 +36,8 @@ To:     shy828301@gmail.com, adobriyan@gmail.com,
         willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 13 Feb 2022 12:22:49 +0100
-Message-ID: <1644751369105167@kroah.com>
+Date:   Sun, 13 Feb 2022 12:22:51 +0100
+Message-ID: <16447513712223@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -52,7 +52,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
