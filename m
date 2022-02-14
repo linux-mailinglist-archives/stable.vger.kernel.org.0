@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A5834B4704
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F307D4B4A9E
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:39:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244457AbiBNJlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:41:44 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33462 "EHLO
+        id S239816AbiBNKCV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:02:21 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244798AbiBNJkx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:40:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFE44654B6;
-        Mon, 14 Feb 2022 01:36:10 -0800 (PST)
+        with ESMTP id S1345741AbiBNKBx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:01:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8824F2019D;
+        Mon, 14 Feb 2022 01:48:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F285B80DC9;
-        Mon, 14 Feb 2022 09:36:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 801C6C340E9;
-        Mon, 14 Feb 2022 09:36:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24CBA61296;
+        Mon, 14 Feb 2022 09:48:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ED9AC340E9;
+        Mon, 14 Feb 2022 09:48:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831368;
-        bh=gGQFnzvZjnADsg7z9khUQHIYTx80Q+Yq9tUqr0l1S4A=;
+        s=korg; t=1644832088;
+        bh=oS2lkPCp3aLbjy4x18EkIQmiDK4N9sOMmcJlDMqhD+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1PvlB7DZiOaPx1qfv6nnWR506qUn8wYYo8rHZ10QPqBkB68FcVm5WZaaJSDuBAEiv
-         mzBODNAVCiS0+qjLLevw2r2GblhvkIEpQ252gabLAx9mBt9u3wCwkaJoksWQfEQPlj
-         5ARoqgHrjl8gPqaOKD8R2rZ6SXa+A6A/BLnPXSJw=
+        b=hXwf9ty7D0l5Yh4l1w4m6h+1wTuZxwIBa/yFUyt3dqMCPdGh+nWKvPfpCULaG1Chh
+         Z5M9zk9VdpWSzA/YwgxkSuMsHUn/qTnNlBylc6Vh4sA2K8LbApW6+XKA5H4SfvFpgH
+         qaAHQC2IlH2WZ5GQg4SOJMXqOK5pyu3CsR+K+krk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 06/71] net: phy: marvell: Fix RGMII Tx/Rx delays setting in 88e1121-compatible PHYs
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 076/172] drm/amdgpu/display: change pipe policy for DCN 2.0
 Date:   Mon, 14 Feb 2022 10:25:34 +0100
-Message-Id: <20220214092452.247922016@linuxfoundation.org>
+Message-Id: <20220214092509.031262694@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit fe4f57bf7b585dca58f1496c4e2481ecbae18126 upstream.
+commit 6e7545ddb13416fd200e0b91c0acfd0404e2e27b upstream.
 
-It is mandatory for a software to issue a reset upon modifying RGMII
-Receive Timing Control and RGMII Transmit Timing Control bit fields of MAC
-Specific Control register 2 (page 2, register 21) otherwise the changes
-won't be perceived by the PHY (the same is applicable for a lot of other
-registers). Not setting the RGMII delays on the platforms that imply it'
-being done on the PHY side will consequently cause the traffic loss. We
-discovered that the denoted soft-reset is missing in the
-m88e1121_config_aneg() method for the case if the RGMII delays are
-modified but the MDIx polarity isn't changed or the auto-negotiation is
-left enabled, thus causing the traffic loss on our platform with Marvell
-Alaska 88E1510 installed. Let's fix that by issuing the soft-reset if the
-delays have been actually set in the m88e1121_config_aneg_rgmii_delays()
-method.
+Fixes hangs on driver load with multiple displays on
+DCN 2.0 parts.
 
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=215511
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1877
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1886
+Fixes: ee2698cf79cc ("drm/amd/display: Changed pipe split policy to allow for multi-display pipe split")
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Fixes: d6ab93364734 ("net: phy: marvell: Avoid unnecessary soft reset")
-Signed-off-by: Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Link: https://lore.kernel.org/r/20220205203932.26899-1-Pavel.Parkhomenko@baikalelectronics.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/marvell.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/phy/marvell.c
-+++ b/drivers/net/phy/marvell.c
-@@ -444,9 +444,9 @@ static int m88e1121_config_aneg_rgmii_de
- 	else
- 		mscr = 0;
- 
--	return phy_modify_paged(phydev, MII_MARVELL_MSCR_PAGE,
--				MII_88E1121_PHY_MSCR_REG,
--				MII_88E1121_PHY_MSCR_DELAY_MASK, mscr);
-+	return phy_modify_paged_changed(phydev, MII_MARVELL_MSCR_PAGE,
-+					MII_88E1121_PHY_MSCR_REG,
-+					MII_88E1121_PHY_MSCR_DELAY_MASK, mscr);
- }
- 
- static int m88e1121_config_aneg(struct phy_device *phydev)
-@@ -460,11 +460,13 @@ static int m88e1121_config_aneg(struct p
- 			return err;
- 	}
- 
-+	changed = err;
-+
- 	err = marvell_set_polarity(phydev, phydev->mdix_ctrl);
- 	if (err < 0)
- 		return err;
- 
--	changed = err;
-+	changed |= err;
- 
- 	err = genphy_config_aneg(phydev);
- 	if (err < 0)
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+@@ -1067,7 +1067,7 @@ static const struct dc_debug_options deb
+ 		.timing_trace = false,
+ 		.clock_trace = true,
+ 		.disable_pplib_clock_request = true,
+-		.pipe_split_policy = MPC_SPLIT_DYNAMIC,
++		.pipe_split_policy = MPC_SPLIT_AVOID_MULT_DISP,
+ 		.force_single_disp_pipe_split = false,
+ 		.disable_dcc = DCC_ENABLE,
+ 		.vsr_support = true,
 
 
