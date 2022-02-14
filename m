@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7EBC4B4791
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEAD74B483A
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:56:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241574AbiBNJol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:44:41 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33934 "EHLO
+        id S245732AbiBNJwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:52:54 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245068AbiBNJn6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:43:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36C516CA6F;
-        Mon, 14 Feb 2022 01:38:08 -0800 (PST)
+        with ESMTP id S1344857AbiBNJwF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:52:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 178957B54C;
+        Mon, 14 Feb 2022 01:43:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B0E77B80D83;
-        Mon, 14 Feb 2022 09:38:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7A53C340E9;
-        Mon, 14 Feb 2022 09:38:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5FFA61209;
+        Mon, 14 Feb 2022 09:43:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82BA2C340E9;
+        Mon, 14 Feb 2022 09:43:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831485;
-        bh=cTfUMZissMI9IeGEkEU24qJMhW+DUACGHuB3TU20yqw=;
+        s=korg; t=1644831800;
+        bh=iVVprejHhTHrKXydZFMArGB8nKpVGa/J/tekSOuOWgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBRdar0fDwpt2qFV90w9R4GzguQjjCNUgUSHy3bxgIMfQszuEEx0yxwtJHii1Kvk6
-         9aJPhuvWtwqx2gda5TrW9fak8LP4L0tphBAE/3djsnp9dm0aBVE3dZhZXwI9vPZ8tE
-         cX33KAhIjBmx/2al0fQBQzEDcONn4zFrz+1Lnx6s=
+        b=ucuKIenb+c1pN+cQJhe1nsHOiGd27OxPA3dMlwsIQeHBYOTVdeI91DDqyFftEwpo5
+         ou3cSZgjAlg7R8W5MJdt6O3rYHEL0VzIDq9FKBlukuwLIAoduzk8AZ62W07wiqk6Fw
+         LXFpluP/5TcybhX9ri4XUcKpqREXaei3IgkIt9mE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Song Liu <song@kernel.org>,
-        Rik van Riel <riel@surriel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 70/71] perf: Fix list corruption in perf_cgroup_switch()
+        stable@vger.kernel.org,
+        Szymon Heidrich <szymon.heidrich@gmail.com>, stable@kernel.org
+Subject: [PATCH 5.10 099/116] usb: gadget: rndis: check size of RNDIS_MSG_SET command
 Date:   Mon, 14 Feb 2022 10:26:38 +0100
-Message-Id: <20220214092454.390214911@linuxfoundation.org>
+Message-Id: <20220214092502.193713900@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <song@kernel.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 5f4e5ce638e6a490b976ade4a40017b40abb2da0 upstream.
+commit 38ea1eac7d88072bbffb630e2b3db83ca649b826 upstream.
 
-There's list corruption on cgrp_cpuctx_list. This happens on the
-following path:
+Check the size of the RNDIS_MSG_SET command given to us before
+attempting to respond to an invalid message size.
 
-  perf_cgroup_switch: list_for_each_entry(cgrp_cpuctx_list)
-      cpu_ctx_sched_in
-         ctx_sched_in
-            ctx_pinned_sched_in
-              merge_sched_in
-                  perf_cgroup_event_disable: remove the event from the list
-
-Use list_for_each_entry_safe() to allow removing an entry during
-iteration.
-
-Fixes: 058fe1c0440e ("perf/core: Make cgroup switch visit only cpuctxs with cgroup events")
-Signed-off-by: Song Liu <song@kernel.org>
-Reviewed-by: Rik van Riel <riel@surriel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220204004057.2961252-1-song@kernel.org
+Reported-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Cc: stable@kernel.org
+Tested-by: Szymon Heidrich <szymon.heidrich@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/rndis.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -799,7 +799,7 @@ static DEFINE_PER_CPU(struct list_head,
-  */
- static void perf_cgroup_switch(struct task_struct *task, int mode)
- {
--	struct perf_cpu_context *cpuctx;
-+	struct perf_cpu_context *cpuctx, *tmp;
- 	struct list_head *list;
- 	unsigned long flags;
+--- a/drivers/usb/gadget/function/rndis.c
++++ b/drivers/usb/gadget/function/rndis.c
+@@ -637,14 +637,17 @@ static int rndis_set_response(struct rnd
+ 	rndis_set_cmplt_type *resp;
+ 	rndis_resp_t *r;
  
-@@ -810,7 +810,7 @@ static void perf_cgroup_switch(struct ta
- 	local_irq_save(flags);
++	BufLength = le32_to_cpu(buf->InformationBufferLength);
++	BufOffset = le32_to_cpu(buf->InformationBufferOffset);
++	if ((BufLength > RNDIS_MAX_TOTAL_SIZE) ||
++	    (BufOffset + 8 >= RNDIS_MAX_TOTAL_SIZE))
++		    return -EINVAL;
++
+ 	r = rndis_add_response(params, sizeof(rndis_set_cmplt_type));
+ 	if (!r)
+ 		return -ENOMEM;
+ 	resp = (rndis_set_cmplt_type *)r->buf;
  
- 	list = this_cpu_ptr(&cgrp_cpuctx_list);
--	list_for_each_entry(cpuctx, list, cgrp_cpuctx_entry) {
-+	list_for_each_entry_safe(cpuctx, tmp, list, cgrp_cpuctx_entry) {
- 		WARN_ON_ONCE(cpuctx->ctx.nr_cgroups == 0);
- 
- 		perf_ctx_lock(cpuctx, cpuctx->task_ctx);
+-	BufLength = le32_to_cpu(buf->InformationBufferLength);
+-	BufOffset = le32_to_cpu(buf->InformationBufferOffset);
+-
+ #ifdef	VERBOSE_DEBUG
+ 	pr_debug("%s: Length: %d\n", __func__, BufLength);
+ 	pr_debug("%s: Offset: %d\n", __func__, BufOffset);
 
 
