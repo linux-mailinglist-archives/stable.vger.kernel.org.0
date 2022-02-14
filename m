@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 343C34B4B27
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:41:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24D5B4B49DC
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:37:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346616AbiBNKXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:23:01 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48506 "EHLO
+        id S1344526AbiBNKCl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:02:41 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346640AbiBNKVt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:21:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 527037DE2B;
-        Mon, 14 Feb 2022 01:55:54 -0800 (PST)
+        with ESMTP id S1345309AbiBNKBe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:01:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BAED13F15;
+        Mon, 14 Feb 2022 01:47:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38773B80DCF;
-        Mon, 14 Feb 2022 09:55:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E7B0C340E9;
-        Mon, 14 Feb 2022 09:55:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49C7A61252;
+        Mon, 14 Feb 2022 09:47:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28535C340E9;
+        Mon, 14 Feb 2022 09:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832544;
-        bh=WoggJfzxZcsMjHbc6cnyNwotPtNHvkZ1EEsQdBd98pI=;
+        s=korg; t=1644832059;
+        bh=0SOO8xkYBZ52xNgcRbuIriuBZKJmD4xqKnRP+PGEuL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bg5n2UFVAYIJXV3sdKSkm3b1tMeiQ85EcEWk+lC3mYAzJrv/nle7x0N+Gcgd/lLoR
-         nPR4JZSpix6jJ9+Vcxx4ArTe6wtmlKact5tePyIPoNwg+rCbiHJxo1FDVF8IFhwr7e
-         C69fXDHBaEo5hWCzgoUsFtczLrgnXM/lVVdT7K7M=
+        b=GygL/AxUbOJapveWGSu4t7KZ0F5eRoZaT7uahBMaTqWh8xQ4O+Kf6ofEjCv8gVsEi
+         wIiH2UVkoU2UW6FK1pqYzCzbfn5EyyUZBGTN7fR1vze49Xs+tjsHO/OjU3Pf/UavtV
+         2Xm1hP6rLGwYGFmbe9iyBpmrfeSlNiF65eKePtdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Kiwoong Kim <kwmad.kim@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 049/203] scsi: ufs: Use generic error code in ufshcd_set_dev_pwr_mode()
+        stable@vger.kernel.org, Sander Vanheule <sander@svanheule.net>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 035/172] irqchip/realtek-rtl: Service all pending interrupts
 Date:   Mon, 14 Feb 2022 10:24:53 +0100
-Message-Id: <20220214092511.882844129@linuxfoundation.org>
+Message-Id: <20220214092507.615736547@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kiwoong Kim <kwmad.kim@samsung.com>
+From: Sander Vanheule <sander@svanheule.net>
 
-[ Upstream commit ad6c8a426446873febc98140d81d5353f8c0825b ]
+[ Upstream commit 960dd884ddf5621ae6284cd3a42724500a97ae4c ]
 
-The return value of ufshcd_set_dev_pwr_mode() is passed to device PM
-core. However, the function currently returns a SCSI result which the PM
-core doesn't understand.  This might lead to unexpected behaviors in
-userland; a platform reset was observed in Android.
+Instead of only servicing the lowest pending interrupt line, make sure
+all pending SoC interrupts are serviced before exiting the chained
+handler. This adds a small overhead if only one interrupt is pending,
+but should prevent rapid re-triggering of the handler.
 
-Use a generic error code for SSU failures.
-
-Link: https://lore.kernel.org/r/1642743182-54098-1-git-send-email-kwmad.kim@samsung.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sander Vanheule <sander@svanheule.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/5082ad3cb8b4eedf55075561b93eff6570299fe1.1641739718.git.sander@svanheule.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/irqchip/irq-realtek-rtl.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index c94377aa82739..ec7d7e01231d7 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -8587,7 +8587,7 @@ static void ufshcd_hba_exit(struct ufs_hba *hba)
-  * @pwr_mode: device power mode to set
-  *
-  * Returns 0 if requested power mode is set successfully
-- * Returns non-zero if failed to set the requested power mode
-+ * Returns < 0 if failed to set the requested power mode
-  */
- static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
- 				     enum ufs_dev_pwr_mode pwr_mode)
-@@ -8641,8 +8641,11 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
- 		sdev_printk(KERN_WARNING, sdp,
- 			    "START_STOP failed for power mode: %d, result %x\n",
- 			    pwr_mode, ret);
--		if (ret > 0 && scsi_sense_valid(&sshdr))
--			scsi_print_sense_hdr(sdp, NULL, &sshdr);
-+		if (ret > 0) {
-+			if (scsi_sense_valid(&sshdr))
-+				scsi_print_sense_hdr(sdp, NULL, &sshdr);
-+			ret = -EIO;
-+		}
- 	}
+diff --git a/drivers/irqchip/irq-realtek-rtl.c b/drivers/irqchip/irq-realtek-rtl.c
+index 568614edd88f4..50a56820c99bc 100644
+--- a/drivers/irqchip/irq-realtek-rtl.c
++++ b/drivers/irqchip/irq-realtek-rtl.c
+@@ -76,16 +76,20 @@ static void realtek_irq_dispatch(struct irq_desc *desc)
+ {
+ 	struct irq_chip *chip = irq_desc_get_chip(desc);
+ 	struct irq_domain *domain;
+-	unsigned int pending;
++	unsigned long pending;
++	unsigned int soc_int;
  
- 	if (!ret)
+ 	chained_irq_enter(chip, desc);
+ 	pending = readl(REG(RTL_ICTL_GIMR)) & readl(REG(RTL_ICTL_GISR));
++
+ 	if (unlikely(!pending)) {
+ 		spurious_interrupt();
+ 		goto out;
+ 	}
++
+ 	domain = irq_desc_get_handler_data(desc);
+-	generic_handle_domain_irq(domain, __ffs(pending));
++	for_each_set_bit(soc_int, &pending, 32)
++		generic_handle_domain_irq(domain, soc_int);
+ 
+ out:
+ 	chained_irq_exit(chip, desc);
 -- 
 2.34.1
 
