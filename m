@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 605884B47C1
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC8A4B4A2A
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:38:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244381AbiBNJhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:37:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51902 "EHLO
+        id S1346100AbiBNKNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:13:52 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245599AbiBNJgw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:52 -0500
+        with ESMTP id S1345921AbiBNKNJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:13:09 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAA90A1AC;
-        Mon, 14 Feb 2022 01:34:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E25A0652EA;
+        Mon, 14 Feb 2022 01:51:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D5D6B80DC1;
-        Mon, 14 Feb 2022 09:34:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70183C340E9;
-        Mon, 14 Feb 2022 09:34:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 902A2B80DC4;
+        Mon, 14 Feb 2022 09:51:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8BDBC340E9;
+        Mon, 14 Feb 2022 09:51:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831287;
-        bh=oot8H8SG+fLifHmlvEmUgAK75vhWQy+DzZGm3AcsJhI=;
+        s=korg; t=1644832273;
+        bh=DQmVaWFWH8iNG0jAB/LpA73J9Sxm1UdRB+c0DUjvBTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TvNRyDk4vR17c4jYoZM9M3YFyzumUby6erPrb7fwcjpqYZo01KA99uaKP6iI4IPLl
-         i4bmmYVNUvBjhXwHZsUhFp7O87ail606l7novt4BNeS3Cvh7lsS8LtCCIYzUmW3baw
-         rvuYcT7XjBA0fuATs8/xTWbNOGb7w7sxWyBHOEfk=
+        b=sg0c9fuyGtOuQImw15SlSKqHmJrNei0AeYMv8sBHtqJ/LyuMhoQ5lZfo9b7TgCqie
+         gu3Wb20TUJ8ujqwrbp2IuqYQSU0BtZMKSxMyJ/tCPvIXI0RkjhSrD0fjub2pzdw5yS
+         kWHwJTca6hfSGL7DMTCtVsKGxSHELPgkc8C/e/Mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Brian Johannesmeyer <bjohannesmeyer@gmail.com>,
-        Jakob Koschel <jakobkoschel@gmail.com>
-Subject: [PATCH 4.19 34/49] vt_ioctl: fix array_index_nospec in vt_setactivate
+        stable@vger.kernel.org, Dongjin Kim <tobetter@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 102/172] arm64: dts: meson-sm1-bananapi-m5: fix wrong GPIO domain for GPIOE_2
 Date:   Mon, 14 Feb 2022 10:26:00 +0100
-Message-Id: <20220214092449.416709561@linuxfoundation.org>
+Message-Id: <20220214092509.925075818@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
-References: <20220214092448.285381753@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: Dongjin Kim <tobetter@gmail.com>
 
-commit 61cc70d9e8ef5b042d4ed87994d20100ec8896d9 upstream.
+[ Upstream commit a5be3e5d46f373fe1d2ee835c7ede31769c241cd ]
 
-array_index_nospec ensures that an out-of-bounds value is set to zero
-on the transient path. Decreasing the value by one afterwards causes
-a transient integer underflow. vsa.console should be decreased first
-and then sanitized with array_index_nospec.
+GPIOE_2 is in AO domain and "<&gpio GPIOE_2 ...>" changes the state of
+TF_PWR_EN of 'FC8731' on BPI-M5
 
-Kasper Acknowledgements: Jakob Koschel, Brian Johannesmeyer, Kaveh
-Razavi, Herbert Bos, Cristiano Giuffrida from the VUSec group at VU
-Amsterdam.
+Fixes: 976e920183e4 ("arm64: dts: meson-sm1: add Banana PI BPI-M5 board dts")
 
-Co-developed-by: Brian Johannesmeyer <bjohannesmeyer@gmail.com>
-Signed-off-by: Brian Johannesmeyer <bjohannesmeyer@gmail.com>
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Link: https://lore.kernel.org/r/20220127144406.3589293-1-jakobkoschel@gmail.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Dongjin Kim <tobetter@gmail.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20220127151656.GA2419733@paju
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/vt_ioctl.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -715,9 +715,9 @@ int vt_ioctl(struct tty_struct *tty,
- 		if (vsa.console == 0 || vsa.console > MAX_NR_CONSOLES)
- 			ret = -ENXIO;
- 		else {
--			vsa.console = array_index_nospec(vsa.console,
--							 MAX_NR_CONSOLES + 1);
- 			vsa.console--;
-+			vsa.console = array_index_nospec(vsa.console,
-+							 MAX_NR_CONSOLES);
- 			console_lock();
- 			ret = vc_allocate(vsa.console);
- 			if (ret == 0) {
+diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts
+index 212c6aa5a3b86..5751c48620edf 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts
+@@ -123,7 +123,7 @@ vddio_c: regulator-vddio_c {
+ 		regulator-min-microvolt = <1800000>;
+ 		regulator-max-microvolt = <3300000>;
+ 
+-		enable-gpio = <&gpio GPIOE_2 GPIO_ACTIVE_HIGH>;
++		enable-gpio = <&gpio_ao GPIOE_2 GPIO_ACTIVE_HIGH>;
+ 		enable-active-high;
+ 		regulator-always-on;
+ 
+-- 
+2.34.1
+
 
 
