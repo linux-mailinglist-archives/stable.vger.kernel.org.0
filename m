@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D3D94B478B
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 549404B484F
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:56:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243543AbiBNJhP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:37:15 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52644 "EHLO
+        id S1343627AbiBNJxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:53:19 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244813AbiBNJgM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A832A6CA4A;
-        Mon, 14 Feb 2022 01:34:09 -0800 (PST)
+        with ESMTP id S1344945AbiBNJwI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:52:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8CD77B574;
+        Mon, 14 Feb 2022 01:43:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D11AB80DA9;
-        Mon, 14 Feb 2022 09:34:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87195C340E9;
-        Mon, 14 Feb 2022 09:34:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CFAEB80DC7;
+        Mon, 14 Feb 2022 09:43:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75AE9C340E9;
+        Mon, 14 Feb 2022 09:43:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831248;
-        bh=0KFL7EUzAu7Eb7oUe3MpZrguecfrpKt/qiwj88UrN+8=;
+        s=korg; t=1644831809;
+        bh=QL7IgnnS5NEn5+xPkax9kNlJwf421H3w804yKiFyQHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GbE8lKZsfPNe+ucadJEDuHNfn4GOHw8tT8QZVmlm/1M6t1qhvUqp3/fAu/t4OlW0E
-         b9auAYLVAsJLTh3ZV8FNJEKU9aE7aJ9pLwjjtuXqejkUQt6o1dRKzFHim/5de6Z9fs
-         EzmTl30wDwwFp5ApK8znHn9tjpflBeScLsk/NZtM=
+        b=k1bGiqPhNKPZCUaA0VnO1mydzaBhRhBipvOR3LfkPIqNu+g8qGev+3BXWk0hT8nD0
+         T/1vZdxIezA9k7UvWNU3mF8OFi4dihjHZ98Z4F8pj+Tyn5CtTVG7+VgYrh3kuqCST6
+         Qy8tseE40duGDzgHVvzXZf5rQsw4bzB9cSdgK81Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephan Brunner <s.brunner@stephan-brunner.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 44/49] USB: serial: ch341: add support for GW Instek USB2.0-Serial devices
-Date:   Mon, 14 Feb 2022 10:26:10 +0100
-Message-Id: <20220214092449.764605832@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 072/116] net: dsa: felix: dont use devres for mdiobus
+Date:   Mon, 14 Feb 2022 10:26:11 +0100
+Message-Id: <20220214092501.249190045@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
-References: <20220214092448.285381753@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Brunner <s.brunner@stephan-brunner.net>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit fa77ce201f7f2d823b07753575122d1ae5597fbe upstream.
+[ Upstream commit 209bdb7ec6a28c7cdf580a0a98afbc9fc3b98932 ]
 
-Programmable lab power supplies made by GW Instek, such as the
-GPP-2323, have a USB port exposing a serial port to control the device.
+As explained in commits:
+74b6d7d13307 ("net: dsa: realtek: register the MDIO bus under devres")
+5135e96a3dd2 ("net: dsa: don't allocate the slave_mii_bus using devres")
 
-Stringing the supplied Windows driver, references to the ch341 chip are
-found. Binding the existing ch341 driver to the VID/PID of the GPP-2323
-("GW Instek USB2.0-Serial" as per the USB product name) works out of the
-box, communication and control is now possible.
+mdiobus_free() will panic when called from devm_mdiobus_free() <-
+devres_release_all() <- __device_release_driver(), and that mdiobus was
+not previously unregistered.
 
-This patch should work with any GPP series power supply due to
-similarities in the product line.
+The Felix VSC9959 switch is a PCI device, so the initial set of
+constraints that I thought would cause this (I2C or SPI buses which call
+->remove on ->shutdown) do not apply. But there is one more which
+applies here.
 
-Signed-off-by: Stephan Brunner <s.brunner@stephan-brunner.net>
-Link: https://lore.kernel.org/r/4a47b864-0816-6f6a-efee-aa20e74bcdc6@stephan-brunner.net
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+If the DSA master itself is on a bus that calls ->remove from ->shutdown
+(like dpaa2-eth, which is on the fsl-mc bus), there is a device link
+between the switch and the DSA master, and device_links_unbind_consumers()
+will unbind the felix switch driver on shutdown.
+
+So the same treatment must be applied to all DSA switch drivers, which
+is: either use devres for both the mdiobus allocation and registration,
+or don't use devres at all.
+
+The felix driver has the code structure in place for orderly mdiobus
+removal, so just replace devm_mdiobus_alloc_size() with the non-devres
+variant, and add manual free where necessary, to ensure that we don't
+let devres free a still-registered bus.
+
+Fixes: ac3a68d56651 ("net: phy: don't abuse devres in devm_mdiobus_register()")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ch341.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/dsa/ocelot/felix_vsc9959.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -84,6 +84,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x1a86, 0x5523) },
- 	{ USB_DEVICE(0x1a86, 0x7522) },
- 	{ USB_DEVICE(0x1a86, 0x7523) },
-+	{ USB_DEVICE(0x2184, 0x0057) },
- 	{ USB_DEVICE(0x4348, 0x5523) },
- 	{ USB_DEVICE(0x9986, 0x7523) },
- 	{ },
+diff --git a/drivers/net/dsa/ocelot/felix_vsc9959.c b/drivers/net/dsa/ocelot/felix_vsc9959.c
+index 2e5bbdca5ea47..cd8d9b0e0edb3 100644
+--- a/drivers/net/dsa/ocelot/felix_vsc9959.c
++++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
+@@ -1050,7 +1050,7 @@ static int vsc9959_mdio_bus_alloc(struct ocelot *ocelot)
+ 		return PTR_ERR(hw);
+ 	}
+ 
+-	bus = devm_mdiobus_alloc_size(dev, sizeof(*mdio_priv));
++	bus = mdiobus_alloc_size(sizeof(*mdio_priv));
+ 	if (!bus)
+ 		return -ENOMEM;
+ 
+@@ -1070,6 +1070,7 @@ static int vsc9959_mdio_bus_alloc(struct ocelot *ocelot)
+ 	rc = mdiobus_register(bus);
+ 	if (rc < 0) {
+ 		dev_err(dev, "failed to register MDIO bus\n");
++		mdiobus_free(bus);
+ 		return rc;
+ 	}
+ 
+@@ -1119,6 +1120,7 @@ static void vsc9959_mdio_bus_free(struct ocelot *ocelot)
+ 		lynx_pcs_destroy(pcs);
+ 	}
+ 	mdiobus_unregister(felix->imdio);
++	mdiobus_free(felix->imdio);
+ }
+ 
+ static void vsc9959_sched_speed_set(struct ocelot *ocelot, int port,
+-- 
+2.34.1
+
 
 
