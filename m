@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41EAE4B47C2
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D9D64B45CF
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:32:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245331AbiBNJrT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:47:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43862 "EHLO
+        id S242898AbiBNJ3A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:29:00 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343967AbiBNJqe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:34 -0500
+        with ESMTP id S243078AbiBNJ2r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:28:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC47C60D8F;
-        Mon, 14 Feb 2022 01:40:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 187A160AA5;
+        Mon, 14 Feb 2022 01:28:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99C5DB80DC6;
-        Mon, 14 Feb 2022 09:40:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99616C340E9;
-        Mon, 14 Feb 2022 09:40:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB788B80DC6;
+        Mon, 14 Feb 2022 09:28:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE3AAC340E9;
+        Mon, 14 Feb 2022 09:28:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831601;
-        bh=ROdNpk6GGl3zwq7T6WvJRSyShTsDYOP5Ert8FCnHo9w=;
+        s=korg; t=1644830917;
+        bh=BVp2NYOxol68HKJUG8M/TDvYST2EW00jW0boGJsVm1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kYVMIm/Akv07g2CzJhLjlHhfe4SlSLBLV67r86hEjOhMrhdutkSyiCwwEZfzpOW9t
-         9ksuGhBVqgc/w/0mO48Iq7Vp+frAQ1bPKfwGuLQjCB4/8yTprd2XYSySfLN0IKAKP7
-         u4ByNKER7bbqzcMMK/ZuI3EnKywpkDtPzC1MjszI=
+        b=qV3hzuAR1Bu6xDjg6MVm0iACKieRblnXJqJ+41yAB1S36R8Yp9TOX2DVL4veH4UDn
+         AztcM13CdydgKS7JKgFeafAdqPbTLBMW/QEpuJPVOYczX3kRRYQ/tJ+agVWiXb+I/C
+         hERer+3P2ZVikqZ2QcJzQgJ2Jil2/sd+eJ3eQ1AY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 033/116] usb: dwc2: gadget: dont try to disable ep0 in dwc2_hsotg_suspend
+        Guillaume Bertholon <guillaume.bertholon@ens.fr>
+Subject: [PATCH 4.9 06/34] serial: sh-sci: Fix misplaced backport of "Fix late enablement of AUTORTS"
 Date:   Mon, 14 Feb 2022 10:25:32 +0100
-Message-Id: <20220214092459.834245616@linuxfoundation.org>
+Message-Id: <20220214092446.158164949@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
+References: <20220214092445.946718557@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Guillaume Bertholon <guillaume.bertholon@ens.fr>
 
-[ Upstream commit ac55d163855924aa5af9f1560977da8f346963c8 ]
+The upstream commit 5f76895e4c71 ("serial: sh-sci: Fix late enablement of
+AUTORTS") inserted a new call to .set_mctrl().
+However the backported version in stable (commit ad3faea03fdf ("serial:
+sh-sci: Fix late enablement of AUTORTS")) does not insert it at the same
+position.
 
-Calling dwc2_hsotg_ep_disable on ep0 (in/out) will lead to the following
-logs before returning -EINVAL:
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
+This patch moves the added instructions back to where they should be
+according to the upsteam patch.
 
-To avoid these two logs while suspending, start disabling the endpoint
-from the index 1, as done in dwc2_hsotg_udc_stop:
-
-	/* all endpoints should be shutdown */
-	for (ep = 1; ep < hsotg->num_of_eps; ep++) {
-		if (hsotg->eps_in[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_in[ep]->ep);
-		if (hsotg->eps_out[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_out[ep]->ep);
-	}
-
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20211207130101.270314-1-amelie.delaunay@foss.st.com
+Fixes: ad3faea03fdf ("serial: sh-sci: Fix late enablement of AUTORTS")
+Signed-off-by: Guillaume Bertholon <guillaume.bertholon@ens.fr>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/sh-sci.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index 449f19c3633c2..ec54971063f8f 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -5032,7 +5032,7 @@ int dwc2_hsotg_suspend(struct dwc2_hsotg *hsotg)
- 		hsotg->gadget.speed = USB_SPEED_UNKNOWN;
- 		spin_unlock_irqrestore(&hsotg->lock, flags);
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -2377,6 +2377,10 @@ done:
  
--		for (ep = 0; ep < hsotg->num_of_eps; ep++) {
-+		for (ep = 1; ep < hsotg->num_of_eps; ep++) {
- 			if (hsotg->eps_in[ep])
- 				dwc2_hsotg_ep_disable_lock(&hsotg->eps_in[ep]->ep);
- 			if (hsotg->eps_out[ep])
--- 
-2.34.1
-
+ 		serial_port_out(port, SCFCR, ctrl);
+ 	}
++	if (port->flags & UPF_HARD_FLOW) {
++		/* Refresh (Auto) RTS */
++		sci_set_mctrl(port, port->mctrl);
++	}
+ 
+ 	scr_val |= s->cfg->scscr & ~(SCSCR_CKE1 | SCSCR_CKE0);
+ 	dev_dbg(port->dev, "SCSCR 0x%x\n", scr_val);
+@@ -2391,10 +2395,6 @@ done:
+ 		 */
+ 		udelay(DIV_ROUND_UP(10 * 1000000, baud));
+ 	}
+-	if (port->flags & UPF_HARD_FLOW) {
+-		/* Refresh (Auto) RTS */
+-		sci_set_mctrl(port, port->mctrl);
+-	}
+ 
+ #ifdef CONFIG_SERIAL_SH_SCI_DMA
+ 	/*
 
 
