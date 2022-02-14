@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A928A4B45F6
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D6D64B471C
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243220AbiBNJ3i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:29:38 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42394 "EHLO
+        id S243952AbiBNJhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:37:20 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243072AbiBNJ3O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:29:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6235960DBE;
-        Mon, 14 Feb 2022 01:29:05 -0800 (PST)
+        with ESMTP id S243086AbiBNJgy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 908DD652E2;
+        Mon, 14 Feb 2022 01:34:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19229B80DC6;
-        Mon, 14 Feb 2022 09:29:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31C47C340E9;
-        Mon, 14 Feb 2022 09:29:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42CC4B80DC4;
+        Mon, 14 Feb 2022 09:34:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70EAEC340E9;
+        Mon, 14 Feb 2022 09:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644830942;
-        bh=OPUQ6xskA2ISXa0tn8ZSGRVtMN6wLt4Hj555l+W/JXo=;
+        s=korg; t=1644831274;
+        bh=hVUHZ5WyxrV1PseGE0Vyr2SlFfdW6bD0RR9iZNJtdkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nggo+B9Kz2i1KpV2y47pb1xTZA6qCr8pWYkmy9BySNgmJCE2JekJNDperCJHrnmcI
-         cpK5AvPVvkZ2hM6qg3oQelgljOGn8ZNroeLiaFuu7MEMp4GRdT2u3EOEyStq+nGHiy
-         QYgmWGCUkwLMoMzQV+Xi6YaKBWPtuFnXBpluoOBg=
+        b=L0WknKPVtRxxDbjf4Ij7DbyeK9cC/b9s7giVRFNJlOz8ZmqjoxuZypsUkhMrR2Z+x
+         oMwM8gnoDjEqaKA/k6E9C7tt36xo3ta41rVPKZXbUPnecu5o8xUs2molBpOqOOO1m/
+         6lW44MK8L7zQxw+SiRNYeG1wvMFSzzGd5IaP45SQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pawel Dembicki <paweldembicki@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 30/34] USB: serial: option: add ZTE MF286D modem
+        stable@vger.kernel.org, Pravin B Shelar <pshelar@ovn.org>,
+        Vlad Buslov <vladbu@nvidia.com>,
+        Antoine Tenart <atenart@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 30/49] net: fix a memleak when uncloning an skb dst and its metadata
 Date:   Mon, 14 Feb 2022 10:25:56 +0100
-Message-Id: <20220214092446.921416537@linuxfoundation.org>
+Message-Id: <20220214092449.284111169@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
-References: <20220214092445.946718557@linuxfoundation.org>
+In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
+References: <20220214092448.285381753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Dembicki <paweldembicki@gmail.com>
+From: Antoine Tenart <atenart@kernel.org>
 
-commit d48384c7ed6c8fe4727eaa0f3048f62afd1cd715 upstream.
+[ Upstream commit 9eeabdf17fa0ab75381045c867c370f4cc75a613 ]
 
-Modem from ZTE MF286D is an Qualcomm MDM9250 based 3G/4G modem.
+When uncloning an skb dst and its associated metadata, a new
+dst+metadata is allocated and later replaces the old one in the skb.
+This is helpful to have a non-shared dst+metadata attached to a specific
+skb.
 
-T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
-D:  Ver= 3.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
-P:  Vendor=19d2 ProdID=1485 Rev=52.87
-S:  Manufacturer=ZTE,Incorporated
-S:  Product=ZTE Technologies MSM
-S:  SerialNumber=MF286DZTED000000
-C:* #Ifs= 7 Cfg#= 1 Atr=80 MxPwr=896mA
-A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=06 Prot=00
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=02 Prot=ff Driver=rndis_host
-E:  Ad=82(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
-E:  Ad=81(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=83(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=8e(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E:  Ad=0f(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=usbfs
-E:  Ad=05(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E:  Ad=89(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+The issue is the uncloned dst+metadata is initialized with a refcount of
+1, which is increased to 2 before attaching it to the skb. When
+tun_dst_unclone returns, the dst+metadata is only referenced from a
+single place (the skb) while its refcount is 2. Its refcount will never
+drop to 0 (when the skb is consumed), leading to a memory leak.
 
-Signed-off-by: Pawel Dembicki <paweldembicki@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by removing the call to dst_hold in tun_dst_unclone, as the
+dst+metadata refcount is already 1.
+
+Fixes: fc4099f17240 ("openvswitch: Fix egress tunnel info.")
+Cc: Pravin B Shelar <pshelar@ovn.org>
+Reported-by: Vlad Buslov <vladbu@nvidia.com>
+Tested-by: Vlad Buslov <vladbu@nvidia.com>
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ include/net/dst_metadata.h | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1625,6 +1625,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(2) },
- 	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x1476, 0xff) },	/* GosunCn ZTE WeLink ME3630 (ECM/NCM mode) */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1481, 0xff, 0x00, 0x00) }, /* ZTE MF871A */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1485, 0xff, 0xff, 0xff),  /* ZTE MF286D */
-+	  .driver_info = RSVD(5) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1533, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1534, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1535, 0xff, 0xff, 0xff) },
+diff --git a/include/net/dst_metadata.h b/include/net/dst_metadata.h
+index b997e0c1e3627..adab27ba1ecbf 100644
+--- a/include/net/dst_metadata.h
++++ b/include/net/dst_metadata.h
+@@ -137,7 +137,6 @@ static inline struct metadata_dst *tun_dst_unclone(struct sk_buff *skb)
+ #endif
+ 
+ 	skb_dst_drop(skb);
+-	dst_hold(&new_md->dst);
+ 	skb_dst_set(skb, &new_md->dst);
+ 	return new_md;
+ }
+-- 
+2.34.1
+
 
 
