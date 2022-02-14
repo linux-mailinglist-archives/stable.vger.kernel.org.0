@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB9214B45E5
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2DB74B4783
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243312AbiBNJag (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:30:36 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43046 "EHLO
+        id S244247AbiBNJhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:37:00 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243315AbiBNJa2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:30:28 -0500
+        with ESMTP id S244626AbiBNJgF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 082591AD97;
-        Mon, 14 Feb 2022 01:29:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 160C866F97;
+        Mon, 14 Feb 2022 01:33:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9731D60DFD;
-        Mon, 14 Feb 2022 09:29:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A7DAC340E9;
-        Mon, 14 Feb 2022 09:29:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36BEA60FFF;
+        Mon, 14 Feb 2022 09:33:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBAEDC340E9;
+        Mon, 14 Feb 2022 09:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644830980;
-        bh=drmrAjMBS4/4+KGRaliNlKHw6jc6/KCWTqv+/6f4d/g=;
+        s=korg; t=1644831219;
+        bh=l0212FSHtUxE+34kUIAZLJhq/HpoQd/R+RJu5Jxqgx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6sASpi8nNx8TfxxBPZdrHy+/RuMUvCPnuMl5HTphS+l8ZtmAOHkNqJ58nflDezBb
-         cDjSc6MNDqbzX/v4F+YG4uUOPgkIB+8wMTO6TbAsXQy13MMSOWuTDDuw7tC3bIgjxA
-         9rwNjdXM2M5Ap6ijGtNnvH2rHNVo6iFyuYtzAeTk=
+        b=0x0S0uyNlt6clmDWgp5erKFEmDzISvbDUG8P8CCIqBP1Bf1rez9FqEyBcujyCdOhj
+         2xvw3WmCz95qMyG+GAoA0x1Vy8dq85TCUUIegcSzRXjsPmiXwGM5RmVlKTxbEsXQNd
+         VLv49Fze/Ih7b5oxjGnVII3FTDuBJzh9XdRTFEIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pavankumar Kondeti <quic_pkondeti@quicinc.com>,
-        Udipto Goswami <quic_ugoswami@quicinc.com>
-Subject: [PATCH 4.9 26/34] usb: dwc3: gadget: Prevent core from processing stale TRBs
-Date:   Mon, 14 Feb 2022 10:25:52 +0100
-Message-Id: <20220214092446.789301420@linuxfoundation.org>
+        stable@vger.kernel.org, Mahesh Bandewar <maheshb@google.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 27/49] bonding: pair enable_port with slave_arr_updates
+Date:   Mon, 14 Feb 2022 10:25:53 +0100
+Message-Id: <20220214092449.187127135@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
-References: <20220214092445.946718557@linuxfoundation.org>
+In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
+References: <20220214092448.285381753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Udipto Goswami <quic_ugoswami@quicinc.com>
+From: Mahesh Bandewar <maheshb@google.com>
 
-commit 117b4e96c7f362eb6459543883fc07f77662472c upstream.
+[ Upstream commit 23de0d7b6f0e3f9a6283a882594c479949da1120 ]
 
-With CPU re-ordering on write instructions, there might
-be a chance that the HWO is set before the TRB is updated
-with the new mapped buffer address.
-And in the case where core is processing a list of TRBs
-it is possible that it fetched the TRBs when the HWO is set
-but before the buffer address is updated.
-Prevent this by adding a memory barrier before the HWO
-is updated to ensure that the core always process the
-updated TRBs.
+When 803.2ad mode enables a participating port, it should update
+the slave-array. I have observed that the member links are participating
+and are part of the active aggregator while the traffic is egressing via
+only one member link (in a case where two links are participating). Via
+kprobes I discovered that slave-arr has only one link added while
+the other participating link wasn't part of the slave-arr.
 
-Fixes: f6bafc6a1c9d ("usb: dwc3: convert TRBs into bitshifts")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
-Signed-off-by: Udipto Goswami <quic_ugoswami@quicinc.com>
-Link: https://lore.kernel.org/r/1644207958-18287-1-git-send-email-quic_ugoswami@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I couldn't see what caused that situation but the simple code-walk
+through provided me hints that the enable_port wasn't always associated
+with the slave-array update.
+
+Fixes: ee6377147409 ("bonding: Simplify the xmit function for modes that use xmit_hash")
+Signed-off-by: Mahesh Bandewar <maheshb@google.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Link: https://lore.kernel.org/r/20220207222901.1795287-1-maheshb@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/bonding/bond_3ad.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -902,6 +902,19 @@ static void dwc3_prepare_one_trb(struct
- 	if (usb_endpoint_xfer_bulk(dep->endpoint.desc) && dep->stream_capable)
- 		trb->ctrl |= DWC3_TRB_CTRL_SID_SOFN(req->request.stream_id);
+diff --git a/drivers/net/bonding/bond_3ad.c b/drivers/net/bonding/bond_3ad.c
+index 93dfcef8afc4b..035923876c617 100644
+--- a/drivers/net/bonding/bond_3ad.c
++++ b/drivers/net/bonding/bond_3ad.c
+@@ -1012,8 +1012,8 @@ static void ad_mux_machine(struct port *port, bool *update_slave_arr)
+ 				if (port->aggregator &&
+ 				    port->aggregator->is_active &&
+ 				    !__port_is_enabled(port)) {
+-
+ 					__enable_port(port);
++					*update_slave_arr = true;
+ 				}
+ 			}
+ 			break;
+@@ -1760,6 +1760,7 @@ static void ad_agg_selection_logic(struct aggregator *agg,
+ 			     port = port->next_port_in_aggregator) {
+ 				__enable_port(port);
+ 			}
++			*update_slave_arr = true;
+ 		}
+ 	}
  
-+	/*
-+	 * As per data book 4.2.3.2TRB Control Bit Rules section
-+	 *
-+	 * The controller autonomously checks the HWO field of a TRB to determine if the
-+	 * entire TRB is valid. Therefore, software must ensure that the rest of the TRB
-+	 * is valid before setting the HWO field to '1'. In most systems, this means that
-+	 * software must update the fourth DWORD of a TRB last.
-+	 *
-+	 * However there is a possibility of CPU re-ordering here which can cause
-+	 * controller to observe the HWO bit set prematurely.
-+	 * Add a write memory barrier to prevent CPU re-ordering.
-+	 */
-+	wmb();
- 	trb->ctrl |= DWC3_TRB_CTRL_HWO;
- 
- 	trace_dwc3_prepare_trb(dep, trb);
+-- 
+2.34.1
+
 
 
