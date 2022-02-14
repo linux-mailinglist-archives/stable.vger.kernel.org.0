@@ -2,104 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C02EC4B46A1
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5A234B47E7
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245671AbiBNJwe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:52:34 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60762 "EHLO
+        id S244487AbiBNJrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:47:47 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344528AbiBNJvs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:51:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EF5265825;
-        Mon, 14 Feb 2022 01:42:56 -0800 (PST)
+        with ESMTP id S245247AbiBNJo7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:44:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 575CA6A03D;
+        Mon, 14 Feb 2022 01:38:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B7635B80DBF;
-        Mon, 14 Feb 2022 09:42:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4FCDC340E9;
-        Mon, 14 Feb 2022 09:42:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EAA646117F;
+        Mon, 14 Feb 2022 09:38:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4700C340E9;
+        Mon, 14 Feb 2022 09:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831773;
-        bh=kBk9rwrQ8IjaiqnLRz8c7PBbVQhRD4GH1Rd2rgHKem8=;
+        s=korg; t=1644831507;
+        bh=6e54lmGimgKn631egJa57mEvUiKAcn1kkE1kiEEqHbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PeqNQkDgIFULne6ue+fDjHVBiwbarS8N6BoKHRI8/6dYT7za58NqNohmWT7HSlILW
-         qPk6iPSxhi/Mpfjs3l/CxOGutelqD31VQViY6vuMPapIH2KxjjdnfBBWPIACbvQMMO
-         JXPqT4ZvpCVLFy0RLDOtQp60LL+zoB+u1JpdUb0M=
+        b=qm1rcjFrzk/ykllEYxgkG5sUF56ll3RRTWZWyBmwK+oCgBPBQ/T0Y+nRhPT6zS4Oc
+         R/vOBIwj1qsgzAbacB4kTrqFnAnpibi50juVCHVEF5X6ZWbRTazZjgam/SPeGe8xU1
+         rB+746z96elKyjtYMsP81sKHLE3Ue+GOZees+oS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Subject: [PATCH 5.10 091/116] usb: dwc2: drd: fix soft connect when gadget is unconfigured
+        stable@vger.kernel.org, Cameron Williams <cang1@live.co.uk>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 62/71] USB: serial: ftdi_sio: add support for Brainboxes US-159/235/320
 Date:   Mon, 14 Feb 2022 10:26:30 +0100
-Message-Id: <20220214092501.911830779@linuxfoundation.org>
+Message-Id: <20220214092454.121056874@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,UPPERCASE_50_75
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Cameron Williams <cang1@live.co.uk>
 
-commit 269cbcf7b72de6f0016806d4a0cec1d689b55a87 upstream.
+commit fbb9b194e15a63c56c5664e76ccd0e85c6100cea upstream.
 
-When the gadget driver hasn't been (yet) configured, and the cable is
-connected to a HOST, the SFTDISCON gets cleared unconditionally, so the
-HOST tries to enumerate it.
-At the host side, this can result in a stuck USB port or worse. When
-getting lucky, some dmesg can be observed at the host side:
- new high-speed USB device number ...
- device descriptor read/64, error -110
+This patch adds support for the Brainboxes US-159, US-235 and US-320
+USB-to-Serial devices.
 
-Fix it in drd, by checking the enabled flag before calling
-dwc2_hsotg_core_connect(). It will be called later, once configured,
-by the normal flow:
-- udc_bind_to_driver
- - usb_gadget_connect
-   - dwc2_hsotg_pullup
-     - dwc2_hsotg_core_connect
-
-Fixes: 17f934024e84 ("usb: dwc2: override PHY input signals with usb role switch support")
-Cc: stable@kernel.org
-Reviewed-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Link: https://lore.kernel.org/r/1644423353-17859-1-git-send-email-fabrice.gasnier@foss.st.com
+Signed-off-by: Cameron Williams <cang1@live.co.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/drd.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/serial/ftdi_sio.c     |    3 +++
+ drivers/usb/serial/ftdi_sio_ids.h |    3 +++
+ 2 files changed, 6 insertions(+)
 
---- a/drivers/usb/dwc2/drd.c
-+++ b/drivers/usb/dwc2/drd.c
-@@ -109,8 +109,10 @@ static int dwc2_drd_role_sw_set(struct u
- 		already = dwc2_ovr_avalid(hsotg, true);
- 	} else if (role == USB_ROLE_DEVICE) {
- 		already = dwc2_ovr_bvalid(hsotg, true);
--		/* This clear DCTL.SFTDISCON bit */
--		dwc2_hsotg_core_connect(hsotg);
-+		if (hsotg->enabled) {
-+			/* This clear DCTL.SFTDISCON bit */
-+			dwc2_hsotg_core_connect(hsotg);
-+		}
- 	} else {
- 		if (dwc2_is_device_mode(hsotg)) {
- 			if (!dwc2_ovr_bvalid(hsotg, false))
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -969,6 +969,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_VX_023_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_VX_034_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_101_PID) },
++	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_159_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_1_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_2_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_3_PID) },
+@@ -977,12 +978,14 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_6_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_7_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_8_PID) },
++	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_235_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_257_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_279_1_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_279_2_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_279_3_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_279_4_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_313_PID) },
++	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_320_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_324_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_346_1_PID) },
+ 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_346_2_PID) },
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -1506,6 +1506,9 @@
+ #define BRAINBOXES_VX_023_PID		0x1003 /* VX-023 ExpressCard 1 Port RS422/485 */
+ #define BRAINBOXES_VX_034_PID		0x1004 /* VX-034 ExpressCard 2 Port RS422/485 */
+ #define BRAINBOXES_US_101_PID		0x1011 /* US-101 1xRS232 */
++#define BRAINBOXES_US_159_PID		0x1021 /* US-159 1xRS232 */
++#define BRAINBOXES_US_235_PID		0x1017 /* US-235 1xRS232 */
++#define BRAINBOXES_US_320_PID		0x1019 /* US-320 1xRS422/485 */
+ #define BRAINBOXES_US_324_PID		0x1013 /* US-324 1xRS422/485 1Mbaud */
+ #define BRAINBOXES_US_606_1_PID		0x2001 /* US-606 6 Port RS232 Serial Port 1 and 2 */
+ #define BRAINBOXES_US_606_2_PID		0x2002 /* US-606 6 Port RS232 Serial Port 3 and 4 */
 
 
