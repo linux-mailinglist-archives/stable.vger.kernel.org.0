@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 464C94B45C3
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:32:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31CAB4B4B10
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238735AbiBNJ2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:28:45 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41386 "EHLO
+        id S1346919AbiBNK1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:27:48 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243073AbiBNJ2h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:28:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 373AF60D90;
-        Mon, 14 Feb 2022 01:28:28 -0800 (PST)
+        with ESMTP id S1348231AbiBNK0u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:26:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72402811B0;
+        Mon, 14 Feb 2022 01:57:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3BDDB80DC7;
-        Mon, 14 Feb 2022 09:28:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F41A2C340E9;
-        Mon, 14 Feb 2022 09:28:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58C2161236;
+        Mon, 14 Feb 2022 09:57:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31626C340E9;
+        Mon, 14 Feb 2022 09:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644830905;
-        bh=0WY8f51R/Y2rl4lHjqHCXNYYMMBguLRFJ5mUJaq5XnU=;
+        s=korg; t=1644832657;
+        bh=N3T3q2dVigTnrrBC916Z3kDWsICXJCmLkqSPQOiA/64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1PjIbJiRBQ5SIFrauq9tBrgwt7ZgSWwOYLLcyAOD9zu7l/9LSzWMmv4tH6k6xub4X
-         hWRhDkN+4QpNIvw9bt3vAxu2qcvRJC0zL12cK8ne2B6wcIQv/1xTjWHOKzJeF2t9J1
-         ci+4mkSNmnEmoSeVV2SLWNxoqI/lNKbuSYCjcah4=
+        b=qavJnFN0vUF37mNaJubSXz1pOnweYl1y5ostZ8+EFgQ7AwLZ20s+gmwipqkMJi07c
+         AIdvvWNapxIVvMkdEhoxMjY/EOmXEmygXeyKob2m461YUkM4jkuHV0ZnkcbRm+Iyku
+         Gazt2CcYfpsOSJ5nIrM1JikAGeLYHb15lc73WVxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Berger <stefanb@linux.ibm.com>,
-        Christian Brauner <brauner@kernel.org>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 4.9 02/34] ima: Remove ima_policy file before directory
-Date:   Mon, 14 Feb 2022 10:25:28 +0100
-Message-Id: <20220214092446.025737875@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.16 085/203] ACPI/IORT: Check node revision for PMCG resources
+Date:   Mon, 14 Feb 2022 10:25:29 +0100
+Message-Id: <20220214092513.159286943@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
-References: <20220214092445.946718557@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-commit f7333b9572d0559e00352a926c92f29f061b4569 upstream.
+commit da5fb9e1ad3fbf632dce735f1bdad257ca528499 upstream.
 
-The removal of ima_dir currently fails since ima_policy still exists, so
-remove the ima_policy file before removing the directory.
+The original version of the IORT PMCG definition had an oversight
+wherein there was no way to describe the second register page for an
+implementation using the recommended RELOC_CTRS feature. Although the
+spec was fixed, and the final patches merged to ACPICA and Linux written
+against the new version, it seems that some old firmware based on the
+original revision has survived and turned up in the wild.
 
-Fixes: 4af4662fa4a9 ("integrity: IMA policy")
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Cc: <stable@vger.kernel.org>
-Acked-by: Christian Brauner <brauner@kernel.org>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Add a check for the original PMCG definition, and avoid filling in the
+second memory resource with nonsense if so. Otherwise it is likely that
+something horrible will happen when the PMCG driver attempts to probe.
+
+Reported-by: Michael Petlan <mpetlan@redhat.com>
+Fixes: 24e516049360 ("ACPI/IORT: Add support for PMCG")
+Cc: <stable@vger.kernel.org> # 5.2.x
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Link: https://lore.kernel.org/r/75628ae41c257fb73588f7bf1c4459160e04be2b.1643916258.git.robin.murphy@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/ima/ima_fs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/arm64/iort.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/security/integrity/ima/ima_fs.c
-+++ b/security/integrity/ima/ima_fs.c
-@@ -477,11 +477,11 @@ int __init ima_fs_init(void)
+--- a/drivers/acpi/arm64/iort.c
++++ b/drivers/acpi/arm64/iort.c
+@@ -1361,9 +1361,17 @@ static void __init arm_smmu_v3_pmcg_init
+ 	res[0].start = pmcg->page0_base_address;
+ 	res[0].end = pmcg->page0_base_address + SZ_4K - 1;
+ 	res[0].flags = IORESOURCE_MEM;
+-	res[1].start = pmcg->page1_base_address;
+-	res[1].end = pmcg->page1_base_address + SZ_4K - 1;
+-	res[1].flags = IORESOURCE_MEM;
++	/*
++	 * The initial version in DEN0049C lacked a way to describe register
++	 * page 1, which makes it broken for most PMCG implementations; in
++	 * that case, just let the driver fail gracefully if it expects to
++	 * find a second memory resource.
++	 */
++	if (node->revision > 0) {
++		res[1].start = pmcg->page1_base_address;
++		res[1].end = pmcg->page1_base_address + SZ_4K - 1;
++		res[1].flags = IORESOURCE_MEM;
++	}
  
- 	return 0;
- out:
-+	securityfs_remove(ima_policy);
- 	securityfs_remove(violations);
- 	securityfs_remove(runtime_measurements_count);
- 	securityfs_remove(ascii_runtime_measurements);
- 	securityfs_remove(binary_runtime_measurements);
- 	securityfs_remove(ima_dir);
--	securityfs_remove(ima_policy);
- 	return -1;
- }
+ 	if (pmcg->overflow_gsiv)
+ 		acpi_iort_register_irq(pmcg->overflow_gsiv, "overflow",
 
 
