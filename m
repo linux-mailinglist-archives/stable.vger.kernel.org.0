@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4DCD4B45E2
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28C474B4608
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243040AbiBNJ27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:28:59 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42262 "EHLO
+        id S243307AbiBNJbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:31:03 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243131AbiBNJ2z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:28:55 -0500
+        with ESMTP id S243533AbiBNJay (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:30:54 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 719AE60DB1;
-        Mon, 14 Feb 2022 01:28:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E573B65499;
+        Mon, 14 Feb 2022 01:29:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F117B80DC6;
-        Mon, 14 Feb 2022 09:28:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25763C340E9;
-        Mon, 14 Feb 2022 09:28:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A201B80DC7;
+        Mon, 14 Feb 2022 09:29:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6805C340E9;
+        Mon, 14 Feb 2022 09:29:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644830923;
-        bh=L+64FosT+u6ZVeqOqEziHxpJpKytKI0e34ddCBC1uyc=;
+        s=korg; t=1644830996;
+        bh=HvOdQTY9G06pOPmVVUWFW37MhjqeFcqZr++os+rIBhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VxPh0ppSGAGzY6XoO70bZTVRmNwYJBKxXHVXPYd/9BpjAyDuEMjL9zFRCiP3o450I
-         LkuCAiPBhXu6K79JG/izlvekUgw68BJ4/NkCxHn/nyeMa9uyDGTeC/SXhGvl/Mr0G8
-         LIB4CnbC6IMq8IH8Ua8ne1lD+XnMeuVRG6OX1z+I=
+        b=c26JpWuJjd8mdOmA5E8uGhOuZh8YcwE2wSC67RnVm/eiNiQk7Yk3R1IhL13Nx3cqq
+         K3FexW12ICqhuYHDXk3WqwVHjl1IdnvteyOFr5ZWIThL1bQLUZa3gdxPoz2d4BUVHN
+         l+Z/NeYMP5zajVAynGEaQi9UFgAaDGJRX4UqMfGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guillaume Bertholon <guillaume.bertholon@ens.fr>
-Subject: [PATCH 4.9 08/34] Revert "net: axienet: Wait for PhyRstCmplt after core reset"
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 11/44] NFSv4 remove zero number of fs_locations entries error check
 Date:   Mon, 14 Feb 2022 10:25:34 +0100
-Message-Id: <20220214092446.218435382@linuxfoundation.org>
+Message-Id: <20220214092448.278398479@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
-References: <20220214092445.946718557@linuxfoundation.org>
+In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
+References: <20220214092447.897544753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Bertholon <guillaume.bertholon@ens.fr>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-This reverts commit 9f1a3c13342b4d96b9baa337ec5fb7d453828709.
+[ Upstream commit 90e12a3191040bd3854d3e236c35921e4e92a044 ]
 
-The upstream commit b400c2f4f4c5 ("net: axienet: Wait for PhyRstCmplt
-after core reset") add new instructions in the `__axienet_device_reset`
-function to wait until PhyRstCmplt bit is set, and return a non zero-exit
-value if this exceeds a timeout.
+Remove the check for the zero length fs_locations reply in the
+xdr decoding, and instead check for that in the migration code.
 
-However, its backported version in 4.9 (commit 9f1a3c13342b ("net:
-axienet: Wait for PhyRstCmplt after core reset")) insert these
-instructions in `axienet_dma_bd_init` instead.
-
-Unlike upstream, the version of `__axienet_device_reset` currently present
-in branch stable/linux-4.9.y does not return an integer for error codes.
-Therefore fixing the backport cannot be as simple as moving the inserted
-instructions in the right place, and we simply revert it instead.
-
-Fixes: 9f1a3c13342b ("net: axienet: Wait for PhyRstCmplt after core reset")
-Signed-off-by: Guillaume Bertholon <guillaume.bertholon@ens.fr>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ fs/nfs/nfs4state.c | 3 +++
+ fs/nfs/nfs4xdr.c   | 2 --
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -278,16 +278,6 @@ static int axienet_dma_bd_init(struct ne
- 	axienet_dma_out32(lp, XAXIDMA_TX_CR_OFFSET,
- 			  cr | XAXIDMA_CR_RUNSTOP_MASK);
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index f92bfc787c5fe..c0987557d4ab4 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -2003,6 +2003,9 @@ static int nfs4_try_migration(struct nfs_server *server, struct rpc_cred *cred)
+ 	}
  
--	/* Wait for PhyRstCmplt bit to be set, indicating the PHY reset has finished */
--	ret = read_poll_timeout(axienet_ior, value,
--				value & XAE_INT_PHYRSTCMPLT_MASK,
--				DELAY_OF_ONE_MILLISEC, 50000, false, lp,
--				XAE_IS_OFFSET);
--	if (ret) {
--		dev_err(lp->dev, "%s: timeout waiting for PhyRstCmplt\n", __func__);
--		return ret;
--	}
--
- 	return 0;
- out:
- 	axienet_dma_bd_release(ndev);
+ 	result = -NFS4ERR_NXIO;
++	if (!locations->nlocations)
++		goto out;
++
+ 	if (!(locations->fattr.valid & NFS_ATTR_FATTR_V4_LOCATIONS)) {
+ 		dprintk("<-- %s: No fs_locations data, migration skipped\n",
+ 			__func__);
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index 99facb5f186fd..ccdc0ca699c39 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -3731,8 +3731,6 @@ static int decode_attr_fs_locations(struct xdr_stream *xdr, uint32_t *bitmap, st
+ 	if (unlikely(!p))
+ 		goto out_overflow;
+ 	n = be32_to_cpup(p);
+-	if (n <= 0)
+-		goto out_eio;
+ 	for (res->nlocations = 0; res->nlocations < n; res->nlocations++) {
+ 		u32 m;
+ 		struct nfs4_fs_location *loc;
+-- 
+2.34.1
+
 
 
