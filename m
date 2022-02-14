@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 635344B45E7
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8B454B4B5C
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:41:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243226AbiBNJbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:31:40 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42660 "EHLO
+        id S1346954AbiBNK1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:27:51 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243481AbiBNJau (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:30:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2724260ABC;
-        Mon, 14 Feb 2022 01:29:54 -0800 (PST)
+        with ESMTP id S1348375AbiBNK0z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:26:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73C038301E;
+        Mon, 14 Feb 2022 01:57:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD59F60FE9;
-        Mon, 14 Feb 2022 09:29:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C9F1C340E9;
-        Mon, 14 Feb 2022 09:29:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8F26B80DCE;
+        Mon, 14 Feb 2022 09:57:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F15C4C340E9;
+        Mon, 14 Feb 2022 09:57:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644830993;
-        bh=GyoKvYHjJdZEdczGMaOTHA3l7hEsSGN7FAAdvH/xJRg=;
+        s=korg; t=1644832670;
+        bh=Jxz/D8ATym+ryfklp5SjcQN48vMeOigzH2dvKKlKqWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9/RqCEoXb2n5WtaN+ad7aRF5IrhD5zXCAaWdgwmNFA2PcuxfymUGtX3A2eA+Xq6E
-         pRj4yBM/eYBB7Gn2RanBqKJ6cAjWQVSFw/lId1Sj1/eVHqGlpClFTZw1BXwZvJlusX
-         UBgVCyeVeQ19qHGAD0gdknAZDDW0OCy9G1Fda1Ig=
+        b=iEUrECsVoilixxT6UI9ryS+ldTy4jOH2FXtXkl4wtP3SWUjOtpQB1NqeL4o5mJzc5
+         v+fjbvZGNbSHQpjiPkEWjqne2G5KDSFH2t5ZAyWnLSg+/cdxDDY6PFCfSjtdnSfnXL
+         YJpkiuvqKvgPnafbmq762apa6aIJ4V9XiH7aPYAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, rtm@csail.mit.edu,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/44] NFSv4.1: Fix uninitialised variable in devicenotify
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.16 089/203] drm/i915: Disable DRRS on IVB/HSW port != A
 Date:   Mon, 14 Feb 2022 10:25:33 +0100
-Message-Id: <20220214092448.248364402@linuxfoundation.org>
+Message-Id: <20220214092513.289637602@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
-References: <20220214092447.897544753@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,106 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit b05bf5c63b326ce1da84ef42498d8e0e292e694c ]
+commit ee59792c97176f12c1da31f29fc4c2aab187f06e upstream.
 
-When decode_devicenotify_args() exits with no entries, we need to
-ensure that the struct cb_devicenotifyargs is initialised to
-{ 0, NULL } in order to avoid problems in
-nfs4_callback_devicenotify().
+Currently we allow DRRS on IVB PCH ports, but we're missing a
+few programming steps meaning it is guaranteed to not work.
+And on HSW DRRS is not supported on anything but port A ever
+as only transcoder EDP has the M2/N2 registers (though I'm
+not sure if HSW ever has eDP on any other port).
 
-Reported-by: <rtm@csail.mit.edu>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Starting from BDW all transcoders have the dynamically
+reprogrammable M/N registers so DRRS could work on any
+port.
+
+Stop initializing DRRS on ports where it cannot possibly work.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220128103757.22461-11-ville.syrjala@linux.intel.com
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit f0d4ce59f4d48622044933054a0e0cefa91ba15e)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/callback.h      |  2 +-
- fs/nfs/callback_proc.c |  2 +-
- fs/nfs/callback_xdr.c  | 18 +++++++++---------
- 3 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/i915/display/intel_drrs.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/nfs/callback.h b/fs/nfs/callback.h
-index a20a0bce40a48..80ad04abcf309 100644
---- a/fs/nfs/callback.h
-+++ b/fs/nfs/callback.h
-@@ -168,7 +168,7 @@ struct cb_devicenotifyitem {
- };
- 
- struct cb_devicenotifyargs {
--	int				 ndevs;
-+	uint32_t			 ndevs;
- 	struct cb_devicenotifyitem	 *devs;
- };
- 
-diff --git a/fs/nfs/callback_proc.c b/fs/nfs/callback_proc.c
-index 440ff8e7082b6..3998b432e1b98 100644
---- a/fs/nfs/callback_proc.c
-+++ b/fs/nfs/callback_proc.c
-@@ -355,7 +355,7 @@ __be32 nfs4_callback_devicenotify(void *argp, void *resp,
- 				  struct cb_process_state *cps)
+--- a/drivers/gpu/drm/i915/display/intel_drrs.c
++++ b/drivers/gpu/drm/i915/display/intel_drrs.c
+@@ -405,6 +405,7 @@ intel_drrs_init(struct intel_connector *
+ 		struct drm_display_mode *fixed_mode)
  {
- 	struct cb_devicenotifyargs *args = argp;
--	int i;
-+	uint32_t i;
- 	__be32 res = 0;
- 	struct nfs_client *clp = cps->clp;
- 	struct nfs_server *server = NULL;
-diff --git a/fs/nfs/callback_xdr.c b/fs/nfs/callback_xdr.c
-index 57de914630bc9..36c34be839d09 100644
---- a/fs/nfs/callback_xdr.c
-+++ b/fs/nfs/callback_xdr.c
-@@ -265,11 +265,9 @@ __be32 decode_devicenotify_args(struct svc_rqst *rqstp,
- 				void *argp)
- {
- 	struct cb_devicenotifyargs *args = argp;
-+	uint32_t tmp, n, i;
- 	__be32 *p;
- 	__be32 status = 0;
--	u32 tmp;
--	int n, i;
--	args->ndevs = 0;
+ 	struct drm_i915_private *dev_priv = to_i915(connector->base.dev);
++	struct intel_encoder *encoder = connector->encoder;
+ 	struct drm_display_mode *downclock_mode = NULL;
  
- 	/* Num of device notifications */
- 	p = read_buf(xdr, sizeof(uint32_t));
-@@ -278,7 +276,7 @@ __be32 decode_devicenotify_args(struct svc_rqst *rqstp,
- 		goto out;
+ 	INIT_DELAYED_WORK(&dev_priv->drrs.work, intel_drrs_downclock_work);
+@@ -416,6 +417,13 @@ intel_drrs_init(struct intel_connector *
+ 		return NULL;
  	}
- 	n = ntohl(*p++);
--	if (n <= 0)
-+	if (n == 0)
- 		goto out;
- 	if (n > ULONG_MAX / sizeof(*args->devs)) {
- 		status = htonl(NFS4ERR_BADXDR);
-@@ -336,19 +334,21 @@ __be32 decode_devicenotify_args(struct svc_rqst *rqstp,
- 			dev->cbd_immediate = 0;
- 		}
  
--		args->ndevs++;
--
- 		dprintk("%s: type %d layout 0x%x immediate %d\n",
- 			__func__, dev->cbd_notify_type, dev->cbd_layout_type,
- 			dev->cbd_immediate);
- 	}
-+	args->ndevs = n;
-+	dprintk("%s: ndevs %d\n", __func__, args->ndevs);
-+	return 0;
-+err:
-+	kfree(args->devs);
- out:
-+	args->devs = NULL;
-+	args->ndevs = 0;
- 	dprintk("%s: status %d ndevs %d\n",
- 		__func__, ntohl(status), args->ndevs);
- 	return status;
--err:
--	kfree(args->devs);
--	goto out;
- }
- 
- static __be32 decode_sessionid(struct xdr_stream *xdr,
--- 
-2.34.1
-
++	if ((DISPLAY_VER(dev_priv) < 8 && !HAS_GMCH(dev_priv)) &&
++	    encoder->port != PORT_A) {
++		drm_dbg_kms(&dev_priv->drm,
++			    "DRRS only supported on eDP port A\n");
++		return NULL;
++	}
++
+ 	if (dev_priv->vbt.drrs_type != SEAMLESS_DRRS_SUPPORT) {
+ 		drm_dbg_kms(&dev_priv->drm, "VBT doesn't support DRRS\n");
+ 		return NULL;
 
 
