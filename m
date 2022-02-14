@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B40E4B4690
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 815B54B49BC
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:36:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244634AbiBNJmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:42:14 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33984 "EHLO
+        id S1345307AbiBNKJz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:09:55 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244986AbiBNJlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:41:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26215A184;
-        Mon, 14 Feb 2022 01:36:48 -0800 (PST)
+        with ESMTP id S1344614AbiBNKI6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:08:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED9526C907;
+        Mon, 14 Feb 2022 01:50:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C64F4B80DC4;
-        Mon, 14 Feb 2022 09:36:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D388BC340E9;
-        Mon, 14 Feb 2022 09:36:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 862B5612BF;
+        Mon, 14 Feb 2022 09:50:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69699C340EF;
+        Mon, 14 Feb 2022 09:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831405;
-        bh=h/90sFQJ4ADpeoVXdbJhADLAI2IKpcQnwVbtczvVWjg=;
+        s=korg; t=1644832215;
+        bh=yBRwaPPBX7oiofAb7QQqNGhdMzKYQcdZ2HG2mnhRb+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LVJeGEBmloFVjenri8+GQbqerYy2l6KI55vt5u9iidsJJn71sseGtW9HRAhZhP3Gx
-         4ax0PlVrc5x4VEGpBFTk//ylK+h0gY+bkjLFI8adP5btjVk2tBDI6rTtrbQVWSjBjg
-         28fNmsLBLIc/p6wR9tcQa0L68/gVVLHdqv2DtHjc=
+        b=uabF6/4CJKINkK3byvm4CJTJFIJtZSbjWgWN8pKHTQilyad/fvSYvEaND5stMOlgi
+         V4HkJNhWRQ/AaJoOnBeSF9z37qUTMlzMbIsAQwV/JOBnFB86GCn640faQ9us9tsPG3
+         GeW09AEfcqpvaoAaD8YqbQfqdgYN7Z6d04fZzU1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Vlad Buslov <vladbu@nvidia.com>,
-        Antoine Tenart <atenart@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 44/71] net: do not keep the dst cache when uncloning an skb dst and its metadata
-Date:   Mon, 14 Feb 2022 10:26:12 +0100
-Message-Id: <20220214092453.530126018@linuxfoundation.org>
+Subject: [PATCH 5.15 115/172] net: dsa: mt7530: fix kernel bug in mdiobus_free() when unbinding
+Date:   Mon, 14 Feb 2022 10:26:13 +0100
+Message-Id: <20220214092510.399068887@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,62 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit cfc56f85e72f5b9c5c5be26dc2b16518d36a7868 ]
+[ Upstream commit 9ffe3d09e32da45bb5a29cf2e80ec8d7534010c5 ]
 
-When uncloning an skb dst and its associated metadata a new dst+metadata
-is allocated and the tunnel information from the old metadata is copied
-over there.
+Nobody in this driver calls mdiobus_unregister(), which is necessary if
+mdiobus_register() completes successfully. So if the devres callbacks
+that free the mdiobus get invoked (this is the case when unbinding the
+driver), mdiobus_free() will BUG if the mdiobus is still registered,
+which it is.
 
-The issue is the tunnel metadata has references to cached dst, which are
-copied along the way. When a dst+metadata refcount drops to 0 the
-metadata is freed including the cached dst entries. As they are also
-referenced in the initial dst+metadata, this ends up in UaFs.
+My speculation is that this is due to the fact that prior to commit
+ac3a68d56651 ("net: phy: don't abuse devres in devm_mdiobus_register()")
+from June 2020, _devm_mdiobus_free() used to call mdiobus_unregister().
+But at the time that the mt7530 support was introduced in May 2021, the
+API was already changed. It's therefore likely that the blamed patch was
+developed on an older tree, and incorrectly adapted to net-next. This
+makes the Fixes: tag correct.
 
-In practice the above did not happen because of another issue, the
-dst+metadata was never freed because its refcount never dropped to 0
-(this will be fixed in a subsequent patch).
+Fix the problem by using the devres variant of mdiobus_register.
 
-Fix this by initializing the dst cache after copying the tunnel
-information from the old metadata to also unshare the dst cache.
-
-Fixes: d71785ffc7e7 ("net: add dst_cache to ovs vxlan lwtunnel")
-Cc: Paolo Abeni <pabeni@redhat.com>
-Reported-by: Vlad Buslov <vladbu@nvidia.com>
-Tested-by: Vlad Buslov <vladbu@nvidia.com>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ba751e28d442 ("net: dsa: mt7530: add interrupt support")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/dst_metadata.h | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/dsa/mt7530.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/dst_metadata.h b/include/net/dst_metadata.h
-index 14efa0ded75dd..b997e0c1e3627 100644
---- a/include/net/dst_metadata.h
-+++ b/include/net/dst_metadata.h
-@@ -123,6 +123,19 @@ static inline struct metadata_dst *tun_dst_unclone(struct sk_buff *skb)
+diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
+index 9890672a206d0..fb59efc7f9266 100644
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -2066,7 +2066,7 @@ mt7530_setup_mdio(struct mt7530_priv *priv)
+ 	if (priv->irq)
+ 		mt7530_setup_mdio_irq(priv);
  
- 	memcpy(&new_md->u.tun_info, &md_dst->u.tun_info,
- 	       sizeof(struct ip_tunnel_info) + md_size);
-+#ifdef CONFIG_DST_CACHE
-+	/* Unclone the dst cache if there is one */
-+	if (new_md->u.tun_info.dst_cache.cache) {
-+		int ret;
-+
-+		ret = dst_cache_init(&new_md->u.tun_info.dst_cache, GFP_ATOMIC);
-+		if (ret) {
-+			metadata_dst_free(new_md);
-+			return ERR_PTR(ret);
-+		}
-+	}
-+#endif
-+
- 	skb_dst_drop(skb);
- 	dst_hold(&new_md->dst);
- 	skb_dst_set(skb, &new_md->dst);
+-	ret = mdiobus_register(bus);
++	ret = devm_mdiobus_register(dev, bus);
+ 	if (ret) {
+ 		dev_err(dev, "failed to register MDIO bus: %d\n", ret);
+ 		if (priv->irq)
 -- 
 2.34.1
 
