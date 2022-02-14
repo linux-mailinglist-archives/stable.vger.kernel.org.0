@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31CAB4B4B10
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F370F4B47EF
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346919AbiBNK1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:27:48 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36846 "EHLO
+        id S244885AbiBNJsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:48:09 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348231AbiBNK0u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:26:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72402811B0;
-        Mon, 14 Feb 2022 01:57:50 -0800 (PST)
+        with ESMTP id S1343747AbiBNJq0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BA816B0A0;
+        Mon, 14 Feb 2022 01:39:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58C2161236;
-        Mon, 14 Feb 2022 09:57:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31626C340E9;
-        Mon, 14 Feb 2022 09:57:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4859DB80DC6;
+        Mon, 14 Feb 2022 09:39:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81185C340E9;
+        Mon, 14 Feb 2022 09:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832657;
-        bh=N3T3q2dVigTnrrBC916Z3kDWsICXJCmLkqSPQOiA/64=;
+        s=korg; t=1644831592;
+        bh=Oj7NXyw/WsaA4MVF4fR5lEQedQrm6KIDPdBManiDg4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qavJnFN0vUF37mNaJubSXz1pOnweYl1y5ostZ8+EFgQ7AwLZ20s+gmwipqkMJi07c
-         AIdvvWNapxIVvMkdEhoxMjY/EOmXEmygXeyKob2m461YUkM4jkuHV0ZnkcbRm+Iyku
-         Gazt2CcYfpsOSJ5nIrM1JikAGeLYHb15lc73WVxc=
+        b=TsAQwlaGbAP2n4NhOsv0uTcblJzM0uw4WCW5Z86i3gjTFozvFgl32AZbQHJGKZtcG
+         QUtNp990jTMwv6cTGsCy8UOnu7Mq/g6SWl4Qm7hnKP2dTiGhDExS3tQc9gt1UNjr0F
+         lesAy8DPPKc3+MXccWpX2qJvzbISSkw6ba1CDsf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.16 085/203] ACPI/IORT: Check node revision for PMCG resources
+        stable@vger.kernel.org, Kiwoong Kim <kwmad.kim@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 030/116] scsi: ufs: Treat link loss as fatal error
 Date:   Mon, 14 Feb 2022 10:25:29 +0100
-Message-Id: <20220214092513.159286943@linuxfoundation.org>
+Message-Id: <20220214092459.730608870@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Kiwoong Kim <kwmad.kim@samsung.com>
 
-commit da5fb9e1ad3fbf632dce735f1bdad257ca528499 upstream.
+[ Upstream commit c99b9b2301492b665b6e51ba6c06ec362eddcd10 ]
 
-The original version of the IORT PMCG definition had an oversight
-wherein there was no way to describe the second register page for an
-implementation using the recommended RELOC_CTRS feature. Although the
-spec was fixed, and the final patches merged to ACPICA and Linux written
-against the new version, it seems that some old firmware based on the
-original revision has survived and turned up in the wild.
+This event is raised when link is lost as specified in UFSHCI spec and that
+means communication is not possible. Thus initializing UFS interface needs
+to be done.
 
-Add a check for the original PMCG definition, and avoid filling in the
-second memory resource with nonsense if so. Otherwise it is likely that
-something horrible will happen when the PMCG driver attempts to probe.
+Make UFS driver considers Link Lost as fatal in the INT_FATAL_ERRORS
+mask. This will trigger a host reset whenever a link lost interrupt occurs.
 
-Reported-by: Michael Petlan <mpetlan@redhat.com>
-Fixes: 24e516049360 ("ACPI/IORT: Add support for PMCG")
-Cc: <stable@vger.kernel.org> # 5.2.x
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Link: https://lore.kernel.org/r/75628ae41c257fb73588f7bf1c4459160e04be2b.1643916258.git.robin.murphy@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/1642743475-54275-1-git-send-email-kwmad.kim@samsung.com
+Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/arm64/iort.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshci.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/acpi/arm64/iort.c
-+++ b/drivers/acpi/arm64/iort.c
-@@ -1361,9 +1361,17 @@ static void __init arm_smmu_v3_pmcg_init
- 	res[0].start = pmcg->page0_base_address;
- 	res[0].end = pmcg->page0_base_address + SZ_4K - 1;
- 	res[0].flags = IORESOURCE_MEM;
--	res[1].start = pmcg->page1_base_address;
--	res[1].end = pmcg->page1_base_address + SZ_4K - 1;
--	res[1].flags = IORESOURCE_MEM;
-+	/*
-+	 * The initial version in DEN0049C lacked a way to describe register
-+	 * page 1, which makes it broken for most PMCG implementations; in
-+	 * that case, just let the driver fail gracefully if it expects to
-+	 * find a second memory resource.
-+	 */
-+	if (node->revision > 0) {
-+		res[1].start = pmcg->page1_base_address;
-+		res[1].end = pmcg->page1_base_address + SZ_4K - 1;
-+		res[1].flags = IORESOURCE_MEM;
-+	}
+diff --git a/drivers/scsi/ufs/ufshci.h b/drivers/scsi/ufs/ufshci.h
+index 6795e1f0e8f8c..1d999228efc85 100644
+--- a/drivers/scsi/ufs/ufshci.h
++++ b/drivers/scsi/ufs/ufshci.h
+@@ -138,7 +138,8 @@ enum {
+ #define INT_FATAL_ERRORS	(DEVICE_FATAL_ERROR |\
+ 				CONTROLLER_FATAL_ERROR |\
+ 				SYSTEM_BUS_FATAL_ERROR |\
+-				CRYPTO_ENGINE_FATAL_ERROR)
++				CRYPTO_ENGINE_FATAL_ERROR |\
++				UIC_LINK_LOST)
  
- 	if (pmcg->overflow_gsiv)
- 		acpi_iort_register_irq(pmcg->overflow_gsiv, "overflow",
+ /* HCS - Host Controller Status 30h */
+ #define DEVICE_PRESENT				0x1
+-- 
+2.34.1
+
 
 
