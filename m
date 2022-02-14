@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6A004B4768
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AC7B4B47E9
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244562AbiBNJmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:42:01 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34086 "EHLO
+        id S244325AbiBNJhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:37:04 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245227AbiBNJlN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:41:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2674E652E7;
-        Mon, 14 Feb 2022 01:37:16 -0800 (PST)
+        with ESMTP id S244728AbiBNJgK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BA3A25E90;
+        Mon, 14 Feb 2022 01:34:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D082AB80DCD;
-        Mon, 14 Feb 2022 09:37:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECA5DC340E9;
-        Mon, 14 Feb 2022 09:37:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF38BB80DD4;
+        Mon, 14 Feb 2022 09:33:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0215BC340E9;
+        Mon, 14 Feb 2022 09:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831433;
-        bh=m//ix3XPBPrvcEFkN+P3oNvi1ozebqHaRfxVNaNA0N8=;
+        s=korg; t=1644831225;
+        bh=Vt6o6BUJUwenqkWrho+49oDACU5otjZPlwM4QWb24DM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u90AJFWu1kNruLfyUV1uDt3RmkbMX+RymZ+hfQfp/x5FUlhLodvScKSX0m13XHP+K
-         78jx3DFl7xh1fwDPIu6myt9cS8qfGIo3D9QErxouwMCI4uuTW1SVYQlUJFZsw88GqJ
-         4DFJdJJY8WwPe2fBcU/em/VKqCYmf6JoBXAaksqk=
+        b=pln6plE1Z0+eZ/NczPXJz4k7a/pRebacrAbsK9Mu/FU+CJq6TvAQAtxtwb5dpcDaK
+         C1eMV2OV9C0npZoTb9LR2MtzPG6qrx5yerfznxM6YLTQd3plr8YSEZn5ZBI4aYTo6c
+         ghP25YrLcaY0kezU6nXZSjPXTMBRouZsqgtRJ3D0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 35/71] ARM: dts: meson: Fix the UART compatible strings
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sean Anderson <sean.anderson@seco.com>
+Subject: [PATCH 4.19 37/49] usb: ulpi: Move of_node_put to ulpi_dev_release
 Date:   Mon, 14 Feb 2022 10:26:03 +0100
-Message-Id: <20220214092453.207005977@linuxfoundation.org>
+Message-Id: <20220214092449.522306451@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
+References: <20220214092448.285381753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Sean Anderson <sean.anderson@seco.com>
 
-[ Upstream commit 5225e1b87432dcf0d0fc3440824b91d04c1d6cc1 ]
+commit 092f45b13e51666fe8ecbf2d6cd247aa7e6c1f74 upstream.
 
-The dt-bindings for the UART controller only allow the following values
-for Meson6 SoCs:
-- "amlogic,meson6-uart", "amlogic,meson-ao-uart"
-- "amlogic,meson6-uart"
+Drivers are not unbound from the device when ulpi_unregister_interface
+is called. Move of_node-freeing code to ulpi_dev_release which is called
+only after all users are gone.
 
-Use the correct fallback compatible string "amlogic,meson-ao-uart" for
-AO UART. Drop the "amlogic,meson-uart" compatible string from the EE
-domain UART controllers.
-
-Fixes: ec9b59162fd831 ("ARM: dts: meson6: use stable UART bindings")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20211227180026.4068352-2-martin.blumenstingl@googlemail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Sean Anderson <sean.anderson@seco.com>
+Link: https://lore.kernel.org/r/20220127190004.1446909-2-sean.anderson@seco.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/meson.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/common/ulpi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/meson.dtsi b/arch/arm/boot/dts/meson.dtsi
-index c4447f6c8b2cb..e141ce7484841 100644
---- a/arch/arm/boot/dts/meson.dtsi
-+++ b/arch/arm/boot/dts/meson.dtsi
-@@ -49,14 +49,14 @@ hwrng: rng@8100 {
- 			};
+--- a/drivers/usb/common/ulpi.c
++++ b/drivers/usb/common/ulpi.c
+@@ -132,6 +132,7 @@ static const struct attribute_group *ulp
  
- 			uart_A: serial@84c0 {
--				compatible = "amlogic,meson6-uart", "amlogic,meson-uart";
-+				compatible = "amlogic,meson6-uart";
- 				reg = <0x84c0 0x18>;
- 				interrupts = <GIC_SPI 26 IRQ_TYPE_EDGE_RISING>;
- 				status = "disabled";
- 			};
+ static void ulpi_dev_release(struct device *dev)
+ {
++	of_node_put(dev->of_node);
+ 	kfree(to_ulpi_dev(dev));
+ }
  
- 			uart_B: serial@84dc {
--				compatible = "amlogic,meson6-uart", "amlogic,meson-uart";
-+				compatible = "amlogic,meson6-uart";
- 				reg = <0x84dc 0x18>;
- 				interrupts = <GIC_SPI 75 IRQ_TYPE_EDGE_RISING>;
- 				status = "disabled";
-@@ -94,7 +94,7 @@ saradc: adc@8680 {
- 			};
- 
- 			uart_C: serial@8700 {
--				compatible = "amlogic,meson6-uart", "amlogic,meson-uart";
-+				compatible = "amlogic,meson6-uart";
- 				reg = <0x8700 0x18>;
- 				interrupts = <GIC_SPI 93 IRQ_TYPE_EDGE_RISING>;
- 				status = "disabled";
-@@ -196,7 +196,7 @@ ir_receiver: ir-receiver@480 {
- 			};
- 
- 			uart_AO: serial@4c0 {
--				compatible = "amlogic,meson6-uart", "amlogic,meson-ao-uart", "amlogic,meson-uart";
-+				compatible = "amlogic,meson6-uart", "amlogic,meson-ao-uart";
- 				reg = <0x4c0 0x18>;
- 				interrupts = <GIC_SPI 90 IRQ_TYPE_EDGE_RISING>;
- 				status = "disabled";
--- 
-2.34.1
-
+@@ -300,7 +301,6 @@ EXPORT_SYMBOL_GPL(ulpi_register_interfac
+  */
+ void ulpi_unregister_interface(struct ulpi *ulpi)
+ {
+-	of_node_put(ulpi->dev.of_node);
+ 	device_unregister(&ulpi->dev);
+ }
+ EXPORT_SYMBOL_GPL(ulpi_unregister_interface);
 
 
