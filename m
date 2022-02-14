@@ -2,87 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 142414B52DE
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 15:12:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 932944B52E6
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 15:13:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354975AbiBNOMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 09:12:00 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48774 "EHLO
+        id S231594AbiBNOOF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 09:14:05 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345527AbiBNOL7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 09:11:59 -0500
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF3BBD4B
-        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 06:11:50 -0800 (PST)
-Received: by mail-wm1-x330.google.com with SMTP id i19so8309274wmq.5
-        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 06:11:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=3Is2B0GtPj2dMI82ExWIaXz6ThN1J8/FAH1EK+krjOg=;
-        b=MKm3nds0nV9zOc2iPb5KMgc+NuvN03dS8U5wqTT7d+ohNW8FqNpEXNaZ8TYLW0lzRj
-         5wVbi8iI6TCF7KGazkV5N9/7T0EEcqLK/k2FoBAU1/vPaknk+4rO4uwC6BN252U8YjDj
-         gVRJ6mu584iKt3T1EzddaQPg7IsOx+LN9ebrPej9IvkYSyHBKRGwGCSQVwjGlyCaTXPz
-         KV2AVdZmkPQitXDwDObd7L5vo/ER7TZA2ARGbnuLd+vsorTfVRE+dXFGKeW4kRtaLRP+
-         JPmnAUz2++aDVeuv9GblSkE6D+qnudLwVthMndPsqikAERsEsTyTex5zMv6WrAMRjn48
-         uouA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=3Is2B0GtPj2dMI82ExWIaXz6ThN1J8/FAH1EK+krjOg=;
-        b=4Anq+Frx7iER3yGZwcYVK3DhOhnV58uI6OQ5e8XhXiGgJnSEdwNZZ8qL6TkOD964Nf
-         dZB/NF51VBK9TYiyHgOU9vyr2G7tdaolnvWaeTMIx92+cWzmOaeFazVQ20Op9ZsThT8a
-         AuXT82cJUlVCa84IS7aZjsrJaSQxY/yIXaQGAddQSFstmjl87C+4r7Nw0xrEBRg3bzpj
-         2uTQD6Rcz8VA9HjMizfHFijG2pTMqaalbeSAmfdIKTXpiybJhFDES4uAow7pWg4ljllo
-         FurF+HaD7Zxf20FrlECLQhaqPk8ibfZd92HwOQnhFKYlhTGroytc2KiH+h9RCkvnXY3K
-         NCBg==
-X-Gm-Message-State: AOAM530cikPi+AkSBJQVVq/ggkQqbdZjX8g7UBcAFZs7Q7KmHkBaQBxk
-        CKBe+oyZs/itVKnPD58fiLYocA==
-X-Google-Smtp-Source: ABdhPJycc2AeNgDLeMcPq709jDg3r69PS0m8CwcCpEyvCW2mDtnrAFFDMHyQuEReiKG5356uJWPxRg==
-X-Received: by 2002:a1c:a104:: with SMTP id k4mr11292346wme.68.1644847909280;
-        Mon, 14 Feb 2022 06:11:49 -0800 (PST)
-Received: from google.com (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
-        by smtp.gmail.com with ESMTPSA id j6sm17636672wrt.70.2022.02.14.06.11.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Feb 2022 06:11:48 -0800 (PST)
-Date:   Mon, 14 Feb 2022 14:11:46 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Matthew Wilcox <willy@infradead.org>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        linux-kernel@vger.kernel.org, Stable <stable@vger.kernel.org>,
-        Dave Chinner <dchinner@redhat.com>,
-        Goldwyn Rodrigues <rgoldwyn@suse.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>,
-        Bob Peterson <rpeterso@redhat.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Theodore Ts'o <tytso@mit.edu>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Johannes Thumshirn <jth@kernel.org>, linux-xfs@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
-        cluster-devel@redhat.com,
-        syzbot+0ed9f769264276638893@syzkaller.appspotmail.com
-Subject: Re: [PATCH 1/1] Revert "iomap: fall back to buffered writes for
- invalidation failures"
-Message-ID: <YgpjIustbUeRqvR2@google.com>
-References: <20220209085243.3136536-1-lee.jones@linaro.org>
- <20220210045911.GF8338@magnolia>
- <YgTl2Lm9Vk50WNSj@google.com>
- <YgZ0lyr91jw6JaHg@casper.infradead.org>
- <YgowAl01rq5A8Sil@google.com>
- <20220214134206.GA29930@lst.de>
+        with ESMTP id S231236AbiBNOOE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 09:14:04 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 40D72B7;
+        Mon, 14 Feb 2022 06:13:55 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 08D5F1042;
+        Mon, 14 Feb 2022 06:13:55 -0800 (PST)
+Received: from bogus (unknown [10.57.3.35])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EB4943F66F;
+        Mon, 14 Feb 2022 06:13:51 -0800 (PST)
+Date:   Mon, 14 Feb 2022 14:13:03 +0000
+From:   Sudeep Holla <sudeep.holla@arm.com>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Liviu Dudau <Liviu.Dudau@arm.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-stable <stable@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        lkft-triage@lists.linaro.org,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 2/2] arm64: dts: juno: Enable more SMMUs
+Message-ID: <20220214141303.3lmnassl4qibsp3y@bogus>
+References: <720d0a9a42e33148fcac45cd39a727093a32bf32.1614965598.git.robin.murphy@arm.com>
+ <a730070d718cb119f77c8ca1782a0d4189bfb3e7.1614965598.git.robin.murphy@arm.com>
+ <0a1d437d-9ea0-de83-3c19-e07f560ad37c@arm.com>
+ <20210730143431.GB1517404@mutt>
+ <8b358507-dbdf-b05b-c1da-2ec9903a2912@arm.com>
+ <CADYN=9LE2JnE+vmv_UaeyJj_RpHcp+zZUv711VuQekLSiQ2bJA@mail.gmail.com>
+ <CA+G9fYu7ctvOfdvBkDZ1nABz0TaYZ49FUKVTctn+mBTCmk9JCQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220214134206.GA29930@lst.de>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+In-Reply-To: <CA+G9fYu7ctvOfdvBkDZ1nABz0TaYZ49FUKVTctn+mBTCmk9JCQ@mail.gmail.com>
+X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -90,23 +58,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 14 Feb 2022, Christoph Hellwig wrote:
+On Mon, Feb 14, 2022 at 07:36:00PM +0530, Naresh Kamboju wrote:
+> Hi Robin,
+> 
+> Since we did not get a reply on this email thread.
+> and those intermittent failures are causing a lot of noise in reports summary.
+> We will wait one more week and stop running 64k page size testing on
+> Juno-r2 devices.
+> 
+> > > > diff --git a/arch/arm64/boot/dts/arm/juno-base.dtsi b/arch/arm64/boot/dts/arm/juno-base.dtsi
+> > > > index 8e7a66943b01..d3148730e951 100644
+> > > > --- a/arch/arm64/boot/dts/arm/juno-base.dtsi
+> > > > +++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
+> > > > @@ -545,8 +545,7 @@ pcie_ctlr: pcie@40000000 {
+> > > >                           <0x02000000 0x00 0x50000000 0x00 0x50000000 0x0 0x08000000>,
+> > > >                           <0x42000000 0x40 0x00000000 0x40 0x00000000 0x1 0x00000000>;
+> > > >                  /* Standard AXI Translation entries as programmed by EDK2 */
+> > > > -               dma-ranges = <0x02000000 0x0 0x2c1c0000 0x0 0x2c1c0000 0x0 0x00040000>,
+> > > > -                            <0x02000000 0x0 0x80000000 0x0 0x80000000 0x0 0x80000000>,
+> > > > +               dma-ranges = <0x02000000 0x0 0x80000000 0x0 0x80000000 0x0 0x80000000>,
+> > > >                               <0x43000000 0x8 0x00000000 0x8 0x00000000 0x2 0x00000000>;
+> > > >                  #interrupt-cells = <1>;
+> > > >                  interrupt-map-mask = <0 0 0 7>;
+> > > >
+> 
+> Reference email thread,
+> https://lore.kernel.org/stable/0a1d437d-9ea0-de83-3c19-e07f560ad37c@arm.com/
+> 
 
-> Let me repeat myself:  Please send a proper bug report to the linux-ext4
-> list.  Thanks!
-
-Okay, so it is valid.  Question answered, thanks.
-
-I still believe that I am unqualified to attempt to debug this myself.
-
-In order to do so, I'll at least require some guidance from you SMEs.
-
-Please bear with me while I clear my desk - lots on currently.
-
-Bug report to follow.
+I was about to tag the fix for this and was just reading this thread. I will
+send the pull request soon. Sorry for the delay, it is in next for some time
+now. Are you seeing the issue even in linux-next ?
 
 -- 
-Lee Jones [李琼斯]
-Principal Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Regards,
+Sudeep
