@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 151F34B482A
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:56:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57C3E4B4801
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231248AbiBNJwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:52:41 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33166 "EHLO
+        id S245105AbiBNJoN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:44:13 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344722AbiBNJvz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:51:55 -0500
+        with ESMTP id S244973AbiBNJnk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:43:40 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFF616D39A;
-        Mon, 14 Feb 2022 01:43:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA04069CFA;
+        Mon, 14 Feb 2022 01:37:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 969ABB80DC4;
-        Mon, 14 Feb 2022 09:43:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D028BC340F1;
-        Mon, 14 Feb 2022 09:43:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E0BCB80D83;
+        Mon, 14 Feb 2022 09:37:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BE6FC340E9;
+        Mon, 14 Feb 2022 09:37:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831788;
-        bh=LzpzpbXuAXBVxXgaTfhdtBconWX5rylvXkzDq4epIPc=;
+        s=korg; t=1644831476;
+        bh=fNboLNrTTiztMzk5UQDqt4sM5NYrXTofzAbuRL2RH+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vTuk6Zz+najX446C0/4xDFjveNSiHEjRdtJ6R4+DOJeMebb6SGKvXcmcw4jfjvpRu
-         NTaFYe94UvwRWhKhRsHxqn5Zoo0PrWqXxskTjVo15oZ16ZVO2wzHKt7e8dtf2vULfy
-         9CVQfdk+ljp3c/h66PMIs/X7SSL4aoMzu2oSyYpY=
+        b=uurxPptttCTLXIPS11+37zRv8aFhFKu1wUAVfavAn/GJIhxCRsE/I3bGxHxpSAgGt
+         r0+3PJ6xCEObglxL7kduysCt9cl15NHzV1yRM2xI8MFVn7jjPqAOMpNwVqQu5WXARs
+         2eyNFtTb1IPtWQL57AEvi2xey59T6ha2jZwb4Bho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pavankumar Kondeti <quic_pkondeti@quicinc.com>,
-        Udipto Goswami <quic_ugoswami@quicinc.com>
-Subject: [PATCH 5.10 096/116] usb: dwc3: gadget: Prevent core from processing stale TRBs
+        stable@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>,
+        Will Drewry <wad@chromium.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.4 67/71] seccomp: Invalidate seccomp mode to catch death failures
 Date:   Mon, 14 Feb 2022 10:26:35 +0100
-Message-Id: <20220214092502.091779498@linuxfoundation.org>
+Message-Id: <20220214092454.290611893@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Udipto Goswami <quic_ugoswami@quicinc.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 117b4e96c7f362eb6459543883fc07f77662472c upstream.
+commit 495ac3069a6235bfdf516812a2a9b256671bbdf9 upstream.
 
-With CPU re-ordering on write instructions, there might
-be a chance that the HWO is set before the TRB is updated
-with the new mapped buffer address.
-And in the case where core is processing a list of TRBs
-it is possible that it fetched the TRBs when the HWO is set
-but before the buffer address is updated.
-Prevent this by adding a memory barrier before the HWO
-is updated to ensure that the core always process the
-updated TRBs.
+If seccomp tries to kill a process, it should never see that process
+again. To enforce this proactively, switch the mode to something
+impossible. If encountered: WARN, reject all syscalls, and attempt to
+kill the process again even harder.
 
-Fixes: f6bafc6a1c9d ("usb: dwc3: convert TRBs into bitshifts")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
-Signed-off-by: Udipto Goswami <quic_ugoswami@quicinc.com>
-Link: https://lore.kernel.org/r/1644207958-18287-1-git-send-email-quic_ugoswami@quicinc.com
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Will Drewry <wad@chromium.org>
+Fixes: 8112c4f140fa ("seccomp: remove 2-phase API")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ kernel/seccomp.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1072,6 +1072,19 @@ static void __dwc3_prepare_one_trb(struc
- 	if (usb_endpoint_xfer_bulk(dep->endpoint.desc) && dep->stream_capable)
- 		trb->ctrl |= DWC3_TRB_CTRL_SID_SOFN(stream_id);
+--- a/kernel/seccomp.c
++++ b/kernel/seccomp.c
+@@ -28,6 +28,9 @@
+ #include <linux/syscalls.h>
+ #include <linux/sysctl.h>
  
-+	/*
-+	 * As per data book 4.2.3.2TRB Control Bit Rules section
-+	 *
-+	 * The controller autonomously checks the HWO field of a TRB to determine if the
-+	 * entire TRB is valid. Therefore, software must ensure that the rest of the TRB
-+	 * is valid before setting the HWO field to '1'. In most systems, this means that
-+	 * software must update the fourth DWORD of a TRB last.
-+	 *
-+	 * However there is a possibility of CPU re-ordering here which can cause
-+	 * controller to observe the HWO bit set prematurely.
-+	 * Add a write memory barrier to prevent CPU re-ordering.
-+	 */
-+	wmb();
- 	trb->ctrl |= DWC3_TRB_CTRL_HWO;
- 
- 	dwc3_ep_inc_enq(dep);
++/* Not exposed in headers: strictly internal use only. */
++#define SECCOMP_MODE_DEAD	(SECCOMP_MODE_FILTER + 1)
++
+ #ifdef CONFIG_HAVE_ARCH_SECCOMP_FILTER
+ #include <asm/syscall.h>
+ #endif
+@@ -706,6 +709,7 @@ static void __secure_computing_strict(in
+ #ifdef SECCOMP_DEBUG
+ 	dump_stack();
+ #endif
++	current->seccomp.mode = SECCOMP_MODE_DEAD;
+ 	seccomp_log(this_syscall, SIGKILL, SECCOMP_RET_KILL_THREAD, true);
+ 	do_exit(SIGKILL);
+ }
+@@ -892,6 +896,7 @@ static int __seccomp_filter(int this_sys
+ 	case SECCOMP_RET_KILL_THREAD:
+ 	case SECCOMP_RET_KILL_PROCESS:
+ 	default:
++		current->seccomp.mode = SECCOMP_MODE_DEAD;
+ 		seccomp_log(this_syscall, SIGSYS, action, true);
+ 		/* Dump core only if this is the last remaining thread. */
+ 		if (action == SECCOMP_RET_KILL_PROCESS ||
+@@ -944,6 +949,11 @@ int __secure_computing(const struct secc
+ 		return 0;
+ 	case SECCOMP_MODE_FILTER:
+ 		return __seccomp_filter(this_syscall, sd, false);
++	/* Surviving SECCOMP_RET_KILL_* must be proactively impossible. */
++	case SECCOMP_MODE_DEAD:
++		WARN_ON_ONCE(1);
++		do_exit(SIGKILL);
++		return -1;
+ 	default:
+ 		BUG();
+ 	}
 
 
