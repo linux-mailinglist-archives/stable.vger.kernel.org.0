@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D815E4B4AF7
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D46D4B4BA5
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:42:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347309AbiBNK1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:27:42 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33138 "EHLO
+        id S1346682AbiBNKVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:21:49 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347728AbiBNK0T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:26:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EF3680217;
-        Mon, 14 Feb 2022 01:57:28 -0800 (PST)
+        with ESMTP id S1347501AbiBNKVS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:21:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 790DD6E2B4;
+        Mon, 14 Feb 2022 01:55:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 50921B80DD0;
-        Mon, 14 Feb 2022 09:57:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BFAAC340E9;
-        Mon, 14 Feb 2022 09:57:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11EA5B80DC8;
+        Mon, 14 Feb 2022 09:55:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D147C340E9;
+        Mon, 14 Feb 2022 09:55:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832638;
-        bh=nDySB6UXuT3u6CrlRf1gGUS+olwtOzGHIaEFmYJVFJc=;
+        s=korg; t=1644832541;
+        bh=bjoUDtJjdYhBbXWDCNWeCPkAHE8XCLOofGzvfH6ksWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0b74A6d+TRteVhPqDy/sT998Fl5IkQ7F68pT8P1KUQcFenxn9He9kp7A81oMfdDB
-         QWMOZ0etugR2T2yH7nuSmXHjOyfvi2idAcsH6XIISVXygMNaCHnyN19xR8ifKRAtvf
-         Pi/IPvNRFYMeI45QY7/lbv52SP/AQZldBOw1+UdE=
+        b=J9/vclSDm6oFSWBllszTrBuU/vvY7u2WJyg4TzZpZ64H1AZl2DEh8i/MyAbpUIXg+
+         Nh0ovfkxrf/F+t3XT33+LNNt7X6Wcyp/jbwVEQOd784QvtiFrt+jU2VBd6ZiaMoIf2
+         S7QMWCt3mYh1V3oAENyAiBwohEA8lzJBsiTHFWJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
+        stable@vger.kernel.org,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        John Garry <john.garry@huawei.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 047/203] scsi: qedf: Change context reset messages to ratelimited
-Date:   Mon, 14 Feb 2022 10:24:51 +0100
-Message-Id: <20220214092511.817031892@linuxfoundation.org>
+Subject: [PATCH 5.16 048/203] scsi: pm8001: Fix bogus FW crash for maxcpus=1
+Date:   Mon, 14 Feb 2022 10:24:52 +0100
+Message-Id: <20220214092511.849135534@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
 References: <20220214092510.221474733@linuxfoundation.org>
@@ -55,48 +56,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit 64fd4af6274eb0f49d29772c228fffcf6bde1635 ]
+[ Upstream commit 62afb379a0fee7e9c2f9f68e1abeb85ceddf51b9 ]
 
-If FCoE is not configured, libfc/libfcoe keeps on retrying FLOGI and after
-3 retries driver does a context reset and tries fipvlan again.  This leads
-to context reset message flooding the logs. Hence ratelimit the message to
-prevent flooding the logs.
+According to the comment in check_fw_ready() we should not check the
+IOP1_READY field in register SCRATCH_PAD_1 for 8008 or 8009 controllers.
 
-Link: https://lore.kernel.org/r/20220117135311.6256-4-njavali@marvell.com
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
+However we check this very field in process_oq() for processing the highest
+index interrupt vector. The highest interrupt vector is checked as the FW
+is programmed to signal fatal errors through this irq.
+
+Change that function to not check IOP1_READY for those mentioned
+controllers, but do check ILA_READY in both cases.
+
+The reason I assume that this was not hit earlier was because we always
+allocated 64 MSI(X), and just did not pass the vector index check in
+process_oq(), i.e.  the handler never ran for vector index 63.
+
+Link: https://lore.kernel.org/r/1642508105-95432-1-git-send-email-john.garry@huawei.com
+Tested-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf_main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/pm8001/pm80xx_hwi.c | 16 ++++++++++++++--
+ drivers/scsi/pm8001/pm80xx_hwi.h |  6 +++++-
+ 2 files changed, 19 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index 6e367b40ecc96..e0e03443d7703 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -911,7 +911,7 @@ void qedf_ctx_soft_reset(struct fc_lport *lport)
- 	struct qed_link_output if_link;
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index 2101fc5761c3c..4c5b945bf3187 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -4161,10 +4161,22 @@ static int process_oq(struct pm8001_hba_info *pm8001_ha, u8 vec)
+ 	u32 ret = MPI_IO_STATUS_FAIL;
+ 	u32 regval;
  
- 	if (lport->vport) {
--		QEDF_ERR(NULL, "Cannot issue host reset on NPIV port.\n");
-+		printk_ratelimited("Cannot issue host reset on NPIV port.\n");
- 		return;
- 	}
++	/*
++	 * Fatal errors are programmed to be signalled in irq vector
++	 * pm8001_ha->max_q_num - 1 through pm8001_ha->main_cfg_tbl.pm80xx_tbl.
++	 * fatal_err_interrupt
++	 */
+ 	if (vec == (pm8001_ha->max_q_num - 1)) {
++		u32 mipsall_ready;
++
++		if (pm8001_ha->chip_id == chip_8008 ||
++		    pm8001_ha->chip_id == chip_8009)
++			mipsall_ready = SCRATCH_PAD_MIPSALL_READY_8PORT;
++		else
++			mipsall_ready = SCRATCH_PAD_MIPSALL_READY_16PORT;
++
+ 		regval = pm8001_cr32(pm8001_ha, 0, MSGU_SCRATCH_PAD_1);
+-		if ((regval & SCRATCH_PAD_MIPSALL_READY) !=
+-					SCRATCH_PAD_MIPSALL_READY) {
++		if ((regval & mipsall_ready) != mipsall_ready) {
+ 			pm8001_ha->controller_fatal_error = true;
+ 			pm8001_dbg(pm8001_ha, FAIL,
+ 				   "Firmware Fatal error! Regval:0x%x\n",
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.h b/drivers/scsi/pm8001/pm80xx_hwi.h
+index c7e5d93bea924..c41ed039c92ac 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.h
++++ b/drivers/scsi/pm8001/pm80xx_hwi.h
+@@ -1405,8 +1405,12 @@ typedef struct SASProtocolTimerConfig SASProtocolTimerConfig_t;
+ #define SCRATCH_PAD_BOOT_LOAD_SUCCESS	0x0
+ #define SCRATCH_PAD_IOP0_READY		0xC00
+ #define SCRATCH_PAD_IOP1_READY		0x3000
+-#define SCRATCH_PAD_MIPSALL_READY	(SCRATCH_PAD_IOP1_READY | \
++#define SCRATCH_PAD_MIPSALL_READY_16PORT	(SCRATCH_PAD_IOP1_READY | \
+ 					SCRATCH_PAD_IOP0_READY | \
++					SCRATCH_PAD_ILA_READY | \
++					SCRATCH_PAD_RAAE_READY)
++#define SCRATCH_PAD_MIPSALL_READY_8PORT	(SCRATCH_PAD_IOP0_READY | \
++					SCRATCH_PAD_ILA_READY | \
+ 					SCRATCH_PAD_RAAE_READY)
  
-@@ -3979,7 +3979,9 @@ void qedf_stag_change_work(struct work_struct *work)
- 	struct qedf_ctx *qedf =
- 	    container_of(work, struct qedf_ctx, stag_work.work);
- 
--	QEDF_ERR(&qedf->dbg_ctx, "Performing software context reset.\n");
-+	printk_ratelimited("[%s]:[%s:%d]:%d: Performing software context reset.",
-+			dev_name(&qedf->pdev->dev), __func__, __LINE__,
-+			qedf->dbg_ctx.host_no);
- 	qedf_ctx_soft_reset(qedf->lport);
- }
- 
+ /* boot loader state */
 -- 
 2.34.1
 
