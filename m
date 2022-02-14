@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E92C4B4843
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:56:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CAC94B4B99
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:42:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245582AbiBNJxA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:53:00 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34404 "EHLO
+        id S1346124AbiBNKNx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:13:53 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344930AbiBNJwH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:52:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B598C7B568;
-        Mon, 14 Feb 2022 01:43:28 -0800 (PST)
+        with ESMTP id S1345696AbiBNKNN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:13:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E11E6657A4;
+        Mon, 14 Feb 2022 01:51:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C2BCB80DC4;
-        Mon, 14 Feb 2022 09:43:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79F83C340E9;
-        Mon, 14 Feb 2022 09:43:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CD0E60F65;
+        Mon, 14 Feb 2022 09:51:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F140C340E9;
+        Mon, 14 Feb 2022 09:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831806;
-        bh=h6DUSLEzM5nWMlU2QZLed3g8W6f2bQcqsOY1Ce/iF+I=;
+        s=korg; t=1644832298;
+        bh=t432ehytwEm0n0pKMk01J/w73y/O1PlVDyrqrXrTCqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BLHXGviOmKQYecad+yERLkHmIH7NqnWuklPAH53auepInl18BUNhovBkv29Igfyx2
-         Hbbvb+fVaAgT6oLfH/kUFuqjcDYZZnixyxaFdSZ3h7TUOcnW1HacxauPUPL0c/glb+
-         m0zeMVEQyA2slK6hPXdmYXgOCEIfhBUehR5FG/Jg=
+        b=BzJP9sPMnWvjo/K8/bZuStuJd8l7WX/nQjsI3B6qqvFyd+RqFMT2bzMOaBusPjVMb
+         TPWb1uZDQPutZN+WMHL33rG+RfpfkHwuWAunFFJnvy8iSXfSSbYs59vPmdH4out38n
+         CKcDJJBxW1ISGCU0AuuyE+azr6DRPlt3VSG8u6RE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@gmail.com>,
-        Jann Horn <jannh@google.com>
-Subject: [PATCH 5.10 101/116] usb: raw-gadget: fix handling of dual-direction-capable endpoints
-Date:   Mon, 14 Feb 2022 10:26:40 +0100
-Message-Id: <20220214092502.270989110@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pavankumar Kondeti <quic_pkondeti@quicinc.com>,
+        Udipto Goswami <quic_ugoswami@quicinc.com>
+Subject: [PATCH 5.15 143/172] usb: dwc3: gadget: Prevent core from processing stale TRBs
+Date:   Mon, 14 Feb 2022 10:26:41 +0100
+Message-Id: <20220214092511.331365197@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Udipto Goswami <quic_ugoswami@quicinc.com>
 
-commit 292d2c82b105d92082c2120a44a58de9767e44f1 upstream.
+commit 117b4e96c7f362eb6459543883fc07f77662472c upstream.
 
-Under dummy_hcd, every available endpoint is *either* IN or OUT capable.
-But with some real hardware, there are endpoints that support both IN and
-OUT. In particular, the PLX 2380 has four available endpoints that each
-support both IN and OUT.
+With CPU re-ordering on write instructions, there might
+be a chance that the HWO is set before the TRB is updated
+with the new mapped buffer address.
+And in the case where core is processing a list of TRBs
+it is possible that it fetched the TRBs when the HWO is set
+but before the buffer address is updated.
+Prevent this by adding a memory barrier before the HWO
+is updated to ensure that the core always process the
+updated TRBs.
 
-raw-gadget currently gets confused and thinks that any endpoint that is
-usable as an IN endpoint can never be used as an OUT endpoint.
-
-Fix it by looking at the direction in the configured endpoint descriptor
-instead of looking at the hardware capabilities.
-
-With this change, I can use the PLX 2380 with raw-gadget.
-
-Fixes: f2c2e717642c ("usb: gadget: add raw-gadget interface")
+Fixes: f6bafc6a1c9d ("usb: dwc3: convert TRBs into bitshifts")
 Cc: stable <stable@vger.kernel.org>
-Tested-by: Andrey Konovalov <andreyknvl@gmail.com>
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Signed-off-by: Jann Horn <jannh@google.com>
-Link: https://lore.kernel.org/r/20220126205214.2149936-1-jannh@google.com
+Reviewed-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
+Signed-off-by: Udipto Goswami <quic_ugoswami@quicinc.com>
+Link: https://lore.kernel.org/r/1644207958-18287-1-git-send-email-quic_ugoswami@quicinc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/legacy/raw_gadget.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/usb/gadget/legacy/raw_gadget.c
-+++ b/drivers/usb/gadget/legacy/raw_gadget.c
-@@ -1003,7 +1003,7 @@ static int raw_process_ep_io(struct raw_
- 		ret = -EBUSY;
- 		goto out_unlock;
- 	}
--	if ((in && !ep->ep->caps.dir_in) || (!in && ep->ep->caps.dir_in)) {
-+	if (in != usb_endpoint_dir_in(ep->ep->desc)) {
- 		dev_dbg(&dev->gadget->dev, "fail, wrong direction\n");
- 		ret = -EINVAL;
- 		goto out_unlock;
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1271,6 +1271,19 @@ static void __dwc3_prepare_one_trb(struc
+ 	if (usb_endpoint_xfer_bulk(dep->endpoint.desc) && dep->stream_capable)
+ 		trb->ctrl |= DWC3_TRB_CTRL_SID_SOFN(stream_id);
+ 
++	/*
++	 * As per data book 4.2.3.2TRB Control Bit Rules section
++	 *
++	 * The controller autonomously checks the HWO field of a TRB to determine if the
++	 * entire TRB is valid. Therefore, software must ensure that the rest of the TRB
++	 * is valid before setting the HWO field to '1'. In most systems, this means that
++	 * software must update the fourth DWORD of a TRB last.
++	 *
++	 * However there is a possibility of CPU re-ordering here which can cause
++	 * controller to observe the HWO bit set prematurely.
++	 * Add a write memory barrier to prevent CPU re-ordering.
++	 */
++	wmb();
+ 	trb->ctrl |= DWC3_TRB_CTRL_HWO;
+ 
+ 	dwc3_ep_inc_enq(dep);
 
 
