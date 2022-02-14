@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD77F4B4700
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65BEE4B4B14
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244565AbiBNJmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:42:01 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33930 "EHLO
+        id S1345383AbiBNKNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:13:05 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245299AbiBNJlV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:41:21 -0500
+        with ESMTP id S1345407AbiBNKLy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:11:54 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1ED2652FE;
-        Mon, 14 Feb 2022 01:37:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E767652CE;
+        Mon, 14 Feb 2022 01:50:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A38B7B80DCC;
-        Mon, 14 Feb 2022 09:37:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA2D8C340E9;
-        Mon, 14 Feb 2022 09:37:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D656B80DC4;
+        Mon, 14 Feb 2022 09:50:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 456C5C340E9;
+        Mon, 14 Feb 2022 09:50:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831436;
-        bh=wDqnvc6CLUgfoEy20HXPoeHFbVA62YBNGu44nsE+AWA=;
+        s=korg; t=1644832238;
+        bh=htPT7ZJRwec3btt28+wtKwzLxrimdxWXFf2+yFhzDzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OHBy7WCJhS/wCGxImxuLoeAAhCtPcEU6tjtG/YWeZrVGXRRvagqbnGMXdIGh90xA/
-         g3Ii57gzZIc5mxG0N7mLSMxhjtyTgllcBV8PJPUtK/D0qDn6VVqQ9I0mq9/unOvOqI
-         QD/iW810+4/MnUzaLojut5fBt0Ox9vpxYKh5QDjM=
+        b=NnFBzE+qtT83tbrfSueEK7rWttOV+AwCEL5UQgIByYLTCiBaN6Q+ByvfMhwdUiHeD
+         VHwr2tumBjvgLmi6Rrgi8Utmo3lab7BihcPrF2+b6qehmSfMKodRVimVf5zSfv5fqg
+         9rKI78Jur3TG2JdTTnuTqek+cKbwQrn1+W2N2TJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Jonas Malaco <jonas@protocubo.io>
-Subject: [PATCH 5.4 53/71] eeprom: ee1004: limit i2c reads to I2C_SMBUS_BLOCK_MAX
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 123/172] tipc: rate limit warning for received illegal binding update
 Date:   Mon, 14 Feb 2022 10:26:21 +0100
-Message-Id: <20220214092453.828207928@linuxfoundation.org>
+Message-Id: <20220214092510.665360710@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Malaco <jonas@protocubo.io>
+From: Jon Maloy <jmaloy@redhat.com>
 
-commit c0689e46be23160d925dca95dfc411f1a0462708 upstream.
+[ Upstream commit c7223d687758462826a20e9735305d55bb874c70 ]
 
-Commit effa453168a7 ("i2c: i801: Don't silently correct invalid transfer
-size") revealed that ee1004_eeprom_read() did not properly limit how
-many bytes to read at once.
+It would be easy to craft a message containing an illegal binding table
+update operation. This is handled correctly by the code, but the
+corresponding warning printout is not rate limited as is should be.
+We fix this now.
 
-In particular, i2c_smbus_read_i2c_block_data_or_emulated() takes the
-length to read as an u8.  If count == 256 after taking into account the
-offset and page boundary, the cast to u8 overflows.  And this is common
-when user space tries to read the entire EEPROM at once.
-
-To fix it, limit each read to I2C_SMBUS_BLOCK_MAX (32) bytes, already
-the maximum length i2c_smbus_read_i2c_block_data_or_emulated() allows.
-
-Fixes: effa453168a7 ("i2c: i801: Don't silently correct invalid transfer size")
-Cc: stable@vger.kernel.org
-Reviewed-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: Jonas Malaco <jonas@protocubo.io>
-Link: https://lore.kernel.org/r/20220203165024.47767-1-jonas@protocubo.io
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b97bf3fd8f6a ("[TIPC] Initial merge")
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/eeprom/ee1004.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/tipc/name_distr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/misc/eeprom/ee1004.c
-+++ b/drivers/misc/eeprom/ee1004.c
-@@ -82,6 +82,9 @@ static ssize_t ee1004_eeprom_read(struct
- 	if (unlikely(offset + count > EE1004_PAGE_SIZE))
- 		count = EE1004_PAGE_SIZE - offset;
- 
-+	if (count > I2C_SMBUS_BLOCK_MAX)
-+		count = I2C_SMBUS_BLOCK_MAX;
-+
- 	status = i2c_smbus_read_i2c_block_data_or_emulated(client, offset,
- 							   count, buf);
- 	dev_dbg(&client->dev, "read %zu@%d --> %d\n", count, offset, status);
+diff --git a/net/tipc/name_distr.c b/net/tipc/name_distr.c
+index bda902caa8147..8267b751a526a 100644
+--- a/net/tipc/name_distr.c
++++ b/net/tipc/name_distr.c
+@@ -313,7 +313,7 @@ static bool tipc_update_nametbl(struct net *net, struct distr_item *i,
+ 		pr_warn_ratelimited("Failed to remove binding %u,%u from %u\n",
+ 				    ua.sr.type, ua.sr.lower, node);
+ 	} else {
+-		pr_warn("Unrecognized name table message received\n");
++		pr_warn_ratelimited("Unknown name table message received\n");
+ 	}
+ 	return false;
+ }
+-- 
+2.34.1
+
 
 
