@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CD2C4B4AEC
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED10F4B4865
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:57:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347860AbiBNKcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:32:09 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41292 "EHLO
+        id S1343704AbiBNJxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:53:49 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347648AbiBNKbs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:31:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1592389;
-        Mon, 14 Feb 2022 02:00:07 -0800 (PST)
+        with ESMTP id S236955AbiBNJwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:52:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6389692B3;
+        Mon, 14 Feb 2022 01:43:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A272F60921;
-        Mon, 14 Feb 2022 10:00:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06C70C340EF;
-        Mon, 14 Feb 2022 10:00:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81937B80DBF;
+        Mon, 14 Feb 2022 09:43:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FE90C340E9;
+        Mon, 14 Feb 2022 09:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832807;
-        bh=TpPBO9LX7Ed0/HpASURHSpURkqAJAx0uV/TvLyhfA2g=;
+        s=korg; t=1644831818;
+        bh=2gnv4tFeuIC+cqbvOWLqsFj8h80UvyqNMNBh+KR1MTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L8HZd6dBIu7+3PZzUmvKa/DHxp+7AmskcBJY3Rv1GVvFwLXdQCd17WFZZqPSFFssZ
-         sncjGmyXYcvny0TU+4WBC89NkQMgoS8DQWVB8RTBL5O385De/u2k3vIX49RYKO3428
-         ykbMevEiqFrQwkhBXrI9v1Ft5lVSC5ZYMOgbrXAE=
+        b=ZxlpRUm+dPesp6w6UIhvZAPfFe1/kq1WDhYJ3txUPNcVuxA/F9057ksY5+AOMY581
+         +YRORKzdRxNB0FnIDpsJJC2VupT3w7igDfi/dxacCUhg7V+/OChzOG5TEfjMhn//5h
+         RUZnZm3o7+fDOx/HTtZKdsaOGQ2xwhm1RRbNP640=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Helge Deller <deller@gmx.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, Louis Peens <louis.peens@corigine.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 130/203] fbcon: Avoid cap set but not used warning
+Subject: [PATCH 5.10 075/116] nfp: flower: fix ida_idx not being released
 Date:   Mon, 14 Feb 2022 10:26:14 +0100
-Message-Id: <20220214092514.651071842@linuxfoundation.org>
+Message-Id: <20220214092501.349352848@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Louis Peens <louis.peens@corigine.com>
 
-[ Upstream commit 50b10528aad568c95f772039d4b3093b4aea7439 ]
+[ Upstream commit 7db788ad627aabff2b74d4f1a3b68516d0fee0d7 ]
 
-Fix this kernel test robot warning:
+When looking for a global mac index the extra NFP_TUN_PRE_TUN_IDX_BIT
+that gets set if nfp_flower_is_supported_bridge is true is not taken
+into account. Consequently the path that should release the ida_index
+in cleanup is never triggered, causing messages like:
 
-  drivers/video/fbdev/core/fbcon.c: In function 'fbcon_init':
-  drivers/video/fbdev/core/fbcon.c:1028:6: warning: variable 'cap' set but not used [-Wunused-but-set-variable]
+    nfp 0000:02:00.0: nfp: Failed to offload MAC on br-ex.
+    nfp 0000:02:00.0: nfp: Failed to offload MAC on br-ex.
+    nfp 0000:02:00.0: nfp: Failed to offload MAC on br-ex.
 
-The cap variable is only used when CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
-is enabled. Drop the temporary variable and use info->flags instead.
+after NFP_MAX_MAC_INDEX number of reconfigs. Ultimately this lead to
+new tunnel flows not being offloaded.
 
-Fixes: 87ab9f6b7417 ("Revert "fbcon: Disable accelerated scrolling")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/YgFB4xqI+As196FR@p100
+Fix this by unsetting the NFP_TUN_PRE_TUN_IDX_BIT before checking if
+the port is of type OTHER.
+
+Fixes: 2e0bc7f3cb55 ("nfp: flower: encode mac indexes with pre-tunnel rule check")
+Signed-off-by: Louis Peens <louis.peens@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20220208101453.321949-1-simon.horman@corigine.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbcon.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ .../net/ethernet/netronome/nfp/flower/tunnel_conf.c  | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
-index f36829eeb5a93..2fc1b80a26ad9 100644
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -1025,7 +1025,7 @@ static void fbcon_init(struct vc_data *vc, int init)
- 	struct vc_data *svc = *default_mode;
- 	struct fbcon_display *t, *p = &fb_display[vc->vc_num];
- 	int logo = 1, new_rows, new_cols, rows, cols;
--	int cap, ret;
-+	int ret;
+diff --git a/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c b/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
+index d19c02e991145..d3d5b663a4a3c 100644
+--- a/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
+@@ -1011,6 +1011,7 @@ nfp_tunnel_del_shared_mac(struct nfp_app *app, struct net_device *netdev,
+ 	struct nfp_flower_repr_priv *repr_priv;
+ 	struct nfp_tun_offloaded_mac *entry;
+ 	struct nfp_repr *repr;
++	u16 nfp_mac_idx;
+ 	int ida_idx;
  
- 	if (WARN_ON(info_idx == -1))
- 	    return;
-@@ -1034,7 +1034,6 @@ static void fbcon_init(struct vc_data *vc, int init)
- 		con2fb_map[vc->vc_num] = info_idx;
+ 	entry = nfp_tunnel_lookup_offloaded_macs(app, mac);
+@@ -1029,8 +1030,6 @@ nfp_tunnel_del_shared_mac(struct nfp_app *app, struct net_device *netdev,
+ 		entry->bridge_count--;
  
- 	info = registered_fb[con2fb_map[vc->vc_num]];
--	cap = info->flags;
+ 		if (!entry->bridge_count && entry->ref_count) {
+-			u16 nfp_mac_idx;
+-
+ 			nfp_mac_idx = entry->index & ~NFP_TUN_PRE_TUN_IDX_BIT;
+ 			if (__nfp_tunnel_offload_mac(app, mac, nfp_mac_idx,
+ 						     false)) {
+@@ -1046,7 +1045,6 @@ nfp_tunnel_del_shared_mac(struct nfp_app *app, struct net_device *netdev,
  
- 	if (logo_shown < 0 && console_loglevel <= CONSOLE_LOGLEVEL_QUIET)
- 		logo_shown = FBCON_LOGO_DONTSHOW;
-@@ -1137,8 +1136,8 @@ static void fbcon_init(struct vc_data *vc, int init)
- 	ops->graphics = 0;
+ 	/* If MAC is now used by 1 repr set the offloaded MAC index to port. */
+ 	if (entry->ref_count == 1 && list_is_singular(&entry->repr_list)) {
+-		u16 nfp_mac_idx;
+ 		int port, err;
  
- #ifdef CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION
--	if ((cap & FBINFO_HWACCEL_COPYAREA) &&
--	    !(cap & FBINFO_HWACCEL_DISABLED))
-+	if ((info->flags & FBINFO_HWACCEL_COPYAREA) &&
-+	    !(info->flags & FBINFO_HWACCEL_DISABLED))
- 		p->scrollmode = SCROLL_MOVE;
- 	else /* default to something safe */
- 		p->scrollmode = SCROLL_REDRAW;
+ 		repr_priv = list_first_entry(&entry->repr_list,
+@@ -1074,8 +1072,14 @@ nfp_tunnel_del_shared_mac(struct nfp_app *app, struct net_device *netdev,
+ 	WARN_ON_ONCE(rhashtable_remove_fast(&priv->tun.offloaded_macs,
+ 					    &entry->ht_node,
+ 					    offloaded_macs_params));
++
++	if (nfp_flower_is_supported_bridge(netdev))
++		nfp_mac_idx = entry->index & ~NFP_TUN_PRE_TUN_IDX_BIT;
++	else
++		nfp_mac_idx = entry->index;
++
+ 	/* If MAC has global ID then extract and free the ida entry. */
+-	if (nfp_tunnel_is_mac_idx_global(entry->index)) {
++	if (nfp_tunnel_is_mac_idx_global(nfp_mac_idx)) {
+ 		ida_idx = nfp_tunnel_get_ida_from_global_mac_idx(entry->index);
+ 		ida_simple_remove(&priv->tun.mac_off_ids, ida_idx);
+ 	}
 -- 
 2.34.1
 
