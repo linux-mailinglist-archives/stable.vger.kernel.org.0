@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D54014B4763
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60D9C4B4636
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244183AbiBNJfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:35:17 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51548 "EHLO
+        id S243661AbiBNJdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:33:05 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244086AbiBNJfK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:35:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E85EA692AB;
-        Mon, 14 Feb 2022 01:32:59 -0800 (PST)
+        with ESMTP id S243671AbiBNJcc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:32:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9127525C52;
+        Mon, 14 Feb 2022 01:31:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7D826102D;
-        Mon, 14 Feb 2022 09:32:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98156C340E9;
-        Mon, 14 Feb 2022 09:32:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40751B80DC6;
+        Mon, 14 Feb 2022 09:31:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FA97C340EF;
+        Mon, 14 Feb 2022 09:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831178;
-        bh=X1ZgrYm5rH53rUP/kzEpINDl81S0EghMRvysbgtF0aI=;
+        s=korg; t=1644831076;
+        bh=DPPSvhmpsnZISTuZ0BJ7zP11uQjkVcGarR8vbezkn2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ckbYEI9HTousbauPW4tXWKvXNdQAggRvHvrVJd4E7z6sdXi/kDdZoN2bI9fwABLiA
-         r1mlfdNeo1O6JSsQC8P/l2Z8YWrSek9SCSUHfmMDGUo4C0ixzjrbNv6WOwM5pn7d0K
-         mJ/NziIy0+KL6emW/uwrQCnlHUThrZRQJ9fsi3Jo=
+        b=dfO2/5zAI/0colKAmKpD5HRjbMBKic37XUos0IiDbAod/QGnCkGxdE3lNAMnRSjpW
+         GVQtvSMPkvumEpCtIbaQY0Ir6ZUlNZHzMTvEjBan2Sa+U8/rCIePsw8IvwGNMBCVre
+         NFLqE4Fs6nNxJnv2a3fZuSw+FXy118BMt5kj/ZwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 04/49] mmc: sdhci-of-esdhc: Check for error num after setting mask
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 4.14 07/44] NFSD: Clamp WRITE offsets
 Date:   Mon, 14 Feb 2022 10:25:30 +0100
-Message-Id: <20220214092448.440769108@linuxfoundation.org>
+Message-Id: <20220214092448.153846874@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
-References: <20220214092448.285381753@linuxfoundation.org>
+In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
+References: <20220214092447.897544753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +52,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 40c67c291a93f8846c4a972c9ef1b7ba4544c8d0 upstream.
+commit 6260d9a56ab352b54891ec66ab0eced57d55abc6 upstream.
 
-Because of the possible failure of the dma_supported(), the
-dma_set_mask_and_coherent() may return error num.
-Therefore, it should be better to check it and return the error if
-fails.
-And since the sdhci_setup_host() has already checked the return value of
-the enable_dma, we need not check it in sdhci_resume_host() again.
+Ensure that a client cannot specify a WRITE range that falls in a
+byte range outside what the kernel's internal types (such as loff_t,
+which is signed) can represent. The kiocb iterators, invoked in
+nfsd_vfs_write(), should properly limit write operations to within
+the underlying file system's s_maxbytes.
 
-Fixes: 5552d7ad596c ("mmc: sdhci-of-esdhc: set proper dma mask for ls104x chips")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220112083156.1124782-1-jiasheng@iscas.ac.cn
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-of-esdhc.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/nfsd/nfs3proc.c |    5 +++++
+ fs/nfsd/nfs4proc.c |    5 +++--
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/host/sdhci-of-esdhc.c
-+++ b/drivers/mmc/host/sdhci-of-esdhc.c
-@@ -472,12 +472,16 @@ static void esdhc_of_adma_workaround(str
+--- a/fs/nfsd/nfs3proc.c
++++ b/fs/nfsd/nfs3proc.c
+@@ -199,6 +199,11 @@ nfsd3_proc_write(struct svc_rqst *rqstp)
+ 				(unsigned long long) argp->offset,
+ 				argp->stable? " stable" : "");
  
- static int esdhc_of_enable_dma(struct sdhci_host *host)
- {
-+	int ret;
- 	u32 value;
- 	struct device *dev = mmc_dev(host->mmc);
++	resp->status = nfserr_fbig;
++	if (argp->offset > (u64)OFFSET_MAX ||
++	    argp->offset + argp->len > (u64)OFFSET_MAX)
++		return rpc_success;
++
+ 	fh_copy(&resp->fh, &argp->fh);
+ 	resp->committed = argp->stable;
+ 	nfserr = nfsd_write(rqstp, &resp->fh, argp->offset,
+--- a/fs/nfsd/nfs4proc.c
++++ b/fs/nfsd/nfs4proc.c
+@@ -1015,8 +1015,9 @@ nfsd4_write(struct svc_rqst *rqstp, stru
+ 	unsigned long cnt;
+ 	int nvecs;
  
- 	if (of_device_is_compatible(dev->of_node, "fsl,ls1043a-esdhc") ||
--	    of_device_is_compatible(dev->of_node, "fsl,ls1046a-esdhc"))
--		dma_set_mask_and_coherent(dev, DMA_BIT_MASK(40));
-+	    of_device_is_compatible(dev->of_node, "fsl,ls1046a-esdhc")) {
-+		ret = dma_set_mask_and_coherent(dev, DMA_BIT_MASK(40));
-+		if (ret)
-+			return ret;
-+	}
+-	if (write->wr_offset >= OFFSET_MAX)
+-		return nfserr_inval;
++	if (write->wr_offset > (u64)OFFSET_MAX ||
++	    write->wr_offset + write->wr_buflen > (u64)OFFSET_MAX)
++		return nfserr_fbig;
  
- 	value = sdhci_readl(host, ESDHC_DMA_SYSCTL);
- 
+ 	status = nfs4_preprocess_stateid_op(rqstp, cstate, &cstate->current_fh,
+ 						stateid, WR_STATE, &filp, NULL);
 
 
