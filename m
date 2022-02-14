@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D90A94B46ED
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37CFC4B4A8A
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:39:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244559AbiBNJmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:42:00 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33916 "EHLO
+        id S1345603AbiBNKMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:12:21 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245145AbiBNJlJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:41:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 154A0A1AB;
-        Mon, 14 Feb 2022 01:37:11 -0800 (PST)
+        with ESMTP id S1345862AbiBNKLF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:11:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 762AB65412;
+        Mon, 14 Feb 2022 01:50:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5AE760F8F;
-        Mon, 14 Feb 2022 09:37:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75FE9C340E9;
-        Mon, 14 Feb 2022 09:37:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1132D60F65;
+        Mon, 14 Feb 2022 09:50:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDCB1C340E9;
+        Mon, 14 Feb 2022 09:50:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831430;
-        bh=AEhN0dU65MjTPdISc5kfADwdPFaDXe3pKiCi7bTBSQY=;
+        s=korg; t=1644832235;
+        bh=lUg6UgIUo1yE4iHE1a1K4H9EBvuK+VqmJ7QfNaWBFas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uoSM4tPH+JvMxVTXOvB23y1AHdSTG6fkBtOWOwlQ/G8PxyYgZozsMep8iQs0Z58xc
-         MH+4t71leGtYBqaiK7Cjl3F49G2Z1ctzkqlDkgTi+eJgiex2QygW88fjr+8OJUZVbK
-         JLh0pfMB+/T/ppNyBB3jnR3AaRYMG8U+W3FNAHTc=
+        b=leHm6UwdViOr4upyB2+wiV3j1i6JOE4IJ3dpIzunDVpbSy5WCEpWnQvUxh242MMHY
+         v19I0uzBm66kyJj9qn/weQNtGwQ3nXnnV9w7fpoLRNxor1O1jLbkx640YuWC3DJCIr
+         D4PiAsCcWngnNwZPmYjnbIikAD3y+n0VwRv1Lm6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kosuke Tatsukawa <tatsu-ab1@nec.com>
-Subject: [PATCH 5.4 52/71] n_tty: wake up poll(POLLRDNORM) on receiving data
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Andrew Lunn <andrew@lunn.ch>, Andrew Jeffery <andrew@aj.id.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 122/172] net: mdio: aspeed: Add missing MODULE_DEVICE_TABLE
 Date:   Mon, 14 Feb 2022 10:26:20 +0100
-Message-Id: <20220214092453.796074483@linuxfoundation.org>
+Message-Id: <20220214092510.635104407@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,84 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: TATSUKAWA KOSUKE (立川 江介) <tatsu-ab1@nec.com>
+From: Joel Stanley <joel@jms.id.au>
 
-commit c816b2e65b0e86b95011418cad334f0524fc33b8 upstream.
+[ Upstream commit bc1c3c3b10db4f37c41e6107751a8d450d9c431c ]
 
-The poll man page says POLLRDNORM is equivalent to POLLIN when used as
-an event.
-$ man poll
-<snip>
-              POLLRDNORM
-                     Equivalent to POLLIN.
+Fix loading of the driver when built as a module.
 
-However, in n_tty driver, POLLRDNORM does not return until timeout even
-if there is terminal input, whereas POLLIN returns.
-
-The following test program works until kernel-3.17, but the test stops
-in poll() after commit 57087d515441 ("tty: Fix spurious poll() wakeups").
-
-[Steps to run test program]
-  $ cc -o test-pollrdnorm test-pollrdnorm.c
-  $ ./test-pollrdnorm
-  foo          <-- Type in something from the terminal followed by [RET].
-                   The string should be echoed back.
-
-  ------------------------< test-pollrdnorm.c >------------------------
-  #include <stdio.h>
-  #include <errno.h>
-  #include <poll.h>
-  #include <unistd.h>
-
-  void main(void)
-  {
-	int		n;
-	unsigned char	buf[8];
-	struct pollfd	fds[1] = {{ 0, POLLRDNORM, 0 }};
-
-	n = poll(fds, 1, -1);
-	if (n < 0)
-		perror("poll");
-	n = read(0, buf, 8);
-	if (n < 0)
-		perror("read");
-	if (n > 0)
-		write(1, buf, n);
-  }
-  ------------------------------------------------------------------------
-
-The attached patch fixes this problem.  Many calls to
-wake_up_interruptible_poll() in the kernel source code already specify
-"POLLIN | POLLRDNORM".
-
-Fixes: 57087d515441 ("tty: Fix spurious poll() wakeups")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kosuke Tatsukawa <tatsu-ab1@nec.com>
-Link: https://lore.kernel.org/r/TYCPR01MB81901C0F932203D30E452B3EA5209@TYCPR01MB8190.jpnprd01.prod.outlook.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f160e99462c6 ("net: phy: Add mdio-aspeed")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_tty.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/mdio/mdio-aspeed.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/n_tty.c
-+++ b/drivers/tty/n_tty.c
-@@ -1377,7 +1377,7 @@ handle_newline:
- 			put_tty_queue(c, ldata);
- 			smp_store_release(&ldata->canon_head, ldata->read_head);
- 			kill_fasync(&tty->fasync, SIGIO, POLL_IN);
--			wake_up_interruptible_poll(&tty->read_wait, EPOLLIN);
-+			wake_up_interruptible_poll(&tty->read_wait, EPOLLIN | EPOLLRDNORM);
- 			return 0;
- 		}
- 	}
-@@ -1658,7 +1658,7 @@ static void __receive_buf(struct tty_str
+diff --git a/drivers/net/mdio/mdio-aspeed.c b/drivers/net/mdio/mdio-aspeed.c
+index 966c3b4ad59d1..e2273588c75b6 100644
+--- a/drivers/net/mdio/mdio-aspeed.c
++++ b/drivers/net/mdio/mdio-aspeed.c
+@@ -148,6 +148,7 @@ static const struct of_device_id aspeed_mdio_of_match[] = {
+ 	{ .compatible = "aspeed,ast2600-mdio", },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, aspeed_mdio_of_match);
  
- 	if (read_cnt(ldata)) {
- 		kill_fasync(&tty->fasync, SIGIO, POLL_IN);
--		wake_up_interruptible_poll(&tty->read_wait, EPOLLIN);
-+		wake_up_interruptible_poll(&tty->read_wait, EPOLLIN | EPOLLRDNORM);
- 	}
- }
- 
+ static struct platform_driver aspeed_mdio_driver = {
+ 	.driver = {
+-- 
+2.34.1
+
 
 
