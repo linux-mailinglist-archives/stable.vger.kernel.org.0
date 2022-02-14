@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0CE14B461C
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACC8E4B4A4C
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:38:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243609AbiBNJcs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:32:48 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42486 "EHLO
+        id S1343949AbiBNKCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:02:43 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243617AbiBNJcR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:32:17 -0500
+        with ESMTP id S1345455AbiBNKBj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:01:39 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F232A60ABF;
-        Mon, 14 Feb 2022 01:31:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3633F193E3;
+        Mon, 14 Feb 2022 01:47:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7753B80DC6;
-        Mon, 14 Feb 2022 09:31:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADF5CC340E9;
-        Mon, 14 Feb 2022 09:31:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A85BEB80D83;
+        Mon, 14 Feb 2022 09:47:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD059C340E9;
+        Mon, 14 Feb 2022 09:47:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831070;
-        bh=RUarBodYx6xjGZZiGN3ycUMWPVTa9cxVTDS0nTgmu1M=;
+        s=korg; t=1644832069;
+        bh=hG9jkos58WAdkn3Ip/Te7FXuqEYEgOqyyoE7Oxk6cmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vGiubPKUZbQ4q68SzGwrchl557gS10RoNnQ8w97f744yj+4dgew9d43/C46K3AAqy
-         2JA4OWSHjtlPG1bdHkud80Jej1HGj+t7qWp+ojYT17U2cLpqrM5zcW341stkHQZvqR
-         Y8Qvuc8RH+zKvMoBg5hCWHt/DkrtBWJG4K610qfs=
+        b=Wx+/zjM4tkk+5etze377zscVjUbSgyQiy3Nmg+STxsKgtpzhNTe+Wy7/idgbwG+3e
+         HgnMEVdDBA3mKJCRp34mRcRtQMxi1AX3tg39My7tAt36JlVwRYUSCjxRVfMX1pr2pM
+         kuXZUz2jpDltlgZm4qhnjHb5S27pUzyr67zfnJPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 05/44] net: phy: marvell: Fix MDI-x polarity setting in 88e1118-compatible PHYs
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.15 070/172] ARM: dts: imx23-evk: Remove MX23_PAD_SSP1_DETECT from hog group
 Date:   Mon, 14 Feb 2022 10:25:28 +0100
-Message-Id: <20220214092448.087642413@linuxfoundation.org>
+Message-Id: <20220214092508.815036399@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
-References: <20220214092447.897544753@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit aec12836e7196e4d360b2cbf20cf7aa5139ad2ec upstream.
+commit 42c9b28e6862d16db82a56f5667cf4d1f6658cf6 upstream.
 
-When setting up autonegotiation for 88E1118R and compatible PHYs,
-a software reset of PHY is issued before setting up polarity.
-This is incorrect as changes of MDI Crossover Mode bits are
-disruptive to the normal operation and must be followed by a
-software reset to take effect. Let's patch m88e1118_config_aneg()
-to fix the issue mentioned before by invoking software reset
-of the PHY just after setting up MDI-x polarity.
+Currently, SD card fails to mount due to the following pinctrl error:
 
-Fixes: 605f196efbf8 ("phy: Add support for Marvell 88E1118 PHY")
-Signed-off-by: Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Suggested-by: Andrew Lunn <andrew@lunn.ch>
-Cc: stable@vger.kernel.org
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[   11.170000] imx23-pinctrl 80018000.pinctrl: pin SSP1_DETECT already requested by 80018000.pinctrl; cannot claim for 80010000.spi
+[   11.180000] imx23-pinctrl 80018000.pinctrl: pin-65 (80010000.spi) status -22
+[   11.190000] imx23-pinctrl 80018000.pinctrl: could not request pin 65 (SSP1_DETECT) from group mmc0-pins-fixup.0  on device 80018000.pinctrl
+[   11.200000] mxs-mmc 80010000.spi: Error applying setting, reverse things back
+
+Fix it by removing the MX23_PAD_SSP1_DETECT pin from the hog group as it
+is already been used by the mmc0-pins-fixup pinctrl group.
+
+With this change the rootfs can be mounted and the imx23-evk board can
+boot successfully.
+
+Cc: <stable@vger.kernel.org>
+Fixes: bc3875f1a61e ("ARM: dts: mxs: modify mx23/mx28 dts files to use pinctrl headers")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/marvell.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/imx23-evk.dts |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/net/phy/marvell.c
-+++ b/drivers/net/phy/marvell.c
-@@ -907,16 +907,15 @@ static int m88e1118_config_aneg(struct p
- {
- 	int err;
- 
--	err = genphy_soft_reset(phydev);
-+	err = marvell_set_polarity(phydev, phydev->mdix_ctrl);
- 	if (err < 0)
- 		return err;
- 
--	err = marvell_set_polarity(phydev, phydev->mdix_ctrl);
-+	err = genphy_config_aneg(phydev);
- 	if (err < 0)
- 		return err;
- 
--	err = genphy_config_aneg(phydev);
--	return 0;
-+	return genphy_soft_reset(phydev);
- }
- 
- static int m88e1118_config_init(struct phy_device *phydev)
+--- a/arch/arm/boot/dts/imx23-evk.dts
++++ b/arch/arm/boot/dts/imx23-evk.dts
+@@ -79,7 +79,6 @@
+ 						MX23_PAD_LCD_RESET__GPIO_1_18
+ 						MX23_PAD_PWM3__GPIO_1_29
+ 						MX23_PAD_PWM4__GPIO_1_30
+-						MX23_PAD_SSP1_DETECT__SSP1_DETECT
+ 					>;
+ 					fsl,drive-strength = <MXS_DRIVE_4mA>;
+ 					fsl,voltage = <MXS_VOLTAGE_HIGH>;
 
 
