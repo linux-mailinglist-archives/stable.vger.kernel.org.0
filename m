@@ -2,107 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC8764B59FC
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 19:35:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5838D4B5A03
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 19:37:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357502AbiBNSe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 13:34:56 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41430 "EHLO
+        id S238782AbiBNShj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 13:37:39 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357499AbiBNSey (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 13:34:54 -0500
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF156543B
-        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 10:34:46 -0800 (PST)
-Received: by mail-pf1-x42f.google.com with SMTP id c10so5118493pfv.8
-        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 10:34:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=iVTc80VDgAX6ffBkAdZDFZFBuKvS8UKxrL8hYZmwMtw=;
-        b=J2EAjIE2pDV5MoeTSydLeYvlBMJ8UOu4jfyTx+yFEIsDOW3jDtt88nXLQq6kZ2K54N
-         CO+JlAM2uQdfpuqmoKVokH3licFATuPfJRguuDupvHbBMCK+STs56tXm+dnMv7wUZrzt
-         u3Ypj/O7eMiBiSq/P4FUQkDTBNl38ZEnCYSVXC2Xro4L32wCE4Zsd7jSu8YMhTnRePAk
-         hMS+GT7nCX9L+GFCGGJvuMYz1ECZ54u2rFqXCLCwOH90N/WebQP7iKVpNZV60wTrkK9U
-         TyNS1n7RmQVOtXAA8Xpp7+3V9RF+X4XoYey8Ad4sKxK7lxWw78UBd/whkdzxqOngvQh/
-         hY6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=iVTc80VDgAX6ffBkAdZDFZFBuKvS8UKxrL8hYZmwMtw=;
-        b=T6kjXjh1bCmyqm7JEpTbVQIAD+7OmV5OUDGyQT9nOptre5+2pslQSthjHRtNFk8mFW
-         ZhdHmKOfspIWLF+2+kNVrAEgzZbLtAVxd76XZ/S1mMjlMiX9Hfv85un4/eK34VfgEIBk
-         hJ0pu+VLMbjcAENkEgYC0WqGg9vDEGNKodhLfgQN9Xg51OFzvGYi5huH1B3lTlkI+Ep+
-         NijoV5LWAiH5ES36YQTdiOjceVj23p1tkL84VkPid13iWMtCPn9LZDA1kl2o62IjHU40
-         aWmwTjVDl6epShPz95tbl0ReaJWx/qgRdVOERbbCPVVgfLoS4rqa49Gj3ABmXf+8ZPYH
-         RtGg==
-X-Gm-Message-State: AOAM530Rfi3NFgs/shxQIFRpMTE6UFR22/VIxBlbOCxwnxnESRy82gR3
-        cb4kyAviB8fMcdUZKgXKNJ1cijMeKqM=
-X-Google-Smtp-Source: ABdhPJyBLIj6gN/mjUcwyuOykNO0XvIDlaEAsDKagwy+9gNfn9bwY9FgEyI7ob2S7LZExKRjD7cAjQ==
-X-Received: by 2002:a63:87c6:: with SMTP id i189mr304614pge.314.1644863686129;
-        Mon, 14 Feb 2022 10:34:46 -0800 (PST)
-Received: from [10.69.44.239] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id h9sm38259733pfi.124.2022.02.14.10.34.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Feb 2022 10:34:45 -0800 (PST)
-Message-ID: <f0873dd7-d32d-d851-51bc-51d86f7bd0f0@gmail.com>
-Date:   Mon, 14 Feb 2022 10:34:45 -0800
+        with ESMTP id S232272AbiBNShj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 13:37:39 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CF9160ABE;
+        Mon, 14 Feb 2022 10:37:30 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 2D80A1F38A;
+        Mon, 14 Feb 2022 18:37:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1644863849; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=hcAP1oYRKlVZf+ejwok9nLI2R/eE64Eg/5Ilx8Cevaw=;
+        b=mKoMck6I7z0K8iD8TC1sp81Sq377hEFQ0MnsnbZj+N2a9zXv5vKRAHC6mPUFiHBBAS8faE
+        5OuPLV4QNi/EXTMWfaEsG0kiFbwM6EfutYXrIKrNAiw+1Kxghfi9dRG/wmtArgm4br+BdH
+        4TPyenKVQwpcIOGTeaKF1ZwQQmmEzSw=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0A97F13A85;
+        Mon, 14 Feb 2022 18:37:29 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id xsMQAmmhCmJNRAAAMHmgww
+        (envelope-from <mkoutny@suse.com>); Mon, 14 Feb 2022 18:37:29 +0000
+Date:   Mon, 14 Feb 2022 19:37:27 +0100
+From:   Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     linux-kernel@vger.kernel.org, Alexey Gladkov <legion@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Solar Designer <solar@openwall.com>,
+        Ran Xiaokai <ran.xiaokai@zte.com.cn>,
+        containers@lists.linux-foundation.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/8] ucounts: Fix RLIMIT_NPROC regression
+Message-ID: <20220214183727.GA10803@blackbody.suse.cz>
+References: <87o83e2mbu.fsf@email.froward.int.ebiederm.org>
+ <20220211021324.4116773-1-ebiederm@xmission.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: backport of lpfc patches: NVME_FC disabled and Reducing Log msgs
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable <stable@vger.kernel.org>
-References: <9d661b63-5640-fe88-b938-1f4d1767908c@gmail.com>
- <YgoAuFRKWOIfY8ai@kroah.com>
-From:   James Smart <jsmart2021@gmail.com>
-In-Reply-To: <YgoAuFRKWOIfY8ai@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220211021324.4116773-1-ebiederm@xmission.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/13/2022 11:11 PM, Greg KH wrote:
-> On Sun, Feb 13, 2022 at 09:26:16AM -0800, James Smart wrote:
->> I'd like to request the 2 patches below to be backported to the 5.6 and 5.12
-> 
-> 5.6 and 5.12 are long end-of-life, see the front page of kernel.org for
-> the active kernel trees please.
-> 
->> kernels. Other stable kernels are fine. The fixes were recently merged into
->> linus's tree:
->>
->> scsi: lpfc: Remove NVMe support if kernel has NVME_FC disabled
->> This can cause device connectivity failure.
->> commit c80b27cfd93b
-> 
-> This one applied to 5.4, 5.10, 5.15, and 5.16 ok.
-> 
->> scsi: lpfc: Reduce log messages seen after firmware download
->> This was causing overruns and headaches on consoles that were very slow.
->> commit 5852ed2a6a39
-> 
-> This only could be applied to 5.10 and newer stable kernels.  If you
-> want any of these applied to older kernel trees, please provide working
-> backports.
-> 
-> thanks,
-> 
-> greg k-h
+On Thu, Feb 10, 2022 at 08:13:17PM -0600, "Eric W. Biederman" <ebiederm@xmission.com> wrote:
+> This can be fixed either by fixing the test or by moving the increment
+> to be before the test.  Fix it my moving copy_creds which contains
+> the increment before is_ucounts_overlimit.
 
-I'm good with 5.10 and newer stable kernels, and 5.4 with the 1st patch.
+This is simpler than my approach and I find it correct too.
 
-Thank you.
+> Both the test in fork and the test in set_user were semantically
+> changed when the code moved to ucounts.  The change of the test in
+> fork was bad because it was before the increment.
+>
+> The test in set_user was wrong and the change to ucounts fixed it.  So
+> this fix is only restore the old behavior in one lcatio not two.
 
--- james
+Whom should be the task accounted to in the case of set*uid? (The change
+to ucounts made the check against the pre-switch user's ucounts.)
+
+> ---
+>  kernel/fork.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+
