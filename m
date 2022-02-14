@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF85C4B4714
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B3B44B47AD
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244506AbiBNJlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:41:55 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33978 "EHLO
+        id S244372AbiBNJhT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:37:19 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245000AbiBNJlD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:41:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB41A193;
-        Mon, 14 Feb 2022 01:36:55 -0800 (PST)
+        with ESMTP id S245579AbiBNJgv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3EFAA1A4;
+        Mon, 14 Feb 2022 01:34:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C0B061172;
-        Mon, 14 Feb 2022 09:36:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4100EC340E9;
-        Mon, 14 Feb 2022 09:36:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1122C6102D;
+        Mon, 14 Feb 2022 09:34:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5D70C340E9;
+        Mon, 14 Feb 2022 09:34:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831414;
-        bh=LUzrZ0HODNmYMs1a86YjqdHJIgQG8o+g6TrynlDeyVU=;
+        s=korg; t=1644831267;
+        bh=I8Ph0gGStHft4R/DZ1s2Vo5pyXczRsabuPR6VqIhCoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W6qb8Thn9nP2kNcBlCUsowZJmRFSZdr2xHwyX+s5MDWVg9tnMrWtnwCwEGepdsTWj
-         Ig4XlCnRocEbkS0itqDbzPbaCsOZ+l1w0QXzyg7+TA4gTYtoDt1J+6THacbh7Rbkgi
-         R3tqxBiO+vdifl579SblYVY7cO1hbVecFfJSqGDA=
+        b=rR9AFhcDbsQDfxoHayAukw8dAp3wHaIRwmWmW/nmik6dJbySt1XLAIFMz0DKPs+We
+         TenSWcW/w0nVDEvjx7y5jdD5SOoU5Ejyvz/aLERKTjXYkLRDY6Nzh82K2y2Fm5/93j
+         jygGh1vwY20q1qPqHOidUxdUTWL9l4vUPXxTsCEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Andrew Lunn <andrew@lunn.ch>, Andrew Jeffery <andrew@aj.id.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 47/71] net: mdio: aspeed: Add missing MODULE_DEVICE_TABLE
+        stable@vger.kernel.org, Song Liu <song@kernel.org>,
+        Rik van Riel <riel@surriel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.19 49/49] perf: Fix list corruption in perf_cgroup_switch()
 Date:   Mon, 14 Feb 2022 10:26:15 +0100
-Message-Id: <20220214092453.635370227@linuxfoundation.org>
+Message-Id: <20220214092449.933317340@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
+References: <20220214092448.285381753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Song Liu <song@kernel.org>
 
-[ Upstream commit bc1c3c3b10db4f37c41e6107751a8d450d9c431c ]
+commit 5f4e5ce638e6a490b976ade4a40017b40abb2da0 upstream.
 
-Fix loading of the driver when built as a module.
+There's list corruption on cgrp_cpuctx_list. This happens on the
+following path:
 
-Fixes: f160e99462c6 ("net: phy: Add mdio-aspeed")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Andrew Jeffery <andrew@aj.id.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  perf_cgroup_switch: list_for_each_entry(cgrp_cpuctx_list)
+      cpu_ctx_sched_in
+         ctx_sched_in
+            ctx_pinned_sched_in
+              merge_sched_in
+                  perf_cgroup_event_disable: remove the event from the list
+
+Use list_for_each_entry_safe() to allow removing an entry during
+iteration.
+
+Fixes: 058fe1c0440e ("perf/core: Make cgroup switch visit only cpuctxs with cgroup events")
+Signed-off-by: Song Liu <song@kernel.org>
+Reviewed-by: Rik van Riel <riel@surriel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220204004057.2961252-1-song@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/mdio-aspeed.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/events/core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/mdio-aspeed.c b/drivers/net/phy/mdio-aspeed.c
-index 966c3b4ad59d1..e2273588c75b6 100644
---- a/drivers/net/phy/mdio-aspeed.c
-+++ b/drivers/net/phy/mdio-aspeed.c
-@@ -148,6 +148,7 @@ static const struct of_device_id aspeed_mdio_of_match[] = {
- 	{ .compatible = "aspeed,ast2600-mdio", },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, aspeed_mdio_of_match);
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -798,7 +798,7 @@ static DEFINE_PER_CPU(struct list_head,
+  */
+ static void perf_cgroup_switch(struct task_struct *task, int mode)
+ {
+-	struct perf_cpu_context *cpuctx;
++	struct perf_cpu_context *cpuctx, *tmp;
+ 	struct list_head *list;
+ 	unsigned long flags;
  
- static struct platform_driver aspeed_mdio_driver = {
- 	.driver = {
--- 
-2.34.1
-
+@@ -809,7 +809,7 @@ static void perf_cgroup_switch(struct ta
+ 	local_irq_save(flags);
+ 
+ 	list = this_cpu_ptr(&cgrp_cpuctx_list);
+-	list_for_each_entry(cpuctx, list, cgrp_cpuctx_entry) {
++	list_for_each_entry_safe(cpuctx, tmp, list, cgrp_cpuctx_entry) {
+ 		WARN_ON_ONCE(cpuctx->ctx.nr_cgroups == 0);
+ 
+ 		perf_ctx_lock(cpuctx, cpuctx->task_ctx);
 
 
