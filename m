@@ -2,196 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A29CA4B4C58
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:44:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D3A24B4715
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348626AbiBNKkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:40:15 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48586 "EHLO
+        id S244346AbiBNJhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:37:16 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348831AbiBNKjC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:39:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92F7A9952;
-        Mon, 14 Feb 2022 02:03:58 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S244265AbiBNJft (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:35:49 -0500
+X-Greylist: delayed 1234 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 14 Feb 2022 01:33:27 PST
+Received: from mail-out.m-online.net (mail-out.m-online.net [IPv6:2001:a60:0:28:0:1:25:1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A17654AD;
+        Mon, 14 Feb 2022 01:33:27 -0800 (PST)
+Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
+        by mail-out.m-online.net (Postfix) with ESMTP id 4JxzYC2nmmz1sb42;
+        Mon, 14 Feb 2022 10:33:19 +0100 (CET)
+Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
+        by mail.m-online.net (Postfix) with ESMTP id 4JxzYC1Pw7z1qqkB;
+        Mon, 14 Feb 2022 10:33:19 +0100 (CET)
+X-Virus-Scanned: amavisd-new at mnet-online.de
+Received: from mail.mnet-online.de ([192.168.8.182])
+        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
+        with ESMTP id 4A6rFkojWdYt; Mon, 14 Feb 2022 10:33:13 +0100 (CET)
+X-Auth-Info: 3pXtXEblWigUp5dC0ALx0wnK0waqMMj3wTwQrNh+E7nq00Dn+vM/9Ec1zbIoMOOV
+Received: from igel.home (ppp-46-244-178-131.dynamic.mnet-online.de [46.244.178.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5509460F6F;
-        Mon, 14 Feb 2022 10:03:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A959C340EF;
-        Mon, 14 Feb 2022 10:03:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644833037;
-        bh=eoouvLz06CHKcUEApY0WLvSbsUzvgsZx8vVNA8xyZZU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tlHV2aSgiCxQfXTbGyku4M3XldbeSNh09qVESMx++kFxPqT8czEa2/W+vw83qt9Hs
-         nTlEd5vvIQcfbTjYh+Rw4w5qOfqUEWvqbnBN/LDuNRBzpXlN++EHjhYWTXaXzbIQzi
-         MsLCs+jMa7H6Zx+3t2YqO0qAFqHJvnE10sL4p150=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Vijayanand Jitta <quic_vjitta@quicinc.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.16 203/203] iommu: Fix potential use-after-free during probe
-Date:   Mon, 14 Feb 2022 10:27:27 +0100
-Message-Id: <20220214092517.273088998@linuxfoundation.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
-User-Agent: quilt/0.66
+        by mail.mnet-online.de (Postfix) with ESMTPSA;
+        Mon, 14 Feb 2022 10:33:13 +0100 (CET)
+Received: by igel.home (Postfix, from userid 1000)
+        id 07A512C39FF; Mon, 14 Feb 2022 10:33:13 +0100 (CET)
+From:   Andreas Schwab <schwab@linux-m68k.org>
+To:     Heinrich Schuchardt <xypron.glpk@gmx.de>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Atish Patra <atishp@atishpatra.org>, linux-efi@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Anup Patel <apatel@ventanamicro.com>, stable@vger.kernel.org,
+        Sunil V L <sunilvl@ventanamicro.com>
+Subject: Re: [PATCH] riscv/efi_stub: Fix get_boot_hartid_from_fdt() return
+ value
+References: <20220128045004.4843-1-sunilvl@ventanamicro.com>
+        <877d9xx14f.fsf@igel.home>
+        <9cd9f149-d2ea-eb55-b774-8d817b9b6cc9@gmx.de>
+X-Yow:  LOU GRANT froze my ASSETS!!
+Date:   Mon, 14 Feb 2022 10:33:12 +0100
+In-Reply-To: <9cd9f149-d2ea-eb55-b774-8d817b9b6cc9@gmx.de> (Heinrich
+        Schuchardt's message of "Mon, 14 Feb 2022 10:24:22 +0100")
+Message-ID: <87y22dvllz.fsf@igel.home>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.91 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijayanand Jitta <quic_vjitta@quicinc.com>
+On Feb 14 2022, Heinrich Schuchardt wrote:
 
-commit b54240ad494300ff0994c4539a531727874381f4 upstream.
+> On 2/14/22 10:12, Andreas Schwab wrote:
+>> On Jan 28 2022, Sunil V L wrote:
+>>
+>>> diff --git a/drivers/firmware/efi/libstub/riscv-stub.c b/drivers/firmware/efi/libstub/riscv-stub.c
+>>> index 380e4e251399..9c460843442f 100644
+>>> --- a/drivers/firmware/efi/libstub/riscv-stub.c
+>>> +++ b/drivers/firmware/efi/libstub/riscv-stub.c
+>>> @@ -25,7 +25,7 @@ typedef void __noreturn (*jump_kernel_func)(unsigned int, unsigned long);
+>>>
+>>>   static u32 hartid;
+>>>
+>>> -static u32 get_boot_hartid_from_fdt(void)
+>>> +static int get_boot_hartid_from_fdt(void)
+>>
+>> I think the function should be renamed, now that it no longer returns
+>> the hart ID, but initializes a static variable as a side effect.  Thus
+>> it no longer "gets", but "sets".
+>>
+>
+> set_boot_hartid() implies that the caller can change the boot hart ID.
+> As this is not a case this name obviously would be a misnomer.
 
-Kasan has reported the following use after free on dev->iommu.
-when a device probe fails and it is in process of freeing dev->iommu
-in dev_iommu_free function, a deferred_probe_work_func runs in parallel
-and tries to access dev->iommu->fwspec in of_iommu_configure path thus
-causing use after free.
+Then I guess a different, more fitting name needs to be found.
 
-BUG: KASAN: use-after-free in of_iommu_configure+0xb4/0x4a4
-Read of size 8 at addr ffffff87a2f1acb8 by task kworker/u16:2/153
-
-Workqueue: events_unbound deferred_probe_work_func
-Call trace:
- dump_backtrace+0x0/0x33c
- show_stack+0x18/0x24
- dump_stack_lvl+0x16c/0x1e0
- print_address_description+0x84/0x39c
- __kasan_report+0x184/0x308
- kasan_report+0x50/0x78
- __asan_load8+0xc0/0xc4
- of_iommu_configure+0xb4/0x4a4
- of_dma_configure_id+0x2fc/0x4d4
- platform_dma_configure+0x40/0x5c
- really_probe+0x1b4/0xb74
- driver_probe_device+0x11c/0x228
- __device_attach_driver+0x14c/0x304
- bus_for_each_drv+0x124/0x1b0
- __device_attach+0x25c/0x334
- device_initial_probe+0x24/0x34
- bus_probe_device+0x78/0x134
- deferred_probe_work_func+0x130/0x1a8
- process_one_work+0x4c8/0x970
- worker_thread+0x5c8/0xaec
- kthread+0x1f8/0x220
- ret_from_fork+0x10/0x18
-
-Allocated by task 1:
- ____kasan_kmalloc+0xd4/0x114
- __kasan_kmalloc+0x10/0x1c
- kmem_cache_alloc_trace+0xe4/0x3d4
- __iommu_probe_device+0x90/0x394
- probe_iommu_group+0x70/0x9c
- bus_for_each_dev+0x11c/0x19c
- bus_iommu_probe+0xb8/0x7d4
- bus_set_iommu+0xcc/0x13c
- arm_smmu_bus_init+0x44/0x130 [arm_smmu]
- arm_smmu_device_probe+0xb88/0xc54 [arm_smmu]
- platform_drv_probe+0xe4/0x13c
- really_probe+0x2c8/0xb74
- driver_probe_device+0x11c/0x228
- device_driver_attach+0xf0/0x16c
- __driver_attach+0x80/0x320
- bus_for_each_dev+0x11c/0x19c
- driver_attach+0x38/0x48
- bus_add_driver+0x1dc/0x3a4
- driver_register+0x18c/0x244
- __platform_driver_register+0x88/0x9c
- init_module+0x64/0xff4 [arm_smmu]
- do_one_initcall+0x17c/0x2f0
- do_init_module+0xe8/0x378
- load_module+0x3f80/0x4a40
- __se_sys_finit_module+0x1a0/0x1e4
- __arm64_sys_finit_module+0x44/0x58
- el0_svc_common+0x100/0x264
- do_el0_svc+0x38/0xa4
- el0_svc+0x20/0x30
- el0_sync_handler+0x68/0xac
- el0_sync+0x160/0x180
-
-Freed by task 1:
- kasan_set_track+0x4c/0x84
- kasan_set_free_info+0x28/0x4c
- ____kasan_slab_free+0x120/0x15c
- __kasan_slab_free+0x18/0x28
- slab_free_freelist_hook+0x204/0x2fc
- kfree+0xfc/0x3a4
- __iommu_probe_device+0x284/0x394
- probe_iommu_group+0x70/0x9c
- bus_for_each_dev+0x11c/0x19c
- bus_iommu_probe+0xb8/0x7d4
- bus_set_iommu+0xcc/0x13c
- arm_smmu_bus_init+0x44/0x130 [arm_smmu]
- arm_smmu_device_probe+0xb88/0xc54 [arm_smmu]
- platform_drv_probe+0xe4/0x13c
- really_probe+0x2c8/0xb74
- driver_probe_device+0x11c/0x228
- device_driver_attach+0xf0/0x16c
- __driver_attach+0x80/0x320
- bus_for_each_dev+0x11c/0x19c
- driver_attach+0x38/0x48
- bus_add_driver+0x1dc/0x3a4
- driver_register+0x18c/0x244
- __platform_driver_register+0x88/0x9c
- init_module+0x64/0xff4 [arm_smmu]
- do_one_initcall+0x17c/0x2f0
- do_init_module+0xe8/0x378
- load_module+0x3f80/0x4a40
- __se_sys_finit_module+0x1a0/0x1e4
- __arm64_sys_finit_module+0x44/0x58
- el0_svc_common+0x100/0x264
- do_el0_svc+0x38/0xa4
- el0_svc+0x20/0x30
- el0_sync_handler+0x68/0xac
- el0_sync+0x160/0x180
-
-Fix this by setting dev->iommu to NULL first and
-then freeing dev_iommu structure in dev_iommu_free
-function.
-
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Vijayanand Jitta <quic_vjitta@quicinc.com>
-Link: https://lore.kernel.org/r/1643613155-20215-1-git-send-email-quic_vjitta@quicinc.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/iommu/iommu.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -207,9 +207,14 @@ static struct dev_iommu *dev_iommu_get(s
- 
- static void dev_iommu_free(struct device *dev)
- {
--	iommu_fwspec_free(dev);
--	kfree(dev->iommu);
-+	struct dev_iommu *param = dev->iommu;
-+
- 	dev->iommu = NULL;
-+	if (param->fwspec) {
-+		fwnode_handle_put(param->fwspec->iommu_fwnode);
-+		kfree(param->fwspec);
-+	}
-+	kfree(param);
- }
- 
- static int __iommu_probe_device(struct device *dev, struct list_head *group_list)
-
-
+-- 
+Andreas Schwab, schwab@linux-m68k.org
+GPG Key fingerprint = 7578 EB47 D4E5 4D69 2510  2552 DF73 E780 A9DA AEC1
+"And now for something completely different."
