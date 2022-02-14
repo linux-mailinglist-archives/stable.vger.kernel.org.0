@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB35A4B4BC3
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 743694B4785
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347730AbiBNKbV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:31:21 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37452 "EHLO
+        id S245531AbiBNJwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:52:21 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348306AbiBNKav (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:30:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95FD39BF7E;
-        Mon, 14 Feb 2022 01:59:27 -0800 (PST)
+        with ESMTP id S245617AbiBNJui (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:50:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39F39652E8;
+        Mon, 14 Feb 2022 01:41:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6B8760B34;
-        Mon, 14 Feb 2022 09:59:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6881C340E9;
-        Mon, 14 Feb 2022 09:59:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2E1261172;
+        Mon, 14 Feb 2022 09:41:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98936C340E9;
+        Mon, 14 Feb 2022 09:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832766;
-        bh=VPRDR3PYXiPBeYJvCUZ/lY1OC90TasViMFD935EnErY=;
+        s=korg; t=1644831688;
+        bh=OHldYB6mu4betx+t+BXF4bKjjju8Vk//4Z3uCKR9SHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rYjLFcPbtY8pi16o5b9mYwii4lED/Lis1f3N7oGszGvVfOUy7zB5mZ1Fx2z1td5uG
-         1Qwhz2E/WM+cRTzXdYQeAw+RupetgFmWljavi2r7wT/uROQHb36UWvHd6esyhc3mE2
-         zrrrz9gV9MPzoZaAhL1I6dJ/8CzoLQkEu7vKm96k=
+        b=U4+2cPBMAY3OJzwYbvlmJMmNe7vhZB7gxUJMbBxvCJmGHyNfjp6pNzxJtnXBPZHlB
+         ZlY8xbOs07u8+XqRA7jJEBQxf3ZGAquxGCA06hbJhs8dmtWsSaax6qG828mF3H3sNZ
+         dMVb219kiChVwd4jsskyhE/5VurqhWX4kG0eYyQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dongjin Kim <tobetter@gmail.com>,
         Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 118/203] arm64: dts: meson-g12b-odroid-n2: fix typo dio2133
+Subject: [PATCH 5.10 063/116] arm64: dts: meson-g12b-odroid-n2: fix typo dio2133
 Date:   Mon, 14 Feb 2022 10:26:02 +0100
-Message-Id: <20220214092514.263808238@linuxfoundation.org>
+Message-Id: <20220214092500.928145195@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,11 +72,11 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi
-index 3e968b2441918..fd3fa82e4c330 100644
+index b9b8cd4b5ba9d..87e8e64ad5cae 100644
 --- a/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi
 +++ b/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi
-@@ -17,7 +17,7 @@ aliases {
- 		rtc1 = &vrtc;
+@@ -15,7 +15,7 @@ aliases {
+ 		ethernet0 = &ethmac;
  	};
  
 -	dioo2133: audio-amplifier-0 {
@@ -84,7 +84,7 @@ index 3e968b2441918..fd3fa82e4c330 100644
  		compatible = "simple-audio-amplifier";
  		enable-gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_HIGH>;
  		VCC-supply = <&vcc_5v>;
-@@ -219,7 +219,7 @@ sound {
+@@ -215,7 +215,7 @@ sound {
  		audio-widgets = "Line", "Lineout";
  		audio-aux-devs = <&tdmout_b>, <&tdmout_c>, <&tdmin_a>,
  				 <&tdmin_b>, <&tdmin_c>, <&tdmin_lb>,
