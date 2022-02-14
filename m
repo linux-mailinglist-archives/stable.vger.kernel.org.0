@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 182E44B499D
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F08584B4BC1
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236308AbiBNKSP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:18:15 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47978 "EHLO
+        id S1346061AbiBNKV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:21:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347361AbiBNKQ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:16:27 -0500
+        with ESMTP id S1347373AbiBNKVP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:21:15 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD71569CED;
-        Mon, 14 Feb 2022 01:53:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8817E6E286;
+        Mon, 14 Feb 2022 01:55:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6765B80DC6;
-        Mon, 14 Feb 2022 09:53:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FB9AC340E9;
-        Mon, 14 Feb 2022 09:53:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DE02B80DC6;
+        Mon, 14 Feb 2022 09:55:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3850DC340E9;
+        Mon, 14 Feb 2022 09:55:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832426;
-        bh=LBylFngLp5Sc0TB3vzfnAJqZtAbcj0oRjimFAAhmYCQ=;
+        s=korg; t=1644832535;
+        bh=4RIDEAq+c22nmmG4y8cxqHGvT85mUiWcK7yNYU3i7IM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a+5JXt5JjHrsi+F8wUWDJ0pJC0eJ5p4P8fKXTsfuz/MuEGpPjNymkZEt4VYOtOkGi
-         yxNuhiPQBEkPKPEYZJiUSpKnHvAel3w1BO5IJR78dTB+79wHkOv3P1MT32/HauNHjL
-         srCqJ1J04we7kIa/CRehf0pfnhKUq3P8aufjn9TQ=
+        b=fEFvnzG1plFV8qUFBk2B9FkOhygkVyvxxxMMqpd1tauezahnKNHW9R08rRHNsKHCr
+         lQCxf7yHwYLyIOvV6CcNvWoVujtwwZGdFEK76gplJHk6ltn0Zo5eAYWH3K3rLZRCOO
+         Yse/vdF7CjOLxNLDkLP1W2YYO/pJIZTYB/n97gIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        stable@vger.kernel.org, Stefan Berger <stefanb@linux.ibm.com>,
+        Christian Brauner <brauner@kernel.org>,
         Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.16 003/203] ima: fix reference leak in asymmetric_verify()
-Date:   Mon, 14 Feb 2022 10:24:07 +0100
-Message-Id: <20220214092510.337512879@linuxfoundation.org>
+Subject: [PATCH 5.16 004/203] ima: Remove ima_policy file before directory
+Date:   Mon, 14 Feb 2022 10:24:08 +0100
+Message-Id: <20220214092510.374057258@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
 References: <20220214092510.221474733@linuxfoundation.org>
@@ -55,56 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Stefan Berger <stefanb@linux.ibm.com>
 
-commit 926fd9f23b27ca6587492c3f58f4c7f4cd01dad5 upstream.
+commit f7333b9572d0559e00352a926c92f29f061b4569 upstream.
 
-Don't leak a reference to the key if its algorithm is unknown.
+The removal of ima_dir currently fails since ima_policy still exists, so
+remove the ima_policy file before removing the directory.
 
-Fixes: 947d70597236 ("ima: Support EC keys for signature verification")
-Cc: <stable@vger.kernel.org> # v5.13+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Reviewed-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Fixes: 4af4662fa4a9 ("integrity: IMA policy")
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Acked-by: Christian Brauner <brauner@kernel.org>
 Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/digsig_asymmetric.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ security/integrity/ima/ima_fs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/integrity/digsig_asymmetric.c
-+++ b/security/integrity/digsig_asymmetric.c
-@@ -109,22 +109,25 @@ int asymmetric_verify(struct key *keyrin
+--- a/security/integrity/ima/ima_fs.c
++++ b/security/integrity/ima/ima_fs.c
+@@ -496,12 +496,12 @@ int __init ima_fs_init(void)
  
- 	pk = asymmetric_key_public_key(key);
- 	pks.pkey_algo = pk->pkey_algo;
--	if (!strcmp(pk->pkey_algo, "rsa"))
-+	if (!strcmp(pk->pkey_algo, "rsa")) {
- 		pks.encoding = "pkcs1";
--	else if (!strncmp(pk->pkey_algo, "ecdsa-", 6))
-+	} else if (!strncmp(pk->pkey_algo, "ecdsa-", 6)) {
- 		/* edcsa-nist-p192 etc. */
- 		pks.encoding = "x962";
--	else if (!strcmp(pk->pkey_algo, "ecrdsa") ||
--		   !strcmp(pk->pkey_algo, "sm2"))
-+	} else if (!strcmp(pk->pkey_algo, "ecrdsa") ||
-+		   !strcmp(pk->pkey_algo, "sm2")) {
- 		pks.encoding = "raw";
--	else
--		return -ENOPKG;
-+	} else {
-+		ret = -ENOPKG;
-+		goto out;
-+	}
- 
- 	pks.digest = (u8 *)data;
- 	pks.digest_size = datalen;
- 	pks.s = hdr->sig;
- 	pks.s_size = siglen;
- 	ret = verify_signature(key, &pks);
-+out:
- 	key_put(key);
- 	pr_debug("%s() = %d\n", __func__, ret);
- 	return ret;
+ 	return 0;
+ out:
++	securityfs_remove(ima_policy);
+ 	securityfs_remove(violations);
+ 	securityfs_remove(runtime_measurements_count);
+ 	securityfs_remove(ascii_runtime_measurements);
+ 	securityfs_remove(binary_runtime_measurements);
+ 	securityfs_remove(ima_symlink);
+ 	securityfs_remove(ima_dir);
+-	securityfs_remove(ima_policy);
+ 	return -1;
+ }
 
 
