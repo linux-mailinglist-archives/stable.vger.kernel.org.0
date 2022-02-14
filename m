@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C76A4B47AB
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 958834B497A
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245050AbiBNJrM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:47:12 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43352 "EHLO
+        id S1344477AbiBNKAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:00:02 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245111AbiBNJpu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:45:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCBD160D96;
-        Mon, 14 Feb 2022 01:38:40 -0800 (PST)
+        with ESMTP id S1344295AbiBNJ7A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:59:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C7D7217;
+        Mon, 14 Feb 2022 01:46:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FEBD6118F;
-        Mon, 14 Feb 2022 09:38:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37491C340EF;
-        Mon, 14 Feb 2022 09:38:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2B83B80DC7;
+        Mon, 14 Feb 2022 09:46:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3774C340EF;
+        Mon, 14 Feb 2022 09:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831519;
-        bh=0SNWPaXymZm3bX46jRXr1RWWCMk24h+5vqzYav0VjV8=;
+        s=korg; t=1644831983;
+        bh=/T57QsHEXzWRyz9ngAgfSuXzq9rnlQ9xNPWF7J/q3zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=juo4RSE8Fugx8Vv2djVsATPlXRL0kWfbS+bQ8X42Es8fxPpXrwTHLGEHzYhpO3Yz3
-         /z/HYZpWXjIlGr+Mlm43WoLIjk3ZyioSUDG4/OZdT/pUx+2tRZNu2R6yriC0zvQSUW
-         JfZijHqLghTz83arXi7zaXNK9upKpqk/elvNSOXE=
+        b=F7yuAMHbFzqaGgcGQKjXi1QKPgpqfb3kF+XxNsuPLFmKH/3Mb49QyvjdaNC+PHD6M
+         4Re+e10qKk4mTAhQuoMAfSE+9XEIjpxiK0lqIpV1g+pDloONUEiFR/5xCPpR+GjSK6
+         9/+94TeE0pIyP9xnpRKVAq5ZywkrgzEtMdyklRwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.10 001/116] integrity: check the return value of audit_log_start()
-Date:   Mon, 14 Feb 2022 10:25:00 +0100
-Message-Id: <20220214092458.722049185@linuxfoundation.org>
+        stable@vger.kernel.org, ZouMingzhe <mingzhe.zou@easystack.cn>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 043/172] scsi: target: iscsi: Make sure the np under each tpg is unique
+Date:   Mon, 14 Feb 2022 10:25:01 +0100
+Message-Id: <20220214092507.879629726@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,33 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+From: ZouMingzhe <mingzhe.zou@easystack.cn>
 
-commit 83230351c523b04ff8a029a4bdf97d881ecb96fc upstream.
+[ Upstream commit a861790afaa8b6369eee8a88c5d5d73f5799c0c6 ]
 
-audit_log_start() returns audit_buffer pointer on success or NULL on
-error, so it is better to check the return value of it.
+iscsit_tpg_check_network_portal() has nested for_each loops and is supposed
+to return true when a match is found. However, the tpg loop will still
+continue after existing the tpg_np loop. If this tpg_np is not the last the
+match value will be changed.
 
-Fixes: 3323eec921ef ("integrity: IMA as an integrity service provider")
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Break the outer loop after finding a match and make sure the np under each
+tpg is unique.
+
+Link: https://lore.kernel.org/r/20220111054742.19582-1-mingzhe.zou@easystack.cn
+Signed-off-by: ZouMingzhe <mingzhe.zou@easystack.cn>
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/integrity_audit.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/target/iscsi/iscsi_target_tpg.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/security/integrity/integrity_audit.c
-+++ b/security/integrity/integrity_audit.c
-@@ -45,6 +45,8 @@ void integrity_audit_message(int audit_m
- 		return;
+diff --git a/drivers/target/iscsi/iscsi_target_tpg.c b/drivers/target/iscsi/iscsi_target_tpg.c
+index 8075f60fd02c3..2d5cf1714ae05 100644
+--- a/drivers/target/iscsi/iscsi_target_tpg.c
++++ b/drivers/target/iscsi/iscsi_target_tpg.c
+@@ -443,6 +443,9 @@ static bool iscsit_tpg_check_network_portal(
+ 				break;
+ 		}
+ 		spin_unlock(&tpg->tpg_np_lock);
++
++		if (match)
++			break;
+ 	}
+ 	spin_unlock(&tiqn->tiqn_tpg_lock);
  
- 	ab = audit_log_start(audit_context(), GFP_KERNEL, audit_msgno);
-+	if (!ab)
-+		return;
- 	audit_log_format(ab, "pid=%d uid=%u auid=%u ses=%u",
- 			 task_pid_nr(current),
- 			 from_kuid(&init_user_ns, current_uid()),
+-- 
+2.34.1
+
 
 
