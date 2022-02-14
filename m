@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0ABC4B4B78
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 343C34B4B27
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240688AbiBNKCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:02:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54578 "EHLO
+        id S1346616AbiBNKXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:23:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345248AbiBNKBb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:01:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8A2F13EAC;
-        Mon, 14 Feb 2022 01:47:37 -0800 (PST)
+        with ESMTP id S1346640AbiBNKVt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:21:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 527037DE2B;
+        Mon, 14 Feb 2022 01:55:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E4A461252;
-        Mon, 14 Feb 2022 09:47:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CC4DC340E9;
-        Mon, 14 Feb 2022 09:47:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38773B80DCF;
+        Mon, 14 Feb 2022 09:55:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E7B0C340E9;
+        Mon, 14 Feb 2022 09:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832056;
-        bh=0y/IZM+9R7R9WIPYSINAAR4GixoHnxscFamQq446Yng=;
+        s=korg; t=1644832544;
+        bh=WoggJfzxZcsMjHbc6cnyNwotPtNHvkZ1EEsQdBd98pI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kzZeL5HBiUnfz8QblB/gFcD9v1E5irTq1FZBlmGyy3xAq8AdlIZI92EnJqfmYsh3L
-         WRF4iVIBpCT6EaQeEw0mEK2Q9+ieMAyFwf5EIxw/O4q2E0quoF3KHnKB0BdpwmN5Pz
-         iknoeDhPdLgkAbrpTC4SQfL3GDL1NlMk74UVjvLc=
+        b=Bg5n2UFVAYIJXV3sdKSkm3b1tMeiQ85EcEWk+lC3mYAzJrv/nle7x0N+Gcgd/lLoR
+         nPR4JZSpix6jJ9+Vcxx4ArTe6wtmlKact5tePyIPoNwg+rCbiHJxo1FDVF8IFhwr7e
+         C69fXDHBaEo5hWCzgoUsFtczLrgnXM/lVVdT7K7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Kiwoong Kim <kwmad.kim@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 034/172] sunrpc: Fix potential race conditions in rpc_sysfs_xprt_state_change()
-Date:   Mon, 14 Feb 2022 10:24:52 +0100
-Message-Id: <20220214092507.574818221@linuxfoundation.org>
+Subject: [PATCH 5.16 049/203] scsi: ufs: Use generic error code in ufshcd_set_dev_pwr_mode()
+Date:   Mon, 14 Feb 2022 10:24:53 +0100
+Message-Id: <20220214092511.882844129@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anna Schumaker <Anna.Schumaker@Netapp.com>
+From: Kiwoong Kim <kwmad.kim@samsung.com>
 
-[ Upstream commit 1a48db3fef499f615b56093947ec4b0d3d8e3021 ]
+[ Upstream commit ad6c8a426446873febc98140d81d5353f8c0825b ]
 
-We need to use test_and_set_bit() when changing xprt state flags to
-avoid potentially getting xps->xps_nactive out of sync.
+The return value of ufshcd_set_dev_pwr_mode() is passed to device PM
+core. However, the function currently returns a SCSI result which the PM
+core doesn't understand.  This might lead to unexpected behaviors in
+userland; a platform reset was observed in Android.
 
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Use a generic error code for SSU failures.
+
+Link: https://lore.kernel.org/r/1642743182-54098-1-git-send-email-kwmad.kim@samsung.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/sysfs.c | 35 +++++++++++++++++++----------------
- 1 file changed, 19 insertions(+), 16 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/net/sunrpc/sysfs.c b/net/sunrpc/sysfs.c
-index 379cf0e4d965b..326a31422a3c1 100644
---- a/net/sunrpc/sysfs.c
-+++ b/net/sunrpc/sysfs.c
-@@ -305,25 +305,28 @@ static ssize_t rpc_sysfs_xprt_state_change(struct kobject *kobj,
- 		goto release_tasks;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index c94377aa82739..ec7d7e01231d7 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -8587,7 +8587,7 @@ static void ufshcd_hba_exit(struct ufs_hba *hba)
+  * @pwr_mode: device power mode to set
+  *
+  * Returns 0 if requested power mode is set successfully
+- * Returns non-zero if failed to set the requested power mode
++ * Returns < 0 if failed to set the requested power mode
+  */
+ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
+ 				     enum ufs_dev_pwr_mode pwr_mode)
+@@ -8641,8 +8641,11 @@ static int ufshcd_set_dev_pwr_mode(struct ufs_hba *hba,
+ 		sdev_printk(KERN_WARNING, sdp,
+ 			    "START_STOP failed for power mode: %d, result %x\n",
+ 			    pwr_mode, ret);
+-		if (ret > 0 && scsi_sense_valid(&sshdr))
+-			scsi_print_sense_hdr(sdp, NULL, &sshdr);
++		if (ret > 0) {
++			if (scsi_sense_valid(&sshdr))
++				scsi_print_sense_hdr(sdp, NULL, &sshdr);
++			ret = -EIO;
++		}
  	}
- 	if (offline) {
--		set_bit(XPRT_OFFLINE, &xprt->state);
--		spin_lock(&xps->xps_lock);
--		xps->xps_nactive--;
--		spin_unlock(&xps->xps_lock);
-+		if (!test_and_set_bit(XPRT_OFFLINE, &xprt->state)) {
-+			spin_lock(&xps->xps_lock);
-+			xps->xps_nactive--;
-+			spin_unlock(&xps->xps_lock);
-+		}
- 	} else if (online) {
--		clear_bit(XPRT_OFFLINE, &xprt->state);
--		spin_lock(&xps->xps_lock);
--		xps->xps_nactive++;
--		spin_unlock(&xps->xps_lock);
-+		if (test_and_clear_bit(XPRT_OFFLINE, &xprt->state)) {
-+			spin_lock(&xps->xps_lock);
-+			xps->xps_nactive++;
-+			spin_unlock(&xps->xps_lock);
-+		}
- 	} else if (remove) {
- 		if (test_bit(XPRT_OFFLINE, &xprt->state)) {
--			set_bit(XPRT_REMOVE, &xprt->state);
--			xprt_force_disconnect(xprt);
--			if (test_bit(XPRT_CONNECTED, &xprt->state)) {
--				if (!xprt->sending.qlen &&
--				    !xprt->pending.qlen &&
--				    !xprt->backlog.qlen &&
--				    !atomic_long_read(&xprt->queuelen))
--					rpc_xprt_switch_remove_xprt(xps, xprt);
-+			if (!test_and_set_bit(XPRT_REMOVE, &xprt->state)) {
-+				xprt_force_disconnect(xprt);
-+				if (test_bit(XPRT_CONNECTED, &xprt->state)) {
-+					if (!xprt->sending.qlen &&
-+					    !xprt->pending.qlen &&
-+					    !xprt->backlog.qlen &&
-+					    !atomic_long_read(&xprt->queuelen))
-+						rpc_xprt_switch_remove_xprt(xps, xprt);
-+				}
- 			}
- 		} else {
- 			count = -EINVAL;
+ 
+ 	if (!ret)
 -- 
 2.34.1
 
