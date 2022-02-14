@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FE874B45B3
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:28:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A14274B45FF
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242970AbiBNJ2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:28:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40970 "EHLO
+        id S243303AbiBNJbg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:31:36 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232064AbiBNJ2Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:28:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D437860A9A;
-        Mon, 14 Feb 2022 01:28:09 -0800 (PST)
+        with ESMTP id S243316AbiBNJbD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:31:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B1C5BF44;
+        Mon, 14 Feb 2022 01:30:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C28CB80DC4;
-        Mon, 14 Feb 2022 09:28:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5A03C340EF;
-        Mon, 14 Feb 2022 09:28:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26489B80DC4;
+        Mon, 14 Feb 2022 09:30:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32611C340E9;
+        Mon, 14 Feb 2022 09:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644830887;
-        bh=M+7Y0vn+BxRton0UAEjJx00c6EcBPBpbms0IRen0pFg=;
+        s=korg; t=1644831009;
+        bh=NWXtWuPcTk1NqFEhAom7jp65/IRafTnTScGEgINFwbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PmmI5aHngHgzKkPVgL8KMQ0VVrr0d4xdWSPtO9aByxmboOCjuXhiDNPGzO7XerUNU
-         ixoVZqU42qQWy9GZRnSK9EVu7j4v+XiwQHrH4XdTKmlFbpXviVolQzMA3UKfFHZ0H/
-         nNXC2voLr/lF1rfUSOTbIOm6AtBo1WLhWM9DORRQ=
+        b=MN5Uv+AU33f7sO+dIsLGVpF77G50aCQsgmJmb6zwSUEvslg7a2GYAaEmX+eK7WcZT
+         7I85EGaMnE76OJHS1ehZbXIiJ4tVpekEya2mhP5ed0cEIZ5P++cuDxkC2zCtu4HF9Z
+         Yn/C7u/12su/s46LxP7kWWSwkCDXVjWhvFoPX+AU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ZouMingzhe <mingzhe.zou@easystack.cn>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Jisheng Zhang <jszhang@kernel.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 12/34] scsi: target: iscsi: Make sure the np under each tpg is unique
+Subject: [PATCH 4.14 15/44] net: stmmac: dwmac-sun8i: use return val of readl_poll_timeout()
 Date:   Mon, 14 Feb 2022 10:25:38 +0100
-Message-Id: <20220214092446.345752613@linuxfoundation.org>
+Message-Id: <20220214092448.403456250@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
-References: <20220214092445.946718557@linuxfoundation.org>
+In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
+References: <20220214092447.897544753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZouMingzhe <mingzhe.zou@easystack.cn>
+From: Jisheng Zhang <jszhang@kernel.org>
 
-[ Upstream commit a861790afaa8b6369eee8a88c5d5d73f5799c0c6 ]
+[ Upstream commit 9e0db41e7a0b6f1271cbcfb16dbf5b8641b4e440 ]
 
-iscsit_tpg_check_network_portal() has nested for_each loops and is supposed
-to return true when a match is found. However, the tpg loop will still
-continue after existing the tpg_np loop. If this tpg_np is not the last the
-match value will be changed.
+When readl_poll_timeout() timeout, we'd better directly use its return
+value.
 
-Break the outer loop after finding a match and make sure the np under each
-tpg is unique.
+Before this patch:
+[    2.145528] dwmac-sun8i: probe of 4500000.ethernet failed with error -14
 
-Link: https://lore.kernel.org/r/20220111054742.19582-1-mingzhe.zou@easystack.cn
-Signed-off-by: ZouMingzhe <mingzhe.zou@easystack.cn>
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+After this patch:
+[    2.138520] dwmac-sun8i: probe of 4500000.ethernet failed with error -110
+
+Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/iscsi/iscsi_target_tpg.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/target/iscsi/iscsi_target_tpg.c b/drivers/target/iscsi/iscsi_target_tpg.c
-index 761b065a40bb3..b2a76ecb5789c 100644
---- a/drivers/target/iscsi/iscsi_target_tpg.c
-+++ b/drivers/target/iscsi/iscsi_target_tpg.c
-@@ -452,6 +452,9 @@ static bool iscsit_tpg_check_network_portal(
- 				break;
- 		}
- 		spin_unlock(&tpg->tpg_np_lock);
-+
-+		if (match)
-+			break;
- 	}
- 	spin_unlock(&tiqn->tiqn_tpg_lock);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
+index 8e60315a087c9..1027831e5d814 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
+@@ -630,7 +630,7 @@ static int sun8i_dwmac_reset(struct stmmac_priv *priv)
  
+ 	if (err) {
+ 		dev_err(priv->device, "EMAC reset timeout\n");
+-		return -EFAULT;
++		return err;
+ 	}
+ 	return 0;
+ }
 -- 
 2.34.1
 
