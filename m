@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C72A4B48C6
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:58:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A50204B4977
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235041AbiBNJ6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:58:14 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43560 "EHLO
+        id S241223AbiBNKVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:21:25 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344734AbiBNJ40 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:56:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E7336D1AB;
-        Mon, 14 Feb 2022 01:44:52 -0800 (PST)
+        with ESMTP id S236012AbiBNKTr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:19:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0C579024E;
+        Mon, 14 Feb 2022 01:55:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1606D61238;
-        Mon, 14 Feb 2022 09:44:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0766C340E9;
-        Mon, 14 Feb 2022 09:44:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 238D5B80D6D;
+        Mon, 14 Feb 2022 09:54:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3144CC340EF;
+        Mon, 14 Feb 2022 09:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831891;
-        bh=0c7FPgrkzkPBYHxqx3yzOUKo/b1ktRrCosiqLKiIf0s=;
+        s=korg; t=1644832482;
+        bh=HXnNm6mwzS+bCFc9d1VT6vJ6HYKUrgR+hVfGKlNwGIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pp//SrBpq6rKVXZn8Q0c4omy3r787rdZJGN+3URkxdIpkyMsXX/yeFP2KmeEvtcGq
-         cq7P5ERDo7f/NjgLUAC4FZPHJpivAnHflAxnWtPKeAMUm7somytfp2cxn+e8Elqkvw
-         rdZhK0p7DRhCiLFglKbvYMdKxSjcUzZEhaqR5DC0=
+        b=HAgvi1GGx/Ib0YZsI1l2QxQt1UHRa93tku8ckzprzzcXWG4+qm6Ucpjt1mE/eQlq0
+         cvCJQ0HiceHiXmJJL6x+DWD9FpecnTBSfa2tusY6S9xNVFdDVfMh0jnIKGCq1PB7+E
+         3MGDWoBmHo2L93gufaAONqbfoEDrJRYgUisRJtsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.15 013/172] NFSD: Fix NFSv3 SETATTR/CREATEs handling of large file sizes
-Date:   Mon, 14 Feb 2022 10:24:31 +0100
-Message-Id: <20220214092506.834910416@linuxfoundation.org>
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 028/203] NFSv4 handle port presence in fs_location server string
+Date:   Mon, 14 Feb 2022 10:24:32 +0100
+Message-Id: <20220214092511.167872599@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,39 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-commit a648fdeb7c0e17177a2280344d015dba3fbe3314 upstream.
+[ Upstream commit a8d54baba7c65db2d3278873def61f8d3753d766 ]
 
-iattr::ia_size is a loff_t, so these NFSv3 procedures must be
-careful to deal with incoming client size values that are larger
-than s64_max without corrupting the value.
+An fs_location attribute returns a string that can be ipv4, ipv6,
+or DNS name. An ip location can have a port appended to it and if
+no port is present a default port needs to be set. If rpc_pton()
+fails to parse, try calling rpc_uaddr2socaddr() that can convert
+an universal address.
 
-Silently capping the value results in storing a different value
-than the client passed in which is unexpected behavior, so remove
-the min_t() check in decode_sattr3().
-
-Note that RFC 1813 permits only the WRITE procedure to return
-NFS3ERR_FBIG. We believe that NFSv3 reference implementations
-also return NFS3ERR_FBIG when ia_size is too large.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs3xdr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs4_fs.h       |  2 +-
+ fs/nfs/nfs4namespace.c | 17 +++++++++++------
+ 2 files changed, 12 insertions(+), 7 deletions(-)
 
---- a/fs/nfsd/nfs3xdr.c
-+++ b/fs/nfsd/nfs3xdr.c
-@@ -254,7 +254,7 @@ svcxdr_decode_sattr3(struct svc_rqst *rq
- 		if (xdr_stream_decode_u64(xdr, &newsize) < 0)
- 			return false;
- 		iap->ia_valid |= ATTR_SIZE;
--		iap->ia_size = min_t(u64, newsize, NFS_OFFSET_MAX);
-+		iap->ia_size = newsize;
+diff --git a/fs/nfs/nfs4_fs.h b/fs/nfs/nfs4_fs.h
+index 734ac09becf73..85c5d08dfa9cc 100644
+--- a/fs/nfs/nfs4_fs.h
++++ b/fs/nfs/nfs4_fs.h
+@@ -281,7 +281,7 @@ int nfs4_submount(struct fs_context *, struct nfs_server *);
+ int nfs4_replace_transport(struct nfs_server *server,
+ 				const struct nfs4_fs_locations *locations);
+ size_t nfs_parse_server_name(char *string, size_t len, struct sockaddr *sa,
+-			     size_t salen, struct net *net);
++			     size_t salen, struct net *net, int port);
+ /* nfs4proc.c */
+ extern int nfs4_handle_exception(struct nfs_server *, int, struct nfs4_exception *);
+ extern int nfs4_async_handle_error(struct rpc_task *task,
+diff --git a/fs/nfs/nfs4namespace.c b/fs/nfs/nfs4namespace.c
+index f1ed4f60a7f33..3680c8da510c9 100644
+--- a/fs/nfs/nfs4namespace.c
++++ b/fs/nfs/nfs4namespace.c
+@@ -165,15 +165,20 @@ static int nfs4_validate_fspath(struct dentry *dentry,
+ }
+ 
+ size_t nfs_parse_server_name(char *string, size_t len, struct sockaddr *sa,
+-			     size_t salen, struct net *net)
++			     size_t salen, struct net *net, int port)
+ {
+ 	ssize_t ret;
+ 
+ 	ret = rpc_pton(net, string, len, sa, salen);
+ 	if (ret == 0) {
+-		ret = nfs_dns_resolve_name(net, string, len, sa, salen);
+-		if (ret < 0)
+-			ret = 0;
++		ret = rpc_uaddr2sockaddr(net, string, len, sa, salen);
++		if (ret == 0) {
++			ret = nfs_dns_resolve_name(net, string, len, sa, salen);
++			if (ret < 0)
++				ret = 0;
++		}
++	} else if (port) {
++		rpc_set_port(sa, port);
  	}
- 	if (xdr_stream_decode_u32(xdr, &set_it) < 0)
- 		return false;
+ 	return ret;
+ }
+@@ -328,7 +333,7 @@ static int try_location(struct fs_context *fc,
+ 			nfs_parse_server_name(buf->data, buf->len,
+ 					      &ctx->nfs_server.address,
+ 					      sizeof(ctx->nfs_server._address),
+-					      fc->net_ns);
++					      fc->net_ns, 0);
+ 		if (ctx->nfs_server.addrlen == 0)
+ 			continue;
+ 
+@@ -496,7 +501,7 @@ static int nfs4_try_replacing_one_location(struct nfs_server *server,
+ 			continue;
+ 
+ 		salen = nfs_parse_server_name(buf->data, buf->len,
+-						sap, addr_bufsize, net);
++						sap, addr_bufsize, net, 0);
+ 		if (salen == 0)
+ 			continue;
+ 		rpc_set_port(sap, NFS_PORT);
+-- 
+2.34.1
+
 
 
