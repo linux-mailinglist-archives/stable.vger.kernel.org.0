@@ -2,44 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10AB64B4A03
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:37:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29F2C4B46F5
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237523AbiBNKEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:04:47 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54314 "EHLO
+        id S244023AbiBNJhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:37:53 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344798AbiBNKEK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:04:10 -0500
+        with ESMTP id S244535AbiBNJgC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66A7443AF3;
-        Mon, 14 Feb 2022 01:48:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED30B1AD9D;
+        Mon, 14 Feb 2022 01:33:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0EB16126B;
-        Mon, 14 Feb 2022 09:48:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAE17C340E9;
-        Mon, 14 Feb 2022 09:48:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3526F60FFC;
+        Mon, 14 Feb 2022 09:33:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A4F8C340E9;
+        Mon, 14 Feb 2022 09:33:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832133;
-        bh=On09NtlxisAFDWKGqSyeGfJb1Y/OGiixVGVkNghruI0=;
+        s=korg; t=1644831200;
+        bh=4RHKtD2d2DGhQCEoOtiljSMyW0D9xXcbs4ICzooPkGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QgpiZS6/wCnUiTwrhuWInUStNCJaF7wX+bOR5b+vfJNUUuQuaXli1CJM91W7G7NnJ
-         deGlf4LxuOlYj/lKH77UHd/Ijc09Hd/jd1/sKHAmb81PYuhmhX9Kexn5qXIy4Jn+Vh
-         4N9MGyY89mHA2ElgtbGe2Y+YxZ1bRzFLAU2YVMKw=
+        b=yttdMwaH1radMk10/gB5i8OWi2f7WaPgwInAJOLNrW8simP+KZslbKy//kvENidFg
+         wtdgDAi/0HiXww1Pp4azFQr03HXbJY0T37LFBfl+f9/01fPBPU373iBenOj7KGrZg0
+         ZLCB1o13OlqWDZHRKGSuMMDYY7SVOABIWSKz1MpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 089/172] ARM: dts: imx7ulp: Fix assigned-clocks-parents typo
+        stable@vger.kernel.org, Zechuan Chen <chenzechuan1@huawei.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Jianlin Lv <Jianlin.Lv@arm.com>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Namhyung Kim <namhyung@kernel.org>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Yang Jihong <yangjihong1@huawei.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 21/49] perf probe: Fix ppc64 perf probe add events failed case
 Date:   Mon, 14 Feb 2022 10:25:47 +0100
-Message-Id: <20220214092509.481822737@linuxfoundation.org>
+Message-Id: <20220214092448.997112587@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
+References: <20220214092448.285381753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +67,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Zechuan Chen <chenzechuan1@huawei.com>
 
-[ Upstream commit 6d58c5e21a3fe355ce6d1808e96d02a610265218 ]
+commit 4624f199327a704dd1069aca1c3cadb8f2a28c6f upstream.
 
-The correct property name is 'assigned-clock-parents', not
-'assigned-clocks-parents'. Though if the platform works with the typo, one
-has to wonder if the property is even needed.
+Because of commit bf794bf52a80c627 ("powerpc/kprobes: Fix kallsyms
+lookup across powerpc ABIv1 and ABIv2"), in ppc64 ABIv1, our perf
+command eliminates the need to use the prefix "." at the symbol name.
 
-Signed-off-by: Rob Herring <robh@kernel.org>
-Fixes: 8b8c7d97e2c7 ("ARM: dts: imx7ulp: Add wdog1 node")
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But when the command "perf probe -a schedule" is executed on ppc64
+ABIv1, it obtains two symbol address information through /proc/kallsyms,
+for example:
+
+  cat /proc/kallsyms | grep -w schedule
+  c000000000657020 T .schedule
+  c000000000d4fdb8 D schedule
+
+The symbol "D schedule" is not a function symbol, and perf will print:
+"p:probe/schedule _text+13958584"Failed to write event: Invalid argument
+
+Therefore, when searching symbols from map and adding probe point for
+them, a symbol type check is added. If the type of symbol is not a
+function, skip it.
+
+Fixes: bf794bf52a80c627 ("powerpc/kprobes: Fix kallsyms lookup across powerpc ABIv1 and ABIv2")
+Signed-off-by: Zechuan Chen <chenzechuan1@huawei.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jianlin Lv <Jianlin.Lv@arm.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Cc: Yang Jihong <yangjihong1@huawei.com>
+Link: https://lore.kernel.org/r/20211228111338.218602-1-chenzechuan1@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx7ulp.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/probe-event.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx7ulp.dtsi b/arch/arm/boot/dts/imx7ulp.dtsi
-index b7ea37ad4e55c..bcec98b964114 100644
---- a/arch/arm/boot/dts/imx7ulp.dtsi
-+++ b/arch/arm/boot/dts/imx7ulp.dtsi
-@@ -259,7 +259,7 @@ wdog1: watchdog@403d0000 {
- 			interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&pcc2 IMX7ULP_CLK_WDG1>;
- 			assigned-clocks = <&pcc2 IMX7ULP_CLK_WDG1>;
--			assigned-clocks-parents = <&scg1 IMX7ULP_CLK_FIRC_BUS_CLK>;
-+			assigned-clock-parents = <&scg1 IMX7ULP_CLK_FIRC_BUS_CLK>;
- 			timeout-sec = <40>;
- 		};
+--- a/tools/perf/util/probe-event.c
++++ b/tools/perf/util/probe-event.c
+@@ -2919,6 +2919,9 @@ static int find_probe_trace_events_from_
+ 	for (j = 0; j < num_matched_functions; j++) {
+ 		sym = syms[j];
  
--- 
-2.34.1
-
++		if (sym->type != STT_FUNC)
++			continue;
++
+ 		tev = (*tevs) + ret;
+ 		tp = &tev->point;
+ 		if (ret == num_matched_functions) {
 
 
