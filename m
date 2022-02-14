@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D98C4B48B0
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:57:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C3C24B4992
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343924AbiBNJ5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:57:23 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43278 "EHLO
+        id S235437AbiBNKWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:22:52 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345471AbiBNJ4r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:56:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FA5D8300C;
-        Mon, 14 Feb 2022 01:45:33 -0800 (PST)
+        with ESMTP id S1346440AbiBNKVX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:21:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 019737DE1B;
+        Mon, 14 Feb 2022 01:55:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED753B80DBF;
-        Mon, 14 Feb 2022 09:45:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 348A2C340E9;
-        Mon, 14 Feb 2022 09:45:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 199C4B80DC4;
+        Mon, 14 Feb 2022 09:55:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47A19C340E9;
+        Mon, 14 Feb 2022 09:55:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831930;
-        bh=QpdYhPz1QbxmW08mKdB8W1Sz1fYm/QS12h4YxaF3K4s=;
+        s=korg; t=1644832538;
+        bh=PgnNCRpAxiyodWJyZyyGogYzjGJ0Rm0cnQHlJk9t4W0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CkVllj5h8q6FU2su7oYGG7zR5EHCj7rkbDH3phOuHQs6uTIN5kE2nd2E1HWT8D0ZG
-         j4MGCHztm2RwA1Od73g0XGFO2IPpuceWY2W4GekTvLUiZuCRbcMFbMv6wzpJ3lEoZN
-         +/3owQj6eyyGw1WUdG5WgchRjce6QlRoL8itMFvA=
+        b=lBWe2a0hOXJh/2oPX0f4+9dwGmszlQFPQDX8ENEFKE9VwbHaGv4oRbuJyHPfTAQ4H
+         gnMRWWFFG5E9bud0NjcxG0Ft37nUUdm0US+ypqAGyYnXV6iBtOskRNgmk4VRYEexSg
+         LamdzwpJEBaROP6EXITqHeQ9AYq0G2EV0gDQyg6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Maxime Bizon <mbizon@freebox.fr>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 025/172] nfs: nfs4clinet: check the return value of kstrdup()
+Subject: [PATCH 5.16 039/203] powerpc/fixmap: Fix VM debug warning on unmap
 Date:   Mon, 14 Feb 2022 10:24:43 +0100
-Message-Id: <20220214092507.270340983@linuxfoundation.org>
+Message-Id: <20220214092511.530055410@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit fbd2057e5329d3502a27491190237b6be52a1cb6 ]
+[ Upstream commit aec982603aa8cc0a21143681feb5f60ecc69d718 ]
 
-kstrdup() returns NULL when some internal memory errors happen, it is
-better to check the return value of it so to catch the memory error in
-time.
+Unmapping a fixmap entry is done by calling __set_fixmap()
+with FIXMAP_PAGE_CLEAR as flags.
 
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Today, powerpc __set_fixmap() calls map_kernel_page().
+
+map_kernel_page() is not happy when called a second time
+for the same page.
+
+	WARNING: CPU: 0 PID: 1 at arch/powerpc/mm/pgtable.c:194 set_pte_at+0xc/0x1e8
+	CPU: 0 PID: 1 Comm: swapper Not tainted 5.16.0-rc3-s3k-dev-01993-g350ff07feb7d-dirty #682
+	NIP:  c0017cd4 LR: c00187f0 CTR: 00000010
+	REGS: e1011d50 TRAP: 0700   Not tainted  (5.16.0-rc3-s3k-dev-01993-g350ff07feb7d-dirty)
+	MSR:  00029032 <EE,ME,IR,DR,RI>  CR: 42000208  XER: 00000000
+
+	GPR00: c0165fec e1011e10 c14c0000 c0ee2550 ff800000 c0f3d000 00000000 c001686c
+	GPR08: 00001000 b00045a9 00000001 c0f58460 c0f50000 00000000 c0007e10 00000000
+	GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+	GPR24: 00000000 00000000 c0ee2550 00000000 c0f57000 00000ff8 00000000 ff800000
+	NIP [c0017cd4] set_pte_at+0xc/0x1e8
+	LR [c00187f0] map_kernel_page+0x9c/0x100
+	Call Trace:
+	[e1011e10] [c0736c68] vsnprintf+0x358/0x6c8 (unreliable)
+	[e1011e30] [c0165fec] __set_fixmap+0x30/0x44
+	[e1011e40] [c0c13bdc] early_iounmap+0x11c/0x170
+	[e1011e70] [c0c06cb0] ioremap_legacy_serial_console+0x88/0xc0
+	[e1011e90] [c0c03634] do_one_initcall+0x80/0x178
+	[e1011ef0] [c0c0385c] kernel_init_freeable+0xb4/0x250
+	[e1011f20] [c0007e34] kernel_init+0x24/0x140
+	[e1011f30] [c0016268] ret_from_kernel_thread+0x5c/0x64
+	Instruction dump:
+	7fe3fb78 48019689 80010014 7c630034 83e1000c 5463d97e 7c0803a6 38210010
+	4e800020 81250000 712a0001 41820008 <0fe00000> 9421ffe0 93e1001c 48000030
+
+Implement unmap_kernel_page() which clears an existing pte.
+
+Reported-by: Maxime Bizon <mbizon@freebox.fr>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Tested-by: Maxime Bizon <mbizon@freebox.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/b0b752f6f6ecc60653e873f385c6f0dce4e9ab6a.1638789098.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4client.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/book3s/32/pgtable.h | 1 +
+ arch/powerpc/include/asm/book3s/64/pgtable.h | 2 ++
+ arch/powerpc/include/asm/fixmap.h            | 6 ++++--
+ arch/powerpc/include/asm/nohash/32/pgtable.h | 1 +
+ arch/powerpc/include/asm/nohash/64/pgtable.h | 1 +
+ arch/powerpc/mm/pgtable.c                    | 9 +++++++++
+ 6 files changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-index af57332503bed..ed06b68b2b4e9 100644
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -1368,8 +1368,11 @@ int nfs4_update_server(struct nfs_server *server, const char *hostname,
- 	}
- 	nfs_put_client(clp);
+diff --git a/arch/powerpc/include/asm/book3s/32/pgtable.h b/arch/powerpc/include/asm/book3s/32/pgtable.h
+index 609c80f671943..f8b94f78403f1 100644
+--- a/arch/powerpc/include/asm/book3s/32/pgtable.h
++++ b/arch/powerpc/include/asm/book3s/32/pgtable.h
+@@ -178,6 +178,7 @@ static inline bool pte_user(pte_t pte)
+ #ifndef __ASSEMBLY__
  
--	if (server->nfs_client->cl_hostname == NULL)
-+	if (server->nfs_client->cl_hostname == NULL) {
- 		server->nfs_client->cl_hostname = kstrdup(hostname, GFP_KERNEL);
-+		if (server->nfs_client->cl_hostname == NULL)
-+			return -ENOMEM;
-+	}
- 	nfs_server_insert_lists(server);
+ int map_kernel_page(unsigned long va, phys_addr_t pa, pgprot_t prot);
++void unmap_kernel_page(unsigned long va);
  
- 	return nfs_probe_destination(server);
+ #endif /* !__ASSEMBLY__ */
+ 
+diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
+index 33e073d6b0c41..875730d5af408 100644
+--- a/arch/powerpc/include/asm/book3s/64/pgtable.h
++++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
+@@ -1082,6 +1082,8 @@ static inline int map_kernel_page(unsigned long ea, unsigned long pa, pgprot_t p
+ 	return hash__map_kernel_page(ea, pa, prot);
+ }
+ 
++void unmap_kernel_page(unsigned long va);
++
+ static inline int __meminit vmemmap_create_mapping(unsigned long start,
+ 						   unsigned long page_size,
+ 						   unsigned long phys)
+diff --git a/arch/powerpc/include/asm/fixmap.h b/arch/powerpc/include/asm/fixmap.h
+index 947b5b9c44241..a832aeafe5601 100644
+--- a/arch/powerpc/include/asm/fixmap.h
++++ b/arch/powerpc/include/asm/fixmap.h
+@@ -111,8 +111,10 @@ static inline void __set_fixmap(enum fixed_addresses idx,
+ 		BUILD_BUG_ON(idx >= __end_of_fixed_addresses);
+ 	else if (WARN_ON(idx >= __end_of_fixed_addresses))
+ 		return;
+-
+-	map_kernel_page(__fix_to_virt(idx), phys, flags);
++	if (pgprot_val(flags))
++		map_kernel_page(__fix_to_virt(idx), phys, flags);
++	else
++		unmap_kernel_page(__fix_to_virt(idx));
+ }
+ 
+ #define __early_set_fixmap	__set_fixmap
+diff --git a/arch/powerpc/include/asm/nohash/32/pgtable.h b/arch/powerpc/include/asm/nohash/32/pgtable.h
+index b67742e2a9b22..d959c2a73fbf4 100644
+--- a/arch/powerpc/include/asm/nohash/32/pgtable.h
++++ b/arch/powerpc/include/asm/nohash/32/pgtable.h
+@@ -64,6 +64,7 @@ extern int icache_44x_need_flush;
+ #ifndef __ASSEMBLY__
+ 
+ int map_kernel_page(unsigned long va, phys_addr_t pa, pgprot_t prot);
++void unmap_kernel_page(unsigned long va);
+ 
+ #endif /* !__ASSEMBLY__ */
+ 
+diff --git a/arch/powerpc/include/asm/nohash/64/pgtable.h b/arch/powerpc/include/asm/nohash/64/pgtable.h
+index 9d2905a474103..2225991c69b55 100644
+--- a/arch/powerpc/include/asm/nohash/64/pgtable.h
++++ b/arch/powerpc/include/asm/nohash/64/pgtable.h
+@@ -308,6 +308,7 @@ static inline void __ptep_set_access_flags(struct vm_area_struct *vma,
+ #define __swp_entry_to_pte(x)		__pte((x).val)
+ 
+ int map_kernel_page(unsigned long ea, unsigned long pa, pgprot_t prot);
++void unmap_kernel_page(unsigned long va);
+ extern int __meminit vmemmap_create_mapping(unsigned long start,
+ 					    unsigned long page_size,
+ 					    unsigned long phys);
+diff --git a/arch/powerpc/mm/pgtable.c b/arch/powerpc/mm/pgtable.c
+index ce94823831442..b7385e637e3e3 100644
+--- a/arch/powerpc/mm/pgtable.c
++++ b/arch/powerpc/mm/pgtable.c
+@@ -203,6 +203,15 @@ void set_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep,
+ 	__set_pte_at(mm, addr, ptep, pte, 0);
+ }
+ 
++void unmap_kernel_page(unsigned long va)
++{
++	pmd_t *pmdp = pmd_off_k(va);
++	pte_t *ptep = pte_offset_kernel(pmdp, va);
++
++	pte_clear(&init_mm, va, ptep);
++	flush_tlb_kernel_range(va, va + PAGE_SIZE);
++}
++
+ /*
+  * This is called when relaxing access to a PTE. It's also called in the page
+  * fault path when we don't hit any of the major fault cases, ie, a minor
 -- 
 2.34.1
 
