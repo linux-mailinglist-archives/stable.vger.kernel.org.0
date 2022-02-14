@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 262B04B49F2
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:37:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF9674B475D
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234449AbiBNKEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:04:45 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:53658 "EHLO
+        id S232469AbiBNJrE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:47:04 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345093AbiBNKEN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:04:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73DBB45512;
-        Mon, 14 Feb 2022 01:48:57 -0800 (PST)
+        with ESMTP id S245690AbiBNJqG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B396065834;
+        Mon, 14 Feb 2022 01:39:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D135612D0;
-        Mon, 14 Feb 2022 09:48:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D135EC340E9;
-        Mon, 14 Feb 2022 09:48:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C459B80DC4;
+        Mon, 14 Feb 2022 09:39:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84232C340E9;
+        Mon, 14 Feb 2022 09:39:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832136;
-        bh=H9AOZ4VvMnz+eej4Jp2A9tk40+GzB/tTtRcrZcb3Tu4=;
+        s=korg; t=1644831563;
+        bh=HIPORMFuV//Hr3CiBeB8KOpD7vvvwHqgFISVkSXSIQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QemBq8kNZq3A72x7Rt8hRCt5gYQV96/OFBvI314Zt0q+5dLPXmFp4q70MUY2o5Dy0
-         tlEgIJsgjbF+2NsakNxP06yGSCSzk7OLRqDOWyg/WDW68MJzMnA/aOJqdXTxrHEpGx
-         jFTVqMavcs/kK4O5+NCOEX2l9d2Y33E2EwfQhTNE=
+        b=gCIMEMeAAARUD5lHJMrfl5iRmK3elX+hiWu15FV0/obZn+Bp5cJF5yKBURqlcFG8J
+         iVw7kF+vghSXur9nBt1rjOfKauFObECmeZ2hrjrzBNdXl93Ts4XqKRdc97l3SYR9PK
+         nlaoEFTi8aMjYxpBVwsh2NIEKRntSdJ3ZA3HtNXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Liam Merwick <liam.merwick@oracle.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Raymond Jay Golo <rjgolo@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 063/172] KVM: SVM: Dont kill SEV guest if SMAP erratum triggers in usermode
+Subject: [PATCH 5.10 022/116] drm: panel-orientation-quirks: Add quirk for the 1Netbook OneXPlayer
 Date:   Mon, 14 Feb 2022 10:25:21 +0100
-Message-Id: <20220214092508.576251831@linuxfoundation.org>
+Message-Id: <20220214092459.446044719@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Raymond Jay Golo <rjgolo@gmail.com>
 
-[ Upstream commit cdf85e0c5dc766fc7fc779466280e454a6d04f87 ]
+[ Upstream commit d3cbc6e323c9299d10c8d2e4127c77c7d05d07b1 ]
 
-Inject a #GP instead of synthesizing triple fault to try to avoid killing
-the guest if emulation of an SEV guest fails due to encountering the SMAP
-erratum.  The injected #GP may still be fatal to the guest, e.g. if the
-userspace process is providing critical functionality, but KVM should
-make every attempt to keep the guest alive.
+The 1Netbook OneXPlayer uses a panel which has been mounted
+90 degrees rotated. Add a quirk for this.
 
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
-Message-Id: <20220120010719.711476-10-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Raymond Jay Golo <rjgolo@gmail.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220113000619.90988-1-rjgolo@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm/svm.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 980abc437cdaa..f05aa7290267d 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -4473,7 +4473,21 @@ static bool svm_can_emulate_instruction(struct kvm_vcpu *vcpu, void *insn, int i
- 	is_user = svm_get_cpl(vcpu) == 3;
- 	if (smap && (!smep || is_user)) {
- 		pr_err_ratelimited("KVM: SEV Guest triggered AMD Erratum 1096\n");
--		kvm_make_request(KVM_REQ_TRIPLE_FAULT, vcpu);
-+
-+		/*
-+		 * If the fault occurred in userspace, arbitrarily inject #GP
-+		 * to avoid killing the guest and to hopefully avoid confusing
-+		 * the guest kernel too much, e.g. injecting #PF would not be
-+		 * coherent with respect to the guest's page tables.  Request
-+		 * triple fault if the fault occurred in the kernel as there's
-+		 * no fault that KVM can inject without confusing the guest.
-+		 * In practice, the triple fault is moot as no sane SEV kernel
-+		 * will execute from user memory while also running with SMAP=1.
-+		 */
-+		if (is_user)
-+			kvm_inject_gp(vcpu, 0);
-+		else
-+			kvm_make_request(KVM_REQ_TRIPLE_FAULT, vcpu);
- 	}
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index 9d1bd8f491ad7..448c2f2d803a6 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -115,6 +115,12 @@ static const struct drm_dmi_panel_orientation_data lcd1280x1920_rightside_up = {
+ 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
+ };
  
- 	return false;
++static const struct drm_dmi_panel_orientation_data lcd1600x2560_leftside_up = {
++	.width = 1600,
++	.height = 2560,
++	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
++};
++
+ static const struct dmi_system_id orientation_data[] = {
+ 	{	/* Acer One 10 (S1003) */
+ 		.matches = {
+@@ -261,6 +267,12 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Default string"),
+ 		},
+ 		.driver_data = (void *)&onegx1_pro,
++	}, {	/* OneXPlayer */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ONE-NETBOOK TECHNOLOGY CO., LTD."),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "ONE XPLAYER"),
++		},
++		.driver_data = (void *)&lcd1600x2560_leftside_up,
+ 	}, {	/* Samsung GalaxyBook 10.6 */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
 -- 
 2.34.1
 
