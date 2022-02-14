@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF22B4B4AAF
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:39:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF7B54B4A3A
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:38:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345851AbiBNKN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:13:58 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43926 "EHLO
+        id S1345856AbiBNKN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:13:57 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345661AbiBNKNN (ORCPT
+        with ESMTP id S1345658AbiBNKNN (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:13:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B412B1928D;
-        Mon, 14 Feb 2022 01:51:47 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FAAD60A97;
+        Mon, 14 Feb 2022 01:51:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B539B80DBF;
-        Mon, 14 Feb 2022 09:51:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C172C340EF;
-        Mon, 14 Feb 2022 09:51:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD66BB80D83;
+        Mon, 14 Feb 2022 09:51:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6D92C340E9;
+        Mon, 14 Feb 2022 09:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832305;
-        bh=NMjWGwPSU2DDunwZRA4fzUKy64zLoxOq04HsvxNVkF0=;
+        s=korg; t=1644832308;
+        bh=iVVprejHhTHrKXydZFMArGB8nKpVGa/J/tekSOuOWgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SX+am9vdZ5rCwGdSnuvgi51cH7XylmdVfEaZwyH/rQZwkNQkGr63QxZYELSlexG1K
-         1K8fI9Yp5D+DnaCCidONGY9kKsZiVAoxFT0VvX4zQfcbaKP6YCIh3unWTEznGlJqbM
-         cbBwuN/35JCCfwLaDi/rf3vccXk4SZ8HJ19+tpkg=
+        b=a+OCCNb1Exxay6KVbySkhY90V0T/RbkxfUD0Ylk3AE+lK/lUX3TTZ3kyGv9nKIbBW
+         z4Us0y4oCQ+RA/lwKWTrCHAGhNdrIrXKnvJd5jSEllBgaO5BgnT6OUClIOdyxKZzOK
+         OADy8ZiIM6GnRsPDD3+EgQ01CtmQzE4z4smz63Ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Szymon Heidrich <szymon.heidrich@gmail.com>, stable@kernel.org
-Subject: [PATCH 5.15 145/172] USB: gadget: validate interface OS descriptor requests
-Date:   Mon, 14 Feb 2022 10:26:43 +0100
-Message-Id: <20220214092511.394023389@linuxfoundation.org>
+Subject: [PATCH 5.15 146/172] usb: gadget: rndis: check size of RNDIS_MSG_SET command
+Date:   Mon, 14 Feb 2022 10:26:44 +0100
+Message-Id: <20220214092511.431680103@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
 References: <20220214092506.354292783@linuxfoundation.org>
@@ -53,31 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Szymon Heidrich <szymon.heidrich@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 75e5b4849b81e19e9efe1654b30d7f3151c33c2c upstream.
+commit 38ea1eac7d88072bbffb630e2b3db83ca649b826 upstream.
 
-Stall the control endpoint in case provided index exceeds array size of
-MAX_CONFIG_INTERFACES or when the retrieved function pointer is null.
+Check the size of the RNDIS_MSG_SET command given to us before
+attempting to respond to an invalid message size.
 
-Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Reported-by: Szymon Heidrich <szymon.heidrich@gmail.com>
 Cc: stable@kernel.org
+Tested-by: Szymon Heidrich <szymon.heidrich@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/composite.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/gadget/function/rndis.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -1975,6 +1975,9 @@ unknown:
- 				if (w_index != 0x5 || (w_value >> 8))
- 					break;
- 				interface = w_value & 0xFF;
-+				if (interface >= MAX_CONFIG_INTERFACES ||
-+				    !os_desc_cfg->interface[interface])
-+					break;
- 				buf[6] = w_index;
- 				count = count_ext_prop(os_desc_cfg,
- 					interface);
+--- a/drivers/usb/gadget/function/rndis.c
++++ b/drivers/usb/gadget/function/rndis.c
+@@ -637,14 +637,17 @@ static int rndis_set_response(struct rnd
+ 	rndis_set_cmplt_type *resp;
+ 	rndis_resp_t *r;
+ 
++	BufLength = le32_to_cpu(buf->InformationBufferLength);
++	BufOffset = le32_to_cpu(buf->InformationBufferOffset);
++	if ((BufLength > RNDIS_MAX_TOTAL_SIZE) ||
++	    (BufOffset + 8 >= RNDIS_MAX_TOTAL_SIZE))
++		    return -EINVAL;
++
+ 	r = rndis_add_response(params, sizeof(rndis_set_cmplt_type));
+ 	if (!r)
+ 		return -ENOMEM;
+ 	resp = (rndis_set_cmplt_type *)r->buf;
+ 
+-	BufLength = le32_to_cpu(buf->InformationBufferLength);
+-	BufOffset = le32_to_cpu(buf->InformationBufferOffset);
+-
+ #ifdef	VERBOSE_DEBUG
+ 	pr_debug("%s: Length: %d\n", __func__, BufLength);
+ 	pr_debug("%s: Offset: %d\n", __func__, BufOffset);
 
 
