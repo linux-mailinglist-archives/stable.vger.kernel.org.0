@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 082EE4B4729
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB35A4B4BC3
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232055AbiBNJgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:36:55 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52544 "EHLO
+        id S1347730AbiBNKbV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:31:21 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244415AbiBNJfz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:35:55 -0500
+        with ESMTP id S1348306AbiBNKav (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:30:51 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0063DB856;
-        Mon, 14 Feb 2022 01:33:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95FD39BF7E;
+        Mon, 14 Feb 2022 01:59:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EB9860F8D;
-        Mon, 14 Feb 2022 09:33:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12F21C340F0;
-        Mon, 14 Feb 2022 09:33:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6B8760B34;
+        Mon, 14 Feb 2022 09:59:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6881C340E9;
+        Mon, 14 Feb 2022 09:59:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831222;
-        bh=JPgL+YryzoDSds9dlhYDs8r7vobLrwGIJvvZ/U+S3Cs=;
+        s=korg; t=1644832766;
+        bh=VPRDR3PYXiPBeYJvCUZ/lY1OC90TasViMFD935EnErY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XzpG6rRjvairOPmSaPWl39yyys7qLZkg/Z189WM/4mpAiIskj0iHaYHnAi6abKkec
-         meuHR/p5l84e4SRbxVAdFYVj5rdeqZx1bEegUWGBisNu0hkMxd4fQeQ5yMMbTxGlKS
-         6bwtZbY9abl2NyVd5WZCHaSqckdburwFap+wDiQQ=
+        b=rYjLFcPbtY8pi16o5b9mYwii4lED/Lis1f3N7oGszGvVfOUy7zB5mZ1Fx2z1td5uG
+         1Qwhz2E/WM+cRTzXdYQeAw+RupetgFmWljavi2r7wT/uROQHb36UWvHd6esyhc3mE2
+         zrrrz9gV9MPzoZaAhL1I6dJ/8CzoLQkEu7vKm96k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kosuke Tatsukawa <tatsu-ab1@nec.com>
-Subject: [PATCH 4.19 36/49] n_tty: wake up poll(POLLRDNORM) on receiving data
+        stable@vger.kernel.org, Dongjin Kim <tobetter@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 118/203] arm64: dts: meson-g12b-odroid-n2: fix typo dio2133
 Date:   Mon, 14 Feb 2022 10:26:02 +0100
-Message-Id: <20220214092449.491384289@linuxfoundation.org>
+Message-Id: <20220214092514.263808238@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
-References: <20220214092448.285381753@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,84 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: TATSUKAWA KOSUKE (立川 江介) <tatsu-ab1@nec.com>
+From: Dongjin Kim <tobetter@gmail.com>
 
-commit c816b2e65b0e86b95011418cad334f0524fc33b8 upstream.
+[ Upstream commit bc41099f060ea74ac8d02c51bd0f5f46d969bedf ]
 
-The poll man page says POLLRDNORM is equivalent to POLLIN when used as
-an event.
-$ man poll
-<snip>
-              POLLRDNORM
-                     Equivalent to POLLIN.
+Typo in audio amplifier node, dioo2133 -> dio2133
 
-However, in n_tty driver, POLLRDNORM does not return until timeout even
-if there is terminal input, whereas POLLIN returns.
-
-The following test program works until kernel-3.17, but the test stops
-in poll() after commit 57087d515441 ("tty: Fix spurious poll() wakeups").
-
-[Steps to run test program]
-  $ cc -o test-pollrdnorm test-pollrdnorm.c
-  $ ./test-pollrdnorm
-  foo          <-- Type in something from the terminal followed by [RET].
-                   The string should be echoed back.
-
-  ------------------------< test-pollrdnorm.c >------------------------
-  #include <stdio.h>
-  #include <errno.h>
-  #include <poll.h>
-  #include <unistd.h>
-
-  void main(void)
-  {
-	int		n;
-	unsigned char	buf[8];
-	struct pollfd	fds[1] = {{ 0, POLLRDNORM, 0 }};
-
-	n = poll(fds, 1, -1);
-	if (n < 0)
-		perror("poll");
-	n = read(0, buf, 8);
-	if (n < 0)
-		perror("read");
-	if (n > 0)
-		write(1, buf, n);
-  }
-  ------------------------------------------------------------------------
-
-The attached patch fixes this problem.  Many calls to
-wake_up_interruptible_poll() in the kernel source code already specify
-"POLLIN | POLLRDNORM".
-
-Fixes: 57087d515441 ("tty: Fix spurious poll() wakeups")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kosuke Tatsukawa <tatsu-ab1@nec.com>
-Link: https://lore.kernel.org/r/TYCPR01MB81901C0F932203D30E452B3EA5209@TYCPR01MB8190.jpnprd01.prod.outlook.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Dongjin Kim <tobetter@gmail.com>
+Fixes: ef599f5f3e10 ("arm64: dts: meson: convert ODROID-N2 to dtsi")
+Fixes: 67d141c1f8e6 ("arm64: dts: meson: odroid-n2: add jack audio output support")
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/YfKQJejh0bfGYvof@anyang
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_tty.c |    4 ++--
+ arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/n_tty.c
-+++ b/drivers/tty/n_tty.c
-@@ -1375,7 +1375,7 @@ handle_newline:
- 			put_tty_queue(c, ldata);
- 			smp_store_release(&ldata->canon_head, ldata->read_head);
- 			kill_fasync(&tty->fasync, SIGIO, POLL_IN);
--			wake_up_interruptible_poll(&tty->read_wait, EPOLLIN);
-+			wake_up_interruptible_poll(&tty->read_wait, EPOLLIN | EPOLLRDNORM);
- 			return 0;
- 		}
- 	}
-@@ -1656,7 +1656,7 @@ static void __receive_buf(struct tty_str
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi
+index 3e968b2441918..fd3fa82e4c330 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi
+@@ -17,7 +17,7 @@ aliases {
+ 		rtc1 = &vrtc;
+ 	};
  
- 	if (read_cnt(ldata)) {
- 		kill_fasync(&tty->fasync, SIGIO, POLL_IN);
--		wake_up_interruptible_poll(&tty->read_wait, EPOLLIN);
-+		wake_up_interruptible_poll(&tty->read_wait, EPOLLIN | EPOLLRDNORM);
- 	}
- }
- 
+-	dioo2133: audio-amplifier-0 {
++	dio2133: audio-amplifier-0 {
+ 		compatible = "simple-audio-amplifier";
+ 		enable-gpios = <&gpio_ao GPIOAO_2 GPIO_ACTIVE_HIGH>;
+ 		VCC-supply = <&vcc_5v>;
+@@ -219,7 +219,7 @@ sound {
+ 		audio-widgets = "Line", "Lineout";
+ 		audio-aux-devs = <&tdmout_b>, <&tdmout_c>, <&tdmin_a>,
+ 				 <&tdmin_b>, <&tdmin_c>, <&tdmin_lb>,
+-				 <&dioo2133>;
++				 <&dio2133>;
+ 		audio-routing = "TDMOUT_B IN 0", "FRDDR_A OUT 1",
+ 				"TDMOUT_B IN 1", "FRDDR_B OUT 1",
+ 				"TDMOUT_B IN 2", "FRDDR_C OUT 1",
+-- 
+2.34.1
+
 
 
