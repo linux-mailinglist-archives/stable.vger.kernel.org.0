@@ -2,156 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5CB74B58F7
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 18:44:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7BCB4B592E
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 18:56:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357318AbiBNRpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 12:45:02 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35132 "EHLO
+        id S1344193AbiBNR47 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 12:56:59 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357242AbiBNRor (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 12:44:47 -0500
-Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 385C165491;
-        Mon, 14 Feb 2022 09:44:36 -0800 (PST)
-Received: from in01.mta.xmission.com ([166.70.13.51]:60360)
-        by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1nJfOq-009lqi-4z; Mon, 14 Feb 2022 10:44:32 -0700
-Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:34362 helo=email.froward.int.ebiederm.org.xmission.com)
-        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1nJfOo-00Avjs-Vz; Mon, 14 Feb 2022 10:44:31 -0700
-From:   "Eric W. Biederman" <ebiederm@xmission.com>
-To:     Solar Designer <solar@openwall.com>
-Cc:     linux-kernel@vger.kernel.org, Alexey Gladkov <legion@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Ran Xiaokai <ran.xiaokai@zte.com.cn>,
-        Michal Koutn?? <mkoutny@suse.com>, stable@vger.kernel.org
-References: <87o83e2mbu.fsf@email.froward.int.ebiederm.org>
-        <20220211021324.4116773-3-ebiederm@xmission.com>
-        <20220212231701.GA29483@openwall.com>
-        <87ee45wkjq.fsf@email.froward.int.ebiederm.org>
-Date:   Mon, 14 Feb 2022 11:43:54 -0600
-In-Reply-To: <87ee45wkjq.fsf@email.froward.int.ebiederm.org> (Eric
-        W. Biederman's message of "Mon, 14 Feb 2022 09:10:49 -0600")
-Message-ID: <87tud1s5r9.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S237704AbiBNR46 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 12:56:58 -0500
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2058.outbound.protection.outlook.com [40.107.243.58])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D10F0DC0
+        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 09:56:48 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=DVoNgN5hiFFpkyLV4yaR4zjdPp9OvtULgkyVmvP+3CmVtuCGjwSNko6ySY305vaQR/eZACqgCPuPkR5/WM6Tk9fJ1er9+MfH5mRJiFVwYvzv3IcO/JnEwCU5mXptDOZduzZzeX6F0LbM97LfIuKrnQF78eAtIoEgjk0jWa1JCs9p2mNdm9Hyj0gIwM3XOFlVMHQo6LxXPdSb2HWtgNvuW1wyqxz5zAiRRbeni9cjkIhDLDkqwwNztHo8PFugoEn5Uwlx8vZsindZ+Z5NPrEkD4qPM/oYBVOlaOllM1rCavoXCKSIonFOyUgspVG2EmjIBykRdq1A2rh0IAtUhCRoPA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=cl0zquRWw+QXt3/5+/boInSH/wbd0gRG1LoRRcT3dJc=;
+ b=NJ6IBBETm6MTw1IJVu3WXyknnh3WF1RjB2LkpKdhJPEqkvFt2ScCi8Od5VnSm8jFd2vUQCQMn+J+B5RtuRxpLDPBQMnE/ePGbZZhked04fLfon8jCMLNPNpAaS+VZhyMi2cJgxDW+FOODcm2RX2zxJ8GZ0ECb3xAZTbS9sAGKrjkkIH/egABwHYqkZO4tSqc1UzNT6tbtQZwESl0Td2+XZO5hSB6WwGQyYqpoODmIaop1eJPF+WzI8Nlgf4VgIU1Zm0HYsSvUaqZuaIUvn1N7hEN2u5Ss0vJsOtXO+2IV+6UZ96ciCYKV+ZR3ZAWzc8dkH81xbuD7MRDIAbslW4NOA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 8.4.225.30) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=infinera.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=infinera.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=infinera.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=cl0zquRWw+QXt3/5+/boInSH/wbd0gRG1LoRRcT3dJc=;
+ b=T8aInU/G/tE7eVzLnaOKRqp7ng2Ogk98zG6m+AeMLjJ0iub5Br/p93Dir1XvsnjmFSgvzN3zm9DlFpbnG0ce4Nux03kO1mqn4KB/taz4aABhfGDuYbXtoi5I9mB8IINk890X8Dg741BJy8IqEVZoYXKB33czSJwvYRwKOveaG9Y=
+Received: from CO2PR18CA0059.namprd18.prod.outlook.com (2603:10b6:104:2::27)
+ by BN0PR10MB5287.namprd10.prod.outlook.com (2603:10b6:408:12f::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4975.11; Mon, 14 Feb
+ 2022 17:56:47 +0000
+Received: from CO1NAM11FT057.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:104:2:cafe::24) by CO2PR18CA0059.outlook.office365.com
+ (2603:10b6:104:2::27) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4975.16 via Frontend
+ Transport; Mon, 14 Feb 2022 17:56:47 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 8.4.225.30)
+ smtp.mailfrom=infinera.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=infinera.com;
+Received-SPF: Pass (protection.outlook.com: domain of infinera.com designates
+ 8.4.225.30 as permitted sender) receiver=protection.outlook.com;
+ client-ip=8.4.225.30; helo=owa.infinera.com;
+Received: from owa.infinera.com (8.4.225.30) by
+ CO1NAM11FT057.mail.protection.outlook.com (10.13.174.205) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.4975.11 via Frontend Transport; Mon, 14 Feb 2022 17:56:47 +0000
+Received: from sv-ex16-prd.infinera.com (10.100.96.229) by
+ sv-ex16-prd.infinera.com (10.100.96.229) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.14; Mon, 14 Feb 2022 09:56:46 -0800
+Received: from sv-smtp-prod2.infinera.com (10.100.98.82) by
+ sv-ex16-prd.infinera.com (10.100.96.229) with Microsoft SMTP Server id
+ 15.1.2176.14 via Frontend Transport; Mon, 14 Feb 2022 09:56:46 -0800
+Received: from se-metroit-prd1.infinera.com ([10.210.32.58]) by sv-smtp-prod2.infinera.com with Microsoft SMTPSVC(7.5.7601.17514);
+         Mon, 14 Feb 2022 09:56:45 -0800
+Received: from gentoo-jocke.infinera.com (gentoo-jocke.infinera.com [10.210.71.2])
+        by se-metroit-prd1.infinera.com (Postfix) with ESMTP id C46302C06D81;
+        Mon, 14 Feb 2022 18:56:45 +0100 (CET)
+Received: by gentoo-jocke.infinera.com (Postfix, from userid 1001)
+        id BF13F400B676; Mon, 14 Feb 2022 18:56:45 +0100 (CET)
+From:   Joakim Tjernlund <joakim.tjernlund@infinera.com>
+To:     <linux-arm-kernel@lists.infradead.org>,
+        Mark Rutland <mark.rutland@arm.com>
+CC:     Joakim Tjernlund <joakim.tjernlund@infinera.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v2] arm64: Correct wrong label in macro __init_el2_gicv3
+Date:   Mon, 14 Feb 2022 18:56:43 +0100
+Message-ID: <20220214175643.21931-1-joakim.tjernlund@infinera.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 14 Feb 2022 17:56:46.0087 (UTC) FILETIME=[3B63C970:01D821CC]
 Content-Type: text/plain
-X-XM-SPF: eid=1nJfOo-00Avjs-Vz;;;mid=<87tud1s5r9.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX184wPQlcnyVPLeSw1arOps4vEB2edMeeyw=
-X-SA-Exim-Connect-IP: 68.227.174.4
-X-SA-Exim-Mail-From: ebiederm@xmission.com
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 168729e0-dbae-4e50-64ba-08d9efe35e7f
+X-MS-TrafficTypeDiagnostic: BN0PR10MB5287:EE_
+X-Microsoft-Antispam-PRVS: <BN0PR10MB528731A74B3E5581B9C6B509F4339@BN0PR10MB5287.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:175;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 6EHCqIwdjCjPqYCgDZ5FuYd0Yoo8Bo1SdSa7N6CFz7A2OG/Y81banGYlDcCt7nB5WNA+sekt+G7OunvSNxuoGLx/HvbYX3LTKHc0T0Y5Sy76G/LLF1O31ukRsIZBm2GrPSOc619c77oZs7G4es1GV/0J4CLS7APdVseGDwiyUpgBER+lHEMn8s4dwYlK4WbRi11JyEjOkMU7whg8kluxtl/w6yTTKub2v8lZt6j+3u98TpET3M2Um07LBinuW3XxVK7PeD6fRD4eSTiwxlQT6So0DEdemWF/AOEkqCJdAsTma1YLKKBhefMe6M5hi6JEAgMbeAx5ugupH4zMYJhTdEAl1SKoQk3HQ5GssvHvXQPgFQ6RlkFiZ4RxpUVvVUe0CC+O3Z7igBb6YLZM832FM0YWdRXPC9W5EL9UVzqciiGlLojmu53zkAhJ+OWrTVv/0tniwRN3apmnWca8iQSsY0CvsSrDUgWii8EfKQ87wV3f/4ID2zTu5REqSCsx7U7mML5RgaSxcZ1E2eHBRcTj+cw6nXk1YZlTaOQJoryX1y75LTRzsGkoF3F8WpEXfkcTO0RHy20oeIAvfLJhcJn8XLOEyEWMj9DbW4NNKSbBTNdX/GF61ZKRgqpfJHoP8WCXCUuhnukQZ7mwZp8+8c0oDW6GWjdT5HtSUZnAsiCKSshIG+7UlXUlcIQ/3TFk5nkP
+X-Forefront-Antispam-Report: CIP:8.4.225.30;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:owa.infinera.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230001)(4636009)(36840700001)(46966006)(508600001)(82310400004)(36860700001)(356005)(6266002)(86362001)(83380400001)(8676002)(1076003)(26005)(186003)(2616005)(336012)(426003)(47076005)(36756003)(2906002)(81166007)(316002)(42186006)(44832011)(54906003)(110136005)(8936002)(70206006)(70586007)(4326008)(5660300002)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: infinera.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Feb 2022 17:56:47.1188
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 168729e0-dbae-4e50-64ba-08d9efe35e7f
+X-MS-Exchange-CrossTenant-Id: 285643de-5f5b-4b03-a153-0ae2dc8aaf77
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=285643de-5f5b-4b03-a153-0ae2dc8aaf77;Ip=[8.4.225.30];Helo=[owa.infinera.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT057.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN0PR10MB5287
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
-X-Spam-DCC: XMission; sa07 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ***;Solar Designer <solar@openwall.com>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 551 ms - load_scoreonly_sql: 0.04 (0.0%),
-        signal_user_changed: 11 (2.0%), b_tie_ro: 10 (1.7%), parse: 0.90
-        (0.2%), extract_message_metadata: 22 (3.9%), get_uri_detail_list: 3.0
-        (0.5%), tests_pri_-1000: 25 (4.6%), tests_pri_-950: 1.25 (0.2%),
-        tests_pri_-900: 1.01 (0.2%), tests_pri_-90: 108 (19.6%), check_bayes:
-        103 (18.7%), b_tokenize: 11 (2.0%), b_tok_get_all: 11 (2.0%),
-        b_comp_prob: 3.1 (0.6%), b_tok_touch_all: 73 (13.3%), b_finish: 0.99
-        (0.2%), tests_pri_0: 367 (66.6%), check_dkim_signature: 0.51 (0.1%),
-        check_dkim_adsp: 9 (1.6%), poll_dns_idle: 0.65 (0.1%), tests_pri_10:
-        2.5 (0.4%), tests_pri_500: 9 (1.6%), rewrite_mail: 0.00 (0.0%)
-Subject: Re: [PATCH 3/8] ucounts: Fix and simplify RLIMIT_NPROC handling
- during setuid()+execve
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-"Eric W. Biederman" <ebiederm@xmission.com> writes:
+In commit:
 
-> Solar Designer <solar@openwall.com> writes:
->
->> On Thu, Feb 10, 2022 at 08:13:19PM -0600, Eric W. Biederman wrote:
->>> As of commit 2863643fb8b9 ("set_user: add capability check when
->>> rlimit(RLIMIT_NPROC) exceeds") setting the flag to see if execve
->>> should check RLIMIT_NPROC is buggy, as it tests the capabilites from
->>> before the credential change and not aftwards.
->>> 
->>> As of commit 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of
->>> ucounts") examining the rlimit is buggy as cred->ucounts has not yet
->>> been properly set in the new credential.
->>> 
->>> Make the code correct and more robust moving the test to see if
->>> execve() needs to test RLIMIT_NPROC into commit_creds, and defer all
->>> of the rest of the logic into execve() itself.
->>> 
->>> As the flag only indicateds that RLIMIT_NPROC should be checked
->>> in execve rename it from PF_NPROC_EXCEEDED to PF_NPROC_CHECK.
->>> 
->>> Cc: stable@vger.kernel.org
->>> Link: https://lkml.kernel.org/r/20220207121800.5079-2-mkoutny@suse.com
->>> Link: https://lkml.kernel.org/r/20220207121800.5079-3-mkoutny@suse.com
->>> Reported-by: Michal Koutn?? <mkoutny@suse.com>
->>> Fixes: 2863643fb8b9 ("set_user: add capability check when rlimit(RLIMIT_NPROC) exceeds")
->>> Fixes: 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of ucounts")
->>> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
->>
->> On one hand, this looks good.
->>
->> On the other, you asked about the Apache httpd suexec scenario in the
->> other thread, and here's what this means for it (per my code review):
->>
->> In that scenario, we have two execve(): first from httpd to suexec, then
->> from suexec to the CGI script.  Previously, the limit check only
->> occurred on the setuid() call by suexec, and its effect was deferred
->> until execve() of the script.  Now wouldn't it occur on both execve()
->> calls, because commit_creds() is also called on execve() (such as in
->> case the program is SUID, which suexec actually is)?
->
-> Yes.  Moving the check into commit_creds means that the exec after a
-> suid exec will perform an RLIMIT_NPROC check and could possibly fail.  I
-> would call that a bug.  Anything happening in execve should be checked
-> and handled in execve as execve can fail.
->
-> It also points out that our permission checks for increasing
-> RLIMIT_NPROC are highly inconsistent.
->
-> One set of permissions in fork().
-> Another set of permissions in set*id() and delayed until execve.
-> No permission checks for the uid change in execve.
->
-> Every time I look into the previous behavior of RLIMIT_NPROC I seem
-> to find issues.  Currently I am planning a posting to linux-api
-> so sorting out what when RLIMIT_NPROC should be enforced and how
-> RLIMIT_NPROC gets accounted receives review.  I am also planning a
-> feature branch to deal with the historical goofiness.
->
-> I really like how cleanly this patch seems to be.  Unfortunately it is
-> wrong.
+  114945d84a30a5fe ("arm64: Fix labels in el2_setup macros")
 
-Hmm.  Maybe not as wrong as I thought.  An suid execve does not change
-the real user.
+We renamed a label from '1' to '.Lskip_gicv3_\@', but failed to update
+a branch to it, which now targets a later label also called '1'.
 
-Still a bit wrong from a conservative change point of view because the
-user namespace can change in setns and CLONE_NEWUSER which will change
-the accounting now.  Which with the ucount rlimit stuff changes where
-things should be accounted.
+The branch is taken rarely, when GICv3 is present but SRE is disabled
+at EL3, causing a boot-time crash.
+Update the caller to the new label name.
 
-I am playing with the idea of changing accounting aka (cred->ucounts &
-cred->user) to only change in fork (aka clone without CLONE_THREAD) and
-exec.  I think that would make maintenance and  cleaning all of this up
-easier.
+Fixes: 114945d84a30a5fe ("arm64: Fix labels in el2_setup macros")
+Cc: stable@vger.kernel.org
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+---
+ - v2: fix commit msg
+ 
+ arch/arm64/include/asm/el2_setup.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-That would also remove serious complications from RLIMIT_SIGPENDING as
-well.
+diff --git a/arch/arm64/include/asm/el2_setup.h b/arch/arm64/include/asm/el2_setup.h
+index 3198acb2aad8..7f3c87f7a0ce 100644
+--- a/arch/arm64/include/asm/el2_setup.h
++++ b/arch/arm64/include/asm/el2_setup.h
+@@ -106,7 +106,7 @@
+ 	msr_s	SYS_ICC_SRE_EL2, x0
+ 	isb					// Make sure SRE is now set
+ 	mrs_s	x0, SYS_ICC_SRE_EL2		// Read SRE back,
+-	tbz	x0, #0, 1f			// and check that it sticks
++	tbz	x0, #0, .Lskip_gicv3_\@		// and check that it sticks
+ 	msr_s	SYS_ICH_HCR_EL2, xzr		// Reset ICC_HCR_EL2 to defaults
+ .Lskip_gicv3_\@:
+ .endm
+-- 
+2.32.0
 
-I thought SIGPENDING was only a multi-threaded process issue but from
-one signal to the next the set*id() family functions can be called.
-
-Eric
