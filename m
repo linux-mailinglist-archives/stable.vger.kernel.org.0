@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BCEA4B4C7D
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:44:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B78824B4C23
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:44:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348574AbiBNKmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:42:13 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60234 "EHLO
+        id S1348553AbiBNKhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:37:22 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348970AbiBNKko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:40:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1572666CB3;
-        Mon, 14 Feb 2022 02:04:24 -0800 (PST)
+        with ESMTP id S1350003AbiBNKgt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:36:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 263EC9FFC;
+        Mon, 14 Feb 2022 02:03:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8860B80DC8;
-        Mon, 14 Feb 2022 10:04:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF2ECC340E9;
-        Mon, 14 Feb 2022 10:04:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C802B60DDD;
+        Mon, 14 Feb 2022 10:02:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAF06C340E9;
+        Mon, 14 Feb 2022 10:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644833062;
-        bh=mBqp5tWS/GEDaL2hMDTrZkhFXFJUE9ZWagq9X9n9vjE=;
+        s=korg; t=1644832973;
+        bh=7dywxaiY+M967eUBC6Mz+LePl1QSR7NFa4x8qm8PoNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HSf+mZLXsJTAWD8tbfSHKO1Uu1W2t8CV6e+OMrlkcv+OEh2XDM+MDB8x5mAUJOXZb
-         qWNHE2ObMvdvPOwQ8mcAs1GApFnSydeRQaP6VKpqZ1nYCkOXrjdmr+dkBZuSc7EL4X
-         GSdGCG/U0PdkOXnl2zi0i2VUw1ks9Yk5QL/PpOtw=
+        b=fipJ4b1c+A6Ls1RP1F5vKTF0g1YsvMZphClVOoEFuCkKTBhWSg88zKBsvDivCzoSa
+         TysQJNayLNdhpKrWFRwBwUtIXCK4oxObmJjvubVIrT1Gy/l6hclr4wLOH2gmCFI0iF
+         ZAzlB6xF1OUP+/yYAzvmQghWn5981Cehi6wZG1sM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Hofman <pavel.hofman@ivitera.com>
-Subject: [PATCH 5.16 175/203] usb: gadget: f_uac2: Define specific wTerminalType
-Date:   Mon, 14 Feb 2022 10:26:59 +0100
-Message-Id: <20220214092516.189804956@linuxfoundation.org>
+        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@gmail.com>,
+        Jann Horn <jannh@google.com>
+Subject: [PATCH 5.16 176/203] usb: raw-gadget: fix handling of dual-direction-capable endpoints
+Date:   Mon, 14 Feb 2022 10:27:00 +0100
+Message-Id: <20220214092516.223030292@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
 References: <20220214092510.221474733@linuxfoundation.org>
@@ -52,49 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Hofman <pavel.hofman@ivitera.com>
+From: Jann Horn <jannh@google.com>
 
-commit 5432184107cd0013761bdfa6cb6079527ef87b95 upstream.
+commit 292d2c82b105d92082c2120a44a58de9767e44f1 upstream.
 
-Several users have reported that their Win10 does not enumerate UAC2
-gadget with the existing wTerminalType set to
-UAC_INPUT_TERMINAL_UNDEFINED/UAC_INPUT_TERMINAL_UNDEFINED, e.g.
-https://github.com/raspberrypi/linux/issues/4587#issuecomment-926567213.
-While the constant is officially defined by the USB terminal types
-document, e.g. XMOS firmware for UAC2 (commonly used for Win10) defines
-no undefined output terminal type in its usbaudio20.h header.
+Under dummy_hcd, every available endpoint is *either* IN or OUT capable.
+But with some real hardware, there are endpoints that support both IN and
+OUT. In particular, the PLX 2380 has four available endpoints that each
+support both IN and OUT.
 
-Therefore wTerminalType of EP-IN is set to
-UAC_INPUT_TERMINAL_MICROPHONE and wTerminalType of EP-OUT to
-UAC_OUTPUT_TERMINAL_SPEAKER for the UAC2 gadget.
+raw-gadget currently gets confused and thinks that any endpoint that is
+usable as an IN endpoint can never be used as an OUT endpoint.
 
-Signed-off-by: Pavel Hofman <pavel.hofman@ivitera.com>
+Fix it by looking at the direction in the configured endpoint descriptor
+instead of looking at the hardware capabilities.
+
+With this change, I can use the PLX 2380 with raw-gadget.
+
+Fixes: f2c2e717642c ("usb: gadget: add raw-gadget interface")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220131071813.7433-1-pavel.hofman@ivitera.com
+Tested-by: Andrey Konovalov <andreyknvl@gmail.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+Signed-off-by: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/r/20220126205214.2149936-1-jannh@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_uac2.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/legacy/raw_gadget.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_uac2.c
-+++ b/drivers/usb/gadget/function/f_uac2.c
-@@ -203,7 +203,7 @@ static struct uac2_input_terminal_descri
- 
- 	.bDescriptorSubtype = UAC_INPUT_TERMINAL,
- 	/* .bTerminalID = DYNAMIC */
--	.wTerminalType = cpu_to_le16(UAC_INPUT_TERMINAL_UNDEFINED),
-+	.wTerminalType = cpu_to_le16(UAC_INPUT_TERMINAL_MICROPHONE),
- 	.bAssocTerminal = 0,
- 	/* .bCSourceID = DYNAMIC */
- 	.iChannelNames = 0,
-@@ -231,7 +231,7 @@ static struct uac2_output_terminal_descr
- 
- 	.bDescriptorSubtype = UAC_OUTPUT_TERMINAL,
- 	/* .bTerminalID = DYNAMIC */
--	.wTerminalType = cpu_to_le16(UAC_OUTPUT_TERMINAL_UNDEFINED),
-+	.wTerminalType = cpu_to_le16(UAC_OUTPUT_TERMINAL_SPEAKER),
- 	.bAssocTerminal = 0,
- 	/* .bSourceID = DYNAMIC */
- 	/* .bCSourceID = DYNAMIC */
+--- a/drivers/usb/gadget/legacy/raw_gadget.c
++++ b/drivers/usb/gadget/legacy/raw_gadget.c
+@@ -1004,7 +1004,7 @@ static int raw_process_ep_io(struct raw_
+ 		ret = -EBUSY;
+ 		goto out_unlock;
+ 	}
+-	if ((in && !ep->ep->caps.dir_in) || (!in && ep->ep->caps.dir_in)) {
++	if (in != usb_endpoint_dir_in(ep->ep->desc)) {
+ 		dev_dbg(&dev->gadget->dev, "fail, wrong direction\n");
+ 		ret = -EINVAL;
+ 		goto out_unlock;
 
 
