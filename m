@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80EF14B4929
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF6324B4948
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343927AbiBNJ7h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:59:37 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43450 "EHLO
+        id S231184AbiBNKWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:22:34 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344052AbiBNJ6M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:58:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FB2D6A3B7;
-        Mon, 14 Feb 2022 01:46:04 -0800 (PST)
+        with ESMTP id S1347635AbiBNKVV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:21:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C9627DE14;
+        Mon, 14 Feb 2022 01:55:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51FDAB80DC7;
-        Mon, 14 Feb 2022 09:46:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87E6AC340E9;
-        Mon, 14 Feb 2022 09:46:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D766160F25;
+        Mon, 14 Feb 2022 09:55:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6C59C340E9;
+        Mon, 14 Feb 2022 09:55:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831962;
-        bh=uTVbxloRA/oMSMkup+LNxAM+kjT2Mh6U5zYG9RnWECE=;
+        s=korg; t=1644832548;
+        bh=cfXOxnZgcPdfoYQeHM0c0yyXmHPUq5UCgsWsGd9TXlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eejCPZqwJ0lg4Camvy5UgFbPHtw/dPEhZRMjV/JkQrRY2Y59es/Skl7hVJXMMLAn9
-         jSDYQn14XLo6j7Vubfo+H6JHH+9BcBPMza/nHYxqYY9RZuTqi8QULSb9kAdd+TGT/Z
-         oBr9utt2fA6ZMUIEkvk2pxWRyugyU/kiS6XOYhok=
+        b=Zre4T3VLD53RdA8dVh1rOC6B9bolWTIyL/vwKp73MiXzaBblYwsFpprvuq3j0GapC
+         IMR8AL7eZt2+i15Qd2FEesPsB8z3DxZoIIa0FBuyIOI/hLqLTF0RB8QIAjjzQ+lD/g
+         tmAflhqK3ozt+SF+tSgY0Yu2t7Zy8cibxvwWvDBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Kiwoong Kim <kwmad.kim@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 036/172] perf/x86/rapl: fix AMD event handling
+Subject: [PATCH 5.16 050/203] scsi: ufs: Treat link loss as fatal error
 Date:   Mon, 14 Feb 2022 10:24:54 +0100
-Message-Id: <20220214092507.650404408@linuxfoundation.org>
+Message-Id: <20220214092511.919563337@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Eranian <eranian@google.com>
+From: Kiwoong Kim <kwmad.kim@samsung.com>
 
-[ Upstream commit 0036fb00a756a2f6e360d44e2e3d2200a8afbc9b ]
+[ Upstream commit c99b9b2301492b665b6e51ba6c06ec362eddcd10 ]
 
-The RAPL events exposed under /sys/devices/power/events should only reflect
-what the underlying hardware actually support. This is how it works on Intel
-RAPL and Intel core/uncore PMUs in general.
-But on AMD, this was not the case. All possible RAPL events were advertised.
+This event is raised when link is lost as specified in UFSHCI spec and that
+means communication is not possible. Thus initializing UFS interface needs
+to be done.
 
-This is what it showed on an AMD Fam17h:
-$ ls /sys/devices/power/events/
-energy-cores        energy-gpu          energy-pkg          energy-psys
-energy-ram          energy-cores.scale  energy-gpu.scale    energy-pkg.scale
-energy-psys.scale   energy-ram.scale    energy-cores.unit   energy-gpu.unit
-energy-pkg.unit     energy-psys.unit    energy-ram.unit
+Make UFS driver considers Link Lost as fatal in the INT_FATAL_ERRORS
+mask. This will trigger a host reset whenever a link lost interrupt occurs.
 
-Yet, on AMD Fam17h, only energy-pkg is supported.
-
-This patch fixes the problem. Given the way perf_msr_probe() works, the
-amd_rapl_msrs[] table has to have all entries filled out and in particular
-the group field, otherwise perf_msr_probe() defaults to making the event
-visible.
-
-With the patch applied, the kernel now only shows was is actually supported:
-
-$ ls /sys/devices/power/events/
-energy-pkg  energy-pkg.scale  energy-pkg.unit
-
-The patch also uses the RAPL_MSR_MASK because only the 32-bits LSB of the
-RAPL counters are relevant when reading power consumption.
-
-Signed-off-by: Stephane Eranian <eranian@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220105185659.643355-1-eranian@google.com
+Link: https://lore.kernel.org/r/1642743475-54275-1-git-send-email-kwmad.kim@samsung.com
+Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/rapl.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshci.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/rapl.c b/arch/x86/events/rapl.c
-index 85feafacc445d..77e3a47af5ad5 100644
---- a/arch/x86/events/rapl.c
-+++ b/arch/x86/events/rapl.c
-@@ -536,11 +536,14 @@ static struct perf_msr intel_rapl_spr_msrs[] = {
-  * - perf_msr_probe(PERF_RAPL_MAX)
-  * - want to use same event codes across both architectures
-  */
--static struct perf_msr amd_rapl_msrs[PERF_RAPL_MAX] = {
--	[PERF_RAPL_PKG]  = { MSR_AMD_PKG_ENERGY_STATUS,  &rapl_events_pkg_group,   test_msr },
-+static struct perf_msr amd_rapl_msrs[] = {
-+	[PERF_RAPL_PP0]  = { 0, &rapl_events_cores_group, 0, false, 0 },
-+	[PERF_RAPL_PKG]  = { MSR_AMD_PKG_ENERGY_STATUS,  &rapl_events_pkg_group,   test_msr, false, RAPL_MSR_MASK },
-+	[PERF_RAPL_RAM]  = { 0, &rapl_events_ram_group,   0, false, 0 },
-+	[PERF_RAPL_PP1]  = { 0, &rapl_events_gpu_group,   0, false, 0 },
-+	[PERF_RAPL_PSYS] = { 0, &rapl_events_psys_group,  0, false, 0 },
- };
+diff --git a/drivers/scsi/ufs/ufshci.h b/drivers/scsi/ufs/ufshci.h
+index 6a295c88d850f..a7ff0e5b54946 100644
+--- a/drivers/scsi/ufs/ufshci.h
++++ b/drivers/scsi/ufs/ufshci.h
+@@ -142,7 +142,8 @@ static inline u32 ufshci_version(u32 major, u32 minor)
+ #define INT_FATAL_ERRORS	(DEVICE_FATAL_ERROR |\
+ 				CONTROLLER_FATAL_ERROR |\
+ 				SYSTEM_BUS_FATAL_ERROR |\
+-				CRYPTO_ENGINE_FATAL_ERROR)
++				CRYPTO_ENGINE_FATAL_ERROR |\
++				UIC_LINK_LOST)
  
--
- static int rapl_cpu_offline(unsigned int cpu)
- {
- 	struct rapl_pmu *pmu = cpu_to_rapl_pmu(cpu);
+ /* HCS - Host Controller Status 30h */
+ #define DEVICE_PRESENT				0x1
 -- 
 2.34.1
 
