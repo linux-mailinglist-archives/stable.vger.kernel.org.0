@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7410C4B566C
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 17:36:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6F244B568C
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 17:37:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356534AbiBNQgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 11:36:06 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42696 "EHLO
+        id S1356427AbiBNQhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 11:37:11 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356495AbiBNQgC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 11:36:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C2604DF73;
-        Mon, 14 Feb 2022 08:35:54 -0800 (PST)
+        with ESMTP id S1356454AbiBNQgs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 11:36:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BE6F65158;
+        Mon, 14 Feb 2022 08:36:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A5A3614E8;
-        Mon, 14 Feb 2022 16:35:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E10AAC340EF;
-        Mon, 14 Feb 2022 16:35:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 37CB9614E8;
+        Mon, 14 Feb 2022 16:36:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6BC2C340F5;
+        Mon, 14 Feb 2022 16:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644856553;
-        bh=rSFbUFHYbR/4za9tBP+uUtPbOSoTyakm57XSAj/Auqo=;
+        s=k20201202; t=1644856574;
+        bh=FUHsy4SbKAUYNozm8BPMqbHwV1/3+i881CYSdrE+f4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OZ4O1gNSNtwwNmiHhjY6IhU0E4BJ5We8XbBhorxEj9WTOfzc8GW6A9wXhW3abITrh
-         5VICuXJSDow6iYHC0e3qjJUZrd0nY+ZxgCA70cKABEhGmYygXnXVotyKfOCbgpbVrm
-         pGuK4IQR59nad5NN7zMl26jmakL0tF5IsM3zVKvJuUsbgvtw8ymirj23M7AeUqRAbK
-         Nb4ZCpdR7LXfqeDbObSioCUxRgm3spWcYhdjYFVER3t9sUGge35gaIcf4USGqAeqIv
-         Op0kZQjMjQu+Uf/UqNmdKlInWq80ZiSg5HRmKlo5FLGvtYFTEQ1arJmMBawI+kUcs8
-         VAdmt64TVWmMQ==
+        b=Z7Q4rLaCN6ssWfRJjiohyNPNSH4AWIFoR2vjhNDxUgjfNfHH7pkAYd6WVfV+n+x9c
+         +WV0/jrjDwMQSxFLAlps2jjuMnVZIOeBqY8sTLGXG3NSNoRgN4aMaQF70dC5VmKlbz
+         wKgblcbV/RMf4tUWFrLCMmX3JZOR+vd5uu7VMT3O6QlAqKtfqQJRS1nxlvPcGInv/v
+         XBstA4u0hl/ULtrxPbm1mmk/7pEjT2RtDdVk6Bgh4FfwDqInSeWgdh0NWTCvDXoa+m
+         P2UB2k6eY0IDMT8bDgJE5JjS2hgCmG4/tcDBMzfcaf/rf+9dHCufsKlU4v2Hooyfng
+         DxQ3KwkytwjMA==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     Linus Torvalds <torvalds@linux-foundation.org>,
         Christoph Hellwig <hch@lst.de>, linux-arch@vger.kernel.org,
@@ -53,11 +53,10 @@ Cc:     linux@armlinux.org.uk, will@kernel.org, guoren@kernel.org,
         linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
         linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
         sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-xtensa@linux-xtensa.org, stable@vger.kernel.org,
-        David Laight <David.Laight@aculab.com>
-Subject: [PATCH 01/14] uaccess: fix integer overflow on access_ok()
-Date:   Mon, 14 Feb 2022 17:34:39 +0100
-Message-Id: <20220214163452.1568807-2-arnd@kernel.org>
+        linux-xtensa@linux-xtensa.org, stable@vger.kernel.org
+Subject: [PATCH 03/14] nds32: fix access_ok() checks in get/put_user
+Date:   Mon, 14 Feb 2022 17:34:41 +0100
+Message-Id: <20220214163452.1568807-4-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220214163452.1568807-1-arnd@kernel.org>
 References: <20220214163452.1568807-1-arnd@kernel.org>
@@ -65,7 +64,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,113 +74,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-Three architectures check the end of a user access against the
-address limit without taking a possible overflow into account.
-Passing a negative length or another overflow in here returns
-success when it should not.
+The get_user()/put_user() functions are meant to check for
+access_ok(), while the __get_user()/__put_user() functions
+don't.
 
-Use the most common correct implementation here, which optimizes
-for a constant 'size' argument, and turns the common case into a
-single comparison.
+This broke in 4.19 for nds32, when it gained an extraneous
+check in __get_user(), but lost the check it needs in
+__put_user().
 
-Cc: stable@vger.kernel.org
-Fixes: da551281947c ("csky: User access")
-Fixes: f663b60f5215 ("microblaze: Fix uaccess_ok macro")
-Fixes: 7567746e1c0d ("Hexagon: Add user access functions")
-Reported-by: David Laight <David.Laight@aculab.com>
+Fixes: 487913ab18c2 ("nds32: Extract the checking and getting pointer to a macro")
+Cc: stable@vger.kernel.org @ v4.19+
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/csky/include/asm/uaccess.h       |  7 +++----
- arch/hexagon/include/asm/uaccess.h    | 18 +++++++++---------
- arch/microblaze/include/asm/uaccess.h | 19 ++++---------------
- 3 files changed, 16 insertions(+), 28 deletions(-)
+ arch/nds32/include/asm/uaccess.h | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/arch/csky/include/asm/uaccess.h b/arch/csky/include/asm/uaccess.h
-index c40f06ee8d3e..ac5a54f57d40 100644
---- a/arch/csky/include/asm/uaccess.h
-+++ b/arch/csky/include/asm/uaccess.h
-@@ -3,14 +3,13 @@
- #ifndef __ASM_CSKY_UACCESS_H
- #define __ASM_CSKY_UACCESS_H
- 
--#define user_addr_max() \
--	(uaccess_kernel() ? KERNEL_DS.seg : get_fs().seg)
-+#define user_addr_max() (current_thread_info()->addr_limit.seg)
- 
- static inline int __access_ok(unsigned long addr, unsigned long size)
- {
--	unsigned long limit = current_thread_info()->addr_limit.seg;
-+	unsigned long limit = user_addr_max();
- 
--	return ((addr < limit) && ((addr + size) < limit));
-+	return (size <= limit) && (addr <= (limit - size));
- }
- #define __access_ok __access_ok
- 
-diff --git a/arch/hexagon/include/asm/uaccess.h b/arch/hexagon/include/asm/uaccess.h
-index ef5bfef8d490..719ba3f3c45c 100644
---- a/arch/hexagon/include/asm/uaccess.h
-+++ b/arch/hexagon/include/asm/uaccess.h
-@@ -25,17 +25,17 @@
-  * Returns true (nonzero) if the memory block *may* be valid, false (zero)
-  * if it is definitely invalid.
-  *
-- * User address space in Hexagon, like x86, goes to 0xbfffffff, so the
-- * simple MSB-based tests used by MIPS won't work.  Some further
-- * optimization is probably possible here, but for now, keep it
-- * reasonably simple and not *too* slow.  After all, we've got the
-- * MMU for backup.
+diff --git a/arch/nds32/include/asm/uaccess.h b/arch/nds32/include/asm/uaccess.h
+index d4cbf069dc22..37a40981deb3 100644
+--- a/arch/nds32/include/asm/uaccess.h
++++ b/arch/nds32/include/asm/uaccess.h
+@@ -70,9 +70,7 @@ static inline void set_fs(mm_segment_t fs)
+  * versions are void (ie, don't return a value as such).
   */
-+#define uaccess_kernel() (get_fs().seg == KERNEL_DS.seg)
-+#define user_addr_max() (uaccess_kernel() ? ~0UL : TASK_SIZE)
  
--#define __access_ok(addr, size) \
--	((get_fs().seg == KERNEL_DS.seg) || \
--	(((unsigned long)addr < get_fs().seg) && \
--	  (unsigned long)size < (get_fs().seg - (unsigned long)addr)))
-+static inline int __access_ok(unsigned long addr, unsigned long size)
-+{
-+	unsigned long limit = TASK_SIZE;
+-#define get_user	__get_user					\
+-
+-#define __get_user(x, ptr)						\
++#define get_user(x, ptr)						\
+ ({									\
+ 	long __gu_err = 0;						\
+ 	__get_user_check((x), (ptr), __gu_err);				\
+@@ -85,6 +83,14 @@ static inline void set_fs(mm_segment_t fs)
+ 	(void)0;							\
+ })
+ 
++#define __get_user(x, ptr)						\
++({									\
++	long __gu_err = 0;						\
++	const __typeof__(*(ptr)) __user *__p = (ptr);			\
++	__get_user_err((x), __p, (__gu_err));				\
++	__gu_err;							\
++})
 +
-+	return (size <= limit) && (addr <= (limit - size));
-+}
-+#define __access_ok __access_ok
+ #define __get_user_check(x, ptr, err)					\
+ ({									\
+ 	const __typeof__(*(ptr)) __user *__p = (ptr);			\
+@@ -165,12 +171,18 @@ do {									\
+ 		: "r"(addr), "i"(-EFAULT)				\
+ 		: "cc")
  
- /*
-  * When a kernel-mode page fault is taken, the faulting instruction
-diff --git a/arch/microblaze/include/asm/uaccess.h b/arch/microblaze/include/asm/uaccess.h
-index d2a8ef9f8978..5b6e0e7788f4 100644
---- a/arch/microblaze/include/asm/uaccess.h
-+++ b/arch/microblaze/include/asm/uaccess.h
-@@ -39,24 +39,13 @@
+-#define put_user	__put_user					\
++#define put_user(x, ptr)						\
++({									\
++	long __pu_err = 0;						\
++	__put_user_check((x), (ptr), __pu_err);				\
++	__pu_err;							\
++})
  
- # define uaccess_kernel()	(get_fs().seg == KERNEL_DS.seg)
+ #define __put_user(x, ptr)						\
+ ({									\
+ 	long __pu_err = 0;						\
+-	__put_user_err((x), (ptr), __pu_err);				\
++	__typeof__(*(ptr)) __user *__p = (ptr);				\
++	__put_user_err((x), __p, __pu_err);				\
+ 	__pu_err;							\
+ })
  
--static inline int access_ok(const void __user *addr, unsigned long size)
-+static inline int __access_ok(unsigned long addr, unsigned long size)
- {
--	if (!size)
--		goto ok;
-+	unsigned long limit = user_addr_max();
- 
--	if ((get_fs().seg < ((unsigned long)addr)) ||
--			(get_fs().seg < ((unsigned long)addr + size - 1))) {
--		pr_devel("ACCESS fail at 0x%08x (size 0x%x), seg 0x%08x\n",
--			(__force u32)addr, (u32)size,
--			(u32)get_fs().seg);
--		return 0;
--	}
--ok:
--	pr_devel("ACCESS OK at 0x%08x (size 0x%x), seg 0x%08x\n",
--			(__force u32)addr, (u32)size,
--			(u32)get_fs().seg);
--	return 1;
-+	return (size <= limit) && (addr <= (limit - size));
- }
-+#define access_ok(addr, size) __access_ok((unsigned long)addr, size)
- 
- # define __FIXUP_SECTION	".section .fixup,\"ax\"\n"
- # define __EX_TABLE_SECTION	".section __ex_table,\"a\"\n"
 -- 
 2.29.2
 
