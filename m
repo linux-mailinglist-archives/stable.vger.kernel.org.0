@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 544A24B4645
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9BC4B45DE
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243373AbiBNJdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:33:37 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42704 "EHLO
+        id S243007AbiBNJ3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:29:46 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243633AbiBNJdZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:33:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF6FCAE48;
-        Mon, 14 Feb 2022 01:31:47 -0800 (PST)
+        with ESMTP id S243235AbiBNJ3R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:29:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 089101AD8B;
+        Mon, 14 Feb 2022 01:29:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BB80B80DD1;
-        Mon, 14 Feb 2022 09:31:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6146C340E9;
-        Mon, 14 Feb 2022 09:31:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97CD860F86;
+        Mon, 14 Feb 2022 09:29:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73885C340E9;
+        Mon, 14 Feb 2022 09:29:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831105;
-        bh=sjzPQJ4NRhqLJBSxXcRylQRoO81qn0Tb+LLValorUhw=;
+        s=korg; t=1644830946;
+        bh=zUqqORih3FzTB/susdM0OZh53RgjIz5LRSat4of2STc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zfxjdOOccVhIc+EM3Cte1nebIcjAkw++zL55XkfqoWetN5kPoIZxo6FCE5soK6R+w
-         o6Us5Xw2QL/JiX52q1EgZqR51HBLCY3HXnyvT6okDaFZ5AMyxh9OJwPrpINPGqwyB7
-         4Qmehca4hsO8rkMzSOVEHXAdkOpVsmfgNBEUiHqM=
+        b=nFhb6Tg05wJsHtCYam6qNR0VtMyhV1AdvHGdWXfl134w+Tdvh4Wz8kaaYNRhOCpD1
+         XW2o6tIzQuzGfA4+zsGwxUzQJrJu6SVWjLlNGTlDxRvw/cJXLT4q4VGivZfOEmRM7M
+         SFnrgPLDPYkrUi5e4cFpa+lnHekkf3uOWMI046Mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Sean Anderson <sean.anderson@seco.com>
-Subject: [PATCH 4.14 33/44] usb: ulpi: Call of_node_put correctly
-Date:   Mon, 14 Feb 2022 10:25:56 +0100
-Message-Id: <20220214092448.980656771@linuxfoundation.org>
+        Stephan Brunner <s.brunner@stephan-brunner.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 31/34] USB: serial: ch341: add support for GW Instek USB2.0-Serial devices
+Date:   Mon, 14 Feb 2022 10:25:57 +0100
+Message-Id: <20220214092446.952547567@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
-References: <20220214092447.897544753@linuxfoundation.org>
+In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
+References: <20220214092445.946718557@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <sean.anderson@seco.com>
+From: Stephan Brunner <s.brunner@stephan-brunner.net>
 
-commit 0a907ee9d95e3ac35eb023d71f29eae0aaa52d1b upstream.
+commit fa77ce201f7f2d823b07753575122d1ae5597fbe upstream.
 
-of_node_put should always be called on device nodes gotten from
-of_get_*. Additionally, it should only be called after there are no
-remaining users. To address the first issue, call of_node_put if later
-steps in ulpi_register fail. To address the latter, call put_device if
-device_register fails, which will call ulpi_dev_release if necessary.
+Programmable lab power supplies made by GW Instek, such as the
+GPP-2323, have a USB port exposing a serial port to control the device.
 
-Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Link: https://lore.kernel.org/r/20220127190004.1446909-3-sean.anderson@seco.com
+Stringing the supplied Windows driver, references to the ch341 chip are
+found. Binding the existing ch341 driver to the VID/PID of the GPP-2323
+("GW Instek USB2.0-Serial" as per the USB product name) works out of the
+box, communication and control is now possible.
+
+This patch should work with any GPP series power supply due to
+similarities in the product line.
+
+Signed-off-by: Stephan Brunner <s.brunner@stephan-brunner.net>
+Link: https://lore.kernel.org/r/4a47b864-0816-6f6a-efee-aa20e74bcdc6@stephan-brunner.net
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/common/ulpi.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/usb/serial/ch341.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/common/ulpi.c
-+++ b/drivers/usb/common/ulpi.c
-@@ -252,12 +252,16 @@ static int ulpi_register(struct device *
- 		return ret;
- 
- 	ret = ulpi_read_id(ulpi);
--	if (ret)
-+	if (ret) {
-+		of_node_put(ulpi->dev.of_node);
- 		return ret;
-+	}
- 
- 	ret = device_register(&ulpi->dev);
--	if (ret)
-+	if (ret) {
-+		put_device(&ulpi->dev);
- 		return ret;
-+	}
- 
- 	dev_dbg(&ulpi->dev, "registered ULPI PHY: vendor %04x, product %04x\n",
- 		ulpi->id.vendor, ulpi->id.product);
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -74,6 +74,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1a86, 0x5523) },
+ 	{ USB_DEVICE(0x1a86, 0x7522) },
+ 	{ USB_DEVICE(0x1a86, 0x7523) },
++	{ USB_DEVICE(0x2184, 0x0057) },
+ 	{ USB_DEVICE(0x4348, 0x5523) },
+ 	{ USB_DEVICE(0x9986, 0x7523) },
+ 	{ },
 
 
