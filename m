@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC1B84B464B
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDB194B4623
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243518AbiBNJdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:33:45 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43072 "EHLO
+        id S243265AbiBNJ3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:29:42 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243879AbiBNJdZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:33:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F6C4AE59;
-        Mon, 14 Feb 2022 01:31:57 -0800 (PST)
+        with ESMTP id S243266AbiBNJ3W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:29:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E66201ADB4;
+        Mon, 14 Feb 2022 01:29:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3A1060F8F;
-        Mon, 14 Feb 2022 09:31:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2385C36AE7;
-        Mon, 14 Feb 2022 09:31:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78EE760FA6;
+        Mon, 14 Feb 2022 09:29:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5341CC340EF;
+        Mon, 14 Feb 2022 09:29:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831116;
-        bh=2gge4O5EMd2sOxc5pLIMQF4jXVkp7Vr1+Gj3J7QqJiE=;
+        s=korg; t=1644830952;
+        bh=Mw+ysZlulMgFvMm5Acy1B2z3nAIFko+HMmtxe4JW7tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZkXePqPYSf4ZIjuG/DT201PtpffdMMm9kaPbXwEeCpuM2fgd5evC/K5CdzkPESZPC
-         +KlZ1nJFwFb+yky9z/9pBX2nf6zBXVayF5OwU0ZzKz+xQIR8EgBuiVUW3KznzGfQqB
-         gbbjY2yyng0qqfV0IJqSparKOS7kBRUMXY+keLbE=
+        b=YUImI56SpIEo23yVZEWs1VzIFldx/iYv3pZR4umpAWSa5XOl1Crbl2Hcz2DPg9o2D
+         VkLRrmybmXYhvps54PbCDQkI+eewFmgguKinx6ym/3jm3fvtQbCd9XFf7Dv8ukI1TF
+         uvQrhZA7cCzgy3aD0eAB4zfqyd6jsRXKhiCNPff4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Szymon Heidrich <szymon.heidrich@gmail.com>, stable@kernel.org
-Subject: [PATCH 4.14 36/44] usb: gadget: rndis: check size of RNDIS_MSG_SET command
+        stable@vger.kernel.org, Scott Russell <Scott.Russell2@ncr.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 33/34] USB: serial: cp210x: add CPI Bulk Coin Recycler id
 Date:   Mon, 14 Feb 2022 10:25:59 +0100
-Message-Id: <20220214092449.076117393@linuxfoundation.org>
+Message-Id: <20220214092447.019106888@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
-References: <20220214092447.897544753@linuxfoundation.org>
+In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
+References: <20220214092445.946718557@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit 38ea1eac7d88072bbffb630e2b3db83ca649b826 upstream.
+commit 6ca0c6283340d819bf9c7d8e76be33c9fbd903ab upstream.
 
-Check the size of the RNDIS_MSG_SET command given to us before
-attempting to respond to an invalid message size.
+Add the device id for the Crane Payment Innovation / Money Controls Bulk
+Coin Recycler:
 
-Reported-by: Szymon Heidrich <szymon.heidrich@gmail.com>
-Cc: stable@kernel.org
-Tested-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+	https://www.cranepi.com/en/system/files/Support/OM_BCR_EN_V1-04_0.pdf
+
+Reported-by: Scott Russell <Scott.Russell2@ncr.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/rndis.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/gadget/function/rndis.c
-+++ b/drivers/usb/gadget/function/rndis.c
-@@ -640,14 +640,17 @@ static int rndis_set_response(struct rnd
- 	rndis_set_cmplt_type *resp;
- 	rndis_resp_t *r;
- 
-+	BufLength = le32_to_cpu(buf->InformationBufferLength);
-+	BufOffset = le32_to_cpu(buf->InformationBufferOffset);
-+	if ((BufLength > RNDIS_MAX_TOTAL_SIZE) ||
-+	    (BufOffset + 8 >= RNDIS_MAX_TOTAL_SIZE))
-+		    return -EINVAL;
-+
- 	r = rndis_add_response(params, sizeof(rndis_set_cmplt_type));
- 	if (!r)
- 		return -ENOMEM;
- 	resp = (rndis_set_cmplt_type *)r->buf;
- 
--	BufLength = le32_to_cpu(buf->InformationBufferLength);
--	BufOffset = le32_to_cpu(buf->InformationBufferOffset);
--
- #ifdef	VERBOSE_DEBUG
- 	pr_debug("%s: Length: %d\n", __func__, BufLength);
- 	pr_debug("%s: Offset: %d\n", __func__, BufOffset);
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -67,6 +67,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x0FCF, 0x1004) }, /* Dynastream ANT2USB */
+ 	{ USB_DEVICE(0x0FCF, 0x1006) }, /* Dynastream ANT development board */
+ 	{ USB_DEVICE(0x0FDE, 0xCA05) }, /* OWL Wireless Electricity Monitor CM-160 */
++	{ USB_DEVICE(0x106F, 0x0003) },	/* CPI / Money Controls Bulk Coin Recycler */
+ 	{ USB_DEVICE(0x10A6, 0xAA26) }, /* Knock-off DCU-11 cable */
+ 	{ USB_DEVICE(0x10AB, 0x10C5) }, /* Siemens MC60 Cable */
+ 	{ USB_DEVICE(0x10B5, 0xAC70) }, /* Nokia CA-42 USB */
 
 
