@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F824B4934
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC5914B4B4C
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:41:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344528AbiBNKCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:02:42 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54778 "EHLO
+        id S1347283AbiBNK1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:27:42 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345155AbiBNKBZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:01:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 916CA13CCC;
-        Mon, 14 Feb 2022 01:47:31 -0800 (PST)
+        with ESMTP id S1347483AbiBNK0D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:26:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD97E6EF3C;
+        Mon, 14 Feb 2022 01:57:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04F366128E;
-        Mon, 14 Feb 2022 09:47:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFE1FC340E9;
-        Mon, 14 Feb 2022 09:47:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6996B61465;
+        Mon, 14 Feb 2022 09:57:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53F65C340E9;
+        Mon, 14 Feb 2022 09:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832050;
-        bh=gGkLfyr40uJZuMOzHhJ5bCp3liAMaPtfJXeg3XdSmYM=;
+        s=korg; t=1644832634;
+        bh=zzMJxbPBiRG2Y2ZlNqrD/+LQlA64/tzHiQCZyC7me9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c9qILKxXkBMGZVBkfhIeJu1hIHHI8b3YZhbDrEjXZtyAHxiGyN3VFSgGWqF3wqn8v
-         heO4+NewPsTarj7MwcRpvPGtBwzMiUh8EBR0T2eQAVnVnFGCu3oTexloN5RNhFH4PR
-         37dSlmlb13YxGpi9l4EEfBKg6PE7VAMlu8lDfVCw=
+        b=jL1Klm9ny+b+h5CSfE84MwfZyUjgiKkxujM4+GvMvg8GT8kzCUqeiLVPvjVRjPcjd
+         odKAQ/z87gJsX/Df1ONhphQZ7Bq8iKa52Sm4EJg3/MfTzyl+AqaXn3HAOs188UQ0k5
+         rwzusAKDvlUvSwzw8zXf5Atd8gi/QMIUZTsd1+O4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Saurav Kashyap <skashyap@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 032/172] SUNRPC allow for unspecified transport time in rpc_clnt_add_xprt
+Subject: [PATCH 5.16 046/203] scsi: qedf: Fix refcount issue when LOGO is received during TMF
 Date:   Mon, 14 Feb 2022 10:24:50 +0100
-Message-Id: <20220214092507.506088518@linuxfoundation.org>
+Message-Id: <20220214092511.779806186@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Saurav Kashyap <skashyap@marvell.com>
 
-[ Upstream commit b8a09619a56334414cbd7f935a0796240d0cc07e ]
+[ Upstream commit 5239ab63f17cee643bd4bf6addfedebaa7d4f41e ]
 
-If the supplied argument doesn't specify the transport type, use the
-type of the existing rpc clnt and its existing transport.
+Hung task call trace was seen during LOGO processing.
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+[  974.309060] [0000:00:00.0]:[qedf_eh_device_reset:868]: 1:0:2:0: LUN RESET Issued...
+[  974.309065] [0000:00:00.0]:[qedf_initiate_tmf:2422]: tm_flags 0x10 sc_cmd 00000000c16b930f op = 0x2a target_id = 0x2 lun=0
+[  974.309178] [0000:00:00.0]:[qedf_initiate_tmf:2431]: portid=016900 tm_flags =LUN RESET
+[  974.309222] [0000:00:00.0]:[qedf_initiate_tmf:2438]: orig io_req = 00000000ec78df8f xid = 0x180 ref_cnt = 1.
+[  974.309625] host1: rport 016900: Received LOGO request while in state Ready
+[  974.309627] host1: rport 016900: Delete port
+[  974.309642] host1: rport 016900: work event 3
+[  974.309644] host1: rport 016900: lld callback ev 3
+[  974.313243] [0000:61:00.2]:[qedf_execute_tmf:2383]:1: fcport is uploading, not executing flush.
+[  974.313295] [0000:61:00.2]:[qedf_execute_tmf:2400]:1: task mgmt command success...
+[  984.031088] INFO: task jbd2/dm-15-8:7645 blocked for more than 120 seconds.
+[  984.031136]       Not tainted 4.18.0-305.el8.x86_64 #1
+
+[  984.031166] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[  984.031209] jbd2/dm-15-8    D    0  7645      2 0x80004080
+[  984.031212] Call Trace:
+[  984.031222]  __schedule+0x2c4/0x700
+[  984.031230]  ? unfreeze_partials.isra.83+0x16e/0x1a0
+[  984.031233]  ? bit_wait_timeout+0x90/0x90
+[  984.031235]  schedule+0x38/0xa0
+[  984.031238]  io_schedule+0x12/0x40
+[  984.031240]  bit_wait_io+0xd/0x50
+[  984.031243]  __wait_on_bit+0x6c/0x80
+[  984.031248]  ? free_buffer_head+0x21/0x50
+[  984.031251]  out_of_line_wait_on_bit+0x91/0xb0
+[  984.031257]  ? init_wait_var_entry+0x50/0x50
+[  984.031268]  jbd2_journal_commit_transaction+0x112e/0x19f0 [jbd2]
+[  984.031280]  kjournald2+0xbd/0x270 [jbd2]
+[  984.031284]  ? finish_wait+0x80/0x80
+[  984.031291]  ? commit_timeout+0x10/0x10 [jbd2]
+[  984.031294]  kthread+0x116/0x130
+[  984.031300]  ? kthread_flush_work_fn+0x10/0x10
+[  984.031305]  ret_from_fork+0x1f/0x40
+
+There was a ref count issue when LOGO is received during TMF. This leads to
+one of the I/Os hanging with the driver. Fix the ref count.
+
+Link: https://lore.kernel.org/r/20220117135311.6256-3-njavali@marvell.com
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/clnt.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/scsi/qedf/qedf_io.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index f056ff9314442..5da1d7e8468a5 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -2903,7 +2903,7 @@ int rpc_clnt_add_xprt(struct rpc_clnt *clnt,
- 	unsigned long connect_timeout;
- 	unsigned long reconnect_timeout;
- 	unsigned char resvport, reuseport;
--	int ret = 0;
-+	int ret = 0, ident;
+diff --git a/drivers/scsi/qedf/qedf_io.c b/drivers/scsi/qedf/qedf_io.c
+index 99a56ca1fb163..fab43dabe5b31 100644
+--- a/drivers/scsi/qedf/qedf_io.c
++++ b/drivers/scsi/qedf/qedf_io.c
+@@ -2250,6 +2250,7 @@ int qedf_initiate_cleanup(struct qedf_ioreq *io_req,
+ 	    io_req->tm_flags == FCP_TMF_TGT_RESET) {
+ 		clear_bit(QEDF_CMD_OUTSTANDING, &io_req->flags);
+ 		io_req->sc_cmd = NULL;
++		kref_put(&io_req->refcount, qedf_release_cmd);
+ 		complete(&io_req->tm_done);
+ 	}
  
- 	rcu_read_lock();
- 	xps = xprt_switch_get(rcu_dereference(clnt->cl_xpi.xpi_xpswitch));
-@@ -2917,8 +2917,11 @@ int rpc_clnt_add_xprt(struct rpc_clnt *clnt,
- 	reuseport = xprt->reuseport;
- 	connect_timeout = xprt->connect_timeout;
- 	reconnect_timeout = xprt->max_reconnect_timeout;
-+	ident = xprt->xprt_class->ident;
- 	rcu_read_unlock();
- 
-+	if (!xprtargs->ident)
-+		xprtargs->ident = ident;
- 	xprt = xprt_create_transport(xprtargs);
- 	if (IS_ERR(xprt)) {
- 		ret = PTR_ERR(xprt);
 -- 
 2.34.1
 
