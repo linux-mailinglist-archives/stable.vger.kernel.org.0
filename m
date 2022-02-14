@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 709854B4B1D
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E70B14B4A38
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346244AbiBNKTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:19:16 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44744 "EHLO
+        id S230036AbiBNKVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:21:22 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346218AbiBNKRs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:17:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F259A7CDF3;
-        Mon, 14 Feb 2022 01:54:48 -0800 (PST)
+        with ESMTP id S1346188AbiBNKUI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:20:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C411C7C79E;
+        Mon, 14 Feb 2022 01:55:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C21AB80DD4;
-        Mon, 14 Feb 2022 09:54:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30EF1C340E9;
-        Mon, 14 Feb 2022 09:54:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F3F1B80DC6;
+        Mon, 14 Feb 2022 09:54:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A11C8C340E9;
+        Mon, 14 Feb 2022 09:54:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832486;
-        bh=Zgwca39LIUpGLZ62CO/FtDwq+uINYpeQGJ1NAqdiEEI=;
+        s=korg; t=1644832489;
+        bh=3lBPqZPBgZcKhOtMH3BcoKZunXu8BZh01IxJQ3TGeiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W1ZqDFsipAa+jjTmpCKSKILXzVDH2FxRXmTSx9DNyqtLc+XyjKF80ApoX7xOLWkcb
-         NVzdpBKYj2kziVdsRikEJSgYFbFFUPShDxiSNRbHkQ5M+YUWxuEfoAwJ6PMve3A9kE
-         0s34DRnMttCLi6C1zKMubhdOEvQ09ZInoxOX3yHU=
+        b=qhagxIQ0A/dhZU8R9V4VhfIkp20dt8p98/FEMLdNdsm99syRbBrrZibEUlx55fiCl
+         SPDus+6p/PRz4HBFzcAp4twmgPTqTU3HuNsukVRZY+xoJDLeKU5RWPJ98Pn9Pm0Y2m
+         vrG5e3oO2soGgixqdiNq9Cp38UjdtpHJpeY97kSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 029/203] SUNRPC allow for unspecified transport time in rpc_clnt_add_xprt
-Date:   Mon, 14 Feb 2022 10:24:33 +0100
-Message-Id: <20220214092511.200096671@linuxfoundation.org>
+Subject: [PATCH 5.16 030/203] net/sunrpc: fix reference count leaks in rpc_sysfs_xprt_state_change
+Date:   Mon, 14 Feb 2022 10:24:34 +0100
+Message-Id: <20220214092511.233815805@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
 References: <20220214092510.221474733@linuxfoundation.org>
@@ -54,45 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit b8a09619a56334414cbd7f935a0796240d0cc07e ]
+[ Upstream commit 776d794f28c95051bc70405a7b1fa40115658a18 ]
 
-If the supplied argument doesn't specify the transport type, use the
-type of the existing rpc clnt and its existing transport.
+The refcount leak issues take place in an error handling path. When the
+3rd argument buf doesn't match with "offline", "online" or "remove", the
+function simply returns -EINVAL and forgets to decrease the reference
+count of a rpc_xprt object and a rpc_xprt_switch object increased by
+rpc_sysfs_xprt_kobj_get_xprt() and
+rpc_sysfs_xprt_kobj_get_xprt_switch(), causing reference count leaks of
+both unused objects.
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Fix this issue by jumping to the error handling path labelled with
+out_put when buf matches none of "offline", "online" or "remove".
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/clnt.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/sunrpc/sysfs.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index a312ea2bc4405..c83fe618767c4 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -2900,7 +2900,7 @@ int rpc_clnt_add_xprt(struct rpc_clnt *clnt,
- 	unsigned long connect_timeout;
- 	unsigned long reconnect_timeout;
- 	unsigned char resvport, reuseport;
--	int ret = 0;
-+	int ret = 0, ident;
+diff --git a/net/sunrpc/sysfs.c b/net/sunrpc/sysfs.c
+index 2766dd21935b8..77e7d011c1ab1 100644
+--- a/net/sunrpc/sysfs.c
++++ b/net/sunrpc/sysfs.c
+@@ -295,8 +295,10 @@ static ssize_t rpc_sysfs_xprt_state_change(struct kobject *kobj,
+ 		online = 1;
+ 	else if (!strncmp(buf, "remove", 6))
+ 		remove = 1;
+-	else
+-		return -EINVAL;
++	else {
++		count = -EINVAL;
++		goto out_put;
++	}
  
- 	rcu_read_lock();
- 	xps = xprt_switch_get(rcu_dereference(clnt->cl_xpi.xpi_xpswitch));
-@@ -2914,8 +2914,11 @@ int rpc_clnt_add_xprt(struct rpc_clnt *clnt,
- 	reuseport = xprt->reuseport;
- 	connect_timeout = xprt->connect_timeout;
- 	reconnect_timeout = xprt->max_reconnect_timeout;
-+	ident = xprt->xprt_class->ident;
- 	rcu_read_unlock();
- 
-+	if (!xprtargs->ident)
-+		xprtargs->ident = ident;
- 	xprt = xprt_create_transport(xprtargs);
- 	if (IS_ERR(xprt)) {
- 		ret = PTR_ERR(xprt);
+ 	if (wait_on_bit_lock(&xprt->state, XPRT_LOCKED, TASK_KILLABLE)) {
+ 		count = -EINTR;
 -- 
 2.34.1
 
