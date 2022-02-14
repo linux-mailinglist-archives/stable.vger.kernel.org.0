@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B34B4B4695
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C80164B45B7
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:28:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243988AbiBNJe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:34:56 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52462 "EHLO
+        id S242992AbiBNJ2a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:28:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244022AbiBNJeh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:34:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0293EA1B4;
-        Mon, 14 Feb 2022 01:32:41 -0800 (PST)
+        with ESMTP id S242991AbiBNJ22 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:28:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96B9460D85;
+        Mon, 14 Feb 2022 01:28:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B825BB80DCF;
-        Mon, 14 Feb 2022 09:32:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2B18C340F0;
-        Mon, 14 Feb 2022 09:32:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F3B160DFD;
+        Mon, 14 Feb 2022 09:28:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F045EC340E9;
+        Mon, 14 Feb 2022 09:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831156;
-        bh=+4UDzhaXehTdGVEq5N8CE9X04U1EUpCRfvJYtC9LNkI=;
+        s=korg; t=1644830899;
+        bh=PxAmF0SKGpeqELjz1UDvowOi6GjdGdS2hFerTKhDzi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/AtJLMs683ZLLgRLB/SumhSXsz9FwZA6PF3uDtF2oJyhGfNnynfBIGPT4f5fw7jb
-         8GakLJMESUK3OpLXrZ3Q2u0KoIQQwuEjfdf0CJNf+MzY/TXWN8g2e0d19qrNYXamzc
-         Uh1/GNF7d4dPX2Z0fIfX4Sq95LiVzOqZ+XkWXWOs=
+        b=WbX5AZm1S0qj/5g9m+uuRMAj/AQ/qFkMoXbttXm8FPIpw+fVNw4P8UbYusbnLVoLO
+         6pQ/KQubJg4A3EpwaF2EOGGxfRf/9HbOe9brGciURFGTT+eGG35y2wQkdKMrsJjfcS
+         Aw0u5D3VQKSciGT14GTOnR7B2LRIxs1jemjAvwKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/49] usb: dwc2: gadget: dont try to disable ep0 in dwc2_hsotg_suspend
+Subject: [PATCH 4.9 16/34] ARM: dts: imx6qdl-udoo: Properly describe the SD card detect
 Date:   Mon, 14 Feb 2022 10:25:42 +0100
-Message-Id: <20220214092448.829537092@linuxfoundation.org>
+Message-Id: <20220214092446.470999405@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
-References: <20220214092448.285381753@linuxfoundation.org>
+In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
+References: <20220214092445.946718557@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit ac55d163855924aa5af9f1560977da8f346963c8 ]
+[ Upstream commit 993d66140f8d1c1853a3b58b77b43b681eb64dee ]
 
-Calling dwc2_hsotg_ep_disable on ep0 (in/out) will lead to the following
-logs before returning -EINVAL:
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
+GPIO7_IO00 is used as SD card detect.
 
-To avoid these two logs while suspending, start disabling the endpoint
-from the index 1, as done in dwc2_hsotg_udc_stop:
+Properly describe this in the devicetree.
 
-	/* all endpoints should be shutdown */
-	for (ep = 1; ep < hsotg->num_of_eps; ep++) {
-		if (hsotg->eps_in[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_in[ep]->ep);
-		if (hsotg->eps_out[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_out[ep]->ep);
-	}
-
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20211207130101.270314-1-amelie.delaunay@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 40cdaa542cf0 ("ARM: dts: imx6q-udoo: Add initial board support")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6qdl-udoo.dtsi | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index b405c8ac8984b..1e46005929e44 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -4818,7 +4818,7 @@ int dwc2_hsotg_suspend(struct dwc2_hsotg *hsotg)
- 		hsotg->gadget.speed = USB_SPEED_UNKNOWN;
- 		spin_unlock_irqrestore(&hsotg->lock, flags);
+diff --git a/arch/arm/boot/dts/imx6qdl-udoo.dtsi b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
+index fc4ae2e423bd7..b0fdcae66ead3 100644
+--- a/arch/arm/boot/dts/imx6qdl-udoo.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
+@@ -9,6 +9,8 @@
+  *
+  */
  
--		for (ep = 0; ep < hsotg->num_of_eps; ep++) {
-+		for (ep = 1; ep < hsotg->num_of_eps; ep++) {
- 			if (hsotg->eps_in[ep])
- 				dwc2_hsotg_ep_disable_lock(&hsotg->eps_in[ep]->ep);
- 			if (hsotg->eps_out[ep])
++#include <dt-bindings/gpio/gpio.h>
++
+ / {
+ 	aliases {
+ 		backlight = &backlight;
+@@ -201,6 +203,7 @@ MX6QDL_PAD_SD3_DAT0__SD3_DATA0		0x17059
+ 				MX6QDL_PAD_SD3_DAT1__SD3_DATA1		0x17059
+ 				MX6QDL_PAD_SD3_DAT2__SD3_DATA2		0x17059
+ 				MX6QDL_PAD_SD3_DAT3__SD3_DATA3		0x17059
++				MX6QDL_PAD_SD3_DAT5__GPIO7_IO00		0x1b0b0
+ 			>;
+ 		};
+ 
+@@ -267,7 +270,7 @@ &usbh1 {
+ &usdhc3 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_usdhc3>;
+-	non-removable;
++	cd-gpios = <&gpio7 0 GPIO_ACTIVE_LOW>;
+ 	status = "okay";
+ };
+ 
 -- 
 2.34.1
 
