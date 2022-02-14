@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 701614B4BF6
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 810074B4A1A
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:38:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348424AbiBNKfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:35:20 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41514 "EHLO
+        id S1344078AbiBNJ6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:58:47 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348346AbiBNKes (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:34:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1EF3117B;
-        Mon, 14 Feb 2022 02:01:48 -0800 (PST)
+        with ESMTP id S1344130AbiBNJz6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:55:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D129D6CA54;
+        Mon, 14 Feb 2022 01:44:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A4E4B80D6D;
-        Mon, 14 Feb 2022 10:01:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A39BBC340E9;
-        Mon, 14 Feb 2022 10:01:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AD5461238;
+        Mon, 14 Feb 2022 09:44:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C425C340E9;
+        Mon, 14 Feb 2022 09:44:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832906;
-        bh=CLfqbK5DAgyx3E+ykodxSz0Gwtxu7xIMZXMF5qlQwTE=;
+        s=korg; t=1644831858;
+        bh=VurFU58a1cNgjY+xlro4xnBrTwWyCaOg886ucNWiblY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JIw1bkAa+bJf2ejkLa/3FVSk9L0MAqNY4OlGfCljsKRL3ZyZ7WWi5Y18hH3Cjoxjy
-         5XR5zsV4oHjedP96wHf8MMUDvPpkbWnS0Ua/XApGfLtHjdsRKq8+Nr9PNAbupL3DBZ
-         yLeD3rtK87HA2Cbw7IQHrim1rv16+JEEc4Krzv+o=
+        b=S9OYqlyq6Ke+GKhdGpR1+YtIRsBkmx86wu2BTZ3txipDIAmGLLuXFKrXkHr3mMH4v
+         +0oXp6kKJARFDcqp5FQT8ihHs+BPfB8CKPAPIOJS39yzgWAvXwfggnnvtsGFg/157E
+         kPY0qpgIbxWtIVvrIs0BTTvF+7ZtKCFms/LC6gD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Brian Johannesmeyer <bjohannesmeyer@gmail.com>,
-        Jakob Koschel <jakobkoschel@gmail.com>
-Subject: [PATCH 5.16 162/203] vt_ioctl: fix array_index_nospec in vt_setactivate
+        Samuel Thibault <samuel.thibault@ens-lyon.org>
+Subject: [PATCH 5.10 107/116] speakup-dectlk: Restore pitch setting
 Date:   Mon, 14 Feb 2022 10:26:46 +0100
-Message-Id: <20220214092515.745236545@linuxfoundation.org>
+Message-Id: <20220214092502.487158091@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
 
-commit 61cc70d9e8ef5b042d4ed87994d20100ec8896d9 upstream.
+commit bca828ccdd6548d24613d0cede04ada4dfb2f89c upstream.
 
-array_index_nospec ensures that an out-of-bounds value is set to zero
-on the transient path. Decreasing the value by one afterwards causes
-a transient integer underflow. vsa.console should be decreased first
-and then sanitized with array_index_nospec.
+d97a9d7aea04 ("staging/speakup: Add inflection synth parameter")
+introduced the inflection parameter, but happened to drop the pitch
+parameter from the dectlk driver. This restores it.
 
-Kasper Acknowledgements: Jakob Koschel, Brian Johannesmeyer, Kaveh
-Razavi, Herbert Bos, Cristiano Giuffrida from the VUSec group at VU
-Amsterdam.
-
-Co-developed-by: Brian Johannesmeyer <bjohannesmeyer@gmail.com>
-Signed-off-by: Brian Johannesmeyer <bjohannesmeyer@gmail.com>
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Link: https://lore.kernel.org/r/20220127144406.3589293-1-jakobkoschel@gmail.com
-Cc: stable <stable@vger.kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: d97a9d7aea04 ("staging/speakup: Add inflection synth parameter")
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Link: https://lore.kernel.org/r/20220206015626.aesbhvvdkmqsrbaw@begin
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/vt/vt_ioctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/accessibility/speakup/speakup_dectlk.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -599,8 +599,8 @@ static int vt_setactivate(struct vt_seta
- 	if (vsa.console == 0 || vsa.console > MAX_NR_CONSOLES)
- 		return -ENXIO;
- 
--	vsa.console = array_index_nospec(vsa.console, MAX_NR_CONSOLES + 1);
- 	vsa.console--;
-+	vsa.console = array_index_nospec(vsa.console, MAX_NR_CONSOLES);
- 	console_lock();
- 	ret = vc_allocate(vsa.console);
- 	if (ret) {
+--- a/drivers/accessibility/speakup/speakup_dectlk.c
++++ b/drivers/accessibility/speakup/speakup_dectlk.c
+@@ -44,6 +44,7 @@ static struct var_t vars[] = {
+ 	{ CAPS_START, .u.s = {"[:dv ap 160] " } },
+ 	{ CAPS_STOP, .u.s = {"[:dv ap 100 ] " } },
+ 	{ RATE, .u.n = {"[:ra %d] ", 180, 75, 650, 0, 0, NULL } },
++	{ PITCH, .u.n = {"[:dv ap %d] ", 122, 50, 350, 0, 0, NULL } },
+ 	{ INFLECTION, .u.n = {"[:dv pr %d] ", 100, 0, 10000, 0, 0, NULL } },
+ 	{ VOL, .u.n = {"[:dv g5 %d] ", 86, 60, 86, 0, 0, NULL } },
+ 	{ PUNCT, .u.n = {"[:pu %c] ", 0, 0, 2, 0, 0, "nsa" } },
 
 
