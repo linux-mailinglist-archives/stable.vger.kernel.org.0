@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9022C4B4C18
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:44:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E764E4B47A4
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348439AbiBNKhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:37:14 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48400 "EHLO
+        id S244380AbiBNJnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:43:45 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349561AbiBNKgg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:36:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7654A4190;
-        Mon, 14 Feb 2022 02:02:53 -0800 (PST)
+        with ESMTP id S244835AbiBNJmt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:42:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1EB56736B;
+        Mon, 14 Feb 2022 01:37:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5302160C71;
-        Mon, 14 Feb 2022 10:02:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21FC0C340E9;
-        Mon, 14 Feb 2022 10:02:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CCB261163;
+        Mon, 14 Feb 2022 09:37:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F75FC340E9;
+        Mon, 14 Feb 2022 09:37:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832963;
-        bh=ba2athLM4NQjC44TtaESWWuhwR9s3OHzSaYXfdB2oBI=;
+        s=korg; t=1644831469;
+        bh=isKue2QWQ1JKQpEPB6MDW/72jnmG+ZUtreUJnlTAIkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tFy4df6FY4LrYjufTasTsFQMe6Xhm7+EGMdisairWElOCFQOlFc1tGRbBsFAyMvDR
-         5p/3byfO8PaBcGWMVaOpexKbWp88qLKi7hFaPNBChvpn+Hcry+P3tBUo6YCP6YTEZy
-         hKa2ylwcbLBbHQUkt0cYAJR+rlAPT1ijaoppA3ms=
+        b=SLiyq1QWIgHuA57GDSvPRN5w4HBgp49YEdJJBjO9XxpOLF/nJHvss21nd12FsKM57
+         y8vHGM54dhPuTnPzABGBHA7yJWodRmhl0WraU5hwjUrc8CcEZU/cCqKE2b7K0ZPv9A
+         taG7kFzx4SkLx8o47AqQtTNwu+bCwqfwtvRXiFMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 148/203] veth: fix races around rq->rx_notify_masked
-Date:   Mon, 14 Feb 2022 10:26:32 +0100
-Message-Id: <20220214092515.268180563@linuxfoundation.org>
+        stable@vger.kernel.org, Scott Russell <Scott.Russell2@ncr.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 65/71] USB: serial: cp210x: add NCR Retail IO box id
+Date:   Mon, 14 Feb 2022 10:26:33 +0100
+Message-Id: <20220214092454.216422725@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,156 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 68468d8c4cd4222a4ca1f185ab5a1c14480d078c ]
+commit b50f8f09c622297d3cf46e332e17ba8adedec9af upstream.
 
-veth being NETIF_F_LLTX enabled, we need to be more careful
-whenever we read/write rq->rx_notify_masked.
+Add the device id for NCR's Retail IO box (CP2105) used in NCR FastLane
+SelfServ Checkout - R6C:
 
-BUG: KCSAN: data-race in veth_xmit / veth_xmit
+	https://www.ncr.com/product-catalog/ncr-fastlane-selfserv-checkout-r6c
 
-write to 0xffff888133d9a9f8 of 1 bytes by task 23552 on cpu 0:
- __veth_xdp_flush drivers/net/veth.c:269 [inline]
- veth_xmit+0x307/0x470 drivers/net/veth.c:350
- __netdev_start_xmit include/linux/netdevice.h:4683 [inline]
- netdev_start_xmit include/linux/netdevice.h:4697 [inline]
- xmit_one+0x105/0x2f0 net/core/dev.c:3473
- dev_hard_start_xmit net/core/dev.c:3489 [inline]
- __dev_queue_xmit+0x86d/0xf90 net/core/dev.c:4116
- dev_queue_xmit+0x13/0x20 net/core/dev.c:4149
- br_dev_queue_push_xmit+0x3ce/0x430 net/bridge/br_forward.c:53
- NF_HOOK include/linux/netfilter.h:307 [inline]
- br_forward_finish net/bridge/br_forward.c:66 [inline]
- NF_HOOK include/linux/netfilter.h:307 [inline]
- __br_forward+0x2e4/0x400 net/bridge/br_forward.c:115
- br_flood+0x521/0x5c0 net/bridge/br_forward.c:242
- br_dev_xmit+0x8b6/0x960
- __netdev_start_xmit include/linux/netdevice.h:4683 [inline]
- netdev_start_xmit include/linux/netdevice.h:4697 [inline]
- xmit_one+0x105/0x2f0 net/core/dev.c:3473
- dev_hard_start_xmit net/core/dev.c:3489 [inline]
- __dev_queue_xmit+0x86d/0xf90 net/core/dev.c:4116
- dev_queue_xmit+0x13/0x20 net/core/dev.c:4149
- neigh_hh_output include/net/neighbour.h:525 [inline]
- neigh_output include/net/neighbour.h:539 [inline]
- ip_finish_output2+0x6f8/0xb70 net/ipv4/ip_output.c:228
- ip_finish_output+0xfb/0x240 net/ipv4/ip_output.c:316
- NF_HOOK_COND include/linux/netfilter.h:296 [inline]
- ip_output+0xf3/0x1a0 net/ipv4/ip_output.c:430
- dst_output include/net/dst.h:451 [inline]
- ip_local_out net/ipv4/ip_output.c:126 [inline]
- ip_send_skb+0x6e/0xe0 net/ipv4/ip_output.c:1570
- udp_send_skb+0x641/0x880 net/ipv4/udp.c:967
- udp_sendmsg+0x12ea/0x14c0 net/ipv4/udp.c:1254
- inet_sendmsg+0x5f/0x80 net/ipv4/af_inet.c:819
- sock_sendmsg_nosec net/socket.c:705 [inline]
- sock_sendmsg net/socket.c:725 [inline]
- ____sys_sendmsg+0x39a/0x510 net/socket.c:2413
- ___sys_sendmsg net/socket.c:2467 [inline]
- __sys_sendmmsg+0x267/0x4c0 net/socket.c:2553
- __do_sys_sendmmsg net/socket.c:2582 [inline]
- __se_sys_sendmmsg net/socket.c:2579 [inline]
- __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2579
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-read to 0xffff888133d9a9f8 of 1 bytes by task 23563 on cpu 1:
- __veth_xdp_flush drivers/net/veth.c:268 [inline]
- veth_xmit+0x2d6/0x470 drivers/net/veth.c:350
- __netdev_start_xmit include/linux/netdevice.h:4683 [inline]
- netdev_start_xmit include/linux/netdevice.h:4697 [inline]
- xmit_one+0x105/0x2f0 net/core/dev.c:3473
- dev_hard_start_xmit net/core/dev.c:3489 [inline]
- __dev_queue_xmit+0x86d/0xf90 net/core/dev.c:4116
- dev_queue_xmit+0x13/0x20 net/core/dev.c:4149
- br_dev_queue_push_xmit+0x3ce/0x430 net/bridge/br_forward.c:53
- NF_HOOK include/linux/netfilter.h:307 [inline]
- br_forward_finish net/bridge/br_forward.c:66 [inline]
- NF_HOOK include/linux/netfilter.h:307 [inline]
- __br_forward+0x2e4/0x400 net/bridge/br_forward.c:115
- br_flood+0x521/0x5c0 net/bridge/br_forward.c:242
- br_dev_xmit+0x8b6/0x960
- __netdev_start_xmit include/linux/netdevice.h:4683 [inline]
- netdev_start_xmit include/linux/netdevice.h:4697 [inline]
- xmit_one+0x105/0x2f0 net/core/dev.c:3473
- dev_hard_start_xmit net/core/dev.c:3489 [inline]
- __dev_queue_xmit+0x86d/0xf90 net/core/dev.c:4116
- dev_queue_xmit+0x13/0x20 net/core/dev.c:4149
- neigh_hh_output include/net/neighbour.h:525 [inline]
- neigh_output include/net/neighbour.h:539 [inline]
- ip_finish_output2+0x6f8/0xb70 net/ipv4/ip_output.c:228
- ip_finish_output+0xfb/0x240 net/ipv4/ip_output.c:316
- NF_HOOK_COND include/linux/netfilter.h:296 [inline]
- ip_output+0xf3/0x1a0 net/ipv4/ip_output.c:430
- dst_output include/net/dst.h:451 [inline]
- ip_local_out net/ipv4/ip_output.c:126 [inline]
- ip_send_skb+0x6e/0xe0 net/ipv4/ip_output.c:1570
- udp_send_skb+0x641/0x880 net/ipv4/udp.c:967
- udp_sendmsg+0x12ea/0x14c0 net/ipv4/udp.c:1254
- inet_sendmsg+0x5f/0x80 net/ipv4/af_inet.c:819
- sock_sendmsg_nosec net/socket.c:705 [inline]
- sock_sendmsg net/socket.c:725 [inline]
- ____sys_sendmsg+0x39a/0x510 net/socket.c:2413
- ___sys_sendmsg net/socket.c:2467 [inline]
- __sys_sendmmsg+0x267/0x4c0 net/socket.c:2553
- __do_sys_sendmmsg net/socket.c:2582 [inline]
- __se_sys_sendmmsg net/socket.c:2579 [inline]
- __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2579
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x00 -> 0x01
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 23563 Comm: syz-executor.5 Not tainted 5.17.0-rc2-syzkaller-00064-gc36c04c2e132 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 948d4f214fde ("veth: Add driver XDP")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Scott Russell <Scott.Russell2@ncr.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/veth.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/veth.c b/drivers/net/veth.c
-index ecbc09cbe2590..f478fe7e2b820 100644
---- a/drivers/net/veth.c
-+++ b/drivers/net/veth.c
-@@ -272,9 +272,10 @@ static void __veth_xdp_flush(struct veth_rq *rq)
- {
- 	/* Write ptr_ring before reading rx_notify_masked */
- 	smp_mb();
--	if (!rq->rx_notify_masked) {
--		rq->rx_notify_masked = true;
--		napi_schedule(&rq->xdp_napi);
-+	if (!READ_ONCE(rq->rx_notify_masked) &&
-+	    napi_schedule_prep(&rq->xdp_napi)) {
-+		WRITE_ONCE(rq->rx_notify_masked, true);
-+		__napi_schedule(&rq->xdp_napi);
- 	}
- }
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -52,6 +52,7 @@ static int cp210x_port_remove(struct usb
+ static void cp210x_dtr_rts(struct usb_serial_port *p, int on);
  
-@@ -919,8 +920,10 @@ static int veth_poll(struct napi_struct *napi, int budget)
- 		/* Write rx_notify_masked before reading ptr_ring */
- 		smp_store_mb(rq->rx_notify_masked, false);
- 		if (unlikely(!__ptr_ring_empty(&rq->xdp_ring))) {
--			rq->rx_notify_masked = true;
--			napi_schedule(&rq->xdp_napi);
-+			if (napi_schedule_prep(&rq->xdp_napi)) {
-+				WRITE_ONCE(rq->rx_notify_masked, true);
-+				__napi_schedule(&rq->xdp_napi);
-+			}
- 		}
- 	}
- 
--- 
-2.34.1
-
+ static const struct usb_device_id id_table[] = {
++	{ USB_DEVICE(0x0404, 0x034C) },	/* NCR Retail IO Box */
+ 	{ USB_DEVICE(0x045B, 0x0053) }, /* Renesas RX610 RX-Stick */
+ 	{ USB_DEVICE(0x0471, 0x066A) }, /* AKTAKOM ACE-1001 cable */
+ 	{ USB_DEVICE(0x0489, 0xE000) }, /* Pirelli Broadband S.p.A, DP-L10 SIP/GSM Mobile */
 
 
