@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F7974B4B5D
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65C1A4B471F
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347343AbiBNK1o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:27:44 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33136 "EHLO
+        id S245127AbiBNJsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:48:00 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347936AbiBNK0g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:26:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC25480919;
-        Mon, 14 Feb 2022 01:57:37 -0800 (PST)
+        with ESMTP id S245590AbiBNJqB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F5787179A;
+        Mon, 14 Feb 2022 01:39:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22EEB6126B;
-        Mon, 14 Feb 2022 09:57:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED58C340E9;
-        Mon, 14 Feb 2022 09:57:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7FBE6102D;
+        Mon, 14 Feb 2022 09:39:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA932C340E9;
+        Mon, 14 Feb 2022 09:39:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832644;
-        bh=UhSIihMSSu2vmuCQjZPE4NANjKqrX8Al7bFfWHKoSt8=;
+        s=korg; t=1644831551;
+        bh=l/brSncTN6vdt2U5TbNasSHodgL5NGbj4Cmm4cRhARM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S3Nosd+jS/PHJMhM06tPyjswsgXCSDm7SEzljr1p/w0X1s8Rym7o4//Qm2yLRfqWt
-         apGDm3OJ4NQfIUqMxWB0BkkizKBxHlX1iVYZDUi74xLBmsYvQQnD3aw4MA72OuaRvn
-         MVseu/E8nzqczIZQwgBI7ctJLwtBdQs/JZAJldgw=
+        b=kV3aBEoNiFTuzgQn5wrJh3PzSFSc2QinnfGP2NoOBvyLOUeUmv9gbjQgOstydVuxN
+         DNyw+i9N6YJsAK6Kh2jBzRDApwF2kAJ8DUL4a2tTf4nWh+5H1c7kh/kSU5sbCkRx8C
+         J8Dmhpn+tDt9riA9Q4FyTQ1Za5ENG2dch4T9nWSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Jarno <aurelien@aurel32.net>,
-        Alexandre Ghiti <alexandre.ghiti@canonical.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.16 073/203] riscv: fix build with binutils 2.38
-Date:   Mon, 14 Feb 2022 10:25:17 +0100
-Message-Id: <20220214092512.757891200@linuxfoundation.org>
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 019/116] NFSv4 expose nfs_parse_server_name function
+Date:   Mon, 14 Feb 2022 10:25:18 +0100
+Message-Id: <20220214092459.342264804@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurelien Jarno <aurelien@aurel32.net>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-commit 6df2a016c0c8a3d0933ef33dd192ea6606b115e3 upstream.
+[ Upstream commit f5b27cc6761e27ee6387a24df1a99ca77b360fea ]
 
->From version 2.38, binutils default to ISA spec version 20191213. This
-means that the csr read/write (csrr*/csrw*) instructions and fence.i
-instruction has separated from the `I` extension, become two standalone
-extensions: Zicsr and Zifencei. As the kernel uses those instruction,
-this causes the following build failure:
+Make nfs_parse_server_name available outside of nfs4namespace.c.
 
-  CC      arch/riscv/kernel/vdso/vgettimeofday.o
-  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h: Assembler messages:
-  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
-  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
-  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
-  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
-
-The fix is to specify those extensions explicitely in -march. However as
-older binutils version do not support this, we first need to detect
-that.
-
-Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
-Tested-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Makefile |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/nfs/nfs4_fs.h       | 3 ++-
+ fs/nfs/nfs4namespace.c | 4 ++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/riscv/Makefile
-+++ b/arch/riscv/Makefile
-@@ -50,6 +50,12 @@ riscv-march-$(CONFIG_ARCH_RV32I)	:= rv32
- riscv-march-$(CONFIG_ARCH_RV64I)	:= rv64ima
- riscv-march-$(CONFIG_FPU)		:= $(riscv-march-y)fd
- riscv-march-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-y)c
-+
-+# Newer binutils versions default to ISA spec version 20191213 which moves some
-+# instructions from the I extension to the Zicsr and Zifencei extensions.
-+toolchain-need-zicsr-zifencei := $(call cc-option-yn, -march=$(riscv-march-y)_zicsr_zifencei)
-+riscv-march-$(toolchain-need-zicsr-zifencei) := $(riscv-march-y)_zicsr_zifencei
-+
- KBUILD_CFLAGS += -march=$(subst fd,,$(riscv-march-y))
- KBUILD_AFLAGS += -march=$(riscv-march-y)
+diff --git a/fs/nfs/nfs4_fs.h b/fs/nfs/nfs4_fs.h
+index 3e344bec3647b..de71cf89a24ee 100644
+--- a/fs/nfs/nfs4_fs.h
++++ b/fs/nfs/nfs4_fs.h
+@@ -281,7 +281,8 @@ struct rpc_clnt *nfs4_negotiate_security(struct rpc_clnt *, struct inode *,
+ int nfs4_submount(struct fs_context *, struct nfs_server *);
+ int nfs4_replace_transport(struct nfs_server *server,
+ 				const struct nfs4_fs_locations *locations);
+-
++size_t nfs_parse_server_name(char *string, size_t len, struct sockaddr *sa,
++			     size_t salen, struct net *net);
+ /* nfs4proc.c */
+ extern int nfs4_handle_exception(struct nfs_server *, int, struct nfs4_exception *);
+ extern int nfs4_async_handle_error(struct rpc_task *task,
+diff --git a/fs/nfs/nfs4namespace.c b/fs/nfs/nfs4namespace.c
+index 873342308dc0d..f1ed4f60a7f33 100644
+--- a/fs/nfs/nfs4namespace.c
++++ b/fs/nfs/nfs4namespace.c
+@@ -164,8 +164,8 @@ static int nfs4_validate_fspath(struct dentry *dentry,
+ 	return 0;
+ }
  
+-static size_t nfs_parse_server_name(char *string, size_t len,
+-		struct sockaddr *sa, size_t salen, struct net *net)
++size_t nfs_parse_server_name(char *string, size_t len, struct sockaddr *sa,
++			     size_t salen, struct net *net)
+ {
+ 	ssize_t ret;
+ 
+-- 
+2.34.1
+
 
 
