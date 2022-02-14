@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70C5D4B47D1
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B73A4B4612
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245590AbiBNJwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:52:25 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34518 "EHLO
+        id S243389AbiBNJbl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:31:41 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343666AbiBNJu5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:50:57 -0500
+        with ESMTP id S243414AbiBNJbJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:31:09 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FE1B66217;
-        Mon, 14 Feb 2022 01:41:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99773BF55;
+        Mon, 14 Feb 2022 01:30:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C447061172;
-        Mon, 14 Feb 2022 09:41:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEA87C340F0;
-        Mon, 14 Feb 2022 09:41:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1800460C8A;
+        Mon, 14 Feb 2022 09:30:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F355CC340E9;
+        Mon, 14 Feb 2022 09:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831715;
-        bh=b++DG1/O5mEmOhO6STDxegYQ9ltg4/TqedAfNshj/Yw=;
+        s=korg; t=1644831015;
+        bh=MCjR5djHfF6Jm7ho/tzh2m3oMgwvsFoWOd7hkghuuQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r+ZtP/zWAf1RvZQLe1asnu2o8mMoMPVWPkJOlV3EfdCOxCaUl2/SuJF0zhbDy862m
-         lJ25+qLl2D69WwkF+Zh+Dc4/PT8OcPbPJd9wHK+QsLvlhmo+XKrj8q8w33Yix2uj09
-         22SvDvC0OPIhUm927Jb+rHsWtJJ8t4eLelz3L4dg=
+        b=i5Jy/Wk9vqIz6K45BaUmcDSquB0nxzsJDnDg/QYr0lcD+V0cHahAvmfQ6blSS0eLy
+         WP9TGIlEuMft7DxISeTLWJPnUkahClVVYjHF23twRBGsJQLD7athaEboD3h1646+r0
+         asZuU0on/5cratcpxs69S21yqs5RNQVrbKq+aZHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
-        Alexander Graf <graf@amazon.de>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 041/116] KVM: VMX: Set vmcs.PENDING_DBG.BS on #DB in STI/MOVSS blocking shadow
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Frank van der Linden <fllinden@amazon.com>
+Subject: [PATCH 4.14 17/44] bpf: Add kconfig knob for disabling unpriv bpf by default
 Date:   Mon, 14 Feb 2022 10:25:40 +0100
-Message-Id: <20220214092500.104588000@linuxfoundation.org>
+Message-Id: <20220214092448.467759740@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
+References: <20220214092447.897544753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,101 +54,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit b9bed78e2fa9571b7c983b20666efa0009030c71 ]
+commit 08389d888287c3823f80b0216766b71e17f0aba5 upstream.
 
-Set vmcs.GUEST_PENDING_DBG_EXCEPTIONS.BS, a.k.a. the pending single-step
-breakpoint flag, when re-injecting a #DB with RFLAGS.TF=1, and STI or
-MOVSS blocking is active.  Setting the flag is necessary to make VM-Entry
-consistency checks happy, as VMX has an invariant that if RFLAGS.TF is
-set and STI/MOVSS blocking is true, then the previous instruction must
-have been STI or MOV/POP, and therefore a single-step #DB must be pending
-since the RFLAGS.TF cannot have been set by the previous instruction,
-i.e. the one instruction delay after setting RFLAGS.TF must have already
-expired.
+Add a kconfig knob which allows for unprivileged bpf to be disabled by default.
+If set, the knob sets /proc/sys/kernel/unprivileged_bpf_disabled to value of 2.
 
-Normally, the CPU sets vmcs.GUEST_PENDING_DBG_EXCEPTIONS.BS appropriately
-when recording guest state as part of a VM-Exit, but #DB VM-Exits
-intentionally do not treat the #DB as "guest state" as interception of
-the #DB effectively makes the #DB host-owned, thus KVM needs to manually
-set PENDING_DBG.BS when forwarding/re-injecting the #DB to the guest.
+This still allows a transition of 2 -> {0,1} through an admin. Similarly,
+this also still keeps 1 -> {1} behavior intact, so that once set to permanently
+disabled, it cannot be undone aside from a reboot.
 
-Note, although this bug can be triggered by guest userspace, doing so
-requires IOPL=3, and guest userspace running with IOPL=3 has full access
-to all I/O ports (from the guest's perspective) and can crash/reboot the
-guest any number of ways.  IOPL=3 is required because STI blocking kicks
-in if and only if RFLAGS.IF is toggled 0=>1, and if CPL>IOPL, STI either
-takes a #GP or modifies RFLAGS.VIF, not RFLAGS.IF.
+We've also added extra2 with max of 2 for the procfs handler, so that an admin
+still has a chance to toggle between 0 <-> 2.
 
-MOVSS blocking can be initiated by userspace, but can be coincident with
-a #DB if and only if DR7.GD=1 (General Detect enabled) and a MOV DR is
-executed in the MOVSS shadow.  MOV DR #GPs at CPL>0, thus MOVSS blocking
-is problematic only for CPL0 (and only if the guest is crazy enough to
-access a DR in a MOVSS shadow).  All other sources of #DBs are either
-suppressed by MOVSS blocking (single-step, code fetch, data, and I/O),
-are mutually exclusive with MOVSS blocking (T-bit task switch), or are
-already handled by KVM (ICEBP, a.k.a. INT1).
+Either way, as an additional alternative, applications can make use of CAP_BPF
+that we added a while ago.
 
-This bug was originally found by running tests[1] created for XSA-308[2].
-Note that Xen's userspace test emits ICEBP in the MOVSS shadow, which is
-presumably why the Xen bug was deemed to be an exploitable DOS from guest
-userspace.  KVM already handles ICEBP by skipping the ICEBP instruction
-and thus clears MOVSS blocking as a side effect of its "emulation".
-
-[1] http://xenbits.xenproject.org/docs/xtf/xsa-308_2main_8c_source.html
-[2] https://xenbits.xen.org/xsa/advisory-308.html
-
-Reported-by: David Woodhouse <dwmw2@infradead.org>
-Reported-by: Alexander Graf <graf@amazon.de>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220120000624.655815-1-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/74ec548079189e4e4dffaeb42b8987bb3c852eee.1620765074.git.daniel@iogearbox.net
+[fllinden@amazon.com: backported to 4.14]
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ Documentation/sysctl/kernel.txt |   21 +++++++++++++++++++++
+ init/Kconfig                    |   10 ++++++++++
+ kernel/bpf/syscall.c            |    3 ++-
+ kernel/sysctl.c                 |   29 +++++++++++++++++++++++++----
+ 4 files changed, 58 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 351ef5cf1436a..94f5f2129e3b4 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -4846,8 +4846,33 @@ static int handle_exception_nmi(struct kvm_vcpu *vcpu)
- 		dr6 = vmx_get_exit_qual(vcpu);
- 		if (!(vcpu->guest_debug &
- 		      (KVM_GUESTDBG_SINGLESTEP | KVM_GUESTDBG_USE_HW_BP))) {
-+			/*
-+			 * If the #DB was due to ICEBP, a.k.a. INT1, skip the
-+			 * instruction.  ICEBP generates a trap-like #DB, but
-+			 * despite its interception control being tied to #DB,
-+			 * is an instruction intercept, i.e. the VM-Exit occurs
-+			 * on the ICEBP itself.  Note, skipping ICEBP also
-+			 * clears STI and MOVSS blocking.
-+			 *
-+			 * For all other #DBs, set vmcs.PENDING_DBG_EXCEPTIONS.BS
-+			 * if single-step is enabled in RFLAGS and STI or MOVSS
-+			 * blocking is active, as the CPU doesn't set the bit
-+			 * on VM-Exit due to #DB interception.  VM-Entry has a
-+			 * consistency check that a single-step #DB is pending
-+			 * in this scenario as the previous instruction cannot
-+			 * have toggled RFLAGS.TF 0=>1 (because STI and POP/MOV
-+			 * don't modify RFLAGS), therefore the one instruction
-+			 * delay when activating single-step breakpoints must
-+			 * have already expired.  Note, the CPU sets/clears BS
-+			 * as appropriate for all other VM-Exits types.
-+			 */
- 			if (is_icebp(intr_info))
- 				WARN_ON(!skip_emulated_instruction(vcpu));
-+			else if ((vmx_get_rflags(vcpu) & X86_EFLAGS_TF) &&
-+				 (vmcs_read32(GUEST_INTERRUPTIBILITY_INFO) &
-+				  (GUEST_INTR_STATE_STI | GUEST_INTR_STATE_MOV_SS)))
-+				vmcs_writel(GUEST_PENDING_DBG_EXCEPTIONS,
-+					    vmcs_readl(GUEST_PENDING_DBG_EXCEPTIONS) | DR6_BS);
+--- a/Documentation/sysctl/kernel.txt
++++ b/Documentation/sysctl/kernel.txt
+@@ -91,6 +91,7 @@ show up in /proc/sys/kernel:
+ - sysctl_writes_strict
+ - tainted
+ - threads-max
++- unprivileged_bpf_disabled
+ - unknown_nmi_panic
+ - watchdog
+ - watchdog_thresh
+@@ -999,6 +1000,26 @@ available RAM pages threads-max is reduc
  
- 			kvm_queue_exception_p(vcpu, DB_VECTOR, dr6);
- 			return 1;
--- 
-2.34.1
-
+ ==============================================================
+ 
++unprivileged_bpf_disabled:
++
++Writing 1 to this entry will disable unprivileged calls to bpf();
++once disabled, calling bpf() without CAP_SYS_ADMIN will return
++-EPERM. Once set to 1, this can't be cleared from the running kernel
++anymore.
++
++Writing 2 to this entry will also disable unprivileged calls to bpf(),
++however, an admin can still change this setting later on, if needed, by
++writing 0 or 1 to this entry.
++
++If BPF_UNPRIV_DEFAULT_OFF is enabled in the kernel config, then this
++entry will default to 2 instead of 0.
++
++  0 - Unprivileged calls to bpf() are enabled
++  1 - Unprivileged calls to bpf() are disabled without recovery
++  2 - Unprivileged calls to bpf() are disabled
++
++==============================================================
++
+ unknown_nmi_panic:
+ 
+ The value in this file affects behavior of handling NMI. When the
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1378,6 +1378,16 @@ config ADVISE_SYSCALLS
+ 	  applications use these syscalls, you can disable this option to save
+ 	  space.
+ 
++config BPF_UNPRIV_DEFAULT_OFF
++	bool "Disable unprivileged BPF by default"
++	depends on BPF_SYSCALL
++	help
++	  Disables unprivileged BPF by default by setting the corresponding
++	  /proc/sys/kernel/unprivileged_bpf_disabled knob to 2. An admin can
++	  still reenable it by setting it to 0 later on, or permanently
++	  disable it by setting it to 1 (from which no other transition to
++	  0 is possible anymore).
++
+ config USERFAULTFD
+ 	bool "Enable userfaultfd() system call"
+ 	select ANON_INODES
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -37,7 +37,8 @@ static DEFINE_SPINLOCK(prog_idr_lock);
+ static DEFINE_IDR(map_idr);
+ static DEFINE_SPINLOCK(map_idr_lock);
+ 
+-int sysctl_unprivileged_bpf_disabled __read_mostly;
++int sysctl_unprivileged_bpf_disabled __read_mostly =
++	IS_BUILTIN(CONFIG_BPF_UNPRIV_DEFAULT_OFF) ? 2 : 0;
+ 
+ static const struct bpf_map_ops * const bpf_map_types[] = {
+ #define BPF_PROG_TYPE(_id, _ops)
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -242,6 +242,28 @@ static int sysrq_sysctl_handler(struct c
+ 
+ #endif
+ 
++#ifdef CONFIG_BPF_SYSCALL
++static int bpf_unpriv_handler(struct ctl_table *table, int write,
++                             void *buffer, size_t *lenp, loff_t *ppos)
++{
++	int ret, unpriv_enable = *(int *)table->data;
++	bool locked_state = unpriv_enable == 1;
++	struct ctl_table tmp = *table;
++
++	if (write && !capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
++	tmp.data = &unpriv_enable;
++	ret = proc_dointvec_minmax(&tmp, write, buffer, lenp, ppos);
++	if (write && !ret) {
++		if (locked_state && unpriv_enable != 1)
++			return -EPERM;
++		*(int *)table->data = unpriv_enable;
++	}
++	return ret;
++}
++#endif
++
+ static struct ctl_table kern_table[];
+ static struct ctl_table vm_table[];
+ static struct ctl_table fs_table[];
+@@ -1201,10 +1223,9 @@ static struct ctl_table kern_table[] = {
+ 		.data		= &sysctl_unprivileged_bpf_disabled,
+ 		.maxlen		= sizeof(sysctl_unprivileged_bpf_disabled),
+ 		.mode		= 0644,
+-		/* only handle a transition from default "0" to "1" */
+-		.proc_handler	= proc_dointvec_minmax,
+-		.extra1		= &one,
+-		.extra2		= &one,
++		.proc_handler	= bpf_unpriv_handler,
++		.extra1		= &zero,
++		.extra2		= &two,
+ 	},
+ #endif
+ #if defined(CONFIG_TREE_RCU) || defined(CONFIG_PREEMPT_RCU)
 
 
