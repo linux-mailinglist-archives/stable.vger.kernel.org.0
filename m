@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF0D74B4698
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FD364B4984
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244128AbiBNJji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:39:38 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50594 "EHLO
+        id S1347443AbiBNKaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:30:15 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244116AbiBNJiC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:38:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 733F069281;
-        Mon, 14 Feb 2022 01:35:17 -0800 (PST)
+        with ESMTP id S1347119AbiBNKaF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:30:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CCD36A387;
+        Mon, 14 Feb 2022 01:58:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2F2AB80DA9;
-        Mon, 14 Feb 2022 09:35:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C70B5C340F1;
-        Mon, 14 Feb 2022 09:35:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 485A6B80DC4;
+        Mon, 14 Feb 2022 09:58:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F2F3C340F1;
+        Mon, 14 Feb 2022 09:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831314;
-        bh=Jb03Ld/1IlFjBDrxXqIoBlA0XES/Efs1bjalJ7s2rq0=;
+        s=korg; t=1644832709;
+        bh=etpHd9/WD9Ys2NjYn1EXaPPAzL/S6ZAhPd+Me0wtatU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FF/6CkT3W85qOU8lR3EmgKcp55shOs4nbEqR3Uey+afOIQanERlgzXnNHQe1XytLN
-         f6sx2pYfuZDcIJPEH6S+2GDW07x4lZT3vNZWmag8bEyHlNmWltZZHP/7gNz/qZMI8G
-         hH6lPpWt1Z337IHKguNY+uHjBffC9Wh96LvQshpA=
+        b=ToFwx3Yd3VELAgJfrIi4XR+x9QUPhY/7Yu+3TeOYcoVcyMaKSnqRddWGe4uOSMpIb
+         N3GgRPuwxaFXnAtXUgiFfNLj63dpVs4a6RbXhw7C18xqJvE8uVojXMMHtLDLU9V69q
+         PrWiVTP4tTOnkwVq/YzZHMuFrn8yt5c6o2wqVMHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/71] NFSv4 remove zero number of fs_locations entries error check
+Subject: [PATCH 5.16 099/203] optee: add error checks in optee_ffa_do_call_with_arg()
 Date:   Mon, 14 Feb 2022 10:25:43 +0100
-Message-Id: <20220214092452.536848104@linuxfoundation.org>
+Message-Id: <20220214092513.620430662@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Jens Wiklander <jens.wiklander@linaro.org>
 
-[ Upstream commit 90e12a3191040bd3854d3e236c35921e4e92a044 ]
+[ Upstream commit 4064c461148ab129dfe5eaeea129b4af6cf4b9b7 ]
 
-Remove the check for the zero length fs_locations reply in the
-xdr decoding, and instead check for that in the migration code.
+Adds error checking in optee_ffa_do_call_with_arg() for correctness.
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 4615e5a34b95 ("optee: add FF-A support")
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 3 +++
- fs/nfs/nfs4xdr.c   | 2 --
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/tee/optee/ffa_abi.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index ea680f619438b..aa2caba38a014 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -2070,6 +2070,9 @@ static int nfs4_try_migration(struct nfs_server *server, const struct cred *cred
- 	}
- 
- 	result = -NFS4ERR_NXIO;
-+	if (!locations->nlocations)
-+		goto out;
+diff --git a/drivers/tee/optee/ffa_abi.c b/drivers/tee/optee/ffa_abi.c
+index d8c8683863aa0..28d7c0eafc025 100644
+--- a/drivers/tee/optee/ffa_abi.c
++++ b/drivers/tee/optee/ffa_abi.c
+@@ -619,9 +619,18 @@ static int optee_ffa_do_call_with_arg(struct tee_context *ctx,
+ 		.data2 = (u32)(shm->sec_world_id >> 32),
+ 		.data3 = shm->offset,
+ 	};
+-	struct optee_msg_arg *arg = tee_shm_get_va(shm, 0);
+-	unsigned int rpc_arg_offs = OPTEE_MSG_GET_ARG_SIZE(arg->num_params);
+-	struct optee_msg_arg *rpc_arg = tee_shm_get_va(shm, rpc_arg_offs);
++	struct optee_msg_arg *arg;
++	unsigned int rpc_arg_offs;
++	struct optee_msg_arg *rpc_arg;
 +
- 	if (!(locations->fattr.valid & NFS_ATTR_FATTR_V4_LOCATIONS)) {
- 		dprintk("<-- %s: No fs_locations data, migration skipped\n",
- 			__func__);
-diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
-index 0fc08d22c9218..2b7741fe42ead 100644
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -3683,8 +3683,6 @@ static int decode_attr_fs_locations(struct xdr_stream *xdr, uint32_t *bitmap, st
- 	if (unlikely(!p))
- 		goto out_eio;
- 	n = be32_to_cpup(p);
--	if (n <= 0)
--		goto out_eio;
- 	for (res->nlocations = 0; res->nlocations < n; res->nlocations++) {
- 		u32 m;
- 		struct nfs4_fs_location *loc;
++	arg = tee_shm_get_va(shm, 0);
++	if (IS_ERR(arg))
++		return PTR_ERR(arg);
++
++	rpc_arg_offs = OPTEE_MSG_GET_ARG_SIZE(arg->num_params);
++	rpc_arg = tee_shm_get_va(shm, rpc_arg_offs);
++	if (IS_ERR(rpc_arg))
++		return PTR_ERR(rpc_arg);
+ 
+ 	return optee_ffa_yielding_call(ctx, &data, rpc_arg);
+ }
 -- 
 2.34.1
 
