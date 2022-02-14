@@ -2,433 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 501DA4B5462
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 16:17:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 822184B54AD
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 16:23:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355060AbiBNPRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 10:17:34 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44582 "EHLO
+        id S1354761AbiBNPX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 10:23:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231397AbiBNPRd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 10:17:33 -0500
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 739B3A1B9;
-        Mon, 14 Feb 2022 07:17:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644851845; x=1676387845;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=O1BOYf38V75LZzTXPYUxz33r28t7Oav3prSpjt20VA4=;
-  b=FzXZB/1sQwoerlXoCkWLbcY6FxOVOeGQnSphojopwTRKbFXSaun+QYhM
-   y0LHt/mWlcc5gwfLHpUn6yeMuRxq2MkwEKb0WGyVN0fMgERYLGWTaoMWP
-   UQ+qLTbK0QYK7ikNFWCUYG7DPMl1WdkqhHF/C9NyXuB2pPstmIj9XQ3QB
-   LOSQ1ff+qxT0FpW/dwtjKh5YGWCddHanwo/8wT+jz2htc3wRB53tknvoN
-   roirTIcSIqsmvZxPBpf/6e52+9YEq93ICrQx+fgNuvQOazIMr/1cRofc6
-   glXuKI/iCfSb7R32ZQ+CpqepBK/SK4y6jCt7qQSquGsoeo9KQ2mwZs8+B
-   w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10257"; a="336535223"
-X-IronPort-AV: E=Sophos;i="5.88,368,1635231600"; 
-   d="scan'208";a="336535223"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2022 07:17:25 -0800
-X-IronPort-AV: E=Sophos;i="5.88,368,1635231600"; 
-   d="scan'208";a="538662963"
-Received: from junliao-mobl.amr.corp.intel.com (HELO spandruv-desk1.amr.corp.intel.com) ([10.212.133.237])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2022 07:17:24 -0800
-Message-ID: <aaace653f12b79336b6f986ef5c4f9471445372a.camel@linux.intel.com>
-Subject: Re: CPU excessively long times between frequency scaling driver
- calls - bisected
-From:   srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-To:     Doug Smythies <dsmythies@telus.net>,
-        "Zhang, Rui" <rui.zhang@intel.com>
-Cc:     "Tang, Feng" <feng.tang@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "paulmck@kernel.org" <paulmck@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
-Date:   Mon, 14 Feb 2022 07:17:24 -0800
-In-Reply-To: <CAAYoRsXbBJtvJzh91nTXATLL1eb2EKbTVb8vEWa3Y6DfCWhZeg@mail.gmail.com>
-References: <003f01d81c8c$d20ee3e0$762caba0$@telus.net>
-         <20220208023940.GA5558@shbuild999.sh.intel.com>
-         <CAAYoRsXrwOQgzAcED+JfVG0=JQNEXuyGcSGghL4Z5xnFgkp+TQ@mail.gmail.com>
-         <20220208091525.GA7898@shbuild999.sh.intel.com>
-         <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
-         <e185b89fb97f47758a5e10239fc3eed0@intel.com>
-         <CAAYoRsXbBJtvJzh91nTXATLL1eb2EKbTVb8vEWa3Y6DfCWhZeg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.3 (3.42.3-1.fc35) 
+        with ESMTP id S1351745AbiBNPX0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 10:23:26 -0500
+Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 432C44755A;
+        Mon, 14 Feb 2022 07:23:19 -0800 (PST)
+Received: from in02.mta.xmission.com ([166.70.13.52]:38326)
+        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1nJdC9-0031ok-MP; Mon, 14 Feb 2022 08:23:17 -0700
+Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:60362 helo=email.froward.int.ebiederm.org.xmission.com)
+        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1nJdC8-001VFM-6U; Mon, 14 Feb 2022 08:23:17 -0700
+From:   "Eric W. Biederman" <ebiederm@xmission.com>
+To:     Solar Designer <solar@openwall.com>
+Cc:     linux-kernel@vger.kernel.org, Alexey Gladkov <legion@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Ran Xiaokai <ran.xiaokai@zte.com.cn>,
+        Michal Koutn?? <mkoutny@suse.com>, stable@vger.kernel.org
+References: <87o83e2mbu.fsf@email.froward.int.ebiederm.org>
+        <20220211021324.4116773-5-ebiederm@xmission.com>
+        <20220212223638.GB29214@openwall.com>
+Date:   Mon, 14 Feb 2022 09:23:09 -0600
+In-Reply-To: <20220212223638.GB29214@openwall.com> (Solar Designer's message
+        of "Sat, 12 Feb 2022 23:36:39 +0100")
+Message-ID: <87k0dxv5eq.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain
+X-XM-SPF: eid=1nJdC8-001VFM-6U;;;mid=<87k0dxv5eq.fsf@email.froward.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX18dw1lI1ntSwcqLdHM5MIlns4bu6PWfLKs=
+X-SA-Exim-Connect-IP: 68.227.174.4
+X-SA-Exim-Mail-From: ebiederm@xmission.com
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
+X-Spam-DCC: XMission; sa06 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: ***;Solar Designer <solar@openwall.com>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 902 ms - load_scoreonly_sql: 0.22 (0.0%),
+        signal_user_changed: 20 (2.2%), b_tie_ro: 14 (1.6%), parse: 6 (0.7%),
+        extract_message_metadata: 43 (4.8%), get_uri_detail_list: 4.4 (0.5%),
+        tests_pri_-1000: 43 (4.7%), compile_eval: 59 (6.5%), tests_pri_-950:
+        2.0 (0.2%), tests_pri_-900: 1.93 (0.2%), tests_pri_-90: 134 (14.9%),
+        check_bayes: 130 (14.4%), b_tokenize: 9 (1.0%), b_tok_get_all: 8
+        (0.9%), b_comp_prob: 2.7 (0.3%), b_tok_touch_all: 105 (11.6%),
+        b_finish: 1.71 (0.2%), tests_pri_0: 621 (68.9%), check_dkim_signature:
+        1.40 (0.2%), check_dkim_adsp: 6 (0.6%), poll_dns_idle: 0.86 (0.1%),
+        tests_pri_10: 3.1 (0.3%), tests_pri_500: 16 (1.8%), rewrite_mail: 0.00
+        (0.0%)
+Subject: Re: [PATCH 5/8] ucounts: Handle wrapping in is_ucounts_overlimit
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Doug,
+Solar Designer <solar@openwall.com> writes:
 
-I think you use CONFIG_NO_HZ_FULL.
-Here we are getting callback from scheduler. Can we check that if
-scheduler woke up on those CPUs?
-We can run "trace-cmd -e sched" and check in kernel shark if there is
-similar gaps in activity.
+> On Thu, Feb 10, 2022 at 08:13:21PM -0600, Eric W. Biederman wrote:
+>> While examining is_ucounts_overlimit and reading the various messages
+>> I realized that is_ucounts_overlimit fails to deal with counts that
+>> may have wrapped.
+>> 
+>> Being wrapped should be a transitory state for counts and they should
+>> never be wrapped for long, but it can happen so handle it.
+>> 
+>> Cc: stable@vger.kernel.org
+>> Fixes: 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of ucounts")
+>> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+>> ---
+>>  kernel/ucount.c | 3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>> 
+>> diff --git a/kernel/ucount.c b/kernel/ucount.c
+>> index 65b597431c86..06ea04d44685 100644
+>> --- a/kernel/ucount.c
+>> +++ b/kernel/ucount.c
+>> @@ -350,7 +350,8 @@ bool is_ucounts_overlimit(struct ucounts *ucounts, enum ucount_type type, unsign
+>>  	if (rlimit > LONG_MAX)
+>>  		max = LONG_MAX;
+>>  	for (iter = ucounts; iter; iter = iter->ns->ucounts) {
+>> -		if (get_ucounts_value(iter, type) > max)
+>> +		long val = get_ucounts_value(iter, type);
+>> +		if (val < 0 || val > max)
+>>  			return true;
+>>  		max = READ_ONCE(iter->ns->ucount_max[type]);
+>>  	}
+>
+> You probably deliberately assume "gcc -fwrapv", but otherwise:
+>
+> As you're probably aware, a signed integer wrapping is undefined
+> behavior in C.  In the function above, "val" having wrapped to negative
+> assumes we had occurred UB elsewhere.  Further, there's an instance of
+> UB in the function itself:
 
-Thanks,
-Srinivas
+While in cases like this we pass the value in a long, the operations on
+the value occur in an atomic_long_t.  As atomic_long_t is implemented in
+assembly we do escape the problems of undefined behavior.
 
-On Sun, 2022-02-13 at 10:54 -0800, Doug Smythies wrote:
-> Hi Rui,
-> 
-> On Wed, Feb 9, 2022 at 11:45 PM Zhang, Rui <rui.zhang@intel.com>
-> wrote:
-> > On 2022.02.09 14:23 Doug wrote:
-> > > On Tue, Feb 8, 2022 at 1:15 AM Feng Tang <feng.tang@intel.com>
-> > > wrote:
-> > > > On Mon, Feb 07, 2022 at 11:13:00PM -0800, Doug Smythies wrote:
-> > > > > > > 
-> > > > > > > Since kernel 5.16-rc4 and commit:
-> > > > > > > b50db7095fe002fa3e16605546cba66bf1b68a3e
-> > > > > > > " x86/tsc: Disable clocksource watchdog for TSC on
-> > > > > > > qualified platorms"
-> > > > > > > 
-> > > > > > > There are now occasions where times between calls to the
-> > > > > > > driver
-> > > > > > > can be over 100's of seconds and can result in the CPU
-> > > > > > > frequency
-> > > > > > > being left unnecessarily high for extended periods.
-> > > > > > > 
-> > > > > > > From the number of clock cycles executed between these
-> > > > > > > long
-> > > > > > > durations one can tell that the CPU has been running
-> > > > > > > code, but
-> > > > > > > the driver never got called.
-> > > > > > > 
-> > > > > > > Attached are some graphs from some trace data acquired
-> > > > > > > using
-> > > > > > > intel_pstate_tracer.py where one can observe an idle
-> > > > > > > system
-> > > > > > > between about 42 and well over 200 seconds elapsed time,
-> > > > > > > yet
-> > > > > > > CPU10 never gets called, which would have resulted in
-> > > > > > > reducing
-> > > > > > > it's pstate request, until an elapsed time of 167.616
-> > > > > > > seconds,
-> > > > > > > 126 seconds since the last call. The CPU frequency never
-> > > > > > > does go to
-> > > minimum.
-> > > > > > > 
-> > > > > > > For reference, a similar CPU frequency graph is also
-> > > > > > > attached,
-> > > > > > > with the commit reverted. The CPU frequency drops to
-> > > > > > > minimum,
-> > > > > > > over about 10 or 15 seconds.,
-> > > > > > 
-> > > > > > commit b50db7095fe0 essentially disables the clocksource
-> > > > > > watchdog,
-> > > > > > which literally doesn't have much to do with cpufreq code.
-> > > > > > 
-> > > > > > One thing I can think of is, without the patch, there is a
-> > > > > > periodic clocksource timer running every 500 ms, and it
-> > > > > > loops to
-> > > > > > run on all CPUs in turn. For your HW, it has 12 CPUs (from
-> > > > > > the
-> > > > > > graph), so each CPU will get a timer (HW timer interrupt
-> > > > > > backed)
-> > > > > > every 6 seconds. Could this affect the cpufreq governor's
-> > > > > > work
-> > > > > > flow (I just quickly read some cpufreq code, and seem there
-> > > > > > is
-> > > > > > irq_work/workqueue involved).
-> > > > > 
-> > > > > 6 Seconds is the longest duration I have ever seen on this
-> > > > > processor
-> > > > > before commit b50db7095fe0.
-> > > > > 
-> > > > > I said "the times between calls to the driver have never
-> > > > > exceeded 10
-> > > > > seconds" originally, but that involved other processors.
-> > > > > 
-> > > > > I also did longer, 9000 second tests:
-> > > > > 
-> > > > > For a reverted kernel the driver was called 131,743, and 0
-> > > > > times the
-> > > > > duration was longer than 6.1 seconds.
-> > > > > 
-> > > > > For a non-reverted kernel the driver was called 110,241
-> > > > > times, and
-> > > > > 1397 times the duration was longer than 6.1 seconds, and the
-> > > > > maximum
-> > > > > duration was 303.6 seconds
-> > > > 
-> > > > Thanks for the data, which shows it is related to the removal
-> > > > of
-> > > > clocksource watchdog timers. And under this specific
-> > > > configurations,
-> > > > the cpufreq work flow has some dependence on that watchdog
-> > > > timers.
-> > > > 
-> > > > Also could you share you kernel config, boot message and some
-> > > > system
-> > > > settings like for tickless mode, so that other people can try
-> > > > to
-> > > > reproduce? thanks
-> > > 
-> > > I steal the kernel configuration file from the Ubuntu mainline
-> > > PPA [1], what
-> > > they call "lowlatency", or 1000Hz tick. I make these changes
-> > > before compile:
-> > > 
-> > > scripts/config --disable DEBUG_INFO
-> > > scripts/config --disable SYSTEM_TRUSTED_KEYS scripts/config --
-> > > disable
-> > > SYSTEM_REVOCATION_KEYS
-> > > 
-> > > I also send you the config and dmesg files in an off-list email.
-> > > 
-> > > This is an idle, and very low periodic loads, system type test.
-> > > My test computer has no GUI and very few services running.
-> > > Notice that I have not used the word "regression" yet in this
-> > > thread, because
-> > > I don't know for certain that it is. In the end, we don't care
-> > > about CPU
-> > > frequency, we care about wasting energy.
-> > > It is definitely a change, and I am able to measure small
-> > > increases in energy
-> > > use, but this is all at the low end of the power curve.
-> 
-> Please keep the above statement in mind. The differences were rather
-> minor,
-> Since Rui asks for data below, I have tried to find better examples.
-> 
-> > What do you use to measure the energy use? And what difference do
-> > you observe?
-> 
-> I use both turbostat and a processor power monitoring tool of my own.
-> Don't get me wrong, I love turbostat, but it has become somewhat
-> heavy
-> (lots of code per interval) over recent years. My own utility has
-> minimal
-> code per interval, only uses pre-allocated memory with no disk or
-> terminal
-> interaction during the sampling phase, resulting in minimal system
-> perturbation
-> due to itself.
-> 
-> > > So far I have not found a significant example of increased power
-> > > use, but I
-> > > also have not looked very hard.
-> 
-> I looked a little harder for this reply, searching all single CPU
-> loads for a few
-> work/sleep frequencies (73, 113, 211, 347, 401 hertz) fixed work
-> packet
-> per work interval.
-> 
-> > > During any test, many monitoring tools might shorten durations.
-> > > For example if I run turbostat, say:
-> > > 
-> > > sudo turbostat --Summary --quiet --show
-> > > Busy%,Bzy_MHz,IRQ,PkgWatt,PkgTmp,RAMWatt,GFXWatt,CorWatt --
-> > > interval
-> > > 2.5
-> > > 
-> > > Well, yes then the maximum duration would be 2.5 seconds, because
-> > > turbostat wakes up each CPU to inquire about things causing a
-> > > call to the CPU
-> > > scaling driver. (I tested this, for about
-> > > 900 seconds.)
-> > > 
-> > > For my power tests I use a sample interval of >= 300 seconds.
-> > 
-> > So you use something like "turbostat sleep 900" for power test,
-> 
-> Typically I use 300 seconds for turbostat for this work.
-> It was only the other day, that I saw a duration of 302 seconds, so
-> yes I should try even longer, but it is becoming a tradeoff between
-> experiments taking many many hours and time available.
-> 
-> > and the RAPL Energy counters show the power difference?
-> 
-> Yes.
-> 
-> > Can you paste the turbostat output both w/ and w/o the watchdog?
-> 
-> Workflow:
-> 
-> Task 1: Purpose: main periodic load.
-> 
-> 411 hertz work sleep frequency and about 26.6% load at 4.8 Ghz,
-> max_turbo (it would limit out at 100% duty cycle at about pstate 13)
-> 
-> Note: this is a higher load than I was using when I started this
-> email thread.
-> 
-> Task 2: Purpose: To assist in promoting manifestation of the
-> issue of potential concern with commit b50db7095fe0.
-> 
-> A short burst of work (about 30 milliseconds @ max turbo,
-> longer at lower frequencies), then sleep for 45 seconds.
-> Say, almost 0 load at 0.022 hertz.
-> Greater than or equal to 30 milliseconds at full load, ensures
-> that the intel_pstate driver will be called at least 2 or 3 times,
-> raising the requested pstate for that CPU.
-> 
-> Task 3: Purpose: Acquire power data with minimum system
-> perturbation due to this very monitoring task.
-> 
-> Both turbostat and my own power monitor were used, never
-> at the same time (unless just to prove they reported the same
-> power). This turbostat command:
-> 
-> turbostat --Summary --quiet --show
-> Busy%,Bzy_MHz,IRQ,PkgWatt,PkgTmp,RAMWatt,GFXWatt,CorWatt --interval
-> 300
-> 
-> and my program also sampled at 300 second per sample,
-> typically 5 samples, and after 1/2 hour since boot.
-> 
-> Kernels:
-> stock: 5.17-rc3 as is.
-> revert: 5.17-rc3 with b50db7095fe0 reverted.
-> 
-> Test 1: no-hwp/active/powersave:
-> 
-> Doug's cpu_power_mon:
-> 
-> Stock: 5 samples @ 300 seconds per sample:
-> average: 4.7 watts +9%
-> minimum: 4.3 watts
-> maximum: 4.9 watts
-> 
-> Revert: 5 samples @ 300 seconds per sample:
-> average: 4.3 watts
-> minimum: 4.2 watts
-> maximum: 4.5 watts
-> 
-> Test 2: no-hwp/passive/schedutil:
-> 
-> In the beginning active/powersave was used
-> because it is the easiest (at least for me) to
-> understand and interpret the intel_pstate_tracer.py
-> results. Long durations are common in passive mode,
-> because something higher up can decide not to call the driver
-> because nothing changed. Very valuable lost information
-> in my opinion.
-> 
-> I didn't figure it out for awhile, but schedutil is bi-stable
-> with this workflow, depending on if it approaches steady
-> state from a higher or lower previous load (i.e. hysteresis).
-> With either kernel it might run for hours and hours at an
-> average of 6.1 watts or 4.9 watts. This difference dominates,
-> so trying to reveal if there is any contribution from the commit
-> of this thread is useless.
-> 
-> Test 3: Similar workflow as test1, but 347 Hertz and
-> a little less work per work period.
-> 
-> Task 2 was changed to use more CPUs to try
-> to potentially amplify manifestation of the effect.
-> 
->  Doug's cpu_power_mon:
-> 
-> Stock: 5 samples @ 300 seconds per sample:
-> average: 4.2 watts +31%
-> minimum: 3.5 watts
-> maximum: 4.9 watts
-> 
-> Revert: 5 samples @ 300 seconds per sample:
-> average: 3.2 watts
-> minimum: 3.1 watts
-> maximum: 3.2 watts
-> 
-> Re-do test 1, but with the improved task 2:
-> 
-> Turbostat:
-> 
-> Stock:
-> 
-> doug@s19:~$ sudo
-> /home/doug/kernel/linux/tools/power/x86/turbostat/turbostat --Summary
-> --quiet --show
-> Busy%,Bzy_MHz,IRQ,PkgWatt,PkgTmp,RAMWatt,GFXWatt,CorWatt
-> --interval 300
-> Busy%   Bzy_MHz IRQ     PkgTmp  PkgWatt CorWatt GFXWatt RAMWatt
-> 4.09    3335    282024  36      5.79    5.11    0.00    0.89
-> 4.11    3449    283286  34      6.06    5.40    0.00    0.89
-> 4.11    3504    284532  35      6.35    5.70    0.00    0.89
-> 4.11    3493    283908  35      6.26    5.60    0.00    0.89
-> 4.11    3499    284243  34      6.27    5.62    0.00    0.89
-> 
-> Revert:
-> 
-> doug@s19:~/freq-scalers/long_dur$ sudo
-> /home/doug/kernel/linux/tools/power/x86/turbostat/turbostat --Summary
-> --quiet --show
-> Busy%,Bzy_MHz,IRQ,PkgWatt,PkgTmp,RAMWatt,GFXWatt,CorWatt
-> --interval 300
-> Busy%   Bzy_MHz IRQ     PkgTmp  PkgWatt CorWatt GFXWatt RAMWatt
-> 4.12    3018    283114  34      4.57    3.91    0.00    0.89
-> 4.12    3023    283482  34      4.59    3.94    0.00    0.89
-> 4.12    3017    282609  34      4.71    4.05    0.00    0.89
-> 4.12    3013    282898  34      4.64    3.99    0.00    0.89
-> 4.12    3013    282956  36      4.56    3.90    0.00    0.89
-> 4.12    3026    282807  34      4.61    3.95    0.00    0.89
-> 4.12    3026    282738  35      4.50    3.84    0.00    0.89
-> 
-> Or average of 6.2 watts versus 4.6 watts, +35%.
-> 
-> Several other tests had undetectable power differences
-> between kernels, but I did not go back and re-test with
-> the improved task 2.
-> 
-> > 
-> > Thanks,
-> > rui
-> > 
-> > > For duration only tests, turbostat is not run at the same time.
-> > > 
-> > > My grub line:
-> > > 
-> > > GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 consoleblank=314
-> > > intel_pstate=active intel_pstate=no_hwp msr.allow_writes=on
-> > > cpuidle.governor=teo"
-> > > 
-> > > A typical pstate tracer command (with the script copied to the
-> > > directory
-> > > where I run this stuff:):
-> > > 
-> > > sudo ./intel_pstate_tracer.py --interval 600 --name vnew02 --
-> > > memory
-> > > 800000
-> > > 
-> > > > 
-> > > > > > Can you try one test that keep all the current setting and
-> > > > > > change
-> > > > > > the irq affinity of disk/network-card to 0xfff to let
-> > > > > > interrupts
-> > > > > > from them be distributed to all CPUs?
-> > > > > 
-> > > > > I am willing to do the test, but I do not know how to change
-> > > > > the irq
-> > > > > affinity.
-> > > > 
-> > > > I might say that too soon. I used to "echo fff >
-> > > > /proc/irq/xxx/smp_affinity"
-> > > > (xx is the irq number of a device) to let interrupts be
-> > > > distributed to
-> > > > all CPUs long time ago, but it doesn't work on my 2 desktops at
-> > > > hand.
-> > > > Seems it only support one-cpu irq affinity in recent kernel.
-> > > > 
-> > > > You can still try that command, though it may not work.
-> > > 
-> > > I did not try this yet.
-> > > 
-> > > [1] https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.17-rc3/
 
+> bool is_ucounts_overlimit(struct ucounts *ucounts, enum ucount_type type, unsigned long rlimit)
+> {
+> 	struct ucounts *iter;
+> 	long max = rlimit;
+> 	if (rlimit > LONG_MAX)
+> 		max = LONG_MAX;
+>
+> The assignment on "long max = rlimit;" would have already been UB if
+> "rlimit > LONG_MAX", which is only checked afterwards.  I think the
+> above would be better written as:
+>
+> 	if (rlimit > LONG_MAX)
+> 		rlimit = LONG_MAX;
+> 	long max = rlimit;
+>
+> considering that "rlimit" is never used further in that function.
+
+Thank you for spotting that.  That looks like a good idea.  Even if it
+works in this case it is better to establish patterns that are not
+problematic if copy and pasted elsewhere.
+
+> And to more likely avoid wraparound of "val", perhaps have the limit at
+> a value significantly lower than LONG_MAX, like half that?  So:
+
+For the case of RLIMIT_NPROC the real world limit is PID_MAX_LIMIT
+which is 2^22.
+
+Beyond that the code deliberately uses all values with the high bit/sign
+bit set to flag that things went too high.  So the code already reserves
+half of the values.
+
+> I assume that once is_ucounts_overlimit() returned true, it is expected
+> the value would almost not grow further (except a little due to races).
+
+Pretty much. The function essentially only exists so that we can
+handle the weirdness of RLIMIT_NPROC.  Now that I have discovered the
+weirdness of RLIMIT_NPROC is old historical sloppiness I expect the
+proper solution is to rework how RLIMIT_NPROC operates and to remove
+is_ucounts_overlimit all together.   I have to figure out what a proper
+RLIMIT_NPROC check looks like in proc.
+
+Eric
