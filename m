@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F764B46B0
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5124B4641
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244660AbiBNJmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:42:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33482 "EHLO
+        id S243912AbiBNJd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:33:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245483AbiBNJlf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:41:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0189A66F9B;
-        Mon, 14 Feb 2022 01:37:27 -0800 (PST)
+        with ESMTP id S243865AbiBNJdN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:33:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 742A260D90;
+        Mon, 14 Feb 2022 01:31:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A28C4B80DC8;
-        Mon, 14 Feb 2022 09:37:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE252C340EF;
-        Mon, 14 Feb 2022 09:37:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26D8FB80DCC;
+        Mon, 14 Feb 2022 09:31:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B360C340E9;
+        Mon, 14 Feb 2022 09:31:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831445;
-        bh=Hwp0gsDxpaxDqoHrkEftWoX7EaQWJjN/NlZeOUzuI3w=;
+        s=korg; t=1644831096;
+        bh=uevaLRTtbu0gQTNmH5s19jDCZEKQ+0PLVKpDgPs9ZbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g8NuZU+0cPtoxTuSvtGCJigehBbRx1F88e1SUovc+xNvUyytQr7lgkx8U0Ikp2jBY
-         4xRI/3JHiQd171WWwS1+G5JVwX8RGRtuKRWG3Odzd3Yx7TXeuj5kMvrt0jIWf9I9rt
-         1P5L4wBwgtOBBn4v8vQp8J1/ojo4dY2XIals8UiU=
+        b=dBqfFpXMTV6Ae2mCOYkB2i7y1jV7VdyB6wPH/yeFSXLDlnOpqB63eMI55f2V3C+Hn
+         4ehUVxpHrrmhWoOl5ybaI59VCl9U6XI+sPOnEUnKUmh9auMBzyMUrUrGyRPulDdXTj
+         5w7gMaCvHPu9NiDJPNa2pW9+5P1zzwY49o3HJJoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 37/71] ARM: dts: imx6qdl-udoo: Properly describe the SD card detect
+        stable@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>,
+        Will Drewry <wad@chromium.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 4.14 42/44] seccomp: Invalidate seccomp mode to catch death failures
 Date:   Mon, 14 Feb 2022 10:26:05 +0100
-Message-Id: <20220214092453.274042442@linuxfoundation.org>
+Message-Id: <20220214092449.263018817@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
+References: <20220214092447.897544753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 993d66140f8d1c1853a3b58b77b43b681eb64dee ]
+commit 495ac3069a6235bfdf516812a2a9b256671bbdf9 upstream.
 
-GPIO7_IO00 is used as SD card detect.
+If seccomp tries to kill a process, it should never see that process
+again. To enforce this proactively, switch the mode to something
+impossible. If encountered: WARN, reject all syscalls, and attempt to
+kill the process again even harder.
 
-Properly describe this in the devicetree.
-
-Fixes: 40cdaa542cf0 ("ARM: dts: imx6q-udoo: Add initial board support")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Will Drewry <wad@chromium.org>
+Fixes: 8112c4f140fa ("seccomp: remove 2-phase API")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6qdl-udoo.dtsi | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/seccomp.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-udoo.dtsi b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-index 16672cbada287..6c8da3f037335 100644
---- a/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
-@@ -5,6 +5,8 @@
-  * Author: Fabio Estevam <fabio.estevam@freescale.com>
-  */
+--- a/kernel/seccomp.c
++++ b/kernel/seccomp.c
+@@ -28,6 +28,9 @@
+ #include <linux/syscalls.h>
+ #include <linux/sysctl.h>
  
-+#include <dt-bindings/gpio/gpio.h>
++/* Not exposed in headers: strictly internal use only. */
++#define SECCOMP_MODE_DEAD	(SECCOMP_MODE_FILTER + 1)
 +
- / {
- 	aliases {
- 		backlight = &backlight;
-@@ -218,6 +220,7 @@ MX6QDL_PAD_SD3_DAT0__SD3_DATA0		0x17059
- 				MX6QDL_PAD_SD3_DAT1__SD3_DATA1		0x17059
- 				MX6QDL_PAD_SD3_DAT2__SD3_DATA2		0x17059
- 				MX6QDL_PAD_SD3_DAT3__SD3_DATA3		0x17059
-+				MX6QDL_PAD_SD3_DAT5__GPIO7_IO00		0x1b0b0
- 			>;
- 		};
- 
-@@ -290,7 +293,7 @@ &usbh1 {
- &usdhc3 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_usdhc3>;
--	non-removable;
-+	cd-gpios = <&gpio7 0 GPIO_ACTIVE_LOW>;
- 	status = "okay";
- };
- 
--- 
-2.34.1
-
+ #ifdef CONFIG_HAVE_ARCH_SECCOMP_FILTER
+ #include <asm/syscall.h>
+ #endif
+@@ -632,6 +635,7 @@ static void __secure_computing_strict(in
+ #ifdef SECCOMP_DEBUG
+ 	dump_stack();
+ #endif
++	current->seccomp.mode = SECCOMP_MODE_DEAD;
+ 	seccomp_log(this_syscall, SIGKILL, SECCOMP_RET_KILL_THREAD, true);
+ 	do_exit(SIGKILL);
+ }
+@@ -746,6 +750,7 @@ static int __seccomp_filter(int this_sys
+ 	case SECCOMP_RET_KILL_THREAD:
+ 	case SECCOMP_RET_KILL_PROCESS:
+ 	default:
++		current->seccomp.mode = SECCOMP_MODE_DEAD;
+ 		seccomp_log(this_syscall, SIGSYS, action, true);
+ 		/* Dump core only if this is the last remaining thread. */
+ 		if (action == SECCOMP_RET_KILL_PROCESS ||
+@@ -798,6 +803,11 @@ int __secure_computing(const struct secc
+ 		return 0;
+ 	case SECCOMP_MODE_FILTER:
+ 		return __seccomp_filter(this_syscall, sd, false);
++	/* Surviving SECCOMP_RET_KILL_* must be proactively impossible. */
++	case SECCOMP_MODE_DEAD:
++		WARN_ON_ONCE(1);
++		do_exit(SIGKILL);
++		return -1;
+ 	default:
+ 		BUG();
+ 	}
 
 
