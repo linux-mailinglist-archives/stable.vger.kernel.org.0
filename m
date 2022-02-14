@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D407B4B48BE
+	by mail.lfdr.de (Postfix) with ESMTP id 5EE3F4B48BD
 	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:58:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243405AbiBNJ5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:57:54 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43462 "EHLO
+        id S1343971AbiBNJ5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:57:52 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345048AbiBNJ4d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:56:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EA776D1BC;
-        Mon, 14 Feb 2022 01:45:04 -0800 (PST)
+        with ESMTP id S1345110AbiBNJ4f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:56:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AC72811A0;
+        Mon, 14 Feb 2022 01:45:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB1C46124D;
-        Mon, 14 Feb 2022 09:45:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7532C340E9;
-        Mon, 14 Feb 2022 09:45:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9BECB80DC4;
+        Mon, 14 Feb 2022 09:45:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C9D2C36AE3;
+        Mon, 14 Feb 2022 09:45:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831903;
-        bh=JsS9Skp3vsyC7yBa+nz/KP8/8m1F36/h6fchRD4RKj4=;
+        s=korg; t=1644831906;
+        bh=GxhdHPylJZGUA7W2V1+Kn1+bjgaht4Bynzk8qHwc30I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPJqnKMHWz8e/jZfsnDakNBMnOVK/eLLEG+iWc8hxV3ylCIHARSXUvJFQjBCtMfs7
-         PVTKD0bT0UNX+x4fWsz/xHPe+cdYO3MA16WGIqVxjyKm1kqYcQzprxEey5U5eu5p9V
-         VJR5kYwJIJ95TZy2MV/RVrl9KTx5Y70wH1YiRcsA=
+        b=te+LB/gOy90bQDlvHVkPEK+vs7CZHgte2AibXMSsIvG/LQP0/jwcY8DvMku599ZgA
+         +mplAbgmp75apwrzUKqgehKXaf8SY5sbQx8A3Gb4iz96YCBKKb318nTQJ3PNS+86p5
+         IU27kad/SGw0E6S2zjPhHkm4YbzO5lnpv/LPJm1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Aloni <dan.aloni@vastdata.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.15 017/172] NFSD: Fix the behavior of READ near OFFSET_MAX
-Date:   Mon, 14 Feb 2022 10:24:35 +0100
-Message-Id: <20220214092506.981329526@linuxfoundation.org>
+        stable@vger.kernel.org, Antoine Tenart <atenart@kernel.org>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>,
+        Srinivas Pandruvada <srinivas.pIandruvada@linux.intel.com>
+Subject: [PATCH 5.15 018/172] thermal/drivers/int340x: Improve the tcc offset saving for suspend/resume
+Date:   Mon, 14 Feb 2022 10:24:36 +0100
+Message-Id: <20220214092507.012140145@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
 References: <20220214092506.354292783@linuxfoundation.org>
@@ -53,113 +56,209 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Antoine Tenart <atenart@kernel.org>
 
-commit 0cb4d23ae08c48f6bf3c29a8e5c4a74b8388b960 upstream.
+commit c4fcf1ada4ae63e0aab6afd19ca2e7d16833302c upstream.
 
-Dan Aloni reports:
-> Due to commit 8cfb9015280d ("NFS: Always provide aligned buffers to
-> the RPC read layers") on the client, a read of 0xfff is aligned up
-> to server rsize of 0x1000.
->
-> As a result, in a test where the server has a file of size
-> 0x7fffffffffffffff, and the client tries to read from the offset
-> 0x7ffffffffffff000, the read causes loff_t overflow in the server
-> and it returns an NFS code of EINVAL to the client. The client as
-> a result indefinitely retries the request.
+When the driver resumes, the tcc offset is set back to its previous
+value. But this only works if the value was user defined as otherwise
+the offset isn't saved. This asymmetric logic is harder to maintain and
+introduced some issues.
 
-The Linux NFS client does not handle NFS?ERR_INVAL, even though all
-NFS specifications permit servers to return that status code for a
-READ.
+Improve the logic by saving the tcc offset in a suspend op, so the right
+value is always restored after a resume.
 
-Instead of NFS?ERR_INVAL, have out-of-range READ requests succeed
-and return a short result. Set the EOF flag in the result to prevent
-the client from retrying the READ request. This behavior appears to
-be consistent with Solaris NFS servers.
-
-Note that NFSv3 and NFSv4 use u64 offset values on the wire. These
-must be converted to loff_t internally before use -- an implicit
-type cast is not adequate for this purpose. Otherwise VFS checks
-against sb->s_maxbytes do not work properly.
-
-Reported-by: Dan Aloni <dan.aloni@vastdata.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Reviewed-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Tested-by: Srinivas Pandruvada <srinivas.pI andruvada@linux.intel.com>
+Link: https://lore.kernel.org/r/20210909085613.5577-3-atenart@kernel.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfs3proc.c |    8 ++++++--
- fs/nfsd/nfs4proc.c |    8 ++++++--
- fs/nfsd/nfs4xdr.c  |    8 ++------
- 3 files changed, 14 insertions(+), 10 deletions(-)
+ drivers/thermal/intel/int340x_thermal/int3401_thermal.c                     |    8 +-
+ drivers/thermal/intel/int340x_thermal/processor_thermal_device.c            |   36 +++++++---
+ drivers/thermal/intel/int340x_thermal/processor_thermal_device.h            |    1 
+ drivers/thermal/intel/int340x_thermal/processor_thermal_device_pci.c        |   18 ++++-
+ drivers/thermal/intel/int340x_thermal/processor_thermal_device_pci_legacy.c |    8 +-
+ 5 files changed, 60 insertions(+), 11 deletions(-)
 
---- a/fs/nfsd/nfs3proc.c
-+++ b/fs/nfsd/nfs3proc.c
-@@ -150,13 +150,17 @@ nfsd3_proc_read(struct svc_rqst *rqstp)
- 	unsigned int len;
- 	int v;
+--- a/drivers/thermal/intel/int340x_thermal/int3401_thermal.c
++++ b/drivers/thermal/intel/int340x_thermal/int3401_thermal.c
+@@ -44,15 +44,21 @@ static int int3401_remove(struct platfor
+ }
  
--	argp->count = min_t(u32, argp->count, max_blocksize);
+ #ifdef CONFIG_PM_SLEEP
++static int int3401_thermal_suspend(struct device *dev)
++{
++	return proc_thermal_suspend(dev);
++}
+ static int int3401_thermal_resume(struct device *dev)
+ {
+ 	return proc_thermal_resume(dev);
+ }
+ #else
++#define int3401_thermal_suspend NULL
+ #define int3401_thermal_resume NULL
+ #endif
+ 
+-static SIMPLE_DEV_PM_OPS(int3401_proc_thermal_pm, NULL, int3401_thermal_resume);
++static SIMPLE_DEV_PM_OPS(int3401_proc_thermal_pm, int3401_thermal_suspend,
++			 int3401_thermal_resume);
+ 
+ static struct platform_driver int3401_driver = {
+ 	.probe = int3401_add,
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
+@@ -68,8 +68,7 @@ static const struct attribute_group powe
+ 	.name = "power_limits"
+ };
+ 
+-static ssize_t tcc_offset_degree_celsius_show(struct device *dev,
+-			       struct device_attribute *attr, char *buf)
++static int tcc_get_offset(void)
+ {
+ 	u64 val;
+ 	int err;
+@@ -78,8 +77,20 @@ static ssize_t tcc_offset_degree_celsius
+ 	if (err)
+ 		return err;
+ 
+-	val = (val >> 24) & 0x3f;
+-	return sprintf(buf, "%d\n", (int)val);
++	return (val >> 24) & 0x3f;
++}
++
++static ssize_t tcc_offset_degree_celsius_show(struct device *dev,
++					      struct device_attribute *attr,
++					      char *buf)
++{
++	int tcc;
++
++	tcc = tcc_get_offset();
++	if (tcc < 0)
++		return tcc;
++
++	return sprintf(buf, "%d\n", tcc);
+ }
+ 
+ static int tcc_offset_update(unsigned int tcc)
+@@ -107,8 +118,6 @@ static int tcc_offset_update(unsigned in
+ 	return 0;
+ }
+ 
+-static int tcc_offset_save = -1;
 -
- 	dprintk("nfsd: READ(3) %s %lu bytes at %Lu\n",
- 				SVCFH_fmt(&argp->fh),
- 				(unsigned long) argp->count,
- 				(unsigned long long) argp->offset);
+ static ssize_t tcc_offset_degree_celsius_store(struct device *dev,
+ 				struct device_attribute *attr, const char *buf,
+ 				size_t count)
+@@ -131,8 +140,6 @@ static ssize_t tcc_offset_degree_celsius
+ 	if (err)
+ 		return err;
  
-+	argp->count = min_t(u32, argp->count, max_blocksize);
-+	if (argp->offset > (u64)OFFSET_MAX)
-+		argp->offset = (u64)OFFSET_MAX;
-+	if (argp->offset + argp->count > (u64)OFFSET_MAX)
-+		argp->count = (u64)OFFSET_MAX - argp->offset;
+-	tcc_offset_save = tcc;
+-
+ 	return count;
+ }
+ 
+@@ -345,6 +352,18 @@ void proc_thermal_remove(struct proc_the
+ }
+ EXPORT_SYMBOL_GPL(proc_thermal_remove);
+ 
++static int tcc_offset_save = -1;
 +
- 	v = 0;
- 	len = argp->count;
- 	resp->pages = rqstp->rq_next_page;
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -782,12 +782,16 @@ nfsd4_read(struct svc_rqst *rqstp, struc
- 	__be32 status;
- 
- 	read->rd_nf = NULL;
--	if (read->rd_offset >= OFFSET_MAX)
--		return nfserr_inval;
- 
- 	trace_nfsd_read_start(rqstp, &cstate->current_fh,
- 			      read->rd_offset, read->rd_length);
- 
-+	read->rd_length = min_t(u32, read->rd_length, svc_max_payload(rqstp));
-+	if (read->rd_offset > (u64)OFFSET_MAX)
-+		read->rd_offset = (u64)OFFSET_MAX;
-+	if (read->rd_offset + read->rd_length > (u64)OFFSET_MAX)
-+		read->rd_length = (u64)OFFSET_MAX - read->rd_offset;
++int proc_thermal_suspend(struct device *dev)
++{
++	tcc_offset_save = tcc_get_offset();
++	if (tcc_offset_save < 0)
++		dev_warn(dev, "failed to save offset (%d)\n", tcc_offset_save);
 +
- 	/*
- 	 * If we do a zero copy read, then a client will see read data
- 	 * that reflects the state of the file *after* performing the
---- a/fs/nfsd/nfs4xdr.c
-+++ b/fs/nfsd/nfs4xdr.c
-@@ -3997,10 +3997,8 @@ nfsd4_encode_read(struct nfsd4_compoundr
- 	}
- 	xdr_commit_encode(xdr);
++	return 0;
++}
++EXPORT_SYMBOL_GPL(proc_thermal_suspend);
++
+ int proc_thermal_resume(struct device *dev)
+ {
+ 	struct proc_thermal_device *proc_dev;
+@@ -352,6 +371,7 @@ int proc_thermal_resume(struct device *d
+ 	proc_dev = dev_get_drvdata(dev);
+ 	proc_thermal_read_ppcc(proc_dev);
  
--	maxcount = svc_max_payload(resp->rqstp);
--	maxcount = min_t(unsigned long, maxcount,
-+	maxcount = min_t(unsigned long, read->rd_length,
- 			 (xdr->buf->buflen - xdr->buf->len));
--	maxcount = min_t(unsigned long, maxcount, read->rd_length);
++	/* Do not update if saving failed */
+ 	if (tcc_offset_save >= 0)
+ 		tcc_offset_update(tcc_offset_save);
  
- 	if (file->f_op->splice_read &&
- 	    test_bit(RQ_SPLICE_OK, &resp->rqstp->rq_flags))
-@@ -4837,10 +4835,8 @@ nfsd4_encode_read_plus(struct nfsd4_comp
- 		return nfserr_resource;
- 	xdr_commit_encode(xdr);
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h
+@@ -83,6 +83,7 @@ void proc_thermal_mbox_remove(struct pci
+ int processor_thermal_send_mbox_cmd(struct pci_dev *pdev, u16 cmd_id, u32 cmd_data, u32 *cmd_resp);
+ int proc_thermal_add(struct device *dev, struct proc_thermal_device *priv);
+ void proc_thermal_remove(struct proc_thermal_device *proc_priv);
++int proc_thermal_suspend(struct device *dev);
+ int proc_thermal_resume(struct device *dev);
+ int proc_thermal_mmio_add(struct pci_dev *pdev,
+ 			  struct proc_thermal_device *proc_priv,
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device_pci.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device_pci.c
+@@ -314,6 +314,20 @@ static void proc_thermal_pci_remove(stru
+ }
  
--	maxcount = svc_max_payload(resp->rqstp);
--	maxcount = min_t(unsigned long, maxcount,
-+	maxcount = min_t(unsigned long, read->rd_length,
- 			 (xdr->buf->buflen - xdr->buf->len));
--	maxcount = min_t(unsigned long, maxcount, read->rd_length);
- 	count    = maxcount;
+ #ifdef CONFIG_PM_SLEEP
++static int proc_thermal_pci_suspend(struct device *dev)
++{
++	struct pci_dev *pdev = to_pci_dev(dev);
++	struct proc_thermal_device *proc_priv;
++	struct proc_thermal_pci *pci_info;
++
++	proc_priv = pci_get_drvdata(pdev);
++	pci_info = proc_priv->priv_data;
++
++	if (!pci_info->no_legacy)
++		return proc_thermal_suspend(dev);
++
++	return 0;
++}
+ static int proc_thermal_pci_resume(struct device *dev)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(dev);
+@@ -335,10 +349,12 @@ static int proc_thermal_pci_resume(struc
+ 	return 0;
+ }
+ #else
++#define proc_thermal_pci_suspend NULL
+ #define proc_thermal_pci_resume NULL
+ #endif
  
- 	eof = read->rd_offset >= i_size_read(file_inode(file));
+-static SIMPLE_DEV_PM_OPS(proc_thermal_pci_pm, NULL, proc_thermal_pci_resume);
++static SIMPLE_DEV_PM_OPS(proc_thermal_pci_pm, proc_thermal_pci_suspend,
++			 proc_thermal_pci_resume);
+ 
+ static const struct pci_device_id proc_thermal_pci_ids[] = {
+ 	{ PCI_DEVICE_DATA(INTEL, ADL_THERMAL, PROC_THERMAL_FEATURE_RAPL | PROC_THERMAL_FEATURE_FIVR | PROC_THERMAL_FEATURE_DVFS | PROC_THERMAL_FEATURE_MBOX) },
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device_pci_legacy.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device_pci_legacy.c
+@@ -107,15 +107,21 @@ static void proc_thermal_pci_remove(stru
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
++static int proc_thermal_pci_suspend(struct device *dev)
++{
++	return proc_thermal_suspend(dev);
++}
+ static int proc_thermal_pci_resume(struct device *dev)
+ {
+ 	return proc_thermal_resume(dev);
+ }
+ #else
++#define proc_thermal_pci_suspend NULL
+ #define proc_thermal_pci_resume NULL
+ #endif
+ 
+-static SIMPLE_DEV_PM_OPS(proc_thermal_pci_pm, NULL, proc_thermal_pci_resume);
++static SIMPLE_DEV_PM_OPS(proc_thermal_pci_pm, proc_thermal_pci_suspend,
++			 proc_thermal_pci_resume);
+ 
+ static const struct pci_device_id proc_thermal_pci_ids[] = {
+ 	{ PCI_DEVICE_DATA(INTEL, BDW_THERMAL, 0) },
 
 
