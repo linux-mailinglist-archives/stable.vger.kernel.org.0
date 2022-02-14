@@ -2,66 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5838D4B5A03
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 19:37:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01F814B5B79
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 21:52:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238782AbiBNShj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 13:37:39 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42494 "EHLO
+        id S229651AbiBNUvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 15:51:33 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:45162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232272AbiBNShj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 13:37:39 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CF9160ABE;
-        Mon, 14 Feb 2022 10:37:30 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 2D80A1F38A;
-        Mon, 14 Feb 2022 18:37:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1644863849; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=hcAP1oYRKlVZf+ejwok9nLI2R/eE64Eg/5Ilx8Cevaw=;
-        b=mKoMck6I7z0K8iD8TC1sp81Sq377hEFQ0MnsnbZj+N2a9zXv5vKRAHC6mPUFiHBBAS8faE
-        5OuPLV4QNi/EXTMWfaEsG0kiFbwM6EfutYXrIKrNAiw+1Kxghfi9dRG/wmtArgm4br+BdH
-        4TPyenKVQwpcIOGTeaKF1ZwQQmmEzSw=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0A97F13A85;
-        Mon, 14 Feb 2022 18:37:29 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id xsMQAmmhCmJNRAAAMHmgww
-        (envelope-from <mkoutny@suse.com>); Mon, 14 Feb 2022 18:37:29 +0000
-Date:   Mon, 14 Feb 2022 19:37:27 +0100
-From:   Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     linux-kernel@vger.kernel.org, Alexey Gladkov <legion@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Solar Designer <solar@openwall.com>,
-        Ran Xiaokai <ran.xiaokai@zte.com.cn>,
-        containers@lists.linux-foundation.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/8] ucounts: Fix RLIMIT_NPROC regression
-Message-ID: <20220214183727.GA10803@blackbody.suse.cz>
-References: <87o83e2mbu.fsf@email.froward.int.ebiederm.org>
- <20220211021324.4116773-1-ebiederm@xmission.com>
+        with ESMTP id S229715AbiBNUvb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 15:51:31 -0500
+Received: from mail-qv1-xf35.google.com (mail-qv1-xf35.google.com [IPv6:2607:f8b0:4864:20::f35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E87F16BCDD
+        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 12:51:12 -0800 (PST)
+Received: by mail-qv1-xf35.google.com with SMTP id e22so1133477qvf.9
+        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 12:51:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rajagiritech-edu-in.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=l8oDDwvFNImY/VPR1iI+PTzO8EFCV3s3KPhPnO2c9qA=;
+        b=rI4JOyp6IV6w3InslglP235o0EtoDitOmNELyKh8B2Up0oGYgaVOWRXqwKiX9TLfAz
+         N/2ys8LUy0o18leOKmEw5jJ3DEvqQYHy3xxsiT2o5zWvHUved3MSXP9mu3GborQQtXay
+         ISMq80DJ8Ou2f8/XmrMyr+/+LX4XC7wfhRYHA3Ja3a05N56J8PQ19wNBPzb0VM4rb6hU
+         P7mxRkcgf0GCQZOnt3HteIoUDNo5wKZ1rbAxOf1AuI0pDIFeOk/FlgLUM9SCZoKhrujm
+         yQxkuwheZRelQtdwNZ4htfATDkm299zk1VFn16AKkKHIRFeaDzwwkeeAQ+HmljxteeM1
+         t4hA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=l8oDDwvFNImY/VPR1iI+PTzO8EFCV3s3KPhPnO2c9qA=;
+        b=tAF1zKE0KOFUWKJQXuAQTt9Z9CH2/tu8LeXda3356ak1Wgdbmri0mhj+BeoNE2SB7M
+         jo/7bpbthaYzXWD8u8iFlJU1XuMAfv3e/McmUGA0XOzjcsVLq0aPgd0nkNAnJ7AXxmdD
+         EZPvHKsvUhMWu/4EmmB/ioNRtzZ/lagdrR5G+uR0nQG5JNue3CZU+0SVnl9FqavjR4+D
+         y5GWG7QW6vDDQu6KFaKup/F/tiZI60OojB97/NnY53SFkjKxKy8BNRP2croP7EpA4ouP
+         f9Wndfsft41f01yHrPPUip0pwK1384lxJ0oG3fPRozuDsnVXlDkLMqkfsZz4b5KozGBo
+         SNtg==
+X-Gm-Message-State: AOAM533lPaj8M/Ntg3eqwpNwlP6R1oPr70N2XdEakyWmwMv71/ZjNndX
+        qedkNWdBD5rg//h6tPZ52w8zoTEQHq8VaVq/Id+L1TXkbecPolg+
+X-Google-Smtp-Source: ABdhPJwrV9PAaE833RQnSzliybCzTGC5tXIZJBODdZdXtN+MdiLtf7qksrvTJNixCwaxHomIyGnU/PinBMcVwG0/VPE=
+X-Received: by 2002:a67:7206:: with SMTP id n6mr51013vsc.21.1644864661852;
+ Mon, 14 Feb 2022 10:51:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220211021324.4116773-1-ebiederm@xmission.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+References: <20220214092448.285381753@linuxfoundation.org>
+In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
+From:   Jeffrin Thalakkottoor <jeffrin@rajagiritech.edu.in>
+Date:   Mon, 14 Feb 2022 13:50:25 -0500
+Message-ID: <CAG=yYwm=7zS0k9VY+Oie18LtmN1jemV0AP778+s4+wR5jC6N+g@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/49] 4.19.230-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     lkml <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        torvalds@linux-foundation.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,26 +70,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 10, 2022 at 08:13:17PM -0600, "Eric W. Biederman" <ebiederm@xmission.com> wrote:
-> This can be fixed either by fixing the test or by moving the increment
-> to be before the test.  Fix it my moving copy_creds which contains
-> the increment before is_ucounts_overlimit.
-
-This is simpler than my approach and I find it correct too.
-
-> Both the test in fork and the test in set_user were semantically
-> changed when the code moved to ucounts.  The change of the test in
-> fork was bad because it was before the increment.
+On Mon, Feb 14, 2022 at 4:37 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> The test in set_user was wrong and the change to ucounts fixed it.  So
-> this fix is only restore the old behavior in one lcatio not two.
+> This is the start of the stable review cycle for the 4.19.230 release.
+> There are 49 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 16 Feb 2022 09:24:36 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.230-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
+ hello,
 
-Whom should be the task accounted to in the case of set*uid? (The change
-to ucounts made the check against the pre-switch user's ucounts.)
+Compiled and booted 4.19.230-rc1+  on  ...
+Processor Information
+    Socket Designation: FM2
+    Type: Central Processor
+    Family: A-Series
+    Manufacturer: AuthenticAMD
 
-> ---
->  kernel/fork.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
+NO new regressions from dmesg.
 
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
 
+-- 
+software engineer
+rajagiri school of engineering and technology  -  autonomous
