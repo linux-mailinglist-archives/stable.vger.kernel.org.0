@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A28E4B49A3
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:36:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A77D84B47EE
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345700AbiBNKNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:13:11 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44704 "EHLO
+        id S245615AbiBNJwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:52:31 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345759AbiBNKND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:13:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F08BE652FB;
-        Mon, 14 Feb 2022 01:50:54 -0800 (PST)
+        with ESMTP id S1344190AbiBNJve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:51:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA3A69481;
+        Mon, 14 Feb 2022 01:42:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DF11612B4;
-        Mon, 14 Feb 2022 09:50:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66806C340E9;
-        Mon, 14 Feb 2022 09:50:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36D58B80DA9;
+        Mon, 14 Feb 2022 09:42:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AA4BC340F0;
+        Mon, 14 Feb 2022 09:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832254;
-        bh=H9cXK0gjH9HujVBKkb1ImW/0yXvlxEJUAwGTbWYhUqs=;
+        s=korg; t=1644831755;
+        bh=wtFwdW9jsRjiSqdfyCsgNjsrqeSzJXPvR8e564Zrr1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2rG7G+a0cVGbs0RnVRn2lKqouBeXZl+uTfJuREddBuTsuhcoX+HuRdt7uJmE4MBTJ
-         NEIvQOe+PG+ECErJw4zHfkRjvHY/1/0AK24zJX7S89UbF+44+BcItAvLjo62ofZc83
-         /FwMka8k1/O/gDCZ2VkM027SnsG/lOHr7Wk/mJtc=
+        b=Vl4MQTyh644652cWTFXtffQjbokiwSC+Oncy1Au7ZJeWSyVoFYMMwDobLCWyBYu+1
+         V+MfkQT2MUyS3H/asTQhAEtc85KrCSHyo/Q5gsBUMkS40K2hUeHatGVg86Qh4AUCWF
+         4ZbQxjbA1Fpzamqs/qpESbnWAtctUUCV5zwHBiwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Robert-Ionut Alexa <robert-ionut.alexa@nxp.com>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Rafael Richter <rafael.richter@gin.de>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 127/172] dpaa2-eth: unregister the netdev before disconnecting from the PHY
+Subject: [PATCH 5.10 086/116] net: dsa: mv88e6xxx: fix use-after-free in mv88e6xxx_mdios_unregister
 Date:   Mon, 14 Feb 2022 10:26:25 +0100
-Message-Id: <20220214092510.798339926@linuxfoundation.org>
+Message-Id: <20220214092501.737937599@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert-Ionut Alexa <robert-ionut.alexa@nxp.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 9ccc6e0c8959a019bb40f6b18704b142c04b19a8 ]
+[ Upstream commit 51a04ebf21122d5c76a716ecd9bfc33ea44b2b39 ]
 
-The netdev should be unregistered before we are disconnecting from the
-MAC/PHY so that the dev_close callback is called and the PHY and the
-phylink workqueues are actually stopped before we are disconnecting and
-destroying the phylink instance.
+Since struct mv88e6xxx_mdio_bus *mdio_bus is the bus->priv of something
+allocated with mdiobus_alloc_size(), this means that mdiobus_free(bus)
+will free the memory backing the mdio_bus as well. Therefore, the
+mdio_bus->list element is freed memory, but we continue to iterate
+through the list of MDIO buses using that list element.
 
-Fixes: 719479230893 ("dpaa2-eth: add MAC/PHY support through phylink")
-Signed-off-by: Robert-Ionut Alexa <robert-ionut.alexa@nxp.com>
-Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+To fix this, use the proper list iterator that handles element deletion
+by keeping a copy of the list element next pointer.
+
+Fixes: f53a2ce893b2 ("net: dsa: mv88e6xxx: don't use devres for mdiobus")
+Reported-by: Rafael Richter <rafael.richter@gin.de>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20220210174017.3271099-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 4 ++--
+ drivers/net/dsa/mv88e6xxx/chip.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-index 1108e1730841b..110075336a757 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-@@ -4511,12 +4511,12 @@ static int dpaa2_eth_remove(struct fsl_mc_device *ls_dev)
- #ifdef CONFIG_DEBUG_FS
- 	dpaa2_dbg_remove(priv);
- #endif
-+
-+	unregister_netdev(net_dev);
- 	rtnl_lock();
- 	dpaa2_eth_disconnect_mac(priv);
- 	rtnl_unlock();
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 9b451b820d7a6..1992be77522ac 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -3122,10 +3122,10 @@ static int mv88e6xxx_mdio_register(struct mv88e6xxx_chip *chip,
+ static void mv88e6xxx_mdios_unregister(struct mv88e6xxx_chip *chip)
  
--	unregister_netdev(net_dev);
--
- 	dpaa2_eth_dl_port_del(priv);
- 	dpaa2_eth_dl_traps_unregister(priv);
- 	dpaa2_eth_dl_unregister(priv);
+ {
+-	struct mv88e6xxx_mdio_bus *mdio_bus;
++	struct mv88e6xxx_mdio_bus *mdio_bus, *p;
+ 	struct mii_bus *bus;
+ 
+-	list_for_each_entry(mdio_bus, &chip->mdios, list) {
++	list_for_each_entry_safe(mdio_bus, p, &chip->mdios, list) {
+ 		bus = mdio_bus->bus;
+ 
+ 		if (!mdio_bus->external)
 -- 
 2.34.1
 
