@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FD4E4B4A7A
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:39:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 756324B4615
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347683AbiBNKbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:31:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41532 "EHLO
+        id S243607AbiBNJcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:32:16 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348114AbiBNKaq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:30:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 511169BF59;
-        Mon, 14 Feb 2022 01:59:20 -0800 (PST)
+        with ESMTP id S243613AbiBNJcB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:32:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34CCA1ADB1;
+        Mon, 14 Feb 2022 01:30:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D347760921;
-        Mon, 14 Feb 2022 09:59:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0ADEC340E9;
-        Mon, 14 Feb 2022 09:59:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1F09B80DC6;
+        Mon, 14 Feb 2022 09:30:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7CB9C340E9;
+        Mon, 14 Feb 2022 09:30:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832757;
-        bh=QUTNVwz+yVHcljh6bmE8p4c9DR9JYaIcZoW8VimMowk=;
+        s=korg; t=1644831054;
+        bh=LGnMrv8zyFJ9Jznd8mvnS6QMJ59LaXA+jxgRSmNbVW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nbbT5LjaKP8tVo2f5y5eDjga3J39Sb1+HhpgVR/Oxp99qM9PR/hju42F1SXEnodl+
-         G4RsRGndicu2DwOED+dK7rUz/zo8gOnezpO805ssTi28fL3RO8NgMJYwObylsMi2Og
-         C3IndlSZH/zNJI9TtdFDTgWwiTpqos6kDw865I14=
+        b=O0/gZ2xoSvi0VG1Tv4qhtEM7cyMsrGQYTHVRJpnpTsOxSH9bHfzXd7geu0BKsUvww
+         CCLFtgsbgwAZ13RnZrI1EnKAn8PGbM3PjURb9J74a2GMDg+QMmFz3JA8DdwYEaOhb8
+         rUqb7REla9MlohPjup7YSo0kCOBqOtajqCuvJkwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org,
+        Selwin Sebastian <Selwin.Sebastian@amd.com>,
+        Raju Rangoju <Raju.Rangoju@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 107/203] arm64: Enable Cortex-A510 erratum 2051678 by default
+Subject: [PATCH 4.14 28/44] net: amd-xgbe: disable interrupts during pci removal
 Date:   Mon, 14 Feb 2022 10:25:51 +0100
-Message-Id: <20220214092513.882562722@linuxfoundation.org>
+Message-Id: <20220214092448.821089086@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
+References: <20220214092447.897544753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Raju Rangoju <Raju.Rangoju@amd.com>
 
-[ Upstream commit a4b92cebc31d49b7e6ef0ce584c7f2a2e112877d ]
+[ Upstream commit 68c2d6af1f1e469544d6cbe9a601d96fb9c00e7f ]
 
-The recently added configuration option for Cortex A510 erratum 2051678 does
-not have a "default y" unlike other errata fixes. This appears to simply be
-an oversight since the help text suggests enabling the option if unsure and
-there's nothing in the commit log to suggest it is intentional.
+Hardware interrupts are enabled during the pci probe, however,
+they are not disabled during pci removal.
 
-Fixes: 297ae1eb23b0 ("arm64: cpufeature: List early Cortex-A510 parts as having broken dbm")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220201144838.20037-1-broonie@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Disable all hardware interrupts during pci removal to avoid any
+issues.
+
+Fixes: e75377404726 ("amd-xgbe: Update PCI support to use new IRQ functions")
+Suggested-by: Selwin Sebastian <Selwin.Sebastian@amd.com>
+Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/amd/xgbe/xgbe-pci.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 38e7f19df14d4..ae0e93871ee5f 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -672,6 +672,7 @@ config ARM64_WORKAROUND_TRBE_OVERWRITE_FILL_MODE
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-pci.c b/drivers/net/ethernet/amd/xgbe/xgbe-pci.c
+index 82d1f416ee2ac..569e6d3d066bf 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-pci.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-pci.c
+@@ -400,6 +400,9 @@ static void xgbe_pci_remove(struct pci_dev *pdev)
  
- config ARM64_ERRATUM_2051678
- 	bool "Cortex-A510: 2051678: disable Hardware Update of the page table dirty bit"
-+	default y
- 	help
- 	  This options adds the workaround for ARM Cortex-A510 erratum ARM64_ERRATUM_2051678.
- 	  Affected Coretex-A510 might not respect the ordering rules for
+ 	pci_free_irq_vectors(pdata->pcidev);
+ 
++	/* Disable all interrupts in the hardware */
++	XP_IOWRITE(pdata, XP_INT_EN, 0x0);
++
+ 	xgbe_free_pdata(pdata);
+ }
+ 
 -- 
 2.34.1
 
