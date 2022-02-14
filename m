@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FD664B4B11
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F7BD4B4869
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:57:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240659AbiBNKfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:35:13 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43736 "EHLO
+        id S1343707AbiBNJxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:53:55 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348292AbiBNKem (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:34:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEAD9D6A;
-        Mon, 14 Feb 2022 02:01:32 -0800 (PST)
+        with ESMTP id S1343653AbiBNJxU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:53:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B62D46736F;
+        Mon, 14 Feb 2022 01:43:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68C6BB80DD5;
-        Mon, 14 Feb 2022 10:01:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50D1CC340EF;
-        Mon, 14 Feb 2022 10:01:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55B4F61236;
+        Mon, 14 Feb 2022 09:43:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CB76C340EF;
+        Mon, 14 Feb 2022 09:43:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832890;
-        bh=XqiW59tqA5tURicwKmtRFK/00GoJ67mH+dt7Y8YvL9I=;
+        s=korg; t=1644831830;
+        bh=dnqBjILIyPFJ4zWz2ADF95n2WkBQyD/RD3t0VOM3EjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PtZ5KbU9Yf2fkzDIwn6KvbQwRS1P72oF7RTwAEiR4yw9PZymqvMQIo3lPphR8KZWR
-         4du/cDqrY8MQxbTDrMJWw8gG/L7qm65K3HLt3rOM9k9hPq8cBfkyeoy2ktcDdp0WXx
-         2leHdPlUDSSmKQDnlglyJKA7ltIzFa5J/Emp2/7I=
+        b=VRD53kOg8deOB+gVNRtYKBUUqZMaZR8UxbHlx+OrkVSyCHrTM+i19OaMlV3LpDZeQ
+         +U9RXuCOlP9Fd+vRXGf531orOIZyO7ETqcHb8g2bZ/Ep5xDD7iUISwtSQUthhv1KKD
+         C+G3SylWWa2nr4sRYZ9HbZuCkK3OuxUskt67T/CY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Ertman <david.m.ertman@intel.com>,
-        Jonathan Toppins <jtoppins@redhat.com>,
-        Sunitha Mekala <sunithax.d.mekala@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 158/203] ice: Fix KASAN error in LAG NETDEV_UNREGISTER handler
+        stable@vger.kernel.org, Pawel Dembicki <paweldembicki@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 103/116] USB: serial: option: add ZTE MF286D modem
 Date:   Mon, 14 Feb 2022 10:26:42 +0100
-Message-Id: <20220214092515.612374050@linuxfoundation.org>
+Message-Id: <20220214092502.345009198@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,93 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Ertman <david.m.ertman@intel.com>
+From: Pawel Dembicki <paweldembicki@gmail.com>
 
-[ Upstream commit bea1898f65b9b7096cb4e73e97c83b94718f1fa1 ]
+commit d48384c7ed6c8fe4727eaa0f3048f62afd1cd715 upstream.
 
-Currently, the same handler is called for both a NETDEV_BONDING_INFO
-LAG unlink notification as for a NETDEV_UNREGISTER call.  This is
-causing a problem though, since the netdev_notifier_info passed has
-a different structure depending on which event is passed.  The problem
-manifests as a call trace from a BUG: KASAN stack-out-of-bounds error.
+Modem from ZTE MF286D is an Qualcomm MDM9250 based 3G/4G modem.
 
-Fix this by creating a handler specific to NETDEV_UNREGISTER that only
-is passed valid elements in the netdev_notifier_info struct for the
-NETDEV_UNREGISTER event.
+T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
+D:  Ver= 3.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
+P:  Vendor=19d2 ProdID=1485 Rev=52.87
+S:  Manufacturer=ZTE,Incorporated
+S:  Product=ZTE Technologies MSM
+S:  SerialNumber=MF286DZTED000000
+C:* #Ifs= 7 Cfg#= 1 Atr=80 MxPwr=896mA
+A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=06 Prot=00
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=02 Prot=ff Driver=rndis_host
+E:  Ad=82(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
+E:  Ad=81(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=83(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=8e(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=usbfs
+E:  Ad=05(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E:  Ad=89(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
 
-Also included is the removal of an unbalanced dev_put on the peer_netdev
-and related braces.
-
-Fixes: 6a8b357278f5 ("ice: Respond to a NETDEV_UNREGISTER event for LAG")
-Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
-Acked-by: Jonathan Toppins <jtoppins@redhat.com>
-Tested-by: Sunitha Mekala <sunithax.d.mekala@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Pawel Dembicki <paweldembicki@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_lag.c | 34 +++++++++++++++++++-----
- 1 file changed, 28 insertions(+), 6 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_lag.c b/drivers/net/ethernet/intel/ice/ice_lag.c
-index e375ac849aecd..4f954db01b929 100644
---- a/drivers/net/ethernet/intel/ice/ice_lag.c
-+++ b/drivers/net/ethernet/intel/ice/ice_lag.c
-@@ -204,17 +204,39 @@ ice_lag_unlink(struct ice_lag *lag,
- 		lag->upper_netdev = NULL;
- 	}
- 
--	if (lag->peer_netdev) {
--		dev_put(lag->peer_netdev);
--		lag->peer_netdev = NULL;
--	}
--
-+	lag->peer_netdev = NULL;
- 	ice_set_sriov_cap(pf);
- 	ice_set_rdma_cap(pf);
- 	lag->bonded = false;
- 	lag->role = ICE_LAG_NONE;
- }
- 
-+/**
-+ * ice_lag_unregister - handle netdev unregister events
-+ * @lag: LAG info struct
-+ * @netdev: netdev reporting the event
-+ */
-+static void ice_lag_unregister(struct ice_lag *lag, struct net_device *netdev)
-+{
-+	struct ice_pf *pf = lag->pf;
-+
-+	/* check to see if this event is for this netdev
-+	 * check that we are in an aggregate
-+	 */
-+	if (netdev != lag->netdev || !lag->bonded)
-+		return;
-+
-+	if (lag->upper_netdev) {
-+		dev_put(lag->upper_netdev);
-+		lag->upper_netdev = NULL;
-+		ice_set_sriov_cap(pf);
-+		ice_set_rdma_cap(pf);
-+	}
-+	/* perform some cleanup in case we come back */
-+	lag->bonded = false;
-+	lag->role = ICE_LAG_NONE;
-+}
-+
- /**
-  * ice_lag_changeupper_event - handle LAG changeupper event
-  * @lag: LAG info struct
-@@ -307,7 +329,7 @@ ice_lag_event_handler(struct notifier_block *notif_blk, unsigned long event,
- 		ice_lag_info_event(lag, ptr);
- 		break;
- 	case NETDEV_UNREGISTER:
--		ice_lag_unlink(lag, ptr);
-+		ice_lag_unregister(lag, netdev);
- 		break;
- 	default:
- 		break;
--- 
-2.34.1
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1649,6 +1649,8 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(2) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x1476, 0xff) },	/* GosunCn ZTE WeLink ME3630 (ECM/NCM mode) */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1481, 0xff, 0x00, 0x00) }, /* ZTE MF871A */
++	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1485, 0xff, 0xff, 0xff),  /* ZTE MF286D */
++	  .driver_info = RSVD(5) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1533, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1534, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1535, 0xff, 0xff, 0xff) },
 
 
