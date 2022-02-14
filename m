@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 549404B484F
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:56:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DE4E4B4B6C
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:41:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343627AbiBNJxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:53:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33416 "EHLO
+        id S1345206AbiBNKId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:08:33 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344945AbiBNJwI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:52:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8CD77B574;
-        Mon, 14 Feb 2022 01:43:31 -0800 (PST)
+        with ESMTP id S1346141AbiBNKH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:07:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9ECF75C0D;
+        Mon, 14 Feb 2022 01:50:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CFAEB80DC7;
-        Mon, 14 Feb 2022 09:43:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75AE9C340E9;
-        Mon, 14 Feb 2022 09:43:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86E8E612C3;
+        Mon, 14 Feb 2022 09:50:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D7F2C340E9;
+        Mon, 14 Feb 2022 09:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831809;
-        bh=QL7IgnnS5NEn5+xPkax9kNlJwf421H3w804yKiFyQHE=;
+        s=korg; t=1644832205;
+        bh=8NO9L2EdnhZsgystIDnpu8dqPHL8WI6Q4m/u9+1Qx8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1bGiqPhNKPZCUaA0VnO1mydzaBhRhBipvOR3LfkPIqNu+g8qGev+3BXWk0hT8nD0
-         T/1vZdxIezA9k7UvWNU3mF8OFi4dihjHZ98Z4F8pj+Tyn5CtTVG7+VgYrh3kuqCST6
-         Qy8tseE40duGDzgHVvzXZf5rQsw4bzB9cSdgK81Q=
+        b=B1uDRW3tOruAx5W6SChRfbN/a2Wx4jc81ftBIGyHOVIiFDlKWvTT7kgBfLrIr+s0B
+         zCs3BLHZnU0rOVjWMukZaTLxvtF3txqc6Rxq5p8NWk8k8O/v1u1nNkcdhI4ggkS9Yy
+         LAjaX6WXx+bntu3C43Gfu7JKKqdnK/rY5SwzRPGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 072/116] net: dsa: felix: dont use devres for mdiobus
+Subject: [PATCH 5.15 113/172] net: dsa: bcm_sf2: dont use devres for mdiobus
 Date:   Mon, 14 Feb 2022 10:26:11 +0100
-Message-Id: <20220214092501.249190045@linuxfoundation.org>
+Message-Id: <20220214092510.336295985@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,7 +57,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 209bdb7ec6a28c7cdf580a0a98afbc9fc3b98932 ]
+[ Upstream commit 08f1a20822349004bb9cc1b153ecb516e9f2889d ]
 
 As explained in commits:
 74b6d7d13307 ("net: dsa: realtek: register the MDIO bus under devres")
@@ -67,7 +67,7 @@ mdiobus_free() will panic when called from devm_mdiobus_free() <-
 devres_release_all() <- __device_release_driver(), and that mdiobus was
 not previously unregistered.
 
-The Felix VSC9959 switch is a PCI device, so the initial set of
+The Starfighter 2 is a platform device, so the initial set of
 constraints that I thought would cause this (I2C or SPI buses which call
 ->remove on ->shutdown) do not apply. But there is one more which
 applies here.
@@ -75,14 +75,14 @@ applies here.
 If the DSA master itself is on a bus that calls ->remove from ->shutdown
 (like dpaa2-eth, which is on the fsl-mc bus), there is a device link
 between the switch and the DSA master, and device_links_unbind_consumers()
-will unbind the felix switch driver on shutdown.
+will unbind the bcm_sf2 switch driver on shutdown.
 
 So the same treatment must be applied to all DSA switch drivers, which
 is: either use devres for both the mdiobus allocation and registration,
 or don't use devres at all.
 
-The felix driver has the code structure in place for orderly mdiobus
-removal, so just replace devm_mdiobus_alloc_size() with the non-devres
+The bcm_sf2 driver has the code structure in place for orderly mdiobus
+removal, so just replace devm_mdiobus_alloc() with the non-devres
 variant, and add manual free where necessary, to ensure that we don't
 let devres free a still-registered bus.
 
@@ -92,38 +92,42 @@ Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/ocelot/felix_vsc9959.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/dsa/bcm_sf2.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/dsa/ocelot/felix_vsc9959.c b/drivers/net/dsa/ocelot/felix_vsc9959.c
-index 2e5bbdca5ea47..cd8d9b0e0edb3 100644
---- a/drivers/net/dsa/ocelot/felix_vsc9959.c
-+++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
-@@ -1050,7 +1050,7 @@ static int vsc9959_mdio_bus_alloc(struct ocelot *ocelot)
- 		return PTR_ERR(hw);
- 	}
+diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
+index 7578a5c38df59..2e314e3021d8b 100644
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -584,7 +584,7 @@ static int bcm_sf2_mdio_register(struct dsa_switch *ds)
+ 	get_device(&priv->master_mii_bus->dev);
+ 	priv->master_mii_dn = dn;
  
--	bus = devm_mdiobus_alloc_size(dev, sizeof(*mdio_priv));
-+	bus = mdiobus_alloc_size(sizeof(*mdio_priv));
- 	if (!bus)
+-	priv->slave_mii_bus = devm_mdiobus_alloc(ds->dev);
++	priv->slave_mii_bus = mdiobus_alloc();
+ 	if (!priv->slave_mii_bus) {
+ 		of_node_put(dn);
  		return -ENOMEM;
- 
-@@ -1070,6 +1070,7 @@ static int vsc9959_mdio_bus_alloc(struct ocelot *ocelot)
- 	rc = mdiobus_register(bus);
- 	if (rc < 0) {
- 		dev_err(dev, "failed to register MDIO bus\n");
-+		mdiobus_free(bus);
- 		return rc;
+@@ -644,8 +644,10 @@ static int bcm_sf2_mdio_register(struct dsa_switch *ds)
  	}
  
-@@ -1119,6 +1120,7 @@ static void vsc9959_mdio_bus_free(struct ocelot *ocelot)
- 		lynx_pcs_destroy(pcs);
- 	}
- 	mdiobus_unregister(felix->imdio);
-+	mdiobus_free(felix->imdio);
+ 	err = mdiobus_register(priv->slave_mii_bus);
+-	if (err && dn)
++	if (err && dn) {
++		mdiobus_free(priv->slave_mii_bus);
+ 		of_node_put(dn);
++	}
+ 
+ 	return err;
+ }
+@@ -653,6 +655,7 @@ static int bcm_sf2_mdio_register(struct dsa_switch *ds)
+ static void bcm_sf2_mdio_unregister(struct bcm_sf2_priv *priv)
+ {
+ 	mdiobus_unregister(priv->slave_mii_bus);
++	mdiobus_free(priv->slave_mii_bus);
+ 	of_node_put(priv->master_mii_dn);
  }
  
- static void vsc9959_sched_speed_set(struct ocelot *ocelot, int port,
 -- 
 2.34.1
 
