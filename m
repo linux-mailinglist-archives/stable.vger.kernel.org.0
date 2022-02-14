@@ -2,47 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3DE74B4771
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BFA64B463C
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244858AbiBNJrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:47:09 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45462 "EHLO
+        id S243736AbiBNJdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:33:25 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245721AbiBNJqH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:07 -0500
+        with ESMTP id S243813AbiBNJc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:32:58 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA6FE69281;
-        Mon, 14 Feb 2022 01:39:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F06E0654B2;
+        Mon, 14 Feb 2022 01:31:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7587DB80DC1;
-        Mon, 14 Feb 2022 09:39:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F45AC340E9;
-        Mon, 14 Feb 2022 09:39:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A29C0B80DC9;
+        Mon, 14 Feb 2022 09:31:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2942C340E9;
+        Mon, 14 Feb 2022 09:31:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831569;
-        bh=+0LJdP9OXJ8BEyGaoEhmaOLT/JQHElKZyuv4eNxyiZU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NcVgX6gpJH6ZMHbljddRoMQaaKJutWhbwWlCHOdSYmy4s3Z9pmWUpGNP3UEcAZMNx
-         0DZ+7iz61HwpKWJGf5v/QnlXQ9nkLp6dZakMVFwmfm/xG6HzrjZdRErBW0amkkRr4V
-         5zF5jyF39AGja47oK6HIo1IdtCaCwhsIKQcjjzHQ=
+        s=korg; t=1644831086;
+        bh=vpoPkv9rf1mOfOsdvV0gDp/04qklVNza3cqP+Z3ZcCg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=YkTSjIcHWfKzMsQBt75HAKnFuEarOutoMWhwW8pIgzn5/Ml726ymk45HN4RtCmvT6
+         w3zE0nzXk/JFiavRBjFGQ2Ra0C+KZI3MQvnJHNwZqip0LMtgsn4C16efec+kprTiZw
+         U4MoYx+etdv5+6OYkxJqAXGpMP+GzjntpL8pY7UE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Bizon <mbizon@freebox.fr>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 024/116] powerpc/fixmap: Fix VM debug warning on unmap
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 4.14 00/44] 4.14.267-rc1 review
 Date:   Mon, 14 Feb 2022 10:25:23 +0100
-Message-Id: <20220214092459.516957363@linuxfoundation.org>
+Message-Id: <20220214092447.897544753@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.267-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.267-rc1
+X-KernelTest-Deadline: 2022-02-16T09:24+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -55,148 +62,217 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+This is the start of the stable review cycle for the 4.14.267 release.
+There are 44 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit aec982603aa8cc0a21143681feb5f60ecc69d718 ]
+Responses should be made by Wed, 16 Feb 2022 09:24:36 +0000.
+Anything received after that time might be too late.
 
-Unmapping a fixmap entry is done by calling __set_fixmap()
-with FIXMAP_PAGE_CLEAR as flags.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.267-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-Today, powerpc __set_fixmap() calls map_kernel_page().
+thanks,
 
-map_kernel_page() is not happy when called a second time
-for the same page.
+greg k-h
 
-	WARNING: CPU: 0 PID: 1 at arch/powerpc/mm/pgtable.c:194 set_pte_at+0xc/0x1e8
-	CPU: 0 PID: 1 Comm: swapper Not tainted 5.16.0-rc3-s3k-dev-01993-g350ff07feb7d-dirty #682
-	NIP:  c0017cd4 LR: c00187f0 CTR: 00000010
-	REGS: e1011d50 TRAP: 0700   Not tainted  (5.16.0-rc3-s3k-dev-01993-g350ff07feb7d-dirty)
-	MSR:  00029032 <EE,ME,IR,DR,RI>  CR: 42000208  XER: 00000000
+-------------
+Pseudo-Shortlog of commits:
 
-	GPR00: c0165fec e1011e10 c14c0000 c0ee2550 ff800000 c0f3d000 00000000 c001686c
-	GPR08: 00001000 b00045a9 00000001 c0f58460 c0f50000 00000000 c0007e10 00000000
-	GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-	GPR24: 00000000 00000000 c0ee2550 00000000 c0f57000 00000ff8 00000000 ff800000
-	NIP [c0017cd4] set_pte_at+0xc/0x1e8
-	LR [c00187f0] map_kernel_page+0x9c/0x100
-	Call Trace:
-	[e1011e10] [c0736c68] vsnprintf+0x358/0x6c8 (unreliable)
-	[e1011e30] [c0165fec] __set_fixmap+0x30/0x44
-	[e1011e40] [c0c13bdc] early_iounmap+0x11c/0x170
-	[e1011e70] [c0c06cb0] ioremap_legacy_serial_console+0x88/0xc0
-	[e1011e90] [c0c03634] do_one_initcall+0x80/0x178
-	[e1011ef0] [c0c0385c] kernel_init_freeable+0xb4/0x250
-	[e1011f20] [c0007e34] kernel_init+0x24/0x140
-	[e1011f30] [c0016268] ret_from_kernel_thread+0x5c/0x64
-	Instruction dump:
-	7fe3fb78 48019689 80010014 7c630034 83e1000c 5463d97e 7c0803a6 38210010
-	4e800020 81250000 712a0001 41820008 <0fe00000> 9421ffe0 93e1001c 48000030
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.267-rc1
 
-Implement unmap_kernel_page() which clears an existing pte.
+Song Liu <song@kernel.org>
+    perf: Fix list corruption in perf_cgroup_switch()
 
-Reported-by: Maxime Bizon <mbizon@freebox.fr>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Tested-by: Maxime Bizon <mbizon@freebox.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/b0b752f6f6ecc60653e873f385c6f0dce4e9ab6a.1638789098.git.christophe.leroy@csgroup.eu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/powerpc/include/asm/book3s/32/pgtable.h | 1 +
- arch/powerpc/include/asm/book3s/64/pgtable.h | 2 ++
- arch/powerpc/include/asm/fixmap.h            | 6 ++++--
- arch/powerpc/include/asm/nohash/32/pgtable.h | 1 +
- arch/powerpc/include/asm/nohash/64/pgtable.h | 1 +
- arch/powerpc/mm/pgtable.c                    | 9 +++++++++
- 6 files changed, 18 insertions(+), 2 deletions(-)
+Armin Wolf <W_Armin@gmx.de>
+    hwmon: (dell-smm) Speed up setting of fan speed
 
-diff --git a/arch/powerpc/include/asm/book3s/32/pgtable.h b/arch/powerpc/include/asm/book3s/32/pgtable.h
-index 523d3e6e24009..94c5c66231a8c 100644
---- a/arch/powerpc/include/asm/book3s/32/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/32/pgtable.h
-@@ -142,6 +142,7 @@ static inline bool pte_user(pte_t pte)
- #ifndef __ASSEMBLY__
- 
- int map_kernel_page(unsigned long va, phys_addr_t pa, pgprot_t prot);
-+void unmap_kernel_page(unsigned long va);
- 
- #endif /* !__ASSEMBLY__ */
- 
-diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
-index 4a3dca0271f1e..71e2c524f1eea 100644
---- a/arch/powerpc/include/asm/book3s/64/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
-@@ -1054,6 +1054,8 @@ static inline int map_kernel_page(unsigned long ea, unsigned long pa, pgprot_t p
- 	return hash__map_kernel_page(ea, pa, prot);
- }
- 
-+void unmap_kernel_page(unsigned long va);
-+
- static inline int __meminit vmemmap_create_mapping(unsigned long start,
- 						   unsigned long page_size,
- 						   unsigned long phys)
-diff --git a/arch/powerpc/include/asm/fixmap.h b/arch/powerpc/include/asm/fixmap.h
-index 591b2f4deed53..897cc68758d44 100644
---- a/arch/powerpc/include/asm/fixmap.h
-+++ b/arch/powerpc/include/asm/fixmap.h
-@@ -111,8 +111,10 @@ static inline void __set_fixmap(enum fixed_addresses idx,
- 		BUILD_BUG_ON(idx >= __end_of_fixed_addresses);
- 	else if (WARN_ON(idx >= __end_of_fixed_addresses))
- 		return;
--
--	map_kernel_page(__fix_to_virt(idx), phys, flags);
-+	if (pgprot_val(flags))
-+		map_kernel_page(__fix_to_virt(idx), phys, flags);
-+	else
-+		unmap_kernel_page(__fix_to_virt(idx));
- }
- 
- #define __early_set_fixmap	__set_fixmap
-diff --git a/arch/powerpc/include/asm/nohash/32/pgtable.h b/arch/powerpc/include/asm/nohash/32/pgtable.h
-index 96522f7f0618a..e53cc07e6b9ec 100644
---- a/arch/powerpc/include/asm/nohash/32/pgtable.h
-+++ b/arch/powerpc/include/asm/nohash/32/pgtable.h
-@@ -65,6 +65,7 @@ extern int icache_44x_need_flush;
- #ifndef __ASSEMBLY__
- 
- int map_kernel_page(unsigned long va, phys_addr_t pa, pgprot_t prot);
-+void unmap_kernel_page(unsigned long va);
- 
- #endif /* !__ASSEMBLY__ */
- 
-diff --git a/arch/powerpc/include/asm/nohash/64/pgtable.h b/arch/powerpc/include/asm/nohash/64/pgtable.h
-index 57cd3892bfe05..1eacff0fff029 100644
---- a/arch/powerpc/include/asm/nohash/64/pgtable.h
-+++ b/arch/powerpc/include/asm/nohash/64/pgtable.h
-@@ -311,6 +311,7 @@ static inline void __ptep_set_access_flags(struct vm_area_struct *vma,
- #define __swp_entry_to_pte(x)		__pte((x).val)
- 
- int map_kernel_page(unsigned long ea, unsigned long pa, pgprot_t prot);
-+void unmap_kernel_page(unsigned long va);
- extern int __meminit vmemmap_create_mapping(unsigned long start,
- 					    unsigned long page_size,
- 					    unsigned long phys);
-diff --git a/arch/powerpc/mm/pgtable.c b/arch/powerpc/mm/pgtable.c
-index 15555c95cebc7..faaf33e204de1 100644
---- a/arch/powerpc/mm/pgtable.c
-+++ b/arch/powerpc/mm/pgtable.c
-@@ -194,6 +194,15 @@ void set_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep,
- 	__set_pte_at(mm, addr, ptep, pte, 0);
- }
- 
-+void unmap_kernel_page(unsigned long va)
-+{
-+	pmd_t *pmdp = pmd_off_k(va);
-+	pte_t *ptep = pte_offset_kernel(pmdp, va);
-+
-+	pte_clear(&init_mm, va, ptep);
-+	flush_tlb_kernel_range(va, va + PAGE_SIZE);
-+}
-+
- /*
-  * This is called when relaxing access to a PTE. It's also called in the page
-  * fault path when we don't hit any of the major fault cases, ie, a minor
--- 
-2.34.1
+Kees Cook <keescook@chromium.org>
+    seccomp: Invalidate seccomp mode to catch death failures
 
+Johan Hovold <johan@kernel.org>
+    USB: serial: cp210x: add CPI Bulk Coin Recycler id
+
+Johan Hovold <johan@kernel.org>
+    USB: serial: cp210x: add NCR Retail IO box id
+
+Stephan Brunner <s.brunner@stephan-brunner.net>
+    USB: serial: ch341: add support for GW Instek USB2.0-Serial devices
+
+Pawel Dembicki <paweldembicki@gmail.com>
+    USB: serial: option: add ZTE MF286D modem
+
+Cameron Williams <cang1@live.co.uk>
+    USB: serial: ftdi_sio: add support for Brainboxes US-159/235/320
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    usb: gadget: rndis: check size of RNDIS_MSG_SET command
+
+Szymon Heidrich <szymon.heidrich@gmail.com>
+    USB: gadget: validate interface OS descriptor requests
+
+Udipto Goswami <quic_ugoswami@quicinc.com>
+    usb: dwc3: gadget: Prevent core from processing stale TRBs
+
+Sean Anderson <sean.anderson@seco.com>
+    usb: ulpi: Call of_node_put correctly
+
+Sean Anderson <sean.anderson@seco.com>
+    usb: ulpi: Move of_node_put to ulpi_dev_release
+
+TATSUKAWA KOSUKE (立川 江介) <tatsu-ab1@nec.com>
+    n_tty: wake up poll(POLLRDNORM) on receiving data
+
+Jakob Koschel <jakobkoschel@gmail.com>
+    vt_ioctl: add array_index_nospec to VT_ACTIVATE
+
+Jakob Koschel <jakobkoschel@gmail.com>
+    vt_ioctl: fix array_index_nospec in vt_setactivate
+
+Raju Rangoju <Raju.Rangoju@amd.com>
+    net: amd-xgbe: disable interrupts during pci removal
+
+Jon Maloy <jmaloy@redhat.com>
+    tipc: rate limit warning for received illegal binding update
+
+Antoine Tenart <atenart@kernel.org>
+    net: fix a memleak when uncloning an skb dst and its metadata
+
+Antoine Tenart <atenart@kernel.org>
+    net: do not keep the dst cache when uncloning an skb dst and its metadata
+
+Eric Dumazet <edumazet@google.com>
+    ipmr,ip6mr: acquire RTNL before calling ip[6]mr_free_table() on failure path
+
+Mahesh Bandewar <maheshb@google.com>
+    bonding: pair enable_port with slave_arr_updates
+
+Udipto Goswami <quic_ugoswami@quicinc.com>
+    usb: f_fs: Fix use-after-free for epfile
+
+Fabio Estevam <festevam@gmail.com>
+    ARM: dts: imx6qdl-udoo: Properly describe the SD card detect
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    staging: fbtft: Fix error path in fbtft_driver_module_init()
+
+Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+    ARM: dts: meson: Fix the UART compatible strings
+
+Fabio Estevam <festevam@gmail.com>
+    ARM: dts: imx23-evk: Remove MX23_PAD_SSP1_DETECT from hog group
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf: Add kconfig knob for disabling unpriv bpf by default
+
+Sasha Levin <sashal@kernel.org>
+    Revert "net: axienet: Wait for PhyRstCmplt after core reset"
+
+Jisheng Zhang <jszhang@kernel.org>
+    net: stmmac: dwmac-sun8i: use return val of readl_poll_timeout()
+
+Amelie Delaunay <amelie.delaunay@foss.st.com>
+    usb: dwc2: gadget: don't try to disable ep0 in dwc2_hsotg_suspend
+
+ZouMingzhe <mingzhe.zou@easystack.cn>
+    scsi: target: iscsi: Make sure the np under each tpg is unique
+
+Olga Kornievskaia <kolga@netapp.com>
+    NFSv4 expose nfs_parse_server_name function
+
+Olga Kornievskaia <kolga@netapp.com>
+    NFSv4 remove zero number of fs_locations entries error check
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    NFSv4.1: Fix uninitialised variable in devicenotify
+
+Xiaoke Wang <xkernel.wang@foxmail.com>
+    nfs: nfs4clinet: check the return value of kstrdup()
+
+Olga Kornievskaia <kolga@netapp.com>
+    NFSv4 only print the label when its queried
+
+Chuck Lever <chuck.lever@oracle.com>
+    NFSD: Clamp WRITE offsets
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    NFS: Fix initialisation of nfs_client cl_flags field
+
+Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>
+    net: phy: marvell: Fix MDI-x polarity setting in 88e1118-compatible PHYs
+
+Jiasheng Jiang <jiasheng@iscas.ac.cn>
+    mmc: sdhci-of-esdhc: Check for error num after setting mask
+
+Roberto Sassu <roberto.sassu@huawei.com>
+    ima: Allow template selection with ima_template[_fmt]= after ima_hash=
+
+Stefan Berger <stefanb@linux.ibm.com>
+    ima: Remove ima_policy file before directory
+
+Xiaoke Wang <xkernel.wang@foxmail.com>
+    integrity: check the return value of audit_log_start()
+
+
+-------------
+
+Diffstat:
+
+ Documentation/sysctl/kernel.txt                   | 21 +++++++++
+ Makefile                                          |  4 +-
+ arch/arm/boot/dts/imx23-evk.dts                   |  1 -
+ arch/arm/boot/dts/imx6qdl-udoo.dtsi               |  5 +-
+ arch/arm/boot/dts/meson.dtsi                      |  8 ++--
+ drivers/hwmon/dell-smm-hwmon.c                    | 12 +++--
+ drivers/mmc/host/sdhci-of-esdhc.c                 |  8 +++-
+ drivers/net/bonding/bond_3ad.c                    |  3 +-
+ drivers/net/ethernet/amd/xgbe/xgbe-pci.c          |  3 ++
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c |  2 +-
+ drivers/net/ethernet/xilinx/xilinx_axienet_main.c | 10 ----
+ drivers/net/phy/marvell.c                         |  7 ++-
+ drivers/staging/fbtft/fbtft.h                     |  5 +-
+ drivers/target/iscsi/iscsi_target_tpg.c           |  3 ++
+ drivers/tty/n_tty.c                               |  4 +-
+ drivers/tty/vt/vt_ioctl.c                         |  5 +-
+ drivers/usb/common/ulpi.c                         | 10 ++--
+ drivers/usb/dwc2/gadget.c                         |  2 +-
+ drivers/usb/dwc3/gadget.c                         | 13 ++++++
+ drivers/usb/gadget/composite.c                    |  3 ++
+ drivers/usb/gadget/function/f_fs.c                | 56 +++++++++++++++++------
+ drivers/usb/gadget/function/rndis.c               |  9 ++--
+ drivers/usb/serial/ch341.c                        |  1 +
+ drivers/usb/serial/cp210x.c                       |  2 +
+ drivers/usb/serial/ftdi_sio.c                     |  3 ++
+ drivers/usb/serial/ftdi_sio_ids.h                 |  3 ++
+ drivers/usb/serial/option.c                       |  2 +
+ fs/nfs/callback.h                                 |  2 +-
+ fs/nfs/callback_proc.c                            |  2 +-
+ fs/nfs/callback_xdr.c                             | 18 ++++----
+ fs/nfs/client.c                                   |  2 +-
+ fs/nfs/nfs4_fs.h                                  |  3 +-
+ fs/nfs/nfs4client.c                               |  5 +-
+ fs/nfs/nfs4namespace.c                            |  4 +-
+ fs/nfs/nfs4state.c                                |  3 ++
+ fs/nfs/nfs4xdr.c                                  |  9 ++--
+ fs/nfsd/nfs3proc.c                                |  5 ++
+ fs/nfsd/nfs4proc.c                                |  5 +-
+ include/net/dst_metadata.h                        | 14 +++++-
+ init/Kconfig                                      | 10 ++++
+ kernel/bpf/syscall.c                              |  3 +-
+ kernel/events/core.c                              |  4 +-
+ kernel/seccomp.c                                  | 10 ++++
+ kernel/sysctl.c                                   | 29 ++++++++++--
+ net/ipv4/ipmr.c                                   |  2 +
+ net/ipv6/ip6mr.c                                  |  2 +
+ net/tipc/name_distr.c                             |  2 +-
+ security/integrity/ima/ima_fs.c                   |  2 +-
+ security/integrity/ima/ima_template.c             | 10 ++--
+ security/integrity/integrity_audit.c              |  2 +
+ 50 files changed, 261 insertions(+), 92 deletions(-)
 
 
