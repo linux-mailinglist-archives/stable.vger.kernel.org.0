@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7A584B4739
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C983F4B4794
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245068AbiBNJrN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:47:13 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43946 "EHLO
+        id S245195AbiBNJrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:47:16 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343994AbiBNJqf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 365C86AA6D;
-        Mon, 14 Feb 2022 01:40:05 -0800 (PST)
+        with ESMTP id S1344110AbiBNJqm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FEDA66612;
+        Mon, 14 Feb 2022 01:40:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A2C9611DF;
-        Mon, 14 Feb 2022 09:40:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76699C340EF;
-        Mon, 14 Feb 2022 09:40:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50B1FB80DC1;
+        Mon, 14 Feb 2022 09:40:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 747D9C340E9;
+        Mon, 14 Feb 2022 09:40:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831604;
-        bh=n1qsIm72eVmDCyK2h8ZoQhDWe6tCmwaW4bloGcFk00g=;
+        s=korg; t=1644831607;
+        bh=GmHD2H6wXTPw4OsDfCiRyEE9zZtwRyeGAsCLUx/cKAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TyHoLvy9V7BLZkEnTEn3OKb32zXUWyGBlrJMWfP7LUWMX5hyzBS6TMr/4MAMq8nao
-         cUSaH0SCXOS28yzz2/GLvgIGbLt+5FSJaEVOQnaMKXYkpI0+Vlz1YcInBasAaLjOSt
-         duPmVkesE1TpbmevbwIoN0Z57vjVDx0E5zJcRjBc=
+        b=oej72s+GXo2oMVdqEe3uk2nmnRXyqBJNZN2B2GNqBsuOTmy0YmK6ZatZv0nvxDl4C
+         aBDfch+pURsfBalC1ujUzrGh5EMCnvM1dCP9tJLohG2h53Otp5Ks3xQLG++eWfIEpA
+         9qJVzP9SvsNMpMIKHbF9yvJ6N4w7783j73oRunyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Berger <stefanb@linux.ibm.com>,
-        Christian Brauner <brauner@kernel.org>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.10 004/116] ima: Do not print policy rule with inactive LSM labels
-Date:   Mon, 14 Feb 2022 10:25:03 +0100
-Message-Id: <20220214092458.828412636@linuxfoundation.org>
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 005/116] mmc: sdhci-of-esdhc: Check for error num after setting mask
+Date:   Mon, 14 Feb 2022 10:25:04 +0100
+Message-Id: <20220214092458.864552120@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
 References: <20220214092458.668376521@linuxfoundation.org>
@@ -54,41 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 89677197ae709eb1ab3646952c44f6a171c9e74c upstream.
+commit 40c67c291a93f8846c4a972c9ef1b7ba4544c8d0 upstream.
 
-Before printing a policy rule scan for inactive LSM labels in the policy
-rule. Inactive LSM labels are identified by args_p != NULL and
-rule == NULL.
+Because of the possible failure of the dma_supported(), the
+dma_set_mask_and_coherent() may return error num.
+Therefore, it should be better to check it and return the error if
+fails.
+And since the sdhci_setup_host() has already checked the return value of
+the enable_dma, we need not check it in sdhci_resume_host() again.
 
-Fixes: 483ec26eed42 ("ima: ima/lsm policy rule loading logic bug fixes")
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Cc: <stable@vger.kernel.org> # v5.6+
-Acked-by: Christian Brauner <brauner@kernel.org>
-[zohar@linux.ibm.com: Updated "Fixes" tag]
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 5552d7ad596c ("mmc: sdhci-of-esdhc: set proper dma mask for ls104x chips")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220112083156.1124782-1-jiasheng@iscas.ac.cn
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/ima/ima_policy.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/mmc/host/sdhci-of-esdhc.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -1636,6 +1636,14 @@ int ima_policy_show(struct seq_file *m,
+--- a/drivers/mmc/host/sdhci-of-esdhc.c
++++ b/drivers/mmc/host/sdhci-of-esdhc.c
+@@ -524,12 +524,16 @@ static void esdhc_of_adma_workaround(str
  
- 	rcu_read_lock();
+ static int esdhc_of_enable_dma(struct sdhci_host *host)
+ {
++	int ret;
+ 	u32 value;
+ 	struct device *dev = mmc_dev(host->mmc);
  
-+	/* Do not print rules with inactive LSM labels */
-+	for (i = 0; i < MAX_LSM_RULES; i++) {
-+		if (entry->lsm[i].args_p && !entry->lsm[i].rule) {
-+			rcu_read_unlock();
-+			return 0;
-+		}
+ 	if (of_device_is_compatible(dev->of_node, "fsl,ls1043a-esdhc") ||
+-	    of_device_is_compatible(dev->of_node, "fsl,ls1046a-esdhc"))
+-		dma_set_mask_and_coherent(dev, DMA_BIT_MASK(40));
++	    of_device_is_compatible(dev->of_node, "fsl,ls1046a-esdhc")) {
++		ret = dma_set_mask_and_coherent(dev, DMA_BIT_MASK(40));
++		if (ret)
++			return ret;
 +	}
-+
- 	if (entry->action & MEASURE)
- 		seq_puts(m, pt(Opt_measure));
- 	if (entry->action & DONT_MEASURE)
+ 
+ 	value = sdhci_readl(host, ESDHC_DMA_SYSCTL);
+ 
 
 
