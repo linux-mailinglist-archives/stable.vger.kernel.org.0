@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C0214B49E0
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:37:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7C254B478E
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346300AbiBNKSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:18:05 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42334 "EHLO
+        id S242495AbiBNJrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:47:05 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346494AbiBNKPu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:15:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0931678069;
-        Mon, 14 Feb 2022 01:52:59 -0800 (PST)
+        with ESMTP id S244917AbiBNJpW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:45:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99F4360AB4;
+        Mon, 14 Feb 2022 01:38:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4667C612BF;
-        Mon, 14 Feb 2022 09:52:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22667C340E9;
-        Mon, 14 Feb 2022 09:52:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3687760FA2;
+        Mon, 14 Feb 2022 09:38:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E77AC340E9;
+        Mon, 14 Feb 2022 09:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832373;
-        bh=CLfqbK5DAgyx3E+ykodxSz0Gwtxu7xIMZXMF5qlQwTE=;
+        s=korg; t=1644831513;
+        bh=0KFL7EUzAu7Eb7oUe3MpZrguecfrpKt/qiwj88UrN+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j2JVbCZIr5Y+4IMXsARQW2xoA2GwIQfjIgmUUCD/sILsMMwasupXgkGgfwsaCQrKE
-         lnQhq0osuW5q8HGhP9Ze7xrIK4q6oylJQug/cSRBUlCEhV/ONfa/KINSQy/NOwoHZn
-         O3N21oLUzsLspXLoDs2jbF5fzhJZyIVN9KP1Rvko=
+        b=AEM7AslL8YL8mXRR1ohfq7qoD/noLthviCz+X2oJ/YxfN3xBHi5fl21E2zJZvBEBI
+         JmSY+Ey+brG1ysXfYJ1/gDj++pv10iwuQDSk7dzxKvNFmNMbNRkAsxYWbkNuMxiesJ
+         s+NsgAt+e+XiT1FdPl8dzJTr42+Suyvc8OeHbr2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Brian Johannesmeyer <bjohannesmeyer@gmail.com>,
-        Jakob Koschel <jakobkoschel@gmail.com>
-Subject: [PATCH 5.15 134/172] vt_ioctl: fix array_index_nospec in vt_setactivate
+        Stephan Brunner <s.brunner@stephan-brunner.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 64/71] USB: serial: ch341: add support for GW Instek USB2.0-Serial devices
 Date:   Mon, 14 Feb 2022 10:26:32 +0100
-Message-Id: <20220214092511.036875993@linuxfoundation.org>
+Message-Id: <20220214092454.184088121@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: Stephan Brunner <s.brunner@stephan-brunner.net>
 
-commit 61cc70d9e8ef5b042d4ed87994d20100ec8896d9 upstream.
+commit fa77ce201f7f2d823b07753575122d1ae5597fbe upstream.
 
-array_index_nospec ensures that an out-of-bounds value is set to zero
-on the transient path. Decreasing the value by one afterwards causes
-a transient integer underflow. vsa.console should be decreased first
-and then sanitized with array_index_nospec.
+Programmable lab power supplies made by GW Instek, such as the
+GPP-2323, have a USB port exposing a serial port to control the device.
 
-Kasper Acknowledgements: Jakob Koschel, Brian Johannesmeyer, Kaveh
-Razavi, Herbert Bos, Cristiano Giuffrida from the VUSec group at VU
-Amsterdam.
+Stringing the supplied Windows driver, references to the ch341 chip are
+found. Binding the existing ch341 driver to the VID/PID of the GPP-2323
+("GW Instek USB2.0-Serial" as per the USB product name) works out of the
+box, communication and control is now possible.
 
-Co-developed-by: Brian Johannesmeyer <bjohannesmeyer@gmail.com>
-Signed-off-by: Brian Johannesmeyer <bjohannesmeyer@gmail.com>
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Link: https://lore.kernel.org/r/20220127144406.3589293-1-jakobkoschel@gmail.com
-Cc: stable <stable@vger.kernel.org>
+This patch should work with any GPP series power supply due to
+similarities in the product line.
+
+Signed-off-by: Stephan Brunner <s.brunner@stephan-brunner.net>
+Link: https://lore.kernel.org/r/4a47b864-0816-6f6a-efee-aa20e74bcdc6@stephan-brunner.net
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/vt/vt_ioctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/ch341.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -599,8 +599,8 @@ static int vt_setactivate(struct vt_seta
- 	if (vsa.console == 0 || vsa.console > MAX_NR_CONSOLES)
- 		return -ENXIO;
- 
--	vsa.console = array_index_nospec(vsa.console, MAX_NR_CONSOLES + 1);
- 	vsa.console--;
-+	vsa.console = array_index_nospec(vsa.console, MAX_NR_CONSOLES);
- 	console_lock();
- 	ret = vc_allocate(vsa.console);
- 	if (ret) {
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -84,6 +84,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1a86, 0x5523) },
+ 	{ USB_DEVICE(0x1a86, 0x7522) },
+ 	{ USB_DEVICE(0x1a86, 0x7523) },
++	{ USB_DEVICE(0x2184, 0x0057) },
+ 	{ USB_DEVICE(0x4348, 0x5523) },
+ 	{ USB_DEVICE(0x9986, 0x7523) },
+ 	{ },
 
 
