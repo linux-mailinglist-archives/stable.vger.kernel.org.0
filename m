@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A77D84B47EE
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE7114B4716
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245615AbiBNJwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:52:31 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60738 "EHLO
+        id S244650AbiBNJpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:45:23 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344190AbiBNJve (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:51:34 -0500
+        with ESMTP id S245160AbiBNJoi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:44:38 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA3A69481;
-        Mon, 14 Feb 2022 01:42:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5546D6A004;
+        Mon, 14 Feb 2022 01:38:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36D58B80DA9;
-        Mon, 14 Feb 2022 09:42:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AA4BC340F0;
-        Mon, 14 Feb 2022 09:42:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E40B5B80DC7;
+        Mon, 14 Feb 2022 09:38:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F41DBC340E9;
+        Mon, 14 Feb 2022 09:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831755;
-        bh=wtFwdW9jsRjiSqdfyCsgNjsrqeSzJXPvR8e564Zrr1g=;
+        s=korg; t=1644831494;
+        bh=qZfm6FlmQrJNBnBogPMT8vdC/rWKAw7MKF7e1kyhZF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vl4MQTyh644652cWTFXtffQjbokiwSC+Oncy1Au7ZJeWSyVoFYMMwDobLCWyBYu+1
-         V+MfkQT2MUyS3H/asTQhAEtc85KrCSHyo/Q5gsBUMkS40K2hUeHatGVg86Qh4AUCWF
-         4ZbQxjbA1Fpzamqs/qpESbnWAtctUUCV5zwHBiwY=
+        b=OHBheOH3yKSkkPCdvhXGReM6XJTxPCMeBwAEh5dzb7feXPj/gmYLwnQtE+YwIkEPM
+         J4ELQRs96D7BlneIm+QsPw9ErmwbY+Fys3YcPKc8mXybT3vjK95Uj1rCfD2g4HLWby
+         Ew3NZs6IO0b4MCujm2PZOp2QLT7GmDN+d6tVpAjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rafael Richter <rafael.richter@gin.de>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 086/116] net: dsa: mv88e6xxx: fix use-after-free in mv88e6xxx_mdios_unregister
-Date:   Mon, 14 Feb 2022 10:26:25 +0100
-Message-Id: <20220214092501.737937599@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Adam Ford <aford173@gmail.com>
+Subject: [PATCH 5.4 58/71] usb: gadget: udc: renesas_usb3: Fix host to USB_ROLE_NONE transition
+Date:   Mon, 14 Feb 2022 10:26:26 +0100
+Message-Id: <20220214092453.996333395@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit 51a04ebf21122d5c76a716ecd9bfc33ea44b2b39 ]
+commit 459702eea6132888b5c5b64c0e9c626da4ec2493 upstream.
 
-Since struct mv88e6xxx_mdio_bus *mdio_bus is the bus->priv of something
-allocated with mdiobus_alloc_size(), this means that mdiobus_free(bus)
-will free the memory backing the mdio_bus as well. Therefore, the
-mdio_bus->list element is freed memory, but we continue to iterate
-through the list of MDIO buses using that list element.
+The support the external role switch a variety of situations were
+addressed, but the transition from USB_ROLE_HOST to USB_ROLE_NONE
+leaves the host up which can cause some error messages when
+switching from host to none, to gadget, to none, and then back
+to host again.
 
-To fix this, use the proper list iterator that handles element deletion
-by keeping a copy of the list element next pointer.
+ xhci-hcd ee000000.usb: Abort failed to stop command ring: -110
+ xhci-hcd ee000000.usb: xHCI host controller not responding, assume dead
+ xhci-hcd ee000000.usb: HC died; cleaning up
+ usb 4-1: device not accepting address 6, error -108
+ usb usb4-port1: couldn't allocate usb_device
 
-Fixes: f53a2ce893b2 ("net: dsa: mv88e6xxx: don't use devres for mdiobus")
-Reported-by: Rafael Richter <rafael.richter@gin.de>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20220210174017.3271099-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+After this happens it will not act as a host again.
+Fix this by releasing the host mode when transitioning to USB_ROLE_NONE.
+
+Fixes: 0604160d8c0b ("usb: gadget: udc: renesas_usb3: Enhance role switch support")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Link: https://lore.kernel.org/r/20220128223603.2362621-1-aford173@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/renesas_usb3.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 9b451b820d7a6..1992be77522ac 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -3122,10 +3122,10 @@ static int mv88e6xxx_mdio_register(struct mv88e6xxx_chip *chip,
- static void mv88e6xxx_mdios_unregister(struct mv88e6xxx_chip *chip)
- 
- {
--	struct mv88e6xxx_mdio_bus *mdio_bus;
-+	struct mv88e6xxx_mdio_bus *mdio_bus, *p;
- 	struct mii_bus *bus;
- 
--	list_for_each_entry(mdio_bus, &chip->mdios, list) {
-+	list_for_each_entry_safe(mdio_bus, p, &chip->mdios, list) {
- 		bus = mdio_bus->bus;
- 
- 		if (!mdio_bus->external)
--- 
-2.34.1
-
+--- a/drivers/usb/gadget/udc/renesas_usb3.c
++++ b/drivers/usb/gadget/udc/renesas_usb3.c
+@@ -2363,6 +2363,8 @@ static void handle_ext_role_switch_state
+ 	switch (role) {
+ 	case USB_ROLE_NONE:
+ 		usb3->connection_state = USB_ROLE_NONE;
++		if (cur_role == USB_ROLE_HOST)
++			device_release_driver(host);
+ 		if (usb3->driver)
+ 			usb3_disconnect(usb3);
+ 		usb3_vbus_out(usb3, false);
 
 
