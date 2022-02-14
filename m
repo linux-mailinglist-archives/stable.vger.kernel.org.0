@@ -2,58 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 996294B4C82
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:44:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 464B04B4D6B
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 12:12:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348814AbiBNKmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:42:22 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60156 "EHLO
+        id S1349938AbiBNLHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 06:07:03 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350001AbiBNKlj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:41:39 -0500
-Received: from mga06.intel.com (mga06.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856D8AD127
-        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 02:05:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644833120; x=1676369120;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=IL3YihDfuvHQy2k7ONpPOfZoz5LYSI2xsdMMwC8NXdk=;
-  b=BoysNoDMFHDeIqNRDVXnjSbOop1LOX2Aye5NIgGS7a5rRD12UwzaSapN
-   IVOUVfu+gnh7pUlsiZ1FSeHovc2nWpw1DGRDKNoKla20V2q+y3KBPp8x9
-   fU6p7HgTOoQ04JzyOJyL+E9UgOCpkZm5xHyCWtFap7MLqBqDVR4CzkN+Y
-   rSruFomzb8q7nZwylhhIf+bDDd3A57k6EeD9r09Pku0oEunbDMcsUE2LW
-   gcdYSXEqIQ8GH5gVRuysxbsnq/TMrVf3DX4aIV4uU+gmVnMnu64n0QezV
-   1/uaHjP6mPRcTKdIyn6rwFmSfNI469wJnCm0Jng8vg1+bhhd/VRnySKgV
-   w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10257"; a="310795884"
-X-IronPort-AV: E=Sophos;i="5.88,367,1635231600"; 
-   d="scan'208";a="310795884"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2022 02:05:20 -0800
-X-IronPort-AV: E=Sophos;i="5.88,367,1635231600"; 
-   d="scan'208";a="635064689"
-Received: from unknown (HELO intel.com) ([10.237.72.65])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2022 02:05:18 -0800
-Date:   Mon, 14 Feb 2022 12:05:36 +0200
-From:   "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
-To:     Ville Syrjala <ville.syrjala@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH 2/6] drm/i915: Fix bw atomic check when switching between
- SAGV vs. no SAGV
-Message-ID: <20220214100536.GB24878@intel.com>
-References: <20220214091811.13725-1-ville.syrjala@linux.intel.com>
- <20220214091811.13725-3-ville.syrjala@linux.intel.com>
+        with ESMTP id S1349947AbiBNLGv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 06:06:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ED5E654BD;
+        Mon, 14 Feb 2022 01:51:05 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31D98B80DC6;
+        Mon, 14 Feb 2022 09:51:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CEFFC340E9;
+        Mon, 14 Feb 2022 09:51:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1644832264;
+        bh=BbSSN1LxW+AgbdGKuAdVOOtAYMpiNGH/xDwGSjh2p90=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=jfRJvL9FgNHZq8xw+sJdaxOq8cI+ybdQog5WpT4WLCucP3qlsHISm/3J/0ZdJS95i
+         FFd5NDPzNRcGWEWW7uJkLHvBRni+NOqCC7J50yW2w8B4ipQ/t+aR7lqSWR7AoBwLms
+         IBG06WHe/C16eSxIVfJzsyOflLmm3bbUhb5PfnIo=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Pham Thanh Tuyen <phamtyn@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 099/172] netfilter: ctnetlink: disable helper autoassign
+Date:   Mon, 14 Feb 2022 10:25:57 +0100
+Message-Id: <20220214092509.825202798@linuxfoundation.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220214091811.13725-3-ville.syrjala@linux.intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,56 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 14, 2022 at 11:18:07AM +0200, Ville Syrjala wrote:
-> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> 
-> If the only thing that is changing is SAGV vs. no SAGV but
-> the number of active planes and the total data rates end up
-> unchanged we currently bail out of intel_bw_atomic_check()
-> early and forget to actually compute the new WGV point
-> mask and thus won't actually enable/disable SAGV as requested.
-> This ends up poorly if we end up running with SAGV enabled
-> when we shouldn't. Usually ends up in underruns.
-> To fix this let's go through the QGV point mask computation
-> if anyone else already added the bw state for us.
+From: Florian Westphal <fw@strlen.de>
 
-Haven't been looking this in a while. Despite we have been
-looking like few revisions together still some bugs :(
+[ Upstream commit d1ca60efc53d665cf89ed847a14a510a81770b81 ]
 
-I thought SAGV vs No SAGV can't change if active planes 
-or data rate didn't change? Because it means we probably
-still have same ddb allocations, which means SAGV state
-will just stay the same.
+When userspace, e.g. conntrackd, inserts an entry with a specified helper,
+its possible that the helper is lost immediately after its added:
 
-Stan
+ctnetlink_create_conntrack
+  -> nf_ct_helper_ext_add + assign helper
+    -> ctnetlink_setup_nat
+      -> ctnetlink_parse_nat_setup
+         -> parse_nat_setup -> nfnetlink_parse_nat_setup
+	                       -> nf_nat_setup_info
+                                 -> nf_conntrack_alter_reply
+                                   -> __nf_ct_try_assign_helper
 
-> 
-> Cc: stable@vger.kernel.org
-> Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-> Fixes: 20f505f22531 ("drm/i915: Restrict qgv points which don't have enough bandwidth.")
-> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> ---
->  drivers/gpu/drm/i915/display/intel_bw.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/gpu/drm/i915/display/intel_bw.c b/drivers/gpu/drm/i915/display/intel_bw.c
-> index 23aa8e06de18..d72ccee7d53b 100644
-> --- a/drivers/gpu/drm/i915/display/intel_bw.c
-> +++ b/drivers/gpu/drm/i915/display/intel_bw.c
-> @@ -846,6 +846,13 @@ int intel_bw_atomic_check(struct intel_atomic_state *state)
->  	if (num_psf_gv_points > 0)
->  		mask |= REG_GENMASK(num_psf_gv_points - 1, 0) << ADLS_PSF_PT_SHIFT;
->  
-> +	/*
-> +	 * If we already have the bw state then recompute everything
-> +	 * even if pipe data_rate / active_planes didn't change.
-> +	 * Other things (such as SAGV) may have changed.
-> +	 */
-> +	new_bw_state = intel_atomic_get_new_bw_state(state);
-> +
->  	for_each_oldnew_intel_crtc_in_state(state, crtc, old_crtc_state,
->  					    new_crtc_state, i) {
->  		unsigned int old_data_rate =
-> -- 
-> 2.34.1
-> 
+... and __nf_ct_try_assign_helper will zero the helper again.
+
+Set IPS_HELPER bit to bypass auto-assign logic, its unwanted, just like
+when helper is assigned via ruleset.
+
+Dropped old 'not strictly necessary' comment, it referred to use of
+rcu_assign_pointer() before it got replaced by RCU_INIT_POINTER().
+
+NB: Fixes tag intentionally incorrect, this extends the referenced commit,
+but this change won't build without IPS_HELPER introduced there.
+
+Fixes: 6714cf5465d280 ("netfilter: nf_conntrack: fix explicit helper attachment and NAT")
+Reported-by: Pham Thanh Tuyen <phamtyn@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ include/uapi/linux/netfilter/nf_conntrack_common.h | 2 +-
+ net/netfilter/nf_conntrack_netlink.c               | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/include/uapi/linux/netfilter/nf_conntrack_common.h b/include/uapi/linux/netfilter/nf_conntrack_common.h
+index 4b3395082d15c..26071021e986f 100644
+--- a/include/uapi/linux/netfilter/nf_conntrack_common.h
++++ b/include/uapi/linux/netfilter/nf_conntrack_common.h
+@@ -106,7 +106,7 @@ enum ip_conntrack_status {
+ 	IPS_NAT_CLASH = IPS_UNTRACKED,
+ #endif
+ 
+-	/* Conntrack got a helper explicitly attached via CT target. */
++	/* Conntrack got a helper explicitly attached (ruleset, ctnetlink). */
+ 	IPS_HELPER_BIT = 13,
+ 	IPS_HELPER = (1 << IPS_HELPER_BIT),
+ 
+diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+index 81d03acf68d4d..1c02be04aaf5c 100644
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -2310,7 +2310,8 @@ ctnetlink_create_conntrack(struct net *net,
+ 			if (helper->from_nlattr)
+ 				helper->from_nlattr(helpinfo, ct);
+ 
+-			/* not in hash table yet so not strictly necessary */
++			/* disable helper auto-assignment for this entry */
++			ct->status |= IPS_HELPER;
+ 			RCU_INIT_POINTER(help->helper, helper);
+ 		}
+ 	} else {
+-- 
+2.34.1
+
+
+
