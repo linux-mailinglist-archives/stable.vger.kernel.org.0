@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECCC54B47FE
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A33494B4737
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236494AbiBNJkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:40:14 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33144 "EHLO
+        id S231431AbiBNJhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:37:53 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244487AbiBNJjy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:39:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 916F269CD4;
-        Mon, 14 Feb 2022 01:35:34 -0800 (PST)
+        with ESMTP id S244568AbiBNJgE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DF901ADA5;
+        Mon, 14 Feb 2022 01:33:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2510EB80DCB;
-        Mon, 14 Feb 2022 09:35:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21BFFC340E9;
-        Mon, 14 Feb 2022 09:35:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C09C3B80DA9;
+        Mon, 14 Feb 2022 09:33:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02115C340F1;
+        Mon, 14 Feb 2022 09:33:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831332;
-        bh=+XLm7thfyAJVlyr8gpH4/JadVRLwjIRmSvXfhKOStXk=;
+        s=korg; t=1644831203;
+        bh=5amVScnpOyj3ZLaoLoUqzRYXi/TQPaSI+KVKUF64VPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oSRwybFvye2Ik7CkClfrYvL+QW/JeFh+OwN/U2k5w9ZTqhECVCpKdsTGWGXcPjx/9
-         u092+q0sSENNM+Jdkv+RCXWXbEFUTcCG/fuJ1m/nZB9qsIX7nWS54J+CPb9lmlmStc
-         re8xTPxT5sa/+v6ExCSegrM7o+Sr/Fw+fxhibd18=
+        b=ajbIM/GRgDlBPoiNjLx06iJJePw/dbaf7yaFDx3cRcj5tavL+3YAaEJ7utXF5L3oT
+         m2ecqaNUUpgao1G0eDv5XcTKg1rPsaE5hYSt29Ijv9qJKoREBndqrkN3roTDARYh9P
+         l7nEh2JM6UpcPD4klHfYKT9glIh4wny8hUZtmdyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 20/71] scsi: qedf: Fix refcount issue when LOGO is received during TMF
+Subject: [PATCH 4.19 22/49] ARM: dts: meson: Fix the UART compatible strings
 Date:   Mon, 14 Feb 2022 10:25:48 +0100
-Message-Id: <20220214092452.697928259@linuxfoundation.org>
+Message-Id: <20220214092449.029484001@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
+References: <20220214092448.285381753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 5239ab63f17cee643bd4bf6addfedebaa7d4f41e ]
+[ Upstream commit 5225e1b87432dcf0d0fc3440824b91d04c1d6cc1 ]
 
-Hung task call trace was seen during LOGO processing.
+The dt-bindings for the UART controller only allow the following values
+for Meson6 SoCs:
+- "amlogic,meson6-uart", "amlogic,meson-ao-uart"
+- "amlogic,meson6-uart"
 
-[  974.309060] [0000:00:00.0]:[qedf_eh_device_reset:868]: 1:0:2:0: LUN RESET Issued...
-[  974.309065] [0000:00:00.0]:[qedf_initiate_tmf:2422]: tm_flags 0x10 sc_cmd 00000000c16b930f op = 0x2a target_id = 0x2 lun=0
-[  974.309178] [0000:00:00.0]:[qedf_initiate_tmf:2431]: portid=016900 tm_flags =LUN RESET
-[  974.309222] [0000:00:00.0]:[qedf_initiate_tmf:2438]: orig io_req = 00000000ec78df8f xid = 0x180 ref_cnt = 1.
-[  974.309625] host1: rport 016900: Received LOGO request while in state Ready
-[  974.309627] host1: rport 016900: Delete port
-[  974.309642] host1: rport 016900: work event 3
-[  974.309644] host1: rport 016900: lld callback ev 3
-[  974.313243] [0000:61:00.2]:[qedf_execute_tmf:2383]:1: fcport is uploading, not executing flush.
-[  974.313295] [0000:61:00.2]:[qedf_execute_tmf:2400]:1: task mgmt command success...
-[  984.031088] INFO: task jbd2/dm-15-8:7645 blocked for more than 120 seconds.
-[  984.031136]       Not tainted 4.18.0-305.el8.x86_64 #1
+Use the correct fallback compatible string "amlogic,meson-ao-uart" for
+AO UART. Drop the "amlogic,meson-uart" compatible string from the EE
+domain UART controllers.
 
-[  984.031166] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[  984.031209] jbd2/dm-15-8    D    0  7645      2 0x80004080
-[  984.031212] Call Trace:
-[  984.031222]  __schedule+0x2c4/0x700
-[  984.031230]  ? unfreeze_partials.isra.83+0x16e/0x1a0
-[  984.031233]  ? bit_wait_timeout+0x90/0x90
-[  984.031235]  schedule+0x38/0xa0
-[  984.031238]  io_schedule+0x12/0x40
-[  984.031240]  bit_wait_io+0xd/0x50
-[  984.031243]  __wait_on_bit+0x6c/0x80
-[  984.031248]  ? free_buffer_head+0x21/0x50
-[  984.031251]  out_of_line_wait_on_bit+0x91/0xb0
-[  984.031257]  ? init_wait_var_entry+0x50/0x50
-[  984.031268]  jbd2_journal_commit_transaction+0x112e/0x19f0 [jbd2]
-[  984.031280]  kjournald2+0xbd/0x270 [jbd2]
-[  984.031284]  ? finish_wait+0x80/0x80
-[  984.031291]  ? commit_timeout+0x10/0x10 [jbd2]
-[  984.031294]  kthread+0x116/0x130
-[  984.031300]  ? kthread_flush_work_fn+0x10/0x10
-[  984.031305]  ret_from_fork+0x1f/0x40
-
-There was a ref count issue when LOGO is received during TMF. This leads to
-one of the I/Os hanging with the driver. Fix the ref count.
-
-Link: https://lore.kernel.org/r/20220117135311.6256-3-njavali@marvell.com
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: ec9b59162fd831 ("ARM: dts: meson6: use stable UART bindings")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20211227180026.4068352-2-martin.blumenstingl@googlemail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf_io.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/meson.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/qedf/qedf_io.c b/drivers/scsi/qedf/qedf_io.c
-index 4e8a284e606c0..d02d1ef0d0116 100644
---- a/drivers/scsi/qedf/qedf_io.c
-+++ b/drivers/scsi/qedf/qedf_io.c
-@@ -2253,6 +2253,7 @@ int qedf_initiate_cleanup(struct qedf_ioreq *io_req,
- 	    io_req->tm_flags == FCP_TMF_TGT_RESET) {
- 		clear_bit(QEDF_CMD_OUTSTANDING, &io_req->flags);
- 		io_req->sc_cmd = NULL;
-+		kref_put(&io_req->refcount, qedf_release_cmd);
- 		complete(&io_req->tm_done);
- 	}
+diff --git a/arch/arm/boot/dts/meson.dtsi b/arch/arm/boot/dts/meson.dtsi
+index a86b890863347..2486feb5323bc 100644
+--- a/arch/arm/boot/dts/meson.dtsi
++++ b/arch/arm/boot/dts/meson.dtsi
+@@ -91,14 +91,14 @@ hwrng: rng@8100 {
+ 			};
  
+ 			uart_A: serial@84c0 {
+-				compatible = "amlogic,meson6-uart", "amlogic,meson-uart";
++				compatible = "amlogic,meson6-uart";
+ 				reg = <0x84c0 0x18>;
+ 				interrupts = <GIC_SPI 26 IRQ_TYPE_EDGE_RISING>;
+ 				status = "disabled";
+ 			};
+ 
+ 			uart_B: serial@84dc {
+-				compatible = "amlogic,meson6-uart", "amlogic,meson-uart";
++				compatible = "amlogic,meson6-uart";
+ 				reg = <0x84dc 0x18>;
+ 				interrupts = <GIC_SPI 75 IRQ_TYPE_EDGE_RISING>;
+ 				status = "disabled";
+@@ -136,7 +136,7 @@ saradc: adc@8680 {
+ 			};
+ 
+ 			uart_C: serial@8700 {
+-				compatible = "amlogic,meson6-uart", "amlogic,meson-uart";
++				compatible = "amlogic,meson6-uart";
+ 				reg = <0x8700 0x18>;
+ 				interrupts = <GIC_SPI 93 IRQ_TYPE_EDGE_RISING>;
+ 				status = "disabled";
+@@ -219,7 +219,7 @@ ir_receiver: ir-receiver@480 {
+ 			};
+ 
+ 			uart_AO: serial@4c0 {
+-				compatible = "amlogic,meson6-uart", "amlogic,meson-ao-uart", "amlogic,meson-uart";
++				compatible = "amlogic,meson6-uart", "amlogic,meson-ao-uart";
+ 				reg = <0x4c0 0x18>;
+ 				interrupts = <GIC_SPI 90 IRQ_TYPE_EDGE_RISING>;
+ 				status = "disabled";
 -- 
 2.34.1
 
