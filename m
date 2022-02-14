@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81E9B4B4769
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE4C54B46BC
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245160AbiBNJsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:48:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43336 "EHLO
+        id S244168AbiBNJjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:39:54 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:53386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245087AbiBNJrO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:47:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90A2DB842;
-        Mon, 14 Feb 2022 01:40:40 -0800 (PST)
+        with ESMTP id S243369AbiBNJjM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:39:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 103516AA41;
+        Mon, 14 Feb 2022 01:35:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77A57B80DC1;
-        Mon, 14 Feb 2022 09:40:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A83BC340E9;
-        Mon, 14 Feb 2022 09:40:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4E046115B;
+        Mon, 14 Feb 2022 09:35:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF6BAC340E9;
+        Mon, 14 Feb 2022 09:35:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831637;
-        bh=x5AWoXV08VpQQH7H9YVUxPssIa5vUJ4VmWGDeo3vn1I=;
+        s=korg; t=1644831323;
+        bh=vJ41Kp7L4JmG3aLVkOGChqm6yVs8a5DCHjL5ArIC62Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i52xX8wxWpvDPTCo63QdobDOKt/se5LVM13ESpwB4K/XsaSZ7FMwkNVxFPGuc2DSK
-         2MNBRL5OFrEVic3p2BnGza+VPL/f2DMgFab8jsTO2pgxr6mWUSxmXkvaIdRgOevubb
-         Up+Bc3X9zpZhjy6vts92cM0OKmkowOvH2kDVt8As=
+        b=IE6jwJ892IQAFvNVZXobk7X7eA2F4J0jBtR+bJnk4xdxgf6EHbBTLmKPDM/86vwP0
+         UyyCysfjHs09GL5MSTFBDKUeYPap7kRX86jH0/Hrp2AAlZWw+xy4WA04GDnVJwpepX
+         bjEalX1a31ejLqX2CXU316UbS4JSApRPS+QXejoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Petlan <mpetlan@redhat.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.10 047/116] ACPI/IORT: Check node revision for PMCG resources
+        stable@vger.kernel.org, Victor Nogueira <victor@mojatatu.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 18/71] net: sched: Clarify error message when qdisc kind is unknown
 Date:   Mon, 14 Feb 2022 10:25:46 +0100
-Message-Id: <20220214092500.328287354@linuxfoundation.org>
+Message-Id: <20220214092452.631467489@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Victor Nogueira <victor@mojatatu.com>
 
-commit da5fb9e1ad3fbf632dce735f1bdad257ca528499 upstream.
+[ Upstream commit 973bf8fdd12f0e70ea351c018e68edd377a836d1 ]
 
-The original version of the IORT PMCG definition had an oversight
-wherein there was no way to describe the second register page for an
-implementation using the recommended RELOC_CTRS feature. Although the
-spec was fixed, and the final patches merged to ACPICA and Linux written
-against the new version, it seems that some old firmware based on the
-original revision has survived and turned up in the wild.
+When adding a tc rule with a qdisc kind that is not supported or not
+compiled into the kernel, the kernel emits the following error: "Error:
+Specified qdisc not found.". Found via tdc testing when ETS qdisc was not
+compiled in and it was not obvious right away what the message meant
+without looking at the kernel code.
 
-Add a check for the original PMCG definition, and avoid filling in the
-second memory resource with nonsense if so. Otherwise it is likely that
-something horrible will happen when the PMCG driver attempts to probe.
+Change the error message to be more explicit and say the qdisc kind is
+unknown.
 
-Reported-by: Michael Petlan <mpetlan@redhat.com>
-Fixes: 24e516049360 ("ACPI/IORT: Add support for PMCG")
-Cc: <stable@vger.kernel.org> # 5.2.x
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Link: https://lore.kernel.org/r/75628ae41c257fb73588f7bf1c4459160e04be2b.1643916258.git.robin.murphy@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Victor Nogueira <victor@mojatatu.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/arm64/iort.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ net/sched/sch_api.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/arm64/iort.c
-+++ b/drivers/acpi/arm64/iort.c
-@@ -1454,9 +1454,17 @@ static void __init arm_smmu_v3_pmcg_init
- 	res[0].start = pmcg->page0_base_address;
- 	res[0].end = pmcg->page0_base_address + SZ_4K - 1;
- 	res[0].flags = IORESOURCE_MEM;
--	res[1].start = pmcg->page1_base_address;
--	res[1].end = pmcg->page1_base_address + SZ_4K - 1;
--	res[1].flags = IORESOURCE_MEM;
-+	/*
-+	 * The initial version in DEN0049C lacked a way to describe register
-+	 * page 1, which makes it broken for most PMCG implementations; in
-+	 * that case, just let the driver fail gracefully if it expects to
-+	 * find a second memory resource.
-+	 */
-+	if (node->revision > 0) {
-+		res[1].start = pmcg->page1_base_address;
-+		res[1].end = pmcg->page1_base_address + SZ_4K - 1;
-+		res[1].flags = IORESOURCE_MEM;
-+	}
+diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
+index e70f990334083..6f36df85d23d8 100644
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -1195,7 +1195,7 @@ static struct Qdisc *qdisc_create(struct net_device *dev,
  
- 	if (pmcg->overflow_gsiv)
- 		acpi_iort_register_irq(pmcg->overflow_gsiv, "overflow",
+ 	err = -ENOENT;
+ 	if (!ops) {
+-		NL_SET_ERR_MSG(extack, "Specified qdisc not found");
++		NL_SET_ERR_MSG(extack, "Specified qdisc kind is unknown");
+ 		goto err_out;
+ 	}
+ 
+-- 
+2.34.1
+
 
 
