@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46AAB4B4BE7
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 231B64B4AFA
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344574AbiBNKCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:02:43 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43526 "EHLO
+        id S1346449AbiBNK1a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:27:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344037AbiBNJ7g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:59:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E635AC52;
-        Mon, 14 Feb 2022 01:47:04 -0800 (PST)
+        with ESMTP id S1346512AbiBNKZE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:25:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ED596D1A3;
+        Mon, 14 Feb 2022 01:56:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A52661252;
-        Mon, 14 Feb 2022 09:47:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 652E0C340F2;
-        Mon, 14 Feb 2022 09:47:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A6FD61460;
+        Mon, 14 Feb 2022 09:56:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4937C340E9;
+        Mon, 14 Feb 2022 09:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832023;
-        bh=7Wh51CxNRkFsP+UxkO1n+8BoQxcYRbLgccZ/aypOW70=;
+        s=korg; t=1644832613;
+        bh=nFogxA/LDVBd0MRKb6HyR9kxQCK/ufUVnj0yDYGaXbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VWbqZFlpjp/gBtDuiKq4BR4qMlN0s6uRb1LoFp/4UdJ/Ue7owWH8PN9oBb1vclAhK
-         AFGKIH+EFyz/fyVKx0j00TIxSuk/ySnILpqgmBrK8nSggPRU6AgmYijo+Wk2kqLHC3
-         bZ5O5Fs7eMYbKP1QX7wFjWkJAJNHKgCEoDavncpU=
+        b=q9T86zntJaKgn8caN61DUEyMdkjCmXJAlCH5nSRPQgpy1sUgH3TMYfr7kFBOUCSSI
+         ZolYuK/olD+nEj8NVxWcLQXsVcq2HnvZf2WwYDEuaem213KFugHKuh/NEH0PGKWRyj
+         dgTtETxFF4RBPdJTl3apxrHzMzN34X5U8Rc6TvAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 055/172] usb: dwc2: gadget: dont try to disable ep0 in dwc2_hsotg_suspend
+Subject: [PATCH 5.16 069/203] KVM: nVMX: Also filter MSR_IA32_VMX_TRUE_PINBASED_CTLS when eVMCS
 Date:   Mon, 14 Feb 2022 10:25:13 +0100
-Message-Id: <20220214092508.292332419@linuxfoundation.org>
+Message-Id: <20220214092512.613921612@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit ac55d163855924aa5af9f1560977da8f346963c8 ]
+[ Upstream commit f80ae0ef089a09e8c18da43a382c3caac9a424a7 ]
 
-Calling dwc2_hsotg_ep_disable on ep0 (in/out) will lead to the following
-logs before returning -EINVAL:
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
+Similar to MSR_IA32_VMX_EXIT_CTLS/MSR_IA32_VMX_TRUE_EXIT_CTLS,
+MSR_IA32_VMX_ENTRY_CTLS/MSR_IA32_VMX_TRUE_ENTRY_CTLS pair,
+MSR_IA32_VMX_TRUE_PINBASED_CTLS needs to be filtered the same way
+MSR_IA32_VMX_PINBASED_CTLS is currently filtered as guests may solely rely
+on 'true' MSR data.
 
-To avoid these two logs while suspending, start disabling the endpoint
-from the index 1, as done in dwc2_hsotg_udc_stop:
+Note, none of the currently existing Windows/Hyper-V versions are known
+to stumble upon the unfiltered MSR_IA32_VMX_TRUE_PINBASED_CTLS, the change
+is aimed at making the filtering future proof.
 
-	/* all endpoints should be shutdown */
-	for (ep = 1; ep < hsotg->num_of_eps; ep++) {
-		if (hsotg->eps_in[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_in[ep]->ep);
-		if (hsotg->eps_out[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_out[ep]->ep);
-	}
-
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20211207130101.270314-1-amelie.delaunay@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20220112170134.1904308-2-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/vmx/evmcs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index ea0d2d6139a68..0909b088a284b 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -5096,7 +5096,7 @@ int dwc2_hsotg_suspend(struct dwc2_hsotg *hsotg)
- 		hsotg->gadget.speed = USB_SPEED_UNKNOWN;
- 		spin_unlock_irqrestore(&hsotg->lock, flags);
- 
--		for (ep = 0; ep < hsotg->num_of_eps; ep++) {
-+		for (ep = 1; ep < hsotg->num_of_eps; ep++) {
- 			if (hsotg->eps_in[ep])
- 				dwc2_hsotg_ep_disable_lock(&hsotg->eps_in[ep]->ep);
- 			if (hsotg->eps_out[ep])
+diff --git a/arch/x86/kvm/vmx/evmcs.c b/arch/x86/kvm/vmx/evmcs.c
+index 09fac0ddac8bd..87e3dc10edf40 100644
+--- a/arch/x86/kvm/vmx/evmcs.c
++++ b/arch/x86/kvm/vmx/evmcs.c
+@@ -361,6 +361,7 @@ void nested_evmcs_filter_control_msr(u32 msr_index, u64 *pdata)
+ 	case MSR_IA32_VMX_PROCBASED_CTLS2:
+ 		ctl_high &= ~EVMCS1_UNSUPPORTED_2NDEXEC;
+ 		break;
++	case MSR_IA32_VMX_TRUE_PINBASED_CTLS:
+ 	case MSR_IA32_VMX_PINBASED_CTLS:
+ 		ctl_high &= ~EVMCS1_UNSUPPORTED_PINCTRL;
+ 		break;
 -- 
 2.34.1
 
