@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABDD24B46B3
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A73C4B4956
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236204AbiBNJr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:47:29 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43386 "EHLO
+        id S1346973AbiBNK1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:27:48 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344411AbiBNJq5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:57 -0500
+        with ESMTP id S1348389AbiBNK0z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:26:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C4E760D90;
-        Mon, 14 Feb 2022 01:40:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEC6583022;
+        Mon, 14 Feb 2022 01:57:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A043860F87;
-        Mon, 14 Feb 2022 09:40:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E4CCC340E9;
-        Mon, 14 Feb 2022 09:40:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FA4561491;
+        Mon, 14 Feb 2022 09:57:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AA28C340E9;
+        Mon, 14 Feb 2022 09:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831625;
-        bh=ZIoruihJRDf1q4OFLPrXAa1XVhoSo5Vgetf4aKxnfEQ=;
+        s=korg; t=1644832673;
+        bh=MFrH3r1yKX+iFtfx80aWccnWMDRwj7DDM7f0gq4zrw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ebLL3tSaQVHlY0KN7ojK9q9/R/rnFJAAJy9sGtwqB/fcubFfRxieVCEQ1giXKcln6
-         IIYfA1CBlebvL61jXFSnyZw+VJq4EWKnztmA0gnyU5BavaqcyrufoEGr7wmEMUK93q
-         a6yq34ME5uxqYMrQeOQ1E7YAiFggQQtfJpAH+41Q=
+        b=Zb7v+7wb1NlRnRs+TTW2sCyQMom0PDPBksb5DlFvGl2DUtMGSdPyNfujcr99F4vww
+         wt+MaDLHIAcxQqb+e7+ZlXmf3hk/vkuqCogdpeBHQnC91z5+OafCZZ2Yc1Az2hGs8x
+         +S9qp4gKk3VS6cqbSDd0tFGay02BrCD74H0+NOrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Wu <wu.zheng@intel.com>,
-        Ye Jinhe <jinhe.ye@intel.com>, Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/116] nvme-pci: add the IGNORE_DEV_SUBNQN quirk for Intel P4500/P4600 SSDs
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.16 090/203] drm/i915: Allow !join_mbus cases for adlp+ dbuf configuration
 Date:   Mon, 14 Feb 2022 10:25:34 +0100
-Message-Id: <20220214092459.901116421@linuxfoundation.org>
+Message-Id: <20220214092513.321831043@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +56,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wu Zheng <wu.zheng@intel.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 25e58af4be412d59e056da65cc1cefbd89185bd2 ]
+commit 8fd5a26e43859547790a7995494c952b708ab3b5 upstream.
 
-The Intel P4500/P4600 SSDs do not report a subsystem NQN despite claiming
-compliance to a standards version where reporting one is required.
+Reintroduce the !join_mbus single pipe cases for adlp+.
 
-Add the IGNORE_DEV_SUBNQN quirk to not fail the initialization of a
-second such SSDs in a system.
+Due to the mbus relative dbuf offsets in PLANE_BUF_CFG we
+need to know the actual slices used by the pipe when doing
+readout, even when mbus joining isn't enabled. Accurate
+readout will be needed to properly sanitize invalid BIOS
+dbuf configurations.
 
-Signed-off-by: Zheng Wu <wu.zheng@intel.com>
-Signed-off-by: Ye Jinhe <jinhe.ye@intel.com>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This will also make it much easier to play around with the
+!join_mbus configs for testin/workaround purposes.
+
+Cc: <stable@vger.kernel.org> # v5.14+
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220204141818.1900-1-ville.syrjala@linux.intel.com
+Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+(cherry picked from commit eef173954432fe0612acb63421a95deb41155cdc)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/pci.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/intel_pm.c |   66 +++++++++++++++++++++++++++-------------
+ 1 file changed, 46 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 1b85349f57af0..97afeb898b253 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3198,7 +3198,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 				NVME_QUIRK_DEALLOCATE_ZEROES, },
- 	{ PCI_VDEVICE(INTEL, 0x0a54),	/* Intel P4500/P4600 */
- 		.driver_data = NVME_QUIRK_STRIPE_SIZE |
--				NVME_QUIRK_DEALLOCATE_ZEROES, },
-+				NVME_QUIRK_DEALLOCATE_ZEROES |
-+				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
- 	{ PCI_VDEVICE(INTEL, 0x0a55),	/* Dell Express Flash P4600 */
- 		.driver_data = NVME_QUIRK_STRIPE_SIZE |
- 				NVME_QUIRK_DEALLOCATE_ZEROES, },
--- 
-2.34.1
-
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -4707,6 +4707,10 @@ static const struct dbuf_slice_conf_entr
+ };
+ 
+ static const struct dbuf_slice_conf_entry adlp_allowed_dbufs[] = {
++	/*
++	 * Keep the join_mbus cases first so check_mbus_joined()
++	 * will prefer them over the !join_mbus cases.
++	 */
+ 	{
+ 		.active_pipes = BIT(PIPE_A),
+ 		.dbuf_mask = {
+@@ -4722,6 +4726,20 @@ static const struct dbuf_slice_conf_entr
+ 		.join_mbus = true,
+ 	},
+ 	{
++		.active_pipes = BIT(PIPE_A),
++		.dbuf_mask = {
++			[PIPE_A] = BIT(DBUF_S1) | BIT(DBUF_S2),
++		},
++		.join_mbus = false,
++	},
++	{
++		.active_pipes = BIT(PIPE_B),
++		.dbuf_mask = {
++			[PIPE_B] = BIT(DBUF_S3) | BIT(DBUF_S4),
++		},
++		.join_mbus = false,
++	},
++	{
+ 		.active_pipes = BIT(PIPE_A) | BIT(PIPE_B),
+ 		.dbuf_mask = {
+ 			[PIPE_A] = BIT(DBUF_S1) | BIT(DBUF_S2),
+@@ -4837,13 +4855,14 @@ static bool adlp_check_mbus_joined(u8 ac
+ 	return check_mbus_joined(active_pipes, adlp_allowed_dbufs);
+ }
+ 
+-static u8 compute_dbuf_slices(enum pipe pipe, u8 active_pipes,
++static u8 compute_dbuf_slices(enum pipe pipe, u8 active_pipes, bool join_mbus,
+ 			      const struct dbuf_slice_conf_entry *dbuf_slices)
+ {
+ 	int i;
+ 
+ 	for (i = 0; i < dbuf_slices[i].active_pipes; i++) {
+-		if (dbuf_slices[i].active_pipes == active_pipes)
++		if (dbuf_slices[i].active_pipes == active_pipes &&
++		    dbuf_slices[i].join_mbus == join_mbus)
+ 			return dbuf_slices[i].dbuf_mask[pipe];
+ 	}
+ 	return 0;
+@@ -4854,7 +4873,7 @@ static u8 compute_dbuf_slices(enum pipe
+  * returns correspondent DBuf slice mask as stated in BSpec for particular
+  * platform.
+  */
+-static u8 icl_compute_dbuf_slices(enum pipe pipe, u8 active_pipes)
++static u8 icl_compute_dbuf_slices(enum pipe pipe, u8 active_pipes, bool join_mbus)
+ {
+ 	/*
+ 	 * FIXME: For ICL this is still a bit unclear as prev BSpec revision
+@@ -4868,37 +4887,41 @@ static u8 icl_compute_dbuf_slices(enum p
+ 	 * still here - we will need it once those additional constraints
+ 	 * pop up.
+ 	 */
+-	return compute_dbuf_slices(pipe, active_pipes, icl_allowed_dbufs);
++	return compute_dbuf_slices(pipe, active_pipes, join_mbus,
++				   icl_allowed_dbufs);
+ }
+ 
+-static u8 tgl_compute_dbuf_slices(enum pipe pipe, u8 active_pipes)
++static u8 tgl_compute_dbuf_slices(enum pipe pipe, u8 active_pipes, bool join_mbus)
+ {
+-	return compute_dbuf_slices(pipe, active_pipes, tgl_allowed_dbufs);
++	return compute_dbuf_slices(pipe, active_pipes, join_mbus,
++				   tgl_allowed_dbufs);
+ }
+ 
+-static u32 adlp_compute_dbuf_slices(enum pipe pipe, u32 active_pipes)
++static u8 adlp_compute_dbuf_slices(enum pipe pipe, u8 active_pipes, bool join_mbus)
+ {
+-	return compute_dbuf_slices(pipe, active_pipes, adlp_allowed_dbufs);
++	return compute_dbuf_slices(pipe, active_pipes, join_mbus,
++				   adlp_allowed_dbufs);
+ }
+ 
+-static u32 dg2_compute_dbuf_slices(enum pipe pipe, u32 active_pipes)
++static u8 dg2_compute_dbuf_slices(enum pipe pipe, u8 active_pipes, bool join_mbus)
+ {
+-	return compute_dbuf_slices(pipe, active_pipes, dg2_allowed_dbufs);
++	return compute_dbuf_slices(pipe, active_pipes, join_mbus,
++				   dg2_allowed_dbufs);
+ }
+ 
+-static u8 skl_compute_dbuf_slices(struct intel_crtc *crtc, u8 active_pipes)
++static u8 skl_compute_dbuf_slices(struct intel_crtc *crtc, u8 active_pipes, bool join_mbus)
+ {
+ 	struct drm_i915_private *dev_priv = to_i915(crtc->base.dev);
+ 	enum pipe pipe = crtc->pipe;
+ 
+ 	if (IS_DG2(dev_priv))
+-		return dg2_compute_dbuf_slices(pipe, active_pipes);
++		return dg2_compute_dbuf_slices(pipe, active_pipes, join_mbus);
+ 	else if (IS_ALDERLAKE_P(dev_priv))
+-		return adlp_compute_dbuf_slices(pipe, active_pipes);
++		return adlp_compute_dbuf_slices(pipe, active_pipes, join_mbus);
+ 	else if (DISPLAY_VER(dev_priv) == 12)
+-		return tgl_compute_dbuf_slices(pipe, active_pipes);
++		return tgl_compute_dbuf_slices(pipe, active_pipes, join_mbus);
+ 	else if (DISPLAY_VER(dev_priv) == 11)
+-		return icl_compute_dbuf_slices(pipe, active_pipes);
++		return icl_compute_dbuf_slices(pipe, active_pipes, join_mbus);
+ 	/*
+ 	 * For anything else just return one slice yet.
+ 	 * Should be extended for other platforms.
+@@ -6109,11 +6132,16 @@ skl_compute_ddb(struct intel_atomic_stat
+ 			return ret;
+ 	}
+ 
++	if (IS_ALDERLAKE_P(dev_priv))
++		new_dbuf_state->joined_mbus =
++			adlp_check_mbus_joined(new_dbuf_state->active_pipes);
++
+ 	for_each_intel_crtc(&dev_priv->drm, crtc) {
+ 		enum pipe pipe = crtc->pipe;
+ 
+ 		new_dbuf_state->slices[pipe] =
+-			skl_compute_dbuf_slices(crtc, new_dbuf_state->active_pipes);
++			skl_compute_dbuf_slices(crtc, new_dbuf_state->active_pipes,
++						new_dbuf_state->joined_mbus);
+ 
+ 		if (old_dbuf_state->slices[pipe] == new_dbuf_state->slices[pipe])
+ 			continue;
+@@ -6125,9 +6153,6 @@ skl_compute_ddb(struct intel_atomic_stat
+ 
+ 	new_dbuf_state->enabled_slices = intel_dbuf_enabled_slices(new_dbuf_state);
+ 
+-	if (IS_ALDERLAKE_P(dev_priv))
+-		new_dbuf_state->joined_mbus = adlp_check_mbus_joined(new_dbuf_state->active_pipes);
+-
+ 	if (old_dbuf_state->enabled_slices != new_dbuf_state->enabled_slices ||
+ 	    old_dbuf_state->joined_mbus != new_dbuf_state->joined_mbus) {
+ 		ret = intel_atomic_serialize_global_state(&new_dbuf_state->base);
+@@ -6628,7 +6653,8 @@ void skl_wm_get_hw_state(struct drm_i915
+ 		}
+ 
+ 		dbuf_state->slices[pipe] =
+-			skl_compute_dbuf_slices(crtc, dbuf_state->active_pipes);
++			skl_compute_dbuf_slices(crtc, dbuf_state->active_pipes,
++						dbuf_state->joined_mbus);
+ 
+ 		dbuf_state->weight[pipe] = intel_crtc_ddb_weight(crtc_state);
+ 
 
 
