@@ -2,109 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD6B34B4A34
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:38:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E77E4B459A
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:25:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346174AbiBNKR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:17:26 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44746 "EHLO
+        id S231140AbiBNJZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:25:06 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347999AbiBNKRD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:17:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 049E08CDAE;
-        Mon, 14 Feb 2022 01:54:29 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0510661291;
-        Mon, 14 Feb 2022 09:54:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA8E1C340E9;
-        Mon, 14 Feb 2022 09:54:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832448;
-        bh=1ntWSla+5nh9tEUa/mvCSg1/ISzaLNJ5FQu7JQZLhyo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+tb+laQkad2/gOcVAvh0vDJ4lqRhwXnuV2HQnJhYjm71KfzfrgnETqsaoOmMRYKp
-         jRIFa/fGXEAJkiQ9FUXtHnWzDY9+Otxn80T99c3oPAxOuC65Qsu4g4fSxjdFcpLasK
-         UUS+ooBEYczvW0g/jaY1IH5uIVxeloRlbkr1lwfA=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.16 018/203] NFSD: Fix offset type in I/O trace points
+        with ESMTP id S235801AbiBNJZF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:25:05 -0500
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCAEE60A89;
+        Mon, 14 Feb 2022 01:24:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1644830679;
+        bh=bPwqzMydBgKUCCPAcnpWEevOwrjSEKacihSgwMc0jc4=;
+        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
+        b=iostq3mEM/MOJNzagGc2y1i3Y05rII7z/NhlaQiyUbyXunuVAbarmNO/rWdo9xJIG
+         Vdh5Ow8y1U5FZNOdkaBid272QPDu/tzE6mcnrrSE++hoHwixxHA08Uytf0DAqdq/np
+         WOpyi2gw7rg+RBCA7ZXGPairX8MzSBabv/qkfsF0=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.123.55] ([88.152.144.107]) by mail.gmx.net (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MIdif-1nY7vO2GKj-00Edn1; Mon, 14
+ Feb 2022 10:24:39 +0100
+Message-ID: <9cd9f149-d2ea-eb55-b774-8d817b9b6cc9@gmx.de>
 Date:   Mon, 14 Feb 2022 10:24:22 +0100
-Message-Id: <20220214092510.839136424@linuxfoundation.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.1
+Subject: Re: [PATCH] riscv/efi_stub: Fix get_boot_hartid_from_fdt() return
+ value
+Content-Language: en-US
+To:     Andreas Schwab <schwab@linux-m68k.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Atish Patra <atishp@atishpatra.org>, linux-efi@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Anup Patel <apatel@ventanamicro.com>, stable@vger.kernel.org,
+        Sunil V L <sunilvl@ventanamicro.com>
+References: <20220128045004.4843-1-sunilvl@ventanamicro.com>
+ <877d9xx14f.fsf@igel.home>
+From:   Heinrich Schuchardt <xypron.glpk@gmx.de>
+In-Reply-To: <877d9xx14f.fsf@igel.home>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:Au/e3vMlDZkTXGdYorj9+mhhI0kX2Yew6mxWnv2QGwXtTeAfS/B
+ GC0CYZsekBZfnzXD4vQVL/bx8xJHpAaGKrFLun/Ih7miykJsovZHN4EABrb6DE/aB82u+CT
+ k5c1fbeV8pG17cyAa13L6Z8lVVvBfrq/uV8UwY2JaLXw2tPkV05PLZhFL6PL5/XCgt2mzv1
+ QptnAnKEGT+5Wc5+r0pyA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:2xdUZkLP5D8=:FOcUVX4+xapxGqnhuR0t5M
+ 6FjdiVIZ4HOFCmWD7niXzb2QMPmbL5iWiX/XLvvHmuAKoQ21tsqVKJGLichsdaKOjHNjAkrTF
+ An37zog0g1a5ZsXqmQpszkOgIpbdUMjsB8RhA3H6PfjxjJqiCuSCHpRuEQHn2lRUZJzWk6qAI
+ iLZurQ/PEpqBL5lDwmr14XOmLjXK0xrMeu+Q1IVT8gABOdZNx9S8UT/soc7K3YquXvHbJNFjg
+ E8dNS24EEiPvPFGakMihSYE2V48uAKYYApxh+hqTze3kr/LY1nHHBeE4O1+dctXhF+eOp+/nn
+ Socw+JcuHf0c7mPCjtc/FKpekkTFRkbbo7L2CCl1UhBX03c4GkdDYmSuUY/f5pWZV4C2QJcQe
+ y18FpIOAgTdacaWI7tGuq37kffw8eqwFFSLjHrJOlhUb1Nmdku/DIkVnwmgwQB/x5Y5MEjAjR
+ wog4U8Ypt9h50VOKDJTa2tV1pGlqTHZoenPX5khDmG+XG8lb0H633AO9VZ5sUZnH4R9Xh0rS2
+ zVO71lzwAJ4WH3zVMN9ksZQzZh0JQkDsppnlPT3GjqQiJXclup+9FigJZatTWZVWKTZ1v1HN6
+ C6X355YcfqlYN4hx3qURb85suzcQtMNMOPrqGoZgml4d+PuWg4RpjTCRz5HoIfGXQjqrLC/uG
+ /U8OglNbddKjyBuQT4mgX4Gvuaie99pGrxBa68PSHmIMEoo6vfwCHv7Wq2MBflYGAYqF4X9c8
+ lgmgbaLfCcW+8hg0SufRgXgG+4N5vZMT2/smamEJRbdaW5qsrvXTaDyEbizDtj6tUiQecgGX6
+ WxeiesARhS9k8k0rPt//zIR/Ods6qL111AzecSoNzuu0JpMOy2cfsYinb/ElE0ehIDiV3Bq86
+ 0VlREP/0vmEG7FlVYi1/xTiD6qoGsRUY/8xP7GMPzocmQI9gyxiwz1dwqOyPMFZLOi8H14moq
+ YRsoYoRwlnvad55b5zoADbj694to8+24iVs/JWY7lommLPg6fogVgoGk7v3Fs631qyW9kboe0
+ 2UHKqP4mtqsKepGO/XjMBlOoKewGj+fYySTjde+bMKWZfGAuPIZ5ljSpiKmVCDfa20uokMbQQ
+ JNVEpb4tJlugaM=
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+On 2/14/22 10:12, Andreas Schwab wrote:
+> On Jan 28 2022, Sunil V L wrote:
+>
+>> diff --git a/drivers/firmware/efi/libstub/riscv-stub.c b/drivers/firmwa=
+re/efi/libstub/riscv-stub.c
+>> index 380e4e251399..9c460843442f 100644
+>> --- a/drivers/firmware/efi/libstub/riscv-stub.c
+>> +++ b/drivers/firmware/efi/libstub/riscv-stub.c
+>> @@ -25,7 +25,7 @@ typedef void __noreturn (*jump_kernel_func)(unsigned =
+int, unsigned long);
+>>
+>>   static u32 hartid;
+>>
+>> -static u32 get_boot_hartid_from_fdt(void)
+>> +static int get_boot_hartid_from_fdt(void)
+>
+> I think the function should be renamed, now that it no longer returns
+> the hart ID, but initializes a static variable as a side effect.  Thus
+> it no longer "gets", but "sets".
+>
 
-commit 6a4d333d540041d244b2fca29b8417bfde20af81 upstream.
+set_boot_hartid() implies that the caller can change the boot hart ID.
+As this is not a case this name obviously would be a misnomer.
 
-NFSv3 and NFSv4 use u64 offset values on the wire. Record these values
-verbatim without the implicit type case to loff_t.
+Best regards
 
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/nfsd/trace.h |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
-
---- a/fs/nfsd/trace.h
-+++ b/fs/nfsd/trace.h
-@@ -320,14 +320,14 @@ TRACE_EVENT(nfsd_export_update,
- DECLARE_EVENT_CLASS(nfsd_io_class,
- 	TP_PROTO(struct svc_rqst *rqstp,
- 		 struct svc_fh	*fhp,
--		 loff_t		offset,
--		 unsigned long	len),
-+		 u64		offset,
-+		 u32		len),
- 	TP_ARGS(rqstp, fhp, offset, len),
- 	TP_STRUCT__entry(
- 		__field(u32, xid)
- 		__field(u32, fh_hash)
--		__field(loff_t, offset)
--		__field(unsigned long, len)
-+		__field(u64, offset)
-+		__field(u32, len)
- 	),
- 	TP_fast_assign(
- 		__entry->xid = be32_to_cpu(rqstp->rq_xid);
-@@ -335,7 +335,7 @@ DECLARE_EVENT_CLASS(nfsd_io_class,
- 		__entry->offset = offset;
- 		__entry->len = len;
- 	),
--	TP_printk("xid=0x%08x fh_hash=0x%08x offset=%lld len=%lu",
-+	TP_printk("xid=0x%08x fh_hash=0x%08x offset=%llu len=%u",
- 		  __entry->xid, __entry->fh_hash,
- 		  __entry->offset, __entry->len)
- )
-@@ -344,8 +344,8 @@ DECLARE_EVENT_CLASS(nfsd_io_class,
- DEFINE_EVENT(nfsd_io_class, nfsd_##name,	\
- 	TP_PROTO(struct svc_rqst *rqstp,	\
- 		 struct svc_fh	*fhp,		\
--		 loff_t		offset,		\
--		 unsigned long	len),		\
-+		 u64		offset,		\
-+		 u32		len),		\
- 	TP_ARGS(rqstp, fhp, offset, len))
- 
- DEFINE_NFSD_IO_EVENT(read_start);
-
-
+Heinrich
