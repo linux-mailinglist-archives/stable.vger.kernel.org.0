@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 812484B46DE
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6A004B4768
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245361AbiBNJwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:52:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34422 "EHLO
+        id S244562AbiBNJmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:42:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245733AbiBNJun (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:50:43 -0500
+        with ESMTP id S245227AbiBNJlN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:41:13 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84CFA654AB;
-        Mon, 14 Feb 2022 01:41:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2674E652E7;
+        Mon, 14 Feb 2022 01:37:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 429CBB80DC4;
-        Mon, 14 Feb 2022 09:41:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 515C5C340F5;
-        Mon, 14 Feb 2022 09:41:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D082AB80DCD;
+        Mon, 14 Feb 2022 09:37:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECA5DC340E9;
+        Mon, 14 Feb 2022 09:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831694;
-        bh=CaxhALpc6Zc6fQlasirVdZIPuHf7qdsIgFDj1qvhJsQ=;
+        s=korg; t=1644831433;
+        bh=m//ix3XPBPrvcEFkN+P3oNvi1ozebqHaRfxVNaNA0N8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x3oZ0njqDaxt5ZBiCUi1rCem98tBHCvq4UPN68T89GqKPpwpvZVrx3Gtf1e1ubqPP
-         +OH2Xkf6tFKF8JkjGaRI7Q/Y82BtMF7zikZCD5Q5cMavd+0FmuVwL/oXgnRHYbsL6a
-         CotNt5n4f8qQpvXtk2Y9b4DW5+g3ZBf02hDZuPQg=
+        b=u90AJFWu1kNruLfyUV1uDt3RmkbMX+RymZ+hfQfp/x5FUlhLodvScKSX0m13XHP+K
+         78jx3DFl7xh1fwDPIu6myt9cS8qfGIo3D9QErxouwMCI4uuTW1SVYQlUJFZsw88GqJ
+         4DFJdJJY8WwPe2fBcU/em/VKqCYmf6JoBXAaksqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Mendoza-Jonas <samjonas@amazon.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 064/116] ixgbevf: Require large buffers for build_skb on 82599VF
+Subject: [PATCH 5.4 35/71] ARM: dts: meson: Fix the UART compatible strings
 Date:   Mon, 14 Feb 2022 10:26:03 +0100
-Message-Id: <20220214092500.961810621@linuxfoundation.org>
+Message-Id: <20220214092453.207005977@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Mendoza-Jonas <samjonas@amazon.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit fe68195daf34d5dddacd3f93dd3eafc4beca3a0e ]
+[ Upstream commit 5225e1b87432dcf0d0fc3440824b91d04c1d6cc1 ]
 
->From 4.17 onwards the ixgbevf driver uses build_skb() to build an skb
-around new data in the page buffer shared with the ixgbe PF.
-This uses either a 2K or 3K buffer, and offsets the DMA mapping by
-NET_SKB_PAD + NET_IP_ALIGN. When using a smaller buffer RXDCTL is set to
-ensure the PF does not write a full 2K bytes into the buffer, which is
-actually 2K minus the offset.
+The dt-bindings for the UART controller only allow the following values
+for Meson6 SoCs:
+- "amlogic,meson6-uart", "amlogic,meson-ao-uart"
+- "amlogic,meson6-uart"
 
-However on the 82599 virtual function, the RXDCTL mechanism is not
-available. The driver attempts to work around this by using the SET_LPE
-mailbox method to lower the maximm frame size, but the ixgbe PF driver
-ignores this in order to keep the PF and all VFs in sync[0].
+Use the correct fallback compatible string "amlogic,meson-ao-uart" for
+AO UART. Drop the "amlogic,meson-uart" compatible string from the EE
+domain UART controllers.
 
-This means the PF will write up to the full 2K set in SRRCTL, causing it
-to write NET_SKB_PAD + NET_IP_ALIGN bytes past the end of the buffer.
-With 4K pages split into two buffers, this means it either writes
-NET_SKB_PAD + NET_IP_ALIGN bytes past the first buffer (and into the
-second), or NET_SKB_PAD + NET_IP_ALIGN bytes past the end of the DMA
-mapping.
-
-Avoid this by only enabling build_skb when using "large" buffers (3K).
-These are placed in each half of an order-1 page, preventing the PF from
-writing past the end of the mapping.
-
-[0]: Technically it only ever raises the max frame size, see
-ixgbe_set_vf_lpe() in ixgbe_sriov.c
-
-Fixes: f15c5ba5b6cd ("ixgbevf: add support for using order 1 pages to receive large frames")
-Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ec9b59162fd831 ("ARM: dts: meson6: use stable UART bindings")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20211227180026.4068352-2-martin.blumenstingl@googlemail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/meson.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c b/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
-index a7d0a459969a2..2d6ac61d7a3e6 100644
---- a/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
-+++ b/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
-@@ -1992,14 +1992,15 @@ static void ixgbevf_set_rx_buffer_len(struct ixgbevf_adapter *adapter,
- 	if (adapter->flags & IXGBEVF_FLAGS_LEGACY_RX)
- 		return;
+diff --git a/arch/arm/boot/dts/meson.dtsi b/arch/arm/boot/dts/meson.dtsi
+index c4447f6c8b2cb..e141ce7484841 100644
+--- a/arch/arm/boot/dts/meson.dtsi
++++ b/arch/arm/boot/dts/meson.dtsi
+@@ -49,14 +49,14 @@ hwrng: rng@8100 {
+ 			};
  
--	set_ring_build_skb_enabled(rx_ring);
-+	if (PAGE_SIZE < 8192)
-+		if (max_frame > IXGBEVF_MAX_FRAME_BUILD_SKB)
-+			set_ring_uses_large_buffer(rx_ring);
+ 			uart_A: serial@84c0 {
+-				compatible = "amlogic,meson6-uart", "amlogic,meson-uart";
++				compatible = "amlogic,meson6-uart";
+ 				reg = <0x84c0 0x18>;
+ 				interrupts = <GIC_SPI 26 IRQ_TYPE_EDGE_RISING>;
+ 				status = "disabled";
+ 			};
  
--	if (PAGE_SIZE < 8192) {
--		if (max_frame <= IXGBEVF_MAX_FRAME_BUILD_SKB)
--			return;
-+	/* 82599 can't rely on RXDCTL.RLPML to restrict the size of the frame */
-+	if (adapter->hw.mac.type == ixgbe_mac_82599_vf && !ring_uses_large_buffer(rx_ring))
-+		return;
+ 			uart_B: serial@84dc {
+-				compatible = "amlogic,meson6-uart", "amlogic,meson-uart";
++				compatible = "amlogic,meson6-uart";
+ 				reg = <0x84dc 0x18>;
+ 				interrupts = <GIC_SPI 75 IRQ_TYPE_EDGE_RISING>;
+ 				status = "disabled";
+@@ -94,7 +94,7 @@ saradc: adc@8680 {
+ 			};
  
--		set_ring_uses_large_buffer(rx_ring);
--	}
-+	set_ring_build_skb_enabled(rx_ring);
- }
+ 			uart_C: serial@8700 {
+-				compatible = "amlogic,meson6-uart", "amlogic,meson-uart";
++				compatible = "amlogic,meson6-uart";
+ 				reg = <0x8700 0x18>;
+ 				interrupts = <GIC_SPI 93 IRQ_TYPE_EDGE_RISING>;
+ 				status = "disabled";
+@@ -196,7 +196,7 @@ ir_receiver: ir-receiver@480 {
+ 			};
  
- /**
+ 			uart_AO: serial@4c0 {
+-				compatible = "amlogic,meson6-uart", "amlogic,meson-ao-uart", "amlogic,meson-uart";
++				compatible = "amlogic,meson6-uart", "amlogic,meson-ao-uart";
+ 				reg = <0x4c0 0x18>;
+ 				interrupts = <GIC_SPI 90 IRQ_TYPE_EDGE_RISING>;
+ 				status = "disabled";
 -- 
 2.34.1
 
