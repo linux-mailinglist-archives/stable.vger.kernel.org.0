@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9563C4B4AA6
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:39:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 082EE4B4729
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346030AbiBNKNv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:13:51 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44746 "EHLO
+        id S232055AbiBNJgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:36:55 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345709AbiBNKNK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:13:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1565C59A63;
-        Mon, 14 Feb 2022 01:51:22 -0800 (PST)
+        with ESMTP id S244415AbiBNJfz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:35:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0063DB856;
+        Mon, 14 Feb 2022 01:33:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1820B80DC4;
-        Mon, 14 Feb 2022 09:51:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3FBEC340EF;
-        Mon, 14 Feb 2022 09:51:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EB9860F8D;
+        Mon, 14 Feb 2022 09:33:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12F21C340F0;
+        Mon, 14 Feb 2022 09:33:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832279;
-        bh=YYnbQUNHnyZnPlW0EXMkhiN07cJiuJLrOZ2257GGNHE=;
+        s=korg; t=1644831222;
+        bh=JPgL+YryzoDSds9dlhYDs8r7vobLrwGIJvvZ/U+S3Cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xj08xgfD13OdK/APT9R8t0yiN6BSiHPHP5epMUADCYgW8PPTVNbhpglYxNzJrDJdb
-         eBirdkDIW/+BLMJpfcGIfu2nZUW9OZAM+JP6u0ipDPxb2xKOss7y91aDm+PppK9mlC
-         b8NAhVuznixrixomcDnPbZfC4N4t/vpqlsIe9OYI=
+        b=XzpG6rRjvairOPmSaPWl39yyys7qLZkg/Z189WM/4mpAiIskj0iHaYHnAi6abKkec
+         meuHR/p5l84e4SRbxVAdFYVj5rdeqZx1bEegUWGBisNu0hkMxd4fQeQ5yMMbTxGlKS
+         6bwtZbY9abl2NyVd5WZCHaSqckdburwFap+wDiQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Mendoza-Jonas <samjonas@amazon.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 104/172] ixgbevf: Require large buffers for build_skb on 82599VF
+        stable@vger.kernel.org, Kosuke Tatsukawa <tatsu-ab1@nec.com>
+Subject: [PATCH 4.19 36/49] n_tty: wake up poll(POLLRDNORM) on receiving data
 Date:   Mon, 14 Feb 2022 10:26:02 +0100
-Message-Id: <20220214092509.987469123@linuxfoundation.org>
+Message-Id: <20220214092449.491384289@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
+References: <20220214092448.285381753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,74 +52,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Mendoza-Jonas <samjonas@amazon.com>
+From: TATSUKAWA KOSUKE (立川 江介) <tatsu-ab1@nec.com>
 
-[ Upstream commit fe68195daf34d5dddacd3f93dd3eafc4beca3a0e ]
+commit c816b2e65b0e86b95011418cad334f0524fc33b8 upstream.
 
->From 4.17 onwards the ixgbevf driver uses build_skb() to build an skb
-around new data in the page buffer shared with the ixgbe PF.
-This uses either a 2K or 3K buffer, and offsets the DMA mapping by
-NET_SKB_PAD + NET_IP_ALIGN. When using a smaller buffer RXDCTL is set to
-ensure the PF does not write a full 2K bytes into the buffer, which is
-actually 2K minus the offset.
+The poll man page says POLLRDNORM is equivalent to POLLIN when used as
+an event.
+$ man poll
+<snip>
+              POLLRDNORM
+                     Equivalent to POLLIN.
 
-However on the 82599 virtual function, the RXDCTL mechanism is not
-available. The driver attempts to work around this by using the SET_LPE
-mailbox method to lower the maximm frame size, but the ixgbe PF driver
-ignores this in order to keep the PF and all VFs in sync[0].
+However, in n_tty driver, POLLRDNORM does not return until timeout even
+if there is terminal input, whereas POLLIN returns.
 
-This means the PF will write up to the full 2K set in SRRCTL, causing it
-to write NET_SKB_PAD + NET_IP_ALIGN bytes past the end of the buffer.
-With 4K pages split into two buffers, this means it either writes
-NET_SKB_PAD + NET_IP_ALIGN bytes past the first buffer (and into the
-second), or NET_SKB_PAD + NET_IP_ALIGN bytes past the end of the DMA
-mapping.
+The following test program works until kernel-3.17, but the test stops
+in poll() after commit 57087d515441 ("tty: Fix spurious poll() wakeups").
 
-Avoid this by only enabling build_skb when using "large" buffers (3K).
-These are placed in each half of an order-1 page, preventing the PF from
-writing past the end of the mapping.
+[Steps to run test program]
+  $ cc -o test-pollrdnorm test-pollrdnorm.c
+  $ ./test-pollrdnorm
+  foo          <-- Type in something from the terminal followed by [RET].
+                   The string should be echoed back.
 
-[0]: Technically it only ever raises the max frame size, see
-ixgbe_set_vf_lpe() in ixgbe_sriov.c
+  ------------------------< test-pollrdnorm.c >------------------------
+  #include <stdio.h>
+  #include <errno.h>
+  #include <poll.h>
+  #include <unistd.h>
 
-Fixes: f15c5ba5b6cd ("ixgbevf: add support for using order 1 pages to receive large frames")
-Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  void main(void)
+  {
+	int		n;
+	unsigned char	buf[8];
+	struct pollfd	fds[1] = {{ 0, POLLRDNORM, 0 }};
+
+	n = poll(fds, 1, -1);
+	if (n < 0)
+		perror("poll");
+	n = read(0, buf, 8);
+	if (n < 0)
+		perror("read");
+	if (n > 0)
+		write(1, buf, n);
+  }
+  ------------------------------------------------------------------------
+
+The attached patch fixes this problem.  Many calls to
+wake_up_interruptible_poll() in the kernel source code already specify
+"POLLIN | POLLRDNORM".
+
+Fixes: 57087d515441 ("tty: Fix spurious poll() wakeups")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kosuke Tatsukawa <tatsu-ab1@nec.com>
+Link: https://lore.kernel.org/r/TYCPR01MB81901C0F932203D30E452B3EA5209@TYCPR01MB8190.jpnprd01.prod.outlook.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/tty/n_tty.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c b/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
-index c714e1ecd3089..7ef2e1241a76e 100644
---- a/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
-+++ b/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
-@@ -1984,14 +1984,15 @@ static void ixgbevf_set_rx_buffer_len(struct ixgbevf_adapter *adapter,
- 	if (adapter->flags & IXGBEVF_FLAGS_LEGACY_RX)
- 		return;
+--- a/drivers/tty/n_tty.c
++++ b/drivers/tty/n_tty.c
+@@ -1375,7 +1375,7 @@ handle_newline:
+ 			put_tty_queue(c, ldata);
+ 			smp_store_release(&ldata->canon_head, ldata->read_head);
+ 			kill_fasync(&tty->fasync, SIGIO, POLL_IN);
+-			wake_up_interruptible_poll(&tty->read_wait, EPOLLIN);
++			wake_up_interruptible_poll(&tty->read_wait, EPOLLIN | EPOLLRDNORM);
+ 			return 0;
+ 		}
+ 	}
+@@ -1656,7 +1656,7 @@ static void __receive_buf(struct tty_str
  
--	set_ring_build_skb_enabled(rx_ring);
-+	if (PAGE_SIZE < 8192)
-+		if (max_frame > IXGBEVF_MAX_FRAME_BUILD_SKB)
-+			set_ring_uses_large_buffer(rx_ring);
- 
--	if (PAGE_SIZE < 8192) {
--		if (max_frame <= IXGBEVF_MAX_FRAME_BUILD_SKB)
--			return;
-+	/* 82599 can't rely on RXDCTL.RLPML to restrict the size of the frame */
-+	if (adapter->hw.mac.type == ixgbe_mac_82599_vf && !ring_uses_large_buffer(rx_ring))
-+		return;
- 
--		set_ring_uses_large_buffer(rx_ring);
--	}
-+	set_ring_build_skb_enabled(rx_ring);
+ 	if (read_cnt(ldata)) {
+ 		kill_fasync(&tty->fasync, SIGIO, POLL_IN);
+-		wake_up_interruptible_poll(&tty->read_wait, EPOLLIN);
++		wake_up_interruptible_poll(&tty->read_wait, EPOLLIN | EPOLLRDNORM);
+ 	}
  }
  
- /**
--- 
-2.34.1
-
 
 
