@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 781734B4747
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30C404B4ABD
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:39:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245593AbiBNJw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:52:26 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60854 "EHLO
+        id S240550AbiBNKEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:04:07 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343732AbiBNJvQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:51:16 -0500
+        with ESMTP id S1344593AbiBNKCx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:02:53 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E317766224;
-        Mon, 14 Feb 2022 01:42:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CA93403DC;
+        Mon, 14 Feb 2022 01:48:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A26FFB80DC1;
-        Mon, 14 Feb 2022 09:41:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C166BC340E9;
-        Mon, 14 Feb 2022 09:41:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B4C5B80DC8;
+        Mon, 14 Feb 2022 09:48:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 579B7C340E9;
+        Mon, 14 Feb 2022 09:48:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831718;
-        bh=UhSIihMSSu2vmuCQjZPE4NANjKqrX8Al7bFfWHKoSt8=;
+        s=korg; t=1644832114;
+        bh=OGK0+msb1kIhUGC5n/iUnSiYpQt27a+vnzsr7j/gXos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dGua5wDHB11zN+s4i2opOUrIF9SLV77lTiRbUdWEfLmH+dVhNEWcMJKyR2LIyGfJE
-         9iiK6dvsaU9dGc1054PumQucAY7sg9ZZmsa4jGzVd6G7f+LNyFWGSzMSa82/cCxmru
-         a+11yTu5utPRP1GvFKo8NmvCXh8lPxgJQFSOOtL0=
+        b=SgURjtamCftG/msGnind8r3xlxnKCBvEwieNownLpeObSrkCqmpRzg6R7QFn7xWHj
+         TC/fN8fiU7HHWh/jwooSYTHIlKqRGwMZvN4TLTuhHrgoiuvEz18cVc0Ky1hAtvgjfZ
+         /tneEZqO4YyC2YLez7kyV8bcE2S5ZExyAAs++qSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Jarno <aurelien@aurel32.net>,
-        Alexandre Ghiti <alexandre.ghiti@canonical.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.10 042/116] riscv: fix build with binutils 2.38
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 083/172] ARM: dts: meson8b: Fix the UART device-tree schema validation
 Date:   Mon, 14 Feb 2022 10:25:41 +0100
-Message-Id: <20220214092500.141729768@linuxfoundation.org>
+Message-Id: <20220214092509.278695035@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurelien Jarno <aurelien@aurel32.net>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit 6df2a016c0c8a3d0933ef33dd192ea6606b115e3 upstream.
+[ Upstream commit 3375aa77135f6aeb1107ed839a2050a4118444bc ]
 
->From version 2.38, binutils default to ISA spec version 20191213. This
-means that the csr read/write (csrr*/csrw*) instructions and fence.i
-instruction has separated from the `I` extension, become two standalone
-extensions: Zicsr and Zifencei. As the kernel uses those instruction,
-this causes the following build failure:
+The dt-bindings for the UART controller only allow the following values
+for Meson8 SoCs:
+- "amlogic,meson8b-uart", "amlogic,meson-ao-uart"
+- "amlogic,meson8b-uart"
 
-  CC      arch/riscv/kernel/vdso/vgettimeofday.o
-  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h: Assembler messages:
-  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
-  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
-  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
-  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+Use the correct fallback compatible string "amlogic,meson-ao-uart" for
+AO UART. Drop the "amlogic,meson-uart" compatible string from the EE
+domain UART controllers.
 
-The fix is to specify those extensions explicitely in -march. However as
-older binutils version do not support this, we first need to detect
-that.
+Also update the order of the clocks to match the order defined in the
+yaml bindings.
 
-Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
-Tested-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b02d6e73f5fc96 ("ARM: dts: meson8b: use stable UART bindings with correct gate clock")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20211227180026.4068352-4-martin.blumenstingl@googlemail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Makefile |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/meson8b.dtsi | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/arch/riscv/Makefile
-+++ b/arch/riscv/Makefile
-@@ -50,6 +50,12 @@ riscv-march-$(CONFIG_ARCH_RV32I)	:= rv32
- riscv-march-$(CONFIG_ARCH_RV64I)	:= rv64ima
- riscv-march-$(CONFIG_FPU)		:= $(riscv-march-y)fd
- riscv-march-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-y)c
-+
-+# Newer binutils versions default to ISA spec version 20191213 which moves some
-+# instructions from the I extension to the Zicsr and Zifencei extensions.
-+toolchain-need-zicsr-zifencei := $(call cc-option-yn, -march=$(riscv-march-y)_zicsr_zifencei)
-+riscv-march-$(toolchain-need-zicsr-zifencei) := $(riscv-march-y)_zicsr_zifencei
-+
- KBUILD_CFLAGS += -march=$(subst fd,,$(riscv-march-y))
- KBUILD_AFLAGS += -march=$(riscv-march-y)
+diff --git a/arch/arm/boot/dts/meson8b.dtsi b/arch/arm/boot/dts/meson8b.dtsi
+index b49b7cbaed4ee..94f1c03deccef 100644
+--- a/arch/arm/boot/dts/meson8b.dtsi
++++ b/arch/arm/boot/dts/meson8b.dtsi
+@@ -724,27 +724,27 @@ &timer_abcde {
+ };
  
+ &uart_AO {
+-	compatible = "amlogic,meson8b-uart", "amlogic,meson-uart";
+-	clocks = <&clkc CLKID_CLK81>, <&xtal>, <&clkc CLKID_CLK81>;
+-	clock-names = "baud", "xtal", "pclk";
++	compatible = "amlogic,meson8b-uart", "amlogic,meson-ao-uart";
++	clocks = <&xtal>, <&clkc CLKID_CLK81>, <&clkc CLKID_CLK81>;
++	clock-names = "xtal", "pclk", "baud";
+ };
+ 
+ &uart_A {
+-	compatible = "amlogic,meson8b-uart", "amlogic,meson-uart";
+-	clocks = <&clkc CLKID_CLK81>, <&xtal>, <&clkc CLKID_UART0>;
+-	clock-names = "baud", "xtal", "pclk";
++	compatible = "amlogic,meson8b-uart";
++	clocks = <&xtal>, <&clkc CLKID_UART0>, <&clkc CLKID_CLK81>;
++	clock-names = "xtal", "pclk", "baud";
+ };
+ 
+ &uart_B {
+-	compatible = "amlogic,meson8b-uart", "amlogic,meson-uart";
+-	clocks = <&clkc CLKID_CLK81>, <&xtal>, <&clkc CLKID_UART1>;
+-	clock-names = "baud", "xtal", "pclk";
++	compatible = "amlogic,meson8b-uart";
++	clocks = <&xtal>, <&clkc CLKID_UART0>, <&clkc CLKID_CLK81>;
++	clock-names = "xtal", "pclk", "baud";
+ };
+ 
+ &uart_C {
+-	compatible = "amlogic,meson8b-uart", "amlogic,meson-uart";
+-	clocks = <&clkc CLKID_CLK81>, <&xtal>, <&clkc CLKID_UART2>;
+-	clock-names = "baud", "xtal", "pclk";
++	compatible = "amlogic,meson8b-uart";
++	clocks = <&xtal>, <&clkc CLKID_UART0>, <&clkc CLKID_CLK81>;
++	clock-names = "xtal", "pclk", "baud";
+ };
+ 
+ &usb0 {
+-- 
+2.34.1
+
 
 
