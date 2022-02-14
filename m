@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28FA44B4B1E
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E90FB4B4882
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:57:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239168AbiBNKP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:15:28 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42346 "EHLO
+        id S1343541AbiBNJzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:55:22 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346129AbiBNKPJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:15:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27A556D39A;
-        Mon, 14 Feb 2022 01:52:27 -0800 (PST)
+        with ESMTP id S1343651AbiBNJyQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:54:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D72BC7D283;
+        Mon, 14 Feb 2022 01:44:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1F17B80D6D;
-        Mon, 14 Feb 2022 09:52:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0161C340F4;
-        Mon, 14 Feb 2022 09:52:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E9AA6123A;
+        Mon, 14 Feb 2022 09:44:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E4F4C340E9;
+        Mon, 14 Feb 2022 09:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832342;
-        bh=UjNB3wvWO+ihLvlrB/tdA1pAejKA9z210pMttgIl/5o=;
+        s=korg; t=1644831843;
+        bh=7wbu+JjjKSQJY2T/WvuvhCEzGbAPUI20JEPNXp/cYBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nidrAjDql8HB/QcKJGM5iMzfN2FUwqVphyVyfMU7suEwEYYu/U7FkzkkAcmewqOqI
-         /C/DftVlPCMi0oHc4MfcCZ1hnuNRLX6J8AH8XJnAXntqXhVXHTyUr9W6q7lPAqbKuE
-         F6fsbG2OaIPhVlaMmTivWu+Fly6OdKdwo0RsnoeA=
+        b=EZqV09Ka0rxHPQj4WMdiDnIouOrbCkQoNLSTuTxR+mQdTHyHiiYXVBKkfSTuvvnEX
+         8SYl8U9HfXfjTdg1ejCwc+lFqkQcnb+CD4aj7S48SGatbG2+nFT7aj5mZK+M4/xcoE
+         u5vaTFGlFJzcPm4aiq5a8e/Z07XbdwoWBSKMNlGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Jonathan Cameron <jic23@kernel.org>,
-        Alexandru Ardelean <ardeleanalex@gmail.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Nuno Sa <Nuno.Sa@analog.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Mathias Krause <minipli@grsecurity.net>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 156/172] iio: buffer: Fix file related error handling in IIO_BUFFER_GET_FD_IOCTL
+        stable@vger.kernel.org, Song Liu <song@kernel.org>,
+        Rik van Riel <riel@surriel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.10 115/116] perf: Fix list corruption in perf_cgroup_switch()
 Date:   Mon, 14 Feb 2022 10:26:54 +0100
-Message-Id: <20220214092511.787864134@linuxfoundation.org>
+Message-Id: <20220214092502.767757919@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,64 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Krause <minipli@grsecurity.net>
+From: Song Liu <song@kernel.org>
 
-commit c72ea20503610a4a7ba26c769357d31602769c01 upstream.
+commit 5f4e5ce638e6a490b976ade4a40017b40abb2da0 upstream.
 
-If we fail to copy the just created file descriptor to userland, we
-try to clean up by putting back 'fd' and freeing 'ib'. The code uses
-put_unused_fd() for the former which is wrong, as the file descriptor
-was already published by fd_install() which gets called internally by
-anon_inode_getfd().
+There's list corruption on cgrp_cpuctx_list. This happens on the
+following path:
 
-This makes the error handling code leaving a half cleaned up file
-descriptor table around and a partially destructed 'file' object,
-allowing userland to play use-after-free tricks on us, by abusing
-the still usable fd and making the code operate on a dangling
-'file->private_data' pointer.
+  perf_cgroup_switch: list_for_each_entry(cgrp_cpuctx_list)
+      cpu_ctx_sched_in
+         ctx_sched_in
+            ctx_pinned_sched_in
+              merge_sched_in
+                  perf_cgroup_event_disable: remove the event from the list
 
-Instead of leaving the kernel in a partially corrupted state, don't
-attempt to explicitly clean up and leave this to the process exit
-path that'll release any still valid fds, including the one created
-by the previous call to anon_inode_getfd(). Simply return -EFAULT to
-indicate the error.
+Use list_for_each_entry_safe() to allow removing an entry during
+iteration.
 
-Fixes: f73f7f4da581 ("iio: buffer: add ioctl() to support opening extra buffers for IIO device")
-Cc: stable@kernel.org
-Cc: Jonathan Cameron <jic23@kernel.org>
-Cc: Alexandru Ardelean <ardeleanalex@gmail.com>
-Cc: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Nuno Sa <Nuno.Sa@analog.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Mathias Krause <minipli@grsecurity.net>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 058fe1c0440e ("perf/core: Make cgroup switch visit only cpuctxs with cgroup events")
+Signed-off-by: Song Liu <song@kernel.org>
+Reviewed-by: Rik van Riel <riel@surriel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20220204004057.2961252-1-song@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/industrialio-buffer.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ kernel/events/core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/industrialio-buffer.c
-+++ b/drivers/iio/industrialio-buffer.c
-@@ -1446,9 +1446,17 @@ static long iio_device_buffer_getfd(stru
- 	}
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -838,7 +838,7 @@ static DEFINE_PER_CPU(struct list_head,
+  */
+ static void perf_cgroup_switch(struct task_struct *task, int mode)
+ {
+-	struct perf_cpu_context *cpuctx;
++	struct perf_cpu_context *cpuctx, *tmp;
+ 	struct list_head *list;
+ 	unsigned long flags;
  
- 	if (copy_to_user(ival, &fd, sizeof(fd))) {
--		put_unused_fd(fd);
--		ret = -EFAULT;
--		goto error_free_ib;
-+		/*
-+		 * "Leak" the fd, as there's not much we can do about this
-+		 * anyway. 'fd' might have been closed already, as
-+		 * anon_inode_getfd() called fd_install() on it, which made
-+		 * it reachable by userland.
-+		 *
-+		 * Instead of allowing a malicious user to play tricks with
-+		 * us, rely on the process exit path to do any necessary
-+		 * cleanup, as in releasing the file, if still needed.
-+		 */
-+		return -EFAULT;
- 	}
+@@ -849,7 +849,7 @@ static void perf_cgroup_switch(struct ta
+ 	local_irq_save(flags);
  
- 	return 0;
+ 	list = this_cpu_ptr(&cgrp_cpuctx_list);
+-	list_for_each_entry(cpuctx, list, cgrp_cpuctx_entry) {
++	list_for_each_entry_safe(cpuctx, tmp, list, cgrp_cpuctx_entry) {
+ 		WARN_ON_ONCE(cpuctx->ctx.nr_cgroups == 0);
+ 
+ 		perf_ctx_lock(cpuctx, cpuctx->task_ctx);
 
 
