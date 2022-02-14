@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E90FB4B4882
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:57:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E2034B4C04
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343541AbiBNJzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:55:22 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33240 "EHLO
+        id S1349576AbiBNKhG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:37:06 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343651AbiBNJyQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:54:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D72BC7D283;
-        Mon, 14 Feb 2022 01:44:04 -0800 (PST)
+        with ESMTP id S1348772AbiBNKf5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:35:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3D81EC5E;
+        Mon, 14 Feb 2022 02:02:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E9AA6123A;
-        Mon, 14 Feb 2022 09:44:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E4F4C340E9;
-        Mon, 14 Feb 2022 09:44:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE52CB80D6D;
+        Mon, 14 Feb 2022 10:02:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00C63C340E9;
+        Mon, 14 Feb 2022 10:02:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831843;
-        bh=7wbu+JjjKSQJY2T/WvuvhCEzGbAPUI20JEPNXp/cYBc=;
+        s=korg; t=1644832935;
+        bh=Fp5vAxXHRBbOwHfsRp8stdkbEaQvx5accB522RMWaN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZqV09Ka0rxHPQj4WMdiDnIouOrbCkQoNLSTuTxR+mQdTHyHiiYXVBKkfSTuvvnEX
-         8SYl8U9HfXfjTdg1ejCwc+lFqkQcnb+CD4aj7S48SGatbG2+nFT7aj5mZK+M4/xcoE
-         u5vaTFGlFJzcPm4aiq5a8e/Z07XbdwoWBSKMNlGs=
+        b=PTkippBzqEyup8LQmn1VNLxBzzSRYNMCitbpGCyDJrRxcyLO6K2RBUN4G0SCAP+M5
+         mlNEMD/cXqtYDhSgexpTVf+BKg77tbi/Y63WSEDMRXjXf8R+NpFCP8poEEGuLxN80g
+         cFq0OsmEEMnqcyranXAkgEwYKgwMBdJvN3fu8EsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Song Liu <song@kernel.org>,
-        Rik van Riel <riel@surriel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 115/116] perf: Fix list corruption in perf_cgroup_switch()
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sean Anderson <sean.anderson@seco.com>
+Subject: [PATCH 5.16 170/203] usb: ulpi: Call of_node_put correctly
 Date:   Mon, 14 Feb 2022 10:26:54 +0100
-Message-Id: <20220214092502.767757919@linuxfoundation.org>
+Message-Id: <20220214092516.024667542@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <song@kernel.org>
+From: Sean Anderson <sean.anderson@seco.com>
 
-commit 5f4e5ce638e6a490b976ade4a40017b40abb2da0 upstream.
+commit 0a907ee9d95e3ac35eb023d71f29eae0aaa52d1b upstream.
 
-There's list corruption on cgrp_cpuctx_list. This happens on the
-following path:
+of_node_put should always be called on device nodes gotten from
+of_get_*. Additionally, it should only be called after there are no
+remaining users. To address the first issue, call of_node_put if later
+steps in ulpi_register fail. To address the latter, call put_device if
+device_register fails, which will call ulpi_dev_release if necessary.
 
-  perf_cgroup_switch: list_for_each_entry(cgrp_cpuctx_list)
-      cpu_ctx_sched_in
-         ctx_sched_in
-            ctx_pinned_sched_in
-              merge_sched_in
-                  perf_cgroup_event_disable: remove the event from the list
-
-Use list_for_each_entry_safe() to allow removing an entry during
-iteration.
-
-Fixes: 058fe1c0440e ("perf/core: Make cgroup switch visit only cpuctxs with cgroup events")
-Signed-off-by: Song Liu <song@kernel.org>
-Reviewed-by: Rik van Riel <riel@surriel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220204004057.2961252-1-song@kernel.org
+Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Sean Anderson <sean.anderson@seco.com>
+Link: https://lore.kernel.org/r/20220127190004.1446909-3-sean.anderson@seco.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/common/ulpi.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -838,7 +838,7 @@ static DEFINE_PER_CPU(struct list_head,
-  */
- static void perf_cgroup_switch(struct task_struct *task, int mode)
- {
--	struct perf_cpu_context *cpuctx;
-+	struct perf_cpu_context *cpuctx, *tmp;
- 	struct list_head *list;
- 	unsigned long flags;
+--- a/drivers/usb/common/ulpi.c
++++ b/drivers/usb/common/ulpi.c
+@@ -248,12 +248,16 @@ static int ulpi_register(struct device *
+ 		return ret;
  
-@@ -849,7 +849,7 @@ static void perf_cgroup_switch(struct ta
- 	local_irq_save(flags);
+ 	ret = ulpi_read_id(ulpi);
+-	if (ret)
++	if (ret) {
++		of_node_put(ulpi->dev.of_node);
+ 		return ret;
++	}
  
- 	list = this_cpu_ptr(&cgrp_cpuctx_list);
--	list_for_each_entry(cpuctx, list, cgrp_cpuctx_entry) {
-+	list_for_each_entry_safe(cpuctx, tmp, list, cgrp_cpuctx_entry) {
- 		WARN_ON_ONCE(cpuctx->ctx.nr_cgroups == 0);
+ 	ret = device_register(&ulpi->dev);
+-	if (ret)
++	if (ret) {
++		put_device(&ulpi->dev);
+ 		return ret;
++	}
  
- 		perf_ctx_lock(cpuctx, cpuctx->task_ctx);
+ 	dev_dbg(&ulpi->dev, "registered ULPI PHY: vendor %04x, product %04x\n",
+ 		ulpi->id.vendor, ulpi->id.product);
 
 
