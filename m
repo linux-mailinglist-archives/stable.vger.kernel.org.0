@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E171D4B4897
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:57:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FB944B4A4F
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:38:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345556AbiBNJ47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:56:59 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34546 "EHLO
+        id S1346374AbiBNKSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:18:16 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343927AbiBNJy4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:54:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8318D6CA4C;
-        Mon, 14 Feb 2022 01:44:09 -0800 (PST)
+        with ESMTP id S1346136AbiBNKPK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:15:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 442746D3AB;
+        Mon, 14 Feb 2022 01:52:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 201FDB80DC8;
-        Mon, 14 Feb 2022 09:44:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E70AC340E9;
-        Mon, 14 Feb 2022 09:44:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F92460DFE;
+        Mon, 14 Feb 2022 09:52:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF5DAC340E9;
+        Mon, 14 Feb 2022 09:52:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831846;
-        bh=NitWR232jf/vibf+EtT9sXOWSCV/+FrFbFMPrdgzYNs=;
+        s=korg; t=1644832345;
+        bh=9jlOytEtOk+9ZqsMz2xzk4F1CEX++J+JC8GULZTeAEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XgI9n5KdN0BQ9sCGvvPhnW17ohJfDta6mOI0GYm/MlR5PklrMz9wlp7juqlvIdY0R
-         39/FF42XmBU0g0WL5Zl7YwFJ5EGB2Rx+C5OyOFFbQlGND7KlSzOWehx5nZyyk0pJNB
-         IH7M2MfD0tp3+OKxN4MbCOTCiTUYBCGfWyGONgbU=
+        b=hkEyysV6DmIfGlzGNu3fvFmv95wLFzB6Q5XMwoKQl+ILGg3LXyl9/R79rFfqCzEMK
+         7lK8mgHtBrUrFU65b05BP0CDcSHSc/03jRIDVYYtoZzSVb2mShfh0syLU7+PZyvqTg
+         h3IM2tIVnR8L1VP52OBvcfHllT/mXMZuqa1CfN/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Vijayanand Jitta <quic_vjitta@quicinc.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.10 116/116] iommu: Fix potential use-after-free during probe
+        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Waiman Long <longman@redhat.com>, Tejun Heo <tj@kernel.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jeremy Linton <jeremy.linton@arm.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 157/172] mm: memcg: synchronize objcg lists with a dedicated spinlock
 Date:   Mon, 14 Feb 2022 10:26:55 +0100
-Message-Id: <20220214092502.801454775@linuxfoundation.org>
+Message-Id: <20220214092511.820204505@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,144 +59,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijayanand Jitta <quic_vjitta@quicinc.com>
+From: Roman Gushchin <guro@fb.com>
 
-commit b54240ad494300ff0994c4539a531727874381f4 upstream.
+commit 0764db9b49c932b89ee4d9e3236dff4bb07b4a66 upstream.
 
-Kasan has reported the following use after free on dev->iommu.
-when a device probe fails and it is in process of freeing dev->iommu
-in dev_iommu_free function, a deferred_probe_work_func runs in parallel
-and tries to access dev->iommu->fwspec in of_iommu_configure path thus
-causing use after free.
+Alexander reported a circular lock dependency revealed by the mmap1 ltp
+test:
 
-BUG: KASAN: use-after-free in of_iommu_configure+0xb4/0x4a4
-Read of size 8 at addr ffffff87a2f1acb8 by task kworker/u16:2/153
+  LOCKDEP_CIRCULAR (suite: ltp, case: mtest06 (mmap1))
+          WARNING: possible circular locking dependency detected
+          5.17.0-20220113.rc0.git0.f2211f194038.300.fc35.s390x+debug #1 Not tainted
+          ------------------------------------------------------
+          mmap1/202299 is trying to acquire lock:
+          00000001892c0188 (css_set_lock){..-.}-{2:2}, at: obj_cgroup_release+0x4a/0xe0
+          but task is already holding lock:
+          00000000ca3b3818 (&sighand->siglock){-.-.}-{2:2}, at: force_sig_info_to_task+0x38/0x180
+          which lock already depends on the new lock.
+          the existing dependency chain (in reverse order) is:
+          -> #1 (&sighand->siglock){-.-.}-{2:2}:
+                 __lock_acquire+0x604/0xbd8
+                 lock_acquire.part.0+0xe2/0x238
+                 lock_acquire+0xb0/0x200
+                 _raw_spin_lock_irqsave+0x6a/0xd8
+                 __lock_task_sighand+0x90/0x190
+                 cgroup_freeze_task+0x2e/0x90
+                 cgroup_migrate_execute+0x11c/0x608
+                 cgroup_update_dfl_csses+0x246/0x270
+                 cgroup_subtree_control_write+0x238/0x518
+                 kernfs_fop_write_iter+0x13e/0x1e0
+                 new_sync_write+0x100/0x190
+                 vfs_write+0x22c/0x2d8
+                 ksys_write+0x6c/0xf8
+                 __do_syscall+0x1da/0x208
+                 system_call+0x82/0xb0
+          -> #0 (css_set_lock){..-.}-{2:2}:
+                 check_prev_add+0xe0/0xed8
+                 validate_chain+0x736/0xb20
+                 __lock_acquire+0x604/0xbd8
+                 lock_acquire.part.0+0xe2/0x238
+                 lock_acquire+0xb0/0x200
+                 _raw_spin_lock_irqsave+0x6a/0xd8
+                 obj_cgroup_release+0x4a/0xe0
+                 percpu_ref_put_many.constprop.0+0x150/0x168
+                 drain_obj_stock+0x94/0xe8
+                 refill_obj_stock+0x94/0x278
+                 obj_cgroup_charge+0x164/0x1d8
+                 kmem_cache_alloc+0xac/0x528
+                 __sigqueue_alloc+0x150/0x308
+                 __send_signal+0x260/0x550
+                 send_signal+0x7e/0x348
+                 force_sig_info_to_task+0x104/0x180
+                 force_sig_fault+0x48/0x58
+                 __do_pgm_check+0x120/0x1f0
+                 pgm_check_handler+0x11e/0x180
+          other info that might help us debug this:
+           Possible unsafe locking scenario:
+                 CPU0                    CPU1
+                 ----                    ----
+            lock(&sighand->siglock);
+                                         lock(css_set_lock);
+                                         lock(&sighand->siglock);
+            lock(css_set_lock);
+           *** DEADLOCK ***
+          2 locks held by mmap1/202299:
+           #0: 00000000ca3b3818 (&sighand->siglock){-.-.}-{2:2}, at: force_sig_info_to_task+0x38/0x180
+           #1: 00000001892ad560 (rcu_read_lock){....}-{1:2}, at: percpu_ref_put_many.constprop.0+0x0/0x168
+          stack backtrace:
+          CPU: 15 PID: 202299 Comm: mmap1 Not tainted 5.17.0-20220113.rc0.git0.f2211f194038.300.fc35.s390x+debug #1
+          Hardware name: IBM 3906 M04 704 (LPAR)
+          Call Trace:
+            dump_stack_lvl+0x76/0x98
+            check_noncircular+0x136/0x158
+            check_prev_add+0xe0/0xed8
+            validate_chain+0x736/0xb20
+            __lock_acquire+0x604/0xbd8
+            lock_acquire.part.0+0xe2/0x238
+            lock_acquire+0xb0/0x200
+            _raw_spin_lock_irqsave+0x6a/0xd8
+            obj_cgroup_release+0x4a/0xe0
+            percpu_ref_put_many.constprop.0+0x150/0x168
+            drain_obj_stock+0x94/0xe8
+            refill_obj_stock+0x94/0x278
+            obj_cgroup_charge+0x164/0x1d8
+            kmem_cache_alloc+0xac/0x528
+            __sigqueue_alloc+0x150/0x308
+            __send_signal+0x260/0x550
+            send_signal+0x7e/0x348
+            force_sig_info_to_task+0x104/0x180
+            force_sig_fault+0x48/0x58
+            __do_pgm_check+0x120/0x1f0
+            pgm_check_handler+0x11e/0x180
+          INFO: lockdep is turned off.
 
-Workqueue: events_unbound deferred_probe_work_func
-Call trace:
- dump_backtrace+0x0/0x33c
- show_stack+0x18/0x24
- dump_stack_lvl+0x16c/0x1e0
- print_address_description+0x84/0x39c
- __kasan_report+0x184/0x308
- kasan_report+0x50/0x78
- __asan_load8+0xc0/0xc4
- of_iommu_configure+0xb4/0x4a4
- of_dma_configure_id+0x2fc/0x4d4
- platform_dma_configure+0x40/0x5c
- really_probe+0x1b4/0xb74
- driver_probe_device+0x11c/0x228
- __device_attach_driver+0x14c/0x304
- bus_for_each_drv+0x124/0x1b0
- __device_attach+0x25c/0x334
- device_initial_probe+0x24/0x34
- bus_probe_device+0x78/0x134
- deferred_probe_work_func+0x130/0x1a8
- process_one_work+0x4c8/0x970
- worker_thread+0x5c8/0xaec
- kthread+0x1f8/0x220
- ret_from_fork+0x10/0x18
+In this example a slab allocation from __send_signal() caused a
+refilling and draining of a percpu objcg stock, resulted in a releasing
+of another non-related objcg.  Objcg release path requires taking the
+css_set_lock, which is used to synchronize objcg lists.
 
-Allocated by task 1:
- ____kasan_kmalloc+0xd4/0x114
- __kasan_kmalloc+0x10/0x1c
- kmem_cache_alloc_trace+0xe4/0x3d4
- __iommu_probe_device+0x90/0x394
- probe_iommu_group+0x70/0x9c
- bus_for_each_dev+0x11c/0x19c
- bus_iommu_probe+0xb8/0x7d4
- bus_set_iommu+0xcc/0x13c
- arm_smmu_bus_init+0x44/0x130 [arm_smmu]
- arm_smmu_device_probe+0xb88/0xc54 [arm_smmu]
- platform_drv_probe+0xe4/0x13c
- really_probe+0x2c8/0xb74
- driver_probe_device+0x11c/0x228
- device_driver_attach+0xf0/0x16c
- __driver_attach+0x80/0x320
- bus_for_each_dev+0x11c/0x19c
- driver_attach+0x38/0x48
- bus_add_driver+0x1dc/0x3a4
- driver_register+0x18c/0x244
- __platform_driver_register+0x88/0x9c
- init_module+0x64/0xff4 [arm_smmu]
- do_one_initcall+0x17c/0x2f0
- do_init_module+0xe8/0x378
- load_module+0x3f80/0x4a40
- __se_sys_finit_module+0x1a0/0x1e4
- __arm64_sys_finit_module+0x44/0x58
- el0_svc_common+0x100/0x264
- do_el0_svc+0x38/0xa4
- el0_svc+0x20/0x30
- el0_sync_handler+0x68/0xac
- el0_sync+0x160/0x180
+This can create a circular dependency with the sighandler lock, which is
+taken with the locked css_set_lock by the freezer code (to freeze a
+task).
 
-Freed by task 1:
- kasan_set_track+0x4c/0x84
- kasan_set_free_info+0x28/0x4c
- ____kasan_slab_free+0x120/0x15c
- __kasan_slab_free+0x18/0x28
- slab_free_freelist_hook+0x204/0x2fc
- kfree+0xfc/0x3a4
- __iommu_probe_device+0x284/0x394
- probe_iommu_group+0x70/0x9c
- bus_for_each_dev+0x11c/0x19c
- bus_iommu_probe+0xb8/0x7d4
- bus_set_iommu+0xcc/0x13c
- arm_smmu_bus_init+0x44/0x130 [arm_smmu]
- arm_smmu_device_probe+0xb88/0xc54 [arm_smmu]
- platform_drv_probe+0xe4/0x13c
- really_probe+0x2c8/0xb74
- driver_probe_device+0x11c/0x228
- device_driver_attach+0xf0/0x16c
- __driver_attach+0x80/0x320
- bus_for_each_dev+0x11c/0x19c
- driver_attach+0x38/0x48
- bus_add_driver+0x1dc/0x3a4
- driver_register+0x18c/0x244
- __platform_driver_register+0x88/0x9c
- init_module+0x64/0xff4 [arm_smmu]
- do_one_initcall+0x17c/0x2f0
- do_init_module+0xe8/0x378
- load_module+0x3f80/0x4a40
- __se_sys_finit_module+0x1a0/0x1e4
- __arm64_sys_finit_module+0x44/0x58
- el0_svc_common+0x100/0x264
- do_el0_svc+0x38/0xa4
- el0_svc+0x20/0x30
- el0_sync_handler+0x68/0xac
- el0_sync+0x160/0x180
+In general it seems that using css_set_lock to synchronize objcg lists
+makes any slab allocations and deallocation with the locked css_set_lock
+and any intervened locks risky.
 
-Fix this by setting dev->iommu to NULL first and
-then freeing dev_iommu structure in dev_iommu_free
-function.
+To fix the problem and make the code more robust let's stop using
+css_set_lock to synchronize objcg lists and use a new dedicated spinlock
+instead.
 
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Vijayanand Jitta <quic_vjitta@quicinc.com>
-Link: https://lore.kernel.org/r/1643613155-20215-1-git-send-email-quic_vjitta@quicinc.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Link: https://lkml.kernel.org/r/Yfm1IHmoGdyUR81T@carbon.dhcp.thefacebook.com
+Fixes: bf4f059954dc ("mm: memcg/slab: obj_cgroup API")
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Reviewed-by: Waiman Long <longman@redhat.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Jeremy Linton <jeremy.linton@arm.com>
+Tested-by: Jeremy Linton <jeremy.linton@arm.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/iommu.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ include/linux/memcontrol.h |    5 +++--
+ mm/memcontrol.c            |   10 +++++-----
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -185,9 +185,14 @@ static struct dev_iommu *dev_iommu_get(s
+--- a/include/linux/memcontrol.h
++++ b/include/linux/memcontrol.h
+@@ -223,7 +223,7 @@ struct obj_cgroup {
+ 	struct mem_cgroup *memcg;
+ 	atomic_t nr_charged_bytes;
+ 	union {
+-		struct list_head list;
++		struct list_head list; /* protected by objcg_lock */
+ 		struct rcu_head rcu;
+ 	};
+ };
+@@ -320,7 +320,8 @@ struct mem_cgroup {
+ 	int kmemcg_id;
+ 	enum memcg_kmem_state kmem_state;
+ 	struct obj_cgroup __rcu *objcg;
+-	struct list_head objcg_list; /* list of inherited objcgs */
++	/* list of inherited objcgs, protected by objcg_lock */
++	struct list_head objcg_list;
+ #endif
  
- static void dev_iommu_free(struct device *dev)
- {
--	iommu_fwspec_free(dev);
--	kfree(dev->iommu);
-+	struct dev_iommu *param = dev->iommu;
-+
- 	dev->iommu = NULL;
-+	if (param->fwspec) {
-+		fwnode_handle_put(param->fwspec->iommu_fwnode);
-+		kfree(param->fwspec);
-+	}
-+	kfree(param);
+ 	MEMCG_PADDING(_pad2_);
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -254,7 +254,7 @@ struct mem_cgroup *vmpressure_to_memcg(s
  }
  
- static int __iommu_probe_device(struct device *dev, struct list_head *group_list)
+ #ifdef CONFIG_MEMCG_KMEM
+-extern spinlock_t css_set_lock;
++static DEFINE_SPINLOCK(objcg_lock);
+ 
+ bool mem_cgroup_kmem_disabled(void)
+ {
+@@ -298,9 +298,9 @@ static void obj_cgroup_release(struct pe
+ 	if (nr_pages)
+ 		obj_cgroup_uncharge_pages(objcg, nr_pages);
+ 
+-	spin_lock_irqsave(&css_set_lock, flags);
++	spin_lock_irqsave(&objcg_lock, flags);
+ 	list_del(&objcg->list);
+-	spin_unlock_irqrestore(&css_set_lock, flags);
++	spin_unlock_irqrestore(&objcg_lock, flags);
+ 
+ 	percpu_ref_exit(ref);
+ 	kfree_rcu(objcg, rcu);
+@@ -332,7 +332,7 @@ static void memcg_reparent_objcgs(struct
+ 
+ 	objcg = rcu_replace_pointer(memcg->objcg, NULL, true);
+ 
+-	spin_lock_irq(&css_set_lock);
++	spin_lock_irq(&objcg_lock);
+ 
+ 	/* 1) Ready to reparent active objcg. */
+ 	list_add(&objcg->list, &memcg->objcg_list);
+@@ -342,7 +342,7 @@ static void memcg_reparent_objcgs(struct
+ 	/* 3) Move already reparented objcgs to the parent's list */
+ 	list_splice(&memcg->objcg_list, &parent->objcg_list);
+ 
+-	spin_unlock_irq(&css_set_lock);
++	spin_unlock_irq(&objcg_lock);
+ 
+ 	percpu_ref_kill(&objcg->refcnt);
+ }
 
 
