@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E2034B4C04
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E171D4B4897
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:57:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349576AbiBNKhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:37:06 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48396 "EHLO
+        id S1345556AbiBNJ47 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:56:59 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348772AbiBNKf5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:35:57 -0500
+        with ESMTP id S1343927AbiBNJy4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:54:56 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3D81EC5E;
-        Mon, 14 Feb 2022 02:02:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8318D6CA4C;
+        Mon, 14 Feb 2022 01:44:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE52CB80D6D;
-        Mon, 14 Feb 2022 10:02:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00C63C340E9;
-        Mon, 14 Feb 2022 10:02:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 201FDB80DC8;
+        Mon, 14 Feb 2022 09:44:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E70AC340E9;
+        Mon, 14 Feb 2022 09:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832935;
-        bh=Fp5vAxXHRBbOwHfsRp8stdkbEaQvx5accB522RMWaN0=;
+        s=korg; t=1644831846;
+        bh=NitWR232jf/vibf+EtT9sXOWSCV/+FrFbFMPrdgzYNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PTkippBzqEyup8LQmn1VNLxBzzSRYNMCitbpGCyDJrRxcyLO6K2RBUN4G0SCAP+M5
-         mlNEMD/cXqtYDhSgexpTVf+BKg77tbi/Y63WSEDMRXjXf8R+NpFCP8poEEGuLxN80g
-         cFq0OsmEEMnqcyranXAkgEwYKgwMBdJvN3fu8EsQ=
+        b=XgI9n5KdN0BQ9sCGvvPhnW17ohJfDta6mOI0GYm/MlR5PklrMz9wlp7juqlvIdY0R
+         39/FF42XmBU0g0WL5Zl7YwFJ5EGB2Rx+C5OyOFFbQlGND7KlSzOWehx5nZyyk0pJNB
+         IH7M2MfD0tp3+OKxN4MbCOTCiTUYBCGfWyGONgbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Sean Anderson <sean.anderson@seco.com>
-Subject: [PATCH 5.16 170/203] usb: ulpi: Call of_node_put correctly
-Date:   Mon, 14 Feb 2022 10:26:54 +0100
-Message-Id: <20220214092516.024667542@linuxfoundation.org>
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Vijayanand Jitta <quic_vjitta@quicinc.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.10 116/116] iommu: Fix potential use-after-free during probe
+Date:   Mon, 14 Feb 2022 10:26:55 +0100
+Message-Id: <20220214092502.801454775@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <sean.anderson@seco.com>
+From: Vijayanand Jitta <quic_vjitta@quicinc.com>
 
-commit 0a907ee9d95e3ac35eb023d71f29eae0aaa52d1b upstream.
+commit b54240ad494300ff0994c4539a531727874381f4 upstream.
 
-of_node_put should always be called on device nodes gotten from
-of_get_*. Additionally, it should only be called after there are no
-remaining users. To address the first issue, call of_node_put if later
-steps in ulpi_register fail. To address the latter, call put_device if
-device_register fails, which will call ulpi_dev_release if necessary.
+Kasan has reported the following use after free on dev->iommu.
+when a device probe fails and it is in process of freeing dev->iommu
+in dev_iommu_free function, a deferred_probe_work_func runs in parallel
+and tries to access dev->iommu->fwspec in of_iommu_configure path thus
+causing use after free.
 
-Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Link: https://lore.kernel.org/r/20220127190004.1446909-3-sean.anderson@seco.com
+BUG: KASAN: use-after-free in of_iommu_configure+0xb4/0x4a4
+Read of size 8 at addr ffffff87a2f1acb8 by task kworker/u16:2/153
+
+Workqueue: events_unbound deferred_probe_work_func
+Call trace:
+ dump_backtrace+0x0/0x33c
+ show_stack+0x18/0x24
+ dump_stack_lvl+0x16c/0x1e0
+ print_address_description+0x84/0x39c
+ __kasan_report+0x184/0x308
+ kasan_report+0x50/0x78
+ __asan_load8+0xc0/0xc4
+ of_iommu_configure+0xb4/0x4a4
+ of_dma_configure_id+0x2fc/0x4d4
+ platform_dma_configure+0x40/0x5c
+ really_probe+0x1b4/0xb74
+ driver_probe_device+0x11c/0x228
+ __device_attach_driver+0x14c/0x304
+ bus_for_each_drv+0x124/0x1b0
+ __device_attach+0x25c/0x334
+ device_initial_probe+0x24/0x34
+ bus_probe_device+0x78/0x134
+ deferred_probe_work_func+0x130/0x1a8
+ process_one_work+0x4c8/0x970
+ worker_thread+0x5c8/0xaec
+ kthread+0x1f8/0x220
+ ret_from_fork+0x10/0x18
+
+Allocated by task 1:
+ ____kasan_kmalloc+0xd4/0x114
+ __kasan_kmalloc+0x10/0x1c
+ kmem_cache_alloc_trace+0xe4/0x3d4
+ __iommu_probe_device+0x90/0x394
+ probe_iommu_group+0x70/0x9c
+ bus_for_each_dev+0x11c/0x19c
+ bus_iommu_probe+0xb8/0x7d4
+ bus_set_iommu+0xcc/0x13c
+ arm_smmu_bus_init+0x44/0x130 [arm_smmu]
+ arm_smmu_device_probe+0xb88/0xc54 [arm_smmu]
+ platform_drv_probe+0xe4/0x13c
+ really_probe+0x2c8/0xb74
+ driver_probe_device+0x11c/0x228
+ device_driver_attach+0xf0/0x16c
+ __driver_attach+0x80/0x320
+ bus_for_each_dev+0x11c/0x19c
+ driver_attach+0x38/0x48
+ bus_add_driver+0x1dc/0x3a4
+ driver_register+0x18c/0x244
+ __platform_driver_register+0x88/0x9c
+ init_module+0x64/0xff4 [arm_smmu]
+ do_one_initcall+0x17c/0x2f0
+ do_init_module+0xe8/0x378
+ load_module+0x3f80/0x4a40
+ __se_sys_finit_module+0x1a0/0x1e4
+ __arm64_sys_finit_module+0x44/0x58
+ el0_svc_common+0x100/0x264
+ do_el0_svc+0x38/0xa4
+ el0_svc+0x20/0x30
+ el0_sync_handler+0x68/0xac
+ el0_sync+0x160/0x180
+
+Freed by task 1:
+ kasan_set_track+0x4c/0x84
+ kasan_set_free_info+0x28/0x4c
+ ____kasan_slab_free+0x120/0x15c
+ __kasan_slab_free+0x18/0x28
+ slab_free_freelist_hook+0x204/0x2fc
+ kfree+0xfc/0x3a4
+ __iommu_probe_device+0x284/0x394
+ probe_iommu_group+0x70/0x9c
+ bus_for_each_dev+0x11c/0x19c
+ bus_iommu_probe+0xb8/0x7d4
+ bus_set_iommu+0xcc/0x13c
+ arm_smmu_bus_init+0x44/0x130 [arm_smmu]
+ arm_smmu_device_probe+0xb88/0xc54 [arm_smmu]
+ platform_drv_probe+0xe4/0x13c
+ really_probe+0x2c8/0xb74
+ driver_probe_device+0x11c/0x228
+ device_driver_attach+0xf0/0x16c
+ __driver_attach+0x80/0x320
+ bus_for_each_dev+0x11c/0x19c
+ driver_attach+0x38/0x48
+ bus_add_driver+0x1dc/0x3a4
+ driver_register+0x18c/0x244
+ __platform_driver_register+0x88/0x9c
+ init_module+0x64/0xff4 [arm_smmu]
+ do_one_initcall+0x17c/0x2f0
+ do_init_module+0xe8/0x378
+ load_module+0x3f80/0x4a40
+ __se_sys_finit_module+0x1a0/0x1e4
+ __arm64_sys_finit_module+0x44/0x58
+ el0_svc_common+0x100/0x264
+ do_el0_svc+0x38/0xa4
+ el0_svc+0x20/0x30
+ el0_sync_handler+0x68/0xac
+ el0_sync+0x160/0x180
+
+Fix this by setting dev->iommu to NULL first and
+then freeing dev_iommu structure in dev_iommu_free
+function.
+
+Suggested-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Vijayanand Jitta <quic_vjitta@quicinc.com>
+Link: https://lore.kernel.org/r/1643613155-20215-1-git-send-email-quic_vjitta@quicinc.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/common/ulpi.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/iommu/iommu.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/common/ulpi.c
-+++ b/drivers/usb/common/ulpi.c
-@@ -248,12 +248,16 @@ static int ulpi_register(struct device *
- 		return ret;
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -185,9 +185,14 @@ static struct dev_iommu *dev_iommu_get(s
  
- 	ret = ulpi_read_id(ulpi);
--	if (ret)
-+	if (ret) {
-+		of_node_put(ulpi->dev.of_node);
- 		return ret;
+ static void dev_iommu_free(struct device *dev)
+ {
+-	iommu_fwspec_free(dev);
+-	kfree(dev->iommu);
++	struct dev_iommu *param = dev->iommu;
++
+ 	dev->iommu = NULL;
++	if (param->fwspec) {
++		fwnode_handle_put(param->fwspec->iommu_fwnode);
++		kfree(param->fwspec);
 +	}
++	kfree(param);
+ }
  
- 	ret = device_register(&ulpi->dev);
--	if (ret)
-+	if (ret) {
-+		put_device(&ulpi->dev);
- 		return ret;
-+	}
- 
- 	dev_dbg(&ulpi->dev, "registered ULPI PHY: vendor %04x, product %04x\n",
- 		ulpi->id.vendor, ulpi->id.product);
+ static int __iommu_probe_device(struct device *dev, struct list_head *group_list)
 
 
