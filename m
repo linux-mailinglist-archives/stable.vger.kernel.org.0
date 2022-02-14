@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE6EA4B42BA
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 08:24:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6908A4B42C5
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 08:24:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230489AbiBNHXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 02:23:49 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38632 "EHLO
+        id S234655AbiBNHYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 02:24:20 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231745AbiBNHXs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 02:23:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42FD8593BE
-        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 23:23:41 -0800 (PST)
+        with ESMTP id S231745AbiBNHYU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 02:24:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61DA4593A2
+        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 23:24:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8B6A612FA
-        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 07:23:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 943F1C340EB;
-        Mon, 14 Feb 2022 07:23:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0786261298
+        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 07:24:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5662C340EB;
+        Mon, 14 Feb 2022 07:24:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644823420;
-        bh=nm7HUnrHjHNPejnpz5Uc7ZJBnuhZGdKoGE1sJ7H5zms=;
+        s=korg; t=1644823452;
+        bh=Fdhw5ZI/TuN65Vb558ADMZLS2X8cgxsvid8woJmNVaU=;
         h=Subject:To:Cc:From:Date:From;
-        b=enZrIJUw9+8qFC2G6yfa391rPlz2i7//yRvKwuj2+Y2rxKvyqpXSEdHOjOPUYAv7d
-         D7XG/SWkEIvcwNz9hX0OsVC4tqvWN0PqBUgrBekSbI4ou2laHSuZWuO6bRNUAnMonv
-         J3euLi2uW2dTBAxj5qlZYkYwm3bnzipnWSzHucxI=
-Subject: FAILED: patch "[PATCH] phy: cadence: Sierra: fix error handling bugs in probe()" failed to apply to 5.4-stable tree
-To:     dan.carpenter@oracle.com, vkoul@kernel.org
+        b=1g4xsfkpte9qkl9fi8SCvMba3e1rJG3GUQBTalHtrEENzp2JwdD6bk7d0tvnGe3D5
+         wsZ6mDMo1U1JmmskoJmF4G6zTzLQngPa1H3n7QiapSho5Y8gkpok/0OGKLtZbV3eZe
+         dlPHax0q1Hm9vqQlOMzMnpoBkeLLUaCS8K6z7g00=
+Subject: FAILED: patch "[PATCH] vlan: move dev_put into vlan_dev_uninit" failed to apply to 5.4-stable tree
+To:     lucien.xin@gmail.com, davem@davemloft.net, shuali@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Feb 2022 08:23:24 +0100
-Message-ID: <164482340413094@kroah.com>
+Date:   Mon, 14 Feb 2022 08:24:09 +0100
+Message-ID: <164482344917747@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,107 +59,66 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 29afbd769ca338fa14cbfbbc824f7dc457ed7f2e Mon Sep 17 00:00:00 2001
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Sat, 15 Jan 2022 14:51:46 +0300
-Subject: [PATCH] phy: cadence: Sierra: fix error handling bugs in probe()
+From d6ff94afd90b0ce8d1715f8ef77d4347d7a7f2c0 Mon Sep 17 00:00:00 2001
+From: Xin Long <lucien.xin@gmail.com>
+Date: Wed, 9 Feb 2022 03:19:56 -0500
+Subject: [PATCH] vlan: move dev_put into vlan_dev_uninit
 
-There are two bugs in the error handling:
-1: If devm_of_phy_provider_register() fails then there was no cleanup.
-2: The error handling called of_node_put(child) improperly leading to
-   a use after free.  We are only holding the reference inside the loop
-   so the last two gotos after the loop lead to a use after free bug.
-   Fix this by cleaning up the partial allocations (or partial iterations)
-   in the loop before doing the goto.
+Shuang Li reported an QinQ issue by simply doing:
 
-Fixes: a43f72ae136a ("phy: cadence: Sierra: Change MAX_LANES of Sierra to 16")
-Fixes: 44d30d622821 ("phy: cadence: Add driver for Sierra PHY")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20220115115146.GC7552@kili
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+  # ip link add dummy0 type dummy
+  # ip link add link dummy0 name dummy0.1 type vlan id 1
+  # ip link add link dummy0.1 name dummy0.1.2 type vlan id 2
+  # rmmod 8021q
 
-diff --git a/drivers/phy/cadence/phy-cadence-sierra.c b/drivers/phy/cadence/phy-cadence-sierra.c
-index da24acd26666..e265647e29a2 100644
---- a/drivers/phy/cadence/phy-cadence-sierra.c
-+++ b/drivers/phy/cadence/phy-cadence-sierra.c
-@@ -1338,7 +1338,7 @@ static int cdns_sierra_phy_probe(struct platform_device *pdev)
- 	struct device *dev = &pdev->dev;
- 	const struct cdns_sierra_data *data;
- 	unsigned int id_value;
--	int i, ret, node = 0;
-+	int ret, node = 0;
- 	void __iomem *base;
- 	struct device_node *dn = dev->of_node, *child;
+ unregister_netdevice: waiting for dummy0.1 to become free. Usage count = 1
+
+When rmmods 8021q, all vlan devs are deleted from their real_dev's vlan grp
+and added into list_kill by unregister_vlan_dev(). dummy0.1 is unregistered
+before dummy0.1.2, as it's using for_each_netdev() in __rtnl_kill_links().
+
+When unregisters dummy0.1, dummy0.1.2 is not unregistered in the event of
+NETDEV_UNREGISTER, as it's been deleted from dummy0.1's vlan grp. However,
+due to dummy0.1.2 still holding dummy0.1, dummy0.1 will keep waiting in
+netdev_wait_allrefs(), while dummy0.1.2 will never get unregistered and
+release dummy0.1, as it delays dev_put until calling dev->priv_destructor,
+vlan_dev_free().
+
+This issue was introduced by Commit 563bcbae3ba2 ("net: vlan: fix a UAF in
+vlan_dev_real_dev()"), and this patch is to fix it by moving dev_put() into
+vlan_dev_uninit(), which is called after NETDEV_UNREGISTER event but before
+netdev_wait_allrefs().
+
+Fixes: 563bcbae3ba2 ("net: vlan: fix a UAF in vlan_dev_real_dev()")
+Reported-by: Shuang Li <shuali@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/net/8021q/vlan_dev.c b/net/8021q/vlan_dev.c
+index e5d23e75572a..d1902828a18a 100644
+--- a/net/8021q/vlan_dev.c
++++ b/net/8021q/vlan_dev.c
+@@ -638,7 +638,12 @@ void vlan_dev_free_egress_priority(const struct net_device *dev)
  
-@@ -1416,7 +1416,8 @@ static int cdns_sierra_phy_probe(struct platform_device *pdev)
- 			dev_err(dev, "failed to get reset %s\n",
- 				child->full_name);
- 			ret = PTR_ERR(sp->phys[node].lnk_rst);
--			goto put_child2;
-+			of_node_put(child);
-+			goto put_control;
- 		}
+ static void vlan_dev_uninit(struct net_device *dev)
+ {
++	struct vlan_dev_priv *vlan = vlan_dev_priv(dev);
++
+ 	vlan_dev_free_egress_priority(dev);
++
++	/* Get rid of the vlan's reference to real_dev */
++	dev_put_track(vlan->real_dev, &vlan->dev_tracker);
+ }
  
- 		if (!sp->autoconf) {
-@@ -1424,7 +1425,9 @@ static int cdns_sierra_phy_probe(struct platform_device *pdev)
- 			if (ret) {
- 				dev_err(dev, "missing property in node %s\n",
- 					child->name);
--				goto put_child;
-+				of_node_put(child);
-+				reset_control_put(sp->phys[node].lnk_rst);
-+				goto put_control;
- 			}
- 		}
+ static netdev_features_t vlan_dev_fix_features(struct net_device *dev,
+@@ -851,9 +856,6 @@ static void vlan_dev_free(struct net_device *dev)
  
-@@ -1434,7 +1437,9 @@ static int cdns_sierra_phy_probe(struct platform_device *pdev)
- 
- 		if (IS_ERR(gphy)) {
- 			ret = PTR_ERR(gphy);
--			goto put_child;
-+			of_node_put(child);
-+			reset_control_put(sp->phys[node].lnk_rst);
-+			goto put_control;
- 		}
- 		sp->phys[node].phy = gphy;
- 		phy_set_drvdata(gphy, &sp->phys[node]);
-@@ -1446,26 +1451,28 @@ static int cdns_sierra_phy_probe(struct platform_device *pdev)
- 	if (sp->num_lanes > SIERRA_MAX_LANES) {
- 		ret = -EINVAL;
- 		dev_err(dev, "Invalid lane configuration\n");
--		goto put_child2;
-+		goto put_control;
- 	}
- 
- 	/* If more than one subnode, configure the PHY as multilink */
- 	if (!sp->autoconf && sp->nsubnodes > 1) {
- 		ret = cdns_sierra_phy_configure_multilink(sp);
- 		if (ret)
--			goto put_child2;
-+			goto put_control;
- 	}
- 
- 	pm_runtime_enable(dev);
- 	phy_provider = devm_of_phy_provider_register(dev, of_phy_simple_xlate);
--	return PTR_ERR_OR_ZERO(phy_provider);
+ 	free_percpu(vlan->vlan_pcpu_stats);
+ 	vlan->vlan_pcpu_stats = NULL;
 -
--put_child:
--	node++;
--put_child2:
--	for (i = 0; i < node; i++)
--		reset_control_put(sp->phys[i].lnk_rst);
--	of_node_put(child);
-+	if (IS_ERR(phy_provider)) {
-+		ret = PTR_ERR(phy_provider);
-+		goto put_control;
-+	}
-+
-+	return 0;
-+
-+put_control:
-+	while (--node >= 0)
-+		reset_control_put(sp->phys[node].lnk_rst);
- clk_disable:
- 	cdns_sierra_phy_disable_clocks(sp);
- 	reset_control_assert(sp->apb_rst);
+-	/* Get rid of the vlan's reference to real_dev */
+-	dev_put_track(vlan->real_dev, &vlan->dev_tracker);
+ }
+ 
+ void vlan_setup(struct net_device *dev)
 
