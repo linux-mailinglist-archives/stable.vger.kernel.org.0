@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F7BD4B4869
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:57:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 914E04B4BE8
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343707AbiBNJxz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:53:55 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60848 "EHLO
+        id S1345957AbiBNKN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:13:56 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343653AbiBNJxU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:53:20 -0500
+        with ESMTP id S234353AbiBNKNN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:13:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B62D46736F;
-        Mon, 14 Feb 2022 01:43:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 050E660A9C;
+        Mon, 14 Feb 2022 01:51:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55B4F61236;
-        Mon, 14 Feb 2022 09:43:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CB76C340EF;
-        Mon, 14 Feb 2022 09:43:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 931936128D;
+        Mon, 14 Feb 2022 09:51:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72ACFC340E9;
+        Mon, 14 Feb 2022 09:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831830;
-        bh=dnqBjILIyPFJ4zWz2ADF95n2WkBQyD/RD3t0VOM3EjU=;
+        s=korg; t=1644832302;
+        bh=lrgQINDT48P+sKYwHswUTTKmWWrF21F0fKyR27zr+30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VRD53kOg8deOB+gVNRtYKBUUqZMaZR8UxbHlx+OrkVSyCHrTM+i19OaMlV3LpDZeQ
-         +U9RXuCOlP9Fd+vRXGf531orOIZyO7ETqcHb8g2bZ/Ep5xDD7iUISwtSQUthhv1KKD
-         C+G3SylWWa2nr4sRYZ9HbZuCkK3OuxUskt67T/CY=
+        b=iOQRl9a5TShKPPCBVJ4cBeahq5mEzmgKnEif61Nf1lbJiNKZgJqEQKYH92QqAM34v
+         6V8AzbtatbvoYP7+hZtgzC8LbJJJ4HFDTT6s7RAlyJRObsxqK9JUqH0QHE8y0XhSb5
+         jz3auSab/qSQ9i3eh2xeCt1nzqJCeG2i626/Ekic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pawel Dembicki <paweldembicki@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 103/116] USB: serial: option: add ZTE MF286D modem
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Adam Ford <aford173@gmail.com>
+Subject: [PATCH 5.15 144/172] usb: gadget: udc: renesas_usb3: Fix host to USB_ROLE_NONE transition
 Date:   Mon, 14 Feb 2022 10:26:42 +0100
-Message-Id: <20220214092502.345009198@linuxfoundation.org>
+Message-Id: <20220214092511.363624988@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Dembicki <paweldembicki@gmail.com>
+From: Adam Ford <aford173@gmail.com>
 
-commit d48384c7ed6c8fe4727eaa0f3048f62afd1cd715 upstream.
+commit 459702eea6132888b5c5b64c0e9c626da4ec2493 upstream.
 
-Modem from ZTE MF286D is an Qualcomm MDM9250 based 3G/4G modem.
+The support the external role switch a variety of situations were
+addressed, but the transition from USB_ROLE_HOST to USB_ROLE_NONE
+leaves the host up which can cause some error messages when
+switching from host to none, to gadget, to none, and then back
+to host again.
 
-T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
-D:  Ver= 3.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
-P:  Vendor=19d2 ProdID=1485 Rev=52.87
-S:  Manufacturer=ZTE,Incorporated
-S:  Product=ZTE Technologies MSM
-S:  SerialNumber=MF286DZTED000000
-C:* #Ifs= 7 Cfg#= 1 Atr=80 MxPwr=896mA
-A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=06 Prot=00
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=02 Prot=ff Driver=rndis_host
-E:  Ad=82(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
-E:  Ad=81(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=83(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=8e(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E:  Ad=0f(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=usbfs
-E:  Ad=05(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E:  Ad=89(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+ xhci-hcd ee000000.usb: Abort failed to stop command ring: -110
+ xhci-hcd ee000000.usb: xHCI host controller not responding, assume dead
+ xhci-hcd ee000000.usb: HC died; cleaning up
+ usb 4-1: device not accepting address 6, error -108
+ usb usb4-port1: couldn't allocate usb_device
 
-Signed-off-by: Pawel Dembicki <paweldembicki@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+After this happens it will not act as a host again.
+Fix this by releasing the host mode when transitioning to USB_ROLE_NONE.
+
+Fixes: 0604160d8c0b ("usb: gadget: udc: renesas_usb3: Enhance role switch support")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Link: https://lore.kernel.org/r/20220128223603.2362621-1-aford173@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    2 ++
+ drivers/usb/gadget/udc/renesas_usb3.c |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1649,6 +1649,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(2) },
- 	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x1476, 0xff) },	/* GosunCn ZTE WeLink ME3630 (ECM/NCM mode) */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1481, 0xff, 0x00, 0x00) }, /* ZTE MF871A */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1485, 0xff, 0xff, 0xff),  /* ZTE MF286D */
-+	  .driver_info = RSVD(5) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1533, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1534, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1535, 0xff, 0xff, 0xff) },
+--- a/drivers/usb/gadget/udc/renesas_usb3.c
++++ b/drivers/usb/gadget/udc/renesas_usb3.c
+@@ -2378,6 +2378,8 @@ static void handle_ext_role_switch_state
+ 	switch (role) {
+ 	case USB_ROLE_NONE:
+ 		usb3->connection_state = USB_ROLE_NONE;
++		if (cur_role == USB_ROLE_HOST)
++			device_release_driver(host);
+ 		if (usb3->driver)
+ 			usb3_disconnect(usb3);
+ 		usb3_vbus_out(usb3, false);
 
 
