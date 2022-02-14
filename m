@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24B384B4B84
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:42:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D815E4B4AF7
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344327AbiBNKCL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:02:11 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54536 "EHLO
+        id S1347309AbiBNK1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:27:42 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345210AbiBNKB2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:01:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75ACC13E33;
-        Mon, 14 Feb 2022 01:47:34 -0800 (PST)
+        with ESMTP id S1347728AbiBNK0T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:26:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EF3680217;
+        Mon, 14 Feb 2022 01:57:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12E0361252;
-        Mon, 14 Feb 2022 09:47:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD902C340EF;
-        Mon, 14 Feb 2022 09:47:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50921B80DD0;
+        Mon, 14 Feb 2022 09:57:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BFAAC340E9;
+        Mon, 14 Feb 2022 09:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832053;
-        bh=+NBcL0Eq3UCVybOvYfablR+3wu7sDTLFohP96udNTEs=;
+        s=korg; t=1644832638;
+        bh=nDySB6UXuT3u6CrlRf1gGUS+olwtOzGHIaEFmYJVFJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tIDt0FKh0O02NDla50BKPZEFj+3lGKZWuiL1LvRiiWDTBQnVW1B2uKjHjKmkcX+K+
-         D2iqJi+VAI4/it2Z7C9W7N15ACv4l+wbEqFiqDTJs+lHRe3JDSE56kSjPTzi5aWRoX
-         H2pH8uMcEnschqByGXt+J6afllAAvxGsY0qlbiJ8=
+        b=O0b74A6d+TRteVhPqDy/sT998Fl5IkQ7F68pT8P1KUQcFenxn9He9kp7A81oMfdDB
+         QWMOZ0etugR2T2yH7nuSmXHjOyfvi2idAcsH6XIISVXygMNaCHnyN19xR8ifKRAtvf
+         Pi/IPvNRFYMeI45QY7/lbv52SP/AQZldBOw1+UdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Xiong <xiongx18@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Saurav Kashyap <skashyap@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 033/172] net/sunrpc: fix reference count leaks in rpc_sysfs_xprt_state_change
+Subject: [PATCH 5.16 047/203] scsi: qedf: Change context reset messages to ratelimited
 Date:   Mon, 14 Feb 2022 10:24:51 +0100
-Message-Id: <20220214092507.542826837@linuxfoundation.org>
+Message-Id: <20220214092511.817031892@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Saurav Kashyap <skashyap@marvell.com>
 
-[ Upstream commit 776d794f28c95051bc70405a7b1fa40115658a18 ]
+[ Upstream commit 64fd4af6274eb0f49d29772c228fffcf6bde1635 ]
 
-The refcount leak issues take place in an error handling path. When the
-3rd argument buf doesn't match with "offline", "online" or "remove", the
-function simply returns -EINVAL and forgets to decrease the reference
-count of a rpc_xprt object and a rpc_xprt_switch object increased by
-rpc_sysfs_xprt_kobj_get_xprt() and
-rpc_sysfs_xprt_kobj_get_xprt_switch(), causing reference count leaks of
-both unused objects.
+If FCoE is not configured, libfc/libfcoe keeps on retrying FLOGI and after
+3 retries driver does a context reset and tries fipvlan again.  This leads
+to context reset message flooding the logs. Hence ratelimit the message to
+prevent flooding the logs.
 
-Fix this issue by jumping to the error handling path labelled with
-out_put when buf matches none of "offline", "online" or "remove".
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Link: https://lore.kernel.org/r/20220117135311.6256-4-njavali@marvell.com
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/sysfs.c | 6 ++++--
+ drivers/scsi/qedf/qedf_main.c | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/sysfs.c b/net/sunrpc/sysfs.c
-index 9a6f17e18f73b..379cf0e4d965b 100644
---- a/net/sunrpc/sysfs.c
-+++ b/net/sunrpc/sysfs.c
-@@ -291,8 +291,10 @@ static ssize_t rpc_sysfs_xprt_state_change(struct kobject *kobj,
- 		online = 1;
- 	else if (!strncmp(buf, "remove", 6))
- 		remove = 1;
--	else
--		return -EINVAL;
-+	else {
-+		count = -EINVAL;
-+		goto out_put;
-+	}
+diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
+index 6e367b40ecc96..e0e03443d7703 100644
+--- a/drivers/scsi/qedf/qedf_main.c
++++ b/drivers/scsi/qedf/qedf_main.c
+@@ -911,7 +911,7 @@ void qedf_ctx_soft_reset(struct fc_lport *lport)
+ 	struct qed_link_output if_link;
  
- 	if (wait_on_bit_lock(&xprt->state, XPRT_LOCKED, TASK_KILLABLE)) {
- 		count = -EINTR;
+ 	if (lport->vport) {
+-		QEDF_ERR(NULL, "Cannot issue host reset on NPIV port.\n");
++		printk_ratelimited("Cannot issue host reset on NPIV port.\n");
+ 		return;
+ 	}
+ 
+@@ -3979,7 +3979,9 @@ void qedf_stag_change_work(struct work_struct *work)
+ 	struct qedf_ctx *qedf =
+ 	    container_of(work, struct qedf_ctx, stag_work.work);
+ 
+-	QEDF_ERR(&qedf->dbg_ctx, "Performing software context reset.\n");
++	printk_ratelimited("[%s]:[%s:%d]:%d: Performing software context reset.",
++			dev_name(&qedf->pdev->dev), __func__, __LINE__,
++			qedf->dbg_ctx.host_no);
+ 	qedf_ctx_soft_reset(qedf->lport);
+ }
+ 
 -- 
 2.34.1
 
