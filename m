@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 926BA4B460B
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E79CE4B46A5
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243370AbiBNJbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:31:40 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42660 "EHLO
+        id S244509AbiBNJkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:40:42 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243386AbiBNJab (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:30:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0622725E82;
-        Mon, 14 Feb 2022 01:29:46 -0800 (PST)
+        with ESMTP id S244107AbiBNJkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:40:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01F4060D90;
+        Mon, 14 Feb 2022 01:35:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A25D7B80DC5;
-        Mon, 14 Feb 2022 09:29:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1C4FC340E9;
-        Mon, 14 Feb 2022 09:29:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92F4EB80DC1;
+        Mon, 14 Feb 2022 09:35:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9321C340EF;
+        Mon, 14 Feb 2022 09:35:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644830983;
-        bh=XoX8f04SIwYd5Jl0Qaw+mYiEIY8/RrLJyOWhYZces3c=;
+        s=korg; t=1644831348;
+        bh=eE80Bi90mHkuFyViKklaO5l31qtgcf+UEIP/R5GkX1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLCxSe9Zp2HIk1LbwApsn1u4w+Z28lF/RlQYZgTx+UOB5mHFotPjRqlcfnI+bVS64
-         3MHNeiMHqL1wZpGgFUdwi9vwABUxmUh2tTzxpTlb0qBj8iwQKbPun2kJkGYQeGxVEY
-         TbI03FafSotMklWMrJeMVpo5OK+pGuusE1kXqEGo=
+        b=j0sA2hp3//DS8l4rswYWnx8oQ5+JDaglwDoPkOEbCx+OTXjN//S37hprP7RSX7Rt9
+         J69AJ60TBmeQ0IY/wmSYlB1c5azGTqUs69wQ7eUjChNO+hCbr6HDqhQpJ7TBo0/Qob
+         w0r7Cy1T+d8Q3fAPFUBnTbgzxb6hKzbUnNSoCeWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Szymon Heidrich <szymon.heidrich@gmail.com>, stable@kernel.org
-Subject: [PATCH 4.9 27/34] USB: gadget: validate interface OS descriptor requests
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 25/71] KVM: nVMX: eVMCS: Filter out VM_EXIT_SAVE_VMX_PREEMPTION_TIMER
 Date:   Mon, 14 Feb 2022 10:25:53 +0100
-Message-Id: <20220214092446.821501136@linuxfoundation.org>
+Message-Id: <20220214092452.860737143@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
-References: <20220214092445.946718557@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,31 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Szymon Heidrich <szymon.heidrich@gmail.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit 75e5b4849b81e19e9efe1654b30d7f3151c33c2c upstream.
+[ Upstream commit 7a601e2cf61558dfd534a9ecaad09f5853ad8204 ]
 
-Stall the control endpoint in case provided index exceeds array size of
-MAX_CONFIG_INTERFACES or when the retrieved function pointer is null.
+Enlightened VMCS v1 doesn't have VMX_PREEMPTION_TIMER_VALUE field,
+PIN_BASED_VMX_PREEMPTION_TIMER is also filtered out already so it makes
+sense to filter out VM_EXIT_SAVE_VMX_PREEMPTION_TIMER too.
 
-Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note, none of the currently existing Windows/Hyper-V versions are known
+to enable 'save VMX-preemption timer value' when eVMCS is in use, the
+change is aimed at making the filtering future proof.
+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20220112170134.1904308-3-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/composite.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/vmx/evmcs.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -1932,6 +1932,9 @@ unknown:
- 				if (w_index != 0x5 || (w_value >> 8))
- 					break;
- 				interface = w_value & 0xFF;
-+				if (interface >= MAX_CONFIG_INTERFACES ||
-+				    !os_desc_cfg->interface[interface])
-+					break;
- 				buf[6] = w_index;
- 				if (w_length == 0x0A) {
- 					count = count_ext_prop(os_desc_cfg,
+diff --git a/arch/x86/kvm/vmx/evmcs.h b/arch/x86/kvm/vmx/evmcs.h
+index 07ebf6882a458..632bed227152e 100644
+--- a/arch/x86/kvm/vmx/evmcs.h
++++ b/arch/x86/kvm/vmx/evmcs.h
+@@ -58,7 +58,9 @@ DECLARE_STATIC_KEY_FALSE(enable_evmcs);
+ 	 SECONDARY_EXEC_SHADOW_VMCS |					\
+ 	 SECONDARY_EXEC_TSC_SCALING |					\
+ 	 SECONDARY_EXEC_PAUSE_LOOP_EXITING)
+-#define EVMCS1_UNSUPPORTED_VMEXIT_CTRL (VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL)
++#define EVMCS1_UNSUPPORTED_VMEXIT_CTRL					\
++	(VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL |				\
++	 VM_EXIT_SAVE_VMX_PREEMPTION_TIMER)
+ #define EVMCS1_UNSUPPORTED_VMENTRY_CTRL (VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL)
+ #define EVMCS1_UNSUPPORTED_VMFUNC (VMX_VMFUNC_EPTP_SWITCHING)
+ 
+-- 
+2.34.1
+
 
 
