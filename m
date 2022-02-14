@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D9FB4B46A8
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4C594B47D5
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244569AbiBNJmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:42:02 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33982 "EHLO
+        id S235630AbiBNJtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:49:07 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244663AbiBNJks (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:40:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AEBB87F;
-        Mon, 14 Feb 2022 01:36:02 -0800 (PST)
+        with ESMTP id S245128AbiBNJsA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:48:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB68B869;
+        Mon, 14 Feb 2022 01:40:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0DBFB80DC8;
-        Mon, 14 Feb 2022 09:35:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A216C340E9;
-        Mon, 14 Feb 2022 09:35:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0A0F6102D;
+        Mon, 14 Feb 2022 09:40:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D828FC340E9;
+        Mon, 14 Feb 2022 09:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831335;
-        bh=X0E4WVPFXgHyWjQLo8X5V4Un4nPYt7YLfCvR7RUnq7w=;
+        s=korg; t=1644831646;
+        bh=5zy95j7ehPfyl58BAQJvIixLbBJORSFXPjlZPhC/VGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AGaPl5hFAmIoyINhSV2EnABWLDKfDO2X00MF/nUsezIfnvOTmbh7PMUOkGFrZ9Sfu
-         vpL3JWrBCKMNjiCGV5HafdKd9xojcsUrb5BmyDSS3lX886cWd0+8Hee5j8042aiEgi
-         mQC7kXVlc5ONvFbeLABYz7dDeqaD0pY1+nFU/u6c=
+        b=13a6Ywy1gXtzYl0ZftCjg/9jvPZrUJ10wlzGA4K2BWrIT5vsNx/UIHWZSR7K4Scc6
+         xyM1fssd7bcoeIhVSEVV2SlE6B4tGWtvInVdNIt8O3MC4jBPJFl4GZeVDwR5QwKYz4
+         GfHs8ZcW071x2K/CeNRy9kjjEUnqxX1kG5WQMXa0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Tong Zhang <ztong0001@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Jarkko Nikula <jarkko.nikula@bitmer.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/71] scsi: myrs: Fix crash in error case
+Subject: [PATCH 5.10 050/116] ARM: dts: Fix timer regression for beagleboard revision c
 Date:   Mon, 14 Feb 2022 10:25:49 +0100
-Message-Id: <20220214092452.729910214@linuxfoundation.org>
+Message-Id: <20220214092500.440131556@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +57,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 4db09593af0b0b4d7d4805ebb3273df51d7cc30d ]
+[ Upstream commit 23885389dbbbbc698986e77a45c1fc44a6e3632e ]
 
-In myrs_detect(), cs->disable_intr is NULL when privdata->hw_init() fails
-with non-zero. In this case, myrs_cleanup(cs) will call a NULL ptr and
-crash the kernel.
+Commit e428e250fde6 ("ARM: dts: Configure system timers for omap3")
+caused a timer regression for beagleboard revision c where the system
+clockevent stops working if omap3isp module is unloaded.
 
-[    1.105606] myrs 0000:00:03.0: Unknown Initialization Error 5A
-[    1.105872] myrs 0000:00:03.0: Failed to initialize Controller
-[    1.106082] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[    1.110774] Call Trace:
-[    1.110950]  myrs_cleanup+0xe4/0x150 [myrs]
-[    1.111135]  myrs_probe.cold+0x91/0x56a [myrs]
-[    1.111302]  ? DAC960_GEM_intr_handler+0x1f0/0x1f0 [myrs]
-[    1.111500]  local_pci_probe+0x48/0x90
+Turns out we still have beagleboard revisions a-b4 capacitor c70 quirks
+applied that limit the usable timers for no good reason. This also affects
+the power management as we use the system clock instead of the 32k clock
+source.
 
-Link: https://lore.kernel.org/r/20220123225717.1069538-1-ztong0001@gmail.com
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Let's fix the issue by adding a new omap3-beagle-ab4.dts for the old timer
+quirks. This allows us to remove the timer quirks for later beagleboard
+revisions. We also need to update the related timer quirk check for the
+correct compatible property.
+
+Fixes: e428e250fde6 ("ARM: dts: Configure system timers for omap3")
+Cc: linux-kernel@vger.kernel.org
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Rob Herring <robh+dt@kernel.org>
+Reported-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
+Tested-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/myrs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../devicetree/bindings/arm/omap/omap.txt     |  3 ++
+ arch/arm/boot/dts/Makefile                    |  1 +
+ arch/arm/boot/dts/omap3-beagle-ab4.dts        | 47 +++++++++++++++++++
+ arch/arm/boot/dts/omap3-beagle.dts            | 33 -------------
+ drivers/clocksource/timer-ti-dm-systimer.c    |  2 +-
+ 5 files changed, 52 insertions(+), 34 deletions(-)
+ create mode 100644 arch/arm/boot/dts/omap3-beagle-ab4.dts
 
-diff --git a/drivers/scsi/myrs.c b/drivers/scsi/myrs.c
-index cfc3f8b4174ab..2d3d14aa46b4b 100644
---- a/drivers/scsi/myrs.c
-+++ b/drivers/scsi/myrs.c
-@@ -2272,7 +2272,8 @@ static void myrs_cleanup(struct myrs_hba *cs)
- 	myrs_unmap(cs);
+diff --git a/Documentation/devicetree/bindings/arm/omap/omap.txt b/Documentation/devicetree/bindings/arm/omap/omap.txt
+index e77635c5422c6..fa8b31660cadd 100644
+--- a/Documentation/devicetree/bindings/arm/omap/omap.txt
++++ b/Documentation/devicetree/bindings/arm/omap/omap.txt
+@@ -119,6 +119,9 @@ Boards (incomplete list of examples):
+ - OMAP3 BeagleBoard : Low cost community board
+   compatible = "ti,omap3-beagle", "ti,omap3430", "ti,omap3"
  
- 	if (cs->mmio_base) {
--		cs->disable_intr(cs);
-+		if (cs->disable_intr)
-+			cs->disable_intr(cs);
- 		iounmap(cs->mmio_base);
- 		cs->mmio_base = NULL;
- 	}
++- OMAP3 BeagleBoard A to B4 : Early BeagleBoard revisions A to B4 with a timer quirk
++  compatible = "ti,omap3-beagle-ab4", "ti,omap3-beagle", "ti,omap3430", "ti,omap3"
++
+ - OMAP3 Tobi with Overo : Commercial expansion board with daughter board
+   compatible = "gumstix,omap3-overo-tobi", "gumstix,omap3-overo", "ti,omap3430", "ti,omap3"
+ 
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index ce66ffd5a1bbc..7e8151681597c 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -731,6 +731,7 @@ dtb-$(CONFIG_ARCH_OMAP3) += \
+ 	logicpd-som-lv-37xx-devkit.dtb \
+ 	omap3430-sdp.dtb \
+ 	omap3-beagle.dtb \
++	omap3-beagle-ab4.dtb \
+ 	omap3-beagle-xm.dtb \
+ 	omap3-beagle-xm-ab.dtb \
+ 	omap3-cm-t3517.dtb \
+diff --git a/arch/arm/boot/dts/omap3-beagle-ab4.dts b/arch/arm/boot/dts/omap3-beagle-ab4.dts
+new file mode 100644
+index 0000000000000..990ff2d846868
+--- /dev/null
++++ b/arch/arm/boot/dts/omap3-beagle-ab4.dts
+@@ -0,0 +1,47 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/dts-v1/;
++
++#include "omap3-beagle.dts"
++
++/ {
++	model = "TI OMAP3 BeagleBoard A to B4";
++	compatible = "ti,omap3-beagle-ab4", "ti,omap3-beagle", "ti,omap3430", "ti,omap3";
++};
++
++/*
++ * Workaround for capacitor C70 issue, see "Boards revision A and < B5"
++ * section at https://elinux.org/BeagleBoard_Community
++ */
++
++/* Unusable as clocksource because of unreliable oscillator */
++&counter32k {
++	status = "disabled";
++};
++
++/* Unusable as clockevent because of unreliable oscillator, allow to idle */
++&timer1_target {
++	/delete-property/ti,no-reset-on-init;
++	/delete-property/ti,no-idle;
++	timer@0 {
++		/delete-property/ti,timer-alwon;
++	};
++};
++
++/* Preferred always-on timer for clocksource */
++&timer12_target {
++	ti,no-reset-on-init;
++	ti,no-idle;
++	timer@0 {
++		/* Always clocked by secure_32k_fck */
++	};
++};
++
++/* Preferred timer for clockevent */
++&timer2_target {
++	ti,no-reset-on-init;
++	ti,no-idle;
++	timer@0 {
++		assigned-clocks = <&gpt2_fck>;
++		assigned-clock-parents = <&sys_ck>;
++	};
++};
+diff --git a/arch/arm/boot/dts/omap3-beagle.dts b/arch/arm/boot/dts/omap3-beagle.dts
+index f9f34b8458e91..0548b391334fd 100644
+--- a/arch/arm/boot/dts/omap3-beagle.dts
++++ b/arch/arm/boot/dts/omap3-beagle.dts
+@@ -304,39 +304,6 @@ &usbhsehci {
+ 	phys = <0 &hsusb2_phy>;
+ };
+ 
+-/* Unusable as clocksource because of unreliable oscillator */
+-&counter32k {
+-	status = "disabled";
+-};
+-
+-/* Unusable as clockevent because if unreliable oscillator, allow to idle */
+-&timer1_target {
+-	/delete-property/ti,no-reset-on-init;
+-	/delete-property/ti,no-idle;
+-	timer@0 {
+-		/delete-property/ti,timer-alwon;
+-	};
+-};
+-
+-/* Preferred always-on timer for clocksource */
+-&timer12_target {
+-	ti,no-reset-on-init;
+-	ti,no-idle;
+-	timer@0 {
+-		/* Always clocked by secure_32k_fck */
+-	};
+-};
+-
+-/* Preferred timer for clockevent */
+-&timer2_target {
+-	ti,no-reset-on-init;
+-	ti,no-idle;
+-	timer@0 {
+-		assigned-clocks = <&gpt2_fck>;
+-		assigned-clock-parents = <&sys_ck>;
+-	};
+-};
+-
+ &twl_gpio {
+ 	ti,use-leds;
+ 	/* pullups: BIT(1) */
+diff --git a/drivers/clocksource/timer-ti-dm-systimer.c b/drivers/clocksource/timer-ti-dm-systimer.c
+index b6f97960d8ee0..5c40ca1d4740e 100644
+--- a/drivers/clocksource/timer-ti-dm-systimer.c
++++ b/drivers/clocksource/timer-ti-dm-systimer.c
+@@ -241,7 +241,7 @@ static void __init dmtimer_systimer_assign_alwon(void)
+ 	bool quirk_unreliable_oscillator = false;
+ 
+ 	/* Quirk unreliable 32 KiHz oscillator with incomplete dts */
+-	if (of_machine_is_compatible("ti,omap3-beagle") ||
++	if (of_machine_is_compatible("ti,omap3-beagle-ab4") ||
+ 	    of_machine_is_compatible("timll,omap3-devkit8000")) {
+ 		quirk_unreliable_oscillator = true;
+ 		counter_32k = -ENODEV;
 -- 
 2.34.1
 
