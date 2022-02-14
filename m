@@ -2,41 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9597B4B4BB7
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:42:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 723344B4B43
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:41:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347144AbiBNKZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:25:28 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:53396 "EHLO
+        id S1346721AbiBNKZa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:25:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346765AbiBNKYb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:24:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A08986A047;
-        Mon, 14 Feb 2022 01:56:40 -0800 (PST)
+        with ESMTP id S1346941AbiBNKYl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:24:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02C146A04E;
+        Mon, 14 Feb 2022 01:56:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FF47B80D6D;
-        Mon, 14 Feb 2022 09:56:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71A26C340E9;
-        Mon, 14 Feb 2022 09:56:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9649560FA2;
+        Mon, 14 Feb 2022 09:56:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41299C340E9;
+        Mon, 14 Feb 2022 09:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832598;
-        bh=St+wTmNgQ1QtlSDwVf5nx7/fOXNFZrqz9ag6wMv9RjQ=;
+        s=korg; t=1644832601;
+        bh=eZzWSHHPhuyrfHRIaehmCfV5KOXZOFvWuve5S+I0rBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJzCT2kmuXiETf8BBd6u53BU2H3ZFzFiN74Bckjfxi833AkyDMNE5NEghPLwEQ49q
-         xG+ulW3vCO8gx+vk+XOpsrXGhQAKtEDE8HS+441ytDpu9+PwVBbMdXv7Cst7katIUj
-         PU/y3xx20n5l5T/wv7MCapqkjs7BReBRNvlqHdnE=
+        b=dl+GQtVFq96OynaV7b9Pw6YUx1Wv2XGrhjhaH869vmzG4Y6bi6H+VStpKyn6mYs0j
+         XF1WPvXXMEinRbnZZRtPU4TvKM7VoX28bl18vNmH4uERiXmMKgbQgUBU0uoor8TXvo
+         t4Sb3zAzUAH3Po/nxqfA5NakWNn5LkDC5kLc17Xg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, Marco Elver <elver@google.com>,
+        Nico Pache <npache@redhat.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 065/203] arm64: cpufeature: List early Cortex-A510 parts as having broken dbm
-Date:   Mon, 14 Feb 2022 10:25:09 +0100
-Message-Id: <20220214092512.465638916@linuxfoundation.org>
+Subject: [PATCH 5.16 066/203] kasan: test: fix compatibility with FORTIFY_SOURCE
+Date:   Mon, 14 Feb 2022 10:25:10 +0100
+Message-Id: <20220214092512.500026966@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
 References: <20220214092510.221474733@linuxfoundation.org>
@@ -54,73 +62,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit 297ae1eb23b04c5a46111ab53c8d0f69af43f402 ]
+[ Upstream commit 09c6304e38e440b93a9ebf3f3cf75cd6cb529f91 ]
 
-Versions of Cortex-A510 before r0p3 are affected by a hardware erratum
-where the hardware update of the dirty bit is not correctly ordered.
+With CONFIG_FORTIFY_SOURCE enabled, string functions will also perform
+dynamic checks using __builtin_object_size(ptr), which when failed will
+panic the kernel.
 
-Add these cpus to the cpu_has_broken_dbm list.
+Because the KASAN test deliberately performs out-of-bounds operations,
+the kernel panics with FORTIFY_SOURCE, for example:
 
-Signed-off-by: James Morse <james.morse@arm.com>
-Link: https://lore.kernel.org/r/20220125154040.549272-3-james.morse@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+ | kernel BUG at lib/string_helpers.c:910!
+ | invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
+ | CPU: 1 PID: 137 Comm: kunit_try_catch Tainted: G    B             5.16.0-rc3+ #3
+ | Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+ | RIP: 0010:fortify_panic+0x19/0x1b
+ | ...
+ | Call Trace:
+ |  kmalloc_oob_in_memset.cold+0x16/0x16
+ |  ...
+
+Fix it by also hiding `ptr` from the optimizer, which will ensure that
+__builtin_object_size() does not return a valid size, preventing
+fortified string functions from panicking.
+
+Link: https://lkml.kernel.org/r/20220124160744.1244685-1-elver@google.com
+Signed-off-by: Marco Elver <elver@google.com>
+Reported-by: Nico Pache <npache@redhat.com>
+Reviewed-by: Nico Pache <npache@redhat.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/arm64/silicon-errata.rst |  2 ++
- arch/arm64/Kconfig                     | 10 ++++++++++
- arch/arm64/kernel/cpufeature.c         |  3 +++
- 3 files changed, 15 insertions(+)
+ lib/test_kasan.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/arm64/silicon-errata.rst b/Documentation/arm64/silicon-errata.rst
-index 1b0e53ececda9..0ec7b7f1524b1 100644
---- a/Documentation/arm64/silicon-errata.rst
-+++ b/Documentation/arm64/silicon-errata.rst
-@@ -98,6 +98,8 @@ stable kernels.
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A77      | #1508412        | ARM64_ERRATUM_1508412       |
- +----------------+-----------------+-----------------+-----------------------------+
-+| ARM            | Cortex-A510     | #2051678        | ARM64_ERRATUM_2051678       |
-++----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A710     | #2119858        | ARM64_ERRATUM_2119858       |
- +----------------+-----------------+-----------------+-----------------------------+
- | ARM            | Cortex-A710     | #2054223        | ARM64_ERRATUM_2054223       |
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 7d710589e1818..38e7f19df14d4 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -670,6 +670,16 @@ config ARM64_ERRATUM_1508412
- config ARM64_WORKAROUND_TRBE_OVERWRITE_FILL_MODE
- 	bool
+diff --git a/lib/test_kasan.c b/lib/test_kasan.c
+index 0643573f86862..2ef2948261bf8 100644
+--- a/lib/test_kasan.c
++++ b/lib/test_kasan.c
+@@ -492,6 +492,7 @@ static void kmalloc_oob_in_memset(struct kunit *test)
+ 	ptr = kmalloc(size, GFP_KERNEL);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
  
-+config ARM64_ERRATUM_2051678
-+	bool "Cortex-A510: 2051678: disable Hardware Update of the page table dirty bit"
-+	help
-+	  This options adds the workaround for ARM Cortex-A510 erratum ARM64_ERRATUM_2051678.
-+	  Affected Coretex-A510 might not respect the ordering rules for
-+	  hardware update of the page table's dirty bit. The workaround
-+	  is to not enable the feature on affected CPUs.
-+
-+	  If unsure, say Y.
-+
- config ARM64_ERRATUM_2119858
- 	bool "Cortex-A710/X2: 2119858: workaround TRBE overwriting trace data in FILL mode"
- 	default y
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 6f3e677d88f15..d18b953c078db 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -1634,6 +1634,9 @@ static bool cpu_has_broken_dbm(void)
- 		MIDR_ALL_VERSIONS(MIDR_CORTEX_A55),
- 		/* Kryo4xx Silver (rdpe => r1p0) */
- 		MIDR_REV(MIDR_QCOM_KRYO_4XX_SILVER, 0xd, 0xe),
-+#endif
-+#ifdef CONFIG_ARM64_ERRATUM_2051678
-+		MIDR_REV_RANGE(MIDR_CORTEX_A510, 0, 0, 2),
- #endif
- 		{},
- 	};
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	OPTIMIZER_HIDE_VAR(size);
+ 	KUNIT_EXPECT_KASAN_FAIL(test,
+ 				memset(ptr, 0, size + KASAN_GRANULE_SIZE));
+@@ -515,6 +516,7 @@ static void kmalloc_memmove_negative_size(struct kunit *test)
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 
+ 	memset((char *)ptr, 0, 64);
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	OPTIMIZER_HIDE_VAR(invalid_size);
+ 	KUNIT_EXPECT_KASAN_FAIL(test,
+ 		memmove((char *)ptr, (char *)ptr + 4, invalid_size));
+@@ -531,6 +533,7 @@ static void kmalloc_memmove_invalid_size(struct kunit *test)
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 
+ 	memset((char *)ptr, 0, 64);
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	KUNIT_EXPECT_KASAN_FAIL(test,
+ 		memmove((char *)ptr, (char *)ptr + 4, invalid_size));
+ 	kfree(ptr);
+@@ -869,6 +872,7 @@ static void kasan_memchr(struct kunit *test)
+ 	ptr = kmalloc(size, GFP_KERNEL | __GFP_ZERO);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	OPTIMIZER_HIDE_VAR(size);
+ 	KUNIT_EXPECT_KASAN_FAIL(test,
+ 		kasan_ptr_result = memchr(ptr, '1', size + 1));
+@@ -895,6 +899,7 @@ static void kasan_memcmp(struct kunit *test)
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 	memset(arr, 0, sizeof(arr));
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	OPTIMIZER_HIDE_VAR(size);
+ 	KUNIT_EXPECT_KASAN_FAIL(test,
+ 		kasan_int_result = memcmp(ptr, arr, size+1));
 -- 
 2.34.1
 
