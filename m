@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEAD74B483A
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:56:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB6594B4B56
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:41:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245732AbiBNJwy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:52:54 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33134 "EHLO
+        id S1348165AbiBNKfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:35:06 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344857AbiBNJwF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:52:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 178957B54C;
-        Mon, 14 Feb 2022 01:43:21 -0800 (PST)
+        with ESMTP id S1348171AbiBNKel (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:34:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E51CE5;
+        Mon, 14 Feb 2022 02:01:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5FFA61209;
-        Mon, 14 Feb 2022 09:43:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82BA2C340E9;
-        Mon, 14 Feb 2022 09:43:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84161B80DCD;
+        Mon, 14 Feb 2022 10:01:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B693BC340F0;
+        Mon, 14 Feb 2022 10:01:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831800;
-        bh=iVVprejHhTHrKXydZFMArGB8nKpVGa/J/tekSOuOWgU=;
+        s=korg; t=1644832877;
+        bh=GNEWetQrwebJFihNGopC2dg0VX/rGux39dWCMrIO/Hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ucuKIenb+c1pN+cQJhe1nsHOiGd27OxPA3dMlwsIQeHBYOTVdeI91DDqyFftEwpo5
-         ou3cSZgjAlg7R8W5MJdt6O3rYHEL0VzIDq9FKBlukuwLIAoduzk8AZ62W07wiqk6Fw
-         LXFpluP/5TcybhX9ri4XUcKpqREXaei3IgkIt9mE=
+        b=vTcFPptOUNwvWQHVhJSc70hl2zOpuJlW0aUz3EKVj+OxxagDC6vnLAKY18q5ksoGV
+         QEwzMOW8uzQVso60xfsVp5jSzg+QGmtDAFrFEJ1CXNT+tZvJiKDNW2lxszVCWNZQTA
+         3mSETLB1kmaalOL+zxHR1LPP1drNzmpxhJc1v6tQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Szymon Heidrich <szymon.heidrich@gmail.com>, stable@kernel.org
-Subject: [PATCH 5.10 099/116] usb: gadget: rndis: check size of RNDIS_MSG_SET command
+        stable@vger.kernel.org, Geliang Tang <geliang.tang@suse.com>,
+        Kishen Maloor <kishen.maloor@intel.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 154/203] mptcp: netlink: process IPv6 addrs in creating listening sockets
 Date:   Mon, 14 Feb 2022 10:26:38 +0100
-Message-Id: <20220214092502.193713900@linuxfoundation.org>
+Message-Id: <20220214092515.484395190@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Kishen Maloor <kishen.maloor@intel.com>
 
-commit 38ea1eac7d88072bbffb630e2b3db83ca649b826 upstream.
+[ Upstream commit 029744cd4bc6e9eb3bd833b4a033348296d34645 ]
 
-Check the size of the RNDIS_MSG_SET command given to us before
-attempting to respond to an invalid message size.
+This change updates mptcp_pm_nl_create_listen_socket() to create
+listening sockets bound to IPv6 addresses (where IPv6 is supported).
 
-Reported-by: Szymon Heidrich <szymon.heidrich@gmail.com>
-Cc: stable@kernel.org
-Tested-by: Szymon Heidrich <szymon.heidrich@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1729cf186d8a ("mptcp: create the listening socket for new port")
+Acked-by: Geliang Tang <geliang.tang@suse.com>
+Signed-off-by: Kishen Maloor <kishen.maloor@intel.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/rndis.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/mptcp/pm_netlink.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/function/rndis.c
-+++ b/drivers/usb/gadget/function/rndis.c
-@@ -637,14 +637,17 @@ static int rndis_set_response(struct rnd
- 	rndis_set_cmplt_type *resp;
- 	rndis_resp_t *r;
+diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
+index 5d305fafd0e99..5eada95dd76b3 100644
+--- a/net/mptcp/pm_netlink.c
++++ b/net/mptcp/pm_netlink.c
+@@ -878,6 +878,7 @@ static int mptcp_pm_nl_append_new_local_addr(struct pm_nl_pernet *pernet,
+ static int mptcp_pm_nl_create_listen_socket(struct sock *sk,
+ 					    struct mptcp_pm_addr_entry *entry)
+ {
++	int addrlen = sizeof(struct sockaddr_in);
+ 	struct sockaddr_storage addr;
+ 	struct mptcp_sock *msk;
+ 	struct socket *ssock;
+@@ -902,8 +903,11 @@ static int mptcp_pm_nl_create_listen_socket(struct sock *sk,
+ 	}
  
-+	BufLength = le32_to_cpu(buf->InformationBufferLength);
-+	BufOffset = le32_to_cpu(buf->InformationBufferOffset);
-+	if ((BufLength > RNDIS_MAX_TOTAL_SIZE) ||
-+	    (BufOffset + 8 >= RNDIS_MAX_TOTAL_SIZE))
-+		    return -EINVAL;
-+
- 	r = rndis_add_response(params, sizeof(rndis_set_cmplt_type));
- 	if (!r)
- 		return -ENOMEM;
- 	resp = (rndis_set_cmplt_type *)r->buf;
- 
--	BufLength = le32_to_cpu(buf->InformationBufferLength);
--	BufOffset = le32_to_cpu(buf->InformationBufferOffset);
--
- #ifdef	VERBOSE_DEBUG
- 	pr_debug("%s: Length: %d\n", __func__, BufLength);
- 	pr_debug("%s: Offset: %d\n", __func__, BufOffset);
+ 	mptcp_info2sockaddr(&entry->addr, &addr, entry->addr.family);
+-	err = kernel_bind(ssock, (struct sockaddr *)&addr,
+-			  sizeof(struct sockaddr_in));
++#if IS_ENABLED(CONFIG_MPTCP_IPV6)
++	if (entry->addr.family == AF_INET6)
++		addrlen = sizeof(struct sockaddr_in6);
++#endif
++	err = kernel_bind(ssock, (struct sockaddr *)&addr, addrlen);
+ 	if (err) {
+ 		pr_warn("kernel_bind error, err=%d", err);
+ 		goto out;
+-- 
+2.34.1
+
 
 
