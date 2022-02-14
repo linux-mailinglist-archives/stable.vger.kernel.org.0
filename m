@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 718F54B4AA1
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:39:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7DAA4B45FC
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347804AbiBNKdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:33:49 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41514 "EHLO
+        id S243121AbiBNJ3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:29:17 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347805AbiBNKcu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:32:50 -0500
+        with ESMTP id S243126AbiBNJ3F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:29:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F2432BCD;
-        Mon, 14 Feb 2022 02:00:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C88B60D80;
+        Mon, 14 Feb 2022 01:28:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BEAC60B3A;
-        Mon, 14 Feb 2022 10:00:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 679EFC340EF;
-        Mon, 14 Feb 2022 10:00:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF6D360F8A;
+        Mon, 14 Feb 2022 09:28:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE96CC340E9;
+        Mon, 14 Feb 2022 09:28:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832825;
-        bh=Km2YhEkEz2xOCSXKSI50CX7nkOUZDmi2vmFH2ra+6Pw=;
+        s=korg; t=1644830936;
+        bh=vO4Q/ESMka9w3K0f1kTJOq7adSxZDZCYb+dKNb6/x1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QCKChNz5PL9AKqy9LmJ1I7sBZCrk9WmnOpRl7Rptm4b2Yrkki0T0t+2lG9REGcMdj
-         SYGlVDBKEBXE++I5/HjPNC4VrBq4ig9aN0KteFIgfYJtUHamDE+ih0eylKLHiuUqcO
-         EInpSyGxzwoWhJ8vHKwu4qMyZCJJFWdQF7MOLT7E=
+        b=ZYE01CJ33CISTe0S3ozaguTyDRhAC7Ip9DXKTvxrJ0ZSFBuopGXxT2Nrp+J6o39cs
+         NBoFWIkkIIyJ6PnP3+5EkKOzwFKfThP3SxHRGWPlr8DBlKEbU5uZNF0tKp68KhK9XJ
+         vU1Omm+VZPOz7TKdgZTxLOoVeZjvwI1rQL8fGSi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Mikko=20Salom=C3=A4ki?= <ms@datarespons.se>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 109/203] gpio: aggregator: Fix calling into sleeping GPIO controllers
-Date:   Mon, 14 Feb 2022 10:25:53 +0100
-Message-Id: <20220214092513.947410133@linuxfoundation.org>
+        Szymon Heidrich <szymon.heidrich@gmail.com>, stable@kernel.org
+Subject: [PATCH 4.9 28/34] usb: gadget: rndis: check size of RNDIS_MSG_SET command
+Date:   Mon, 14 Feb 2022 10:25:54 +0100
+Message-Id: <20220214092446.859673261@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
+References: <20220214092445.946718557@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,81 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 2cba05451a6d0c703bb74f1a250691404f27c4f1 ]
+commit 38ea1eac7d88072bbffb630e2b3db83ca649b826 upstream.
 
-If the parent GPIO controller is a sleeping controller (e.g. a GPIO
-controller connected to I2C), getting or setting a GPIO triggers a
-might_sleep() warning.  This happens because the GPIO Aggregator takes
-the can_sleep flag into account only for its internal locking, not for
-calling into the parent GPIO controller.
+Check the size of the RNDIS_MSG_SET command given to us before
+attempting to respond to an invalid message size.
 
-Fix this by using the gpiod_[gs]et*_cansleep() APIs when calling into a
-sleeping GPIO controller.
-
-Reported-by: Mikko Salomäki <ms@datarespons.se>
-Fixes: 828546e24280f721 ("gpio: Add GPIO Aggregator")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Cc: stable@kernel.org
+Tested-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-aggregator.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/function/rndis.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpio/gpio-aggregator.c b/drivers/gpio/gpio-aggregator.c
-index e9671d1660ef4..ac20f9bd1be61 100644
---- a/drivers/gpio/gpio-aggregator.c
-+++ b/drivers/gpio/gpio-aggregator.c
-@@ -278,7 +278,8 @@ static int gpio_fwd_get(struct gpio_chip *chip, unsigned int offset)
- {
- 	struct gpiochip_fwd *fwd = gpiochip_get_data(chip);
+--- a/drivers/usb/gadget/function/rndis.c
++++ b/drivers/usb/gadget/function/rndis.c
+@@ -642,14 +642,17 @@ static int rndis_set_response(struct rnd
+ 	rndis_set_cmplt_type *resp;
+ 	rndis_resp_t *r;
  
--	return gpiod_get_value(fwd->descs[offset]);
-+	return chip->can_sleep ? gpiod_get_value_cansleep(fwd->descs[offset])
-+			       : gpiod_get_value(fwd->descs[offset]);
- }
++	BufLength = le32_to_cpu(buf->InformationBufferLength);
++	BufOffset = le32_to_cpu(buf->InformationBufferOffset);
++	if ((BufLength > RNDIS_MAX_TOTAL_SIZE) ||
++	    (BufOffset + 8 >= RNDIS_MAX_TOTAL_SIZE))
++		    return -EINVAL;
++
+ 	r = rndis_add_response(params, sizeof(rndis_set_cmplt_type));
+ 	if (!r)
+ 		return -ENOMEM;
+ 	resp = (rndis_set_cmplt_type *)r->buf;
  
- static int gpio_fwd_get_multiple(struct gpiochip_fwd *fwd, unsigned long *mask,
-@@ -293,7 +294,10 @@ static int gpio_fwd_get_multiple(struct gpiochip_fwd *fwd, unsigned long *mask,
- 	for_each_set_bit(i, mask, fwd->chip.ngpio)
- 		descs[j++] = fwd->descs[i];
- 
--	error = gpiod_get_array_value(j, descs, NULL, values);
-+	if (fwd->chip.can_sleep)
-+		error = gpiod_get_array_value_cansleep(j, descs, NULL, values);
-+	else
-+		error = gpiod_get_array_value(j, descs, NULL, values);
- 	if (error)
- 		return error;
- 
-@@ -328,7 +332,10 @@ static void gpio_fwd_set(struct gpio_chip *chip, unsigned int offset, int value)
- {
- 	struct gpiochip_fwd *fwd = gpiochip_get_data(chip);
- 
--	gpiod_set_value(fwd->descs[offset], value);
-+	if (chip->can_sleep)
-+		gpiod_set_value_cansleep(fwd->descs[offset], value);
-+	else
-+		gpiod_set_value(fwd->descs[offset], value);
- }
- 
- static void gpio_fwd_set_multiple(struct gpiochip_fwd *fwd, unsigned long *mask,
-@@ -343,7 +350,10 @@ static void gpio_fwd_set_multiple(struct gpiochip_fwd *fwd, unsigned long *mask,
- 		descs[j++] = fwd->descs[i];
- 	}
- 
--	gpiod_set_array_value(j, descs, NULL, values);
-+	if (fwd->chip.can_sleep)
-+		gpiod_set_array_value_cansleep(j, descs, NULL, values);
-+	else
-+		gpiod_set_array_value(j, descs, NULL, values);
- }
- 
- static void gpio_fwd_set_multiple_locked(struct gpio_chip *chip,
--- 
-2.34.1
-
+-	BufLength = le32_to_cpu(buf->InformationBufferLength);
+-	BufOffset = le32_to_cpu(buf->InformationBufferOffset);
+-
+ #ifdef	VERBOSE_DEBUG
+ 	pr_debug("%s: Length: %d\n", __func__, BufLength);
+ 	pr_debug("%s: Offset: %d\n", __func__, BufOffset);
 
 
