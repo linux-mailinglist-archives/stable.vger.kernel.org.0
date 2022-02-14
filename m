@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C7134B4722
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCB134B4650
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236295AbiBNJwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:52:17 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60950 "EHLO
+        id S243923AbiBNJds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:33:48 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237479AbiBNJua (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:50:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2E45652D3;
-        Mon, 14 Feb 2022 01:41:26 -0800 (PST)
+        with ESMTP id S243768AbiBNJd1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:33:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE87AE6D;
+        Mon, 14 Feb 2022 01:32:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D43AB60FA2;
-        Mon, 14 Feb 2022 09:41:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A5FAC340E9;
-        Mon, 14 Feb 2022 09:41:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B9D960F87;
+        Mon, 14 Feb 2022 09:32:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D17E0C340E9;
+        Mon, 14 Feb 2022 09:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831685;
-        bh=z40kFjQaiXx7f71JHu8jlvlA7hqgKZhlPEtCv+lCots=;
+        s=korg; t=1644831125;
+        bh=PlvEcycpV1nvF2g388FL0znRyecBtkKmN44AHTvezXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QoBmwg6JQoJkjvvttTvAC4fSLSoIR9HMefalI8P6iIikYM9t9AvhalpaNPq8mYSNF
-         6xhSSSaXQXgDOeAPQDCJ/zAy3hym8ohJ3E4x9wh0JgB8gl0IQqORZGvMyh02FHCZJF
-         zUG2VX0mLBvE4dPbB0OtO0kJ42GZSpF+2TG1O37o=
+        b=VGrJ4R3k9T7ujOkZr1SAZ7FaOMyo5ejt733EBC3ouX1Y2pWsC6VKDShVUj3eDpPWw
+         cA17tqvDJpWGn2SIfLmQtvP6kGaYSV1a+SSQO94R7JtlhA2o2KFpUfJwxguSkJ28V9
+         ReOIdbxv6yLSKkJepljnQyjdMfkj+YKjAe7vTgBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pham Thanh Tuyen <phamtyn@gmail.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/116] netfilter: ctnetlink: disable helper autoassign
-Date:   Mon, 14 Feb 2022 10:26:01 +0100
-Message-Id: <20220214092500.894610788@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Stephan Brunner <s.brunner@stephan-brunner.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 39/44] USB: serial: ch341: add support for GW Instek USB2.0-Serial devices
+Date:   Mon, 14 Feb 2022 10:26:02 +0100
+Message-Id: <20220214092449.168749199@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
+References: <20220214092447.897544753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Stephan Brunner <s.brunner@stephan-brunner.net>
 
-[ Upstream commit d1ca60efc53d665cf89ed847a14a510a81770b81 ]
+commit fa77ce201f7f2d823b07753575122d1ae5597fbe upstream.
 
-When userspace, e.g. conntrackd, inserts an entry with a specified helper,
-its possible that the helper is lost immediately after its added:
+Programmable lab power supplies made by GW Instek, such as the
+GPP-2323, have a USB port exposing a serial port to control the device.
 
-ctnetlink_create_conntrack
-  -> nf_ct_helper_ext_add + assign helper
-    -> ctnetlink_setup_nat
-      -> ctnetlink_parse_nat_setup
-         -> parse_nat_setup -> nfnetlink_parse_nat_setup
-	                       -> nf_nat_setup_info
-                                 -> nf_conntrack_alter_reply
-                                   -> __nf_ct_try_assign_helper
+Stringing the supplied Windows driver, references to the ch341 chip are
+found. Binding the existing ch341 driver to the VID/PID of the GPP-2323
+("GW Instek USB2.0-Serial" as per the USB product name) works out of the
+box, communication and control is now possible.
 
-... and __nf_ct_try_assign_helper will zero the helper again.
+This patch should work with any GPP series power supply due to
+similarities in the product line.
 
-Set IPS_HELPER bit to bypass auto-assign logic, its unwanted, just like
-when helper is assigned via ruleset.
-
-Dropped old 'not strictly necessary' comment, it referred to use of
-rcu_assign_pointer() before it got replaced by RCU_INIT_POINTER().
-
-NB: Fixes tag intentionally incorrect, this extends the referenced commit,
-but this change won't build without IPS_HELPER introduced there.
-
-Fixes: 6714cf5465d280 ("netfilter: nf_conntrack: fix explicit helper attachment and NAT")
-Reported-by: Pham Thanh Tuyen <phamtyn@gmail.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Stephan Brunner <s.brunner@stephan-brunner.net>
+Link: https://lore.kernel.org/r/4a47b864-0816-6f6a-efee-aa20e74bcdc6@stephan-brunner.net
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/netfilter/nf_conntrack_common.h | 2 +-
- net/netfilter/nf_conntrack_netlink.c               | 3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/serial/ch341.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/uapi/linux/netfilter/nf_conntrack_common.h b/include/uapi/linux/netfilter/nf_conntrack_common.h
-index 4b3395082d15c..26071021e986f 100644
---- a/include/uapi/linux/netfilter/nf_conntrack_common.h
-+++ b/include/uapi/linux/netfilter/nf_conntrack_common.h
-@@ -106,7 +106,7 @@ enum ip_conntrack_status {
- 	IPS_NAT_CLASH = IPS_UNTRACKED,
- #endif
- 
--	/* Conntrack got a helper explicitly attached via CT target. */
-+	/* Conntrack got a helper explicitly attached (ruleset, ctnetlink). */
- 	IPS_HELPER_BIT = 13,
- 	IPS_HELPER = (1 << IPS_HELPER_BIT),
- 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index c6bcc28ae3387..eeeaa34b3e7b5 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -2283,7 +2283,8 @@ ctnetlink_create_conntrack(struct net *net,
- 			if (helper->from_nlattr)
- 				helper->from_nlattr(helpinfo, ct);
- 
--			/* not in hash table yet so not strictly necessary */
-+			/* disable helper auto-assignment for this entry */
-+			ct->status |= IPS_HELPER;
- 			RCU_INIT_POINTER(help->helper, helper);
- 		}
- 	} else {
--- 
-2.34.1
-
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -87,6 +87,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1a86, 0x5523) },
+ 	{ USB_DEVICE(0x1a86, 0x7522) },
+ 	{ USB_DEVICE(0x1a86, 0x7523) },
++	{ USB_DEVICE(0x2184, 0x0057) },
+ 	{ USB_DEVICE(0x4348, 0x5523) },
+ 	{ USB_DEVICE(0x9986, 0x7523) },
+ 	{ },
 
 
