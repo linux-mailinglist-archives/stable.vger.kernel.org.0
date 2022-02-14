@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FC714B45B5
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:28:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 781734B4747
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242996AbiBNJ23 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:28:29 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41182 "EHLO
+        id S245593AbiBNJw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:52:26 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240782AbiBNJ21 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:28:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F91A60AA4;
-        Mon, 14 Feb 2022 01:28:17 -0800 (PST)
+        with ESMTP id S1343732AbiBNJvQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:51:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E317766224;
+        Mon, 14 Feb 2022 01:42:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C6EF60F6F;
-        Mon, 14 Feb 2022 09:28:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7DDAC340E9;
-        Mon, 14 Feb 2022 09:28:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A26FFB80DC1;
+        Mon, 14 Feb 2022 09:41:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C166BC340E9;
+        Mon, 14 Feb 2022 09:41:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644830896;
-        bh=hRtrWBykj6E5T6iIICRlVCXt4vP+E52UMPBoKDEpMrQ=;
+        s=korg; t=1644831718;
+        bh=UhSIihMSSu2vmuCQjZPE4NANjKqrX8Al7bFfWHKoSt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JK9e577jt4KoioZQrM0QMJoJiedHtGZs/4Mdo1hcgXxj0GNYCCCCVfjFQtgtWpXi6
-         bUo2tr/YuW8NN4zJ/ANQCkT9iB/ZmauXiMwh5CrKjGjx47F88UEr96/74RWuGX6eVJ
-         RZY9YANqNsdQepSr4xtcO0A9z421Gf66jkf8dd/A=
+        b=dGua5wDHB11zN+s4i2opOUrIF9SLV77lTiRbUdWEfLmH+dVhNEWcMJKyR2LIyGfJE
+         9iiK6dvsaU9dGc1054PumQucAY7sg9ZZmsa4jGzVd6G7f+LNyFWGSzMSa82/cCxmru
+         a+11yTu5utPRP1GvFKo8NmvCXh8lPxgJQFSOOtL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 15/34] staging: fbtft: Fix error path in fbtft_driver_module_init()
+        stable@vger.kernel.org, Aurelien Jarno <aurelien@aurel32.net>,
+        Alexandre Ghiti <alexandre.ghiti@canonical.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.10 042/116] riscv: fix build with binutils 2.38
 Date:   Mon, 14 Feb 2022 10:25:41 +0100
-Message-Id: <20220214092446.440462381@linuxfoundation.org>
+Message-Id: <20220214092500.141729768@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
-References: <20220214092445.946718557@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Aurelien Jarno <aurelien@aurel32.net>
 
-[ Upstream commit 426aca16e903b387a0b0001d62207a745c67cfd3 ]
+commit 6df2a016c0c8a3d0933ef33dd192ea6606b115e3 upstream.
 
-If registering the platform driver fails, the function must not return
-without undoing the spi driver registration first.
+>From version 2.38, binutils default to ISA spec version 20191213. This
+means that the csr read/write (csrr*/csrw*) instructions and fence.i
+instruction has separated from the `I` extension, become two standalone
+extensions: Zicsr and Zifencei. As the kernel uses those instruction,
+this causes the following build failure:
 
-Fixes: c296d5f9957c ("staging: fbtft: core support")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20220118181338.207943-1-u.kleine-koenig@pengutronix.de
+  CC      arch/riscv/kernel/vdso/vgettimeofday.o
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h: Assembler messages:
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+  <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+
+The fix is to specify those extensions explicitely in -march. However as
+older binutils version do not support this, we first need to detect
+that.
+
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Tested-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/fbtft/fbtft.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/riscv/Makefile |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/staging/fbtft/fbtft.h b/drivers/staging/fbtft/fbtft.h
-index 0275319906748..a76723a4219a6 100644
---- a/drivers/staging/fbtft/fbtft.h
-+++ b/drivers/staging/fbtft/fbtft.h
-@@ -343,7 +343,10 @@ static int __init fbtft_driver_module_init(void)                           \
- 	ret = spi_register_driver(&fbtft_driver_spi_driver);               \
- 	if (ret < 0)                                                       \
- 		return ret;                                                \
--	return platform_driver_register(&fbtft_driver_platform_driver);    \
-+	ret = platform_driver_register(&fbtft_driver_platform_driver);     \
-+	if (ret < 0)                                                       \
-+		spi_unregister_driver(&fbtft_driver_spi_driver);           \
-+	return ret;                                                        \
- }                                                                          \
- 									   \
- static void __exit fbtft_driver_module_exit(void)                          \
--- 
-2.34.1
-
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -50,6 +50,12 @@ riscv-march-$(CONFIG_ARCH_RV32I)	:= rv32
+ riscv-march-$(CONFIG_ARCH_RV64I)	:= rv64ima
+ riscv-march-$(CONFIG_FPU)		:= $(riscv-march-y)fd
+ riscv-march-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-y)c
++
++# Newer binutils versions default to ISA spec version 20191213 which moves some
++# instructions from the I extension to the Zicsr and Zifencei extensions.
++toolchain-need-zicsr-zifencei := $(call cc-option-yn, -march=$(riscv-march-y)_zicsr_zifencei)
++riscv-march-$(toolchain-need-zicsr-zifencei) := $(riscv-march-y)_zicsr_zifencei
++
+ KBUILD_CFLAGS += -march=$(subst fd,,$(riscv-march-y))
+ KBUILD_AFLAGS += -march=$(riscv-march-y)
+ 
 
 
