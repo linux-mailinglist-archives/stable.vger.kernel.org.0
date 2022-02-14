@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA1514B4C1E
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:44:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0214C4B4AC5
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348507AbiBNKhS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:37:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49184 "EHLO
+        id S1345540AbiBNKNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:13:16 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348688AbiBNKfy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:35:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81DCE193FB;
-        Mon, 14 Feb 2022 02:02:13 -0800 (PST)
+        with ESMTP id S1345820AbiBNKNG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:13:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57FF7654AC;
+        Mon, 14 Feb 2022 01:51:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 170B160DB7;
-        Mon, 14 Feb 2022 10:02:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFC5DC340E9;
-        Mon, 14 Feb 2022 10:02:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00B75B80DC7;
+        Mon, 14 Feb 2022 09:51:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16531C340E9;
+        Mon, 14 Feb 2022 09:50:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832932;
-        bh=LEOfSxMZuEod8sNoK5GbKy9hMr9peXP/MVpD+L3jJ7g=;
+        s=korg; t=1644832260;
+        bh=bio/VUzbNm6sAKoDkp3oJQEVYXqfj5VAm9vCH8ZGrZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h8ORmY+7ln70D5TrbjVWMqpQGeb1Upo0VhfnMxsS712GB/x/e5v1gdo3MeE1XIhOb
-         BiEkmClBm6cnxKNrdxS9UATALnG4+xJJxqBE+4nRbV3RlRjq6apb2SD0rx1BMsqdRO
-         J6nvQNXzJ5jc7D1ilkSS2JZ2w04Ojz+uxQPL+kEg=
+        b=zSMKi3TM3PxgK6pqy0Yskfayx2QUT59aPWPs4bAVR+bgHvdEARs/QlkSUt7ZhDYa+
+         3G6NxXPZlaW9FzUIWg9F+kUMdPEUmTf4GGAGJFuUW6shyDIubobsehDWNcFhmkrmm4
+         ee08Co5mw4r1A+WSkhEjmcDtx65ZNmqInTY/shr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cai Huoqing <cai.huoqing@linux.dev>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Gurucharan G <gurucharanx.g@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 143/203] net: ethernet: litex: Add the dependency on HAS_IOMEM
+Subject: [PATCH 5.15 129/172] ice: fix IPIP and SIT TSO offload
 Date:   Mon, 14 Feb 2022 10:26:27 +0100
-Message-Id: <20220214092515.095578047@linuxfoundation.org>
+Message-Id: <20220214092510.867266346@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +57,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cai Huoqing <cai.huoqing@linux.dev>
+From: Jesse Brandeburg <jesse.brandeburg@intel.com>
 
-[ Upstream commit 2427f03fb42f9dc14c53108f2c9b5563eb37e770 ]
+[ Upstream commit 46b699c50c0304cdbd725d7740073a7f9d5edb10 ]
 
-The LiteX driver uses devm io function API which
-needs HAS_IOMEM enabled, so add the dependency on HAS_IOMEM.
+The driver was avoiding offload for IPIP (at least) frames due to
+parsing the inner header offsets incorrectly when trying to check
+lengths.
 
-Fixes: ee7da21ac4c3 ("net: Add driver for LiteX's LiteETH network interface")
-Signed-off-by: Cai Huoqing <cai.huoqing@linux.dev>
-Link: https://lore.kernel.org/r/20220208013308.6563-1-cai.huoqing@linux.dev
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This length check works for VXLAN frames but fails on IPIP frames
+because skb_transport_offset points to the inner header in IPIP
+frames, which meant the subtraction of transport_header from
+inner_network_header returns a negative value (-20).
+
+With the code before this patch, everything continued to work, but GSO
+was being used to segment, causing throughputs of 1.5Gb/s per thread.
+After this patch, throughput is more like 10Gb/s per thread for IPIP
+traffic.
+
+Fixes: e94d44786693 ("ice: Implement filter sync, NDO operations and bump version")
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/litex/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/intel/ice/ice_lan_tx_rx.h    |  1 +
+ drivers/net/ethernet/intel/ice/ice_main.c     | 25 +++++++++++++------
+ 2 files changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/litex/Kconfig b/drivers/net/ethernet/litex/Kconfig
-index f99adbf26ab4e..04345b929d8e5 100644
---- a/drivers/net/ethernet/litex/Kconfig
-+++ b/drivers/net/ethernet/litex/Kconfig
-@@ -17,7 +17,7 @@ if NET_VENDOR_LITEX
+diff --git a/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h b/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
+index 80736e0ec0dca..3f635fdbfaff9 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
++++ b/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
+@@ -528,6 +528,7 @@ struct ice_tx_ctx_desc {
+ 			(0x3FFFFULL << ICE_TXD_CTX_QW1_TSO_LEN_S)
  
- config LITEX_LITEETH
- 	tristate "LiteX Ethernet support"
--	depends on OF
-+	depends on OF && HAS_IOMEM
- 	help
- 	  If you wish to compile a kernel for hardware with a LiteX LiteEth
- 	  device then you should answer Y to this.
+ #define ICE_TXD_CTX_QW1_MSS_S	50
++#define ICE_TXD_CTX_MIN_MSS	64
+ 
+ enum ice_tx_ctx_desc_cmd_bits {
+ 	ICE_TX_CTX_DESC_TSO		= 0x01,
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 819c32a721e84..cfddec96c91c1 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -7206,6 +7206,7 @@ ice_features_check(struct sk_buff *skb,
+ 		   struct net_device __always_unused *netdev,
+ 		   netdev_features_t features)
+ {
++	bool gso = skb_is_gso(skb);
+ 	size_t len;
+ 
+ 	/* No point in doing any of this if neither checksum nor GSO are
+@@ -7218,24 +7219,32 @@ ice_features_check(struct sk_buff *skb,
+ 	/* We cannot support GSO if the MSS is going to be less than
+ 	 * 64 bytes. If it is then we need to drop support for GSO.
+ 	 */
+-	if (skb_is_gso(skb) && (skb_shinfo(skb)->gso_size < 64))
++	if (gso && (skb_shinfo(skb)->gso_size < ICE_TXD_CTX_MIN_MSS))
+ 		features &= ~NETIF_F_GSO_MASK;
+ 
+-	len = skb_network_header(skb) - skb->data;
++	len = skb_network_offset(skb);
+ 	if (len > ICE_TXD_MACLEN_MAX || len & 0x1)
+ 		goto out_rm_features;
+ 
+-	len = skb_transport_header(skb) - skb_network_header(skb);
++	len = skb_network_header_len(skb);
+ 	if (len > ICE_TXD_IPLEN_MAX || len & 0x1)
+ 		goto out_rm_features;
+ 
+ 	if (skb->encapsulation) {
+-		len = skb_inner_network_header(skb) - skb_transport_header(skb);
+-		if (len > ICE_TXD_L4LEN_MAX || len & 0x1)
+-			goto out_rm_features;
++		/* this must work for VXLAN frames AND IPIP/SIT frames, and in
++		 * the case of IPIP frames, the transport header pointer is
++		 * after the inner header! So check to make sure that this
++		 * is a GRE or UDP_TUNNEL frame before doing that math.
++		 */
++		if (gso && (skb_shinfo(skb)->gso_type &
++			    (SKB_GSO_GRE | SKB_GSO_UDP_TUNNEL))) {
++			len = skb_inner_network_header(skb) -
++			      skb_transport_header(skb);
++			if (len > ICE_TXD_L4LEN_MAX || len & 0x1)
++				goto out_rm_features;
++		}
+ 
+-		len = skb_inner_transport_header(skb) -
+-		      skb_inner_network_header(skb);
++		len = skb_inner_network_header_len(skb);
+ 		if (len > ICE_TXD_IPLEN_MAX || len & 0x1)
+ 			goto out_rm_features;
+ 	}
 -- 
 2.34.1
 
