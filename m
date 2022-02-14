@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F3D24B4985
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06A994B4A43
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:38:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344294AbiBNJ6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:58:41 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43412 "EHLO
+        id S1344219AbiBNJ6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:58:38 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344351AbiBNJ4K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:56:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4417E6CA5D;
-        Mon, 14 Feb 2022 01:44:30 -0800 (PST)
+        with ESMTP id S1344419AbiBNJ4L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:56:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA8CD6CA67;
+        Mon, 14 Feb 2022 01:44:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D24D160FA2;
-        Mon, 14 Feb 2022 09:44:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6DE9C340E9;
-        Mon, 14 Feb 2022 09:44:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E867B80DBF;
+        Mon, 14 Feb 2022 09:44:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8920C340E9;
+        Mon, 14 Feb 2022 09:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831869;
-        bh=3AAAJwkkpJAVdQ8g3D/3TqrN1ZQgpjd4xMjw1mc5W6Y=;
+        s=korg; t=1644831872;
+        bh=QsNESD3ovvJn16NRwkN3uzf4k3ZPt6v4eLTA/pYShbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kIq/D3nmJiL3D3oro4Ky8mmwm5GyMyctETowYF2FShUAFiraWaddRycI8o3HWL7Q6
-         2V6RyYC59kZQI9C2TMesL0+9pzdGhNBx9zzcp5tUBbcfBPVgaKkj0W2zk9J1LCC8Co
-         vVj1kLpr/R6xpNOp1eLaEvZXWYMOgnS4329YN7oM=
+        b=dqwRk5xa49rTjcJsJ2upCQBcWbUphUy2lQ1koNwZeF65zvcX833rh7ACHDYcVa4AB
+         2o00FbQ80+ADGPjTfQzb8cMmMYJvznnKESER4sfRuoI/fl1d1lJpFDCzFP7YLADcON
+         JTOJEJwTx/EKgT8eeXRKHeKtqxZqij+LTLD7ecd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.10 110/116] Makefile.extrawarn: Move -Wunaligned-access to W=1
-Date:   Mon, 14 Feb 2022 10:26:49 +0100
-Message-Id: <20220214092502.592945425@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 111/116] can: isotp: fix error path in isotp_sendmsg() to unlock wait queue
+Date:   Mon, 14 Feb 2022 10:26:50 +0100
+Message-Id: <20220214092502.627756264@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
 References: <20220214092458.668376521@linuxfoundation.org>
@@ -54,43 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit 1cf5f151d25fcca94689efd91afa0253621fb33a upstream.
+commit 8375dfac4f683e1b2c5956d919d36aeedad46699 upstream.
 
--Wunaligned-access is a new warning in clang that is default enabled for
-arm and arm64 under certain circumstances within the clang frontend (see
-LLVM commit below). On v5.17-rc2, an ARCH=arm allmodconfig build shows
-1284 total/70 unique instances of this warning (most of the instances
-are in header files), which is quite noisy.
+Commit 43a08c3bdac4 ("can: isotp: isotp_sendmsg(): fix TX buffer concurrent
+access in isotp_sendmsg()") introduced a new locking scheme that may render
+the userspace application in a locking state when an error is detected.
+This issue shows up under high load on simultaneously running isotp channels
+with identical configuration which is against the ISO specification and
+therefore breaks any reasonable PDU communication anyway.
 
-To keep a normal build green through CONFIG_WERROR, only show this
-warning with W=1, which will allow automated build systems to catch new
-instances of the warning so that the total number can be driven down to
-zero eventually since catching unaligned accesses at compile time would
-be generally useful.
-
+Fixes: 43a08c3bdac4 ("can: isotp: isotp_sendmsg(): fix TX buffer concurrent access in isotp_sendmsg()")
+Link: https://lore.kernel.org/all/20220209073601.25728-1-socketcan@hartkopp.net
 Cc: stable@vger.kernel.org
-Link: https://github.com/llvm/llvm-project/commit/35737df4dcd28534bd3090157c224c19b501278a
-Link: https://github.com/ClangBuiltLinux/linux/issues/1569
-Link: https://github.com/ClangBuiltLinux/linux/issues/1576
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/Makefile.extrawarn |    1 +
- 1 file changed, 1 insertion(+)
+ net/can/isotp.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/scripts/Makefile.extrawarn
-+++ b/scripts/Makefile.extrawarn
-@@ -51,6 +51,7 @@ KBUILD_CFLAGS += -Wno-sign-compare
- KBUILD_CFLAGS += -Wno-format-zero-length
- KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
- KBUILD_CFLAGS += -Wno-tautological-constant-out-of-range-compare
-+KBUILD_CFLAGS += $(call cc-disable-warning, unaligned-access)
- endif
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -885,24 +885,24 @@ static int isotp_sendmsg(struct socket *
  
- endif
+ 	if (!size || size > MAX_MSG_LENGTH) {
+ 		err = -EINVAL;
+-		goto err_out;
++		goto err_out_drop;
+ 	}
+ 
+ 	err = memcpy_from_msg(so->tx.buf, msg, size);
+ 	if (err < 0)
+-		goto err_out;
++		goto err_out_drop;
+ 
+ 	dev = dev_get_by_index(sock_net(sk), so->ifindex);
+ 	if (!dev) {
+ 		err = -ENXIO;
+-		goto err_out;
++		goto err_out_drop;
+ 	}
+ 
+ 	skb = sock_alloc_send_skb(sk, so->ll.mtu + sizeof(struct can_skb_priv),
+ 				  msg->msg_flags & MSG_DONTWAIT, &err);
+ 	if (!skb) {
+ 		dev_put(dev);
+-		goto err_out;
++		goto err_out_drop;
+ 	}
+ 
+ 	can_skb_reserve(skb);
+@@ -967,7 +967,7 @@ static int isotp_sendmsg(struct socket *
+ 	if (err) {
+ 		pr_notice_once("can-isotp: %s: can_send_ret %d\n",
+ 			       __func__, err);
+-		goto err_out;
++		goto err_out_drop;
+ 	}
+ 
+ 	if (wait_tx_done) {
+@@ -980,6 +980,9 @@ static int isotp_sendmsg(struct socket *
+ 
+ 	return size;
+ 
++err_out_drop:
++	/* drop this PDU and unlock a potential wait queue */
++	old_state = ISOTP_IDLE;
+ err_out:
+ 	so->tx.state = old_state;
+ 	if (so->tx.state == ISOTP_IDLE)
 
 
