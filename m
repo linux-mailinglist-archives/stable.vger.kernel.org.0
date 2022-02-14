@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 232B54B4BB0
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:42:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E9334B4A15
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:38:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230234AbiBNK1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:27:34 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:53378 "EHLO
+        id S239410AbiBNKAe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:00:34 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229904AbiBNKY6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:24:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDD886A077;
-        Mon, 14 Feb 2022 01:56:52 -0800 (PST)
+        with ESMTP id S1344044AbiBNJ7d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:59:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6830C39;
+        Mon, 14 Feb 2022 01:47:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9E1AB80DBE;
-        Mon, 14 Feb 2022 09:56:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78F05C340E9;
-        Mon, 14 Feb 2022 09:56:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69C8D61287;
+        Mon, 14 Feb 2022 09:47:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EEA4C340E9;
+        Mon, 14 Feb 2022 09:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832610;
-        bh=paGR/fTnLUhrSaJbD5c1gmkz5uWTtOGJJZJk4wXLwB8=;
+        s=korg; t=1644832020;
+        bh=a9hRDb8jeBX3+CfUzzLMVZKn6WHEX5RbBWJPBjc8rVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rYWqOpoQazwA6JQEFIMqmAkQn8pPjWSGFBtFtmoyC37mmYmq/xm821H/81gXSbDbP
-         6bc8U/AD1SuY6PUtuyWYBBeqRPFqgca3BVtKbCUMd/87YaZbPdUrFD5ob/AUn2etGd
-         /ehCrzMfu29gPFpEkQvUCeOZPfCqgDsBrYnGeUkA=
+        b=fhAlvnpSADhfNokPN9NH9K8fr9XPBUyKPaJaFj+ml1XB0OTxZogTLfr+5ev47njQk
+         4fGnPKSaw0iQ6SA1+edEBCfApeatRNWgisBHv25LP583KfiS1rJMR/zR2kycXBI68V
+         NOMOI8eR9nBy/FOOsn3NrODSg/Ke22KyZGtYzk5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Zhan Liu <zhan.liu@amd.com>,
+        Charlene Liu <charlene.liu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 068/203] KVM: nVMX: eVMCS: Filter out VM_EXIT_SAVE_VMX_PREEMPTION_TIMER
+Subject: [PATCH 5.15 054/172] drm/amd/display: Correct MPC split policy for DCN301
 Date:   Mon, 14 Feb 2022 10:25:12 +0100
-Message-Id: <20220214092512.575994619@linuxfoundation.org>
+Message-Id: <20220214092508.258889793@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Zhan Liu <zhan.liu@amd.com>
 
-[ Upstream commit 7a601e2cf61558dfd534a9ecaad09f5853ad8204 ]
+[ Upstream commit ac46d93235074a6c5d280d35771c23fd8620e7d9 ]
 
-Enlightened VMCS v1 doesn't have VMX_PREEMPTION_TIMER_VALUE field,
-PIN_BASED_VMX_PREEMPTION_TIMER is also filtered out already so it makes
-sense to filter out VM_EXIT_SAVE_VMX_PREEMPTION_TIMER too.
+[Why]
+DCN301 has seamless boot enabled. With MPC split enabled
+at the same time, system will hang.
 
-Note, none of the currently existing Windows/Hyper-V versions are known
-to enable 'save VMX-preemption timer value' when eVMCS is in use, the
-change is aimed at making the filtering future proof.
+[How]
+Revert MPC split policy back to "MPC_SPLIT_AVOID". Since we have
+ODM combine enabled on DCN301, pipe split is not necessary here.
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220112170134.1904308-3-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Zhan Liu <zhan.liu@amd.com>
+Reviewed-by: Charlene Liu <charlene.liu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/evmcs.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/vmx/evmcs.h b/arch/x86/kvm/vmx/evmcs.h
-index 6255fa7167720..8d70f9aea94bc 100644
---- a/arch/x86/kvm/vmx/evmcs.h
-+++ b/arch/x86/kvm/vmx/evmcs.h
-@@ -59,7 +59,9 @@ DECLARE_STATIC_KEY_FALSE(enable_evmcs);
- 	 SECONDARY_EXEC_SHADOW_VMCS |					\
- 	 SECONDARY_EXEC_TSC_SCALING |					\
- 	 SECONDARY_EXEC_PAUSE_LOOP_EXITING)
--#define EVMCS1_UNSUPPORTED_VMEXIT_CTRL (VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL)
-+#define EVMCS1_UNSUPPORTED_VMEXIT_CTRL					\
-+	(VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL |				\
-+	 VM_EXIT_SAVE_VMX_PREEMPTION_TIMER)
- #define EVMCS1_UNSUPPORTED_VMENTRY_CTRL (VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL)
- #define EVMCS1_UNSUPPORTED_VMFUNC (VMX_VMFUNC_EPTP_SWITCHING)
- 
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c b/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c
+index 9e2f18a0c9483..26ebe00a55f67 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_resource.c
+@@ -863,7 +863,7 @@ static const struct dc_debug_options debug_defaults_drv = {
+ 	.disable_clock_gate = true,
+ 	.disable_pplib_clock_request = true,
+ 	.disable_pplib_wm_range = true,
+-	.pipe_split_policy = MPC_SPLIT_DYNAMIC,
++	.pipe_split_policy = MPC_SPLIT_AVOID,
+ 	.force_single_disp_pipe_split = false,
+ 	.disable_dcc = DCC_ENABLE,
+ 	.vsr_support = true,
 -- 
 2.34.1
 
