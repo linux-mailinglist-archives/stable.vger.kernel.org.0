@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D55124B4B15
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FD894B49E7
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:37:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346180AbiBNKR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:17:29 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44742 "EHLO
+        id S232386AbiBNKRa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:17:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347981AbiBNKRC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:17:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49A318CDA5;
-        Mon, 14 Feb 2022 01:54:28 -0800 (PST)
+        with ESMTP id S1347504AbiBNKQe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:16:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20F067C148;
+        Mon, 14 Feb 2022 01:54:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B999B80DC4;
-        Mon, 14 Feb 2022 09:53:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92146C340E9;
-        Mon, 14 Feb 2022 09:53:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF71661375;
+        Mon, 14 Feb 2022 09:53:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5F91C340E9;
+        Mon, 14 Feb 2022 09:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832436;
-        bh=HgDS/vqrYnhvkyXDkH5OZTa9pHSx5ejvwP0/rYor4Qc=;
+        s=korg; t=1644832439;
+        bh=0c7FPgrkzkPBYHxqx3yzOUKo/b1ktRrCosiqLKiIf0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z8wpV+UAAUWC2PGSlOcKfVvjqtV07hvmkXIe8dALe92A5EDdgPFsQ782dgdwF+My4
-         8NNOILzHJ4dIoAPgwCYjyrcJg0ylOeEGwcW86OcucT49nJNMod0/liisdflH9se0bn
-         2h60VTyOO3LpRZ1EGmqrygak5bg8efE2uVNw8SLQ=
+        b=w+9E3RELbQnpSaiarLN+pXeHBqDUNCQUxI+M++07hmRus2P29CkuccXEIX0ZPjqoL
+         JuvS24Y1HiIUkbeNGvsMHFu5dglFgVYu+KNV9gQ2MoQI1SctmdlHTXqKKiZeVsYUKh
+         wfj5uCietGiItLbDhxWo4tHEhZonSd99j82oc9/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.16 014/203] NFS: Fix initialisation of nfs_client cl_flags field
-Date:   Mon, 14 Feb 2022 10:24:18 +0100
-Message-Id: <20220214092510.708862613@linuxfoundation.org>
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.16 015/203] NFSD: Fix NFSv3 SETATTR/CREATEs handling of large file sizes
+Date:   Mon, 14 Feb 2022 10:24:19 +0100
+Message-Id: <20220214092510.741563332@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
 References: <20220214092510.221474733@linuxfoundation.org>
@@ -54,41 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 468d126dab45718feeb728319be20bd869a5eaa7 upstream.
+commit a648fdeb7c0e17177a2280344d015dba3fbe3314 upstream.
 
-For some long forgotten reason, the nfs_client cl_flags field is
-initialised in nfs_get_client() instead of being initialised at
-allocation time. This quirk was harmless until we moved the call to
-nfs_create_rpc_client().
+iattr::ia_size is a loff_t, so these NFSv3 procedures must be
+careful to deal with incoming client size values that are larger
+than s64_max without corrupting the value.
 
-Fixes: dd99e9f98fbf ("NFSv4: Initialise connection to the server in nfs4_alloc_client()")
-Cc: stable@vger.kernel.org # 4.8.x
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Silently capping the value results in storing a different value
+than the client passed in which is unexpected behavior, so remove
+the min_t() check in decode_sattr3().
+
+Note that RFC 1813 permits only the WRITE procedure to return
+NFS3ERR_FBIG. We believe that NFSv3 reference implementations
+also return NFS3ERR_FBIG when ia_size is too large.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/client.c |    2 +-
+ fs/nfsd/nfs3xdr.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -177,6 +177,7 @@ struct nfs_client *nfs_alloc_client(cons
- 	INIT_LIST_HEAD(&clp->cl_superblocks);
- 	clp->cl_rpcclient = ERR_PTR(-EINVAL);
- 
-+	clp->cl_flags = cl_init->init_flags;
- 	clp->cl_proto = cl_init->proto;
- 	clp->cl_nconnect = cl_init->nconnect;
- 	clp->cl_max_connect = cl_init->max_connect ? cl_init->max_connect : 1;
-@@ -427,7 +428,6 @@ struct nfs_client *nfs_get_client(const
- 			list_add_tail(&new->cl_share_link,
- 					&nn->nfs_client_list);
- 			spin_unlock(&nn->nfs_client_lock);
--			new->cl_flags = cl_init->init_flags;
- 			return rpc_ops->init_client(new, cl_init);
- 		}
- 
+--- a/fs/nfsd/nfs3xdr.c
++++ b/fs/nfsd/nfs3xdr.c
+@@ -254,7 +254,7 @@ svcxdr_decode_sattr3(struct svc_rqst *rq
+ 		if (xdr_stream_decode_u64(xdr, &newsize) < 0)
+ 			return false;
+ 		iap->ia_valid |= ATTR_SIZE;
+-		iap->ia_size = min_t(u64, newsize, NFS_OFFSET_MAX);
++		iap->ia_size = newsize;
+ 	}
+ 	if (xdr_stream_decode_u32(xdr, &set_it) < 0)
+ 		return false;
 
 
