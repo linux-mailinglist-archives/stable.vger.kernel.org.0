@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 103F74B46DD
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEF654B47C0
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244117AbiBNJiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:38:03 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52466 "EHLO
+        id S243162AbiBNJwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:52:10 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245519AbiBNJgt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:49 -0500
+        with ESMTP id S245711AbiBNJuP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:50:15 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A758D6DAB4;
-        Mon, 14 Feb 2022 01:34:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EE9725C70;
+        Mon, 14 Feb 2022 01:41:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 052B6B80DC6;
-        Mon, 14 Feb 2022 09:34:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E23FC340E9;
-        Mon, 14 Feb 2022 09:34:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1648B80DC6;
+        Mon, 14 Feb 2022 09:41:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B5D5C340E9;
+        Mon, 14 Feb 2022 09:41:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831280;
-        bh=81aYpI91jq53HB2t3OGicrrculO2wPexrRicI87XbMQ=;
+        s=korg; t=1644831678;
+        bh=V15VGBn00w1et87y3cyAAiWXo3+4uZjqzx2UrF7AUiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qMnTnK9ar2fmhqXGj8Yx9mWTafUitwWLl1BBEGc8+Z5Ts4PyFmSp96DZFgoO+n0ww
-         D9TBMDd9FoMAeTMcUv3ZptV2iV6IHr0s8Su1lDTRF4R6qHYWEMLFqSgv8hPdQQDbXi
-         7Z7uQr4wr+XYaUIc/z3Ke1oBjOGD7MqWgcp5CvuU=
+        b=W4YhMBbj7Xcfg46LDURIGYUBDCGi9Y7tKOlyXsriv/eAU/KQ5GFZ3UH9aSNTfoG/k
+         TYzQUJGcRIWAVOQ8Eus4FXtuvzhkcuteVsGUJ0/FNlk+Zea61R88HjNYxzcqA7LPwa
+         8jRLtSvZicqh2TBDZpBAfUe0NI/h5PLQ7TFCvb9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 32/49] tipc: rate limit warning for received illegal binding update
-Date:   Mon, 14 Feb 2022 10:25:58 +0100
-Message-Id: <20220214092449.355989042@linuxfoundation.org>
+Subject: [PATCH 5.10 060/116] drm/vc4: hdmi: Allow DBLCLK modes even if horz timing is odd.
+Date:   Mon, 14 Feb 2022 10:25:59 +0100
+Message-Id: <20220214092500.813769226@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
-References: <20220214092448.285381753@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Maloy <jmaloy@redhat.com>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit c7223d687758462826a20e9735305d55bb874c70 ]
+[ Upstream commit 1d118965965f89948236ebe23072bb1fca5e7832 ]
 
-It would be easy to craft a message containing an illegal binding table
-update operation. This is handled correctly by the code, but the
-corresponding warning printout is not rate limited as is should be.
-We fix this now.
+The 2711 pixel valve can't produce odd horizontal timings, and
+checks were added to vc4_hdmi_encoder_atomic_check and
+vc4_hdmi_encoder_mode_valid to filter out/block selection of
+such modes.
 
-Fixes: b97bf3fd8f6a ("[TIPC] Initial merge")
-Signed-off-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Modes with DRM_MODE_FLAG_DBLCLK double all the horizontal timing
+values before programming them into the PV. The PV values,
+therefore, can not be odd, and so the modes can be supported.
+
+Amend the filtering appropriately.
+
+Fixes: 57fb32e632be ("drm/vc4: hdmi: Block odd horizontal timings")
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220127135116.298278-1-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/name_distr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/tipc/name_distr.c b/net/tipc/name_distr.c
-index 836e629e8f4ab..661bc2551a0a2 100644
---- a/net/tipc/name_distr.c
-+++ b/net/tipc/name_distr.c
-@@ -290,7 +290,7 @@ static bool tipc_update_nametbl(struct net *net, struct distr_item *i,
- 		pr_warn_ratelimited("Failed to remove binding %u,%u from %x\n",
- 				    type, lower, node);
- 	} else {
--		pr_warn("Unrecognized name table message received\n");
-+		pr_warn_ratelimited("Unknown name table message received\n");
- 	}
- 	return false;
- }
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index 5d5c4e9a86218..a308f2d05d173 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -800,6 +800,7 @@ static int vc4_hdmi_encoder_atomic_check(struct drm_encoder *encoder,
+ 	unsigned long long tmds_rate;
+ 
+ 	if (vc4_hdmi->variant->unsupported_odd_h_timings &&
++	    !(mode->flags & DRM_MODE_FLAG_DBLCLK) &&
+ 	    ((mode->hdisplay % 2) || (mode->hsync_start % 2) ||
+ 	     (mode->hsync_end % 2) || (mode->htotal % 2)))
+ 		return -EINVAL;
+@@ -834,6 +835,7 @@ vc4_hdmi_encoder_mode_valid(struct drm_encoder *encoder,
+ 	struct vc4_hdmi *vc4_hdmi = encoder_to_vc4_hdmi(encoder);
+ 
+ 	if (vc4_hdmi->variant->unsupported_odd_h_timings &&
++	    !(mode->flags & DRM_MODE_FLAG_DBLCLK) &&
+ 	    ((mode->hdisplay % 2) || (mode->hsync_start % 2) ||
+ 	     (mode->hsync_end % 2) || (mode->htotal % 2)))
+ 		return MODE_H_ILLEGAL;
 -- 
 2.34.1
 
