@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8A344B45B2
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:28:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F5FF4B4846
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:56:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242967AbiBNJ2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:28:20 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41022 "EHLO
+        id S1343589AbiBNJxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:53:02 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242964AbiBNJ2T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:28:19 -0500
+        with ESMTP id S1343633AbiBNJuz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:50:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68FD060AA5;
-        Mon, 14 Feb 2022 01:28:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B2E4657B3;
+        Mon, 14 Feb 2022 01:41:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0351460F8B;
-        Mon, 14 Feb 2022 09:28:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD90CC340E9;
-        Mon, 14 Feb 2022 09:28:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE93E611B8;
+        Mon, 14 Feb 2022 09:41:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D536EC340E9;
+        Mon, 14 Feb 2022 09:41:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644830890;
-        bh=js+fuAM4/WE8FT7Gl8fPuy4DPVo7Bz7KVm+bzuIfYAM=;
+        s=korg; t=1644831712;
+        bh=a6lTLUlCPFqhaJW682/k6YpdxQGr5eC5ep3SweaQk3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQSEnNsqXrJwDsfwaEz0clrxR2qUZdu6emKPG8Cx66IQsszxIUwqGJpxaKcT5WQ3F
-         4VfowNaVwERHo5NVvUHm4NQF0/SBYdTZK7uR1bySL8C85+MojGaOu4qw3j8vFOoADS
-         4gteS3/oV9VWO/F4neRmqw9/tjIMSls2z0HtJBto=
+        b=1t/dpL1ivJHHVRSm3jXz3QcgRc+Hoxts8FQ4LpQ0G7Si7E3ziIu5YcJM//bPhWCpI
+         Fu1Q9gVqevlRZB+PV9OChQLDNhfn48IPIjUOXgjfQxxNIOQtYcApi5ZTO1RDv7Huuk
+         zy046O4z1yQUso+/2MgmSetUAJ3VuPJU7MOAgGwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Liam Merwick <liam.merwick@oracle.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/34] usb: dwc2: gadget: dont try to disable ep0 in dwc2_hsotg_suspend
+Subject: [PATCH 5.10 040/116] KVM: SVM: Dont kill SEV guest if SMAP erratum triggers in usermode
 Date:   Mon, 14 Feb 2022 10:25:39 +0100
-Message-Id: <20220214092446.379049043@linuxfoundation.org>
+Message-Id: <20220214092500.062896165@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
-References: <20220214092445.946718557@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit ac55d163855924aa5af9f1560977da8f346963c8 ]
+[ Upstream commit cdf85e0c5dc766fc7fc779466280e454a6d04f87 ]
 
-Calling dwc2_hsotg_ep_disable on ep0 (in/out) will lead to the following
-logs before returning -EINVAL:
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
+Inject a #GP instead of synthesizing triple fault to try to avoid killing
+the guest if emulation of an SEV guest fails due to encountering the SMAP
+erratum.  The injected #GP may still be fatal to the guest, e.g. if the
+userspace process is providing critical functionality, but KVM should
+make every attempt to keep the guest alive.
 
-To avoid these two logs while suspending, start disabling the endpoint
-from the index 1, as done in dwc2_hsotg_udc_stop:
-
-	/* all endpoints should be shutdown */
-	for (ep = 1; ep < hsotg->num_of_eps; ep++) {
-		if (hsotg->eps_in[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_in[ep]->ep);
-		if (hsotg->eps_out[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_out[ep]->ep);
-	}
-
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20211207130101.270314-1-amelie.delaunay@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
+Message-Id: <20220120010719.711476-10-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/svm/svm.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index e7ad3ae4ea6bd..65bcbbad6d545 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -3979,7 +3979,7 @@ int dwc2_hsotg_suspend(struct dwc2_hsotg *hsotg)
- 		hsotg->gadget.speed = USB_SPEED_UNKNOWN;
- 		spin_unlock_irqrestore(&hsotg->lock, flags);
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index fa543c355fbdb..d515c8e68314c 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -4155,7 +4155,21 @@ static bool svm_can_emulate_instruction(struct kvm_vcpu *vcpu, void *insn, int i
+ 			return true;
  
--		for (ep = 0; ep < hsotg->num_of_eps; ep++) {
-+		for (ep = 1; ep < hsotg->num_of_eps; ep++) {
- 			if (hsotg->eps_in[ep])
- 				dwc2_hsotg_ep_disable(&hsotg->eps_in[ep]->ep);
- 			if (hsotg->eps_out[ep])
+ 		pr_err_ratelimited("KVM: SEV Guest triggered AMD Erratum 1096\n");
+-		kvm_make_request(KVM_REQ_TRIPLE_FAULT, vcpu);
++
++		/*
++		 * If the fault occurred in userspace, arbitrarily inject #GP
++		 * to avoid killing the guest and to hopefully avoid confusing
++		 * the guest kernel too much, e.g. injecting #PF would not be
++		 * coherent with respect to the guest's page tables.  Request
++		 * triple fault if the fault occurred in the kernel as there's
++		 * no fault that KVM can inject without confusing the guest.
++		 * In practice, the triple fault is moot as no sane SEV kernel
++		 * will execute from user memory while also running with SMAP=1.
++		 */
++		if (is_user)
++			kvm_inject_gp(vcpu, 0);
++		else
++			kvm_make_request(KVM_REQ_TRIPLE_FAULT, vcpu);
+ 	}
+ 
+ 	return false;
 -- 
 2.34.1
 
