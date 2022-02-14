@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E5DB4B4A0A
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:37:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 956D74B4BAF
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:42:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242850AbiBNKex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:34:53 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41906 "EHLO
+        id S1344730AbiBNKFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:05:19 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348233AbiBNKeZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:34:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6339EC65;
-        Mon, 14 Feb 2022 02:01:01 -0800 (PST)
+        with ESMTP id S1344599AbiBNKEl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:04:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5469EBC8E;
+        Mon, 14 Feb 2022 01:49:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1598FB80DC8;
-        Mon, 14 Feb 2022 10:01:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 307EDC340E9;
-        Mon, 14 Feb 2022 10:00:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11075B80DC8;
+        Mon, 14 Feb 2022 09:49:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A057C340E9;
+        Mon, 14 Feb 2022 09:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832858;
-        bh=n6NpMcYsG45RSNI8r3dy+S9RAfEl+dyHQ7UTkb/V51w=;
+        s=korg; t=1644832145;
+        bh=tPEjF7F9Mz+qnlVTN+3+8I9Hs7K5Y+z4WT9v7HTWFkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b7Ru8fYv4XyMeisV8BYzhfLbKFp+cAJTZKiX2h8oDSnjdX6MbN0sUFkl3kZLqCTXH
-         jSQnW86aAXfBEOeejV5pzn7/a75baXfFSt7QY/pxmA5O/VrCZn+ytlNjhG7BHo6eh+
-         Qs2LSVIb2nhpHMtF6mhdyl5VBmLRjFbzEb9+Gejs=
+        b=DHFZR25o7iP8fSZsr/3Cl81ZxLL87aF2K2wkqDaY6P53WkPcHstj82D/OcB/obAiT
+         Vr4YzVWjo7oVF78O07upudOhqarSEs3uMbNA68Ma/DCS9c8U6nD/gdYx87lTg8e/mj
+         qfL0khX2B5X5GorV4dZSP/2daNTosa5ItYbxwshc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
-        Pratham Pratap <quic_ppratap@quicinc.com>,
-        Udipto Goswami <quic_ugoswami@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 106/203] usb: f_fs: Fix use-after-free for epfile
+        stable@vger.kernel.org, Andrzej Hajda <andrzej.hajda@intel.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Liu Ying <victor.liu@nxp.com>, Vinod Koul <vkoul@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Subject: [PATCH 5.15 092/172] phy: dphy: Correct clk_pre parameter
 Date:   Mon, 14 Feb 2022 10:25:50 +0100
-Message-Id: <20220214092513.843903425@linuxfoundation.org>
+Message-Id: <20220214092509.583577287@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,161 +57,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Udipto Goswami <quic_ugoswami@quicinc.com>
+From: Liu Ying <victor.liu@nxp.com>
 
-[ Upstream commit ebe2b1add1055b903e2acd86b290a85297edc0b3 ]
+[ Upstream commit 9a8406ba1a9a2965c27e0db1d7753471d12ee9ff ]
 
-Consider a case where ffs_func_eps_disable is called from
-ffs_func_disable as part of composition switch and at the
-same time ffs_epfile_release get called from userspace.
-ffs_epfile_release will free up the read buffer and call
-ffs_data_closed which in turn destroys ffs->epfiles and
-mark it as NULL. While this was happening the driver has
-already initialized the local epfile in ffs_func_eps_disable
-which is now freed and waiting to acquire the spinlock. Once
-spinlock is acquired the driver proceeds with the stale value
-of epfile and tries to free the already freed read buffer
-causing use-after-free.
+The D-PHY specification (v1.2) explicitly mentions that the T-CLK-PRE
+parameter's unit is Unit Interval(UI) and the minimum value is 8.  Also,
+kernel doc of the 'clk_pre' member of struct phy_configure_opts_mipi_dphy
+mentions that it should be in UI.  However, the dphy core driver wrongly
+sets 'clk_pre' to 8000, which seems to hint that it's in picoseconds.
 
-Following is the illustration of the race:
+So, let's fix the dphy core driver to correctly reflect the T-CLK-PRE
+parameter's minimum value according to the D-PHY specification.
 
-      CPU1                                  CPU2
+I'm assuming that all impacted custom drivers shall program values in
+TxByteClkHS cycles into hardware for the T-CLK-PRE parameter.  The D-PHY
+specification mentions that the frequency of TxByteClkHS is exactly 1/8
+the High-Speed(HS) bit rate(each HS bit consumes one UI).  So, relevant
+custom driver code is changed to program those values as
+DIV_ROUND_UP(cfg->clk_pre, BITS_PER_BYTE), then.
 
-   ffs_func_eps_disable
-   epfiles (local copy)
-					ffs_epfile_release
-					ffs_data_closed
-					if (last file closed)
-					ffs_data_reset
-					ffs_data_clear
-					ffs_epfiles_destroy
-spin_lock
-dereference epfiles
+Note that I've only tested the patch with RM67191 DSI panel on i.MX8mq EVK.
+Help is needed to test with other i.MX8mq, Meson and Rockchip platforms,
+as I don't have the hardwares.
 
-Fix this races by taking epfiles local copy & assigning it under
-spinlock and if epfiles(local) is null then update it in ffs->epfiles
-then finally destroy it.
-Extending the scope further from the race, protecting the ep related
-structures, and concurrent accesses.
-
-Fixes: a9e6f83c2df1 ("usb: gadget: f_fs: stop sleeping in ffs_func_eps_disable")
-Co-developed-by: Udipto Goswami <quic_ugoswami@quicinc.com>
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Pratham Pratap <quic_ppratap@quicinc.com>
-Signed-off-by: Udipto Goswami <quic_ugoswami@quicinc.com>
-Link: https://lore.kernel.org/r/1643256595-10797-1-git-send-email-quic_ugoswami@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2ed869990e14 ("phy: Add MIPI D-PHY configuration options")
+Tested-by: Liu Ying <victor.liu@nxp.com> # RM67191 DSI panel on i.MX8mq EVK
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com> # for phy-meson-axg-mipi-dphy.c
+Tested-by: Neil Armstrong <narmstrong@baylibre.com> # for phy-meson-axg-mipi-dphy.c
+Tested-by: Guido Günther <agx@sigxcpu.org> # Librem 5 (imx8mq) with it's rather picky panel
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Liu Ying <victor.liu@nxp.com>
+Link: https://lore.kernel.org/r/20220124024007.1465018-1-victor.liu@nxp.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c | 56 ++++++++++++++++++++++--------
- 1 file changed, 42 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/bridge/nwl-dsi.c                 | 12 +++++-------
+ drivers/phy/amlogic/phy-meson-axg-mipi-dphy.c    |  3 ++-
+ drivers/phy/phy-core-mipi-dphy.c                 |  4 ++--
+ drivers/phy/rockchip/phy-rockchip-inno-dsidphy.c |  3 ++-
+ 4 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 25ad1e97a4585..1922fd02043c5 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1711,16 +1711,24 @@ static void ffs_data_put(struct ffs_data *ffs)
+diff --git a/drivers/gpu/drm/bridge/nwl-dsi.c b/drivers/gpu/drm/bridge/nwl-dsi.c
+index a7389a0facfb4..af07eeb47ca02 100644
+--- a/drivers/gpu/drm/bridge/nwl-dsi.c
++++ b/drivers/gpu/drm/bridge/nwl-dsi.c
+@@ -7,6 +7,7 @@
+  */
  
- static void ffs_data_closed(struct ffs_data *ffs)
+ #include <linux/bitfield.h>
++#include <linux/bits.h>
+ #include <linux/clk.h>
+ #include <linux/irq.h>
+ #include <linux/math64.h>
+@@ -196,12 +197,9 @@ static u32 ps2bc(struct nwl_dsi *dsi, unsigned long long ps)
+ /*
+  * ui2bc - UI time periods to byte clock cycles
+  */
+-static u32 ui2bc(struct nwl_dsi *dsi, unsigned long long ui)
++static u32 ui2bc(unsigned int ui)
  {
-+	struct ffs_epfile *epfiles;
-+	unsigned long flags;
-+
- 	ENTER();
+-	u32 bpp = mipi_dsi_pixel_format_to_bpp(dsi->format);
+-
+-	return DIV64_U64_ROUND_UP(ui * dsi->lanes,
+-				  dsi->mode.clock * 1000 * bpp);
++	return DIV_ROUND_UP(ui, BITS_PER_BYTE);
+ }
  
- 	if (atomic_dec_and_test(&ffs->opened)) {
- 		if (ffs->no_disconnect) {
- 			ffs->state = FFS_DEACTIVATED;
--			if (ffs->epfiles) {
--				ffs_epfiles_destroy(ffs->epfiles,
--						   ffs->eps_count);
--				ffs->epfiles = NULL;
--			}
-+			spin_lock_irqsave(&ffs->eps_lock, flags);
-+			epfiles = ffs->epfiles;
-+			ffs->epfiles = NULL;
-+			spin_unlock_irqrestore(&ffs->eps_lock,
-+							flags);
-+
-+			if (epfiles)
-+				ffs_epfiles_destroy(epfiles,
-+						 ffs->eps_count);
-+
- 			if (ffs->setup_state == FFS_SETUP_PENDING)
- 				__ffs_ep0_stall(ffs);
- 		} else {
-@@ -1767,14 +1775,27 @@ static struct ffs_data *ffs_data_new(const char *dev_name)
- 
- static void ffs_data_clear(struct ffs_data *ffs)
- {
-+	struct ffs_epfile *epfiles;
-+	unsigned long flags;
-+
- 	ENTER();
- 
- 	ffs_closed(ffs);
- 
- 	BUG_ON(ffs->gadget);
- 
--	if (ffs->epfiles) {
--		ffs_epfiles_destroy(ffs->epfiles, ffs->eps_count);
-+	spin_lock_irqsave(&ffs->eps_lock, flags);
-+	epfiles = ffs->epfiles;
-+	ffs->epfiles = NULL;
-+	spin_unlock_irqrestore(&ffs->eps_lock, flags);
-+
-+	/*
-+	 * potential race possible between ffs_func_eps_disable
-+	 * & ffs_epfile_release therefore maintaining a local
-+	 * copy of epfile will save us from use-after-free.
-+	 */
-+	if (epfiles) {
-+		ffs_epfiles_destroy(epfiles, ffs->eps_count);
- 		ffs->epfiles = NULL;
+ /*
+@@ -232,12 +230,12 @@ static int nwl_dsi_config_host(struct nwl_dsi *dsi)
  	}
  
-@@ -1922,12 +1943,15 @@ static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count)
+ 	/* values in byte clock cycles */
+-	cycles = ui2bc(dsi, cfg->clk_pre);
++	cycles = ui2bc(cfg->clk_pre);
+ 	DRM_DEV_DEBUG_DRIVER(dsi->dev, "cfg_t_pre: 0x%x\n", cycles);
+ 	nwl_dsi_write(dsi, NWL_DSI_CFG_T_PRE, cycles);
+ 	cycles = ps2bc(dsi, cfg->lpx + cfg->clk_prepare + cfg->clk_zero);
+ 	DRM_DEV_DEBUG_DRIVER(dsi->dev, "cfg_tx_gap (pre): 0x%x\n", cycles);
+-	cycles += ui2bc(dsi, cfg->clk_pre);
++	cycles += ui2bc(cfg->clk_pre);
+ 	DRM_DEV_DEBUG_DRIVER(dsi->dev, "cfg_t_post: 0x%x\n", cycles);
+ 	nwl_dsi_write(dsi, NWL_DSI_CFG_T_POST, cycles);
+ 	cycles = ps2bc(dsi, cfg->hs_exit);
+diff --git a/drivers/phy/amlogic/phy-meson-axg-mipi-dphy.c b/drivers/phy/amlogic/phy-meson-axg-mipi-dphy.c
+index cd2332bf0e31a..fdbd64c03e12b 100644
+--- a/drivers/phy/amlogic/phy-meson-axg-mipi-dphy.c
++++ b/drivers/phy/amlogic/phy-meson-axg-mipi-dphy.c
+@@ -9,6 +9,7 @@
  
- static void ffs_func_eps_disable(struct ffs_function *func)
- {
--	struct ffs_ep *ep         = func->eps;
--	struct ffs_epfile *epfile = func->ffs->epfiles;
--	unsigned count            = func->ffs->eps_count;
-+	struct ffs_ep *ep;
-+	struct ffs_epfile *epfile;
-+	unsigned short count;
- 	unsigned long flags;
+ #include <linux/bitfield.h>
+ #include <linux/bitops.h>
++#include <linux/bits.h>
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/io.h>
+@@ -250,7 +251,7 @@ static int phy_meson_axg_mipi_dphy_power_on(struct phy *phy)
+ 		     (DIV_ROUND_UP(priv->config.clk_zero, temp) << 16) |
+ 		     (DIV_ROUND_UP(priv->config.clk_prepare, temp) << 24));
+ 	regmap_write(priv->regmap, MIPI_DSI_CLK_TIM1,
+-		     DIV_ROUND_UP(priv->config.clk_pre, temp));
++		     DIV_ROUND_UP(priv->config.clk_pre, BITS_PER_BYTE));
  
- 	spin_lock_irqsave(&func->ffs->eps_lock, flags);
-+	count = func->ffs->eps_count;
-+	epfile = func->ffs->epfiles;
-+	ep = func->eps;
- 	while (count--) {
- 		/* pending requests get nuked */
- 		if (ep->ep)
-@@ -1945,14 +1969,18 @@ static void ffs_func_eps_disable(struct ffs_function *func)
+ 	regmap_write(priv->regmap, MIPI_DSI_HS_TIM,
+ 		     DIV_ROUND_UP(priv->config.hs_exit, temp) |
+diff --git a/drivers/phy/phy-core-mipi-dphy.c b/drivers/phy/phy-core-mipi-dphy.c
+index 288c9c67aa748..ccb4045685cdd 100644
+--- a/drivers/phy/phy-core-mipi-dphy.c
++++ b/drivers/phy/phy-core-mipi-dphy.c
+@@ -36,7 +36,7 @@ int phy_mipi_dphy_get_default_config(unsigned long pixel_clock,
  
- static int ffs_func_eps_enable(struct ffs_function *func)
- {
--	struct ffs_data *ffs      = func->ffs;
--	struct ffs_ep *ep         = func->eps;
--	struct ffs_epfile *epfile = ffs->epfiles;
--	unsigned count            = ffs->eps_count;
-+	struct ffs_data *ffs;
-+	struct ffs_ep *ep;
-+	struct ffs_epfile *epfile;
-+	unsigned short count;
- 	unsigned long flags;
- 	int ret = 0;
+ 	cfg->clk_miss = 0;
+ 	cfg->clk_post = 60000 + 52 * ui;
+-	cfg->clk_pre = 8000;
++	cfg->clk_pre = 8;
+ 	cfg->clk_prepare = 38000;
+ 	cfg->clk_settle = 95000;
+ 	cfg->clk_term_en = 0;
+@@ -97,7 +97,7 @@ int phy_mipi_dphy_config_validate(struct phy_configure_opts_mipi_dphy *cfg)
+ 	if (cfg->clk_post < (60000 + 52 * ui))
+ 		return -EINVAL;
  
- 	spin_lock_irqsave(&func->ffs->eps_lock, flags);
-+	ffs = func->ffs;
-+	ep = func->eps;
-+	epfile = ffs->epfiles;
-+	count = ffs->eps_count;
- 	while(count--) {
- 		ep->ep->driver_data = ep;
+-	if (cfg->clk_pre < 8000)
++	if (cfg->clk_pre < 8)
+ 		return -EINVAL;
  
+ 	if (cfg->clk_prepare < 38000 || cfg->clk_prepare > 95000)
+diff --git a/drivers/phy/rockchip/phy-rockchip-inno-dsidphy.c b/drivers/phy/rockchip/phy-rockchip-inno-dsidphy.c
+index 347dc79a18c18..630e01b5c19b9 100644
+--- a/drivers/phy/rockchip/phy-rockchip-inno-dsidphy.c
++++ b/drivers/phy/rockchip/phy-rockchip-inno-dsidphy.c
+@@ -5,6 +5,7 @@
+  * Author: Wyon Bi <bivvy.bi@rock-chips.com>
+  */
+ 
++#include <linux/bits.h>
+ #include <linux/kernel.h>
+ #include <linux/clk.h>
+ #include <linux/iopoll.h>
+@@ -364,7 +365,7 @@ static void inno_dsidphy_mipi_mode_enable(struct inno_dsidphy *inno)
+ 	 * The value of counter for HS Tclk-pre
+ 	 * Tclk-pre = Tpin_txbyteclkhs * value
+ 	 */
+-	clk_pre = DIV_ROUND_UP(cfg->clk_pre, t_txbyteclkhs);
++	clk_pre = DIV_ROUND_UP(cfg->clk_pre, BITS_PER_BYTE);
+ 
+ 	/*
+ 	 * The value of counter for HS Tlpx Time
 -- 
 2.34.1
 
