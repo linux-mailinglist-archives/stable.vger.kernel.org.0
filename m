@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B93A4B4790
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E1B94B4A11
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:37:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244819AbiBNJo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:44:28 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33874 "EHLO
+        id S1348266AbiBNKfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:35:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244874AbiBNJnr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:43:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DDC460AA6;
-        Mon, 14 Feb 2022 01:38:03 -0800 (PST)
+        with ESMTP id S1348046AbiBNKec (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:34:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 384A3CD1;
+        Mon, 14 Feb 2022 02:01:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF8D26102D;
-        Mon, 14 Feb 2022 09:38:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1912C340E9;
-        Mon, 14 Feb 2022 09:38:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C6B2860B33;
+        Mon, 14 Feb 2022 10:01:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5CB2C340EF;
+        Mon, 14 Feb 2022 10:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831482;
-        bh=Kab9zacGB1/708vz5V90R3dqWoMY+bN7P8/dNntkX7Y=;
+        s=korg; t=1644832874;
+        bh=jDo5x2v7N8+8V51OVZjkSFtEpo9lxkpc0iqzSltGxko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBYVVtX4nEX610E9uhL97Sjabd1621oJFXE6OpLHOPuW623L+dkdkOROcpXesqJau
-         zt/nm0iQl2vqBvgCobwH4Un8LJ9NYn3TcYBnJXBdSjZ1yinf03n3pssjUtYlGEx/iw
-         ejXe5AL+9b1yjN38GZ14xt+mw08Rs/knAa9nt4Kk=
+        b=MbgCaF2DmdvepFKkE601kb2LVhmnu5T5lXjKACAWHTFIvPcjwgObm7zl6nTD6/qOf
+         DH1I8j5ZEjXz2uASAgPEMyDeZPNojSpyL0IBwdeYW2kAw2wII5pMmYAq120up1FCXC
+         l81D5GYgYesseQM4AWjwQqBvX6+vx40KNHIPaXQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 69/71] scsi: lpfc: Remove NVMe support if kernel has NVME_FC disabled
+        stable@vger.kernel.org, Yang Wang <KevinYang.Wang@amd.com>,
+        Kenneth Feng <kenneth.feng@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 153/203] drm/amd/pm: fix hwmon node of power1_label create issue
 Date:   Mon, 14 Feb 2022 10:26:37 +0100
-Message-Id: <20220214092454.357225881@linuxfoundation.org>
+Message-Id: <20220214092515.452156089@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Yang Wang <KevinYang.Wang@amd.com>
 
-commit c80b27cfd93ba9f5161383f798414609e84729f3 upstream.
+[ Upstream commit a8b1e8636a3252daa729762b2e3cc9015cc91a5c ]
 
-The driver is initiating NVMe PRLIs to determine device NVMe support.  This
-should not be occurring if CONFIG_NVME_FC support is disabled.
+it will cause hwmon node of power1_label is not created.
 
-Correct this by changing the default value for FC4 support. Currently it
-defaults to FCP and NVMe. With change, when NVME_FC support is not enabled
-in the kernel, the default value is just FCP.
+v2:
+the hwmon node of "power1_label" is always needed for all ASICs.
+and the patch will remove ASIC type check for "power1_label".
 
-Link: https://lore.kernel.org/r/20220207180516.73052-1-jsmart2021@gmail.com
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ae07970a0621d6 ("drm/amd/pm: add support for hwmon control of slow and fast PPT limit on vangogh")
+
+Signed-off-by: Yang Wang <KevinYang.Wang@amd.com>
+Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc.h      |   13 ++++++++++---
- drivers/scsi/lpfc/lpfc_attr.c |    4 ++--
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/pm/amdgpu_pm.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/scsi/lpfc/lpfc.h
-+++ b/drivers/scsi/lpfc/lpfc.h
-@@ -870,6 +870,16 @@ struct lpfc_hba {
- 	uint32_t cfg_hostmem_hgp;
- 	uint32_t cfg_log_verbose;
- 	uint32_t cfg_enable_fc4_type;
-+#define LPFC_ENABLE_FCP  1
-+#define LPFC_ENABLE_NVME 2
-+#define LPFC_ENABLE_BOTH 3
-+#if (IS_ENABLED(CONFIG_NVME_FC))
-+#define LPFC_MAX_ENBL_FC4_TYPE LPFC_ENABLE_BOTH
-+#define LPFC_DEF_ENBL_FC4_TYPE LPFC_ENABLE_BOTH
-+#else
-+#define LPFC_MAX_ENBL_FC4_TYPE LPFC_ENABLE_FCP
-+#define LPFC_DEF_ENBL_FC4_TYPE LPFC_ENABLE_FCP
-+#endif
- 	uint32_t cfg_aer_support;
- 	uint32_t cfg_sriov_nr_virtfn;
- 	uint32_t cfg_request_firmware_upgrade;
-@@ -892,9 +902,6 @@ struct lpfc_hba {
- 	uint32_t cfg_ras_fwlog_func;
- 	uint32_t cfg_enable_bbcr;	/* Enable BB Credit Recovery */
- 	uint32_t cfg_enable_dpp;	/* Enable Direct Packet Push */
--#define LPFC_ENABLE_FCP  1
--#define LPFC_ENABLE_NVME 2
--#define LPFC_ENABLE_BOTH 3
- 	uint32_t cfg_enable_pbde;
- 	struct nvmet_fc_target_port *targetport;
- 	lpfc_vpd_t vpd;		/* vital product data */
---- a/drivers/scsi/lpfc/lpfc_attr.c
-+++ b/drivers/scsi/lpfc/lpfc_attr.c
-@@ -3839,8 +3839,8 @@ LPFC_ATTR_R(nvmet_mrq_post,
-  *                    3 - register both FCP and NVME
-  * Supported values are [1,3]. Default value is 3
-  */
--LPFC_ATTR_R(enable_fc4_type, LPFC_ENABLE_BOTH,
--	    LPFC_ENABLE_FCP, LPFC_ENABLE_BOTH,
-+LPFC_ATTR_R(enable_fc4_type, LPFC_DEF_ENBL_FC4_TYPE,
-+	    LPFC_ENABLE_FCP, LPFC_MAX_ENBL_FC4_TYPE,
- 	    "Enable FC4 Protocol support - FCP / NVME");
+diff --git a/drivers/gpu/drm/amd/pm/amdgpu_pm.c b/drivers/gpu/drm/amd/pm/amdgpu_pm.c
+index f8370d54100e8..d31719b3418fa 100644
+--- a/drivers/gpu/drm/amd/pm/amdgpu_pm.c
++++ b/drivers/gpu/drm/amd/pm/amdgpu_pm.c
+@@ -3451,8 +3451,7 @@ static umode_t hwmon_attributes_visible(struct kobject *kobj,
+ 	     attr == &sensor_dev_attr_power2_cap_min.dev_attr.attr ||
+ 		 attr == &sensor_dev_attr_power2_cap.dev_attr.attr ||
+ 		 attr == &sensor_dev_attr_power2_cap_default.dev_attr.attr ||
+-		 attr == &sensor_dev_attr_power2_label.dev_attr.attr ||
+-		 attr == &sensor_dev_attr_power1_label.dev_attr.attr))
++		 attr == &sensor_dev_attr_power2_label.dev_attr.attr))
+ 		return 0;
  
- /*
+ 	return effective_mode;
+-- 
+2.34.1
+
 
 
