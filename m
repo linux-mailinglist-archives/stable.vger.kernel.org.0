@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 007A64B4958
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEC094B4C36
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:44:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346199AbiBNKRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:17:34 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44702 "EHLO
+        id S1348455AbiBNKh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:37:57 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347436AbiBNKQb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:16:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F26B89CE2;
-        Mon, 14 Feb 2022 01:53:58 -0800 (PST)
+        with ESMTP id S1350109AbiBNKgv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:36:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADD2FA66C5;
+        Mon, 14 Feb 2022 02:03:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE221B80D83;
-        Mon, 14 Feb 2022 09:53:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13E53C340F0;
-        Mon, 14 Feb 2022 09:53:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0BB560C78;
+        Mon, 14 Feb 2022 10:02:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B63FC340E9;
+        Mon, 14 Feb 2022 10:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832413;
-        bh=7DeDIbwd2KgraaOq+ARobNDAI+y/tIw7IR+SDWD5Vsc=;
+        s=korg; t=1644832979;
+        bh=YzWY9DyK/NtUaJJtUxtgpppL0Zx34Zk2t0AZEQEWWjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AjDVho/7XHHYxYAoAE+2kAHsgJmA1cXZbRPEJ0mHugxgRPrPsYPc4iX70//xJBPdC
-         fJ6VfqjVIVmb39Z7cGwRPjKK2YrSsYjZ082/ABmS2g444LXZCTuBkx2eKlZY7x6E5U
-         6TgWIl0hee+7oIP3QNrCnCRQwznqIAzDL7VHUfvA=
+        b=TdOFCHeYQaf10RHHHNEYxqS47Fq/vyLrNkccTlfBC/jtdDqgX4eak3iWfjlfj52oC
+         sIaBKvL0uGCnG/QHDPQjk51fahidjbs5oYJ4jkytikqga+DMMomBLUMHQBZn+/nRfk
+         aN4t475WxPlzlfcAVs/E/SiScBL1KYeCTY6txeBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Vijayanand Jitta <quic_vjitta@quicinc.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.15 172/172] iommu: Fix potential use-after-free during probe
+        stable@vger.kernel.org, Mel Gorman <mgorman@suse.de>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Michal Hocko <mhocko@suse.com>,
+        David Rientjes <rientjes@google.com>,
+        Hugh Dickins <hughd@google.com>,
+        Rik van Riel <riel@surriel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.16 186/203] mm: vmscan: remove deadlock due to throttling failing to make progress
 Date:   Mon, 14 Feb 2022 10:27:10 +0100
-Message-Id: <20220214092512.324839871@linuxfoundation.org>
+Message-Id: <20220214092516.564535162@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,144 +59,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijayanand Jitta <quic_vjitta@quicinc.com>
+From: Mel Gorman <mgorman@suse.de>
 
-commit b54240ad494300ff0994c4539a531727874381f4 upstream.
+commit b485c6f1f9f54b81443efda5f3d8a5036ba2cd91 upstream.
 
-Kasan has reported the following use after free on dev->iommu.
-when a device probe fails and it is in process of freeing dev->iommu
-in dev_iommu_free function, a deferred_probe_work_func runs in parallel
-and tries to access dev->iommu->fwspec in of_iommu_configure path thus
-causing use after free.
+A soft lockup bug in kcompactd was reported in a private bugzilla with
+the following visible in dmesg;
 
-BUG: KASAN: use-after-free in of_iommu_configure+0xb4/0x4a4
-Read of size 8 at addr ffffff87a2f1acb8 by task kworker/u16:2/153
+  watchdog: BUG: soft lockup - CPU#33 stuck for 26s! [kcompactd0:479]
+  watchdog: BUG: soft lockup - CPU#33 stuck for 52s! [kcompactd0:479]
+  watchdog: BUG: soft lockup - CPU#33 stuck for 78s! [kcompactd0:479]
+  watchdog: BUG: soft lockup - CPU#33 stuck for 104s! [kcompactd0:479]
 
-Workqueue: events_unbound deferred_probe_work_func
-Call trace:
- dump_backtrace+0x0/0x33c
- show_stack+0x18/0x24
- dump_stack_lvl+0x16c/0x1e0
- print_address_description+0x84/0x39c
- __kasan_report+0x184/0x308
- kasan_report+0x50/0x78
- __asan_load8+0xc0/0xc4
- of_iommu_configure+0xb4/0x4a4
- of_dma_configure_id+0x2fc/0x4d4
- platform_dma_configure+0x40/0x5c
- really_probe+0x1b4/0xb74
- driver_probe_device+0x11c/0x228
- __device_attach_driver+0x14c/0x304
- bus_for_each_drv+0x124/0x1b0
- __device_attach+0x25c/0x334
- device_initial_probe+0x24/0x34
- bus_probe_device+0x78/0x134
- deferred_probe_work_func+0x130/0x1a8
- process_one_work+0x4c8/0x970
- worker_thread+0x5c8/0xaec
- kthread+0x1f8/0x220
- ret_from_fork+0x10/0x18
+The machine had 256G of RAM with no swap and an earlier failed
+allocation indicated that node 0 where kcompactd was run was potentially
+unreclaimable;
 
-Allocated by task 1:
- ____kasan_kmalloc+0xd4/0x114
- __kasan_kmalloc+0x10/0x1c
- kmem_cache_alloc_trace+0xe4/0x3d4
- __iommu_probe_device+0x90/0x394
- probe_iommu_group+0x70/0x9c
- bus_for_each_dev+0x11c/0x19c
- bus_iommu_probe+0xb8/0x7d4
- bus_set_iommu+0xcc/0x13c
- arm_smmu_bus_init+0x44/0x130 [arm_smmu]
- arm_smmu_device_probe+0xb88/0xc54 [arm_smmu]
- platform_drv_probe+0xe4/0x13c
- really_probe+0x2c8/0xb74
- driver_probe_device+0x11c/0x228
- device_driver_attach+0xf0/0x16c
- __driver_attach+0x80/0x320
- bus_for_each_dev+0x11c/0x19c
- driver_attach+0x38/0x48
- bus_add_driver+0x1dc/0x3a4
- driver_register+0x18c/0x244
- __platform_driver_register+0x88/0x9c
- init_module+0x64/0xff4 [arm_smmu]
- do_one_initcall+0x17c/0x2f0
- do_init_module+0xe8/0x378
- load_module+0x3f80/0x4a40
- __se_sys_finit_module+0x1a0/0x1e4
- __arm64_sys_finit_module+0x44/0x58
- el0_svc_common+0x100/0x264
- do_el0_svc+0x38/0xa4
- el0_svc+0x20/0x30
- el0_sync_handler+0x68/0xac
- el0_sync+0x160/0x180
+  Node 0 active_anon:29355112kB inactive_anon:2913528kB active_file:0kB
+    inactive_file:0kB unevictable:64kB isolated(anon):0kB isolated(file):0kB
+    mapped:8kB dirty:0kB writeback:0kB shmem:26780kB shmem_thp:
+    0kB shmem_pmdmapped: 0kB anon_thp: 23480320kB writeback_tmp:0kB
+    kernel_stack:2272kB pagetables:24500kB all_unreclaimable? yes
 
-Freed by task 1:
- kasan_set_track+0x4c/0x84
- kasan_set_free_info+0x28/0x4c
- ____kasan_slab_free+0x120/0x15c
- __kasan_slab_free+0x18/0x28
- slab_free_freelist_hook+0x204/0x2fc
- kfree+0xfc/0x3a4
- __iommu_probe_device+0x284/0x394
- probe_iommu_group+0x70/0x9c
- bus_for_each_dev+0x11c/0x19c
- bus_iommu_probe+0xb8/0x7d4
- bus_set_iommu+0xcc/0x13c
- arm_smmu_bus_init+0x44/0x130 [arm_smmu]
- arm_smmu_device_probe+0xb88/0xc54 [arm_smmu]
- platform_drv_probe+0xe4/0x13c
- really_probe+0x2c8/0xb74
- driver_probe_device+0x11c/0x228
- device_driver_attach+0xf0/0x16c
- __driver_attach+0x80/0x320
- bus_for_each_dev+0x11c/0x19c
- driver_attach+0x38/0x48
- bus_add_driver+0x1dc/0x3a4
- driver_register+0x18c/0x244
- __platform_driver_register+0x88/0x9c
- init_module+0x64/0xff4 [arm_smmu]
- do_one_initcall+0x17c/0x2f0
- do_init_module+0xe8/0x378
- load_module+0x3f80/0x4a40
- __se_sys_finit_module+0x1a0/0x1e4
- __arm64_sys_finit_module+0x44/0x58
- el0_svc_common+0x100/0x264
- do_el0_svc+0x38/0xa4
- el0_svc+0x20/0x30
- el0_sync_handler+0x68/0xac
- el0_sync+0x160/0x180
+Vlastimil Babka investigated a crash dump and found that a task
+migrating pages was trying to drain PCP lists;
 
-Fix this by setting dev->iommu to NULL first and
-then freeing dev_iommu structure in dev_iommu_free
-function.
+  PID: 52922  TASK: ffff969f820e5000  CPU: 19  COMMAND: "kworker/u128:3"
+  Call Trace:
+     __schedule
+     schedule
+     schedule_timeout
+     wait_for_completion
+     __flush_work
+     __drain_all_pages
+     __alloc_pages_slowpath.constprop.114
+     __alloc_pages
+     alloc_migration_target
+     migrate_pages
+     migrate_to_node
+     do_migrate_pages
+     cpuset_migrate_mm_workfn
+     process_one_work
+     worker_thread
+     kthread
+     ret_from_fork
 
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Vijayanand Jitta <quic_vjitta@quicinc.com>
-Link: https://lore.kernel.org/r/1643613155-20215-1-git-send-email-quic_vjitta@quicinc.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+This failure is specific to CONFIG_PREEMPT=n builds.  The root of the
+problem is that kcompact0 is not rescheduling on a CPU while a task that
+has isolated a large number of the pages from the LRU is waiting on
+kcompact0 to reschedule so the pages can be released.  While
+shrink_inactive_list() only loops once around too_many_isolated, reclaim
+can continue without rescheduling if sc->skipped_deactivate == 1 which
+could happen if there was no file LRU and the inactive anon list was not
+low.
+
+Link: https://lkml.kernel.org/r/20220203100326.GD3301@suse.de
+Fixes: d818fca1cac3 ("mm/vmscan: throttle reclaim and compaction when too may pages are isolated")
+Signed-off-by: Mel Gorman <mgorman@suse.de>
+Debugged-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/iommu.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ mm/vmscan.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -206,9 +206,14 @@ static struct dev_iommu *dev_iommu_get(s
- 
- static void dev_iommu_free(struct device *dev)
- {
--	iommu_fwspec_free(dev);
--	kfree(dev->iommu);
-+	struct dev_iommu *param = dev->iommu;
-+
- 	dev->iommu = NULL;
-+	if (param->fwspec) {
-+		fwnode_handle_put(param->fwspec->iommu_fwnode);
-+		kfree(param->fwspec);
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -1066,8 +1066,10 @@ void reclaim_throttle(pg_data_t *pgdat,
+ 	 * forward progress (e.g. journalling workqueues or kthreads).
+ 	 */
+ 	if (!current_is_kswapd() &&
+-	    current->flags & (PF_IO_WORKER|PF_KTHREAD))
++	    current->flags & (PF_IO_WORKER|PF_KTHREAD)) {
++		cond_resched();
+ 		return;
 +	}
-+	kfree(param);
- }
  
- static int __iommu_probe_device(struct device *dev, struct list_head *group_list)
+ 	/*
+ 	 * These figures are pulled out of thin air.
 
 
