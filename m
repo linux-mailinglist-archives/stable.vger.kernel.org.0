@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 845864B4A14
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:38:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74FA24B4BC4
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344949AbiBNKH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:07:57 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54960 "EHLO
+        id S1347846AbiBNKbt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:31:49 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345057AbiBNKFL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:05:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FDC674847;
-        Mon, 14 Feb 2022 01:49:19 -0800 (PST)
+        with ESMTP id S1347858AbiBNKaj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:30:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86D0270CE0;
+        Mon, 14 Feb 2022 01:59:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E21CC61291;
-        Mon, 14 Feb 2022 09:49:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5C55C340E9;
-        Mon, 14 Feb 2022 09:49:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8024B80DC8;
+        Mon, 14 Feb 2022 09:59:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E483EC340EF;
+        Mon, 14 Feb 2022 09:59:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832158;
-        bh=TyD2aMjxLMkZUzR4ycHZFT9SUVAGZ7tCb5EfJ04mpnE=;
+        s=korg; t=1644832744;
+        bh=9gahyeLnbkRBgOkWxxyP2q3atLHrR6v1XwsdkB7+PGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TiszzbAt7YtNHHKy2/k+zgy8sJ+wrMff0KD4b9DVHY5spCyVeFq8z5UN+p3RXVQZv
-         AbBkg0e6TPzKItbfn+Vtn6lQ2fmN+nZ7VJtE1X7a/kKNjdAoHVgwce3phOCqNOHmJI
-         b4CHJTtWrieTzhBGdSd+gC/n9dD6aXx0OMiw1I6c=
+        b=i20lY47uCKLP/CaazcpUsMneyzTy+zPuJ6OeUdMd8EGa2xRtQZSODRJ0xSMCIT6Vo
+         hwm2SDYi+GP74CRte8c+sTMv2NWmp8wxVHcsGGkai0yqn7LsNjb7OLNAaOk1vjXUdL
+         B4J+0drK72KCYrPNwcvr/ZH+Q9yf+wNR0qzgVqr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Lewis <aaronlewis@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 065/172] KVM: x86: Report deprecated x87 features in supported CPUID
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 5.16 079/203] Revert "gfs2: check context in gfs2_glock_put"
 Date:   Mon, 14 Feb 2022 10:25:23 +0100
-Message-Id: <20220214092508.648091407@linuxfoundation.org>
+Message-Id: <20220214092512.963476086@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit e3bcfda012edd3564e12551b212afbd2521a1f68 ]
+commit 356b8103d4c495d5440e3e687db9026ec2b76043 upstream.
 
-CPUID.(EAX=7,ECX=0):EBX.FDP_EXCPTN_ONLY[bit 6] and
-CPUID.(EAX=7,ECX=0):EBX.ZERO_FCS_FDS[bit 13] are "defeature"
-bits. Unlike most of the other CPUID feature bits, these bits are
-clear if the features are present and set if the features are not
-present. These bits should be reported in KVM_GET_SUPPORTED_CPUID,
-because if these bits are set on hardware, they cannot be cleared in
-the guest CPUID. Doing so would claim guest support for a feature that
-the hardware doesn't support and that can't be efficiently emulated.
+It turns out that the might_sleep() call that commit 660a6126f8c3 adds
+is triggering occasional data corruption in testing.  We're not sure
+about the root cause yet, but since this commit was added as a debugging
+aid only, revert it for now.
 
-Of course, any software (e.g WIN87EM.DLL) expecting these features to
-be present likely predates these CPUID feature bits and therefore
-doesn't know to check for them anyway.
+This reverts commit 660a6126f8c3208f6df8d552039cda078a8426d1.
 
-Aaron Lewis added the corresponding X86_FEATURE macros in
-commit cbb99c0f5887 ("x86/cpufeatures: Add FDP_EXCPTN_ONLY and
-ZERO_FCS_FDS"), with the intention of reporting these bits in
-KVM_GET_SUPPORTED_CPUID, but I was unable to find a proposed patch on
-the kvm list.
-
-Opportunistically reordered the CPUID_7_0_EBX capability bits from
-least to most significant.
-
-Cc: Aaron Lewis <aaronlewis@google.com>
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Message-Id: <20220204001348.2844660-1-jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 660a6126f8c3 ("gfs2: check context in gfs2_glock_put")
+Cc: stable@vger.kernel.org # v5.16+
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/cpuid.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ fs/gfs2/glock.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
-index f666fd79d8ad6..5f1d4a5aa8716 100644
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -421,12 +421,13 @@ void kvm_set_cpu_caps(void)
- 	);
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -301,9 +301,6 @@ void gfs2_glock_queue_put(struct gfs2_gl
  
- 	kvm_cpu_cap_mask(CPUID_7_0_EBX,
--		F(FSGSBASE) | F(SGX) | F(BMI1) | F(HLE) | F(AVX2) | F(SMEP) |
--		F(BMI2) | F(ERMS) | F(INVPCID) | F(RTM) | 0 /*MPX*/ | F(RDSEED) |
--		F(ADX) | F(SMAP) | F(AVX512IFMA) | F(AVX512F) | F(AVX512PF) |
--		F(AVX512ER) | F(AVX512CD) | F(CLFLUSHOPT) | F(CLWB) | F(AVX512DQ) |
--		F(SHA_NI) | F(AVX512BW) | F(AVX512VL) | 0 /*INTEL_PT*/
--	);
-+		F(FSGSBASE) | F(SGX) | F(BMI1) | F(HLE) | F(AVX2) |
-+		F(FDP_EXCPTN_ONLY) | F(SMEP) | F(BMI2) | F(ERMS) | F(INVPCID) |
-+		F(RTM) | F(ZERO_FCS_FDS) | 0 /*MPX*/ | F(AVX512F) |
-+		F(AVX512DQ) | F(RDSEED) | F(ADX) | F(SMAP) | F(AVX512IFMA) |
-+		F(CLFLUSHOPT) | F(CLWB) | 0 /*INTEL_PT*/ | F(AVX512PF) |
-+		F(AVX512ER) | F(AVX512CD) | F(SHA_NI) | F(AVX512BW) |
-+		F(AVX512VL));
+ void gfs2_glock_put(struct gfs2_glock *gl)
+ {
+-	/* last put could call sleepable dlm api */
+-	might_sleep();
+-
+ 	if (lockref_put_or_lock(&gl->gl_lockref))
+ 		return;
  
- 	kvm_cpu_cap_mask(CPUID_7_ECX,
- 		F(AVX512VBMI) | F(LA57) | F(PKU) | 0 /*OSPKE*/ | F(RDPID) |
--- 
-2.34.1
-
 
 
