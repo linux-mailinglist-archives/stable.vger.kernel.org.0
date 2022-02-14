@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B1164B462D
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E848F4B4848
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:56:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232453AbiBNJb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:31:29 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43072 "EHLO
+        id S1343598AbiBNJxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:53:02 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243294AbiBNJbC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:31:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4D9560D87;
-        Mon, 14 Feb 2022 01:30:07 -0800 (PST)
+        with ESMTP id S1343607AbiBNJuz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:50:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A82657A4;
+        Mon, 14 Feb 2022 01:41:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4744A60F87;
-        Mon, 14 Feb 2022 09:30:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31135C340E9;
-        Mon, 14 Feb 2022 09:30:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B00F61172;
+        Mon, 14 Feb 2022 09:41:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71944C340EF;
+        Mon, 14 Feb 2022 09:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831006;
-        bh=5iuORTELvsKpZaPEF5mrgRcATjPKHLLV9RGRvSPJiN0=;
+        s=korg; t=1644831706;
+        bh=WxH1Jvs2nKiTr7Ngr070ShsLHsw6r7eBxqgxaRmGV10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tb8wTV7aLY1MeA3aRe1m3XV2UMcU+e7Z/6z/NJ+FFKj4DDMfqNJBLFImO9dlro0yQ
-         95PuMVv5GAQWndDUtB1rWAismYlH1DhHlX34iAvNx/3P2BShlPqsasxbHuETAjjsXf
-         6xzSP7LeKkrKqTcFeupoc0qfoxfDlHlpbsdHpfXg=
+        b=jPvunWNq7PgnQAZ2+lruoR5awVHY3niAZU+jgd0jzNiVQZRWzL5u653X4kzpqsS3s
+         jc/YxXJ+lonsEY2TzBuAsxpBFUrAV92uTMQYUHnfn896/wW/fWkZVa1uHk4v6a6CEF
+         9jak/oavRbmCpVYC5ZELWKRp/KGBxycoY6ZPqYLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 14/44] usb: dwc2: gadget: dont try to disable ep0 in dwc2_hsotg_suspend
+Subject: [PATCH 5.10 038/116] KVM: nVMX: eVMCS: Filter out VM_EXIT_SAVE_VMX_PREEMPTION_TIMER
 Date:   Mon, 14 Feb 2022 10:25:37 +0100
-Message-Id: <20220214092448.373945460@linuxfoundation.org>
+Message-Id: <20220214092459.998110689@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
-References: <20220214092447.897544753@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit ac55d163855924aa5af9f1560977da8f346963c8 ]
+[ Upstream commit 7a601e2cf61558dfd534a9ecaad09f5853ad8204 ]
 
-Calling dwc2_hsotg_ep_disable on ep0 (in/out) will lead to the following
-logs before returning -EINVAL:
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
-dwc2 49000000.usb-otg: dwc2_hsotg_ep_disable: called for ep0
+Enlightened VMCS v1 doesn't have VMX_PREEMPTION_TIMER_VALUE field,
+PIN_BASED_VMX_PREEMPTION_TIMER is also filtered out already so it makes
+sense to filter out VM_EXIT_SAVE_VMX_PREEMPTION_TIMER too.
 
-To avoid these two logs while suspending, start disabling the endpoint
-from the index 1, as done in dwc2_hsotg_udc_stop:
+Note, none of the currently existing Windows/Hyper-V versions are known
+to enable 'save VMX-preemption timer value' when eVMCS is in use, the
+change is aimed at making the filtering future proof.
 
-	/* all endpoints should be shutdown */
-	for (ep = 1; ep < hsotg->num_of_eps; ep++) {
-		if (hsotg->eps_in[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_in[ep]->ep);
-		if (hsotg->eps_out[ep])
-			dwc2_hsotg_ep_disable_lock(&hsotg->eps_out[ep]->ep);
-	}
-
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20211207130101.270314-1-amelie.delaunay@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20220112170134.1904308-3-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/vmx/evmcs.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index f1edc5727000c..dddc5d02b5524 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -4783,7 +4783,7 @@ int dwc2_hsotg_suspend(struct dwc2_hsotg *hsotg)
- 		hsotg->gadget.speed = USB_SPEED_UNKNOWN;
- 		spin_unlock_irqrestore(&hsotg->lock, flags);
+diff --git a/arch/x86/kvm/vmx/evmcs.h b/arch/x86/kvm/vmx/evmcs.h
+index bd41d9462355f..011929a638230 100644
+--- a/arch/x86/kvm/vmx/evmcs.h
++++ b/arch/x86/kvm/vmx/evmcs.h
+@@ -59,7 +59,9 @@ DECLARE_STATIC_KEY_FALSE(enable_evmcs);
+ 	 SECONDARY_EXEC_SHADOW_VMCS |					\
+ 	 SECONDARY_EXEC_TSC_SCALING |					\
+ 	 SECONDARY_EXEC_PAUSE_LOOP_EXITING)
+-#define EVMCS1_UNSUPPORTED_VMEXIT_CTRL (VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL)
++#define EVMCS1_UNSUPPORTED_VMEXIT_CTRL					\
++	(VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL |				\
++	 VM_EXIT_SAVE_VMX_PREEMPTION_TIMER)
+ #define EVMCS1_UNSUPPORTED_VMENTRY_CTRL (VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL)
+ #define EVMCS1_UNSUPPORTED_VMFUNC (VMX_VMFUNC_EPTP_SWITCHING)
  
--		for (ep = 0; ep < hsotg->num_of_eps; ep++) {
-+		for (ep = 1; ep < hsotg->num_of_eps; ep++) {
- 			if (hsotg->eps_in[ep])
- 				dwc2_hsotg_ep_disable(&hsotg->eps_in[ep]->ep);
- 			if (hsotg->eps_out[ep])
 -- 
 2.34.1
 
