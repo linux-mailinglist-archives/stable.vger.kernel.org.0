@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C59524B45ED
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF0D74B4698
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242962AbiBNJcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:32:01 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43072 "EHLO
+        id S244128AbiBNJji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:39:38 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243171AbiBNJb2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:31:28 -0500
+        with ESMTP id S244116AbiBNJiC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:38:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B034AE41;
-        Mon, 14 Feb 2022 01:30:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 733F069281;
+        Mon, 14 Feb 2022 01:35:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BEB14B80DC5;
-        Mon, 14 Feb 2022 09:30:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E854CC340E9;
-        Mon, 14 Feb 2022 09:30:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B2F2AB80DA9;
+        Mon, 14 Feb 2022 09:35:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C70B5C340F1;
+        Mon, 14 Feb 2022 09:35:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831021;
-        bh=Ug9e0H5vXPr8eJ+XBkiyzsIfVnY04iyCxHeJHXPLEp8=;
+        s=korg; t=1644831314;
+        bh=Jb03Ld/1IlFjBDrxXqIoBlA0XES/Efs1bjalJ7s2rq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mkXG7IX/pNdLRoEuurW+TqZpygqJgAnRjWQVhQyBW8C8Sm4gVzF27dTLmdggqXyA6
-         0r/kYL+mRS+ZfOAWVV0ldf4f/mkeP5E74jjITKRFJanEACpUqCs8SA0xd5ZL9/1I4V
-         oL7a1Wu0GAHWvzDsT3MfPNHrnAx5O8z2rall7Lz0=
+        b=FF/6CkT3W85qOU8lR3EmgKcp55shOs4nbEqR3Uey+afOIQanERlgzXnNHQe1XytLN
+         f6sx2pYfuZDcIJPEH6S+2GDW07x4lZT3vNZWmag8bEyHlNmWltZZHP/7gNz/qZMI8G
+         hH6lPpWt1Z337IHKguNY+uHjBffC9Wh96LvQshpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 19/44] ARM: dts: meson: Fix the UART compatible strings
-Date:   Mon, 14 Feb 2022 10:25:42 +0100
-Message-Id: <20220214092448.537068998@linuxfoundation.org>
+Subject: [PATCH 5.4 15/71] NFSv4 remove zero number of fs_locations entries error check
+Date:   Mon, 14 Feb 2022 10:25:43 +0100
+Message-Id: <20220214092452.536848104@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
-References: <20220214092447.897544753@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit 5225e1b87432dcf0d0fc3440824b91d04c1d6cc1 ]
+[ Upstream commit 90e12a3191040bd3854d3e236c35921e4e92a044 ]
 
-The dt-bindings for the UART controller only allow the following values
-for Meson6 SoCs:
-- "amlogic,meson6-uart", "amlogic,meson-ao-uart"
-- "amlogic,meson6-uart"
+Remove the check for the zero length fs_locations reply in the
+xdr decoding, and instead check for that in the migration code.
 
-Use the correct fallback compatible string "amlogic,meson-ao-uart" for
-AO UART. Drop the "amlogic,meson-uart" compatible string from the EE
-domain UART controllers.
-
-Fixes: ec9b59162fd831 ("ARM: dts: meson6: use stable UART bindings")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20211227180026.4068352-2-martin.blumenstingl@googlemail.com
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/meson.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/nfs/nfs4state.c | 3 +++
+ fs/nfs/nfs4xdr.c   | 2 --
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/meson.dtsi b/arch/arm/boot/dts/meson.dtsi
-index cd6ad072e72c1..05dfd74a40044 100644
---- a/arch/arm/boot/dts/meson.dtsi
-+++ b/arch/arm/boot/dts/meson.dtsi
-@@ -86,14 +86,14 @@ hwrng: rng@8100 {
- 			};
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index ea680f619438b..aa2caba38a014 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -2070,6 +2070,9 @@ static int nfs4_try_migration(struct nfs_server *server, const struct cred *cred
+ 	}
  
- 			uart_A: serial@84c0 {
--				compatible = "amlogic,meson6-uart", "amlogic,meson-uart";
-+				compatible = "amlogic,meson6-uart";
- 				reg = <0x84c0 0x18>;
- 				interrupts = <GIC_SPI 26 IRQ_TYPE_EDGE_RISING>;
- 				status = "disabled";
- 			};
- 
- 			uart_B: serial@84dc {
--				compatible = "amlogic,meson6-uart", "amlogic,meson-uart";
-+				compatible = "amlogic,meson6-uart";
- 				reg = <0x84dc 0x18>;
- 				interrupts = <GIC_SPI 75 IRQ_TYPE_EDGE_RISING>;
- 				status = "disabled";
-@@ -131,7 +131,7 @@ saradc: adc@8680 {
- 			};
- 
- 			uart_C: serial@8700 {
--				compatible = "amlogic,meson6-uart", "amlogic,meson-uart";
-+				compatible = "amlogic,meson6-uart";
- 				reg = <0x8700 0x18>;
- 				interrupts = <GIC_SPI 93 IRQ_TYPE_EDGE_RISING>;
- 				status = "disabled";
-@@ -196,7 +196,7 @@ ir_receiver: ir-receiver@480 {
- 			};
- 
- 			uart_AO: serial@4c0 {
--				compatible = "amlogic,meson6-uart", "amlogic,meson-ao-uart", "amlogic,meson-uart";
-+				compatible = "amlogic,meson6-uart", "amlogic,meson-ao-uart";
- 				reg = <0x4c0 0x18>;
- 				interrupts = <GIC_SPI 90 IRQ_TYPE_EDGE_RISING>;
- 				status = "disabled";
+ 	result = -NFS4ERR_NXIO;
++	if (!locations->nlocations)
++		goto out;
++
+ 	if (!(locations->fattr.valid & NFS_ATTR_FATTR_V4_LOCATIONS)) {
+ 		dprintk("<-- %s: No fs_locations data, migration skipped\n",
+ 			__func__);
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index 0fc08d22c9218..2b7741fe42ead 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -3683,8 +3683,6 @@ static int decode_attr_fs_locations(struct xdr_stream *xdr, uint32_t *bitmap, st
+ 	if (unlikely(!p))
+ 		goto out_eio;
+ 	n = be32_to_cpup(p);
+-	if (n <= 0)
+-		goto out_eio;
+ 	for (res->nlocations = 0; res->nlocations < n; res->nlocations++) {
+ 		u32 m;
+ 		struct nfs4_fs_location *loc;
 -- 
 2.34.1
 
