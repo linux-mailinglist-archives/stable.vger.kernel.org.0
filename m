@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF9674B475D
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86EFF4B49A6
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:36:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232469AbiBNJrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:47:04 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42976 "EHLO
+        id S1347397AbiBNKbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:31:48 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245690AbiBNJqG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B396065834;
-        Mon, 14 Feb 2022 01:39:25 -0800 (PST)
+        with ESMTP id S1347973AbiBNKan (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:30:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAB7D6A39F;
+        Mon, 14 Feb 2022 01:59:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C459B80DC4;
-        Mon, 14 Feb 2022 09:39:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84232C340E9;
-        Mon, 14 Feb 2022 09:39:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DCB10B80D6D;
+        Mon, 14 Feb 2022 09:58:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2417FC340EF;
+        Mon, 14 Feb 2022 09:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831563;
-        bh=HIPORMFuV//Hr3CiBeB8KOpD7vvvwHqgFISVkSXSIQY=;
+        s=korg; t=1644832737;
+        bh=3epFaGK+vhe/wOw2uqSsd6GvhL9Cvq9qJdaq6ifWC2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gCIMEMeAAARUD5lHJMrfl5iRmK3elX+hiWu15FV0/obZn+Bp5cJF5yKBURqlcFG8J
-         iVw7kF+vghSXur9nBt1rjOfKauFObECmeZ2hrjrzBNdXl93Ts4XqKRdc97l3SYR9PK
-         nlaoEFTi8aMjYxpBVwsh2NIEKRntSdJ3ZA3HtNXk=
+        b=1OGefQ8XS1oCibLf7M7V5pgH1ML5prBtTJaY640+5N5OhLoPjy/Ly4cE/uH59sKbm
+         4HWMsTj/H1BQb8Ri3XA8LwWNv5bmdwXOU+2GpAKrC3N4aSJysFEPhsSq/Nf822bOL0
+         f5JIWQmgrFRYSv3Cyrfn3rD2MJ/8VMMHRWh+kmiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raymond Jay Golo <rjgolo@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 022/116] drm: panel-orientation-quirks: Add quirk for the 1Netbook OneXPlayer
+        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.16 077/203] riscv: eliminate unreliable __builtin_frame_address(1)
 Date:   Mon, 14 Feb 2022 10:25:21 +0100
-Message-Id: <20220214092459.446044719@linuxfoundation.org>
+Message-Id: <20220214092512.896653495@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +53,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raymond Jay Golo <rjgolo@gmail.com>
+From: Changbin Du <changbin.du@gmail.com>
 
-[ Upstream commit d3cbc6e323c9299d10c8d2e4127c77c7d05d07b1 ]
+commit 6a00ef4493706a23120057fafbc62379bcde11ec upstream.
 
-The 1Netbook OneXPlayer uses a panel which has been mounted
-90 degrees rotated. Add a quirk for this.
+I tried different pieces of code which uses __builtin_frame_address(1)
+(with both gcc version 7.5.0 and 10.3.0) to verify whether it works as
+expected on riscv64. The result is negative.
 
-Signed-off-by: Raymond Jay Golo <rjgolo@gmail.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220113000619.90988-1-rjgolo@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+What the compiler had generated is as below:
+31                      fp = (unsigned long)__builtin_frame_address(1);
+   0xffffffff80006024 <+200>:   ld      s1,0(s0)
+
+It takes '0(s0)' as the address of frame 1 (caller), but the actual address
+should be '-16(s0)'.
+
+          |       ...       | <-+
+          +-----------------+   |
+          | return address  |   |
+          | previous fp     |   |
+          | saved registers |   |
+          | local variables |   |
+  $fp --> |       ...       |   |
+          +-----------------+   |
+          | return address  |   |
+          | previous fp --------+
+          | saved registers |
+  $sp --> | local variables |
+          +-----------------+
+
+This leads the kernel can not dump the full stack trace on riscv.
+
+[    7.222126][    T1] Call Trace:
+[    7.222804][    T1] [<ffffffff80006058>] dump_backtrace+0x2c/0x3a
+
+This problem is not exposed on most riscv builds just because the '0(s0)'
+occasionally is the address frame 2 (caller's caller), if only ra and fp
+are stored in frame 1 (caller).
+
+          |       ...       | <-+
+          +-----------------+   |
+          | return address  |   |
+  $fp --> | previous fp     |   |
+          +-----------------+   |
+          | return address  |   |
+          | previous fp --------+
+          | saved registers |
+  $sp --> | local variables |
+          +-----------------+
+
+This could be a *bug* of gcc that should be fixed. But as noted in gcc
+manual "Calling this function with a nonzero argument can have
+unpredictable effects, including crashing the calling program.", let's
+remove the '__builtin_frame_address(1)' in backtrace code.
+
+With this fix now it can show full stack trace:
+[   10.444838][    T1] Call Trace:
+[   10.446199][    T1] [<ffffffff8000606c>] dump_backtrace+0x2c/0x3a
+[   10.447711][    T1] [<ffffffff800060ac>] show_stack+0x32/0x3e
+[   10.448710][    T1] [<ffffffff80a005c0>] dump_stack_lvl+0x58/0x7a
+[   10.449941][    T1] [<ffffffff80a005f6>] dump_stack+0x14/0x1c
+[   10.450929][    T1] [<ffffffff804c04ee>] ubsan_epilogue+0x10/0x5a
+[   10.451869][    T1] [<ffffffff804c092e>] __ubsan_handle_load_invalid_value+0x6c/0x78
+[   10.453049][    T1] [<ffffffff8018f834>] __pagevec_release+0x62/0x64
+[   10.455476][    T1] [<ffffffff80190830>] truncate_inode_pages_range+0x132/0x5be
+[   10.456798][    T1] [<ffffffff80190ce0>] truncate_inode_pages+0x24/0x30
+[   10.457853][    T1] [<ffffffff8045bb04>] kill_bdev+0x32/0x3c
+...
+
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Fixes: eac2f3059e02 ("riscv: stacktrace: fix the riscv stacktrace when CONFIG_FRAME_POINTER enabled")
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/riscv/kernel/stacktrace.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 9d1bd8f491ad7..448c2f2d803a6 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -115,6 +115,12 @@ static const struct drm_dmi_panel_orientation_data lcd1280x1920_rightside_up = {
- 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
- };
+--- a/arch/riscv/kernel/stacktrace.c
++++ b/arch/riscv/kernel/stacktrace.c
+@@ -22,15 +22,16 @@ void notrace walk_stackframe(struct task
+ 			     bool (*fn)(void *, unsigned long), void *arg)
+ {
+ 	unsigned long fp, sp, pc;
++	int level = 0;
  
-+static const struct drm_dmi_panel_orientation_data lcd1600x2560_leftside_up = {
-+	.width = 1600,
-+	.height = 2560,
-+	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
-+};
-+
- static const struct dmi_system_id orientation_data[] = {
- 	{	/* Acer One 10 (S1003) */
- 		.matches = {
-@@ -261,6 +267,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Default string"),
- 		},
- 		.driver_data = (void *)&onegx1_pro,
-+	}, {	/* OneXPlayer */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ONE-NETBOOK TECHNOLOGY CO., LTD."),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "ONE XPLAYER"),
-+		},
-+		.driver_data = (void *)&lcd1600x2560_leftside_up,
- 	}, {	/* Samsung GalaxyBook 10.6 */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
--- 
-2.34.1
-
+ 	if (regs) {
+ 		fp = frame_pointer(regs);
+ 		sp = user_stack_pointer(regs);
+ 		pc = instruction_pointer(regs);
+ 	} else if (task == NULL || task == current) {
+-		fp = (unsigned long)__builtin_frame_address(1);
+-		sp = (unsigned long)__builtin_frame_address(0);
+-		pc = (unsigned long)__builtin_return_address(0);
++		fp = (unsigned long)__builtin_frame_address(0);
++		sp = sp_in_global;
++		pc = (unsigned long)walk_stackframe;
+ 	} else {
+ 		/* task blocked in __switch_to */
+ 		fp = task->thread.s[0];
+@@ -42,7 +43,7 @@ void notrace walk_stackframe(struct task
+ 		unsigned long low, high;
+ 		struct stackframe *frame;
+ 
+-		if (unlikely(!__kernel_text_address(pc) || !fn(arg, pc)))
++		if (unlikely(!__kernel_text_address(pc) || (level++ >= 1 && !fn(arg, pc))))
+ 			break;
+ 
+ 		/* Validate frame pointer */
 
 
