@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A73C4B4956
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4DCD4B45E2
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346973AbiBNK1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:27:48 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33926 "EHLO
+        id S243040AbiBNJ27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:28:59 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348389AbiBNK0z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:26:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEC6583022;
-        Mon, 14 Feb 2022 01:57:54 -0800 (PST)
+        with ESMTP id S243131AbiBNJ2z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:28:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 719AE60DB1;
+        Mon, 14 Feb 2022 01:28:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FA4561491;
-        Mon, 14 Feb 2022 09:57:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AA28C340E9;
-        Mon, 14 Feb 2022 09:57:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F117B80DC6;
+        Mon, 14 Feb 2022 09:28:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25763C340E9;
+        Mon, 14 Feb 2022 09:28:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832673;
-        bh=MFrH3r1yKX+iFtfx80aWccnWMDRwj7DDM7f0gq4zrw8=;
+        s=korg; t=1644830923;
+        bh=L+64FosT+u6ZVeqOqEziHxpJpKytKI0e34ddCBC1uyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zb7v+7wb1NlRnRs+TTW2sCyQMom0PDPBksb5DlFvGl2DUtMGSdPyNfujcr99F4vww
-         wt+MaDLHIAcxQqb+e7+ZlXmf3hk/vkuqCogdpeBHQnC91z5+OafCZZ2Yc1Az2hGs8x
-         +S9qp4gKk3VS6cqbSDd0tFGay02BrCD74H0+NOrg=
+        b=VxPh0ppSGAGzY6XoO70bZTVRmNwYJBKxXHVXPYd/9BpjAyDuEMjL9zFRCiP3o450I
+         LkuCAiPBhXu6K79JG/izlvekUgw68BJ4/NkCxHn/nyeMa9uyDGTeC/SXhGvl/Mr0G8
+         LIB4CnbC6IMq8IH8Ua8ne1lD+XnMeuVRG6OX1z+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.16 090/203] drm/i915: Allow !join_mbus cases for adlp+ dbuf configuration
+        Guillaume Bertholon <guillaume.bertholon@ens.fr>
+Subject: [PATCH 4.9 08/34] Revert "net: axienet: Wait for PhyRstCmplt after core reset"
 Date:   Mon, 14 Feb 2022 10:25:34 +0100
-Message-Id: <20220214092513.321831043@linuxfoundation.org>
+Message-Id: <20220214092446.218435382@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
+References: <20220214092445.946718557@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,183 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Guillaume Bertholon <guillaume.bertholon@ens.fr>
 
-commit 8fd5a26e43859547790a7995494c952b708ab3b5 upstream.
+This reverts commit 9f1a3c13342b4d96b9baa337ec5fb7d453828709.
 
-Reintroduce the !join_mbus single pipe cases for adlp+.
+The upstream commit b400c2f4f4c5 ("net: axienet: Wait for PhyRstCmplt
+after core reset") add new instructions in the `__axienet_device_reset`
+function to wait until PhyRstCmplt bit is set, and return a non zero-exit
+value if this exceeds a timeout.
 
-Due to the mbus relative dbuf offsets in PLANE_BUF_CFG we
-need to know the actual slices used by the pipe when doing
-readout, even when mbus joining isn't enabled. Accurate
-readout will be needed to properly sanitize invalid BIOS
-dbuf configurations.
+However, its backported version in 4.9 (commit 9f1a3c13342b ("net:
+axienet: Wait for PhyRstCmplt after core reset")) insert these
+instructions in `axienet_dma_bd_init` instead.
 
-This will also make it much easier to play around with the
-!join_mbus configs for testin/workaround purposes.
+Unlike upstream, the version of `__axienet_device_reset` currently present
+in branch stable/linux-4.9.y does not return an integer for error codes.
+Therefore fixing the backport cannot be as simple as moving the inserted
+instructions in the right place, and we simply revert it instead.
 
-Cc: <stable@vger.kernel.org> # v5.14+
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220204141818.1900-1-ville.syrjala@linux.intel.com
-Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-(cherry picked from commit eef173954432fe0612acb63421a95deb41155cdc)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Fixes: 9f1a3c13342b ("net: axienet: Wait for PhyRstCmplt after core reset")
+Signed-off-by: Guillaume Bertholon <guillaume.bertholon@ens.fr>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/intel_pm.c |   66 +++++++++++++++++++++++++++-------------
- 1 file changed, 46 insertions(+), 20 deletions(-)
+ drivers/net/ethernet/xilinx/xilinx_axienet_main.c |   10 ----------
+ 1 file changed, 10 deletions(-)
 
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -4707,6 +4707,10 @@ static const struct dbuf_slice_conf_entr
- };
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+@@ -278,16 +278,6 @@ static int axienet_dma_bd_init(struct ne
+ 	axienet_dma_out32(lp, XAXIDMA_TX_CR_OFFSET,
+ 			  cr | XAXIDMA_CR_RUNSTOP_MASK);
  
- static const struct dbuf_slice_conf_entry adlp_allowed_dbufs[] = {
-+	/*
-+	 * Keep the join_mbus cases first so check_mbus_joined()
-+	 * will prefer them over the !join_mbus cases.
-+	 */
- 	{
- 		.active_pipes = BIT(PIPE_A),
- 		.dbuf_mask = {
-@@ -4722,6 +4726,20 @@ static const struct dbuf_slice_conf_entr
- 		.join_mbus = true,
- 	},
- 	{
-+		.active_pipes = BIT(PIPE_A),
-+		.dbuf_mask = {
-+			[PIPE_A] = BIT(DBUF_S1) | BIT(DBUF_S2),
-+		},
-+		.join_mbus = false,
-+	},
-+	{
-+		.active_pipes = BIT(PIPE_B),
-+		.dbuf_mask = {
-+			[PIPE_B] = BIT(DBUF_S3) | BIT(DBUF_S4),
-+		},
-+		.join_mbus = false,
-+	},
-+	{
- 		.active_pipes = BIT(PIPE_A) | BIT(PIPE_B),
- 		.dbuf_mask = {
- 			[PIPE_A] = BIT(DBUF_S1) | BIT(DBUF_S2),
-@@ -4837,13 +4855,14 @@ static bool adlp_check_mbus_joined(u8 ac
- 	return check_mbus_joined(active_pipes, adlp_allowed_dbufs);
- }
- 
--static u8 compute_dbuf_slices(enum pipe pipe, u8 active_pipes,
-+static u8 compute_dbuf_slices(enum pipe pipe, u8 active_pipes, bool join_mbus,
- 			      const struct dbuf_slice_conf_entry *dbuf_slices)
- {
- 	int i;
- 
- 	for (i = 0; i < dbuf_slices[i].active_pipes; i++) {
--		if (dbuf_slices[i].active_pipes == active_pipes)
-+		if (dbuf_slices[i].active_pipes == active_pipes &&
-+		    dbuf_slices[i].join_mbus == join_mbus)
- 			return dbuf_slices[i].dbuf_mask[pipe];
- 	}
- 	return 0;
-@@ -4854,7 +4873,7 @@ static u8 compute_dbuf_slices(enum pipe
-  * returns correspondent DBuf slice mask as stated in BSpec for particular
-  * platform.
-  */
--static u8 icl_compute_dbuf_slices(enum pipe pipe, u8 active_pipes)
-+static u8 icl_compute_dbuf_slices(enum pipe pipe, u8 active_pipes, bool join_mbus)
- {
- 	/*
- 	 * FIXME: For ICL this is still a bit unclear as prev BSpec revision
-@@ -4868,37 +4887,41 @@ static u8 icl_compute_dbuf_slices(enum p
- 	 * still here - we will need it once those additional constraints
- 	 * pop up.
- 	 */
--	return compute_dbuf_slices(pipe, active_pipes, icl_allowed_dbufs);
-+	return compute_dbuf_slices(pipe, active_pipes, join_mbus,
-+				   icl_allowed_dbufs);
- }
- 
--static u8 tgl_compute_dbuf_slices(enum pipe pipe, u8 active_pipes)
-+static u8 tgl_compute_dbuf_slices(enum pipe pipe, u8 active_pipes, bool join_mbus)
- {
--	return compute_dbuf_slices(pipe, active_pipes, tgl_allowed_dbufs);
-+	return compute_dbuf_slices(pipe, active_pipes, join_mbus,
-+				   tgl_allowed_dbufs);
- }
- 
--static u32 adlp_compute_dbuf_slices(enum pipe pipe, u32 active_pipes)
-+static u8 adlp_compute_dbuf_slices(enum pipe pipe, u8 active_pipes, bool join_mbus)
- {
--	return compute_dbuf_slices(pipe, active_pipes, adlp_allowed_dbufs);
-+	return compute_dbuf_slices(pipe, active_pipes, join_mbus,
-+				   adlp_allowed_dbufs);
- }
- 
--static u32 dg2_compute_dbuf_slices(enum pipe pipe, u32 active_pipes)
-+static u8 dg2_compute_dbuf_slices(enum pipe pipe, u8 active_pipes, bool join_mbus)
- {
--	return compute_dbuf_slices(pipe, active_pipes, dg2_allowed_dbufs);
-+	return compute_dbuf_slices(pipe, active_pipes, join_mbus,
-+				   dg2_allowed_dbufs);
- }
- 
--static u8 skl_compute_dbuf_slices(struct intel_crtc *crtc, u8 active_pipes)
-+static u8 skl_compute_dbuf_slices(struct intel_crtc *crtc, u8 active_pipes, bool join_mbus)
- {
- 	struct drm_i915_private *dev_priv = to_i915(crtc->base.dev);
- 	enum pipe pipe = crtc->pipe;
- 
- 	if (IS_DG2(dev_priv))
--		return dg2_compute_dbuf_slices(pipe, active_pipes);
-+		return dg2_compute_dbuf_slices(pipe, active_pipes, join_mbus);
- 	else if (IS_ALDERLAKE_P(dev_priv))
--		return adlp_compute_dbuf_slices(pipe, active_pipes);
-+		return adlp_compute_dbuf_slices(pipe, active_pipes, join_mbus);
- 	else if (DISPLAY_VER(dev_priv) == 12)
--		return tgl_compute_dbuf_slices(pipe, active_pipes);
-+		return tgl_compute_dbuf_slices(pipe, active_pipes, join_mbus);
- 	else if (DISPLAY_VER(dev_priv) == 11)
--		return icl_compute_dbuf_slices(pipe, active_pipes);
-+		return icl_compute_dbuf_slices(pipe, active_pipes, join_mbus);
- 	/*
- 	 * For anything else just return one slice yet.
- 	 * Should be extended for other platforms.
-@@ -6109,11 +6132,16 @@ skl_compute_ddb(struct intel_atomic_stat
- 			return ret;
- 	}
- 
-+	if (IS_ALDERLAKE_P(dev_priv))
-+		new_dbuf_state->joined_mbus =
-+			adlp_check_mbus_joined(new_dbuf_state->active_pipes);
-+
- 	for_each_intel_crtc(&dev_priv->drm, crtc) {
- 		enum pipe pipe = crtc->pipe;
- 
- 		new_dbuf_state->slices[pipe] =
--			skl_compute_dbuf_slices(crtc, new_dbuf_state->active_pipes);
-+			skl_compute_dbuf_slices(crtc, new_dbuf_state->active_pipes,
-+						new_dbuf_state->joined_mbus);
- 
- 		if (old_dbuf_state->slices[pipe] == new_dbuf_state->slices[pipe])
- 			continue;
-@@ -6125,9 +6153,6 @@ skl_compute_ddb(struct intel_atomic_stat
- 
- 	new_dbuf_state->enabled_slices = intel_dbuf_enabled_slices(new_dbuf_state);
- 
--	if (IS_ALDERLAKE_P(dev_priv))
--		new_dbuf_state->joined_mbus = adlp_check_mbus_joined(new_dbuf_state->active_pipes);
+-	/* Wait for PhyRstCmplt bit to be set, indicating the PHY reset has finished */
+-	ret = read_poll_timeout(axienet_ior, value,
+-				value & XAE_INT_PHYRSTCMPLT_MASK,
+-				DELAY_OF_ONE_MILLISEC, 50000, false, lp,
+-				XAE_IS_OFFSET);
+-	if (ret) {
+-		dev_err(lp->dev, "%s: timeout waiting for PhyRstCmplt\n", __func__);
+-		return ret;
+-	}
 -
- 	if (old_dbuf_state->enabled_slices != new_dbuf_state->enabled_slices ||
- 	    old_dbuf_state->joined_mbus != new_dbuf_state->joined_mbus) {
- 		ret = intel_atomic_serialize_global_state(&new_dbuf_state->base);
-@@ -6628,7 +6653,8 @@ void skl_wm_get_hw_state(struct drm_i915
- 		}
- 
- 		dbuf_state->slices[pipe] =
--			skl_compute_dbuf_slices(crtc, dbuf_state->active_pipes);
-+			skl_compute_dbuf_slices(crtc, dbuf_state->active_pipes,
-+						dbuf_state->joined_mbus);
- 
- 		dbuf_state->weight[pipe] = intel_crtc_ddb_weight(crtc_state);
- 
+ 	return 0;
+ out:
+ 	axienet_dma_bd_release(ndev);
 
 
