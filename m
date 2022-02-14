@@ -2,77 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEF134B4D79
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 12:12:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BF374B4D68
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 12:12:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349401AbiBNKwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:52:02 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43656 "EHLO
+        id S1349279AbiBNKwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:52:34 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350378AbiBNKvQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:51:16 -0500
-Received: from mail-out.m-online.net (mail-out.m-online.net [212.18.0.9])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02CED77A8A;
-        Mon, 14 Feb 2022 02:15:47 -0800 (PST)
-Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
-        by mail-out.m-online.net (Postfix) with ESMTP id 4Jy0V924ftz1r86y;
-        Mon, 14 Feb 2022 11:15:45 +0100 (CET)
-Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
-        by mail.m-online.net (Postfix) with ESMTP id 4Jy0V90YlFz1qqkG;
-        Mon, 14 Feb 2022 11:15:45 +0100 (CET)
-X-Virus-Scanned: amavisd-new at mnet-online.de
-Received: from mail.mnet-online.de ([192.168.8.182])
-        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
-        with ESMTP id ciTL-mIIXXIv; Mon, 14 Feb 2022 11:15:44 +0100 (CET)
-X-Auth-Info: k0w8anaaY5GOMTg9kubk4prPg/gPXdju+Qta5i8aIzT4i0LbN2ihZ0bcWJdLYcD/
-Received: from igel.home (ppp-46-244-178-131.dynamic.mnet-online.de [46.244.178.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.mnet-online.de (Postfix) with ESMTPSA;
-        Mon, 14 Feb 2022 11:15:44 +0100 (CET)
-Received: by igel.home (Postfix, from userid 1000)
-        id BF2382C394F; Mon, 14 Feb 2022 11:15:43 +0100 (CET)
-From:   Andreas Schwab <schwab@linux-m68k.org>
-To:     Heinrich Schuchardt <xypron.glpk@gmx.de>
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Atish Patra <atishp@atishpatra.org>, linux-efi@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Anup Patel <apatel@ventanamicro.com>, stable@vger.kernel.org,
-        Sunil V L <sunilvl@ventanamicro.com>
-Subject: Re: [PATCH] riscv/efi_stub: Fix get_boot_hartid_from_fdt() return
- value
-References: <20220128045004.4843-1-sunilvl@ventanamicro.com>
-        <877d9xx14f.fsf@igel.home>
-        <9cd9f149-d2ea-eb55-b774-8d817b9b6cc9@gmx.de>
-X-Yow:  The LOGARITHM of an ISOSCELES TRIANGLE is TUESDAY WELD!!
-Date:   Mon, 14 Feb 2022 11:15:43 +0100
-In-Reply-To: <9cd9f149-d2ea-eb55-b774-8d817b9b6cc9@gmx.de> (Heinrich
-        Schuchardt's message of "Mon, 14 Feb 2022 10:24:22 +0100")
-Message-ID: <87tud1vjn4.fsf@igel.home>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.91 (gnu/linux)
+        with ESMTP id S1349383AbiBNKvy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:51:54 -0500
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75F5F69CCF
+        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 02:16:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644833784; x=1676369784;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=ZLSQbYy/k+4wVRVOROLuhteAPRKfUCpphzihZWyy6uY=;
+  b=D8Oy11PlTzH4rF4WepUyS06yyJn3PnznQj6f/dxayzrGdxjZwOcflBSA
+   3gD8pY6CgFSmyeaKhgeWd6wrHnHPGGbwFfwVGCSE39itt+SxuvT2WiA9R
+   2dBN46zgSG+Np6DCYmQFFLa44tKxdgpxFgRJPgyBnm042ILPHxvPOYGDM
+   wiHrnysvLzXt3sJpIifdzp6X+62fy5abBMkT2p+lMBSnSJ/xypJOUdseG
+   bGEKWT8LUjaTQ0G1UBtVTFyAeflh6OXGvbLw4OnTKtBu1Gyq+NjnQS3p9
+   QyLTO1mzWmYzfOdDZIcSiGrx9/rLGbksmTaGSKoZ/eX71AXieSyZ6moqT
+   w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10257"; a="233607713"
+X-IronPort-AV: E=Sophos;i="5.88,367,1635231600"; 
+   d="scan'208";a="233607713"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2022 02:16:24 -0800
+X-IronPort-AV: E=Sophos;i="5.88,367,1635231600"; 
+   d="scan'208";a="495384198"
+Received: from unknown (HELO intel.com) ([10.237.72.65])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2022 02:16:22 -0800
+Date:   Mon, 14 Feb 2022 12:16:36 +0200
+From:   "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
+To:     Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/6] drm/i915: Correctly populate use_sagv_wm for all
+ pipes
+Message-ID: <20220214101636.GA25003@intel.com>
+References: <20220214091811.13725-1-ville.syrjala@linux.intel.com>
+ <20220214091811.13725-2-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H3,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220214091811.13725-2-ville.syrjala@linux.intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Feb 14 2022, Heinrich Schuchardt wrote:
+On Mon, Feb 14, 2022 at 11:18:06AM +0200, Ville Syrjala wrote:
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> 
+> When changing between SAGV vs. no SAGV on tgl+ we have to
+> update the use_sagv_wm flag for all the crtcs or else
+> an active pipe not already in the state will end up using
+> the wrong watermarks. That is especially bad when we end up
+> with the tighter non-SAGV watermarks with SAGV enabled.
+> Usually ends up in underruns.
 
-> set_boot_hartid() implies that the caller can change the boot hart ID.
-> As this is not a case this name obviously would be a misnomer.
+Probably valid point. Just noticed that we have this constant 
+confusion, between cases when we have to update only crtc
+which are added to the state(i.e only those which changed)
+versus cases when everything has to be updated, regardless 
+if its in the state or not.
 
-initialize_boot_hartid would fit better.
+I think it didn't ever caused underruns however, which is
+strange - currently we mostly hit underruns once due to 
+some PSR magic. Might be we just are lucky enough to get
+all crtcs added to the state for some other reasons.
 
--- 
-Andreas Schwab, schwab@linux-m68k.org
-GPG Key fingerprint = 7578 EB47 D4E5 4D69 2510  2552 DF73 E780 A9DA AEC1
-"And now for something completely different."
+Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+
+Stan
+
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+> Fixes: 7241c57d3140 ("drm/i915: Add TGL+ SAGV support")
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> ---
+>  drivers/gpu/drm/i915/intel_pm.c | 22 +++++++++++-----------
+>  1 file changed, 11 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+> index 1179bf31f743..d8eb553ffad3 100644
+> --- a/drivers/gpu/drm/i915/intel_pm.c
+> +++ b/drivers/gpu/drm/i915/intel_pm.c
+> @@ -4009,6 +4009,17 @@ static int intel_compute_sagv_mask(struct intel_atomic_state *state)
+>  			return ret;
+>  	}
+>  
+> +	if (intel_can_enable_sagv(dev_priv, new_bw_state) !=
+> +	    intel_can_enable_sagv(dev_priv, old_bw_state)) {
+> +		ret = intel_atomic_serialize_global_state(&new_bw_state->base);
+> +		if (ret)
+> +			return ret;
+> +	} else if (new_bw_state->pipe_sagv_reject != old_bw_state->pipe_sagv_reject) {
+> +		ret = intel_atomic_lock_global_state(&new_bw_state->base);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+>  	for_each_new_intel_crtc_in_state(state, crtc,
+>  					 new_crtc_state, i) {
+>  		struct skl_pipe_wm *pipe_wm = &new_crtc_state->wm.skl.optimal;
+> @@ -4024,17 +4035,6 @@ static int intel_compute_sagv_mask(struct intel_atomic_state *state)
+>  			intel_can_enable_sagv(dev_priv, new_bw_state);
+>  	}
+>  
+> -	if (intel_can_enable_sagv(dev_priv, new_bw_state) !=
+> -	    intel_can_enable_sagv(dev_priv, old_bw_state)) {
+> -		ret = intel_atomic_serialize_global_state(&new_bw_state->base);
+> -		if (ret)
+> -			return ret;
+> -	} else if (new_bw_state->pipe_sagv_reject != old_bw_state->pipe_sagv_reject) {
+> -		ret = intel_atomic_lock_global_state(&new_bw_state->base);
+> -		if (ret)
+> -			return ret;
+> -	}
+> -
+>  	return 0;
+>  }
+>  
+> -- 
+> 2.34.1
+> 
