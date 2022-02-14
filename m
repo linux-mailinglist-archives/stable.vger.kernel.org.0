@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57C3E4B4801
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A32994B49CC
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:37:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245105AbiBNJoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:44:13 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33258 "EHLO
+        id S229474AbiBNKRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:17:37 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244973AbiBNJnk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:43:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA04069CFA;
-        Mon, 14 Feb 2022 01:37:58 -0800 (PST)
+        with ESMTP id S1346863AbiBNKQF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:16:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A18A79C72;
+        Mon, 14 Feb 2022 01:53:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E0BCB80D83;
-        Mon, 14 Feb 2022 09:37:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BE6FC340E9;
-        Mon, 14 Feb 2022 09:37:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EC5DB80DBF;
+        Mon, 14 Feb 2022 09:53:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 508DDC340EF;
+        Mon, 14 Feb 2022 09:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831476;
-        bh=fNboLNrTTiztMzk5UQDqt4sM5NYrXTofzAbuRL2RH+E=;
+        s=korg; t=1644832382;
+        bh=Gj3Z9M/ZYEBo4oID8ujH6W/lVH/mp2oAgAzRkJJzenA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uurxPptttCTLXIPS11+37zRv8aFhFKu1wUAVfavAn/GJIhxCRsE/I3bGxHxpSAgGt
-         r0+3PJ6xCEObglxL7kduysCt9cl15NHzV1yRM2xI8MFVn7jjPqAOMpNwVqQu5WXARs
-         2eyNFtTb1IPtWQL57AEvi2xey59T6ha2jZwb4Bho=
+        b=tmgSPty10p0oDYmnZzEGOU7kjmDqpY0olZYoZtQtNV76CtNmrru8XkH5Y3SEIoL1D
+         TnmufybLJFHRleC0K3lAEiV0Fc5yrEAvyXNxNlAJOSbL7UWi9ImJsXiJjXb+tiuTPS
+         r3+hOOF9V6QbZq8x9ltbpk6JDVOcda9L6DpNHZbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>,
-        Will Drewry <wad@chromium.org>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.4 67/71] seccomp: Invalidate seccomp mode to catch death failures
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Jonas Malaco <jonas@protocubo.io>
+Subject: [PATCH 5.15 137/172] eeprom: ee1004: limit i2c reads to I2C_SMBUS_BLOCK_MAX
 Date:   Mon, 14 Feb 2022 10:26:35 +0100
-Message-Id: <20220214092454.290611893@linuxfoundation.org>
+Message-Id: <20220214092511.131823707@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Jonas Malaco <jonas@protocubo.io>
 
-commit 495ac3069a6235bfdf516812a2a9b256671bbdf9 upstream.
+commit c0689e46be23160d925dca95dfc411f1a0462708 upstream.
 
-If seccomp tries to kill a process, it should never see that process
-again. To enforce this proactively, switch the mode to something
-impossible. If encountered: WARN, reject all syscalls, and attempt to
-kill the process again even harder.
+Commit effa453168a7 ("i2c: i801: Don't silently correct invalid transfer
+size") revealed that ee1004_eeprom_read() did not properly limit how
+many bytes to read at once.
 
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Will Drewry <wad@chromium.org>
-Fixes: 8112c4f140fa ("seccomp: remove 2-phase API")
+In particular, i2c_smbus_read_i2c_block_data_or_emulated() takes the
+length to read as an u8.  If count == 256 after taking into account the
+offset and page boundary, the cast to u8 overflows.  And this is common
+when user space tries to read the entire EEPROM at once.
+
+To fix it, limit each read to I2C_SMBUS_BLOCK_MAX (32) bytes, already
+the maximum length i2c_smbus_read_i2c_block_data_or_emulated() allows.
+
+Fixes: effa453168a7 ("i2c: i801: Don't silently correct invalid transfer size")
 Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Jonas Malaco <jonas@protocubo.io>
+Link: https://lore.kernel.org/r/20220203165024.47767-1-jonas@protocubo.io
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/seccomp.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/misc/eeprom/ee1004.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/kernel/seccomp.c
-+++ b/kernel/seccomp.c
-@@ -28,6 +28,9 @@
- #include <linux/syscalls.h>
- #include <linux/sysctl.h>
+--- a/drivers/misc/eeprom/ee1004.c
++++ b/drivers/misc/eeprom/ee1004.c
+@@ -114,6 +114,9 @@ static ssize_t ee1004_eeprom_read(struct
+ 	if (offset + count > EE1004_PAGE_SIZE)
+ 		count = EE1004_PAGE_SIZE - offset;
  
-+/* Not exposed in headers: strictly internal use only. */
-+#define SECCOMP_MODE_DEAD	(SECCOMP_MODE_FILTER + 1)
++	if (count > I2C_SMBUS_BLOCK_MAX)
++		count = I2C_SMBUS_BLOCK_MAX;
 +
- #ifdef CONFIG_HAVE_ARCH_SECCOMP_FILTER
- #include <asm/syscall.h>
- #endif
-@@ -706,6 +709,7 @@ static void __secure_computing_strict(in
- #ifdef SECCOMP_DEBUG
- 	dump_stack();
- #endif
-+	current->seccomp.mode = SECCOMP_MODE_DEAD;
- 	seccomp_log(this_syscall, SIGKILL, SECCOMP_RET_KILL_THREAD, true);
- 	do_exit(SIGKILL);
+ 	return i2c_smbus_read_i2c_block_data_or_emulated(client, offset, count, buf);
  }
-@@ -892,6 +896,7 @@ static int __seccomp_filter(int this_sys
- 	case SECCOMP_RET_KILL_THREAD:
- 	case SECCOMP_RET_KILL_PROCESS:
- 	default:
-+		current->seccomp.mode = SECCOMP_MODE_DEAD;
- 		seccomp_log(this_syscall, SIGSYS, action, true);
- 		/* Dump core only if this is the last remaining thread. */
- 		if (action == SECCOMP_RET_KILL_PROCESS ||
-@@ -944,6 +949,11 @@ int __secure_computing(const struct secc
- 		return 0;
- 	case SECCOMP_MODE_FILTER:
- 		return __seccomp_filter(this_syscall, sd, false);
-+	/* Surviving SECCOMP_RET_KILL_* must be proactively impossible. */
-+	case SECCOMP_MODE_DEAD:
-+		WARN_ON_ONCE(1);
-+		do_exit(SIGKILL);
-+		return -1;
- 	default:
- 		BUG();
- 	}
+ 
 
 
