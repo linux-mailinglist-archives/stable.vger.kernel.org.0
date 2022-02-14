@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D87A54B4BE1
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60E0A4B46D2
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348047AbiBNKfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:35:03 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43868 "EHLO
+        id S241244AbiBNJhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:37:07 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348066AbiBNKej (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:34:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C11AA1AB;
-        Mon, 14 Feb 2022 01:41:17 -0800 (PST)
+        with ESMTP id S245413AbiBNJgq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49BF56DA9F;
+        Mon, 14 Feb 2022 01:34:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25576B80DC4;
-        Mon, 14 Feb 2022 09:41:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 599FBC340E9;
-        Mon, 14 Feb 2022 09:41:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE825B80DCC;
+        Mon, 14 Feb 2022 09:34:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4EDCC340E9;
+        Mon, 14 Feb 2022 09:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831672;
-        bh=DyZCzf4MLSkV/RMSq/CCyIhyjZqCMJ2VWAna2pi/fsk=;
+        s=korg; t=1644831277;
+        bh=o0pEpcsUFfgRzpuHWku1OvbvDzy+twvKJnNPSEj3M4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UORf68Q5Jv4Yzuw8f4Cj3G9jrb00jgQy3omDY2NRRhi0S8CCLaYmQy3PYrRmWK4y6
-         HJq6+hyJNMtT3u1EK7Uy/Z9aV+0wdeXpiJMoZK7ypuBdOK54HM+IhUV0qEgOXY6aap
-         dhRSkHBAXNTux99gJszWWsf13BOoVtol6SvODsXg=
+        b=1pie8z0pGOGuz2BzkDD6olacStzreB1fFWyijsOvqSXTM+4ifnDk5VIbvzR3Zihvb
+         1s3+ZsRUh05mYLY/DJ3l52NXiKLholMvPOSpbl1G2LpHMHDWthC8ik7t96lhRZVOvA
+         tMFeo1a/P9hFbGb0W1T0KmywLL6ojtBfHmxlUC7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
-        Pratham Pratap <quic_ppratap@quicinc.com>,
-        Udipto Goswami <quic_ugoswami@quicinc.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 058/116] usb: f_fs: Fix use-after-free for epfile
+Subject: [PATCH 4.19 31/49] veth: fix races around rq->rx_notify_masked
 Date:   Mon, 14 Feb 2022 10:25:57 +0100
-Message-Id: <20220214092500.747995676@linuxfoundation.org>
+Message-Id: <20220214092449.324113105@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
+References: <20220214092448.285381753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,160 +56,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Udipto Goswami <quic_ugoswami@quicinc.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ebe2b1add1055b903e2acd86b290a85297edc0b3 ]
+[ Upstream commit 68468d8c4cd4222a4ca1f185ab5a1c14480d078c ]
 
-Consider a case where ffs_func_eps_disable is called from
-ffs_func_disable as part of composition switch and at the
-same time ffs_epfile_release get called from userspace.
-ffs_epfile_release will free up the read buffer and call
-ffs_data_closed which in turn destroys ffs->epfiles and
-mark it as NULL. While this was happening the driver has
-already initialized the local epfile in ffs_func_eps_disable
-which is now freed and waiting to acquire the spinlock. Once
-spinlock is acquired the driver proceeds with the stale value
-of epfile and tries to free the already freed read buffer
-causing use-after-free.
+veth being NETIF_F_LLTX enabled, we need to be more careful
+whenever we read/write rq->rx_notify_masked.
 
-Following is the illustration of the race:
+BUG: KCSAN: data-race in veth_xmit / veth_xmit
 
-      CPU1                                  CPU2
+write to 0xffff888133d9a9f8 of 1 bytes by task 23552 on cpu 0:
+ __veth_xdp_flush drivers/net/veth.c:269 [inline]
+ veth_xmit+0x307/0x470 drivers/net/veth.c:350
+ __netdev_start_xmit include/linux/netdevice.h:4683 [inline]
+ netdev_start_xmit include/linux/netdevice.h:4697 [inline]
+ xmit_one+0x105/0x2f0 net/core/dev.c:3473
+ dev_hard_start_xmit net/core/dev.c:3489 [inline]
+ __dev_queue_xmit+0x86d/0xf90 net/core/dev.c:4116
+ dev_queue_xmit+0x13/0x20 net/core/dev.c:4149
+ br_dev_queue_push_xmit+0x3ce/0x430 net/bridge/br_forward.c:53
+ NF_HOOK include/linux/netfilter.h:307 [inline]
+ br_forward_finish net/bridge/br_forward.c:66 [inline]
+ NF_HOOK include/linux/netfilter.h:307 [inline]
+ __br_forward+0x2e4/0x400 net/bridge/br_forward.c:115
+ br_flood+0x521/0x5c0 net/bridge/br_forward.c:242
+ br_dev_xmit+0x8b6/0x960
+ __netdev_start_xmit include/linux/netdevice.h:4683 [inline]
+ netdev_start_xmit include/linux/netdevice.h:4697 [inline]
+ xmit_one+0x105/0x2f0 net/core/dev.c:3473
+ dev_hard_start_xmit net/core/dev.c:3489 [inline]
+ __dev_queue_xmit+0x86d/0xf90 net/core/dev.c:4116
+ dev_queue_xmit+0x13/0x20 net/core/dev.c:4149
+ neigh_hh_output include/net/neighbour.h:525 [inline]
+ neigh_output include/net/neighbour.h:539 [inline]
+ ip_finish_output2+0x6f8/0xb70 net/ipv4/ip_output.c:228
+ ip_finish_output+0xfb/0x240 net/ipv4/ip_output.c:316
+ NF_HOOK_COND include/linux/netfilter.h:296 [inline]
+ ip_output+0xf3/0x1a0 net/ipv4/ip_output.c:430
+ dst_output include/net/dst.h:451 [inline]
+ ip_local_out net/ipv4/ip_output.c:126 [inline]
+ ip_send_skb+0x6e/0xe0 net/ipv4/ip_output.c:1570
+ udp_send_skb+0x641/0x880 net/ipv4/udp.c:967
+ udp_sendmsg+0x12ea/0x14c0 net/ipv4/udp.c:1254
+ inet_sendmsg+0x5f/0x80 net/ipv4/af_inet.c:819
+ sock_sendmsg_nosec net/socket.c:705 [inline]
+ sock_sendmsg net/socket.c:725 [inline]
+ ____sys_sendmsg+0x39a/0x510 net/socket.c:2413
+ ___sys_sendmsg net/socket.c:2467 [inline]
+ __sys_sendmmsg+0x267/0x4c0 net/socket.c:2553
+ __do_sys_sendmmsg net/socket.c:2582 [inline]
+ __se_sys_sendmmsg net/socket.c:2579 [inline]
+ __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2579
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-   ffs_func_eps_disable
-   epfiles (local copy)
-					ffs_epfile_release
-					ffs_data_closed
-					if (last file closed)
-					ffs_data_reset
-					ffs_data_clear
-					ffs_epfiles_destroy
-spin_lock
-dereference epfiles
+read to 0xffff888133d9a9f8 of 1 bytes by task 23563 on cpu 1:
+ __veth_xdp_flush drivers/net/veth.c:268 [inline]
+ veth_xmit+0x2d6/0x470 drivers/net/veth.c:350
+ __netdev_start_xmit include/linux/netdevice.h:4683 [inline]
+ netdev_start_xmit include/linux/netdevice.h:4697 [inline]
+ xmit_one+0x105/0x2f0 net/core/dev.c:3473
+ dev_hard_start_xmit net/core/dev.c:3489 [inline]
+ __dev_queue_xmit+0x86d/0xf90 net/core/dev.c:4116
+ dev_queue_xmit+0x13/0x20 net/core/dev.c:4149
+ br_dev_queue_push_xmit+0x3ce/0x430 net/bridge/br_forward.c:53
+ NF_HOOK include/linux/netfilter.h:307 [inline]
+ br_forward_finish net/bridge/br_forward.c:66 [inline]
+ NF_HOOK include/linux/netfilter.h:307 [inline]
+ __br_forward+0x2e4/0x400 net/bridge/br_forward.c:115
+ br_flood+0x521/0x5c0 net/bridge/br_forward.c:242
+ br_dev_xmit+0x8b6/0x960
+ __netdev_start_xmit include/linux/netdevice.h:4683 [inline]
+ netdev_start_xmit include/linux/netdevice.h:4697 [inline]
+ xmit_one+0x105/0x2f0 net/core/dev.c:3473
+ dev_hard_start_xmit net/core/dev.c:3489 [inline]
+ __dev_queue_xmit+0x86d/0xf90 net/core/dev.c:4116
+ dev_queue_xmit+0x13/0x20 net/core/dev.c:4149
+ neigh_hh_output include/net/neighbour.h:525 [inline]
+ neigh_output include/net/neighbour.h:539 [inline]
+ ip_finish_output2+0x6f8/0xb70 net/ipv4/ip_output.c:228
+ ip_finish_output+0xfb/0x240 net/ipv4/ip_output.c:316
+ NF_HOOK_COND include/linux/netfilter.h:296 [inline]
+ ip_output+0xf3/0x1a0 net/ipv4/ip_output.c:430
+ dst_output include/net/dst.h:451 [inline]
+ ip_local_out net/ipv4/ip_output.c:126 [inline]
+ ip_send_skb+0x6e/0xe0 net/ipv4/ip_output.c:1570
+ udp_send_skb+0x641/0x880 net/ipv4/udp.c:967
+ udp_sendmsg+0x12ea/0x14c0 net/ipv4/udp.c:1254
+ inet_sendmsg+0x5f/0x80 net/ipv4/af_inet.c:819
+ sock_sendmsg_nosec net/socket.c:705 [inline]
+ sock_sendmsg net/socket.c:725 [inline]
+ ____sys_sendmsg+0x39a/0x510 net/socket.c:2413
+ ___sys_sendmsg net/socket.c:2467 [inline]
+ __sys_sendmmsg+0x267/0x4c0 net/socket.c:2553
+ __do_sys_sendmmsg net/socket.c:2582 [inline]
+ __se_sys_sendmmsg net/socket.c:2579 [inline]
+ __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2579
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fix this races by taking epfiles local copy & assigning it under
-spinlock and if epfiles(local) is null then update it in ffs->epfiles
-then finally destroy it.
-Extending the scope further from the race, protecting the ep related
-structures, and concurrent accesses.
+value changed: 0x00 -> 0x01
 
-Fixes: a9e6f83c2df1 ("usb: gadget: f_fs: stop sleeping in ffs_func_eps_disable")
-Co-developed-by: Udipto Goswami <quic_ugoswami@quicinc.com>
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Pratham Pratap <quic_ppratap@quicinc.com>
-Signed-off-by: Udipto Goswami <quic_ugoswami@quicinc.com>
-Link: https://lore.kernel.org/r/1643256595-10797-1-git-send-email-quic_ugoswami@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 23563 Comm: syz-executor.5 Not tainted 5.17.0-rc2-syzkaller-00064-gc36c04c2e132 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 948d4f214fde ("veth: Add driver XDP")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Toshiaki Makita <makita.toshiaki@lab.ntt.co.jp>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c | 56 ++++++++++++++++++++++--------
- 1 file changed, 42 insertions(+), 14 deletions(-)
+ drivers/net/veth.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index d8652321e15e9..bb0d92837f677 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1710,16 +1710,24 @@ static void ffs_data_put(struct ffs_data *ffs)
- 
- static void ffs_data_closed(struct ffs_data *ffs)
+diff --git a/drivers/net/veth.c b/drivers/net/veth.c
+index 5e988f7ec1743..76e834ca54e79 100644
+--- a/drivers/net/veth.c
++++ b/drivers/net/veth.c
+@@ -152,9 +152,10 @@ static void __veth_xdp_flush(struct veth_rq *rq)
  {
-+	struct ffs_epfile *epfiles;
-+	unsigned long flags;
-+
- 	ENTER();
- 
- 	if (atomic_dec_and_test(&ffs->opened)) {
- 		if (ffs->no_disconnect) {
- 			ffs->state = FFS_DEACTIVATED;
--			if (ffs->epfiles) {
--				ffs_epfiles_destroy(ffs->epfiles,
--						   ffs->eps_count);
--				ffs->epfiles = NULL;
--			}
-+			spin_lock_irqsave(&ffs->eps_lock, flags);
-+			epfiles = ffs->epfiles;
-+			ffs->epfiles = NULL;
-+			spin_unlock_irqrestore(&ffs->eps_lock,
-+							flags);
-+
-+			if (epfiles)
-+				ffs_epfiles_destroy(epfiles,
-+						 ffs->eps_count);
-+
- 			if (ffs->setup_state == FFS_SETUP_PENDING)
- 				__ffs_ep0_stall(ffs);
- 		} else {
-@@ -1766,14 +1774,27 @@ static struct ffs_data *ffs_data_new(const char *dev_name)
- 
- static void ffs_data_clear(struct ffs_data *ffs)
- {
-+	struct ffs_epfile *epfiles;
-+	unsigned long flags;
-+
- 	ENTER();
- 
- 	ffs_closed(ffs);
- 
- 	BUG_ON(ffs->gadget);
- 
--	if (ffs->epfiles) {
--		ffs_epfiles_destroy(ffs->epfiles, ffs->eps_count);
-+	spin_lock_irqsave(&ffs->eps_lock, flags);
-+	epfiles = ffs->epfiles;
-+	ffs->epfiles = NULL;
-+	spin_unlock_irqrestore(&ffs->eps_lock, flags);
-+
-+	/*
-+	 * potential race possible between ffs_func_eps_disable
-+	 * & ffs_epfile_release therefore maintaining a local
-+	 * copy of epfile will save us from use-after-free.
-+	 */
-+	if (epfiles) {
-+		ffs_epfiles_destroy(epfiles, ffs->eps_count);
- 		ffs->epfiles = NULL;
+ 	/* Write ptr_ring before reading rx_notify_masked */
+ 	smp_mb();
+-	if (!rq->rx_notify_masked) {
+-		rq->rx_notify_masked = true;
+-		napi_schedule(&rq->xdp_napi);
++	if (!READ_ONCE(rq->rx_notify_masked) &&
++	    napi_schedule_prep(&rq->xdp_napi)) {
++		WRITE_ONCE(rq->rx_notify_masked, true);
++		__napi_schedule(&rq->xdp_napi);
  	}
+ }
  
-@@ -1921,12 +1942,15 @@ static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count)
- 
- static void ffs_func_eps_disable(struct ffs_function *func)
- {
--	struct ffs_ep *ep         = func->eps;
--	struct ffs_epfile *epfile = func->ffs->epfiles;
--	unsigned count            = func->ffs->eps_count;
-+	struct ffs_ep *ep;
-+	struct ffs_epfile *epfile;
-+	unsigned short count;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&func->ffs->eps_lock, flags);
-+	count = func->ffs->eps_count;
-+	epfile = func->ffs->epfiles;
-+	ep = func->eps;
- 	while (count--) {
- 		/* pending requests get nuked */
- 		if (likely(ep->ep))
-@@ -1944,14 +1968,18 @@ static void ffs_func_eps_disable(struct ffs_function *func)
- 
- static int ffs_func_eps_enable(struct ffs_function *func)
- {
--	struct ffs_data *ffs      = func->ffs;
--	struct ffs_ep *ep         = func->eps;
--	struct ffs_epfile *epfile = ffs->epfiles;
--	unsigned count            = ffs->eps_count;
-+	struct ffs_data *ffs;
-+	struct ffs_ep *ep;
-+	struct ffs_epfile *epfile;
-+	unsigned short count;
- 	unsigned long flags;
- 	int ret = 0;
- 
- 	spin_lock_irqsave(&func->ffs->eps_lock, flags);
-+	ffs = func->ffs;
-+	ep = func->eps;
-+	epfile = ffs->epfiles;
-+	count = ffs->eps_count;
- 	while(count--) {
- 		ep->ep->driver_data = ep;
+@@ -623,8 +624,10 @@ static int veth_poll(struct napi_struct *napi, int budget)
+ 		/* Write rx_notify_masked before reading ptr_ring */
+ 		smp_store_mb(rq->rx_notify_masked, false);
+ 		if (unlikely(!__ptr_ring_empty(&rq->xdp_ring))) {
+-			rq->rx_notify_masked = true;
+-			napi_schedule(&rq->xdp_napi);
++			if (napi_schedule_prep(&rq->xdp_napi)) {
++				WRITE_ONCE(rq->rx_notify_masked, true);
++				__napi_schedule(&rq->xdp_napi);
++			}
+ 		}
+ 	}
  
 -- 
 2.34.1
