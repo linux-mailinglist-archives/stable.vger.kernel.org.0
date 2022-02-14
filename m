@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 964264B48BB
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:58:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 701614B4BF6
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343964AbiBNJ5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:57:50 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34692 "EHLO
+        id S1348424AbiBNKfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:35:20 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344038AbiBNJzp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:55:45 -0500
+        with ESMTP id S1348346AbiBNKes (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:34:48 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 287106E4EA;
-        Mon, 14 Feb 2022 01:44:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1EF3117B;
+        Mon, 14 Feb 2022 02:01:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9051B80DBE;
-        Mon, 14 Feb 2022 09:44:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A301C340EF;
-        Mon, 14 Feb 2022 09:44:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A4E4B80D6D;
+        Mon, 14 Feb 2022 10:01:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A39BBC340E9;
+        Mon, 14 Feb 2022 10:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831855;
-        bh=q5LWd1j9Zs3lkXGE5hEMxO6tSIR7816KEF9BxtRV9co=;
+        s=korg; t=1644832906;
+        bh=CLfqbK5DAgyx3E+ykodxSz0Gwtxu7xIMZXMF5qlQwTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gAQEf3sEbZM+dNbhHqy5hi3Mm0SYhS1EMveb1PDd6khPURXBEqNQy4LtAnjcZ7pRZ
-         Bi9t+twRLdEyCdLuajKCD4c+oRhJDpc//x71R+hoSTgtXAUjBvhbZE/t+bXeIe6lIt
-         20ijGjnFOt3+JzmCYqcqABQaTHlF8LAg5ePwNOLw=
+        b=JIw1bkAa+bJf2ejkLa/3FVSk9L0MAqNY4OlGfCljsKRL3ZyZ7WWi5Y18hH3Cjoxjy
+         5XR5zsV4oHjedP96wHf8MMUDvPpkbWnS0Ua/XApGfLtHjdsRKq8+Nr9PNAbupL3DBZ
+         yLeD3rtK87HA2Cbw7IQHrim1rv16+JEEc4Krzv+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Russell <Scott.Russell2@ncr.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 106/116] USB: serial: cp210x: add CPI Bulk Coin Recycler id
-Date:   Mon, 14 Feb 2022 10:26:45 +0100
-Message-Id: <20220214092502.445994845@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Brian Johannesmeyer <bjohannesmeyer@gmail.com>,
+        Jakob Koschel <jakobkoschel@gmail.com>
+Subject: [PATCH 5.16 162/203] vt_ioctl: fix array_index_nospec in vt_setactivate
+Date:   Mon, 14 Feb 2022 10:26:46 +0100
+Message-Id: <20220214092515.745236545@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jakob Koschel <jakobkoschel@gmail.com>
 
-commit 6ca0c6283340d819bf9c7d8e76be33c9fbd903ab upstream.
+commit 61cc70d9e8ef5b042d4ed87994d20100ec8896d9 upstream.
 
-Add the device id for the Crane Payment Innovation / Money Controls Bulk
-Coin Recycler:
+array_index_nospec ensures that an out-of-bounds value is set to zero
+on the transient path. Decreasing the value by one afterwards causes
+a transient integer underflow. vsa.console should be decreased first
+and then sanitized with array_index_nospec.
 
-	https://www.cranepi.com/en/system/files/Support/OM_BCR_EN_V1-04_0.pdf
+Kasper Acknowledgements: Jakob Koschel, Brian Johannesmeyer, Kaveh
+Razavi, Herbert Bos, Cristiano Giuffrida from the VUSec group at VU
+Amsterdam.
 
-Reported-by: Scott Russell <Scott.Russell2@ncr.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Co-developed-by: Brian Johannesmeyer <bjohannesmeyer@gmail.com>
+Signed-off-by: Brian Johannesmeyer <bjohannesmeyer@gmail.com>
+Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
+Link: https://lore.kernel.org/r/20220127144406.3589293-1-jakobkoschel@gmail.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/vt/vt_ioctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -73,6 +73,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x0FCF, 0x1004) }, /* Dynastream ANT2USB */
- 	{ USB_DEVICE(0x0FCF, 0x1006) }, /* Dynastream ANT development board */
- 	{ USB_DEVICE(0x0FDE, 0xCA05) }, /* OWL Wireless Electricity Monitor CM-160 */
-+	{ USB_DEVICE(0x106F, 0x0003) },	/* CPI / Money Controls Bulk Coin Recycler */
- 	{ USB_DEVICE(0x10A6, 0xAA26) }, /* Knock-off DCU-11 cable */
- 	{ USB_DEVICE(0x10AB, 0x10C5) }, /* Siemens MC60 Cable */
- 	{ USB_DEVICE(0x10B5, 0xAC70) }, /* Nokia CA-42 USB */
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -599,8 +599,8 @@ static int vt_setactivate(struct vt_seta
+ 	if (vsa.console == 0 || vsa.console > MAX_NR_CONSOLES)
+ 		return -ENXIO;
+ 
+-	vsa.console = array_index_nospec(vsa.console, MAX_NR_CONSOLES + 1);
+ 	vsa.console--;
++	vsa.console = array_index_nospec(vsa.console, MAX_NR_CONSOLES);
+ 	console_lock();
+ 	ret = vc_allocate(vsa.console);
+ 	if (ret) {
 
 
