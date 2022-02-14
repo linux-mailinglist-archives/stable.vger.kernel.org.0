@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F9BC4B45DE
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D87A54B4BE1
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243007AbiBNJ3q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:29:46 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42486 "EHLO
+        id S1348047AbiBNKfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:35:03 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243235AbiBNJ3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:29:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 089101AD8B;
-        Mon, 14 Feb 2022 01:29:07 -0800 (PST)
+        with ESMTP id S1348066AbiBNKej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:34:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C11AA1AB;
+        Mon, 14 Feb 2022 01:41:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97CD860F86;
-        Mon, 14 Feb 2022 09:29:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73885C340E9;
-        Mon, 14 Feb 2022 09:29:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25576B80DC4;
+        Mon, 14 Feb 2022 09:41:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 599FBC340E9;
+        Mon, 14 Feb 2022 09:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644830946;
-        bh=zUqqORih3FzTB/susdM0OZh53RgjIz5LRSat4of2STc=;
+        s=korg; t=1644831672;
+        bh=DyZCzf4MLSkV/RMSq/CCyIhyjZqCMJ2VWAna2pi/fsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nFhb6Tg05wJsHtCYam6qNR0VtMyhV1AdvHGdWXfl134w+Tdvh4Wz8kaaYNRhOCpD1
-         XW2o6tIzQuzGfA4+zsGwxUzQJrJu6SVWjLlNGTlDxRvw/cJXLT4q4VGivZfOEmRM7M
-         SFnrgPLDPYkrUi5e4cFpa+lnHekkf3uOWMI046Mk=
+        b=UORf68Q5Jv4Yzuw8f4Cj3G9jrb00jgQy3omDY2NRRhi0S8CCLaYmQy3PYrRmWK4y6
+         HJq6+hyJNMtT3u1EK7Uy/Z9aV+0wdeXpiJMoZK7ypuBdOK54HM+IhUV0qEgOXY6aap
+         dhRSkHBAXNTux99gJszWWsf13BOoVtol6SvODsXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephan Brunner <s.brunner@stephan-brunner.net>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 31/34] USB: serial: ch341: add support for GW Instek USB2.0-Serial devices
+        stable@vger.kernel.org, John Keeping <john@metanate.com>,
+        Pratham Pratap <quic_ppratap@quicinc.com>,
+        Udipto Goswami <quic_ugoswami@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 058/116] usb: f_fs: Fix use-after-free for epfile
 Date:   Mon, 14 Feb 2022 10:25:57 +0100
-Message-Id: <20220214092446.952547567@linuxfoundation.org>
+Message-Id: <20220214092500.747995676@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
-References: <20220214092445.946718557@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Brunner <s.brunner@stephan-brunner.net>
+From: Udipto Goswami <quic_ugoswami@quicinc.com>
 
-commit fa77ce201f7f2d823b07753575122d1ae5597fbe upstream.
+[ Upstream commit ebe2b1add1055b903e2acd86b290a85297edc0b3 ]
 
-Programmable lab power supplies made by GW Instek, such as the
-GPP-2323, have a USB port exposing a serial port to control the device.
+Consider a case where ffs_func_eps_disable is called from
+ffs_func_disable as part of composition switch and at the
+same time ffs_epfile_release get called from userspace.
+ffs_epfile_release will free up the read buffer and call
+ffs_data_closed which in turn destroys ffs->epfiles and
+mark it as NULL. While this was happening the driver has
+already initialized the local epfile in ffs_func_eps_disable
+which is now freed and waiting to acquire the spinlock. Once
+spinlock is acquired the driver proceeds with the stale value
+of epfile and tries to free the already freed read buffer
+causing use-after-free.
 
-Stringing the supplied Windows driver, references to the ch341 chip are
-found. Binding the existing ch341 driver to the VID/PID of the GPP-2323
-("GW Instek USB2.0-Serial" as per the USB product name) works out of the
-box, communication and control is now possible.
+Following is the illustration of the race:
 
-This patch should work with any GPP series power supply due to
-similarities in the product line.
+      CPU1                                  CPU2
 
-Signed-off-by: Stephan Brunner <s.brunner@stephan-brunner.net>
-Link: https://lore.kernel.org/r/4a47b864-0816-6f6a-efee-aa20e74bcdc6@stephan-brunner.net
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+   ffs_func_eps_disable
+   epfiles (local copy)
+					ffs_epfile_release
+					ffs_data_closed
+					if (last file closed)
+					ffs_data_reset
+					ffs_data_clear
+					ffs_epfiles_destroy
+spin_lock
+dereference epfiles
+
+Fix this races by taking epfiles local copy & assigning it under
+spinlock and if epfiles(local) is null then update it in ffs->epfiles
+then finally destroy it.
+Extending the scope further from the race, protecting the ep related
+structures, and concurrent accesses.
+
+Fixes: a9e6f83c2df1 ("usb: gadget: f_fs: stop sleeping in ffs_func_eps_disable")
+Co-developed-by: Udipto Goswami <quic_ugoswami@quicinc.com>
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Pratham Pratap <quic_ppratap@quicinc.com>
+Signed-off-by: Udipto Goswami <quic_ugoswami@quicinc.com>
+Link: https://lore.kernel.org/r/1643256595-10797-1-git-send-email-quic_ugoswami@quicinc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ch341.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/gadget/function/f_fs.c | 56 ++++++++++++++++++++++--------
+ 1 file changed, 42 insertions(+), 14 deletions(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -74,6 +74,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x1a86, 0x5523) },
- 	{ USB_DEVICE(0x1a86, 0x7522) },
- 	{ USB_DEVICE(0x1a86, 0x7523) },
-+	{ USB_DEVICE(0x2184, 0x0057) },
- 	{ USB_DEVICE(0x4348, 0x5523) },
- 	{ USB_DEVICE(0x9986, 0x7523) },
- 	{ },
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index d8652321e15e9..bb0d92837f677 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1710,16 +1710,24 @@ static void ffs_data_put(struct ffs_data *ffs)
+ 
+ static void ffs_data_closed(struct ffs_data *ffs)
+ {
++	struct ffs_epfile *epfiles;
++	unsigned long flags;
++
+ 	ENTER();
+ 
+ 	if (atomic_dec_and_test(&ffs->opened)) {
+ 		if (ffs->no_disconnect) {
+ 			ffs->state = FFS_DEACTIVATED;
+-			if (ffs->epfiles) {
+-				ffs_epfiles_destroy(ffs->epfiles,
+-						   ffs->eps_count);
+-				ffs->epfiles = NULL;
+-			}
++			spin_lock_irqsave(&ffs->eps_lock, flags);
++			epfiles = ffs->epfiles;
++			ffs->epfiles = NULL;
++			spin_unlock_irqrestore(&ffs->eps_lock,
++							flags);
++
++			if (epfiles)
++				ffs_epfiles_destroy(epfiles,
++						 ffs->eps_count);
++
+ 			if (ffs->setup_state == FFS_SETUP_PENDING)
+ 				__ffs_ep0_stall(ffs);
+ 		} else {
+@@ -1766,14 +1774,27 @@ static struct ffs_data *ffs_data_new(const char *dev_name)
+ 
+ static void ffs_data_clear(struct ffs_data *ffs)
+ {
++	struct ffs_epfile *epfiles;
++	unsigned long flags;
++
+ 	ENTER();
+ 
+ 	ffs_closed(ffs);
+ 
+ 	BUG_ON(ffs->gadget);
+ 
+-	if (ffs->epfiles) {
+-		ffs_epfiles_destroy(ffs->epfiles, ffs->eps_count);
++	spin_lock_irqsave(&ffs->eps_lock, flags);
++	epfiles = ffs->epfiles;
++	ffs->epfiles = NULL;
++	spin_unlock_irqrestore(&ffs->eps_lock, flags);
++
++	/*
++	 * potential race possible between ffs_func_eps_disable
++	 * & ffs_epfile_release therefore maintaining a local
++	 * copy of epfile will save us from use-after-free.
++	 */
++	if (epfiles) {
++		ffs_epfiles_destroy(epfiles, ffs->eps_count);
+ 		ffs->epfiles = NULL;
+ 	}
+ 
+@@ -1921,12 +1942,15 @@ static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count)
+ 
+ static void ffs_func_eps_disable(struct ffs_function *func)
+ {
+-	struct ffs_ep *ep         = func->eps;
+-	struct ffs_epfile *epfile = func->ffs->epfiles;
+-	unsigned count            = func->ffs->eps_count;
++	struct ffs_ep *ep;
++	struct ffs_epfile *epfile;
++	unsigned short count;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&func->ffs->eps_lock, flags);
++	count = func->ffs->eps_count;
++	epfile = func->ffs->epfiles;
++	ep = func->eps;
+ 	while (count--) {
+ 		/* pending requests get nuked */
+ 		if (likely(ep->ep))
+@@ -1944,14 +1968,18 @@ static void ffs_func_eps_disable(struct ffs_function *func)
+ 
+ static int ffs_func_eps_enable(struct ffs_function *func)
+ {
+-	struct ffs_data *ffs      = func->ffs;
+-	struct ffs_ep *ep         = func->eps;
+-	struct ffs_epfile *epfile = ffs->epfiles;
+-	unsigned count            = ffs->eps_count;
++	struct ffs_data *ffs;
++	struct ffs_ep *ep;
++	struct ffs_epfile *epfile;
++	unsigned short count;
+ 	unsigned long flags;
+ 	int ret = 0;
+ 
+ 	spin_lock_irqsave(&func->ffs->eps_lock, flags);
++	ffs = func->ffs;
++	ep = func->eps;
++	epfile = ffs->epfiles;
++	count = ffs->eps_count;
+ 	while(count--) {
+ 		ep->ep->driver_data = ep;
+ 
+-- 
+2.34.1
+
 
 
