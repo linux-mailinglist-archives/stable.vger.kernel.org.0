@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B44144B4AEF
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A96B4B4C79
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:44:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346318AbiBNKSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:18:09 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44682 "EHLO
+        id S233766AbiBNKmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:42:11 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346826AbiBNKQD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:16:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B80E79C6B;
-        Mon, 14 Feb 2022 01:53:21 -0800 (PST)
+        with ESMTP id S1348843AbiBNKkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:40:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 025AD66CA8;
+        Mon, 14 Feb 2022 02:04:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EF6261303;
-        Mon, 14 Feb 2022 09:53:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8F8CC340E9;
-        Mon, 14 Feb 2022 09:53:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8252760909;
+        Mon, 14 Feb 2022 10:04:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B76CC340E9;
+        Mon, 14 Feb 2022 10:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832398;
-        bh=5WK0kK9roEQOPrKBdj9vTLAWvwtzCxIVmtlFHoWVxbs=;
+        s=korg; t=1644833052;
+        bh=VurFU58a1cNgjY+xlro4xnBrTwWyCaOg886ucNWiblY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rD5goorXfdFEOjL8U92py9VTsCBXUvqrrz6Kuz7o7aCbDGz2QntKM6SQ/os7Bf+Nm
-         gM4ULMUkRQOguijRtaG0iIkDMlUvMGFa/ZAzvqAo86k1f5eF3gtH/IFSn/TWcaPPPu
-         wlmbZa5yNmxx9VYWOjT8r2T47ifb22tMgqjOFERg=
+        b=Qzq8HYns/aw9mppqvioj3ooDOKWb7mv5ymM1KnLQRW3kOkoGwiqsI644eCIcClhIz
+         hTXYE1U30wxrw65EafIF9c0/nx14me3E3ZMJUO6oWGJGMQEcJXbxDi5W7JZtu5u3G9
+         5EtxfiSgEYHrwYHCe4Z5gyv8kuo1spBHItHxvrko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 167/172] scsi: lpfc: Remove NVMe support if kernel has NVME_FC disabled
-Date:   Mon, 14 Feb 2022 10:27:05 +0100
-Message-Id: <20220214092512.158990748@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Samuel Thibault <samuel.thibault@ens-lyon.org>
+Subject: [PATCH 5.16 182/203] speakup-dectlk: Restore pitch setting
+Date:   Mon, 14 Feb 2022 10:27:06 +0100
+Message-Id: <20220214092516.435165441@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
 
-commit c80b27cfd93ba9f5161383f798414609e84729f3 upstream.
+commit bca828ccdd6548d24613d0cede04ada4dfb2f89c upstream.
 
-The driver is initiating NVMe PRLIs to determine device NVMe support.  This
-should not be occurring if CONFIG_NVME_FC support is disabled.
+d97a9d7aea04 ("staging/speakup: Add inflection synth parameter")
+introduced the inflection parameter, but happened to drop the pitch
+parameter from the dectlk driver. This restores it.
 
-Correct this by changing the default value for FC4 support. Currently it
-defaults to FCP and NVMe. With change, when NVME_FC support is not enabled
-in the kernel, the default value is just FCP.
-
-Link: https://lore.kernel.org/r/20220207180516.73052-1-jsmart2021@gmail.com
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: stable@vger.kernel.org
+Fixes: d97a9d7aea04 ("staging/speakup: Add inflection synth parameter")
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Link: https://lore.kernel.org/r/20220206015626.aesbhvvdkmqsrbaw@begin
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc.h      |   13 ++++++++++---
- drivers/scsi/lpfc/lpfc_attr.c |    4 ++--
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ drivers/accessibility/speakup/speakup_dectlk.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/lpfc/lpfc.h
-+++ b/drivers/scsi/lpfc/lpfc.h
-@@ -1163,6 +1163,16 @@ struct lpfc_hba {
- 	uint32_t cfg_hostmem_hgp;
- 	uint32_t cfg_log_verbose;
- 	uint32_t cfg_enable_fc4_type;
-+#define LPFC_ENABLE_FCP  1
-+#define LPFC_ENABLE_NVME 2
-+#define LPFC_ENABLE_BOTH 3
-+#if (IS_ENABLED(CONFIG_NVME_FC))
-+#define LPFC_MAX_ENBL_FC4_TYPE LPFC_ENABLE_BOTH
-+#define LPFC_DEF_ENBL_FC4_TYPE LPFC_ENABLE_BOTH
-+#else
-+#define LPFC_MAX_ENBL_FC4_TYPE LPFC_ENABLE_FCP
-+#define LPFC_DEF_ENBL_FC4_TYPE LPFC_ENABLE_FCP
-+#endif
- 	uint32_t cfg_aer_support;
- 	uint32_t cfg_sriov_nr_virtfn;
- 	uint32_t cfg_request_firmware_upgrade;
-@@ -1184,9 +1194,6 @@ struct lpfc_hba {
- 	uint32_t cfg_ras_fwlog_func;
- 	uint32_t cfg_enable_bbcr;	/* Enable BB Credit Recovery */
- 	uint32_t cfg_enable_dpp;	/* Enable Direct Packet Push */
--#define LPFC_ENABLE_FCP  1
--#define LPFC_ENABLE_NVME 2
--#define LPFC_ENABLE_BOTH 3
- 	uint32_t cfg_enable_pbde;
- 	uint32_t cfg_enable_mi;
- 	struct nvmet_fc_target_port *targetport;
---- a/drivers/scsi/lpfc/lpfc_attr.c
-+++ b/drivers/scsi/lpfc/lpfc_attr.c
-@@ -3978,8 +3978,8 @@ LPFC_ATTR_R(nvmet_mrq_post,
-  *                    3 - register both FCP and NVME
-  * Supported values are [1,3]. Default value is 3
-  */
--LPFC_ATTR_R(enable_fc4_type, LPFC_ENABLE_BOTH,
--	    LPFC_ENABLE_FCP, LPFC_ENABLE_BOTH,
-+LPFC_ATTR_R(enable_fc4_type, LPFC_DEF_ENBL_FC4_TYPE,
-+	    LPFC_ENABLE_FCP, LPFC_MAX_ENBL_FC4_TYPE,
- 	    "Enable FC4 Protocol support - FCP / NVME");
- 
- /*
+--- a/drivers/accessibility/speakup/speakup_dectlk.c
++++ b/drivers/accessibility/speakup/speakup_dectlk.c
+@@ -44,6 +44,7 @@ static struct var_t vars[] = {
+ 	{ CAPS_START, .u.s = {"[:dv ap 160] " } },
+ 	{ CAPS_STOP, .u.s = {"[:dv ap 100 ] " } },
+ 	{ RATE, .u.n = {"[:ra %d] ", 180, 75, 650, 0, 0, NULL } },
++	{ PITCH, .u.n = {"[:dv ap %d] ", 122, 50, 350, 0, 0, NULL } },
+ 	{ INFLECTION, .u.n = {"[:dv pr %d] ", 100, 0, 10000, 0, 0, NULL } },
+ 	{ VOL, .u.n = {"[:dv g5 %d] ", 86, 60, 86, 0, 0, NULL } },
+ 	{ PUNCT, .u.n = {"[:pu %c] ", 0, 0, 2, 0, 0, "nsa" } },
 
 
