@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21FDC4B4B55
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:41:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDBAB4B476A
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244326AbiBNKbf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:31:35 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41858 "EHLO
+        id S244831AbiBNJms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:42:48 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348928AbiBNKbM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:31:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDFF5216;
-        Mon, 14 Feb 2022 01:59:54 -0800 (PST)
+        with ESMTP id S245556AbiBNJlk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:41:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6F9F65824;
+        Mon, 14 Feb 2022 01:37:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24A4A60921;
-        Mon, 14 Feb 2022 09:59:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A553C340E9;
-        Mon, 14 Feb 2022 09:59:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8726AB80DC8;
+        Mon, 14 Feb 2022 09:37:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4EBEC340EF;
+        Mon, 14 Feb 2022 09:37:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832785;
-        bh=aJUAwIrosiZGWRzf6yXVGdTcM6ZHiOGnt5DM2fqHz2U=;
+        s=korg; t=1644831454;
+        bh=hBXwcKH8k+zEpg1EUB7WTJMbXB/JJNlZlsdTHpX67CY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ViRjUuN76qrmULet0l4daaRHMQwdGzppKLxJ8rGOxt6hJLs3HM6hKZN2BusPCxO6t
-         lcdHb1NCcwiLl5nm/2VJx8R7ecfywjtGv+kzIBDs4jZyDuWaW3Xq4RBIXx/Zq/0+fu
-         uk7nfWXBV1MzU32NGsZ2q4CccECv8hVZU/euvDD0=
+        b=UUGV+d9BBa+bUNUiA0tWzCtz5Qy9hE9x5Pm7JJTSN18H6ALtmjsCz+mhCUxlkdmBN
+         Jez9vUvHz7ZyPGtlwE8+UfhvF3Tkb/NUqzjALj1jwJLq+IPTqNZ+8BHdFMGcZulgq8
+         s+xNjVPNrw3SCW+8G92Ng/MGk+7VJFjXdchLL0wA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Samuel Mendoza-Jonas <samjonas@amazon.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 124/203] net: mscc: ocelot: fix all IP traffic getting trapped to CPU with PTP over IP
+Subject: [PATCH 5.4 40/71] ixgbevf: Require large buffers for build_skb on 82599VF
 Date:   Mon, 14 Feb 2022 10:26:08 +0100
-Message-Id: <20220214092514.451740366@linuxfoundation.org>
+Message-Id: <20220214092453.385324672@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Samuel Mendoza-Jonas <samjonas@amazon.com>
 
-[ Upstream commit 59085208e4a2183998964844f8684fea0378128d ]
+[ Upstream commit fe68195daf34d5dddacd3f93dd3eafc4beca3a0e ]
 
-The filters for the PTP trap keys are incorrectly configured, in the
-sense that is2_entry_set() only looks at trap->key.ipv4.dport or
-trap->key.ipv6.dport if trap->key.ipv4.proto or trap->key.ipv6.proto is
-set to IPPROTO_TCP or IPPROTO_UDP.
+>From 4.17 onwards the ixgbevf driver uses build_skb() to build an skb
+around new data in the page buffer shared with the ixgbe PF.
+This uses either a 2K or 3K buffer, and offsets the DMA mapping by
+NET_SKB_PAD + NET_IP_ALIGN. When using a smaller buffer RXDCTL is set to
+ensure the PF does not write a full 2K bytes into the buffer, which is
+actually 2K minus the offset.
 
-But we don't do that, so is2_entry_set() goes through the "else" branch
-of the IP protocol check, and ends up installing a rule for "Any IP
-protocol match" (because msk is also 0). The UDP port is ignored.
+However on the 82599 virtual function, the RXDCTL mechanism is not
+available. The driver attempts to work around this by using the SET_LPE
+mailbox method to lower the maximm frame size, but the ixgbe PF driver
+ignores this in order to keep the PF and all VFs in sync[0].
 
-This means that when we run "ptp4l -i swp0 -4", all IP traffic is
-trapped to the CPU, which hinders bridging.
+This means the PF will write up to the full 2K set in SRRCTL, causing it
+to write NET_SKB_PAD + NET_IP_ALIGN bytes past the end of the buffer.
+With 4K pages split into two buffers, this means it either writes
+NET_SKB_PAD + NET_IP_ALIGN bytes past the first buffer (and into the
+second), or NET_SKB_PAD + NET_IP_ALIGN bytes past the end of the DMA
+mapping.
 
-Fix this by specifying the IP protocol in the VCAP IS2 filters for PTP
-over UDP.
+Avoid this by only enabling build_skb when using "large" buffers (3K).
+These are placed in each half of an order-1 page, preventing the PF from
+writing past the end of the mapping.
 
-Fixes: 96ca08c05838 ("net: mscc: ocelot: set up traps for PTP packets")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+[0]: Technically it only ever raises the max frame size, see
+ixgbe_set_vf_lpe() in ixgbe_sriov.c
+
+Fixes: f15c5ba5b6cd ("ixgbevf: add support for using order 1 pages to receive large frames")
+Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
-index 294bb4eb3833f..ac5849436d021 100644
---- a/drivers/net/ethernet/mscc/ocelot.c
-+++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -1292,6 +1292,8 @@ static void
- ocelot_populate_ipv4_ptp_event_trap_key(struct ocelot_vcap_filter *trap)
- {
- 	trap->key_type = OCELOT_VCAP_KEY_IPV4;
-+	trap->key.ipv4.proto.value[0] = IPPROTO_UDP;
-+	trap->key.ipv4.proto.mask[0] = 0xff;
- 	trap->key.ipv4.dport.value = PTP_EV_PORT;
- 	trap->key.ipv4.dport.mask = 0xffff;
+diff --git a/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c b/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
+index be8e6d4e376ec..9bd02766a4bcc 100644
+--- a/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
++++ b/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
+@@ -1979,14 +1979,15 @@ static void ixgbevf_set_rx_buffer_len(struct ixgbevf_adapter *adapter,
+ 	if (adapter->flags & IXGBEVF_FLAGS_LEGACY_RX)
+ 		return;
+ 
+-	set_ring_build_skb_enabled(rx_ring);
++	if (PAGE_SIZE < 8192)
++		if (max_frame > IXGBEVF_MAX_FRAME_BUILD_SKB)
++			set_ring_uses_large_buffer(rx_ring);
+ 
+-	if (PAGE_SIZE < 8192) {
+-		if (max_frame <= IXGBEVF_MAX_FRAME_BUILD_SKB)
+-			return;
++	/* 82599 can't rely on RXDCTL.RLPML to restrict the size of the frame */
++	if (adapter->hw.mac.type == ixgbe_mac_82599_vf && !ring_uses_large_buffer(rx_ring))
++		return;
+ 
+-		set_ring_uses_large_buffer(rx_ring);
+-	}
++	set_ring_build_skb_enabled(rx_ring);
  }
-@@ -1300,6 +1302,8 @@ static void
- ocelot_populate_ipv6_ptp_event_trap_key(struct ocelot_vcap_filter *trap)
- {
- 	trap->key_type = OCELOT_VCAP_KEY_IPV6;
-+	trap->key.ipv4.proto.value[0] = IPPROTO_UDP;
-+	trap->key.ipv4.proto.mask[0] = 0xff;
- 	trap->key.ipv6.dport.value = PTP_EV_PORT;
- 	trap->key.ipv6.dport.mask = 0xffff;
- }
-@@ -1308,6 +1312,8 @@ static void
- ocelot_populate_ipv4_ptp_general_trap_key(struct ocelot_vcap_filter *trap)
- {
- 	trap->key_type = OCELOT_VCAP_KEY_IPV4;
-+	trap->key.ipv4.proto.value[0] = IPPROTO_UDP;
-+	trap->key.ipv4.proto.mask[0] = 0xff;
- 	trap->key.ipv4.dport.value = PTP_GEN_PORT;
- 	trap->key.ipv4.dport.mask = 0xffff;
- }
-@@ -1316,6 +1322,8 @@ static void
- ocelot_populate_ipv6_ptp_general_trap_key(struct ocelot_vcap_filter *trap)
- {
- 	trap->key_type = OCELOT_VCAP_KEY_IPV6;
-+	trap->key.ipv4.proto.value[0] = IPPROTO_UDP;
-+	trap->key.ipv4.proto.mask[0] = 0xff;
- 	trap->key.ipv6.dport.value = PTP_GEN_PORT;
- 	trap->key.ipv6.dport.mask = 0xffff;
- }
+ 
+ /**
 -- 
 2.34.1
 
