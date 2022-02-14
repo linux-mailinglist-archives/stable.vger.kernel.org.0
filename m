@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46BDC4B4979
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 327D14B4782
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345049AbiBNKID (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:08:03 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35976 "EHLO
+        id S244906AbiBNJrx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:47:53 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345594AbiBNKGa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:06:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2296474DCA;
-        Mon, 14 Feb 2022 01:49:32 -0800 (PST)
+        with ESMTP id S1343581AbiBNJqM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35694723F9;
+        Mon, 14 Feb 2022 01:39:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B42F661238;
-        Mon, 14 Feb 2022 09:49:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A09D5C340EF;
-        Mon, 14 Feb 2022 09:49:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7F856118F;
+        Mon, 14 Feb 2022 09:39:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8AF8C340E9;
+        Mon, 14 Feb 2022 09:39:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832171;
-        bh=A4SdmNYLAnveL9cm0e3pqcw/lppUkfyaqYDwasfTHx4=;
+        s=korg; t=1644831582;
+        bh=4hgg5iMrujXJmneoAXhbKFclV2q+lP2+TNvZMESW15U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X5nmCx4pIw69sw+P918zfDv8N1xUweMmkYOJP7AoEHNFNumTAZHEMbfVAg/FtPSOa
-         abbWvCXOaJXgWSp+kygb73l+r2ZOv0WMcom1Mz6/AOrWP6JX8m/9FY/L4AWYXUaVa7
-         hPPpnhD9x0dque9UqpHgHjOv4yKMg+8Wv/ExrEP0=
+        b=w0F/3j8RL+iZ+kSrhOSRgLARW3ETsyGTt3KnFy1sYCiB5vUPeavpBXO65Dp3m0eLh
+         rGef+pIEmtqXMDJUDCvSDG6ny3K2TOEiYlMshV7DIe1ZJYrWwHfXpkIRwFBGwKW65V
+         xFiM4RB40S7Xn5mBiT4E5jgbWg/xTHqxE6FzjZ34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.15 069/172] gfs2: Fix gfs2_release for non-writers regression
+        stable@vger.kernel.org, Saurav Kashyap <skashyap@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 028/116] scsi: qedf: Fix refcount issue when LOGO is received during TMF
 Date:   Mon, 14 Feb 2022 10:25:27 +0100
-Message-Id: <20220214092508.782354238@linuxfoundation.org>
+Message-Id: <20220214092459.652688603@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Saurav Kashyap <skashyap@marvell.com>
 
-commit d3add1a9519dcacd6e644ecac741c56cf18b67f5 upstream.
+[ Upstream commit 5239ab63f17cee643bd4bf6addfedebaa7d4f41e ]
 
-When a file is opened for writing, the vfs code (do_dentry_open)
-calls get_write_access for the inode, thus incrementing the inode's write
-count. That writer normally then creates a multi-block reservation for
-the inode (i_res) that can be re-used by other writers, which speeds up
-writes for applications that stupidly loop on open/write/close.
-When the writes are all done, the multi-block reservation should be
-deleted when the file is closed by the last "writer."
+Hung task call trace was seen during LOGO processing.
 
-Commit 0ec9b9ea4f83 broke that concept when it moved the call to
-gfs2_rs_delete before the check for FMODE_WRITE.  Non-writers have no
-business removing the multi-block reservations of writers. In fact, if
-someone opens and closes the file for RO while a writer has a
-multi-block reservation, the RO closer will delete the reservation
-midway through the write, and this results in:
+[  974.309060] [0000:00:00.0]:[qedf_eh_device_reset:868]: 1:0:2:0: LUN RESET Issued...
+[  974.309065] [0000:00:00.0]:[qedf_initiate_tmf:2422]: tm_flags 0x10 sc_cmd 00000000c16b930f op = 0x2a target_id = 0x2 lun=0
+[  974.309178] [0000:00:00.0]:[qedf_initiate_tmf:2431]: portid=016900 tm_flags =LUN RESET
+[  974.309222] [0000:00:00.0]:[qedf_initiate_tmf:2438]: orig io_req = 00000000ec78df8f xid = 0x180 ref_cnt = 1.
+[  974.309625] host1: rport 016900: Received LOGO request while in state Ready
+[  974.309627] host1: rport 016900: Delete port
+[  974.309642] host1: rport 016900: work event 3
+[  974.309644] host1: rport 016900: lld callback ev 3
+[  974.313243] [0000:61:00.2]:[qedf_execute_tmf:2383]:1: fcport is uploading, not executing flush.
+[  974.313295] [0000:61:00.2]:[qedf_execute_tmf:2400]:1: task mgmt command success...
+[  984.031088] INFO: task jbd2/dm-15-8:7645 blocked for more than 120 seconds.
+[  984.031136]       Not tainted 4.18.0-305.el8.x86_64 #1
 
-kernel BUG at fs/gfs2/rgrp.c:677! (or thereabouts) which is:
-BUG_ON(rs->rs_requested); from function gfs2_rs_deltree.
+[  984.031166] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[  984.031209] jbd2/dm-15-8    D    0  7645      2 0x80004080
+[  984.031212] Call Trace:
+[  984.031222]  __schedule+0x2c4/0x700
+[  984.031230]  ? unfreeze_partials.isra.83+0x16e/0x1a0
+[  984.031233]  ? bit_wait_timeout+0x90/0x90
+[  984.031235]  schedule+0x38/0xa0
+[  984.031238]  io_schedule+0x12/0x40
+[  984.031240]  bit_wait_io+0xd/0x50
+[  984.031243]  __wait_on_bit+0x6c/0x80
+[  984.031248]  ? free_buffer_head+0x21/0x50
+[  984.031251]  out_of_line_wait_on_bit+0x91/0xb0
+[  984.031257]  ? init_wait_var_entry+0x50/0x50
+[  984.031268]  jbd2_journal_commit_transaction+0x112e/0x19f0 [jbd2]
+[  984.031280]  kjournald2+0xbd/0x270 [jbd2]
+[  984.031284]  ? finish_wait+0x80/0x80
+[  984.031291]  ? commit_timeout+0x10/0x10 [jbd2]
+[  984.031294]  kthread+0x116/0x130
+[  984.031300]  ? kthread_flush_work_fn+0x10/0x10
+[  984.031305]  ret_from_fork+0x1f/0x40
 
-This patch moves the check back inside the check for FMODE_WRITE.
+There was a ref count issue when LOGO is received during TMF. This leads to
+one of the I/Os hanging with the driver. Fix the ref count.
 
-Fixes: 0ec9b9ea4f83 ("gfs2: Check for active reservation in gfs2_release")
-Cc: stable@vger.kernel.org # v5.12+
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220117135311.6256-3-njavali@marvell.com
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/file.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/scsi/qedf/qedf_io.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -711,10 +711,11 @@ static int gfs2_release(struct inode *in
- 	kfree(file->private_data);
- 	file->private_data = NULL;
+diff --git a/drivers/scsi/qedf/qedf_io.c b/drivers/scsi/qedf/qedf_io.c
+index 63f99f4eeed97..472374d83cede 100644
+--- a/drivers/scsi/qedf/qedf_io.c
++++ b/drivers/scsi/qedf/qedf_io.c
+@@ -2268,6 +2268,7 @@ int qedf_initiate_cleanup(struct qedf_ioreq *io_req,
+ 	    io_req->tm_flags == FCP_TMF_TGT_RESET) {
+ 		clear_bit(QEDF_CMD_OUTSTANDING, &io_req->flags);
+ 		io_req->sc_cmd = NULL;
++		kref_put(&io_req->refcount, qedf_release_cmd);
+ 		complete(&io_req->tm_done);
+ 	}
  
--	if (gfs2_rs_active(&ip->i_res))
--		gfs2_rs_delete(ip, &inode->i_writecount);
--	if (file->f_mode & FMODE_WRITE)
-+	if (file->f_mode & FMODE_WRITE) {
-+		if (gfs2_rs_active(&ip->i_res))
-+			gfs2_rs_delete(ip, &inode->i_writecount);
- 		gfs2_qa_put(ip);
-+	}
- 	return 0;
- }
- 
+-- 
+2.34.1
+
 
 
