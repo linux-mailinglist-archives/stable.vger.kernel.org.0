@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6FC04B4AC2
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C40904B47BD
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344257AbiBNKIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:08:10 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35458 "EHLO
+        id S244378AbiBNJnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:43:00 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346103AbiBNKH0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:07:26 -0500
+        with ESMTP id S244456AbiBNJlo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:41:44 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2999C75C00;
-        Mon, 14 Feb 2022 01:50:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C0F966FB1;
+        Mon, 14 Feb 2022 01:37:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B87B761284;
-        Mon, 14 Feb 2022 09:50:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E69CC340E9;
-        Mon, 14 Feb 2022 09:50:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 119DE61168;
+        Mon, 14 Feb 2022 09:37:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E555BC340E9;
+        Mon, 14 Feb 2022 09:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832202;
-        bh=HeaVS8YJXYExBvHJjvzB8Zo18vyuqr4/tONb6YB89pU=;
+        s=korg; t=1644831460;
+        bh=btKiuMw+Jh4f3r/JdS27WKuT3Y69OZYZ+RmXZgA9TZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ViL9Q97CG3kctPeYrLMFmyP/jeSTlUQ+uKJNac+sWw64eqSzuOdXVEzcZ/FdN6V/T
-         nkwW+zLNHEY4zQz7KtEyGRU0DwnVl5YBbzi5SAE4cxmrA2FsV5mOOOP/88B52eSXUU
-         jh32mgeMq/zWDKdbi9reI1j7JXnxi9QivGP8hNSw=
+        b=ClHD2t7AbZqsaV57Fjd2fdUxyfO4jsug6RPOyt8veY/X5R6du+l3UUKK5YdLsduhZ
+         KEBP4vY09k0HJegQPLEu8ShQbPLGTDuvLlRE1jEYxqxsM9aO+R0GC8+rjVDbQdkdjK
+         RD+8Vsu1lvNiDEF0Yo1n9LhjxnhFbDdvNPb4yfVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        syzbot <syzkaller@googlegroups.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 112/172] net: dsa: ar9331: register the mdiobus under devres
+Subject: [PATCH 5.4 42/71] ipmr,ip6mr: acquire RTNL before calling ip[6]mr_free_table() on failure path
 Date:   Mon, 14 Feb 2022 10:26:10 +0100
-Message-Id: <20220214092510.298066364@linuxfoundation.org>
+Message-Id: <20220214092453.456094309@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,67 +56,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 50facd86e9fbc4b93fe02e5fe05776047f45dbfb ]
+[ Upstream commit 5611a00697c8ecc5aad04392bea629e9d6a20463 ]
 
-As explained in commits:
-74b6d7d13307 ("net: dsa: realtek: register the MDIO bus under devres")
-5135e96a3dd2 ("net: dsa: don't allocate the slave_mii_bus using devres")
+ip[6]mr_free_table() can only be called under RTNL lock.
 
-mdiobus_free() will panic when called from devm_mdiobus_free() <-
-devres_release_all() <- __device_release_driver(), and that mdiobus was
-not previously unregistered.
+RTNL: assertion failed at net/core/dev.c (10367)
+WARNING: CPU: 1 PID: 5890 at net/core/dev.c:10367 unregister_netdevice_many+0x1246/0x1850 net/core/dev.c:10367
+Modules linked in:
+CPU: 1 PID: 5890 Comm: syz-executor.2 Not tainted 5.16.0-syzkaller-11627-g422ee58dc0ef #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:unregister_netdevice_many+0x1246/0x1850 net/core/dev.c:10367
+Code: 0f 85 9b ee ff ff e8 69 07 4b fa ba 7f 28 00 00 48 c7 c6 00 90 ae 8a 48 c7 c7 40 90 ae 8a c6 05 6d b1 51 06 01 e8 8c 90 d8 01 <0f> 0b e9 70 ee ff ff e8 3e 07 4b fa 4c 89 e7 e8 86 2a 59 fa e9 ee
+RSP: 0018:ffffc900046ff6e0 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: ffff888050f51d00 RSI: ffffffff815fa008 RDI: fffff520008dfece
+RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffff815f3d6e R11: 0000000000000000 R12: 00000000fffffff4
+R13: dffffc0000000000 R14: ffffc900046ff750 R15: ffff88807b7dc000
+FS:  00007f4ab736e700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fee0b4f8990 CR3: 000000001e7d2000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ mroute_clean_tables+0x244/0xb40 net/ipv6/ip6mr.c:1509
+ ip6mr_free_table net/ipv6/ip6mr.c:389 [inline]
+ ip6mr_rules_init net/ipv6/ip6mr.c:246 [inline]
+ ip6mr_net_init net/ipv6/ip6mr.c:1306 [inline]
+ ip6mr_net_init+0x3f0/0x4e0 net/ipv6/ip6mr.c:1298
+ ops_init+0xaf/0x470 net/core/net_namespace.c:140
+ setup_net+0x54f/0xbb0 net/core/net_namespace.c:331
+ copy_net_ns+0x318/0x760 net/core/net_namespace.c:475
+ create_new_namespaces+0x3f6/0xb20 kernel/nsproxy.c:110
+ copy_namespaces+0x391/0x450 kernel/nsproxy.c:178
+ copy_process+0x2e0c/0x7300 kernel/fork.c:2167
+ kernel_clone+0xe7/0xab0 kernel/fork.c:2555
+ __do_sys_clone+0xc8/0x110 kernel/fork.c:2672
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7f4ab89f9059
+Code: Unable to access opcode bytes at RIP 0x7f4ab89f902f.
+RSP: 002b:00007f4ab736e118 EFLAGS: 00000206 ORIG_RAX: 0000000000000038
+RAX: ffffffffffffffda RBX: 00007f4ab8b0bf60 RCX: 00007f4ab89f9059
+RDX: 0000000020000280 RSI: 0000000020000270 RDI: 0000000040200000
+RBP: 00007f4ab8a5308d R08: 0000000020000300 R09: 0000000020000300
+R10: 00000000200002c0 R11: 0000000000000206 R12: 0000000000000000
+R13: 00007ffc3977cc1f R14: 00007f4ab736e300 R15: 0000000000022000
+ </TASK>
 
-The ar9331 is an MDIO device, so the initial set of constraints that I
-thought would cause this (I2C or SPI buses which call ->remove on
-->shutdown) do not apply. But there is one more which applies here.
-
-If the DSA master itself is on a bus that calls ->remove from ->shutdown
-(like dpaa2-eth, which is on the fsl-mc bus), there is a device link
-between the switch and the DSA master, and device_links_unbind_consumers()
-will unbind the ar9331 switch driver on shutdown.
-
-So the same treatment must be applied to all DSA switch drivers, which
-is: either use devres for both the mdiobus allocation and registration,
-or don't use devres at all.
-
-The ar9331 driver doesn't have a complex code structure for mdiobus
-removal, so just replace of_mdiobus_register with the devres variant in
-order to be all-devres and ensure that we don't free a still-registered
-bus.
-
-Fixes: ac3a68d56651 ("net: phy: don't abuse devres in devm_mdiobus_register()")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Tested-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Fixes: f243e5a7859a ("ipmr,ip6mr: call ip6mr_free_table() on failure path")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Cong Wang <cong.wang@bytedance.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20220208053451.2885398-1-eric.dumazet@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/qca/ar9331.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/ipv4/ipmr.c  | 2 ++
+ net/ipv6/ip6mr.c | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/net/dsa/qca/ar9331.c b/drivers/net/dsa/qca/ar9331.c
-index a6bfb6abc51a7..5d476f452396c 100644
---- a/drivers/net/dsa/qca/ar9331.c
-+++ b/drivers/net/dsa/qca/ar9331.c
-@@ -378,7 +378,7 @@ static int ar9331_sw_mbus_init(struct ar9331_sw_priv *priv)
- 	if (!mnp)
- 		return -ENODEV;
+diff --git a/net/ipv4/ipmr.c b/net/ipv4/ipmr.c
+index d71935618871e..2da6896080363 100644
+--- a/net/ipv4/ipmr.c
++++ b/net/ipv4/ipmr.c
+@@ -259,7 +259,9 @@ static int __net_init ipmr_rules_init(struct net *net)
+ 	return 0;
  
--	ret = of_mdiobus_register(mbus, mnp);
-+	ret = devm_of_mdiobus_register(dev, mbus, mnp);
- 	of_node_put(mnp);
- 	if (ret)
- 		return ret;
-@@ -1093,7 +1093,6 @@ static void ar9331_sw_remove(struct mdio_device *mdiodev)
- 	}
+ err2:
++	rtnl_lock();
+ 	ipmr_free_table(mrt);
++	rtnl_unlock();
+ err1:
+ 	fib_rules_unregister(ops);
+ 	return err;
+diff --git a/net/ipv6/ip6mr.c b/net/ipv6/ip6mr.c
+index dd41313d7fa50..aee1f6bc039ab 100644
+--- a/net/ipv6/ip6mr.c
++++ b/net/ipv6/ip6mr.c
+@@ -246,7 +246,9 @@ static int __net_init ip6mr_rules_init(struct net *net)
+ 	return 0;
  
- 	irq_domain_remove(priv->irqdomain);
--	mdiobus_unregister(priv->mbus);
- 	dsa_unregister_switch(&priv->ds);
- 
- 	reset_control_assert(priv->sw_reset);
+ err2:
++	rtnl_lock();
+ 	ip6mr_free_table(mrt);
++	rtnl_unlock();
+ err1:
+ 	fib_rules_unregister(ops);
+ 	return err;
 -- 
 2.34.1
 
