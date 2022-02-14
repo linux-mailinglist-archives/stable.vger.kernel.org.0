@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79BF94B4796
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3C784B45DA
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244219AbiBNJls (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:41:48 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33992 "EHLO
+        id S243371AbiBNJbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:31:03 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244846AbiBNJkx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:40:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5DB366216;
-        Mon, 14 Feb 2022 01:36:12 -0800 (PST)
+        with ESMTP id S243554AbiBNJa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:30:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D5A860D81;
+        Mon, 14 Feb 2022 01:30:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87DD8B80DA9;
-        Mon, 14 Feb 2022 09:36:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CA57C340E9;
-        Mon, 14 Feb 2022 09:36:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6B8360F83;
+        Mon, 14 Feb 2022 09:29:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97F2DC340E9;
+        Mon, 14 Feb 2022 09:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831371;
-        bh=k1TaVi0HcrrBQ6hj3lL7I115ytxDZhrtCbcpgAT0ME0=;
+        s=korg; t=1644830999;
+        bh=NpZm3yFy3Z1UNqbMTXkFjMGIfCtrlF8R0qEN3T7AHQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sOPDz7VotOnkwiM6GOPr91azONuoBDnT0DIW0u71wDYvfJXAhgh7prldbNIrCnXsr
-         NmHUsNhP2u0mOG+LfbIquXdqXHD3hoNeSuNSrDvnG1tUOlrVZUUQ7r39MDRW9yhLhK
-         r328SgxBhUCBbppFieQcufZedSKSKKORZd6YRKj8=
+        b=wdikqBJvGedEyzsKmAsbfyqNMmKd9uUlTkA8J5wv61JiG77sGfI6KuxMTlUgtua6+
+         sj7HUMBcxgv+yLcjuV76OKYr5KqpJxVZonbNLmVCAL/AiQ3boowZ5Sqi+/UAr5r0pN
+         OTjM7CXY1bqPtND/lbLASmDovMB9FZlEWyqUf0kA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 07/71] net: phy: marvell: Fix MDI-x polarity setting in 88e1118-compatible PHYs
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 12/44] NFSv4 expose nfs_parse_server_name function
 Date:   Mon, 14 Feb 2022 10:25:35 +0100
-Message-Id: <20220214092452.281016686@linuxfoundation.org>
+Message-Id: <20220214092448.308729383@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
+References: <20220214092447.897544753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-commit aec12836e7196e4d360b2cbf20cf7aa5139ad2ec upstream.
+[ Upstream commit f5b27cc6761e27ee6387a24df1a99ca77b360fea ]
 
-When setting up autonegotiation for 88E1118R and compatible PHYs,
-a software reset of PHY is issued before setting up polarity.
-This is incorrect as changes of MDI Crossover Mode bits are
-disruptive to the normal operation and must be followed by a
-software reset to take effect. Let's patch m88e1118_config_aneg()
-to fix the issue mentioned before by invoking software reset
-of the PHY just after setting up MDI-x polarity.
+Make nfs_parse_server_name available outside of nfs4namespace.c.
 
-Fixes: 605f196efbf8 ("phy: Add support for Marvell 88E1118 PHY")
-Signed-off-by: Pavel Parkhomenko <Pavel.Parkhomenko@baikalelectronics.ru>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Suggested-by: Andrew Lunn <andrew@lunn.ch>
-Cc: stable@vger.kernel.org
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/marvell.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ fs/nfs/nfs4_fs.h       | 3 ++-
+ fs/nfs/nfs4namespace.c | 4 ++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/net/phy/marvell.c
-+++ b/drivers/net/phy/marvell.c
-@@ -888,16 +888,15 @@ static int m88e1118_config_aneg(struct p
- {
- 	int err;
- 
--	err = genphy_soft_reset(phydev);
-+	err = marvell_set_polarity(phydev, phydev->mdix_ctrl);
- 	if (err < 0)
- 		return err;
- 
--	err = marvell_set_polarity(phydev, phydev->mdix_ctrl);
-+	err = genphy_config_aneg(phydev);
- 	if (err < 0)
- 		return err;
- 
--	err = genphy_config_aneg(phydev);
--	return 0;
-+	return genphy_soft_reset(phydev);
+diff --git a/fs/nfs/nfs4_fs.h b/fs/nfs/nfs4_fs.h
+index 22cff39cca29a..c9ca2237c3fec 100644
+--- a/fs/nfs/nfs4_fs.h
++++ b/fs/nfs/nfs4_fs.h
+@@ -242,7 +242,8 @@ struct vfsmount *nfs4_submount(struct nfs_server *, struct dentry *,
+ 			       struct nfs_fh *, struct nfs_fattr *);
+ int nfs4_replace_transport(struct nfs_server *server,
+ 				const struct nfs4_fs_locations *locations);
+-
++size_t nfs_parse_server_name(char *string, size_t len, struct sockaddr *sa,
++			     size_t salen, struct net *net);
+ /* nfs4proc.c */
+ extern int nfs4_handle_exception(struct nfs_server *, int, struct nfs4_exception *);
+ extern int nfs4_call_sync(struct rpc_clnt *, struct nfs_server *,
+diff --git a/fs/nfs/nfs4namespace.c b/fs/nfs/nfs4namespace.c
+index 8c3f327d858d5..b36361ca0d36b 100644
+--- a/fs/nfs/nfs4namespace.c
++++ b/fs/nfs/nfs4namespace.c
+@@ -121,8 +121,8 @@ static int nfs4_validate_fspath(struct dentry *dentry,
+ 	return 0;
  }
  
- static int m88e1118_config_init(struct phy_device *phydev)
+-static size_t nfs_parse_server_name(char *string, size_t len,
+-		struct sockaddr *sa, size_t salen, struct net *net)
++size_t nfs_parse_server_name(char *string, size_t len, struct sockaddr *sa,
++			     size_t salen, struct net *net)
+ {
+ 	ssize_t ret;
+ 
+-- 
+2.34.1
+
 
 
