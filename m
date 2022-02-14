@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF6514B47C9
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABDD24B46B3
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243898AbiBNJht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:37:49 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51520 "EHLO
+        id S236204AbiBNJr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:47:29 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244139AbiBNJfp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:35:45 -0500
+        with ESMTP id S1344411AbiBNJq5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:57 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3E3BAE40;
-        Mon, 14 Feb 2022 01:33:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C4E760D90;
+        Mon, 14 Feb 2022 01:40:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D43CF61115;
-        Mon, 14 Feb 2022 09:33:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98A71C340EF;
-        Mon, 14 Feb 2022 09:33:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A043860F87;
+        Mon, 14 Feb 2022 09:40:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E4CCC340E9;
+        Mon, 14 Feb 2022 09:40:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831191;
-        bh=SeVxQyNtXy9Wp9rjGaTR1rfv/6g68X9HcuZxVVLKI+0=;
+        s=korg; t=1644831625;
+        bh=ZIoruihJRDf1q4OFLPrXAa1XVhoSo5Vgetf4aKxnfEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kO6vD0KlIuTlvJwm0RMjnEMUn6CJBk8YaTDZb3b28fOfwg8W3LTw1KYIrxipOE6jM
-         nd2to7mCXUQKdFQ+ld0W+nr8DNScz5OtMuQryW1kpr8Y5+E9qZ+ZhDK7LfiP+jAPFR
-         FGyli5BDnhgZ5RFf5MLQWlYK6ENJwNAEtUDXXnGo=
+        b=ebLL3tSaQVHlY0KN7ojK9q9/R/rnFJAAJy9sGtwqB/fcubFfRxieVCEQ1giXKcln6
+         IIYfA1CBlebvL61jXFSnyZw+VJq4EWKnztmA0gnyU5BavaqcyrufoEGr7wmEMUK93q
+         a6yq34ME5uxqYMrQeOQ1E7YAiFggQQtfJpAH+41Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 4.19 08/49] NFSD: Fix offset type in I/O trace points
+        stable@vger.kernel.org, Zheng Wu <wu.zheng@intel.com>,
+        Ye Jinhe <jinhe.ye@intel.com>, Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 035/116] nvme-pci: add the IGNORE_DEV_SUBNQN quirk for Intel P4500/P4600 SSDs
 Date:   Mon, 14 Feb 2022 10:25:34 +0100
-Message-Id: <20220214092448.576066308@linuxfoundation.org>
+Message-Id: <20220214092459.901116421@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
-References: <20220214092448.285381753@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,59 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Wu Zheng <wu.zheng@intel.com>
 
-commit 6a4d333d540041d244b2fca29b8417bfde20af81 upstream.
+[ Upstream commit 25e58af4be412d59e056da65cc1cefbd89185bd2 ]
 
-NFSv3 and NFSv4 use u64 offset values on the wire. Record these values
-verbatim without the implicit type case to loff_t.
+The Intel P4500/P4600 SSDs do not report a subsystem NQN despite claiming
+compliance to a standards version where reporting one is required.
 
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add the IGNORE_DEV_SUBNQN quirk to not fail the initialization of a
+second such SSDs in a system.
+
+Signed-off-by: Zheng Wu <wu.zheng@intel.com>
+Signed-off-by: Ye Jinhe <jinhe.ye@intel.com>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/trace.h |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/nvme/host/pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/nfsd/trace.h
-+++ b/fs/nfsd/trace.h
-@@ -53,14 +53,14 @@ TRACE_EVENT(nfsd_compound_status,
- DECLARE_EVENT_CLASS(nfsd_io_class,
- 	TP_PROTO(struct svc_rqst *rqstp,
- 		 struct svc_fh	*fhp,
--		 loff_t		offset,
--		 unsigned long	len),
-+		 u64		offset,
-+		 u32		len),
- 	TP_ARGS(rqstp, fhp, offset, len),
- 	TP_STRUCT__entry(
- 		__field(u32, xid)
- 		__field(u32, fh_hash)
--		__field(loff_t, offset)
--		__field(unsigned long, len)
-+		__field(u64, offset)
-+		__field(u32, len)
- 	),
- 	TP_fast_assign(
- 		__entry->xid = be32_to_cpu(rqstp->rq_xid);
-@@ -68,7 +68,7 @@ DECLARE_EVENT_CLASS(nfsd_io_class,
- 		__entry->offset = offset;
- 		__entry->len = len;
- 	),
--	TP_printk("xid=0x%08x fh_hash=0x%08x offset=%lld len=%lu",
-+	TP_printk("xid=0x%08x fh_hash=0x%08x offset=%llu len=%u",
- 		  __entry->xid, __entry->fh_hash,
- 		  __entry->offset, __entry->len)
- )
-@@ -77,8 +77,8 @@ DECLARE_EVENT_CLASS(nfsd_io_class,
- DEFINE_EVENT(nfsd_io_class, nfsd_##name,	\
- 	TP_PROTO(struct svc_rqst *rqstp,	\
- 		 struct svc_fh	*fhp,		\
--		 loff_t		offset,		\
--		 unsigned long	len),		\
-+		 u64		offset,		\
-+		 u32		len),		\
- 	TP_ARGS(rqstp, fhp, offset, len))
- 
- DEFINE_NFSD_IO_EVENT(read_start);
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 1b85349f57af0..97afeb898b253 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3198,7 +3198,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 				NVME_QUIRK_DEALLOCATE_ZEROES, },
+ 	{ PCI_VDEVICE(INTEL, 0x0a54),	/* Intel P4500/P4600 */
+ 		.driver_data = NVME_QUIRK_STRIPE_SIZE |
+-				NVME_QUIRK_DEALLOCATE_ZEROES, },
++				NVME_QUIRK_DEALLOCATE_ZEROES |
++				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+ 	{ PCI_VDEVICE(INTEL, 0x0a55),	/* Dell Express Flash P4600 */
+ 		.driver_data = NVME_QUIRK_STRIPE_SIZE |
+ 				NVME_QUIRK_DEALLOCATE_ZEROES, },
+-- 
+2.34.1
+
 
 
