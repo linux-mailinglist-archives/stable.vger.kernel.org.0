@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8ADE4B47CB
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D7C84B4B45
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:41:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244734AbiBNJme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:42:34 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33974 "EHLO
+        id S1347907AbiBNKb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:31:28 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245522AbiBNJlg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:41:36 -0500
+        with ESMTP id S1348906AbiBNKbL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:31:11 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2906F65813;
-        Mon, 14 Feb 2022 01:37:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3B1D9DD54;
+        Mon, 14 Feb 2022 01:59:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C636CB80DCD;
-        Mon, 14 Feb 2022 09:37:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E214EC340E9;
-        Mon, 14 Feb 2022 09:37:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32FC4B80DCE;
+        Mon, 14 Feb 2022 09:59:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6714AC340E9;
+        Mon, 14 Feb 2022 09:59:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831451;
-        bh=wNgkAF06IGvZrAxpv0aSJAIX++t4ouMnr681T3JhozU=;
+        s=korg; t=1644832782;
+        bh=kBKRvywjjqjNpuL5Kwxupm6Ld+fvT0fycBmoWsPxpms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aj1yweXn1yYCxTmQc/wxkXnci+uun91Xi5BwTzmX9uzjsuuDwmK+/JXO/7cjj9c1I
-         vihgEeRTEyirdDTv/UKgY8pqGWQLhkJqWr+9HzR/1Bp4iLHN46MdqYpMlQvVAzJxXg
-         o72+fxkrXo2PMVw29YkpYAeiYmLZ7JWK/fYBYYAM=
+        b=f1NeO0WwjnmdrcLIglKw4oP43gB1tUvkNyVXHvyJqiD+ct+nMOw5avyocmLrL8fZC
+         L60jcwd+3pu35cjICBqLPikFjo4mQAz0L5p7T3yz3+XHvYtxXg32EGbUuFiXLmkvDh
+         +ewEPdyjzBtt3GJGctTJA6TpsQQgaXdiZKIgEk+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Mathias Krause <minipli@grsecurity.net>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Talal Ahmad <talalahmad@google.com>,
+        Arjun Roy <arjunroy@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 39/71] misc: fastrpc: avoid double fput() on failed usercopy
+Subject: [PATCH 5.16 123/203] tcp: take care of mixed splice()/sendmsg(MSG_ZEROCOPY) case
 Date:   Mon, 14 Feb 2022 10:26:07 +0100
-Message-Id: <20220214092453.349087538@linuxfoundation.org>
+Message-Id: <20220214092514.420537078@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +59,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Krause <minipli@grsecurity.net>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 46963e2e0629cb31c96b1d47ddd89dc3d8990b34 ]
+[ Upstream commit f8d9d938514f46c4892aff6bfe32f425e84d81cc ]
 
-If the copy back to userland fails for the FASTRPC_IOCTL_ALLOC_DMA_BUFF
-ioctl(), we shouldn't assume that 'buf->dmabuf' is still valid. In fact,
-dma_buf_fd() called fd_install() before, i.e. "consumed" one reference,
-leaving us with none.
+syzbot found that mixing sendpage() and sendmsg(MSG_ZEROCOPY)
+calls over the same TCP socket would again trigger the
+infamous warning in inet_sock_destruct()
 
-Calling dma_buf_put() will therefore put a reference we no longer own,
-leading to a valid file descritor table entry for an already released
-'file' object which is a straight use-after-free.
+	WARN_ON(sk_forward_alloc_get(sk));
 
-Simply avoid calling dma_buf_put() and rely on the process exit code to
-do the necessary cleanup, if needed, i.e. if the file descriptor is
-still valid.
+While Talal took into account a mix of regular copied data
+and MSG_ZEROCOPY one in the same skb, the sendpage() path
+has been forgotten.
 
-Fixes: 6cffd79504ce ("misc: fastrpc: Add support for dmabuf exporter")
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Mathias Krause <minipli@grsecurity.net>
-Link: https://lore.kernel.org/r/20220127130218.809261-1-minipli@grsecurity.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We want the charging to happen for sendpage(), because
+pages could be coming from a pipe. What is missing is the
+downgrading of pure zerocopy status to make sure
+sk_forward_alloc will stay synced.
+
+Add tcp_downgrade_zcopy_pure() helper so that we can
+use it from the two callers.
+
+Fixes: 9b65b17db723 ("net: avoid double accounting for pure zerocopy skbs")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Talal Ahmad <talalahmad@google.com>
+Cc: Arjun Roy <arjunroy@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Link: https://lore.kernel.org/r/20220203225547.665114-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/fastrpc.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/ipv4/tcp.c | 33 +++++++++++++++++++--------------
+ 1 file changed, 19 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
-index f76c64084f4b2..fb5ddf3864fdd 100644
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -1245,7 +1245,14 @@ static int fastrpc_dmabuf_alloc(struct fastrpc_user *fl, char __user *argp)
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 94cbba9fb12b1..28abb0bb1c515 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -936,6 +936,22 @@ void tcp_remove_empty_skb(struct sock *sk)
  	}
+ }
  
- 	if (copy_to_user(argp, &bp, sizeof(bp))) {
--		dma_buf_put(buf->dmabuf);
-+		/*
-+		 * The usercopy failed, but we can't do much about it, as
-+		 * dma_buf_fd() already called fd_install() and made the
-+		 * file descriptor accessible for the current process. It
-+		 * might already be closed and dmabuf no longer valid when
-+		 * we reach this point. Therefore "leak" the fd and rely on
-+		 * the process exit path to do any required cleanup.
-+		 */
- 		return -EFAULT;
++/* skb changing from pure zc to mixed, must charge zc */
++static int tcp_downgrade_zcopy_pure(struct sock *sk, struct sk_buff *skb)
++{
++	if (unlikely(skb_zcopy_pure(skb))) {
++		u32 extra = skb->truesize -
++			    SKB_TRUESIZE(skb_end_offset(skb));
++
++		if (!sk_wmem_schedule(sk, extra))
++			return -ENOMEM;
++
++		sk_mem_charge(sk, extra);
++		skb_shinfo(skb)->flags &= ~SKBFL_PURE_ZEROCOPY;
++	}
++	return 0;
++}
++
+ static struct sk_buff *tcp_build_frag(struct sock *sk, int size_goal, int flags,
+ 				      struct page *page, int offset, size_t *size)
+ {
+@@ -971,7 +987,7 @@ static struct sk_buff *tcp_build_frag(struct sock *sk, int size_goal, int flags,
+ 		tcp_mark_push(tp, skb);
+ 		goto new_segment;
  	}
+-	if (!sk_wmem_schedule(sk, copy))
++	if (tcp_downgrade_zcopy_pure(sk, skb) || !sk_wmem_schedule(sk, copy))
+ 		return NULL;
  
+ 	if (can_coalesce) {
+@@ -1319,19 +1335,8 @@ int tcp_sendmsg_locked(struct sock *sk, struct msghdr *msg, size_t size)
+ 
+ 			copy = min_t(int, copy, pfrag->size - pfrag->offset);
+ 
+-			/* skb changing from pure zc to mixed, must charge zc */
+-			if (unlikely(skb_zcopy_pure(skb))) {
+-				u32 extra = skb->truesize -
+-					    SKB_TRUESIZE(skb_end_offset(skb));
+-
+-				if (!sk_wmem_schedule(sk, extra))
+-					goto wait_for_space;
+-
+-				sk_mem_charge(sk, extra);
+-				skb_shinfo(skb)->flags &= ~SKBFL_PURE_ZEROCOPY;
+-			}
+-
+-			if (!sk_wmem_schedule(sk, copy))
++			if (tcp_downgrade_zcopy_pure(sk, skb) ||
++			    !sk_wmem_schedule(sk, copy))
+ 				goto wait_for_space;
+ 
+ 			err = skb_copy_to_page_nocache(sk, &msg->msg_iter, skb,
 -- 
 2.34.1
 
