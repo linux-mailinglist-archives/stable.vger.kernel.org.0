@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7E484B45AE
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:28:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68CD04B4706
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242918AbiBNJ2G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:28:06 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40836 "EHLO
+        id S243880AbiBNJeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:34:07 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232064AbiBNJ2G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:28:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 148D760A8F;
-        Mon, 14 Feb 2022 01:27:59 -0800 (PST)
+        with ESMTP id S243898AbiBNJdp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:33:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48A3D25E80;
+        Mon, 14 Feb 2022 01:32:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4BD160DFD;
-        Mon, 14 Feb 2022 09:27:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 726D8C340EF;
-        Mon, 14 Feb 2022 09:27:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2FB660F8D;
+        Mon, 14 Feb 2022 09:32:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 959E8C340EF;
+        Mon, 14 Feb 2022 09:32:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644830878;
-        bh=0lxXy/jVMS9pYNsQkVICaXhZEM0lAPgI5MzlHy/N10E=;
+        s=korg; t=1644831135;
+        bh=O82XSc71REGlUdeY1OhJ7jMhnuoi/luAxJ0xzK9h19A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w3Jc81cdiHJzM2eCqoR1ksaj/Kb0uP+DZ42hsT8ZO4eg2R3B3ysUEl0RvqW+6flqw
-         /D/np4M/18wJoBzGN6K1XWNMctRx6xbC9pSWpKY0myX+lUxnK5P7ighgSvS3qsKZAc
-         nCEWi7a6d+YfU2gUMii3KBdkC5Qb+9ZbHQXyWgHg=
+        b=NXLptgu9yNVZCMGIxsb1KOHmmG0XBDNVSGUKdBC1UA8S3hEigtfTD7H8D/4I7fHsa
+         FRjxu29uKwIixelZf3Zhm+Dt+DDIuPBnt0R3j9hX1Se0n7+Q70Y03+VI/UAztJAB6z
+         Wcye9T7D3PefuPzF4CodykZv1fsT/5oHyJq5s0hQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
         Paul Moore <paul@paul-moore.com>,
         Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 4.9 01/34] integrity: check the return value of audit_log_start()
+Subject: [PATCH 4.19 01/49] integrity: check the return value of audit_log_start()
 Date:   Mon, 14 Feb 2022 10:25:27 +0100
-Message-Id: <20220214092445.995230860@linuxfoundation.org>
+Message-Id: <20220214092448.345957673@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
-References: <20220214092445.946718557@linuxfoundation.org>
+In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
+References: <20220214092448.285381753@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -78,7 +78,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 @@ -39,6 +39,8 @@ void integrity_audit_msg(int audit_msgno
  		return;
  
- 	ab = audit_log_start(current->audit_context, GFP_KERNEL, audit_msgno);
+ 	ab = audit_log_start(audit_context(), GFP_KERNEL, audit_msgno);
 +	if (!ab)
 +		return;
  	audit_log_format(ab, "pid=%d uid=%u auid=%u ses=%u",
