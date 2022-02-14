@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E79CE4B46A5
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C23F74B46B6
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244509AbiBNJkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:40:42 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33308 "EHLO
+        id S245283AbiBNJuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:50:19 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244107AbiBNJkY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:40:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01F4060D90;
-        Mon, 14 Feb 2022 01:35:49 -0800 (PST)
+        with ESMTP id S245553AbiBNJtb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:49:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8C871ADAF;
+        Mon, 14 Feb 2022 01:41:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92F4EB80DC1;
-        Mon, 14 Feb 2022 09:35:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9321C340EF;
-        Mon, 14 Feb 2022 09:35:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D26461172;
+        Mon, 14 Feb 2022 09:41:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65B7FC340F1;
+        Mon, 14 Feb 2022 09:41:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831348;
-        bh=eE80Bi90mHkuFyViKklaO5l31qtgcf+UEIP/R5GkX1w=;
+        s=korg; t=1644831661;
+        bh=DZddstfJZ895lO5EZorp9IHJ1iljzh9LsKYGGT105rA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0sA2hp3//DS8l4rswYWnx8oQ5+JDaglwDoPkOEbCx+OTXjN//S37hprP7RSX7Rt9
-         J69AJ60TBmeQ0IY/wmSYlB1c5azGTqUs69wQ7eUjChNO+hCbr6HDqhQpJ7TBo0/Qob
-         w0r7Cy1T+d8Q3fAPFUBnTbgzxb6hKzbUnNSoCeWY=
+        b=WfvBvacmFcYjl/3QMpCNzN+A7jicSDV21j8fkqw/52uOm6vSDPkpqDmysY2b6Q+bB
+         MXBszmhoqPMFvkOtXaoSxym3ZvvDMzfAMhmyc0bhBmaGYxbLDPc+DOA3sJ1LM9wci/
+         hwHfIKfCDNfz/gnvLZNyEeXRaQ6Hk2tDbJJog/9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 25/71] KVM: nVMX: eVMCS: Filter out VM_EXIT_SAVE_VMX_PREEMPTION_TIMER
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 054/116] staging: fbtft: Fix error path in fbtft_driver_module_init()
 Date:   Mon, 14 Feb 2022 10:25:53 +0100
-Message-Id: <20220214092452.860737143@linuxfoundation.org>
+Message-Id: <20220214092500.591568014@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 7a601e2cf61558dfd534a9ecaad09f5853ad8204 ]
+[ Upstream commit 426aca16e903b387a0b0001d62207a745c67cfd3 ]
 
-Enlightened VMCS v1 doesn't have VMX_PREEMPTION_TIMER_VALUE field,
-PIN_BASED_VMX_PREEMPTION_TIMER is also filtered out already so it makes
-sense to filter out VM_EXIT_SAVE_VMX_PREEMPTION_TIMER too.
+If registering the platform driver fails, the function must not return
+without undoing the spi driver registration first.
 
-Note, none of the currently existing Windows/Hyper-V versions are known
-to enable 'save VMX-preemption timer value' when eVMCS is in use, the
-change is aimed at making the filtering future proof.
-
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220112170134.1904308-3-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: c296d5f9957c ("staging: fbtft: core support")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20220118181338.207943-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/evmcs.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/staging/fbtft/fbtft.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/vmx/evmcs.h b/arch/x86/kvm/vmx/evmcs.h
-index 07ebf6882a458..632bed227152e 100644
---- a/arch/x86/kvm/vmx/evmcs.h
-+++ b/arch/x86/kvm/vmx/evmcs.h
-@@ -58,7 +58,9 @@ DECLARE_STATIC_KEY_FALSE(enable_evmcs);
- 	 SECONDARY_EXEC_SHADOW_VMCS |					\
- 	 SECONDARY_EXEC_TSC_SCALING |					\
- 	 SECONDARY_EXEC_PAUSE_LOOP_EXITING)
--#define EVMCS1_UNSUPPORTED_VMEXIT_CTRL (VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL)
-+#define EVMCS1_UNSUPPORTED_VMEXIT_CTRL					\
-+	(VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL |				\
-+	 VM_EXIT_SAVE_VMX_PREEMPTION_TIMER)
- #define EVMCS1_UNSUPPORTED_VMENTRY_CTRL (VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL)
- #define EVMCS1_UNSUPPORTED_VMFUNC (VMX_VMFUNC_EPTP_SWITCHING)
- 
+diff --git a/drivers/staging/fbtft/fbtft.h b/drivers/staging/fbtft/fbtft.h
+index 76f8c090a8370..06afaa9d505ba 100644
+--- a/drivers/staging/fbtft/fbtft.h
++++ b/drivers/staging/fbtft/fbtft.h
+@@ -332,7 +332,10 @@ static int __init fbtft_driver_module_init(void)                           \
+ 	ret = spi_register_driver(&fbtft_driver_spi_driver);               \
+ 	if (ret < 0)                                                       \
+ 		return ret;                                                \
+-	return platform_driver_register(&fbtft_driver_platform_driver);    \
++	ret = platform_driver_register(&fbtft_driver_platform_driver);     \
++	if (ret < 0)                                                       \
++		spi_unregister_driver(&fbtft_driver_spi_driver);           \
++	return ret;                                                        \
+ }                                                                          \
+ 									   \
+ static void __exit fbtft_driver_module_exit(void)                          \
 -- 
 2.34.1
 
