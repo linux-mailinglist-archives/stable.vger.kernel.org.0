@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC5914B4B4C
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:41:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24B384B4B84
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:42:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347283AbiBNK1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:27:42 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34332 "EHLO
+        id S1344327AbiBNKCL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:02:11 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347483AbiBNK0D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:26:03 -0500
+        with ESMTP id S1345210AbiBNKB2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:01:28 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD97E6EF3C;
-        Mon, 14 Feb 2022 01:57:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75ACC13E33;
+        Mon, 14 Feb 2022 01:47:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6996B61465;
-        Mon, 14 Feb 2022 09:57:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53F65C340E9;
-        Mon, 14 Feb 2022 09:57:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12E0361252;
+        Mon, 14 Feb 2022 09:47:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD902C340EF;
+        Mon, 14 Feb 2022 09:47:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832634;
-        bh=zzMJxbPBiRG2Y2ZlNqrD/+LQlA64/tzHiQCZyC7me9Q=;
+        s=korg; t=1644832053;
+        bh=+NBcL0Eq3UCVybOvYfablR+3wu7sDTLFohP96udNTEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jL1Klm9ny+b+h5CSfE84MwfZyUjgiKkxujM4+GvMvg8GT8kzCUqeiLVPvjVRjPcjd
-         odKAQ/z87gJsX/Df1ONhphQZ7Bq8iKa52Sm4EJg3/MfTzyl+AqaXn3HAOs188UQ0k5
-         rwzusAKDvlUvSwzw8zXf5Atd8gi/QMIUZTsd1+O4=
+        b=tIDt0FKh0O02NDla50BKPZEFj+3lGKZWuiL1LvRiiWDTBQnVW1B2uKjHjKmkcX+K+
+         D2iqJi+VAI4/it2Z7C9W7N15ACv4l+wbEqFiqDTJs+lHRe3JDSE56kSjPTzi5aWRoX
+         H2pH8uMcEnschqByGXt+J6afllAAvxGsY0qlbiJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 046/203] scsi: qedf: Fix refcount issue when LOGO is received during TMF
-Date:   Mon, 14 Feb 2022 10:24:50 +0100
-Message-Id: <20220214092511.779806186@linuxfoundation.org>
+Subject: [PATCH 5.15 033/172] net/sunrpc: fix reference count leaks in rpc_sysfs_xprt_state_change
+Date:   Mon, 14 Feb 2022 10:24:51 +0100
+Message-Id: <20220214092507.542826837@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 5239ab63f17cee643bd4bf6addfedebaa7d4f41e ]
+[ Upstream commit 776d794f28c95051bc70405a7b1fa40115658a18 ]
 
-Hung task call trace was seen during LOGO processing.
+The refcount leak issues take place in an error handling path. When the
+3rd argument buf doesn't match with "offline", "online" or "remove", the
+function simply returns -EINVAL and forgets to decrease the reference
+count of a rpc_xprt object and a rpc_xprt_switch object increased by
+rpc_sysfs_xprt_kobj_get_xprt() and
+rpc_sysfs_xprt_kobj_get_xprt_switch(), causing reference count leaks of
+both unused objects.
 
-[  974.309060] [0000:00:00.0]:[qedf_eh_device_reset:868]: 1:0:2:0: LUN RESET Issued...
-[  974.309065] [0000:00:00.0]:[qedf_initiate_tmf:2422]: tm_flags 0x10 sc_cmd 00000000c16b930f op = 0x2a target_id = 0x2 lun=0
-[  974.309178] [0000:00:00.0]:[qedf_initiate_tmf:2431]: portid=016900 tm_flags =LUN RESET
-[  974.309222] [0000:00:00.0]:[qedf_initiate_tmf:2438]: orig io_req = 00000000ec78df8f xid = 0x180 ref_cnt = 1.
-[  974.309625] host1: rport 016900: Received LOGO request while in state Ready
-[  974.309627] host1: rport 016900: Delete port
-[  974.309642] host1: rport 016900: work event 3
-[  974.309644] host1: rport 016900: lld callback ev 3
-[  974.313243] [0000:61:00.2]:[qedf_execute_tmf:2383]:1: fcport is uploading, not executing flush.
-[  974.313295] [0000:61:00.2]:[qedf_execute_tmf:2400]:1: task mgmt command success...
-[  984.031088] INFO: task jbd2/dm-15-8:7645 blocked for more than 120 seconds.
-[  984.031136]       Not tainted 4.18.0-305.el8.x86_64 #1
+Fix this issue by jumping to the error handling path labelled with
+out_put when buf matches none of "offline", "online" or "remove".
 
-[  984.031166] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[  984.031209] jbd2/dm-15-8    D    0  7645      2 0x80004080
-[  984.031212] Call Trace:
-[  984.031222]  __schedule+0x2c4/0x700
-[  984.031230]  ? unfreeze_partials.isra.83+0x16e/0x1a0
-[  984.031233]  ? bit_wait_timeout+0x90/0x90
-[  984.031235]  schedule+0x38/0xa0
-[  984.031238]  io_schedule+0x12/0x40
-[  984.031240]  bit_wait_io+0xd/0x50
-[  984.031243]  __wait_on_bit+0x6c/0x80
-[  984.031248]  ? free_buffer_head+0x21/0x50
-[  984.031251]  out_of_line_wait_on_bit+0x91/0xb0
-[  984.031257]  ? init_wait_var_entry+0x50/0x50
-[  984.031268]  jbd2_journal_commit_transaction+0x112e/0x19f0 [jbd2]
-[  984.031280]  kjournald2+0xbd/0x270 [jbd2]
-[  984.031284]  ? finish_wait+0x80/0x80
-[  984.031291]  ? commit_timeout+0x10/0x10 [jbd2]
-[  984.031294]  kthread+0x116/0x130
-[  984.031300]  ? kthread_flush_work_fn+0x10/0x10
-[  984.031305]  ret_from_fork+0x1f/0x40
-
-There was a ref count issue when LOGO is received during TMF. This leads to
-one of the I/Os hanging with the driver. Fix the ref count.
-
-Link: https://lore.kernel.org/r/20220117135311.6256-3-njavali@marvell.com
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf_io.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/sunrpc/sysfs.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qedf/qedf_io.c b/drivers/scsi/qedf/qedf_io.c
-index 99a56ca1fb163..fab43dabe5b31 100644
---- a/drivers/scsi/qedf/qedf_io.c
-+++ b/drivers/scsi/qedf/qedf_io.c
-@@ -2250,6 +2250,7 @@ int qedf_initiate_cleanup(struct qedf_ioreq *io_req,
- 	    io_req->tm_flags == FCP_TMF_TGT_RESET) {
- 		clear_bit(QEDF_CMD_OUTSTANDING, &io_req->flags);
- 		io_req->sc_cmd = NULL;
-+		kref_put(&io_req->refcount, qedf_release_cmd);
- 		complete(&io_req->tm_done);
- 	}
+diff --git a/net/sunrpc/sysfs.c b/net/sunrpc/sysfs.c
+index 9a6f17e18f73b..379cf0e4d965b 100644
+--- a/net/sunrpc/sysfs.c
++++ b/net/sunrpc/sysfs.c
+@@ -291,8 +291,10 @@ static ssize_t rpc_sysfs_xprt_state_change(struct kobject *kobj,
+ 		online = 1;
+ 	else if (!strncmp(buf, "remove", 6))
+ 		remove = 1;
+-	else
+-		return -EINVAL;
++	else {
++		count = -EINVAL;
++		goto out_put;
++	}
  
+ 	if (wait_on_bit_lock(&xprt->state, XPRT_LOCKED, TASK_KILLABLE)) {
+ 		count = -EINTR;
 -- 
 2.34.1
 
