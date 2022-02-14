@@ -2,109 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89ED44B464D
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 597804B46BA
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243900AbiBNJdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:33:45 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50010 "EHLO
+        id S238975AbiBNJwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:52:11 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243834AbiBNJd0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:33:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7C6FAE5E;
-        Mon, 14 Feb 2022 01:32:01 -0800 (PST)
+        with ESMTP id S245297AbiBNJuS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:50:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62856652CE;
+        Mon, 14 Feb 2022 01:41:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EE91B80A0A;
-        Mon, 14 Feb 2022 09:32:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3CA7C340E9;
-        Mon, 14 Feb 2022 09:31:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 955E8B80DC1;
+        Mon, 14 Feb 2022 09:41:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAD73C340E9;
+        Mon, 14 Feb 2022 09:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831119;
-        bh=xzeq+EGNmCaiYAud31itFAruvzeWe7Bm7g4rLQpNoro=;
+        s=korg; t=1644831681;
+        bh=GxuuGnP9KrUM6DZlJqqZTvE/JpWjy0vuXMwK9DCF/zI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9Ua82wJW7PHGNdq170XkkxGo3X50ghDE/5dO2OfM6IbRCywae2e+CbxX+zObg6YZ
-         k16RK8dfVkU6pgddhYg9SJgEZ8WNDJYto3ZuGljn3/9/goaELUrrj68TAAQITXnw9l
-         qpjC6gx6jZqqnUb87iPmxuuKKQ37VZv6Taesx6RU=
+        b=cCFimEG3qYoD8uOoF3tcMCGYRjcXf5tEnGZYs8n8gCYEN/L3dLscBcn1WE/oKD6WD
+         EX6B0IzHlXxG494lhKliVIsGjZC3VXTRHvLOYmVSbKgcIF9NDfgCLX1RCiPsU9dOgP
+         KweLTHIu6yupfK/eQDB6wpc6Z1CMYo2JNft/p9z4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cameron Williams <cang1@live.co.uk>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 37/44] USB: serial: ftdi_sio: add support for Brainboxes US-159/235/320
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Mathias Krause <minipli@grsecurity.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 061/116] misc: fastrpc: avoid double fput() on failed usercopy
 Date:   Mon, 14 Feb 2022 10:26:00 +0100
-Message-Id: <20220214092449.107665232@linuxfoundation.org>
+Message-Id: <20220214092500.853984909@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
-References: <20220214092447.897544753@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,UPPERCASE_50_75
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cameron Williams <cang1@live.co.uk>
+From: Mathias Krause <minipli@grsecurity.net>
 
-commit fbb9b194e15a63c56c5664e76ccd0e85c6100cea upstream.
+[ Upstream commit 46963e2e0629cb31c96b1d47ddd89dc3d8990b34 ]
 
-This patch adds support for the Brainboxes US-159, US-235 and US-320
-USB-to-Serial devices.
+If the copy back to userland fails for the FASTRPC_IOCTL_ALLOC_DMA_BUFF
+ioctl(), we shouldn't assume that 'buf->dmabuf' is still valid. In fact,
+dma_buf_fd() called fd_install() before, i.e. "consumed" one reference,
+leaving us with none.
 
-Signed-off-by: Cameron Williams <cang1@live.co.uk>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Calling dma_buf_put() will therefore put a reference we no longer own,
+leading to a valid file descritor table entry for an already released
+'file' object which is a straight use-after-free.
+
+Simply avoid calling dma_buf_put() and rely on the process exit code to
+do the necessary cleanup, if needed, i.e. if the file descriptor is
+still valid.
+
+Fixes: 6cffd79504ce ("misc: fastrpc: Add support for dmabuf exporter")
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Mathias Krause <minipli@grsecurity.net>
+Link: https://lore.kernel.org/r/20220127130218.809261-1-minipli@grsecurity.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ftdi_sio.c     |    3 +++
- drivers/usb/serial/ftdi_sio_ids.h |    3 +++
- 2 files changed, 6 insertions(+)
+ drivers/misc/fastrpc.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -964,6 +964,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_VX_023_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_VX_034_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_101_PID) },
-+	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_159_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_1_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_2_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_3_PID) },
-@@ -972,12 +973,14 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_6_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_7_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_160_8_PID) },
-+	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_235_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_257_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_279_1_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_279_2_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_279_3_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_279_4_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_313_PID) },
-+	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_320_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_324_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_346_1_PID) },
- 	{ USB_DEVICE(BRAINBOXES_VID, BRAINBOXES_US_346_2_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -1506,6 +1506,9 @@
- #define BRAINBOXES_VX_023_PID		0x1003 /* VX-023 ExpressCard 1 Port RS422/485 */
- #define BRAINBOXES_VX_034_PID		0x1004 /* VX-034 ExpressCard 2 Port RS422/485 */
- #define BRAINBOXES_US_101_PID		0x1011 /* US-101 1xRS232 */
-+#define BRAINBOXES_US_159_PID		0x1021 /* US-159 1xRS232 */
-+#define BRAINBOXES_US_235_PID		0x1017 /* US-235 1xRS232 */
-+#define BRAINBOXES_US_320_PID		0x1019 /* US-320 1xRS422/485 */
- #define BRAINBOXES_US_324_PID		0x1013 /* US-324 1xRS422/485 1Mbaud */
- #define BRAINBOXES_US_606_1_PID		0x2001 /* US-606 6 Port RS232 Serial Port 1 and 2 */
- #define BRAINBOXES_US_606_2_PID		0x2002 /* US-606 6 Port RS232 Serial Port 3 and 4 */
+diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
+index ef49ac8d91019..d0471fec37fbb 100644
+--- a/drivers/misc/fastrpc.c
++++ b/drivers/misc/fastrpc.c
+@@ -1284,7 +1284,14 @@ static int fastrpc_dmabuf_alloc(struct fastrpc_user *fl, char __user *argp)
+ 	}
+ 
+ 	if (copy_to_user(argp, &bp, sizeof(bp))) {
+-		dma_buf_put(buf->dmabuf);
++		/*
++		 * The usercopy failed, but we can't do much about it, as
++		 * dma_buf_fd() already called fd_install() and made the
++		 * file descriptor accessible for the current process. It
++		 * might already be closed and dmabuf no longer valid when
++		 * we reach this point. Therefore "leak" the fd and rely on
++		 * the process exit path to do any required cleanup.
++		 */
+ 		return -EFAULT;
+ 	}
+ 
+-- 
+2.34.1
+
 
 
