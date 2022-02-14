@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A57F4B4710
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E9464B4951
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241290AbiBNJj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:39:59 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51936 "EHLO
+        id S1347512AbiBNKaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:30:05 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244349AbiBNJjF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:39:05 -0500
+        with ESMTP id S1347543AbiBNK3F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:29:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 720A2692AF;
-        Mon, 14 Feb 2022 01:35:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F7298F6B;
+        Mon, 14 Feb 2022 01:58:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 960EEB80DC9;
-        Mon, 14 Feb 2022 09:35:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B358FC340E9;
-        Mon, 14 Feb 2022 09:35:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 860D4B80D6D;
+        Mon, 14 Feb 2022 09:58:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9492FC340E9;
+        Mon, 14 Feb 2022 09:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831320;
-        bh=HIPORMFuV//Hr3CiBeB8KOpD7vvvwHqgFISVkSXSIQY=;
+        s=korg; t=1644832715;
+        bh=/kvuUnbi5mWqDPHzY3HwB9slTUfUSoIsVvCWl1dVzJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AODVv31WNog46VZjRZWpsOEIQwNKsfiBw/fxx/7L4VVCg5zH4o0KVCRPv2IiApEGp
-         JzfhDswRF4INqMEMt7iuGax8nbGYRomp86xELiFRZMzvF1dnwEHGjqJEgfrm4NCOi5
-         Z6j1xifko54gcRwqU34sHW+ZSzPwQcoOSZZPAW2s=
+        b=Ew9DtpPdTxT1szperVCGxY/jV6Be8L4O/uqaH0TV/eZCBBcNhX//cjL9J8VeteNtQ
+         +MxHRwRuDKoh98nVYfQbk96KWB36O5tl1qQC+kRaFx7AnKfxcPD/IW5tY5bwtG2AYR
+         m8/70MomEt2ehqMfVvbWTQQq83ONcQ5Q4u18ykUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raymond Jay Golo <rjgolo@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/71] drm: panel-orientation-quirks: Add quirk for the 1Netbook OneXPlayer
+Subject: [PATCH 5.16 101/203] ARM: dts: imx6qdl-udoo: Properly describe the SD card detect
 Date:   Mon, 14 Feb 2022 10:25:45 +0100
-Message-Id: <20220214092452.598797447@linuxfoundation.org>
+Message-Id: <20220214092513.682996086@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
-References: <20220214092452.020713240@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raymond Jay Golo <rjgolo@gmail.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit d3cbc6e323c9299d10c8d2e4127c77c7d05d07b1 ]
+[ Upstream commit 993d66140f8d1c1853a3b58b77b43b681eb64dee ]
 
-The 1Netbook OneXPlayer uses a panel which has been mounted
-90 degrees rotated. Add a quirk for this.
+GPIO7_IO00 is used as SD card detect.
 
-Signed-off-by: Raymond Jay Golo <rjgolo@gmail.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220113000619.90988-1-rjgolo@gmail.com
+Properly describe this in the devicetree.
+
+Fixes: 40cdaa542cf0 ("ARM: dts: imx6q-udoo: Add initial board support")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/arm/boot/dts/imx6qdl-udoo.dtsi | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 9d1bd8f491ad7..448c2f2d803a6 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -115,6 +115,12 @@ static const struct drm_dmi_panel_orientation_data lcd1280x1920_rightside_up = {
- 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
+diff --git a/arch/arm/boot/dts/imx6qdl-udoo.dtsi b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
+index d07d8f83456d2..ccfa8e320be62 100644
+--- a/arch/arm/boot/dts/imx6qdl-udoo.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-udoo.dtsi
+@@ -5,6 +5,8 @@
+  * Author: Fabio Estevam <fabio.estevam@freescale.com>
+  */
+ 
++#include <dt-bindings/gpio/gpio.h>
++
+ / {
+ 	aliases {
+ 		backlight = &backlight;
+@@ -226,6 +228,7 @@ MX6QDL_PAD_SD3_DAT0__SD3_DATA0		0x17059
+ 				MX6QDL_PAD_SD3_DAT1__SD3_DATA1		0x17059
+ 				MX6QDL_PAD_SD3_DAT2__SD3_DATA2		0x17059
+ 				MX6QDL_PAD_SD3_DAT3__SD3_DATA3		0x17059
++				MX6QDL_PAD_SD3_DAT5__GPIO7_IO00		0x1b0b0
+ 			>;
+ 		};
+ 
+@@ -304,7 +307,7 @@ &usbotg {
+ &usdhc3 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_usdhc3>;
+-	non-removable;
++	cd-gpios = <&gpio7 0 GPIO_ACTIVE_LOW>;
+ 	status = "okay";
  };
  
-+static const struct drm_dmi_panel_orientation_data lcd1600x2560_leftside_up = {
-+	.width = 1600,
-+	.height = 2560,
-+	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
-+};
-+
- static const struct dmi_system_id orientation_data[] = {
- 	{	/* Acer One 10 (S1003) */
- 		.matches = {
-@@ -261,6 +267,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Default string"),
- 		},
- 		.driver_data = (void *)&onegx1_pro,
-+	}, {	/* OneXPlayer */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ONE-NETBOOK TECHNOLOGY CO., LTD."),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "ONE XPLAYER"),
-+		},
-+		.driver_data = (void *)&lcd1600x2560_leftside_up,
- 	}, {	/* Samsung GalaxyBook 10.6 */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD."),
 -- 
 2.34.1
 
