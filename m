@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0C334B47DC
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EEFD4B463F
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244341AbiBNJhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:37:05 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51552 "EHLO
+        id S243657AbiBNJdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:33:25 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245238AbiBNJgf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F32425EB6;
-        Mon, 14 Feb 2022 01:34:32 -0800 (PST)
+        with ESMTP id S243740AbiBNJc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:32:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B42A654B6;
+        Mon, 14 Feb 2022 01:31:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BAE361120;
-        Mon, 14 Feb 2022 09:34:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26FE7C340EF;
-        Mon, 14 Feb 2022 09:34:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3458360DFD;
+        Mon, 14 Feb 2022 09:31:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E503DC340E9;
+        Mon, 14 Feb 2022 09:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831270;
-        bh=h/90sFQJ4ADpeoVXdbJhADLAI2IKpcQnwVbtczvVWjg=;
+        s=korg; t=1644831089;
+        bh=yNeV4S/hx/CrA/gyt+MVKfADNTqU4+/vMXzNu6rvsqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AGqi49kRYW9H2x0XuydoRzjh0aEklRJqU4I/mYAD0AsiF9WagUTmn/vmPfYLpb7jr
-         koJhRvJsINerHASahJpa6zH7fUToc82AjEZdXgK3PMP27egfcX889ZHmw6sH/e/oBr
-         t1Yu3mkLuWF9BfGVKNG48jd7GBkv2Uj+5w9oIILA=
+        b=aBlZt3acfSLYO7GW+q3VkPSjjKbE5N+5rV6x7UF47tSQLSO9hHP4NQI7qikQHRj/U
+         1oyX5h6kgv9w8b9sMpibz6pTtDZ7PUXq9gku6MTfrPRUsp+VwyD4Qmw+UQ7hL7GjU2
+         +zeA0M/djNceBD4u5fvt2JFsz0+BY4qGALeqoFxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Vlad Buslov <vladbu@nvidia.com>,
-        Antoine Tenart <atenart@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 29/49] net: do not keep the dst cache when uncloning an skb dst and its metadata
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sean Anderson <sean.anderson@seco.com>
+Subject: [PATCH 4.14 32/44] usb: ulpi: Move of_node_put to ulpi_dev_release
 Date:   Mon, 14 Feb 2022 10:25:55 +0100
-Message-Id: <20220214092449.253165027@linuxfoundation.org>
+Message-Id: <20220214092448.949781329@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
-References: <20220214092448.285381753@linuxfoundation.org>
+In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
+References: <20220214092447.897544753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,64 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Sean Anderson <sean.anderson@seco.com>
 
-[ Upstream commit cfc56f85e72f5b9c5c5be26dc2b16518d36a7868 ]
+commit 092f45b13e51666fe8ecbf2d6cd247aa7e6c1f74 upstream.
 
-When uncloning an skb dst and its associated metadata a new dst+metadata
-is allocated and the tunnel information from the old metadata is copied
-over there.
+Drivers are not unbound from the device when ulpi_unregister_interface
+is called. Move of_node-freeing code to ulpi_dev_release which is called
+only after all users are gone.
 
-The issue is the tunnel metadata has references to cached dst, which are
-copied along the way. When a dst+metadata refcount drops to 0 the
-metadata is freed including the cached dst entries. As they are also
-referenced in the initial dst+metadata, this ends up in UaFs.
-
-In practice the above did not happen because of another issue, the
-dst+metadata was never freed because its refcount never dropped to 0
-(this will be fixed in a subsequent patch).
-
-Fix this by initializing the dst cache after copying the tunnel
-information from the old metadata to also unshare the dst cache.
-
-Fixes: d71785ffc7e7 ("net: add dst_cache to ovs vxlan lwtunnel")
-Cc: Paolo Abeni <pabeni@redhat.com>
-Reported-by: Vlad Buslov <vladbu@nvidia.com>
-Tested-by: Vlad Buslov <vladbu@nvidia.com>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Sean Anderson <sean.anderson@seco.com>
+Link: https://lore.kernel.org/r/20220127190004.1446909-2-sean.anderson@seco.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/dst_metadata.h | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/usb/common/ulpi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/dst_metadata.h b/include/net/dst_metadata.h
-index 14efa0ded75dd..b997e0c1e3627 100644
---- a/include/net/dst_metadata.h
-+++ b/include/net/dst_metadata.h
-@@ -123,6 +123,19 @@ static inline struct metadata_dst *tun_dst_unclone(struct sk_buff *skb)
+--- a/drivers/usb/common/ulpi.c
++++ b/drivers/usb/common/ulpi.c
+@@ -135,6 +135,7 @@ static const struct attribute_group *ulp
  
- 	memcpy(&new_md->u.tun_info, &md_dst->u.tun_info,
- 	       sizeof(struct ip_tunnel_info) + md_size);
-+#ifdef CONFIG_DST_CACHE
-+	/* Unclone the dst cache if there is one */
-+	if (new_md->u.tun_info.dst_cache.cache) {
-+		int ret;
-+
-+		ret = dst_cache_init(&new_md->u.tun_info.dst_cache, GFP_ATOMIC);
-+		if (ret) {
-+			metadata_dst_free(new_md);
-+			return ERR_PTR(ret);
-+		}
-+	}
-+#endif
-+
- 	skb_dst_drop(skb);
- 	dst_hold(&new_md->dst);
- 	skb_dst_set(skb, &new_md->dst);
--- 
-2.34.1
-
+ static void ulpi_dev_release(struct device *dev)
+ {
++	of_node_put(dev->of_node);
+ 	kfree(to_ulpi_dev(dev));
+ }
+ 
+@@ -303,7 +304,6 @@ EXPORT_SYMBOL_GPL(ulpi_register_interfac
+  */
+ void ulpi_unregister_interface(struct ulpi *ulpi)
+ {
+-	of_node_put(ulpi->dev.of_node);
+ 	device_unregister(&ulpi->dev);
+ }
+ EXPORT_SYMBOL_GPL(ulpi_unregister_interface);
 
 
