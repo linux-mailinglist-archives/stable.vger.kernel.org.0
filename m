@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2739E4B4828
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:56:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 179174B4C31
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:44:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245685AbiBNJwh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:52:37 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33310 "EHLO
+        id S1348254AbiBNKht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:37:49 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344604AbiBNJvv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:51:51 -0500
+        with ESMTP id S1349615AbiBNKgi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:36:38 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77A807985E;
-        Mon, 14 Feb 2022 01:43:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97C38A41A2;
+        Mon, 14 Feb 2022 02:02:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1412561172;
-        Mon, 14 Feb 2022 09:43:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB67FC340E9;
-        Mon, 14 Feb 2022 09:43:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DB3760B31;
+        Mon, 14 Feb 2022 10:02:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 367D5C340E9;
+        Mon, 14 Feb 2022 10:02:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831782;
-        bh=c4aitKK1Y1NNZzZfjqZWL2zAZsEEosoRaQN36dthyeA=;
+        s=korg; t=1644832966;
+        bh=lUg6UgIUo1yE4iHE1a1K4H9EBvuK+VqmJ7QfNaWBFas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KH95ua17WaXPbbX56J6yMOdC9Dwl9kCPGoXVels3ESepHsCt0q2cCdtC3Iz8Dh0ER
-         8Ha+MZn3DvemcHMXo0k6rcDlGfxFxKdxkTE7vpTcjgDUQwbUejznG0LeH7TlqNCAHw
-         cgF4Lbgm/8gcEif5UCh8U3RXTqz0UWzHOEjrAu3Y=
+        b=0TxgY2Jyl5ZVkEyBKyRJH9ti72TThmy965Y5VKM9JC+ZtHsZ99mcN9JLyMx60S6Mc
+         Xj2ZqAhJ4YZhmsFctpN/xmbMGeGzaTb1sAPz9n0Ct6Ts0QV7CdaqvFT06C9qIoac93
+         WjUFinVYAy0am6vqKGRW66E6Z7+N0EFUHWB1wrGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Sean Anderson <sean.anderson@seco.com>
-Subject: [PATCH 5.10 094/116] usb: ulpi: Move of_node_put to ulpi_dev_release
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Andrew Lunn <andrew@lunn.ch>, Andrew Jeffery <andrew@aj.id.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 149/203] net: mdio: aspeed: Add missing MODULE_DEVICE_TABLE
 Date:   Mon, 14 Feb 2022 10:26:33 +0100
-Message-Id: <20220214092502.019577572@linuxfoundation.org>
+Message-Id: <20220214092515.309426817@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <sean.anderson@seco.com>
+From: Joel Stanley <joel@jms.id.au>
 
-commit 092f45b13e51666fe8ecbf2d6cd247aa7e6c1f74 upstream.
+[ Upstream commit bc1c3c3b10db4f37c41e6107751a8d450d9c431c ]
 
-Drivers are not unbound from the device when ulpi_unregister_interface
-is called. Move of_node-freeing code to ulpi_dev_release which is called
-only after all users are gone.
+Fix loading of the driver when built as a module.
 
-Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Link: https://lore.kernel.org/r/20220127190004.1446909-2-sean.anderson@seco.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f160e99462c6 ("net: phy: Add mdio-aspeed")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/common/ulpi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/mdio/mdio-aspeed.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/common/ulpi.c
-+++ b/drivers/usb/common/ulpi.c
-@@ -132,6 +132,7 @@ static const struct attribute_group *ulp
+diff --git a/drivers/net/mdio/mdio-aspeed.c b/drivers/net/mdio/mdio-aspeed.c
+index 966c3b4ad59d1..e2273588c75b6 100644
+--- a/drivers/net/mdio/mdio-aspeed.c
++++ b/drivers/net/mdio/mdio-aspeed.c
+@@ -148,6 +148,7 @@ static const struct of_device_id aspeed_mdio_of_match[] = {
+ 	{ .compatible = "aspeed,ast2600-mdio", },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, aspeed_mdio_of_match);
  
- static void ulpi_dev_release(struct device *dev)
- {
-+	of_node_put(dev->of_node);
- 	kfree(to_ulpi_dev(dev));
- }
- 
-@@ -301,7 +302,6 @@ EXPORT_SYMBOL_GPL(ulpi_register_interfac
-  */
- void ulpi_unregister_interface(struct ulpi *ulpi)
- {
--	of_node_put(ulpi->dev.of_node);
- 	device_unregister(&ulpi->dev);
- }
- EXPORT_SYMBOL_GPL(ulpi_unregister_interface);
+ static struct platform_driver aspeed_mdio_driver = {
+ 	.driver = {
+-- 
+2.34.1
+
 
 
