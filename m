@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECD334B4835
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:56:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A46FE4B4C26
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:44:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235276AbiBNJws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:52:48 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33318 "EHLO
+        id S1348292AbiBNKhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:37:24 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344151AbiBNJvd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:51:33 -0500
+        with ESMTP id S1350165AbiBNKg6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:36:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1C6377A8E;
-        Mon, 14 Feb 2022 01:42:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E720A66DA;
+        Mon, 14 Feb 2022 02:03:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8ED34611F9;
-        Mon, 14 Feb 2022 09:42:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 732FAC340E9;
-        Mon, 14 Feb 2022 09:42:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCA0360C76;
+        Mon, 14 Feb 2022 10:02:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EE6EC340E9;
+        Mon, 14 Feb 2022 10:02:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831752;
-        bh=0v9TIcwA/Vbn20Rlsqb/6ZLsZbXcSZQqHmpK8wJkvJY=;
+        s=korg; t=1644832970;
+        bh=yBRwaPPBX7oiofAb7QQqNGhdMzKYQcdZ2HG2mnhRb+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LdKsReFVJl3zuN3WsUOdsh93KzRD2M+NUOMqGHvKZ430WRRa4bpcrqV5iPK4jMFqf
-         S5wEepyZ1sTQXsUiFbkqY8UdSdJTFxCYdkNibUBUxw2sslTtFdlXjtg93kaavRwWFD
-         J5H9T+Q1y1UmOad+j2likw/nJ9L11pS8mba7w4Pw=
+        b=ThEUqpE+tzIoo6r7JOBUdZcGFiPDssedEjsE9sKDIyz2lgf1ZlhK+aHm051l2JjCJ
+         DSn6Zf1oOSnRDPSczOqViW4ovtNT3vVc6R4spuX76p79Q8TU89c+ITWOBttAXrVCjL
+         A9tVpyIuLm8WecD2gBhcvZINrLz1BbRCPZ+6eXD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Colin Foster <colin.foster@in-advantage.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 085/116] net: mscc: ocelot: fix mutex lock error during ethtool stats read
+Subject: [PATCH 5.16 140/203] net: dsa: mt7530: fix kernel bug in mdiobus_free() when unbinding
 Date:   Mon, 14 Feb 2022 10:26:24 +0100
-Message-Id: <20220214092501.704177712@linuxfoundation.org>
+Message-Id: <20220214092514.990174009@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,83 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Foster <colin.foster@in-advantage.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 7fbf6795d127a3b1bb39b0e42579904cf6db1624 ]
+[ Upstream commit 9ffe3d09e32da45bb5a29cf2e80ec8d7534010c5 ]
 
-An ongoing workqueue populates the stats buffer. At the same time, a user
-might query the statistics. While writing to the buffer is mutex-locked,
-reading from the buffer wasn't. This could lead to buggy reads by ethtool.
+Nobody in this driver calls mdiobus_unregister(), which is necessary if
+mdiobus_register() completes successfully. So if the devres callbacks
+that free the mdiobus get invoked (this is the case when unbinding the
+driver), mdiobus_free() will BUG if the mdiobus is still registered,
+which it is.
 
-This patch fixes the former blamed commit, but the bug was introduced in
-the latter.
+My speculation is that this is due to the fact that prior to commit
+ac3a68d56651 ("net: phy: don't abuse devres in devm_mdiobus_register()")
+from June 2020, _devm_mdiobus_free() used to call mdiobus_unregister().
+But at the time that the mt7530 support was introduced in May 2021, the
+API was already changed. It's therefore likely that the blamed patch was
+developed on an older tree, and incorrectly adapted to net-next. This
+makes the Fixes: tag correct.
 
-Signed-off-by: Colin Foster <colin.foster@in-advantage.com>
-Fixes: 1e1caa9735f90 ("ocelot: Clean up stats update deferred work")
-Fixes: a556c76adc052 ("net: mscc: Add initial Ocelot switch support")
-Reported-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/all/20220210150451.416845-2-colin.foster@in-advantage.com/
+Fix the problem by using the devres variant of mdiobus_register.
+
+Fixes: ba751e28d442 ("net: dsa: mt7530: add interrupt support")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/dsa/mt7530.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
-index 52401915828a1..a06466ecca12a 100644
---- a/drivers/net/ethernet/mscc/ocelot.c
-+++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -848,12 +848,11 @@ void ocelot_get_strings(struct ocelot *ocelot, int port, u32 sset, u8 *data)
- }
- EXPORT_SYMBOL(ocelot_get_strings);
+diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
+index 9890672a206d0..fb59efc7f9266 100644
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -2066,7 +2066,7 @@ mt7530_setup_mdio(struct mt7530_priv *priv)
+ 	if (priv->irq)
+ 		mt7530_setup_mdio_irq(priv);
  
-+/* Caller must hold &ocelot->stats_lock */
- static void ocelot_update_stats(struct ocelot *ocelot)
- {
- 	int i, j;
- 
--	mutex_lock(&ocelot->stats_lock);
--
- 	for (i = 0; i < ocelot->num_phys_ports; i++) {
- 		/* Configure the port to read the stats from */
- 		ocelot_write(ocelot, SYS_STAT_CFG_STAT_VIEW(i), SYS_STAT_CFG);
-@@ -872,8 +871,6 @@ static void ocelot_update_stats(struct ocelot *ocelot)
- 					      ~(u64)U32_MAX) + val;
- 		}
- 	}
--
--	mutex_unlock(&ocelot->stats_lock);
- }
- 
- static void ocelot_check_stats_work(struct work_struct *work)
-@@ -882,7 +879,9 @@ static void ocelot_check_stats_work(struct work_struct *work)
- 	struct ocelot *ocelot = container_of(del_work, struct ocelot,
- 					     stats_work);
- 
-+	mutex_lock(&ocelot->stats_lock);
- 	ocelot_update_stats(ocelot);
-+	mutex_unlock(&ocelot->stats_lock);
- 
- 	queue_delayed_work(ocelot->stats_queue, &ocelot->stats_work,
- 			   OCELOT_STATS_CHECK_DELAY);
-@@ -892,12 +891,16 @@ void ocelot_get_ethtool_stats(struct ocelot *ocelot, int port, u64 *data)
- {
- 	int i;
- 
-+	mutex_lock(&ocelot->stats_lock);
-+
- 	/* check and update now */
- 	ocelot_update_stats(ocelot);
- 
- 	/* Copy all counters */
- 	for (i = 0; i < ocelot->num_stats; i++)
- 		*data++ = ocelot->stats[port * ocelot->num_stats + i];
-+
-+	mutex_unlock(&ocelot->stats_lock);
- }
- EXPORT_SYMBOL(ocelot_get_ethtool_stats);
- 
+-	ret = mdiobus_register(bus);
++	ret = devm_mdiobus_register(dev, bus);
+ 	if (ret) {
+ 		dev_err(dev, "failed to register MDIO bus: %d\n", ret);
+ 		if (priv->irq)
 -- 
 2.34.1
 
