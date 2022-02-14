@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82B7A4B4ADF
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD77F4B4700
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348149AbiBNKd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:33:58 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41538 "EHLO
+        id S244565AbiBNJmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:42:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347920AbiBNKdQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:33:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A174B2BD9;
-        Mon, 14 Feb 2022 02:00:29 -0800 (PST)
+        with ESMTP id S245299AbiBNJlV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:41:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1ED2652FE;
+        Mon, 14 Feb 2022 01:37:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E3F060C32;
-        Mon, 14 Feb 2022 10:00:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72EA0C340F0;
-        Mon, 14 Feb 2022 10:00:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A38B7B80DCC;
+        Mon, 14 Feb 2022 09:37:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA2D8C340E9;
+        Mon, 14 Feb 2022 09:37:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832828;
-        bh=TBnyqoTQPosQtBqxYCNdVgHbcUIa0+jxn7HOS9c/KvI=;
+        s=korg; t=1644831436;
+        bh=wDqnvc6CLUgfoEy20HXPoeHFbVA62YBNGu44nsE+AWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zOpCWNoyowSb3Ji3fjFbd6GQxu28xQ8S5ah7huglGhF0gbdqcOybk9sXwTF8pC0Ad
-         kGuneG199TOqG129RR3zIBN4SEe5AwxLlaZBUr6bW1wWUCeJL98vB56znfZVSg7DWO
-         YhbvJmoyNa70EueGNpZAMdM0sqNepwaZdd+hCR1Q=
+        b=OHBy7WCJhS/wCGxImxuLoeAAhCtPcEU6tjtG/YWeZrVGXRRvagqbnGMXdIGh90xA/
+         g3Ii57gzZIc5mxG0N7mLSMxhjtyTgllcBV8PJPUtK/D0qDn6VVqQ9I0mq9/unOvOqI
+         QD/iW810+4/MnUzaLojut5fBt0Ox9vpxYKh5QDjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 136/203] net: dsa: bcm_sf2: dont use devres for mdiobus
-Date:   Mon, 14 Feb 2022 10:26:20 +0100
-Message-Id: <20220214092514.857178364@linuxfoundation.org>
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Jonas Malaco <jonas@protocubo.io>
+Subject: [PATCH 5.4 53/71] eeprom: ee1004: limit i2c reads to I2C_SMBUS_BLOCK_MAX
+Date:   Mon, 14 Feb 2022 10:26:21 +0100
+Message-Id: <20220214092453.828207928@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Jonas Malaco <jonas@protocubo.io>
 
-[ Upstream commit 08f1a20822349004bb9cc1b153ecb516e9f2889d ]
+commit c0689e46be23160d925dca95dfc411f1a0462708 upstream.
 
-As explained in commits:
-74b6d7d13307 ("net: dsa: realtek: register the MDIO bus under devres")
-5135e96a3dd2 ("net: dsa: don't allocate the slave_mii_bus using devres")
+Commit effa453168a7 ("i2c: i801: Don't silently correct invalid transfer
+size") revealed that ee1004_eeprom_read() did not properly limit how
+many bytes to read at once.
 
-mdiobus_free() will panic when called from devm_mdiobus_free() <-
-devres_release_all() <- __device_release_driver(), and that mdiobus was
-not previously unregistered.
+In particular, i2c_smbus_read_i2c_block_data_or_emulated() takes the
+length to read as an u8.  If count == 256 after taking into account the
+offset and page boundary, the cast to u8 overflows.  And this is common
+when user space tries to read the entire EEPROM at once.
 
-The Starfighter 2 is a platform device, so the initial set of
-constraints that I thought would cause this (I2C or SPI buses which call
-->remove on ->shutdown) do not apply. But there is one more which
-applies here.
+To fix it, limit each read to I2C_SMBUS_BLOCK_MAX (32) bytes, already
+the maximum length i2c_smbus_read_i2c_block_data_or_emulated() allows.
 
-If the DSA master itself is on a bus that calls ->remove from ->shutdown
-(like dpaa2-eth, which is on the fsl-mc bus), there is a device link
-between the switch and the DSA master, and device_links_unbind_consumers()
-will unbind the bcm_sf2 switch driver on shutdown.
-
-So the same treatment must be applied to all DSA switch drivers, which
-is: either use devres for both the mdiobus allocation and registration,
-or don't use devres at all.
-
-The bcm_sf2 driver has the code structure in place for orderly mdiobus
-removal, so just replace devm_mdiobus_alloc() with the non-devres
-variant, and add manual free where necessary, to ensure that we don't
-let devres free a still-registered bus.
-
-Fixes: ac3a68d56651 ("net: phy: don't abuse devres in devm_mdiobus_register()")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: effa453168a7 ("i2c: i801: Don't silently correct invalid transfer size")
+Cc: stable@vger.kernel.org
+Reviewed-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Jonas Malaco <jonas@protocubo.io>
+Link: https://lore.kernel.org/r/20220203165024.47767-1-jonas@protocubo.io
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/bcm_sf2.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/misc/eeprom/ee1004.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
-index 13aa43b5cffd9..1502d200682f8 100644
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -584,7 +584,7 @@ static int bcm_sf2_mdio_register(struct dsa_switch *ds)
- 	get_device(&priv->master_mii_bus->dev);
- 	priv->master_mii_dn = dn;
+--- a/drivers/misc/eeprom/ee1004.c
++++ b/drivers/misc/eeprom/ee1004.c
+@@ -82,6 +82,9 @@ static ssize_t ee1004_eeprom_read(struct
+ 	if (unlikely(offset + count > EE1004_PAGE_SIZE))
+ 		count = EE1004_PAGE_SIZE - offset;
  
--	priv->slave_mii_bus = devm_mdiobus_alloc(ds->dev);
-+	priv->slave_mii_bus = mdiobus_alloc();
- 	if (!priv->slave_mii_bus) {
- 		of_node_put(dn);
- 		return -ENOMEM;
-@@ -644,8 +644,10 @@ static int bcm_sf2_mdio_register(struct dsa_switch *ds)
- 	}
- 
- 	err = mdiobus_register(priv->slave_mii_bus);
--	if (err && dn)
-+	if (err && dn) {
-+		mdiobus_free(priv->slave_mii_bus);
- 		of_node_put(dn);
-+	}
- 
- 	return err;
- }
-@@ -653,6 +655,7 @@ static int bcm_sf2_mdio_register(struct dsa_switch *ds)
- static void bcm_sf2_mdio_unregister(struct bcm_sf2_priv *priv)
- {
- 	mdiobus_unregister(priv->slave_mii_bus);
-+	mdiobus_free(priv->slave_mii_bus);
- 	of_node_put(priv->master_mii_dn);
- }
- 
--- 
-2.34.1
-
++	if (count > I2C_SMBUS_BLOCK_MAX)
++		count = I2C_SMBUS_BLOCK_MAX;
++
+ 	status = i2c_smbus_read_i2c_block_data_or_emulated(client, offset,
+ 							   count, buf);
+ 	dev_dbg(&client->dev, "read %zu@%d --> %d\n", count, offset, status);
 
 
