@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C3ED4B4ACE
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34EB94B4727
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235269AbiBNK1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:27:47 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33890 "EHLO
+        id S245204AbiBNJrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:47:17 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348096AbiBNK0o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:26:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EF1F81184;
-        Mon, 14 Feb 2022 01:57:44 -0800 (PST)
+        with ESMTP id S1343766AbiBNJq1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C5776B0AC;
+        Mon, 14 Feb 2022 01:39:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20637B80DCD;
-        Mon, 14 Feb 2022 09:57:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42D14C340EF;
-        Mon, 14 Feb 2022 09:57:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B294611DE;
+        Mon, 14 Feb 2022 09:39:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EE73C36AE2;
+        Mon, 14 Feb 2022 09:39:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832660;
-        bh=PoVeYvvR1go9JL6IkY/gQPfhMt+FjXOTzqrvcNd3n9A=;
+        s=korg; t=1644831595;
+        bh=P3qbYayGFjFb/gkQnpdVwoJRURSj299ER3xrYVzQ6Bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJqlSTScp1gD8m9VetTfzot4+N8Fqv3OV3UyIuoIrjbTtioAyJZHD+sFH+EC9Kqrt
-         BBfOgPIGc10Kn0cY986ZlWgU+Dw/3R4li0o1gAVhdvCQSpylU5cx5+iqpR31a7ATUp
-         3SncfLMpIXh6BHOCJq/7qGydSm0e0Od4gK+ubkrc=
+        b=gTey1wGd+ABT8Uhdpd8I652Pd4z02SCzxxCSwX9jXF11IVInIbFBMlGQL6dmqLkaF
+         EIAkcxagKMd6Xms/HvWQVZ4kFuhtbGtxPmfr0fb/1S9edSBhGri6qufyaI7zrmYowI
+         Adu+7jWbIxu/Y0MfUscG9d3j/MPONUsS1s32E0+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.16 086/203] PM: s2idle: ACPI: Fix wakeup interrupts handling
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Tong Zhang <ztong0001@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 031/116] scsi: myrs: Fix crash in error case
 Date:   Mon, 14 Feb 2022 10:25:30 +0100
-Message-Id: <20220214092513.193388975@linuxfoundation.org>
+Message-Id: <20220214092459.767457421@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,175 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-commit cb1f65c1e1424a4b5e4a86da8aa3b8fd8459c8ec upstream.
+[ Upstream commit 4db09593af0b0b4d7d4805ebb3273df51d7cc30d ]
 
-After commit e3728b50cd9b ("ACPI: PM: s2idle: Avoid possible race
-related to the EC GPE") wakeup interrupts occurring immediately after
-the one discarded by acpi_s2idle_wake() may be missed.  Moreover, if
-the SCI triggers again immediately after the rearming in
-acpi_s2idle_wake(), that wakeup may be missed too.
+In myrs_detect(), cs->disable_intr is NULL when privdata->hw_init() fails
+with non-zero. In this case, myrs_cleanup(cs) will call a NULL ptr and
+crash the kernel.
 
-The problem is that pm_system_irq_wakeup() only calls pm_system_wakeup()
-when pm_wakeup_irq is 0, but that's not the case any more after the
-interrupt causing acpi_s2idle_wake() to run until pm_wakeup_irq is
-cleared by the pm_wakeup_clear() call in s2idle_loop().  However,
-there may be wakeup interrupts occurring in that time frame and if
-that happens, they will be missed.
+[    1.105606] myrs 0000:00:03.0: Unknown Initialization Error 5A
+[    1.105872] myrs 0000:00:03.0: Failed to initialize Controller
+[    1.106082] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[    1.110774] Call Trace:
+[    1.110950]  myrs_cleanup+0xe4/0x150 [myrs]
+[    1.111135]  myrs_probe.cold+0x91/0x56a [myrs]
+[    1.111302]  ? DAC960_GEM_intr_handler+0x1f0/0x1f0 [myrs]
+[    1.111500]  local_pci_probe+0x48/0x90
 
-To address that issue first move the clearing of pm_wakeup_irq to
-the point at which it is known that the interrupt causing
-acpi_s2idle_wake() to tun will be discarded, before rearming the SCI
-for wakeup.  Moreover, because that only reduces the size of the
-time window in which the issue may manifest itself, allow
-pm_system_irq_wakeup() to register two second wakeup interrupts in
-a row and, when discarding the first one, replace it with the second
-one.  [Of course, this assumes that only one wakeup interrupt can be
-discarded in one go, but currently that is the case and I am not
-aware of any plans to change that.]
-
-Fixes: e3728b50cd9b ("ACPI: PM: s2idle: Avoid possible race related to the EC GPE")
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220123225717.1069538-1-ztong0001@gmail.com
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/sleep.c        |    1 +
- drivers/base/power/wakeup.c |   41 ++++++++++++++++++++++++++++++++++-------
- include/linux/suspend.h     |    4 ++--
- kernel/power/main.c         |    5 ++++-
- kernel/power/process.c      |    2 +-
- kernel/power/suspend.c      |    2 --
- 6 files changed, 42 insertions(+), 13 deletions(-)
+ drivers/scsi/myrs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -767,6 +767,7 @@ bool acpi_s2idle_wake(void)
- 			return true;
- 		}
+diff --git a/drivers/scsi/myrs.c b/drivers/scsi/myrs.c
+index 78c41bbf67562..e6a6678967e52 100644
+--- a/drivers/scsi/myrs.c
++++ b/drivers/scsi/myrs.c
+@@ -2272,7 +2272,8 @@ static void myrs_cleanup(struct myrs_hba *cs)
+ 	myrs_unmap(cs);
  
-+		pm_wakeup_clear(acpi_sci_irq);
- 		rearm_wake_irq(acpi_sci_irq);
+ 	if (cs->mmio_base) {
+-		cs->disable_intr(cs);
++		if (cs->disable_intr)
++			cs->disable_intr(cs);
+ 		iounmap(cs->mmio_base);
+ 		cs->mmio_base = NULL;
  	}
- 
---- a/drivers/base/power/wakeup.c
-+++ b/drivers/base/power/wakeup.c
-@@ -34,7 +34,8 @@ suspend_state_t pm_suspend_target_state;
- bool events_check_enabled __read_mostly;
- 
- /* First wakeup IRQ seen by the kernel in the last cycle. */
--unsigned int pm_wakeup_irq __read_mostly;
-+static unsigned int wakeup_irq[2] __read_mostly;
-+static DEFINE_RAW_SPINLOCK(wakeup_irq_lock);
- 
- /* If greater than 0 and the system is suspending, terminate the suspend. */
- static atomic_t pm_abort_suspend __read_mostly;
-@@ -942,19 +943,45 @@ void pm_system_cancel_wakeup(void)
- 	atomic_dec_if_positive(&pm_abort_suspend);
- }
- 
--void pm_wakeup_clear(bool reset)
-+void pm_wakeup_clear(unsigned int irq_number)
- {
--	pm_wakeup_irq = 0;
--	if (reset)
-+	raw_spin_lock_irq(&wakeup_irq_lock);
-+
-+	if (irq_number && wakeup_irq[0] == irq_number)
-+		wakeup_irq[0] = wakeup_irq[1];
-+	else
-+		wakeup_irq[0] = 0;
-+
-+	wakeup_irq[1] = 0;
-+
-+	raw_spin_unlock_irq(&wakeup_irq_lock);
-+
-+	if (!irq_number)
- 		atomic_set(&pm_abort_suspend, 0);
- }
- 
- void pm_system_irq_wakeup(unsigned int irq_number)
- {
--	if (pm_wakeup_irq == 0) {
--		pm_wakeup_irq = irq_number;
-+	unsigned long flags;
-+
-+	raw_spin_lock_irqsave(&wakeup_irq_lock, flags);
-+
-+	if (wakeup_irq[0] == 0)
-+		wakeup_irq[0] = irq_number;
-+	else if (wakeup_irq[1] == 0)
-+		wakeup_irq[1] = irq_number;
-+	else
-+		irq_number = 0;
-+
-+	raw_spin_unlock_irqrestore(&wakeup_irq_lock, flags);
-+
-+	if (irq_number)
- 		pm_system_wakeup();
--	}
-+}
-+
-+unsigned int pm_wakeup_irq(void)
-+{
-+	return wakeup_irq[0];
- }
- 
- /**
---- a/include/linux/suspend.h
-+++ b/include/linux/suspend.h
-@@ -496,14 +496,14 @@ extern void ksys_sync_helper(void);
- 
- /* drivers/base/power/wakeup.c */
- extern bool events_check_enabled;
--extern unsigned int pm_wakeup_irq;
- extern suspend_state_t pm_suspend_target_state;
- 
- extern bool pm_wakeup_pending(void);
- extern void pm_system_wakeup(void);
- extern void pm_system_cancel_wakeup(void);
--extern void pm_wakeup_clear(bool reset);
-+extern void pm_wakeup_clear(unsigned int irq_number);
- extern void pm_system_irq_wakeup(unsigned int irq_number);
-+extern unsigned int pm_wakeup_irq(void);
- extern bool pm_get_wakeup_count(unsigned int *count, bool block);
- extern bool pm_save_wakeup_count(unsigned int count);
- extern void pm_wakep_autosleep_enabled(bool set);
---- a/kernel/power/main.c
-+++ b/kernel/power/main.c
-@@ -504,7 +504,10 @@ static ssize_t pm_wakeup_irq_show(struct
- 					struct kobj_attribute *attr,
- 					char *buf)
- {
--	return pm_wakeup_irq ? sprintf(buf, "%u\n", pm_wakeup_irq) : -ENODATA;
-+	if (!pm_wakeup_irq())
-+		return -ENODATA;
-+
-+	return sprintf(buf, "%u\n", pm_wakeup_irq());
- }
- 
- power_attr_ro(pm_wakeup_irq);
---- a/kernel/power/process.c
-+++ b/kernel/power/process.c
-@@ -134,7 +134,7 @@ int freeze_processes(void)
- 	if (!pm_freezing)
- 		atomic_inc(&system_freezing_cnt);
- 
--	pm_wakeup_clear(true);
-+	pm_wakeup_clear(0);
- 	pr_info("Freezing user space processes ... ");
- 	pm_freezing = true;
- 	error = try_to_freeze_tasks(true);
---- a/kernel/power/suspend.c
-+++ b/kernel/power/suspend.c
-@@ -136,8 +136,6 @@ static void s2idle_loop(void)
- 			break;
- 		}
- 
--		pm_wakeup_clear(false);
--
- 		s2idle_enter();
- 	}
- 
+-- 
+2.34.1
+
 
 
