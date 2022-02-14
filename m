@@ -2,103 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 913A84B4E2E
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 12:27:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D99E74B4EA5
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 12:34:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350954AbiBNLZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 06:25:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52348 "EHLO
+        id S1350880AbiBNL3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 06:29:49 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351019AbiBNLYu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 06:24:50 -0500
-Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 225296A034
-        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 03:00:36 -0800 (PST)
-Received: by mail-yb1-xb36.google.com with SMTP id y129so44812259ybe.7
-        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 03:00:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=3ql8NUq1Mhfk4FgjJdYn+6AtR/wTalZy71vD2iX7360=;
-        b=HaouLhMkFE1Tiq9r67ZkbspsEZEGeDsEDrcBcXHPlhVMTAnQoNqML7O1lgdKdbp6Sy
-         0VxaapMKnjgFJqH17uSVhB+naf4kLHC5kmz1MQBGUsjb7Ng8d+E5Hn+SfNFyDEUZIrNb
-         AJSF1hjzKM42IFMG7pYWyIply6TGhegP4lACG++dR+vSYq8fOZbIwSJE7px5hElaNRWt
-         C7341jM9DgM8SGFMyfu4TF6Wz8tv41ujpV36F8CueKK8Ug1ASS1hMFkQLW2Oj/m8OdET
-         GVnHtQCj1PkI18M+WSp+dJ2ix2w3lEoaMHzhkzK0XD89pm0C+JOHiW2gTSFARUBUXF/g
-         pU7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3ql8NUq1Mhfk4FgjJdYn+6AtR/wTalZy71vD2iX7360=;
-        b=JYUjTRq536n/3zT7R5Qy13QfwVpYCUzYOVF0X3K1azuB/Z/5Vdb3YpHOGvD/o3C/pY
-         MS7RX2olQGuqcRBW+2mKRIhoow+j4z5y9imUyR4/67FdMl/W3oaPTzUVeXAt7WeAMWfX
-         g2gnQtMCLE0hIwgz+2GHATjvcRY5Am9xAOfH9JErYpbdRa/73OBTmDhCMHKgwA7tegl9
-         DsQPb5oZLlqAs6206XYpfGNeo+PpalqHOXC94Z44nIRIPGfXa4rd+pnrC/oQrWjSYWcp
-         /Y5Q/scmhCo8bTSM0D+7yDh6Gw324OJBCAXgkYcbBGIdYnOcZf+Wm2EkdmfRuJQ8hjIA
-         ZFjw==
-X-Gm-Message-State: AOAM531n3Ds5+/oghnyx9b4iZjvZQIvwjkMMkgrrwcBozGeRamKGMTW6
-        wJr5E+B6fMJapEl9jOkdBdWCdmXsj2gccdZ+aQPp/w==
-X-Google-Smtp-Source: ABdhPJy5yJJ+Rt8wVdvh+tLvsVhIt8bcoEhuSC4CHI8yHpu2ldBu+EEupqbDrNGS7Cp4eKQwSrOPWrrzNZyXwLqR52c=
-X-Received: by 2002:a81:3542:: with SMTP id c63mr13303504ywa.87.1644836433843;
- Mon, 14 Feb 2022 03:00:33 -0800 (PST)
+        with ESMTP id S236996AbiBNL3Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 06:29:16 -0500
+Received: from mail-out.m-online.net (mail-out.m-online.net [IPv6:2001:a60:0:28:0:1:25:1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D40B413E3B;
+        Mon, 14 Feb 2022 03:09:10 -0800 (PST)
+Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
+        by mail-out.m-online.net (Postfix) with ESMTP id 4Jy1gl1ML5z1sb4v;
+        Mon, 14 Feb 2022 12:09:07 +0100 (CET)
+Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
+        by mail.m-online.net (Postfix) with ESMTP id 4Jy1gk6xvWz1qqkC;
+        Mon, 14 Feb 2022 12:09:06 +0100 (CET)
+X-Virus-Scanned: amavisd-new at mnet-online.de
+Received: from mail.mnet-online.de ([192.168.8.182])
+        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
+        with ESMTP id PviuDD7DJMpb; Mon, 14 Feb 2022 12:09:05 +0100 (CET)
+X-Auth-Info: IIqgtslsiXqoU0044bdHXKurfQElNZ2hCA9ncLdtO9RAMGtWhVn9okSWqvV9m/4e
+Received: from igel.home (ppp-46-244-178-131.dynamic.mnet-online.de [46.244.178.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.mnet-online.de (Postfix) with ESMTPSA;
+        Mon, 14 Feb 2022 12:09:05 +0100 (CET)
+Received: by igel.home (Postfix, from userid 1000)
+        id 827722C3A76; Mon, 14 Feb 2022 12:09:05 +0100 (CET)
+From:   Andreas Schwab <schwab@linux-m68k.org>
+To:     Heinrich Schuchardt <xypron.glpk@gmx.de>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Atish Patra <atishp@atishpatra.org>, linux-efi@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Anup Patel <apatel@ventanamicro.com>, stable@vger.kernel.org,
+        Sunil V L <sunilvl@ventanamicro.com>
+Subject: Re: [PATCH] riscv/efi_stub: Fix get_boot_hartid_from_fdt() return
+ value
+References: <20220128045004.4843-1-sunilvl@ventanamicro.com>
+        <877d9xx14f.fsf@igel.home>
+        <9cd9f149-d2ea-eb55-b774-8d817b9b6cc9@gmx.de>
+        <87tud1vjn4.fsf@igel.home>
+        <49d3aeab-1fe6-8d17-bc83-78f3555109c7@gmx.de>
+X-Yow:  Now my EMOTIONAL RESOURCES are heavily committed to 23% of the
+ SMELTING and REFINING industry of the state of NEVADA!!
+Date:   Mon, 14 Feb 2022 12:09:05 +0100
+In-Reply-To: <49d3aeab-1fe6-8d17-bc83-78f3555109c7@gmx.de> (Heinrich
+        Schuchardt's message of "Mon, 14 Feb 2022 11:27:53 +0100")
+Message-ID: <87pmnpvh66.fsf@igel.home>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.91 (gnu/linux)
 MIME-Version: 1.0
-References: <20220214092506.354292783@linuxfoundation.org>
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 14 Feb 2022 16:30:22 +0530
-Message-ID: <CA+G9fYv72=mb-9UqAF5kK1TZ5+HEEjY=1_372K30tAzKEmAR0g@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/172] 5.15.24-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 14 Feb 2022 at 15:16, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.15.24 release.
-> There are 172 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 16 Feb 2022 09:24:36 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.24-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Feb 14 2022, Heinrich Schuchardt wrote:
 
-On Linux mainline master branch with arm64 clang-nigtly build failed
-due to following errors and warnings.
-Now it is also noticed on stable-rc 5.15 and 5.16.
+> On 2/14/22 11:15, Andreas Schwab wrote:
+>> On Feb 14 2022, Heinrich Schuchardt wrote:
+>>
+>>> set_boot_hartid() implies that the caller can change the boot hart ID.
+>>> As this is not a case this name obviously would be a misnomer.
+>>
+>> initialize_boot_hartid would fit better.
+>>
+>
+> Another misnomer.
 
-net/ipv4/tcp_input.c: clang: error: clang frontend command failed with
-exit code 139 (use -v to see invocation)
-https://github.com/llvm/llvm-project/issues/53811
+But the best fit so far.
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
---
-Linaro LKFT
-https://lkft.linaro.org
+-- 
+Andreas Schwab, schwab@linux-m68k.org
+GPG Key fingerprint = 7578 EB47 D4E5 4D69 2510  2552 DF73 E780 A9DA AEC1
+"And now for something completely different."
