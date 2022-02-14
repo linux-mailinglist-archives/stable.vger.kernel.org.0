@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9ADB4B4616
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EBEA4B4648
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238029AbiBNJ2g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:28:36 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41374 "EHLO
+        id S243366AbiBNJcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:32:03 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243024AbiBNJ2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:28:30 -0500
+        with ESMTP id S243436AbiBNJbr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:31:47 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90D1960AA5;
-        Mon, 14 Feb 2022 01:28:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66518AE77;
+        Mon, 14 Feb 2022 01:30:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D45E60F6F;
-        Mon, 14 Feb 2022 09:28:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10347C340E9;
-        Mon, 14 Feb 2022 09:28:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E905B60F8D;
+        Mon, 14 Feb 2022 09:30:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64AD0C340E9;
+        Mon, 14 Feb 2022 09:30:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644830902;
-        bh=/CiVd4L2TQFjdRRZsgg7Yry6nYmJ+8enyPL1HjltIro=;
+        s=korg; t=1644831028;
+        bh=xTXfdeZ0M0/7c+q//0P2caLawKRx8oTCw8iwRYfen8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EkMqboEyN3CZDEqIDg9twEYLHCzV2RpS/aIljhS7kl9Orn/SL3Dcv92S5qMRbFAJr
-         /Jnh7N7ZUBubBamxvAWF8t7kfYcR0zs5a5ZLapHusIhYaMzFmtmuFnWuQn7m7Np0Gb
-         4flAikqRSOw/r6u0UjZjSf1MXrdjRce+a2otM5PU=
+        b=DZB6ZyWWNKU3fUyM6bJnNDneV63Tantx2geKBfC+6f0j046mEKgrsHR2xJcjzlS2Y
+         Zbd8UoRFMPHgrxMxspZfwI+F0uIOSGM5nqqrAzf1v7Kk5in3VoipwIAgBafm4z5uLX
+         VJ9RdG2a2uzS0QP4aJ68plY7JVJhgBhMDImcECuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mahesh Bandewar <maheshb@google.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 17/34] bonding: pair enable_port with slave_arr_updates
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 20/44] staging: fbtft: Fix error path in fbtft_driver_module_init()
 Date:   Mon, 14 Feb 2022 10:25:43 +0100
-Message-Id: <20220214092446.502266045@linuxfoundation.org>
+Message-Id: <20220214092448.568447156@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
-References: <20220214092445.946718557@linuxfoundation.org>
+In-Reply-To: <20220214092447.897544753@linuxfoundation.org>
+References: <20220214092447.897544753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mahesh Bandewar <maheshb@google.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 23de0d7b6f0e3f9a6283a882594c479949da1120 ]
+[ Upstream commit 426aca16e903b387a0b0001d62207a745c67cfd3 ]
 
-When 803.2ad mode enables a participating port, it should update
-the slave-array. I have observed that the member links are participating
-and are part of the active aggregator while the traffic is egressing via
-only one member link (in a case where two links are participating). Via
-kprobes I discovered that slave-arr has only one link added while
-the other participating link wasn't part of the slave-arr.
+If registering the platform driver fails, the function must not return
+without undoing the spi driver registration first.
 
-I couldn't see what caused that situation but the simple code-walk
-through provided me hints that the enable_port wasn't always associated
-with the slave-array update.
-
-Fixes: ee6377147409 ("bonding: Simplify the xmit function for modes that use xmit_hash")
-Signed-off-by: Mahesh Bandewar <maheshb@google.com>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Link: https://lore.kernel.org/r/20220207222901.1795287-1-maheshb@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: c296d5f9957c ("staging: fbtft: core support")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20220118181338.207943-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_3ad.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/staging/fbtft/fbtft.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/bonding/bond_3ad.c b/drivers/net/bonding/bond_3ad.c
-index 1e2ee97b92406..578d8e12e2d21 100644
---- a/drivers/net/bonding/bond_3ad.c
-+++ b/drivers/net/bonding/bond_3ad.c
-@@ -971,8 +971,8 @@ static void ad_mux_machine(struct port *port, bool *update_slave_arr)
- 				if (port->aggregator &&
- 				    port->aggregator->is_active &&
- 				    !__port_is_enabled(port)) {
--
- 					__enable_port(port);
-+					*update_slave_arr = true;
- 				}
- 			}
- 			break;
-@@ -1724,6 +1724,7 @@ static void ad_agg_selection_logic(struct aggregator *agg,
- 			     port = port->next_port_in_aggregator) {
- 				__enable_port(port);
- 			}
-+			*update_slave_arr = true;
- 		}
- 	}
- 
+diff --git a/drivers/staging/fbtft/fbtft.h b/drivers/staging/fbtft/fbtft.h
+index 488ab788138e1..b086e8e5b4dd3 100644
+--- a/drivers/staging/fbtft/fbtft.h
++++ b/drivers/staging/fbtft/fbtft.h
+@@ -342,7 +342,10 @@ static int __init fbtft_driver_module_init(void)                           \
+ 	ret = spi_register_driver(&fbtft_driver_spi_driver);               \
+ 	if (ret < 0)                                                       \
+ 		return ret;                                                \
+-	return platform_driver_register(&fbtft_driver_platform_driver);    \
++	ret = platform_driver_register(&fbtft_driver_platform_driver);     \
++	if (ret < 0)                                                       \
++		spi_unregister_driver(&fbtft_driver_spi_driver);           \
++	return ret;                                                        \
+ }                                                                          \
+ 									   \
+ static void __exit fbtft_driver_module_exit(void)                          \
 -- 
 2.34.1
 
