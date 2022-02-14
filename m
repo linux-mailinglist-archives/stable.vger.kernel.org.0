@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B7D4B47BB
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 234084B4810
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:56:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245662AbiBNJwe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:52:34 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60934 "EHLO
+        id S245145AbiBNJsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:48:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344537AbiBNJvs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:51:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C5D366FBD;
-        Mon, 14 Feb 2022 01:42:59 -0800 (PST)
+        with ESMTP id S245268AbiBNJpU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:45:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97F4B706CA;
+        Mon, 14 Feb 2022 01:38:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8F72B80DC9;
-        Mon, 14 Feb 2022 09:42:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E650AC340EF;
-        Mon, 14 Feb 2022 09:42:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F2DF6118C;
+        Mon, 14 Feb 2022 09:38:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6C08C340E9;
+        Mon, 14 Feb 2022 09:38:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831776;
-        bh=2bxlapIbZ7DOSdflx2EZloe76yIzRk8iWg3zk2A8E8w=;
+        s=korg; t=1644831510;
+        bh=dnqBjILIyPFJ4zWz2ADF95n2WkBQyD/RD3t0VOM3EjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iDo2sk7567eAoMNYurRD6EAveASgk8R6mvl5yrpuBDq3OIAnuMQeyQ+Lvy+5Ndp1J
-         gWmFFbcRL3w0ZcskFTGFt91E1PG4m3z+R/z/dQxzttLGOZuthPyEO2FxhPhVyIqdhK
-         McyaLOie/H3qO8Fp7byyJCMUBeHsGpTfkVbIgTkA=
+        b=H2m0PM1EwEQ+ZHh/tIXTBe84Or/tmNM4HqczzfgHfu71hvxDUP3FM5//6ZGdGeI1l
+         f1fhJFs/L5BSvbHxXXI4Fc50l09xw+IRAL0aeU/eA0nqxjDzMxYXDKLtHYP2QgnLs0
+         AyIdb3JQ3Ii1USuL1yFs1JrDRCTgxzfDU75YtPds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        stable@kernel.org, Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Subject: [PATCH 5.10 092/116] Revert "usb: dwc2: drd: fix soft connect when gadget is unconfigured"
+        stable@vger.kernel.org, Pawel Dembicki <paweldembicki@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 63/71] USB: serial: option: add ZTE MF286D modem
 Date:   Mon, 14 Feb 2022 10:26:31 +0100
-Message-Id: <20220214092501.943849604@linuxfoundation.org>
+Message-Id: <20220214092454.152297724@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Pawel Dembicki <paweldembicki@gmail.com>
 
-commit 736e8d89044c1c330967fb938fa766cd9e0d8af0 upstream.
+commit d48384c7ed6c8fe4727eaa0f3048f62afd1cd715 upstream.
 
-This reverts commit 269cbcf7b72de6f0016806d4a0cec1d689b55a87.
+Modem from ZTE MF286D is an Qualcomm MDM9250 based 3G/4G modem.
 
-It causes build errors as reported by the kernel test robot.
+T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
+D:  Ver= 3.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
+P:  Vendor=19d2 ProdID=1485 Rev=52.87
+S:  Manufacturer=ZTE,Incorporated
+S:  Product=ZTE Technologies MSM
+S:  SerialNumber=MF286DZTED000000
+C:* #Ifs= 7 Cfg#= 1 Atr=80 MxPwr=896mA
+A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=06 Prot=00
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=02 Prot=ff Driver=rndis_host
+E:  Ad=82(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
+E:  Ad=81(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=83(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=8e(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=usbfs
+E:  Ad=05(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E:  Ad=89(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
 
-Link: https://lore.kernel.org/r/202202112236.AwoOTtHO-lkp@intel.com
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 269cbcf7b72d ("usb: dwc2: drd: fix soft connect when gadget is unconfigured")
-Cc: stable@kernel.org
-Cc: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Cc: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Cc: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Signed-off-by: Pawel Dembicki <paweldembicki@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/drd.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/dwc2/drd.c
-+++ b/drivers/usb/dwc2/drd.c
-@@ -109,10 +109,8 @@ static int dwc2_drd_role_sw_set(struct u
- 		already = dwc2_ovr_avalid(hsotg, true);
- 	} else if (role == USB_ROLE_DEVICE) {
- 		already = dwc2_ovr_bvalid(hsotg, true);
--		if (hsotg->enabled) {
--			/* This clear DCTL.SFTDISCON bit */
--			dwc2_hsotg_core_connect(hsotg);
--		}
-+		/* This clear DCTL.SFTDISCON bit */
-+		dwc2_hsotg_core_connect(hsotg);
- 	} else {
- 		if (dwc2_is_device_mode(hsotg)) {
- 			if (!dwc2_ovr_bvalid(hsotg, false))
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1649,6 +1649,8 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(2) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x1476, 0xff) },	/* GosunCn ZTE WeLink ME3630 (ECM/NCM mode) */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1481, 0xff, 0x00, 0x00) }, /* ZTE MF871A */
++	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1485, 0xff, 0xff, 0xff),  /* ZTE MF286D */
++	  .driver_info = RSVD(5) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1533, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1534, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1535, 0xff, 0xff, 0xff) },
 
 
