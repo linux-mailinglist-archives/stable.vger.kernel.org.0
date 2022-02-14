@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C594B47D5
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F31254B4A31
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:38:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235630AbiBNJtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:49:07 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42976 "EHLO
+        id S1345135AbiBNKFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:05:14 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245128AbiBNJsA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:48:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB68B869;
-        Mon, 14 Feb 2022 01:40:47 -0800 (PST)
+        with ESMTP id S239043AbiBNKEk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:04:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC7CE48899;
+        Mon, 14 Feb 2022 01:49:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0A0F6102D;
-        Mon, 14 Feb 2022 09:40:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D828FC340E9;
-        Mon, 14 Feb 2022 09:40:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5712A61284;
+        Mon, 14 Feb 2022 09:49:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F12CC340E9;
+        Mon, 14 Feb 2022 09:49:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831646;
-        bh=5zy95j7ehPfyl58BAQJvIixLbBJORSFXPjlZPhC/VGk=;
+        s=korg; t=1644832142;
+        bh=K5WaVIHmqHQ4dg60lyLRbGJxpZvtv2j8CbOmYK9SDBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=13a6Ywy1gXtzYl0ZftCjg/9jvPZrUJ10wlzGA4K2BWrIT5vsNx/UIHWZSR7K4Scc6
-         xyM1fssd7bcoeIhVSEVV2SlE6B4tGWtvInVdNIt8O3MC4jBPJFl4GZeVDwR5QwKYz4
-         GfHs8ZcW071x2K/CeNRy9kjjEUnqxX1kG5WQMXa0=
+        b=12P9mhHKtO85WUGQxLCLTJYPw7tWJubVRQ7nKlvryvoPBtlybm6/Y4eOLwf7KfVvG
+         mMcFTrBqE65I+y4bHFlZQ+Q4hH8zY2ivm80I1kIKHHs6MU709UnHD9zJGdmrkRMI9l
+         uKc5SYnDfWlRyBx32UIh8qiPugAde3laQfpx81eU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Jarkko Nikula <jarkko.nikula@bitmer.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, John Keeping <john@metanate.com>,
+        Pratham Pratap <quic_ppratap@quicinc.com>,
+        Udipto Goswami <quic_ugoswami@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 050/116] ARM: dts: Fix timer regression for beagleboard revision c
+Subject: [PATCH 5.15 091/172] usb: f_fs: Fix use-after-free for epfile
 Date:   Mon, 14 Feb 2022 10:25:49 +0100
-Message-Id: <20220214092500.440131556@linuxfoundation.org>
+Message-Id: <20220214092509.551793473@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,178 +55,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Udipto Goswami <quic_ugoswami@quicinc.com>
 
-[ Upstream commit 23885389dbbbbc698986e77a45c1fc44a6e3632e ]
+[ Upstream commit ebe2b1add1055b903e2acd86b290a85297edc0b3 ]
 
-Commit e428e250fde6 ("ARM: dts: Configure system timers for omap3")
-caused a timer regression for beagleboard revision c where the system
-clockevent stops working if omap3isp module is unloaded.
+Consider a case where ffs_func_eps_disable is called from
+ffs_func_disable as part of composition switch and at the
+same time ffs_epfile_release get called from userspace.
+ffs_epfile_release will free up the read buffer and call
+ffs_data_closed which in turn destroys ffs->epfiles and
+mark it as NULL. While this was happening the driver has
+already initialized the local epfile in ffs_func_eps_disable
+which is now freed and waiting to acquire the spinlock. Once
+spinlock is acquired the driver proceeds with the stale value
+of epfile and tries to free the already freed read buffer
+causing use-after-free.
 
-Turns out we still have beagleboard revisions a-b4 capacitor c70 quirks
-applied that limit the usable timers for no good reason. This also affects
-the power management as we use the system clock instead of the 32k clock
-source.
+Following is the illustration of the race:
 
-Let's fix the issue by adding a new omap3-beagle-ab4.dts for the old timer
-quirks. This allows us to remove the timer quirks for later beagleboard
-revisions. We also need to update the related timer quirk check for the
-correct compatible property.
+      CPU1                                  CPU2
 
-Fixes: e428e250fde6 ("ARM: dts: Configure system timers for omap3")
-Cc: linux-kernel@vger.kernel.org
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Reported-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
-Tested-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+   ffs_func_eps_disable
+   epfiles (local copy)
+					ffs_epfile_release
+					ffs_data_closed
+					if (last file closed)
+					ffs_data_reset
+					ffs_data_clear
+					ffs_epfiles_destroy
+spin_lock
+dereference epfiles
+
+Fix this races by taking epfiles local copy & assigning it under
+spinlock and if epfiles(local) is null then update it in ffs->epfiles
+then finally destroy it.
+Extending the scope further from the race, protecting the ep related
+structures, and concurrent accesses.
+
+Fixes: a9e6f83c2df1 ("usb: gadget: f_fs: stop sleeping in ffs_func_eps_disable")
+Co-developed-by: Udipto Goswami <quic_ugoswami@quicinc.com>
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Pratham Pratap <quic_ppratap@quicinc.com>
+Signed-off-by: Udipto Goswami <quic_ugoswami@quicinc.com>
+Link: https://lore.kernel.org/r/1643256595-10797-1-git-send-email-quic_ugoswami@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../devicetree/bindings/arm/omap/omap.txt     |  3 ++
- arch/arm/boot/dts/Makefile                    |  1 +
- arch/arm/boot/dts/omap3-beagle-ab4.dts        | 47 +++++++++++++++++++
- arch/arm/boot/dts/omap3-beagle.dts            | 33 -------------
- drivers/clocksource/timer-ti-dm-systimer.c    |  2 +-
- 5 files changed, 52 insertions(+), 34 deletions(-)
- create mode 100644 arch/arm/boot/dts/omap3-beagle-ab4.dts
+ drivers/usb/gadget/function/f_fs.c | 56 ++++++++++++++++++++++--------
+ 1 file changed, 42 insertions(+), 14 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/arm/omap/omap.txt b/Documentation/devicetree/bindings/arm/omap/omap.txt
-index e77635c5422c6..fa8b31660cadd 100644
---- a/Documentation/devicetree/bindings/arm/omap/omap.txt
-+++ b/Documentation/devicetree/bindings/arm/omap/omap.txt
-@@ -119,6 +119,9 @@ Boards (incomplete list of examples):
- - OMAP3 BeagleBoard : Low cost community board
-   compatible = "ti,omap3-beagle", "ti,omap3430", "ti,omap3"
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 782d67c2c6e0d..02f70c5c65fc2 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1711,16 +1711,24 @@ static void ffs_data_put(struct ffs_data *ffs)
  
-+- OMAP3 BeagleBoard A to B4 : Early BeagleBoard revisions A to B4 with a timer quirk
-+  compatible = "ti,omap3-beagle-ab4", "ti,omap3-beagle", "ti,omap3430", "ti,omap3"
+ static void ffs_data_closed(struct ffs_data *ffs)
+ {
++	struct ffs_epfile *epfiles;
++	unsigned long flags;
 +
- - OMAP3 Tobi with Overo : Commercial expansion board with daughter board
-   compatible = "gumstix,omap3-overo-tobi", "gumstix,omap3-overo", "ti,omap3430", "ti,omap3"
+ 	ENTER();
  
-diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index ce66ffd5a1bbc..7e8151681597c 100644
---- a/arch/arm/boot/dts/Makefile
-+++ b/arch/arm/boot/dts/Makefile
-@@ -731,6 +731,7 @@ dtb-$(CONFIG_ARCH_OMAP3) += \
- 	logicpd-som-lv-37xx-devkit.dtb \
- 	omap3430-sdp.dtb \
- 	omap3-beagle.dtb \
-+	omap3-beagle-ab4.dtb \
- 	omap3-beagle-xm.dtb \
- 	omap3-beagle-xm-ab.dtb \
- 	omap3-cm-t3517.dtb \
-diff --git a/arch/arm/boot/dts/omap3-beagle-ab4.dts b/arch/arm/boot/dts/omap3-beagle-ab4.dts
-new file mode 100644
-index 0000000000000..990ff2d846868
---- /dev/null
-+++ b/arch/arm/boot/dts/omap3-beagle-ab4.dts
-@@ -0,0 +1,47 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/dts-v1/;
+ 	if (atomic_dec_and_test(&ffs->opened)) {
+ 		if (ffs->no_disconnect) {
+ 			ffs->state = FFS_DEACTIVATED;
+-			if (ffs->epfiles) {
+-				ffs_epfiles_destroy(ffs->epfiles,
+-						   ffs->eps_count);
+-				ffs->epfiles = NULL;
+-			}
++			spin_lock_irqsave(&ffs->eps_lock, flags);
++			epfiles = ffs->epfiles;
++			ffs->epfiles = NULL;
++			spin_unlock_irqrestore(&ffs->eps_lock,
++							flags);
 +
-+#include "omap3-beagle.dts"
++			if (epfiles)
++				ffs_epfiles_destroy(epfiles,
++						 ffs->eps_count);
 +
-+/ {
-+	model = "TI OMAP3 BeagleBoard A to B4";
-+	compatible = "ti,omap3-beagle-ab4", "ti,omap3-beagle", "ti,omap3430", "ti,omap3";
-+};
-+
-+/*
-+ * Workaround for capacitor C70 issue, see "Boards revision A and < B5"
-+ * section at https://elinux.org/BeagleBoard_Community
-+ */
-+
-+/* Unusable as clocksource because of unreliable oscillator */
-+&counter32k {
-+	status = "disabled";
-+};
-+
-+/* Unusable as clockevent because of unreliable oscillator, allow to idle */
-+&timer1_target {
-+	/delete-property/ti,no-reset-on-init;
-+	/delete-property/ti,no-idle;
-+	timer@0 {
-+		/delete-property/ti,timer-alwon;
-+	};
-+};
-+
-+/* Preferred always-on timer for clocksource */
-+&timer12_target {
-+	ti,no-reset-on-init;
-+	ti,no-idle;
-+	timer@0 {
-+		/* Always clocked by secure_32k_fck */
-+	};
-+};
-+
-+/* Preferred timer for clockevent */
-+&timer2_target {
-+	ti,no-reset-on-init;
-+	ti,no-idle;
-+	timer@0 {
-+		assigned-clocks = <&gpt2_fck>;
-+		assigned-clock-parents = <&sys_ck>;
-+	};
-+};
-diff --git a/arch/arm/boot/dts/omap3-beagle.dts b/arch/arm/boot/dts/omap3-beagle.dts
-index f9f34b8458e91..0548b391334fd 100644
---- a/arch/arm/boot/dts/omap3-beagle.dts
-+++ b/arch/arm/boot/dts/omap3-beagle.dts
-@@ -304,39 +304,6 @@ &usbhsehci {
- 	phys = <0 &hsusb2_phy>;
- };
+ 			if (ffs->setup_state == FFS_SETUP_PENDING)
+ 				__ffs_ep0_stall(ffs);
+ 		} else {
+@@ -1767,14 +1775,27 @@ static struct ffs_data *ffs_data_new(const char *dev_name)
  
--/* Unusable as clocksource because of unreliable oscillator */
--&counter32k {
--	status = "disabled";
--};
--
--/* Unusable as clockevent because if unreliable oscillator, allow to idle */
--&timer1_target {
--	/delete-property/ti,no-reset-on-init;
--	/delete-property/ti,no-idle;
--	timer@0 {
--		/delete-property/ti,timer-alwon;
--	};
--};
--
--/* Preferred always-on timer for clocksource */
--&timer12_target {
--	ti,no-reset-on-init;
--	ti,no-idle;
--	timer@0 {
--		/* Always clocked by secure_32k_fck */
--	};
--};
--
--/* Preferred timer for clockevent */
--&timer2_target {
--	ti,no-reset-on-init;
--	ti,no-idle;
--	timer@0 {
--		assigned-clocks = <&gpt2_fck>;
--		assigned-clock-parents = <&sys_ck>;
--	};
--};
--
- &twl_gpio {
- 	ti,use-leds;
- 	/* pullups: BIT(1) */
-diff --git a/drivers/clocksource/timer-ti-dm-systimer.c b/drivers/clocksource/timer-ti-dm-systimer.c
-index b6f97960d8ee0..5c40ca1d4740e 100644
---- a/drivers/clocksource/timer-ti-dm-systimer.c
-+++ b/drivers/clocksource/timer-ti-dm-systimer.c
-@@ -241,7 +241,7 @@ static void __init dmtimer_systimer_assign_alwon(void)
- 	bool quirk_unreliable_oscillator = false;
+ static void ffs_data_clear(struct ffs_data *ffs)
+ {
++	struct ffs_epfile *epfiles;
++	unsigned long flags;
++
+ 	ENTER();
  
- 	/* Quirk unreliable 32 KiHz oscillator with incomplete dts */
--	if (of_machine_is_compatible("ti,omap3-beagle") ||
-+	if (of_machine_is_compatible("ti,omap3-beagle-ab4") ||
- 	    of_machine_is_compatible("timll,omap3-devkit8000")) {
- 		quirk_unreliable_oscillator = true;
- 		counter_32k = -ENODEV;
+ 	ffs_closed(ffs);
+ 
+ 	BUG_ON(ffs->gadget);
+ 
+-	if (ffs->epfiles) {
+-		ffs_epfiles_destroy(ffs->epfiles, ffs->eps_count);
++	spin_lock_irqsave(&ffs->eps_lock, flags);
++	epfiles = ffs->epfiles;
++	ffs->epfiles = NULL;
++	spin_unlock_irqrestore(&ffs->eps_lock, flags);
++
++	/*
++	 * potential race possible between ffs_func_eps_disable
++	 * & ffs_epfile_release therefore maintaining a local
++	 * copy of epfile will save us from use-after-free.
++	 */
++	if (epfiles) {
++		ffs_epfiles_destroy(epfiles, ffs->eps_count);
+ 		ffs->epfiles = NULL;
+ 	}
+ 
+@@ -1922,12 +1943,15 @@ static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count)
+ 
+ static void ffs_func_eps_disable(struct ffs_function *func)
+ {
+-	struct ffs_ep *ep         = func->eps;
+-	struct ffs_epfile *epfile = func->ffs->epfiles;
+-	unsigned count            = func->ffs->eps_count;
++	struct ffs_ep *ep;
++	struct ffs_epfile *epfile;
++	unsigned short count;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&func->ffs->eps_lock, flags);
++	count = func->ffs->eps_count;
++	epfile = func->ffs->epfiles;
++	ep = func->eps;
+ 	while (count--) {
+ 		/* pending requests get nuked */
+ 		if (ep->ep)
+@@ -1945,14 +1969,18 @@ static void ffs_func_eps_disable(struct ffs_function *func)
+ 
+ static int ffs_func_eps_enable(struct ffs_function *func)
+ {
+-	struct ffs_data *ffs      = func->ffs;
+-	struct ffs_ep *ep         = func->eps;
+-	struct ffs_epfile *epfile = ffs->epfiles;
+-	unsigned count            = ffs->eps_count;
++	struct ffs_data *ffs;
++	struct ffs_ep *ep;
++	struct ffs_epfile *epfile;
++	unsigned short count;
+ 	unsigned long flags;
+ 	int ret = 0;
+ 
+ 	spin_lock_irqsave(&func->ffs->eps_lock, flags);
++	ffs = func->ffs;
++	ep = func->eps;
++	epfile = ffs->epfiles;
++	count = ffs->eps_count;
+ 	while(count--) {
+ 		ep->ep->driver_data = ep;
+ 
 -- 
 2.34.1
 
