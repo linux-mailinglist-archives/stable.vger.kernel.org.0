@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E848F4B4848
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:56:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B3B54B4B1B
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343598AbiBNJxC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:53:02 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33248 "EHLO
+        id S1346950AbiBNK1x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:27:53 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343607AbiBNJuz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:50:55 -0500
+        with ESMTP id S1348684AbiBNK13 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:27:29 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A82657A4;
-        Mon, 14 Feb 2022 01:41:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2C6670338;
+        Mon, 14 Feb 2022 01:58:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B00F61172;
-        Mon, 14 Feb 2022 09:41:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71944C340EF;
-        Mon, 14 Feb 2022 09:41:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 280F960917;
+        Mon, 14 Feb 2022 09:58:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1E21C340F0;
+        Mon, 14 Feb 2022 09:58:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831706;
-        bh=WxH1Jvs2nKiTr7Ngr070ShsLHsw6r7eBxqgxaRmGV10=;
+        s=korg; t=1644832688;
+        bh=XXznSEZvIIe+Gt+j1A06PKbteTGPY2//2Pwu74RfzTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPvunWNq7PgnQAZ2+lruoR5awVHY3niAZU+jgd0jzNiVQZRWzL5u653X4kzpqsS3s
-         jc/YxXJ+lonsEY2TzBuAsxpBFUrAV92uTMQYUHnfn896/wW/fWkZVa1uHk4v6a6CEF
-         9jak/oavRbmCpVYC5ZELWKRp/KGBxycoY6ZPqYLA=
+        b=wn1V+sGeVMcSK1z/k1VwklNnLu8eCyrtp9PLvBgVJwHMT4TU0UeuzO4FUL+jKOS46
+         zJ96rsrLsE4OEkKFDWMwcBVgFqHFyDLpreK/iMSxNKtDPIPGOIvwRMKp2dkjrbcFMS
+         YF4CbgPeTYCi98dOSrtXlygaClBJyQL83Ht9sJhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Jarkko Nikula <jarkko.nikula@bitmer.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 038/116] KVM: nVMX: eVMCS: Filter out VM_EXIT_SAVE_VMX_PREEMPTION_TIMER
+Subject: [PATCH 5.16 093/203] ARM: dts: Fix timer regression for beagleboard revision c
 Date:   Mon, 14 Feb 2022 10:25:37 +0100
-Message-Id: <20220214092459.998110689@linuxfoundation.org>
+Message-Id: <20220214092513.419785641@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +57,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 7a601e2cf61558dfd534a9ecaad09f5853ad8204 ]
+[ Upstream commit 23885389dbbbbc698986e77a45c1fc44a6e3632e ]
 
-Enlightened VMCS v1 doesn't have VMX_PREEMPTION_TIMER_VALUE field,
-PIN_BASED_VMX_PREEMPTION_TIMER is also filtered out already so it makes
-sense to filter out VM_EXIT_SAVE_VMX_PREEMPTION_TIMER too.
+Commit e428e250fde6 ("ARM: dts: Configure system timers for omap3")
+caused a timer regression for beagleboard revision c where the system
+clockevent stops working if omap3isp module is unloaded.
 
-Note, none of the currently existing Windows/Hyper-V versions are known
-to enable 'save VMX-preemption timer value' when eVMCS is in use, the
-change is aimed at making the filtering future proof.
+Turns out we still have beagleboard revisions a-b4 capacitor c70 quirks
+applied that limit the usable timers for no good reason. This also affects
+the power management as we use the system clock instead of the 32k clock
+source.
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220112170134.1904308-3-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Let's fix the issue by adding a new omap3-beagle-ab4.dts for the old timer
+quirks. This allows us to remove the timer quirks for later beagleboard
+revisions. We also need to update the related timer quirk check for the
+correct compatible property.
+
+Fixes: e428e250fde6 ("ARM: dts: Configure system timers for omap3")
+Cc: linux-kernel@vger.kernel.org
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Rob Herring <robh+dt@kernel.org>
+Reported-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
+Tested-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/evmcs.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../devicetree/bindings/arm/omap/omap.txt     |  3 ++
+ arch/arm/boot/dts/Makefile                    |  1 +
+ arch/arm/boot/dts/omap3-beagle-ab4.dts        | 47 +++++++++++++++++++
+ arch/arm/boot/dts/omap3-beagle.dts            | 33 -------------
+ drivers/clocksource/timer-ti-dm-systimer.c    |  2 +-
+ 5 files changed, 52 insertions(+), 34 deletions(-)
+ create mode 100644 arch/arm/boot/dts/omap3-beagle-ab4.dts
 
-diff --git a/arch/x86/kvm/vmx/evmcs.h b/arch/x86/kvm/vmx/evmcs.h
-index bd41d9462355f..011929a638230 100644
---- a/arch/x86/kvm/vmx/evmcs.h
-+++ b/arch/x86/kvm/vmx/evmcs.h
-@@ -59,7 +59,9 @@ DECLARE_STATIC_KEY_FALSE(enable_evmcs);
- 	 SECONDARY_EXEC_SHADOW_VMCS |					\
- 	 SECONDARY_EXEC_TSC_SCALING |					\
- 	 SECONDARY_EXEC_PAUSE_LOOP_EXITING)
--#define EVMCS1_UNSUPPORTED_VMEXIT_CTRL (VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL)
-+#define EVMCS1_UNSUPPORTED_VMEXIT_CTRL					\
-+	(VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL |				\
-+	 VM_EXIT_SAVE_VMX_PREEMPTION_TIMER)
- #define EVMCS1_UNSUPPORTED_VMENTRY_CTRL (VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL)
- #define EVMCS1_UNSUPPORTED_VMFUNC (VMX_VMFUNC_EPTP_SWITCHING)
+diff --git a/Documentation/devicetree/bindings/arm/omap/omap.txt b/Documentation/devicetree/bindings/arm/omap/omap.txt
+index e77635c5422c6..fa8b31660cadd 100644
+--- a/Documentation/devicetree/bindings/arm/omap/omap.txt
++++ b/Documentation/devicetree/bindings/arm/omap/omap.txt
+@@ -119,6 +119,9 @@ Boards (incomplete list of examples):
+ - OMAP3 BeagleBoard : Low cost community board
+   compatible = "ti,omap3-beagle", "ti,omap3430", "ti,omap3"
  
++- OMAP3 BeagleBoard A to B4 : Early BeagleBoard revisions A to B4 with a timer quirk
++  compatible = "ti,omap3-beagle-ab4", "ti,omap3-beagle", "ti,omap3430", "ti,omap3"
++
+ - OMAP3 Tobi with Overo : Commercial expansion board with daughter board
+   compatible = "gumstix,omap3-overo-tobi", "gumstix,omap3-overo", "ti,omap3430", "ti,omap3"
+ 
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index 0de64f237cd87..a387ebe8919b1 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -794,6 +794,7 @@ dtb-$(CONFIG_ARCH_OMAP3) += \
+ 	logicpd-som-lv-37xx-devkit.dtb \
+ 	omap3430-sdp.dtb \
+ 	omap3-beagle.dtb \
++	omap3-beagle-ab4.dtb \
+ 	omap3-beagle-xm.dtb \
+ 	omap3-beagle-xm-ab.dtb \
+ 	omap3-cm-t3517.dtb \
+diff --git a/arch/arm/boot/dts/omap3-beagle-ab4.dts b/arch/arm/boot/dts/omap3-beagle-ab4.dts
+new file mode 100644
+index 0000000000000..990ff2d846868
+--- /dev/null
++++ b/arch/arm/boot/dts/omap3-beagle-ab4.dts
+@@ -0,0 +1,47 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/dts-v1/;
++
++#include "omap3-beagle.dts"
++
++/ {
++	model = "TI OMAP3 BeagleBoard A to B4";
++	compatible = "ti,omap3-beagle-ab4", "ti,omap3-beagle", "ti,omap3430", "ti,omap3";
++};
++
++/*
++ * Workaround for capacitor C70 issue, see "Boards revision A and < B5"
++ * section at https://elinux.org/BeagleBoard_Community
++ */
++
++/* Unusable as clocksource because of unreliable oscillator */
++&counter32k {
++	status = "disabled";
++};
++
++/* Unusable as clockevent because of unreliable oscillator, allow to idle */
++&timer1_target {
++	/delete-property/ti,no-reset-on-init;
++	/delete-property/ti,no-idle;
++	timer@0 {
++		/delete-property/ti,timer-alwon;
++	};
++};
++
++/* Preferred always-on timer for clocksource */
++&timer12_target {
++	ti,no-reset-on-init;
++	ti,no-idle;
++	timer@0 {
++		/* Always clocked by secure_32k_fck */
++	};
++};
++
++/* Preferred timer for clockevent */
++&timer2_target {
++	ti,no-reset-on-init;
++	ti,no-idle;
++	timer@0 {
++		assigned-clocks = <&gpt2_fck>;
++		assigned-clock-parents = <&sys_ck>;
++	};
++};
+diff --git a/arch/arm/boot/dts/omap3-beagle.dts b/arch/arm/boot/dts/omap3-beagle.dts
+index f9f34b8458e91..0548b391334fd 100644
+--- a/arch/arm/boot/dts/omap3-beagle.dts
++++ b/arch/arm/boot/dts/omap3-beagle.dts
+@@ -304,39 +304,6 @@ &usbhsehci {
+ 	phys = <0 &hsusb2_phy>;
+ };
+ 
+-/* Unusable as clocksource because of unreliable oscillator */
+-&counter32k {
+-	status = "disabled";
+-};
+-
+-/* Unusable as clockevent because if unreliable oscillator, allow to idle */
+-&timer1_target {
+-	/delete-property/ti,no-reset-on-init;
+-	/delete-property/ti,no-idle;
+-	timer@0 {
+-		/delete-property/ti,timer-alwon;
+-	};
+-};
+-
+-/* Preferred always-on timer for clocksource */
+-&timer12_target {
+-	ti,no-reset-on-init;
+-	ti,no-idle;
+-	timer@0 {
+-		/* Always clocked by secure_32k_fck */
+-	};
+-};
+-
+-/* Preferred timer for clockevent */
+-&timer2_target {
+-	ti,no-reset-on-init;
+-	ti,no-idle;
+-	timer@0 {
+-		assigned-clocks = <&gpt2_fck>;
+-		assigned-clock-parents = <&sys_ck>;
+-	};
+-};
+-
+ &twl_gpio {
+ 	ti,use-leds;
+ 	/* pullups: BIT(1) */
+diff --git a/drivers/clocksource/timer-ti-dm-systimer.c b/drivers/clocksource/timer-ti-dm-systimer.c
+index b6f97960d8ee0..5c40ca1d4740e 100644
+--- a/drivers/clocksource/timer-ti-dm-systimer.c
++++ b/drivers/clocksource/timer-ti-dm-systimer.c
+@@ -241,7 +241,7 @@ static void __init dmtimer_systimer_assign_alwon(void)
+ 	bool quirk_unreliable_oscillator = false;
+ 
+ 	/* Quirk unreliable 32 KiHz oscillator with incomplete dts */
+-	if (of_machine_is_compatible("ti,omap3-beagle") ||
++	if (of_machine_is_compatible("ti,omap3-beagle-ab4") ||
+ 	    of_machine_is_compatible("timll,omap3-devkit8000")) {
+ 		quirk_unreliable_oscillator = true;
+ 		counter_32k = -ENODEV;
 -- 
 2.34.1
 
