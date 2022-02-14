@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BF704B4775
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EF9F4B468E
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:52:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244750AbiBNJrH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:47:07 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41590 "EHLO
+        id S235545AbiBNJrv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:47:51 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245291AbiBNJpw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:45:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F431706EF;
-        Mon, 14 Feb 2022 01:38:52 -0800 (PST)
+        with ESMTP id S245307AbiBNJpx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:45:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 845AF60DA0;
+        Mon, 14 Feb 2022 01:38:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDBAAB80DA9;
-        Mon, 14 Feb 2022 09:38:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1471C340E9;
-        Mon, 14 Feb 2022 09:38:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20D82611BC;
+        Mon, 14 Feb 2022 09:38:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0C6DC340E9;
+        Mon, 14 Feb 2022 09:38:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831529;
-        bh=4z0v3PPvCg4WiVwNoyKv8OfaYZmEcK4u21TEwyIWMEA=;
+        s=korg; t=1644831532;
+        bh=rmFaxeqV0WmNFAlFuIswJzBEHxPusxQB4kPuyZQRoGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bdLAQeOX1sdqILT0X5/CtXisOpxZvGT/wriVV8YNGel83EqJ6//UFIGqdeiCQxC3C
-         7qSuA7Aq0su1NS0Ze0TV5u4bZ+TqQRifMpAdAHWgnKTOUPaHh/WEuc94FC7Nm94474
-         CcB2V374fE+Sui3jiMOQFggtglWBelRbd7La+MhA=
+        b=0iARKuZQ4ssUFCPolUDnifxeZszQfQkpGZ8yZDr72A2zNQA8X1Hu59wzkt5zTibS9
+         6Y80f5ucQd/HW4PV6QuYzJKEeQPAhYC38wlGcPQwMXLEufVQfpGL5fHqliOXoL3yCv
+         ryPPmDBgOBUvaTpUZEYWVloR/bTBdYilUC8BdHxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Wang <wangr@lemote.com>,
-        Huacai Chen <chenhc@lemote.com>,
-        Xi Ruoyao <xry111@mengyan1223.wang>,
-        =?UTF-8?q?Dan=20Hor=C3=A1k?= <dan@danny.cz>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Timothy Pearson <tpearson@raptorengineering.com>,
-        Salvatore Bonaccorso <carnil@debian.org>
-Subject: [PATCH 5.10 012/116] drm/amdgpu: Set a suitable dev_info.gart_page_size
-Date:   Mon, 14 Feb 2022 10:25:11 +0100
-Message-Id: <20220214092459.108124663@linuxfoundation.org>
+        stable@vger.kernel.org, Yordan Karadzhov <ykaradzhov@vmware.com>,
+        Tom Zanussi <zanussi@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.10 013/116] tracing: Propagate is_signed to expression
+Date:   Mon, 14 Feb 2022 10:25:12 +0100
+Message-Id: <20220214092459.143523020@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
 References: <20220214092458.668376521@linuxfoundation.org>
@@ -59,49 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhc@lemote.com>
+From: Tom Zanussi <zanussi@kernel.org>
 
-commit f4d3da72a76a9ce5f57bba64788931686a9dc333 upstream.
+commit 097f1eefedeab528cecbd35586dfe293853ffb17 upstream.
 
-In Mesa, dev_info.gart_page_size is used for alignment and it was
-set to AMDGPU_GPU_PAGE_SIZE(4KB). However, the page table of AMDGPU
-driver requires an alignment on CPU pages.  So, for non-4KB page system,
-gart_page_size should be max_t(u32, PAGE_SIZE, AMDGPU_GPU_PAGE_SIZE).
+During expression parsing, a new expression field is created which
+should inherit the properties of the operands, such as size and
+is_signed.
 
-Signed-off-by: Rui Wang <wangr@lemote.com>
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Link: https://github.com/loongson-community/linux-stable/commit/caa9c0a1
-[Xi: rebased for drm-next, use max_t for checkpatch,
-     and reworded commit message.]
-Signed-off-by: Xi Ruoyao <xry111@mengyan1223.wang>
-BugLink: https://gitlab.freedesktop.org/drm/amd/-/issues/1549
-Tested-by: Dan Horák <dan@danny.cz>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-[Salvatore Bonaccorso: Backport to 5.10.y which does not contain
-a5a52a43eac0 ("drm/amd/amdgpu/amdgpu_kms: Remove 'struct
-drm_amdgpu_info_device dev_info' from the stack") which removes dev_info
-from the stack and places it on the heap.]
-Tested-by: Timothy Pearson <tpearson@raptorengineering.com>
-Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
+is_signed propagation was missing, causing spurious errors with signed
+operands.  Add it in parse_expr() and parse_unary() to fix the problem.
+
+Link: https://lkml.kernel.org/r/f4dac08742fd7a0920bf80a73c6c44042f5eaa40.1643319703.git.zanussi@kernel.org
+
+Cc: stable@vger.kernel.org
+Fixes: 100719dcef447 ("tracing: Add simple expression support to hist triggers")
+Reported-by: Yordan Karadzhov <ykaradzhov@vmware.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215513
+Signed-off-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/trace/trace_events_hist.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-@@ -766,9 +766,9 @@ static int amdgpu_info_ioctl(struct drm_
- 			dev_info.high_va_offset = AMDGPU_GMC_HOLE_END;
- 			dev_info.high_va_max = AMDGPU_GMC_HOLE_END | vm_size;
- 		}
--		dev_info.virtual_address_alignment = max((int)PAGE_SIZE, AMDGPU_GPU_PAGE_SIZE);
-+		dev_info.virtual_address_alignment = max_t(u32, PAGE_SIZE, AMDGPU_GPU_PAGE_SIZE);
- 		dev_info.pte_fragment_size = (1 << adev->vm_manager.fragment_size) * AMDGPU_GPU_PAGE_SIZE;
--		dev_info.gart_page_size = AMDGPU_GPU_PAGE_SIZE;
-+		dev_info.gart_page_size = max_t(u32, PAGE_SIZE, AMDGPU_GPU_PAGE_SIZE);
- 		dev_info.cu_active_number = adev->gfx.cu_info.number;
- 		dev_info.cu_ao_mask = adev->gfx.cu_info.ao_cu_mask;
- 		dev_info.ce_ram_size = adev->gfx.ce_ram_size;
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -2154,6 +2154,8 @@ static struct hist_field *parse_unary(st
+ 		(HIST_FIELD_FL_TIMESTAMP | HIST_FIELD_FL_TIMESTAMP_USECS);
+ 	expr->fn = hist_field_unary_minus;
+ 	expr->operands[0] = operand1;
++	expr->size = operand1->size;
++	expr->is_signed = operand1->is_signed;
+ 	expr->operator = FIELD_OP_UNARY_MINUS;
+ 	expr->name = expr_str(expr, 0);
+ 	expr->type = kstrdup(operand1->type, GFP_KERNEL);
+@@ -2293,6 +2295,7 @@ static struct hist_field *parse_expr(str
+ 
+ 	/* The operand sizes should be the same, so just pick one */
+ 	expr->size = operand1->size;
++	expr->is_signed = operand1->is_signed;
+ 
+ 	expr->operator = field_op;
+ 	expr->name = expr_str(expr, 0);
 
 
