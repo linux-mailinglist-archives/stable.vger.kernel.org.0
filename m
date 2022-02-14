@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AFFA4B4792
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF85C4B4714
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243025AbiBNJhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:37:17 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52506 "EHLO
+        id S244506AbiBNJlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:41:55 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245204AbiBNJge (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C288467347;
-        Mon, 14 Feb 2022 01:34:29 -0800 (PST)
+        with ESMTP id S245000AbiBNJlD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:41:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB41A193;
+        Mon, 14 Feb 2022 01:36:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47BB5B80DA9;
-        Mon, 14 Feb 2022 09:34:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 811FEC340E9;
-        Mon, 14 Feb 2022 09:34:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C0B061172;
+        Mon, 14 Feb 2022 09:36:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4100EC340E9;
+        Mon, 14 Feb 2022 09:36:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831264;
-        bh=npV7+7qWHd5WvacA6RlehkZNwnLWwdwZj0cIKganXdc=;
+        s=korg; t=1644831414;
+        bh=LUzrZ0HODNmYMs1a86YjqdHJIgQG8o+g6TrynlDeyVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UlA9uRuwk+QtZlGjWmvVd/NvCcre72MvtJEa3SEXZMVduWj/A1g1Mu7dAEn7Vh0w+
-         7Lmdt/x3SbGOBEQVMXR26U5qKgPOdDc0pgN/KhW7SAN3EmpmqlQ83fwuFaKq/El2++
-         EFP+ZoQIbohcEMtX3L+neUHnbNDI8iB0BD9qkk+A=
+        b=W6qb8Thn9nP2kNcBlCUsowZJmRFSZdr2xHwyX+s5MDWVg9tnMrWtnwCwEGepdsTWj
+         Ig4XlCnRocEbkS0itqDbzPbaCsOZ+l1w0QXzyg7+TA4gTYtoDt1J+6THacbh7Rbkgi
+         R3tqxBiO+vdifl579SblYVY7cO1hbVecFfJSqGDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.19 48/49] hwmon: (dell-smm) Speed up setting of fan speed
-Date:   Mon, 14 Feb 2022 10:26:14 +0100
-Message-Id: <20220214092449.900018489@linuxfoundation.org>
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Andrew Lunn <andrew@lunn.ch>, Andrew Jeffery <andrew@aj.id.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 47/71] net: mdio: aspeed: Add missing MODULE_DEVICE_TABLE
+Date:   Mon, 14 Feb 2022 10:26:15 +0100
+Message-Id: <20220214092453.635370227@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
-References: <20220214092448.285381753@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Joel Stanley <joel@jms.id.au>
 
-commit c0d79987a0d82671bff374c07f2201f9bdf4aaa2 upstream.
+[ Upstream commit bc1c3c3b10db4f37c41e6107751a8d450d9c431c ]
 
-When setting the fan speed, i8k_set_fan() calls i8k_get_fan_status(),
-causing an unnecessary SMM call since from the two users of this
-function, only i8k_ioctl_unlocked() needs to know the new fan status
-while dell_smm_write() ignores the new fan status.
-Since SMM calls can be very slow while also making error reporting
-difficult for dell_smm_write(), remove the function call from
-i8k_set_fan() and call it separately in i8k_ioctl_unlocked().
+Fix loading of the driver when built as a module.
 
-Tested on a Dell Inspiron 3505.
-
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Reviewed-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20211021190531.17379-6-W_Armin@gmx.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f160e99462c6 ("net: phy: Add mdio-aspeed")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/dell-smm-hwmon.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/net/phy/mdio-aspeed.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/hwmon/dell-smm-hwmon.c
-+++ b/drivers/hwmon/dell-smm-hwmon.c
-@@ -304,7 +304,7 @@ static int i8k_get_fan_nominal_speed(int
- }
+diff --git a/drivers/net/phy/mdio-aspeed.c b/drivers/net/phy/mdio-aspeed.c
+index 966c3b4ad59d1..e2273588c75b6 100644
+--- a/drivers/net/phy/mdio-aspeed.c
++++ b/drivers/net/phy/mdio-aspeed.c
+@@ -148,6 +148,7 @@ static const struct of_device_id aspeed_mdio_of_match[] = {
+ 	{ .compatible = "aspeed,ast2600-mdio", },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, aspeed_mdio_of_match);
  
- /*
-- * Set the fan speed (off, low, high). Returns the new fan status.
-+ * Set the fan speed (off, low, high, ...).
-  */
- static int i8k_set_fan(int fan, int speed)
- {
-@@ -316,7 +316,7 @@ static int i8k_set_fan(int fan, int spee
- 	speed = (speed < 0) ? 0 : ((speed > i8k_fan_max) ? i8k_fan_max : speed);
- 	regs.ebx = (fan & 0xff) | (speed << 8);
- 
--	return i8k_smm(&regs) ? : i8k_get_fan_status(fan);
-+	return i8k_smm(&regs);
- }
- 
- static int i8k_get_temp_type(int sensor)
-@@ -430,7 +430,7 @@ static int
- i8k_ioctl_unlocked(struct file *fp, unsigned int cmd, unsigned long arg)
- {
- 	int val = 0;
--	int speed;
-+	int speed, err;
- 	unsigned char buff[16];
- 	int __user *argp = (int __user *)arg;
- 
-@@ -491,7 +491,11 @@ i8k_ioctl_unlocked(struct file *fp, unsi
- 		if (copy_from_user(&speed, argp + 1, sizeof(int)))
- 			return -EFAULT;
- 
--		val = i8k_set_fan(val, speed);
-+		err = i8k_set_fan(val, speed);
-+		if (err < 0)
-+			return err;
-+
-+		val = i8k_get_fan_status(val);
- 		break;
- 
- 	default:
+ static struct platform_driver aspeed_mdio_driver = {
+ 	.driver = {
+-- 
+2.34.1
+
 
 
