@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DE4E4B4B6C
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:41:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADC2B4B4952
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345206AbiBNKId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:08:33 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35990 "EHLO
+        id S1347775AbiBNKbt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:31:49 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346141AbiBNKH1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:07:27 -0500
+        with ESMTP id S1348959AbiBNKbN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:31:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9ECF75C0D;
-        Mon, 14 Feb 2022 01:50:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C9819DD6D;
+        Mon, 14 Feb 2022 01:59:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86E8E612C3;
-        Mon, 14 Feb 2022 09:50:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D7F2C340E9;
-        Mon, 14 Feb 2022 09:50:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D7D560C38;
+        Mon, 14 Feb 2022 09:59:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B5CCC340F0;
+        Mon, 14 Feb 2022 09:59:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832205;
-        bh=8NO9L2EdnhZsgystIDnpu8dqPHL8WI6Q4m/u9+1Qx8o=;
+        s=korg; t=1644832797;
+        bh=fgTxHlgAuSLN0JbaPkeomaLEwcnrryB9lPiCvLTAvSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B1uDRW3tOruAx5W6SChRfbN/a2Wx4jc81ftBIGyHOVIiFDlKWvTT7kgBfLrIr+s0B
-         zCs3BLHZnU0rOVjWMukZaTLxvtF3txqc6Rxq5p8NWk8k8O/v1u1nNkcdhI4ggkS9Yy
-         LAjaX6WXx+bntu3C43Gfu7JKKqdnK/rY5SwzRPGo=
+        b=y/TR2+VXMUgFS9mYyP34RC9ClyoCYqQSSap7gzDSyIsSmfFjjN8qxkXYybexhFlyS
+         2XTt0qdx+ywQoCU6zAAFtkNpOgX/uyGz9m4iv92viXKAWDhzNLPwXM3DFnxBWsUPLa
+         AqEx9z4XQFLi2N1N7iPokHhz6abeC0kTRJ9ViCpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 113/172] net: dsa: bcm_sf2: dont use devres for mdiobus
+Subject: [PATCH 5.16 127/203] ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE
 Date:   Mon, 14 Feb 2022 10:26:11 +0100
-Message-Id: <20220214092510.336295985@linuxfoundation.org>
+Message-Id: <20220214092514.556008650@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 08f1a20822349004bb9cc1b153ecb516e9f2889d ]
+[ Upstream commit dc0075ba7f387fe4c48a8c674b11ab6f374a6acc ]
 
-As explained in commits:
-74b6d7d13307 ("net: dsa: realtek: register the MDIO bus under devres")
-5135e96a3dd2 ("net: dsa: don't allocate the slave_mii_bus using devres")
+Commit 4a9af6cac050 ("ACPI: EC: Rework flushing of EC work while
+suspended to idle") made acpi_ec_dispatch_gpe() check
+pm_wakeup_pending(), but that is before canceling the SCI wakeup,
+so pm_wakeup_pending() is always true.  This causes the loop in
+acpi_ec_dispatch_gpe() to always terminate after one iteration which
+may not be correct.
 
-mdiobus_free() will panic when called from devm_mdiobus_free() <-
-devres_release_all() <- __device_release_driver(), and that mdiobus was
-not previously unregistered.
+Address this issue by canceling the SCI wakeup earlier, from
+acpi_ec_dispatch_gpe() itself.
 
-The Starfighter 2 is a platform device, so the initial set of
-constraints that I thought would cause this (I2C or SPI buses which call
-->remove on ->shutdown) do not apply. But there is one more which
-applies here.
-
-If the DSA master itself is on a bus that calls ->remove from ->shutdown
-(like dpaa2-eth, which is on the fsl-mc bus), there is a device link
-between the switch and the DSA master, and device_links_unbind_consumers()
-will unbind the bcm_sf2 switch driver on shutdown.
-
-So the same treatment must be applied to all DSA switch drivers, which
-is: either use devres for both the mdiobus allocation and registration,
-or don't use devres at all.
-
-The bcm_sf2 driver has the code structure in place for orderly mdiobus
-removal, so just replace devm_mdiobus_alloc() with the non-devres
-variant, and add manual free where necessary, to ensure that we don't
-let devres free a still-registered bus.
-
-Fixes: ac3a68d56651 ("net: phy: don't abuse devres in devm_mdiobus_register()")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 4a9af6cac050 ("ACPI: EC: Rework flushing of EC work while suspended to idle")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/bcm_sf2.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/acpi/ec.c    | 10 ++++++++++
+ drivers/acpi/sleep.c | 14 ++++----------
+ 2 files changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
-index 7578a5c38df59..2e314e3021d8b 100644
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -584,7 +584,7 @@ static int bcm_sf2_mdio_register(struct dsa_switch *ds)
- 	get_device(&priv->master_mii_bus->dev);
- 	priv->master_mii_dn = dn;
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index b9c44e6c5e400..1712990bf2ad8 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -2051,6 +2051,16 @@ bool acpi_ec_dispatch_gpe(void)
+ 	if (acpi_any_gpe_status_set(first_ec->gpe))
+ 		return true;
  
--	priv->slave_mii_bus = devm_mdiobus_alloc(ds->dev);
-+	priv->slave_mii_bus = mdiobus_alloc();
- 	if (!priv->slave_mii_bus) {
- 		of_node_put(dn);
- 		return -ENOMEM;
-@@ -644,8 +644,10 @@ static int bcm_sf2_mdio_register(struct dsa_switch *ds)
- 	}
++	/*
++	 * Cancel the SCI wakeup and process all pending events in case there
++	 * are any wakeup ones in there.
++	 *
++	 * Note that if any non-EC GPEs are active at this point, the SCI will
++	 * retrigger after the rearming in acpi_s2idle_wake(), so no events
++	 * should be missed by canceling the wakeup here.
++	 */
++	pm_system_cancel_wakeup();
++
+ 	/*
+ 	 * Dispatch the EC GPE in-band, but do not report wakeup in any case
+ 	 * to allow the caller to process events properly after that.
+diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
+index 9f237dc9d45fc..8513410ca2fc2 100644
+--- a/drivers/acpi/sleep.c
++++ b/drivers/acpi/sleep.c
+@@ -739,21 +739,15 @@ bool acpi_s2idle_wake(void)
+ 			return true;
+ 		}
  
- 	err = mdiobus_register(priv->slave_mii_bus);
--	if (err && dn)
-+	if (err && dn) {
-+		mdiobus_free(priv->slave_mii_bus);
- 		of_node_put(dn);
-+	}
+-		/* Check non-EC GPE wakeups and dispatch the EC GPE. */
++		/*
++		 * Check non-EC GPE wakeups and if there are none, cancel the
++		 * SCI-related wakeup and dispatch the EC GPE.
++		 */
+ 		if (acpi_ec_dispatch_gpe()) {
+ 			pm_pr_dbg("ACPI non-EC GPE wakeup\n");
+ 			return true;
+ 		}
  
- 	return err;
- }
-@@ -653,6 +655,7 @@ static int bcm_sf2_mdio_register(struct dsa_switch *ds)
- static void bcm_sf2_mdio_unregister(struct bcm_sf2_priv *priv)
- {
- 	mdiobus_unregister(priv->slave_mii_bus);
-+	mdiobus_free(priv->slave_mii_bus);
- 	of_node_put(priv->master_mii_dn);
- }
+-		/*
+-		 * Cancel the SCI wakeup and process all pending events in case
+-		 * there are any wakeup ones in there.
+-		 *
+-		 * Note that if any non-EC GPEs are active at this point, the
+-		 * SCI will retrigger after the rearming below, so no events
+-		 * should be missed by canceling the wakeup here.
+-		 */
+-		pm_system_cancel_wakeup();
+ 		acpi_os_wait_events_complete();
  
+ 		/*
 -- 
 2.34.1
 
