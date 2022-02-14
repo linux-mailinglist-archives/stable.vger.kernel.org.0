@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51C9A4B4B58
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:41:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCB354B4A93
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:39:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236082AbiBNKbU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:31:20 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41874 "EHLO
+        id S1345023AbiBNKIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:08:02 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:53538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348356AbiBNKav (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:30:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18E1D6582E;
-        Mon, 14 Feb 2022 01:59:30 -0800 (PST)
+        with ESMTP id S1345129AbiBNKFO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:05:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17C8A74314;
+        Mon, 14 Feb 2022 01:49:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44CD9B80DCD;
-        Mon, 14 Feb 2022 09:59:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E9BDC340E9;
-        Mon, 14 Feb 2022 09:59:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A6957612CE;
+        Mon, 14 Feb 2022 09:49:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23D87C340E9;
+        Mon, 14 Feb 2022 09:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832750;
-        bh=hG9jkos58WAdkn3Ip/Te7FXuqEYEgOqyyoE7Oxk6cmw=;
+        s=korg; t=1644832165;
+        bh=KQ+9AInoANFoWzhgLj+DNeCDUD5Jcu/QtFa5pulHFos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MUzYQ0amPezkMpXWFJ+mysSCadET0+DFUACCI8BkH83cmV75PDy052pnog0Mq9KSG
-         GyhXVUR4P9MzIe6/lsytCDWt8u/INRs4I9d9/1LWUZ9YjlnWuheB56Pb53/e8O+Jgz
-         xeBrfP/moHJTRh7gMJ3yN80OoirNkBbioDJ1qH+I=
+        b=ptSmP0jUyJ+kYVBHJRXER7ANYoGU7S0QyWqrp+Uo49XeyfFi/EYf7Je1roAfSozWa
+         AzJTQpNrQ+/f3cJWAswpsYvBi8ARCIKdemlbyE4YM/stZX5zpljj919c8IKQD761Kd
+         WHVjCW/xDsguwmwFMYWScbSOvhdcI2tohGYIx80M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.16 081/203] ARM: dts: imx23-evk: Remove MX23_PAD_SSP1_DETECT from hog group
+        stable@vger.kernel.org, Pingfan Liu <kernelfans@gmail.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.15 067/172] riscv: cpu-hotplug: clear cpu from numa map when teardown
 Date:   Mon, 14 Feb 2022 10:25:25 +0100
-Message-Id: <20220214092513.030990533@linuxfoundation.org>
+Message-Id: <20220214092508.719417577@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Pingfan Liu <kernelfans@gmail.com>
 
-commit 42c9b28e6862d16db82a56f5667cf4d1f6658cf6 upstream.
+commit f40fe31c01445f31253b15bef2412b33ae31093b upstream.
 
-Currently, SD card fails to mount due to the following pinctrl error:
+There is numa_add_cpu() when cpus online, accordingly, there should be
+numa_remove_cpu() when cpus offline.
 
-[   11.170000] imx23-pinctrl 80018000.pinctrl: pin SSP1_DETECT already requested by 80018000.pinctrl; cannot claim for 80010000.spi
-[   11.180000] imx23-pinctrl 80018000.pinctrl: pin-65 (80010000.spi) status -22
-[   11.190000] imx23-pinctrl 80018000.pinctrl: could not request pin 65 (SSP1_DETECT) from group mmc0-pins-fixup.0  on device 80018000.pinctrl
-[   11.200000] mxs-mmc 80010000.spi: Error applying setting, reverse things back
-
-Fix it by removing the MX23_PAD_SSP1_DETECT pin from the hog group as it
-is already been used by the mmc0-pins-fixup pinctrl group.
-
-With this change the rootfs can be mounted and the imx23-evk board can
-boot successfully.
-
-Cc: <stable@vger.kernel.org>
-Fixes: bc3875f1a61e ("ARM: dts: mxs: modify mx23/mx28 dts files to use pinctrl headers")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
+Fixes: 4f0e8eef772e ("riscv: Add numa support for riscv64 platform")
+Cc: stable@vger.kernel.org
+[Palmer: Add missing NUMA include]
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx23-evk.dts |    1 -
- 1 file changed, 1 deletion(-)
+ arch/riscv/kernel/cpu-hotplug.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/arm/boot/dts/imx23-evk.dts
-+++ b/arch/arm/boot/dts/imx23-evk.dts
-@@ -79,7 +79,6 @@
- 						MX23_PAD_LCD_RESET__GPIO_1_18
- 						MX23_PAD_PWM3__GPIO_1_29
- 						MX23_PAD_PWM4__GPIO_1_30
--						MX23_PAD_SSP1_DETECT__SSP1_DETECT
- 					>;
- 					fsl,drive-strength = <MXS_DRIVE_4mA>;
- 					fsl,voltage = <MXS_VOLTAGE_HIGH>;
+--- a/arch/riscv/kernel/cpu-hotplug.c
++++ b/arch/riscv/kernel/cpu-hotplug.c
+@@ -12,6 +12,7 @@
+ #include <linux/sched/hotplug.h>
+ #include <asm/irq.h>
+ #include <asm/cpu_ops.h>
++#include <asm/numa.h>
+ #include <asm/sbi.h>
+ 
+ void cpu_stop(void);
+@@ -46,6 +47,7 @@ int __cpu_disable(void)
+ 		return ret;
+ 
+ 	remove_cpu_topology(cpu);
++	numa_remove_cpu(cpu);
+ 	set_cpu_online(cpu, false);
+ 	irq_migrate_all_off_this_cpu();
+ 
 
 
