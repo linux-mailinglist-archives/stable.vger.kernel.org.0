@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 914E04B4BE8
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58EDB4B4898
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:57:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345957AbiBNKN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:13:56 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43472 "EHLO
+        id S232013AbiBNJ5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:57:00 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234353AbiBNKNN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:13:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 050E660A9C;
-        Mon, 14 Feb 2022 01:51:43 -0800 (PST)
+        with ESMTP id S1343967AbiBNJzV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:55:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 581BA7D2B3;
+        Mon, 14 Feb 2022 01:44:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 931936128D;
-        Mon, 14 Feb 2022 09:51:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72ACFC340E9;
-        Mon, 14 Feb 2022 09:51:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0BE61B80DC4;
+        Mon, 14 Feb 2022 09:44:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 427DCC340E9;
+        Mon, 14 Feb 2022 09:44:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832302;
-        bh=lrgQINDT48P+sKYwHswUTTKmWWrF21F0fKyR27zr+30=;
+        s=korg; t=1644831849;
+        bh=9vxZ2UxSC/BPL5u/hZd6/MrObK1934bk0SauZ5RvZs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iOQRl9a5TShKPPCBVJ4cBeahq5mEzmgKnEif61Nf1lbJiNKZgJqEQKYH92QqAM34v
-         6V8AzbtatbvoYP7+hZtgzC8LbJJJ4HFDTT6s7RAlyJRObsxqK9JUqH0QHE8y0XhSb5
-         jz3auSab/qSQ9i3eh2xeCt1nzqJCeG2i626/Ekic=
+        b=wxURlLd8WMuembnkRlROBZfSdg8UsGg/Fc0dmq+0Fbngum2Ipk8Clp6C4SNvGGJgk
+         EYoR3/HFqTVuG9EFH7THjM64rWb92QcuNZ8dM4qeDf06BuI305Iv3VIzBr6N5+s0sz
+         9aGwVmQ67MTBsuhMy5rFiR7s56PCJx7O0Mi54Cag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Adam Ford <aford173@gmail.com>
-Subject: [PATCH 5.15 144/172] usb: gadget: udc: renesas_usb3: Fix host to USB_ROLE_NONE transition
-Date:   Mon, 14 Feb 2022 10:26:42 +0100
-Message-Id: <20220214092511.363624988@linuxfoundation.org>
+        Stephan Brunner <s.brunner@stephan-brunner.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 104/116] USB: serial: ch341: add support for GW Instek USB2.0-Serial devices
+Date:   Mon, 14 Feb 2022 10:26:43 +0100
+Message-Id: <20220214092502.378070617@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Stephan Brunner <s.brunner@stephan-brunner.net>
 
-commit 459702eea6132888b5c5b64c0e9c626da4ec2493 upstream.
+commit fa77ce201f7f2d823b07753575122d1ae5597fbe upstream.
 
-The support the external role switch a variety of situations were
-addressed, but the transition from USB_ROLE_HOST to USB_ROLE_NONE
-leaves the host up which can cause some error messages when
-switching from host to none, to gadget, to none, and then back
-to host again.
+Programmable lab power supplies made by GW Instek, such as the
+GPP-2323, have a USB port exposing a serial port to control the device.
 
- xhci-hcd ee000000.usb: Abort failed to stop command ring: -110
- xhci-hcd ee000000.usb: xHCI host controller not responding, assume dead
- xhci-hcd ee000000.usb: HC died; cleaning up
- usb 4-1: device not accepting address 6, error -108
- usb usb4-port1: couldn't allocate usb_device
+Stringing the supplied Windows driver, references to the ch341 chip are
+found. Binding the existing ch341 driver to the VID/PID of the GPP-2323
+("GW Instek USB2.0-Serial" as per the USB product name) works out of the
+box, communication and control is now possible.
 
-After this happens it will not act as a host again.
-Fix this by releasing the host mode when transitioning to USB_ROLE_NONE.
+This patch should work with any GPP series power supply due to
+similarities in the product line.
 
-Fixes: 0604160d8c0b ("usb: gadget: udc: renesas_usb3: Enhance role switch support")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Link: https://lore.kernel.org/r/20220128223603.2362621-1-aford173@gmail.com
+Signed-off-by: Stephan Brunner <s.brunner@stephan-brunner.net>
+Link: https://lore.kernel.org/r/4a47b864-0816-6f6a-efee-aa20e74bcdc6@stephan-brunner.net
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/renesas_usb3.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/ch341.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/gadget/udc/renesas_usb3.c
-+++ b/drivers/usb/gadget/udc/renesas_usb3.c
-@@ -2378,6 +2378,8 @@ static void handle_ext_role_switch_state
- 	switch (role) {
- 	case USB_ROLE_NONE:
- 		usb3->connection_state = USB_ROLE_NONE;
-+		if (cur_role == USB_ROLE_HOST)
-+			device_release_driver(host);
- 		if (usb3->driver)
- 			usb3_disconnect(usb3);
- 		usb3_vbus_out(usb3, false);
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -85,6 +85,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1a86, 0x5523) },
+ 	{ USB_DEVICE(0x1a86, 0x7522) },
+ 	{ USB_DEVICE(0x1a86, 0x7523) },
++	{ USB_DEVICE(0x2184, 0x0057) },
+ 	{ USB_DEVICE(0x4348, 0x5523) },
+ 	{ USB_DEVICE(0x9986, 0x7523) },
+ 	{ },
 
 
