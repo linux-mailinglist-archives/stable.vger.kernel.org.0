@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 049174B49A0
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:36:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 194D94B4995
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345764AbiBNKOK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:14:10 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44704 "EHLO
+        id S1348009AbiBNKey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:34:54 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345910AbiBNKNH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:13:07 -0500
+        with ESMTP id S1347820AbiBNKeY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:34:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31A2A88B17;
-        Mon, 14 Feb 2022 01:51:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEEBAC58;
+        Mon, 14 Feb 2022 02:00:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF4A960F65;
-        Mon, 14 Feb 2022 09:51:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97548C340E9;
-        Mon, 14 Feb 2022 09:51:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 588E460A53;
+        Mon, 14 Feb 2022 10:00:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 344FBC340E9;
+        Mon, 14 Feb 2022 10:00:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832270;
-        bh=T7YDZ7jqaN12u6DNHfqzCT1Ns3t7VXGIw+QDvT0i+QA=;
+        s=korg; t=1644832855;
+        bh=nyQhR6VxYrmQChXEtTWPCthKdRv7SdJZk83vIwv/vAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hAjqFrVBtc7r8yFfpGZk+UVvtkYN3gzjLl2PmQpmA5jtsoOTYv9ZkJRwikhC2YbU0
-         F+ohbOZ+plqLBuweOcl4ogMLVcS/665kcCarjOey8ujO0hFG9vVs8KLy1JJRaf7bVV
-         Ho7XG08ULsaCVtnzxmK8zgZHSJgmJ9HNxp4oq2E8=
+        b=ZTcImUQ5JMbCuFePv+UhoAvQrLAfe92qh0lHFZ8Klzxf/nW2yurDVXTBMu2T0y3ts
+         oIrmzd5DV533hFXHyuVSyfhaZPir3e/IfEVXjkfjgfwvdxTYoj+xz4L0SNUklW4LcV
+         OYijzfnQ+MrUbyb4vrFIU/tPXpY31w0oN491aY9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lutz Koschorreck <theleks@ko-hh.de>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org,
+        Steen Hegelund <steen.hegelund@microchip.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 101/172] arm64: dts: meson-sm1-odroid: use correct enable-gpio pin for tf-io regulator
+Subject: [PATCH 5.16 115/203] net: sparx5: Fix get_stat64 crash in tcpdump
 Date:   Mon, 14 Feb 2022 10:25:59 +0100
-Message-Id: <20220214092509.893895551@linuxfoundation.org>
+Message-Id: <20220214092514.165032345@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+References: <20220214092510.221474733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lutz Koschorreck <theleks@ko-hh.de>
+From: Steen Hegelund <steen.hegelund@microchip.com>
 
-[ Upstream commit 323ca765bfe9d637fa774373baec0bc41e51fcfa ]
+[ Upstream commit ed14fc7a79ab43e9f2cb1fa9c1733fdc133bba30 ]
 
-The interrupt pin of the external ethernet phy is used, instead of the
-enable-gpio pin of the tf-io regulator. The GPIOE_2 pin is located in
-the gpio_ao bank.
+This problem was found with Sparx5 when the tcpdump tool requests the
+do_get_stats64 (sparx5_get_stats64) statistic.
 
-This causes phy interrupt problems at system startup.
-[   76.645190] irq 36: nobody cared (try booting with the "irqpoll" option)
-[   76.649617] CPU: 0 PID: 1416 Comm: irq/36-0.0:00 Not tainted 5.16.0 #2
-[   76.649629] Hardware name: Hardkernel ODROID-HC4 (DT)
-[   76.649635] Call trace:
-[   76.649638]  dump_backtrace+0x0/0x1c8
-[   76.649658]  show_stack+0x14/0x60
-[   76.649667]  dump_stack_lvl+0x64/0x7c
-[   76.649676]  dump_stack+0x14/0x2c
-[   76.649683]  __report_bad_irq+0x38/0xe8
-[   76.649695]  note_interrupt+0x220/0x3a0
-[   76.649704]  handle_irq_event_percpu+0x58/0x88
-[   76.649713]  handle_irq_event+0x44/0xd8
-[   76.649721]  handle_fasteoi_irq+0xa8/0x130
-[   76.649730]  generic_handle_domain_irq+0x38/0x58
-[   76.649738]  gic_handle_irq+0x9c/0xb8
-[   76.649747]  call_on_irq_stack+0x28/0x38
-[   76.649755]  do_interrupt_handler+0x7c/0x80
-[   76.649763]  el1_interrupt+0x34/0x80
-[   76.649772]  el1h_64_irq_handler+0x14/0x20
-[   76.649781]  el1h_64_irq+0x74/0x78
-[   76.649788]  irq_finalize_oneshot.part.56+0x68/0xf8
-[   76.649796]  irq_thread_fn+0x5c/0x98
-[   76.649804]  irq_thread+0x13c/0x260
-[   76.649812]  kthread+0x144/0x178
-[   76.649822]  ret_from_fork+0x10/0x20
-[   76.649830] handlers:
-[   76.653170] [<0000000025a6cd31>] irq_default_primary_handler threaded [<0000000093580eb7>] phy_interrupt
-[   76.661256] Disabling IRQ #36
+The portstats pointer was incorrectly incremented when fetching priority
+based statistics.
 
-Fixes: 1f80a5cf74a6 ("arm64: dts: meson-sm1-odroid: add missing enable gpio and supply for tf_io regulator")
-Signed-off-by: Lutz Koschorreck <theleks@ko-hh.de>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-[narmstrong: removed spurious invalid & blank lines from commit message]
-Link: https://lore.kernel.org/r/20220127130537.GA187347@odroid-VirtualBox
+Fixes: af4b11022e2d (net: sparx5: add ethtool configuration and statistics support)
+Signed-off-by: Steen Hegelund <steen.hegelund@microchip.com>
+Link: https://lore.kernel.org/r/20220203102900.528987-1-steen.hegelund@microchip.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-sm1-odroid.dtsi | 2 +-
+ drivers/net/ethernet/microchip/sparx5/sparx5_ethtool.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-odroid.dtsi b/arch/arm64/boot/dts/amlogic/meson-sm1-odroid.dtsi
-index 5779e70caccd3..328f4adfaaa9d 100644
---- a/arch/arm64/boot/dts/amlogic/meson-sm1-odroid.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-sm1-odroid.dtsi
-@@ -48,7 +48,7 @@ tf_io: gpio-regulator-tf_io {
- 		regulator-max-microvolt = <3300000>;
- 		vin-supply = <&vcc_5v>;
- 
--		enable-gpio = <&gpio GPIOE_2 GPIO_ACTIVE_HIGH>;
-+		enable-gpio = <&gpio_ao GPIOE_2 GPIO_ACTIVE_HIGH>;
- 		enable-active-high;
- 		regulator-always-on;
- 
+diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_ethtool.c b/drivers/net/ethernet/microchip/sparx5/sparx5_ethtool.c
+index 59783fc46a7b9..10b866e9f7266 100644
+--- a/drivers/net/ethernet/microchip/sparx5/sparx5_ethtool.c
++++ b/drivers/net/ethernet/microchip/sparx5/sparx5_ethtool.c
+@@ -1103,7 +1103,7 @@ void sparx5_get_stats64(struct net_device *ndev,
+ 	stats->tx_carrier_errors = portstats[spx5_stats_tx_csense_cnt];
+ 	stats->tx_window_errors = portstats[spx5_stats_tx_late_coll_cnt];
+ 	stats->rx_dropped = portstats[spx5_stats_ana_ac_port_stat_lsb_cnt];
+-	for (idx = 0; idx < 2 * SPX5_PRIOS; ++idx, ++stats)
++	for (idx = 0; idx < 2 * SPX5_PRIOS; ++idx)
+ 		stats->rx_dropped += portstats[spx5_stats_green_p0_rx_port_drop
+ 					       + idx];
+ 	stats->tx_dropped = portstats[spx5_stats_tx_local_drop];
 -- 
 2.34.1
 
