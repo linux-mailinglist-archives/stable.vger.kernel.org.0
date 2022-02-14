@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C16F74B499C
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 650AB4B46E4
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344966AbiBNKH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:07:58 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35404 "EHLO
+        id S241181AbiBNJwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:52:17 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345888AbiBNKHH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:07:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A9C674DE5;
-        Mon, 14 Feb 2022 01:49:46 -0800 (PST)
+        with ESMTP id S245744AbiBNJuo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:50:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDEFE654B0;
+        Mon, 14 Feb 2022 01:41:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47EAEB80DC4;
-        Mon, 14 Feb 2022 09:49:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AED6C340E9;
-        Mon, 14 Feb 2022 09:49:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AE6D6102D;
+        Mon, 14 Feb 2022 09:41:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5989BC340F0;
+        Mon, 14 Feb 2022 09:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832184;
-        bh=xgvGDpPtHORyw1EJlVVMNsL8hLWusH/bXXGoEfhnHQY=;
+        s=korg; t=1644831696;
+        bh=9TbKrEy59czhCycBrgr8TptrPB3LMyhS1KggHXhlAo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZkUMiNTbatu78ZTd+KOLbXPMmGdlWmFbbiec7tpBQYzlO4uHQ3Q4nJuuFp3T/FYC2
-         Tnmunj235cCKdTCJRQXKY500aiV0FmhRKE2kih8/UuS+h8MtX5eObxt6X6rNRvdxA/
-         naAiWMnEVihVqgoUFkjOxotZfQiboSqvPoUGpf0Q=
+        b=CjU4KPB/YjfdHgtZfOE3gaCeDDfrNON3ivZmQUS/Ri05jJ4+qaUQYMJ905iGP2bVm
+         zZqCyLckySsQNeLr1sKwh03HKK6j/nZ8mgVcjlcDRZADk0ijbBOfKc0THSaOlOw+AV
+         hCw1V0s9+05tHGhMEma6N5MgbPrsYPt7HlvgyqNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
+        Marek Vasut <marex@denx.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 106/172] ACPI: PM: s2idle: Cancel wakeup before dispatching EC GPE
+Subject: [PATCH 5.10 065/116] drm/panel: simple: Assign data from panel_dpi_probe() correctly
 Date:   Mon, 14 Feb 2022 10:26:04 +0100
-Message-Id: <20220214092510.074083242@linuxfoundation.org>
+Message-Id: <20220214092500.993729326@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +59,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Christoph Niedermaier <cniedermaier@dh-electronics.com>
 
-[ Upstream commit dc0075ba7f387fe4c48a8c674b11ab6f374a6acc ]
+[ Upstream commit 6df4432a5eca101b5fd80fbee41d309f3d67928d ]
 
-Commit 4a9af6cac050 ("ACPI: EC: Rework flushing of EC work while
-suspended to idle") made acpi_ec_dispatch_gpe() check
-pm_wakeup_pending(), but that is before canceling the SCI wakeup,
-so pm_wakeup_pending() is always true.  This causes the loop in
-acpi_ec_dispatch_gpe() to always terminate after one iteration which
-may not be correct.
+In the function panel_simple_probe() the pointer panel->desc is
+assigned to the passed pointer desc. If function panel_dpi_probe()
+is called panel->desc will be updated, but further on only desc
+will be evaluated. So update the desc pointer to be able to use
+the data from the function panel_dpi_probe().
 
-Address this issue by canceling the SCI wakeup earlier, from
-acpi_ec_dispatch_gpe() itself.
+Fixes: 4a1d0dbc8332 ("drm/panel: simple: add panel-dpi support")
 
-Fixes: 4a9af6cac050 ("ACPI: EC: Rework flushing of EC work while suspended to idle")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Cc: Marek Vasut <marex@denx.de>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+To: dri-devel@lists.freedesktop.org
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220201110153.3479-1-cniedermaier@dh-electronics.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/ec.c    | 10 ++++++++++
- drivers/acpi/sleep.c | 14 ++++----------
- 2 files changed, 14 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/panel/panel-simple.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index 9b859ff976e89..98d1782275440 100644
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -2051,6 +2051,16 @@ bool acpi_ec_dispatch_gpe(void)
- 	if (acpi_any_gpe_status_set(first_ec->gpe))
- 		return true;
- 
-+	/*
-+	 * Cancel the SCI wakeup and process all pending events in case there
-+	 * are any wakeup ones in there.
-+	 *
-+	 * Note that if any non-EC GPEs are active at this point, the SCI will
-+	 * retrigger after the rearming in acpi_s2idle_wake(), so no events
-+	 * should be missed by canceling the wakeup here.
-+	 */
-+	pm_system_cancel_wakeup();
-+
- 	/*
- 	 * Dispatch the EC GPE in-band, but do not report wakeup in any case
- 	 * to allow the caller to process events properly after that.
-diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
-index 7ae09e4b45927..245a0fa979cbb 100644
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -739,21 +739,15 @@ bool acpi_s2idle_wake(void)
- 			return true;
- 		}
- 
--		/* Check non-EC GPE wakeups and dispatch the EC GPE. */
-+		/*
-+		 * Check non-EC GPE wakeups and if there are none, cancel the
-+		 * SCI-related wakeup and dispatch the EC GPE.
-+		 */
- 		if (acpi_ec_dispatch_gpe()) {
- 			pm_pr_dbg("ACPI non-EC GPE wakeup\n");
- 			return true;
- 		}
- 
--		/*
--		 * Cancel the SCI wakeup and process all pending events in case
--		 * there are any wakeup ones in there.
--		 *
--		 * Note that if any non-EC GPEs are active at this point, the
--		 * SCI will retrigger after the rearming below, so no events
--		 * should be missed by canceling the wakeup here.
--		 */
--		pm_system_cancel_wakeup();
- 		acpi_os_wait_events_complete();
- 
- 		/*
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index 204674fccd646..7ffd2a04ab23a 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -557,6 +557,7 @@ static int panel_simple_probe(struct device *dev, const struct panel_desc *desc)
+ 		err = panel_dpi_probe(dev, panel);
+ 		if (err)
+ 			goto free_ddc;
++		desc = panel->desc;
+ 	} else {
+ 		if (!of_get_display_timing(dev->of_node, "panel-timing", &dt))
+ 			panel_simple_parse_panel_timing_node(dev, panel, &dt);
 -- 
 2.34.1
 
