@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E1784B4A6F
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:39:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 151F34B482A
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:56:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347798AbiBNKev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:34:51 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43852 "EHLO
+        id S231248AbiBNJwl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:52:41 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347953AbiBNKea (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:34:30 -0500
+        with ESMTP id S1344722AbiBNJvz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:51:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BE24CC9;
-        Mon, 14 Feb 2022 02:01:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFF616D39A;
+        Mon, 14 Feb 2022 01:43:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E854B80DC4;
-        Mon, 14 Feb 2022 10:01:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66017C340E9;
-        Mon, 14 Feb 2022 10:01:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 969ABB80DC4;
+        Mon, 14 Feb 2022 09:43:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D028BC340F1;
+        Mon, 14 Feb 2022 09:43:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832868;
-        bh=/DjVnQ7jgYXBQt/wqucYtc26jeqXAAs5ubdP37etpC8=;
+        s=korg; t=1644831788;
+        bh=LzpzpbXuAXBVxXgaTfhdtBconWX5rylvXkzDq4epIPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O09v8fiNrg28DC/0PVBnfQLUOSCocFCltqxtikvZDMaJ/ZuF1dnrsezzGFZktLSzA
-         YGstCq0lOQEMxY8xbxJkkwuOBDIpDERx8MiqccQbm836V07R1k6FvJw/TlcMe+rBx6
-         dyyFWtI+ppuCC1h5cOjrq67i3B/uy6iR/C/tjSnw=
+        b=vTuk6Zz+najX446C0/4xDFjveNSiHEjRdtJ6R4+DOJeMebb6SGKvXcmcw4jfjvpRu
+         NTaFYe94UvwRWhKhRsHxqn5Zoo0PrWqXxskTjVo15oZ16ZVO2wzHKt7e8dtf2vULfy
+         9CVQfdk+ljp3c/h66PMIs/X7SSL4aoMzu2oSyYpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Selwin Sebastian <Selwin.Sebastian@amd.com>,
-        Raju Rangoju <Raju.Rangoju@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 151/203] net: amd-xgbe: disable interrupts during pci removal
+        Pavankumar Kondeti <quic_pkondeti@quicinc.com>,
+        Udipto Goswami <quic_ugoswami@quicinc.com>
+Subject: [PATCH 5.10 096/116] usb: dwc3: gadget: Prevent core from processing stale TRBs
 Date:   Mon, 14 Feb 2022 10:26:35 +0100
-Message-Id: <20220214092515.385356389@linuxfoundation.org>
+Message-Id: <20220214092502.091779498@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raju Rangoju <Raju.Rangoju@amd.com>
+From: Udipto Goswami <quic_ugoswami@quicinc.com>
 
-[ Upstream commit 68c2d6af1f1e469544d6cbe9a601d96fb9c00e7f ]
+commit 117b4e96c7f362eb6459543883fc07f77662472c upstream.
 
-Hardware interrupts are enabled during the pci probe, however,
-they are not disabled during pci removal.
+With CPU re-ordering on write instructions, there might
+be a chance that the HWO is set before the TRB is updated
+with the new mapped buffer address.
+And in the case where core is processing a list of TRBs
+it is possible that it fetched the TRBs when the HWO is set
+but before the buffer address is updated.
+Prevent this by adding a memory barrier before the HWO
+is updated to ensure that the core always process the
+updated TRBs.
 
-Disable all hardware interrupts during pci removal to avoid any
-issues.
-
-Fixes: e75377404726 ("amd-xgbe: Update PCI support to use new IRQ functions")
-Suggested-by: Selwin Sebastian <Selwin.Sebastian@amd.com>
-Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: f6bafc6a1c9d ("usb: dwc3: convert TRBs into bitshifts")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
+Signed-off-by: Udipto Goswami <quic_ugoswami@quicinc.com>
+Link: https://lore.kernel.org/r/1644207958-18287-1-git-send-email-quic_ugoswami@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-pci.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/dwc3/gadget.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-pci.c b/drivers/net/ethernet/amd/xgbe/xgbe-pci.c
-index 90cb55eb54665..014513ce00a14 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-pci.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-pci.c
-@@ -418,6 +418,9 @@ static void xgbe_pci_remove(struct pci_dev *pdev)
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1072,6 +1072,19 @@ static void __dwc3_prepare_one_trb(struc
+ 	if (usb_endpoint_xfer_bulk(dep->endpoint.desc) && dep->stream_capable)
+ 		trb->ctrl |= DWC3_TRB_CTRL_SID_SOFN(stream_id);
  
- 	pci_free_irq_vectors(pdata->pcidev);
++	/*
++	 * As per data book 4.2.3.2TRB Control Bit Rules section
++	 *
++	 * The controller autonomously checks the HWO field of a TRB to determine if the
++	 * entire TRB is valid. Therefore, software must ensure that the rest of the TRB
++	 * is valid before setting the HWO field to '1'. In most systems, this means that
++	 * software must update the fourth DWORD of a TRB last.
++	 *
++	 * However there is a possibility of CPU re-ordering here which can cause
++	 * controller to observe the HWO bit set prematurely.
++	 * Add a write memory barrier to prevent CPU re-ordering.
++	 */
++	wmb();
+ 	trb->ctrl |= DWC3_TRB_CTRL_HWO;
  
-+	/* Disable all interrupts in the hardware */
-+	XP_IOWRITE(pdata, XP_INT_EN, 0x0);
-+
- 	xgbe_free_pdata(pdata);
- }
- 
--- 
-2.34.1
-
+ 	dwc3_ep_inc_enq(dep);
 
 
