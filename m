@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29B7C4B42BB
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 08:24:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 711FB4B42C2
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 08:24:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237081AbiBNHYh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 02:24:37 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38886 "EHLO
+        id S237580AbiBNHYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 02:24:41 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231745AbiBNHYg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 02:24:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6E9B593A2
-        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 23:24:28 -0800 (PST)
+        with ESMTP id S231745AbiBNHYk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 02:24:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8B4F593A2
+        for <stable@vger.kernel.org>; Sun, 13 Feb 2022 23:24:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6270960ECF
-        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 07:24:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E092C340EB;
-        Mon, 14 Feb 2022 07:24:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A463B80D6C
+        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 07:24:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5C72C340EB;
+        Mon, 14 Feb 2022 07:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644823467;
-        bh=ihiHL4HtfuSUBp0VdUxx6+K095fAbXZW+UizYEOFCO4=;
+        s=korg; t=1644823471;
+        bh=TQ19MZW5zkdqTm9rczBJK4jXY+xe8Kak7mBewfpM1/o=;
         h=Subject:To:Cc:From:Date:From;
-        b=VpTrpzNBQcL2lyDywNtP6zChvkZWeM+Qaxg3lvxbq4LwxmLEiIU68c+v2FY9Z6u5u
-         utfB698AtZFjFaAXHTUAb/izCxEOHQAXdTmgNgwv7n8nkhAgiNRIOAmkjcg9e/O714
-         UhHKvITCtq8ZaFx+ZnB08dCEJPiq3xjinHEcgJcg=
-Subject: FAILED: patch "[PATCH] vlan: move dev_put into vlan_dev_uninit" failed to apply to 5.16-stable tree
-To:     lucien.xin@gmail.com, davem@davemloft.net, shuali@redhat.com
+        b=QI3iXXSMq9+I6ZoGdcPiokBn8m8Br5wHtK/Jxb9MeugZCnzXOLGZnFp2F4IH2tivc
+         ko2dNhZYWl3sSxcMjJgLc2HZgFs8GgqNyb5BwUHI3R5Q7p8O7gAJdOIcVFLeppOYZJ
+         sEOAeoQUmlIl554RakBaC2tZgf19X71hVAM2f4Mc=
+Subject: FAILED: patch "[PATCH] selftests: mptcp: add missing join check" failed to apply to 5.16-stable tree
+To:     matthieu.baerts@tessares.net, kuba@kernel.org,
+        mathew.j.martineau@linux.intel.com, pabeni@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Feb 2022 08:24:12 +0100
-Message-ID: <164482345221066@kroah.com>
+Date:   Mon, 14 Feb 2022 08:24:18 +0100
+Message-ID: <1644823458163221@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,66 +60,49 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d6ff94afd90b0ce8d1715f8ef77d4347d7a7f2c0 Mon Sep 17 00:00:00 2001
-From: Xin Long <lucien.xin@gmail.com>
-Date: Wed, 9 Feb 2022 03:19:56 -0500
-Subject: [PATCH] vlan: move dev_put into vlan_dev_uninit
+From 857898eb4b28daf3faca3ae334c78b2bb141475e Mon Sep 17 00:00:00 2001
+From: Matthieu Baerts <matthieu.baerts@tessares.net>
+Date: Wed, 9 Feb 2022 17:25:07 -0800
+Subject: [PATCH] selftests: mptcp: add missing join check
 
-Shuang Li reported an QinQ issue by simply doing:
+This function also writes the name of the test with its ID, making clear
+a new test has been executed.
 
-  # ip link add dummy0 type dummy
-  # ip link add link dummy0 name dummy0.1 type vlan id 1
-  # ip link add link dummy0.1 name dummy0.1.2 type vlan id 2
-  # rmmod 8021q
+Without that, the ADD_ADDR results from this test was appended at the
+end of the previous test causing confusions. Especially when the second
+test was failing, we had:
 
- unregister_netdevice: waiting for dummy0.1 to become free. Usage count = 1
+  17 signal invalid addresses     syn[ ok ] - synack[ ok ] - ack[ ok ]
+                                  add[ ok ] - echo  [ ok ]
+                                  add[fail] got 2 ADD_ADDR[s] expected 3
 
-When rmmods 8021q, all vlan devs are deleted from their real_dev's vlan grp
-and added into list_kill by unregister_vlan_dev(). dummy0.1 is unregistered
-before dummy0.1.2, as it's using for_each_netdev() in __rtnl_kill_links().
+In fact, this 17th test was OK but not the 18th one.
 
-When unregisters dummy0.1, dummy0.1.2 is not unregistered in the event of
-NETDEV_UNREGISTER, as it's been deleted from dummy0.1's vlan grp. However,
-due to dummy0.1.2 still holding dummy0.1, dummy0.1 will keep waiting in
-netdev_wait_allrefs(), while dummy0.1.2 will never get unregistered and
-release dummy0.1, as it delays dev_put until calling dev->priv_destructor,
-vlan_dev_free().
+Now we have:
 
-This issue was introduced by Commit 563bcbae3ba2 ("net: vlan: fix a UAF in
-vlan_dev_real_dev()"), and this patch is to fix it by moving dev_put() into
-vlan_dev_uninit(), which is called after NETDEV_UNREGISTER event but before
-netdev_wait_allrefs().
+  17 signal invalid addresses     syn[ ok ] - synack[ ok ] - ack[ ok ]
+                                  add[ ok ] - echo  [ ok ]
+  18 signal addresses race test   syn[fail] got 2 JOIN[s] syn expected 3
+   - synack[fail] got 2 JOIN[s] synack expected
+   - ack[fail] got 2 JOIN[s] ack expected 3
+                                  add[fail] got 2 ADD_ADDR[s] expected 3
 
-Fixes: 563bcbae3ba2 ("net: vlan: fix a UAF in vlan_dev_real_dev()")
-Reported-by: Shuang Li <shuali@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 33c563ad28e3 ("selftests: mptcp: add_addr and echo race test")
+Reported-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/net/8021q/vlan_dev.c b/net/8021q/vlan_dev.c
-index e5d23e75572a..d1902828a18a 100644
---- a/net/8021q/vlan_dev.c
-+++ b/net/8021q/vlan_dev.c
-@@ -638,7 +638,12 @@ void vlan_dev_free_egress_priority(const struct net_device *dev)
+diff --git a/tools/testing/selftests/net/mptcp/mptcp_join.sh b/tools/testing/selftests/net/mptcp/mptcp_join.sh
+index b8bdbec0cf69..c0801df15f54 100755
+--- a/tools/testing/selftests/net/mptcp/mptcp_join.sh
++++ b/tools/testing/selftests/net/mptcp/mptcp_join.sh
+@@ -1159,6 +1159,7 @@ signal_address_tests()
+ 	ip netns exec $ns2 ./pm_nl_ctl add 10.0.3.2 flags signal
+ 	ip netns exec $ns2 ./pm_nl_ctl add 10.0.4.2 flags signal
+ 	run_tests $ns1 $ns2 10.0.1.1
++	chk_join_nr "signal addresses race test" 3 3 3
  
- static void vlan_dev_uninit(struct net_device *dev)
- {
-+	struct vlan_dev_priv *vlan = vlan_dev_priv(dev);
-+
- 	vlan_dev_free_egress_priority(dev);
-+
-+	/* Get rid of the vlan's reference to real_dev */
-+	dev_put_track(vlan->real_dev, &vlan->dev_tracker);
- }
- 
- static netdev_features_t vlan_dev_fix_features(struct net_device *dev,
-@@ -851,9 +856,6 @@ static void vlan_dev_free(struct net_device *dev)
- 
- 	free_percpu(vlan->vlan_pcpu_stats);
- 	vlan->vlan_pcpu_stats = NULL;
--
--	/* Get rid of the vlan's reference to real_dev */
--	dev_put_track(vlan->real_dev, &vlan->dev_tracker);
- }
- 
- void vlan_setup(struct net_device *dev)
+ 	# the server will not signal the address terminating
+ 	# the MPC subflow
 
