@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EEAC4B478F
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:54:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59E4E4B496B
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245103AbiBNJt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:49:57 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43336 "EHLO
+        id S1345019AbiBNKIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:08:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:53654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236346AbiBNJtL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:49:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1C5FBF78;
-        Mon, 14 Feb 2022 01:40:57 -0800 (PST)
+        with ESMTP id S1344617AbiBNKEu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:04:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B8DF4BFDF;
+        Mon, 14 Feb 2022 01:49:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61452B80DA9;
-        Mon, 14 Feb 2022 09:40:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CF16C340E9;
-        Mon, 14 Feb 2022 09:40:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC8D861284;
+        Mon, 14 Feb 2022 09:49:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5490C340E9;
+        Mon, 14 Feb 2022 09:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831655;
-        bh=orlmaubXj4wded+lvdCi4RRUq/I3rcbYbHBcl1NE3Pk=;
+        s=korg; t=1644832152;
+        bh=LDr9fet3QinOPzrvjIlFRpO51oUaf2hH9I6poxqYFRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SfpHevzLIxkVeDOuPhPbLRCBFPe2i52OOEY+HPZM+nWQZWY0SDmuosUSj50gE7y2L
-         sKG7Xx2/549d34ggHB9U7yfUOxRdRMIM7GVGbmMD9SOcUxXeJGkQrciQLBc1afEcQ4
-         GzQ+dUyesUkmJWeANtuEn/2eJmdeZ9XBrR265xvA=
+        b=pdtHBmV5fE8HGwnlxGV0RkVGCn6nIHn3KlTjS/PZAt6FOG7K5/q+IaazBld0DRyM0
+         6LKVOJmusYV5DqhZwXlar7n/REEC5LjGfhvd5BqAP6DKSnVs6Tw/Fw6K7HuhznCFKx
+         1JD1s2yCP4w/NAAGXzn7bMxFLWZgDQtbN4EN0T8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 053/116] ARM: dts: meson8b: Fix the UART device-tree schema validation
+Subject: [PATCH 5.15 094/172] NFS: Dont overfill uncached readdir pages
 Date:   Mon, 14 Feb 2022 10:25:52 +0100
-Message-Id: <20220214092500.551912499@linuxfoundation.org>
+Message-Id: <20220214092509.650004231@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,75 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: trondmy@kernel.org <trondmy@kernel.org>
 
-[ Upstream commit 3375aa77135f6aeb1107ed839a2050a4118444bc ]
+[ Upstream commit d9c4e39c1f8f8a8ebaccf00b8f22c14364b2d27e ]
 
-The dt-bindings for the UART controller only allow the following values
-for Meson8 SoCs:
-- "amlogic,meson8b-uart", "amlogic,meson-ao-uart"
-- "amlogic,meson8b-uart"
+If we're doing an uncached read of the directory, then we ideally want
+to read only the exact set of entries that will fit in the buffer
+supplied by the getdents() system call. So unlike the case where we're
+reading into the page cache, let's send only one READDIR call, before
+trying to fill up the buffer.
 
-Use the correct fallback compatible string "amlogic,meson-ao-uart" for
-AO UART. Drop the "amlogic,meson-uart" compatible string from the EE
-domain UART controllers.
-
-Also update the order of the clocks to match the order defined in the
-yaml bindings.
-
-Fixes: b02d6e73f5fc96 ("ARM: dts: meson8b: use stable UART bindings with correct gate clock")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20211227180026.4068352-4-martin.blumenstingl@googlemail.com
+Fixes: 35df59d3ef69 ("NFS: Reduce number of RPC calls when doing uncached readdir")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/meson8b.dtsi | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ fs/nfs/dir.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/meson8b.dtsi b/arch/arm/boot/dts/meson8b.dtsi
-index 2401cdf5f7511..f6eb7c803174e 100644
---- a/arch/arm/boot/dts/meson8b.dtsi
-+++ b/arch/arm/boot/dts/meson8b.dtsi
-@@ -586,27 +586,27 @@ &timer_abcde {
- };
+diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
+index db6abd4733bfb..af7881bc6b3e6 100644
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -870,7 +870,8 @@ static int nfs_readdir_xdr_to_array(struct nfs_readdir_descriptor *desc,
  
- &uart_AO {
--	compatible = "amlogic,meson8b-uart", "amlogic,meson-uart";
--	clocks = <&clkc CLKID_CLK81>, <&xtal>, <&clkc CLKID_CLK81>;
--	clock-names = "baud", "xtal", "pclk";
-+	compatible = "amlogic,meson8b-uart", "amlogic,meson-ao-uart";
-+	clocks = <&xtal>, <&clkc CLKID_CLK81>, <&clkc CLKID_CLK81>;
-+	clock-names = "xtal", "pclk", "baud";
- };
+ 		status = nfs_readdir_page_filler(desc, entry, pages, pglen,
+ 						 arrays, narrays);
+-	} while (!status && nfs_readdir_page_needs_filling(page));
++	} while (!status && nfs_readdir_page_needs_filling(page) &&
++		page_mapping(page));
  
- &uart_A {
--	compatible = "amlogic,meson8b-uart", "amlogic,meson-uart";
--	clocks = <&clkc CLKID_CLK81>, <&xtal>, <&clkc CLKID_UART0>;
--	clock-names = "baud", "xtal", "pclk";
-+	compatible = "amlogic,meson8b-uart";
-+	clocks = <&xtal>, <&clkc CLKID_UART0>, <&clkc CLKID_CLK81>;
-+	clock-names = "xtal", "pclk", "baud";
- };
- 
- &uart_B {
--	compatible = "amlogic,meson8b-uart", "amlogic,meson-uart";
--	clocks = <&clkc CLKID_CLK81>, <&xtal>, <&clkc CLKID_UART1>;
--	clock-names = "baud", "xtal", "pclk";
-+	compatible = "amlogic,meson8b-uart";
-+	clocks = <&xtal>, <&clkc CLKID_UART0>, <&clkc CLKID_CLK81>;
-+	clock-names = "xtal", "pclk", "baud";
- };
- 
- &uart_C {
--	compatible = "amlogic,meson8b-uart", "amlogic,meson-uart";
--	clocks = <&clkc CLKID_CLK81>, <&xtal>, <&clkc CLKID_UART2>;
--	clock-names = "baud", "xtal", "pclk";
-+	compatible = "amlogic,meson8b-uart";
-+	clocks = <&xtal>, <&clkc CLKID_UART0>, <&clkc CLKID_CLK81>;
-+	clock-names = "xtal", "pclk", "baud";
- };
- 
- &usb0 {
+ 	nfs_readdir_free_pages(pages, array_size);
+ out_release_label:
 -- 
 2.34.1
 
