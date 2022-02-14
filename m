@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 231B64B4AFA
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AE734B4A49
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:38:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346449AbiBNK1a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:27:30 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33358 "EHLO
+        id S1344576AbiBNKCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:02:44 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:53648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346512AbiBNKZE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:25:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ED596D1A3;
-        Mon, 14 Feb 2022 01:56:54 -0800 (PST)
+        with ESMTP id S1344602AbiBNKAc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:00:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8272ECE1;
+        Mon, 14 Feb 2022 01:47:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A6FD61460;
-        Mon, 14 Feb 2022 09:56:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4937C340E9;
-        Mon, 14 Feb 2022 09:56:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A70CB80DC6;
+        Mon, 14 Feb 2022 09:47:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8600BC340F0;
+        Mon, 14 Feb 2022 09:47:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832613;
-        bh=nFogxA/LDVBd0MRKb6HyR9kxQCK/ufUVnj0yDYGaXbo=;
+        s=korg; t=1644832031;
+        bh=9fEcy+k844awQx5HWs3Ea+8qA0hdb+v6g3sC9jpOES4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9T86zntJaKgn8caN61DUEyMdkjCmXJAlCH5nSRPQgpy1sUgH3TMYfr7kFBOUCSSI
-         ZolYuK/olD+nEj8NVxWcLQXsVcq2HnvZf2WwYDEuaem213KFugHKuh/NEH0PGKWRyj
-         dgTtETxFF4RBPdJTl3apxrHzMzN34X5U8Rc6TvAc=
+        b=f6UkMcHmYBIcgGycnDzHeTt3KflX/8wM54x2Rom8s9M8WzcS/fM+8DRh/Sl43pfhg
+         1AHbyWh6Z7DbX1vAIPGFC9tZ0zIBJs7JBnOd+Jw3fGtFJY88KgS9dT1vJjcqD2PHxL
+         Zi9vO2ToL6ENO0djc2MiplabXPaXIT+13w49Ugbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org,
+        Ruben Ayrapetyan <Ruben.Ayrapetyan@arm.com>,
+        James Clark <james.clark@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 069/203] KVM: nVMX: Also filter MSR_IA32_VMX_TRUE_PINBASED_CTLS when eVMCS
-Date:   Mon, 14 Feb 2022 10:25:13 +0100
-Message-Id: <20220214092512.613921612@linuxfoundation.org>
+Subject: [PATCH 5.15 056/172] perf: Always wake the parent event
+Date:   Mon, 14 Feb 2022 10:25:14 +0100
+Message-Id: <20220214092508.328027753@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +56,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: James Clark <james.clark@arm.com>
 
-[ Upstream commit f80ae0ef089a09e8c18da43a382c3caac9a424a7 ]
+[ Upstream commit 961c39121759ad09a89598ec4ccdd34ae0468a19 ]
 
-Similar to MSR_IA32_VMX_EXIT_CTLS/MSR_IA32_VMX_TRUE_EXIT_CTLS,
-MSR_IA32_VMX_ENTRY_CTLS/MSR_IA32_VMX_TRUE_ENTRY_CTLS pair,
-MSR_IA32_VMX_TRUE_PINBASED_CTLS needs to be filtered the same way
-MSR_IA32_VMX_PINBASED_CTLS is currently filtered as guests may solely rely
-on 'true' MSR data.
+When using per-process mode and event inheritance is set to true,
+forked processes will create a new perf events via inherit_event() ->
+perf_event_alloc(). But these events will not have ring buffers
+assigned to them. Any call to wakeup will be dropped if it's called on
+an event with no ring buffer assigned because that's the object that
+holds the wakeup list.
 
-Note, none of the currently existing Windows/Hyper-V versions are known
-to stumble upon the unfiltered MSR_IA32_VMX_TRUE_PINBASED_CTLS, the change
-is aimed at making the filtering future proof.
+If the child event is disabled due to a call to
+perf_aux_output_begin() or perf_aux_output_end(), the wakeup is
+dropped leaving userspace hanging forever on the poll.
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220112170134.1904308-2-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Normally the event is explicitly re-enabled by userspace after it
+wakes up to read the aux data, but in this case it does not get woken
+up so the event remains disabled.
+
+This can be reproduced when using Arm SPE and 'stress' which forks once
+before running the workload. By looking at the list of aux buffers read,
+it's apparent that they stop after the fork:
+
+  perf record -e arm_spe// -vvv -- stress -c 1
+
+With this patch applied they continue to be printed. This behaviour
+doesn't happen when using systemwide or per-cpu mode.
+
+Reported-by: Ruben Ayrapetyan <Ruben.Ayrapetyan@arm.com>
+Signed-off-by: James Clark <james.clark@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20211206113840.130802-2-james.clark@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/evmcs.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/events/core.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/evmcs.c b/arch/x86/kvm/vmx/evmcs.c
-index 09fac0ddac8bd..87e3dc10edf40 100644
---- a/arch/x86/kvm/vmx/evmcs.c
-+++ b/arch/x86/kvm/vmx/evmcs.c
-@@ -361,6 +361,7 @@ void nested_evmcs_filter_control_msr(u32 msr_index, u64 *pdata)
- 	case MSR_IA32_VMX_PROCBASED_CTLS2:
- 		ctl_high &= ~EVMCS1_UNSUPPORTED_2NDEXEC;
- 		break;
-+	case MSR_IA32_VMX_TRUE_PINBASED_CTLS:
- 	case MSR_IA32_VMX_PINBASED_CTLS:
- 		ctl_high &= ~EVMCS1_UNSUPPORTED_PINCTRL;
- 		break;
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 69c70767b5dff..b2def55253bd4 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -6004,6 +6004,8 @@ static void ring_buffer_attach(struct perf_event *event,
+ 	struct perf_buffer *old_rb = NULL;
+ 	unsigned long flags;
+ 
++	WARN_ON_ONCE(event->parent);
++
+ 	if (event->rb) {
+ 		/*
+ 		 * Should be impossible, we set this when removing
+@@ -6061,6 +6063,9 @@ static void ring_buffer_wakeup(struct perf_event *event)
+ {
+ 	struct perf_buffer *rb;
+ 
++	if (event->parent)
++		event = event->parent;
++
+ 	rcu_read_lock();
+ 	rb = rcu_dereference(event->rb);
+ 	if (rb) {
+@@ -6074,6 +6079,9 @@ struct perf_buffer *ring_buffer_get(struct perf_event *event)
+ {
+ 	struct perf_buffer *rb;
+ 
++	if (event->parent)
++		event = event->parent;
++
+ 	rcu_read_lock();
+ 	rb = rcu_dereference(event->rb);
+ 	if (rb) {
+@@ -6772,7 +6780,7 @@ static unsigned long perf_prepare_sample_aux(struct perf_event *event,
+ 	if (WARN_ON_ONCE(READ_ONCE(sampler->oncpu) != smp_processor_id()))
+ 		goto out;
+ 
+-	rb = ring_buffer_get(sampler->parent ? sampler->parent : sampler);
++	rb = ring_buffer_get(sampler);
+ 	if (!rb)
+ 		goto out;
+ 
+@@ -6838,7 +6846,7 @@ static void perf_aux_sample_output(struct perf_event *event,
+ 	if (WARN_ON_ONCE(!sampler || !data->aux_size))
+ 		return;
+ 
+-	rb = ring_buffer_get(sampler->parent ? sampler->parent : sampler);
++	rb = ring_buffer_get(sampler);
+ 	if (!rb)
+ 		return;
+ 
 -- 
 2.34.1
 
