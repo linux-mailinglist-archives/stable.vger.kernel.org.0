@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 598D74B4BF3
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:43:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 500104B46C7
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348347AbiBNKfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:35:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44096 "EHLO
+        id S244836AbiBNJpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:45:22 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348323AbiBNKes (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:34:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 869E310F5;
-        Mon, 14 Feb 2022 02:01:38 -0800 (PST)
+        with ESMTP id S245164AbiBNJoi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:44:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 967336A00F;
+        Mon, 14 Feb 2022 01:38:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31BF1B80DD5;
-        Mon, 14 Feb 2022 10:01:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 463BCC340EF;
-        Mon, 14 Feb 2022 10:01:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3227761172;
+        Mon, 14 Feb 2022 09:38:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09B1EC340E9;
+        Mon, 14 Feb 2022 09:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832896;
-        bh=899ymr/v+41hyibqIyWULRGLI9lxt7B1PXrOqe4nSM4=;
+        s=korg; t=1644831497;
+        bh=W/rZpCwWfP2MIfCd7ghjXQZP0wpoXvZV20V3NBzfweU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XatSoukcFIpingZZKkQ+VmWtXU9ztcABwmmADdcW1D4WfigM6v2v3u4fTCzb93waX
-         l8njBvuDCG2TB6xEtdIb0VlNzM2LgJjaVrycrMLFBJgoUU3eOv49kRsko4qjl64Tbm
-         U03BRKSjUmD4fsmRpNBZef7GfJ0iiG9XRwZ3Uj/8=
+        b=z5O5zNgAW2JrRNAtjA1UVa23tedy30aksHWmf27YHqrdSJ3I1GMhwT9afTULP9ESK
+         ZbW4j4Rpt42YhmbQv/zocnetR5nLuTxRu9cJwctPRDyGYKvpR5AJN72PTT1SpBzkXk
+         9yeR6X1kLRbImViDmF/KmmZQIWL3jYl+bxkYbBPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abdul Haleem <abdhalee@linux.vnet.ibm.com>,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        Dany Madden <drt@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 142/203] ibmvnic: dont release napi in __ibmvnic_open()
-Date:   Mon, 14 Feb 2022 10:26:26 +0100
-Message-Id: <20220214092515.064979187@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Szymon Heidrich <szymon.heidrich@gmail.com>, stable@kernel.org
+Subject: [PATCH 5.4 59/71] USB: gadget: validate interface OS descriptor requests
+Date:   Mon, 14 Feb 2022 10:26:27 +0100
+Message-Id: <20220214092454.028781469@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092452.020713240@linuxfoundation.org>
+References: <20220214092452.020713240@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,112 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Szymon Heidrich <szymon.heidrich@gmail.com>
 
-[ Upstream commit 61772b0908c640d0309c40f7d41d062ca4e979fa ]
+commit 75e5b4849b81e19e9efe1654b30d7f3151c33c2c upstream.
 
-If __ibmvnic_open() encounters an error such as when setting link state,
-it calls release_resources() which frees the napi structures needlessly.
-Instead, have __ibmvnic_open() only clean up the work it did so far (i.e.
-disable napi and irqs) and leave the rest to the callers.
+Stall the control endpoint in case provided index exceeds array size of
+MAX_CONFIG_INTERFACES or when the retrieved function pointer is null.
 
-If caller of __ibmvnic_open() is ibmvnic_open(), it should release the
-resources immediately. If the caller is do_reset() or do_hard_reset(),
-they will release the resources on the next reset.
-
-This fixes following crash that occurred when running the drmgr command
-several times to add/remove a vnic interface:
-
-	[102056] ibmvnic 30000003 env3: Disabling rx_scrq[6] irq
-	[102056] ibmvnic 30000003 env3: Disabling rx_scrq[7] irq
-	[102056] ibmvnic 30000003 env3: Replenished 8 pools
-	Kernel attempted to read user page (10) - exploit attempt? (uid: 0)
-	BUG: Kernel NULL pointer dereference on read at 0x00000010
-	Faulting instruction address: 0xc000000000a3c840
-	Oops: Kernel access of bad area, sig: 11 [#1]
-	LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA pSeries
-	...
-	CPU: 9 PID: 102056 Comm: kworker/9:2 Kdump: loaded Not tainted 5.16.0-rc5-autotest-g6441998e2e37 #1
-	Workqueue: events_long __ibmvnic_reset [ibmvnic]
-	NIP:  c000000000a3c840 LR: c0080000029b5378 CTR: c000000000a3c820
-	REGS: c0000000548e37e0 TRAP: 0300   Not tainted  (5.16.0-rc5-autotest-g6441998e2e37)
-	MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28248484  XER: 00000004
-	CFAR: c0080000029bdd24 DAR: 0000000000000010 DSISR: 40000000 IRQMASK: 0
-	GPR00: c0080000029b55d0 c0000000548e3a80 c0000000028f0200 0000000000000000
-	...
-	NIP [c000000000a3c840] napi_enable+0x20/0xc0
-	LR [c0080000029b5378] __ibmvnic_open+0xf0/0x430 [ibmvnic]
-	Call Trace:
-	[c0000000548e3a80] [0000000000000006] 0x6 (unreliable)
-	[c0000000548e3ab0] [c0080000029b55d0] __ibmvnic_open+0x348/0x430 [ibmvnic]
-	[c0000000548e3b40] [c0080000029bcc28] __ibmvnic_reset+0x500/0xdf0 [ibmvnic]
-	[c0000000548e3c60] [c000000000176228] process_one_work+0x288/0x570
-	[c0000000548e3d00] [c000000000176588] worker_thread+0x78/0x660
-	[c0000000548e3da0] [c0000000001822f0] kthread+0x1c0/0x1d0
-	[c0000000548e3e10] [c00000000000cf64] ret_from_kernel_thread+0x5c/0x64
-	Instruction dump:
-	7d2948f8 792307e0 4e800020 60000000 3c4c01eb 384239e0 f821ffd1 39430010
-	38a0fff6 e92d1100 f9210028 39200000 <e9030010> f9010020 60420000 e9210020
-	---[ end trace 5f8033b08fd27706 ]---
-
-Fixes: ed651a10875f ("ibmvnic: Updated reset handling")
-Reported-by: Abdul Haleem <abdhalee@linux.vnet.ibm.com>
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Reviewed-by: Dany Madden <drt@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220208001918.900602-1-sukadev@linux.ibm.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/composite.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 682a440151a87..d5d33325a413e 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -110,6 +110,7 @@ static void ibmvnic_tx_scrq_clean_buffer(struct ibmvnic_adapter *adapter,
- 					 struct ibmvnic_sub_crq_queue *tx_scrq);
- static void free_long_term_buff(struct ibmvnic_adapter *adapter,
- 				struct ibmvnic_long_term_buff *ltb);
-+static void ibmvnic_disable_irqs(struct ibmvnic_adapter *adapter);
- 
- struct ibmvnic_stat {
- 	char name[ETH_GSTRING_LEN];
-@@ -1418,7 +1419,7 @@ static int __ibmvnic_open(struct net_device *netdev)
- 	rc = set_link_state(adapter, IBMVNIC_LOGICAL_LNK_UP);
- 	if (rc) {
- 		ibmvnic_napi_disable(adapter);
--		release_resources(adapter);
-+		ibmvnic_disable_irqs(adapter);
- 		return rc;
- 	}
- 
-@@ -1468,9 +1469,6 @@ static int ibmvnic_open(struct net_device *netdev)
- 		rc = init_resources(adapter);
- 		if (rc) {
- 			netdev_err(netdev, "failed to initialize resources\n");
--			release_resources(adapter);
--			release_rx_pools(adapter);
--			release_tx_pools(adapter);
- 			goto out;
- 		}
- 	}
-@@ -1487,6 +1485,13 @@ static int ibmvnic_open(struct net_device *netdev)
- 		adapter->state = VNIC_OPEN;
- 		rc = 0;
- 	}
-+
-+	if (rc) {
-+		release_resources(adapter);
-+		release_rx_pools(adapter);
-+		release_tx_pools(adapter);
-+	}
-+
- 	return rc;
- }
- 
--- 
-2.34.1
-
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -1944,6 +1944,9 @@ unknown:
+ 				if (w_index != 0x5 || (w_value >> 8))
+ 					break;
+ 				interface = w_value & 0xFF;
++				if (interface >= MAX_CONFIG_INTERFACES ||
++				    !os_desc_cfg->interface[interface])
++					break;
+ 				buf[6] = w_index;
+ 				count = count_ext_prop(os_desc_cfg,
+ 					interface);
 
 
