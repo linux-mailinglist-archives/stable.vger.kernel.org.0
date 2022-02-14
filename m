@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9502C4B4ADA
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:40:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E7344B47B9
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347099AbiBNKYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:24:53 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33266 "EHLO
+        id S245376AbiBNJrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:47:24 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234368AbiBNKYS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:24:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B8806D182;
-        Mon, 14 Feb 2022 01:56:29 -0800 (PST)
+        with ESMTP id S1344151AbiBNJqn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E897766628;
+        Mon, 14 Feb 2022 01:40:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC40FB80DBE;
-        Mon, 14 Feb 2022 09:56:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADD1DC340E9;
-        Mon, 14 Feb 2022 09:56:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CB956117D;
+        Mon, 14 Feb 2022 09:40:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E114C340E9;
+        Mon, 14 Feb 2022 09:40:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832586;
-        bh=cJz+WCKCtmXCo1AQ+BSDjP3riPuNHgmDjCEGV5+z4VY=;
+        s=korg; t=1644831609;
+        bh=bGyyTllWn9VeEU87vfFmIRuIH3toa/eBi1YJ/SiYrRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y7epjIE6LzQxOtdJArTMotKv2/s8Onq1DHhgj8Wyq2OUptUr78kR9YmO0VwlzgRYJ
-         IQOP/WNLbBku56iRQ55XekF4wA7NWtTc1M1d0k5wxFr7b92ojX5x/j4TFEi+WN/lcw
-         OqFTmgNFQnmIvkmYYY+A3ehYxXNy5bDrP1tiJpQs=
+        b=RhoUhwAvqKPxMV5WK4VdatxA4tCJ+GMQ93uE36grwze9MRVWIvIf/pyDl3zWzi05S
+         JMfEqZw4QEPPzCZjp91OXRVcs5uzSL656BuEGyWlNYyBS2UMJfouMCAj5mXFtie20b
+         juWH8Xx0iYImH6VI0ByQMEms/2zftt/BckaELEdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jisheng Zhang <jszhang@kernel.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 061/203] net: stmmac: dwmac-sun8i: use return val of readl_poll_timeout()
+        stable@vger.kernel.org,
+        syzbot+4c63f36709a642f801c5@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 006/116] can: isotp: fix potential CAN frame reception race in isotp_rcv()
 Date:   Mon, 14 Feb 2022 10:25:05 +0100
-Message-Id: <20220214092512.327799966@linuxfoundation.org>
+Message-Id: <20220214092458.895195012@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-References: <20220214092510.221474733@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+References: <20220214092458.668376521@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +56,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit 9e0db41e7a0b6f1271cbcfb16dbf5b8641b4e440 ]
+commit 7c759040c1dd03954f650f147ae7175476d51314 upstream.
 
-When readl_poll_timeout() timeout, we'd better directly use its return
-value.
+When receiving a CAN frame the current code logic does not consider
+concurrently receiving processes which do not show up in real world
+usage.
 
-Before this patch:
-[    2.145528] dwmac-sun8i: probe of 4500000.ethernet failed with error -14
+Ziyang Xuan writes:
 
-After this patch:
-[    2.138520] dwmac-sun8i: probe of 4500000.ethernet failed with error -110
+The following syz problem is one of the scenarios. so->rx.len is
+changed by isotp_rcv_ff() during isotp_rcv_cf(), so->rx.len equals
+0 before alloc_skb() and equals 4096 after alloc_skb(). That will
+trigger skb_over_panic() in skb_put().
 
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+=======================================================
+CPU: 1 PID: 19 Comm: ksoftirqd/1 Not tainted 5.16.0-rc8-syzkaller #0
+RIP: 0010:skb_panic+0x16c/0x16e net/core/skbuff.c:113
+Call Trace:
+ <TASK>
+ skb_over_panic net/core/skbuff.c:118 [inline]
+ skb_put.cold+0x24/0x24 net/core/skbuff.c:1990
+ isotp_rcv_cf net/can/isotp.c:570 [inline]
+ isotp_rcv+0xa38/0x1e30 net/can/isotp.c:668
+ deliver net/can/af_can.c:574 [inline]
+ can_rcv_filter+0x445/0x8d0 net/can/af_can.c:635
+ can_receive+0x31d/0x580 net/can/af_can.c:665
+ can_rcv+0x120/0x1c0 net/can/af_can.c:696
+ __netif_receive_skb_one_core+0x114/0x180 net/core/dev.c:5465
+ __netif_receive_skb+0x24/0x1b0 net/core/dev.c:5579
+
+Therefore we make sure the state changes and data structures stay
+consistent at CAN frame reception time by adding a spin_lock in
+isotp_rcv(). This fixes the issue reported by syzkaller but does not
+affect real world operation.
+
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://lore.kernel.org/linux-can/d7e69278-d741-c706-65e1-e87623d9a8e8@huawei.com/T/
+Link: https://lore.kernel.org/all/20220208200026.13783-1-socketcan@hartkopp.net
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+4c63f36709a642f801c5@syzkaller.appspotmail.com
+Reported-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/isotp.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-index 617d0e4c64958..09644ab0d87a7 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-@@ -756,7 +756,7 @@ static int sun8i_dwmac_reset(struct stmmac_priv *priv)
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -56,6 +56,7 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
++#include <linux/spinlock.h>
+ #include <linux/hrtimer.h>
+ #include <linux/wait.h>
+ #include <linux/uio.h>
+@@ -145,6 +146,7 @@ struct isotp_sock {
+ 	struct tpcon rx, tx;
+ 	struct list_head notifier;
+ 	wait_queue_head_t wait;
++	spinlock_t rx_lock; /* protect single thread state machine */
+ };
  
- 	if (err) {
- 		dev_err(priv->device, "EMAC reset timeout\n");
--		return -EFAULT;
-+		return err;
+ static LIST_HEAD(isotp_notifier_list);
+@@ -615,11 +617,17 @@ static void isotp_rcv(struct sk_buff *sk
+ 
+ 	n_pci_type = cf->data[ae] & 0xF0;
+ 
++	/* Make sure the state changes and data structures stay consistent at
++	 * CAN frame reception time. This locking is not needed in real world
++	 * use cases but the inconsistency can be triggered with syzkaller.
++	 */
++	spin_lock(&so->rx_lock);
++
+ 	if (so->opt.flags & CAN_ISOTP_HALF_DUPLEX) {
+ 		/* check rx/tx path half duplex expectations */
+ 		if ((so->tx.state != ISOTP_IDLE && n_pci_type != N_PCI_FC) ||
+ 		    (so->rx.state != ISOTP_IDLE && n_pci_type == N_PCI_FC))
+-			return;
++			goto out_unlock;
  	}
- 	return 0;
+ 
+ 	switch (n_pci_type) {
+@@ -668,6 +676,9 @@ static void isotp_rcv(struct sk_buff *sk
+ 		isotp_rcv_cf(sk, cf, ae, skb);
+ 		break;
+ 	}
++
++out_unlock:
++	spin_unlock(&so->rx_lock);
  }
--- 
-2.34.1
-
+ 
+ static void isotp_fill_dataframe(struct canfd_frame *cf, struct isotp_sock *so,
+@@ -1407,6 +1418,7 @@ static int isotp_init(struct sock *sk)
+ 	so->txtimer.function = isotp_tx_timer_handler;
+ 
+ 	init_waitqueue_head(&so->wait);
++	spin_lock_init(&so->rx_lock);
+ 
+ 	spin_lock(&isotp_notifier_lock);
+ 	list_add_tail(&so->notifier, &isotp_notifier_list);
 
 
