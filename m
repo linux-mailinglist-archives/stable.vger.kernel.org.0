@@ -2,165 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C3D04B5442
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 16:11:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26E7D4B5448
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 16:13:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243277AbiBNPLg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 10:11:36 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40820 "EHLO
+        id S242485AbiBNPMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 10:12:12 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352976AbiBNPLe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 10:11:34 -0500
-Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08D36C40;
-        Mon, 14 Feb 2022 07:11:22 -0800 (PST)
-Received: from in01.mta.xmission.com ([166.70.13.51]:40898)
-        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1nJd0Z-00301D-RO; Mon, 14 Feb 2022 08:11:19 -0700
-Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:60176 helo=email.froward.int.ebiederm.org.xmission.com)
-        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1nJd0Y-00AMYl-HJ; Mon, 14 Feb 2022 08:11:19 -0700
-From:   "Eric W. Biederman" <ebiederm@xmission.com>
-To:     Solar Designer <solar@openwall.com>
-Cc:     linux-kernel@vger.kernel.org, Alexey Gladkov <legion@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Ran Xiaokai <ran.xiaokai@zte.com.cn>,
-        Michal Koutn?? <mkoutny@suse.com>, stable@vger.kernel.org
-References: <87o83e2mbu.fsf@email.froward.int.ebiederm.org>
-        <20220211021324.4116773-3-ebiederm@xmission.com>
-        <20220212231701.GA29483@openwall.com>
-Date:   Mon, 14 Feb 2022 09:10:49 -0600
-In-Reply-To: <20220212231701.GA29483@openwall.com> (Solar Designer's message
-        of "Sun, 13 Feb 2022 00:17:01 +0100")
-Message-ID: <87ee45wkjq.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S241377AbiBNPMM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 10:12:12 -0500
+Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8360C71
+        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 07:12:03 -0800 (PST)
+Received: by mail-yb1-xb33.google.com with SMTP id j2so47182383ybu.0
+        for <stable@vger.kernel.org>; Mon, 14 Feb 2022 07:12:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=UBjiQmW8y46Ip1DF4K/0pxnyYPVomVLjOgW0M3dZ1u0=;
+        b=KtCP66Wxyc0rifCs56vfMd6KDU8aNhUB6lVbw8fFnB0NsIcpceY96dpYqFtB4WlRIT
+         hmbfo7GHcZTFe2rM3Lva3nAcZIEP1xsatyd+NF8VJknv54Lu98465/kZimIjdAWHEgQX
+         +L4NoLN5XEf9IpZ5mIAp7BHQF4op0x02dokCh7EsF4G8QbM5xFbpqC6bMyEUFKZHxjnx
+         3kq0JJiESTeq9SxHOnSIynPh+kwXTDbXpPjt7nmdIWdNAZuRJ43TfcWlXb2DZEMXvAey
+         fQyOeT/SZdg9b+MMynaLlYmuScvGUs5OBZB3X7ngyaOODavWQweiI7VebD2QAbl6Gkpx
+         5aBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=UBjiQmW8y46Ip1DF4K/0pxnyYPVomVLjOgW0M3dZ1u0=;
+        b=stj/qN9tgawwAdpGTWuldotwSiE+6/Lu8DIQns2TiULmVn4sQ9DQI5QGivPLcyFmtW
+         ZOpITCdNqnPbIEyac9u5dySKy85oVDB+h4D7ONl93/iFtzytK1+hEGgJnIw02ftH9I56
+         KZaX7CfHQ1H8cbjQTaxyvBONrLCzCbNrYwLdGPKyQVTU8O2rQSMo3pI1bo13M8daCFtU
+         Iu9TO1UtjdR8DTWP31lVrEoMznHSnZjih4EUmXG3xQFtzFbm5v+7c5naK9u1f4g+GnuK
+         0EqR2pkUUOidpu7pnyAtcSrUDDg6ibp2wQk9GfUdPb2Cf+MyxX/0ZHhASTuUzGcDjl6j
+         KzrA==
+X-Gm-Message-State: AOAM533sPJgQzA1YHyzQATGSqLYXURNwp1Pgq2VtThyJW8gb3VGHFqP3
+        SeAJ/EULAw04WdCpvNKyeYAmdAmhcaJd07yJH9nM0A==
+X-Google-Smtp-Source: ABdhPJz+19IPb/+B+c6nDdIBywW7Rx+k0elXWWE0AdbE1hnFqfaoFgAXuLAFvEUh7HzRfgjAJEr/q2G8md8JBTg6p+w=
+X-Received: by 2002:a0d:f601:: with SMTP id g1mr14030931ywf.441.1644851522503;
+ Mon, 14 Feb 2022 07:12:02 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1nJd0Y-00AMYl-HJ;;;mid=<87ee45wkjq.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1+ckuSLbOWMncQUqnAK4hiHBj/D3E9gRuw=
-X-SA-Exim-Connect-IP: 68.227.174.4
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
-        lindbergh.monkeyblade.net
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+References: <720d0a9a42e33148fcac45cd39a727093a32bf32.1614965598.git.robin.murphy@arm.com>
+ <a730070d718cb119f77c8ca1782a0d4189bfb3e7.1614965598.git.robin.murphy@arm.com>
+ <0a1d437d-9ea0-de83-3c19-e07f560ad37c@arm.com> <20210730143431.GB1517404@mutt>
+ <8b358507-dbdf-b05b-c1da-2ec9903a2912@arm.com> <CADYN=9LE2JnE+vmv_UaeyJj_RpHcp+zZUv711VuQekLSiQ2bJA@mail.gmail.com>
+ <CA+G9fYu7ctvOfdvBkDZ1nABz0TaYZ49FUKVTctn+mBTCmk9JCQ@mail.gmail.com> <20220214141303.3lmnassl4qibsp3y@bogus>
+In-Reply-To: <20220214141303.3lmnassl4qibsp3y@bogus>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 14 Feb 2022 20:41:51 +0530
+Message-ID: <CA+G9fYsUX2vHjNwZ7u=JtACEyfe9SkSHtYnwJXJ1JytF9+pSAQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] arm64: dts: juno: Enable more SMMUs
+To:     Sudeep Holla <sudeep.holla@arm.com>
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Lorenzo Pieralisi <Lorenzo.Pieralisi@arm.com>,
+        Liviu Dudau <Liviu.Dudau@arm.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-stable <stable@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        lkft-triage@lists.linaro.org,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
-X-Spam-DCC: XMission; sa07 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ***;Solar Designer <solar@openwall.com>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 709 ms - load_scoreonly_sql: 0.04 (0.0%),
-        signal_user_changed: 11 (1.5%), b_tie_ro: 9 (1.3%), parse: 1.62 (0.2%),
-         extract_message_metadata: 21 (2.9%), get_uri_detail_list: 3.3 (0.5%),
-        tests_pri_-1000: 24 (3.4%), tests_pri_-950: 1.27 (0.2%),
-        tests_pri_-900: 1.02 (0.1%), tests_pri_-90: 135 (19.0%), check_bayes:
-        122 (17.3%), b_tokenize: 11 (1.5%), b_tok_get_all: 11 (1.6%),
-        b_comp_prob: 4.0 (0.6%), b_tok_touch_all: 91 (12.8%), b_finish: 1.06
-        (0.1%), tests_pri_0: 501 (70.6%), check_dkim_signature: 0.61 (0.1%),
-        check_dkim_adsp: 2.7 (0.4%), poll_dns_idle: 0.52 (0.1%), tests_pri_10:
-        2.2 (0.3%), tests_pri_500: 8 (1.1%), rewrite_mail: 0.00 (0.0%)
-Subject: Re: [PATCH 3/8] ucounts: Fix and simplify RLIMIT_NPROC handling
- during setuid()+execve
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
+        lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Solar Designer <solar@openwall.com> writes:
-
-> On Thu, Feb 10, 2022 at 08:13:19PM -0600, Eric W. Biederman wrote:
->> As of commit 2863643fb8b9 ("set_user: add capability check when
->> rlimit(RLIMIT_NPROC) exceeds") setting the flag to see if execve
->> should check RLIMIT_NPROC is buggy, as it tests the capabilites from
->> before the credential change and not aftwards.
->> 
->> As of commit 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of
->> ucounts") examining the rlimit is buggy as cred->ucounts has not yet
->> been properly set in the new credential.
->> 
->> Make the code correct and more robust moving the test to see if
->> execve() needs to test RLIMIT_NPROC into commit_creds, and defer all
->> of the rest of the logic into execve() itself.
->> 
->> As the flag only indicateds that RLIMIT_NPROC should be checked
->> in execve rename it from PF_NPROC_EXCEEDED to PF_NPROC_CHECK.
->> 
->> Cc: stable@vger.kernel.org
->> Link: https://lkml.kernel.org/r/20220207121800.5079-2-mkoutny@suse.com
->> Link: https://lkml.kernel.org/r/20220207121800.5079-3-mkoutny@suse.com
->> Reported-by: Michal Koutn?? <mkoutny@suse.com>
->> Fixes: 2863643fb8b9 ("set_user: add capability check when rlimit(RLIMIT_NPROC) exceeds")
->> Fixes: 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of ucounts")
->> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+On Mon, 14 Feb 2022 at 19:43, Sudeep Holla <sudeep.holla@arm.com> wrote:
 >
-> On one hand, this looks good.
+> On Mon, Feb 14, 2022 at 07:36:00PM +0530, Naresh Kamboju wrote:
+> > Hi Robin,
+> >
+> > Since we did not get a reply on this email thread.
+> > and those intermittent failures are causing a lot of noise in reports summary.
+> > We will wait one more week and stop running 64k page size testing on
+> > Juno-r2 devices.
+> >
+> > > > > diff --git a/arch/arm64/boot/dts/arm/juno-base.dtsi b/arch/arm64/boot/dts/arm/juno-base.dtsi
+> > > > > index 8e7a66943b01..d3148730e951 100644
+> > > > > --- a/arch/arm64/boot/dts/arm/juno-base.dtsi
+> > > > > +++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
+> > > > > @@ -545,8 +545,7 @@ pcie_ctlr: pcie@40000000 {
+> > > > >                           <0x02000000 0x00 0x50000000 0x00 0x50000000 0x0 0x08000000>,
+> > > > >                           <0x42000000 0x40 0x00000000 0x40 0x00000000 0x1 0x00000000>;
+> > > > >                  /* Standard AXI Translation entries as programmed by EDK2 */
+> > > > > -               dma-ranges = <0x02000000 0x0 0x2c1c0000 0x0 0x2c1c0000 0x0 0x00040000>,
+> > > > > -                            <0x02000000 0x0 0x80000000 0x0 0x80000000 0x0 0x80000000>,
+> > > > > +               dma-ranges = <0x02000000 0x0 0x80000000 0x0 0x80000000 0x0 0x80000000>,
+> > > > >                               <0x43000000 0x8 0x00000000 0x8 0x00000000 0x2 0x00000000>;
+> > > > >                  #interrupt-cells = <1>;
+> > > > >                  interrupt-map-mask = <0 0 0 7>;
+> > > > >
+> >
+> > Reference email thread,
+> > https://lore.kernel.org/stable/0a1d437d-9ea0-de83-3c19-e07f560ad37c@arm.com/
+> >
 >
-> On the other, you asked about the Apache httpd suexec scenario in the
-> other thread, and here's what this means for it (per my code review):
->
-> In that scenario, we have two execve(): first from httpd to suexec, then
-> from suexec to the CGI script.  Previously, the limit check only
-> occurred on the setuid() call by suexec, and its effect was deferred
-> until execve() of the script.  Now wouldn't it occur on both execve()
-> calls, because commit_creds() is also called on execve() (such as in
-> case the program is SUID, which suexec actually is)?
+> I was about to tag the fix for this and was just reading this thread. I will
+> send the pull request soon. Sorry for the delay, it is in next for some time
+> now. Are you seeing the issue even in linux-next ?
 
-Yes.  Moving the check into commit_creds means that the exec after a
-suid exec will perform an RLIMIT_NPROC check and could possibly fail.  I
-would call that a bug.  Anything happening in execve should be checked
-and handled in execve as execve can fail.
+Due to load balance / test queue maintenance on Juno-r2 devices,
+We have stopped running 64k page testing on mainline and next instead
+running on stable-rc builds.
 
-It also points out that our permission checks for increasing
-RLIMIT_NPROC are highly inconsistent.
+Allow me a day to test Linux next 64k page size build testing on
+Juno-r2 and get back to you.
 
-One set of permissions in fork().
-Another set of permissions in set*id() and delayed until execve.
-No permission checks for the uid change in execve.
-
-Every time I look into the previous behavior of RLIMIT_NPROC I seem
-to find issues.  Currently I am planning a posting to linux-api
-so sorting out what when RLIMIT_NPROC should be enforced and how
-RLIMIT_NPROC gets accounted receives review.  I am also planning a
-feature branch to deal with the historical goofiness.
-
-I really like how cleanly this patch seems to be.  Unfortunately it is
-wrong.
-
-> Since the check is
-> kind of against real uid (not the euid=0 that suexec gains), it'd apply
-> the limit against httpd pseudo-user's process count.  While it could be
-> a reasonable kernel policy to impose this limit in more places, this is
-> a change of behavior for Apache httpd, and is not the intended behavior
-> there.  However, I think the answer to my question earlier in this
-> paragraph is actually a "no", the check wouldn't occur on the execve()
-> of suexec, because "new->user != old->user" would be false.  Right?
->
-> As an alternative, you could keep setting the (renamed and reused) flag
-> in set_user().  That would avoid the (non-)issue I described above - but
-> again, your patch is probably fine as-is.
->
-> I do see it's logical to have these two lines next to each other:
->
->>  		inc_rlimit_ucounts(new->ucounts, UCOUNT_RLIMIT_NPROC, 1);
->> +		task->flags |= PF_NPROC_CHECK;
->
-> Of course, someone would need to actually test this.
-
-That too.
-
-I am increasingly of the opinion that the process accounting should not
-be in cred.c at all.  That we just remember the who was charged with the
-process when we created it, and then at exec time we can update that
-charge, and verify that the new user is solid.  At exit time we can look
-up who was charged with the process and decrement the count.
-
-Of course at this point my opinion may change after I implement that.
-
-Eric
-
+- Naresh
