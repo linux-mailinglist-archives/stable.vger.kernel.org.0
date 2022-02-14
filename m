@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E7344B47B9
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:55:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDDDB4B49B7
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:36:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245376AbiBNJrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:47:24 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42974 "EHLO
+        id S238873AbiBNKAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 05:00:15 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344151AbiBNJqn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:46:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E897766628;
-        Mon, 14 Feb 2022 01:40:15 -0800 (PST)
+        with ESMTP id S1343831AbiBNJ7T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:59:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBAD7BC0;
+        Mon, 14 Feb 2022 01:46:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CB956117D;
-        Mon, 14 Feb 2022 09:40:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E114C340E9;
-        Mon, 14 Feb 2022 09:40:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89E92B80DC4;
+        Mon, 14 Feb 2022 09:46:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94E5EC340E9;
+        Mon, 14 Feb 2022 09:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831609;
-        bh=bGyyTllWn9VeEU87vfFmIRuIH3toa/eBi1YJ/SiYrRQ=;
+        s=korg; t=1644831999;
+        bh=5iu/sAGG6wb7UUIEvchXz4hefR0zgVYDTXIjM/ieclM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RhoUhwAvqKPxMV5WK4VdatxA4tCJ+GMQ93uE36grwze9MRVWIvIf/pyDl3zWzi05S
-         JMfEqZw4QEPPzCZjp91OXRVcs5uzSL656BuEGyWlNYyBS2UMJfouMCAj5mXFtie20b
-         juWH8Xx0iYImH6VI0ByQMEms/2zftt/BckaELEdw=
+        b=l7ncJhlX4EVeSuNUGxanbSZIGCsSTvvnhrjjAfEMqGCovEQcIa388cALQTam+4Dq8
+         qXwTd34bEI0r3bjGzufSGLjL+RJtkZSvoy+YBR6OnlfiGzNpKpTheIrtekz5f5z59q
+         X5D/x9Xk/N0lt4lnefRZGBQitsKWv7LppihdyI1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+4c63f36709a642f801c5@syzkaller.appspotmail.com,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 006/116] can: isotp: fix potential CAN frame reception race in isotp_rcv()
+        stable@vger.kernel.org, Saurav Kashyap <skashyap@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 047/172] scsi: qedf: Change context reset messages to ratelimited
 Date:   Mon, 14 Feb 2022 10:25:05 +0100
-Message-Id: <20220214092458.895195012@linuxfoundation.org>
+Message-Id: <20220214092508.011334271@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
+References: <20220214092506.354292783@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,109 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Saurav Kashyap <skashyap@marvell.com>
 
-commit 7c759040c1dd03954f650f147ae7175476d51314 upstream.
+[ Upstream commit 64fd4af6274eb0f49d29772c228fffcf6bde1635 ]
 
-When receiving a CAN frame the current code logic does not consider
-concurrently receiving processes which do not show up in real world
-usage.
+If FCoE is not configured, libfc/libfcoe keeps on retrying FLOGI and after
+3 retries driver does a context reset and tries fipvlan again.  This leads
+to context reset message flooding the logs. Hence ratelimit the message to
+prevent flooding the logs.
 
-Ziyang Xuan writes:
-
-The following syz problem is one of the scenarios. so->rx.len is
-changed by isotp_rcv_ff() during isotp_rcv_cf(), so->rx.len equals
-0 before alloc_skb() and equals 4096 after alloc_skb(). That will
-trigger skb_over_panic() in skb_put().
-
-=======================================================
-CPU: 1 PID: 19 Comm: ksoftirqd/1 Not tainted 5.16.0-rc8-syzkaller #0
-RIP: 0010:skb_panic+0x16c/0x16e net/core/skbuff.c:113
-Call Trace:
- <TASK>
- skb_over_panic net/core/skbuff.c:118 [inline]
- skb_put.cold+0x24/0x24 net/core/skbuff.c:1990
- isotp_rcv_cf net/can/isotp.c:570 [inline]
- isotp_rcv+0xa38/0x1e30 net/can/isotp.c:668
- deliver net/can/af_can.c:574 [inline]
- can_rcv_filter+0x445/0x8d0 net/can/af_can.c:635
- can_receive+0x31d/0x580 net/can/af_can.c:665
- can_rcv+0x120/0x1c0 net/can/af_can.c:696
- __netif_receive_skb_one_core+0x114/0x180 net/core/dev.c:5465
- __netif_receive_skb+0x24/0x1b0 net/core/dev.c:5579
-
-Therefore we make sure the state changes and data structures stay
-consistent at CAN frame reception time by adding a spin_lock in
-isotp_rcv(). This fixes the issue reported by syzkaller but does not
-affect real world operation.
-
-Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
-Link: https://lore.kernel.org/linux-can/d7e69278-d741-c706-65e1-e87623d9a8e8@huawei.com/T/
-Link: https://lore.kernel.org/all/20220208200026.13783-1-socketcan@hartkopp.net
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+4c63f36709a642f801c5@syzkaller.appspotmail.com
-Reported-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220117135311.6256-4-njavali@marvell.com
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/isotp.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/scsi/qedf/qedf_main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -56,6 +56,7 @@
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/interrupt.h>
-+#include <linux/spinlock.h>
- #include <linux/hrtimer.h>
- #include <linux/wait.h>
- #include <linux/uio.h>
-@@ -145,6 +146,7 @@ struct isotp_sock {
- 	struct tpcon rx, tx;
- 	struct list_head notifier;
- 	wait_queue_head_t wait;
-+	spinlock_t rx_lock; /* protect single thread state machine */
- };
+diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
+index 9a256dbddaf55..544401f76c079 100644
+--- a/drivers/scsi/qedf/qedf_main.c
++++ b/drivers/scsi/qedf/qedf_main.c
+@@ -911,7 +911,7 @@ void qedf_ctx_soft_reset(struct fc_lport *lport)
+ 	struct qed_link_output if_link;
  
- static LIST_HEAD(isotp_notifier_list);
-@@ -615,11 +617,17 @@ static void isotp_rcv(struct sk_buff *sk
- 
- 	n_pci_type = cf->data[ae] & 0xF0;
- 
-+	/* Make sure the state changes and data structures stay consistent at
-+	 * CAN frame reception time. This locking is not needed in real world
-+	 * use cases but the inconsistency can be triggered with syzkaller.
-+	 */
-+	spin_lock(&so->rx_lock);
-+
- 	if (so->opt.flags & CAN_ISOTP_HALF_DUPLEX) {
- 		/* check rx/tx path half duplex expectations */
- 		if ((so->tx.state != ISOTP_IDLE && n_pci_type != N_PCI_FC) ||
- 		    (so->rx.state != ISOTP_IDLE && n_pci_type == N_PCI_FC))
--			return;
-+			goto out_unlock;
+ 	if (lport->vport) {
+-		QEDF_ERR(NULL, "Cannot issue host reset on NPIV port.\n");
++		printk_ratelimited("Cannot issue host reset on NPIV port.\n");
+ 		return;
  	}
  
- 	switch (n_pci_type) {
-@@ -668,6 +676,9 @@ static void isotp_rcv(struct sk_buff *sk
- 		isotp_rcv_cf(sk, cf, ae, skb);
- 		break;
- 	}
-+
-+out_unlock:
-+	spin_unlock(&so->rx_lock);
+@@ -3979,7 +3979,9 @@ void qedf_stag_change_work(struct work_struct *work)
+ 	struct qedf_ctx *qedf =
+ 	    container_of(work, struct qedf_ctx, stag_work.work);
+ 
+-	QEDF_ERR(&qedf->dbg_ctx, "Performing software context reset.\n");
++	printk_ratelimited("[%s]:[%s:%d]:%d: Performing software context reset.",
++			dev_name(&qedf->pdev->dev), __func__, __LINE__,
++			qedf->dbg_ctx.host_no);
+ 	qedf_ctx_soft_reset(qedf->lport);
  }
  
- static void isotp_fill_dataframe(struct canfd_frame *cf, struct isotp_sock *so,
-@@ -1407,6 +1418,7 @@ static int isotp_init(struct sock *sk)
- 	so->txtimer.function = isotp_tx_timer_handler;
- 
- 	init_waitqueue_head(&so->wait);
-+	spin_lock_init(&so->rx_lock);
- 
- 	spin_lock(&isotp_notifier_lock);
- 	list_add_tail(&so->notifier, &isotp_notifier_list);
+-- 
+2.34.1
+
 
 
