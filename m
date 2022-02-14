@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 377354B46FC
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA114B462C
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:33:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243587AbiBNJg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 04:36:57 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52558 "EHLO
+        id S243116AbiBNJ35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:29:57 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245553AbiBNJgu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3B98652C6;
-        Mon, 14 Feb 2022 01:34:46 -0800 (PST)
+        with ESMTP id S243112AbiBNJ3i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:29:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B62C760AAF;
+        Mon, 14 Feb 2022 01:29:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1EDFCB80DCB;
-        Mon, 14 Feb 2022 09:34:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FB09C340E9;
-        Mon, 14 Feb 2022 09:34:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1578FB80DC5;
+        Mon, 14 Feb 2022 09:29:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BF4BC340E9;
+        Mon, 14 Feb 2022 09:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644831283;
-        bh=qlTXMgDZRk4SlT/fqVq8NbjrNQm0Jg7jri67W8G3os0=;
+        s=korg; t=1644830955;
+        bh=vKR3XLW8cjvpm8Z/9x3036EkCMG759mpw8h0+7mcmx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VMO/ZCUyvUA8gvsVct6v/kb7mGQbG0p5TTdxxb99Nt50ZC7tCqv50K7A0015BZdup
-         pjQqRaiaUQRscD1u2bzX9k/6SidPd/6zoMuSp2niVlUBoDj1r/UJ7JGFBqEUaHRr8D
-         Bf4a5IIK+K8SH9RjpHCI5zUt67hpvqbU2EvgRT6M=
+        b=LknpxJ+mLeCdvnhrisnzYzAsRmGYVjV4/JzAk5G/O27MK3pvlMlqQMWKD26FJpygM
+         82ecXLPTjAHv+ouhbGCFgvG1tpZscTjIhIIV9/XhnTY0nTIr4fVpoc7rG77h8G7bxJ
+         GCeyOobc8oeKDfRdSS3dDQ3e4JNv/tpqNqZzgS/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Selwin Sebastian <Selwin.Sebastian@amd.com>,
-        Raju Rangoju <Raju.Rangoju@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 33/49] net: amd-xgbe: disable interrupts during pci removal
-Date:   Mon, 14 Feb 2022 10:25:59 +0100
-Message-Id: <20220214092449.386726834@linuxfoundation.org>
+        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.9 34/34] hwmon: (dell-smm) Speed up setting of fan speed
+Date:   Mon, 14 Feb 2022 10:26:00 +0100
+Message-Id: <20220214092447.051660332@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
-References: <20220214092448.285381753@linuxfoundation.org>
+In-Reply-To: <20220214092445.946718557@linuxfoundation.org>
+References: <20220214092445.946718557@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raju Rangoju <Raju.Rangoju@amd.com>
+From: Armin Wolf <W_Armin@gmx.de>
 
-[ Upstream commit 68c2d6af1f1e469544d6cbe9a601d96fb9c00e7f ]
+commit c0d79987a0d82671bff374c07f2201f9bdf4aaa2 upstream.
 
-Hardware interrupts are enabled during the pci probe, however,
-they are not disabled during pci removal.
+When setting the fan speed, i8k_set_fan() calls i8k_get_fan_status(),
+causing an unnecessary SMM call since from the two users of this
+function, only i8k_ioctl_unlocked() needs to know the new fan status
+while dell_smm_write() ignores the new fan status.
+Since SMM calls can be very slow while also making error reporting
+difficult for dell_smm_write(), remove the function call from
+i8k_set_fan() and call it separately in i8k_ioctl_unlocked().
 
-Disable all hardware interrupts during pci removal to avoid any
-issues.
+Tested on a Dell Inspiron 3505.
 
-Fixes: e75377404726 ("amd-xgbe: Update PCI support to use new IRQ functions")
-Suggested-by: Selwin Sebastian <Selwin.Sebastian@amd.com>
-Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Reviewed-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20211021190531.17379-6-W_Armin@gmx.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-pci.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hwmon/dell-smm-hwmon.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-pci.c b/drivers/net/ethernet/amd/xgbe/xgbe-pci.c
-index 7b86240ecd5fe..c4f1fc97987ae 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-pci.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-pci.c
-@@ -418,6 +418,9 @@ static void xgbe_pci_remove(struct pci_dev *pdev)
- 
- 	pci_free_irq_vectors(pdata->pcidev);
- 
-+	/* Disable all interrupts in the hardware */
-+	XP_IOWRITE(pdata, XP_INT_EN, 0x0);
-+
- 	xgbe_free_pdata(pdata);
+--- a/drivers/hwmon/dell-smm-hwmon.c
++++ b/drivers/hwmon/dell-smm-hwmon.c
+@@ -294,7 +294,7 @@ static int i8k_get_fan_nominal_speed(int
  }
  
--- 
-2.34.1
-
+ /*
+- * Set the fan speed (off, low, high). Returns the new fan status.
++ * Set the fan speed (off, low, high, ...).
+  */
+ static int i8k_set_fan(int fan, int speed)
+ {
+@@ -303,7 +303,7 @@ static int i8k_set_fan(int fan, int spee
+ 	speed = (speed < 0) ? 0 : ((speed > i8k_fan_max) ? i8k_fan_max : speed);
+ 	regs.ebx = (fan & 0xff) | (speed << 8);
+ 
+-	return i8k_smm(&regs) ? : i8k_get_fan_status(fan);
++	return i8k_smm(&regs);
+ }
+ 
+ static int i8k_get_temp_type(int sensor)
+@@ -417,7 +417,7 @@ static int
+ i8k_ioctl_unlocked(struct file *fp, unsigned int cmd, unsigned long arg)
+ {
+ 	int val = 0;
+-	int speed;
++	int speed, err;
+ 	unsigned char buff[16];
+ 	int __user *argp = (int __user *)arg;
+ 
+@@ -478,7 +478,11 @@ i8k_ioctl_unlocked(struct file *fp, unsi
+ 		if (copy_from_user(&speed, argp + 1, sizeof(int)))
+ 			return -EFAULT;
+ 
+-		val = i8k_set_fan(val, speed);
++		err = i8k_set_fan(val, speed);
++		if (err < 0)
++			return err;
++
++		val = i8k_get_fan_status(val);
+ 		break;
+ 
+ 	default:
 
 
