@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEE5C4B4927
-	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 11:35:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A7294B46F3
+	for <lists+stable@lfdr.de>; Mon, 14 Feb 2022 10:53:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239043AbiBNKJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Feb 2022 05:09:15 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35434 "EHLO
+        id S244166AbiBNJhS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Feb 2022 04:37:18 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345098AbiBNKIJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 05:08:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77B3775C15;
-        Mon, 14 Feb 2022 01:50:10 -0800 (PST)
+        with ESMTP id S245003AbiBNJg3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Feb 2022 04:36:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 388EB6D19A;
+        Mon, 14 Feb 2022 01:34:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2398EB80DC4;
-        Mon, 14 Feb 2022 09:50:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51D69C340E9;
-        Mon, 14 Feb 2022 09:50:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A76C60DFD;
+        Mon, 14 Feb 2022 09:34:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73C20C340E9;
+        Mon, 14 Feb 2022 09:34:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644832207;
-        bh=NztMsR2kgqmVFtrKAa0G1xzND/aCA27veuaAtsBHcvM=;
+        s=korg; t=1644831258;
+        bh=+G1g/Z93f1zz309HBo79pRVjKS1a7Jevtkt1wE2TZEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NY7414+8jYzcEJdws9uiupL8Y21hoQTTvCRsL++R4gMAKVSaMD8qd1o6N82wofwFs
-         WGACdifhUg7XWJ82tL8vCm+BUZNFz6Ko/raoCOa3W7YQm+bp1IiG7rSNQB7ZwbcY5U
-         jkkoGwkSiVHIg5j4LJQ20mG0Lx6i8al5X1Uw/7lE=
+        b=mkXTt+siXdN98Fv32cxSw7Kh+UnycrnQMsUQsaaStCs+ZxjUqd9oNH2LixVfx0zrz
+         ipb7Dvkj/R+JQoTMCkYBprIDhsAWa8ZAzhC5mPbaXirnXuHPNO8SGgPcxCs+eaYXkB
+         jC0jDOVN07KJcPJZR/kpqh4+gXrijlJcocco4HMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 114/172] net: dsa: felix: dont use devres for mdiobus
+        stable@vger.kernel.org, Scott Russell <Scott.Russell2@ncr.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 46/49] USB: serial: cp210x: add CPI Bulk Coin Recycler id
 Date:   Mon, 14 Feb 2022 10:26:12 +0100
-Message-Id: <20220214092510.367795301@linuxfoundation.org>
+Message-Id: <20220214092449.828379405@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220214092506.354292783@linuxfoundation.org>
-References: <20220214092506.354292783@linuxfoundation.org>
+In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
+References: <20220214092448.285381753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 209bdb7ec6a28c7cdf580a0a98afbc9fc3b98932 ]
+commit 6ca0c6283340d819bf9c7d8e76be33c9fbd903ab upstream.
 
-As explained in commits:
-74b6d7d13307 ("net: dsa: realtek: register the MDIO bus under devres")
-5135e96a3dd2 ("net: dsa: don't allocate the slave_mii_bus using devres")
+Add the device id for the Crane Payment Innovation / Money Controls Bulk
+Coin Recycler:
 
-mdiobus_free() will panic when called from devm_mdiobus_free() <-
-devres_release_all() <- __device_release_driver(), and that mdiobus was
-not previously unregistered.
+	https://www.cranepi.com/en/system/files/Support/OM_BCR_EN_V1-04_0.pdf
 
-The Felix VSC9959 switch is a PCI device, so the initial set of
-constraints that I thought would cause this (I2C or SPI buses which call
-->remove on ->shutdown) do not apply. But there is one more which
-applies here.
-
-If the DSA master itself is on a bus that calls ->remove from ->shutdown
-(like dpaa2-eth, which is on the fsl-mc bus), there is a device link
-between the switch and the DSA master, and device_links_unbind_consumers()
-will unbind the felix switch driver on shutdown.
-
-So the same treatment must be applied to all DSA switch drivers, which
-is: either use devres for both the mdiobus allocation and registration,
-or don't use devres at all.
-
-The felix driver has the code structure in place for orderly mdiobus
-removal, so just replace devm_mdiobus_alloc_size() with the non-devres
-variant, and add manual free where necessary, to ensure that we don't
-let devres free a still-registered bus.
-
-Fixes: ac3a68d56651 ("net: phy: don't abuse devres in devm_mdiobus_register()")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Scott Russell <Scott.Russell2@ncr.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/ocelot/felix_vsc9959.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/dsa/ocelot/felix_vsc9959.c b/drivers/net/dsa/ocelot/felix_vsc9959.c
-index 11b42fd812e4a..e53ad283e2596 100644
---- a/drivers/net/dsa/ocelot/felix_vsc9959.c
-+++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
-@@ -1066,7 +1066,7 @@ static int vsc9959_mdio_bus_alloc(struct ocelot *ocelot)
- 		return PTR_ERR(hw);
- 	}
- 
--	bus = devm_mdiobus_alloc_size(dev, sizeof(*mdio_priv));
-+	bus = mdiobus_alloc_size(sizeof(*mdio_priv));
- 	if (!bus)
- 		return -ENOMEM;
- 
-@@ -1086,6 +1086,7 @@ static int vsc9959_mdio_bus_alloc(struct ocelot *ocelot)
- 	rc = mdiobus_register(bus);
- 	if (rc < 0) {
- 		dev_err(dev, "failed to register MDIO bus\n");
-+		mdiobus_free(bus);
- 		return rc;
- 	}
- 
-@@ -1135,6 +1136,7 @@ static void vsc9959_mdio_bus_free(struct ocelot *ocelot)
- 		lynx_pcs_destroy(pcs);
- 	}
- 	mdiobus_unregister(felix->imdio);
-+	mdiobus_free(felix->imdio);
- }
- 
- static void vsc9959_sched_speed_set(struct ocelot *ocelot, int port,
--- 
-2.34.1
-
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -70,6 +70,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x0FCF, 0x1004) }, /* Dynastream ANT2USB */
+ 	{ USB_DEVICE(0x0FCF, 0x1006) }, /* Dynastream ANT development board */
+ 	{ USB_DEVICE(0x0FDE, 0xCA05) }, /* OWL Wireless Electricity Monitor CM-160 */
++	{ USB_DEVICE(0x106F, 0x0003) },	/* CPI / Money Controls Bulk Coin Recycler */
+ 	{ USB_DEVICE(0x10A6, 0xAA26) }, /* Knock-off DCU-11 cable */
+ 	{ USB_DEVICE(0x10AB, 0x10C5) }, /* Siemens MC60 Cable */
+ 	{ USB_DEVICE(0x10B5, 0xAC70) }, /* Nokia CA-42 USB */
 
 
