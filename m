@@ -2,126 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3C674B7899
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 21:52:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3988A4B797F
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 22:49:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242700AbiBOUKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 15:10:30 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47986 "EHLO
+        id S244345AbiBOVPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 16:15:09 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241321AbiBOUKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 15:10:30 -0500
-Received: from lelv0143.ext.ti.com (lelv0143.ext.ti.com [198.47.23.248])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE835DB867;
-        Tue, 15 Feb 2022 12:10:18 -0800 (PST)
-Received: from fllv0035.itg.ti.com ([10.64.41.0])
-        by lelv0143.ext.ti.com (8.15.2/8.15.2) with ESMTP id 21FKA9IH071778;
-        Tue, 15 Feb 2022 14:10:09 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1644955809;
-        bh=oRGfgk65UBNyDtOEXhs/elyUR2uWsKKCsKDcR1SgWNc=;
-        h=From:To:CC:Subject:Date:In-Reply-To:References;
-        b=yRuKkDfob0k4EWbdO0JUvwzZPD7fQ0yAHvwGt6yOJOBy/92rFsP+3Brb0WbWAbU9g
-         X7t+NUc+L5l2e0KIgIxAOqU9oFlKlU+rDRS4TwjlxY3l4obk2LDs64au4QIpw1FTVV
-         P1kFfiTDIWPyKcQZ7TntlnZGTbedEn6IuDAS4u6o=
-Received: from DFLE108.ent.ti.com (dfle108.ent.ti.com [10.64.6.29])
-        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 21FKA9PB114900
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Tue, 15 Feb 2022 14:10:09 -0600
-Received: from DFLE107.ent.ti.com (10.64.6.28) by DFLE108.ent.ti.com
- (10.64.6.29) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14; Tue, 15
- Feb 2022 14:10:09 -0600
-Received: from lelv0327.itg.ti.com (10.180.67.183) by DFLE107.ent.ti.com
- (10.64.6.28) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14 via
- Frontend Transport; Tue, 15 Feb 2022 14:10:09 -0600
-Received: from localhost (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id 21FKA9sU114677;
-        Tue, 15 Feb 2022 14:10:09 -0600
-From:   Nishanth Menon <nm@ti.com>
-To:     Tero Kristo <kristo@kernel.org>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Marc Zyngier <maz@kernel.org>
-CC:     <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Rob Herring <robh+dt@kernel.org>, Nishanth Menon <nm@ti.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH 2/5] arm64: dts: ti: k3-j721e: Fix gic-v3 compatible regs
-Date:   Tue, 15 Feb 2022 14:10:05 -0600
-Message-ID: <20220215201008.15235-3-nm@ti.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220215201008.15235-1-nm@ti.com>
-References: <20220215201008.15235-1-nm@ti.com>
+        with ESMTP id S244338AbiBOVPI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 16:15:08 -0500
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F0957ED9E
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 13:14:57 -0800 (PST)
+Received: by mail-ej1-x62c.google.com with SMTP id hw13so18408818ejc.9
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 13:14:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=SOESlV2s6ZwCllfQeNa8evJBNbO1odv7aNzYs4NXHeE=;
+        b=Gj2Jg9IaholauJKgsi2qxw70XeHf2lRTlaQON8YobEMcYWbMg3wXnqfCORFUf1urpD
+         0vF+eiEdcqtpVPXKmjmC8LZqRwFnxOYz4dAaSB4wDjvt8F4YHbFcnfFTYFMV6v3AUuXX
+         8cDQmWDO8X1dmJfiyF+mZd2G7Djx+5HIPachZnLdjtB2W5skdyVU9uAH1UJIdUHF/+Ft
+         mrBbIZwSrpiV2W5mMEjt36UYXj/9kqdP3T0ni6kIWQ5AlQ6pbfQ3CrYpRMeOcM84h9t9
+         toAjzRB1+PVToxIzNics0/psPRNC32ZcnLTvOMwavxSTac6hKaj/jot/Z/XASlm+4ShV
+         ilKQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=SOESlV2s6ZwCllfQeNa8evJBNbO1odv7aNzYs4NXHeE=;
+        b=HC+IohLEskaxJzpexy4/cu8aUqcaSY25ktoeTtVIZfMkbCO6H24XRuYkOoaVy2PIAC
+         IfLhmVM76Owv6lSZ2jCQZrtJKur0Xqq1E5ny/ABSHWR/Fl4WgbiLD3eyU3E4EJJEZa3B
+         v5uywIcuVG/OggnsVNfzz9SXRpv7ZzhcUNtKHPj4uyXM0V64egoN2a8EZy1ioTznwzsE
+         xhoUkDZQuac2wG8gEEqRiYgsQQcBTlFY8Vyssk2Tboo4Ql/7Z9wxly0Q+m1u2xz5RIGK
+         AI3o3/Ty4+2k3Hb/SnQWwaC+ZtIDhiFdraZQbJvAOhTp6m8CyPkJSthA96GT4Ljia24i
+         QNFQ==
+X-Gm-Message-State: AOAM530GDbjvI38XMlwGkFR9MW+QvN1qe2HDKE5mldSlrDEKphWQu8XE
+        Fzf8QzvGZBTIVFFrRsYuS+yU1fBvf9J8dyIcNEM40Q==
+X-Google-Smtp-Source: ABdhPJyoZAixW+aB10cycT90fPdgth70NFV7Bu4ziUqzGkm8HfDb8pzX1Wq3ZeRNIwKYpJ9uPhsTFsiL9qm/vERfNRE=
+X-Received: by 2002:a17:906:74d2:: with SMTP id z18mr833705ejl.618.1644959695408;
+ Tue, 15 Feb 2022 13:14:55 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220215153644.3654582-1-bgeffon@google.com> <56fc0ced-d8d2-146f-6ca8-b95bd7e0b4f5@intel.com>
+In-Reply-To: <56fc0ced-d8d2-146f-6ca8-b95bd7e0b4f5@intel.com>
+From:   Guenter Roeck <groeck@google.com>
+Date:   Tue, 15 Feb 2022 13:14:43 -0800
+Message-ID: <CABXOdTcU1eLLzjRdJiwfVpoJi8WqYXj5bTrJ_-tm4pgRZK0uYw@mail.gmail.com>
+Subject: Re: [PATCH] x86/fpu: Correct pkru/xstate inconsistency
+To:     Dave Hansen <dave.hansen@intel.com>
+Cc:     Brian Geffon <bgeffon@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Willis Kung <williskung@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        "# v4 . 10+" <stable@vger.kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Though GIC ARE option is disabled for no GIC-v2 compatibility,
-Cortex-A72 is free to implement the CPU interface as long as it
-communicates with the GIC using the stream protocol. This requires
-that the SoC integration mark out the PERIPHBASE[1] as reserved area
-within the SoC. See longer discussion in [2] for further information.
+On Tue, Feb 15, 2022 at 9:13 AM Dave Hansen <dave.hansen@intel.com> wrote:
+>
+> On 2/15/22 07:36, Brian Geffon wrote:
+> > There are two issues with PKRU handling prior to 5.13.
+>
+> Are you sure both of these issues were introduced by 0cecca9d03c?  I'm
+> surprised that the get_xsave_addr() issue is not older.
+>
+> Should this be two patches?
+>
+> > The first is that when eagerly switching PKRU we check that current
+>
+> Don't forget to write in imperative mood.  No "we's", please.
+>
+> https://www.kernel.org/doc/html/latest/process/maintainer-tip.html
+>
+> This goes for changelogs and comments too.
+>
+> > is not a kernel thread as kernel threads will never use PKRU. It's
+> > possible that this_cpu_read_stable() on current_task (ie.
+> > get_current()) is returning an old cached value. By forcing the read
+> > with this_cpu_read() the correct task is used. Without this it's
+> > possible when switching from a kernel thread to a userspace thread
+> > that we'll still observe the PF_KTHREAD flag and never restore the
+> > PKRU. And as a result this issue only occurs when switching from a
+> > kernel thread to a userspace thread, switching from a non kernel
+> > thread works perfectly fine because all we consider in that situation
+> > is the flags from some other non kernel task and the next fpu is
+> > passed in to switch_fpu_finish().
+>
+> It makes *sense* that there would be a place in the context switch code
+> where 'current' is wonky, but I never realized this.  This seems really
+> fragile, but *also* trivially detectable.
+>
+> Is the PKRU code really the only code to use 'current' in a buggy way
+> like this?
+>
+> > The second issue is when using write_pkru() we only write to the
+> > xstate when the feature bit is set because get_xsave_addr() returns
+> > NULL when the feature bit is not set. This is problematic as the CPU
+> > is free to clear the feature bit when it observes the xstate in the
+> > init state, this behavior seems to be documented a few places throughout
+> > the kernel. If the bit was cleared then in write_pkru() we would happily
+> > write to PKRU without ever updating the xstate, and the FPU restore on
+> > return to userspace would load the old value agian.
+>
+>
+>                                                 ^ again
+>
+> It's probably worth noting that the AMD init tracker is a lot more
+> aggressive than Intel's.  On Intel, I think XRSTOR is the only way to
+> get back to the init state.  You're obviously hitting this on AMD.
+>
 
-Update the GIC register map to indicate offsets from PERIPHBASE based
-on [3]. Without doing this, systems like kvm will not function with
-gic-v2 emulation.
+Brian should correct me here, but I think we have seen this with one
+specific Intel CPU.
 
-[1] https://developer.arm.com/documentation/100095/0002/system-control/aarch64-register-descriptions/configuration-base-address-register--el1
-[2] https://lore.kernel.org/all/87k0e0tirw.wl-maz@kernel.org/
-[3] https://developer.arm.com/documentation/100095/0002/way1382452674438
+Brian, would it make sense to list the affected CPU model(s), or at
+least the ones where we have observed the problem ?
 
-Fixes: 2d87061e70de ("arm64: dts: ti: Add Support for J721E SoC")
-Cc: stable@vger.kernel.org # 5.10+
-Reported-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Nishanth Menon <nm@ti.com>
----
-Testing: based on next-20220215
-j721e-sk: https://gist.github.com/nmenon/db3f29f2f241f1b5294c7e4054c3fbf1
+Thanks,
+Guenter
 
- arch/arm64/boot/dts/ti/k3-j721e-main.dtsi | 5 ++++-
- arch/arm64/boot/dts/ti/k3-j721e.dtsi      | 1 +
- 2 files changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index 599861259a30..db0669985e42 100644
---- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-@@ -76,7 +76,10 @@ gic500: interrupt-controller@1800000 {
- 		#interrupt-cells = <3>;
- 		interrupt-controller;
- 		reg = <0x00 0x01800000 0x00 0x10000>,	/* GICD */
--		      <0x00 0x01900000 0x00 0x100000>;	/* GICR */
-+		      <0x00 0x01900000 0x00 0x100000>,	/* GICR */
-+		      <0x00 0x6f000000 0x00 0x2000>,	/* GICC */
-+		      <0x00 0x6f010000 0x00 0x1000>,	/* GICH */
-+		      <0x00 0x6f020000 0x00 0x2000>;	/* GICV */
- 
- 		/* vcpumntirq: virtual CPU interface maintenance interrupt */
- 		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
-diff --git a/arch/arm64/boot/dts/ti/k3-j721e.dtsi b/arch/arm64/boot/dts/ti/k3-j721e.dtsi
-index 4a3872fce533..0e23886c9fd1 100644
---- a/arch/arm64/boot/dts/ti/k3-j721e.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721e.dtsi
-@@ -139,6 +139,7 @@ cbass_main: bus@100000 {
- 			 <0x00 0x0e000000 0x00 0x0e000000 0x00 0x01800000>, /* PCIe Core*/
- 			 <0x00 0x10000000 0x00 0x10000000 0x00 0x10000000>, /* PCIe DAT */
- 			 <0x00 0x64800000 0x00 0x64800000 0x00 0x00800000>, /* C71 */
-+			 <0x00 0x6f000000 0x00 0x6f000000 0x00 0x00310000>, /* A72 PERIPHBASE */
- 			 <0x44 0x00000000 0x44 0x00000000 0x00 0x08000000>, /* PCIe2 DAT */
- 			 <0x44 0x10000000 0x44 0x10000000 0x00 0x08000000>, /* PCIe3 DAT */
- 			 <0x4d 0x80800000 0x4d 0x80800000 0x00 0x00800000>, /* C66_0 */
--- 
-2.31.1
-
+> It's also *very* unlikely that PKRU gets back to a value of 0.  I think
+> we added a selftest for this case in later kernels.
+>
+> That helps explain why this bug hung around for so long.
+>
+> > diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+> > index 03b3de491b5e..540bda5bdd28 100644
+> > --- a/arch/x86/include/asm/fpu/internal.h
+> > +++ b/arch/x86/include/asm/fpu/internal.h
+> > @@ -598,7 +598,7 @@ static inline void switch_fpu_finish(struct fpu *new_fpu)
+> >        * PKRU state is switched eagerly because it needs to be valid before we
+> >        * return to userland e.g. for a copy_to_user() operation.
+> >        */
+> > -     if (!(current->flags & PF_KTHREAD)) {
+> > +     if (!(this_cpu_read(current_task)->flags & PF_KTHREAD)) {
+>
+> This really deserves a specific comment.
+>
+> >               /*
+> >                * If the PKRU bit in xsave.header.xfeatures is not set,
+> >                * then the PKRU component was in init state, which means
+> > diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
+> > index 9e71bf86d8d0..aa381b530de0 100644
+> > --- a/arch/x86/include/asm/pgtable.h
+> > +++ b/arch/x86/include/asm/pgtable.h
+> > @@ -140,16 +140,22 @@ static inline void write_pkru(u32 pkru)
+> >       if (!boot_cpu_has(X86_FEATURE_OSPKE))
+> >               return;
+> >
+> > -     pk = get_xsave_addr(&current->thread.fpu.state.xsave, XFEATURE_PKRU);
+> > -
+> >       /*
+> >        * The PKRU value in xstate needs to be in sync with the value that is
+> >        * written to the CPU. The FPU restore on return to userland would
+> >        * otherwise load the previous value again.
+> >        */
+> >       fpregs_lock();
+> > -     if (pk)
+> > -             pk->pkru = pkru;
+> > +     /*
+> > +      * The CPU is free to clear the feature bit when the xstate is in the
+> > +      * init state. For this reason, we need to make sure the feature bit is
+> > +      * reset when we're explicitly writing to pkru. If we did not then we
+> > +      * would write to pkru and it would not be saved on a context switch.
+> > +      */
+> > +     current->thread.fpu.state.xsave.header.xfeatures |= XFEATURE_MASK_PKRU;
+>
+> I don't think we need to describe how the init optimization works again.
+>  I'm also not sure it's worth mentioning context switches here.  It's a
+> wider problem than that.  Maybe:
+>
+>         /*
+>          * All fpregs will be XRSTOR'd from this buffer before returning
+>          * to userspace.  Ensure that XRSTOR does not init PKRU and that
+>          * get_xsave_addr() will work.
+>          */
+>
+> > +     pk = get_xsave_addr(&current->thread.fpu.state.xsave, XFEATURE_PKRU);
+> > +     BUG_ON(!pk);
+>
+> A BUG_ON() a line before a NULL pointer dereference doesn't tend to do
+> much good.
+>
+> > +     pk->pkru = pkru;
+> >       __write_pkru(pkru);
+> >       fpregs_unlock();
+> >  }
+>
