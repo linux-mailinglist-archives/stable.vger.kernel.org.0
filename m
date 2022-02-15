@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C6254B72EC
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:42:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 751584B72F5
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:42:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239968AbiBOPaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 10:30:10 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47098 "EHLO
+        id S239967AbiBOPaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 10:30:09 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239951AbiBOP3v (ORCPT
+        with ESMTP id S240106AbiBOP3v (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:29:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63F24AFF4D;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A19AF1F9;
         Tue, 15 Feb 2022 07:28:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88331B8185B;
-        Tue, 15 Feb 2022 15:28:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A533C340EB;
-        Tue, 15 Feb 2022 15:28:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51713615CE;
+        Tue, 15 Feb 2022 15:28:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF969C340F1;
+        Tue, 15 Feb 2022 15:28:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644938914;
-        bh=vzkAtfuzlu8dQOlYBZ0ZwVL69Dz2j+un5CWuJ+ielgs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=NXouAC4UA9tYnObde3qhwMCQze8vsSrJDsnws9UJBEwBkt/cIm93AP9hf2bFNcOKF
-         R/NeqnJdKTOPthgGvCPAs2AdiIiXS8VbDvlduh/dN6beXGzUq3jhbqup/QrZpzrb8g
-         CsjuHo9sJuWrb1RkUbxbtXYnIh2GCMmX6uZzcCqm2Yu9SZUAQDCYbOlqh4AePRQPh+
-         uKYUSXUcK+gnzUgjOM6zxXII1TNjniicSfjbwgfjqv5HeWC2UkMe6GFYMBwfwGg6vK
-         3xWTDBjrLXi4jYrDXOhwjVRmiIAmkKMnmi3z77MFWmNWmTGCw7tquFsehPJs5ibDj+
-         fMFK1B8Tr00dA==
+        s=k20201202; t=1644938915;
+        bh=E8X8be894fHh241pFPixddfhnlq8eHFkwL8tLTXtjqA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=G1HYo8frO0hwy/Id252sLBhPa/C18zMnSEwDmyRamIf863fWBD+C6HlcunLXfPMdX
+         ScTGY1vPohNnv1ho9+Y5jalsmU+vtDQgXBNiigphD3jlBQ4K62XGMt5BzGjBP21bfX
+         /Z8HU9i8/XKA5mJtQhaHrMSs9VuB/SgfaEGEa+DtTKGRP1ijQfskkBGjA2TPMn76bT
+         2VvSS5rhUegn2RdSHVxsbITaW64TyRtKGLrCjkO2VThwYin+6pwG3L6aSB9h2ZQeMd
+         uiFDhid63gsD99G6EGOs+j7g2Z+TxON3B/X/RIcQp+gq8Y4kSFeswVg29Vqi52oe/0
+         yKw3GzaYEBL+g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wan Jiabing <wanjiabing@vivo.com>,
+Cc:     Ye Guojin <ye.guojin@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
         Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>, bcousson@baylibre.com,
-        paul@pwsan.com, linux@armlinux.org.uk, linux-omap@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 01/33] ARM: OMAP2+: hwmod: Add of_node_put() before break
-Date:   Tue, 15 Feb 2022 10:27:59 -0500
-Message-Id: <20220215152831.580780-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 02/33] ARM: OMAP2+: adjust the location of put_device() call in omapdss_init_of
+Date:   Tue, 15 Feb 2022 10:28:00 -0500
+Message-Id: <20220215152831.580780-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220215152831.580780-1-sashal@kernel.org>
+References: <20220215152831.580780-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,40 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wan Jiabing <wanjiabing@vivo.com>
+From: Ye Guojin <ye.guojin@zte.com.cn>
 
-[ Upstream commit 80c469a0a03763f814715f3d12b6f3964c7423e8 ]
+[ Upstream commit 34596ba380b03d181e24efd50e2f21045bde3696 ]
 
-Fix following coccicheck warning:
-./arch/arm/mach-omap2/omap_hwmod.c:753:1-23: WARNING: Function
-for_each_matching_node should have of_node_put() before break
+This was found by coccicheck:
+./arch/arm/mach-omap2/display.c, 272, 1-7, ERROR missing put_device;
+call of_find_device_by_node on line 258, but without a corresponding
+object release within this function.
 
-Early exits from for_each_matching_node should decrement the
-node reference counter.
+Move the put_device() call before the if judgment.
 
-Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Ye Guojin <ye.guojin@zte.com.cn>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/omap_hwmod.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/mach-omap2/display.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
-index 0c2936c7a3799..a5e9cffcac10c 100644
---- a/arch/arm/mach-omap2/omap_hwmod.c
-+++ b/arch/arm/mach-omap2/omap_hwmod.c
-@@ -752,8 +752,10 @@ static int __init _init_clkctrl_providers(void)
- 
- 	for_each_matching_node(np, ti_clkctrl_match_table) {
- 		ret = _setup_clkctrl_provider(np);
--		if (ret)
-+		if (ret) {
-+			of_node_put(np);
- 			break;
-+		}
+diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
+index 6daaa645ae5d9..21413a9b7b6c6 100644
+--- a/arch/arm/mach-omap2/display.c
++++ b/arch/arm/mach-omap2/display.c
+@@ -263,9 +263,9 @@ static int __init omapdss_init_of(void)
  	}
  
- 	return ret;
+ 	r = of_platform_populate(node, NULL, NULL, &pdev->dev);
++	put_device(&pdev->dev);
+ 	if (r) {
+ 		pr_err("Unable to populate DSS submodule devices\n");
+-		put_device(&pdev->dev);
+ 		return r;
+ 	}
+ 
 -- 
 2.34.1
 
