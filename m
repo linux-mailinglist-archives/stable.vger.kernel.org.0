@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB2514B72E2
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:42:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 757A74B7142
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:40:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240659AbiBOPf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 10:35:29 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41670 "EHLO
+        id S240676AbiBOPfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 10:35:36 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240554AbiBOPfN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:35:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D032F125C9E;
-        Tue, 15 Feb 2022 07:30:53 -0800 (PST)
+        with ESMTP id S240678AbiBOPf0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:35:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25F25C1151;
+        Tue, 15 Feb 2022 07:30:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AC09615F5;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4EC1B81AEF;
+        Tue, 15 Feb 2022 15:30:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DE17C340ED;
         Tue, 15 Feb 2022 15:30:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25922C340F4;
-        Tue, 15 Feb 2022 15:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644939052;
-        bh=mlCVfXCI/MPFLPPvRfg1e5hONyIiSJQMvH37hKzLE5Q=;
+        s=k20201202; t=1644939054;
+        bh=DzVLqvBpeGZOyQejrJmUmTgh2b9Y3K1cHnXWhJYz4e8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=skp+IFe+AwBpTnODOC1ml1KxeXWf58SzmRr94ISQsgzDVPespP1DaT1GHpO/BMNtu
-         i/v+huyMaAKgV/LndJZC6067fXbCVXR5Z1Tk1V70wAOOLOBIug7LzCtv5nY39srECo
-         bEkf0POWa8IyBMA2dWznLs3RqKPAowYJQjOUZonWyE/ARJs7FBMPJ6RPccdCugkcBm
-         kkblqZrPg8h8wsvDi2cOljG+Rli1YqB9mdClTHulHk/23VXdKTZZCkLBHBqBzM8KQ2
-         rnZbBYwuGB2J0y3uVfO98Khj/rfB0rOmDDt5dLKGyxPIqWBDeySlWf7z1YeeOPSk6E
-         wbpjCQOXOopLQ==
+        b=At8t0ZUy0zojtQ8nvFFeunMz8fJHgEaJnpS84LFG9fc0Mdat3AHN4+EFTQpQ/6l6l
+         NEupbZX3HetLXoEL/y+5iNTGl6vazh8jVptSoyXeW4AKc4og+TS0JxqX99AlMeGWyH
+         1Opk0rdGbR2lDs/kLy/goGVg/XX7Zoe7jzRkS8HEiNtES8sHrAevSlzBJJgk/cHxIq
+         xyszg+LM6Cd81scJ+Si9rNUn1reP8jiN+hnrVh7sCbGRbyKF7+TDV9V+D94hcMpnPG
+         VKCPTlRNRTir+gPg2snkIsPh5trWK4LD/hgNv5vmKPB4m3y7d/NqgxA2Z+kzs9Appp
+         0I/TvkpQ6MQTw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brenda Streiff <brenda.streiff@ni.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/17] kconfig: let 'shell' return enough output for deep path names
-Date:   Tue, 15 Feb 2022 10:30:29 -0500
-Message-Id: <20220215153037.581579-9-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        "Ewan D . Milne" <emilne@redhat.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
+        dick.kennedy@broadcom.com, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 10/17] scsi: lpfc: Remove NVMe support if kernel has NVME_FC disabled
+Date:   Tue, 15 Feb 2022 10:30:30 -0500
+Message-Id: <20220215153037.581579-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220215153037.581579-1-sashal@kernel.org>
 References: <20220215153037.581579-1-sashal@kernel.org>
@@ -56,41 +59,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brenda Streiff <brenda.streiff@ni.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 8a4c5b2a6d8ea079fa36034e8167de87ab6f8880 ]
+[ Upstream commit c80b27cfd93ba9f5161383f798414609e84729f3 ]
 
-The 'shell' built-in only returns the first 256 bytes of the command's
-output. In some cases, 'shell' is used to return a path; by bumping up
-the buffer size to 4096 this lets us capture up to PATH_MAX.
+The driver is initiating NVMe PRLIs to determine device NVMe support.  This
+should not be occurring if CONFIG_NVME_FC support is disabled.
 
-The specific case where I ran into this was due to commit 1e860048c53e
-("gcc-plugins: simplify GCC plugin-dev capability test"). After this
-change, we now use `$(shell,$(CC) -print-file-name=plugin)` to return
-a path; if the gcc path is particularly long, then the path ends up
-truncated at the 256 byte mark, which makes the HAVE_GCC_PLUGINS
-depends test always fail.
+Correct this by changing the default value for FC4 support. Currently it
+defaults to FCP and NVMe. With change, when NVME_FC support is not enabled
+in the kernel, the default value is just FCP.
 
-Signed-off-by: Brenda Streiff <brenda.streiff@ni.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Link: https://lore.kernel.org/r/20220207180516.73052-1-jsmart2021@gmail.com
+Reviewed-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/kconfig/preprocess.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc.h      | 13 ++++++++++---
+ drivers/scsi/lpfc/lpfc_attr.c |  4 ++--
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/scripts/kconfig/preprocess.c b/scripts/kconfig/preprocess.c
-index 0590f86df6e40..748da578b418c 100644
---- a/scripts/kconfig/preprocess.c
-+++ b/scripts/kconfig/preprocess.c
-@@ -141,7 +141,7 @@ static char *do_lineno(int argc, char *argv[])
- static char *do_shell(int argc, char *argv[])
- {
- 	FILE *p;
--	char buf[256];
-+	char buf[4096];
- 	char *cmd;
- 	size_t nread;
- 	int i;
+diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
+index 0b69f4f713778..1bf7a4152b34b 100644
+--- a/drivers/scsi/lpfc/lpfc.h
++++ b/drivers/scsi/lpfc/lpfc.h
+@@ -870,6 +870,16 @@ struct lpfc_hba {
+ 	uint32_t cfg_hostmem_hgp;
+ 	uint32_t cfg_log_verbose;
+ 	uint32_t cfg_enable_fc4_type;
++#define LPFC_ENABLE_FCP  1
++#define LPFC_ENABLE_NVME 2
++#define LPFC_ENABLE_BOTH 3
++#if (IS_ENABLED(CONFIG_NVME_FC))
++#define LPFC_MAX_ENBL_FC4_TYPE LPFC_ENABLE_BOTH
++#define LPFC_DEF_ENBL_FC4_TYPE LPFC_ENABLE_BOTH
++#else
++#define LPFC_MAX_ENBL_FC4_TYPE LPFC_ENABLE_FCP
++#define LPFC_DEF_ENBL_FC4_TYPE LPFC_ENABLE_FCP
++#endif
+ 	uint32_t cfg_aer_support;
+ 	uint32_t cfg_sriov_nr_virtfn;
+ 	uint32_t cfg_request_firmware_upgrade;
+@@ -892,9 +902,6 @@ struct lpfc_hba {
+ 	uint32_t cfg_ras_fwlog_func;
+ 	uint32_t cfg_enable_bbcr;	/* Enable BB Credit Recovery */
+ 	uint32_t cfg_enable_dpp;	/* Enable Direct Packet Push */
+-#define LPFC_ENABLE_FCP  1
+-#define LPFC_ENABLE_NVME 2
+-#define LPFC_ENABLE_BOTH 3
+ 	uint32_t cfg_enable_pbde;
+ 	struct nvmet_fc_target_port *targetport;
+ 	lpfc_vpd_t vpd;		/* vital product data */
+diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
+index 1c541a600149b..d034fe78bf93e 100644
+--- a/drivers/scsi/lpfc/lpfc_attr.c
++++ b/drivers/scsi/lpfc/lpfc_attr.c
+@@ -3839,8 +3839,8 @@ LPFC_ATTR_R(nvmet_mrq_post,
+  *                    3 - register both FCP and NVME
+  * Supported values are [1,3]. Default value is 3
+  */
+-LPFC_ATTR_R(enable_fc4_type, LPFC_ENABLE_BOTH,
+-	    LPFC_ENABLE_FCP, LPFC_ENABLE_BOTH,
++LPFC_ATTR_R(enable_fc4_type, LPFC_DEF_ENBL_FC4_TYPE,
++	    LPFC_ENABLE_FCP, LPFC_MAX_ENBL_FC4_TYPE,
+ 	    "Enable FC4 Protocol support - FCP / NVME");
+ 
+ /*
 -- 
 2.34.1
 
