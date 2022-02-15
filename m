@@ -2,122 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E9664B707D
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:39:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B062C4B704A
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:38:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240631AbiBOPhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 10:37:48 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43736 "EHLO
+        id S240362AbiBOPml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 10:42:41 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240973AbiBOPf6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:35:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D01163BE;
-        Tue, 15 Feb 2022 07:31:37 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE43161690;
-        Tue, 15 Feb 2022 15:31:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39D9BC340EB;
-        Tue, 15 Feb 2022 15:31:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644939096;
-        bh=1ty7S9Vm8g+WfjVy043z5bQVkPsETuhBALszDxFf2Ls=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QVTo+VQNSSRAUoZi2Ih8OkyTOzBjJt+l4YpUyQdl2L4mMKB50z8YTq++m20UhMohj
-         33FKLcEBIfKsMn1justTImUWKN7XVIxJChNqNePO7qDiwH+etvQ6Kt0femLeIZJA7q
-         tXhac/25CRawQOWOHYa0C1CqL49SohvNyhu9NHsUeKAQ39hj5eitUfDYsWQZBldHGt
-         V418avi4gqc36ntiPFprKDuA3Go2Znw83p0RGCQ40jI/4IxU/uLGFus3KC9Wxr/3S8
-         tCSpHQMnTGWXr0SQ/qn5qa6u6e2JZfXaFYvqkGKj+RnRPPX0BDz/AU7rh5KeJp3jvy
-         z3wYwjgR7HfcA==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Slark Xiao <slark_xiao@163.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        netdev@vger.kernel.org, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 3/3] net: usb: qmi_wwan: Add support for Dell DW5829e
-Date:   Tue, 15 Feb 2022 10:31:30 -0500
-Message-Id: <20220215153131.582008-3-sashal@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220215153131.582008-1-sashal@kernel.org>
-References: <20220215153131.582008-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S242279AbiBOPmT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:42:19 -0500
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34DE3CF38F
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 07:37:15 -0800 (PST)
+Received: by mail-yb1-xb49.google.com with SMTP id s129-20020a254587000000b00621cf68a92fso19866011yba.13
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 07:37:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=nh+sVpD80A6shLvILTn05Ew0Y8LiljouUPL3DGf7rDU=;
+        b=Za6kh7UUq6kFoRp3AnGRu+4Sa/Vqbhlt9NgYc6KoqFNbNkhpQnbVp8683+w52g1Bwr
+         6autASyVISW8izdNV6Qv9EKfqWfi+zwjgSaawXxCspjhEzSgye0e+VsOdfgW+23XXI19
+         TPo34hzsiKbwumJ2QWMnBx+mijIMIGXZ7Ilx4pZLCkbm5KigOwHMTYqqu7kgyFWFO2BB
+         9Bb7ALyTwGRpr5PvckbEPT8sg/xc+eERTmr1ZX/+VC+/DiqNNlud7eqmT/iyZsa0msSs
+         mieCHsanHE+xf3SbyryOai+Fvc82ebgt1iJ0RSmZgueeAxwm6skeTZ0fyezPz+1t7TtG
+         BQQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=nh+sVpD80A6shLvILTn05Ew0Y8LiljouUPL3DGf7rDU=;
+        b=JKHynEhacDu/OVb2THkl0+k+GEPYFpbTYONQmfOwGcaNG3fat+RYhYnWriBuHjb/24
+         zhs+yMrCVsx0LiK9CtfNb9ZONksRDQ0J+0GRBjNnsmd6iRVtWhjv3wumaSxQ5icVhtAp
+         HJAnUQ/hbfUtXhUiKrvG812WkgYNlbAW0ZebDeBG1n8Egn4ZQL2MRaf8+fLbxAK2eR12
+         RS9L/GPFwqqrNzpJUjc55ELujtgWCngJEsERMowgSVIGlWUwsTL24wYd+QXqXTCkj2k4
+         R1vzn4XSP+FA2IQCVJ8rnDtVtCtA/bbpZKCftDC2ZH7TRMKw0/ErcK2b890f+YEIlkg5
+         pBug==
+X-Gm-Message-State: AOAM530U6+F9dSfxgZlb3Yrt1itKr5IWWAO1O+wzqSVvXQI9IdOgttnE
+        ycL8MRCS6LXmHFfPtO5ba76gJj1t+bFz
+X-Google-Smtp-Source: ABdhPJwZphDpZK5w+SNtxL8aRxpQJ/Br4sTTzmcveEKO1iEOmvKB8/KvFavtIpdL/Yb2ywfIeTfilgCvojRw
+X-Received: from bg.sfo.corp.google.com ([2620:15c:11a:202:d51c:4157:9d6d:63e4])
+ (user=bgeffon job=sendgmr) by 2002:a81:ee10:: with SMTP id
+ l16mr4280164ywm.32.1644939433331; Tue, 15 Feb 2022 07:37:13 -0800 (PST)
+Date:   Tue, 15 Feb 2022 07:36:44 -0800
+Message-Id: <20220215153644.3654582-1-bgeffon@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.35.1.265.g69c8d7142f-goog
+Subject: [PATCH] x86/fpu: Correct pkru/xstate inconsistency
+From:   Brian Geffon <bgeffon@google.com>
+To:     Dave Hansen <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc:     Willis Kung <williskung@google.com>,
+        Guenter Roeck <groeck@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org,
+        Brian Geffon <bgeffon@google.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+There are two issues with PKRU handling prior to 5.13. The first is that
+when eagerly switching PKRU we check that current is not a kernel
+thread as kernel threads will never use PKRU. It's possible that
+this_cpu_read_stable() on current_task (ie. get_current()) is returning
+an old cached value. By forcing the read with this_cpu_read() the
+correct task is used. Without this it's possible when switching from
+a kernel thread to a userspace thread that we'll still observe the
+PF_KTHREAD flag and never restore the PKRU. And as a result this
+issue only occurs when switching from a kernel thread to a userspace
+thread, switching from a non kernel thread works perfectly fine because
+all we consider in that situation is the flags from some other non
+kernel task and the next fpu is passed in to switch_fpu_finish().
 
-[ Upstream commit 8ecbb179286cbc91810c16caeb3396e06305cd0c ]
+Without reloading the value finish_fpu_load() after being inlined into
+__switch_to() uses a stale value of current:
 
-Dell DW5829e same as DW5821e except the CAT level.
-DW5821e supports CAT16 but DW5829e supports CAT9.
-Also, DW5829e includes normal and eSIM type.
-Please see below test evidence:
+  ba1:   8b 35 00 00 00 00       mov    0x0(%rip),%esi
+  ba7:   f0 41 80 4d 01 40       lock orb $0x40,0x1(%r13)
+  bad:   e9 00 00 00 00          jmp    bb2 <__switch_to+0x1eb>
+  bb2:   41 f6 45 3e 20          testb  $0x20,0x3e(%r13)
+  bb7:   75 1c                   jne    bd5 <__switch_to+0x20e>
 
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  5 Spd=5000 MxCh= 0
-D:  Ver= 3.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=413c ProdID=81e6 Rev=03.18
-S:  Manufacturer=Dell Inc.
-S:  Product=DW5829e Snapdragon X20 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+By using this_cpu_read() and avoiding the cached value the compiler does
+insert an additional load instruction and observes the correct value now:
 
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  7 Spd=5000 MxCh= 0
-D:  Ver= 3.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=413c ProdID=81e4 Rev=03.18
-S:  Manufacturer=Dell Inc.
-S:  Product=DW5829e-eSIM Snapdragon X20 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  ba1:   8b 35 00 00 00 00       mov    0x0(%rip),%esi
+  ba7:   f0 41 80 4d 01 40       lock orb $0x40,0x1(%r13)
+  bad:   e9 00 00 00 00          jmp    bb2 <__switch_to+0x1eb>
+  bb2:   65 48 8b 05 00 00 00    mov    %gs:0x0(%rip),%rax
+  bb9:   00
+  bba:   f6 40 3e 20             testb  $0x20,0x3e(%rax)
+  bbe:   75 1c                   jne    bdc <__switch_to+0x215>
 
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Acked-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/20220209024717.8564-1-slark_xiao@163.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The second issue is when using write_pkru() we only write to the
+xstate when the feature bit is set because get_xsave_addr() returns
+NULL when the feature bit is not set. This is problematic as the CPU
+is free to clear the feature bit when it observes the xstate in the
+init state, this behavior seems to be documented a few places throughout
+the kernel. If the bit was cleared then in write_pkru() we would happily
+write to PKRU without ever updating the xstate, and the FPU restore on
+return to userspace would load the old value agian.
+
+Fixes: 0cecca9d03c9 ("x86/fpu: Eager switch PKRU state")
+Signed-off-by: Brian Geffon <bgeffon@google.com>
+Signed-off-by: Willis Kung <williskung@google.com>
+Tested-by: Willis Kung <williskung@google.com>
 ---
- drivers/net/usb/qmi_wwan.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/include/asm/fpu/internal.h |  2 +-
+ arch/x86/include/asm/pgtable.h      | 14 ++++++++++----
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index a8c960152a357..003c53a5bb336 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -964,6 +964,8 @@ static const struct usb_device_id products[] = {
- 	{QMI_FIXED_INTF(0x413c, 0x81d7, 0)},	/* Dell Wireless 5821e */
- 	{QMI_FIXED_INTF(0x413c, 0x81d7, 1)},	/* Dell Wireless 5821e preproduction config */
- 	{QMI_FIXED_INTF(0x413c, 0x81e0, 0)},	/* Dell Wireless 5821e with eSIM support*/
-+	{QMI_FIXED_INTF(0x413c, 0x81e4, 0)},	/* Dell Wireless 5829e with eSIM support*/
-+	{QMI_FIXED_INTF(0x413c, 0x81e6, 0)},	/* Dell Wireless 5829e */
- 	{QMI_FIXED_INTF(0x03f0, 0x4e1d, 8)},	/* HP lt4111 LTE/EV-DO/HSPA+ Gobi 4G Module */
- 	{QMI_FIXED_INTF(0x03f0, 0x9d1d, 1)},	/* HP lt4120 Snapdragon X5 LTE */
- 	{QMI_FIXED_INTF(0x22de, 0x9061, 3)},	/* WeTelecom WPD-600N */
+diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+index 03b3de491b5e..540bda5bdd28 100644
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -598,7 +598,7 @@ static inline void switch_fpu_finish(struct fpu *new_fpu)
+ 	 * PKRU state is switched eagerly because it needs to be valid before we
+ 	 * return to userland e.g. for a copy_to_user() operation.
+ 	 */
+-	if (!(current->flags & PF_KTHREAD)) {
++	if (!(this_cpu_read(current_task)->flags & PF_KTHREAD)) {
+ 		/*
+ 		 * If the PKRU bit in xsave.header.xfeatures is not set,
+ 		 * then the PKRU component was in init state, which means
+diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
+index 9e71bf86d8d0..aa381b530de0 100644
+--- a/arch/x86/include/asm/pgtable.h
++++ b/arch/x86/include/asm/pgtable.h
+@@ -140,16 +140,22 @@ static inline void write_pkru(u32 pkru)
+ 	if (!boot_cpu_has(X86_FEATURE_OSPKE))
+ 		return;
+ 
+-	pk = get_xsave_addr(&current->thread.fpu.state.xsave, XFEATURE_PKRU);
+-
+ 	/*
+ 	 * The PKRU value in xstate needs to be in sync with the value that is
+ 	 * written to the CPU. The FPU restore on return to userland would
+ 	 * otherwise load the previous value again.
+ 	 */
+ 	fpregs_lock();
+-	if (pk)
+-		pk->pkru = pkru;
++	/*
++	 * The CPU is free to clear the feature bit when the xstate is in the
++	 * init state. For this reason, we need to make sure the feature bit is
++	 * reset when we're explicitly writing to pkru. If we did not then we
++	 * would write to pkru and it would not be saved on a context switch.
++	 */
++	current->thread.fpu.state.xsave.header.xfeatures |= XFEATURE_MASK_PKRU;
++	pk = get_xsave_addr(&current->thread.fpu.state.xsave, XFEATURE_PKRU);
++	BUG_ON(!pk);
++	pk->pkru = pkru;
+ 	__write_pkru(pkru);
+ 	fpregs_unlock();
+ }
 -- 
-2.34.1
+2.35.1.265.g69c8d7142f-goog
 
