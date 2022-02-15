@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 776C34B72CC
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:42:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A54D74B71B0
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:41:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240716AbiBOPgi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 10:36:38 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46230 "EHLO
+        id S240769AbiBOPhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 10:37:52 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240636AbiBOPf2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:35:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E466C117C;
-        Tue, 15 Feb 2022 07:31:10 -0800 (PST)
+        with ESMTP id S240714AbiBOPf1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:35:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5BE0C12C7;
+        Tue, 15 Feb 2022 07:31:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6478B8185B;
-        Tue, 15 Feb 2022 15:31:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A6A1C340EB;
-        Tue, 15 Feb 2022 15:31:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7282E615FD;
+        Tue, 15 Feb 2022 15:31:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2883C340F2;
+        Tue, 15 Feb 2022 15:31:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644939067;
-        bh=0qosWklo7YAkGYZCSZxwfWdSMTmaGodxjewobnnr6+A=;
-        h=From:To:Cc:Subject:Date:From;
-        b=NfgECoWSNSXVSFhw+lZys/CXlPtEbd9s4mkqEQiDsPy3BDWxjdjSQmmCsx5HZhf4S
-         0DEw+xsBqzSKoAhklxwOaDqB0+wS/J3hywT9OrZu1EVbPd6I5/BlRfArLVTi3/ZJiN
-         KwRA9bQd8tcIxUx5X8SqxJPd9twLF0nSg/zbUN2Fb0vnk1xcz9QTSA4p5Dl9OIm8kF
-         r88+M7xjesUjLzwB1OS8ZcF9nTaQ/lVm3LmIQcUkWIJ4H8tBs5fqYt01TVt3nae+nd
-         k346xhb269XTBKgA/DlzFznHZQrDaS70DI+XkPL161lP6OW5I4fmgFaWs5m7TDEUfB
-         6C3fz9G9v6iTw==
+        s=k20201202; t=1644939068;
+        bh=LLlU9Yz0qJd6M5GUEcjm4rSHGKVK6e1eS2D9+IWEWIg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=tSW52LtcdnxtdwX+2+8Q/Ku/hsgId3rQxCoKQUn9LKzV2FcF2Peu20wfQlTHAddD2
+         8SwllK5Oc79/pI65y3OD3qGU5bo3yh0A43Uumol8xND0InrVJ7Xo/Bba8RQhWB4byL
+         6+Cjb/ETrbnG85vM0y8ztDeTig7QlPWG5c3FNzdABNkQj1ml28Wf0kVuPPnop6YdAH
+         RhZds3SPBoYVE/mUv2Z+Ac0VPs82ufBfQzuIizRYKCfbs0Lt+5ABkyXHkE/v45zA+M
+         z98hm59rSdx7wAoW2iellA2mKp2uWdp350w/AEK+ktVbTOjIvgA+vvN5jJUozJVf+3
+         kOVIyMGzQAPhA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wan Jiabing <wanjiabing@vivo.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>, bcousson@baylibre.com,
-        paul@pwsan.com, linux@armlinux.org.uk, linux-omap@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 01/11] ARM: OMAP2+: hwmod: Add of_node_put() before break
-Date:   Tue, 15 Feb 2022 10:30:54 -0500
-Message-Id: <20220215153104.581786-1-sashal@kernel.org>
+Cc:     Tommaso Merciai <tomm.merciai@gmail.com>,
+        Richard Leitner <richard.leitner@linux.dev>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, richard.leitner@skidata.com,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 02/11] usb: usb251xb: add boost-up property support
+Date:   Tue, 15 Feb 2022 10:30:55 -0500
+Message-Id: <20220215153104.581786-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220215153104.581786-1-sashal@kernel.org>
+References: <20220215153104.581786-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,40 +58,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wan Jiabing <wanjiabing@vivo.com>
+From: Tommaso Merciai <tomm.merciai@gmail.com>
 
-[ Upstream commit 80c469a0a03763f814715f3d12b6f3964c7423e8 ]
+[ Upstream commit 5c2b9c61ae5d8ad0a196d33b66ce44543be22281 ]
 
-Fix following coccicheck warning:
-./arch/arm/mach-omap2/omap_hwmod.c:753:1-23: WARNING: Function
-for_each_matching_node should have of_node_put() before break
+Add support for boost-up register of usb251xb hub.
+boost-up property control USB electrical drive strength
+This register can be set:
 
-Early exits from for_each_matching_node should decrement the
-node reference counter.
+ - Normal mode -> 0x00
+ - Low         -> 0x01
+ - Medium      -> 0x10
+ - High        -> 0x11
 
-Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+(Normal Default)
+
+References:
+ - http://www.mouser.com/catalog/specsheets/2514.pdf p29
+
+Reviewed-by: Richard Leitner <richard.leitner@linux.dev>
+Signed-off-by: Tommaso Merciai <tomm.merciai@gmail.com>
+Link: https://lore.kernel.org/r/20220128181713.96856-1-tomm.merciai@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/omap_hwmod.c | 4 +++-
+ drivers/usb/misc/usb251xb.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
-index a8269f0a87ced..47c55351df033 100644
---- a/arch/arm/mach-omap2/omap_hwmod.c
-+++ b/arch/arm/mach-omap2/omap_hwmod.c
-@@ -754,8 +754,10 @@ static int __init _init_clkctrl_providers(void)
+diff --git a/drivers/usb/misc/usb251xb.c b/drivers/usb/misc/usb251xb.c
+index 5f7734c729b1d..8444b92f9737f 100644
+--- a/drivers/usb/misc/usb251xb.c
++++ b/drivers/usb/misc/usb251xb.c
+@@ -510,6 +510,9 @@ static int usb251xb_get_ofdata(struct usb251xb *hub,
+ 	if (of_property_read_u16_array(np, "language-id", &hub->lang_id, 1))
+ 		hub->lang_id = USB251XB_DEF_LANGUAGE_ID;
  
- 	for_each_matching_node(np, ti_clkctrl_match_table) {
- 		ret = _setup_clkctrl_provider(np);
--		if (ret)
-+		if (ret) {
-+			of_node_put(np);
- 			break;
-+		}
- 	}
- 
- 	return ret;
++	if (of_property_read_u8(np, "boost-up", &hub->boost_up))
++		hub->boost_up = USB251XB_DEF_BOOST_UP;
++
+ 	cproperty_char = of_get_property(np, "manufacturer", NULL);
+ 	strlcpy(str, cproperty_char ? : USB251XB_DEF_MANUFACTURER_STRING,
+ 		sizeof(str));
+@@ -543,7 +546,6 @@ static int usb251xb_get_ofdata(struct usb251xb *hub,
+ 	 * may be as soon as needed.
+ 	 */
+ 	hub->bat_charge_en = USB251XB_DEF_BATTERY_CHARGING_ENABLE;
+-	hub->boost_up = USB251XB_DEF_BOOST_UP;
+ 	hub->boost_57 = USB251XB_DEF_BOOST_57;
+ 	hub->boost_14 = USB251XB_DEF_BOOST_14;
+ 	hub->port_swap = USB251XB_DEF_PORT_SWAP;
 -- 
 2.34.1
 
