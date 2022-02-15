@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 687764B7294
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:42:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B30F4B716B
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:40:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240602AbiBOPer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 10:34:47 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43746 "EHLO
+        id S240620AbiBOPfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 10:35:02 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240541AbiBOPdx (ORCPT
+        with ESMTP id S240621AbiBOPdx (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:33:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40A81124C38;
-        Tue, 15 Feb 2022 07:30:29 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0EB5125529;
+        Tue, 15 Feb 2022 07:30:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C93A7614C2;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42C75B81AF1;
+        Tue, 15 Feb 2022 15:30:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC850C340F2;
         Tue, 15 Feb 2022 15:30:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D78B0C340EB;
-        Tue, 15 Feb 2022 15:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644939028;
-        bh=vbbTpbP9u2rFn29GMsI3A4vpEDTwyx0tyee7vlCQGaE=;
+        s=k20201202; t=1644939029;
+        bh=RNW58nSsRsrieD9LQbLqGoEK92RO06a2eAk7Sjr86jQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZPiUDTVBxfXrrWYmROnmQj/Tf9VLF2OZ0RopOj2LnK1X2nH6hOl3iLl1+Yic8u4rG
-         /JrbE0YxJIs8AR/vMmvAf6OkJYBS1QasCfgpNtvpDNHxKr75et+RFKRSvpjlLR7Qhy
-         9cUsDLfCZOVIzpuIBDVmdEDEWDRsgVB3IU+Ic6ajBQjvhKhdt/mr7O3T9HGBVvBlG4
-         4BLcgnjeIlG4Ao8QgPlX+JRJtt8945N3llmXmuji+cUmXvP8N46wDO7GlDkvhlcW8q
-         Z8Bya/Id0PO1UTtwsmxHMulJDpr7FS+O4OvnV1WlT9M4TMEb9eC1OYlljLx+Fcf+47
-         jRlyiWi8QZfbw==
+        b=EKvxLzUugU0GgOuJJjbxBYykRb2OSiPvpfRBbTA/Nx50kU/NBrhsRwadVYpN9iM27
+         muieE5PJtigOPQgi+nGFRawT8aBkXXYl9Hbl6KHV+S2Z/CJ1l5eaEPadE9BnOop98d
+         YRemsSEcbM/UbYUe99wbNF5dBnJp9l/AR4s2ogqlv5TYC6v+dSyQpV78h6jDWe7NjH
+         Wg3EnuMx+XhSVVrGZCk3zjxwxcSKiP8Lk1ARNMumjwiy2NrsUWNIk3CQte4lkRNVwn
+         WQ/rDQBGWuK+dvq/Xzgj/vdQgifrH1nKKxUoTqNgasodWt+eAXcmzMMrME5wbT5ZI6
+         RKjIjeqlFazpg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Aloni <dan.aloni@vastdata.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>,
-        trond.myklebust@hammerspace.com, anna@kernel.org,
-        davem@davemloft.net, kuba@kernel.org, tom@talpey.com,
-        linux-nfs@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 17/23] xprtrdma: fix pointer derefs in error cases of rpcrdma_ep_create
-Date:   Tue, 15 Feb 2022 10:29:51 -0500
-Message-Id: <20220215152957.581303-17-sashal@kernel.org>
+Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>, hjc@rock-chips.com,
+        airlied@linux.ie, daniel@ffwll.ch, dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 18/23] drm/rockchip: dw_hdmi: Do not leave clock enabled in error case
+Date:   Tue, 15 Feb 2022 10:29:52 -0500
+Message-Id: <20220215152957.581303-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220215152957.581303-1-sashal@kernel.org>
 References: <20220215152957.581303-1-sashal@kernel.org>
@@ -60,49 +59,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Aloni <dan.aloni@vastdata.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit a9c10b5b3b67b3750a10c8b089b2e05f5e176e33 ]
+[ Upstream commit c0cfbb122275da1b726481de5a8cffeb24e6322b ]
 
-If there are failures then we must not leave the non-NULL pointers with
-the error value, otherwise `rpcrdma_ep_destroy` gets confused and tries
-free them, resulting in an Oops.
+The driver returns an error when devm_phy_optional_get() fails leaving
+the previously enabled clock turned on. Change order and enable the
+clock only after the phy has been acquired.
 
-Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
-Acked-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220126145549.617165-3-s.hauer@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/verbs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
-index 25554260a5931..dcc1992b14d76 100644
---- a/net/sunrpc/xprtrdma/verbs.c
-+++ b/net/sunrpc/xprtrdma/verbs.c
-@@ -449,6 +449,7 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
- 					      IB_POLL_WORKQUEUE);
- 	if (IS_ERR(ep->re_attr.send_cq)) {
- 		rc = PTR_ERR(ep->re_attr.send_cq);
-+		ep->re_attr.send_cq = NULL;
- 		goto out_destroy;
+diff --git a/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c b/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
+index 23de359a1dec6..515e6f187dc77 100644
+--- a/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
++++ b/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
+@@ -529,13 +529,6 @@ static int dw_hdmi_rockchip_bind(struct device *dev, struct device *master,
+ 		return ret;
  	}
  
-@@ -457,6 +458,7 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
- 					      IB_POLL_WORKQUEUE);
- 	if (IS_ERR(ep->re_attr.recv_cq)) {
- 		rc = PTR_ERR(ep->re_attr.recv_cq);
-+		ep->re_attr.recv_cq = NULL;
- 		goto out_destroy;
+-	ret = clk_prepare_enable(hdmi->vpll_clk);
+-	if (ret) {
+-		DRM_DEV_ERROR(hdmi->dev, "Failed to enable HDMI vpll: %d\n",
+-			      ret);
+-		return ret;
+-	}
+-
+ 	hdmi->phy = devm_phy_optional_get(dev, "hdmi");
+ 	if (IS_ERR(hdmi->phy)) {
+ 		ret = PTR_ERR(hdmi->phy);
+@@ -544,6 +537,13 @@ static int dw_hdmi_rockchip_bind(struct device *dev, struct device *master,
+ 		return ret;
  	}
- 	ep->re_receive_count = 0;
-@@ -495,6 +497,7 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
- 	ep->re_pd = ib_alloc_pd(device, 0);
- 	if (IS_ERR(ep->re_pd)) {
- 		rc = PTR_ERR(ep->re_pd);
-+		ep->re_pd = NULL;
- 		goto out_destroy;
- 	}
+ 
++	ret = clk_prepare_enable(hdmi->vpll_clk);
++	if (ret) {
++		DRM_DEV_ERROR(hdmi->dev, "Failed to enable HDMI vpll: %d\n",
++			      ret);
++		return ret;
++	}
++
+ 	drm_encoder_helper_add(encoder, &dw_hdmi_rockchip_encoder_helper_funcs);
+ 	drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_TMDS);
  
 -- 
 2.34.1
