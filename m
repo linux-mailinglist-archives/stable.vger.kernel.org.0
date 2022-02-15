@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AFA84B71F6
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AB694B7091
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:39:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239805AbiBOP1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 10:27:38 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46306 "EHLO
+        id S239816AbiBOP1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 10:27:40 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239830AbiBOP1g (ORCPT
+        with ESMTP id S239829AbiBOP1g (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:27:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86876A6522;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 667FEA6505;
         Tue, 15 Feb 2022 07:27:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31601B81AEF;
-        Tue, 15 Feb 2022 15:27:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7B2EC36B01;
-        Tue, 15 Feb 2022 15:27:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05135615E6;
+        Tue, 15 Feb 2022 15:27:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75028C36AE2;
+        Tue, 15 Feb 2022 15:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644938839;
-        bh=7/S17zKKZcRI0PTGG5WL6TzosOzrdPRFquTzATca4EI=;
+        s=k20201202; t=1644938840;
+        bh=H/fR1pHcd6IqJQK3Dd1OyYzgmulAJOBsJJZHyTg8cng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oK27XSTglrrqS//CzDaZwWpq/FPQww1lRUrM3HDBUNO/lg6Q2dr8sofe9u8tTZhI+
-         U9kNIpYMfLdjHcEM0q5yvjDUfDpfHJ11FvzO5G25WjZkNPLWdevsYB0EphNmJiBfeO
-         xplPK8Ss9f/GSphZayNhjHUHM691L7Psv6qjOzaK5CZtsDjoiIvVJsRB/oujlBcnlj
-         mRKxf36wt5z6H5vmmwMHc2tXh8j27v+etAKHA3PDJcnr92dZWuihPvDqcYZDJ4XBqH
-         x9U2MZlGn+1fTcbY0OzCUisFAZ+1kAvbhGy7WVycRcu3esz2yvnxNVvT06+1YVh9WH
-         R7EEr06jnBQTw==
+        b=udGla094FDakVSUDRnrE+nAr/WOkhmMV+A0aWaSLgzSpb2KsatxRsgni2h+uVx7ip
+         lK3JzvqDw5lVooQb0yet/iB76j0VcnMrP7hkprqQs4GzildhzSWX5G9X/Hino7FCni
+         YaJsStUTMGyjREm6WEvtRyX+1QiMfm2q/F96mAhzp7WIfYgd1tSByivtopo1qfVDRq
+         6m1CJnOB05HUk+ZhNDWmn/+fBt/DDsuRqWT8tZsBZyHhAUZ+1Ok02ccNPxmB2tnVQq
+         8GwhZ+kkjGmdk7T3BKpycpdBgYdjDH0THC383wWAh0s3TDLvLm+xo+LFNeFsi2gKPq
+         XEqaoJ19Ez5MA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Westphal <fw@strlen.de>,
-        Vivek Thrivikraman <vivek.thrivikraman@est.tech>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>, kadlec@netfilter.org,
-        davem@davemloft.net, kuba@kernel.org,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 09/34] netfilter: conntrack: don't refresh sctp entries in closed state
-Date:   Tue, 15 Feb 2022 10:26:32 -0500
-Message-Id: <20220215152657.580200-9-sashal@kernel.org>
+Cc:     Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, senozhatsky@chromium.org,
+        sfrench@samba.org, hyc.lee@gmail.com, linux-cifs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 10/34] ksmbd: fix same UniqueId for dot and dotdot entries
+Date:   Tue, 15 Feb 2022 10:26:33 -0500
+Message-Id: <20220215152657.580200-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220215152657.580200-1-sashal@kernel.org>
 References: <20220215152657.580200-1-sashal@kernel.org>
@@ -60,53 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-[ Upstream commit 77b337196a9d87f3d6bb9b07c0436ecafbffda1e ]
+[ Upstream commit 97550c7478a2da93e348d8c3075d92cddd473a78 ]
 
-Vivek Thrivikraman reported:
- An SCTP server application which is accessed continuously by client
- application.
- When the session disconnects the client retries to establish a connection.
- After restart of SCTP server application the session is not established
- because of stale conntrack entry with connection state CLOSED as below.
+ksmbd sets the inode number to UniqueId. However, the same UniqueId for
+dot and dotdot entry is set to the inode number of the parent inode.
+This patch set them using the current inode and parent inode.
 
- (removing this entry manually established new connection):
-
- sctp 9 CLOSED src=10.141.189.233 [..]  [ASSURED]
-
-Just skip timeout update of closed entries, we don't want them to
-stay around forever.
-
-Reported-and-tested-by: Vivek Thrivikraman <vivek.thrivikraman@est.tech>
-Closes: https://bugzilla.netfilter.org/show_bug.cgi?id=1579
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_proto_sctp.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/ksmbd/smb_common.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_conntrack_proto_sctp.c b/net/netfilter/nf_conntrack_proto_sctp.c
-index 2394238d01c91..5a936334b517a 100644
---- a/net/netfilter/nf_conntrack_proto_sctp.c
-+++ b/net/netfilter/nf_conntrack_proto_sctp.c
-@@ -489,6 +489,15 @@ int nf_conntrack_sctp_packet(struct nf_conn *ct,
- 			pr_debug("Setting vtag %x for dir %d\n",
- 				 ih->init_tag, !dir);
- 			ct->proto.sctp.vtag[!dir] = ih->init_tag;
-+
-+			/* don't renew timeout on init retransmit so
-+			 * port reuse by client or NAT middlebox cannot
-+			 * keep entry alive indefinitely (incl. nat info).
-+			 */
-+			if (new_state == SCTP_CONNTRACK_CLOSED &&
-+			    old_state == SCTP_CONNTRACK_CLOSED &&
-+			    nf_ct_is_confirmed(ct))
-+				ignore = true;
- 		}
+diff --git a/fs/ksmbd/smb_common.c b/fs/ksmbd/smb_common.c
+index ef7f42b0290a8..9a7e211dbf4f4 100644
+--- a/fs/ksmbd/smb_common.c
++++ b/fs/ksmbd/smb_common.c
+@@ -308,14 +308,17 @@ int ksmbd_populate_dot_dotdot_entries(struct ksmbd_work *work, int info_level,
+ 	for (i = 0; i < 2; i++) {
+ 		struct kstat kstat;
+ 		struct ksmbd_kstat ksmbd_kstat;
++		struct dentry *dentry;
  
- 		ct->proto.sctp.state = new_state;
+ 		if (!dir->dot_dotdot[i]) { /* fill dot entry info */
+ 			if (i == 0) {
+ 				d_info->name = ".";
+ 				d_info->name_len = 1;
++				dentry = dir->filp->f_path.dentry;
+ 			} else {
+ 				d_info->name = "..";
+ 				d_info->name_len = 2;
++				dentry = dir->filp->f_path.dentry->d_parent;
+ 			}
+ 
+ 			if (!match_pattern(d_info->name, d_info->name_len,
+@@ -327,7 +330,7 @@ int ksmbd_populate_dot_dotdot_entries(struct ksmbd_work *work, int info_level,
+ 			ksmbd_kstat.kstat = &kstat;
+ 			ksmbd_vfs_fill_dentry_attrs(work,
+ 						    user_ns,
+-						    dir->filp->f_path.dentry->d_parent,
++						    dentry,
+ 						    &ksmbd_kstat);
+ 			rc = fn(conn, info_level, d_info, &ksmbd_kstat);
+ 			if (rc)
 -- 
 2.34.1
 
