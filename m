@@ -2,103 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A6B34B7047
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:38:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBC1B4B7368
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232037AbiBOO41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 09:56:27 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41212 "EHLO
+        id S236839AbiBOP1O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 10:27:14 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231856AbiBOO40 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 09:56:26 -0500
-X-Greylist: delayed 378 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 15 Feb 2022 06:56:16 PST
-Received: from mail-4327.protonmail.ch (mail-4327.protonmail.ch [185.70.43.27])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 760339FE5;
-        Tue, 15 Feb 2022 06:56:16 -0800 (PST)
-Received: from mail-0201.mail-europe.com (mail-0201.mail-europe.com [51.77.79.158])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        with ESMTP id S239141AbiBOP1N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:27:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 075A09EBAF;
+        Tue, 15 Feb 2022 07:27:02 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail-4321.protonmail.ch (Postfix) with ESMTPS id 4JykWy17Jvz4x6KM;
-        Tue, 15 Feb 2022 14:49:50 +0000 (UTC)
-Authentication-Results: mail-4321.protonmail.ch;
-        dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b="BDvn1o1Z"
-Date:   Tue, 15 Feb 2022 14:49:00 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
-        s=protonmail2; t=1644936545;
-        bh=BNi3yC/9jw1c/szfUfUGT5h9vUtlRUvDAK4sFcLdjmk=;
-        h=Date:To:From:Cc:Reply-To:Subject:Message-ID:From:To:Cc:Date:
-         Subject:Reply-To:Feedback-ID:Message-ID;
-        b=BDvn1o1ZnCovptmLn11diWMUEAWct4RD312L8UhYymcv2YyALQ0+t4WLvihd2EiZC
-         tPc5WJekOp7nZTc3KwH24zmXXoHCubCivqzXXamMSRzo5TgUJkbYT+22j7Nu8u82Ai
-         Z99eglNVPxJLUMXHt20FU09SULmsFJkzUZZNMJXnqxMqGItr5a+HEju7xrB+xwjtHH
-         /ABhwuILabSjR0rBdRp/niEjUx8Ghyfouiy//TJCKQO2uoNzNSLWxqUpxdmehiglJ+
-         ASV2R5Klz+28noHpnpCsQBmCuQic75pIp8Y+1uWN5ADRY5i92MirLhvMCNoKobJ86+
-         f0ojLOvQR2VYg==
-To:     =?utf-8?Q?Philippe_Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-From:   Alexander Lobakin <alobakin@pm.me>
-Cc:     Alexander Lobakin <alobakin@pm.me>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: Re: [PATCH mips-fixes] MIPS: smp: fill in sibling and core maps earlier
-Message-ID: <5324be35-5c49-31c1-3f9a-267a5dae8c84@amsat.org>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97808615CE;
+        Tue, 15 Feb 2022 15:27:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2769C340EB;
+        Tue, 15 Feb 2022 15:26:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1644938821;
+        bh=KRBk8usKmGeZ1GUK1kBqF1ohJl+84gnwg7OyWcxSc50=;
+        h=From:To:Cc:Subject:Date:From;
+        b=jxQWhYtZGugFvBqt4KDyTlqf+ukRYJwSHrz+LGmlruBdfKdKXdtam6VfXrr5+Bb4K
+         w02ZXVEkr+cdqjwTyIzpyCU7mv93AG4WlUAy2Xlv9N5i/QjrMXX9t42Lk2EktdEVJf
+         eWKznf3Bhx+c/qkP2c9yxVVDdHB3N5U2gU16voQ9xIOA0+RBO643xfhOXfcsPe6oCN
+         FIkQC+nl5mmUhBTDvNXE7pIt+Wgpo566dRlnvO9YAojvk4ZD2VcPxYL2qvIOFbL6hl
+         YnWO0rxxH08pZnH18Kwgto7uxNaoNNGTe8Eu5JPPQedHg8+07zuTfoJy1kLNdiPtBy
+         BR/UxLJipkU+g==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Wan Jiabing <wanjiabing@vivo.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, bcousson@baylibre.com,
+        paul@pwsan.com, linux@armlinux.org.uk, linux-omap@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.16 01/34] ARM: OMAP2+: hwmod: Add of_node_put() before break
+Date:   Tue, 15 Feb 2022 10:26:24 -0500
+Message-Id: <20220215152657.580200-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philippe Mathieu-Daud=C3=A9 <f4bug@amsat.org>
-Date: Mon, 14 Feb 2022 20:00:12 +0100
+From: Wan Jiabing <wanjiabing@vivo.com>
 
-> On 12/2/22 23:21, Alexander Lobakin wrote:
-> > After enabling CONFIG_SCHED_CORE (landed during 5.14 cycle),
-> > 2-core 2-thread-per-core interAptiv (CPS-driven) started emitting
-> > the following:
-> >
+[ Upstream commit 80c469a0a03763f814715f3d12b6f3964c7423e8 ]
 
---- 8< ---
+Fix following coccicheck warning:
+./arch/arm/mach-omap2/omap_hwmod.c:753:1-23: WARNING: Function
+for_each_matching_node should have of_node_put() before break
 
-> >
-> > [    0.048433] CPU: 1, smt_mask: 0-1
-> >
-> > [0] https://git.kernel.org/pub/scm/linux/kernel/git/mips/linux.git/comm=
-it/?id=3D76ce7cfe35ef
->
-> Isn't it worth Cc'ing stable@vger.kernel.org here?
+Early exits from for_each_matching_node should decrement the
+node reference counter.
 
-Probably. It doesn't have any Fixes tag (this is a fix, but the bug
-is caused not by a particular commit, rather by a combination of
-changes and code flows from the past), but it still can be
-backported, right.
+Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/arm/mach-omap2/omap_hwmod.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Thomas, should I queue a v2 with this tag added?
-
-Cc: stable@vger.kernel.org # 5.14+
-
-Or it can be picked up automatically?
-
->
-> > Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-> > ---
-> >   arch/mips/kernel/smp.c | 6 +++---
-> >   1 file changed, 3 insertions(+), 3 deletions(-)
->
-> Reviewed-by: Philippe Mathieu-Daud=C3=A9 <f4bug@amsat.org>
-
-Thanks!
-
-Al
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index ccb0e3732c0dc..31d1a21f60416 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -752,8 +752,10 @@ static int __init _init_clkctrl_providers(void)
+ 
+ 	for_each_matching_node(np, ti_clkctrl_match_table) {
+ 		ret = _setup_clkctrl_provider(np);
+-		if (ret)
++		if (ret) {
++			of_node_put(np);
+ 			break;
++		}
+ 	}
+ 
+ 	return ret;
+-- 
+2.34.1
 
