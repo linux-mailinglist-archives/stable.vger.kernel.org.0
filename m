@@ -2,109 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 351124B634C
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 07:14:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B5794B63A1
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 07:37:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232630AbiBOGOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 01:14:42 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58068 "EHLO
+        id S232821AbiBOGfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 01:35:34 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232361AbiBOGOl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 01:14:41 -0500
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3707BF7450;
-        Mon, 14 Feb 2022 22:14:25 -0800 (PST)
-Received: from kwepemi500002.china.huawei.com (unknown [172.30.72.55])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4JyW1P2nFcz8wgT;
-        Tue, 15 Feb 2022 14:11:05 +0800 (CST)
-Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
- kwepemi500002.china.huawei.com (7.221.188.171) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.21; Tue, 15 Feb 2022 14:14:23 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.21; Tue, 15 Feb 2022 14:14:22 +0800
-Subject: Re: [PATCH 5.10 000/116] 5.10.101-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
-        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
-        <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>
-References: <20220214092458.668376521@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <908bdee2-8ecb-5927-6c6c-ea224d77d01d@huawei.com>
-Date:   Tue, 15 Feb 2022 14:14:21 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        with ESMTP id S233731AbiBOGfe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 01:35:34 -0500
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E16DB16C9;
+        Mon, 14 Feb 2022 22:35:23 -0800 (PST)
+Received: from dggpeml500020.china.huawei.com (unknown [172.30.72.53])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4JyWSN6srjz1FCsp;
+        Tue, 15 Feb 2022 14:31:00 +0800 (CST)
+Received: from huawei.com (10.175.127.227) by dggpeml500020.china.huawei.com
+ (7.185.36.88) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.21; Tue, 15 Feb
+ 2022 14:35:20 +0800
+From:   Baokun Li <libaokun1@huawei.com>
+To:     <linux-kernel@vger.kernel.org>
+CC:     <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>,
+        <oliver.sang@intel.com>, <beibei.si@intel.com>, <jannh@google.com>,
+        <mszeredi@redhat.com>, <torvalds@linux-foundation.org>,
+        <libaokun1@huawei.com>, <yukuai3@huawei.com>
+Subject: [PATCH 5.10] fget: clarify and improve __fget_files() implementation
+Date:   Tue, 15 Feb 2022 14:51:07 +0800
+Message-ID: <20220215065107.3045023-1-libaokun1@huawei.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- kwepemm600013.china.huawei.com (7.193.23.68)
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.127.227]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpeml500020.china.huawei.com (7.185.36.88)
 X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
+commit e386dfc56f837da66d00a078e5314bc8382fab83 upstream.
 
-On 2022/2/14 17:24, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.101 release.
-> There are 116 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 16 Feb 2022 09:24:36 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.101-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Commit 054aa8d439b9 ("fget: check that the fd still exists after getting
+a ref to it") fixed a race with getting a reference to a file just as it
+was being closed.  It was a fairly minimal patch, and I didn't think
+re-checking the file pointer lookup would be a measurable overhead,
+since it was all right there and cached.
 
-Tested on arm64 and x86 for 5.10.101-rc1,
+But I was wrong, as pointed out by the kernel test robot.
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.101-rc1
-Commit: 8d15f8eda4b30d50abb1c58be6a175f2ec07888c
-Compiler: gcc version 7.3.0 (GCC)
+The 'poll2' case of the will-it-scale.per_thread_ops benchmark regressed
+quite noticeably.  Admittedly it seems to be a very artificial test:
+doing "poll()" system calls on regular files in a very tight loop in
+multiple threads.
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9014
-passed: 9014
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+That means that basically all the time is spent just looking up file
+descriptors without ever doing anything useful with them (not that doing
+'poll()' on a regular file is useful to begin with).  And as a result it
+shows the extra "re-check fd" cost as a sore thumb.
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9014
-passed: 9014
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+Happily, the regression is fixable by just writing the code to loook up
+the fd to be better and clearer.  There's still a cost to verify the
+file pointer, but now it's basically in the noise even for that
+benchmark that does nothing else - and the code is more understandable
+and has better comments too.
 
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+[ Side note: this patch is also a classic case of one that looks very
+  messy with the default greedy Myers diff - it's much more legible with
+  either the patience of histogram diff algorithm ]
+
+Link: https://lore.kernel.org/lkml/20211210053743.GA36420@xsang-OptiPlex-9020/
+Link: https://lore.kernel.org/lkml/20211213083154.GA20853@linux.intel.com/
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Tested-by: Carel Si <beibei.si@intel.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+---
+ fs/file.c | 72 ++++++++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 56 insertions(+), 16 deletions(-)
+
+diff --git a/fs/file.c b/fs/file.c
+index 9d02352fa18c..79a76d04c7c3 100644
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -817,28 +817,68 @@ void do_close_on_exec(struct files_struct *files)
+ 	spin_unlock(&files->file_lock);
+ }
+ 
+-static struct file *__fget_files(struct files_struct *files, unsigned int fd,
+-				 fmode_t mask, unsigned int refs)
++static inline struct file *__fget_files_rcu(struct files_struct *files,
++	unsigned int fd, fmode_t mask, unsigned int refs)
+ {
+-	struct file *file;
++	for (;;) {
++		struct file *file;
++		struct fdtable *fdt = rcu_dereference_raw(files->fdt);
++		struct file __rcu **fdentry;
+ 
+-	rcu_read_lock();
+-loop:
+-	file = fcheck_files(files, fd);
+-	if (file) {
+-		/* File object ref couldn't be taken.
+-		 * dup2() atomicity guarantee is the reason
+-		 * we loop to catch the new file (or NULL pointer)
++		if (unlikely(fd >= fdt->max_fds))
++			return NULL;
++
++		fdentry = fdt->fd + array_index_nospec(fd, fdt->max_fds);
++		file = rcu_dereference_raw(*fdentry);
++		if (unlikely(!file))
++			return NULL;
++
++		if (unlikely(file->f_mode & mask))
++			return NULL;
++
++		/*
++		 * Ok, we have a file pointer. However, because we do
++		 * this all locklessly under RCU, we may be racing with
++		 * that file being closed.
++		 *
++		 * Such a race can take two forms:
++		 *
++		 *  (a) the file ref already went down to zero,
++		 *      and get_file_rcu_many() fails. Just try
++		 *      again:
+ 		 */
+-		if (file->f_mode & mask)
+-			file = NULL;
+-		else if (!get_file_rcu_many(file, refs))
+-			goto loop;
+-		else if (__fcheck_files(files, fd) != file) {
++		if (unlikely(!get_file_rcu_many(file, refs)))
++			continue;
++
++		/*
++		 *  (b) the file table entry has changed under us.
++		 *       Note that we don't need to re-check the 'fdt->fd'
++		 *       pointer having changed, because it always goes
++		 *       hand-in-hand with 'fdt'.
++		 *
++		 * If so, we need to put our refs and try again.
++		 */
++		if (unlikely(rcu_dereference_raw(files->fdt) != fdt) ||
++		    unlikely(rcu_dereference_raw(*fdentry) != file)) {
+ 			fput_many(file, refs);
+-			goto loop;
++			continue;
+ 		}
++
++		/*
++		 * Ok, we have a ref to the file, and checked that it
++		 * still exists.
++		 */
++		return file;
+ 	}
++}
++
++static struct file *__fget_files(struct files_struct *files, unsigned int fd,
++				 fmode_t mask, unsigned int refs)
++{
++	struct file *file;
++
++	rcu_read_lock();
++	file = __fget_files_rcu(files, fd, mask, refs);
+ 	rcu_read_unlock();
+ 
+ 	return file;
+-- 
+2.31.1
+
