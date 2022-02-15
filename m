@@ -2,54 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEE854B77ED
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 21:51:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FF2C4B787F
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 21:52:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234521AbiBOTpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 14:45:12 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55724 "EHLO
+        id S243878AbiBOUCL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 15:02:11 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235781AbiBOTpK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 14:45:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C1B046676;
-        Tue, 15 Feb 2022 11:45:00 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 273EE6176A;
-        Tue, 15 Feb 2022 19:45:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C77AAC340EC;
-        Tue, 15 Feb 2022 19:44:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1644954299;
-        bh=IvBtOuBKJRkjWsCzqLuJQUQ4HwxeRxYRUYk6C1Y7qwE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2tSqBkeZO6Oqn3vmQ3iYbfTJmx4u9cWNnk+yYaA5DWhGET4q0+GZ1Tzr92x+A85l5
-         Nl5PU33/QkSFmyQnQddpQmcvi9xOZPc6WVAv6A7Ie643746w3H/PkY7TREobguku2Z
-         bc6N48d1+EFaPv3rpq53GPEG9+7MhPukta7VW/x4=
-Date:   Tue, 15 Feb 2022 20:44:56 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Brian Geffon <bgeffon@google.com>
-Cc:     Dave Hansen <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Willis Kung <williskung@google.com>,
-        Guenter Roeck <groeck@google.com>,
-        Borislav Petkov <bp@suse.de>,
-        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH stable 5.4,5.10] x86/fpu: Correct pkru/xstate
- inconsistency
-Message-ID: <YgwCuGcg6adXAXIz@kroah.com>
-References: <543efc25-9b99-53cd-e305-d8b4d917b64b@intel.com>
- <20220215192233.8717-1-bgeffon@google.com>
+        with ESMTP id S243886AbiBOUCJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 15:02:09 -0500
+Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AC41723DD
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 12:01:56 -0800 (PST)
+Received: by mail-io1-xd35.google.com with SMTP id i62so25350224ioa.1
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 12:01:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=mgRhZesJswJ3/ynhybWZOU8hr/RyxGXmljZMpkuuJW4=;
+        b=odYILHCrnwbsOfpGCV+JaE2s3lvJ3Ht1HPQsg+dukRqGJ/nMmvPjXfhbODV+KhXzpB
+         xjmbl7pccnIdeQmlVLdeYqk9GuyKYCcpVtJgyTA6rsJwxfCPUd/gXe15VgFoS7srSIXt
+         HVqhAI66OnEg7f+9b6qs5KCandGkCGCU/oR906pGI4RTidBsmDIaqTSDsBplwgH3gLtR
+         KgMTes4ezt7G/su7DY0xhgyBGgPtx0AFlwn9ngUv10uh0/YD+LhqgLS06qzKuCFW63Vo
+         IqzDclXOZmCuX/JNhcVi0wqCotAOVGYMHgEBqrWcApVORpe8fdDk3YVOuG5EIMzDsKVd
+         Cl2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=mgRhZesJswJ3/ynhybWZOU8hr/RyxGXmljZMpkuuJW4=;
+        b=j04MxfQfVPGoGKgY/RnSGQs1AW7Y4atca9MAgkcbEW49ZFvnKMdyaq0dqL464XwoDJ
+         uJp9Az5RR1mrX4Bke7TxC4xiuv//jJy4trDXZY3GliNz8D+9RCXPjv8VNK1tKajRuYFF
+         HJO9LIux9SQ7yAGrryj/b2NzvyszsSumXhBFQFVRDoRzZG0wCXWt6WDGSvk8eSOfF9AO
+         obZEYdKIKW97rX9lWIodglP4GBZeUmHOET99DUStOo1ifQ7tD/ZjOVN5tKc4L0cX90VH
+         wDYvFXvsGvA8v48XjH+j+irji50L5fLPDApz+zzZ1Xi7AnK1ckoetSKber2AbvkNkxSe
+         7E3A==
+X-Gm-Message-State: AOAM530DYgo92dz1JVvNpi+0GoRupOjI12YunYh4QYYWjxc8PnJ6VLzt
+        z9NPtOknm5iMGfTu1CdFY/je0g==
+X-Google-Smtp-Source: ABdhPJwcV/GbLd9CikXqISjwI58+VzhQaVZtbO/QUToPhsnUL3EHQ2SawA9MRgvrzJCVD3rmpAdjkA==
+X-Received: by 2002:a6b:e60d:: with SMTP id g13mr323488ioh.39.1644955315941;
+        Tue, 15 Feb 2022 12:01:55 -0800 (PST)
+Received: from [172.22.22.4] (c-73-185-129-58.hsd1.mn.comcast.net. [73.185.129.58])
+        by smtp.googlemail.com with ESMTPSA id p11sm25923177iov.38.2022.02.15.12.01.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 15 Feb 2022 12:01:55 -0800 (PST)
+Message-ID: <0c95c9a5-cf66-dcec-bfde-0ca201206c8b@linaro.org>
+Date:   Tue, 15 Feb 2022 14:01:54 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220215192233.8717-1-bgeffon@google.com>
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v3 01/25] bus: mhi: Fix pm_state conversion to string
+Content-Language: en-US
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        mhi@lists.linux.dev
+Cc:     quic_hemantk@quicinc.com, quic_bbhatt@quicinc.com,
+        quic_jhugo@quicinc.com, vinod.koul@linaro.org,
+        bjorn.andersson@linaro.org, dmitry.baryshkov@linaro.org,
+        quic_vbadigan@quicinc.com, quic_cang@quicinc.com,
+        quic_skananth@quicinc.com, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Paul Davey <paul.davey@alliedtelesis.co.nz>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Hemant Kumar <hemantk@codeaurora.org>, stable@vger.kernel.org
+References: <20220212182117.49438-1-manivannan.sadhasivam@linaro.org>
+ <20220212182117.49438-2-manivannan.sadhasivam@linaro.org>
+From:   Alex Elder <elder@linaro.org>
+In-Reply-To: <20220212182117.49438-2-manivannan.sadhasivam@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,51 +82,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 15, 2022 at 11:22:33AM -0800, Brian Geffon wrote:
-> When eagerly switching PKRU in switch_fpu_finish() it checks that
-> current is not a kernel thread as kernel threads will never use PKRU.
-> It's possible that this_cpu_read_stable() on current_task
-> (ie. get_current()) is returning an old cached value. To resolve this
-> reference next_p directly rather than relying on current.
+On 2/12/22 12:20 PM, Manivannan Sadhasivam wrote:
+> From: Paul Davey <paul.davey@alliedtelesis.co.nz>
 > 
-> As written it's possible when switching from a kernel thread to a
-> userspace thread to observe a cached PF_KTHREAD flag and never restore
-> the PKRU. And as a result this issue only occurs when switching
-> from a kernel thread to a userspace thread, switching from a non kernel
-> thread works perfectly fine because all that is considered in that
-> situation are the flags from some other non kernel task and the next fpu
-> is passed in to switch_fpu_finish().
+> On big endian architectures the mhi debugfs files which report pm state
+> give "Invalid State" for all states.  This is caused by using
+> find_last_bit which takes an unsigned long* while the state is passed in
+> as an enum mhi_pm_state which will be of int size.
+
+I think this would have fixed it too, but your fix is better.
+
+	int index = find_last_bit(&(unsigned long)state, 32);
+
+> Fix by using __fls to pass the value of state instead of find_last_bit.
 > 
-> This behavior only exists between 5.2 and 5.13 when it was fixed by a
-> rewrite decoupling PKRU from xstate, in:
->   commit 954436989cc5 ("x86/fpu: Remove PKRU handling from switch_fpu_finish()")
-> 
-> Unfortunately backporting the fix from 5.13 is probably not realistic as
-> it's part of a 60+ patch series which rewrites most of the PKRU handling.
-> 
-> Fixes: 0cecca9d03c9 ("x86/fpu: Eager switch PKRU state")
-> Signed-off-by: Brian Geffon <bgeffon@google.com>
-> Signed-off-by: Willis Kung <williskung@google.com>
-> Tested-by: Willis Kung <williskung@google.com>
-> Cc: <stable@vger.kernel.org> # v5.4.x
-> Cc: <stable@vger.kernel.org> # v5.10.x
+> Fixes: a6e2e3522f29 ("bus: mhi: core: Add support for PM state transitions")
+> Signed-off-by: Paul Davey <paul.davey@alliedtelesis.co.nz>
+> Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+> Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 > ---
->  arch/x86/include/asm/fpu/internal.h | 13 ++++++++-----
->  arch/x86/kernel/process_32.c        |  6 ++----
->  arch/x86/kernel/process_64.c        |  6 ++----
->  3 files changed, 12 insertions(+), 13 deletions(-)
+>   drivers/bus/mhi/core/init.c | 8 +++++---
+>   1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/bus/mhi/core/init.c b/drivers/bus/mhi/core/init.c
+> index 046f407dc5d6..af484b03558a 100644
+> --- a/drivers/bus/mhi/core/init.c
+> +++ b/drivers/bus/mhi/core/init.c
+> @@ -79,10 +79,12 @@ static const char * const mhi_pm_state_str[] = {
+>   
+>   const char *to_mhi_pm_state_str(enum mhi_pm_state state)
 
-So this is ONLY for 5.4.y and 5.10.y?  I'm really really loath to take
-non-upstream changes as 95% of the time (really) it goes wrong.
+The mhi_pm_state enumerated type is an enumerated sequence, not
+a bit mask.  So knowing what the last (most significant) set bit
+is not meaningful.  Or normally it shouldn't be.
 
-How was this tested, and what do the maintainers of this subsystem
-think?  And will you be around to fix the bugs in this when they are
-found?
+If mhi_pm_state really were a bit mask, then its values should
+be defined that way, i.e.,
 
-And finally, what's wrong with 60+ patches to backport to fix a severe
-issue?  What's preventing that from happening?  Did you try it and see
-what exactly is involved?
+	MHI_PM_STATE_DISABLE	= 1 << 0,
+	MHI_PM_STATE_DISABLE	= 1 << 1,
+	. . .
 
-thanks,
+What's really going on is that the state value passed here
+*is* a bitmask, whose bit positions are those mhi_pm_state
+values.  So the state argument should have type u32.
 
-greg k-h
+This is a *separate* bug/issue.  It could be fixed separately
+(before this patch), but I'd be OK with just explaining why
+this change would occur as part of this modified patch.
+
+>   {
+> -	unsigned long pm_state = state;
+> -	int index = find_last_bit(&pm_state, 32);
+> +	int index;
+>   
+> -	if (index >= ARRAY_SIZE(mhi_pm_state_str))
+> +	if (state)
+> +		index = __fls(state);
+> +
+> +	if (!state || index >= ARRAY_SIZE(mhi_pm_state_str))
+>   		return "Invalid State";
+
+Do this test and return first, and skip the additional
+check for "if (state)".
+
+					-Alex
+
+>   	return mhi_pm_state_str[index];
+
