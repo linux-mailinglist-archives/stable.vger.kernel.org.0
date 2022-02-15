@@ -2,269 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 447534B756C
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 21:47:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5BCA4B7639
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 21:48:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238605AbiBOQ6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 11:58:50 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56146 "EHLO
+        id S242080AbiBORCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 12:02:32 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236268AbiBOQ6t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 11:58:49 -0500
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672F6E6C33
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 08:58:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644944319; x=1676480319;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=AgA9yoniJy+Q7ihp42/+yB1onWxVA8pJj+mZjD3v8S4=;
-  b=bhAeZ8z1LKzbob1BN/y4B1UmA5NPhOTh21Wnn19DOY46ha4BqIS3OZLS
-   eaCQPyxCpH0Iqx3ZmZTsGjXMf+AuZk5UYl1Eq4CjTPQljzJDQIQc9dfvY
-   3UbkiXdwDn4gRDSek/n/IPTD1s/Z6+pZvIKWLBI7HKax2aiB0waitQX/F
-   LhHVacXnaQ240bd1g+SsLD+PuGEu1oH7y16KF/0QdmVlSSOqAd3UXmoIW
-   iKRAQU76MCTuWEztTfxdmqbTle9A7FoT/LcN8PWIvu6XPM6ake+FgsEUE
-   3GYryKHML4/nUit78YPPCKWpp4Mjp1Q3uj+NCxecGWrNqEt0d4szEHkLf
-   w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10258"; a="249229293"
-X-IronPort-AV: E=Sophos;i="5.88,371,1635231600"; 
-   d="scan'208";a="249229293"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 08:58:39 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,371,1635231600"; 
-   d="scan'208";a="502539098"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.151])
-  by orsmga002.jf.intel.com with SMTP; 15 Feb 2022 08:58:36 -0800
-Received: by stinkbox (sSMTP sendmail emulation); Tue, 15 Feb 2022 18:58:35 +0200
-Date:   Tue, 15 Feb 2022 18:58:35 +0200
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 2/6] drm/i915: Fix bw atomic check when
- switching between SAGV vs. no SAGV
-Message-ID: <Ygvbu30Mo1yqgwgw@intel.com>
-References: <20220214100536.GB24878@intel.com>
- <Ygot+UVlBnA/Xzfk@intel.com>
- <20220214170305.GA25600@intel.com>
- <Ygq6/32Cy6CjMrDu@intel.com>
- <20220215085957.GA15926@intel.com>
- <Ygt8C/SHHLXfHw+A@intel.com>
- <20220215110248.GA16287@intel.com>
- <YguN+rpdJEIjxjkC@intel.com>
- <20220215163342.GA16750@intel.com>
- <YgvaY8iodSyMlyjI@intel.com>
+        with ESMTP id S236523AbiBORCb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 12:02:31 -0500
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CB10119F3C
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 09:02:21 -0800 (PST)
+Received: by mail-ej1-x631.google.com with SMTP id qk11so25222170ejb.2
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 09:02:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=O4/hO7i+9TuReApbQDnNP9UXUufP0f5FKklN52ak2RA=;
+        b=klo0CSe8TONrXKnQV+JX0In+nvFzhVHuV+eES2/GzQt1m/li+K1tQeiWKejRQ+jMPk
+         qhwO3jUFHcYokRtqUMikf3cptwh3wvmMpvfKjKUhEVIuGBE1mrDSp1GG20Kh0bMxPZxp
+         wwvmPTgNtP26S4iyBXX/RoJ2O4Bf2nJLBaCtQp/Q7KHEDmPbCKCRzpPWwXKXBWJ8M5gF
+         OoRCfdCXvCddI7Y3gPVUQEURrGk8qFPv0zAB0gj0EOEugyy0wjJ/ycu60/XeopZK/sU+
+         mi2LC/2I8GWFYTtZzUbPaR8f44vfkWyn/2DZoZsiK8JCU5Hsmatxlx/8qJqdU8m71wwf
+         Gc3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=O4/hO7i+9TuReApbQDnNP9UXUufP0f5FKklN52ak2RA=;
+        b=hVKNSKpfkU8TdaHCnzEjn7x4t1jWSpAqgKz7HfOetEJxcN5af3WDERaot446iWQtLn
+         ePTfOEoZoE74x00zxWdT6N97s5H8RweHsMASjny9J6TaHK+vgQeliod5wdSbEUNCbN0n
+         2mS9AmeE2rPewBrH7leU5f0dhZ/p4hBSpyxMdMth+bU+NLxS1rtxSRd1g992OvH+wpIR
+         uy7IyBAMnSf+SSx5Rhg0UNi1+rmYhPueoKrrxiMpvXZQY2XC1GjBRfP08i7BJfO/Sguq
+         qrFRAIc0yz0he8o2+zfxEsvjO3D4waGF1zZjTd6S0Y3Dy33YF5WJZuF06Oai1MwIyKoU
+         Vlyw==
+X-Gm-Message-State: AOAM533g5WslAD0rSB8rZscbBtxQecuDygsydluWcgLsJ6kGDzN5pl+f
+        8Ou+u5meFqFXW/9JtUM9byFrtjQSIs6y8Il+cJGX7g==
+X-Google-Smtp-Source: ABdhPJyaH2HPyAuLWEJyQgmS+rVxw1l7UX5a6P2LGJ6CR7KOrab20ONi1S7DBKfvc+p+rlXe6MHzz3ZfdjBCXG2OBTQ=
+X-Received: by 2002:a17:907:a42a:: with SMTP id sg42mr3829217ejc.723.1644944539361;
+ Tue, 15 Feb 2022 09:02:19 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YgvaY8iodSyMlyjI@intel.com>
-X-Patchwork-Hint: comment
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+References: <20220215153644.3654582-1-bgeffon@google.com> <CABXOdTe09SxzEpJE_BJO5=4NTjZt2a6zMviMzDH47X5MZao7WA@mail.gmail.com>
+ <CADyq12x0CXu_0Cs4At8GVqxWW6tvDGKzhESQpvL8cztHLnBG2w@mail.gmail.com>
+In-Reply-To: <CADyq12x0CXu_0Cs4At8GVqxWW6tvDGKzhESQpvL8cztHLnBG2w@mail.gmail.com>
+From:   Guenter Roeck <groeck@google.com>
+Date:   Tue, 15 Feb 2022 09:02:07 -0800
+Message-ID: <CABXOdTcE4w8Pxz4a5kdjuqjGWbQUx2CgyGn2AMa+MT-a4GwaNQ@mail.gmail.com>
+Subject: Re: [PATCH] x86/fpu: Correct pkru/xstate inconsistency
+To:     Brian Geffon <bgeffon@google.com>
+Cc:     Dave Hansen <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Willis Kung <williskung@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        "# v4 . 10+" <stable@vger.kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 15, 2022 at 06:52:51PM +0200, Ville Syrjälä wrote:
-> On Tue, Feb 15, 2022 at 06:33:42PM +0200, Lisovskiy, Stanislav wrote:
-> > On Tue, Feb 15, 2022 at 01:26:50PM +0200, Ville Syrjälä wrote:
-> > > On Tue, Feb 15, 2022 at 01:02:48PM +0200, Lisovskiy, Stanislav wrote:
-> > > > On Tue, Feb 15, 2022 at 12:10:19PM +0200, Ville Syrjälä wrote:
-> > > > > On Tue, Feb 15, 2022 at 10:59:57AM +0200, Lisovskiy, Stanislav wrote:
-> > > > > > On Mon, Feb 14, 2022 at 10:26:39PM +0200, Ville Syrjälä wrote:
-> > > > > > > On Mon, Feb 14, 2022 at 07:03:05PM +0200, Lisovskiy, Stanislav wrote:
-> > > > > > > > On Mon, Feb 14, 2022 at 12:24:57PM +0200, Ville Syrjälä wrote:
-> > > > > > > > > On Mon, Feb 14, 2022 at 12:05:36PM +0200, Lisovskiy, Stanislav wrote:
-> > > > > > > > > > On Mon, Feb 14, 2022 at 11:18:07AM +0200, Ville Syrjala wrote:
-> > > > > > > > > > > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > > > > > > > > 
-> > > > > > > > > > > If the only thing that is changing is SAGV vs. no SAGV but
-> > > > > > > > > > > the number of active planes and the total data rates end up
-> > > > > > > > > > > unchanged we currently bail out of intel_bw_atomic_check()
-> > > > > > > > > > > early and forget to actually compute the new WGV point
-> > > > > > > > > > > mask and thus won't actually enable/disable SAGV as requested.
-> > > > > > > > > > > This ends up poorly if we end up running with SAGV enabled
-> > > > > > > > > > > when we shouldn't. Usually ends up in underruns.
-> > > > > > > > > > > To fix this let's go through the QGV point mask computation
-> > > > > > > > > > > if anyone else already added the bw state for us.
-> > > > > > > > > > 
-> > > > > > > > > > Haven't been looking this in a while. Despite we have been
-> > > > > > > > > > looking like few revisions together still some bugs :(
-> > > > > > > > > > 
-> > > > > > > > > > I thought SAGV vs No SAGV can't change if active planes 
-> > > > > > > > > > or data rate didn't change? Because it means we probably
-> > > > > > > > > > still have same ddb allocations, which means SAGV state
-> > > > > > > > > > will just stay the same.
-> > > > > > > > > 
-> > > > > > > > > SAGV can change due to watermarks/ddb allocations. The easiest
-> > > > > > > > > way to trip this up is to try to use the async flip wm0/ddb 
-> > > > > > > > > optimization. That immediately forgets to turn off SAGV and
-> > > > > > > > > we get underruns, whcih is how I noticed this. And I don't
-> > > > > > > > > immediately see any easy proof that this couldn't also happen
-> > > > > > > > > due to some other plane changes.
-> > > > > > > > 
-> > > > > > > > Thats the way it was initially implemented even before SAGV was added.
-> > > > > > > 
-> > > > > > > Yeah, it wasn't a problem as long as SAGV was not enabled.
-> > > > > > > 
-> > > > > > > > I think it can be dated back to the very first bw check was implemented.
-> > > > > > > > 
-> > > > > > > > commit c457d9cf256e942138a54a2e80349ee7fe20c391
-> > > > > > > > Author: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > > > > > Date:   Fri May 24 18:36:14 2019 +0300
-> > > > > > > > 
-> > > > > > > >     drm/i915: Make sure we have enough memory bandwidth on ICL
-> > > > > > > > 
-> > > > > > > > +int intel_bw_atomic_check(struct intel_atomic_state *state)
-> > > > > > > > +{
-> > > > > > > > +       struct drm_i915_private *dev_priv = to_i915(state->base.dev);
-> > > > > > > > +       struct intel_crtc_state *new_crtc_state, *old_crtc_state;
-> > > > > > > > +       struct intel_bw_state *bw_state = NULL;
-> > > > > > > > +       unsigned int data_rate, max_data_rate;
-> > > > > > > > +       unsigned int num_active_planes;
-> > > > > > > > +       struct intel_crtc *crtc;
-> > > > > > > > +       int i;
-> > > > > > > > +
-> > > > > > > > +       /* FIXME earlier gens need some checks too */
-> > > > > > > > +       if (INTEL_GEN(dev_priv) < 11)
-> > > > > > > > +               return 0;
-> > > > > > > > +
-> > > > > > > > +       for_each_oldnew_intel_crtc_in_state(state, crtc, old_crtc_state,
-> > > > > > > > +                                           new_crtc_state, i) {
-> > > > > > > > +               unsigned int old_data_rate =
-> > > > > > > > +                       intel_bw_crtc_data_rate(old_crtc_state);
-> > > > > > > > +               unsigned int new_data_rate =
-> > > > > > > > +                       intel_bw_crtc_data_rate(new_crtc_state);
-> > > > > > > > +               unsigned int old_active_planes =
-> > > > > > > > +                       intel_bw_crtc_num_active_planes(old_crtc_state);
-> > > > > > > > +               unsigned int new_active_planes =
-> > > > > > > > +                       intel_bw_crtc_num_active_planes(new_crtc_state);
-> > > > > > > > +
-> > > > > > > > +               /*
-> > > > > > > > +                * Avoid locking the bw state when
-> > > > > > > > +                * nothing significant has changed.
-> > > > > > > > +                */
-> > > > > > > > +               if (old_data_rate == new_data_rate &&
-> > > > > > > > +                   old_active_planes == new_active_planes)
-> > > > > > > > +                       continue;
-> > > > > > > > +
-> > > > > > > > +               bw_state  = intel_atomic_get_bw_state(state);
-> > > > > > > > +               if (IS_ERR(bw_state))
-> > > > > > > > +                       return PTR_ERR(bw_state);
-> > > > > > > > 
-> > > > > > > > However, what can cause watermarks/ddb to change, besides plane state change
-> > > > > > > > and/or active planes change? We change watermarks, when we change ddb allocations
-> > > > > > > > and we change ddb allocations when active planes had changed and/or data rate
-> > > > > > > > had changed.
-> > > > > > > 
-> > > > > > > The bw code only cares about the aggregate numbers from all the planes.
-> > > > > > > The planes could still change in some funny way where eg. some plane
-> > > > > > > frees up some bandwidth, but the other planes gobble up the exact same
-> > > > > > > amount and thus the aggregate numbers the bw atomic check cares about
-> > > > > > > do not change but the watermarks/ddb do.
-> > > > > > > 
-> > > > > > > And as mentiioned, the async flip wm0/ddb optimization makes this trivial
-> > > > > > > to trip up since it will want to disable SAGV as there is not enough ddb
-> > > > > > > for the SAGV watermark. And async flip specifically isn't even allowed
-> > > > > > > to change anything that would affect the bandwidth utilization, and neither
-> > > > > > > is it allowed to enable/disable planes.
-> > > > > > 
-> > > > > > I think the whole idea of setting ddb to minimum in case of async flip optimization
-> > > > > > was purely our idea - BSpec/HSD only mentions forbidding wm levels > 0 in case of async
-> > > > > > flip, however there is nothing about limiting ddb allocations.
-> > > > > 
-> > > > > Reducing just the watermark doesn't really make sense 
-> > > > > if the goal is to keep the DBUF level to a minimum. Also
-> > > > > I don't think there is any proper docs for this thing. The
-> > > > > only thing we have just has some vague notes about using
-> > > > > "minimum watermarks", whatever that means.
-> > > > 
-> > > > Was it the goal? I thought limiting watermarks would by itself also
-> > > > limit package C states, thus affecting memory clocks and latency.
-> > > > Because it really doesn't say anything about keeping Dbuf allocations
-> > > > to a minimum. 
-> > > 
-> > > The goal is to miminize the amount of data in the FIFO.
-> > > 
-> > > > 
-> > > > > 
-> > > > > > 
-> > > > > > Was a bit suspicious about that whole change, to be honest - and yep, now it seems to
-> > > > > > cause some unexpected side effects.
-> > > > > 
-> > > > > The bw_state vs. SAGV bug is there regardless of the wm0 optimization.
-> > > > 
-> > > > I agree there is a bug. The bug is such that initial bw checks were relying
-> > > > on total data rate + active planes comparison, while it should have accounted
-> > > > data rate per plane usage.
-> > > > 
-> > > > This should have been changed in SAGV patches, but probably had gone
-> > > > unnoticed both by you and me.
-> > > > 
-> > > > > 
-> > > > > Also the SAGV watermark is not the minimum watermark (if that is
-> > > > > the doc really means by that), the normal WM0 is the minimum watermark.
-> > > > > So even if we interpret the doc to say that we should just disable all
-> > > > > watermark levels except the smallest one (normal WM0) without changing
-> > > > > the ddb allocations we would still end up disabling SAGV.
-> > > > 
-> > > > Thats actually a good question. Did they mean, disable all "regular" wm levels
-> > > > or the SAGV one also? Probably they meant what you say, but would be nice to know
-> > > > exactly.
-> > > 
-> > > They said neither. It's just "program minimum watermarks" which
-> > > could mean anything really. They do explicitly say "DBUF level
-> > > can also adversely affect flip performance." which I think is
-> > > the whole point of this exercise.
-> > > 
-> > > > 
-> > > > Anyway my point here is that, we probably shouldn't use new_bw_state as a way to 
-> > > > check that plane allocations had changed. Thats just confusing.
-> > > 
-> > > We are not checking if plane allocations have changed. We are
-> > > trying to determine if anything in the bw_state has changed.
-> > > If we have said state already then something in it may have 
-> > > changed and we have to recalculate anything that may depend
-> > > on those changed things, namely pipe_sagv_reject->qgv_point_mask.
-> > 
-> > I think it is just not very intuitive that we use the fact whether
-> > we can get new_bw_state or not, as a way to check if something had
-> > changed.
-> > Would be nice to put it in somekind of a wrapper like "has_new_bw_state"
-> > or "bw_state_changed". Because for anyone not quite familiar with
-> > that state paradigm we use, that would look pretty confusing that first
-> > we get new_bw_state using intel_atomic_get_new_bw_state, then immediately
-> > override it with intel_atomic_get_bw_state.
-> > And whether we can get new_bw_state or not is just acting like a check,
-> > that we don't have anything changed in bw_state.
-> 
-> I think the only thing we'd achieve is something like this:
-> 
-> new_bw_state = NULL;
-> if (has_new_bw_state())
-> 	new_bw_state = get_new_bw_state();
-> ...
-> if (!new_bw_state)
-> 	return 0;
-> 
-> instead of just
-> 
-> new_bw_state = get_new_bw_state();
-> ...
-> if (!new_bw_state)
-> 	return 0;
-> 
-> I don't know why that would be an improvement.
+On Tue, Feb 15, 2022 at 8:20 AM Brian Geffon <bgeffon@google.com> wrote:
+>
+> On Tue, Feb 15, 2022 at 10:57 AM Guenter Roeck <groeck@google.com> wrote:
+> >
+> > Hi Brian,
+> >
+> > On Tue, Feb 15, 2022 at 7:37 AM Brian Geffon <bgeffon@google.com> wrote:
+> > >
+> > > There are two issues with PKRU handling prior to 5.13. The first is that
+> >
+> > Nice catch and work. One question, though: From the above, it seems
+> > like this patch only applies to kernels earlier than v5.13 or, more
+> > specifically, to v5.4.y and v5.10.y. Is this correct, or should it be
+> > applied to the upstream kernel and to all applicable stable releases ?
+>
+> This only applies before 5.13, so 5.10.y and 5.4.y, the behavior
+> decoupled PKRU from xstate in a long series from Thomas Gleixner, but
+> the first commit where this would have been fixed in 5.13 would be:
+>
 
-Though I suppose a comment might be in order pointing the
-reader towards intel_compute_sagv_mask().
+Thought so. You'll have to explain that clarly in both subject and
+description to get the patch accepted to the affected stable releases.
 
--- 
-Ville Syrjälä
-Intel
+Thanks,
+Guenter
+
+>   commit 954436989cc550dd91aab98363240c9c0a4b7e23
+>   Author: Thomas Gleixner <tglx@linutronix.de>
+>   Date:   Wed Jun 23 14:02:21 2021 +0200
+>
+>     x86/fpu: Remove PKRU handling from switch_fpu_finish()
+>
+> >
+> > Thanks,
+> > Guenter
+> >
+> > > when eagerly switching PKRU we check that current is not a kernel
+> > > thread as kernel threads will never use PKRU. It's possible that
+> > > this_cpu_read_stable() on current_task (ie. get_current()) is returning
+> > > an old cached value. By forcing the read with this_cpu_read() the
+> > > correct task is used. Without this it's possible when switching from
+> > > a kernel thread to a userspace thread that we'll still observe the
+> > > PF_KTHREAD flag and never restore the PKRU. And as a result this
+> > > issue only occurs when switching from a kernel thread to a userspace
+> > > thread, switching from a non kernel thread works perfectly fine because
+> > > all we consider in that situation is the flags from some other non
+> > > kernel task and the next fpu is passed in to switch_fpu_finish().
+> > >
+> > > Without reloading the value finish_fpu_load() after being inlined into
+> > > __switch_to() uses a stale value of current:
+> > >
+> > >   ba1:   8b 35 00 00 00 00       mov    0x0(%rip),%esi
+> > >   ba7:   f0 41 80 4d 01 40       lock orb $0x40,0x1(%r13)
+> > >   bad:   e9 00 00 00 00          jmp    bb2 <__switch_to+0x1eb>
+> > >   bb2:   41 f6 45 3e 20          testb  $0x20,0x3e(%r13)
+> > >   bb7:   75 1c                   jne    bd5 <__switch_to+0x20e>
+> > >
+> > > By using this_cpu_read() and avoiding the cached value the compiler does
+> > > insert an additional load instruction and observes the correct value now:
+> > >
+> > >   ba1:   8b 35 00 00 00 00       mov    0x0(%rip),%esi
+> > >   ba7:   f0 41 80 4d 01 40       lock orb $0x40,0x1(%r13)
+> > >   bad:   e9 00 00 00 00          jmp    bb2 <__switch_to+0x1eb>
+> > >   bb2:   65 48 8b 05 00 00 00    mov    %gs:0x0(%rip),%rax
+> > >   bb9:   00
+> > >   bba:   f6 40 3e 20             testb  $0x20,0x3e(%rax)
+> > >   bbe:   75 1c                   jne    bdc <__switch_to+0x215>
+> > >
+> > > The second issue is when using write_pkru() we only write to the
+> > > xstate when the feature bit is set because get_xsave_addr() returns
+> > > NULL when the feature bit is not set. This is problematic as the CPU
+> > > is free to clear the feature bit when it observes the xstate in the
+> > > init state, this behavior seems to be documented a few places throughout
+> > > the kernel. If the bit was cleared then in write_pkru() we would happily
+> > > write to PKRU without ever updating the xstate, and the FPU restore on
+> > > return to userspace would load the old value agian.
+> > >
+> > > Fixes: 0cecca9d03c9 ("x86/fpu: Eager switch PKRU state")
+> > > Signed-off-by: Brian Geffon <bgeffon@google.com>
+> > > Signed-off-by: Willis Kung <williskung@google.com>
+> > > Tested-by: Willis Kung <williskung@google.com>
+> > > ---
+> > >  arch/x86/include/asm/fpu/internal.h |  2 +-
+> > >  arch/x86/include/asm/pgtable.h      | 14 ++++++++++----
+> > >  2 files changed, 11 insertions(+), 5 deletions(-)
+> > >
+> > > diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+> > > index 03b3de491b5e..540bda5bdd28 100644
+> > > --- a/arch/x86/include/asm/fpu/internal.h
+> > > +++ b/arch/x86/include/asm/fpu/internal.h
+> > > @@ -598,7 +598,7 @@ static inline void switch_fpu_finish(struct fpu *new_fpu)
+> > >          * PKRU state is switched eagerly because it needs to be valid before we
+> > >          * return to userland e.g. for a copy_to_user() operation.
+> > >          */
+> > > -       if (!(current->flags & PF_KTHREAD)) {
+> > > +       if (!(this_cpu_read(current_task)->flags & PF_KTHREAD)) {
+> > >                 /*
+> > >                  * If the PKRU bit in xsave.header.xfeatures is not set,
+> > >                  * then the PKRU component was in init state, which means
+> > > diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
+> > > index 9e71bf86d8d0..aa381b530de0 100644
+> > > --- a/arch/x86/include/asm/pgtable.h
+> > > +++ b/arch/x86/include/asm/pgtable.h
+> > > @@ -140,16 +140,22 @@ static inline void write_pkru(u32 pkru)
+> > >         if (!boot_cpu_has(X86_FEATURE_OSPKE))
+> > >                 return;
+> > >
+> > > -       pk = get_xsave_addr(&current->thread.fpu.state.xsave, XFEATURE_PKRU);
+> > > -
+> > >         /*
+> > >          * The PKRU value in xstate needs to be in sync with the value that is
+> > >          * written to the CPU. The FPU restore on return to userland would
+> > >          * otherwise load the previous value again.
+> > >          */
+> > >         fpregs_lock();
+> > > -       if (pk)
+> > > -               pk->pkru = pkru;
+> > > +       /*
+> > > +        * The CPU is free to clear the feature bit when the xstate is in the
+> > > +        * init state. For this reason, we need to make sure the feature bit is
+> > > +        * reset when we're explicitly writing to pkru. If we did not then we
+> > > +        * would write to pkru and it would not be saved on a context switch.
+> > > +        */
+> > > +       current->thread.fpu.state.xsave.header.xfeatures |= XFEATURE_MASK_PKRU;
+> > > +       pk = get_xsave_addr(&current->thread.fpu.state.xsave, XFEATURE_PKRU);
+> > > +       BUG_ON(!pk);
+> > > +       pk->pkru = pkru;
+> > >         __write_pkru(pkru);
+> > >         fpregs_unlock();
+> > >  }
+> > > --
+> > > 2.35.1.265.g69c8d7142f-goog
+> > >
