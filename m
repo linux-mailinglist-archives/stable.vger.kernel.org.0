@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 297254B7A4F
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 23:15:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E9EE4B7A51
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 23:16:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244212AbiBOWPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 17:15:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34396 "EHLO
+        id S241997AbiBOWQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 17:16:32 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241997AbiBOWPT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 17:15:19 -0500
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0152827CCA;
-        Tue, 15 Feb 2022 14:15:08 -0800 (PST)
-Received: by mail-pl1-x62f.google.com with SMTP id u5so365050ple.3;
-        Tue, 15 Feb 2022 14:15:07 -0800 (PST)
+        with ESMTP id S238204AbiBOWQc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 17:16:32 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44AFF27CCB;
+        Tue, 15 Feb 2022 14:16:21 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id d9-20020a17090a498900b001b8bb1d00e7so525380pjh.3;
+        Tue, 15 Feb 2022 14:16:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=vvEFI+zDvv2nrQn6V8lyagP4Nu3rQdUujN9MYhwNa2U=;
-        b=P6uOPoWeS1VQMjrXlUiB2Vz1snQfysmWkdMcOHFUvS1g+BGxgcp23UMBnPm2XCf+5A
-         xnmo3g6IZrFps8Lutul57nxF10E6mqBSlf5EG/K4AQag1HdHE97jjwf9ODRtNOWFHCOs
-         7t0IehqzAH2tUMekbnB0K8Khj4ZjkREcKJ2v0/EXO10eZ1hlZfmepDncQj28A0vnU/72
-         qAeDCtjdJxfXPR9cB09hx4x3NumFvsTFKkPgciwTmHb77Dhg4IjZUEzEsYC9ZcX4X+eH
-         X+8Wu3FIsF3g8FirZLyqhcOD4JFtV3EKB4SkplqhrIt/GBSgdmkQ9mZfrxVOV6NLC3f2
-         cENw==
+        bh=7OEw+12Tu+QGErYY6AYOCWyYZULkoTChQDoAkZujfG4=;
+        b=NSakA9Wjkggsq0RUgo7lk36re2BF88vTUf51mIuRZNptGy/SWlQTeC+5HHwhIVgIme
+         bDepDeuTIm3HqaoTelNUyFXgdXX8Chk4B5E+dc78twJPZs1eViklFO4XwjW61SyZnx7Y
+         FBJPCYio6ZdrHaIYH8oFpIINWR0202Uf/cEU7EaDEiKq8fnArEKBap4kcHhnOweGQAkV
+         KF12RZ8gi8nWI5AMIJkbPQKgS4P+JEtZkTq8qRL+KW7Qh9VjHVSH++OxyIUg+0BRCVVw
+         WzmfSwoAgqUoZTkfYixxzp6ubL7p8IH/RmG/i8prC5eRgqEqApwrGEOsehWiCDZF9pwA
+         FPcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=vvEFI+zDvv2nrQn6V8lyagP4Nu3rQdUujN9MYhwNa2U=;
-        b=uAamwevLWatVhrwrlrsgDopw5hGUOLxVNGxBZBifJJn2odoTrKgfzR3tddAPmg7qJo
-         2/1NaXf3TOo0X2j0ePGy/yZhj3cxaKrgYb59bjXYljyr+6uKiJ5KXl1+TiCcES11uyWE
-         J3NIko+sFGSonfg3rNQtQYtVnFnyWuU0Rl/lLPIsrTzRBXiBcXfe1KSPr477BQJz368c
-         CoT7fNUwES/Ygttby9sl5W5nugdm9X3h2v4lm1RgGf/I6nmiZuDjOgmZPxuPyKVD0ZFw
-         0KyuvFC4/ECDsAnNef59t++WZYPIJsMJbTeeS98p1eEKCH0YzE52kvlNLUgLSaQBedAy
-         7cFg==
-X-Gm-Message-State: AOAM530ZAJFDi/ZnXwXy9VEsg6E5UzU2INhdE4U9+EN25HghBcEDojqT
-        nn6cXu6muPDtxCbNjH36znw=
-X-Google-Smtp-Source: ABdhPJxFakM9WFX5dzmmHdclKKHu2tXU3XedxQdBdAKv+H4Vz6TRVLWZ+M3D5xwZ67+4TAMagmfWPA==
-X-Received: by 2002:a17:902:ab43:: with SMTP id ij3mr854119plb.25.1644963307383;
-        Tue, 15 Feb 2022 14:15:07 -0800 (PST)
+        bh=7OEw+12Tu+QGErYY6AYOCWyYZULkoTChQDoAkZujfG4=;
+        b=l+lJIh7f1f5yxFhm2mrK6wt9bUZe4L30vxFUjyGOzaZNXOjSHWAXTZY+Ldc8zApFBN
+         cx05O7BPBOAYA73a18tGGjqIOHSi+71k8h3zyc6hzNfFYJfQrUL91W7LVx0eJEdriLJF
+         eH/EFC8OP2+NqfOYCyWKJPRqX66saBtPx6Pcs/8yiJl1khwYf6/B9pAINuNcvxLFOac/
+         ziM5MtHIcbJeyhk/D44Eu31zHF7ajufQ6qIoaYMzycXD1KvdXaNCS5wkF7xJLTlyw7ks
+         Uqp1Nt7dbnbo5AkzzOJ+HnvoAgTqk+6pTbIjs43dEWbOgHh0FGQ4nKyRa+f32EqP4Vz9
+         UWxA==
+X-Gm-Message-State: AOAM532DkOs3eg/epgSHU3uqFFXdGTVT13C5/Y+9kNCF2qGJEEfqLbjq
+        pnDIXV9XNXpydIO8AYSiYfc=
+X-Google-Smtp-Source: ABdhPJxWNNyUE4Sb/s61TxH0rnP7VtPJZsvTc4fOMDVNe7zAE43p6zMnKV6EL7C9bU5p7hVLBURrZg==
+X-Received: by 2002:a17:90a:760d:b0:1b5:5b63:d052 with SMTP id s13-20020a17090a760d00b001b55b63d052mr6948901pjk.24.1644963380809;
+        Tue, 15 Feb 2022 14:16:20 -0800 (PST)
 Received: from localhost.localdomain (c-67-174-241-145.hsd1.ca.comcast.net. [67.174.241.145])
-        by smtp.gmail.com with ESMTPSA id dw20sm17471328pjb.3.2022.02.15.14.15.04
+        by smtp.gmail.com with ESMTPSA id om2sm3641648pjb.39.2022.02.15.14.16.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Feb 2022 14:15:06 -0800 (PST)
+        Tue, 15 Feb 2022 14:16:18 -0800 (PST)
 From:   Yang Shi <shy828301@gmail.com>
 To:     gregkh@linuxfoundation.org, adobriyan@gmail.com,
         akpm@linux-foundation.org, david@redhat.com, jannh@google.com,
@@ -54,9 +54,9 @@ To:     gregkh@linuxfoundation.org, adobriyan@gmail.com,
         willy@infradead.org
 Cc:     shy828301@gmail.com, linux-mm@kvack.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [stable-5.15 PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry
-Date:   Tue, 15 Feb 2022 14:15:03 -0800
-Message-Id: <20220215221503.855815-1-shy828301@gmail.com>
+Subject: [stable-5.10 PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry
+Date:   Tue, 15 Feb 2022 14:16:16 -0800
+Message-Id: <20220215221616.855894-1-shy828301@gmail.com>
 X-Mailer: git-send-email 2.26.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -150,11 +150,11 @@ Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 ---
- fs/proc/task_mmu.c | 40 +++++++++++++++++++++++++++++++---------
- 1 file changed, 31 insertions(+), 9 deletions(-)
+ fs/proc/task_mmu.c | 43 ++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 32 insertions(+), 11 deletions(-)
 
 diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index cf25be3e0321..958fce7aee63 100644
+index 3931f60e421f..ba98371e9d16 100644
 --- a/fs/proc/task_mmu.c
 +++ b/fs/proc/task_mmu.c
 @@ -430,7 +430,8 @@ static void smaps_page_accumulate(struct mem_size_stats *mss,
@@ -192,20 +192,20 @@ index cf25be3e0321..958fce7aee63 100644
  
  	if (pte_present(*pte)) {
  		page = vm_normal_page(vma, addr, *pte);
-@@ -514,8 +523,11 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
+@@ -514,9 +523,10 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
  			} else {
  				mss->swap_pss += (u64)PAGE_SIZE << PSS_SHIFT;
  			}
--		} else if (is_pfn_swap_entry(swpent))
-+		} else if (is_pfn_swap_entry(swpent)) {
-+			if (is_migration_entry(swpent))
-+				migration = true;
- 			page = pfn_swap_entry_to_page(swpent);
-+		}
+-		} else if (is_migration_entry(swpent))
++		} else if (is_migration_entry(swpent)) {
++			migration = true;
+ 			page = migration_entry_to_page(swpent);
+-		else if (is_device_private_entry(swpent))
++		} else if (is_device_private_entry(swpent))
+ 			page = device_private_entry_to_page(swpent);
  	} else if (unlikely(IS_ENABLED(CONFIG_SHMEM) && mss->check_shmem_swap
  							&& pte_none(*pte))) {
- 		page = xa_load(&vma->vm_file->f_mapping->i_pages,
-@@ -528,7 +540,8 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
+@@ -530,7 +540,8 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
  	if (!page)
  		return;
  
@@ -215,7 +215,7 @@ index cf25be3e0321..958fce7aee63 100644
  }
  
  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-@@ -539,6 +552,7 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
+@@ -541,6 +552,7 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
  	struct vm_area_struct *vma = walk->vma;
  	bool locked = !!(vma->vm_flags & VM_LOCKED);
  	struct page *page = NULL;
@@ -223,19 +223,19 @@ index cf25be3e0321..958fce7aee63 100644
  
  	if (pmd_present(*pmd)) {
  		/* FOLL_DUMP will return -EFAULT on huge zero page */
-@@ -546,8 +560,10 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
+@@ -548,8 +560,10 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
  	} else if (unlikely(thp_migration_supported() && is_swap_pmd(*pmd))) {
  		swp_entry_t entry = pmd_to_swp_entry(*pmd);
  
 -		if (is_migration_entry(entry))
 +		if (is_migration_entry(entry)) {
 +			migration = true;
- 			page = pfn_swap_entry_to_page(entry);
+ 			page = migration_entry_to_page(entry);
 +		}
  	}
  	if (IS_ERR_OR_NULL(page))
  		return;
-@@ -559,7 +575,9 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
+@@ -561,7 +575,9 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
  		/* pass */;
  	else
  		mss->file_thp += HPAGE_PMD_SIZE;
@@ -246,7 +246,7 @@ index cf25be3e0321..958fce7aee63 100644
  }
  #else
  static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
-@@ -1363,6 +1381,7 @@ static pagemap_entry_t pte_to_pagemap_entry(struct pagemapread *pm,
+@@ -1366,6 +1382,7 @@ static pagemap_entry_t pte_to_pagemap_entry(struct pagemapread *pm,
  {
  	u64 frame = 0, flags = 0;
  	struct page *page = NULL;
@@ -254,14 +254,19 @@ index cf25be3e0321..958fce7aee63 100644
  
  	if (pte_present(pte)) {
  		if (pm->show_pfn)
-@@ -1384,13 +1403,14 @@ static pagemap_entry_t pte_to_pagemap_entry(struct pagemapread *pm,
+@@ -1383,8 +1400,10 @@ static pagemap_entry_t pte_to_pagemap_entry(struct pagemapread *pm,
  			frame = swp_type(entry) |
  				(swp_offset(entry) << MAX_SWAPFILES_SHIFT);
  		flags |= PM_SWAP;
-+		migration = is_migration_entry(entry);
- 		if (is_pfn_swap_entry(entry))
- 			page = pfn_swap_entry_to_page(entry);
- 	}
+-		if (is_migration_entry(entry))
++		if (is_migration_entry(entry)) {
++			migration = true;
+ 			page = migration_entry_to_page(entry);
++		}
+ 
+ 		if (is_device_private_entry(entry))
+ 			page = device_private_entry_to_page(entry);
+@@ -1392,7 +1411,7 @@ static pagemap_entry_t pte_to_pagemap_entry(struct pagemapread *pm,
  
  	if (page && !PageAnon(page))
  		flags |= PM_FILE;
@@ -270,7 +275,7 @@ index cf25be3e0321..958fce7aee63 100644
  		flags |= PM_MMAP_EXCLUSIVE;
  	if (vma->vm_flags & VM_SOFTDIRTY)
  		flags |= PM_SOFT_DIRTY;
-@@ -1406,8 +1426,9 @@ static int pagemap_pmd_range(pmd_t *pmdp, unsigned long addr, unsigned long end,
+@@ -1408,8 +1427,9 @@ static int pagemap_pmd_range(pmd_t *pmdp, unsigned long addr, unsigned long end,
  	spinlock_t *ptl;
  	pte_t *pte, *orig_pte;
  	int err = 0;
@@ -281,12 +286,12 @@ index cf25be3e0321..958fce7aee63 100644
  	ptl = pmd_trans_huge_lock(pmdp, vma);
  	if (ptl) {
  		u64 flags = 0, frame = 0;
-@@ -1446,11 +1467,12 @@ static int pagemap_pmd_range(pmd_t *pmdp, unsigned long addr, unsigned long end,
- 			if (pmd_swp_uffd_wp(pmd))
- 				flags |= PM_UFFD_WP;
+@@ -1444,11 +1464,12 @@ static int pagemap_pmd_range(pmd_t *pmdp, unsigned long addr, unsigned long end,
+ 			if (pmd_swp_soft_dirty(pmd))
+ 				flags |= PM_SOFT_DIRTY;
  			VM_BUG_ON(!is_pmd_migration_entry(pmd));
 +			migration = is_migration_entry(entry);
- 			page = pfn_swap_entry_to_page(entry);
+ 			page = migration_entry_to_page(entry);
  		}
  #endif
  
