@@ -2,207 +2,304 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2DB14B72E4
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:42:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6C8C4B7222
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:41:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241546AbiBOQcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 11:32:00 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48124 "EHLO
+        id S233969AbiBOQdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 11:33:45 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236130AbiBOQcA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 11:32:00 -0500
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD8A28879C;
-        Tue, 15 Feb 2022 08:31:49 -0800 (PST)
-Received: from zn.tnic (dslb-088-067-221-104.088.067.pools.vodafone-ip.de [88.67.221.104])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 54D881EC0518;
-        Tue, 15 Feb 2022 17:31:43 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1644942703;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=cvlxRJuZ2ajCAnvFcq7AjH7roJyqu6nBgWYCPE7BuV8=;
-        b=p8RxN6gZHLFL3JMgdGVlrjZ2Q8S6h9K+LYQd+yUSC886YxDjCyTvIyj/BN7FreqiJnLeu8
-        6JGfX0Ei3XhqNkhC575yfdVQ0ysP50N1qoOOsYZGYWC+K4oyssyGoEn+OOP+l4Bu+QJT8h
-        f4M840uqRUjFDYdRSZAXqKQvo+j6k0s=
-Date:   Tue, 15 Feb 2022 17:31:45 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Andrew Cooper <andrew.cooper3@citrix.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@linux.intel.com>,
-        Tony Luck <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
-        antonio.gomez.iglesias@linux.intel.com, neelima.krishnan@intel.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] x86/tsx: Use MSR_TSX_CTRL to clear CPUID bits
-Message-ID: <YgvVcdpmFCCn20A7@zn.tnic>
-References: <5bd785a1d6ea0b572250add0c6617b4504bc24d1.1644440311.git.pawan.kumar.gupta@linux.intel.com>
- <YgqToxbGQluNHABF@zn.tnic>
- <20220214224121.ilhu23cfjdyhvahk@guptapa-mobl1.amr.corp.intel.com>
- <YgrltbToK8+tG2qK@zn.tnic>
- <20220215002014.mb7g4y3hfefmyozx@guptapa-mobl1.amr.corp.intel.com>
- <Ygt/QSTSMlUJnzFS@zn.tnic>
- <20220215121103.vhb2lpoygxn3xywy@guptapa-mobl1.amr.corp.intel.com>
+        with ESMTP id S238973AbiBOQdn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 11:33:43 -0500
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE3B1E7AEC
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 08:33:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644942808; x=1676478808;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=es1lASdkD6roXJACcdgtgweU418MS8TP7FQcAkotkbY=;
+  b=KUife7oVsDynxkQqbnc7/5QbPebra/w0c/d+pLPRxMMWk7oZSJyA6J+i
+   o8Q0FeaXws2l8mjuq8Fv9SH3pN0p0ygVDqeLdZSvBlb4zPdjXW54vOUAF
+   GguV4Riw3U/KmcF4nXCjmkm2ETs4SVMGmYILDAOtRgmgNAau4hDL2muuR
+   ULn8lfyPKMdW4pg+tcl97uCojl/xJwNa2WidHf+gtCdNjP6P7ZLcCKIOT
+   /akSndXf/Qk/O4qcsv6RfsZmwDJNx2JSwNKqx94UQcnIFILAK0+jFNG6S
+   qUBKvBt7PHXf5sJ/EIvx4y4vTkjtvmKLqG4RGg65vL6L4MUK9jtOAZoIt
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10258"; a="230351829"
+X-IronPort-AV: E=Sophos;i="5.88,371,1635231600"; 
+   d="scan'208";a="230351829"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 08:33:28 -0800
+X-IronPort-AV: E=Sophos;i="5.88,371,1635231600"; 
+   d="scan'208";a="497284157"
+Received: from unknown (HELO intel.com) ([10.237.72.65])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 08:33:27 -0800
+Date:   Tue, 15 Feb 2022 18:33:42 +0200
+From:   "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
+To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [PATCH 2/6] drm/i915: Fix bw atomic check when switching between
+ SAGV vs. no SAGV
+Message-ID: <20220215163342.GA16750@intel.com>
+References: <20220214091811.13725-1-ville.syrjala@linux.intel.com>
+ <20220214091811.13725-3-ville.syrjala@linux.intel.com>
+ <20220214100536.GB24878@intel.com>
+ <Ygot+UVlBnA/Xzfk@intel.com>
+ <20220214170305.GA25600@intel.com>
+ <Ygq6/32Cy6CjMrDu@intel.com>
+ <20220215085957.GA15926@intel.com>
+ <Ygt8C/SHHLXfHw+A@intel.com>
+ <20220215110248.GA16287@intel.com>
+ <YguN+rpdJEIjxjkC@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20220215121103.vhb2lpoygxn3xywy@guptapa-mobl1.amr.corp.intel.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YguN+rpdJEIjxjkC@intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 15, 2022 at 04:11:03AM -0800, Pawan Gupta wrote:
-> That is exactly what this patch is fixing. Please let me know if you
-> have any questions.
+On Tue, Feb 15, 2022 at 01:26:50PM +0200, Ville Syrjälä wrote:
+> On Tue, Feb 15, 2022 at 01:02:48PM +0200, Lisovskiy, Stanislav wrote:
+> > On Tue, Feb 15, 2022 at 12:10:19PM +0200, Ville Syrjälä wrote:
+> > > On Tue, Feb 15, 2022 at 10:59:57AM +0200, Lisovskiy, Stanislav wrote:
+> > > > On Mon, Feb 14, 2022 at 10:26:39PM +0200, Ville Syrjälä wrote:
+> > > > > On Mon, Feb 14, 2022 at 07:03:05PM +0200, Lisovskiy, Stanislav wrote:
+> > > > > > On Mon, Feb 14, 2022 at 12:24:57PM +0200, Ville Syrjälä wrote:
+> > > > > > > On Mon, Feb 14, 2022 at 12:05:36PM +0200, Lisovskiy, Stanislav wrote:
+> > > > > > > > On Mon, Feb 14, 2022 at 11:18:07AM +0200, Ville Syrjala wrote:
+> > > > > > > > > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > > > > > > > > 
+> > > > > > > > > If the only thing that is changing is SAGV vs. no SAGV but
+> > > > > > > > > the number of active planes and the total data rates end up
+> > > > > > > > > unchanged we currently bail out of intel_bw_atomic_check()
+> > > > > > > > > early and forget to actually compute the new WGV point
+> > > > > > > > > mask and thus won't actually enable/disable SAGV as requested.
+> > > > > > > > > This ends up poorly if we end up running with SAGV enabled
+> > > > > > > > > when we shouldn't. Usually ends up in underruns.
+> > > > > > > > > To fix this let's go through the QGV point mask computation
+> > > > > > > > > if anyone else already added the bw state for us.
+> > > > > > > > 
+> > > > > > > > Haven't been looking this in a while. Despite we have been
+> > > > > > > > looking like few revisions together still some bugs :(
+> > > > > > > > 
+> > > > > > > > I thought SAGV vs No SAGV can't change if active planes 
+> > > > > > > > or data rate didn't change? Because it means we probably
+> > > > > > > > still have same ddb allocations, which means SAGV state
+> > > > > > > > will just stay the same.
+> > > > > > > 
+> > > > > > > SAGV can change due to watermarks/ddb allocations. The easiest
+> > > > > > > way to trip this up is to try to use the async flip wm0/ddb 
+> > > > > > > optimization. That immediately forgets to turn off SAGV and
+> > > > > > > we get underruns, whcih is how I noticed this. And I don't
+> > > > > > > immediately see any easy proof that this couldn't also happen
+> > > > > > > due to some other plane changes.
+> > > > > > 
+> > > > > > Thats the way it was initially implemented even before SAGV was added.
+> > > > > 
+> > > > > Yeah, it wasn't a problem as long as SAGV was not enabled.
+> > > > > 
+> > > > > > I think it can be dated back to the very first bw check was implemented.
+> > > > > > 
+> > > > > > commit c457d9cf256e942138a54a2e80349ee7fe20c391
+> > > > > > Author: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > > > > > Date:   Fri May 24 18:36:14 2019 +0300
+> > > > > > 
+> > > > > >     drm/i915: Make sure we have enough memory bandwidth on ICL
+> > > > > > 
+> > > > > > +int intel_bw_atomic_check(struct intel_atomic_state *state)
+> > > > > > +{
+> > > > > > +       struct drm_i915_private *dev_priv = to_i915(state->base.dev);
+> > > > > > +       struct intel_crtc_state *new_crtc_state, *old_crtc_state;
+> > > > > > +       struct intel_bw_state *bw_state = NULL;
+> > > > > > +       unsigned int data_rate, max_data_rate;
+> > > > > > +       unsigned int num_active_planes;
+> > > > > > +       struct intel_crtc *crtc;
+> > > > > > +       int i;
+> > > > > > +
+> > > > > > +       /* FIXME earlier gens need some checks too */
+> > > > > > +       if (INTEL_GEN(dev_priv) < 11)
+> > > > > > +               return 0;
+> > > > > > +
+> > > > > > +       for_each_oldnew_intel_crtc_in_state(state, crtc, old_crtc_state,
+> > > > > > +                                           new_crtc_state, i) {
+> > > > > > +               unsigned int old_data_rate =
+> > > > > > +                       intel_bw_crtc_data_rate(old_crtc_state);
+> > > > > > +               unsigned int new_data_rate =
+> > > > > > +                       intel_bw_crtc_data_rate(new_crtc_state);
+> > > > > > +               unsigned int old_active_planes =
+> > > > > > +                       intel_bw_crtc_num_active_planes(old_crtc_state);
+> > > > > > +               unsigned int new_active_planes =
+> > > > > > +                       intel_bw_crtc_num_active_planes(new_crtc_state);
+> > > > > > +
+> > > > > > +               /*
+> > > > > > +                * Avoid locking the bw state when
+> > > > > > +                * nothing significant has changed.
+> > > > > > +                */
+> > > > > > +               if (old_data_rate == new_data_rate &&
+> > > > > > +                   old_active_planes == new_active_planes)
+> > > > > > +                       continue;
+> > > > > > +
+> > > > > > +               bw_state  = intel_atomic_get_bw_state(state);
+> > > > > > +               if (IS_ERR(bw_state))
+> > > > > > +                       return PTR_ERR(bw_state);
+> > > > > > 
+> > > > > > However, what can cause watermarks/ddb to change, besides plane state change
+> > > > > > and/or active planes change? We change watermarks, when we change ddb allocations
+> > > > > > and we change ddb allocations when active planes had changed and/or data rate
+> > > > > > had changed.
+> > > > > 
+> > > > > The bw code only cares about the aggregate numbers from all the planes.
+> > > > > The planes could still change in some funny way where eg. some plane
+> > > > > frees up some bandwidth, but the other planes gobble up the exact same
+> > > > > amount and thus the aggregate numbers the bw atomic check cares about
+> > > > > do not change but the watermarks/ddb do.
+> > > > > 
+> > > > > And as mentiioned, the async flip wm0/ddb optimization makes this trivial
+> > > > > to trip up since it will want to disable SAGV as there is not enough ddb
+> > > > > for the SAGV watermark. And async flip specifically isn't even allowed
+> > > > > to change anything that would affect the bandwidth utilization, and neither
+> > > > > is it allowed to enable/disable planes.
+> > > > 
+> > > > I think the whole idea of setting ddb to minimum in case of async flip optimization
+> > > > was purely our idea - BSpec/HSD only mentions forbidding wm levels > 0 in case of async
+> > > > flip, however there is nothing about limiting ddb allocations.
+> > > 
+> > > Reducing just the watermark doesn't really make sense 
+> > > if the goal is to keep the DBUF level to a minimum. Also
+> > > I don't think there is any proper docs for this thing. The
+> > > only thing we have just has some vague notes about using
+> > > "minimum watermarks", whatever that means.
+> > 
+> > Was it the goal? I thought limiting watermarks would by itself also
+> > limit package C states, thus affecting memory clocks and latency.
+> > Because it really doesn't say anything about keeping Dbuf allocations
+> > to a minimum. 
+> 
+> The goal is to miminize the amount of data in the FIFO.
+> 
+> > 
+> > > 
+> > > > 
+> > > > Was a bit suspicious about that whole change, to be honest - and yep, now it seems to
+> > > > cause some unexpected side effects.
+> > > 
+> > > The bw_state vs. SAGV bug is there regardless of the wm0 optimization.
+> > 
+> > I agree there is a bug. The bug is such that initial bw checks were relying
+> > on total data rate + active planes comparison, while it should have accounted
+> > data rate per plane usage.
+> > 
+> > This should have been changed in SAGV patches, but probably had gone
+> > unnoticed both by you and me.
+> > 
+> > > 
+> > > Also the SAGV watermark is not the minimum watermark (if that is
+> > > the doc really means by that), the normal WM0 is the minimum watermark.
+> > > So even if we interpret the doc to say that we should just disable all
+> > > watermark levels except the smallest one (normal WM0) without changing
+> > > the ddb allocations we would still end up disabling SAGV.
+> > 
+> > Thats actually a good question. Did they mean, disable all "regular" wm levels
+> > or the SAGV one also? Probably they meant what you say, but would be nice to know
+> > exactly.
+> 
+> They said neither. It's just "program minimum watermarks" which
+> could mean anything really. They do explicitly say "DBUF level
+> can also adversely affect flip performance." which I think is
+> the whole point of this exercise.
+> 
+> > 
+> > Anyway my point here is that, we probably shouldn't use new_bw_state as a way to 
+> > check that plane allocations had changed. Thats just confusing.
+> 
+> We are not checking if plane allocations have changed. We are
+> trying to determine if anything in the bw_state has changed.
+> If we have said state already then something in it may have 
+> changed and we have to recalculate anything that may depend
+> on those changed things, namely pipe_sagv_reject->qgv_point_mask.
 
-Just one: does the explanation I've written for this mess, sound about
-right?
+I think it is just not very intuitive that we use the fact whether
+we can get new_bw_state or not, as a way to check if something had
+changed.
+Would be nice to put it in somekind of a wrapper like "has_new_bw_state"
+or "bw_state_changed". Because for anyone not quite familiar with
+that state paradigm we use, that would look pretty confusing that first
+we get new_bw_state using intel_atomic_get_new_bw_state, then immediately
+override it with intel_atomic_get_bw_state.
+And whether we can get new_bw_state or not is just acting like a check,
+that we don't have anything changed in bw_state.
 
-I'd like for this to be documented so that I don't scratch my head again
-when looking at this again later.
+Moreover indeed ideally intel_bw_atomic_check should probably handle all
+that sagv stuff as well, i.e I would suggest moving pipe_reject_mask setting,
+based skl_compute_wm results to that function.
+I don't see any issue here because in skl_compute_wm we just calculate the 
+sagv wm, then in intel_bw_atomic_check we just call intel_compute_sagv_mask,
+which then calls tgl_crtc_can_enable_sagv for each crtc and sets this mask.
 
-Btw, lemme add Cooper to Cc to doublecheck me - he usually knows those
-things.
+I think by boing this in intel_bw_atomic_check we would achieve both, what
+you were willing to do, plus it would be more obvious, why things are happening
+that way.
 
-Thx.
+Stan
 
----
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Date: Wed, 9 Feb 2022 13:04:36 -0800
-Subject: [PATCH] x86/tsx: Use MSR_TSX_CTRL to clear CPUID bits
-
-tsx_clear_cpuid() uses MSR_TSX_FORCE_ABORT to clear CPUID.RTM and
-CPUID.HLE. Not all CPUs support MSR_TSX_FORCE_ABORT, alternatively use
-MSR_IA32_TSX_CTRL when supported.
-
-  [ bp: Document how and why TSX gets disabled. ]
-
-Fixes: 293649307ef9 ("x86/tsx: Clear CPUID bits when TSX always force aborts")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/5bd785a1d6ea0b572250add0c6617b4504bc24d1.1644440311.git.pawan.kumar.gupta@linux.intel.com
----
- arch/x86/kernel/cpu/intel.c |  1 +
- arch/x86/kernel/cpu/tsx.c   | 54 ++++++++++++++++++++++++++++++++-----
- 2 files changed, 48 insertions(+), 7 deletions(-)
-
-diff --git a/arch/x86/kernel/cpu/intel.c b/arch/x86/kernel/cpu/intel.c
-index 8321c43554a1..8abf995677a4 100644
---- a/arch/x86/kernel/cpu/intel.c
-+++ b/arch/x86/kernel/cpu/intel.c
-@@ -722,6 +722,7 @@ static void init_intel(struct cpuinfo_x86 *c)
- 	else if (tsx_ctrl_state == TSX_CTRL_DISABLE)
- 		tsx_disable();
- 	else if (tsx_ctrl_state == TSX_CTRL_RTM_ALWAYS_ABORT)
-+		/* See comment over that function for more details. */
- 		tsx_clear_cpuid();
- 
- 	split_lock_init();
-diff --git a/arch/x86/kernel/cpu/tsx.c b/arch/x86/kernel/cpu/tsx.c
-index 9c7a5f049292..2835fa89fc6f 100644
---- a/arch/x86/kernel/cpu/tsx.c
-+++ b/arch/x86/kernel/cpu/tsx.c
-@@ -58,7 +58,7 @@ void tsx_enable(void)
- 	wrmsrl(MSR_IA32_TSX_CTRL, tsx);
- }
- 
--static bool __init tsx_ctrl_is_supported(void)
-+static bool tsx_ctrl_is_supported(void)
- {
- 	u64 ia32_cap = x86_read_arch_cap_msr();
- 
-@@ -84,6 +84,44 @@ static enum tsx_ctrl_states x86_get_tsx_auto_mode(void)
- 	return TSX_CTRL_ENABLE;
- }
- 
-+/*
-+ * Disabling TSX is not a trivial business.
-+ *
-+ * First of all, there's a CPUID bit: X86_FEATURE_RTM_ALWAYS_ABORT
-+ * which says that TSX is practically disabled (all transactions are
-+ * aborted by default). When that bit is set, the kernel unconditionally
-+ * disables TSX.
-+ *
-+ * In order to do that, however, it needs to dance a bit:
-+ *
-+ * 1. The first method to disable it is through MSR_TSX_FORCE_ABORT and
-+ * the MSR is present only when *two* CPUID bits are set:
-+ *
-+ * - X86_FEATURE_RTM_ALWAYS_ABORT
-+ * - X86_FEATURE_TSX_FORCE_ABORT
-+ *
-+ * 2. The second method is for CPUs which do not have the above-mentioned
-+ * MSR: those use a different MSR - MSR_IA32_TSX_CTRL and disable TSX
-+ * through that one. Those CPUs can also have the initially mentioned
-+ * CPUID bit X86_FEATURE_RTM_ALWAYS_ABORT set and for those the same strategy
-+ * applies: TSX gets disabled unconditionally.
-+ *
-+ * When either of the two methods are present, the kernel disables TSX and
-+ * clears the respective RTM and HLE feature flags.
-+ *
-+ * An additional twist in the whole thing presents late microcode loading
-+ * which, when done, may cause for the X86_FEATURE_RTM_ALWAYS_ABORT CPUID
-+ * bit to be set after the update.
-+ *
-+ * A subsequent hotplug operation on any logical CPU except the BSP will
-+ * cause for the supported CPUID feature bits to get re-detected and, if
-+ * RTM and HLE get cleared all of a sudden, but, userspace did consult
-+ * them before the update, then funny explosions will happen. Long story
-+ * short: the kernel doesn't modify CPUID feature bits after booting.
-+ *
-+ * That's why, this function's call in init_intel() doesn't clear the
-+ * feature flags.
-+ */
- void tsx_clear_cpuid(void)
- {
- 	u64 msr;
-@@ -97,6 +135,10 @@ void tsx_clear_cpuid(void)
- 		rdmsrl(MSR_TSX_FORCE_ABORT, msr);
- 		msr |= MSR_TFA_TSX_CPUID_CLEAR;
- 		wrmsrl(MSR_TSX_FORCE_ABORT, msr);
-+	} else if (tsx_ctrl_is_supported()) {
-+		rdmsrl(MSR_IA32_TSX_CTRL, msr);
-+		msr |= TSX_CTRL_CPUID_CLEAR;
-+		wrmsrl(MSR_IA32_TSX_CTRL, msr);
- 	}
- }
- 
-@@ -106,13 +148,11 @@ void __init tsx_init(void)
- 	int ret;
- 
- 	/*
--	 * Hardware will always abort a TSX transaction if both CPUID bits
--	 * RTM_ALWAYS_ABORT and TSX_FORCE_ABORT are set. In this case, it is
--	 * better not to enumerate CPUID.RTM and CPUID.HLE bits. Clear them
--	 * here.
-+	 * Hardware will always abort a TSX transaction when CPUID
-+	 * RTM_ALWAYS_ABORT is set. In this case, it is better not to enumerate
-+	 * CPUID.RTM and CPUID.HLE bits. Clear them here.
- 	 */
--	if (boot_cpu_has(X86_FEATURE_RTM_ALWAYS_ABORT) &&
--	    boot_cpu_has(X86_FEATURE_TSX_FORCE_ABORT)) {
-+	if (boot_cpu_has(X86_FEATURE_RTM_ALWAYS_ABORT)) {
- 		tsx_ctrl_state = TSX_CTRL_RTM_ALWAYS_ABORT;
- 		tsx_clear_cpuid();
- 		setup_clear_cpu_cap(X86_FEATURE_RTM);
--- 
-2.29.2
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+> 
+> I think ideally we'd not even modify the bw_state directly from the
+> watermark code and we'd instead defer that to bw atomic check entirely.
+> But this SAGV vs. DDB business is your typical chicken vs. egg situation,
+> so I'm not sure that is possible to do. Would need to spend a few minutes
+> thinking about it I guess.
+> 
+> > 
+> > May be for you as i915 guru, thats obvious however not for someone else, who might
+> > touch the code and we are doing open source here.
+> > 
+> > Can we just add some check which explicitly does per plane data rate checks?
+> 
+> There is nothing interesting about per-plane data rates.
+> 
+> > So that we know bail out from that first cycle not only when total_data_rate/active planes
+> > had changed, but we check per plane data rate? 
+> > That might actually save us also in future, if we ever get into such situation, when
+> > bw_state doesn't change, but ddb allocations do.
+> > 
+> > I know you might say it shouldn't happen, but there is always some new stuff coming.
+> > 
+> > Stan
+> > 
+> > > 
+> > > > Also we are now forcing the recalculation to be done always no matter what and using
+> > > > new bw state for that in a bit counterintuitive way, which I don't like. 
+> > > > Not even sure that will always work, as we are not guaranteed to get a non-NULL
+> > > > new_bw_state object from calling intel_atomic_get_new_bw_state, for that purpose we
+> > > > typically call intel_atomic_get_bw_state, which is supposed to do that and its called only
+> > > > here and in cause of CDCLK recalculation, which is called in intel_cdclk_atomic_check and
+> > > > done right after this one.
+> > > 
+> > > If there is no bw_state then bw_state->pipe_sagv_reject can't have
+> > > changed and there is nothing to recalculate.
+> > > 
+> > > > 
+> > > > So if we haven't called intel_atomic_get_bw_state beforehand, which we didn't because there are
+> > > > 2 places, where new bw state was supposed to be created to be usable by intel_atomic_get_new_bw_state
+> > > > - I think, we will(or might) get a NULL here, because intel_atomic_get_bw_state hasn't been called yet.
+> > > 
+> > > Yes, NULL is perfectly fine.
+> > > 
+> > > -- 
+> > > Ville Syrjälä
+> > > Intel
+> 
+> -- 
+> Ville Syrjälä
+> Intel
