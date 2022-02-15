@@ -2,141 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 927274B7A0F
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 22:56:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ABB74B7A45
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 23:12:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235792AbiBOV40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 16:56:26 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50564 "EHLO
+        id S244497AbiBOWM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 17:12:59 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232593AbiBOV4Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 16:56:25 -0500
-Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF2B0B7C6A
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 13:56:14 -0800 (PST)
-Received: by mail-yb1-xb2e.google.com with SMTP id l125so270800ybl.4
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 13:56:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=EZ5q++YgykAGpmunP4misegIALHkWjqPtYqC2VXU0d0=;
-        b=EJtxPtg7dBta1ocWaVmXeFyVO/Fb3XKx+YPBWIpfdoG8+4qvhGacxIFYFnoRVa9ihX
-         48TG7nxBsmcmuQE75OzQjZInI0jpBDR78nEmbdu6u/Sxj4qmDpL9hbigkZrjgCCHEo2t
-         Dw6pFYQn/jWQu3DqqkFE8L9+/5vJQmAmY/K4SJZE0CbMp1xHthRZ8srcDLxnBELwWvYp
-         6HzczCqa3wRWxfxW/dMldH4MBzMGWaW23FWBO/HqUCJO2HFh1KMEG3sJ/iuSdjc5FScg
-         zL7Yd65Rj13CIDMQ0F/CESvlPi5/+XFBpvq3HV1ZBAHmiS5bnFTzUKu+Wu+a7HY1TzgA
-         PrmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=EZ5q++YgykAGpmunP4misegIALHkWjqPtYqC2VXU0d0=;
-        b=EdMX9hPpY7Sb/r5N7YmaWp/ZQ5mwgjRUtD+cTOGzfV9bm9vwmD0Y32aTl6vp1MOIK/
-         R7Bu76oSFVRHoQkU0po3ufy8mMgcAUq/dICqoYzHUj9MnjStxr6rlwKo3gZn0d23I06i
-         ekZPnxWvWz+rnT/vFYnlofbJF/GbUL1zQC/Q4fNDvfbM9s/Y5HFv1DT57BN0FmLUiHSa
-         6zuKcYy3K2Zo36U/8ZJMEf+a9jXVuMcAivSLRGEulfRDgGycHd7o43xeknQ0e793psZG
-         ZkAjF/O3LUWXeD4Db6kPQbnReBZj8d7isOZh6+CVhsLAi5e0c5xU5lqXr6sjmRI42KCX
-         la4Q==
-X-Gm-Message-State: AOAM532sNpLOEUCmzRSTXbsQ0M4lIeLeG1BBrdUc//0NI/QBCmZtc8Oy
-        /nWx7Rvkm9kC5hSz4xIAtSMlukA9BCpTp3fs3XsyfQ==
-X-Google-Smtp-Source: ABdhPJzG0B+DhMonvyx1eAizm9Pr/8IzyJW1KRh1R1rK2yw6uE2Ix/pSISU0TKx7BOD9f6MfvQqvqmB2Bqzfyfuor6U=
-X-Received: by 2002:a5b:f4b:: with SMTP id y11mr866089ybr.634.1644962173974;
- Tue, 15 Feb 2022 13:56:13 -0800 (PST)
-MIME-Version: 1.0
-References: <20211217153555.9413-1-marcelo.jimenez@gmail.com>
- <CACRpkdbzk55pmK9XMwc470O8vJFUBQ6zs35shOYCFKr+YaOezw@mail.gmail.com>
- <CACjc_5q247Yb8t8PfJcudVAPFYQcioREAE3zj8OtPR-Ug_x=tA@mail.gmail.com>
- <CACRpkda=0=Hcyyote+AfwoLKPGak7RV6VFt6b0fMVWBe8veTwA@mail.gmail.com> <CACjc_5r7i3HJ466MtwR0iZD6jdVXEqq4km0Tn7XwRijGnsDz=Q@mail.gmail.com>
-In-Reply-To: <CACjc_5r7i3HJ466MtwR0iZD6jdVXEqq4km0Tn7XwRijGnsDz=Q@mail.gmail.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Tue, 15 Feb 2022 22:56:01 +0100
-Message-ID: <CACRpkdZGVq19GZuOP1BwLB2-qxj1_=O9tHMVRvphvy3m6KbNig@mail.gmail.com>
-Subject: Re: [PATCH] gpio: Revert regression in sysfs-gpio (gpiolib.c)
-To:     Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>
-Cc:     stable <stable@vger.kernel.org>, regressions@lists.linux.dev,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Thierry Reding <treding@nvidia.com>,
-        Vidya Sagar <vidyas@nvidia.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Edmond Chung <edmondchung@google.com>,
-        Andrew Chant <achant@google.com>,
-        Will McVicker <willmcvicker@google.com>,
-        Sergio Tanzilli <tanzilli@acmesystems.it>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        with ESMTP id S244496AbiBOWM4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 17:12:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 565AC27CC4;
+        Tue, 15 Feb 2022 14:12:45 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D012B81D11;
+        Tue, 15 Feb 2022 22:12:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC805C340F2;
+        Tue, 15 Feb 2022 22:12:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1644963162;
+        bh=hvqosyp3+aZA6FHBGhwNZNWZ8KHIUcsC7gsZ33yZ/AE=;
+        h=Date:To:From:Subject:From;
+        b=d+ZoKgFi6F4YHE6Q6bqa0P9igXVXX2IdGqqTAcLaFqdBTUhaFNuvqXX2F5lPOvks/
+         So0KdUbHDiOiBU+C0J8nc/I5DqStMKp7u06QskCZAE+tNP917+qTSJ1JSEpAFEawg2
+         AQerggeHfcvg68c3+JjRH6iyT9H1vRrg6VycGOcc=
+Date:   Tue, 15 Feb 2022 14:12:42 -0800
+To:     mm-commits@vger.kernel.org, zealci@zte.com.cn,
+        yang.yang29@zte.com.cn, stable@vger.kernel.org,
+        songliubraving@fb.com, mike.kravetz@oracle.com,
+        kirill@shutemov.name, hughd@google.com, wang.yong12@zte.com.cn,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + fix-shmem-huge-page-failed-to-set-f_seal_write-attribute-problem.patch added to -mm tree
+Message-Id: <20220215221242.AC805C340F2@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 14, 2022 at 12:24 AM Marcelo Roberto Jimenez
-<marcelo.jimenez@gmail.com> wrote:
-> On Sat, Feb 12, 2022 at 1:55 PM Linus Walleij <linus.walleij@linaro.org> wrote:
 
-> > I am curious about the usecases and how deeply you have built
-> > yourselves into this.
->
-> I don't know if I understand what you mean, sorry.
+The patch titled
+     Subject: memfd: fix shmem huge page failed to set F_SEAL_WRITE attribute problem
+has been added to the -mm tree.  Its filename is
+     fix-shmem-huge-page-failed-to-set-f_seal_write-attribute-problem.patch
 
-Why does the user need the sysfs ABI? What is it used for?
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/fix-shmem-huge-page-failed-to-set-f_seal_write-attribute-problem.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/fix-shmem-huge-page-failed-to-set-f_seal_write-attribute-problem.patch
 
-I.e what is the actual use case?
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-> > > In any case, the upstream file should be enough to test the issue reported here.
-> >
-> > The thing is that upstream isn't super happy that you have been
-> > making yourselves dependent on features that we are actively
-> > discouraging and then demanding that we support these features.
->
-> Hum, demanding seems to be a strong word for what I am doing here.
->
-> Deprecated should not mean broken. My point is: the API seems to be
-> currently broken. User space apps got broken, that's a fact. I even
-> took the time to bisect the kernel and show you which commit broke it.
-> So, no, I am not demanding. More like reporting and providing a
-> temporary solution to those with a similar problem.
->
-> Maybe it is time to remove the API, but this is up to "upstream".
-> Leaving the API broken seems pointless and unproductive.
->
-> Sorry for the "not super happiness of upstream", but maybe upstream
-> got me wrong.
->
-> We are not "making ourselves dependent on features ...". The API was
-> there. We used it. Now it is deprecated, ok, we should move on. I got
-> the message.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Ouch I deserved some slamming for this.
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-I'm sorry if I came across as harsh :(
+------------------------------------------------------
+From: wangyong <wang.yong12@zte.com.cn>
+Subject: memfd: fix shmem huge page failed to set F_SEAL_WRITE attribute problem
 
-I just don't know how to properly push for this.
+After enabling tmpfs filesystem to support transparent hugepage with the
+following command:
 
-I have even pushed the option of the deprecated sysfs ABI
-behind the CONFIG_EXPERT option, which should mean that
-the kernel config has been made by someone who has checked
-the option "yes I am an expert I know what I am doing"
-yet failed to observe that this ABI is obsoleted since 5 years
-and hence failed to be an expert.
+ echo always > /sys/kernel/mm/transparent_hugepage/shmem_enabled
 
-Of course the ABI (not API really) needs to be fixed if we can find the
-problem. It's frustrating that fixing it seems to fix broken other
-features which are not deprecated, hence the annoyance on my
-part.
+The docker program adds F_SEAL_WRITE through the following command which
+will prompt EBUSY.
 
-> And I will also tell the dev team that they must use the GPIO char dev
-> and libgpiod from now on and must port everything to it. And we will
-> likely have another group of people who are not super happy, but
-> that's life... :)
+ fcntl(5, F_ADD_SEALS, F_SEAL_WRITE)=-1.
 
-I'm happy to hear this!
+It is found that in memfd_wait_for_pins function, the page_count of
+hugepage is 512 and page_mapcount is 0, which does not meet the
+conditions:
 
-Yours,
-Linus Walleij
+ page_count(page) - page_mapcount(page) != 1.
+
+But the page is not busy at this time, therefore, the page_order of
+hugepage should be taken into account in the calculation.
+
+Link: https://lkml.kernel.org/r/20220215073743.1769979-1-cgel.zte@gmail.com
+Signed-off-by: wangyong <wang.yong12@zte.com.cn>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Kirill A. Shutemov <kirill@shutemov.name>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Yang Yang <yang.yang29@zte.com.cn>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/memfd.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+--- a/mm/memfd.c~fix-shmem-huge-page-failed-to-set-f_seal_write-attribute-problem
++++ a/mm/memfd.c
+@@ -31,6 +31,7 @@
+ static void memfd_tag_pins(struct xa_state *xas)
+ {
+ 	struct page *page;
++	int count = 0;
+ 	unsigned int tagged = 0;
+ 
+ 	lru_add_drain();
+@@ -39,8 +40,12 @@ static void memfd_tag_pins(struct xa_sta
+ 	xas_for_each(xas, page, ULONG_MAX) {
+ 		if (xa_is_value(page))
+ 			continue;
++
+ 		page = find_subpage(page, xas->xa_index);
+-		if (page_count(page) - page_mapcount(page) > 1)
++		count = page_count(page);
++		if (PageTransCompound(page))
++			count -= (1 << compound_order(compound_head(page))) - 1;
++		if (count - page_mapcount(page) > 1)
+ 			xas_set_mark(xas, MEMFD_TAG_PINNED);
+ 
+ 		if (++tagged % XA_CHECK_SCHED)
+@@ -67,11 +72,12 @@ static int memfd_wait_for_pins(struct ad
+ {
+ 	XA_STATE(xas, &mapping->i_pages, 0);
+ 	struct page *page;
+-	int error, scan;
++	int error, scan, count;
+ 
+ 	memfd_tag_pins(&xas);
+ 
+ 	error = 0;
++	count = 0;
+ 	for (scan = 0; scan <= LAST_SCAN; scan++) {
+ 		unsigned int tagged = 0;
+ 
+@@ -89,8 +95,12 @@ static int memfd_wait_for_pins(struct ad
+ 			bool clear = true;
+ 			if (xa_is_value(page))
+ 				continue;
++
+ 			page = find_subpage(page, xas.xa_index);
+-			if (page_count(page) - page_mapcount(page) != 1) {
++			count = page_count(page);
++			if (PageTransCompound(page))
++				count -= (1 << compound_order(compound_head(page))) - 1;
++			if (count - page_mapcount(page) != 1) {
+ 				/*
+ 				 * On the last scan, we clean up all those tags
+ 				 * we inserted; but make a note that we still
+_
+
+Patches currently in -mm which might be from wang.yong12@zte.com.cn are
+
+fix-shmem-huge-page-failed-to-set-f_seal_write-attribute-problem.patch
+
