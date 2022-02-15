@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96D604B7215
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:41:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFC7B4B709D
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:39:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240679AbiBOPf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 10:35:26 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43680 "EHLO
+        id S240698AbiBOPf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 10:35:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240573AbiBOPe0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:34:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4960EB2D58;
-        Tue, 15 Feb 2022 07:30:39 -0800 (PST)
+        with ESMTP id S239682AbiBOPej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:34:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6688AB5633;
+        Tue, 15 Feb 2022 07:30:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F126AB81AFB;
-        Tue, 15 Feb 2022 15:30:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D044BC36AE3;
-        Tue, 15 Feb 2022 15:30:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F37F6614C2;
+        Tue, 15 Feb 2022 15:30:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50428C340EB;
+        Tue, 15 Feb 2022 15:30:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644939036;
-        bh=Iu10TYzWNrgXeQsfppIYu11B1WF3/PSnjsNid03wlWE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vA1Ctg/H3y1SdLqJc9Js6J6CwPUWcWDPv+nMir21AiV1BnsX3TrEm9TIPmBlZifbh
-         WMz5LEy36j0KY3q/eUOcvIpFUUbme5MpTX54riJP38IHKgIIp09CNhVCQnEpbNkL9F
-         aC/V7Cn4U9ZULiZp7x7Tmv2o+KdeRXpYBZxWn9nL+eYpXiMZL9jTIPHUTBbl6EXlaC
-         5yFa+ir+WVG4SCDBBAtKe0Bl1yU5xi6zEVWIfuEDHpxd6vLR9MWYTvpE0XNooJKBDc
-         AlK0VwkPWfuIEDVKket8apWBZgOG8FHB6QSKEAhquRXTNiPJ1XqR7c8c9286yJwgp9
-         fPaqekrh8Fa4w==
+        s=k20201202; t=1644939040;
+        bh=0ajMXluSAqvhHBE5hWclvfBMFrRyAUrOhetBDh6ThaM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=MQBZPDrxAJrydvRcbrXPxvbJ56uh3QtfceL5Q/5efzXOm7cLexRkuqDZniKxgd6pB
+         8xvQWIxn92zmVlCKcC2IwLBfrbivnAkkwwHdhuV8npFeLTSTQsVwkQyartYKMqLFsV
+         8tcawSD/lP20rVx0Z+fT5rreeI6ThD1KZdtqo5oFSyw0+bBfNgxInxyGctvoYIRSE6
+         Psl2ozXJxU+yGLrFCI9gLDh2nRxqTX2mZk4XbFWX7whzXb5UdnGa2YIv7FE8p6wXu2
+         ZLUjbXag3nts888b79sXmE5OCWuVSbn05lAUn4KGa4NxyIiL+zhPAxjEq/QQDCLqRs
+         G6WvLsctYQq7Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jing Leng <jleng@ambarella.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 23/23] kconfig: fix failing to generate auto.conf
-Date:   Tue, 15 Feb 2022 10:29:57 -0500
-Message-Id: <20220215152957.581303-23-sashal@kernel.org>
+Cc:     Wan Jiabing <wanjiabing@vivo.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, bcousson@baylibre.com,
+        paul@pwsan.com, linux@armlinux.org.uk, linux-omap@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 01/17] ARM: OMAP2+: hwmod: Add of_node_put() before break
+Date:   Tue, 15 Feb 2022 10:30:21 -0500
+Message-Id: <20220215153037.581579-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220215152957.581303-1-sashal@kernel.org>
-References: <20220215152957.581303-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,50 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Leng <jleng@ambarella.com>
+From: Wan Jiabing <wanjiabing@vivo.com>
 
-[ Upstream commit 1b9e740a81f91ae338b29ed70455719804957b80 ]
+[ Upstream commit 80c469a0a03763f814715f3d12b6f3964c7423e8 ]
 
-When the KCONFIG_AUTOCONFIG is specified (e.g. export \
-KCONFIG_AUTOCONFIG=output/config/auto.conf), the directory of
-include/config/ will not be created, so kconfig can't create deps
-files in it and auto.conf can't be generated.
+Fix following coccicheck warning:
+./arch/arm/mach-omap2/omap_hwmod.c:753:1-23: WARNING: Function
+for_each_matching_node should have of_node_put() before break
 
-Signed-off-by: Jing Leng <jleng@ambarella.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Early exits from for_each_matching_node should decrement the
+node reference counter.
+
+Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/kconfig/confdata.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ arch/arm/mach-omap2/omap_hwmod.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
-index a39d93e3c6ae8..867b06c6d2797 100644
---- a/scripts/kconfig/confdata.c
-+++ b/scripts/kconfig/confdata.c
-@@ -968,14 +968,19 @@ static int conf_write_dep(const char *name)
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index 6289b288d60a6..202b740adee0e 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -782,8 +782,10 @@ static int __init _init_clkctrl_providers(void)
  
- static int conf_touch_deps(void)
- {
--	const char *name;
-+	const char *name, *tmp;
- 	struct symbol *sym;
- 	int res, i;
+ 	for_each_matching_node(np, ti_clkctrl_match_table) {
+ 		ret = _setup_clkctrl_provider(np);
+-		if (ret)
++		if (ret) {
++			of_node_put(np);
+ 			break;
++		}
+ 	}
  
--	strcpy(depfile_path, "include/config/");
--	depfile_prefix_len = strlen(depfile_path);
--
- 	name = conf_get_autoconfig_name();
-+	tmp = strrchr(name, '/');
-+	depfile_prefix_len = tmp ? tmp - name + 1 : 0;
-+	if (depfile_prefix_len + 1 > sizeof(depfile_path))
-+		return -1;
-+
-+	strncpy(depfile_path, name, depfile_prefix_len);
-+	depfile_path[depfile_prefix_len] = 0;
-+
- 	conf_read_simple(name, S_DEF_AUTO);
- 	sym_calc_value(modules_sym);
- 
+ 	return ret;
 -- 
 2.34.1
 
