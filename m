@@ -2,279 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 737034B6AC5
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 12:27:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCEB74B6BA6
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 13:05:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229888AbiBOL1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 06:27:07 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46934 "EHLO
+        id S237480AbiBOMFs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 07:05:48 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232299AbiBOL1H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 06:27:07 -0500
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3D0B10D0
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 03:26:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644924414; x=1676460414;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=wwsLxX23IXY9oS54Rsp/EORBrDe2GhQ3KVN0gtHmMUU=;
-  b=ARYlQxGOS+H+sVjcGnTaNT4Q2hiejXxkUYGNIRlcKPGZQCSe4ZKLXvSx
-   4u1isRGZQh8/foiC4psptflduLqEb4ZC6ARCFHnZz8guL3gcLbjN0KpJI
-   SQNBN/pJ4l5akch29xa1fZZxQIfPp57C/0MnbFmUaW3nNLlgRbtyRhV7J
-   +G1omAkLkIWz60QCLj+7jmfO5VUa8RytZMXmaCeWxqC3MCWA3JFoppocK
-   mb9s3fKfp36+MGHcd0Ay3n18UnZ1UFXbKIsyuVoitCkW7iLyYFGrssJb+
-   eyTWLWgoboJIniyS6EwnSN6toL5WTN1oUzhyV8os8iOPjq2UEzVgKiXj3
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10258"; a="274904606"
-X-IronPort-AV: E=Sophos;i="5.88,370,1635231600"; 
-   d="scan'208";a="274904606"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 03:26:54 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,370,1635231600"; 
-   d="scan'208";a="544253862"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.151])
-  by orsmga008.jf.intel.com with SMTP; 15 Feb 2022 03:26:51 -0800
-Received: by stinkbox (sSMTP sendmail emulation); Tue, 15 Feb 2022 13:26:50 +0200
-Date:   Tue, 15 Feb 2022 13:26:50 +0200
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH 2/6] drm/i915: Fix bw atomic check when switching between
- SAGV vs. no SAGV
-Message-ID: <YguN+rpdJEIjxjkC@intel.com>
-References: <20220214091811.13725-1-ville.syrjala@linux.intel.com>
- <20220214091811.13725-3-ville.syrjala@linux.intel.com>
- <20220214100536.GB24878@intel.com>
- <Ygot+UVlBnA/Xzfk@intel.com>
- <20220214170305.GA25600@intel.com>
- <Ygq6/32Cy6CjMrDu@intel.com>
- <20220215085957.GA15926@intel.com>
- <Ygt8C/SHHLXfHw+A@intel.com>
- <20220215110248.GA16287@intel.com>
+        with ESMTP id S237473AbiBOMFs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 07:05:48 -0500
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DE7CD21D6
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 04:05:38 -0800 (PST)
+Received: by mail-pf1-x433.google.com with SMTP id d17so6398421pfl.0
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 04:05:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=AvoSKo98ulJsw2WNwaVfLj/l/nh9gyg8Vgm73/f2Cg0=;
+        b=QwMS041zrimjNV74ySW6/aEYe7UiHK52oC4sA7e5yXzaKYm47mFk2ThPjn6rsCa5/w
+         pcneguNLnPKLl9Iyy/7mdNG/s4XJo0gQztdp2w28VT+XlklF8pIsuBYhZKpTa0uKmT6T
+         gq+8A5YvlPgSEe63jC9r1+xxeJCPeN4K7sE7HT32ZRwlRJExpCIAm8LV7oWMrI3XaqEq
+         nM0x3OQkPX10IbiuBEpekHpxVnB/ZDsFgzxqLPREk6w23Lz8p+sUtSc9u4Ob+mC9fv7+
+         uUBTpM3pQq40xLUrqweNbRpYzAos9jzswxhQTGnygnPUd8R/8fO+YZ/YKL8519MYCIvD
+         DAEQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AvoSKo98ulJsw2WNwaVfLj/l/nh9gyg8Vgm73/f2Cg0=;
+        b=atIWVC9R6nHCoSMp3ddyjUSTYUqHxZwE6Go+Ui19pBSYxuecsBSRB6nJG08YQzdPN8
+         7ci2Oxn5qoTDVseUXpOdJiyB8gzQoFeLTYMAGpJvBg+WwBscNb+ECVVbHJOscBZNJNKk
+         dWvGedt61i+h4YSpCtQ+l0RdoPeGkdSZBVKITVLaNGOLgKjQ1yMED3X9nIr24B5Qv+6z
+         oRCgny62puKVoenaAAk8OJHOUZ/9uGEAgV+Wc/E9GFwALp44ptX1u1Gfw9OPfiRNC2R0
+         YU5j++9YAZkezul/g+cNjDB08gQz9axyYIDkKcjWc1NY/FZ6ioCvNWApT2fce6gimXc4
+         S+9g==
+X-Gm-Message-State: AOAM5319NyVkX6N9EgP9AklCxxrMC8rOHBAsXSIh2YVvgzuG9gJS2MJF
+        SJHKBXxxRNsC4Qlk7pXPVNAdJgdFPstzyUEfJv7Y8A==
+X-Google-Smtp-Source: ABdhPJxFNaJhw9q+C7NaqGxKKGzPpa5mjZ240L5mkJh17FY5uNOfGjZF8e1QzCfRoulUqZIZL5kKn04LRXKUReNzq6s=
+X-Received: by 2002:a05:6a00:b83:: with SMTP id g3mr4064233pfj.58.1644926737009;
+ Tue, 15 Feb 2022 04:05:37 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220215110248.GA16287@intel.com>
-X-Patchwork-Hint: comment
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220129093036.488231-1-pumahsu@google.com> <413ce7e5-1c35-c3d0-a89e-a3c7f03b4db7@linux.intel.com>
+ <CAGCq0La83AKrdk4w2b6wJLZVB0oKB7_AH3iqc4R0K1vDnqrX9A@mail.gmail.com> <86bd1bef-2f07-8dee-a125-be208903204e@linux.intel.com>
+In-Reply-To: <86bd1bef-2f07-8dee-a125-be208903204e@linux.intel.com>
+From:   Puma Hsu <pumahsu@google.com>
+Date:   Tue, 15 Feb 2022 20:05:00 +0800
+Message-ID: <CAGCq0LZfYbqyFO8C5zct4cuUVEvs8CMN3g6MYO14_cLGdm-ATQ@mail.gmail.com>
+Subject: Re: [PATCH v6] xhci: re-initialize the HC during resume if HCE was set
+To:     Mathias Nyman <mathias.nyman@linux.intel.com>
+Cc:     mathias.nyman@intel.com, Greg KH <gregkh@linuxfoundation.org>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Albert Wang <albertccwang@google.com>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 15, 2022 at 01:02:48PM +0200, Lisovskiy, Stanislav wrote:
-> On Tue, Feb 15, 2022 at 12:10:19PM +0200, Ville Syrjälä wrote:
-> > On Tue, Feb 15, 2022 at 10:59:57AM +0200, Lisovskiy, Stanislav wrote:
-> > > On Mon, Feb 14, 2022 at 10:26:39PM +0200, Ville Syrjälä wrote:
-> > > > On Mon, Feb 14, 2022 at 07:03:05PM +0200, Lisovskiy, Stanislav wrote:
-> > > > > On Mon, Feb 14, 2022 at 12:24:57PM +0200, Ville Syrjälä wrote:
-> > > > > > On Mon, Feb 14, 2022 at 12:05:36PM +0200, Lisovskiy, Stanislav wrote:
-> > > > > > > On Mon, Feb 14, 2022 at 11:18:07AM +0200, Ville Syrjala wrote:
-> > > > > > > > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > > > > > 
-> > > > > > > > If the only thing that is changing is SAGV vs. no SAGV but
-> > > > > > > > the number of active planes and the total data rates end up
-> > > > > > > > unchanged we currently bail out of intel_bw_atomic_check()
-> > > > > > > > early and forget to actually compute the new WGV point
-> > > > > > > > mask and thus won't actually enable/disable SAGV as requested.
-> > > > > > > > This ends up poorly if we end up running with SAGV enabled
-> > > > > > > > when we shouldn't. Usually ends up in underruns.
-> > > > > > > > To fix this let's go through the QGV point mask computation
-> > > > > > > > if anyone else already added the bw state for us.
-> > > > > > > 
-> > > > > > > Haven't been looking this in a while. Despite we have been
-> > > > > > > looking like few revisions together still some bugs :(
-> > > > > > > 
-> > > > > > > I thought SAGV vs No SAGV can't change if active planes 
-> > > > > > > or data rate didn't change? Because it means we probably
-> > > > > > > still have same ddb allocations, which means SAGV state
-> > > > > > > will just stay the same.
-> > > > > > 
-> > > > > > SAGV can change due to watermarks/ddb allocations. The easiest
-> > > > > > way to trip this up is to try to use the async flip wm0/ddb 
-> > > > > > optimization. That immediately forgets to turn off SAGV and
-> > > > > > we get underruns, whcih is how I noticed this. And I don't
-> > > > > > immediately see any easy proof that this couldn't also happen
-> > > > > > due to some other plane changes.
-> > > > > 
-> > > > > Thats the way it was initially implemented even before SAGV was added.
-> > > > 
-> > > > Yeah, it wasn't a problem as long as SAGV was not enabled.
-> > > > 
-> > > > > I think it can be dated back to the very first bw check was implemented.
-> > > > > 
-> > > > > commit c457d9cf256e942138a54a2e80349ee7fe20c391
-> > > > > Author: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > > Date:   Fri May 24 18:36:14 2019 +0300
-> > > > > 
-> > > > >     drm/i915: Make sure we have enough memory bandwidth on ICL
-> > > > > 
-> > > > > +int intel_bw_atomic_check(struct intel_atomic_state *state)
-> > > > > +{
-> > > > > +       struct drm_i915_private *dev_priv = to_i915(state->base.dev);
-> > > > > +       struct intel_crtc_state *new_crtc_state, *old_crtc_state;
-> > > > > +       struct intel_bw_state *bw_state = NULL;
-> > > > > +       unsigned int data_rate, max_data_rate;
-> > > > > +       unsigned int num_active_planes;
-> > > > > +       struct intel_crtc *crtc;
-> > > > > +       int i;
-> > > > > +
-> > > > > +       /* FIXME earlier gens need some checks too */
-> > > > > +       if (INTEL_GEN(dev_priv) < 11)
-> > > > > +               return 0;
-> > > > > +
-> > > > > +       for_each_oldnew_intel_crtc_in_state(state, crtc, old_crtc_state,
-> > > > > +                                           new_crtc_state, i) {
-> > > > > +               unsigned int old_data_rate =
-> > > > > +                       intel_bw_crtc_data_rate(old_crtc_state);
-> > > > > +               unsigned int new_data_rate =
-> > > > > +                       intel_bw_crtc_data_rate(new_crtc_state);
-> > > > > +               unsigned int old_active_planes =
-> > > > > +                       intel_bw_crtc_num_active_planes(old_crtc_state);
-> > > > > +               unsigned int new_active_planes =
-> > > > > +                       intel_bw_crtc_num_active_planes(new_crtc_state);
-> > > > > +
-> > > > > +               /*
-> > > > > +                * Avoid locking the bw state when
-> > > > > +                * nothing significant has changed.
-> > > > > +                */
-> > > > > +               if (old_data_rate == new_data_rate &&
-> > > > > +                   old_active_planes == new_active_planes)
-> > > > > +                       continue;
-> > > > > +
-> > > > > +               bw_state  = intel_atomic_get_bw_state(state);
-> > > > > +               if (IS_ERR(bw_state))
-> > > > > +                       return PTR_ERR(bw_state);
-> > > > > 
-> > > > > However, what can cause watermarks/ddb to change, besides plane state change
-> > > > > and/or active planes change? We change watermarks, when we change ddb allocations
-> > > > > and we change ddb allocations when active planes had changed and/or data rate
-> > > > > had changed.
-> > > > 
-> > > > The bw code only cares about the aggregate numbers from all the planes.
-> > > > The planes could still change in some funny way where eg. some plane
-> > > > frees up some bandwidth, but the other planes gobble up the exact same
-> > > > amount and thus the aggregate numbers the bw atomic check cares about
-> > > > do not change but the watermarks/ddb do.
-> > > > 
-> > > > And as mentiioned, the async flip wm0/ddb optimization makes this trivial
-> > > > to trip up since it will want to disable SAGV as there is not enough ddb
-> > > > for the SAGV watermark. And async flip specifically isn't even allowed
-> > > > to change anything that would affect the bandwidth utilization, and neither
-> > > > is it allowed to enable/disable planes.
-> > > 
-> > > I think the whole idea of setting ddb to minimum in case of async flip optimization
-> > > was purely our idea - BSpec/HSD only mentions forbidding wm levels > 0 in case of async
-> > > flip, however there is nothing about limiting ddb allocations.
-> > 
-> > Reducing just the watermark doesn't really make sense 
-> > if the goal is to keep the DBUF level to a minimum. Also
-> > I don't think there is any proper docs for this thing. The
-> > only thing we have just has some vague notes about using
-> > "minimum watermarks", whatever that means.
-> 
-> Was it the goal? I thought limiting watermarks would by itself also
-> limit package C states, thus affecting memory clocks and latency.
-> Because it really doesn't say anything about keeping Dbuf allocations
-> to a minimum. 
+On Thu, Feb 10, 2022 at 7:08 PM Mathias Nyman
+<mathias.nyman@linux.intel.com> wrote:
+>
+> On 8.2.2022 9.11, Puma Hsu wrote:
+> > On Thu, Feb 3, 2022 at 3:11 AM Mathias Nyman
+> > <mathias.nyman@linux.intel.com> wrote:
+> >>
+> >> On 29.1.2022 11.30, Puma Hsu wrote:
+> >>> When HCE(Host Controller Error) is set, it means an internal
+> >>> error condition has been detected. Software needs to re-initialize
+> >>> the HC, so add this check in xhci resume.
+> >>>
+> >>> Cc: stable@vger.kernel.org
+> >>> Signed-off-by: Puma Hsu <pumahsu@google.com>
+> >>> ---
+> >>> v2: Follow Sergey Shtylyov <s.shtylyov@omp.ru>'s comment.
+> >>> v3: Add stable@vger.kernel.org for stable release.
+> >>> v4: Refine the commit message.
+> >>> v5: Add a debug log. Follow Mathias Nyman <mathias.nyman@linux.intel.com>'s comment.
+> >>> v6: Fix the missing declaration for str.
+> >>>
+> >>>  drivers/usb/host/xhci.c | 7 +++++--
+> >>>  1 file changed, 5 insertions(+), 2 deletions(-)
+> >>>
+> >>> diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+> >>> index dc357cabb265..6f1198068004 100644
+> >>> --- a/drivers/usb/host/xhci.c
+> >>> +++ b/drivers/usb/host/xhci.c
+> >>> @@ -1091,6 +1091,7 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
+> >>>       int                     retval = 0;
+> >>>       bool                    comp_timer_running = false;
+> >>>       bool                    pending_portevent = false;
+> >>> +     char                    str[XHCI_MSG_MAX];
+> >>>
+> >>>       if (!hcd->state)
+> >>>               return 0;
+> >>> @@ -1146,8 +1147,10 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
+> >>>               temp = readl(&xhci->op_regs->status);
+> >>>       }
+> >>>
+> >>> -     /* If restore operation fails, re-initialize the HC during resume */
+> >>> -     if ((temp & STS_SRE) || hibernated) {
+> >>> +     /* If restore operation fails or HC error is detected, re-initialize the HC during resume */
+> >>> +     if ((temp & (STS_SRE | STS_HCE)) || hibernated) {
+> >>> +             xhci_warn(xhci, "re-initialize HC during resume, USBSTS:%s\n",
+> >>> +                       xhci_decode_usbsts(str, temp));
+> >>>
+> >>>               if ((xhci->quirks & XHCI_COMP_MODE_QUIRK) &&
+> >>>                               !(xhci_all_ports_seen_u0(xhci))) {
+> >>>
+> >>
+> >> Ended up modifying this patch a bit more than I first intended,
+> >> - don't print warning in hibernation case, only error.
+> >> - maybe using a lot of stack for a debug string isn't really needed.
+> >> - make sure we read the usbsts register before checking for the HCE bit.
+> >>
+> >> Does the below work for you? If yes, and you agree I'll apply it instead
+> >
+> > Hi Mathias,
+> > Yes, your patch works for me, thanks!
+> > Will you submit a new patch? or should I update to a new version?
+> > Thanks.
+>
+> I'll submit it
 
-The goal is to miminize the amount of data in the FIFO.
+Hi Mathias,
+Could I know when you will submit the new patch?
+We will sync the patch to our project.
+Thank you for your effort!
 
-> 
-> > 
-> > > 
-> > > Was a bit suspicious about that whole change, to be honest - and yep, now it seems to
-> > > cause some unexpected side effects.
-> > 
-> > The bw_state vs. SAGV bug is there regardless of the wm0 optimization.
-> 
-> I agree there is a bug. The bug is such that initial bw checks were relying
-> on total data rate + active planes comparison, while it should have accounted
-> data rate per plane usage.
-> 
-> This should have been changed in SAGV patches, but probably had gone
-> unnoticed both by you and me.
-> 
-> > 
-> > Also the SAGV watermark is not the minimum watermark (if that is
-> > the doc really means by that), the normal WM0 is the minimum watermark.
-> > So even if we interpret the doc to say that we should just disable all
-> > watermark levels except the smallest one (normal WM0) without changing
-> > the ddb allocations we would still end up disabling SAGV.
-> 
-> Thats actually a good question. Did they mean, disable all "regular" wm levels
-> or the SAGV one also? Probably they meant what you say, but would be nice to know
-> exactly.
-
-They said neither. It's just "program minimum watermarks" which
-could mean anything really. They do explicitly say "DBUF level
-can also adversely affect flip performance." which I think is
-the whole point of this exercise.
-
-> 
-> Anyway my point here is that, we probably shouldn't use new_bw_state as a way to 
-> check that plane allocations had changed. Thats just confusing.
-
-We are not checking if plane allocations have changed. We are
-trying to determine if anything in the bw_state has changed.
-If we have said state already then something in it may have 
-changed and we have to recalculate anything that may depend
-on those changed things, namely pipe_sagv_reject->qgv_point_mask.
-
-I think ideally we'd not even modify the bw_state directly from the
-watermark code and we'd instead defer that to bw atomic check entirely.
-But this SAGV vs. DDB business is your typical chicken vs. egg situation,
-so I'm not sure that is possible to do. Would need to spend a few minutes
-thinking about it I guess.
-
-> 
-> May be for you as i915 guru, thats obvious however not for someone else, who might
-> touch the code and we are doing open source here.
-> 
-> Can we just add some check which explicitly does per plane data rate checks?
-
-There is nothing interesting about per-plane data rates.
-
-> So that we know bail out from that first cycle not only when total_data_rate/active planes
-> had changed, but we check per plane data rate? 
-> That might actually save us also in future, if we ever get into such situation, when
-> bw_state doesn't change, but ddb allocations do.
-> 
-> I know you might say it shouldn't happen, but there is always some new stuff coming.
-> 
-> Stan
-> 
-> > 
-> > > Also we are now forcing the recalculation to be done always no matter what and using
-> > > new bw state for that in a bit counterintuitive way, which I don't like. 
-> > > Not even sure that will always work, as we are not guaranteed to get a non-NULL
-> > > new_bw_state object from calling intel_atomic_get_new_bw_state, for that purpose we
-> > > typically call intel_atomic_get_bw_state, which is supposed to do that and its called only
-> > > here and in cause of CDCLK recalculation, which is called in intel_cdclk_atomic_check and
-> > > done right after this one.
-> > 
-> > If there is no bw_state then bw_state->pipe_sagv_reject can't have
-> > changed and there is nothing to recalculate.
-> > 
-> > > 
-> > > So if we haven't called intel_atomic_get_bw_state beforehand, which we didn't because there are
-> > > 2 places, where new bw state was supposed to be created to be usable by intel_atomic_get_new_bw_state
-> > > - I think, we will(or might) get a NULL here, because intel_atomic_get_bw_state hasn't been called yet.
-> > 
-> > Yes, NULL is perfectly fine.
-> > 
-> > -- 
-> > Ville Syrjälä
-> > Intel
-
--- 
-Ville Syrjälä
-Intel
+>
+> Thanks
+> -Mathias
