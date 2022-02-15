@@ -2,156 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FB484B6606
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 09:28:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 842544B669D
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 09:54:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235419AbiBOI2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 03:28:23 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54092 "EHLO
+        id S235021AbiBOIyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 03:54:21 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235424AbiBOI2X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 03:28:23 -0500
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 967C3C4B49
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 00:28:13 -0800 (PST)
-Received: by mail-pf1-x431.google.com with SMTP id c4so12349488pfl.7
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 00:28:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=UHv1n0i7998YMl6pCrmGBhHuQg0Ik9GCJVUwsgk6NyI=;
-        b=SzEHHpKLORB6RP1qqruYIcx6VMi8e0779AWKhYGz7pzLCfMfFAgISkF7EDQ9RikxeH
-         D0bnE96X4izeLFBWiwodswLJIfmyxETqQWaXoHUH/OxX73UUPoIElNvGkJtzd4XMiLk3
-         o7mvECJ7LjQuWeSeTj7c1UbSC8BB0mQiPd1k67UKAxYwCchUexiZWOktRJ1SsqwqPpnH
-         bxd5q8uXdOipb02YG28Dkywbcd6x5grIappWpHIXZiHBtZ8Zts1LmTA+dxkW1D3vJTnG
-         ehKHgGZlA5neRXp8c7iARaOBLm7UOPhK1Fzzn+I9lproCs7sM7I7l6IDvXSEThlge1j3
-         5nHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=UHv1n0i7998YMl6pCrmGBhHuQg0Ik9GCJVUwsgk6NyI=;
-        b=0TVL+A/HW1JrevtVgK2ZpfDbmluEOv2fIidbjOCEXWlwDas7pDxRSQLaU5JkGrHjci
-         4SC7d0IOS340nRy3P4PhwC6izcvqiRkJQPqQtNEQ9p2NV4+kwQ5vufFZJc8hDapnSt3E
-         eOOfgxXNxrFV9i+UFKljObWwBNpVIWjJTdldSPePZhbY0TsXUDxDKU9DBZQtgSq/XKid
-         fon5WmtTkFSWf4ZTutFjnCKF+h1Cy3YsQEng3BYuWnp6rL23cG2CClp2A62a7NP7rWEV
-         tJiiEy3FpJsCXMtik41NsX05adSu0Lla0dW/S1DXkdrmQk28GWCuALiSKS/kO0+WoaBT
-         2HEQ==
-X-Gm-Message-State: AOAM5301VyfOdFgEZt+E1axMtGQH9b9/1vd3/83XRNSzXHberAp8B308
-        a5D4gC5QSu3gGi6SUmSyAeiTVv2XKms=
-X-Google-Smtp-Source: ABdhPJyciS7qFarR3EclpnfMW1amIke6GYxl0mxpjsNqdTuwmQdSUMQQyI50Q1fks29FiDWHqkpULA==
-X-Received: by 2002:a63:8942:: with SMTP id v63mr2638880pgd.106.1644913692934;
-        Tue, 15 Feb 2022 00:28:12 -0800 (PST)
-Received: from localhost.localdomain ([222.104.200.120])
-        by smtp.gmail.com with ESMTPSA id nm15sm16494859pjb.17.2022.02.15.00.28.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Feb 2022 00:28:12 -0800 (PST)
-From:   Juhyung Park <qkrwngud825@gmail.com>
-To:     linux-f2fs-devel@lists.sourceforge.net
-Cc:     Juhyung Park <qkrwngud825@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] f2fs: quota: fix loop condition at f2fs_quota_sync()
-Date:   Tue, 15 Feb 2022 17:27:21 +0900
-Message-Id: <20220215082721.844244-1-qkrwngud825@gmail.com>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S235004AbiBOIyV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 03:54:21 -0500
+Received: from progateway7-pub.mail.pro1.eigbox.com (gproxy5-pub.mail.unifiedlayer.com [67.222.38.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE975113AF3
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 00:54:10 -0800 (PST)
+Received: from cmgw14.mail.unifiedlayer.com (unknown [10.0.90.129])
+        by progateway7.mail.pro1.eigbox.com (Postfix) with ESMTP id 6671F10048304
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 08:54:10 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id Jtb8nA7tG2s5dJtb8nqShw; Tue, 15 Feb 2022 08:54:10 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=BOh2EHcG c=1 sm=1 tr=0 ts=620b6a32
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=oGFeUVbbRNcA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=/E6YRRsRuKogvM6KhEHYnkqAnduAqu99cdPVmeiqHk4=; b=fmkURz6u76cONKGvrW0WdsGHsA
+        cFkrrOsBrowvOLUi1FzNsu4FOImCx9x79WY0P43HkowpX//7BF7dW8zaUx/QXc8VlZTLFnXnaf60h
+        yyWwvMYm92QvnfHmpwype2OXH;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:54502 helo=[10.0.1.23])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1nJtb7-004Hgx-HA; Tue, 15 Feb 2022 01:54:09 -0700
+Message-ID: <6edd863a-5dad-4596-7cee-e615cd805e27@w6rz.net>
+Date:   Tue, 15 Feb 2022 00:54:07 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=0.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.16 000/203] 5.16.10-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220214092510.221474733@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1nJtb7-004Hgx-HA
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:54502
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 12
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-cnt should be passed to sb_has_quota_active() instead of type to check
-active quota properly.
+On 2/14/22 01:24, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.10 release.
+> There are 203 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 16 Feb 2022 09:24:36 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.10-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Moreover, when the type is -1, the compiler with enough inline knowledge
-can discard sb_has_quota_active() check altogether, causing a NULL pointer
-dereference at the following inode_lock(dqopt->files[cnt]):
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-[    2.796010] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000a0
-[    2.796024] Mem abort info:
-[    2.796025]   ESR = 0x96000005
-[    2.796028]   EC = 0x25: DABT (current EL), IL = 32 bits
-[    2.796029]   SET = 0, FnV = 0
-[    2.796031]   EA = 0, S1PTW = 0
-[    2.796032] Data abort info:
-[    2.796034]   ISV = 0, ISS = 0x00000005
-[    2.796035]   CM = 0, WnR = 0
-[    2.796046] user pgtable: 4k pages, 39-bit VAs, pgdp=00000003370d1000
-[    2.796048] [00000000000000a0] pgd=0000000000000000, pud=0000000000000000
-[    2.796051] Internal error: Oops: 96000005 [#1] PREEMPT SMP
-[    2.796056] CPU: 7 PID: 640 Comm: f2fs_ckpt-259:7 Tainted: G S                5.4.179-arter97-r8-64666-g2f16e087f9d8 #1
-[    2.796057] Hardware name: Qualcomm Technologies, Inc. Lahaina MTP lemonadep (DT)
-[    2.796059] pstate: 80c00005 (Nzcv daif +PAN +UAO)
-[    2.796065] pc : down_write+0x28/0x70
-[    2.796070] lr : f2fs_quota_sync+0x100/0x294
-[    2.796071] sp : ffffffa3f48ffc30
-[    2.796073] x29: ffffffa3f48ffc30 x28: 0000000000000000
-[    2.796075] x27: ffffffa3f6d718b8 x26: ffffffa415fe9d80
-[    2.796077] x25: ffffffa3f7290048 x24: 0000000000000001
-[    2.796078] x23: 0000000000000000 x22: ffffffa3f7290000
-[    2.796080] x21: ffffffa3f72904a0 x20: ffffffa3f7290110
-[    2.796081] x19: ffffffa3f77a9800 x18: ffffffc020aae038
-[    2.796083] x17: ffffffa40e38e040 x16: ffffffa40e38e6d0
-[    2.796085] x15: ffffffa40e38e6cc x14: ffffffa40e38e6d0
-[    2.796086] x13: 00000000000004f6 x12: 00162c44ff493000
-[    2.796088] x11: 0000000000000400 x10: ffffffa40e38c948
-[    2.796090] x9 : 0000000000000000 x8 : 00000000000000a0
-[    2.796091] x7 : 0000000000000000 x6 : 0000d1060f00002a
-[    2.796093] x5 : ffffffa3f48ff718 x4 : 000000000000000d
-[    2.796094] x3 : 00000000060c0000 x2 : 0000000000000001
-[    2.796096] x1 : 0000000000000000 x0 : 00000000000000a0
-[    2.796098] Call trace:
-[    2.796100]  down_write+0x28/0x70
-[    2.796102]  f2fs_quota_sync+0x100/0x294
-[    2.796104]  block_operations+0x120/0x204
-[    2.796106]  f2fs_write_checkpoint+0x11c/0x520
-[    2.796107]  __checkpoint_and_complete_reqs+0x7c/0xd34
-[    2.796109]  issue_checkpoint_thread+0x6c/0xb8
-[    2.796112]  kthread+0x138/0x414
-[    2.796114]  ret_from_fork+0x10/0x18
-[    2.796117] Code: aa0803e0 aa1f03e1 52800022 aa0103e9 (c8e97d02)
-[    2.796120] ---[ end trace 96e942e8eb6a0b53 ]---
-[    2.800116] Kernel panic - not syncing: Fatal exception
-[    2.800120] SMP: stopping secondary CPUs
-
-Fixes: 9de71ede81e6 ("f2fs: quota: fix potential deadlock")
-Cc: <stable@vger.kernel.org> # v5.15+
-Signed-off-by: Juhyung Park <qkrwngud825@gmail.com>
----
- fs/f2fs/super.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 22fb4d3b1170..8e3840973077 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -2689,7 +2689,7 @@ int f2fs_quota_sync(struct super_block *sb, int type)
- 	struct f2fs_sb_info *sbi = F2FS_SB(sb);
- 	struct quota_info *dqopt = sb_dqopt(sb);
- 	int cnt;
--	int ret;
-+	int ret = 0;
- 
- 	/*
- 	 * Now when everything is written we can discard the pagecache so
-@@ -2700,8 +2700,8 @@ int f2fs_quota_sync(struct super_block *sb, int type)
- 		if (type != -1 && cnt != type)
- 			continue;
- 
--		if (!sb_has_quota_active(sb, type))
--			return 0;
-+		if (!sb_has_quota_active(sb, cnt))
-+			continue;
- 
- 		inode_lock(dqopt->files[cnt]);
- 
--- 
-2.35.1
+Tested-by: Ron Economos <re@w6rz.net>
 
