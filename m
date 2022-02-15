@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD5684B7261
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:42:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A88A4B718C
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:40:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240060AbiBOPba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 10:31:30 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47726 "EHLO
+        id S229608AbiBOPbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 10:31:34 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240268AbiBOPar (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:30:47 -0500
+        with ESMTP id S240300AbiBOPa4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:30:56 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27731C24A6;
-        Tue, 15 Feb 2022 07:29:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A120DC2E49;
+        Tue, 15 Feb 2022 07:29:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D394BB81AEA;
-        Tue, 15 Feb 2022 15:29:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED63BC340EB;
-        Tue, 15 Feb 2022 15:29:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FF20B81AEC;
+        Tue, 15 Feb 2022 15:29:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A26BC340EB;
+        Tue, 15 Feb 2022 15:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644938942;
-        bh=KOo0Lc0CAVLi3RcvWm0aAT+pWN+D05lgre7KkXptlF4=;
+        s=k20201202; t=1644938945;
+        bh=YPmrjZCA/qvxTOK2iFsBy8+N9NJ3GXDz4AwzbwadkqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IPDtRYALCJnZL+KCCcX8/Wt30zPzxZijJ90RqPy7DyHJkEAMzt+pzu5kWsUkAIacF
-         wFj4pkUXbqxZJNxKN6H+mJCQczrGe4qNs8hR7wdUfHlr58lGi3pHNUa9BHEtt11k7+
-         yhkLP9YbbMT1WmO238+ofQcuXWVls95FwQLwMZDjHJ5BsfPNvEhYJ1w1JlFjZ8TwJI
-         KQDdZjFWlap0FiIw6KYTv/cAVdRZRKN0IEjbXGuopRJVR4pphNtCAkJXacJkQ/V6SX
-         o0ILnASE0KUofhwYQn94atp6tvTC5PcwF19vxfW2LJEoQ+fV4hZQhf9x3CV7gI77Oq
-         dwFGLJj1XLILQ==
+        b=C6u0y2dTZ83P/E0rG1F/5kkJ7CcXnrHYKzYdEKKgTxZJ8LMuxCziyYS78zmfx5w8h
+         /gTzDvrsPPnSgbSfTmvj0JTB8GADgQ5g4Ys2UZB8ADIlAmYAgZAQ2clX0o54VcbQmW
+         f8D7xwDLZ5J6MVaZNW6S9Ntyg1Zp/ZbFtmJEqMqWRIimCdytdaXfH6PVxcmFpo2szO
+         xhidA45bTUMvxAwfkf0Aps85yBjPJWxNXGt8Wwhu2D39Y7B3wWi4VPmmjmvGSyIHrs
+         2ghz3EB7TBDjcZcUkFfBOKx8CJ2WR2S0LIXWnWO/PppWEfPLbnKg8WCiInkKU/4+8t
+         jye89vsItJ2IA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shakeel Butt <shakeelb@google.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 17/33] mm: io_uring: allow oom-killer from io_uring_setup
-Date:   Tue, 15 Feb 2022 10:28:15 -0500
-Message-Id: <20220215152831.580780-17-sashal@kernel.org>
+Cc:     Mario Limonciello <mario.limonciello@amd.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        Pratik.Vishwakarma@amd.com, hdegoede@redhat.com,
+        alexander.deucher@amd.com, nakato@nakato.io,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 18/33] ACPI: PM: Revert "Only mark EC GPE for wakeup on Intel systems"
+Date:   Tue, 15 Feb 2022 10:28:16 -0500
+Message-Id: <20220215152831.580780-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220215152831.580780-1-sashal@kernel.org>
 References: <20220215152831.580780-1-sashal@kernel.org>
@@ -55,43 +60,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shakeel Butt <shakeelb@google.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 0a3f1e0beacf6cc8ae5f846b0641c1df476e83d6 ]
+[ Upstream commit d6ebb17ccc7b37872a32bc25b4a21f1e5af8c7e3 ]
 
-On an overcommitted system which is running multiple workloads of
-varying priorities, it is preferred to trigger an oom-killer to kill a
-low priority workload than to let the high priority workload receiving
-ENOMEMs. On our memory overcommitted systems, we are seeing a lot of
-ENOMEMs instead of oom-kills because io_uring_setup callchain is using
-__GFP_NORETRY gfp flag which avoids the oom-killer. Let's remove it and
-allow the oom-killer to kill a lower priority job.
+Testing on various upcoming OEM systems shows commit 7b167c4cb48e ("ACPI:
+PM: Only mark EC GPE for wakeup on Intel systems") was short
+sighted and the symptoms were indicative of other problems. Some OEMs
+do have the dedicated GPIOs for the power button but also rely upon
+an interrupt to the EC SCI to let the lid work.
 
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Link: https://lore.kernel.org/r/20220125051736.2981459-1-shakeelb@google.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The original commit showed spurious activity on Lenovo systems:
+     * On both Lenovo T14 and P14s the keyboard wakeup doesn't work, and
+       sometimes the power button event doesn't work.
+
+This was confirmed on my end at that time.
+
+However further development in the kernel showed that the issue was
+actually the IRQ for the GPIO controller was also shared with the EC SCI.
+This was actually fixed by commit 2d54067fcd23 ("pinctrl: amd: Fix
+wakeups when IRQ is shared with SCI").
+
+The original commit also showed problems with AC adapter:
+     * On HP 635 G7 detaching or attaching AC during suspend will cause
+       the system not to wakeup
+     * On Asus vivobook to prevent detaching AC causing resume problems
+     * On Lenovo 14ARE05 to prevent detaching AC causing resume problems
+     * On HP ENVY x360  to prevent detaching AC causing resume problems
+
+Detaching AC adapter causing problems appears to have been a problem
+because the EC SCI went off to notify the OS of the power adapter change
+but the SCI was ignored and there was no other way to wake up this system
+since GPIO controller wasn't properly enabled.  The wakeups were fixed by
+enabling the GPIO controller in commit acd47b9f28e5 ("pinctrl: amd: Handle
+wake-up interrupt").
+
+I've confirmed on a variety of OEM notebooks with the following test
+
+ 1) echo 1 | sudo tee /sys/power/pm_debug_messages
+ 2) sudo systemctl suspend
+ 3) unplug AC adapter, make sure system is still asleep
+ 4) wake system from lid (which is provided by ACPI SCI on some of them)
+ 5) dmesg
+    a) see the EC GPE dispatched, timekeeping for X seconds (matching ~time
+       until AC adapter plug out)
+    b) see timekeeping for Y seconds until woke (matching ~time from AC
+       adapter until lid event)
+ 6) Look at /sys/kernel/debug/amd_pmc/s0ix_stats
+    "Time (in us) in S0i3" = X + Y - firmware processing time
+
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/acpi/x86/s2idle.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 993913c585fbf..21fc8ce9405d3 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8820,10 +8820,9 @@ static void io_mem_free(void *ptr)
+diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
+index 1c48358b43ba3..e0185e841b2a3 100644
+--- a/drivers/acpi/x86/s2idle.c
++++ b/drivers/acpi/x86/s2idle.c
+@@ -424,15 +424,11 @@ static int lps0_device_attach(struct acpi_device *adev,
+ 		mem_sleep_current = PM_SUSPEND_TO_IDLE;
  
- static void *io_mem_alloc(size_t size)
- {
--	gfp_t gfp_flags = GFP_KERNEL | __GFP_ZERO | __GFP_NOWARN | __GFP_COMP |
--				__GFP_NORETRY | __GFP_ACCOUNT;
-+	gfp_t gfp = GFP_KERNEL_ACCOUNT | __GFP_ZERO | __GFP_NOWARN | __GFP_COMP;
+ 	/*
+-	 * Some Intel based LPS0 systems, like ASUS Zenbook UX430UNR/i7-8550U don't
+-	 * use intel-hid or intel-vbtn but require the EC GPE to be enabled while
+-	 * suspended for certain wakeup devices to work, so mark it as wakeup-capable.
+-	 *
+-	 * Only enable on !AMD as enabling this universally causes problems for a number
+-	 * of AMD based systems.
++	 * Some LPS0 systems, like ASUS Zenbook UX430UNR/i7-8550U, require the
++	 * EC GPE to be enabled while suspended for certain wakeup devices to
++	 * work, so mark it as wakeup-capable.
+ 	 */
+-	if (!acpi_s2idle_vendor_amd())
+-		acpi_ec_mark_gpe_for_wake();
++	acpi_ec_mark_gpe_for_wake();
  
--	return (void *) __get_free_pages(gfp_flags, get_order(size));
-+	return (void *) __get_free_pages(gfp, get_order(size));
+ 	return 0;
  }
- 
- static unsigned long rings_size(unsigned sq_entries, unsigned cq_entries,
 -- 
 2.34.1
 
