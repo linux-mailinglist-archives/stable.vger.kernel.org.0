@@ -2,96 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E69164B6928
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 11:24:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33B434B692A
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 11:24:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236463AbiBOKYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 05:24:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40660 "EHLO
+        id S236498AbiBOKYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 05:24:32 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236458AbiBOKYS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 05:24:18 -0500
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C2EA22BC0
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 02:24:08 -0800 (PST)
-Received: from zn.tnic (dslb-088-067-221-104.088.067.pools.vodafone-ip.de [88.67.221.104])
+        with ESMTP id S236507AbiBOKYb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 05:24:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A88422BD7;
+        Tue, 15 Feb 2022 02:24:19 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 1F98B1EC053C;
-        Tue, 15 Feb 2022 11:23:59 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1644920639;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=YMEDspMueOD9ny1l4hFIylPEZFOXYFx2U0095V28zwk=;
-        b=P5VdaizqzMiRFWOmyV4HlFBxmzoca+iGR2xKTrDbb3xERvDfbywq8DlOoPUgBkLrA3vZQo
-        9PmoGaHkWXGKFUkoukVszGXGu8kM3R3mmOXDf50vn9KU/CYcGSJgjSR6LB9YqBgEP8hfwi
-        Y24GQTXajM+Awd7RPS/4WbQ8IWrcKJY=
-Date:   Tue, 15 Feb 2022 11:24:01 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@linux.intel.com>,
-        Tony Luck <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
-        antonio.gomez.iglesias@linux.intel.com, neelima.krishnan@intel.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] x86/tsx: Use MSR_TSX_CTRL to clear CPUID bits
-Message-ID: <Ygt/QSTSMlUJnzFS@zn.tnic>
-References: <5bd785a1d6ea0b572250add0c6617b4504bc24d1.1644440311.git.pawan.kumar.gupta@linux.intel.com>
- <YgqToxbGQluNHABF@zn.tnic>
- <20220214224121.ilhu23cfjdyhvahk@guptapa-mobl1.amr.corp.intel.com>
- <YgrltbToK8+tG2qK@zn.tnic>
- <20220215002014.mb7g4y3hfefmyozx@guptapa-mobl1.amr.corp.intel.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94E1E61344;
+        Tue, 15 Feb 2022 10:24:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67EB0C340EB;
+        Tue, 15 Feb 2022 10:24:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1644920658;
+        bh=JUNXB18jg+7Kzp9Sc52Qxzmd5Nzo54fh6gGG/K88CgI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=xRMp56rc4ABAGn/apSFOxlR0WC/QrRGKmgxMaocZNitP+JCznu5Ayiqja3QbvCJPW
+         vGB88P1dZjS8/jZapXt0bXbEZSpZKVaKnO5L2zNhECouXMe3SK4ABqcznuS93ozG4O
+         R61RbFp9I4HMD/vmSJM5qQFeap3XgY5VvgJTshRc=
+Date:   Tue, 15 Feb 2022 11:24:14 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Tomas Winkler <tomas.winkler@intel.com>
+Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
+        Vitaly Lubart <vitaly.lubart@intel.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [char-misc 1/4] mei: me: disable driver on the ign firmware
+Message-ID: <Ygt/Th1UeOkWpwlD@kroah.com>
+References: <20220215080438.264876-1-tomas.winkler@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220215002014.mb7g4y3hfefmyozx@guptapa-mobl1.amr.corp.intel.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+In-Reply-To: <20220215080438.264876-1-tomas.winkler@intel.com>
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 14, 2022 at 04:20:14PM -0800, Pawan Gupta wrote:
-> ... we are calling tsx_clear_cpuid() unconditionally.
+On Tue, Feb 15, 2022 at 10:04:35AM +0200, Tomas Winkler wrote:
+> From: Alexander Usyskin <alexander.usyskin@intel.com>
+> 
+> Add a quirk to disable MEI interface on Intel PCH Ignition (IGN)
+> as the IGN firmware doesn't support the protocol.
+> 
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+> ---
+>  drivers/misc/mei/hw-me-regs.h |  1 +
+>  drivers/misc/mei/hw-me.c      | 23 ++++++++++++-----------
+>  2 files changed, 13 insertions(+), 11 deletions(-)
 
-I know, that's why I asked...
+I see 2 different copies of this patch/email:
+	https://lore.kernel.org/all/20220215075748.264195-1-tomas.winkler@intel.com/
+	https://lore.kernel.org/all/20220215080438.264876-1-tomas.winkler@intel.com/
 
-> > If those CPUs which support only disabling TSX through MSR_IA32_TSX_CTRL
-> > but don't have MSR_TSX_FORCE_ABORT - if those CPUs set
-> > X86_FEATURE_RTM_ALWAYS_ABORT too, then this should work.
+which one is right?
 
-... this^^.
+confused,
 
-IOW, what are you fixing here exactly?
-
-Let's look at the two callsites of tsx_clear_cpuid():
-
-1. tsx_init: that will do something on X86_FEATURE_RTM_ALWAYS_ABORT CPUs.
-
-2. init_intel: that will get called when
-
-	tsx_ctrl_state == TSX_CTRL_RTM_ALWAYS_ABORT
-
-But TSX_CTRL_RTM_ALWAYS_ABORT gets set only when
-X86_FEATURE_RTM_ALWAYS_ABORT is set. I.e., the first case, in
-tsx_init().
-
-So, IIUC, you wanna fix the case where CPUs which set
-X86_FEATURE_RTM_ALWAYS_ABORT but *don't* have MSR_TSX_FORCE_ABORT, those
-CPUs should still disable TSX through MSR_IA32_TSX_CTRL.
-
-Correct?
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+greg k-h
