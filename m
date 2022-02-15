@@ -2,84 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 842544B669D
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 09:54:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C252C4B66C6
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 09:59:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235021AbiBOIyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 03:54:21 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35398 "EHLO
+        id S233037AbiBOI74 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 03:59:56 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235004AbiBOIyV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 03:54:21 -0500
-Received: from progateway7-pub.mail.pro1.eigbox.com (gproxy5-pub.mail.unifiedlayer.com [67.222.38.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE975113AF3
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 00:54:10 -0800 (PST)
-Received: from cmgw14.mail.unifiedlayer.com (unknown [10.0.90.129])
-        by progateway7.mail.pro1.eigbox.com (Postfix) with ESMTP id 6671F10048304
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 08:54:10 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id Jtb8nA7tG2s5dJtb8nqShw; Tue, 15 Feb 2022 08:54:10 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=BOh2EHcG c=1 sm=1 tr=0 ts=620b6a32
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=oGFeUVbbRNcA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=/E6YRRsRuKogvM6KhEHYnkqAnduAqu99cdPVmeiqHk4=; b=fmkURz6u76cONKGvrW0WdsGHsA
-        cFkrrOsBrowvOLUi1FzNsu4FOImCx9x79WY0P43HkowpX//7BF7dW8zaUx/QXc8VlZTLFnXnaf60h
-        yyWwvMYm92QvnfHmpwype2OXH;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:54502 helo=[10.0.1.23])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1nJtb7-004Hgx-HA; Tue, 15 Feb 2022 01:54:09 -0700
-Message-ID: <6edd863a-5dad-4596-7cee-e615cd805e27@w6rz.net>
-Date:   Tue, 15 Feb 2022 00:54:07 -0800
+        with ESMTP id S232191AbiBOI74 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 03:59:56 -0500
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99F4A113AD7
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 00:59:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644915586; x=1676451586;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=2hGksm2gm1eEQ6qYqo+dk0YmwQjphHDFg/ERopYQBq0=;
+  b=UiAJLv7Jx4yPnI/e2Mm2g4otycJ63yj/RGu4B5dg0f/klmn2FYpazLlT
+   /4GPwoSueUqP65cT3UCZXyRmaiPrgIKrLh1xCxCBso5swjzA9TjvEFr7K
+   QX1fNQBdxP3gPD/AfKTOET+uRqXWhopQ10qR9VT8pVamYswLJ86np48GS
+   eTcGjJuuZQTLAMLOJ7JnxpMizH7jQbggDYxcmjCgoIF77NnxjozhQBiew
+   ZS9ytspJzwuI3FTstQuQDfwczsN04hvpDlrT7jBXYJMC8xSstIpqQep1P
+   p/WGhun6XlIr7TiIh2AEOHvXzmpcduIa2wSaFy5/v7HH45FWKyjJnckrn
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10258"; a="250039172"
+X-IronPort-AV: E=Sophos;i="5.88,370,1635231600"; 
+   d="scan'208";a="250039172"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 00:59:46 -0800
+X-IronPort-AV: E=Sophos;i="5.88,370,1635231600"; 
+   d="scan'208";a="635731015"
+Received: from unknown (HELO intel.com) ([10.237.72.65])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 00:59:44 -0800
+Date:   Tue, 15 Feb 2022 10:59:57 +0200
+From:   "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
+To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [PATCH 2/6] drm/i915: Fix bw atomic check when switching between
+ SAGV vs. no SAGV
+Message-ID: <20220215085957.GA15926@intel.com>
+References: <20220214091811.13725-1-ville.syrjala@linux.intel.com>
+ <20220214091811.13725-3-ville.syrjala@linux.intel.com>
+ <20220214100536.GB24878@intel.com>
+ <Ygot+UVlBnA/Xzfk@intel.com>
+ <20220214170305.GA25600@intel.com>
+ <Ygq6/32Cy6CjMrDu@intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 5.16 000/203] 5.16.10-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220214092510.221474733@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-In-Reply-To: <20220214092510.221474733@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1nJtb7-004Hgx-HA
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:54502
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 12
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Ygq6/32Cy6CjMrDu@intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -87,26 +65,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/14/22 01:24, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.10 release.
-> There are 203 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 16 Feb 2022 09:24:36 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.10-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Mon, Feb 14, 2022 at 10:26:39PM +0200, Ville Syrjälä wrote:
+> On Mon, Feb 14, 2022 at 07:03:05PM +0200, Lisovskiy, Stanislav wrote:
+> > On Mon, Feb 14, 2022 at 12:24:57PM +0200, Ville Syrjälä wrote:
+> > > On Mon, Feb 14, 2022 at 12:05:36PM +0200, Lisovskiy, Stanislav wrote:
+> > > > On Mon, Feb 14, 2022 at 11:18:07AM +0200, Ville Syrjala wrote:
+> > > > > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > > > > 
+> > > > > If the only thing that is changing is SAGV vs. no SAGV but
+> > > > > the number of active planes and the total data rates end up
+> > > > > unchanged we currently bail out of intel_bw_atomic_check()
+> > > > > early and forget to actually compute the new WGV point
+> > > > > mask and thus won't actually enable/disable SAGV as requested.
+> > > > > This ends up poorly if we end up running with SAGV enabled
+> > > > > when we shouldn't. Usually ends up in underruns.
+> > > > > To fix this let's go through the QGV point mask computation
+> > > > > if anyone else already added the bw state for us.
+> > > > 
+> > > > Haven't been looking this in a while. Despite we have been
+> > > > looking like few revisions together still some bugs :(
+> > > > 
+> > > > I thought SAGV vs No SAGV can't change if active planes 
+> > > > or data rate didn't change? Because it means we probably
+> > > > still have same ddb allocations, which means SAGV state
+> > > > will just stay the same.
+> > > 
+> > > SAGV can change due to watermarks/ddb allocations. The easiest
+> > > way to trip this up is to try to use the async flip wm0/ddb 
+> > > optimization. That immediately forgets to turn off SAGV and
+> > > we get underruns, whcih is how I noticed this. And I don't
+> > > immediately see any easy proof that this couldn't also happen
+> > > due to some other plane changes.
+> > 
+> > Thats the way it was initially implemented even before SAGV was added.
+> 
+> Yeah, it wasn't a problem as long as SAGV was not enabled.
+> 
+> > I think it can be dated back to the very first bw check was implemented.
+> > 
+> > commit c457d9cf256e942138a54a2e80349ee7fe20c391
+> > Author: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > Date:   Fri May 24 18:36:14 2019 +0300
+> > 
+> >     drm/i915: Make sure we have enough memory bandwidth on ICL
+> > 
+> > +int intel_bw_atomic_check(struct intel_atomic_state *state)
+> > +{
+> > +       struct drm_i915_private *dev_priv = to_i915(state->base.dev);
+> > +       struct intel_crtc_state *new_crtc_state, *old_crtc_state;
+> > +       struct intel_bw_state *bw_state = NULL;
+> > +       unsigned int data_rate, max_data_rate;
+> > +       unsigned int num_active_planes;
+> > +       struct intel_crtc *crtc;
+> > +       int i;
+> > +
+> > +       /* FIXME earlier gens need some checks too */
+> > +       if (INTEL_GEN(dev_priv) < 11)
+> > +               return 0;
+> > +
+> > +       for_each_oldnew_intel_crtc_in_state(state, crtc, old_crtc_state,
+> > +                                           new_crtc_state, i) {
+> > +               unsigned int old_data_rate =
+> > +                       intel_bw_crtc_data_rate(old_crtc_state);
+> > +               unsigned int new_data_rate =
+> > +                       intel_bw_crtc_data_rate(new_crtc_state);
+> > +               unsigned int old_active_planes =
+> > +                       intel_bw_crtc_num_active_planes(old_crtc_state);
+> > +               unsigned int new_active_planes =
+> > +                       intel_bw_crtc_num_active_planes(new_crtc_state);
+> > +
+> > +               /*
+> > +                * Avoid locking the bw state when
+> > +                * nothing significant has changed.
+> > +                */
+> > +               if (old_data_rate == new_data_rate &&
+> > +                   old_active_planes == new_active_planes)
+> > +                       continue;
+> > +
+> > +               bw_state  = intel_atomic_get_bw_state(state);
+> > +               if (IS_ERR(bw_state))
+> > +                       return PTR_ERR(bw_state);
+> > 
+> > However, what can cause watermarks/ddb to change, besides plane state change
+> > and/or active planes change? We change watermarks, when we change ddb allocations
+> > and we change ddb allocations when active planes had changed and/or data rate
+> > had changed.
+> 
+> The bw code only cares about the aggregate numbers from all the planes.
+> The planes could still change in some funny way where eg. some plane
+> frees up some bandwidth, but the other planes gobble up the exact same
+> amount and thus the aggregate numbers the bw atomic check cares about
+> do not change but the watermarks/ddb do.
+> 
+> And as mentiioned, the async flip wm0/ddb optimization makes this trivial
+> to trip up since it will want to disable SAGV as there is not enough ddb
+> for the SAGV watermark. And async flip specifically isn't even allowed
+> to change anything that would affect the bandwidth utilization, and neither
+> is it allowed to enable/disable planes.
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+I think the whole idea of setting ddb to minimum in case of async flip optimization
+was purely our idea - BSpec/HSD only mentions forbidding wm levels > 0 in case of async
+flip, however there is nothing about limiting ddb allocations.
 
-Tested-by: Ron Economos <re@w6rz.net>
+Was a bit suspicious about that whole change, to be honest - and yep, now it seems to
+cause some unexpected side effects.
 
+Also we are now forcing the recalculation to be done always no matter what and using
+new bw state for that in a bit counterintuitive way, which I don't like. 
+Not even sure that will always work, as we are not guaranteed to get a non-NULL
+new_bw_state object from calling intel_atomic_get_new_bw_state, for that purpose we
+typically call intel_atomic_get_bw_state, which is supposed to do that and its called only
+here and in cause of CDCLK recalculation, which is called in intel_cdclk_atomic_check and
+done right after this one.
+
+So if we haven't called intel_atomic_get_bw_state beforehand, which we didn't because there are
+2 places, where new bw state was supposed to be created to be usable by intel_atomic_get_new_bw_state
+- I think, we will(or might) get a NULL here, because intel_atomic_get_bw_state hasn't been called yet.
+
+Stan
+
+> 
+> -- 
+> Ville Syrjälä
+> Intel
