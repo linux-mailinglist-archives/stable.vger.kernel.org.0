@@ -2,78 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EDF94B77E4
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 21:51:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 901554B756D
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 21:47:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243886AbiBOUCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 15:02:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41526 "EHLO
+        id S243978AbiBOUGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 15:06:03 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243889AbiBOUCR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 15:02:17 -0500
-Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 073D674DC1
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 12:02:04 -0800 (PST)
-Received: by mail-io1-xd30.google.com with SMTP id s1so1836817ioe.0
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 12:02:04 -0800 (PST)
+        with ESMTP id S243958AbiBOUF7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 15:05:59 -0500
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2136.outbound.protection.outlook.com [40.107.237.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 879209F6D1;
+        Tue, 15 Feb 2022 12:05:48 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kYLYwyhrrPNWIf4phRB7RNxPfmXDlFyaCQFl20UVZO9YbzGVYmspqX8WmTG1q8QO2EjNgm+17dViGyYpNcEHwqH5QkkWhcBct5nIFFMDcyESdKoB6/Txcnj7f3p/SO4lU0OhLAf3w1nctTBmrct5wHMdSFyilG5okiVjvs/leexrBvk89SLNMv+iB8YoavlxKJqiZJJIdyJ6vUkEwp9YL8QgGpxYmJyyAZzqPLwYF5uU+NJBu6XbFgP/2Wuejd8UkmBvwYEOHwU5ciX384vcNLoiyfjWJro0BTbMZFD8GaDXQp/mT/zXNf0B24DGnmxf9Rg63IyT7Nbd+DrUimtoQw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=OcpNxPdd09uhXQtlJn1cZlZeWJRQA/vBEYxsoe57aV0=;
+ b=A5wfn5llSGfEQwN5L3RTqt1d7bLPp6F7YDmzQgQkzsBjV33Jer0F13XWVrFgkCTT0p93RZqkt0QsIVCcddsRhqfFCfxj1fmeJPBCiE9iJrwqu6cEJmOUCU4e3s+yKI1fZ3YjOO9WENxZ8b6o6/zYr8e7eNh/NBECcGbBFOg8YK9Ir3P686ql0x1z6uPXI5s6RqqP8cHz49hMiA5SL8ogrocyKXmF/GvL6t8d6m/XB2LkHvGZpSi7RAPT5G3bLITNWimrcVV1wHqIa7hZ/JzhY/6Qf99CkvBJ6xtWWHD3qcZXsuwGsvc7skF6MTK91fkCGe0atldB2Kg+wJwSYEQJog==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=Si7xSPd1JwjfXW+B+aAamikI56prZYe0E+1qng2t7lw=;
-        b=wcHw6TKZekPjNs+I43XHIbJJF7yP5LBRmacmWyiAqhidTuRrtIXGHvQKK+yGJSuJW+
-         GaxTMLRLOIWwdrDPKtQ+XUycDOojggE1tPvkBYTNqHC1kEpPun2QuB1ywua571sjfXXX
-         yrM3Jq+8kLxnne4GcOL2Hp8P3khcs2YmAsbc09EJbwGx433EAYrFILhE6qEGPBUEQ7bC
-         tBDr+rDWGh+BsblicHfoDoFDZTIZ/AFClBs9drp/JYQUCJJCP7O4lA4/tKlXUr0gp/dG
-         QkIiYNGSmSH13Mjt6ZT7ggZNCLiKgBsm/CSui0I/OTzhdhBK53aDo1vDiRtA5HbPeXdm
-         /YeQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=Si7xSPd1JwjfXW+B+aAamikI56prZYe0E+1qng2t7lw=;
-        b=S02IapxBjI2r0IQ5Vti7E/i+zTAKY0zbHTR4bbNX+zCvn1fTKwhnKoPHGs1lw7BQ0H
-         hziS2lWQUGsjJveIxC5O7CdVa/d4vIpAB4GEiNUkEGPB5kYkTMre9Mer47DAisqSOJa7
-         Wkxyotn1S26YralRwJqAvD28dwoBwdoegCuFjBu6CYRXzfIOMMioQKrW3pL4ZF/cYaNI
-         3xVnl5NFQ92prGOgWWOdAp+dNnx4XXFvU3QMZ6nxJM/Pktsvo8maGM5QFharLSAqdo/f
-         FN3WK0Ku57xkC9aTCTuT5dNhZ8ZDq6RUPQkfUF7fNgskvCANNNAFJlvNjyOTHgC1/gae
-         lGnA==
-X-Gm-Message-State: AOAM530sDNpxWMl8PI1DGbne9KNhIWs26MNyyKmMgdQCZExPBuSe0IsM
-        232Ac//4wV3buHPit0caBlj3og==
-X-Google-Smtp-Source: ABdhPJyPD7vMRAv8grrVO0jJ+ClGxxFeaDtlAcn09WPwThKQAfm0aDXXAEAB2OmEmE0ipxIxdNaj3w==
-X-Received: by 2002:a05:6602:3159:: with SMTP id m25mr329456ioy.114.1644955323269;
-        Tue, 15 Feb 2022 12:02:03 -0800 (PST)
-Received: from [172.22.22.4] (c-73-185-129-58.hsd1.mn.comcast.net. [73.185.129.58])
-        by smtp.googlemail.com with ESMTPSA id t5sm8329430ilu.74.2022.02.15.12.02.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Feb 2022 12:02:02 -0800 (PST)
-Message-ID: <2ddfa2c9-0e03-e4f7-e0e5-78230bef43fe@linaro.org>
-Date:   Tue, 15 Feb 2022 14:02:01 -0600
+ d=os.amperecomputing.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=OcpNxPdd09uhXQtlJn1cZlZeWJRQA/vBEYxsoe57aV0=;
+ b=NHGaef60yddpkgJb0K7uem4k20EV+C//3IwXjLv/29SVVLGEX52lTOuaLwixEaWK0ZwTC6fUL2gF5yzz/qxLmByy2PfQLT6IrTiaja4BEXt0KMDGdIumVMvSAt0ND7asG/24LfMrSUZ5sqknQwCUmggNEUQBS1NhgjAH4s+6Zio=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
+Received: from SA0PR01MB6329.prod.exchangelabs.com (2603:10b6:806:ee::12) by
+ BL0PR01MB4628.prod.exchangelabs.com (2603:10b6:208:74::10) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4975.18; Tue, 15 Feb 2022 20:05:30 +0000
+Received: from SA0PR01MB6329.prod.exchangelabs.com
+ ([fe80::7cd6:6594:ce3c:6941]) by SA0PR01MB6329.prod.exchangelabs.com
+ ([fe80::7cd6:6594:ce3c:6941%9]) with mapi id 15.20.4975.019; Tue, 15 Feb 2022
+ 20:05:29 +0000
+Date:   Tue, 15 Feb 2022 12:05:27 -0800
+From:   Darren Hart <darren@os.amperecomputing.com>
+To:     Vincent Guittot <vincent.guittot@linaro.org>
+Cc:     Will Deacon <will@kernel.org>,
+        "Song Bao Hua (Barry Song)" <song.bao.hua@hisilicon.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Arm <linux-arm-kernel@lists.infradead.org>,
+        Catalin Marinas <Catalin.Marinas@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Valentin Schneider <Valentin.Schneider@arm.com>,
+        "D . Scott Phillips" <scott@os.amperecomputing.com>,
+        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] arm64: smp: Skip MC domain for SoCs without shared cache
+Message-ID: <YgwHhxy/uGafQsak@fedora>
+References: <8c4a69eca4d0591f30c112df59c5098c24923bd3.1644543449.git.darren@os.amperecomputing.com>
+ <ec9be4eb7a0548178191edd51ddd309f@hisilicon.com>
+ <20220215163858.GA8458@willie-the-truck>
+ <YgvYZy5xv1g+u5wp@fedora>
+ <20220215164639.GC8458@willie-the-truck>
+ <CAKfTPtAFsL+uqQiGcuh+JJZB=rPrez0=kotq76CVRcBQhcPefg@mail.gmail.com>
+ <YgvjtsOZuxzbgBBl@fedora>
+ <CAKfTPtCHrZCp1Uth4odyT721wE8zoNVY3Mh+DSyuTkqPafm0Hg@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKfTPtCHrZCp1Uth4odyT721wE8zoNVY3Mh+DSyuTkqPafm0Hg@mail.gmail.com>
+X-ClientProxiedBy: CH0PR03CA0393.namprd03.prod.outlook.com
+ (2603:10b6:610:11b::21) To SA0PR01MB6329.prod.exchangelabs.com
+ (2603:10b6:806:ee::12)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v3 02/25] bus: mhi: Fix MHI DMA structure endianness
-Content-Language: en-US
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        mhi@lists.linux.dev
-Cc:     quic_hemantk@quicinc.com, quic_bbhatt@quicinc.com,
-        quic_jhugo@quicinc.com, vinod.koul@linaro.org,
-        bjorn.andersson@linaro.org, dmitry.baryshkov@linaro.org,
-        quic_vbadigan@quicinc.com, quic_cang@quicinc.com,
-        quic_skananth@quicinc.com, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Paul Davey <paul.davey@alliedtelesis.co.nz>,
-        stable@vger.kernel.org
-References: <20220212182117.49438-1-manivannan.sadhasivam@linaro.org>
- <20220212182117.49438-3-manivannan.sadhasivam@linaro.org>
-From:   Alex Elder <elder@linaro.org>
-In-Reply-To: <20220212182117.49438-3-manivannan.sadhasivam@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 5e1077e7-9103-4841-d942-08d9f0be8370
+X-MS-TrafficTypeDiagnostic: BL0PR01MB4628:EE_
+X-Microsoft-Antispam-PRVS: <BL0PR01MB46281BCAFD70EFE463AC8911F7349@BL0PR01MB4628.prod.exchangelabs.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:7691;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: utAp7N+F0fQbxHE01JGkkvtqPE/v7iUe+J+x6V2nfeA4aIs/7A70EL8j2Cyiqdk+OdBxtMC8H41RbIZzQ6cFuoQ9gMaSt7VxGUN/MGVwippH8tZS6rB65LvR2RudT7AVjp21J4LmQauZLaxejw90q0AyZKhuKI+4LbCVX5IazmIgWw9KoK3y4m6FF8UdW91KM1WTZiV62few4a5cmF+yI3FPWMw8aqycpZmF2ec73lmqfF4222xf2LnE7MTyJQ1q1fWB3I+mnYOPEnoCpjYTJi05FWWDHqkZ3tmjZvHr+vz/raQbU/php4X5eIrHsDf5WgPCpt1pxbfLWDYdPQQbfsVK5NgznPNS67+zPR98VTzlxWw/nx4b7QJiVxgzIDPT8fYpx4qHp64ldENmy8v3OtwGiYV7XgqSIlFs02Eu8BgR8v+KVQJIA+H4jSpLlcStXH2/uYRK28IekJvBm3V/w+ax0TfN1/C07fYgJnF4Qhh22pWl/FrYkvDjXXPzdMp3Bsq2Z3klHuS7cocXFb4WnBHLcbIso3dSX47xavpKgS9SHFAoFNzwwpyjtrhe48EcX6VggKNsX4vZgP36g+MPGiHmM/dCP6AaILtCRYis6VN/FZdqoKzWfKnJfsinMfDfCShI4NvyfOkYxjbBFFV0OeZXO8/MHBefLCZ0AS+XF+JzpeE1y1USlDeItOEaIxZtHURm9BCGJodXOKbnWCgcIA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA0PR01MB6329.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230001)(6029001)(7916004)(4636009)(366004)(5660300002)(66556008)(66946007)(86362001)(8676002)(38350700002)(38100700002)(8936002)(2906002)(66476007)(186003)(26005)(4326008)(6916009)(6506007)(33716001)(52116002)(316002)(508600001)(9686003)(6512007)(83380400001)(6486002)(54906003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?QJ62G3ZTzgslSCF/WXi6MjIgU7BRBqlxY5ft5KA5IZ0RvFIsFsU7hdhD8sUI?=
+ =?us-ascii?Q?kpvd1sXlViC82zZVbk/ZDeyyZ8s1n6P03tAts1TPOw2c3D3y+5rEjQrccuzc?=
+ =?us-ascii?Q?T6tQtZ0drAMQ9OOIBkJpWGAEiFex0/Yth+ZygtdL37GvPFsmx2n0XxVybZxT?=
+ =?us-ascii?Q?Vvk1W4AEQ6itOriNXcas6z1CMROM+w6TJjUfzlNRXWGInz/AF+sfxoeveJhI?=
+ =?us-ascii?Q?cUQ7yNTSi1woV38inkgbYjx0A9q8xAsLcKqs+zqJ17fB0XTlIXdv4JVJjV8y?=
+ =?us-ascii?Q?hLxSBniSmESqM7ON1F1wuDE4hmlNrIrOhcHDgrzxLV9FmqkPvXPNme4CDInF?=
+ =?us-ascii?Q?yogDJUJ+0LGJhWfkoNh3uUyiT9jsRpuh/H5YEFmKGKxc8HeXUw9tMjGkhuwj?=
+ =?us-ascii?Q?El5Bl6uxcwlf4UvQV/8Lf2BKPtO5R+k3JjsotS9rCPhUOixvJ8gf8nyfWRpP?=
+ =?us-ascii?Q?Eh+2mQ0ZNM11o7WNisVg6vffn1id7KLVCcfho7UtKzhU/B8+6t6+HQYBKdeC?=
+ =?us-ascii?Q?Nv9Z98GmITmTYTt4pZbgrIZeoDV1XInMpGYOL3vceKE+P9SYJUREFD/m8KOz?=
+ =?us-ascii?Q?7UxnCdREhp6nj3a9RW+rxICG8yD7nVa+e8lMvfKnH52pubCDQXHMR6Q8z2A6?=
+ =?us-ascii?Q?Eiz+9NfmrIvLCd2WTfJgSP8aGl91LB89huDPN2xdM7YfTT7mSZn5jDTGSH0V?=
+ =?us-ascii?Q?GKbc6dq2Y36tb3kxoNQbt93WKQb6+E3/g2rDu1q5IXlwjTR5It7Izk3ZBft8?=
+ =?us-ascii?Q?gicerUjaGxL7n170txQcNciyIDGbq4zNAw5+IP5Z1GP5MqlNmV6YutE/EZe3?=
+ =?us-ascii?Q?kTzD5W3w7UDxtiNOa6suMOaxDPE/gKzZ+EnXUV8BL0UHY+B07STA9W/GuZPF?=
+ =?us-ascii?Q?kxSlN5MwQkyQy3qNkC1CDQpeRRwBcoUd4OAjoPctbHcQ9zSVaEPx2iAOaK6l?=
+ =?us-ascii?Q?cPDu44l4VsnFiH3ojxyRENxvyKVl7FCz6fRdimxrGvxGmp1cOSoYHykl/p5C?=
+ =?us-ascii?Q?wbX0JZyWza2YVIUXOxWylatYXtT3kDnOObwx4YTsNX2nVSsODddYqtLUO9sA?=
+ =?us-ascii?Q?DJCHrT8xr24N8gkMEcze+1FuxUzEW6krW+kLZDCyDHgVvrGbf/0RFeHbEY54?=
+ =?us-ascii?Q?6SCUZoZrzg6LpEIq4c7G+IeW2yLvcleX9nxCTA79BgISwS56UtPj5Hvu3tQe?=
+ =?us-ascii?Q?1YHTq2kEvSwbnGJkUgvsRtuhgQbEX7A5fiBZoduV/uSS1aCyt4MalwLGoTOm?=
+ =?us-ascii?Q?w6+TRBqLo4GikV2GlaXugp4IU1MEeBT/6dbLe9CBGGV61Ow6qo0S7CwOz78O?=
+ =?us-ascii?Q?6cPr8frKpDGYZcSohonWYXXUf4fuhD205fk2Su4VB7wvXjDMUy8cm4ykbJYy?=
+ =?us-ascii?Q?Lrtx0BjjuhltYB8tCzQApaeoiZXH9yIDM+l2iSG/Wv0zr1/XP1gi5lc7vVqm?=
+ =?us-ascii?Q?OgsYxoxHWrjfWzJJcVOGPFfAOkkpvo1NkAUKuh/HMmT7hh2jobiBESUhgcqe?=
+ =?us-ascii?Q?vbgZTB4jiR1BPPN598KlR0p0P1fvLKR3bjnHJERJ7U3y/aWYR5b/0CGwOSBl?=
+ =?us-ascii?Q?OwDarAHC9hBRGTJvSG6KI9DtGGmMcOO/s8+H62HM3xsl0/pW/YPO4HswQJV9?=
+ =?us-ascii?Q?LOz1nXqtsEz8HYdjCTeKazUYDfR3/sCuoII3mYYPViAIlR6pWB1NXyD2xYPi?=
+ =?us-ascii?Q?VHFaozCK7iyDfFDM0LjRDfdUmb4hr+9d2Rz/C8j54/r4paZsAwXQH+zMSgPR?=
+ =?us-ascii?Q?gENHCeV+OQ=3D=3D?=
+X-OriginatorOrg: os.amperecomputing.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5e1077e7-9103-4841-d942-08d9f0be8370
+X-MS-Exchange-CrossTenant-AuthSource: SA0PR01MB6329.prod.exchangelabs.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Feb 2022 20:05:29.7891
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: ncfYUu0P+AwlqlUHK4Jn7xEVPiRVkl+L03MjCyRICsxv0bTOwaiVU7I+NGbdkIWj2AQE9FSid4BQ27CcV6vTTjLpDAKAvy1MxxFcIWrDqcTosLNsNK7Qz/EF0Zvx7SRa
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR01MB4628
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -81,386 +130,228 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/12/22 12:20 PM, Manivannan Sadhasivam wrote:
-> From: Paul Davey <paul.davey@alliedtelesis.co.nz>
+On Tue, Feb 15, 2022 at 07:19:45PM +0100, Vincent Guittot wrote:
+> On Tue, 15 Feb 2022 at 18:32, Darren Hart <darren@os.amperecomputing.com> wrote:
+> >
+> > On Tue, Feb 15, 2022 at 06:09:08PM +0100, Vincent Guittot wrote:
+> > > On Tue, 15 Feb 2022 at 17:46, Will Deacon <will@kernel.org> wrote:
+> > > >
+> > > > On Tue, Feb 15, 2022 at 08:44:23AM -0800, Darren Hart wrote:
+> > > > > On Tue, Feb 15, 2022 at 04:38:59PM +0000, Will Decon wrote:
+> > > > > > On Fri, Feb 11, 2022 at 03:20:51AM +0000, Song Bao Hua (Barry Song) wrote:
+> > > > > > >
+> > > > > > >
+> > > > > > > > -----Original Message-----
+> > > > > > > > From: Darren Hart [mailto:darren@os.amperecomputing.com]
+> > > > > > > > Sent: Friday, February 11, 2022 2:43 PM
+> > > > > > > > To: LKML <linux-kernel@vger.kernel.org>; Linux Arm
+> > > > > > > > <linux-arm-kernel@lists.infradead.org>
+> > > > > > > > Cc: Catalin Marinas <catalin.marinas@arm.com>; Will Deacon <will@kernel.org>;
+> > > > > > > > Peter Zijlstra <peterz@infradead.org>; Vincent Guittot
+> > > > > > > > <vincent.guittot@linaro.org>; Song Bao Hua (Barry Song)
+> > > > > > > > <song.bao.hua@hisilicon.com>; Valentin Schneider
+> > > > > > > > <valentin.schneider@arm.com>; D . Scott Phillips
+> > > > > > > > <scott@os.amperecomputing.com>; Ilkka Koskinen
+> > > > > > > > <ilkka@os.amperecomputing.com>; stable@vger.kernel.org
+> > > > > > > > Subject: [PATCH] arm64: smp: Skip MC domain for SoCs without shared cache
+> > > > > > > >
+> > > > > > > > SoCs such as the Ampere Altra define clusters but have no shared
+> > > > > > > > processor-side cache. As of v5.16 with CONFIG_SCHED_CLUSTER and
+> > > > > > > > CONFIG_SCHED_MC, build_sched_domain() will BUG() with:
+> > > > > > > >
+> > > > > > > > BUG: arch topology borken
+> > > > > > > >      the CLS domain not a subset of the MC domain
+> > > > > > > >
+> > > > > > > > for each CPU (160 times for a 2 socket 80 core Altra system). The MC
+> > > > > > > > level cpu mask is then extended to that of the CLS child, and is later
+> > > > > > > > removed entirely as redundant.
+> > > > > > > >
+> > > > > > > > This change detects when all cpu_coregroup_mask weights=1 and uses an
+> > > > > > > > alternative sched_domain_topology equivalent to the default if
+> > > > > > > > CONFIG_SCHED_MC were disabled.
+> > > > > > > >
+> > > > > > > > The final resulting sched domain topology is unchanged with or without
+> > > > > > > > CONFIG_SCHED_CLUSTER, and the BUG is avoided:
+> > > > > > > >
+> > > > > > > > For CPU0:
+> > > > > > > >
+> > > > > > > > With CLS:
+> > > > > > > > CLS  [0-1]
+> > > > > > > > DIE  [0-79]
+> > > > > > > > NUMA [0-159]
+> > > > > > > >
+> > > > > > > > Without CLS:
+> > > > > > > > DIE  [0-79]
+> > > > > > > > NUMA [0-159]
+> > > > > > > >
+> > > > > > > > Cc: Catalin Marinas <catalin.marinas@arm.com>
+> > > > > > > > Cc: Will Deacon <will@kernel.org>
+> > > > > > > > Cc: Peter Zijlstra <peterz@infradead.org>
+> > > > > > > > Cc: Vincent Guittot <vincent.guittot@linaro.org>
+> > > > > > > > Cc: Barry Song <song.bao.hua@hisilicon.com>
+> > > > > > > > Cc: Valentin Schneider <valentin.schneider@arm.com>
+> > > > > > > > Cc: D. Scott Phillips <scott@os.amperecomputing.com>
+> > > > > > > > Cc: Ilkka Koskinen <ilkka@os.amperecomputing.com>
+> > > > > > > > Cc: <stable@vger.kernel.org> # 5.16.x
+> > > > > > > > Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
+> > > > > > >
+> > > > > > > Hi Darrent,
+> > > > > > > What kind of resources are clusters sharing on Ampere Altra?
+> > > > > > > So on Altra, cpus are not sharing LLC? Each LLC is separate
+> > > > > > > for each cpu?
+> > > > > > >
+> > > > > > > > ---
+> > > > > > > >  arch/arm64/kernel/smp.c | 32 ++++++++++++++++++++++++++++++++
+> > > > > > > >  1 file changed, 32 insertions(+)
+> > > > > > > >
+> > > > > > > > diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
+> > > > > > > > index 27df5c1e6baa..0a78ac5c8830 100644
+> > > > > > > > --- a/arch/arm64/kernel/smp.c
+> > > > > > > > +++ b/arch/arm64/kernel/smp.c
+> > > > > > > > @@ -715,9 +715,22 @@ void __init smp_init_cpus(void)
+> > > > > > > >         }
+> > > > > > > >  }
+> > > > > > > >
+> > > > > > > > +static struct sched_domain_topology_level arm64_no_mc_topology[] = {
+> > > > > > > > +#ifdef CONFIG_SCHED_SMT
+> > > > > > > > +       { cpu_smt_mask, cpu_smt_flags, SD_INIT_NAME(SMT) },
+> > > > > > > > +#endif
+> > > > > > > > +
+> > > > > > > > +#ifdef CONFIG_SCHED_CLUSTER
+> > > > > > > > +       { cpu_clustergroup_mask, cpu_cluster_flags, SD_INIT_NAME(CLS) },
+> > > > > > > > +#endif
+> > > > > > > > +       { cpu_cpu_mask, SD_INIT_NAME(DIE) },
+> > > > > > > > +       { NULL, },
+> > > > > > > > +};
+> > > > > > > > +
+> > > > > > > >  void __init smp_prepare_cpus(unsigned int max_cpus)
+> > > > > > > >  {
+> > > > > > > >         const struct cpu_operations *ops;
+> > > > > > > > +       bool use_no_mc_topology = true;
+> > > > > > > >         int err;
+> > > > > > > >         unsigned int cpu;
+> > > > > > > >         unsigned int this_cpu;
+> > > > > > > > @@ -758,6 +771,25 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
+> > > > > > > >
+> > > > > > > >                 set_cpu_present(cpu, true);
+> > > > > > > >                 numa_store_cpu_info(cpu);
+> > > > > > > > +
+> > > > > > > > +               /*
+> > > > > > > > +                * Only use no_mc topology if all cpu_coregroup_mask weights=1
+> > > > > > > > +                */
+> > > > > > > > +               if (cpumask_weight(cpu_coregroup_mask(cpu)) > 1)
+> > > > > > > > +                       use_no_mc_topology = false;
+> > > > > > >
+> > > > > > > This seems to be wrong? If you have 5 cpus,
+> > > > > > > Cpu0 has cpu_coregroup_mask(cpu)== 1, cpu1-4
+> > > > > > > has cpu_coregroup_mask(cpu)== 4, for cpu0, you still
+> > > > > > > need to remove MC, but for cpu1-4, you will need
+> > > > > > > CLS and MC both?
+> > > > > >
+> > > > > > What is the *current* behaviour on such a system?
+> > > > > >
+> > > > >
+> > > > > As I understand it, any system that uses the default topology which has
+> > > > > a cpus_coregroup weight of 1 and a child (cluster, smt, ...) weight > 1
+> > > > > will behave as described above by printing the following for each CPU
+> > > > > matching this criteria:
+> > > > >
+> > > > >   BUG: arch topology borken
+> > > > >         the [CLS,SMT,...] domain not a subset of the MC domain
+> > > > >
+> > > > > And then extend the MC domain cpumask to match that of the child and continue
+> > > > > on.
+> > > > >
+> > > > > That would still be the behavior for this type of system after this
+> > > > > patch is applied.
+> > > >
+> > > > That's what I thought, but in that case applying your patch is a net
+> > > > improvement: systems either get current or better behaviour.
+> > >
+> > > CLUSTER level is normally defined as a intermediate group of the MC
+> > > level and both levels have the scheduler flag SD_SHARE_PKG_RESOURCES
+> > > flag
+> > >
+> > > In the case of Ampere altra, they consider that CPUA have a CLUSTER
+> > > level which SD_SHARE_PKG_RESOURCES with another CPUB but the next and
+> > > larger MC level then says that CPUA doesn't SD_SHARE_PKG_RESOURCES
+> > > with CPUB which seems to be odd because the SD_SHARE_PKG_RESOURCES has
+> > > not disappeared Looks like there is a mismatch in topology description
+> >
+> > Hi Vincent,
+> >
+> > Agree. Where do you think this mismatch exists?
 > 
-> The MHI driver does not work on big endian architectures.  The
-> controller never transitions into mission mode.  This appears to be due
-> to the modem device expecting the various contexts and transfer rings to
-> have fields in little endian order in memory, but the driver constructs
-> them in native endianness.
-
-Yes, this is true.
-
-> Fix MHI event, channel and command contexts and TRE handling macros to
-> use explicit conversion to little endian.  Mark fields in relevant
-> structures as little endian to document this requirement.
-
-Basically every field in the external interface whose size
-is greater than one byte must have its endianness noted.
- From what I can tell, you did that for all of the exposed
-structures defined in "drivers/bus/mhi/core/internal.h",
-which is good.
-
-*However* some of the *constants* were defined the wrong way.
-
-Basically, all of the constant values should be expressed
-in host byte order.  And any needed byte swapping should be
-done at the time the value is read from memory--immediately.
-That way, we isolate that activity to the one place we
-interface with the possibly "foreign" format, and from then
-on, everything may be assumed to be in natural (CPU) byte order.
-
-I will point out what I mean, below.
-
-> Fixes: a6e2e3522f29 ("bus: mhi: core: Add support for PM state transitions")
-> Fixes: 6cd330ae76ff ("bus: mhi: core: Add support for ringing channel/event ring doorbells")
-> Signed-off-by: Paul Davey <paul.davey@alliedtelesis.co.nz>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-> ---
->   drivers/bus/mhi/core/debugfs.c  |  26 +++----
->   drivers/bus/mhi/core/init.c     |  36 +++++-----
->   drivers/bus/mhi/core/internal.h | 119 ++++++++++++++++----------------
->   drivers/bus/mhi/core/main.c     |  22 +++---
->   drivers/bus/mhi/core/pm.c       |   4 +-
->   5 files changed, 104 insertions(+), 103 deletions(-)
+> I think that the problem comes from that the default topology order is
+> assumed to be :
+> SMT
+> CLUSTER shares pkg resources i.e. cache
+> MC
+> DIE
+> NUMA
 > 
-> diff --git a/drivers/bus/mhi/core/debugfs.c b/drivers/bus/mhi/core/debugfs.c
-> index 858d7516410b..d818586c229d 100644
-> --- a/drivers/bus/mhi/core/debugfs.c
-> +++ b/drivers/bus/mhi/core/debugfs.c
-> @@ -60,16 +60,16 @@ static int mhi_debugfs_events_show(struct seq_file *m, void *d)
->   		}
+> but in your case, you want a topology order like :
+> SMT
+> MC
+> CLUSTER shares SCU
+> DIE
+> NUMA
 
-These look fine, because they're doing the conversion of the
-fields just as they're read from memory.
+Given the fairly loose definition of some of these domains and the
+freedom to adjust flags with custom topologies, I think it's difficult
+to say it needs to be this or that. As you point out, this stems from an
+assumption in the default topology, so eliding the MC level within the
+current set of abstractions for a very targeted topology still seems
+reasonable to address the BUG in the very near term in a contained way.
 
->   		seq_printf(m, "Index: %d intmod count: %lu time: %lu",
-> -			   i, (er_ctxt->intmod & EV_CTX_INTMODC_MASK) >>
-> +			   i, (le32_to_cpu(er_ctxt->intmod) & EV_CTX_INTMODC_MASK) >>
->   			   EV_CTX_INTMODC_SHIFT,
-> -			   (er_ctxt->intmod & EV_CTX_INTMODT_MASK) >>
-> +			   (le32_to_cpu(er_ctxt->intmod) & EV_CTX_INTMODT_MASK) >>
->   			   EV_CTX_INTMODT_SHIFT);
+> 
+> IIUC, the cluster is defined as the 2nd (no SMT) or 3rd (SMT) level in
+> the PPTT table whereas the MC level is defined as the number of cache
+> levels. So i would say that you should compare the level to know the
+> ordering
+> 
+> Then, there is another point:
+> In your case, CLUSTER level still has the flag SD_SHARE_PKG_RESOURCES
+> which is used to define some scheduler internal variable like
+> sd_llc(sched domain last level of cache) which allows fast task
+> migration between this cpus in this level at wakeup. In your case the
+> sd_llc should not be the cluster but the MC with only one CPU. But I
+> would not be surprised that most of perf improvement comes from this
+> sd_llc wrongly set to cluster instead of the single CPU
 
-. . .
+Agree that we currently have an imperfect representation of SoCs without
+a shared CPU-side cache. Within this imperfect abstraction, it seems
+valid to consider the SCU as a valid shared resource to be described by
+SD_SHARE_PKG_RESOURCES, and as you say, that does result in an overall
+performance improvement.
 
-> diff --git a/drivers/bus/mhi/core/init.c b/drivers/bus/mhi/core/init.c
-> index af484b03558a..4bd62f32695d 100644
-> --- a/drivers/bus/mhi/core/init.c
-> +++ b/drivers/bus/mhi/core/init.c
-> @@ -293,17 +293,17 @@ int mhi_init_dev_ctxt(struct mhi_controller *mhi_cntrl)
->   		if (mhi_chan->offload_ch)
->   			continue;
->   
-> -		tmp = chan_ctxt->chcfg;
-> +		tmp = le32_to_cpu(chan_ctxt->chcfg);
->   		tmp &= ~CHAN_CTX_CHSTATE_MASK;
+Also agree that it is worth working toward a better abstraction. On the
+way to that, I think it makes sense to avoid BUG'ing on the current
+topology which is a reasonable one given the current abstraction.
 
-Note that CHAN_CTX_CHSTATE_MASK, etc. here are assumed to
-be in CPU byte order.  This is good, and that pattern is
-followed for a bunch more code that I've omitted.
+Thanks,
 
->   		tmp |= (MHI_CH_STATE_DISABLED << CHAN_CTX_CHSTATE_SHIFT);
->   		tmp &= ~CHAN_CTX_BRSTMODE_MASK;
->   		tmp |= (mhi_chan->db_cfg.brstmode << CHAN_CTX_BRSTMODE_SHIFT);
->   		tmp &= ~CHAN_CTX_POLLCFG_MASK;
->   		tmp |= (mhi_chan->db_cfg.pollcfg << CHAN_CTX_POLLCFG_SHIFT);
-> -		chan_ctxt->chcfg = tmp;
-> +		chan_ctxt->chcfg = cpu_to_le32(tmp);
->   
-> -		chan_ctxt->chtype = mhi_chan->type;
-> -		chan_ctxt->erindex = mhi_chan->er_index;
-> +		chan_ctxt->chtype = cpu_to_le32(mhi_chan->type);
-> +		chan_ctxt->erindex = cpu_to_le32(mhi_chan->er_index);
->   
->   		mhi_chan->ch_state = MHI_CH_STATE_DISABLED;
->   		mhi_chan->tre_ring.db_addr = (void __iomem *)&chan_ctxt->wp;
+> 
+> 
+> >
+> > I'd describe this as a mismatch between the default assumptions of
+> > the sched domains construction code (that SD_SHARE_PKG_RESOURCES implies
+> > a shared cpu-side cache) and SoCs without a shared cpu-side cache. This
+> > is encoded in properties of the MC level and the requirement that child
+> > domains be a subset of the parent domain cpumask.
+> >
+> > The MC-less topology addresses this in a consistent way with other
+> > architectures using the provided API for non-default topologies without
+> > changing these fundamental assumptions and without changing the final
+> > resulting topology which is correct and matches the topology supplied in
+> > the ACPI PPTT.
+> 
+> 
+> >
+> > --
+> > Darren Hart
+> > Ampere Computing / OS and Kernel
 
-. . .
-
-> diff --git a/drivers/bus/mhi/core/internal.h b/drivers/bus/mhi/core/internal.h
-> index e2e10474a9d9..fa64340a8997 100644
-> --- a/drivers/bus/mhi/core/internal.h
-> +++ b/drivers/bus/mhi/core/internal.h
-> @@ -209,14 +209,14 @@ extern struct bus_type mhi_bus_type;
->   #define EV_CTX_INTMODT_MASK GENMASK(31, 16)
->   #define EV_CTX_INTMODT_SHIFT 16
->   struct mhi_event_ctxt {
-> -	__u32 intmod;
-> -	__u32 ertype;
-> -	__u32 msivec;
-> -
-> -	__u64 rbase __packed __aligned(4);
-> -	__u64 rlen __packed __aligned(4);
-> -	__u64 rp __packed __aligned(4);
-> -	__u64 wp __packed __aligned(4);
-
-These are all good.
-
-> +	__le32 intmod;
-> +	__le32 ertype;
-> +	__le32 msivec;
-> +
-> +	__le64 rbase __packed __aligned(4);
-> +	__le64 rlen __packed __aligned(4);
-> +	__le64 rp __packed __aligned(4);
-> +	__le64 wp __packed __aligned(4);
->   };
-
-This is separate from the subject of this patch, but I'm
-pretty sure the entire structure (rather than all of those
-fields) can be defined with the __packed and __aligned(4)
-attributes to achieve the same effect.
-
->   #define CHAN_CTX_CHSTATE_MASK GENMASK(7, 0)
-
-. . .
-
-> @@ -277,57 +277,58 @@ enum mhi_cmd_type {
->   /* No operation command */
->   #define MHI_TRE_CMD_NOOP_PTR (0)
->   #define MHI_TRE_CMD_NOOP_DWORD0 (0)
-> -#define MHI_TRE_CMD_NOOP_DWORD1 (MHI_CMD_NOP << 16)
-> +#define MHI_TRE_CMD_NOOP_DWORD1 (cpu_to_le32(MHI_CMD_NOP << 16))
-
-This just looks wrong to me.  The original definition
-should be fine, but then where it's *used* it should
-be passed to cpu_to_le32().  I realize this might be
-a special case, where these "DWORD" values are getting
-written out to command ring elements, but even so, the
-byte swapping that's happening is important and should
-be made obvious in the code using these symbols.
-
-This comment applies to many more similar definitions
-below.  I don't know; maybe it looks cumbersome if
-it's done in the code, but I still think it's better to
-consistenly define symbols like this in CPU byte order
-and do the conversions explicitly only when the values
-are read/written to "foreign" (external interface)
-memory.
-
-Outside of this issue, the remainder of the patch looks
-OK to me.
-
-					-Alex
-
->   /* Channel reset command */
->   #define MHI_TRE_CMD_RESET_PTR (0)
->   #define MHI_TRE_CMD_RESET_DWORD0 (0)
-> -#define MHI_TRE_CMD_RESET_DWORD1(chid) ((chid << 24) | \
-> -					(MHI_CMD_RESET_CHAN << 16))
-> +#define MHI_TRE_CMD_RESET_DWORD1(chid) (cpu_to_le32((chid << 24) | \
-> +					(MHI_CMD_RESET_CHAN << 16)))
->   
->   /* Channel stop command */
->   #define MHI_TRE_CMD_STOP_PTR (0)
->   #define MHI_TRE_CMD_STOP_DWORD0 (0)
-> -#define MHI_TRE_CMD_STOP_DWORD1(chid) ((chid << 24) | \
-> -				       (MHI_CMD_STOP_CHAN << 16))
-> +#define MHI_TRE_CMD_STOP_DWORD1(chid) (cpu_to_le32((chid << 24) | \
-> +				       (MHI_CMD_STOP_CHAN << 16)))
->   
->   /* Channel start command */
->   #define MHI_TRE_CMD_START_PTR (0)
->   #define MHI_TRE_CMD_START_DWORD0 (0)
-> -#define MHI_TRE_CMD_START_DWORD1(chid) ((chid << 24) | \
-> -					(MHI_CMD_START_CHAN << 16))
-> +#define MHI_TRE_CMD_START_DWORD1(chid) (cpu_to_le32((chid << 24) | \
-> +					(MHI_CMD_START_CHAN << 16)))
->   
-> -#define MHI_TRE_GET_CMD_CHID(tre) (((tre)->dword[1] >> 24) & 0xFF)
-> -#define MHI_TRE_GET_CMD_TYPE(tre) (((tre)->dword[1] >> 16) & 0xFF)
-> +#define MHI_TRE_GET_DWORD(tre, word) (le32_to_cpu((tre)->dword[(word)]))
-> +#define MHI_TRE_GET_CMD_CHID(tre) ((MHI_TRE_GET_DWORD(tre, 1) >> 24) & 0xFF)
-> +#define MHI_TRE_GET_CMD_TYPE(tre) ((MHI_TRE_GET_DWORD(tre, 1) >> 16) & 0xFF)
->   
->   /* Event descriptor macros */
-> -#define MHI_TRE_EV_PTR(ptr) (ptr)
-> -#define MHI_TRE_EV_DWORD0(code, len) ((code << 24) | len)
-> -#define MHI_TRE_EV_DWORD1(chid, type) ((chid << 24) | (type << 16))
-> -#define MHI_TRE_GET_EV_PTR(tre) ((tre)->ptr)
-> -#define MHI_TRE_GET_EV_CODE(tre) (((tre)->dword[0] >> 24) & 0xFF)
-> -#define MHI_TRE_GET_EV_LEN(tre) ((tre)->dword[0] & 0xFFFF)
-> -#define MHI_TRE_GET_EV_CHID(tre) (((tre)->dword[1] >> 24) & 0xFF)
-> -#define MHI_TRE_GET_EV_TYPE(tre) (((tre)->dword[1] >> 16) & 0xFF)
-> -#define MHI_TRE_GET_EV_STATE(tre) (((tre)->dword[0] >> 24) & 0xFF)
-> -#define MHI_TRE_GET_EV_EXECENV(tre) (((tre)->dword[0] >> 24) & 0xFF)
-> -#define MHI_TRE_GET_EV_SEQ(tre) ((tre)->dword[0])
-> -#define MHI_TRE_GET_EV_TIME(tre) ((tre)->ptr)
-> -#define MHI_TRE_GET_EV_COOKIE(tre) lower_32_bits((tre)->ptr)
-> -#define MHI_TRE_GET_EV_VEID(tre) (((tre)->dword[0] >> 16) & 0xFF)
-> -#define MHI_TRE_GET_EV_LINKSPEED(tre) (((tre)->dword[1] >> 24) & 0xFF)
-> -#define MHI_TRE_GET_EV_LINKWIDTH(tre) ((tre)->dword[0] & 0xFF)
-> +#define MHI_TRE_EV_PTR(ptr) (cpu_to_le64(ptr))
-> +#define MHI_TRE_EV_DWORD0(code, len) (cpu_to_le32((code << 24) | len))
-> +#define MHI_TRE_EV_DWORD1(chid, type) (cpu_to_le32((chid << 24) | (type << 16)))
-> +#define MHI_TRE_GET_EV_PTR(tre) (le64_to_cpu((tre)->ptr))
-> +#define MHI_TRE_GET_EV_CODE(tre) ((MHI_TRE_GET_DWORD(tre, 0) >> 24) & 0xFF)
-> +#define MHI_TRE_GET_EV_LEN(tre) (MHI_TRE_GET_DWORD(tre, 0) & 0xFFFF)
-> +#define MHI_TRE_GET_EV_CHID(tre) ((MHI_TRE_GET_DWORD(tre, 1) >> 24) & 0xFF)
-> +#define MHI_TRE_GET_EV_TYPE(tre) ((MHI_TRE_GET_DWORD(tre, 1) >> 16) & 0xFF)
-> +#define MHI_TRE_GET_EV_STATE(tre) ((MHI_TRE_GET_DWORD(tre, 0) >> 24) & 0xFF)
-> +#define MHI_TRE_GET_EV_EXECENV(tre) ((MHI_TRE_GET_DWORD(tre, 0) >> 24) & 0xFF)
-> +#define MHI_TRE_GET_EV_SEQ(tre) MHI_TRE_GET_DWORD(tre, 0)
-> +#define MHI_TRE_GET_EV_TIME(tre) (MHI_TRE_GET_EV_PTR(tre))
-> +#define MHI_TRE_GET_EV_COOKIE(tre) lower_32_bits(MHI_TRE_GET_EV_PTR(tre))
-> +#define MHI_TRE_GET_EV_VEID(tre) ((MHI_TRE_GET_DWORD(tre, 0) >> 16) & 0xFF)
-> +#define MHI_TRE_GET_EV_LINKSPEED(tre) ((MHI_TRE_GET_DWORD(tre, 1) >> 24) & 0xFF)
-> +#define MHI_TRE_GET_EV_LINKWIDTH(tre) (MHI_TRE_GET_DWORD(tre, 0) & 0xFF)
->   
->   /* Transfer descriptor macros */
-> -#define MHI_TRE_DATA_PTR(ptr) (ptr)
-> -#define MHI_TRE_DATA_DWORD0(len) (len & MHI_MAX_MTU)
-> -#define MHI_TRE_DATA_DWORD1(bei, ieot, ieob, chain) ((2 << 16) | (bei << 10) \
-> -	| (ieot << 9) | (ieob << 8) | chain)
-> +#define MHI_TRE_DATA_PTR(ptr) (cpu_to_le64(ptr))
-> +#define MHI_TRE_DATA_DWORD0(len) (cpu_to_le32(len & MHI_MAX_MTU))
-> +#define MHI_TRE_DATA_DWORD1(bei, ieot, ieob, chain) (cpu_to_le32((2 << 16) | (bei << 10) \
-> +	| (ieot << 9) | (ieob << 8) | chain))
->   
->   /* RSC transfer descriptor macros */
-> -#define MHI_RSCTRE_DATA_PTR(ptr, len) (((u64)len << 48) | ptr)
-> -#define MHI_RSCTRE_DATA_DWORD0(cookie) (cookie)
-> -#define MHI_RSCTRE_DATA_DWORD1 (MHI_PKT_TYPE_COALESCING << 16)
-> +#define MHI_RSCTRE_DATA_PTR(ptr, len) (cpu_to_le64(((u64)len << 48) | ptr))
-> +#define MHI_RSCTRE_DATA_DWORD0(cookie) (cpu_to_le32(cookie))
-> +#define MHI_RSCTRE_DATA_DWORD1 (cpu_to_le32(MHI_PKT_TYPE_COALESCING << 16))
->   
->   enum mhi_pkt_type {
->   	MHI_PKT_TYPE_INVALID = 0x0,
-> @@ -500,7 +501,7 @@ struct state_transition {
->   struct mhi_ring {
->   	dma_addr_t dma_handle;
->   	dma_addr_t iommu_base;
-> -	u64 *ctxt_wp; /* point to ctxt wp */
-> +	__le64 *ctxt_wp; /* point to ctxt wp */
->   	void *pre_aligned;
->   	void *base;
->   	void *rp;
-> diff --git a/drivers/bus/mhi/core/main.c b/drivers/bus/mhi/core/main.c
-> index ffde617f93a3..85f4f7c8d7c6 100644
-> --- a/drivers/bus/mhi/core/main.c
-> +++ b/drivers/bus/mhi/core/main.c
-> @@ -114,7 +114,7 @@ void mhi_ring_er_db(struct mhi_event *mhi_event)
->   	struct mhi_ring *ring = &mhi_event->ring;
->   
->   	mhi_event->db_cfg.process_db(mhi_event->mhi_cntrl, &mhi_event->db_cfg,
-> -				     ring->db_addr, *ring->ctxt_wp);
-> +				     ring->db_addr, le64_to_cpu(*ring->ctxt_wp));
->   }
->   
->   void mhi_ring_cmd_db(struct mhi_controller *mhi_cntrl, struct mhi_cmd *mhi_cmd)
-> @@ -123,7 +123,7 @@ void mhi_ring_cmd_db(struct mhi_controller *mhi_cntrl, struct mhi_cmd *mhi_cmd)
->   	struct mhi_ring *ring = &mhi_cmd->ring;
->   
->   	db = ring->iommu_base + (ring->wp - ring->base);
-> -	*ring->ctxt_wp = db;
-> +	*ring->ctxt_wp = cpu_to_le64(db);
->   	mhi_write_db(mhi_cntrl, ring->db_addr, db);
->   }
->   
-> @@ -140,7 +140,7 @@ void mhi_ring_chan_db(struct mhi_controller *mhi_cntrl,
->   	 * before letting h/w know there is new element to fetch.
->   	 */
->   	dma_wmb();
-> -	*ring->ctxt_wp = db;
-> +	*ring->ctxt_wp = cpu_to_le64(db);
->   
->   	mhi_chan->db_cfg.process_db(mhi_cntrl, &mhi_chan->db_cfg,
->   				    ring->db_addr, db);
-> @@ -432,7 +432,7 @@ irqreturn_t mhi_irq_handler(int irq_number, void *dev)
->   	struct mhi_event_ctxt *er_ctxt =
->   		&mhi_cntrl->mhi_ctxt->er_ctxt[mhi_event->er_index];
->   	struct mhi_ring *ev_ring = &mhi_event->ring;
-> -	dma_addr_t ptr = er_ctxt->rp;
-> +	dma_addr_t ptr = le64_to_cpu(er_ctxt->rp);
->   	void *dev_rp;
->   
->   	if (!is_valid_ring_ptr(ev_ring, ptr)) {
-> @@ -537,14 +537,14 @@ static void mhi_recycle_ev_ring_element(struct mhi_controller *mhi_cntrl,
->   
->   	/* Update the WP */
->   	ring->wp += ring->el_size;
-> -	ctxt_wp = *ring->ctxt_wp + ring->el_size;
-> +	ctxt_wp = le64_to_cpu(*ring->ctxt_wp) + ring->el_size;
->   
->   	if (ring->wp >= (ring->base + ring->len)) {
->   		ring->wp = ring->base;
->   		ctxt_wp = ring->iommu_base;
->   	}
->   
-> -	*ring->ctxt_wp = ctxt_wp;
-> +	*ring->ctxt_wp = cpu_to_le64(ctxt_wp);
->   
->   	/* Update the RP */
->   	ring->rp += ring->el_size;
-> @@ -801,7 +801,7 @@ int mhi_process_ctrl_ev_ring(struct mhi_controller *mhi_cntrl,
->   	struct device *dev = &mhi_cntrl->mhi_dev->dev;
->   	u32 chan;
->   	int count = 0;
-> -	dma_addr_t ptr = er_ctxt->rp;
-> +	dma_addr_t ptr = le64_to_cpu(er_ctxt->rp);
->   
->   	/*
->   	 * This is a quick check to avoid unnecessary event processing
-> @@ -940,7 +940,7 @@ int mhi_process_ctrl_ev_ring(struct mhi_controller *mhi_cntrl,
->   		mhi_recycle_ev_ring_element(mhi_cntrl, ev_ring);
->   		local_rp = ev_ring->rp;
->   
-> -		ptr = er_ctxt->rp;
-> +		ptr = le64_to_cpu(er_ctxt->rp);
->   		if (!is_valid_ring_ptr(ev_ring, ptr)) {
->   			dev_err(&mhi_cntrl->mhi_dev->dev,
->   				"Event ring rp points outside of the event ring\n");
-> @@ -970,7 +970,7 @@ int mhi_process_data_event_ring(struct mhi_controller *mhi_cntrl,
->   	int count = 0;
->   	u32 chan;
->   	struct mhi_chan *mhi_chan;
-> -	dma_addr_t ptr = er_ctxt->rp;
-> +	dma_addr_t ptr = le64_to_cpu(er_ctxt->rp);
->   
->   	if (unlikely(MHI_EVENT_ACCESS_INVALID(mhi_cntrl->pm_state)))
->   		return -EIO;
-> @@ -1011,7 +1011,7 @@ int mhi_process_data_event_ring(struct mhi_controller *mhi_cntrl,
->   		mhi_recycle_ev_ring_element(mhi_cntrl, ev_ring);
->   		local_rp = ev_ring->rp;
->   
-> -		ptr = er_ctxt->rp;
-> +		ptr = le64_to_cpu(er_ctxt->rp);
->   		if (!is_valid_ring_ptr(ev_ring, ptr)) {
->   			dev_err(&mhi_cntrl->mhi_dev->dev,
->   				"Event ring rp points outside of the event ring\n");
-> @@ -1533,7 +1533,7 @@ static void mhi_mark_stale_events(struct mhi_controller *mhi_cntrl,
->   	/* mark all stale events related to channel as STALE event */
->   	spin_lock_irqsave(&mhi_event->lock, flags);
->   
-> -	ptr = er_ctxt->rp;
-> +	ptr = le64_to_cpu(er_ctxt->rp);
->   	if (!is_valid_ring_ptr(ev_ring, ptr)) {
->   		dev_err(&mhi_cntrl->mhi_dev->dev,
->   			"Event ring rp points outside of the event ring\n");
-> diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-> index 4aae0baea008..c35c5ddc7220 100644
-> --- a/drivers/bus/mhi/core/pm.c
-> +++ b/drivers/bus/mhi/core/pm.c
-> @@ -218,7 +218,7 @@ int mhi_ready_state_transition(struct mhi_controller *mhi_cntrl)
->   			continue;
->   
->   		ring->wp = ring->base + ring->len - ring->el_size;
-> -		*ring->ctxt_wp = ring->iommu_base + ring->len - ring->el_size;
-> +		*ring->ctxt_wp = cpu_to_le64(ring->iommu_base + ring->len - ring->el_size);
->   		/* Update all cores */
->   		smp_wmb();
->   
-> @@ -420,7 +420,7 @@ static int mhi_pm_mission_mode_transition(struct mhi_controller *mhi_cntrl)
->   			continue;
->   
->   		ring->wp = ring->base + ring->len - ring->el_size;
-> -		*ring->ctxt_wp = ring->iommu_base + ring->len - ring->el_size;
-> +		*ring->ctxt_wp = cpu_to_le64(ring->iommu_base + ring->len - ring->el_size);
->   		/* Update to all cores */
->   		smp_wmb();
->   
-
+-- 
+Darren Hart
+Ampere Computing / OS and Kernel
