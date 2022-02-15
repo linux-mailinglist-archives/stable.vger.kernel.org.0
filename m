@@ -2,104 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 270264B6757
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 10:18:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C084B675B
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 10:19:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235776AbiBOJSp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 04:18:45 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52748 "EHLO
+        id S233971AbiBOJT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 04:19:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233971AbiBOJSn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 04:18:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F42122BB38;
-        Tue, 15 Feb 2022 01:18:33 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92A0F60A6B;
-        Tue, 15 Feb 2022 09:18:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04120C340F8;
-        Tue, 15 Feb 2022 09:18:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644916713;
-        bh=auvbexz8OfCE17jezkrwExlxQUSMdLXG0OAD2bmLs8A=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=R1Pf445AMn7iEf0TcHJGtZqUinPVYRIlRYIhUK+pqFhNMydlmGdLOnDcwqdoOpcxv
-         rM+QtlC5MX40dddlY60U1EemOtvK01KeP4rBm30AWnHXp/wG3B2AqNZ0rlunLaOMbW
-         tr7Vs0w/mpIoN0XApZa80K1xHxowMUZXp7dP4/BbBM9W+v5sudL1uLbQT49sSxdXFp
-         TQxXAYDRaUN8F2rMT1u+N/nJuunLdz+VObtLisWpW965HLfjJNrl621lEvA4NBgly+
-         FEKN2xUIJ9o0fBCy3UJA1PmxKT+NsxLFmCAClaf0u/3M6fW1/dPCwNdFwRQIJqLuEw
-         iPMY1EoXY49Bg==
-Received: by mail-wr1-f46.google.com with SMTP id s10so17421685wrb.1;
-        Tue, 15 Feb 2022 01:18:32 -0800 (PST)
-X-Gm-Message-State: AOAM533GmPZgCwmwAponTxUPmfUNvcd9k2G4x9rqSFqZv81DGsq2BSDd
-        EvJ7IlR2rzNgXgHbmDTYe2rPYNGK+wNOWr6l66A=
-X-Google-Smtp-Source: ABdhPJytLoTfipZUwnG73E442/QjIxHnERGjQ2aeR9o7LjnpbatwjsLI+Mk7641j6VpHXtVWtwvDTIufUdUsOw5At+o=
-X-Received: by 2002:a5d:5446:: with SMTP id w6mr2390801wrv.12.1644916711299;
- Tue, 15 Feb 2022 01:18:31 -0800 (PST)
+        with ESMTP id S232623AbiBOJT1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 04:19:27 -0500
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3E562CC94
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 01:19:17 -0800 (PST)
+Received: by mail-yb1-xb2f.google.com with SMTP id v63so26910977ybv.10
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 01:19:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=CYqFexpjDv9yT4nzLrQdxYmfh0odEShNXQitHQn7fDA=;
+        b=QhgZieLBfral8VRa4vrmZWWhB7NmweVEJqM3JzliYtBnnlygZC3jsRH+Wig7qvzlSQ
+         QaSPMPi1KNxQDQx7AblL+w+XP65yzLVG1OrMl3dJhC6ZdzHkGvniX2SeO6yE5jllFypz
+         u6kzsHgi+nnxUlqqKwjnshJtp1fzQ+0iRoj3gxStQDuplT2hebLQijurfi/WTasdIrwH
+         U/w4lV9oWYB9E5DbsSbL+/EKPbZ7Y+v+UaH4K0703yxTtzmW2zI3zo3iMUqj7ym2Ssxa
+         LEHVzCtffQ0ZB3o9qM6n489X+Y2YYMVbKjTAJ34QTUZt67Fhke6cw2J1lgnCPRUPR4DA
+         7dJA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=CYqFexpjDv9yT4nzLrQdxYmfh0odEShNXQitHQn7fDA=;
+        b=TeHZRYJWQNE7fS8qTblmfCmOPB1lk1jJD5sJRwRZ9t83ty5OFPdHgfSpkSO9KDW9iM
+         /ioxb3tSdYbljeEhSlEIwldYtwUkmK30s1NCYhd7bjvctrEjr4wcVFX0L7OSwJZ4h47z
+         2r2x6EiAyQlJwDgaek004QgM8L0Eu+lz2sdgHki6OCoZNZhYnmURNuSOPwsVKvD3wui4
+         2KTSukQFyrCo1dPJ0A4QRCBOTwPt6SvWc3ZKZepG4xaUo6/9S/SOm29JphnsBqVBK7fu
+         567GJ26H+tP91+83ZhItr8C2Qc4vjd1os5etUMMycam94TRvvTyeSZ6S2OvSxyQROTCV
+         lnnw==
+X-Gm-Message-State: AOAM532gJ6yfWhu3kRAMbOycf4lxuEX7hrQ8mzsKgQOLwze5nmO9dHle
+        yS7M2chlZFkUz1TmaOQ51rKvnsJuEXm9Vank7CRckQ==
+X-Google-Smtp-Source: ABdhPJw3lm36wFBvVHZstEo0lqQZvmDd1KE/a8lc90xFgtXeAHUfZ2FMO07WBUwCc06s9vOxda8EDAb7G+QnxBoOEy8=
+X-Received: by 2002:a25:97c4:: with SMTP id j4mr3145244ybo.108.1644916756924;
+ Tue, 15 Feb 2022 01:19:16 -0800 (PST)
 MIME-Version: 1.0
-References: <20220214163452.1568807-1-arnd@kernel.org> <20220214163452.1568807-4-arnd@kernel.org>
- <YgqK1ihlJvRFHJ9h@infradead.org>
-In-Reply-To: <YgqK1ihlJvRFHJ9h@infradead.org>
-From:   Arnd Bergmann <arnd@kernel.org>
-Date:   Tue, 15 Feb 2022 10:18:15 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a1XkWNQcFEhJQ0+qWzih1YRQDS_N8xiosN7FHn3yoTJpQ@mail.gmail.com>
-Message-ID: <CAK8P3a1XkWNQcFEhJQ0+qWzih1YRQDS_N8xiosN7FHn3yoTJpQ@mail.gmail.com>
-Subject: Re: [PATCH 03/14] nds32: fix access_ok() checks in get/put_user
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Christoph Hellwig <hch@lst.de>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rich Felker <dalias@libc.org>, linux-ia64@vger.kernel.org,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Max Filippov <jcmvbkbc@gmail.com>, Guo Ren <guoren@kernel.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Brian Cain <bcain@codeaurora.org>,
-        Helge Deller <deller@gmx.de>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Russell King - ARM Linux <linux@armlinux.org.uk>,
-        linux-csky@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        "open list:SYNOPSYS ARC ARCHITECTURE" 
-        <linux-snps-arc@lists.infradead.org>,
-        "open list:TENSILICA XTENSA PORT (xtensa)" 
-        <linux-xtensa@linux-xtensa.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        alpha <linux-alpha@vger.kernel.org>,
-        linux-um <linux-um@lists.infradead.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        Openrisc <openrisc@lists.librecores.org>,
-        Greentime Hu <green.hu@gmail.com>,
-        Stafford Horne <shorne@gmail.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        Nick Hu <nickhu@andestech.com>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Richard Weinberger <richard@nod.at>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        David Miller <davem@davemloft.net>
+References: <20220214092448.285381753@linuxfoundation.org>
+In-Reply-To: <20220214092448.285381753@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 15 Feb 2022 14:49:05 +0530
+Message-ID: <CA+G9fYuO552avg2T9jrRo0L+Vg0=uvusQVY9WxaQT2cC-Ly7_A@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/49] 4.19.230-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -107,30 +69,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 14, 2022 at 6:01 PM Christoph Hellwig <hch@infradead.org> wrote:
+On Mon, 14 Feb 2022 at 15:03, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On Mon, Feb 14, 2022 at 05:34:41PM +0100, Arnd Bergmann wrote:
-> > From: Arnd Bergmann <arnd@arndb.de>
-> >
-> > The get_user()/put_user() functions are meant to check for
-> > access_ok(), while the __get_user()/__put_user() functions
-> > don't.
-> >
-> > This broke in 4.19 for nds32, when it gained an extraneous
-> > check in __get_user(), but lost the check it needs in
-> > __put_user().
+> This is the start of the stable review cycle for the 4.19.230 release.
+> There are 49 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> Can we follow the lead of MIPS (which this was originally copied
-> from I think) and kill the pointless __get/put_user_check wrapper
-> that just obsfucate the code?
+> Responses should be made by Wed, 16 Feb 2022 09:24:36 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.230-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-I had another look, but I think that would be a bigger change than
-I want to have in a fix for stable backports, as nds32 also uses
-the _check versions in __{get,put}_user_error.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-If we instead clean it up in a separate patch, it should be done for
-all eight architectures that do the same thing, but at that point,
-the time seems better spent at coming up with a new set of
-calling conventions that work with asm-goto.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-         Arnd
+## Build
+* kernel: 4.19.230-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-4.19.y
+* git commit: 6343a97197f02ff1cb19d26d57a20a79340d681d
+* git describe: v4.19.229-50-g6343a97197f0
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
+.229-50-g6343a97197f0
+
+## Test Regressions (compared to v4.19.228-3-g020dc380ec76)
+No test regressions found.
+
+## Metric Regressions (compared to v4.19.228-3-g020dc380ec76)
+No metric regressions found.
+
+## Test Fixes (compared to v4.19.228-3-g020dc380ec76)
+No test fixes found.
+
+## Metric Fixes (compared to v4.19.228-3-g020dc380ec76)
+No metric fixes found.
+
+## Test result summary
+total: 78458, pass: 65509, fail: 548, skip: 11348, xfail: 1053
+
+## Build Summary
+* arm: 250 total, 246 passed, 4 failed
+* arm64: 35 total, 33 passed, 2 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 19 total, 19 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 26 total, 26 passed, 0 failed
+* powerpc: 52 total, 39 passed, 13 failed
+* s390: 12 total, 12 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 34 total, 34 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
