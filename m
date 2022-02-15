@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77C9B4B732F
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:43:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 214D24B7362
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239928AbiBOP1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 10:27:50 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46372 "EHLO
+        id S239903AbiBOP2B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 10:28:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239878AbiBOP1o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:27:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1CD5A66D8;
-        Tue, 15 Feb 2022 07:27:30 -0800 (PST)
+        with ESMTP id S239901AbiBOP1s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:27:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED587A94DE;
+        Tue, 15 Feb 2022 07:27:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A3B6B81A9A;
-        Tue, 15 Feb 2022 15:27:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23F58C340F2;
-        Tue, 15 Feb 2022 15:27:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16171B81AEF;
+        Tue, 15 Feb 2022 15:27:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95C3BC340F1;
+        Tue, 15 Feb 2022 15:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644938848;
-        bh=fPzhcJUNc782pRynNz+kxubVhm6EiTsyUtZufSvYyDg=;
+        s=k20201202; t=1644938849;
+        bh=qJwGXYo41BOzEX6oFtnAmcbygBymqUp/dIQMb+BAvlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kcmuhjnaIhpxkGhUIbMmw3E8gINQfv4tXka7+PKH+4JA3CYDsxX39vGRe8dqs7naD
-         5TujzPDPChPadVoT0X8mrvqpuy+brj+issvwwILHAvH+G5WrHrWISlgqDMN9p1Ggdg
-         gMnhMFLzZ/p2P+6fgEwatJ/W9KNcd/9mIOMcZI02Rogpsp+2BuByMgZkMldK/cfCql
-         JHT5glHVeDA4XVUFOKXy75OSMwaXMJvoTxTTCx0cUFxVISIHn8OjgSevmUz4FqYutj
-         0hR4f2SbCMzereVY4nvfMi9SyWZaE8VPg+0DCacOm74ahRrSw3AHnEFndsw+Yg1lhf
-         PG8cRsPtW9TNg==
+        b=Trmrpw/bgUC8KXZJ2oe2q2jd+k6nO1O9EFS9NL8anjqqr8HFHfBiR+SJzPQ+UUq5f
+         ZvLBt3FcSFNoLA3gbLemJgapV/PCibn//WTuk5tFy5NqiDfTsTvqBnTGP1w3v8iRPe
+         MvRvS0khiDKzDDF0jw2hPVdiYPsqfYyLaEMaXfcSI2ff6KmCgqoycRbfQgjaZrl5YZ
+         K6BCqY8lo05qjIDEo3C6TG+m2WuzM9vIypTmRbs/5mrKkc8LqSscILgsw7pc/46lX8
+         u8qZWwP35KJhflw+lneEXFzYYVW/NQ9YU4GwmhWKOvTM2hGUftcaFlr8nUoOuMUly3
+         XyKD3L/EZ4i3Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Axel Rasmussen <axelrasmussen@google.com>,
         Christian Brauner <brauner@kernel.org>,
         Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 15/34] pidfd: fix test failure due to stack overflow on some arches
-Date:   Tue, 15 Feb 2022 10:26:38 -0500
-Message-Id: <20220215152657.580200-15-sashal@kernel.org>
+        nathan@kernel.org, ndesaulniers@google.com,
+        linux-kselftest@vger.kernel.org, llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.16 16/34] selftests: fixup build warnings in pidfd / clone3 tests
+Date:   Tue, 15 Feb 2022 10:26:39 -0500
+Message-Id: <20220215152657.580200-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220215152657.580200-1-sashal@kernel.org>
 References: <20220215152657.580200-1-sashal@kernel.org>
@@ -60,144 +61,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Axel Rasmussen <axelrasmussen@google.com>
 
-[ Upstream commit 4cbd93c3c110447adc66cb67c08af21f939ae2d7 ]
+[ Upstream commit e2aa5e650b07693477dff554053605976789fd68 ]
 
-When running the pidfd_fdinfo_test on arm64, it fails for me. After some
-digging, the reason is that the child exits due to SIGBUS, because it
-overflows the 1024 byte stack we've reserved for it.
+These are some trivial fixups, which were needed to build the tests with
+clang and -Werror. The following issues are fixed:
 
-To fix the issue, increase the stack size to 8192 bytes (this number is
-somewhat arbitrary, and was arrived at through experimentation -- I kept
-doubling until the failure no longer occurred).
-
-Also, let's make the issue easier to debug. wait_for_pid() returns an
-ambiguous value: it may return -1 in all of these cases:
-
-1. waitpid() itself returned -1
-2. waitpid() returned success, but we found !WIFEXITED(status).
-3. The child process exited, but it did so with a -1 exit code.
-
-There's no way for the caller to tell the difference. So, at least log
-which occurred, so the test runner can debug things.
-
-While debugging this, I found that we had !WIFEXITED(), because the
-child exited due to a signal. This seems like a reasonably common case,
-so also print out whether or not we have WIFSIGNALED(), and the
-associated WTERMSIG() (if any). This lets us see the SIGBUS I'm fixing
-clearly when it occurs.
-
-Finally, I'm suspicious of allocating the child's stack on our stack.
-man clone(2) suggests that the correct way to do this is with mmap(),
-and in particular by setting MAP_STACK. So, switch to doing it that way
-instead.
+- Remove various unused variables.
+- In child_poll_leader_exit_test, clang isn't smart enough to realize
+  syscall(SYS_exit, 0) won't return, so it complains we never return
+  from a non-void function. Add an extra exit(0) to appease it.
+- In test_pidfd_poll_leader_exit, ret may be branched on despite being
+  uninitialized, if we have !use_waitpid. Initialize it to zero to get
+  the right behavior in that case.
 
 Signed-off-by: Axel Rasmussen <axelrasmussen@google.com>
 Acked-by: Christian Brauner <brauner@kernel.org>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/pidfd/pidfd.h         | 13 ++++++++---
- .../selftests/pidfd/pidfd_fdinfo_test.c       | 22 +++++++++++++++----
- 2 files changed, 28 insertions(+), 7 deletions(-)
+ tools/testing/selftests/clone3/clone3.c    | 2 --
+ tools/testing/selftests/pidfd/pidfd_test.c | 6 +++---
+ tools/testing/selftests/pidfd/pidfd_wait.c | 5 ++---
+ 3 files changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/tools/testing/selftests/pidfd/pidfd.h b/tools/testing/selftests/pidfd/pidfd.h
-index 01f8d3c0cf2cb..6922d6417e1cf 100644
---- a/tools/testing/selftests/pidfd/pidfd.h
-+++ b/tools/testing/selftests/pidfd/pidfd.h
-@@ -68,7 +68,7 @@
- #define PIDFD_SKIP 3
- #define PIDFD_XFAIL 4
+diff --git a/tools/testing/selftests/clone3/clone3.c b/tools/testing/selftests/clone3/clone3.c
+index 076cf4325f783..cd4582129c7d6 100644
+--- a/tools/testing/selftests/clone3/clone3.c
++++ b/tools/testing/selftests/clone3/clone3.c
+@@ -126,8 +126,6 @@ static void test_clone3(uint64_t flags, size_t size, int expected,
  
--int wait_for_pid(pid_t pid)
-+static inline int wait_for_pid(pid_t pid)
+ int main(int argc, char *argv[])
  {
+-	pid_t pid;
+-
+ 	uid_t uid = getuid();
+ 
+ 	ksft_print_header();
+diff --git a/tools/testing/selftests/pidfd/pidfd_test.c b/tools/testing/selftests/pidfd/pidfd_test.c
+index 529eb700ac26a..9a2d64901d591 100644
+--- a/tools/testing/selftests/pidfd/pidfd_test.c
++++ b/tools/testing/selftests/pidfd/pidfd_test.c
+@@ -441,7 +441,6 @@ static void test_pidfd_poll_exec(int use_waitpid)
+ {
+ 	int pid, pidfd = 0;
  	int status, ret;
+-	pthread_t t1;
+ 	time_t prog_start = time(NULL);
+ 	const char *test_name = "pidfd_poll check for premature notification on child thread exec";
  
-@@ -78,13 +78,20 @@ int wait_for_pid(pid_t pid)
- 		if (errno == EINTR)
- 			goto again;
- 
-+		ksft_print_msg("waitpid returned -1, errno=%d\n", errno);
- 		return -1;
- 	}
- 
--	if (!WIFEXITED(status))
-+	if (!WIFEXITED(status)) {
-+		ksft_print_msg(
-+		       "waitpid !WIFEXITED, WIFSIGNALED=%d, WTERMSIG=%d\n",
-+		       WIFSIGNALED(status), WTERMSIG(status));
- 		return -1;
-+	}
- 
--	return WEXITSTATUS(status);
-+	ret = WEXITSTATUS(status);
-+	ksft_print_msg("waitpid WEXITSTATUS=%d\n", ret);
-+	return ret;
+@@ -500,13 +499,14 @@ static int child_poll_leader_exit_test(void *args)
+ 	 */
+ 	*child_exit_secs = time(NULL);
+ 	syscall(SYS_exit, 0);
++	/* Never reached, but appeases compiler thinking we should return. */
++	exit(0);
  }
  
- static inline int sys_pidfd_open(pid_t pid, unsigned int flags)
-diff --git a/tools/testing/selftests/pidfd/pidfd_fdinfo_test.c b/tools/testing/selftests/pidfd/pidfd_fdinfo_test.c
-index 22558524f71c3..3fd8e903118f5 100644
---- a/tools/testing/selftests/pidfd/pidfd_fdinfo_test.c
-+++ b/tools/testing/selftests/pidfd/pidfd_fdinfo_test.c
-@@ -12,6 +12,7 @@
- #include <string.h>
- #include <syscall.h>
- #include <sys/wait.h>
-+#include <sys/mman.h>
- 
- #include "pidfd.h"
- #include "../kselftest.h"
-@@ -80,7 +81,10 @@ static inline int error_check(struct error *err, const char *test_name)
- 	return err->code;
- }
- 
-+#define CHILD_STACK_SIZE 8192
-+
- struct child {
-+	char *stack;
- 	pid_t pid;
- 	int   fd;
- };
-@@ -89,17 +93,22 @@ static struct child clone_newns(int (*fn)(void *), void *args,
- 				struct error *err)
+ static void test_pidfd_poll_leader_exit(int use_waitpid)
  {
- 	static int flags = CLONE_PIDFD | CLONE_NEWPID | CLONE_NEWNS | SIGCHLD;
--	size_t stack_size = 1024;
--	char *stack[1024] = { 0 };
- 	struct child ret;
+ 	int pid, pidfd = 0;
+-	int status, ret;
+-	time_t prog_start = time(NULL);
++	int status, ret = 0;
+ 	const char *test_name = "pidfd_poll check for premature notification on non-empty"
+ 				"group leader exit";
  
- 	if (!(flags & CLONE_NEWUSER) && geteuid() != 0)
- 		flags |= CLONE_NEWUSER;
+diff --git a/tools/testing/selftests/pidfd/pidfd_wait.c b/tools/testing/selftests/pidfd/pidfd_wait.c
+index be2943f072f60..17999e082aa71 100644
+--- a/tools/testing/selftests/pidfd/pidfd_wait.c
++++ b/tools/testing/selftests/pidfd/pidfd_wait.c
+@@ -39,7 +39,7 @@ static int sys_waitid(int which, pid_t pid, siginfo_t *info, int options,
  
-+	ret.stack = mmap(NULL, CHILD_STACK_SIZE, PROT_READ | PROT_WRITE,
-+			 MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
-+	if (ret.stack == MAP_FAILED) {
-+		error_set(err, -1, "mmap of stack failed (errno %d)", errno);
-+		return ret;
-+	}
-+
- #ifdef __ia64__
--	ret.pid = __clone2(fn, stack, stack_size, flags, args, &ret.fd);
-+	ret.pid = __clone2(fn, ret.stack, CHILD_STACK_SIZE, flags, args, &ret.fd);
- #else
--	ret.pid = clone(fn, stack + stack_size, flags, args, &ret.fd);
-+	ret.pid = clone(fn, ret.stack + CHILD_STACK_SIZE, flags, args, &ret.fd);
- #endif
+ TEST(wait_simple)
+ {
+-	int pidfd = -1, status = 0;
++	int pidfd = -1;
+ 	pid_t parent_tid = -1;
+ 	struct clone_args args = {
+ 		.parent_tid = ptr_to_u64(&parent_tid),
+@@ -47,7 +47,6 @@ TEST(wait_simple)
+ 		.flags = CLONE_PIDFD | CLONE_PARENT_SETTID,
+ 		.exit_signal = SIGCHLD,
+ 	};
+-	int ret;
+ 	pid_t pid;
+ 	siginfo_t info = {
+ 		.si_signo = 0,
+@@ -88,7 +87,7 @@ TEST(wait_simple)
  
- 	if (ret.pid < 0) {
-@@ -129,6 +138,11 @@ static inline int child_join(struct child *child, struct error *err)
- 	else if (r > 0)
- 		error_set(err, r, "child %d reported: %d", child->pid, r);
- 
-+	if (munmap(child->stack, CHILD_STACK_SIZE)) {
-+		error_set(err, -1, "munmap of child stack failed (errno %d)", errno);
-+		r = -1;
-+	}
-+
- 	return r;
- }
- 
+ TEST(wait_states)
+ {
+-	int pidfd = -1, status = 0;
++	int pidfd = -1;
+ 	pid_t parent_tid = -1;
+ 	struct clone_args args = {
+ 		.parent_tid = ptr_to_u64(&parent_tid),
 -- 
 2.34.1
 
