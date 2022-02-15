@@ -2,91 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A66484B6D03
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 14:07:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AEC44B6E2B
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 14:56:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238097AbiBONH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 08:07:28 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46238 "EHLO
+        id S236528AbiBON4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 08:56:35 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:32888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234583AbiBONH1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 08:07:27 -0500
-Received: from phobos.denx.de (phobos.denx.de [IPv6:2a01:238:438b:c500:173d:9f52:ddab:ee01])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42B46AFF78
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 05:07:16 -0800 (PST)
-Received: from tr.lan (ip-89-176-112-137.net.upcbroadband.cz [89.176.112.137])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: marex@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id 13E8383886;
-        Tue, 15 Feb 2022 14:07:14 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1644930434;
-        bh=+5XeOXiBdY2HU+UPOtxSSMLjN9PVOQsjLd31SIQQPRY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=wuy6q9KEzXzN+3V0tBAFURaiIRYty2mr9O3ATEWd0ACAEIlr/8mLwf4cloXftAni9
-         eJrBFJDLCFmxIlllZQojiI+yTSYnCA9jx2LYZrTMD9FAav10LRkkxTcoh8mJGBhMWl
-         ryXncxykBHtMho+d30d5kDIDfK0sgYCxbZ7fPQbIeRSVgdAh7vuvmSUsKu6uaz0kFU
-         ABZu0nGGhEsTqH2lsbo6Mg4IyTOfHEGwSfSlLC9yM+Em2l+4S6Bc4TnmME74Fbd2o1
-         PG1ykbOQ/yKtR7yu6gcgZFtu8rdzvRky/9y3zsx5kx3Bo/V7X3vJ/JQvmZ17v/TtrK
-         m4EGdLsjCRMHw==
-From:   Marek Vasut <marex@denx.de>
-To:     alsa-devel@alsa-project.org
-Cc:     Marek Vasut <marex@denx.de>, Mark Brown <broonie@kernel.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] ASoC: ops: Shift tested values in snd_soc_put_volsw() by +min
-Date:   Tue, 15 Feb 2022 14:06:45 +0100
-Message-Id: <20220215130645.164025-1-marex@denx.de>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S234325AbiBON4e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 08:56:34 -0500
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4951193C8;
+        Tue, 15 Feb 2022 05:56:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644933384; x=1676469384;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=FJQFbMN+ZFFstt26jS8eFdEPRvrQzZ4rwdNEDu9DH14=;
+  b=PSDrwfXNM2OAG9zz9Wmmac9t/K3bouS+TkunAtAl1vsdkkjPqNQ8wVP/
+   w1xRXoiUpSfABMteIegTykf4A7SRIk1dXM9HalGu07qoHuyJW0Czq7dAH
+   XwAAAjjYV10ek5Sc86GYw8YpM8oKm7fll1wZ0afq6xrSYU85bUPVrlmXQ
+   X6cSP95QwXrTWtWI5kyZWfZbyDS+gjH6Jt8nOdx7TGIDdjaKliwl/FP1R
+   QiC90neipWkCnlHLSqgWI0Y2cGWaewHZ6AIR3+uxvaiqLYKJUj0nZj6Hc
+   BMxv+JE8nferslHkb5d7ULVtj30qa2OXbLxMblOTAUJ5y9MUSKz0ePakA
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10258"; a="250298090"
+X-IronPort-AV: E=Sophos;i="5.88,371,1635231600"; 
+   d="scan'208";a="250298090"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 05:56:24 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,371,1635231600"; 
+   d="scan'208";a="703693700"
+Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
+  by orsmga005.jf.intel.com with ESMTP; 15 Feb 2022 05:56:24 -0800
+Received: from lcsmsx601.ger.corp.intel.com (10.109.210.10) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.20; Tue, 15 Feb 2022 05:56:23 -0800
+Received: from hasmsx602.ger.corp.intel.com (10.184.107.142) by
+ LCSMSX601.ger.corp.intel.com (10.109.210.10) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.20; Tue, 15 Feb 2022 15:56:21 +0200
+Received: from hasmsx602.ger.corp.intel.com ([10.184.107.142]) by
+ HASMSX602.ger.corp.intel.com ([10.184.107.142]) with mapi id 15.01.2308.020;
+ Tue, 15 Feb 2022 15:56:21 +0200
+From:   "Winkler, Tomas" <tomas.winkler@intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     "Usyskin, Alexander" <alexander.usyskin@intel.com>,
+        "Lubart, Vitaly" <vitaly.lubart@intel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [char-misc 1/4] mei: me: disable driver on the ign firmware
+Thread-Topic: [char-misc 1/4] mei: me: disable driver on the ign firmware
+Thread-Index: AQHYIkK1eugQcFyHPEaQF6vbL49PUayURk8AgABcR8A=
+Date:   Tue, 15 Feb 2022 13:56:21 +0000
+Message-ID: <c24005351be544268b6270ab91ca01ce@intel.com>
+References: <20220215080438.264876-1-tomas.winkler@intel.com>
+ <Ygt/Th1UeOkWpwlD@kroah.com>
+In-Reply-To: <Ygt/Th1UeOkWpwlD@kroah.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.184.70.1]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: clamav-milter 0.103.5 at phobos.denx.de
-X-Virus-Status: Clean
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SCC_BODY_URI_ONLY,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While the $val/$val2 values passed in from userspace are always >= 0
-integers, the limits of the control can be signed integers and the $min
-can be non-zero and less than zero. To correctly validate $val/$val2
-against platform_max, add the $min offset to val first.
 
-Fixes: 817f7c9335ec0 ("ASoC: ops: Reject out of bounds values in snd_soc_put_volsw()")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
----
- sound/soc/soc-ops.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/soc-ops.c b/sound/soc/soc-ops.c
-index f24f7354f46fe..6389a512c4dc6 100644
---- a/sound/soc/soc-ops.c
-+++ b/sound/soc/soc-ops.c
-@@ -317,7 +317,7 @@ int snd_soc_put_volsw(struct snd_kcontrol *kcontrol,
- 		mask = BIT(sign_bit + 1) - 1;
- 
- 	val = ucontrol->value.integer.value[0];
--	if (mc->platform_max && val > mc->platform_max)
-+	if (mc->platform_max && ((int)val + min) > mc->platform_max)
- 		return -EINVAL;
- 	if (val > max - min)
- 		return -EINVAL;
-@@ -330,7 +330,7 @@ int snd_soc_put_volsw(struct snd_kcontrol *kcontrol,
- 	val = val << shift;
- 	if (snd_soc_volsw_is_stereo(mc)) {
- 		val2 = ucontrol->value.integer.value[1];
--		if (mc->platform_max && val2 > mc->platform_max)
-+		if (mc->platform_max && ((int)val2 + min) > mc->platform_max)
- 			return -EINVAL;
- 		if (val2 > max - min)
- 			return -EINVAL;
--- 
-2.34.1
+>=20
+> On Tue, Feb 15, 2022 at 10:04:35AM +0200, Tomas Winkler wrote:
+> > From: Alexander Usyskin <alexander.usyskin@intel.com>
+> >
+> > Add a quirk to disable MEI interface on Intel PCH Ignition (IGN) as
+> > the IGN firmware doesn't support the protocol.
+> >
+> > Cc: <stable@vger.kernel.org>
+> > Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+> > Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+> > ---
+> >  drivers/misc/mei/hw-me-regs.h |  1 +
+> >  drivers/misc/mei/hw-me.c      | 23 ++++++++++++-----------
+> >  2 files changed, 13 insertions(+), 11 deletions(-)
+>=20
+> I see 2 different copies of this patch/email:
+> 	https://lore.kernel.org/all/20220215075748.264195-1-
+> tomas.winkler@intel.com/
+> 	https://lore.kernel.org/all/20220215080438.264876-1-
+> tomas.winkler@intel.com/
+>=20
+> which one is right?
+>=20
+> confused,
+Sorry, they are the same, looks like a hiccup in a script, it was sent twic=
+e.
+Thanks
+Tomas
 
