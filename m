@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 694904B7204
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:41:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C9454B7231
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:41:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240518AbiBOPfe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 10:35:34 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46230 "EHLO
+        id S240725AbiBOPf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 10:35:28 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240644AbiBOPfF (ORCPT
+        with ESMTP id S240524AbiBOPfF (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:35:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317CB1255A3;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25EABC086E;
         Tue, 15 Feb 2022 07:30:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4B60B81AF8;
-        Tue, 15 Feb 2022 15:30:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50EDFC340F3;
-        Tue, 15 Feb 2022 15:30:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A579061532;
+        Tue, 15 Feb 2022 15:30:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1B68C340F1;
+        Tue, 15 Feb 2022 15:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644939048;
-        bh=4uZ8IVNypYj4iMUIWuH+lQQMq0WW8+xvuTLy1lGDEH8=;
+        s=k20201202; t=1644939050;
+        bh=ymV2XseOhFjRwS9+FDwFbtdim0AxXpdLshMresWy9zs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b07rBjKwHFY/JCUVkMwju44muDZA58q8Fd0wHJMhoSyT997IavMVssfHpnaSg07c2
-         qxNxGeIldq9SWey4xmdYgbdNAWoRl8Qei72uhqQAoYfdHWdvlqgaErcj5tQncp1dMS
-         ctiRodyH7LZNhIFJtQwjiCu+0WfFRAhmzSXimdCT9hGsYZEG8Sx3Age5SmLWprhK06
-         AT5i1Hk97ShAptOLPQyKvzXk5dgM5KgBmrPT54zyY9Ta+nLxxAA+6xd1IuWuLfdJ9S
-         2M6JwsGAf4wWQDUH/bbuzJ+RFJ537BCIw9im1/YB9RIyGuj/+oByow0d4tm3ULOFXr
-         MIaiGvPV7vPmw==
+        b=aPsZX/xiz2lgk2lUlgpRHRx15Ge9ep3x32G0ZzfCiuf608mmsj9LGWzSolOTrxnnm
+         J7KCj8wSDnSEQGd65eLTiGSRs36tjys4aGQgnhQu32ZUackRdjkK06O5FI6fVD1gqo
+         39SCHWcbAl7qkqzTCnoVsv5lHlbF/oYA6bLFv6uQyZ2L1ASripvKZrNz4PonVDu8PB
+         BrUNzx+sDuHlEHF/XPP3BxkAS5V+7h1csDMuIyyqKY/o6rOfh9z0C/J2Le5SRYkQ5f
+         yUE5YbGFjnW5PIx7B4xegtNSwuku2gebKdT1/G/6xEQWpGII0ZoFU7bYZ0bkQ/yIgc
+         akRLvG3Cvg5Zg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Christian Hewitt <christianshewitt@gmail.com>,
-        Mateusz Krzak <kszaquitto@gmail.com>,
         Neil Armstrong <narmstrong@baylibre.com>,
         Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 06/17] arm64: dts: meson-gx: add ATF BL32 reserved-memory region
-Date:   Tue, 15 Feb 2022 10:30:26 -0500
-Message-Id: <20220215153037.581579-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 07/17] arm64: dts: meson-g12: add ATF BL32 reserved-memory region
+Date:   Tue, 15 Feb 2022 10:30:27 -0500
+Message-Id: <20220215153037.581579-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220215153037.581579-1-sashal@kernel.org>
 References: <20220215153037.581579-1-sashal@kernel.org>
@@ -62,27 +61,26 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit 76577c9137456febb05b0e17d244113196a98968 ]
+[ Upstream commit 08982a1b3aa2611c9c711d24825c9002d28536f4 ]
 
 Add an additional reserved memory region for the BL32 trusted firmware
 present in many devices that boot from Amlogic vendor u-boot.
 
-Suggested-by: Mateusz Krzak <kszaquitto@gmail.com>
 Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
 Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
 Reviewed-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220126044954.19069-2-christianshewitt@gmail.com
+Link: https://lore.kernel.org/r/20220126044954.19069-3-christianshewitt@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gx.dtsi | 6 ++++++
+ arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-index ce230d6ac35cd..ad7bc0eec6682 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-@@ -41,6 +41,12 @@ secmon_reserved_alt: secmon@5000000 {
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
+index 9533c85fb0a30..d2d255a988a81 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
+@@ -76,6 +76,12 @@ secmon_reserved: secmon@5000000 {
  			no-map;
  		};
  
