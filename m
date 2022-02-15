@@ -2,166 +2,299 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ABB74B7A45
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 23:12:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 297254B7A4F
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 23:15:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244497AbiBOWM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 17:12:59 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55506 "EHLO
+        id S244212AbiBOWPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 17:15:19 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244496AbiBOWM4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 17:12:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 565AC27CC4;
-        Tue, 15 Feb 2022 14:12:45 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D012B81D11;
-        Tue, 15 Feb 2022 22:12:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC805C340F2;
-        Tue, 15 Feb 2022 22:12:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1644963162;
-        bh=hvqosyp3+aZA6FHBGhwNZNWZ8KHIUcsC7gsZ33yZ/AE=;
-        h=Date:To:From:Subject:From;
-        b=d+ZoKgFi6F4YHE6Q6bqa0P9igXVXX2IdGqqTAcLaFqdBTUhaFNuvqXX2F5lPOvks/
-         So0KdUbHDiOiBU+C0J8nc/I5DqStMKp7u06QskCZAE+tNP917+qTSJ1JSEpAFEawg2
-         AQerggeHfcvg68c3+JjRH6iyT9H1vRrg6VycGOcc=
-Date:   Tue, 15 Feb 2022 14:12:42 -0800
-To:     mm-commits@vger.kernel.org, zealci@zte.com.cn,
-        yang.yang29@zte.com.cn, stable@vger.kernel.org,
-        songliubraving@fb.com, mike.kravetz@oracle.com,
-        kirill@shutemov.name, hughd@google.com, wang.yong12@zte.com.cn,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + fix-shmem-huge-page-failed-to-set-f_seal_write-attribute-problem.patch added to -mm tree
-Message-Id: <20220215221242.AC805C340F2@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S241997AbiBOWPT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 17:15:19 -0500
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0152827CCA;
+        Tue, 15 Feb 2022 14:15:08 -0800 (PST)
+Received: by mail-pl1-x62f.google.com with SMTP id u5so365050ple.3;
+        Tue, 15 Feb 2022 14:15:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=vvEFI+zDvv2nrQn6V8lyagP4Nu3rQdUujN9MYhwNa2U=;
+        b=P6uOPoWeS1VQMjrXlUiB2Vz1snQfysmWkdMcOHFUvS1g+BGxgcp23UMBnPm2XCf+5A
+         xnmo3g6IZrFps8Lutul57nxF10E6mqBSlf5EG/K4AQag1HdHE97jjwf9ODRtNOWFHCOs
+         7t0IehqzAH2tUMekbnB0K8Khj4ZjkREcKJ2v0/EXO10eZ1hlZfmepDncQj28A0vnU/72
+         qAeDCtjdJxfXPR9cB09hx4x3NumFvsTFKkPgciwTmHb77Dhg4IjZUEzEsYC9ZcX4X+eH
+         X+8Wu3FIsF3g8FirZLyqhcOD4JFtV3EKB4SkplqhrIt/GBSgdmkQ9mZfrxVOV6NLC3f2
+         cENw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=vvEFI+zDvv2nrQn6V8lyagP4Nu3rQdUujN9MYhwNa2U=;
+        b=uAamwevLWatVhrwrlrsgDopw5hGUOLxVNGxBZBifJJn2odoTrKgfzR3tddAPmg7qJo
+         2/1NaXf3TOo0X2j0ePGy/yZhj3cxaKrgYb59bjXYljyr+6uKiJ5KXl1+TiCcES11uyWE
+         J3NIko+sFGSonfg3rNQtQYtVnFnyWuU0Rl/lLPIsrTzRBXiBcXfe1KSPr477BQJz368c
+         CoT7fNUwES/Ygttby9sl5W5nugdm9X3h2v4lm1RgGf/I6nmiZuDjOgmZPxuPyKVD0ZFw
+         0KyuvFC4/ECDsAnNef59t++WZYPIJsMJbTeeS98p1eEKCH0YzE52kvlNLUgLSaQBedAy
+         7cFg==
+X-Gm-Message-State: AOAM530ZAJFDi/ZnXwXy9VEsg6E5UzU2INhdE4U9+EN25HghBcEDojqT
+        nn6cXu6muPDtxCbNjH36znw=
+X-Google-Smtp-Source: ABdhPJxFakM9WFX5dzmmHdclKKHu2tXU3XedxQdBdAKv+H4Vz6TRVLWZ+M3D5xwZ67+4TAMagmfWPA==
+X-Received: by 2002:a17:902:ab43:: with SMTP id ij3mr854119plb.25.1644963307383;
+        Tue, 15 Feb 2022 14:15:07 -0800 (PST)
+Received: from localhost.localdomain (c-67-174-241-145.hsd1.ca.comcast.net. [67.174.241.145])
+        by smtp.gmail.com with ESMTPSA id dw20sm17471328pjb.3.2022.02.15.14.15.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Feb 2022 14:15:06 -0800 (PST)
+From:   Yang Shi <shy828301@gmail.com>
+To:     gregkh@linuxfoundation.org, adobriyan@gmail.com,
+        akpm@linux-foundation.org, david@redhat.com, jannh@google.com,
+        kirill.shutemov@linux.intel.com, nathan@kernel.org,
+        willy@infradead.org
+Cc:     shy828301@gmail.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [stable-5.15 PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry
+Date:   Tue, 15 Feb 2022 14:15:03 -0800
+Message-Id: <20220215221503.855815-1-shy828301@gmail.com>
+X-Mailer: git-send-email 2.26.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit 24d7275ce2791829953ed4e72f68277ceb2571c6 upstream
 
-The patch titled
-     Subject: memfd: fix shmem huge page failed to set F_SEAL_WRITE attribute problem
-has been added to the -mm tree.  Its filename is
-     fix-shmem-huge-page-failed-to-set-f_seal_write-attribute-problem.patch
+The syzbot reported the below BUG:
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/fix-shmem-huge-page-failed-to-set-f_seal_write-attribute-problem.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/fix-shmem-huge-page-failed-to-set-f_seal_write-attribute-problem.patch
+  kernel BUG at include/linux/page-flags.h:785!
+  invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+  CPU: 1 PID: 4392 Comm: syz-executor560 Not tainted 5.16.0-rc6-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  RIP: 0010:PageDoubleMap include/linux/page-flags.h:785 [inline]
+  RIP: 0010:__page_mapcount+0x2d2/0x350 mm/util.c:744
+  Call Trace:
+    page_mapcount include/linux/mm.h:837 [inline]
+    smaps_account+0x470/0xb10 fs/proc/task_mmu.c:466
+    smaps_pte_entry fs/proc/task_mmu.c:538 [inline]
+    smaps_pte_range+0x611/0x1250 fs/proc/task_mmu.c:601
+    walk_pmd_range mm/pagewalk.c:128 [inline]
+    walk_pud_range mm/pagewalk.c:205 [inline]
+    walk_p4d_range mm/pagewalk.c:240 [inline]
+    walk_pgd_range mm/pagewalk.c:277 [inline]
+    __walk_page_range+0xe23/0x1ea0 mm/pagewalk.c:379
+    walk_page_vma+0x277/0x350 mm/pagewalk.c:530
+    smap_gather_stats.part.0+0x148/0x260 fs/proc/task_mmu.c:768
+    smap_gather_stats fs/proc/task_mmu.c:741 [inline]
+    show_smap+0xc6/0x440 fs/proc/task_mmu.c:822
+    seq_read_iter+0xbb0/0x1240 fs/seq_file.c:272
+    seq_read+0x3e0/0x5b0 fs/seq_file.c:162
+    vfs_read+0x1b5/0x600 fs/read_write.c:479
+    ksys_read+0x12d/0x250 fs/read_write.c:619
+    do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+The reproducer was trying to read /proc/$PID/smaps when calling
+MADV_FREE at the mean time.  MADV_FREE may split THPs if it is called
+for partial THP.  It may trigger the below race:
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+           CPU A                         CPU B
+           -----                         -----
+  smaps walk:                      MADV_FREE:
+  page_mapcount()
+    PageCompound()
+                                   split_huge_page()
+    page = compound_head(page)
+    PageDoubleMap(page)
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+When calling PageDoubleMap() this page is not a tail page of THP anymore
+so the BUG is triggered.
 
-------------------------------------------------------
-From: wangyong <wang.yong12@zte.com.cn>
-Subject: memfd: fix shmem huge page failed to set F_SEAL_WRITE attribute problem
+This could be fixed by elevated refcount of the page before calling
+mapcount, but that would prevent it from counting migration entries, and
+it seems overkilling because the race just could happen when PMD is
+split so all PTE entries of tail pages are actually migration entries,
+and smaps_account() does treat migration entries as mapcount == 1 as
+Kirill pointed out.
 
-After enabling tmpfs filesystem to support transparent hugepage with the
-following command:
+Add a new parameter for smaps_account() to tell this entry is migration
+entry then skip calling page_mapcount().  Don't skip getting mapcount
+for device private entries since they do track references with mapcount.
 
- echo always > /sys/kernel/mm/transparent_hugepage/shmem_enabled
+Pagemap also has the similar issue although it was not reported.  Fixed
+it as well.
 
-The docker program adds F_SEAL_WRITE through the following command which
-will prompt EBUSY.
-
- fcntl(5, F_ADD_SEALS, F_SEAL_WRITE)=-1.
-
-It is found that in memfd_wait_for_pins function, the page_count of
-hugepage is 512 and page_mapcount is 0, which does not meet the
-conditions:
-
- page_count(page) - page_mapcount(page) != 1.
-
-But the page is not busy at this time, therefore, the page_order of
-hugepage should be taken into account in the calculation.
-
-Link: https://lkml.kernel.org/r/20220215073743.1769979-1-cgel.zte@gmail.com
-Signed-off-by: wangyong <wang.yong12@zte.com.cn>
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Yang Yang <yang.yang29@zte.com.cn>
+[shy828301@gmail.com: v4]
+  Link: https://lkml.kernel.org/r/20220203182641.824731-1-shy828301@gmail.com
+[nathan@kernel.org: avoid unused variable warning in pagemap_pmd_range()]
+  Link: https://lkml.kernel.org/r/20220207171049.1102239-1-nathan@kernel.org
+Link: https://lkml.kernel.org/r/20220120202805.3369-1-shy828301@gmail.com
+Fixes: e9b61f19858a ("thp: reintroduce split_huge_page()")
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reported-by: syzbot+1f52b3a18d5633fa7f82@syzkaller.appspotmail.com
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 ---
+ fs/proc/task_mmu.c | 40 +++++++++++++++++++++++++++++++---------
+ 1 file changed, 31 insertions(+), 9 deletions(-)
 
- mm/memfd.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
-
---- a/mm/memfd.c~fix-shmem-huge-page-failed-to-set-f_seal_write-attribute-problem
-+++ a/mm/memfd.c
-@@ -31,6 +31,7 @@
- static void memfd_tag_pins(struct xa_state *xas)
+diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+index cf25be3e0321..958fce7aee63 100644
+--- a/fs/proc/task_mmu.c
++++ b/fs/proc/task_mmu.c
+@@ -430,7 +430,8 @@ static void smaps_page_accumulate(struct mem_size_stats *mss,
+ }
+ 
+ static void smaps_account(struct mem_size_stats *mss, struct page *page,
+-		bool compound, bool young, bool dirty, bool locked)
++		bool compound, bool young, bool dirty, bool locked,
++		bool migration)
  {
- 	struct page *page;
-+	int count = 0;
- 	unsigned int tagged = 0;
+ 	int i, nr = compound ? compound_nr(page) : 1;
+ 	unsigned long size = nr * PAGE_SIZE;
+@@ -457,8 +458,15 @@ static void smaps_account(struct mem_size_stats *mss, struct page *page,
+ 	 * page_count(page) == 1 guarantees the page is mapped exactly once.
+ 	 * If any subpage of the compound page mapped with PTE it would elevate
+ 	 * page_count().
++	 *
++	 * The page_mapcount() is called to get a snapshot of the mapcount.
++	 * Without holding the page lock this snapshot can be slightly wrong as
++	 * we cannot always read the mapcount atomically.  It is not safe to
++	 * call page_mapcount() even with PTL held if the page is not mapped,
++	 * especially for migration entries.  Treat regular migration entries
++	 * as mapcount == 1.
+ 	 */
+-	if (page_count(page) == 1) {
++	if ((page_count(page) == 1) || migration) {
+ 		smaps_page_accumulate(mss, page, size, size << PSS_SHIFT, dirty,
+ 			locked, true);
+ 		return;
+@@ -495,6 +503,7 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
+ 	struct vm_area_struct *vma = walk->vma;
+ 	bool locked = !!(vma->vm_flags & VM_LOCKED);
+ 	struct page *page = NULL;
++	bool migration = false;
  
- 	lru_add_drain();
-@@ -39,8 +40,12 @@ static void memfd_tag_pins(struct xa_sta
- 	xas_for_each(xas, page, ULONG_MAX) {
- 		if (xa_is_value(page))
- 			continue;
+ 	if (pte_present(*pte)) {
+ 		page = vm_normal_page(vma, addr, *pte);
+@@ -514,8 +523,11 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
+ 			} else {
+ 				mss->swap_pss += (u64)PAGE_SIZE << PSS_SHIFT;
+ 			}
+-		} else if (is_pfn_swap_entry(swpent))
++		} else if (is_pfn_swap_entry(swpent)) {
++			if (is_migration_entry(swpent))
++				migration = true;
+ 			page = pfn_swap_entry_to_page(swpent);
++		}
+ 	} else if (unlikely(IS_ENABLED(CONFIG_SHMEM) && mss->check_shmem_swap
+ 							&& pte_none(*pte))) {
+ 		page = xa_load(&vma->vm_file->f_mapping->i_pages,
+@@ -528,7 +540,8 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
+ 	if (!page)
+ 		return;
+ 
+-	smaps_account(mss, page, false, pte_young(*pte), pte_dirty(*pte), locked);
++	smaps_account(mss, page, false, pte_young(*pte), pte_dirty(*pte),
++		      locked, migration);
+ }
+ 
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+@@ -539,6 +552,7 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
+ 	struct vm_area_struct *vma = walk->vma;
+ 	bool locked = !!(vma->vm_flags & VM_LOCKED);
+ 	struct page *page = NULL;
++	bool migration = false;
+ 
+ 	if (pmd_present(*pmd)) {
+ 		/* FOLL_DUMP will return -EFAULT on huge zero page */
+@@ -546,8 +560,10 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
+ 	} else if (unlikely(thp_migration_supported() && is_swap_pmd(*pmd))) {
+ 		swp_entry_t entry = pmd_to_swp_entry(*pmd);
+ 
+-		if (is_migration_entry(entry))
++		if (is_migration_entry(entry)) {
++			migration = true;
+ 			page = pfn_swap_entry_to_page(entry);
++		}
+ 	}
+ 	if (IS_ERR_OR_NULL(page))
+ 		return;
+@@ -559,7 +575,9 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
+ 		/* pass */;
+ 	else
+ 		mss->file_thp += HPAGE_PMD_SIZE;
+-	smaps_account(mss, page, true, pmd_young(*pmd), pmd_dirty(*pmd), locked);
 +
- 		page = find_subpage(page, xas->xa_index);
--		if (page_count(page) - page_mapcount(page) > 1)
-+		count = page_count(page);
-+		if (PageTransCompound(page))
-+			count -= (1 << compound_order(compound_head(page))) - 1;
-+		if (count - page_mapcount(page) > 1)
- 			xas_set_mark(xas, MEMFD_TAG_PINNED);
- 
- 		if (++tagged % XA_CHECK_SCHED)
-@@ -67,11 +72,12 @@ static int memfd_wait_for_pins(struct ad
++	smaps_account(mss, page, true, pmd_young(*pmd), pmd_dirty(*pmd),
++		      locked, migration);
+ }
+ #else
+ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
+@@ -1363,6 +1381,7 @@ static pagemap_entry_t pte_to_pagemap_entry(struct pagemapread *pm,
  {
- 	XA_STATE(xas, &mapping->i_pages, 0);
- 	struct page *page;
--	int error, scan;
-+	int error, scan, count;
+ 	u64 frame = 0, flags = 0;
+ 	struct page *page = NULL;
++	bool migration = false;
  
- 	memfd_tag_pins(&xas);
+ 	if (pte_present(pte)) {
+ 		if (pm->show_pfn)
+@@ -1384,13 +1403,14 @@ static pagemap_entry_t pte_to_pagemap_entry(struct pagemapread *pm,
+ 			frame = swp_type(entry) |
+ 				(swp_offset(entry) << MAX_SWAPFILES_SHIFT);
+ 		flags |= PM_SWAP;
++		migration = is_migration_entry(entry);
+ 		if (is_pfn_swap_entry(entry))
+ 			page = pfn_swap_entry_to_page(entry);
+ 	}
  
- 	error = 0;
-+	count = 0;
- 	for (scan = 0; scan <= LAST_SCAN; scan++) {
- 		unsigned int tagged = 0;
- 
-@@ -89,8 +95,12 @@ static int memfd_wait_for_pins(struct ad
- 			bool clear = true;
- 			if (xa_is_value(page))
- 				continue;
+ 	if (page && !PageAnon(page))
+ 		flags |= PM_FILE;
+-	if (page && page_mapcount(page) == 1)
++	if (page && !migration && page_mapcount(page) == 1)
+ 		flags |= PM_MMAP_EXCLUSIVE;
+ 	if (vma->vm_flags & VM_SOFTDIRTY)
+ 		flags |= PM_SOFT_DIRTY;
+@@ -1406,8 +1426,9 @@ static int pagemap_pmd_range(pmd_t *pmdp, unsigned long addr, unsigned long end,
+ 	spinlock_t *ptl;
+ 	pte_t *pte, *orig_pte;
+ 	int err = 0;
+-
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
++	bool migration = false;
 +
- 			page = find_subpage(page, xas.xa_index);
--			if (page_count(page) - page_mapcount(page) != 1) {
-+			count = page_count(page);
-+			if (PageTransCompound(page))
-+				count -= (1 << compound_order(compound_head(page))) - 1;
-+			if (count - page_mapcount(page) != 1) {
- 				/*
- 				 * On the last scan, we clean up all those tags
- 				 * we inserted; but make a note that we still
-_
-
-Patches currently in -mm which might be from wang.yong12@zte.com.cn are
-
-fix-shmem-huge-page-failed-to-set-f_seal_write-attribute-problem.patch
+ 	ptl = pmd_trans_huge_lock(pmdp, vma);
+ 	if (ptl) {
+ 		u64 flags = 0, frame = 0;
+@@ -1446,11 +1467,12 @@ static int pagemap_pmd_range(pmd_t *pmdp, unsigned long addr, unsigned long end,
+ 			if (pmd_swp_uffd_wp(pmd))
+ 				flags |= PM_UFFD_WP;
+ 			VM_BUG_ON(!is_pmd_migration_entry(pmd));
++			migration = is_migration_entry(entry);
+ 			page = pfn_swap_entry_to_page(entry);
+ 		}
+ #endif
+ 
+-		if (page && page_mapcount(page) == 1)
++		if (page && !migration && page_mapcount(page) == 1)
+ 			flags |= PM_MMAP_EXCLUSIVE;
+ 
+ 		for (; addr != end; addr += PAGE_SIZE) {
+-- 
+2.26.3
 
