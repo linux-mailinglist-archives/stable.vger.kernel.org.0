@@ -2,66 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6C8C4B7222
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:41:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 503DA4B73C6
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:44:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233969AbiBOQdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 11:33:45 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56900 "EHLO
+        id S240064AbiBOQjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 11:39:17 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238973AbiBOQdn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 11:33:43 -0500
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE3B1E7AEC
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 08:33:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644942808; x=1676478808;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=es1lASdkD6roXJACcdgtgweU418MS8TP7FQcAkotkbY=;
-  b=KUife7oVsDynxkQqbnc7/5QbPebra/w0c/d+pLPRxMMWk7oZSJyA6J+i
-   o8Q0FeaXws2l8mjuq8Fv9SH3pN0p0ygVDqeLdZSvBlb4zPdjXW54vOUAF
-   GguV4Riw3U/KmcF4nXCjmkm2ETs4SVMGmYILDAOtRgmgNAau4hDL2muuR
-   ULn8lfyPKMdW4pg+tcl97uCojl/xJwNa2WidHf+gtCdNjP6P7ZLcCKIOT
-   /akSndXf/Qk/O4qcsv6RfsZmwDJNx2JSwNKqx94UQcnIFILAK0+jFNG6S
-   qUBKvBt7PHXf5sJ/EIvx4y4vTkjtvmKLqG4RGg65vL6L4MUK9jtOAZoIt
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10258"; a="230351829"
-X-IronPort-AV: E=Sophos;i="5.88,371,1635231600"; 
-   d="scan'208";a="230351829"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 08:33:28 -0800
-X-IronPort-AV: E=Sophos;i="5.88,371,1635231600"; 
-   d="scan'208";a="497284157"
-Received: from unknown (HELO intel.com) ([10.237.72.65])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 08:33:27 -0800
-Date:   Tue, 15 Feb 2022 18:33:42 +0200
-From:   "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
-To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH 2/6] drm/i915: Fix bw atomic check when switching between
- SAGV vs. no SAGV
-Message-ID: <20220215163342.GA16750@intel.com>
-References: <20220214091811.13725-1-ville.syrjala@linux.intel.com>
- <20220214091811.13725-3-ville.syrjala@linux.intel.com>
- <20220214100536.GB24878@intel.com>
- <Ygot+UVlBnA/Xzfk@intel.com>
- <20220214170305.GA25600@intel.com>
- <Ygq6/32Cy6CjMrDu@intel.com>
- <20220215085957.GA15926@intel.com>
- <Ygt8C/SHHLXfHw+A@intel.com>
- <20220215110248.GA16287@intel.com>
- <YguN+rpdJEIjxjkC@intel.com>
+        with ESMTP id S233621AbiBOQjR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 11:39:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFB6DC336D;
+        Tue, 15 Feb 2022 08:39:06 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0555F60ACF;
+        Tue, 15 Feb 2022 16:39:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45011C340EB;
+        Tue, 15 Feb 2022 16:39:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1644943145;
+        bh=V9kovIYtQQZPjm+yjWJXoF36Q5nY9s/7izEgPXb6ED0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=H20AF5GpAoL0xHR3aw5y9HrMfQPcCLnqPRpm5ZgsnuWQnHD0/e/3t4HykhgISSXdI
+         XBPmf4Kc6YbG2y45fo6XP/43XSOAo2IaNBPCr+PDW3QFrk3UCQGPzKW4r1u8xtm6gm
+         pJmNxc28w0Ulw3yjO0GpfQweuD5Gj/tlk8QGMj0CpMAPB0gbmSds3rdU7M/3Ceh27W
+         qVDXyt7GQPbqpcS09WIiNAtZ3CcfV9jz3WijMroOKdl4Z0HA0j0kqX5o5p7IB03HoY
+         fm/q3Pzzit71kyrQgKTJXnWGQMyFB31qpgDJnJUNSEMYgBKqdxrzLy/bl+zBJt46xx
+         BZwAqoN836hLQ==
+Date:   Tue, 15 Feb 2022 16:38:59 +0000
+From:   Will Deacon <will@kernel.org>
+To:     "Song Bao Hua (Barry Song)" <song.bao.hua@hisilicon.com>
+Cc:     Darren Hart <darren@os.amperecomputing.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Arm <linux-arm-kernel@lists.infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        "D . Scott Phillips" <scott@os.amperecomputing.com>,
+        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] arm64: smp: Skip MC domain for SoCs without shared cache
+Message-ID: <20220215163858.GA8458@willie-the-truck>
+References: <8c4a69eca4d0591f30c112df59c5098c24923bd3.1644543449.git.darren@os.amperecomputing.com>
+ <ec9be4eb7a0548178191edd51ddd309f@hisilicon.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YguN+rpdJEIjxjkC@intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+In-Reply-To: <ec9be4eb7a0548178191edd51ddd309f@hisilicon.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,237 +63,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 15, 2022 at 01:26:50PM +0200, Ville Syrjälä wrote:
-> On Tue, Feb 15, 2022 at 01:02:48PM +0200, Lisovskiy, Stanislav wrote:
-> > On Tue, Feb 15, 2022 at 12:10:19PM +0200, Ville Syrjälä wrote:
-> > > On Tue, Feb 15, 2022 at 10:59:57AM +0200, Lisovskiy, Stanislav wrote:
-> > > > On Mon, Feb 14, 2022 at 10:26:39PM +0200, Ville Syrjälä wrote:
-> > > > > On Mon, Feb 14, 2022 at 07:03:05PM +0200, Lisovskiy, Stanislav wrote:
-> > > > > > On Mon, Feb 14, 2022 at 12:24:57PM +0200, Ville Syrjälä wrote:
-> > > > > > > On Mon, Feb 14, 2022 at 12:05:36PM +0200, Lisovskiy, Stanislav wrote:
-> > > > > > > > On Mon, Feb 14, 2022 at 11:18:07AM +0200, Ville Syrjala wrote:
-> > > > > > > > > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > > > > > > 
-> > > > > > > > > If the only thing that is changing is SAGV vs. no SAGV but
-> > > > > > > > > the number of active planes and the total data rates end up
-> > > > > > > > > unchanged we currently bail out of intel_bw_atomic_check()
-> > > > > > > > > early and forget to actually compute the new WGV point
-> > > > > > > > > mask and thus won't actually enable/disable SAGV as requested.
-> > > > > > > > > This ends up poorly if we end up running with SAGV enabled
-> > > > > > > > > when we shouldn't. Usually ends up in underruns.
-> > > > > > > > > To fix this let's go through the QGV point mask computation
-> > > > > > > > > if anyone else already added the bw state for us.
-> > > > > > > > 
-> > > > > > > > Haven't been looking this in a while. Despite we have been
-> > > > > > > > looking like few revisions together still some bugs :(
-> > > > > > > > 
-> > > > > > > > I thought SAGV vs No SAGV can't change if active planes 
-> > > > > > > > or data rate didn't change? Because it means we probably
-> > > > > > > > still have same ddb allocations, which means SAGV state
-> > > > > > > > will just stay the same.
-> > > > > > > 
-> > > > > > > SAGV can change due to watermarks/ddb allocations. The easiest
-> > > > > > > way to trip this up is to try to use the async flip wm0/ddb 
-> > > > > > > optimization. That immediately forgets to turn off SAGV and
-> > > > > > > we get underruns, whcih is how I noticed this. And I don't
-> > > > > > > immediately see any easy proof that this couldn't also happen
-> > > > > > > due to some other plane changes.
-> > > > > > 
-> > > > > > Thats the way it was initially implemented even before SAGV was added.
-> > > > > 
-> > > > > Yeah, it wasn't a problem as long as SAGV was not enabled.
-> > > > > 
-> > > > > > I think it can be dated back to the very first bw check was implemented.
-> > > > > > 
-> > > > > > commit c457d9cf256e942138a54a2e80349ee7fe20c391
-> > > > > > Author: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > > > Date:   Fri May 24 18:36:14 2019 +0300
-> > > > > > 
-> > > > > >     drm/i915: Make sure we have enough memory bandwidth on ICL
-> > > > > > 
-> > > > > > +int intel_bw_atomic_check(struct intel_atomic_state *state)
-> > > > > > +{
-> > > > > > +       struct drm_i915_private *dev_priv = to_i915(state->base.dev);
-> > > > > > +       struct intel_crtc_state *new_crtc_state, *old_crtc_state;
-> > > > > > +       struct intel_bw_state *bw_state = NULL;
-> > > > > > +       unsigned int data_rate, max_data_rate;
-> > > > > > +       unsigned int num_active_planes;
-> > > > > > +       struct intel_crtc *crtc;
-> > > > > > +       int i;
-> > > > > > +
-> > > > > > +       /* FIXME earlier gens need some checks too */
-> > > > > > +       if (INTEL_GEN(dev_priv) < 11)
-> > > > > > +               return 0;
-> > > > > > +
-> > > > > > +       for_each_oldnew_intel_crtc_in_state(state, crtc, old_crtc_state,
-> > > > > > +                                           new_crtc_state, i) {
-> > > > > > +               unsigned int old_data_rate =
-> > > > > > +                       intel_bw_crtc_data_rate(old_crtc_state);
-> > > > > > +               unsigned int new_data_rate =
-> > > > > > +                       intel_bw_crtc_data_rate(new_crtc_state);
-> > > > > > +               unsigned int old_active_planes =
-> > > > > > +                       intel_bw_crtc_num_active_planes(old_crtc_state);
-> > > > > > +               unsigned int new_active_planes =
-> > > > > > +                       intel_bw_crtc_num_active_planes(new_crtc_state);
-> > > > > > +
-> > > > > > +               /*
-> > > > > > +                * Avoid locking the bw state when
-> > > > > > +                * nothing significant has changed.
-> > > > > > +                */
-> > > > > > +               if (old_data_rate == new_data_rate &&
-> > > > > > +                   old_active_planes == new_active_planes)
-> > > > > > +                       continue;
-> > > > > > +
-> > > > > > +               bw_state  = intel_atomic_get_bw_state(state);
-> > > > > > +               if (IS_ERR(bw_state))
-> > > > > > +                       return PTR_ERR(bw_state);
-> > > > > > 
-> > > > > > However, what can cause watermarks/ddb to change, besides plane state change
-> > > > > > and/or active planes change? We change watermarks, when we change ddb allocations
-> > > > > > and we change ddb allocations when active planes had changed and/or data rate
-> > > > > > had changed.
-> > > > > 
-> > > > > The bw code only cares about the aggregate numbers from all the planes.
-> > > > > The planes could still change in some funny way where eg. some plane
-> > > > > frees up some bandwidth, but the other planes gobble up the exact same
-> > > > > amount and thus the aggregate numbers the bw atomic check cares about
-> > > > > do not change but the watermarks/ddb do.
-> > > > > 
-> > > > > And as mentiioned, the async flip wm0/ddb optimization makes this trivial
-> > > > > to trip up since it will want to disable SAGV as there is not enough ddb
-> > > > > for the SAGV watermark. And async flip specifically isn't even allowed
-> > > > > to change anything that would affect the bandwidth utilization, and neither
-> > > > > is it allowed to enable/disable planes.
-> > > > 
-> > > > I think the whole idea of setting ddb to minimum in case of async flip optimization
-> > > > was purely our idea - BSpec/HSD only mentions forbidding wm levels > 0 in case of async
-> > > > flip, however there is nothing about limiting ddb allocations.
-> > > 
-> > > Reducing just the watermark doesn't really make sense 
-> > > if the goal is to keep the DBUF level to a minimum. Also
-> > > I don't think there is any proper docs for this thing. The
-> > > only thing we have just has some vague notes about using
-> > > "minimum watermarks", whatever that means.
-> > 
-> > Was it the goal? I thought limiting watermarks would by itself also
-> > limit package C states, thus affecting memory clocks and latency.
-> > Because it really doesn't say anything about keeping Dbuf allocations
-> > to a minimum. 
+On Fri, Feb 11, 2022 at 03:20:51AM +0000, Song Bao Hua (Barry Song) wrote:
 > 
-> The goal is to miminize the amount of data in the FIFO.
 > 
+> > -----Original Message-----
+> > From: Darren Hart [mailto:darren@os.amperecomputing.com]
+> > Sent: Friday, February 11, 2022 2:43 PM
+> > To: LKML <linux-kernel@vger.kernel.org>; Linux Arm
+> > <linux-arm-kernel@lists.infradead.org>
+> > Cc: Catalin Marinas <catalin.marinas@arm.com>; Will Deacon <will@kernel.org>;
+> > Peter Zijlstra <peterz@infradead.org>; Vincent Guittot
+> > <vincent.guittot@linaro.org>; Song Bao Hua (Barry Song)
+> > <song.bao.hua@hisilicon.com>; Valentin Schneider
+> > <valentin.schneider@arm.com>; D . Scott Phillips
+> > <scott@os.amperecomputing.com>; Ilkka Koskinen
+> > <ilkka@os.amperecomputing.com>; stable@vger.kernel.org
+> > Subject: [PATCH] arm64: smp: Skip MC domain for SoCs without shared cache
 > > 
-> > > 
-> > > > 
-> > > > Was a bit suspicious about that whole change, to be honest - and yep, now it seems to
-> > > > cause some unexpected side effects.
-> > > 
-> > > The bw_state vs. SAGV bug is there regardless of the wm0 optimization.
+> > SoCs such as the Ampere Altra define clusters but have no shared
+> > processor-side cache. As of v5.16 with CONFIG_SCHED_CLUSTER and
+> > CONFIG_SCHED_MC, build_sched_domain() will BUG() with:
 > > 
-> > I agree there is a bug. The bug is such that initial bw checks were relying
-> > on total data rate + active planes comparison, while it should have accounted
-> > data rate per plane usage.
+> > BUG: arch topology borken
+> >      the CLS domain not a subset of the MC domain
 > > 
-> > This should have been changed in SAGV patches, but probably had gone
-> > unnoticed both by you and me.
+> > for each CPU (160 times for a 2 socket 80 core Altra system). The MC
+> > level cpu mask is then extended to that of the CLS child, and is later
+> > removed entirely as redundant.
 > > 
-> > > 
-> > > Also the SAGV watermark is not the minimum watermark (if that is
-> > > the doc really means by that), the normal WM0 is the minimum watermark.
-> > > So even if we interpret the doc to say that we should just disable all
-> > > watermark levels except the smallest one (normal WM0) without changing
-> > > the ddb allocations we would still end up disabling SAGV.
+> > This change detects when all cpu_coregroup_mask weights=1 and uses an
+> > alternative sched_domain_topology equivalent to the default if
+> > CONFIG_SCHED_MC were disabled.
 > > 
-> > Thats actually a good question. Did they mean, disable all "regular" wm levels
-> > or the SAGV one also? Probably they meant what you say, but would be nice to know
-> > exactly.
+> > The final resulting sched domain topology is unchanged with or without
+> > CONFIG_SCHED_CLUSTER, and the BUG is avoided:
+> > 
+> > For CPU0:
+> > 
+> > With CLS:
+> > CLS  [0-1]
+> > DIE  [0-79]
+> > NUMA [0-159]
+> > 
+> > Without CLS:
+> > DIE  [0-79]
+> > NUMA [0-159]
+> > 
+> > Cc: Catalin Marinas <catalin.marinas@arm.com>
+> > Cc: Will Deacon <will@kernel.org>
+> > Cc: Peter Zijlstra <peterz@infradead.org>
+> > Cc: Vincent Guittot <vincent.guittot@linaro.org>
+> > Cc: Barry Song <song.bao.hua@hisilicon.com>
+> > Cc: Valentin Schneider <valentin.schneider@arm.com>
+> > Cc: D. Scott Phillips <scott@os.amperecomputing.com>
+> > Cc: Ilkka Koskinen <ilkka@os.amperecomputing.com>
+> > Cc: <stable@vger.kernel.org> # 5.16.x
+> > Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
 > 
-> They said neither. It's just "program minimum watermarks" which
-> could mean anything really. They do explicitly say "DBUF level
-> can also adversely affect flip performance." which I think is
-> the whole point of this exercise.
+> Hi Darrent,
+> What kind of resources are clusters sharing on Ampere Altra?
+> So on Altra, cpus are not sharing LLC? Each LLC is separate
+> for each cpu?
 > 
+> > ---
+> >  arch/arm64/kernel/smp.c | 32 ++++++++++++++++++++++++++++++++
+> >  1 file changed, 32 insertions(+)
 > > 
-> > Anyway my point here is that, we probably shouldn't use new_bw_state as a way to 
-> > check that plane allocations had changed. Thats just confusing.
+> > diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
+> > index 27df5c1e6baa..0a78ac5c8830 100644
+> > --- a/arch/arm64/kernel/smp.c
+> > +++ b/arch/arm64/kernel/smp.c
+> > @@ -715,9 +715,22 @@ void __init smp_init_cpus(void)
+> >  	}
+> >  }
+> > 
+> > +static struct sched_domain_topology_level arm64_no_mc_topology[] = {
+> > +#ifdef CONFIG_SCHED_SMT
+> > +	{ cpu_smt_mask, cpu_smt_flags, SD_INIT_NAME(SMT) },
+> > +#endif
+> > +
+> > +#ifdef CONFIG_SCHED_CLUSTER
+> > +	{ cpu_clustergroup_mask, cpu_cluster_flags, SD_INIT_NAME(CLS) },
+> > +#endif
+> > +	{ cpu_cpu_mask, SD_INIT_NAME(DIE) },
+> > +	{ NULL, },
+> > +};
+> > +
+> >  void __init smp_prepare_cpus(unsigned int max_cpus)
+> >  {
+> >  	const struct cpu_operations *ops;
+> > +	bool use_no_mc_topology = true;
+> >  	int err;
+> >  	unsigned int cpu;
+> >  	unsigned int this_cpu;
+> > @@ -758,6 +771,25 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
+> > 
+> >  		set_cpu_present(cpu, true);
+> >  		numa_store_cpu_info(cpu);
+> > +
+> > +		/*
+> > +		 * Only use no_mc topology if all cpu_coregroup_mask weights=1
+> > +		 */
+> > +		if (cpumask_weight(cpu_coregroup_mask(cpu)) > 1)
+> > +			use_no_mc_topology = false;
 > 
-> We are not checking if plane allocations have changed. We are
-> trying to determine if anything in the bw_state has changed.
-> If we have said state already then something in it may have 
-> changed and we have to recalculate anything that may depend
-> on those changed things, namely pipe_sagv_reject->qgv_point_mask.
+> This seems to be wrong? If you have 5 cpus,
+> Cpu0 has cpu_coregroup_mask(cpu)== 1, cpu1-4
+> has cpu_coregroup_mask(cpu)== 4, for cpu0, you still
+> need to remove MC, but for cpu1-4, you will need
+> CLS and MC both?
 
-I think it is just not very intuitive that we use the fact whether
-we can get new_bw_state or not, as a way to check if something had
-changed.
-Would be nice to put it in somekind of a wrapper like "has_new_bw_state"
-or "bw_state_changed". Because for anyone not quite familiar with
-that state paradigm we use, that would look pretty confusing that first
-we get new_bw_state using intel_atomic_get_new_bw_state, then immediately
-override it with intel_atomic_get_bw_state.
-And whether we can get new_bw_state or not is just acting like a check,
-that we don't have anything changed in bw_state.
+What is the *current* behaviour on such a system?
 
-Moreover indeed ideally intel_bw_atomic_check should probably handle all
-that sagv stuff as well, i.e I would suggest moving pipe_reject_mask setting,
-based skl_compute_wm results to that function.
-I don't see any issue here because in skl_compute_wm we just calculate the 
-sagv wm, then in intel_bw_atomic_check we just call intel_compute_sagv_mask,
-which then calls tgl_crtc_can_enable_sagv for each crtc and sets this mask.
-
-I think by boing this in intel_bw_atomic_check we would achieve both, what
-you were willing to do, plus it would be more obvious, why things are happening
-that way.
-
-Stan
-
-> 
-> I think ideally we'd not even modify the bw_state directly from the
-> watermark code and we'd instead defer that to bw atomic check entirely.
-> But this SAGV vs. DDB business is your typical chicken vs. egg situation,
-> so I'm not sure that is possible to do. Would need to spend a few minutes
-> thinking about it I guess.
-> 
-> > 
-> > May be for you as i915 guru, thats obvious however not for someone else, who might
-> > touch the code and we are doing open source here.
-> > 
-> > Can we just add some check which explicitly does per plane data rate checks?
-> 
-> There is nothing interesting about per-plane data rates.
-> 
-> > So that we know bail out from that first cycle not only when total_data_rate/active planes
-> > had changed, but we check per plane data rate? 
-> > That might actually save us also in future, if we ever get into such situation, when
-> > bw_state doesn't change, but ddb allocations do.
-> > 
-> > I know you might say it shouldn't happen, but there is always some new stuff coming.
-> > 
-> > Stan
-> > 
-> > > 
-> > > > Also we are now forcing the recalculation to be done always no matter what and using
-> > > > new bw state for that in a bit counterintuitive way, which I don't like. 
-> > > > Not even sure that will always work, as we are not guaranteed to get a non-NULL
-> > > > new_bw_state object from calling intel_atomic_get_new_bw_state, for that purpose we
-> > > > typically call intel_atomic_get_bw_state, which is supposed to do that and its called only
-> > > > here and in cause of CDCLK recalculation, which is called in intel_cdclk_atomic_check and
-> > > > done right after this one.
-> > > 
-> > > If there is no bw_state then bw_state->pipe_sagv_reject can't have
-> > > changed and there is nothing to recalculate.
-> > > 
-> > > > 
-> > > > So if we haven't called intel_atomic_get_bw_state beforehand, which we didn't because there are
-> > > > 2 places, where new bw state was supposed to be created to be usable by intel_atomic_get_new_bw_state
-> > > > - I think, we will(or might) get a NULL here, because intel_atomic_get_bw_state hasn't been called yet.
-> > > 
-> > > Yes, NULL is perfectly fine.
-> > > 
-> > > -- 
-> > > Ville Syrjälä
-> > > Intel
-> 
-> -- 
-> Ville Syrjälä
-> Intel
+Will
