@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C03824B71E5
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:41:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE8D34B71F0
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:41:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239979AbiBOP2f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 10:28:35 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46872 "EHLO
+        id S237782AbiBOP2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 10:28:46 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239982AbiBOP2I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:28:08 -0500
+        with ESMTP id S239992AbiBOP2P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:28:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D412A66DB;
-        Tue, 15 Feb 2022 07:27:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E83B0B0A55;
+        Tue, 15 Feb 2022 07:27:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71221615F2;
-        Tue, 15 Feb 2022 15:27:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3279EC340ED;
-        Tue, 15 Feb 2022 15:27:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8471F615E6;
+        Tue, 15 Feb 2022 15:27:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF099C340FA;
+        Tue, 15 Feb 2022 15:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644938859;
-        bh=4YZLmcvTI8pYJhYRl0jjFbpiq8bJUJKypK/bysrLb/A=;
+        s=k20201202; t=1644938864;
+        bh=6suctJEObTMyjXIebBno+7Rimc7/9sHGbBTfa2mh2BM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t78chMDz8VnDSFLRJ6LfVDyU65F0J6xDZeWt5jCfAQEE/JMy8ixuVGoc6hIysIPO0
-         0kthrXGuhY6A3xt/Me2ygvHzkUlFofIl3c/sNKB0bih1ctr1i9lqMTBZupAPhaGcBL
-         yXzvmmc8WNWdVDCTXaa6AE2nOly39kLPfgpqcUaEX1LgRiKq2Vy12IYyR/9dOZoHAd
-         g0o6//Lt1W5IjD1uB8U3D2xuHb4nZknyvUMiysX4AzJo1zxblT6use/22NTS4G9DLS
-         Cp8RLrMEBhzqSMa9hA1a6mmevwH0VQENzXG7GGXeSJGenY+2q9qd1zo7v4zFU4Q/kO
-         5+KsaWsJ549ag==
+        b=l630TyCFVuI6ok/0zF+kG+AxgOof2RQMO05T2iJgksuhWNTiqE6FDTJMaun1yeH+Z
+         ZIr7z/NCV5smQcqy5vK4wFrHSkYwPr/SMnAKWxjCrz6/oZp6TLHV3BebQCJXpXvPcv
+         WgPzzhXvB7YoK3HnLgKe6ZhyTg+K/VsntYi/2dj/4rONSgkbinxunccyGkh+Qck6FS
+         nV6LELX/EIVnibVYrrLIzDjCFrvZdC0XplAQ6hue+u7TBHzxHvK+vD8ikFCIVx36x+
+         9GhTY+C6AYOi4nBXaS+OxfWwK8oEl89uhNYQ5D7LQuE0nBNi3g/QZaaM2WhjJiCkWI
+         0gCYs+68YXUuA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?= 
-        <zboszor@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 22/34] ata: libata-core: Disable TRIM on M88V29
-Date:   Tue, 15 Feb 2022 10:26:45 -0500
-Message-Id: <20220215152657.580200-22-sashal@kernel.org>
+Cc:     Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Iwona Winiarska <iwona.winiarska@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
+        yangyingliang@huawei.com, chiawei_wang@aspeedtech.com,
+        linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.16 23/34] soc: aspeed: lpc-ctrl: Block error printing on probe defer cases
+Date:   Tue, 15 Feb 2022 10:26:46 -0500
+Message-Id: <20220215152657.580200-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220215152657.580200-1-sashal@kernel.org>
 References: <20220215152657.580200-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,38 +60,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zoltán Böszörményi <zboszor@gmail.com>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
 
-[ Upstream commit c8ea23d5fa59f28302d4e3370c75d9c308e64410 ]
+[ Upstream commit 301a5d3ad2432d7829f59432ca0a93a6defbb9a1 ]
 
-This device is a CF card, or possibly an SSD in CF form factor.
-It supports NCQ and high speed DMA.
+Add a checking code when it gets -EPROBE_DEFER while getting a clock
+resource. In this case, it doesn't need to print out an error message
+because the probing will be re-visited.
 
-While it also advertises TRIM support, I/O errors are reported
-when the discard mount option fstrim is used. TRIM also fails
-when disabling NCQ and not just as an NCQ command.
-
-TRIM must be disabled for this device.
-
-Signed-off-by: Zoltán Böszörményi <zboszor@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Reviewed-by: Iwona Winiarska <iwona.winiarska@intel.com>
+Link: https://lore.kernel.org/r/20211104173709.222912-1-jae.hyun.yoo@intel.com
+Link: https://lore.kernel.org/r/20220201070118.196372-1-joel@jms.id.au'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/soc/aspeed/aspeed-lpc-ctrl.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index 94bc5dbb31e1e..63666ee9de175 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -4079,6 +4079,7 @@ static const struct ata_blacklist_entry ata_device_blacklist [] = {
+diff --git a/drivers/soc/aspeed/aspeed-lpc-ctrl.c b/drivers/soc/aspeed/aspeed-lpc-ctrl.c
+index 72771e018c42e..258894ed234b3 100644
+--- a/drivers/soc/aspeed/aspeed-lpc-ctrl.c
++++ b/drivers/soc/aspeed/aspeed-lpc-ctrl.c
+@@ -306,10 +306,9 @@ static int aspeed_lpc_ctrl_probe(struct platform_device *pdev)
+ 	}
  
- 	/* devices that don't properly handle TRIM commands */
- 	{ "SuperSSpeed S238*",		NULL,	ATA_HORKAGE_NOTRIM, },
-+	{ "M88V29*",			NULL,	ATA_HORKAGE_NOTRIM, },
- 
- 	/*
- 	 * As defined, the DRAT (Deterministic Read After Trim) and RZAT
+ 	lpc_ctrl->clk = devm_clk_get(dev, NULL);
+-	if (IS_ERR(lpc_ctrl->clk)) {
+-		dev_err(dev, "couldn't get clock\n");
+-		return PTR_ERR(lpc_ctrl->clk);
+-	}
++	if (IS_ERR(lpc_ctrl->clk))
++		return dev_err_probe(dev, PTR_ERR(lpc_ctrl->clk),
++				     "couldn't get clock\n");
+ 	rc = clk_prepare_enable(lpc_ctrl->clk);
+ 	if (rc) {
+ 		dev_err(dev, "couldn't enable clock\n");
 -- 
 2.34.1
 
