@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FDFC4B71A7
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:41:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9504B704F
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 17:39:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240174AbiBOPa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240059AbiBOPa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 15 Feb 2022 10:30:28 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47758 "EHLO
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240124AbiBOPaG (ORCPT
+        with ESMTP id S240129AbiBOPaG (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 10:30:06 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07335A94DE;
-        Tue, 15 Feb 2022 07:28:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1FD2B0E96;
+        Tue, 15 Feb 2022 07:28:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9839061532;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 47257615F0;
+        Tue, 15 Feb 2022 15:28:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75A35C340EB;
         Tue, 15 Feb 2022 15:28:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DBF8C340F1;
-        Tue, 15 Feb 2022 15:28:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1644938924;
-        bh=4XprZ8kVjqQf1hik5gV9O0oBPRZ4MmrgDLSO0ROKOT0=;
+        s=k20201202; t=1644938925;
+        bh=ZD01o9rSSE8LUE0dVcK7GaEZOVJK7nnDEiRaEzbfzEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RRNXzlfaSEVdcltHARQyPDG0nBf5TF0oHtR+DJ/ABBVvKWkeQk7j5Di2p5cd2K535
-         dgYj+Yzvkkta4yF8FcE7/4JTqBQC4VywODaDpNhoXmFy39cfpZ5TJCF9vMvrLc2vgQ
-         VgeUQU8frrRZ+Pfdx9i3uwhHp5wTj4QqHlBB8ADyUf78CDWzmRyL4TCFeXlGnOcPdh
-         um7XtWyChD/KmZ7jbiKEVRwd+yydpha/x7OIg6L1iciRJZ2tV5PfuLH1RsQqNGaGfR
-         Dv+KgiLupgKWdsHDzRZ7oVTcgqebDJ8KIM6bHhe6dcfoReMaZBtxkl8JFMUc6WmrWI
-         4TgvT/koJRV2Q==
+        b=BvgygTRtrXZqKefTAIGD0ISD87KDH41n9RoXSWys68dYXuip8rfW2MCu++uDtFUed
+         KS1d8q5wFzjTk/ZLaCksploM/jMqlTLw5mtx3iCnkqnMGv9yV2mu4aqA6wFtPQHung
+         oatrlsI/I6dlHxhDH2Nn7H+Q8p41YXPle/jEI4riKccKQcVuMsKBVKRhwO7vFsXwGw
+         9yDVHhefOHWCqDetiN487D6GRJmGqtKj1m5eea8W1r4Sn3ZFehQwBdCgyD4rTYrKdv
+         nWo1VHu1XZ34PQaoo+rilRtuwsK/bNgq04sgkgGbpluBtO71BbvJwAR7DNH1rfX+2R
+         X6BM4q0qLIInw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tommaso Merciai <tomm.merciai@gmail.com>,
-        Richard Leitner <richard.leitner@linux.dev>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, richard.leitner@skidata.com,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 06/33] usb: usb251xb: add boost-up property support
-Date:   Tue, 15 Feb 2022 10:28:04 -0500
-Message-Id: <20220215152831.580780-6-sashal@kernel.org>
+Cc:     Guo Ren <guoren@linux.alibaba.com>,
+        Anup Patel <anup@brainfault.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>, paul.walmsley@sifive.com,
+        aou@eecs.berkeley.edu, linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 07/33] irqchip/sifive-plic: Add missing thead,c900-plic match string
+Date:   Tue, 15 Feb 2022 10:28:05 -0500
+Message-Id: <20220215152831.580780-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220215152831.580780-1-sashal@kernel.org>
 References: <20220215152831.580780-1-sashal@kernel.org>
@@ -58,55 +61,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tommaso Merciai <tomm.merciai@gmail.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-[ Upstream commit 5c2b9c61ae5d8ad0a196d33b66ce44543be22281 ]
+[ Upstream commit 1d4df649cbb4b26d19bea38ecff4b65b10a1bbca ]
 
-Add support for boost-up register of usb251xb hub.
-boost-up property control USB electrical drive strength
-This register can be set:
+The thead,c900-plic has been used in opensbi to distinguish
+PLIC [1]. Although PLICs have the same behaviors in Linux,
+they are different hardware with some custom initializing in
+firmware(opensbi).
 
- - Normal mode -> 0x00
- - Low         -> 0x01
- - Medium      -> 0x10
- - High        -> 0x11
+Qute opensbi patch commit-msg by Samuel:
 
-(Normal Default)
+  The T-HEAD PLIC implementation requires setting a delegation bit
+  to allow access from S-mode. Now that the T-HEAD PLIC has its own
+  compatible string, set this bit automatically from the PLIC driver,
+  instead of reaching into the PLIC's MMIO space from another driver.
 
-References:
- - http://www.mouser.com/catalog/specsheets/2514.pdf p29
+[1]: https://github.com/riscv-software-src/opensbi/commit/78c2b19218bd62653b9fb31623a42ced45f38ea6
 
-Reviewed-by: Richard Leitner <richard.leitner@linux.dev>
-Signed-off-by: Tommaso Merciai <tomm.merciai@gmail.com>
-Link: https://lore.kernel.org/r/20220128181713.96856-1-tomm.merciai@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Cc: Anup Patel <anup@brainfault.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Samuel Holland <samuel@sholland.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220130135634.1213301-3-guoren@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/usb251xb.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-sifive-plic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/misc/usb251xb.c b/drivers/usb/misc/usb251xb.c
-index 507deef1f7093..04c4e3fed0946 100644
---- a/drivers/usb/misc/usb251xb.c
-+++ b/drivers/usb/misc/usb251xb.c
-@@ -543,6 +543,9 @@ static int usb251xb_get_ofdata(struct usb251xb *hub,
- 	if (of_property_read_u16_array(np, "language-id", &hub->lang_id, 1))
- 		hub->lang_id = USB251XB_DEF_LANGUAGE_ID;
+diff --git a/drivers/irqchip/irq-sifive-plic.c b/drivers/irqchip/irq-sifive-plic.c
+index 259065d271ef0..09cc98266d30f 100644
+--- a/drivers/irqchip/irq-sifive-plic.c
++++ b/drivers/irqchip/irq-sifive-plic.c
+@@ -398,3 +398,4 @@ static int __init plic_init(struct device_node *node,
  
-+	if (of_property_read_u8(np, "boost-up", &hub->boost_up))
-+		hub->boost_up = USB251XB_DEF_BOOST_UP;
-+
- 	cproperty_char = of_get_property(np, "manufacturer", NULL);
- 	strlcpy(str, cproperty_char ? : USB251XB_DEF_MANUFACTURER_STRING,
- 		sizeof(str));
-@@ -584,7 +587,6 @@ static int usb251xb_get_ofdata(struct usb251xb *hub,
- 	 * may be as soon as needed.
- 	 */
- 	hub->bat_charge_en = USB251XB_DEF_BATTERY_CHARGING_ENABLE;
--	hub->boost_up = USB251XB_DEF_BOOST_UP;
- 	hub->boost_57 = USB251XB_DEF_BOOST_57;
- 	hub->boost_14 = USB251XB_DEF_BOOST_14;
- 	hub->port_map12 = USB251XB_DEF_PORT_MAP_12;
+ IRQCHIP_DECLARE(sifive_plic, "sifive,plic-1.0.0", plic_init);
+ IRQCHIP_DECLARE(riscv_plic0, "riscv,plic0", plic_init); /* for legacy systems */
++IRQCHIP_DECLARE(thead_c900_plic, "thead,c900-plic", plic_init); /* for firmware driver */
 -- 
 2.34.1
 
