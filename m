@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CDF74B64DD
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 08:58:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEEB34B6527
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 09:04:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234605AbiBOH6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 02:58:20 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48722 "EHLO
+        id S230257AbiBOIFA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 03:05:00 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229850AbiBOH6U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 02:58:20 -0500
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE50913D30;
-        Mon, 14 Feb 2022 23:58:10 -0800 (PST)
+        with ESMTP id S230126AbiBOIE7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 03:04:59 -0500
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09A6F2654E;
+        Tue, 15 Feb 2022 00:04:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644911890; x=1676447890;
+  t=1644912290; x=1676448290;
   h=from:to:cc:subject:date:message-id:mime-version:
    content-transfer-encoding;
   bh=J2aPIxHkPt7CQ39Q+4Y+kmdrTWxBvdaiEZS2aBpap2A=;
-  b=e/vuIb1tdkKMEOdMSdPUsncrGuY3pungxMsNc/ECSoZcHrWZGefPvfe6
-   Zs96DpE68GYg90P/S1b3DzW4uyBlTyDxkUNRMrAjOU95SDYaHLYcPOfF/
-   Pst57rCEjB9CGF42f7dazjLmjTq1g72XnEe2QxjnOAaDjGJQdRvJdwOKU
-   EONX/ZwvwjPsbno9UhgYYeo7RYb6ctXzoVdT53f6mXCi78XpHdSQO1D0Z
-   ffnqWS1ldEd6BLt46YoDLe+1ZR/XqfttijaR8JIohSZRlAjPE4pS2nKOJ
-   mX30hQFq3nSZe3iZw5t+HVdnKG+IhQKkXV60Y8VzwVnywjqf/wd6VHKHe
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10258"; a="233820899"
+  b=nErw1dThFvhTUPgA2Nn9QfTr2ruhnTJIAG23xWrNi5eGwn4pXLyVQvC5
+   IcYozrCQwyd9xFTnJoXbOsqiRzeGnXuql0Wr/kxnp/isihS1q5quztDTh
+   DT/C7C59WxOV9uWN329A6wvCyPI3l2msH+KM9rcGnuQVGd5pgnqxfD12f
+   Y05Pgf2hyL/jpxtod9j7mG0CQQos+NPi4pvUC/16ZfPtYT4LFoA8invqG
+   Wan+bj1UF+h4ZdbLEoHHi5Nhcy4Ppv5QdhV9K6PTg5Q/eKpdpDLOEfRLx
+   gMg+a+lKf/JfW0/OHy5LsIeUGiZ3AcA33zG1sRaZ0FQiONoAPI35jZnTj
+   w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10258"; a="336703227"
 X-IronPort-AV: E=Sophos;i="5.88,370,1635231600"; 
-   d="scan'208";a="233820899"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2022 23:58:10 -0800
+   d="scan'208";a="336703227"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 00:04:49 -0800
 X-IronPort-AV: E=Sophos;i="5.88,370,1635231600"; 
-   d="scan'208";a="496867207"
+   d="scan'208";a="703498873"
 Received: from twinkler-lnx.jer.intel.com ([10.12.91.43])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2022 23:58:08 -0800
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 00:04:47 -0800
 From:   Tomas Winkler <tomas.winkler@intel.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
@@ -43,15 +43,15 @@ Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Tomas Winkler <tomas.winkler@intel.com>
 Subject: [char-misc 1/4] mei: me: disable driver on the ign firmware
-Date:   Tue, 15 Feb 2022 09:57:45 +0200
-Message-Id: <20220215075748.264195-1-tomas.winkler@intel.com>
+Date:   Tue, 15 Feb 2022 10:04:35 +0200
+Message-Id: <20220215080438.264876-1-tomas.winkler@intel.com>
 X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
