@@ -2,189 +2,258 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C252C4B66C6
-	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 09:59:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3303A4B66EF
+	for <lists+stable@lfdr.de>; Tue, 15 Feb 2022 10:04:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233037AbiBOI74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 03:59:56 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39600 "EHLO
+        id S232587AbiBOJEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 04:04:53 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232191AbiBOI74 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 03:59:56 -0500
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99F4A113AD7
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 00:59:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644915586; x=1676451586;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=2hGksm2gm1eEQ6qYqo+dk0YmwQjphHDFg/ERopYQBq0=;
-  b=UiAJLv7Jx4yPnI/e2Mm2g4otycJ63yj/RGu4B5dg0f/klmn2FYpazLlT
-   /4GPwoSueUqP65cT3UCZXyRmaiPrgIKrLh1xCxCBso5swjzA9TjvEFr7K
-   QX1fNQBdxP3gPD/AfKTOET+uRqXWhopQ10qR9VT8pVamYswLJ86np48GS
-   eTcGjJuuZQTLAMLOJ7JnxpMizH7jQbggDYxcmjCgoIF77NnxjozhQBiew
-   ZS9ytspJzwuI3FTstQuQDfwczsN04hvpDlrT7jBXYJMC8xSstIpqQep1P
-   p/WGhun6XlIr7TiIh2AEOHvXzmpcduIa2wSaFy5/v7HH45FWKyjJnckrn
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10258"; a="250039172"
-X-IronPort-AV: E=Sophos;i="5.88,370,1635231600"; 
-   d="scan'208";a="250039172"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 00:59:46 -0800
-X-IronPort-AV: E=Sophos;i="5.88,370,1635231600"; 
-   d="scan'208";a="635731015"
-Received: from unknown (HELO intel.com) ([10.237.72.65])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 00:59:44 -0800
-Date:   Tue, 15 Feb 2022 10:59:57 +0200
-From:   "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
-To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH 2/6] drm/i915: Fix bw atomic check when switching between
- SAGV vs. no SAGV
-Message-ID: <20220215085957.GA15926@intel.com>
-References: <20220214091811.13725-1-ville.syrjala@linux.intel.com>
- <20220214091811.13725-3-ville.syrjala@linux.intel.com>
- <20220214100536.GB24878@intel.com>
- <Ygot+UVlBnA/Xzfk@intel.com>
- <20220214170305.GA25600@intel.com>
- <Ygq6/32Cy6CjMrDu@intel.com>
+        with ESMTP id S229470AbiBOJEw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 04:04:52 -0500
+Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B40891160D5
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 01:04:42 -0800 (PST)
+Received: by mail-yb1-xb2e.google.com with SMTP id c6so54015522ybk.3
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 01:04:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=LXyU3TMYJOTYLwfoTA9DPkdeJqji2Meoteuh0Ak6tJI=;
+        b=vK8HB+w+227qiYy9jQ0o/EUJrbJWJ3IxR8YLUp45GrBNUkgRrIoBQaprNkclJ3UVLC
+         d07Wuj3xHr+Jgd1ROTq22iJSqltqQ7W6oy+hxD8uh7EJoq0WLq1AJ4968clZ9FIxMqB+
+         hk4kCS3/mTAjls4AGJczDrIR/cetgsbyMNFiED0uzS22JuRCIGTBetyYsd6XD1Hz24cx
+         Xpojx4yfkc9EhxLQG+4qvBOjSCwjta3aJ99KHM/oCR6utxofQiHl1YUSqRcLks2EEt7J
+         vzRbCV6XjBOogNBN9NBhVdrOD1YLc5b9M/cJiqyjGuLwfidXNqOxhIFhIyI9dPRuO/85
+         gBMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=LXyU3TMYJOTYLwfoTA9DPkdeJqji2Meoteuh0Ak6tJI=;
+        b=tmili1m74YZUCAsWJqY+XR4y1d1APid0zuyq9WuyStyjETXhJJTChhW9wOD/xwvP1b
+         jSrmC7OPIHWv+d6QfvTIkbFeEOytemiuE8V3lSxKhhVp4LeYHG8XfecgPgsRSRLcc/RN
+         ugZXcyovKp2z1TWf5Mqno8+EYaSB9YG4nrUgPRlV0wo56G/9wmsz2SlLspmxmDbWc6dX
+         //JaksJj9QEVZIe4m+eCbri76YWzCuq0why81D6I9StzmRVATwI4rSx5UvNX5ZdBoMSy
+         2JkxWFL1rTpBJB4crLveVG+y7sxQRzV8OmNhMx6Mxcip5Me7ZPTNrdRD6l7yNAd5hlME
+         zG9A==
+X-Gm-Message-State: AOAM532+L1jnK87yAmQIvRVOBXjCGZZB66/AwPld7U6KyOI/b0jZoSYY
+        Q4jOZM39/s7s4OCgrAIfTWGGl8UzATo3QfN4GcVElzYPHj+6Bg==
+X-Google-Smtp-Source: ABdhPJx4A8t0cA0oOLKHs+nQ1VCfgcbCCv3Mbf0JNfrzPCLBbWfsyI+1WNFHsI28VLH0Mjv8kIaKrLVbYLb/+hAQlUA=
+X-Received: by 2002:a05:6902:1201:: with SMTP id s1mr3081406ybu.704.1644915881755;
+ Tue, 15 Feb 2022 01:04:41 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Ygq6/32Cy6CjMrDu@intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220214092458.668376521@linuxfoundation.org>
+In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 15 Feb 2022 14:34:30 +0530
+Message-ID: <CA+G9fYvFCWaz_8L6fbud46RLgkrVTgj9EZM_OfUn=6nXwYs_5w@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/116] 5.10.101-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 14, 2022 at 10:26:39PM +0200, Ville Syrjälä wrote:
-> On Mon, Feb 14, 2022 at 07:03:05PM +0200, Lisovskiy, Stanislav wrote:
-> > On Mon, Feb 14, 2022 at 12:24:57PM +0200, Ville Syrjälä wrote:
-> > > On Mon, Feb 14, 2022 at 12:05:36PM +0200, Lisovskiy, Stanislav wrote:
-> > > > On Mon, Feb 14, 2022 at 11:18:07AM +0200, Ville Syrjala wrote:
-> > > > > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > > 
-> > > > > If the only thing that is changing is SAGV vs. no SAGV but
-> > > > > the number of active planes and the total data rates end up
-> > > > > unchanged we currently bail out of intel_bw_atomic_check()
-> > > > > early and forget to actually compute the new WGV point
-> > > > > mask and thus won't actually enable/disable SAGV as requested.
-> > > > > This ends up poorly if we end up running with SAGV enabled
-> > > > > when we shouldn't. Usually ends up in underruns.
-> > > > > To fix this let's go through the QGV point mask computation
-> > > > > if anyone else already added the bw state for us.
-> > > > 
-> > > > Haven't been looking this in a while. Despite we have been
-> > > > looking like few revisions together still some bugs :(
-> > > > 
-> > > > I thought SAGV vs No SAGV can't change if active planes 
-> > > > or data rate didn't change? Because it means we probably
-> > > > still have same ddb allocations, which means SAGV state
-> > > > will just stay the same.
-> > > 
-> > > SAGV can change due to watermarks/ddb allocations. The easiest
-> > > way to trip this up is to try to use the async flip wm0/ddb 
-> > > optimization. That immediately forgets to turn off SAGV and
-> > > we get underruns, whcih is how I noticed this. And I don't
-> > > immediately see any easy proof that this couldn't also happen
-> > > due to some other plane changes.
-> > 
-> > Thats the way it was initially implemented even before SAGV was added.
-> 
-> Yeah, it wasn't a problem as long as SAGV was not enabled.
-> 
-> > I think it can be dated back to the very first bw check was implemented.
-> > 
-> > commit c457d9cf256e942138a54a2e80349ee7fe20c391
-> > Author: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > Date:   Fri May 24 18:36:14 2019 +0300
-> > 
-> >     drm/i915: Make sure we have enough memory bandwidth on ICL
-> > 
-> > +int intel_bw_atomic_check(struct intel_atomic_state *state)
-> > +{
-> > +       struct drm_i915_private *dev_priv = to_i915(state->base.dev);
-> > +       struct intel_crtc_state *new_crtc_state, *old_crtc_state;
-> > +       struct intel_bw_state *bw_state = NULL;
-> > +       unsigned int data_rate, max_data_rate;
-> > +       unsigned int num_active_planes;
-> > +       struct intel_crtc *crtc;
-> > +       int i;
-> > +
-> > +       /* FIXME earlier gens need some checks too */
-> > +       if (INTEL_GEN(dev_priv) < 11)
-> > +               return 0;
-> > +
-> > +       for_each_oldnew_intel_crtc_in_state(state, crtc, old_crtc_state,
-> > +                                           new_crtc_state, i) {
-> > +               unsigned int old_data_rate =
-> > +                       intel_bw_crtc_data_rate(old_crtc_state);
-> > +               unsigned int new_data_rate =
-> > +                       intel_bw_crtc_data_rate(new_crtc_state);
-> > +               unsigned int old_active_planes =
-> > +                       intel_bw_crtc_num_active_planes(old_crtc_state);
-> > +               unsigned int new_active_planes =
-> > +                       intel_bw_crtc_num_active_planes(new_crtc_state);
-> > +
-> > +               /*
-> > +                * Avoid locking the bw state when
-> > +                * nothing significant has changed.
-> > +                */
-> > +               if (old_data_rate == new_data_rate &&
-> > +                   old_active_planes == new_active_planes)
-> > +                       continue;
-> > +
-> > +               bw_state  = intel_atomic_get_bw_state(state);
-> > +               if (IS_ERR(bw_state))
-> > +                       return PTR_ERR(bw_state);
-> > 
-> > However, what can cause watermarks/ddb to change, besides plane state change
-> > and/or active planes change? We change watermarks, when we change ddb allocations
-> > and we change ddb allocations when active planes had changed and/or data rate
-> > had changed.
-> 
-> The bw code only cares about the aggregate numbers from all the planes.
-> The planes could still change in some funny way where eg. some plane
-> frees up some bandwidth, but the other planes gobble up the exact same
-> amount and thus the aggregate numbers the bw atomic check cares about
-> do not change but the watermarks/ddb do.
-> 
-> And as mentiioned, the async flip wm0/ddb optimization makes this trivial
-> to trip up since it will want to disable SAGV as there is not enough ddb
-> for the SAGV watermark. And async flip specifically isn't even allowed
-> to change anything that would affect the bandwidth utilization, and neither
-> is it allowed to enable/disable planes.
+On Mon, 14 Feb 2022 at 15:10, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.101 release.
+> There are 116 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 16 Feb 2022 09:24:36 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.101-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-I think the whole idea of setting ddb to minimum in case of async flip optimization
-was purely our idea - BSpec/HSD only mentions forbidding wm levels > 0 in case of async
-flip, however there is nothing about limiting ddb allocations.
 
-Was a bit suspicious about that whole change, to be honest - and yep, now it seems to
-cause some unexpected side effects.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Also we are now forcing the recalculation to be done always no matter what and using
-new bw state for that in a bit counterintuitive way, which I don't like. 
-Not even sure that will always work, as we are not guaranteed to get a non-NULL
-new_bw_state object from calling intel_atomic_get_new_bw_state, for that purpose we
-typically call intel_atomic_get_bw_state, which is supposed to do that and its called only
-here and in cause of CDCLK recalculation, which is called in intel_cdclk_atomic_check and
-done right after this one.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-So if we haven't called intel_atomic_get_bw_state beforehand, which we didn't because there are
-2 places, where new bw state was supposed to be created to be usable by intel_atomic_get_new_bw_state
-- I think, we will(or might) get a NULL here, because intel_atomic_get_bw_state hasn't been called yet.
+## Build
+* kernel: 5.10.101-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.10.y
+* git commit: 8d15f8eda4b30d50abb1c58be6a175f2ec07888c
+* git describe: v5.10.100-117-g8d15f8eda4b3
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
+.100-117-g8d15f8eda4b3
 
-Stan
+## Test Regressions (compared to v5.10.100-117-gb184da91385d)
+No test regressions found.
 
-> 
-> -- 
-> Ville Syrjälä
-> Intel
+## Metric Regressions (compared to v5.10.100-117-gb184da91385d)
+No metric regressions found.
+
+## Test Fixes (compared to v5.10.100-117-gb184da91385d)
+No test fixes found.
+
+## Metric Fixes (compared to v5.10.100-117-gb184da91385d)
+No metric fixes found.
+
+## Test result summary
+total: 94250, pass: 80953, fail: 542, skip: 11915, xfail: 840
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 259 total, 259 passed, 0 failed
+* arm64: 37 total, 35 passed, 2 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 36 total, 36 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 34 total, 34 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 52 total, 37 passed, 15 failed
+* riscv: 24 total, 24 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 37 total, 37 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* perf/Zstd-perf.data-compression
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
