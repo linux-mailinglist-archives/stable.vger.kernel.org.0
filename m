@@ -2,324 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 650BC4B830D
-	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 09:39:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E97F54B832E
+	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 09:44:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231363AbiBPIb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Feb 2022 03:31:26 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:38046 "EHLO
+        id S231576AbiBPIo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Feb 2022 03:44:29 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:46864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231402AbiBPIbY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 03:31:24 -0500
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E8A22A5224
-        for <stable@vger.kernel.org>; Wed, 16 Feb 2022 00:31:02 -0800 (PST)
-Received: by mail-lf1-x12b.google.com with SMTP id b11so2376481lfb.12
-        for <stable@vger.kernel.org>; Wed, 16 Feb 2022 00:31:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=SAvi8FGvfrk93VcJ29YoJdnsrYUYUhv+2KoYb6EmDQE=;
-        b=eWw9t1rd7Dr5U0l17sqpg+glOe2d0mXQEG7lyHlLU0QVS5kggkockxH+CPiQvOLMqZ
-         AjmTnWQzUjO8GXyYbOS1Xy5pWwXGCi68+p/o1PB+ZqvRlZw/W7TK7oBBX5r8NkoWGs+Q
-         w9mHdChEjdjpzsjolJ9I5198IbXwAqBC0UYeONfRab60BnC7AZi2KcWPFcK9ojq0NUm7
-         K6Heh8cnucY178SZR4EPH2SgZX6qAUM5bzXSGdXGkk15zyGuTTA1tUFT5MGiAaxghGGX
-         YkrT8tyR9bQ8tSYIpxeRfG9+8nV6HZDNEVmpRdm1jAzPYummSpgIF5VN+C66+6lC1OdQ
-         qjMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=SAvi8FGvfrk93VcJ29YoJdnsrYUYUhv+2KoYb6EmDQE=;
-        b=DSMzp8GucqBRgZA2EJlEB3AlWND4pnggdZ+Q8Yho1hWZRcI5xGfw4ykSO3/FLk4PFm
-         /0MQeYJViv4FPFu8ABrQD+TRuBVMwz06UF7ap0REo0ugfOPv07+7x7IwflkqWvUlUA1q
-         CH8p95LRYlaI0Sxh/MC5Alhs9OejJ8mzDDJoGwFUSESjkbfkoJDfh0X4lan+s6RX5G6f
-         KTlp93AHVnQgP6w0QZ6beC2+vZgt5larmOwY+GL8BPdEkIa17/iJ6wcIIvkOeUhRbbyq
-         pAyfoAMeKQaqqT12aG47/cuPeK7IcCkREg5ZnGm4Uf7VN4ltfbSJR1c8jmFQECcs058W
-         /MQg==
-X-Gm-Message-State: AOAM530XE10bZcyXX/oCjyHfqolI36Tr0CupJ308pqnrDqNnZXghJ0ZA
-        f14k4o0fpBuWkBfjyG7tO0u7GigHo7jECvob8qmSnA==
-X-Google-Smtp-Source: ABdhPJzL+dEtq79TKjYEavevUww7s8cdfz2yinYzdZyLs7Pal4K9oVW47QjYrtw/Wmg9cZ5EKlMN1M1ls9oy+4yxdQ8=
-X-Received: by 2002:a05:6512:36c5:b0:437:93ad:8725 with SMTP id
- e5-20020a05651236c500b0043793ad8725mr1173016lfs.645.1645000260604; Wed, 16
- Feb 2022 00:31:00 -0800 (PST)
+        with ESMTP id S229455AbiBPIo3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 03:44:29 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0974016EAB1;
+        Wed, 16 Feb 2022 00:44:16 -0800 (PST)
+Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1nKFv4-00018D-Q4; Wed, 16 Feb 2022 09:44:14 +0100
+Message-ID: <d45e38db-205f-3400-af09-aa0bb1624975@leemhuis.info>
+Date:   Wed, 16 Feb 2022 09:44:14 +0100
 MIME-Version: 1.0
-References: <8c4a69eca4d0591f30c112df59c5098c24923bd3.1644543449.git.darren@os.amperecomputing.com>
- <ec9be4eb7a0548178191edd51ddd309f@hisilicon.com> <20220215163858.GA8458@willie-the-truck>
- <YgvYZy5xv1g+u5wp@fedora> <20220215164639.GC8458@willie-the-truck>
- <CAKfTPtAFsL+uqQiGcuh+JJZB=rPrez0=kotq76CVRcBQhcPefg@mail.gmail.com>
- <YgvjtsOZuxzbgBBl@fedora> <CAKfTPtCHrZCp1Uth4odyT721wE8zoNVY3Mh+DSyuTkqPafm0Hg@mail.gmail.com>
- <YgwHhxy/uGafQsak@fedora>
-In-Reply-To: <YgwHhxy/uGafQsak@fedora>
-From:   Vincent Guittot <vincent.guittot@linaro.org>
-Date:   Wed, 16 Feb 2022 09:30:49 +0100
-Message-ID: <CAKfTPtAR2+bY8QpyaCCJfezsVkB62n8XZjL9c5_mPO3iyDnp4w@mail.gmail.com>
-Subject: Re: [PATCH] arm64: smp: Skip MC domain for SoCs without shared cache
-To:     Darren Hart <darren@os.amperecomputing.com>
-Cc:     Will Deacon <will@kernel.org>,
-        "Song Bao Hua (Barry Song)" <song.bao.hua@hisilicon.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Arm <linux-arm-kernel@lists.infradead.org>,
-        Catalin Marinas <Catalin.Marinas@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Valentin Schneider <Valentin.Schneider@arm.com>,
-        "D . Scott Phillips" <scott@os.amperecomputing.com>,
-        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: [regression, stable] Re: Bug 215562 - BUG: unable to handle page
+ fault in cache_reap (fwd from bugzilla)
+Content-Language: en-BS
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+To:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <062f4a59-2d41-9a6f-8c7c-42fc5773e282@leemhuis.info>
+In-Reply-To: <062f4a59-2d41-9a6f-8c7c-42fc5773e282@leemhuis.info>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1645001057;3fd313f4;
+X-HE-SMSGID: 1nKFv4-00018D-Q4
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 15 Feb 2022 at 21:05, Darren Hart <darren@os.amperecomputing.com> wrote:
->
-> On Tue, Feb 15, 2022 at 07:19:45PM +0100, Vincent Guittot wrote:
-> > On Tue, 15 Feb 2022 at 18:32, Darren Hart <darren@os.amperecomputing.com> wrote:
-> > >
-> > > On Tue, Feb 15, 2022 at 06:09:08PM +0100, Vincent Guittot wrote:
-> > > > On Tue, 15 Feb 2022 at 17:46, Will Deacon <will@kernel.org> wrote:
-> > > > >
-> > > > > On Tue, Feb 15, 2022 at 08:44:23AM -0800, Darren Hart wrote:
-> > > > > > On Tue, Feb 15, 2022 at 04:38:59PM +0000, Will Decon wrote:
-> > > > > > > On Fri, Feb 11, 2022 at 03:20:51AM +0000, Song Bao Hua (Barry Song) wrote:
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > > -----Original Message-----
-> > > > > > > > > From: Darren Hart [mailto:darren@os.amperecomputing.com]
-> > > > > > > > > Sent: Friday, February 11, 2022 2:43 PM
-> > > > > > > > > To: LKML <linux-kernel@vger.kernel.org>; Linux Arm
-> > > > > > > > > <linux-arm-kernel@lists.infradead.org>
-> > > > > > > > > Cc: Catalin Marinas <catalin.marinas@arm.com>; Will Deacon <will@kernel.org>;
-> > > > > > > > > Peter Zijlstra <peterz@infradead.org>; Vincent Guittot
-> > > > > > > > > <vincent.guittot@linaro.org>; Song Bao Hua (Barry Song)
-> > > > > > > > > <song.bao.hua@hisilicon.com>; Valentin Schneider
-> > > > > > > > > <valentin.schneider@arm.com>; D . Scott Phillips
-> > > > > > > > > <scott@os.amperecomputing.com>; Ilkka Koskinen
-> > > > > > > > > <ilkka@os.amperecomputing.com>; stable@vger.kernel.org
-> > > > > > > > > Subject: [PATCH] arm64: smp: Skip MC domain for SoCs without shared cache
-> > > > > > > > >
-> > > > > > > > > SoCs such as the Ampere Altra define clusters but have no shared
-> > > > > > > > > processor-side cache. As of v5.16 with CONFIG_SCHED_CLUSTER and
-> > > > > > > > > CONFIG_SCHED_MC, build_sched_domain() will BUG() with:
-> > > > > > > > >
-> > > > > > > > > BUG: arch topology borken
-> > > > > > > > >      the CLS domain not a subset of the MC domain
-> > > > > > > > >
-> > > > > > > > > for each CPU (160 times for a 2 socket 80 core Altra system). The MC
-> > > > > > > > > level cpu mask is then extended to that of the CLS child, and is later
-> > > > > > > > > removed entirely as redundant.
-> > > > > > > > >
-> > > > > > > > > This change detects when all cpu_coregroup_mask weights=1 and uses an
-> > > > > > > > > alternative sched_domain_topology equivalent to the default if
-> > > > > > > > > CONFIG_SCHED_MC were disabled.
-> > > > > > > > >
-> > > > > > > > > The final resulting sched domain topology is unchanged with or without
-> > > > > > > > > CONFIG_SCHED_CLUSTER, and the BUG is avoided:
-> > > > > > > > >
-> > > > > > > > > For CPU0:
-> > > > > > > > >
-> > > > > > > > > With CLS:
-> > > > > > > > > CLS  [0-1]
-> > > > > > > > > DIE  [0-79]
-> > > > > > > > > NUMA [0-159]
-> > > > > > > > >
-> > > > > > > > > Without CLS:
-> > > > > > > > > DIE  [0-79]
-> > > > > > > > > NUMA [0-159]
-> > > > > > > > >
-> > > > > > > > > Cc: Catalin Marinas <catalin.marinas@arm.com>
-> > > > > > > > > Cc: Will Deacon <will@kernel.org>
-> > > > > > > > > Cc: Peter Zijlstra <peterz@infradead.org>
-> > > > > > > > > Cc: Vincent Guittot <vincent.guittot@linaro.org>
-> > > > > > > > > Cc: Barry Song <song.bao.hua@hisilicon.com>
-> > > > > > > > > Cc: Valentin Schneider <valentin.schneider@arm.com>
-> > > > > > > > > Cc: D. Scott Phillips <scott@os.amperecomputing.com>
-> > > > > > > > > Cc: Ilkka Koskinen <ilkka@os.amperecomputing.com>
-> > > > > > > > > Cc: <stable@vger.kernel.org> # 5.16.x
-> > > > > > > > > Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
-> > > > > > > >
-> > > > > > > > Hi Darrent,
-> > > > > > > > What kind of resources are clusters sharing on Ampere Altra?
-> > > > > > > > So on Altra, cpus are not sharing LLC? Each LLC is separate
-> > > > > > > > for each cpu?
-> > > > > > > >
-> > > > > > > > > ---
-> > > > > > > > >  arch/arm64/kernel/smp.c | 32 ++++++++++++++++++++++++++++++++
-> > > > > > > > >  1 file changed, 32 insertions(+)
-> > > > > > > > >
-> > > > > > > > > diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-> > > > > > > > > index 27df5c1e6baa..0a78ac5c8830 100644
-> > > > > > > > > --- a/arch/arm64/kernel/smp.c
-> > > > > > > > > +++ b/arch/arm64/kernel/smp.c
-> > > > > > > > > @@ -715,9 +715,22 @@ void __init smp_init_cpus(void)
-> > > > > > > > >         }
-> > > > > > > > >  }
-> > > > > > > > >
-> > > > > > > > > +static struct sched_domain_topology_level arm64_no_mc_topology[] = {
-> > > > > > > > > +#ifdef CONFIG_SCHED_SMT
-> > > > > > > > > +       { cpu_smt_mask, cpu_smt_flags, SD_INIT_NAME(SMT) },
-> > > > > > > > > +#endif
-> > > > > > > > > +
-> > > > > > > > > +#ifdef CONFIG_SCHED_CLUSTER
-> > > > > > > > > +       { cpu_clustergroup_mask, cpu_cluster_flags, SD_INIT_NAME(CLS) },
-> > > > > > > > > +#endif
-> > > > > > > > > +       { cpu_cpu_mask, SD_INIT_NAME(DIE) },
-> > > > > > > > > +       { NULL, },
-> > > > > > > > > +};
-> > > > > > > > > +
-> > > > > > > > >  void __init smp_prepare_cpus(unsigned int max_cpus)
-> > > > > > > > >  {
-> > > > > > > > >         const struct cpu_operations *ops;
-> > > > > > > > > +       bool use_no_mc_topology = true;
-> > > > > > > > >         int err;
-> > > > > > > > >         unsigned int cpu;
-> > > > > > > > >         unsigned int this_cpu;
-> > > > > > > > > @@ -758,6 +771,25 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
-> > > > > > > > >
-> > > > > > > > >                 set_cpu_present(cpu, true);
-> > > > > > > > >                 numa_store_cpu_info(cpu);
-> > > > > > > > > +
-> > > > > > > > > +               /*
-> > > > > > > > > +                * Only use no_mc topology if all cpu_coregroup_mask weights=1
-> > > > > > > > > +                */
-> > > > > > > > > +               if (cpumask_weight(cpu_coregroup_mask(cpu)) > 1)
-> > > > > > > > > +                       use_no_mc_topology = false;
-> > > > > > > >
-> > > > > > > > This seems to be wrong? If you have 5 cpus,
-> > > > > > > > Cpu0 has cpu_coregroup_mask(cpu)== 1, cpu1-4
-> > > > > > > > has cpu_coregroup_mask(cpu)== 4, for cpu0, you still
-> > > > > > > > need to remove MC, but for cpu1-4, you will need
-> > > > > > > > CLS and MC both?
-> > > > > > >
-> > > > > > > What is the *current* behaviour on such a system?
-> > > > > > >
-> > > > > >
-> > > > > > As I understand it, any system that uses the default topology which has
-> > > > > > a cpus_coregroup weight of 1 and a child (cluster, smt, ...) weight > 1
-> > > > > > will behave as described above by printing the following for each CPU
-> > > > > > matching this criteria:
-> > > > > >
-> > > > > >   BUG: arch topology borken
-> > > > > >         the [CLS,SMT,...] domain not a subset of the MC domain
-> > > > > >
-> > > > > > And then extend the MC domain cpumask to match that of the child and continue
-> > > > > > on.
-> > > > > >
-> > > > > > That would still be the behavior for this type of system after this
-> > > > > > patch is applied.
-> > > > >
-> > > > > That's what I thought, but in that case applying your patch is a net
-> > > > > improvement: systems either get current or better behaviour.
-> > > >
-> > > > CLUSTER level is normally defined as a intermediate group of the MC
-> > > > level and both levels have the scheduler flag SD_SHARE_PKG_RESOURCES
-> > > > flag
-> > > >
-> > > > In the case of Ampere altra, they consider that CPUA have a CLUSTER
-> > > > level which SD_SHARE_PKG_RESOURCES with another CPUB but the next and
-> > > > larger MC level then says that CPUA doesn't SD_SHARE_PKG_RESOURCES
-> > > > with CPUB which seems to be odd because the SD_SHARE_PKG_RESOURCES has
-> > > > not disappeared Looks like there is a mismatch in topology description
-> > >
-> > > Hi Vincent,
-> > >
-> > > Agree. Where do you think this mismatch exists?
-> >
-> > I think that the problem comes from that the default topology order is
-> > assumed to be :
-> > SMT
-> > CLUSTER shares pkg resources i.e. cache
-> > MC
-> > DIE
-> > NUMA
-> >
-> > but in your case, you want a topology order like :
-> > SMT
-> > MC
-> > CLUSTER shares SCU
-> > DIE
-> > NUMA
->
-> Given the fairly loose definition of some of these domains and the
-> freedom to adjust flags with custom topologies, I think it's difficult
-> to say it needs to be this or that. As you point out, this stems from an
-> assumption in the default topology, so eliding the MC level within the
-> current set of abstractions for a very targeted topology still seems
-> reasonable to address the BUG in the very near term in a contained way.
+Hi, this is your Linux kernel regression tracker speaking. Top-posting
+for once, to make this easy accessible to everyone.
 
-But if another SoC comes with a valid MC then a CLUSTER, this proposal
-will not work.
+Below issue that started to happen between v5.10.80..v5.10.90 was
+recently reported to bugzilla, but the reporter didn't even get a single
+reply afaics. Could somebody maybe take a look? Bisection is likely no
+easy in this case, so a few tips to narrow down the area to search might
+help a lot here.
 
-Keep in mind that the MC level will be removed/degenerate when
-building because it is useless in your case so the scheduler topology
-will still be the same at the end but it will support more case. That
-why I think you should keep MC level
+https://bugzilla.kernel.org/show_bug.cgi?id=215562
 
->
-> >
-> > IIUC, the cluster is defined as the 2nd (no SMT) or 3rd (SMT) level in
-> > the PPTT table whereas the MC level is defined as the number of cache
-> > levels. So i would say that you should compare the level to know the
-> > ordering
-> >
-> > Then, there is another point:
-> > In your case, CLUSTER level still has the flag SD_SHARE_PKG_RESOURCES
-> > which is used to define some scheduler internal variable like
-> > sd_llc(sched domain last level of cache) which allows fast task
-> > migration between this cpus in this level at wakeup. In your case the
-> > sd_llc should not be the cluster but the MC with only one CPU. But I
-> > would not be surprised that most of perf improvement comes from this
-> > sd_llc wrongly set to cluster instead of the single CPU
->
-> Agree that we currently have an imperfect representation of SoCs without
-> a shared CPU-side cache. Within this imperfect abstraction, it seems
-> valid to consider the SCU as a valid shared resource to be described by
-> SD_SHARE_PKG_RESOURCES, and as you say, that does result in an overall
-> performance improvement.
+Ciao, Thorsten
 
-My concern is that there are some ongoing discussion to make more
-usage of the CLUSTER level than what is currently done and it assumes
-that we have a valid LLC level after the CLUSTER one which is not your
-case and I'm afraid that it will be suboptimal for you because CLUSTER
-and LLC are wrongly the same for your case and then you will come back
-to add more exception in the generic scheduler code to cover this
-first exception
 
->
-> Also agree that it is worth working toward a better abstraction. On the
-> way to that, I think it makes sense to avoid BUG'ing on the current
-> topology which is a reasonable one given the current abstraction.
->
-> Thanks,
->
-> >
-> >
-> > >
-> > > I'd describe this as a mismatch between the default assumptions of
-> > > the sched domains construction code (that SD_SHARE_PKG_RESOURCES implies
-> > > a shared cpu-side cache) and SoCs without a shared cpu-side cache. This
-> > > is encoded in properties of the MC level and the requirement that child
-> > > domains be a subset of the parent domain cpumask.
-> > >
-> > > The MC-less topology addresses this in a consistent way with other
-> > > architectures using the provided API for non-default topologies without
-> > > changing these fundamental assumptions and without changing the final
-> > > resulting topology which is correct and matches the topology supplied in
-> > > the ACPI PPTT.
-> >
-> >
-> > >
-> > > --
-> > > Darren Hart
-> > > Ampere Computing / OS and Kernel
->
-> --
-> Darren Hart
-> Ampere Computing / OS and Kernel
+On 03.02.22 16:03, Thorsten Leemhuis wrote:
+> Hi, this is your Linux kernel regression tracker speaking.
+> 
+> There is a regression in bugzilla.kernel.org I'd like to add to the
+> tracking:
+> 
+> #regzbot introduced: v5.10.80..v5.10.90
+> #regzbot from: Patrick Schaaf <kernelorg@bof.de>
+> #regzbot title: mm: unable to handle page fault in cache_reap
+> #regzbot link: https://bugzilla.kernel.org/show_bug.cgi?id=215562
+> 
+> Quote:
+> 
+>> We've been running self-built 5.10.x kernels on DL380 hosts for quite a while, also inside the VMs there.
+>>
+>> With I think 5.10.90 three weeks or so back, we experienced a lockup upon umounting a larger, dirty filesystem on the host side, unfortunately without capturing a backtrace back then.
+>>
+>> Today something feeling similar, happened again, on a machine running 5.10.93 both on the host and inside its 10 various VMs.
+>>
+>> Problem showed shortly (minutes) after shutting down one of the VMs (few hundred GB memory / dataset, VM shutdown was complete already; direct I/O), and then some LVM volume renames, a quick short outside ext4 mount followed by an umount (8 GB volume, probably a few hundred megabyte only to write). Actually monitoring suggests that disk writes were already done about a minute before the onset.
+>>
+>> What we then experienced, was the following BUG:, followed by one after the other CPU saying goodbye with soft lockup messages over the course of a few minutes; meanwhile there was no more pinging the box, logging in on console, etc. We hard powercycled and it recovered fully.
+>>
+>> here's the BUG that was logged; if it is useful for someone to see the followup soft lockup messages, tell me + I'll add them.
+>>
+>> Feb 02 15:22:27 kvm3j kernel: BUG: unable to handle page fault for address: ffffebde00000008
+>> Feb 02 15:22:27 kvm3j kernel: #PF: supervisor read access in kernel mode
+>> Feb 02 15:22:27 kvm3j kernel: #PF: error_code(0x0000) - not-present page
+>> Feb 02 15:22:27 kvm3j kernel: Oops: 0000 [#1] SMP PTI
+>> Feb 02 15:22:27 kvm3j kernel: CPU: 7 PID: 39833 Comm: kworker/7:0 Tainted: G          I       5.10.93-kvm #1
+>> Feb 02 15:22:27 kvm3j kernel: Hardware name: HP ProLiant DL380p Gen8, BIOS P70 12/20/2013
+>> Feb 02 15:22:27 kvm3j kernel: Workqueue: events cache_reap
+>> Feb 02 15:22:27 kvm3j kernel: RIP: 0010:free_block.constprop.0+0xc0/0x1f0
+>> Feb 02 15:22:27 kvm3j kernel: Code: 4c 8b 16 4c 89 d0 48 01 e8 0f 82 32 01 00 00 4c 89 f2 48 bb 00 00 00 00 00 ea ff ff 48 01 d0 48 c1 e8 0c 48 c1 e0 06 48 01 d8 <48> 8b 50 08 48 8d 4a ff 83 e2 01 48 >
+>> Feb 02 15:22:27 kvm3j kernel: RSP: 0018:ffffc9000252bdc8 EFLAGS: 00010086
+>> Feb 02 15:22:27 kvm3j kernel: RAX: ffffebde00000000 RBX: ffffea0000000000 RCX: ffff888889141b00
+>> Feb 02 15:22:27 kvm3j kernel: RDX: 0000777f80000000 RSI: ffff893d3edf3400 RDI: ffff8881000403c0
+>> Feb 02 15:22:27 kvm3j kernel: RBP: 0000000080000000 R08: ffff888100041300 R09: 0000000000000003
+>> Feb 02 15:22:27 kvm3j kernel: R10: 0000000000000000 R11: ffff888100041308 R12: dead000000000122
+>> Feb 02 15:22:27 kvm3j kernel: R13: dead000000000100 R14: 0000777f80000000 R15: ffff893ed8780d60
+>> Feb 02 15:22:27 kvm3j kernel: FS:  0000000000000000(0000) GS:ffff893d3edc0000(0000) knlGS:0000000000000000
+>> Feb 02 15:22:27 kvm3j kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>> Feb 02 15:22:27 kvm3j kernel: CR2: ffffebde00000008 CR3: 000000048c4aa002 CR4: 00000000001726e0
+>> Feb 02 15:22:27 kvm3j kernel: Call Trace:
+>> Feb 02 15:22:27 kvm3j kernel:  drain_array_locked.constprop.0+0x2e/0x80
+>> Feb 02 15:22:27 kvm3j kernel:  drain_array.constprop.0+0x54/0x70
+>> Feb 02 15:22:27 kvm3j kernel:  cache_reap+0x6c/0x100
+>> Feb 02 15:22:27 kvm3j kernel:  process_one_work+0x1cf/0x360
+>> Feb 02 15:22:27 kvm3j kernel:  worker_thread+0x45/0x3a0
+>> Feb 02 15:22:27 kvm3j kernel:  ? process_one_work+0x360/0x360
+>> Feb 02 15:22:27 kvm3j kernel:  kthread+0x116/0x130
+>> Feb 02 15:22:27 kvm3j kernel:  ? kthread_create_worker_on_cpu+0x40/0x40
+>> Feb 02 15:22:27 kvm3j kernel:  ret_from_fork+0x22/0x30
+>> Feb 02 15:22:27 kvm3j kernel: Modules linked in: hpilo
+>> Feb 02 15:22:27 kvm3j kernel: CR2: ffffebde00000008
+>> Feb 02 15:22:27 kvm3j kernel: ---[ end trace ded3153d86a92898 ]---
+>> Feb 02 15:22:27 kvm3j kernel: RIP: 0010:free_block.constprop.0+0xc0/0x1f0
+>> Feb 02 15:22:27 kvm3j kernel: Code: 4c 8b 16 4c 89 d0 48 01 e8 0f 82 32 01 00 00 4c 89 f2 48 bb 00 00 00 00 00 ea ff ff 48 01 d0 48 c1 e8 0c 48 c1 e0 06 48 01 d8 <48> 8b 50 08 48 8d 4a ff 83 e2 01 48 >
+>> Feb 02 15:22:27 kvm3j kernel: RSP: 0018:ffffc9000252bdc8 EFLAGS: 00010086
+>> Feb 02 15:22:27 kvm3j kernel: RAX: ffffebde00000000 RBX: ffffea0000000000 RCX: ffff888889141b00
+>> Feb 02 15:22:27 kvm3j kernel: RDX: 0000777f80000000 RSI: ffff893d3edf3400 RDI: ffff8881000403c0
+>> Feb 02 15:22:27 kvm3j kernel: RBP: 0000000080000000 R08: ffff888100041300 R09: 0000000000000003
+>> Feb 02 15:22:27 kvm3j kernel: R10: 0000000000000000 R11: ffff888100041308 R12: dead000000000122
+>> Feb 02 15:22:27 kvm3j kernel: R13: dead000000000100 R14: 0000777f80000000 R15: ffff893ed8780d60
+>> Feb 02 15:22:27 kvm3j kernel: FS:  0000000000000000(0000) GS:ffff893d3edc0000(0000) knlGS:0000000000000000
+>> Feb 02 15:22:27 kvm3j kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>> Feb 02 15:22:27 kvm3j kernel: CR2: ffffebde00000008 CR3: 000000048c4aa002 CR4: 00000000001726e0
+> 
+> Ciao, Thorsten (wearing his 'Linux kernel regression tracker' hat)
+> 
+> P.S.: As a Linux kernel regression tracker I'm getting a lot of reports
+> on my table. I can only look briefly into most of them. Unfortunately
+> therefore I sometimes will get things wrong or miss something important.
+> I hope that's not the case here; if you think it is, don't hesitate to
+> tell me about it in a public reply, that's in everyone's interest.
+> 
+> BTW, I have no personal interest in this issue, which is tracked using
+> regzbot, my Linux kernel regression tracking bot
+> (https://linux-regtracking.leemhuis.info/regzbot/). I'm only posting
+> this mail to get things rolling again and hence don't need to be CC on
+> all further activities wrt to this regression.
+> 
+> ---
+> Additional information about regzbot:
+> 
+> If you want to know more about regzbot, check out its web-interface, the
+> getting start guide, and/or the references documentation:
+> 
+> https://linux-regtracking.leemhuis.info/regzbot/
+> https://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md
+> https://gitlab.com/knurd42/regzbot/-/blob/main/docs/reference.md
+> 
+> The last two documents will explain how you can interact with regzbot
+> yourself if your want to.
+> 
+> Hint for reporters: when reporting a regression it's in your interest to
+> tell #regzbot about it in the report, as that will ensure the regression
+> gets on the radar of regzbot and the regression tracker. That's in your
+> interest, as they will make sure the report won't fall through the
+> cracks unnoticed.
+> 
+> Hint for developers: you normally don't need to care about regzbot once
+> it's involved. Fix the issue as you normally would, just remember to
+> include a 'Link:' tag to the report in the commit message, as explained
+> in Documentation/process/submitting-patches.rst
+> That aspect was recently was made more explicit in commit 1f57bd42b77c:
+> https://git.kernel.org/linus/1f57bd42b77c
