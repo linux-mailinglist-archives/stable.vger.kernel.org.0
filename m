@@ -2,140 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BB3E4B7C02
-	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 01:40:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B75E84B7C08
+	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 01:42:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240240AbiBPAkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 19:40:09 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51364 "EHLO
+        id S245111AbiBPAlT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 19:41:19 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235223AbiBPAkI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 19:40:08 -0500
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2053B60D86;
-        Tue, 15 Feb 2022 16:39:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644971998; x=1676507998;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Cd+0YC9gWXPn8NbISSpcfmmX5qnlmxqRhaAzyaZQsHk=;
-  b=L+Nhu0Zf4KhSo06pMy1EB9CB7vLUWuHJUOl29gfwObGjvQT2cfbcW+Am
-   +LS8dxvAUFB1/EZXAaCMFPB+3TyL5G2MNubjJbvpUTbtZmfrWJAqPJXRv
-   8l0mw0yfABJC/ccWqtgHOTP9Z2d1CYkG1wwidxYRROdo3/ttJbq59MkEm
-   4Q4R1qxT46BEiZdskFSMERPX+iDxNErHrb+1emcIIyFwzHG8c4xPv9ec0
-   nTSoiOgBqoipGRcrrM+Toz41H3xwJJo9OPIgbuymcI72Lv0RBFn2ON925
-   E/hWFnUCIG/USg4rW7NlzBt9eBYFEEVwX6l8OLmF5pQCaJFXTi+3qCZrY
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10259"; a="275070166"
-X-IronPort-AV: E=Sophos;i="5.88,371,1635231600"; 
-   d="scan'208";a="275070166"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 16:39:52 -0800
-X-IronPort-AV: E=Sophos;i="5.88,371,1635231600"; 
-   d="scan'208";a="636226996"
-Received: from guptapa-mobl1.amr.corp.intel.com ([10.209.113.151])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 16:39:51 -0800
-Date:   Tue, 15 Feb 2022 16:39:50 -0800
-From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     Andrew Cooper <andrew.cooper3@citrix.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@linux.intel.com>,
-        Tony Luck <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
-        antonio.gomez.iglesias@linux.intel.com, neelima.krishnan@intel.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] x86/tsx: Use MSR_TSX_CTRL to clear CPUID bits
-Message-ID: <20220216003950.5jxecuf773g2kuwl@guptapa-mobl1.amr.corp.intel.com>
-References: <5bd785a1d6ea0b572250add0c6617b4504bc24d1.1644440311.git.pawan.kumar.gupta@linux.intel.com>
- <YgqToxbGQluNHABF@zn.tnic>
- <20220214224121.ilhu23cfjdyhvahk@guptapa-mobl1.amr.corp.intel.com>
- <YgrltbToK8+tG2qK@zn.tnic>
- <20220215002014.mb7g4y3hfefmyozx@guptapa-mobl1.amr.corp.intel.com>
- <Ygt/QSTSMlUJnzFS@zn.tnic>
- <20220215121103.vhb2lpoygxn3xywy@guptapa-mobl1.amr.corp.intel.com>
- <YgvVcdpmFCCn20A7@zn.tnic>
- <20220215181931.wxfsn2a3npg7xmi2@guptapa-mobl1.amr.corp.intel.com>
- <YgwAHU7gCnik8Kv6@zn.tnic>
+        with ESMTP id S245091AbiBPAlT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 19:41:19 -0500
+Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBFCAF8B96
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 16:41:04 -0800 (PST)
+Received: by mail-oi1-x233.google.com with SMTP id 13so810907oiz.12
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 16:41:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=D6kOuJ3sFRAfxlfcJvGvD0WdwWS/gNKzCWsG8Lno9eY=;
+        b=iX4gNuGKYZNG9hM1lAyY7Nf/bZLA5KTwEcEMmT3v/Wkao8xyAeGNUtg1UxOYaO42aC
+         XZstBpPHLaxU6YJNIWfSub+ULsZeKmX/L7ae/TPdpY5zEOmW7JYZjAIs56FeEgSA/CLE
+         wG0hkTYT7TAeJo1PVmmZFXS/PQWpRu2EtuOzM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=D6kOuJ3sFRAfxlfcJvGvD0WdwWS/gNKzCWsG8Lno9eY=;
+        b=m5rG5Ub0pa/EiU5qNP+7YhptIjUL4RrrmpWC0XI+nSxJapLtRuaEBzyCpJhEgoeO6V
+         H/9Mg8KJZGm8qQ7UB03wvf+13bFW0kAMCx0YGNHu16B6kgMJ4vYemTlPTnVw6HIBj/Wt
+         AvMoMHO4BQgzzMGrXmgyCZWGOdHU8XjOYfd9y1MzS+yq71GKAK0UXHKIybybddm45Y+R
+         T/r8TKUpnWz1nyaAa7cIY4wdMtfv62bW7DDJd5721J1fx6c5zGpslVlYWRNNneX6/aXL
+         FRi50Cz2v02FTH9CckXlC26qKG/qhJZyXMdqHAe3Acqx1Aw3qh/cYf8YxAbUNupNRvmq
+         RQyg==
+X-Gm-Message-State: AOAM532B6QT4EKpRdvGNQH5cJ464yT8uA9u9pn5Nm44hLi9SS0VJJwNQ
+        1o6Bl70anM1uZW2k5TttK3vy2NUAw2BiAA==
+X-Google-Smtp-Source: ABdhPJwCTVfB+YO8Kf6PYn/ta9ZnFS1dFpasw4+9y6PHnvZKNRx0HCMab9j88q2AqIc7VJJ33nhDWg==
+X-Received: by 2002:a05:6808:e8d:b0:2d4:1d34:b970 with SMTP id k13-20020a0568080e8d00b002d41d34b970mr1882435oil.330.1644972063918;
+        Tue, 15 Feb 2022 16:41:03 -0800 (PST)
+Received: from mail-oi1-f169.google.com (mail-oi1-f169.google.com. [209.85.167.169])
+        by smtp.gmail.com with ESMTPSA id u32sm11138020oiw.28.2022.02.15.16.41.01
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 15 Feb 2022 16:41:02 -0800 (PST)
+Received: by mail-oi1-f169.google.com with SMTP id r19so853458oic.5
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 16:41:01 -0800 (PST)
+X-Received: by 2002:a05:6808:1b29:b0:2ce:6ee7:2cc5 with SMTP id
+ bx41-20020a0568081b2900b002ce6ee72cc5mr2715980oib.243.1644972061370; Tue, 15
+ Feb 2022 16:41:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-In-Reply-To: <YgwAHU7gCnik8Kv6@zn.tnic>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20211001144212.v2.1.I773a08785666ebb236917b0c8e6c05e3de471e75@changeid>
+ <CAD=FV=XU0bYVZk+-jPWZVoODW79QXOJ=NQy+RH=fYyX+LCZb2Q@mail.gmail.com>
+ <CA+ASDXPXKVwcZGYoagJYPm4E7DzaJmEVEv2FANhLH-juJw+r+Q@mail.gmail.com> <CAD=FV=VYe1rLKANQ8eom7g8x1v6_s_OYnX819Ax4m7O3UwDHmg@mail.gmail.com>
+In-Reply-To: <CAD=FV=VYe1rLKANQ8eom7g8x1v6_s_OYnX819Ax4m7O3UwDHmg@mail.gmail.com>
+From:   Brian Norris <briannorris@chromium.org>
+Date:   Tue, 15 Feb 2022 16:40:49 -0800
+X-Gmail-Original-Message-ID: <CA+ASDXO8c4dK31p=kvBABJQsDUs20qVHM6NxYf1JQDCr2oswAw@mail.gmail.com>
+Message-ID: <CA+ASDXO8c4dK31p=kvBABJQsDUs20qVHM6NxYf1JQDCr2oswAw@mail.gmail.com>
+Subject: Re: [PATCH v2] drm/bridge: analogix_dp: Grab runtime PM reference for DP-AUX
+To:     Doug Anderson <dianders@chromium.org>
+Cc:     Andrzej Hajda <a.hajda@samsung.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sean Paul <sean@poorly.run>, Jonas Karlman <jonas@kwiboo.se>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>,
+        "# 4.0+" <stable@vger.kernel.org>,
+        Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 15.02.2022 20:33, Borislav Petkov wrote:
->On Tue, Feb 15, 2022 at 10:19:31AM -0800, Pawan Gupta wrote:
->> I admit it has gotten complicated with so many bits associated with TSX.
+On Tue, Feb 15, 2022 at 3:46 PM Doug Anderson <dianders@chromium.org> wrote:
+> On Tue, Feb 15, 2022 at 2:52 PM Brian Norris <briannorris@chromium.org> wrote:
+> > It still makes me wonder what the point
+> > of the /dev/drm_dp_aux<N> interface is though, because it seems like
+> > you're pretty much destined to not have reliable operation through
+> > that means.
 >
->Yah, and looka here:
+> I can't say I have tons of history for those files. I seem to recall
+> maybe someone using them to have userspace tweak the embedded
+> backlight on some external DP connected panels? I think we also might
+> use it in Chrome OS to update the firmware of panels (dunno if
+> internal or external) in some cases too? I suspect that it works OK
+> for certain situations but it's really not going to work in all
+> cases...
+
+Yes, I believe I'm only submitting patches like this because fwupd
+apparently likes to indiscriminately whack at dpaux devices:
+https://github.com/fwupd/fwupd/tree/main/plugins/synaptics-mst#kernel-dp-aux-interface
+
+That seems like a bad idea.
+
+(We've already disabled that plugin on these systems, but it seems
+wise not to leave the stumbling block here for the next time.)
+
+> I suppose this just further proves the point that this is really not a
+> great interface to rely on. It's fine for debugging during hardware
+> bringup and I guess in limited situations it might be OK, but it's
+> really not something we want userspace tweaking with anyway, right? In
+> general I expect it's up to the kernel to be controlling peripherals
+> on the DP AUX bus. The kernel should have a backlight driver and
+> should do the AUX transfers needed. Having userspace in there mucking
+> with things is just a bad idea. I mean, userspace also doesn't know
+> when a panel has been power cycled and potentially lost any changes
+> that they might have written, right?
 >
->https://github.com/andyhhp/xen/commit/ad9f7c3b2e0df38ad6d54f4769d4dccf765fbcee
->
->It seems it isn't complicated enough. ;-\
->
->Andy just made me aware of this thing where you guys have added a new
->MSR bit:
->
->MSR_MCU_OPT_CTRL[1] which is called something like
->MCU_OPT_CTRL_RTM_ALLOW or so.
+> I sorta suspect that most of the uses of these files are there because
+> there wasn't a kernel driver and someone thought that doing it in
+> userspace was the way to go?
 
-RTM_ALLOW bit was added to MSR_MCU_OPT_CTRL, but its not set by default,
-and it is *not* recommended to be used in production deployments [1]:
+*shrug* beats me.
 
-   Although MSR 0x122 (TSX_CTRL) and MSR 0x123 (IA32_MCU_OPT_CTRL) can be
-   used to reenable Intel TSX for development, doing so is not recommended
-   for production deployments. In particular, applying MD_CLEAR flows for
-   mitigation of the Intel TSX Asynchronous Abort (TAA) transient execution
-   attack may not be effective on these processors when Intel TSX is
-   enabled with updated microcode. The processors continue to be mitigated
-   against TAA when Intel TSX is disabled.
-
-> And lemme quote from that patch:
->
->            /*
->             * Probe for the February 2022 microcode which de-features TSX on
->             * TAA-vulnerable client parts - WHL-R/CFL-R.
->             *
->             * RTM_ALWAYS_ABORT (read above) enumerates the new functionality,
->             * but is read as zero if MCU_OPT_CTRL.RTM_ALLOW has been set
->             * before we run.  Undo this.
->             */
-
-Such development-only bit (SDV_ENABLE_RTM) existed for previous round of
-TSX defeature, but we decided not to use it:
-
-   https://lore.kernel.org/lkml/20210611232114.3dmmkpkkcqg5orhw@gupta-dev2.localdomain/
-
-I am not sure why do we need to handle RTM_ALLOW this time? I will
-update the patch if you think otherwise.
-
-Thanks,
-Pawan
-
-[1] Intel Transactional Synchronization Extension (Intel TSX) Disable Update for Selected Processors
-     https://cdrdv2.intel.com/v1/dl/getContent/643557
-
-
->so MCU_OPT_CTRL.RTM_ALLOW=1 would have
->CPUID.X86_FEATURE_RTM_ALWAYS_ABORT=0, which means, we cannot tie TSX disabling on
->X86_FEATURE_RTM_ALWAYS_ABORT only.
->
->So this would need more work, it seems to me.
->
->Thx.
->
->-- 
->Regards/Gruss,
->    Boris.
->
->https://people.kernel.org/tglx/notes-about-netiquette
+Brian
