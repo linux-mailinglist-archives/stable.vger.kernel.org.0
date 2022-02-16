@@ -2,92 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF9734B8081
-	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 07:19:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2756F4B816E
+	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 08:22:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229487AbiBPGRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Feb 2022 01:17:45 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:49986 "EHLO
+        id S229968AbiBPHWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Feb 2022 02:22:54 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:38338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229671AbiBPGRn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 01:17:43 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 206CD181A7E;
-        Tue, 15 Feb 2022 22:17:29 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id m7so1592931pjk.0;
-        Tue, 15 Feb 2022 22:17:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:from:subject:to:cc
-         :references:content-language:in-reply-to:content-transfer-encoding;
-        bh=g8AXXaCbWDKs31CgLebuGmStUm/FmRBk00TmO1ilxqk=;
-        b=R6nU26LUyVGWcht213mcG0DzZPYJrA/r9XHRnfh0VrXRstESq1JU7dhPLXjABQTfQf
-         XRnaTbExMVWuF4l6fBKKRF897bvQfTh8LbG/OeRARgMDAr/shIxij+6y6sbDncoHCuXr
-         VDR9pYGQ8HLfA+qjc85STW58BZbSI6hBRToQXdsaw2xPrcZqY8xP3G3LwXzWbeF1BS3I
-         15M6mOZ17tFn4bKQl7Q35KUneB7dfS8vifFA17EubwTm0qfpAEA4ga1xryir0vyNCk1b
-         5D/SskQXUvlPW2tlse6HWGhFXXMnebn5BYeTybwuFGVhO3O/zL6z+VEoUAY/jwgmxpKH
-         3ESA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
-         :subject:to:cc:references:content-language:in-reply-to
-         :content-transfer-encoding;
-        bh=g8AXXaCbWDKs31CgLebuGmStUm/FmRBk00TmO1ilxqk=;
-        b=GLXwSRC7NRKr1EaZlLcBDRkNHq4yb/2HLPGrGkiSS9Faed+8WZ3Tz7R6lMpa290+pE
-         bZ4F4bgQMSRkgxgX2hUY5z3LDo6jp1GG6u2JRicYSWYLDjOjv1TKyMt9Pe7+rwewBaUM
-         DXNz72XBavegxpAGluBfV8P73P5CSrYT4vV1RE9ymNkMWceUnHtaFmn+Hz00GrSTdUgb
-         PNhsdepmljUoRWUuvc7sT7xByyBaV2PmJtqKsiVy2yIu+UUOBZx5uyBZFDGbnTqQKdCZ
-         ejiUYLI4PRHB8XjfXq0Ch2LJmWuPA3xdN5WrJs8NAusT2NneU/f5Q/ygenhBt1lx1Rui
-         qJVw==
-X-Gm-Message-State: AOAM530m3PHH3Aqft1fKqaw6KO+BZw7FaxkwB6XOzHYcA8iw7oDqZOkx
-        r0P606LIddcj/qaxu9L91es=
-X-Google-Smtp-Source: ABdhPJz4qCOhIHKQZlLMOdwf+jbGDDpDv/+LYhv3pmYR+wR13k8rTjkrKJ32IqrWI9FTLunrx02EkA==
-X-Received: by 2002:a17:903:1249:b0:14e:e053:c8b6 with SMTP id u9-20020a170903124900b0014ee053c8b6mr1107309plh.132.1644992248523;
-        Tue, 15 Feb 2022 22:17:28 -0800 (PST)
-Received: from [192.168.43.80] (subs02-180-214-232-81.three.co.id. [180.214.232.81])
-        by smtp.gmail.com with ESMTPSA id h5sm636480pfi.18.2022.02.15.22.17.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Feb 2022 22:17:27 -0800 (PST)
-Message-ID: <8e4d9a65-7da0-c79e-a3e9-792d30d141e7@gmail.com>
-Date:   Wed, 16 Feb 2022 13:17:22 +0700
+        with ESMTP id S230002AbiBPHWw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 02:22:52 -0500
+X-Greylist: delayed 572 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 15 Feb 2022 23:22:36 PST
+Received: from mo4-p00-ob.smtp.rzone.de (mo4-p00-ob.smtp.rzone.de [81.169.146.216])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C25EAD5
+        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 23:22:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1644993151;
+    s=strato-dkim-0002; d=hartkopp.net;
+    h=Message-Id:Date:Subject:Cc:To:From:Cc:Date:From:Subject:Sender;
+    bh=XW7Vp0hhhdyNox3vT96fEpwyFA9OtgyB00lFK37Dzyw=;
+    b=Sd/s4sCa+p1qIJYYMwuXDmvV8DLVSjQZSMq41baUUkkM7d0DQjs0UIguQhvS5XSyzg
+    ozP2aBU5rs/+5Wj/LK7VWXr0by066Vr6cLe/l2/x2stf+G8Q3J1rwVbhBdaorjno/Skk
+    zFZIGpWFvWr10lj/wJumdf4hyLqAlqW36rQnb0YFbj7hsstut/sTxh/qyISKOfy9SsFO
+    saYcf8sEmasRA64rh35LFNn0LQe+6rxQHmBd0QQjSOFCRoNMo67Xp22dtcAreeFzoeMI
+    YBpbmdG+rzwxQwuEkWG15D0rt33H+LiIur01CZIDwOcEpQZCqzHuNIzXj+hf7I3hky22
+    H5xg==
+Authentication-Results: strato.com;
+    dkim=none
+X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjGrp7owjzFK3JbFk1mS/xvEBL7X5sbo3UIh9IyLecSWJafUvprl4"
+X-RZG-CLASS-ID: mo00
+Received: from silver.lan
+    by smtp.strato.de (RZmta 47.39.0 AUTH)
+    with ESMTPSA id L7379cy1G6WUfoi
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+    Wed, 16 Feb 2022 07:32:30 +0100 (CET)
+From:   Oliver Hartkopp <socketcan@hartkopp.net>
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Cc:     Oliver Hartkopp <socketcan@hartkopp.net>,
+        Norbert Slusarek <nslusarek@gmx.net>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [BACKPORT stable Linux-5.10.y 1/2] can: isotp: prevent race between isotp_bind() and isotp_setsockopt()
+Date:   Wed, 16 Feb 2022 07:31:36 +0100
+Message-Id: <20220216063137.2023-1-socketcan@hartkopp.net>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.0
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-Subject: Re: [PATCH 5.10 000/116] 5.10.101-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220214092458.668376521@linuxfoundation.org>
-Content-Language: en-US
-In-Reply-To: <20220214092458.668376521@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 14/02/22 16.24, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.101 release.
-> There are 116 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
+Upstream commit 2b17c400aeb44daf041627722581ade527bb3c1d
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, clang 13.0.1)
-and powerpc (ps3_defconfig, gcc 11.2.0).
+The fixes tag of the uptream patch points to commit 921ca574cd38 ("can:
+isotp: add SF_BROADCAST support for functional addressing") which showed
+up in Linux 5.11 but the described issue already existed in Linux 5.10.
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Norbert Slusarek writes:
 
+A race condition was found in isotp_setsockopt() which allows to
+change socket options after the socket was bound.
+For the specific case of SF_BROADCAST support, this might lead to possible
+use-after-free because can_rx_unregister() is not called.
+
+Checking for the flag under the socket lock in isotp_bind() and taking
+the lock in isotp_setsockopt() fixes the issue.
+
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://lore.kernel.org/r/trinity-e6ae9efa-9afb-4326-84c0-f3609b9b8168-1620773528307@3c-app-gmx-bs06
+Reported-by: Norbert Slusarek <nslusarek@gmx.net>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Norbert Slusarek <nslusarek@gmx.net>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+---
+ net/can/isotp.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
+
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index 37db4d232313..3f11d2b314b6 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -1191,20 +1191,17 @@ static int isotp_getname(struct socket *sock, struct sockaddr *uaddr, int peer)
+ 	addr->can_addr.tp.tx_id = so->txid;
+ 
+ 	return ISOTP_MIN_NAMELEN;
+ }
+ 
+-static int isotp_setsockopt(struct socket *sock, int level, int optname,
++static int isotp_setsockopt_locked(struct socket *sock, int level, int optname,
+ 			    sockptr_t optval, unsigned int optlen)
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct isotp_sock *so = isotp_sk(sk);
+ 	int ret = 0;
+ 
+-	if (level != SOL_CAN_ISOTP)
+-		return -EINVAL;
+-
+ 	if (so->bound)
+ 		return -EISCONN;
+ 
+ 	switch (optname) {
+ 	case CAN_ISOTP_OPTS:
+@@ -1275,10 +1272,26 @@ static int isotp_setsockopt(struct socket *sock, int level, int optname,
+ 	}
+ 
+ 	return ret;
+ }
+ 
++static int isotp_setsockopt(struct socket *sock, int level, int optname,
++			    sockptr_t optval, unsigned int optlen)
++
++{
++	struct sock *sk = sock->sk;
++	int ret;
++
++	if (level != SOL_CAN_ISOTP)
++		return -EINVAL;
++
++	lock_sock(sk);
++	ret = isotp_setsockopt_locked(sock, level, optname, optval, optlen);
++	release_sock(sk);
++	return ret;
++}
++
+ static int isotp_getsockopt(struct socket *sock, int level, int optname,
+ 			    char __user *optval, int __user *optlen)
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct isotp_sock *so = isotp_sk(sk);
 -- 
-An old man doll... just what I always wanted! - Clara
+2.30.2
+
