@@ -2,126 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF6E64B7DB3
-	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 03:51:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8762A4B7C7F
+	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 02:37:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244838AbiBPClW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Feb 2022 21:41:22 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48196 "EHLO
+        id S237686AbiBPB2z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Feb 2022 20:28:55 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244671AbiBPClW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 21:41:22 -0500
-Received: from fllv0015.ext.ti.com (fllv0015.ext.ti.com [198.47.19.141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BB60FBA73
-        for <stable@vger.kernel.org>; Tue, 15 Feb 2022 18:41:11 -0800 (PST)
-Received: from fllv0035.itg.ti.com ([10.64.41.0])
-        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 21FKAABN018352;
-        Tue, 15 Feb 2022 14:10:10 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1644955810;
-        bh=Yzs9bQL+fzzXPue+6DYO/rUdl1Rzy2UO44OkP5PVI48=;
-        h=From:To:CC:Subject:Date:In-Reply-To:References;
-        b=JxLP7I1aLDjPxqzXohpluAfY9yO6tHY8YzfmGg7aWIjUob0qmTKwKdHTZmvtGyIBw
-         GieK3vyD4DUGszmjvR4f+B4W2lZkKdRdD05jCmwKIrIJ6S/2bUfRZ8hTPL25pxeyaH
-         elftIcU7J63gAwPkeD1O7IbuDcDyz9867LWqL1QM=
-Received: from DFLE102.ent.ti.com (dfle102.ent.ti.com [10.64.6.23])
-        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 21FKAAII114907
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Tue, 15 Feb 2022 14:10:10 -0600
-Received: from DFLE112.ent.ti.com (10.64.6.33) by DFLE102.ent.ti.com
- (10.64.6.23) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14; Tue, 15
- Feb 2022 14:10:09 -0600
-Received: from fllv0039.itg.ti.com (10.64.41.19) by DFLE112.ent.ti.com
- (10.64.6.33) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14 via
- Frontend Transport; Tue, 15 Feb 2022 14:10:09 -0600
-Received: from localhost (ileax41-snat.itg.ti.com [10.172.224.153])
-        by fllv0039.itg.ti.com (8.15.2/8.15.2) with ESMTP id 21FKA99j057352;
-        Tue, 15 Feb 2022 14:10:09 -0600
-From:   Nishanth Menon <nm@ti.com>
-To:     Tero Kristo <kristo@kernel.org>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Marc Zyngier <maz@kernel.org>
-CC:     <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Rob Herring <robh+dt@kernel.org>, Nishanth Menon <nm@ti.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH 5/5] arm64: dts: ti: k3-j721s2: Fix gic-v3 compatible regs
-Date:   Tue, 15 Feb 2022 14:10:08 -0600
-Message-ID: <20220215201008.15235-6-nm@ti.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220215201008.15235-1-nm@ti.com>
-References: <20220215201008.15235-1-nm@ti.com>
+        with ESMTP id S238335AbiBPB2y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Feb 2022 20:28:54 -0500
+Received: from mga06.intel.com (mga06.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91EC2CD5C6;
+        Tue, 15 Feb 2022 17:28:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1644974923; x=1676510923;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=3f4y2yguXvUrU7lczgu8gh9tQfZt363S1MBqO0zPhoA=;
+  b=I7IRy1s6SkucObgiO4o9dMgmcGx2YFoMCebj9SqXyhAuFo3CLMpDltoj
+   B0IKGiXXYiZTWQZkGruATwWEzLtJYcAHme1wIg+oiIroXWk+1bewTaHvz
+   f85eP63c2g7Wf7VmRxfQNV1zy7OA7Q6SE5SSkYPxv3cWbQx8RwA3KRywP
+   e+R5+xlgPSQpgd6ULiXeugFOOCSQ1nNujeoIPAV74ROW1n7gy5J1+KdPD
+   MQBOk8zOV14WHs14/2HTlSsw0iTqcKg1rgJpfkQsVuhRvLqnyMCxSzfK/
+   SlWgw2wofKPzLVQjgpYS4L8IdyiGCOQkwgDlFVeINNSwN5OKntGYT6gZp
+   w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10259"; a="311238524"
+X-IronPort-AV: E=Sophos;i="5.88,371,1635231600"; 
+   d="scan'208";a="311238524"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 17:28:43 -0800
+X-IronPort-AV: E=Sophos;i="5.88,371,1635231600"; 
+   d="scan'208";a="529171432"
+Received: from guptapa-mobl1.amr.corp.intel.com ([10.209.113.151])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Feb 2022 17:28:42 -0800
+Date:   Tue, 15 Feb 2022 17:28:41 -0800
+From:   Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+To:     Andrew Cooper <Andrew.Cooper3@citrix.com>
+Cc:     Borislav Petkov <bp@alien8.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Andi Kleen <ak@linux.intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "antonio.gomez.iglesias@linux.intel.com" 
+        <antonio.gomez.iglesias@linux.intel.com>,
+        "neelima.krishnan@intel.com" <neelima.krishnan@intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] x86/tsx: Use MSR_TSX_CTRL to clear CPUID bits
+Message-ID: <20220216012841.vxlnugre2j4pczp7@guptapa-mobl1.amr.corp.intel.com>
+References: <20220214224121.ilhu23cfjdyhvahk@guptapa-mobl1.amr.corp.intel.com>
+ <YgrltbToK8+tG2qK@zn.tnic>
+ <20220215002014.mb7g4y3hfefmyozx@guptapa-mobl1.amr.corp.intel.com>
+ <Ygt/QSTSMlUJnzFS@zn.tnic>
+ <20220215121103.vhb2lpoygxn3xywy@guptapa-mobl1.amr.corp.intel.com>
+ <YgvVcdpmFCCn20A7@zn.tnic>
+ <20220215181931.wxfsn2a3npg7xmi2@guptapa-mobl1.amr.corp.intel.com>
+ <YgwAHU7gCnik8Kv6@zn.tnic>
+ <20220216003950.5jxecuf773g2kuwl@guptapa-mobl1.amr.corp.intel.com>
+ <6724088f-c7cf-da92-e894-d8970f13bf1e@citrix.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+In-Reply-To: <6724088f-c7cf-da92-e894-d8970f13bf1e@citrix.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Though GIC ARE option is disabled for no GIC-v2 compatibility,
-Cortex-A72 is free to implement the CPU interface as long as it
-communicates with the GIC using the stream protocol. This requires
-that the SoC integration mark out the PERIPHBASE[1] as reserved area
-within the SoC. See longer discussion in [2] for further information.
+On 16.02.2022 00:49, Andrew Cooper wrote:
+>On 16/02/2022 00:39, Pawan Gupta wrote:
+>> On 15.02.2022 20:33, Borislav Petkov wrote:
+>>> On Tue, Feb 15, 2022 at 10:19:31AM -0800, Pawan Gupta wrote:
+>>>> I admit it has gotten complicated with so many bits associated with
+>>>> TSX.
+>>>
+>>> Yah, and looka here:
+>>>
+>>> https://github.com/andyhhp/xen/commit/ad9f7c3b2e0df38ad6d54f4769d4dccf765fbcee
+>>>
+>>>
+>>> It seems it isn't complicated enough. ;-\
+>>>
+>>> Andy just made me aware of this thing where you guys have added a new
+>>> MSR bit:
+>>>
+>>> MSR_MCU_OPT_CTRL[1] which is called something like
+>>> MCU_OPT_CTRL_RTM_ALLOW or so.
+>>
+>> RTM_ALLOW bit was added to MSR_MCU_OPT_CTRL, but its not set by default,
+>> and it is *not* recommended to be used in production deployments [1]:
+>>
+>>   Although MSR 0x122 (TSX_CTRL) and MSR 0x123 (IA32_MCU_OPT_CTRL) can be
+>>   used to reenable Intel TSX for development, doing so is not recommended
+>>   for production deployments. In particular, applying MD_CLEAR flows for
+>>   mitigation of the Intel TSX Asynchronous Abort (TAA) transient
+>> execution
+>>   attack may not be effective on these processors when Intel TSX is
+>>   enabled with updated microcode. The processors continue to be mitigated
+>>   against TAA when Intel TSX is disabled.
+>
+>The purpose of setting RTM_ALLOW isn't to enable TSX per say.
+>
+>The purpose is to make MSR_TSX_CTRL.RTM_DISABLE behaves consistently on
+>all hardware, which reduces the complexity and invasiveness of dealing
+>with this special case, because the TAA workaround will still turn TSX
+>off by default.
+>
+>The configuration you don't want to be running with is RTM_ALLOW &&
+>!RTM_DISABLE, because that is "still vulnerable to TSX Async Abort".
 
-Update the GIC register map to indicate offsets from PERIPHBASE based
-on [3]. Without doing this, systems like kvm will not function with
-gic-v2 emulation.
+I am not sure how a system can end up with RTM_ALLOW && !RTM_DISABLE? I
+have no problem taking care of this case, I am just debating why we need
+it.
 
-[1] https://developer.arm.com/documentation/100095/0002/system-control/aarch64-register-descriptions/configuration-base-address-register--el1
-[2] https://lore.kernel.org/all/87k0e0tirw.wl-maz@kernel.org/
-[3] https://developer.arm.com/documentation/100095/0002/way1382452674438
+One way to get to this state is BIOS sets RTM_ALLOW (dont know why?) and
+linux cmdline has tsx=on.
 
-Fixes: b8545f9d3a54 ("arm64: dts: ti: Add initial support for J721S2 SoC")
-Cc: stable@vger.kernel.org
-Reported-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Nishanth Menon <nm@ti.com>
----
-Testing: based on next-20220215
-J721s2-evm Log: https://gist.github.com/nmenon/302b0bcfbb1b5b8743fa5c242eb7d15f
-
- arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi | 5 ++++-
- arch/arm64/boot/dts/ti/k3-j721s2.dtsi      | 1 +
- 2 files changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi
-index b04db1d3ab61..be7f39299894 100644
---- a/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721s2-main.dtsi
-@@ -34,7 +34,10 @@ gic500: interrupt-controller@1800000 {
- 		#interrupt-cells = <3>;
- 		interrupt-controller;
- 		reg = <0x00 0x01800000 0x00 0x200000>, /* GICD */
--		      <0x00 0x01900000 0x00 0x100000>; /* GICR */
-+		      <0x00 0x01900000 0x00 0x100000>, /* GICR */
-+		      <0x00 0x6f000000 0x00 0x2000>,   /* GICC */
-+		      <0x00 0x6f010000 0x00 0x1000>,   /* GICH */
-+		      <0x00 0x6f020000 0x00 0x2000>;   /* GICV */
- 
- 		/* vcpumntirq: virtual CPU interface maintenance interrupt */
- 		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
-diff --git a/arch/arm64/boot/dts/ti/k3-j721s2.dtsi b/arch/arm64/boot/dts/ti/k3-j721s2.dtsi
-index fe5234c40f6c..7b930a85a29d 100644
---- a/arch/arm64/boot/dts/ti/k3-j721s2.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721s2.dtsi
-@@ -119,6 +119,7 @@ cbass_main: bus@100000 {
- 			 <0x00 0x18000000 0x00 0x18000000 0x00 0x08000000>, /* PCIe1 DAT0 */
- 			 <0x00 0x64800000 0x00 0x64800000 0x00 0x0070c000>, /* C71_1 */
- 			 <0x00 0x65800000 0x00 0x65800000 0x00 0x0070c000>, /* C71_2 */
-+			 <0x00 0x6f000000 0x00 0x6f000000 0x00 0x00310000>, /* A72 PERIPHBASE */
- 			 <0x00 0x70000000 0x00 0x70000000 0x00 0x00400000>, /* MSMC RAM */
- 			 <0x00 0x30000000 0x00 0x30000000 0x00 0x0c400000>, /* MAIN NAVSS */
- 			 <0x41 0x00000000 0x41 0x00000000 0x01 0x00000000>, /* PCIe1 DAT1 */
--- 
-2.31.1
-
+Thanks,
+Pawan
