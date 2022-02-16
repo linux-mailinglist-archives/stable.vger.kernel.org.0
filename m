@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 899B34B8F8C
+	by mail.lfdr.de (Postfix) with ESMTP id 86A364B8F8B
 	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 18:43:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234079AbiBPRnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Feb 2022 12:43:12 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42694 "EHLO
+        id S237293AbiBPRnO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Feb 2022 12:43:14 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233989AbiBPRnM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 12:43:12 -0500
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 976C315C1AB
-        for <stable@vger.kernel.org>; Wed, 16 Feb 2022 09:42:59 -0800 (PST)
+        with ESMTP id S233989AbiBPRnN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 12:43:13 -0500
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 091F5166A7E
+        for <stable@vger.kernel.org>; Wed, 16 Feb 2022 09:43:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1645033379; x=1676569379;
+  t=1645033381; x=1676569381;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=VYGCyd12BQzMGVyqbgMrgzm2BF3UhRG18MnduDdt6mE=;
-  b=flKt2CBvPhrKteA0hyx75dLbYhElFj/lH+5uVPTjLxDOcfhP5U05+o0M
-   bJ+TIkL2x50vsZq6DP1kll/9NGFZQ5YczVzBlSw8nQJEq79434n6jMzhv
-   KeslBfLdfkvZMIf0CDMzB+U8LifmIGH/IOolPBMi01yZH11dBlShW+Q1r
-   VxuG8SLCuEn+XRv6aRmrfrIam9gYNzg//PxBm5AA1smbRMqmyO5mg9JM6
-   aWKPr4X8OSPAUSLwUvqIEM+036Or67lTwm5kRpdsDLI1LsfYldvznVVW0
-   fxem1vQKfeTXijXzCoo1/AM8m9lwjpfS4I2JGE242S02lCkUmtubTeF7M
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10260"; a="337122094"
+  bh=p7jz2CooDnh3wCTyjwRbD6RPNbUIngB4BJvAiEu3ohY=;
+  b=WEdi3Etk5AXNHupQok0QT/36TLkGpsTs+PY/bwK+s2D2BgWkfrB1tPYd
+   tpqU/PtGBgFyHyAclDUU4ahvlXoai/3U3wiV76S5G5+TrSktJhZxzjmD1
+   uPUvS6T5BzJCT+3ZvBhLy2XekewiDaro13D5l1iXQ8uOYRR1mnWhJvOfd
+   UeAeQGUt7S2Bvi14lqN5jyG8G6JTaCptQOSjxvNrx6NIjxRUC1l8SbPvA
+   b5i0KFmbqX54Uf1NG+MJtciZ38ZSGehEkHJLMRlbdT+dyHnKKD0U3sq3y
+   XBhd1eif1waA6frM8waH9M6nPsHaFGrvkvwfyNJP8UbGuNVPpAnYtHyX5
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10260"; a="249513930"
 X-IronPort-AV: E=Sophos;i="5.88,374,1635231600"; 
-   d="scan'208";a="337122094"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Feb 2022 09:42:57 -0800
+   d="scan'208";a="249513930"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Feb 2022 09:43:00 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.88,374,1635231600"; 
-   d="scan'208";a="633789452"
+   d="scan'208";a="540228132"
 Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.151])
-  by fmsmga002.fm.intel.com with SMTP; 16 Feb 2022 09:42:54 -0800
-Received: by stinkbox (sSMTP sendmail emulation); Wed, 16 Feb 2022 19:42:54 +0200
+  by fmsmga007.fm.intel.com with SMTP; 16 Feb 2022 09:42:58 -0800
+Received: by stinkbox (sSMTP sendmail emulation); Wed, 16 Feb 2022 19:42:57 +0200
 From:   Ville Syrjala <ville.syrjala@linux.intel.com>
 To:     intel-gfx@lists.freedesktop.org
 Cc:     stable@vger.kernel.org,
         Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-Subject: [PATCH v2 1/6] drm/i915: Correctly populate use_sagv_wm for all pipes
-Date:   Wed, 16 Feb 2022 19:42:45 +0200
-Message-Id: <20220216174250.4449-2-ville.syrjala@linux.intel.com>
+Subject: [PATCH v2 2/6] drm/i915: Fix bw atomic check when switching between SAGV vs. no SAGV
+Date:   Wed, 16 Feb 2022 19:42:46 +0200
+Message-Id: <20220216174250.4449-3-ville.syrjala@linux.intel.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220216174250.4449-1-ville.syrjala@linux.intel.com>
 References: <20220216174250.4449-1-ville.syrjala@linux.intel.com>
@@ -63,61 +63,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-When changing between SAGV vs. no SAGV on tgl+ we have to
-update the use_sagv_wm flag for all the crtcs or else
-an active pipe not already in the state will end up using
-the wrong watermarks. That is especially bad when we end up
-with the tighter non-SAGV watermarks with SAGV enabled.
-Usually ends up in underruns.
+If the only thing that is changing is SAGV vs. no SAGV but
+the number of active planes and the total data rates end up
+unchanged we currently bail out of intel_bw_atomic_check()
+early and forget to actually compute the new WGV point
+mask and thus won't actually enable/disable SAGV as requested.
+This ends up poorly if we end up running with SAGV enabled
+when we shouldn't. Usually ends up in underruns.
+To fix this let's go through the QGV point mask computation
+if anyone else already added the bw state for us.
 
 Cc: stable@vger.kernel.org
-Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-Fixes: 7241c57d3140 ("drm/i915: Add TGL+ SAGV support")
+Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+Fixes: 20f505f22531 ("drm/i915: Restrict qgv points which don't have enough bandwidth.")
 Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 ---
- drivers/gpu/drm/i915/intel_pm.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/i915/display/intel_bw.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
-index 9f5e3c399f8d..bd32fd70e6b2 100644
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -4007,6 +4007,17 @@ static int intel_compute_sagv_mask(struct intel_atomic_state *state)
- 			return ret;
- 	}
+diff --git a/drivers/gpu/drm/i915/display/intel_bw.c b/drivers/gpu/drm/i915/display/intel_bw.c
+index 23aa8e06de18..d72ccee7d53b 100644
+--- a/drivers/gpu/drm/i915/display/intel_bw.c
++++ b/drivers/gpu/drm/i915/display/intel_bw.c
+@@ -846,6 +846,13 @@ int intel_bw_atomic_check(struct intel_atomic_state *state)
+ 	if (num_psf_gv_points > 0)
+ 		mask |= REG_GENMASK(num_psf_gv_points - 1, 0) << ADLS_PSF_PT_SHIFT;
  
-+	if (intel_can_enable_sagv(dev_priv, new_bw_state) !=
-+	    intel_can_enable_sagv(dev_priv, old_bw_state)) {
-+		ret = intel_atomic_serialize_global_state(&new_bw_state->base);
-+		if (ret)
-+			return ret;
-+	} else if (new_bw_state->pipe_sagv_reject != old_bw_state->pipe_sagv_reject) {
-+		ret = intel_atomic_lock_global_state(&new_bw_state->base);
-+		if (ret)
-+			return ret;
-+	}
++	/*
++	 * If we already have the bw state then recompute everything
++	 * even if pipe data_rate / active_planes didn't change.
++	 * Other things (such as SAGV) may have changed.
++	 */
++	new_bw_state = intel_atomic_get_new_bw_state(state);
 +
- 	for_each_new_intel_crtc_in_state(state, crtc,
- 					 new_crtc_state, i) {
- 		struct skl_pipe_wm *pipe_wm = &new_crtc_state->wm.skl.optimal;
-@@ -4022,17 +4033,6 @@ static int intel_compute_sagv_mask(struct intel_atomic_state *state)
- 			intel_can_enable_sagv(dev_priv, new_bw_state);
- 	}
- 
--	if (intel_can_enable_sagv(dev_priv, new_bw_state) !=
--	    intel_can_enable_sagv(dev_priv, old_bw_state)) {
--		ret = intel_atomic_serialize_global_state(&new_bw_state->base);
--		if (ret)
--			return ret;
--	} else if (new_bw_state->pipe_sagv_reject != old_bw_state->pipe_sagv_reject) {
--		ret = intel_atomic_lock_global_state(&new_bw_state->base);
--		if (ret)
--			return ret;
--	}
--
- 	return 0;
- }
- 
+ 	for_each_oldnew_intel_crtc_in_state(state, crtc, old_crtc_state,
+ 					    new_crtc_state, i) {
+ 		unsigned int old_data_rate =
 -- 
 2.34.1
 
