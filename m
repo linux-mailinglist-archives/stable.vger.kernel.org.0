@@ -2,141 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF6014B8C88
-	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 16:35:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB08A4B8C95
+	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 16:38:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233866AbiBPPf2 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 16 Feb 2022 10:35:28 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54836 "EHLO
+        id S235304AbiBPPiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Feb 2022 10:38:12 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233792AbiBPPf1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 10:35:27 -0500
-Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E34F27B99D;
-        Wed, 16 Feb 2022 07:35:15 -0800 (PST)
-Received: from in02.mta.xmission.com ([166.70.13.52]:52420)
-        by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1nKMKn-00FW9I-GO; Wed, 16 Feb 2022 08:35:13 -0700
-Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:36510 helo=email.froward.int.ebiederm.org.xmission.com)
-        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1nKMKm-00AqhZ-C8; Wed, 16 Feb 2022 08:35:13 -0700
-From:   "Eric W. Biederman" <ebiederm@xmission.com>
-To:     Michal =?utf-8?Q?Koutn=C3=BD?= <mkoutny@suse.com>
-Cc:     Solar Designer <solar@openwall.com>, linux-kernel@vger.kernel.org,
-        Alexey Gladkov <legion@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Ran Xiaokai <ran.xiaokai@zte.com.cn>, stable@vger.kernel.org
-References: <87o83e2mbu.fsf@email.froward.int.ebiederm.org>
-        <20220211021324.4116773-3-ebiederm@xmission.com>
-        <20220212231701.GA29483@openwall.com>
-        <87ee45wkjq.fsf@email.froward.int.ebiederm.org>
-        <20220215102518.GE21589@blackbody.suse.cz>
-Date:   Wed, 16 Feb 2022 09:35:05 -0600
-In-Reply-To: <20220215102518.GE21589@blackbody.suse.cz> ("Michal
- =?utf-8?Q?Koutn=C3=BD=22's?=
-        message of "Tue, 15 Feb 2022 11:25:18 +0100")
-Message-ID: <87zgmqkeom.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S231593AbiBPPiL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 10:38:11 -0500
+Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8536528DDF0;
+        Wed, 16 Feb 2022 07:37:59 -0800 (PST)
+Received: by mail-oi1-x22f.google.com with SMTP id q8so2794114oiw.7;
+        Wed, 16 Feb 2022 07:37:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:from:subject:to
+         :content-language:cc;
+        bh=408O3/jylKCQyc+x6uSu5n2OqIwWg2/+PNKEi3O+oqE=;
+        b=dLYzGNEOd3pa52GHFWUQDX5qHsmxOgslLZ9Db74+oabzJNO9UlH84LlN/fwCOxtfx8
+         1TyMBExx+18S6xnqRv5ZnCL1sMkSWVmG0VEqh8zaIDYrwRrwz1oEHsTyL7GvFqdrBDmI
+         nnSaBtH/geMh/3oBC1lHCtZSHdZdY8E+X9xmLGFSa9a0HdFK0WvA5pxLqmlskabn26Ra
+         /Y6YrDnlVEV3VJD703sq+z/oS37qLV0pNpIcwDw6Xjart+7UEltJe+UEyEFGO969Dudw
+         eKiDATmKWy76dGJRC2h09E+U1OU7h4oiICdsl3XkvyrVnu3yuqgHLRJolbK/KJ0T77n8
+         J0NA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
+         :subject:to:content-language:cc;
+        bh=408O3/jylKCQyc+x6uSu5n2OqIwWg2/+PNKEi3O+oqE=;
+        b=G2s+HjIY7GNcABuW+/mTvYzRtfn9xkCFJDtOk8SUo2nNGwu67oP/QeOAA4AlGnGb5H
+         SiDJ7/yIjNksT/LtTLSvBg9lr7v0821UAiw56AANHaMrWShyAceiKc6WlI478yy9SwJe
+         UuPsOLqSsyrEOj4j+Od/X3pj7VdeetZ2WQdGZXqITF3/g0WoCFqPDnzw3fKHtX+ZF607
+         W+/fdEayV/W1YfW46/QfHvhyBR4DisKSQdxLrUawvZzLOFsObqfNmeRMvbMzVHZj6+nb
+         jXkQ6Mga3tzE54flEe3Fr8B0BHpoS29W3NnSyxVTmeCEKSwvW6TBo8cEblnkIDGxVura
+         c57w==
+X-Gm-Message-State: AOAM533rQ0VhWUlVHOInCQ4+J9QYSMeYuHOFA3kEP/ZShdgMc4eGsZzk
+        fiXbOLsJLdiLrT6GFclp5edEzrJ4UIs=
+X-Google-Smtp-Source: ABdhPJz9mXRH3tcldpuP+AqXxP+ZgObYTZqExdXP9XSHNBtarPvK+6oPZxgcdM19n4J5vKCo6T9x9Q==
+X-Received: by 2002:aca:4005:0:b0:2d2:bfe6:7814 with SMTP id n5-20020aca4005000000b002d2bfe67814mr976637oia.140.1645025878775;
+        Wed, 16 Feb 2022 07:37:58 -0800 (PST)
+Received: from [192.168.91.2] ([181.97.181.211])
+        by smtp.gmail.com with ESMTPSA id u32sm12076618oiw.28.2022.02.16.07.37.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 16 Feb 2022 07:37:58 -0800 (PST)
+Message-ID: <3cf60426-ce15-f51c-36c9-180431f2f7d5@gmail.com>
+Date:   Wed, 16 Feb 2022 12:37:55 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-XM-SPF: eid=1nKMKm-00AqhZ-C8;;;mid=<87zgmqkeom.fsf@email.froward.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1+fN8mlsz44dbvixLO1iXTJvgmZZXpD1nU=
-X-SA-Exim-Connect-IP: 68.227.174.4
-X-SA-Exim-Mail-From: ebiederm@xmission.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.1
+From:   Gerardo Exequiel Pozzi <vmlinuz386@gmail.com>
+Subject: missing patch in 5.15? {drm/i915: Workaround broken BIOS DBUF
+ configuration on TGL/RKL}
+To:     stable@vger.kernel.org
+Content-Language: es-AR
+Cc:     linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------49WZW89waJcn0WypTJX5uvx1"
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAD_ENC_HEADER,BAYES_00,
-        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
-X-Spam-Virus: No
-X-Spam-DCC: XMission; sa03 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: =?ISO-8859-1?Q?**;Michal Koutn=c3=bd <mkoutny@suse.com>?=
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 417 ms - load_scoreonly_sql: 0.03 (0.0%),
-        signal_user_changed: 4.6 (1.1%), b_tie_ro: 3.1 (0.7%), parse: 1.28
-        (0.3%), extract_message_metadata: 14 (3.3%), get_uri_detail_list: 2.1
-        (0.5%), tests_pri_-1000: 18 (4.3%), tests_pri_-950: 1.05 (0.3%),
-        tests_pri_-900: 0.81 (0.2%), tests_pri_-90: 109 (26.2%), check_bayes:
-        102 (24.5%), b_tokenize: 5 (1.3%), b_tok_get_all: 7 (1.7%),
-        b_comp_prob: 1.73 (0.4%), b_tok_touch_all: 85 (20.4%), b_finish: 0.78
-        (0.2%), tests_pri_0: 255 (61.2%), check_dkim_signature: 0.42 (0.1%),
-        check_dkim_adsp: 1.84 (0.4%), poll_dns_idle: 0.51 (0.1%),
-        tests_pri_10: 2.2 (0.5%), tests_pri_500: 8 (1.9%), rewrite_mail: 0.00
-        (0.0%)
-Subject: Re: [PATCH 3/8] ucounts: Fix and simplify RLIMIT_NPROC handling
- during setuid()+execve
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Michal Koutný <mkoutny@suse.com> writes:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------49WZW89waJcn0WypTJX5uvx1
+Content-Type: multipart/mixed; boundary="------------lYaXblocH9HrGpgVeC6pUjk4";
+ protected-headers="v1"
+From: Gerardo Exequiel Pozzi <vmlinuz386@gmail.com>
+To: stable@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <3cf60426-ce15-f51c-36c9-180431f2f7d5@gmail.com>
+Subject: missing patch in 5.15? {drm/i915: Workaround broken BIOS DBUF
+ configuration on TGL/RKL}
 
-> On Mon, Feb 14, 2022 at 09:10:49AM -0600, "Eric W. Biederman" <ebiederm@xmission.com> wrote:
->> I really like how cleanly this patch seems to be.  Unfortunately it is
->> wrong.
->
-> It seems [1] so:
->
-> setuid()		// RLIMIT_NPROC is fine at this moment
-> ...		fork()
-> 		...
-> ...		fork()
-> execve()		// eh, oh
->
-> This "punishes" the exec'ing task although the cause is elsewhere.
->
-> Michal
->
-> [1] The decoupled setuid()+execve() check can be interpretted both ways.
-> I understood historically the excess at the setuid() moment is
-> relevant.
+--------------lYaXblocH9HrGpgVeC6pUjk4
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-I have been digging into this to understand why we are doing the strange
-things we are doing.
+SGkNCg0KQ2FuIGFwcGx5IHtkcm0vaTkxNTogV29ya2Fyb3VuZCBicm9rZW4gQklPUyBEQlVG
+IGNvbmZpZ3VyYXRpb24gb24gDQpUR0wvUktMfSBbIzFdLCB0aGF0IGlzIG5vdyBpbiA1LjE2
+LjEwLCBpbiA1LjE1IGJyYW5jaD8gQWNjb3JkaW5nIHRvIA0KY29tbWl0IG1lc3NhZ2UgaXMg
+dmFsaWQgZm9yIHY1LjE0Ky4NCg0KVGFrZSBjYXJlLg0KDQoNClsjMV0gDQpodHRwczovL2dp
+dC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9zdGFibGUvc3RhYmxlLXF1
+ZXVlLmdpdC9kaWZmL3JlbGVhc2VzLzUuMTYuMTAvZHJtLWk5MTUtd29ya2Fyb3VuZC1icm9r
+ZW4tYmlvcy1kYnVmLWNvbmZpZ3VyYXRpb24tb24tdGdsLXJrbC5wYXRjaD9pZD0xNTRhZDA5
+OGI3M2JjY2FiM2I5MWNlZjMzZjBhZWMyNjc4Y2VkNzFhDQo=
 
-Ordinarily for rlimits we are fine with letting things go over limit
-until we reach a case where we need the limit (which would be fork in
-the RLIMIT_NPROC case).  So things like setrlimit do not check your
-counts to see if you will be over the limit.
+--------------lYaXblocH9HrGpgVeC6pUjk4--
 
-The practical problem with fork in the unix model is that you can not
-change limits or do anything for the new process until it is created
-(with clone/fork).  Making it impossible to set the rlimits and change
-the user before the new process is created.
+--------------49WZW89waJcn0WypTJX5uvx1
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
 
-The result is that in applications like apache when they run cgi scripts
-(as a different user than the apache process) RLIMIT_NPROC did not work
-until a check was placed into set*id() as well.  As the typical cgi
-script did not fork it just did it's work and exited.
+-----BEGIN PGP SIGNATURE-----
 
-That it was discovered that allowing set*id() to fail was a footgun for
-privileged processes.  And we have the existing system.
+wsB5BAABCAAjFiEEDzNNhpiIFXj2XSrlXtUUpFvVyTgFAmINGlMFAwAAAAAACgkQXtUUpFvVyTii
+2wf/XkI1Qh4bsUBXYGFyCT0L6tWwI+uPaJvmAxX/kw/kMT/aqvyX4ZV55E0LsQooVoRbCutaMeoq
+Q0EnaVg4Fu5GfzPCXCUp0GSfKgKLSIG/FAGf0l986CrEAUgTI/DGYvd8qtnZTJIFKVZJAThl1N9F
+H6LJ3PUqC3FXSnAgAh7iSCK+zlj/XqxcX3o50bA+lPi3Zhl9TphJe42ujiVx1sP2i6wfXVppM8O+
+Y6zB6akfb1/g7xmfILdjThQ6MOKpWcGkg9xwLPiT+Ua5HRj1k71xdBHI04cGQ2wsHd/ULO3u6USE
+HjOTbwK3b+gmtLlSvQVdtrjncFiRNNLF5VsGf7l3jg==
+=9yJ1
+-----END PGP SIGNATURE-----
 
-
-Which leads me to the starting point that set*id() checking rlimits is
-a necessary but fundamentally a special case.
-
-As long as the original use case works I think there is some latitude in
-the implementation.  Maybe we set a flag and perform all of the checks
-in exec.  Maybe we just send SIGKILL.  Maybe we just say it is an ugly
-wart but it is our ugly wart and comment it and leave it alone.
-I am leaving  that decision to a clean-up patchset.
-
-
-
-
-
-
-
-
-
+--------------49WZW89waJcn0WypTJX5uvx1--
