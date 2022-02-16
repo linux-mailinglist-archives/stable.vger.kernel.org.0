@@ -2,129 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F0F4B8CC1
-	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 16:44:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5BB94B8CCF
+	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 16:46:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233204AbiBPPoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Feb 2022 10:44:21 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54986 "EHLO
+        id S232037AbiBPPqO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Feb 2022 10:46:14 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232520AbiBPPoT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 10:44:19 -0500
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2122.outbound.protection.outlook.com [40.107.243.122])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49D6D2944EF;
-        Wed, 16 Feb 2022 07:44:06 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Y1H92KFOomPliXREVtIG5GWWsaLQe3FaumMKyuJyQa74PaB9y2tSM693ZPdDSJvNgszBCHH/lQr3t+8Vh0esanq48vPx7WJKwVOlAkJTLRHtbvbwjIEyDg6Y4YeH2VR1aEv6QDf8/U8vunOsyJtpCay6df/9Ul9Q/cvtE0V6Cqt+DHepnQyujMwbbOZ5tBaWQtdNjGvwJNld7zjC/+ZmVIUs1Jtz+N7pHqx7v+lwKXQJyP7PEvWA5K94ZxuWaWkpjyadLe2YkNwAug4G1Fy3n/iuQ+LbBhx4zZuWWnBxYCo2J7hOqshLNhtYXovP21R7x2BFS9ajj3VkMYddedpYzQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=wFe11h5JvxMaucbRyvhzGYRlf7PMaEXE90sXLClUxpA=;
- b=HJ2K0aO59Ns5b05q94Gqfu1MdztVeJPQsqsmhrJwOjBnP3hB4gZGhbZ0dJS4HYxg+buErL8g7sm3BopkaIr4AHXODvPrXmHD3MJ41BktGNk+2D7piRo74GGJNtcXQqHK0tg3sL5KJJHUuVsON0kfvmVEmbEkPgknnHzdFnCU3CM65z0V6TTbpztPOmJg4L/L+KSmrqVqGkEQxD4qpHIFM/f3mn1Lzx1ogghBV0sYXsulIcxBObMAVbffahB1qmDfXlzcxWygNfzxo+riPmpjXQZsQ1DQPtowZHKKtuSnFM+LL/xwpy78Vxx9LYgfcx2g1C+KECXEKhK1rnUKLn9Uyw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=os.amperecomputing.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=wFe11h5JvxMaucbRyvhzGYRlf7PMaEXE90sXLClUxpA=;
- b=M+EJivUE0FJiHLEusohQOLxyzFmJ/8v23Bh8qg32DC5M58YzYOjhMGvHVVGvJqlPXctVDYDNniiiyWNNgsF/o4VV4cVUzowD0ZR03aGFtZPn2FjjxdzyH8dGQAT2uvecHLThONLRI8/Wm+ufBvHKMRXBbD+NBlq9LD+PrCDFTiU=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
-Received: from SA0PR01MB6329.prod.exchangelabs.com (2603:10b6:806:ee::12) by
- SN6PR0102MB3438.prod.exchangelabs.com (2603:10b6:805:10::19) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4975.18; Wed, 16 Feb 2022 15:43:58 +0000
-Received: from SA0PR01MB6329.prod.exchangelabs.com
- ([fe80::7cd6:6594:ce3c:6941]) by SA0PR01MB6329.prod.exchangelabs.com
- ([fe80::7cd6:6594:ce3c:6941%9]) with mapi id 15.20.4975.019; Wed, 16 Feb 2022
- 15:43:58 +0000
-Date:   Wed, 16 Feb 2022 07:43:55 -0800
-From:   Darren Hart <darren@os.amperecomputing.com>
-To:     Barry Song <21cnbao@gmail.com>
-Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
-        Will Deacon <will@kernel.org>,
-        "Song Bao Hua (Barry Song)" <song.bao.hua@hisilicon.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Arm <linux-arm-kernel@lists.infradead.org>,
-        Catalin Marinas <Catalin.Marinas@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Valentin Schneider <Valentin.Schneider@arm.com>,
-        "D . Scott Phillips" <scott@os.amperecomputing.com>,
-        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] arm64: smp: Skip MC domain for SoCs without shared cache
-Message-ID: <Yg0bu53iACDscIC6@fedora>
-References: <8c4a69eca4d0591f30c112df59c5098c24923bd3.1644543449.git.darren@os.amperecomputing.com>
- <ec9be4eb7a0548178191edd51ddd309f@hisilicon.com>
- <20220215163858.GA8458@willie-the-truck>
- <YgvYZy5xv1g+u5wp@fedora>
- <20220215164639.GC8458@willie-the-truck>
- <CAKfTPtAFsL+uqQiGcuh+JJZB=rPrez0=kotq76CVRcBQhcPefg@mail.gmail.com>
- <YgvjtsOZuxzbgBBl@fedora>
- <CAKfTPtCHrZCp1Uth4odyT721wE8zoNVY3Mh+DSyuTkqPafm0Hg@mail.gmail.com>
- <CAGsJ_4yB-FOPoPjCn+T4m76tvzA6ATaz24KYM9NjBeB54nWxLA@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAGsJ_4yB-FOPoPjCn+T4m76tvzA6ATaz24KYM9NjBeB54nWxLA@mail.gmail.com>
-X-ClientProxiedBy: MWHPR20CA0047.namprd20.prod.outlook.com
- (2603:10b6:300:ed::33) To SA0PR01MB6329.prod.exchangelabs.com
- (2603:10b6:806:ee::12)
+        with ESMTP id S235698AbiBPPqN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 10:46:13 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C75B02A7974
+        for <stable@vger.kernel.org>; Wed, 16 Feb 2022 07:46:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1645026359;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=v7ZKxwFoNH/SJ4J8yFJK+e5gpHBgW4J7jQrPrISn/cE=;
+        b=Dv5chKDBARjes3LeYVTKpOrdoxmv8XrtpabipmgMrFL0LQLfTxyqEVsxVLUDojkvHlJ3vR
+        JcssZv9NqGju/CX8GqSXhOq7ccfYGEvi99abOo1Q+gI/4HIfzHCrcVZNUUGUa7iBJWPfzI
+        LF+5A7vVlNiU3as1n5dCcogpXPcemZw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-612-3mbVFS_MNI2Izb7rlTXupw-1; Wed, 16 Feb 2022 10:45:58 -0500
+X-MC-Unique: 3mbVFS_MNI2Izb7rlTXupw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B9C5B1800D50
+        for <stable@vger.kernel.org>; Wed, 16 Feb 2022 15:45:57 +0000 (UTC)
+Received: from fs-i40c-03.fs.lab.eng.bos.redhat.com (fs-i40c-03.fs.lab.eng.bos.redhat.com [10.16.224.23])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 49B147D729;
+        Wed, 16 Feb 2022 15:45:57 +0000 (UTC)
+From:   Alexander Aring <aahringo@redhat.com>
+To:     teigland@redhat.com
+Cc:     cluster-devel@redhat.com, aahringo@redhat.com, agruenba@redhat.com,
+        stable@vger.kernel.org
+Subject: [PATCH dlm/next] fs: dlm: fix plock invalid read
+Date:   Wed, 16 Feb 2022 10:45:51 -0500
+Message-Id: <20220216154551.2993470-1-aahringo@redhat.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: fad90e0d-c5b5-403e-98a2-08d9f16324a1
-X-MS-TrafficTypeDiagnostic: SN6PR0102MB3438:EE_
-X-Microsoft-Antispam-PRVS: <SN6PR0102MB3438480EF632610A919960CCF7359@SN6PR0102MB3438.prod.exchangelabs.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:7691;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: fojcI6T3uqP/mbpfFszPk3CLX8ROrSJzknEyzukmYNJUkyCh2bZW/AuDyoGiDxcsNzQuiMUVQm+l4nBWvQnDigOmqVdTSS3sHlBoqr5h0m++RThINv1VpTx0W3vrv9eLETjVVP5tNT96TUgwemKmBbCj5x+hyotjSi+0k2AojPft2WUdqD0ZwXzLcvvId4t30Cu5gZtVOgWkCdVCsp0xOqGU0B6I+7i0tbolCx5W2NH5eb3GfrziL9V++TufEWLgo19zIyzsQw5esrkbaWx2NZ1lJb+hpGdgFB02geBjnsKKf4rqJ45eTbhctsRA9RKA+EbtDQ9vBaDaW0yoVRDSXfyKyL3ma5Un7qAh/mlUgtMpKDNHDd7FCT1O+Ly/mRxSFozQ3wFaLyR8/HBQTdKqBKy0sQH9cgVdKnaOYf/2o6RBkvPF9uQc6yHY7gbfKinWH6647Xw5N1AClSnIqE9OxLX+dmG/7/DJtmK7siYifgjkNY6eBtr1K7s1lu0g7e72K1jqsYFkN9WygU5cGLaabOGi6hCxxMpv7Fn91/nCxyIyrIdZlMMi1/VUR5h9qlEfbidJsLqySDF1XO5GQVAG3lRlzVIxeyyVUMH4yQbcuYidWX9Qtr5ky44yDqcPBWW8axO0BzZMPvvr/SfxU5JpLFGKnfVz8WXc/IYTp45skxtwgDmlnOANW8Y78uZz4yRiIQOdjjRfgYbqhLZBsOR5AQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA0PR01MB6329.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230001)(6029001)(4636009)(7916004)(366004)(6916009)(4326008)(7416002)(186003)(54906003)(6486002)(5660300002)(66946007)(86362001)(66476007)(2906002)(66556008)(8936002)(33716001)(8676002)(38100700002)(38350700002)(6512007)(6506007)(9686003)(26005)(508600001)(6666004)(316002)(52116002)(53546011)(83380400001);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?f3WG0kk5HKQbjsA4/YVY+BxFpg8SR4Kx2A+LgKXg5Nq0vfv9hmAx0XKusTIL?=
- =?us-ascii?Q?llT8w4NpQvMqV0DIchL6FwlZ2AD5w7Q9aZrJJpuIthhLjjx0OYMKEIO7wSEL?=
- =?us-ascii?Q?VlFjuJphoqQUv/YcKZrJqNfQITkjU7WoSc7HB1EFUVHJtGHNCksw4d+vxgUX?=
- =?us-ascii?Q?3pnJcvzvoGYAk7/8VWMNzMsETVTWum4U8n138JzsacfA6r3AJnVJQg9iAIlf?=
- =?us-ascii?Q?ioQiboNWA7FectbHbBgD/hN17pXpabTAf/jtDlIYrhZ0EWmOKtc9geJh7QW/?=
- =?us-ascii?Q?EPG/8Td4GKQpX1iPv9CT6bNbpJDBK0Qc/DCT5uYZbvxoXIGO0jRIpN6DAesG?=
- =?us-ascii?Q?RVSRnl42DzAJb/Fn9kv3+ipzs9MkmZoskZLjtkGdQf2DNSWK6+qnb4h4Rp/D?=
- =?us-ascii?Q?/2+lTJ/LhOLZnAmg3aAb6f6VLML2NfnUFUurPxj3/iFDwo5yOgTyYBm5d/h/?=
- =?us-ascii?Q?C1vzs+BpRFplVjJF7oIUp3b+2yqUGha8njOiyH+0Sd1oJY6r5NFy0uN9PKlS?=
- =?us-ascii?Q?W9brx/6mabGp1mhynpA1yeTIQuratWy9vAE1sbvVYF4nTtzZiysuTMq6cpVJ?=
- =?us-ascii?Q?tLR2djONM5uXCXYh8ckzgTxgJbYwqcfrvOCEaPtGzeBNlfXOrlyeJpy2Zia/?=
- =?us-ascii?Q?K8UBnR5Pq+HFUj0HfV1NVsAI+Gv0R+cCXlJ9+m4/CzNN7doUdwhEIR04wxcK?=
- =?us-ascii?Q?xVyjJnZVXfF4cr5ZcqdZcHnl8rPekK4WaerEHdzt+9LGKTzVCP948s4yhMnj?=
- =?us-ascii?Q?KJjUryXwczzcWouDHo/+C2TU4JRMvqMBtmcyevaz85pJ+zdiH+p7mvRy3x9x?=
- =?us-ascii?Q?8xyZQEMdg8Ar+jVVfIFzem8Fi7FmzMZmA8hiXtc97CIINjC3W60qtBmoHSAc?=
- =?us-ascii?Q?3ptehV8p1gKcIDyZpWJop6aK7kCR7jATVyoFGDOp0E7SFNhD9vTEeDeS4BnL?=
- =?us-ascii?Q?06BEOLbVpAz1yznu5VVzhED7SCn7atVMexZuqXQCiYzLobodI71euHIYFvnt?=
- =?us-ascii?Q?WIMrDnj67QfRTjmCEgRvRxUOUKrLMf4/os/JHE1tOOnQbjdMJB1mAyIw4z1g?=
- =?us-ascii?Q?8i+Tm6FYlL/j9YpsxLd+jxyiEbo57HtgQWwUGFrlFRHdNGyYS43XzrBU9Afg?=
- =?us-ascii?Q?PPDSZsZQ7FaT+JBMV/luCzNbp3fcGRtBCjjbn76juf3VgywXlBWv8fi1CYWp?=
- =?us-ascii?Q?62PC2iNXfNsTaB7nB4Gqxagi8NYjCorQaTiCVHWHKEgJ3OydwH1A1hSxMyEw?=
- =?us-ascii?Q?JgDOTeIZMxDTl+hqpMFN5p3+7GaEviAG+mundvfdMhjAfyHJQIIetGXi/4Pu?=
- =?us-ascii?Q?iVf3nI0zX442K7PyDwzRanLiUBNyXGFldpd2R3a5E9V3XJFZ/HJs0hyusDln?=
- =?us-ascii?Q?8x34PJkPRjZ41PvNXfLCaaaZjVc4Ori1wfH+ryrmSQR+TiDz4aYW6Ef5wrnG?=
- =?us-ascii?Q?0XCiKV2JhRWQWQuZPUSbkjZ/VAGH1Db0pVa8Ol/qayHfkfzTpLmyjWIL0olX?=
- =?us-ascii?Q?dDDPe10Mj5/BjQ5RF92wMcdHUGm1Pj+LNXFJPaF6WNGYT24KJ7gf1xA9TO3u?=
- =?us-ascii?Q?dBgnasvzKUF3JLiha0EcP91scuNHP2YipOcuO64kSTReoaduM/Kp/CYQk5+w?=
- =?us-ascii?Q?C6T3ZSnJGBeUHA7A/lBaHMuDfF+bEB8kWu6C3mwYKk1ltGc4lOQIhGfUNgtZ?=
- =?us-ascii?Q?CcGVrfFB0jXpypt1SS6W5fbMHPGDbIEApoRTKSmDoAoS5sjz+9hCu7+rWl+6?=
- =?us-ascii?Q?XpuQgmZJMg=3D=3D?=
-X-OriginatorOrg: os.amperecomputing.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fad90e0d-c5b5-403e-98a2-08d9f16324a1
-X-MS-Exchange-CrossTenant-AuthSource: SA0PR01MB6329.prod.exchangelabs.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Feb 2022 15:43:57.9991
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: /5MiBhTmYCaItNe+12Q2BLPvIJ8hfWWI+rKZiH6sQHHY8u4BT7AwsHuHy+H0zu+qBNLjm733ZC5An5ZyrOLXnTkCTIsx+JGg1/92xizrXGGPQzk3T+FlEUJ4blRaQeaU
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR0102MB3438
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Spam-Status: No, score=-2.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -132,215 +56,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 16, 2022 at 08:03:40PM +1300, Barry Song wrote:
-> On Wed, Feb 16, 2022 at 7:30 PM Vincent Guittot
-> <vincent.guittot@linaro.org> wrote:
-> >
-> > On Tue, 15 Feb 2022 at 18:32, Darren Hart <darren@os.amperecomputing.com> wrote:
-> > >
-> > > On Tue, Feb 15, 2022 at 06:09:08PM +0100, Vincent Guittot wrote:
-> > > > On Tue, 15 Feb 2022 at 17:46, Will Deacon <will@kernel.org> wrote:
-> > > > >
-> > > > > On Tue, Feb 15, 2022 at 08:44:23AM -0800, Darren Hart wrote:
-> > > > > > On Tue, Feb 15, 2022 at 04:38:59PM +0000, Will Decon wrote:
-> > > > > > > On Fri, Feb 11, 2022 at 03:20:51AM +0000, Song Bao Hua (Barry Song) wrote:
-> > > > > > > >
-> > > > > > > >
-> > > > > > > > > -----Original Message-----
-> > > > > > > > > From: Darren Hart [mailto:darren@os.amperecomputing.com]
-> > > > > > > > > Sent: Friday, February 11, 2022 2:43 PM
-> > > > > > > > > To: LKML <linux-kernel@vger.kernel.org>; Linux Arm
-> > > > > > > > > <linux-arm-kernel@lists.infradead.org>
-> > > > > > > > > Cc: Catalin Marinas <catalin.marinas@arm.com>; Will Deacon <will@kernel.org>;
-> > > > > > > > > Peter Zijlstra <peterz@infradead.org>; Vincent Guittot
-> > > > > > > > > <vincent.guittot@linaro.org>; Song Bao Hua (Barry Song)
-> > > > > > > > > <song.bao.hua@hisilicon.com>; Valentin Schneider
-> > > > > > > > > <valentin.schneider@arm.com>; D . Scott Phillips
-> > > > > > > > > <scott@os.amperecomputing.com>; Ilkka Koskinen
-> > > > > > > > > <ilkka@os.amperecomputing.com>; stable@vger.kernel.org
-> > > > > > > > > Subject: [PATCH] arm64: smp: Skip MC domain for SoCs without shared cache
-> > > > > > > > >
-> > > > > > > > > SoCs such as the Ampere Altra define clusters but have no shared
-> > > > > > > > > processor-side cache. As of v5.16 with CONFIG_SCHED_CLUSTER and
-> > > > > > > > > CONFIG_SCHED_MC, build_sched_domain() will BUG() with:
-> > > > > > > > >
-> > > > > > > > > BUG: arch topology borken
-> > > > > > > > >      the CLS domain not a subset of the MC domain
-> > > > > > > > >
-> > > > > > > > > for each CPU (160 times for a 2 socket 80 core Altra system). The MC
-> > > > > > > > > level cpu mask is then extended to that of the CLS child, and is later
-> > > > > > > > > removed entirely as redundant.
-> > > > > > > > >
-> > > > > > > > > This change detects when all cpu_coregroup_mask weights=1 and uses an
-> > > > > > > > > alternative sched_domain_topology equivalent to the default if
-> > > > > > > > > CONFIG_SCHED_MC were disabled.
-> > > > > > > > >
-> > > > > > > > > The final resulting sched domain topology is unchanged with or without
-> > > > > > > > > CONFIG_SCHED_CLUSTER, and the BUG is avoided:
-> > > > > > > > >
-> > > > > > > > > For CPU0:
-> > > > > > > > >
-> > > > > > > > > With CLS:
-> > > > > > > > > CLS  [0-1]
-> > > > > > > > > DIE  [0-79]
-> > > > > > > > > NUMA [0-159]
-> > > > > > > > >
-> > > > > > > > > Without CLS:
-> > > > > > > > > DIE  [0-79]
-> > > > > > > > > NUMA [0-159]
-> > > > > > > > >
-> > > > > > > > > Cc: Catalin Marinas <catalin.marinas@arm.com>
-> > > > > > > > > Cc: Will Deacon <will@kernel.org>
-> > > > > > > > > Cc: Peter Zijlstra <peterz@infradead.org>
-> > > > > > > > > Cc: Vincent Guittot <vincent.guittot@linaro.org>
-> > > > > > > > > Cc: Barry Song <song.bao.hua@hisilicon.com>
-> > > > > > > > > Cc: Valentin Schneider <valentin.schneider@arm.com>
-> > > > > > > > > Cc: D. Scott Phillips <scott@os.amperecomputing.com>
-> > > > > > > > > Cc: Ilkka Koskinen <ilkka@os.amperecomputing.com>
-> > > > > > > > > Cc: <stable@vger.kernel.org> # 5.16.x
-> > > > > > > > > Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
-> > > > > > > >
-> > > > > > > > Hi Darrent,
-> > > > > > > > What kind of resources are clusters sharing on Ampere Altra?
-> > > > > > > > So on Altra, cpus are not sharing LLC? Each LLC is separate
-> > > > > > > > for each cpu?
-> > > > > > > >
-> > > > > > > > > ---
-> > > > > > > > >  arch/arm64/kernel/smp.c | 32 ++++++++++++++++++++++++++++++++
-> > > > > > > > >  1 file changed, 32 insertions(+)
-> > > > > > > > >
-> > > > > > > > > diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-> > > > > > > > > index 27df5c1e6baa..0a78ac5c8830 100644
-> > > > > > > > > --- a/arch/arm64/kernel/smp.c
-> > > > > > > > > +++ b/arch/arm64/kernel/smp.c
-> > > > > > > > > @@ -715,9 +715,22 @@ void __init smp_init_cpus(void)
-> > > > > > > > >         }
-> > > > > > > > >  }
-> > > > > > > > >
-> > > > > > > > > +static struct sched_domain_topology_level arm64_no_mc_topology[] = {
-> > > > > > > > > +#ifdef CONFIG_SCHED_SMT
-> > > > > > > > > +       { cpu_smt_mask, cpu_smt_flags, SD_INIT_NAME(SMT) },
-> > > > > > > > > +#endif
-> > > > > > > > > +
-> > > > > > > > > +#ifdef CONFIG_SCHED_CLUSTER
-> > > > > > > > > +       { cpu_clustergroup_mask, cpu_cluster_flags, SD_INIT_NAME(CLS) },
-> > > > > > > > > +#endif
-> > > > > > > > > +       { cpu_cpu_mask, SD_INIT_NAME(DIE) },
-> > > > > > > > > +       { NULL, },
-> > > > > > > > > +};
-> > > > > > > > > +
-> > > > > > > > >  void __init smp_prepare_cpus(unsigned int max_cpus)
-> > > > > > > > >  {
-> > > > > > > > >         const struct cpu_operations *ops;
-> > > > > > > > > +       bool use_no_mc_topology = true;
-> > > > > > > > >         int err;
-> > > > > > > > >         unsigned int cpu;
-> > > > > > > > >         unsigned int this_cpu;
-> > > > > > > > > @@ -758,6 +771,25 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
-> > > > > > > > >
-> > > > > > > > >                 set_cpu_present(cpu, true);
-> > > > > > > > >                 numa_store_cpu_info(cpu);
-> > > > > > > > > +
-> > > > > > > > > +               /*
-> > > > > > > > > +                * Only use no_mc topology if all cpu_coregroup_mask weights=1
-> > > > > > > > > +                */
-> > > > > > > > > +               if (cpumask_weight(cpu_coregroup_mask(cpu)) > 1)
-> > > > > > > > > +                       use_no_mc_topology = false;
-> > > > > > > >
-> > > > > > > > This seems to be wrong? If you have 5 cpus,
-> > > > > > > > Cpu0 has cpu_coregroup_mask(cpu)== 1, cpu1-4
-> > > > > > > > has cpu_coregroup_mask(cpu)== 4, for cpu0, you still
-> > > > > > > > need to remove MC, but for cpu1-4, you will need
-> > > > > > > > CLS and MC both?
-> > > > > > >
-> > > > > > > What is the *current* behaviour on such a system?
-> > > > > > >
-> > > > > >
-> > > > > > As I understand it, any system that uses the default topology which has
-> > > > > > a cpus_coregroup weight of 1 and a child (cluster, smt, ...) weight > 1
-> > > > > > will behave as described above by printing the following for each CPU
-> > > > > > matching this criteria:
-> > > > > >
-> > > > > >   BUG: arch topology borken
-> > > > > >         the [CLS,SMT,...] domain not a subset of the MC domain
-> > > > > >
-> > > > > > And then extend the MC domain cpumask to match that of the child and continue
-> > > > > > on.
-> > > > > >
-> > > > > > That would still be the behavior for this type of system after this
-> > > > > > patch is applied.
-> > > > >
-> > > > > That's what I thought, but in that case applying your patch is a net
-> > > > > improvement: systems either get current or better behaviour.
-> > > >
-> > > > CLUSTER level is normally defined as a intermediate group of the MC
-> > > > level and both levels have the scheduler flag SD_SHARE_PKG_RESOURCES
-> > > > flag
-> > > >
-> > > > In the case of Ampere altra, they consider that CPUA have a CLUSTER
-> > > > level which SD_SHARE_PKG_RESOURCES with another CPUB but the next and
-> > > > larger MC level then says that CPUA doesn't SD_SHARE_PKG_RESOURCES
-> > > > with CPUB which seems to be odd because the SD_SHARE_PKG_RESOURCES has
-> > > > not disappeared Looks like there is a mismatch in topology description
-> > >
-> > > Hi Vincent,
-> > >
-> > > Agree. Where do you think this mismatch exists?
-> >
-> > I think that the problem comes from that the default topology order is
-> > assumed to be :
-> > SMT
-> > CLUSTER shares pkg resources i.e. cache
-> > MC
-> > DIE
-> > NUMA
-> >
-> > but in your case, you want a topology order like :
-> > SMT
-> > MC
-> > CLUSTER shares SCU
-> > DIE
-> > NUMA
-> >
-> > IIUC, the cluster is defined as the 2nd (no SMT) or 3rd (SMT) level in
-> > the PPTT table whereas the MC level is defined as the number of cache
-> > levels. So i would say that you should compare the level to know the
-> > ordering
-> >
-> > Then, there is another point:
-> > In your case, CLUSTER level still has the flag SD_SHARE_PKG_RESOURCES
-> > which is used to define some scheduler internal variable like
-> > sd_llc(sched domain last level of cache) which allows fast task
-> > migration between this cpus in this level at wakeup. In your case the
-> > sd_llc should not be the cluster but the MC with only one CPU. But I
-> > would not be surprised that most of perf improvement comes from this
-> > sd_llc wrongly set to cluster instead of the single CPU
-> 
-> I assume this "mistake" is actually what Ampere altra needs while it
-> is wrong but getting
-> right result? Ampere altra has already got both:
+This patch fixes an invalid read showed by KASAN. A unlock will allocate a
+"struct plock_op" and a followed send_op() will append it to a global
+send_list data structure. In some cases a followed dev_read() moves it
+to recv_list and dev_write() will cast it to "struct plock_xop" and access
+fields which are only available in those structures. At this point an
+invalid read happens by accessing those fields.
 
-Hi Barry,
+To fix this issue the "callback" field is moved to "struct plock_op" to
+indicate that a cast to "plock_xop" is allowed and does the additional
+"plock_xop" handling if set.
 
-Generally yes - although I do think we're placing too much emphasis on
-the "right" or "wrong" of a heuristic which are more fluid in
-definition over time. (e.g. I expect this will look different in a year
-based on what we learn from this and other non current default topologies).
+Example of the KASAN output which showed the invalid read:
 
-> 1. Load Balance between clusters
-> 2. wake_affine by select sibling cpu which is sharing SCU
-> 
-> I am not sure how much 1 and 2 are helping Darren's workloads respectively.
+[ 2064.296453] ==================================================================
+[ 2064.304852] BUG: KASAN: slab-out-of-bounds in dev_write+0x52b/0x5a0 [dlm]
+[ 2064.306491] Read of size 8 at addr ffff88800ef227d8 by task dlm_controld/7484
+[ 2064.308168]
+[ 2064.308575] CPU: 0 PID: 7484 Comm: dlm_controld Kdump: loaded Not tainted 5.14.0+ #9
+[ 2064.310292] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[ 2064.311618] Call Trace:
+[ 2064.312218]  dump_stack_lvl+0x56/0x7b
+[ 2064.313150]  print_address_description.constprop.8+0x21/0x150
+[ 2064.314578]  ? dev_write+0x52b/0x5a0 [dlm]
+[ 2064.315610]  ? dev_write+0x52b/0x5a0 [dlm]
+[ 2064.316595]  kasan_report.cold.14+0x7f/0x11b
+[ 2064.317674]  ? dev_write+0x52b/0x5a0 [dlm]
+[ 2064.318687]  dev_write+0x52b/0x5a0 [dlm]
+[ 2064.319629]  ? dev_read+0x4a0/0x4a0 [dlm]
+[ 2064.320713]  ? bpf_lsm_kernfs_init_security+0x10/0x10
+[ 2064.321926]  vfs_write+0x17e/0x930
+[ 2064.322769]  ? __fget_light+0x1aa/0x220
+[ 2064.323753]  ksys_write+0xf1/0x1c0
+[ 2064.324548]  ? __ia32_sys_read+0xb0/0xb0
+[ 2064.325464]  do_syscall_64+0x3a/0x80
+[ 2064.326387]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 2064.327606] RIP: 0033:0x7f807e4ba96f
+[ 2064.328470] Code: 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 39 87 f8 ff 48 8b 54 24 18 48 8b 74 24 10 41 89 c0 8b 7c 24 08 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 31 44 89 c7 48 89 44 24 08 e8 7c 87 f8 ff 48
+[ 2064.332902] RSP: 002b:00007ffd50cfe6e0 EFLAGS: 00000293 ORIG_RAX: 0000000000000001
+[ 2064.334658] RAX: ffffffffffffffda RBX: 000055cc3886eb30 RCX: 00007f807e4ba96f
+[ 2064.336275] RDX: 0000000000000040 RSI: 00007ffd50cfe7e0 RDI: 0000000000000010
+[ 2064.337980] RBP: 00007ffd50cfe7e0 R08: 0000000000000000 R09: 0000000000000001
+[ 2064.339560] R10: 000055cc3886eb30 R11: 0000000000000293 R12: 000055cc3886eb80
+[ 2064.341237] R13: 000055cc3886eb00 R14: 000055cc3886f590 R15: 0000000000000001
+[ 2064.342857]
+[ 2064.343226] Allocated by task 12438:
+[ 2064.344057]  kasan_save_stack+0x1c/0x40
+[ 2064.345079]  __kasan_kmalloc+0x84/0xa0
+[ 2064.345933]  kmem_cache_alloc_trace+0x13b/0x220
+[ 2064.346953]  dlm_posix_unlock+0xec/0x720 [dlm]
+[ 2064.348811]  do_lock_file_wait.part.32+0xca/0x1d0
+[ 2064.351070]  fcntl_setlk+0x281/0xbc0
+[ 2064.352879]  do_fcntl+0x5e4/0xfe0
+[ 2064.354657]  __x64_sys_fcntl+0x11f/0x170
+[ 2064.356550]  do_syscall_64+0x3a/0x80
+[ 2064.358259]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 2064.360745]
+[ 2064.361511] Last potentially related work creation:
+[ 2064.363957]  kasan_save_stack+0x1c/0x40
+[ 2064.365811]  __kasan_record_aux_stack+0xaf/0xc0
+[ 2064.368100]  call_rcu+0x11b/0xf70
+[ 2064.369785]  dlm_process_incoming_buffer+0x47d/0xfd0 [dlm]
+[ 2064.372404]  receive_from_sock+0x290/0x770 [dlm]
+[ 2064.374607]  process_recv_sockets+0x32/0x40 [dlm]
+[ 2064.377290]  process_one_work+0x9a8/0x16e0
+[ 2064.379357]  worker_thread+0x87/0xbf0
+[ 2064.381188]  kthread+0x3ac/0x490
+[ 2064.383460]  ret_from_fork+0x22/0x30
+[ 2064.385588]
+[ 2064.386518] Second to last potentially related work creation:
+[ 2064.389219]  kasan_save_stack+0x1c/0x40
+[ 2064.391043]  __kasan_record_aux_stack+0xaf/0xc0
+[ 2064.393303]  call_rcu+0x11b/0xf70
+[ 2064.394885]  dlm_process_incoming_buffer+0x47d/0xfd0 [dlm]
+[ 2064.397694]  receive_from_sock+0x290/0x770 [dlm]
+[ 2064.399932]  process_recv_sockets+0x32/0x40 [dlm]
+[ 2064.402180]  process_one_work+0x9a8/0x16e0
+[ 2064.404388]  worker_thread+0x87/0xbf0
+[ 2064.406124]  kthread+0x3ac/0x490
+[ 2064.408021]  ret_from_fork+0x22/0x30
+[ 2064.409834]
+[ 2064.410599] The buggy address belongs to the object at ffff88800ef22780
+[ 2064.410599]  which belongs to the cache kmalloc-96 of size 96
+[ 2064.416495] The buggy address is located 88 bytes inside of
+[ 2064.416495]  96-byte region [ffff88800ef22780, ffff88800ef227e0)
+[ 2064.422045] The buggy address belongs to the page:
+[ 2064.424635] page:00000000b6bef8bc refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0xef22
+[ 2064.428970] flags: 0xfffffc0000200(slab|node=0|zone=1|lastcpupid=0x1fffff)
+[ 2064.432515] raw: 000fffffc0000200 ffffea0000d68b80 0000001400000014 ffff888001041780
+[ 2064.436110] raw: 0000000000000000 0000000080200020 00000001ffffffff 0000000000000000
+[ 2064.439813] page dumped because: kasan: bad access detected
+[ 2064.442548]
+[ 2064.443310] Memory state around the buggy address:
+[ 2064.445988]  ffff88800ef22680: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
+[ 2064.449444]  ffff88800ef22700: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
+[ 2064.452941] >ffff88800ef22780: 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc fc
+[ 2064.456383]                                                     ^
+[ 2064.459386]  ffff88800ef22800: 00 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc
+[ 2064.462788]  ffff88800ef22880: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
+[ 2064.466239] ==================================================================
 
-We definitely see improvements with load balancing between clusters.
-We're running some tests with the wake_affine patchset you pointed me to
-(thanks for that). My initial tbench runs resulted in higher average and
-max latencies reported. I need to collect more results and see the
-impact to other benchmarks of interest before I have more to share on
-that.
+reproducer in python:
 
-Thanks,
+import argparse
+import struct
+import fcntl
+import os
 
+parser = argparse.ArgumentParser()
+
+parser.add_argument('-f', '--file',
+		    help='file to use fcntl, must be on dlm lock filesystem e.g. gfs2')
+
+args = parser.parse_args()
+
+f = open(args.file, 'wb+')
+
+lockdata = struct.pack('hhllhh', fcntl.F_WRLCK,0,0,0,0,0)
+fcntl.fcntl(f, fcntl.F_SETLK, lockdata)
+lockdata = struct.pack('hhllhh', fcntl.F_UNLCK,0,0,0,0,0)
+fcntl.fcntl(f, fcntl.F_SETLK, lockdata)
+
+Fixes: 586759f03e2e ("gfs2: nfs lock support for gfs2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+---
+ fs/dlm/plock.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
+
+diff --git a/fs/dlm/plock.c b/fs/dlm/plock.c
+index c38b2b8ffd1d..a10d2bcfe75a 100644
+--- a/fs/dlm/plock.c
++++ b/fs/dlm/plock.c
+@@ -23,11 +23,11 @@ struct plock_op {
+ 	struct list_head list;
+ 	int done;
+ 	struct dlm_plock_info info;
++	int (*callback)(struct file_lock *fl, int result);
+ };
+ 
+ struct plock_xop {
+ 	struct plock_op xop;
+-	int (*callback)(struct file_lock *fl, int result);
+ 	void *fl;
+ 	void *file;
+ 	struct file_lock flc;
+@@ -129,19 +129,18 @@ int dlm_posix_lock(dlm_lockspace_t *lockspace, u64 number, struct file *file,
+ 		/* fl_owner is lockd which doesn't distinguish
+ 		   processes on the nfs client */
+ 		op->info.owner	= (__u64) fl->fl_pid;
+-		xop->callback	= fl->fl_lmops->lm_grant;
++		op->callback	= fl->fl_lmops->lm_grant;
+ 		locks_init_lock(&xop->flc);
+ 		locks_copy_lock(&xop->flc, fl);
+ 		xop->fl		= fl;
+ 		xop->file	= file;
+ 	} else {
+ 		op->info.owner	= (__u64)(long) fl->fl_owner;
+-		xop->callback	= NULL;
+ 	}
+ 
+ 	send_op(op);
+ 
+-	if (xop->callback == NULL) {
++	if (!op->callback) {
+ 		rv = wait_event_interruptible(recv_wq, (op->done != 0));
+ 		if (rv == -ERESTARTSYS) {
+ 			log_debug(ls, "dlm_posix_lock: wait killed %llx",
+@@ -203,7 +202,7 @@ static int dlm_plock_callback(struct plock_op *op)
+ 	file = xop->file;
+ 	flc = &xop->flc;
+ 	fl = xop->fl;
+-	notify = xop->callback;
++	notify = op->callback;
+ 
+ 	if (op->info.rv) {
+ 		notify(fl, op->info.rv);
+@@ -436,10 +435,9 @@ static ssize_t dev_write(struct file *file, const char __user *u, size_t count,
+ 		if (op->info.fsid == info.fsid &&
+ 		    op->info.number == info.number &&
+ 		    op->info.owner == info.owner) {
+-			struct plock_xop *xop = (struct plock_xop *)op;
+ 			list_del_init(&op->list);
+ 			memcpy(&op->info, &info, sizeof(info));
+-			if (xop->callback)
++			if (op->callback)
+ 				do_callback = 1;
+ 			else
+ 				op->done = 1;
 -- 
-Darren Hart
-Ampere Computing / OS and Kernel
+2.31.1
+
