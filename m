@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBC7E4B8763
-	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 13:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 555684B87DA
+	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 13:41:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231669AbiBPML6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Feb 2022 07:11:58 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56314 "EHLO
+        id S233187AbiBPMl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Feb 2022 07:41:58 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231310AbiBPML6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 07:11:58 -0500
+        with ESMTP id S231156AbiBPMl5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 07:41:57 -0500
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81BB8205CD
-        for <stable@vger.kernel.org>; Wed, 16 Feb 2022 04:11:44 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 9526C1F383;
-        Wed, 16 Feb 2022 12:11:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1645013503; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B05512AE02;
+        Wed, 16 Feb 2022 04:41:45 -0800 (PST)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 6B6831F383;
+        Wed, 16 Feb 2022 12:41:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1645015304;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=dC0qP875Q1XxrqsRDTs/Ypp44fI0BKOxsPOdOcgRsww=;
-        b=RqJkoLNFd86BZo/K4/zGSEEoKfyM5j3WJbUB4icAii6A05qEC+E40yZSXcQZmVk0ZlYpcZ
-        l/Y3RGlad3/BtJkWvEd49RGRJdThzgfNeN2+VDSayieMh322JyAndiPK8rkaDCkH5qrD7S
-        ZKccEqmXwUKsnZZzxSucJeL8t93ZrTQ=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 784B713AF3;
-        Wed, 16 Feb 2022 12:11:43 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id XVjVHP/pDGLaRAAAMHmgww
-        (envelope-from <mkoutny@suse.com>); Wed, 16 Feb 2022 12:11:43 +0000
-Date:   Wed, 16 Feb 2022 13:11:42 +0100
-From:   Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>
-To:     Masami Ichikawa <masami256@gmail.com>
-Cc:     cip-dev@lists.cip-project.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Tabitha Sable <tabitha.c.sable@gmail.com>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Masami Ichikawa <masami.ichikawa@cybertrust.co.jp>
-Subject: Re: [PATCH for 4.4.y-cip] cgroup-v1: Require capabilities to set
- release_agent
-Message-ID: <20220216121142.GB30035@blackbody.suse.cz>
-References: <20220215234036.19800-1-masami256@gmail.com>
+        bh=jI0ny1M2K2fFZSuUHmmf+hQJDJhoxROJ6eE6z90nDO0=;
+        b=ynwFiT6jdtW9FvIZy0EKQlpd6x4X/DyN0oxGCFa40QWuOARqq1/D8BBNwQMgpFTCPqmZG8
+        bt+oyll6ySOrUNycvT08hLt5sbSVnXrGTOhU6y283L+Yi33/t+yiucSbnxoPLpnlutmszj
+        9j5XdEzJ6qiNrlqm4DgEIZXb2Kad4VQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1645015304;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jI0ny1M2K2fFZSuUHmmf+hQJDJhoxROJ6eE6z90nDO0=;
+        b=XUWSiqKgAzp1SJ0/p+U9uyn/w9PsTx4WcA/2sKPI0+q3Y0LiLDZMmauMxkvtfFH+s+Wka/
+        9AyLxL7Ov46xK7Bw==
+Received: from ds.suse.cz (ds.suse.cz [10.100.12.205])
+        by relay2.suse.de (Postfix) with ESMTP id 63F9DA3B8E;
+        Wed, 16 Feb 2022 12:41:44 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id D8FDEDA823; Wed, 16 Feb 2022 13:37:59 +0100 (CET)
+Date:   Wed, 16 Feb 2022 13:37:59 +0100
+From:   David Sterba <dsterba@suse.cz>
+To:     Qu Wenruo <wqu@suse.com>
+Cc:     stable@vger.kernel.org, linux-btrfs@vger.kernel.org
+Subject: Re: [PATCH for v5.15 2/2] btrfs: defrag: use the same cluster size
+ for defrag ioctl and autodefrag
+Message-ID: <20220216123759.GP12643@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, Qu Wenruo <wqu@suse.com>,
+        stable@vger.kernel.org, linux-btrfs@vger.kernel.org
+References: <cover.1644994950.git.wqu@suse.com>
+ <d2ce0079f3d2144876f019575858b392263089c4.1644994950.git.wqu@suse.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220215234036.19800-1-masami256@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <d2ce0079f3d2144876f019575858b392263089c4.1644994950.git.wqu@suse.com>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
@@ -66,53 +66,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks for sharing this Masami, I've been looking into pre-cgroup_ns
-backport too.
+On Wed, Feb 16, 2022 at 03:09:08PM +0800, Qu Wenruo wrote:
+> No upstream commit.
+> Since the bug only exists between v5.11 and v5.15. In v5.16 btrfs
+> reworked defrag and no longer has this bug.
 
-On Wed, Feb 16, 2022 at 08:40:37AM +0900, Masami Ichikawa <masami256@gmail.com> wrote:
-> [masami: Backport patch from 4.9. Adjust to use current_user_ns() to get current user_ns.
-> Fix conflict in cgroup_release_agent_write().]
+I'm not sure this will work as a stable patch. A backport of an existing
+upstream patch that is only adapted to older stable code base is fine
+but what is the counterpart of this patch?
 
-The condition to allow modifying release_agent is two-fold:
-a) caller is capabable(CAP_SYS_ADMIN),
-b) cgroup_ns is owned by init_user_ns.
+> 
+> [BUG]
+> Since commit 7f458a3873ae ("btrfs: fix race when defragmenting leads to
+> unnecessary IO") autodefrag no longer works with the following script:
 
-In pre-cgroup_ns kernels, it is IMO safer to consider all (=the only)
-cgroup_ns owned by init_user_ns.
-
-So the (positive) condition translates into capable(CAP_SYS_ADMIN) only.
-
-[
-Additionally, there's invariant/implication
-  capable(CAP_XXX) -> (current_user_ns() == &init_user_ns) ,
-so the expression
-  (current_user_ns() != &init_user_ns) || !capable(CAP_SYS_ADMIN)
-simplifies to
-  !capable(CAP_SYS_ADMIN) .
-]
-
-
-> @@ -2839,6 +2856,14 @@ static ssize_t cgroup_release_agent_write(struct kernfs_open_file *of,
->  
->  	BUILD_BUG_ON(sizeof(cgrp->root->release_agent_path) < PATH_MAX);
->  
-> +	/*
-> +	 * Release agent gets called with all capabilities,
-> +	 * require capabilities to set release agent.
-> +	 */
-> +	if ((of->file->f_cred->user_ns != &init_user_ns) ||
-> +		!capable(CAP_SYS_ADMIN))
-> +			return -EPERM;
-> +
-
-Following the reasoning above, the check simplifies too but it should be
-be against the opener, not the writer:
-  file_ns_capable(of->file, &init_user_ns, CAP_SYS_ADMIN)
-
-(It seems to be to be incorrect even in the original commit.
-So I'll send a patch there to rectify that.)
-
-
-Michal
-
-
+The bug does no seem to be significant, autodefrag is basically a
+heuristic so if it does not work perfectly in all cases it's still OK.
