@@ -2,142 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 010F34B8118
-	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 08:12:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1C214B817D
+	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 08:27:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229609AbiBPHLu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Feb 2022 02:11:50 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:58960 "EHLO
+        id S230014AbiBPH0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Feb 2022 02:26:47 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:57454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229554AbiBPHLu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 02:11:50 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28ADE237ED;
-        Tue, 15 Feb 2022 23:11:24 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id D873A21634;
-        Wed, 16 Feb 2022 07:09:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1644995369; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=TTF9B+oeWv/VkAEsIm+86HkK8abmiUsAQIAm6KFDlAY=;
-        b=oxNlVvXjvZ6Q47s1mALU6beQjKskfXHS0MOb7AZUg4AXye1pEN9mXgcO8337aUG2b5FYVo
-        b2v2avKkRaplWtdO3+2t9iU3+H/CdZMvRbxA6oXGkhwMFXO80fhhpqrc+Bw83XOAErDOOm
-        wa9j+h9AKqo+J+yrHyR2/KhoRNFb5vQ=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 05FF813A3A;
-        Wed, 16 Feb 2022 07:09:28 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id WE6NMCijDGJ1LgAAMHmgww
-        (envelope-from <wqu@suse.com>); Wed, 16 Feb 2022 07:09:28 +0000
-From:   Qu Wenruo <wqu@suse.com>
-To:     stable@vger.kernel.org
-Cc:     linux-btrfs@vger.kernel.org
-Subject: [PATCH for v5.15 2/2] btrfs: defrag: use the same cluster size for defrag ioctl and autodefrag
-Date:   Wed, 16 Feb 2022 15:09:08 +0800
-Message-Id: <d2ce0079f3d2144876f019575858b392263089c4.1644994950.git.wqu@suse.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <cover.1644994950.git.wqu@suse.com>
-References: <cover.1644994950.git.wqu@suse.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S229468AbiBPH0o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 02:26:44 -0500
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B9FB2DD5B;
+        Tue, 15 Feb 2022 23:26:32 -0800 (PST)
+Received: by mail-pg1-x52e.google.com with SMTP id z4so1372361pgh.12;
+        Tue, 15 Feb 2022 23:26:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id;
+        bh=HO6taZEnI8YA7qrP/AT0huv3lF5MGGX042n8Oc6pmjE=;
+        b=jbUFkgdVvvEXPqiJ+t2gDnE+y8iI1g1Er9neTmVbz9Cl3DhQUIln4lo/92HclKYh6l
+         qWTTJ08Co9WvclPu3pIHcrLurkpZ5vJqowBqk7tH7nbOUDAxO5HzU9iMa03VKGa+JIvR
+         ZKJP1F7TWfh48MXKToLNGUtZJl6pULLxkBPD6hLNG2eyEj8bU2pGC6veBaukFd0PA8QZ
+         o8Wf8i59/6z0d8KZV71RiBn4x/vdLGTvSh0iTarawz2xj/FMcQddyVBpbVcJJfuWSqfj
+         QrdeUYBO9Xm9dE5lJdRjZpbkqFTksMWWLcukxgnR4L4f2ZXpMCOsSrbtYc4C/uQo/e8q
+         r/NA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=HO6taZEnI8YA7qrP/AT0huv3lF5MGGX042n8Oc6pmjE=;
+        b=c+8XXE+7PAk+adlNBVgb0wXJS37GpgIExZ4gyASujabGSajrLtceIwqY7iOI9/FfRs
+         7e1j4mXtxHEssD4RJO7rkUkf4P8F5lAqG7EWgtW/8IlQtbW1vRXgjiEvk1zYDz4w2eDc
+         zT3HaljbeU6liazSwXSUpBhHDj12DJU2JcNYT6S/cwLdGXgpSPJlYE2UumZni6f1hWEk
+         ZZ1qPv/rZUtWKgN3xLwMaWKQ8XPoDNpi5CHN/HqxHhkNX+lBPuY07PUfApLx8s/VNYYD
+         4rdFJXQXS/kgjp0BtiKaioAi2heYZfKV0rlIvyhHBW4VMW6Z1BNFzKkAoivPfxMijDFA
+         5HIg==
+X-Gm-Message-State: AOAM533uGSE3r6oEf5jYPYG70W4hj04QPjbbwDosBncmMn9qngoYWUPp
+        /q6WVC2a9Ups2c0nsGtqxyI=
+X-Google-Smtp-Source: ABdhPJxWX73tl16/82RaCvzO0r1M6TT4cX2b655gMiclRI3BkcJonEV5wVvNqQc8BehzyUnpR41K7g==
+X-Received: by 2002:a62:ee12:0:b0:4e1:2ec1:cba2 with SMTP id e18-20020a62ee12000000b004e12ec1cba2mr1886990pfi.71.1644996391734;
+        Tue, 15 Feb 2022 23:26:31 -0800 (PST)
+Received: from xplor.waratah.dyndns.org (222-155-5-102-adsl.sparkbb.co.nz. [222.155.5.102])
+        by smtp.gmail.com with ESMTPSA id e3sm4545515pgc.41.2022.02.15.23.26.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Feb 2022 23:26:31 -0800 (PST)
+Received: by xplor.waratah.dyndns.org (Postfix, from userid 1000)
+        id 131BA36020A; Wed, 16 Feb 2022 20:26:27 +1300 (NZDT)
+From:   Michael Schmitz <schmitzmic@gmail.com>
+To:     deller@gmx.de, linux-fbdev@vger.kernel.org,
+        linux-m68k@vger.kernel.org
+Cc:     geert@linux-m68k.org, Michael Schmitz <schmitzmic@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v1] video/fbdev: Atari 2 bpp (STe) palette bugfix
+Date:   Wed, 16 Feb 2022 20:26:25 +1300
+Message-Id: <20220216072625.16947-1-schmitzmic@gmail.com>
+X-Mailer: git-send-email 2.17.1
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-No upstream commit.
-Since the bug only exists between v5.11 and v5.15. In v5.16 btrfs
-reworked defrag and no longer has this bug.
+The code to set the shifter STe palette registers has a long
+standing operator precedence bug, manifesting as colors set
+on a 2 bits per pixel frame buffer coming up with a distinctive
+blue tint.
 
-[BUG]
-Since commit 7f458a3873ae ("btrfs: fix race when defragmenting leads to
-unnecessary IO") autodefrag no longer works with the following script:
+Add parentheses around the calculation of the per-color palette
+data before shifting those into their respective bit field position.
 
- mkfs.btrfs -f $dev
- mount $dev $mnt -o datacow,autodefrag
+This bug goes back a long way (2.4 days at the very least) so there
+won't be a Fixes: tag.
 
- # Create a layout where we have fragmented extents at [0, 64k) (sync write in
- # reserve order), then a hole at [64k, 128k)
- xfs_io -f -s -c "pwrite 48k 16k" -c "pwrite 32k 16k" \
-                -c "pwrite 16k 16k" -c "pwrite 0 16k" \
-                $mnt/foobar
- truncate -s 128k $mnt/foobar
+Tested on ARAnyM as well on Falcon030 hardware.
 
- echo "=== File extent layout before autodefrag ==="
- xfs_io -c "fiemap -v" "$mnt/foobar"
-
- # Now trigger autodefrag, autodefrag is triggered in the cleaner thread,
- # which will be woken up by commit thread
- mount -o remount,commit=1 $mnt
- sleep 3
- sync
-
- echo "=== File extent layout after autodefrag ==="
- xfs_io -c "fiemap -v" "$mnt/foobar"
-
-The file "foobar" will not be autodefraged even it should.
-
-[CAUSE]
-Commit 7f458a3873ae ("btrfs: fix race when defragmenting leads to
-unnecessary IO") fixes the race by rejecting the cluster if there is any
-hole in the cluster.
-
-But unlike regular defrag ioctl, autodefrag ignores the @defrag_end
-parameter, and always uses a fixed cluster size 256K.
-While defrag ioctl uses @defrag_end to skip existing holes.
-
-This hidden autodefrag only behavior prevents autodefrag from working in
-above script.
-
-[FIX]
-Remove the special cluster size, and unify the behavior for both
-autodefrag and defrag ioctl.
-
-This fix is only needed for v5.15 (and maybe v5.10) stable branch, as in
-v5.16 the whole defrag get reworked in btrfs, which at least solves this
-particular bug. (although introduced quite some other regressions)
-
-CC: stable@vger.kernel.org # 5.15
-Signed-off-by: Qu Wenruo <wqu@suse.com>
+Cc: stable@vger.kernel.org
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/all/CAMuHMdU3ievhXxKR_xi_v3aumnYW7UNUO6qMdhgfyWTyVSsCkQ@mail.gmail.com
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
 ---
- fs/btrfs/ioctl.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/video/fbdev/atafb.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 38a1b68c7851..61f6e77698a2 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -1521,13 +1521,8 @@ int btrfs_defrag_file(struct inode *inode, struct file *file,
- 			continue;
- 		}
- 
--		if (!newer_than) {
--			cluster = (PAGE_ALIGN(defrag_end) >>
--				   PAGE_SHIFT) - i;
--			cluster = min(cluster, max_cluster);
--		} else {
--			cluster = max_cluster;
--		}
-+		cluster = (PAGE_ALIGN(defrag_end) >> PAGE_SHIFT) - i;
-+		cluster = min(cluster, max_cluster);
- 
- 		if (i + cluster > ra_index) {
- 			ra_index = max(i, ra_index);
+diff --git a/drivers/video/fbdev/atafb.c b/drivers/video/fbdev/atafb.c
+index e3812a8ff55a..29e650ecfceb 100644
+--- a/drivers/video/fbdev/atafb.c
++++ b/drivers/video/fbdev/atafb.c
+@@ -1683,9 +1683,9 @@ static int falcon_setcolreg(unsigned int regno, unsigned int red,
+ 			   ((blue & 0xfc00) >> 8));
+ 	if (regno < 16) {
+ 		shifter_tt.color_reg[regno] =
+-			(((red & 0xe000) >> 13) | ((red & 0x1000) >> 12) << 8) |
+-			(((green & 0xe000) >> 13) | ((green & 0x1000) >> 12) << 4) |
+-			((blue & 0xe000) >> 13) | ((blue & 0x1000) >> 12);
++			((((red & 0xe000) >> 13)   | ((red & 0x1000) >> 12)) << 8)   |
++			((((green & 0xe000) >> 13) | ((green & 0x1000) >> 12)) << 4) |
++			   ((blue & 0xe000) >> 13) | ((blue & 0x1000) >> 12);
+ 		((u32 *)info->pseudo_palette)[regno] = ((red & 0xf800) |
+ 						       ((green & 0xfc00) >> 5) |
+ 						       ((blue & 0xf800) >> 11));
+@@ -1971,9 +1971,9 @@ static int stste_setcolreg(unsigned int regno, unsigned int red,
+ 	green >>= 12;
+ 	if (ATARIHW_PRESENT(EXTD_SHIFTER))
+ 		shifter_tt.color_reg[regno] =
+-			(((red & 0xe) >> 1) | ((red & 1) << 3) << 8) |
+-			(((green & 0xe) >> 1) | ((green & 1) << 3) << 4) |
+-			((blue & 0xe) >> 1) | ((blue & 1) << 3);
++			((((red & 0xe)   >> 1) | ((red & 1)   << 3)) << 8) |
++			((((green & 0xe) >> 1) | ((green & 1) << 3)) << 4) |
++			  ((blue & 0xe)  >> 1) | ((blue & 1)  << 3);
+ 	else
+ 		shifter_tt.color_reg[regno] =
+ 			((red & 0xe) << 7) |
 -- 
-2.35.1
+2.17.1
 
