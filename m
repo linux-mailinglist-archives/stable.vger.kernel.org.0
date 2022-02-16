@@ -2,122 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB0E74B883F
-	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 13:54:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E344B8812
+	for <lists+stable@lfdr.de>; Wed, 16 Feb 2022 13:50:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231192AbiBPMy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Feb 2022 07:54:57 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37964 "EHLO
+        id S229894AbiBPMun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Feb 2022 07:50:43 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231491AbiBPMy4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 07:54:56 -0500
-X-Greylist: delayed 307 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 16 Feb 2022 04:54:44 PST
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B034241DB3
-        for <stable@vger.kernel.org>; Wed, 16 Feb 2022 04:54:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1645016082;
-        bh=6n8IyqiFN/c7FWIW1+V/9i22pWGQM3z0cxtRVSRiXiY=;
-        h=X-UI-Sender-Class:Date:To:References:From:Subject:In-Reply-To;
-        b=a51diJ+OBjgYDG6dQwbzP2yEDVHSXMWEjVXCTEw1+hHsSh0Ny6viF4GMb7/T4Bkdh
-         Mmt+ODhDtXX8y+EL9rgrKSeF1UyOri5gG5BGm9QHWLB2PgEfMez2C5siilL0MWv4lI
-         9L41K3HLaicmndQeNlUD0hyU0NBkUpkSL5WdnxVE=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx004
- [212.227.17.184]) with ESMTPSA (Nemesis) id 1M5wPh-1nNKgI0XN5-007YoB; Wed, 16
- Feb 2022 13:49:33 +0100
-Message-ID: <1e93f7ce-b5c2-e0aa-9323-27d9b8bdee27@gmx.com>
-Date:   Wed, 16 Feb 2022 20:49:29 +0800
+        with ESMTP id S229479AbiBPMum (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Feb 2022 07:50:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F3CB2A4170;
+        Wed, 16 Feb 2022 04:50:30 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 44EB6612C6;
+        Wed, 16 Feb 2022 12:50:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1C7FC004E1;
+        Wed, 16 Feb 2022 12:50:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1645015829;
+        bh=SRQ/SZwQNbgP0aM30TuDjtySR6syqobrknxeVhwbFjA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=rXmKpsPdF5igstWYlil05AQKWBp84UOeTh4UNbTpnYEp1Xx/JA6a33SEC+foPvhuJ
+         IVMQqsrF/ZkxGECmOvZu1gu4K2QuK0KqT83DHwYYtRGfBoVFA8rptwFwh5eIAl0Tuw
+         TteC1e9gwUIChwsc6sqFINlYcHgVlfrpJlG5ZnGs=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.9.302
+Date:   Wed, 16 Feb 2022 13:50:24 +0100
+Message-Id: <16450158253732@kroah.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.0
-Content-Language: en-US
-To:     dsterba@suse.cz, Qu Wenruo <wqu@suse.com>, stable@vger.kernel.org,
-        linux-btrfs@vger.kernel.org
-References: <cover.1644994950.git.wqu@suse.com>
- <d2ce0079f3d2144876f019575858b392263089c4.1644994950.git.wqu@suse.com>
- <20220216123759.GP12643@twin.jikos.cz>
-From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
-Subject: Re: [PATCH for v5.15 2/2] btrfs: defrag: use the same cluster size
- for defrag ioctl and autodefrag
-In-Reply-To: <20220216123759.GP12643@twin.jikos.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:vtzJR/3/VQbEAHo4UOwhz7W3rDqf+O78XQLztq7qMzArbQTYiZm
- RfrzlLTHdFDXDTL8coLGP83SMTLVnhedkM/82Il+RPfibhqbdzU0SAkE0afv9BKhtlmEdfI
- YEQqDUOJoMxBCZvqzaKLbAlQ6cjkTrTwANpGu+4X9ZoS3mEI5p66+xVJWhaqWIHmgTMuxXX
- cfMqhvZK9Vj/yFtypcvJQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:YkGeyKiJOQE=:JE9rAwgl4+xp7HeSvKf0WL
- W45P5ZGrXCwdWxXGTmz4Bzet+Pwv1vck2PTfLcRyLtKwB7Dal9nrQQeZiN2kODucMVVGBIn9T
- G5z2pfLXYYql1gHmlEPrekp33KsYgP81XjHmRZxUVikSMajfUPHqLpXiqmR/lQTZIbewdpj1N
- abRvXlY8J5YWKulfF1/VlNqCv6WCksO75oMmeJhpyHeElLjA5pshCwstkrSHvX4TeqrxrazNz
- +xiIVxWq64zMfYrraoIMEEO3RyHTSjip/pbDpX7qnXpw68WVv4jwwt+EFdTL7N5xlIJkt2gSI
- jc8BnrwXfStqQsezZsbsiZ/eaYpDP9q+wVr98RQGEaiFIbVM3fE0PqmyDHPVq2gPPznnlOTsE
- cXksKZF2UmPy1I90JDiFrx8A3Eu+jqxjLY2+Pn2+RQaUOt21xpJAkJoRfYIBje2+uabE5G1c+
- jYxBSbr5k1HWjldjM7YBr158S8R/zzhpoVBCaBfb8ZOB4v3nY9igi+oUNOYoL7wa1ZeV84sVM
- SBDcnzKzsIeQhGL3ERdZDGAa+sgc3L0VVRBXQp09dCs3H/hScoYGO1SHhCLfdJ3wGGCu7k42+
- o279fPpk6GHJPGpMzLSkFgOcFYLtgdMQ6I5oMxrauxB+K9w7pDfv0svc0+LVpxKigwq0sXE5W
- aVTvIqS9IUbPmEGW1vo9/bgigjR2cyoTuhBftqblIUohruo5oPECsOoiRv3BTsD1H/NztRYFD
- OhxeJT7e+qR5SM4icyBvUWsYbM4e4K0CfFIEemvU9wBlsqTB8WWhiXM4qDxC1vVf5RtMMaC0c
- p36VvvujHwfQWs3+fptHjjbiueREEU/i2CpsqCht/+UfaYBBF2VdWomzGFAtPAocUSJLYU8Vw
- 7n1iWIqzygjHT2qDKMD+0it74slyohmuRkV+S/gkZYfLBD/iPG7qSDclD68VgOpid4Nz0JxtY
- s4ux/pdoY9ONqt66CPraXs05rNiv7Ol8Z8kJRgEU3mEnvciLs11EfQyijVSFMUCX5NSVoUmu9
- bzqls2r0poK+pLH8zt6uehnzKjPO6aSzZyC98w8PhdaIzi4vOHSS8O4ELca0HjJk0s+AKnG0k
- zfPbOr4yTKf7hk=
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+I'm announcing the release of the 4.9.302 kernel.
 
+All users of the 4.9 kernel series must upgrade.
 
-On 2022/2/16 20:37, David Sterba wrote:
-> On Wed, Feb 16, 2022 at 03:09:08PM +0800, Qu Wenruo wrote:
->> No upstream commit.
->> Since the bug only exists between v5.11 and v5.15. In v5.16 btrfs
->> reworked defrag and no longer has this bug.
->
-> I'm not sure this will work as a stable patch. A backport of an existing
-> upstream patch that is only adapted to older stable code base is fine
-> but what is the counterpart of this patch?
+The updated 4.9.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-The whole ill-fated rework on defrag.
+thanks,
 
->
->>
->> [BUG]
->> Since commit 7f458a3873ae ("btrfs: fix race when defragmenting leads to
->> unnecessary IO") autodefrag no longer works with the following script:
->
-> The bug does no seem to be significant, autodefrag is basically a
-> heuristic so if it does not work perfectly in all cases it's still OK.
+greg k-h
 
-Normally I'd say yes.
+------------
 
-But I don't want to surprise end users by suddenly increase their IO for
-autodefrag in the next LTS.
+ Documentation/sysctl/kernel.txt                   |   21 +++++++++++++++
+ Makefile                                          |    2 -
+ arch/arm/boot/dts/imx23-evk.dts                   |    1 
+ arch/arm/boot/dts/imx6qdl-udoo.dtsi               |    5 +++
+ drivers/hid/Kconfig                               |    2 -
+ drivers/hwmon/dell-smm-hwmon.c                    |   12 ++++++---
+ drivers/input/serio/i8042-x86ia64io.h             |   11 ++++----
+ drivers/net/bonding/bond_3ad.c                    |    3 +-
+ drivers/net/ethernet/xilinx/xilinx_axienet_main.c |   10 -------
+ drivers/staging/fbtft/fbtft.h                     |    5 +++
+ drivers/target/iscsi/iscsi_target_tpg.c           |    3 ++
+ drivers/tty/n_tty.c                               |    4 +--
+ drivers/tty/serial/sh-sci.c                       |    8 +++---
+ drivers/tty/vt/vt_ioctl.c                         |    5 ++-
+ drivers/usb/dwc2/gadget.c                         |    2 -
+ drivers/usb/dwc3/gadget.c                         |   13 +++++++++
+ drivers/usb/gadget/composite.c                    |    3 ++
+ drivers/usb/gadget/function/rndis.c               |    9 ++++--
+ drivers/usb/serial/ch341.c                        |    1 
+ drivers/usb/serial/cp210x.c                       |    2 +
+ drivers/usb/serial/ftdi_sio.c                     |    3 ++
+ drivers/usb/serial/ftdi_sio_ids.h                 |    3 ++
+ drivers/usb/serial/option.c                       |    2 +
+ fs/nfs/client.c                                   |    2 -
+ fs/nfs/nfs4client.c                               |    5 +++
+ fs/nfs/nfs4state.c                                |    3 ++
+ fs/nfs/nfs4xdr.c                                  |    9 +++---
+ fs/nfsd/nfs3proc.c                                |    5 +++
+ fs/nfsd/nfs4proc.c                                |    5 ++-
+ include/net/dst_metadata.h                        |   14 +++++++++-
+ init/Kconfig                                      |   10 +++++++
+ kernel/bpf/syscall.c                              |    3 +-
+ kernel/sysctl.c                                   |   29 ++++++++++++++++++----
+ net/ipv4/ipmr.c                                   |    2 +
+ net/ipv6/ip6mr.c                                  |    2 +
+ net/tipc/name_distr.c                             |    2 -
+ security/integrity/ima/ima_fs.c                   |    2 -
+ security/integrity/integrity_audit.c              |    2 +
+ sound/usb/line6/podhd.c                           |    4 +--
+ 39 files changed, 173 insertions(+), 56 deletions(-)
 
-This bug is really setting a high bar (or low IO expectation) for end user=
-s.
+Amelie Delaunay (1):
+      usb: dwc2: gadget: don't try to disable ep0 in dwc2_hsotg_suspend
 
-And another thing is, I can definitely create a local branch with this
-fixed to test against fixed autodefrag code, but that won't make much sens=
-e.
+Antoine Tenart (2):
+      net: do not keep the dst cache when uncloning an skb dst and its metadata
+      net: fix a memleak when uncloning an skb dst and its metadata
 
-Thus getting this merged could provide a more realistic baseline for
-autodefrag.
+Armin Wolf (1):
+      hwmon: (dell-smm) Speed up setting of fan speed
 
+Arnd Bergmann (1):
+      HID: wacom: add USB_HID dependency
 
-Finally, one lesssen I learnt from the defrag thing is, if we allow some
-untested/undefined corner cases, it will bite us eventually.
+Cameron Williams (1):
+      USB: serial: ftdi_sio: add support for Brainboxes US-159/235/320
 
-So I really want autodefrag to behave just like ioctl defrag, with a
-pre-defined and predictable (at least not under races) behavior.
+Chuck Lever (1):
+      NFSD: Clamp WRITE offsets
 
-Thanks,
-Qu
+Daniel Borkmann (1):
+      bpf: Add kconfig knob for disabling unpriv bpf by default
+
+Eric Dumazet (1):
+      ipmr,ip6mr: acquire RTNL before calling ip[6]mr_free_table() on failure path
+
+Fabio Estevam (2):
+      ARM: dts: imx23-evk: Remove MX23_PAD_SSP1_DETECT from hog group
+      ARM: dts: imx6qdl-udoo: Properly describe the SD card detect
+
+Greg Kroah-Hartman (2):
+      usb: gadget: rndis: check size of RNDIS_MSG_SET command
+      Linux 4.9.302
+
+Guillaume Bertholon (4):
+      Input: i8042 - Fix misplaced backport of "add ASUS Zenbook Flip to noselftest list"
+      serial: sh-sci: Fix misplaced backport of "Fix late enablement of AUTORTS"
+      ALSA: line6: Fix misplaced backport of "Fix wrong altsetting for LINE6_PODHD500_1"
+      Revert "net: axienet: Wait for PhyRstCmplt after core reset"
+
+Jakob Koschel (2):
+      vt_ioctl: fix array_index_nospec in vt_setactivate
+      vt_ioctl: add array_index_nospec to VT_ACTIVATE
+
+Johan Hovold (2):
+      USB: serial: cp210x: add NCR Retail IO box id
+      USB: serial: cp210x: add CPI Bulk Coin Recycler id
+
+Jon Maloy (1):
+      tipc: rate limit warning for received illegal binding update
+
+Mahesh Bandewar (1):
+      bonding: pair enable_port with slave_arr_updates
+
+Olga Kornievskaia (2):
+      NFSv4 only print the label when its queried
+      NFSv4 remove zero number of fs_locations entries error check
+
+Pawel Dembicki (1):
+      USB: serial: option: add ZTE MF286D modem
+
+Stefan Berger (1):
+      ima: Remove ima_policy file before directory
+
+Stephan Brunner (1):
+      USB: serial: ch341: add support for GW Instek USB2.0-Serial devices
+
+Szymon Heidrich (1):
+      USB: gadget: validate interface OS descriptor requests
+
+TATSUKAWA KOSUKE (立川 江介) (1):
+      n_tty: wake up poll(POLLRDNORM) on receiving data
+
+Trond Myklebust (1):
+      NFS: Fix initialisation of nfs_client cl_flags field
+
+Udipto Goswami (1):
+      usb: dwc3: gadget: Prevent core from processing stale TRBs
+
+Uwe Kleine-König (1):
+      staging: fbtft: Fix error path in fbtft_driver_module_init()
+
+Xiaoke Wang (2):
+      integrity: check the return value of audit_log_start()
+      nfs: nfs4clinet: check the return value of kstrdup()
+
+ZouMingzhe (1):
+      scsi: target: iscsi: Make sure the np under each tpg is unique
+
