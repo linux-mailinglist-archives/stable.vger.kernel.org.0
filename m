@@ -2,93 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F231B4BA64F
-	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 17:45:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EE504BA6AE
+	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 18:07:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229501AbiBQQoh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Feb 2022 11:44:37 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60592 "EHLO
+        id S239758AbiBQRGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Feb 2022 12:06:12 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242697AbiBQQog (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 11:44:36 -0500
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA549AC;
-        Thu, 17 Feb 2022 08:44:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1645116261; x=1676652261;
-  h=message-id:date:mime-version:to:cc:references:from:
-   subject:in-reply-to:content-transfer-encoding;
-  bh=XqrJSESx4co6rylkuJdM9NA+JNlPqfIB9lAf1Ua1BBA=;
-  b=IG1/OdJJG4CmrkH8uJ+hXfvapFyTqIXRmcbr1EbRLcqrzbGd+hj/phJk
-   2zddSoTlBaD8EiPuiilzq1XKShZjA4BQSEHZZ5vREOsNSObXiNndzEKxq
-   Efsu1vy23Zr4Ph2EEfabKjkgUtiGK7uB7HTR+GAUVebcEvFSaK4+fNPUU
-   vgm/EbgjJVHa5YxUYf3Mx8ZeqmlW32mH5TikpaqPVq7xuTWLsxzGiXdRZ
-   pZqs2Gs89wJaqcMps35jB6tPjY02/RuV7xF9ZQpkKYtA2um3e/pt0u6FF
-   jLjjKK5IL0EKfb/6H0oqePU+GUKniLzh+nLYdU5uL9DZKh5aYVM3xqOR5
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10261"; a="314181323"
-X-IronPort-AV: E=Sophos;i="5.88,376,1635231600"; 
-   d="scan'208";a="314181323"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Feb 2022 08:44:21 -0800
-X-IronPort-AV: E=Sophos;i="5.88,376,1635231600"; 
-   d="scan'208";a="530351502"
-Received: from drichard-mobl2.amr.corp.intel.com (HELO [10.209.21.238]) ([10.209.21.238])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Feb 2022 08:44:21 -0800
-Message-ID: <dbe8b78e-bc55-c796-358f-a93e0eac87d1@intel.com>
-Date:   Thu, 17 Feb 2022 08:44:17 -0800
+        with ESMTP id S232955AbiBQRGM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 12:06:12 -0500
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE122B357C
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 09:05:53 -0800 (PST)
+Received: by mail-wr1-x433.google.com with SMTP id k1so10156468wrd.8
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 09:05:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=ONgUBPfeZrmGu37DzgGQPWatmRVCLiTPCmawUJX/zto=;
+        b=v3PNb8UdGz0UDBKOigYVnr993LU1L/RX3wbCjWY5pSD4lo0r24wtSELmy0fttm66aB
+         z5WUT4fHPFk4irdD747x4utvKGEY6gTggBIs8kKOR0sJ5ZIppbe18sCz37xvyANqn5JA
+         kQIyGt6zBgIWb6uQry5zIAKnIF1Gajk3c6fU5jmrwyZGlr8IgnPPgLGX7vanHNtzXYE5
+         OqoHgQPUBLKaQ4nediXKiLnZsdNMZYwhQnOUqf7v5L2DtnFfuuRg9lYORAPm5BDKBqZ4
+         qSXcRqKHJWek8kaGR7yicJ0t0aRAzuINRtdnnaHfjhYT6z4S8vy4NwyCJ+tcGWjQTCqm
+         OYog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=ONgUBPfeZrmGu37DzgGQPWatmRVCLiTPCmawUJX/zto=;
+        b=iEuAUMvKVx73dAown92phMx0ERcYTBDmnKr8vkN+mxzBrC6lYUKcc4ldV5FeyK5AFK
+         kJ0/1eiDsNtyI9uOq9So9y6DXxfG+DK2nRqilOB5ZbvxJZUODgN+QWweOpqL0aP6z15O
+         uvkyTlepMXtyxt/wVcG1kz0rCxIjDVzf1xNBOi0EIwPlFiW2ZZrOLyAmGrj0z9B6I1pR
+         8IWqnLxMkMWx7YP+W/TgXjcBukBLknTJoOveZgXZWeHWo5HWlMGvFH/EHvaloT9H0i2N
+         O2++kvn0rgk8Bs/gMT8+p2kOUpGE5tXsjI3A51UZsxkXRyE1vNG2cNiCKi2HUYsFOdXX
+         G9qg==
+X-Gm-Message-State: AOAM530Yq/acgv+3NgXTB38MZPE0di4cI6Qrw8pXO/ul5lGho56XyWNx
+        83haenjbA29aY2kH8hT/pLaC3Q==
+X-Google-Smtp-Source: ABdhPJwkmv4rUEAp6tW7MAuS8zWUBGjH7XX+5l5CGcPXLTeuYFRV6IofNejP7+YuPIhl3RZsT9aWSg==
+X-Received: by 2002:adf:fc86:0:b0:1e4:a7b6:6ba with SMTP id g6-20020adffc86000000b001e4a7b606bamr2987012wrr.93.1645117551911;
+        Thu, 17 Feb 2022 09:05:51 -0800 (PST)
+Received: from google.com (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
+        by smtp.gmail.com with ESMTPSA id p15sm2133750wma.27.2022.02.17.09.05.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Feb 2022 09:05:51 -0800 (PST)
+Date:   Thu, 17 Feb 2022 17:05:49 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     daniel@iogearbox.net, andrii@kernel.org, ast@kernel.org,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] bpf: Fix toctou on read-only map's
+ constant scalar tracking" failed to apply to 5.4-stable tree
+Message-ID: <Yg6AbfbFgDqbhq0e@google.com>
+References: <163757721744154@kroah.com>
+ <Yg5wY5FKj0ikiq+A@google.com>
+ <Yg51IuzfMnU8Uo6v@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Content-Language: en-US
-To:     Brian Geffon <bgeffon@google.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Willis Kung <williskung@google.com>,
-        Guenter Roeck <groeck@google.com>,
-        Borislav Petkov <bp@suse.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        "# v4 . 10+" <stable@vger.kernel.org>,
-        the arch/x86 maintainers <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-References: <543efc25-9b99-53cd-e305-d8b4d917b64b@intel.com>
- <20220215192233.8717-1-bgeffon@google.com> <YgwCuGcg6adXAXIz@kroah.com>
- <CADyq12wByWhsHNOnokrSwCDeEhPdyO6WNJNjpHE1ORgKwwwXgg@mail.gmail.com>
- <YgzMTrVMCVt+n7cE@kroah.com> <fc86d51c-7aa2-6379-5f26-ad533c762da3@intel.com>
- <CADyq12yGvqbb3+hp6f39RqyEM3Mu896yY6ik7Lh39W=o44bYbA@mail.gmail.com>
-From:   Dave Hansen <dave.hansen@intel.com>
-Subject: Re: [PATCH stable 5.4,5.10] x86/fpu: Correct pkru/xstate
- inconsistency
-In-Reply-To: <CADyq12yGvqbb3+hp6f39RqyEM3Mu896yY6ik7Lh39W=o44bYbA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Yg51IuzfMnU8Uo6v@kroah.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/17/22 05:31, Brian Geffon wrote:
-> How would you and Greg KH like to proceed with this? I'm happy to help
-> however I can.
+On Thu, 17 Feb 2022, Greg KH wrote:
 
-If I could wave a magic wand, I'd just apply the whole FPU rewrite to
-stable.
+> On Thu, Feb 17, 2022 at 03:57:23PM +0000, Lee Jones wrote:
+> > Good afternoon Daniel,
+> > 
+> > On Mon, 22 Nov 2021, gregkh@linuxfoundation.org wrote:
+> > > 
+> > > The patch below does not apply to the 5.4-stable tree.
+> > > If someone wants it applied there, or to any other stable or longterm
+> > > tree, then please email the backport, including the original git commit
+> > > id to <stable@vger.kernel.org>.
+> > 
+> > We are in receipt of a bug report which cites this patch as the fix.
+> 
+> Does the bug report really say that this issue is present in the 5.4
+> kernel tree?  Anything older?
 
-My second choice would be to stop managing PKRU with XSAVE.
-x86_pkru_load() uses WRPKRU instead of XSAVE and keeps the task's PKRU
-in task->pkru instead of the XSAVE buffer.  Doing that will take some
-care, including pulling XFEATURE_PKRU out of the feature mask (RFBM) at
-XRSTOR.  I _think_ that can be done in a manageable set of patches which
- will keep stable close to mainline.  I recognize that more bugs might
-get introduced in the process which are unique to stable.
+Not specifically, but the commit referenced in the Fixes tag landed in
+v5.5. and was successfully back-ported to v5.4.144.
 
-If you give that a shot and realize that it's not feasible to do a
-subset, then we can fall back to the minimal fix.  I'm not asking for a
-multi-month engineering effort here.  Maybe an hour or two to see if
-it's really as scary as it looks.
+-- 
+Lee Jones [李琼斯]
+Principal Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
