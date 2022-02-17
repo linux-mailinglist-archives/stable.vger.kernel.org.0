@@ -2,58 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 073EC4BA83E
-	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 19:30:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB6234BA88F
+	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 19:42:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239133AbiBQS34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Feb 2022 13:29:56 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:53338 "EHLO
+        id S244497AbiBQSmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Feb 2022 13:42:02 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230387AbiBQS3z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 13:29:55 -0500
-Received: from mga06.intel.com (mga06.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF5F93899
-        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 10:29:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1645122580; x=1676658580;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=ZESTdfIDbSmIb9I/yPThSPDo6X1sZN0f05BAmB7Yonw=;
-  b=nAzGZIz75q8ymuKtFgH/MCVHcYxhJnPjflSqKLhTwWdrroOcjdHt1ou9
-   Fr4BSNGdmJ3AXPRlQlJoXPiGxFwTWE4tdrtc1B0iIoQx7fGJY8FoCdfX0
-   +MnPocXhGAeXQ45CoAyelR5haB0ipK3J3KUww1xezXNxigOSIDN/g6wMQ
-   vAersf2XCb3CmhUPKxw6HG1xkd/Nm3g1i97PCV33w8Lk5rf4olYKICFRL
-   tJXt/RQUszHOasC9jfOL22xwx0QHuR6G1hncTHc99iLZdKd+zYocLQEdB
-   G/vKPgVg4PiUuZ4E1ocgyEmJLIHRhEawLeuj/+e/SEL95sAxdopeU6Dxn
-   w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10261"; a="311686338"
-X-IronPort-AV: E=Sophos;i="5.88,376,1635231600"; 
-   d="scan'208";a="311686338"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Feb 2022 10:29:40 -0800
-X-IronPort-AV: E=Sophos;i="5.88,376,1635231600"; 
-   d="scan'208";a="704941052"
-Received: from unknown (HELO intel.com) ([10.237.72.65])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Feb 2022 10:29:39 -0800
-Date:   Thu, 17 Feb 2022 20:29:53 +0200
-From:   "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
-To:     Ville Syrjala <ville.syrjala@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 2/6] drm/i915: Fix bw atomic check when switching
- between SAGV vs. no SAGV
-Message-ID: <20220217182953.GA3823@intel.com>
-References: <20220216174250.4449-1-ville.syrjala@linux.intel.com>
- <20220216174250.4449-3-ville.syrjala@linux.intel.com>
+        with ESMTP id S243791AbiBQSmA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 13:42:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82B14DFE1
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 10:41:45 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21C6061B95
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 18:41:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A760DC340ED;
+        Thu, 17 Feb 2022 18:41:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1645123304;
+        bh=0P3vqxHlJAfwQg/wCe2MwrJkTAq7hFs2Cg2M4s18uXc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=NTBjILvyPBPAfByfSTvDxpvxE8PnJbN1W+1tdMo7ZPxEg+dJcXCo4Pssf/Z697e8K
+         hu15gHCKNzfTnA+QVp5kfUV7QJfs4vtMwyTd9adl2UOj0SHRDevEggdqxqNAQ3UWgi
+         e2FWvLiyvlF3xfVavulAYkfk0FSTgRoQ6sZ1gcrY=
+Date:   Thu, 17 Feb 2022 19:41:41 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, llvm@lists.linux.dev,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: Re: [PATCH 4.9 to 5.4] Makefile.extrawarn: Move -Wunaligned-access
+ to W=1
+Message-ID: <Yg6W5XX4qQquz4yE@kroah.com>
+References: <20220214161641.1818-1-nathan@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220216174250.4449-3-ville.syrjala@linux.intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+In-Reply-To: <20220214161641.1818-1-nathan@kernel.org>
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,49 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 16, 2022 at 07:42:46PM +0200, Ville Syrjala wrote:
-> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+On Mon, Feb 14, 2022 at 09:16:42AM -0700, Nathan Chancellor wrote:
+> commit 1cf5f151d25fcca94689efd91afa0253621fb33a upstream.
 > 
-> If the only thing that is changing is SAGV vs. no SAGV but
-> the number of active planes and the total data rates end up
-> unchanged we currently bail out of intel_bw_atomic_check()
-> early and forget to actually compute the new WGV point
-> mask and thus won't actually enable/disable SAGV as requested.
-> This ends up poorly if we end up running with SAGV enabled
-> when we shouldn't. Usually ends up in underruns.
-> To fix this let's go through the QGV point mask computation
-> if anyone else already added the bw state for us.
+> -Wunaligned-access is a new warning in clang that is default enabled for
+> arm and arm64 under certain circumstances within the clang frontend (see
+> LLVM commit below). On v5.17-rc2, an ARCH=arm allmodconfig build shows
+> 1284 total/70 unique instances of this warning (most of the instances
+> are in header files), which is quite noisy.
+> 
+> To keep a normal build green through CONFIG_WERROR, only show this
+> warning with W=1, which will allow automated build systems to catch new
+> instances of the warning so that the total number can be driven down to
+> zero eventually since catching unaligned accesses at compile time would
+> be generally useful.
 > 
 > Cc: stable@vger.kernel.org
-> Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-> Fixes: 20f505f22531 ("drm/i915: Restrict qgv points which don't have enough bandwidth.")
-> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-
-
-Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-
+> Link: https://github.com/llvm/llvm-project/commit/35737df4dcd28534bd3090157c224c19b501278a
+> Link: https://github.com/ClangBuiltLinux/linux/issues/1569
+> Link: https://github.com/ClangBuiltLinux/linux/issues/1576
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> [nathan: Fix conflict due to lack of afe956c577b2d]
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 > ---
->  drivers/gpu/drm/i915/display/intel_bw.c | 7 +++++++
->  1 file changed, 7 insertions(+)
 > 
-> diff --git a/drivers/gpu/drm/i915/display/intel_bw.c b/drivers/gpu/drm/i915/display/intel_bw.c
-> index 23aa8e06de18..d72ccee7d53b 100644
-> --- a/drivers/gpu/drm/i915/display/intel_bw.c
-> +++ b/drivers/gpu/drm/i915/display/intel_bw.c
-> @@ -846,6 +846,13 @@ int intel_bw_atomic_check(struct intel_atomic_state *state)
->  	if (num_psf_gv_points > 0)
->  		mask |= REG_GENMASK(num_psf_gv_points - 1, 0) << ADLS_PSF_PT_SHIFT;
->  
-> +	/*
-> +	 * If we already have the bw state then recompute everything
-> +	 * even if pipe data_rate / active_planes didn't change.
-> +	 * Other things (such as SAGV) may have changed.
-> +	 */
-> +	new_bw_state = intel_atomic_get_new_bw_state(state);
-> +
->  	for_each_oldnew_intel_crtc_in_state(state, crtc, old_crtc_state,
->  					    new_crtc_state, i) {
->  		unsigned int old_data_rate =
-> -- 
-> 2.34.1
+> I am not sure how many people are using ToT clang with ARCH=arm on
+> stable but given how noisy this warning can be, I think it is worth
+> applying this to all applicable stable branches.
 > 
+> This applies to 4.9 through 5.4 with 'patch -Np1'.
+> 
+>  scripts/Makefile.extrawarn | 1 +
+>  1 file changed, 1 insertion(+)
+
+Now queued up, thanks.
+
+greg k-h
