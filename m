@@ -2,130 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E474BACCF
-	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 23:42:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D4024BACF7
+	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 23:59:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343938AbiBQWmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Feb 2022 17:42:22 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39538 "EHLO
+        id S229457AbiBQW7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Feb 2022 17:59:43 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:43952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343907AbiBQWmV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 17:42:21 -0500
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D271704C
-        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 14:42:06 -0800 (PST)
-Received: by mail-pg1-x535.google.com with SMTP id l73so6213404pge.11
-        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 14:42:06 -0800 (PST)
+        with ESMTP id S229455AbiBQW7m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 17:59:42 -0500
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94B34280EC0
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 14:59:26 -0800 (PST)
+Received: by mail-pj1-x102c.google.com with SMTP id b8so6991665pjb.4
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 14:59:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
+        d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=/pFhxh4a1mIJWKVvwWf0TWI0PzyzDNvxgd8MaYxtB4g=;
-        b=DRjZUlF38aKhKGF1HEEXpShz5dNW4rV1EZ3PJsdeXyBLxzGJJMj2+9g6pi+MiKGhYt
-         H+9E29WZ8V4Np9zsahnlGJmkvOu6FMFXZxC9SU+qF5bJdkcsbldinSAPqonRI6Ftb1Dz
-         YKCtyN3JvqpZZ/nc5796hnay3gO0nfEdVSefs=
+        bh=/DVMObMjmD6wXFomexqplB2m04bAd/hK8+CVdJFqa7k=;
+        b=BWdF/aWMLu21RtyHY+81QCGyGZlk6J+3oXLeCjrSaABhTtFrV9/9bpP4zyVJb7wHfP
+         h5bdk9Kp4VwyMl2xwHW4ikMKUAy3VNlXlL/xGhngriubvRT7ZGKNX0X7hd+EXyOaAUME
+         Iy8RfL5S8cJ4PPGbMJqmRomEHIxLqU71r9TUNqd0u+CHbZF6DVMZA5cGqWNdVFCLh2mG
+         s/buTmXehq39JHJwjJwp15xps9syJ56VSZXOuLfmwZ8cAIUSlA+a4Bu5g7iCuQX3KLSg
+         zU01pPA46J4+XgGFRPfScF6yRayD5re3Nfjv4r3ClnzWvlgZaEZWaujun/LVP0zUMOuz
+         5boQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=/pFhxh4a1mIJWKVvwWf0TWI0PzyzDNvxgd8MaYxtB4g=;
-        b=jSlvlq7wtp8GWPjZOFeguNxuVHtOOCOCE9ToyH974sCcNp/IU+KpVRU4x89nEiKkHq
-         dZZtjQDvAyMQ0l3FQh3g3cb6tsSV3B95I2Gsuw5UdRBx63KC/PAMI0buRuBjgQkpOQNb
-         VpZGYYuNCfJtyMfpE3efA3vgpjGTPn43oUZwvmZxyODpM1h/cYnqARM5qKG0ZgekgnDa
-         fLKHnFWg6byiDfUiqwqLIFh6p5TOPhWxlblxUmquP/Jdh8YLwFHAsHDAjwsWNSIQPX+P
-         mbbGwuWqQooNDUEvZ+2d4l0P4vPATSlJ53yPDidIvad59KizaqSRYvjQM77MBSiG7J4U
-         2QiA==
-X-Gm-Message-State: AOAM533Y8WNjfcghqzRCgH9L1mPOE8oBItmwwAY5ZeOlXpnIT06Cr2IL
-        PM6ZD1ejHx4o6jVT13VyvTSM8g==
-X-Google-Smtp-Source: ABdhPJx0I/9dms8bGvA0MQ9aczlCf/u6f2qI/Tw9lU7d6SMBvt5gmujVGb3LwnbbS//bPCI4KYGOjg==
-X-Received: by 2002:aa7:83c2:0:b0:4e0:91c1:6795 with SMTP id j2-20020aa783c2000000b004e091c16795mr4885484pfn.54.1645137726160;
-        Thu, 17 Feb 2022 14:42:06 -0800 (PST)
-Received: from localhost ([2620:15c:202:201:677e:1914:4c14:1662])
-        by smtp.gmail.com with UTF8SMTPSA id u1sm628435pfg.151.2022.02.17.14.42.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Feb 2022 14:42:05 -0800 (PST)
-From:   Brian Norris <briannorris@chromium.org>
-To:     Andrzej Hajda <andrzej.hajda@intel.com>,
-        Neil Armstrong <narmstrong@baylibre.com>
-Cc:     linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org,
-        Doug Anderson <dianders@chromium.org>,
-        Sean Paul <sean@poorly.run>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        dri-devel@lists.freedesktop.org,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Brian Norris <briannorris@chromium.org>,
-        stable@vger.kernel.org, Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Subject: [PATCH v3 1/2] drm/bridge: analogix_dp: Grab runtime PM reference for DP-AUX
-Date:   Thu, 17 Feb 2022 14:41:45 -0800
-Message-Id: <20220217144136.v3.1.I773a08785666ebb236917b0c8e6c05e3de471e75@changeid>
-X-Mailer: git-send-email 2.35.1.265.g69c8d7142f-goog
+        bh=/DVMObMjmD6wXFomexqplB2m04bAd/hK8+CVdJFqa7k=;
+        b=i8nXpMce+Z52Sa9mMSd8e7hxk+ha6sshSgSTKILc2sk3CRPH1hsBYU5uvr3Gg8C34P
+         4TyESwOag0egPHCs6/JgMjFa77w57Fis0L7ZvDIZ/o+MjCJT85znzRMXp2dCln3hLPiG
+         1GcNj7Izxfq0m8MVfJqqGJbnifY+5xtITs30YE/m7AYXb48fjoM9eYPLa8ULSHb0lRme
+         faZxe99mcA83Ngo04yaroUK5o7aT8lNLesALxYeGsH7SLTkRokujmK28WGMPAuS65B5W
+         d3DBFFeRsuRQrGyYLyNmGAVD6NT/eRbLOEP96fy2dG+1PiGdCMink0rAuCPzbrD+meLV
+         P+DA==
+X-Gm-Message-State: AOAM530LwNnLwzaUiXV36IObgkIkel6V9b6Vfz8b3FMlLGxhPY2m/j08
+        XAiSrk7KSxyRDAxqB4pVg1yduA4ClB81yg==
+X-Google-Smtp-Source: ABdhPJwQpreEA1THSjFQAId8DKq8R6uBBawM1kiUQB/Iy0jyq2kmTHI3dLFBFhgoIyzKCSE0fLc46Q==
+X-Received: by 2002:a17:90a:1789:b0:1b9:1154:65ee with SMTP id q9-20020a17090a178900b001b9115465eemr5376086pja.115.1645138765910;
+        Thu, 17 Feb 2022 14:59:25 -0800 (PST)
+Received: from lrumancik-glaptop2.roam.corp.google.com ([2601:647:4701:18d0:9e69:6ca2:e1cf:4ed2])
+        by smtp.gmail.com with ESMTPSA id b16sm593260pfv.192.2022.02.17.14.59.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Feb 2022 14:59:25 -0800 (PST)
+From:   Leah Rumancik <leah.rumancik@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Zhang Yi <yi.zhang@huawei.com>, Theodore Ts'o <tytso@mit.edu>,
+        Leah Rumancik <leah.rumancik@gmail.com>
+Subject: [PATCH for 5.4 1/3] ext4: check for out-of-order index extents in ext4_valid_extent_entries()
+Date:   Thu, 17 Feb 2022 14:59:12 -0800
+Message-Id: <20220217225914.40363-1-leah.rumancik@gmail.com>
+X-Mailer: git-send-email 2.35.1.473.g83b2b277ed-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If the display is not enable()d, then we aren't holding a runtime PM
-reference here. Thus, it's easy to accidentally cause a hang, if user
-space is poking around at /dev/drm_dp_aux0 at the "wrong" time.
+From: Zhang Yi <yi.zhang@huawei.com>
 
-Let's get a runtime PM reference, and check that we "see" the panel.
-Don't force any panel power-up, etc., because that can be intrusive, and
-that's not what other drivers do (see
-drivers/gpu/drm/bridge/ti-sn65dsi86.c and
-drivers/gpu/drm/bridge/parade-ps8640.c.)
+commit 8dd27fecede55e8a4e67eef2878040ecad0f0d33 upstream.
 
-Fixes: 0d97ad03f422 ("drm/bridge: analogix_dp: Remove duplicated code")
-Cc: <stable@vger.kernel.org>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
+After commit 5946d089379a ("ext4: check for overlapping extents in
+ext4_valid_extent_entries()"), we can check out the overlapping extent
+entry in leaf extent blocks. But the out-of-order extent entry in index
+extent blocks could also trigger bad things if the filesystem is
+inconsistent. So this patch add a check to figure out the out-of-order
+index extents and return error.
+
+[Added pblk argument to ext4_valid_extent_entries because pblk is
+updated in the case of overlapping extents. This argument was added
+in commit 54d3adbc29f0c7c53890da1683e629cd220d7201.]
+
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Reviewed-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210908120850.4012324-2-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
 ---
+ fs/ext4/extents.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-Changes in v3:
-- Avoid panel power-up; just check for HPD state, and let the rest
-  happen "as-is" (e.g., time out, if the caller hasn't prepared things
-  properly)
-
-Changes in v2:
-- Fix spelling in Subject
-- DRM_DEV_ERROR() -> drm_err()
-- Propagate errors from un-analogix_dp_prepare_panel()
-
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-index b7d2e4449cfa..16be279aed2c 100644
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-@@ -1632,8 +1632,19 @@ static ssize_t analogix_dpaux_transfer(struct drm_dp_aux *aux,
- 				       struct drm_dp_aux_msg *msg)
+diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
+index ae73e6793683..4f8736b7e497 100644
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -390,9 +390,12 @@ static int ext4_valid_extent_idx(struct inode *inode,
+ 
+ static int ext4_valid_extent_entries(struct inode *inode,
+ 				struct ext4_extent_header *eh,
+-				int depth)
++				ext4_fsblk_t *pblk, int depth)
  {
- 	struct analogix_dp_device *dp = to_dp(aux);
-+	int ret;
+ 	unsigned short entries;
++	ext4_lblk_t lblock = 0;
++	ext4_lblk_t prev = 0;
 +
-+	pm_runtime_get_sync(dp->dev);
-+
-+	ret = analogix_dp_detect_hpd(dp);
-+	if (ret)
-+		goto out;
+ 	if (eh->eh_entries == 0)
+ 		return 1;
  
--	return analogix_dp_transfer(dp, msg);
-+	ret = analogix_dp_transfer(dp, msg);
-+out:
-+	pm_runtime_put(dp->dev);
-+
-+	return ret;
- }
+@@ -403,32 +406,36 @@ static int ext4_valid_extent_entries(struct inode *inode,
+ 		struct ext4_extent *ext = EXT_FIRST_EXTENT(eh);
+ 		struct ext4_super_block *es = EXT4_SB(inode->i_sb)->s_es;
+ 		ext4_fsblk_t pblock = 0;
+-		ext4_lblk_t lblock = 0;
+-		ext4_lblk_t prev = 0;
+-		int len = 0;
+ 		while (entries) {
+ 			if (!ext4_valid_extent(inode, ext))
+ 				return 0;
  
- struct analogix_dp_device *
+ 			/* Check for overlapping extents */
+ 			lblock = le32_to_cpu(ext->ee_block);
+-			len = ext4_ext_get_actual_len(ext);
+ 			if ((lblock <= prev) && prev) {
+ 				pblock = ext4_ext_pblock(ext);
+ 				es->s_last_error_block = cpu_to_le64(pblock);
+ 				return 0;
+ 			}
++			prev = lblock + ext4_ext_get_actual_len(ext) - 1;
+ 			ext++;
+ 			entries--;
+-			prev = lblock + len - 1;
+ 		}
+ 	} else {
+ 		struct ext4_extent_idx *ext_idx = EXT_FIRST_INDEX(eh);
+ 		while (entries) {
+ 			if (!ext4_valid_extent_idx(inode, ext_idx))
+ 				return 0;
++
++			/* Check for overlapping index extents */
++			lblock = le32_to_cpu(ext_idx->ei_block);
++			if ((lblock <= prev) && prev) {
++				*pblk = ext4_idx_pblock(ext_idx);
++				return 0;
++			}
+ 			ext_idx++;
+ 			entries--;
++			prev = lblock;
+ 		}
+ 	}
+ 	return 1;
+@@ -462,7 +469,7 @@ static int __ext4_ext_check(const char *function, unsigned int line,
+ 		error_msg = "invalid eh_entries";
+ 		goto corrupted;
+ 	}
+-	if (!ext4_valid_extent_entries(inode, eh, depth)) {
++	if (!ext4_valid_extent_entries(inode, eh, &pblk, depth)) {
+ 		error_msg = "invalid extent entries";
+ 		goto corrupted;
+ 	}
 -- 
-2.35.1.265.g69c8d7142f-goog
+2.35.1.473.g83b2b277ed-goog
 
