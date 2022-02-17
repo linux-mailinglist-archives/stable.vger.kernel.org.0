@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA4324BA8B4
-	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 19:48:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D0A4BA8E2
+	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 19:56:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235553AbiBQStL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Feb 2022 13:49:11 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40312 "EHLO
+        id S239176AbiBQS4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Feb 2022 13:56:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231906AbiBQStK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 13:49:10 -0500
+        with ESMTP id S237519AbiBQS4A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 13:56:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F84E51337
-        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 10:48:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A080758E6F;
+        Thu, 17 Feb 2022 10:55:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D858561A09
-        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 18:48:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1F21C340E8;
-        Thu, 17 Feb 2022 18:48:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C5B361B8A;
+        Thu, 17 Feb 2022 18:55:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02E7CC340E8;
+        Thu, 17 Feb 2022 18:55:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645123735;
-        bh=vqkov8O0035gUn3uLYuzwbpWpo1uSyH67r7Rl61IAKE=;
+        s=korg; t=1645124144;
+        bh=Rh0qZRyhLF/JeJYDSRhXWN0tLJc2VU+e0gkrEgt5rFo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nU2w2ZgBKF1EbHyG3XtjzxFMGXv1AvLdkZigdgpWsdC5lL7WASj0nCZqwhg+crhaM
-         KPkzNvFJOYkKJscrLw/WtAMWSVlET/+oY1qbAV/1cmUUU2hOQvcEaerc0gotm+z/h4
-         dnrB0iQKBw7auydxMmhz5vgjXUug+ixNNjHQlTAU=
-Date:   Thu, 17 Feb 2022 19:48:52 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Zhen Lei <thunder.leizhen@huawei.com>
-Cc:     stable <stable@vger.kernel.org>,
-        "Paul E . McKenney" <paulmck@kernel.org>
-Subject: Re: [PATCH 5.10] rcu: Do not report strict GPs for outgoing CPUs
-Message-ID: <Yg6YlEJXYns7g2mD@kroah.com>
-References: <20220215022319.2036-1-thunder.leizhen@huawei.com>
+        b=LwvbAGf9J25gZA48/mDNJ6DibV8IANCyxD6WtW/RFemLIbgE+LJaLy+EvhGcPjEtr
+         am4y3jvh3KGJSTMf1HHFIkrJqKq3qIlyxIM0EIVidMjVV6kJqK+9XaNbK+ciyyKSNz
+         0/lNivsSwhVFSMMidaIdtSJS4o5en5LR8Tsd7YVM=
+Date:   Thu, 17 Feb 2022 19:55:41 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Baokun Li <libaokun1@huawei.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        oliver.sang@intel.com, beibei.si@intel.com, jannh@google.com,
+        mszeredi@redhat.com, torvalds@linux-foundation.org,
+        yukuai3@huawei.com
+Subject: Re: [PATCH 5.10] fget: clarify and improve __fget_files()
+ implementation
+Message-ID: <Yg6aLQCR3zxn5XoW@kroah.com>
+References: <20220215065107.3045023-1-libaokun1@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220215022319.2036-1-thunder.leizhen@huawei.com>
+In-Reply-To: <20220215065107.3045023-1-libaokun1@huawei.com>
 X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -50,59 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 15, 2022 at 10:23:19AM +0800, Zhen Lei wrote:
-> From: "Paul E. McKenney" <paulmck@kernel.org>
+On Tue, Feb 15, 2022 at 02:51:07PM +0800, Baokun Li wrote:
+> From: Linus Torvalds <torvalds@linux-foundation.org>
 > 
-> [ Upstream commit bfb3aa735f82c8d98b32a669934ee7d6b346264d ]
+> commit e386dfc56f837da66d00a078e5314bc8382fab83 upstream.
 > 
-> An outgoing CPU is marked offline in a stop-machine handler and most
-> of that CPU's services stop at that point, including IRQ work queues.
-> However, that CPU must take another pass through the scheduler and through
-> a number of CPU-hotplug notifiers, many of which contain RCU readers.
-> In the past, these readers were not a problem because the outgoing CPU
-> has interrupts disabled, so that rcu_read_unlock_special() would not
-> be invoked, and thus RCU would never attempt to queue IRQ work on the
-> outgoing CPU.
+> Commit 054aa8d439b9 ("fget: check that the fd still exists after getting
+> a ref to it") fixed a race with getting a reference to a file just as it
+> was being closed.  It was a fairly minimal patch, and I didn't think
+> re-checking the file pointer lookup would be a measurable overhead,
+> since it was all right there and cached.
 > 
-> This changed with the advent of the CONFIG_RCU_STRICT_GRACE_PERIOD
-> Kconfig option, in which rcu_read_unlock_special() is invoked upon exit
-> from almost all RCU read-side critical sections.  Worse yet, because
-> interrupts are disabled, rcu_read_unlock_special() cannot immediately
-> report a quiescent state and will therefore attempt to defer this
-> reporting, for example, by queueing IRQ work.  Which fails with a splat
-> because the CPU is already marked as being offline.
+> But I was wrong, as pointed out by the kernel test robot.
 > 
-> But it turns out that there is no need to report this quiescent state
-> because rcu_report_dead() will do this job shortly after the outgoing
-> CPU makes its final dive into the idle loop.  This commit therefore
-> makes rcu_read_unlock_special() refrain from queuing IRQ work onto
-> outgoing CPUs.
+> The 'poll2' case of the will-it-scale.per_thread_ops benchmark regressed
+> quite noticeably.  Admittedly it seems to be a very artificial test:
+> doing "poll()" system calls on regular files in a very tight loop in
+> multiple threads.
 > 
-> Fixes: 44bad5b3cca2 ("rcu: Do full report for .need_qs for strict GPs")
-> Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+> That means that basically all the time is spent just looking up file
+> descriptors without ever doing anything useful with them (not that doing
+> 'poll()' on a regular file is useful to begin with).  And as a result it
+> shows the extra "re-check fd" cost as a sore thumb.
+> 
+> Happily, the regression is fixable by just writing the code to loook up
+> the fd to be better and clearer.  There's still a cost to verify the
+> file pointer, but now it's basically in the noise even for that
+> benchmark that does nothing else - and the code is more understandable
+> and has better comments too.
+> 
+> [ Side note: this patch is also a classic case of one that looks very
+>   messy with the default greedy Myers diff - it's much more legible with
+>   either the patience of histogram diff algorithm ]
+> 
+> Link: https://lore.kernel.org/lkml/20211210053743.GA36420@xsang-OptiPlex-9020/
+> Link: https://lore.kernel.org/lkml/20211213083154.GA20853@linux.intel.com/
+> Reported-by: kernel test robot <oliver.sang@intel.com>
+> Tested-by: Carel Si <beibei.si@intel.com>
 > Cc: Jann Horn <jannh@google.com>
-> Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+> Cc: Miklos Szeredi <mszeredi@redhat.com>
+> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Signed-off-by: Baokun Li <libaokun1@huawei.com>
 > ---
->  kernel/rcu/tree_plugin.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-> index 6ed153f226b3925..244f32e98360fdf 100644
-> --- a/kernel/rcu/tree_plugin.h
-> +++ b/kernel/rcu/tree_plugin.h
-> @@ -628,7 +628,7 @@ static void rcu_read_unlock_special(struct task_struct *t)
->  			set_tsk_need_resched(current);
->  			set_preempt_need_resched();
->  			if (IS_ENABLED(CONFIG_IRQ_WORK) && irqs_were_disabled &&
-> -			    !rdp->defer_qs_iw_pending && exp) {
-> +			    !rdp->defer_qs_iw_pending && exp && cpu_online(rdp->cpu)) {
->  				// Get scheduler to re-evaluate and call hooks.
->  				// If !IRQ_WORK, FQS scan will eventually IPI.
->  				init_irq_work(&rdp->defer_qs_iw,
-> -- 
-> 2.26.0.106.g9fadedd
-> 
+>  fs/file.c | 72 ++++++++++++++++++++++++++++++++++++++++++-------------
+>  1 file changed, 56 insertions(+), 16 deletions(-)
 
 Now queued up, thanks.
+
+Any chance you can do this for 5.4 and older kernels too?
 
 greg k-h
