@@ -2,121 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B0CB4BA951
-	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 20:11:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37B8E4BA931
+	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 20:04:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245047AbiBQTLO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Feb 2022 14:11:14 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50410 "EHLO
+        id S244969AbiBQTFH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Feb 2022 14:05:07 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245046AbiBQTLN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 14:11:13 -0500
-X-Greylist: delayed 411 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 17 Feb 2022 11:10:58 PST
-Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com [66.111.4.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D3C2B254;
-        Thu, 17 Feb 2022 11:10:58 -0800 (PST)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id 15F865C0064;
-        Thu, 17 Feb 2022 14:04:07 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Thu, 17 Feb 2022 14:04:07 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm3; bh=QFf+1UQuhFiD6o/OV3ZI0/VGRxHqSMiTS6VAmB
-        d+ZNY=; b=rBNlw98TXZPXc6ttrVjSrTs79JEaU5wGOPD3zssNUtQFnfYw55U2ox
-        b9ZRGqLTuQbD+DchsFTCZ3HVdQT6wZV0qIDcveOIO7VhPnowN3po5MMRzkWEJ/6u
-        tFlv4n2cstgKadsDfw5rXVGgE97VEU8ciXwxo/vgm4QPDZ3+RLggIQA1d00ebWtO
-        DLwhqgLk0N22z19Vtjw+yxFXEdhU1VCxUN6z99NEC6d/MhtNCTQW8EWs3mtL3im0
-        bhkUEfqBxilCSGbJBnR/HuwOKv8y+aP2yyQZn7AO8p/tb5Xo3INyoLPq2Cuk8AL9
-        YUIIzvGZtXnN0kWIsJRttk0Hs4S4fW1w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=QFf+1UQuhFiD6o/OV
-        3ZI0/VGRxHqSMiTS6VAmBd+ZNY=; b=hUa4OM+V0redQSuX06Lq/X78CIvjGgNv/
-        Z2rpI1YslyP+aF0TBmk32gobsMmOPONGkwvuB+9S96Hl72TqDztNSvBlZzpMZ021
-        d50KpC7GuzrJCS+dh5oa8TbNbkrRaprFlCkDZq+7Jbw1vIFN1Do9Dc/wvHRJ6EIA
-        f3ajq0TTCJ2FgbyMBo3Yyk9NpkE5xCFoEOym4iRGxwWRBbBWylCBuMnw2fAROGCX
-        DxEjL2/4EAiFNu/Y/8oIt84R6CZF5UYHuIKQTa7QntCaX17hU9xrJZ3CKwsOYDi+
-        pryy0+ZjWNlpi6E2B43V/5EbeboVlVQft0GXWNCl474vXOQITSIFA==
-X-ME-Sender: <xms:JpwOYlmTQFjqM2tRMmep2T6EI3Xsehw0ollekkqzXm0yOz9aKWVFQg>
-    <xme:JpwOYg3P4uM7LYzL9G7_ggvVbVTmRNPy6TQ_qYkAKfPmrDDTKsXfkfTv17_ZegT_W
-    ojoP71JSGleOQ>
-X-ME-Received: <xmr:JpwOYrou9OquFRKjVJ1ze1pDwmM3YwIEMCaWoekdvFncpKXy9oC-U2o9QWCazI9dE1NNbYHKeSVogvMFhLXdRtSsTvdRzLGe>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrjeekgdduudelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
-    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:JpwOYlltThDR4CHoNg8PdlNVfOmew-KRvcI0nyQE-9_fJhDXcNpCZw>
-    <xmx:JpwOYj1J8p9FzodEc24jcRMHM568QwPTiHTYUMUdoCQ7JWRZKgcKkA>
-    <xmx:JpwOYkuZGLMsKZLBb2_4xNW2_7oNmnQ01xtH2ncqBKrcAVKcBttw_w>
-    <xmx:J5wOYtqATbl5u0_mXpjp-OwFU30OE7qzst5TeKfRURJhlH5TvPOYlA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 17 Feb 2022 14:04:06 -0500 (EST)
-Date:   Thu, 17 Feb 2022 20:03:56 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Naohiro Aota <naohiro.aota@wdc.com>
-Cc:     stable@vger.kernel.org, linux-btrfs@vger.kernel.org,
-        David Sterba <dsterba@suse.com>
-Subject: Re: [PATCH for-5.15.y] btrfs: zoned: cache reported zone during mount
-Message-ID: <Yg6cHEP44PIGFva7@kroah.com>
-References: <20220217045056.1299721-1-naohiro.aota@wdc.com>
+        with ESMTP id S235094AbiBQTFG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 14:05:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FF378093F
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 11:04:52 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F04D461C4F
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 19:04:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFC07C340EB;
+        Thu, 17 Feb 2022 19:04:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1645124691;
+        bh=6kcD57kRUOOiOVbnUfO/eoXh3wI6zoKF/grBPaHnbOo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vw8OzdLuyDW++aQ45cfiIfonfYpeU5CIRPDnb9mn1QjMIoQfLQh+KBGciYBTJ+ep7
+         CSB6dU6jpbjPSk8kVfn/8Is9YbKUd3sOsIYl2BaDV8FU99uaAddg1sL1RELYlyrL1U
+         TnB53bnxwvnvpIgtgf6cOwYZ7MSF2QTx2B3lvfsU=
+Date:   Thu, 17 Feb 2022 20:04:43 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     James Smart <jsmart2021@gmail.com>
+Cc:     stable <stable@vger.kernel.org>
+Subject: Re: Backport Request: scsi: lpfc: Fix mailbox command failure during
+ driver initialization
+Message-ID: <Yg6cS5XyZaiOi+Ho@kroah.com>
+References: <6aab7d93-7791-fd8b-b0ed-6a0a2ee52472@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220217045056.1299721-1-naohiro.aota@wdc.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <6aab7d93-7791-fd8b-b0ed-6a0a2ee52472@gmail.com>
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 17, 2022 at 01:50:56PM +0900, Naohiro Aota wrote:
-> commit 16beac87e95e2fb278b552397c8260637f8a63f7 upstream.
+On Mon, Feb 14, 2022 at 11:06:44AM -0800, James Smart wrote:
+> Please backport the following patch to the 5.10 and 5.15 kernels. It is
+> currently in the 5.16 kernel.
 > 
-> When mounting a device, we are reporting the zones twice: once for
-> checking the zone attributes in btrfs_get_dev_zone_info and once for
-> loading block groups' zone info in
-> btrfs_load_block_group_zone_info(). With a lot of block groups, that
-> leads to a lot of REPORT ZONE commands and slows down the mount
-> process.
+> scsi: lpfc: Fix mailbox command failure during driver initialization
+> commit	efe1dc571a5b
 > 
-> This patch introduces a zone info cache in struct
-> btrfs_zoned_device_info. The cache is populated while in
-> btrfs_get_dev_zone_info() and used for
-> btrfs_load_block_group_zone_info() to reduce the number of REPORT ZONE
-> commands. The zone cache is then released after loading the block
-> groups, as it will not be much effective during the run time.
-> 
-> Benchmark: Mount an HDD with 57,007 block groups
-> Before patch: 171.368 seconds
-> After patch: 64.064 seconds
-> 
-> While it still takes a minute due to the slowness of loading all the
-> block groups, the patch reduces the mount time by 1/3.
-> 
-> Link: https://lore.kernel.org/linux-btrfs/CAHQ7scUiLtcTqZOMMY5kbWUBOhGRwKo6J6wYPT5WY+C=cD49nQ@mail.gmail.com/
-> Fixes: 5b316468983d ("btrfs: get zone information of zoned block devices")
-> CC: stable@vger.kernel.org
-> Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-> Signed-off-by: David Sterba <dsterba@suse.com>
-> ---
->  fs/btrfs/dev-replace.c |  2 +-
->  fs/btrfs/disk-io.c     |  2 +
->  fs/btrfs/volumes.c     |  2 +-
->  fs/btrfs/zoned.c       | 85 ++++++++++++++++++++++++++++++++++++++----
->  fs/btrfs/zoned.h       |  8 +++-
->  5 files changed, 87 insertions(+), 12 deletions(-)
+> The error being corrected causes failure of adapter initialization and
+> attachment.
 
 Now queued up, thanks.
 
