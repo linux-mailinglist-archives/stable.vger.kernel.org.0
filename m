@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDEFB4BA960
-	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 20:14:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 933814BA964
+	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 20:14:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245034AbiBQTOe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Feb 2022 14:14:34 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33950 "EHLO
+        id S245037AbiBQTOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Feb 2022 14:14:41 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245032AbiBQTOb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 14:14:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C4F58D697
-        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 11:14:16 -0800 (PST)
+        with ESMTP id S245035AbiBQTOh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 14:14:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A0728D697
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 11:14:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE168B820E1
-        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 19:14:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDD69C340E8;
-        Thu, 17 Feb 2022 19:14:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BAD8D61CB1
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 19:14:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CA87C340E8;
+        Thu, 17 Feb 2022 19:14:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645125253;
-        bh=izndXc0qrmYSnilFVtThrDdm+M6SWElt4WWQYXK+VDs=;
+        s=korg; t=1645125262;
+        bh=uiq2DtZ6EQ62kmrWpifk01A3igQZxunkhusXZOI0RjA=;
         h=Subject:To:Cc:From:Date:From;
-        b=UQADytxYUIecdcoadkFMOddiZvOMaohyM+l6xF5D4Q3dS+IYft6iuQUbpwLb4ijud
-         UwnRJb7Zct7fVXMkb2tAN6Mt8o4crYERLCM98f6N24kImMl6CZM8NVka2CTsF2nEzG
-         MBp1e/51dJW2J6sBr6ICcuccUKeSKgTVWFCsoyRY=
-Subject: FAILED: patch "[PATCH] mmc: block: fix read single on recovery logic" failed to apply to 5.4-stable tree
+        b=QTjTSlmSzEz/9rMzGISGqdbOVs4uTBGtb/bCDetzPT875YT0exRDm25jIQygYZutg
+         ah12OEeHzou7Ss1G4afw3XjEb5Inu1nervG/ABjeLuw5eJSAAU2pZvgOrUsL7VFuiQ
+         vNzUJ4JtiWr1vhj7OcUueiAGgy1EDmE92BvvjMng=
+Subject: FAILED: patch "[PATCH] mmc: block: fix read single on recovery logic" failed to apply to 4.19-stable tree
 To:     CLoehle@hyperstone.com, adrian.hunter@intel.com,
         cloehle@hyperstone.com, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 17 Feb 2022 20:14:10 +0100
-Message-ID: <16451252501696@kroah.com>
+Date:   Thu, 17 Feb 2022 20:14:11 +0100
+Message-ID: <16451252511822@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
