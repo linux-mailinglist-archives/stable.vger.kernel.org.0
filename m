@@ -2,59 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D4024BACF7
-	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 23:59:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1941A4BACF9
+	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 23:59:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229457AbiBQW7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Feb 2022 17:59:43 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:43952 "EHLO
+        id S229559AbiBQW7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Feb 2022 17:59:54 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:44560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229455AbiBQW7m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 17:59:42 -0500
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94B34280EC0
-        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 14:59:26 -0800 (PST)
-Received: by mail-pj1-x102c.google.com with SMTP id b8so6991665pjb.4
-        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 14:59:26 -0800 (PST)
+        with ESMTP id S229455AbiBQW7s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 17:59:48 -0500
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7223C28199A
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 14:59:30 -0800 (PST)
+Received: by mail-pg1-x529.google.com with SMTP id h125so6271445pgc.3
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 14:59:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=/DVMObMjmD6wXFomexqplB2m04bAd/hK8+CVdJFqa7k=;
-        b=BWdF/aWMLu21RtyHY+81QCGyGZlk6J+3oXLeCjrSaABhTtFrV9/9bpP4zyVJb7wHfP
-         h5bdk9Kp4VwyMl2xwHW4ikMKUAy3VNlXlL/xGhngriubvRT7ZGKNX0X7hd+EXyOaAUME
-         Iy8RfL5S8cJ4PPGbMJqmRomEHIxLqU71r9TUNqd0u+CHbZF6DVMZA5cGqWNdVFCLh2mG
-         s/buTmXehq39JHJwjJwp15xps9syJ56VSZXOuLfmwZ8cAIUSlA+a4Bu5g7iCuQX3KLSg
-         zU01pPA46J4+XgGFRPfScF6yRayD5re3Nfjv4r3ClnzWvlgZaEZWaujun/LVP0zUMOuz
-         5boQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Ec9ysQtCokgEK2y8Q18JKH56MFd+lzjJNAwfO6jU5gg=;
+        b=TjnOAZ0IoX52pFBp2Kgs7ujLKleAL59kDw772RojwpbHkNeuJPCmgb4dy+STiEaMBB
+         qKkVRb5sDfA4Tv5astO6FA4YVfDxc9B4UqMMAa40I22ljEq4HogEcCrmWjLmfLCSwEMH
+         n5qIkCPTS2gW8883E1LgQCajn661O7PIfAitCk96U6B1oTyry52QLSiqbu02eLmzgXjx
+         kWRPnDIDUhbquXZR4cSuGV0qfKKkN24FpaQF0QpROl1eT/Ik+Gsoc42AajqrFMjyRkl1
+         2y52VyXrS5kTvvaxcerbKtFpnotco/aVrz++9aMMhsivcIOJSWBiKqf/HAYA885gY6lf
+         psmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=/DVMObMjmD6wXFomexqplB2m04bAd/hK8+CVdJFqa7k=;
-        b=i8nXpMce+Z52Sa9mMSd8e7hxk+ha6sshSgSTKILc2sk3CRPH1hsBYU5uvr3Gg8C34P
-         4TyESwOag0egPHCs6/JgMjFa77w57Fis0L7ZvDIZ/o+MjCJT85znzRMXp2dCln3hLPiG
-         1GcNj7Izxfq0m8MVfJqqGJbnifY+5xtITs30YE/m7AYXb48fjoM9eYPLa8ULSHb0lRme
-         faZxe99mcA83Ngo04yaroUK5o7aT8lNLesALxYeGsH7SLTkRokujmK28WGMPAuS65B5W
-         d3DBFFeRsuRQrGyYLyNmGAVD6NT/eRbLOEP96fy2dG+1PiGdCMink0rAuCPzbrD+meLV
-         P+DA==
-X-Gm-Message-State: AOAM530LwNnLwzaUiXV36IObgkIkel6V9b6Vfz8b3FMlLGxhPY2m/j08
-        XAiSrk7KSxyRDAxqB4pVg1yduA4ClB81yg==
-X-Google-Smtp-Source: ABdhPJwQpreEA1THSjFQAId8DKq8R6uBBawM1kiUQB/Iy0jyq2kmTHI3dLFBFhgoIyzKCSE0fLc46Q==
-X-Received: by 2002:a17:90a:1789:b0:1b9:1154:65ee with SMTP id q9-20020a17090a178900b001b9115465eemr5376086pja.115.1645138765910;
-        Thu, 17 Feb 2022 14:59:25 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Ec9ysQtCokgEK2y8Q18JKH56MFd+lzjJNAwfO6jU5gg=;
+        b=PefFLIzqlDNRjNxUiBUJmzkP6APw87Gpzw6RVTKcUOugPX1tVg/UywYiht7oHym4l1
+         SInvd0gB5f8ZRRbG3HG0RqsLAaW0J1vqXyvg3Jbgz0w63JRgSSic2SdqIhW/aMwqzr7k
+         qEp/+ZnGoFuTxR0YscD1zeXUYa7Q09xpGtcNGXERk2VefK4kdJCA2jzprs82INl4xEpd
+         wIlaLGyVS2eBl+K1yA32LGN+LUt5DyBOFEAjEnuiFpAD9nCTwKrRihy9KUrBmW4g9/jA
+         T/aRL5GVUQB/Q7kkYiXvM15/pTSwc8knazd/J+g9FsUdkg824I/nlh4GOlF6IEhJ5RKn
+         0RrQ==
+X-Gm-Message-State: AOAM532o+yX49lsjHBJM5ik42411UFD86xis8XuC9w9MZ9+M8GldZGpj
+        WX3GO+i8mtAaR6EVmR29Bdsphr8RYNeU+w==
+X-Google-Smtp-Source: ABdhPJzP5YnlomRcP4Op2GvhtFmPJOQxH+ot21VndXizhPY0ysjihBjBL4jDlCjEOvKKg0ojeEXfqQ==
+X-Received: by 2002:a62:e317:0:b0:4ca:25ee:d633 with SMTP id g23-20020a62e317000000b004ca25eed633mr4935288pfh.23.1645138769634;
+        Thu, 17 Feb 2022 14:59:29 -0800 (PST)
 Received: from lrumancik-glaptop2.roam.corp.google.com ([2601:647:4701:18d0:9e69:6ca2:e1cf:4ed2])
-        by smtp.gmail.com with ESMTPSA id b16sm593260pfv.192.2022.02.17.14.59.25
+        by smtp.gmail.com with ESMTPSA id b16sm593260pfv.192.2022.02.17.14.59.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Feb 2022 14:59:25 -0800 (PST)
+        Thu, 17 Feb 2022 14:59:29 -0800 (PST)
 From:   Leah Rumancik <leah.rumancik@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Zhang Yi <yi.zhang@huawei.com>, Theodore Ts'o <tytso@mit.edu>,
         Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH for 5.4 1/3] ext4: check for out-of-order index extents in ext4_valid_extent_entries()
-Date:   Thu, 17 Feb 2022 14:59:12 -0800
-Message-Id: <20220217225914.40363-1-leah.rumancik@gmail.com>
+Subject: [PATCH for 5.4 2/3] ext4: check for inconsistent extents between index and leaf block
+Date:   Thu, 17 Feb 2022 14:59:13 -0800
+Message-Id: <20220217225914.40363-2-leah.rumancik@gmail.com>
 X-Mailer: git-send-email 2.35.1.473.g83b2b277ed-goog
+In-Reply-To: <20220217225914.40363-1-leah.rumancik@gmail.com>
+References: <20220217225914.40363-1-leah.rumancik@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -69,97 +71,196 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhang Yi <yi.zhang@huawei.com>
 
-commit 8dd27fecede55e8a4e67eef2878040ecad0f0d33 upstream.
+commit 9c6e071913792d80894cd0be98cc3c4b770e26d3 upstream.
 
-After commit 5946d089379a ("ext4: check for overlapping extents in
-ext4_valid_extent_entries()"), we can check out the overlapping extent
-entry in leaf extent blocks. But the out-of-order extent entry in index
-extent blocks could also trigger bad things if the filesystem is
-inconsistent. So this patch add a check to figure out the out-of-order
-index extents and return error.
-
-[Added pblk argument to ext4_valid_extent_entries because pblk is
-updated in the case of overlapping extents. This argument was added
-in commit 54d3adbc29f0c7c53890da1683e629cd220d7201.]
+Now that we can check out overlapping extents in leaf block and
+out-of-order index extents in index block. But the .ee_block in the
+first extent of one leaf block should equal to the .ei_block in it's
+parent index extent entry. This patch add a check to verify such
+inconsistent between the index and leaf block.
 
 Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20210908120850.4012324-2-yi.zhang@huawei.com
+Link: https://lore.kernel.org/r/20210908120850.4012324-3-yi.zhang@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
 ---
- fs/ext4/extents.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ fs/ext4/extents.c | 59 +++++++++++++++++++++++++++++------------------
+ 1 file changed, 36 insertions(+), 23 deletions(-)
 
 diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
-index ae73e6793683..4f8736b7e497 100644
+index 4f8736b7e497..1ec6d0ccf5ba 100644
 --- a/fs/ext4/extents.c
 +++ b/fs/ext4/extents.c
-@@ -390,9 +390,12 @@ static int ext4_valid_extent_idx(struct inode *inode,
+@@ -390,7 +390,8 @@ static int ext4_valid_extent_idx(struct inode *inode,
  
  static int ext4_valid_extent_entries(struct inode *inode,
  				struct ext4_extent_header *eh,
--				int depth)
-+				ext4_fsblk_t *pblk, int depth)
+-				ext4_fsblk_t *pblk, int depth)
++				ext4_lblk_t lblk, ext4_fsblk_t *pblk,
++				int depth)
  {
  	unsigned short entries;
-+	ext4_lblk_t lblock = 0;
-+	ext4_lblk_t prev = 0;
-+
- 	if (eh->eh_entries == 0)
- 		return 1;
- 
-@@ -403,32 +406,36 @@ static int ext4_valid_extent_entries(struct inode *inode,
+ 	ext4_lblk_t lblock = 0;
+@@ -406,6 +407,14 @@ static int ext4_valid_extent_entries(struct inode *inode,
  		struct ext4_extent *ext = EXT_FIRST_EXTENT(eh);
  		struct ext4_super_block *es = EXT4_SB(inode->i_sb)->s_es;
  		ext4_fsblk_t pblock = 0;
--		ext4_lblk_t lblock = 0;
--		ext4_lblk_t prev = 0;
--		int len = 0;
++
++		/*
++		 * The logical block in the first entry should equal to
++		 * the number in the index block.
++		 */
++		if (depth != ext_depth(inode) &&
++		    lblk != le32_to_cpu(ext->ee_block))
++			return 0;
  		while (entries) {
  			if (!ext4_valid_extent(inode, ext))
  				return 0;
- 
- 			/* Check for overlapping extents */
- 			lblock = le32_to_cpu(ext->ee_block);
--			len = ext4_ext_get_actual_len(ext);
- 			if ((lblock <= prev) && prev) {
- 				pblock = ext4_ext_pblock(ext);
- 				es->s_last_error_block = cpu_to_le64(pblock);
- 				return 0;
- 			}
-+			prev = lblock + ext4_ext_get_actual_len(ext) - 1;
- 			ext++;
- 			entries--;
--			prev = lblock + len - 1;
+@@ -423,6 +432,14 @@ static int ext4_valid_extent_entries(struct inode *inode,
  		}
  	} else {
  		struct ext4_extent_idx *ext_idx = EXT_FIRST_INDEX(eh);
++
++		/*
++		 * The logical block in the first entry should equal to
++		 * the number in the parent index block.
++		 */
++		if (depth != ext_depth(inode) &&
++		    lblk != le32_to_cpu(ext_idx->ei_block))
++			return 0;
  		while (entries) {
  			if (!ext4_valid_extent_idx(inode, ext_idx))
  				return 0;
-+
-+			/* Check for overlapping index extents */
-+			lblock = le32_to_cpu(ext_idx->ei_block);
-+			if ((lblock <= prev) && prev) {
-+				*pblk = ext4_idx_pblock(ext_idx);
-+				return 0;
-+			}
- 			ext_idx++;
- 			entries--;
-+			prev = lblock;
- 		}
- 	}
- 	return 1;
-@@ -462,7 +469,7 @@ static int __ext4_ext_check(const char *function, unsigned int line,
+@@ -443,7 +460,7 @@ static int ext4_valid_extent_entries(struct inode *inode,
+ 
+ static int __ext4_ext_check(const char *function, unsigned int line,
+ 			    struct inode *inode, struct ext4_extent_header *eh,
+-			    int depth, ext4_fsblk_t pblk)
++			    int depth, ext4_fsblk_t pblk, ext4_lblk_t lblk)
+ {
+ 	const char *error_msg;
+ 	int max = 0, err = -EFSCORRUPTED;
+@@ -469,7 +486,7 @@ static int __ext4_ext_check(const char *function, unsigned int line,
  		error_msg = "invalid eh_entries";
  		goto corrupted;
  	}
--	if (!ext4_valid_extent_entries(inode, eh, depth)) {
-+	if (!ext4_valid_extent_entries(inode, eh, &pblk, depth)) {
+-	if (!ext4_valid_extent_entries(inode, eh, &pblk, depth)) {
++	if (!ext4_valid_extent_entries(inode, eh, lblk, &pblk, depth)) {
  		error_msg = "invalid extent entries";
  		goto corrupted;
  	}
+@@ -498,7 +515,7 @@ static int __ext4_ext_check(const char *function, unsigned int line,
+ }
+ 
+ #define ext4_ext_check(inode, eh, depth, pblk)			\
+-	__ext4_ext_check(__func__, __LINE__, (inode), (eh), (depth), (pblk))
++	__ext4_ext_check(__func__, __LINE__, (inode), (eh), (depth), (pblk), 0)
+ 
+ int ext4_ext_check_inode(struct inode *inode)
+ {
+@@ -531,12 +548,14 @@ static void ext4_cache_extents(struct inode *inode,
+ 
+ static struct buffer_head *
+ __read_extent_tree_block(const char *function, unsigned int line,
+-			 struct inode *inode, ext4_fsblk_t pblk, int depth,
+-			 int flags)
++			 struct inode *inode, struct ext4_extent_idx *idx,
++			 int depth, int flags)
+ {
+ 	struct buffer_head		*bh;
+ 	int				err;
++	ext4_fsblk_t			pblk;
+ 
++	pblk = ext4_idx_pblock(idx);
+ 	bh = sb_getblk_gfp(inode->i_sb, pblk, __GFP_MOVABLE | GFP_NOFS);
+ 	if (unlikely(!bh))
+ 		return ERR_PTR(-ENOMEM);
+@@ -552,8 +571,8 @@ __read_extent_tree_block(const char *function, unsigned int line,
+ 	if (!ext4_has_feature_journal(inode->i_sb) ||
+ 	    (inode->i_ino !=
+ 	     le32_to_cpu(EXT4_SB(inode->i_sb)->s_es->s_journal_inum))) {
+-		err = __ext4_ext_check(function, line, inode,
+-				       ext_block_hdr(bh), depth, pblk);
++		err = __ext4_ext_check(function, line, inode, ext_block_hdr(bh),
++				       depth, pblk, le32_to_cpu(idx->ei_block));
+ 		if (err)
+ 			goto errout;
+ 	}
+@@ -572,8 +591,8 @@ __read_extent_tree_block(const char *function, unsigned int line,
+ 
+ }
+ 
+-#define read_extent_tree_block(inode, pblk, depth, flags)		\
+-	__read_extent_tree_block(__func__, __LINE__, (inode), (pblk),   \
++#define read_extent_tree_block(inode, idx, depth, flags)		\
++	__read_extent_tree_block(__func__, __LINE__, (inode), (idx),	\
+ 				 (depth), (flags))
+ 
+ /*
+@@ -620,8 +639,7 @@ int ext4_ext_precache(struct inode *inode)
+ 			i--;
+ 			continue;
+ 		}
+-		bh = read_extent_tree_block(inode,
+-					    ext4_idx_pblock(path[i].p_idx++),
++		bh = read_extent_tree_block(inode, path[i].p_idx++,
+ 					    depth - i - 1,
+ 					    EXT4_EX_FORCE_CACHE);
+ 		if (IS_ERR(bh)) {
+@@ -924,8 +942,7 @@ ext4_find_extent(struct inode *inode, ext4_lblk_t block,
+ 		path[ppos].p_depth = i;
+ 		path[ppos].p_ext = NULL;
+ 
+-		bh = read_extent_tree_block(inode, path[ppos].p_block, --i,
+-					    flags);
++		bh = read_extent_tree_block(inode, path[ppos].p_idx, --i, flags);
+ 		if (IS_ERR(bh)) {
+ 			ret = PTR_ERR(bh);
+ 			goto err;
+@@ -1524,7 +1541,6 @@ static int ext4_ext_search_right(struct inode *inode,
+ 	struct ext4_extent_header *eh;
+ 	struct ext4_extent_idx *ix;
+ 	struct ext4_extent *ex;
+-	ext4_fsblk_t block;
+ 	int depth;	/* Note, NOT eh_depth; depth from top of tree */
+ 	int ee_len;
+ 
+@@ -1591,20 +1607,17 @@ static int ext4_ext_search_right(struct inode *inode,
+ 	 * follow it and find the closest allocated
+ 	 * block to the right */
+ 	ix++;
+-	block = ext4_idx_pblock(ix);
+ 	while (++depth < path->p_depth) {
+ 		/* subtract from p_depth to get proper eh_depth */
+-		bh = read_extent_tree_block(inode, block,
+-					    path->p_depth - depth, 0);
++		bh = read_extent_tree_block(inode, ix, path->p_depth - depth, 0);
+ 		if (IS_ERR(bh))
+ 			return PTR_ERR(bh);
+ 		eh = ext_block_hdr(bh);
+ 		ix = EXT_FIRST_INDEX(eh);
+-		block = ext4_idx_pblock(ix);
+ 		put_bh(bh);
+ 	}
+ 
+-	bh = read_extent_tree_block(inode, block, path->p_depth - depth, 0);
++	bh = read_extent_tree_block(inode, ix, path->p_depth - depth, 0);
+ 	if (IS_ERR(bh))
+ 		return PTR_ERR(bh);
+ 	eh = ext_block_hdr(bh);
+@@ -3126,9 +3139,9 @@ int ext4_ext_remove_space(struct inode *inode, ext4_lblk_t start,
+ 			ext_debug("move to level %d (block %llu)\n",
+ 				  i + 1, ext4_idx_pblock(path[i].p_idx));
+ 			memset(path + i + 1, 0, sizeof(*path));
+-			bh = read_extent_tree_block(inode,
+-				ext4_idx_pblock(path[i].p_idx), depth - i - 1,
+-				EXT4_EX_NOCACHE);
++			bh = read_extent_tree_block(inode, path[i].p_idx,
++						    depth - i - 1,
++						    EXT4_EX_NOCACHE);
+ 			if (IS_ERR(bh)) {
+ 				/* should we reset i_size? */
+ 				err = PTR_ERR(bh);
 -- 
 2.35.1.473.g83b2b277ed-goog
 
