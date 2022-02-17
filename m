@@ -2,67 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 595BD4BAA8C
-	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 21:03:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95D0F4BAB37
+	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 21:43:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245633AbiBQUDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Feb 2022 15:03:38 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56022 "EHLO
+        id S231663AbiBQUna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Feb 2022 15:43:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242479AbiBQUDh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 15:03:37 -0500
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27E5144764
-        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 12:03:22 -0800 (PST)
-Received: by mail-wr1-x434.google.com with SMTP id e3so10965569wra.0
-        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 12:03:22 -0800 (PST)
+        with ESMTP id S231598AbiBQUna (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 15:43:30 -0500
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FEB815C9D8
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 12:43:15 -0800 (PST)
+Received: by mail-ed1-x533.google.com with SMTP id s24so5386817edr.5
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 12:43:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=EoUxLbnb2sQf/gQ3qMC5tsW6ZTW6qRN6SCr3Xts7WjY=;
-        b=eUQxPNGvr59eb4vc0k+ux+sRS0BIvlMzahSvwbYHxnM1e+oHrwj0KrC+V5sTrsjvki
-         7jZ1FTH60ycG/SiKxeb8L0/Xvn2Ta7ovZV0I9zBTnVSS/LGcZA9JggJoskJAvzH2wJ/k
-         WLYsCtMrb4AYqMJw2vuugG3Rzd51NkgpabOK3Kn3PMIp8uR0Rrxem3fFzxEPhsGd1eja
-         N5Iqu2Jw+EScMKT0OB1CKEgjoNmbzx8zIkkW2jwzdroybXW25hArnpmYTaLSlkb9SBU8
-         xO2fjm7EDEMWsuJ5DJ56BqWXGYU4DVc7A1OXtfrEMDYi6D9MZ6WOaMAFrtkd2YT0JOZ8
-         lJPw==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=R4HSynY+GXD3vvbZ57eqLTHLNIFY/JTbAe+61rsZUWQ=;
+        b=mjICA68i4LOmyP3tUQUOzGui3EbhuY2aprlcHIZSLWaJ8jt6kABk6AtxAMqpFqkL6J
+         RCe98mtXnoqQAId+IK8SZl23y6FH7hnNd1Jt0qFqnhvTSiljon62CD+CwbMnEZZ1EDr7
+         ruYj8FBZJPGOuN3oJRjLgKEZl37/fJ4k8X6VJTi6RccFlrU2+LkCDfwT1/1JTAQUZhbJ
+         4Q7grk7QjB5dpjpNFD1XuIKDk22hQVGh4HpbqV6AeWkMNjC+Z5oBNXRyxIToFdsu2Uxw
+         9Da9QNEffTjNLeMS9ys69pi9L+Zlv64vlf36ZjyjLL0aXHAs7+c1I3Rtt8Y8nwoP7dA/
+         evng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=EoUxLbnb2sQf/gQ3qMC5tsW6ZTW6qRN6SCr3Xts7WjY=;
-        b=BXYVGC6YdnTN3HJGA1n4ftBCkz4nuX9BbHmjneSwMrWrlzFoeQuQIKSiSoSkX4l1fC
-         ZVp3vqUPOEWh94PbiLZttrkCdaBhvOnV6zvegO9+dbEn26z/of7YldBQPN0JaiC1xZaW
-         GJ06zn58xZVfuoNhtT40CPAtRkRhDjnwMrFA7dcntPjo+hy78BYWEVsDP6wB3aexxv2h
-         46SpgEcg+oQlZ3QkZJ6vqsRMRGKIwlu+TDzjWU0T48QN7jKaosuJspqmufeaMVmx80gm
-         Ks8nznEtNpQbmfC3+CtxhoYeu1cq0drvta+n1FF7sHhPF1SD/6XAZ4KK630el+jPIcOx
-         xtCw==
-X-Gm-Message-State: AOAM53164lTR1OjpkddES6837FwsCIzKLT2T2yvwAUrEgoI3IlsH0yrK
-        m4gbQckPfgGpAbZV1q2oV0HOaNq1KGTgbw==
-X-Google-Smtp-Source: ABdhPJyispZNegAOLXrRGrxMM31unyB5aPCWYoI1m8Ypf746shqfbdmFxXqoihMxh7zK9mXWH4GKIw==
-X-Received: by 2002:adf:f94d:0:b0:1e5:5ca1:2b80 with SMTP id q13-20020adff94d000000b001e55ca12b80mr3498279wrr.323.1645128200724;
-        Thu, 17 Feb 2022 12:03:20 -0800 (PST)
-Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
-        by smtp.gmail.com with ESMTPSA id f6sm20834448wrv.116.2022.02.17.12.03.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Feb 2022 12:03:20 -0800 (PST)
-Date:   Thu, 17 Feb 2022 20:03:18 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     ebiederm@xmission.com, bsingharora@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] taskstats: Cleanup the use of
- task->exit_code" failed to apply to 5.4-stable tree
-Message-ID: <Yg6qBtvmY3t75jF9@debian>
-References: <164302987619021@kroah.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=R4HSynY+GXD3vvbZ57eqLTHLNIFY/JTbAe+61rsZUWQ=;
+        b=NCQy0jWhHQwJ1iF4+lEb78UsdYOA6CvTk/UguOO179obrDiwY5W+kZo4TVwfK5+D0Q
+         UoYFr5FuOwNOMZRwFWovTkONl4E5gQ1XA70DMc1LkBLzRRayjk9Ld/bww1TJx45R4pKH
+         KlfE35zxj58CHqy9d/dCksf+zNS19M8KRk8Wc7uUM44OXTEqdH6UiuKAll0p3/nCDanM
+         v4AYHpuD11oTYv1klLOxpMyz/xuakWgTTs+QTF9o/flQn8qJEHAp2Z9H4YRZN3ODPKIA
+         XXuDo20KMaNMqZDTQU39ij1Y+NTakdDbUJA0+0fCsd5L1zA2lrFg5qI70fshZPA5kJ9p
+         kuuw==
+X-Gm-Message-State: AOAM531RZ8rdVjMOuZHaZmdJWUZtxSqsIFiFMvaOIFtAqQIOSXI3OLP0
+        0eHWMPp8c6XDENdoY6efT8cAqHDQnX9doS/H+zSUsHjReUdNTg==
+X-Google-Smtp-Source: ABdhPJyTQgO7iqJkUzWAlSYB5GmLHbjB1cEU2G7w8HQE52DlkjhI7q7pXYTwU8IHj4uk1jbdjTkF8ILDYYnw9KskAM8=
+X-Received: by 2002:aa7:cd81:0:b0:410:d64e:aa31 with SMTP id
+ x1-20020aa7cd81000000b00410d64eaa31mr4594705edv.167.1645130593426; Thu, 17
+ Feb 2022 12:43:13 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="myH/wTAdfqNU0plQ"
-Content-Disposition: inline
-In-Reply-To: <164302987619021@kroah.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+References: <543efc25-9b99-53cd-e305-d8b4d917b64b@intel.com>
+ <20220215192233.8717-1-bgeffon@google.com> <YgwCuGcg6adXAXIz@kroah.com>
+ <CADyq12wByWhsHNOnokrSwCDeEhPdyO6WNJNjpHE1ORgKwwwXgg@mail.gmail.com>
+ <YgzMTrVMCVt+n7cE@kroah.com> <fc86d51c-7aa2-6379-5f26-ad533c762da3@intel.com>
+ <CADyq12yGvqbb3+hp6f39RqyEM3Mu896yY6ik7Lh39W=o44bYbA@mail.gmail.com> <dbe8b78e-bc55-c796-358f-a93e0eac87d1@intel.com>
+In-Reply-To: <dbe8b78e-bc55-c796-358f-a93e0eac87d1@intel.com>
+From:   Brian Geffon <bgeffon@google.com>
+Date:   Thu, 17 Feb 2022 15:42:37 -0500
+Message-ID: <CADyq12y8eG63C5Fs4q8-HmjYzTRQaiNZKMoVDA6qtBnvAqsgfg@mail.gmail.com>
+Subject: Re: [PATCH stable 5.4,5.10] x86/fpu: Correct pkru/xstate inconsistency
+To:     Dave Hansen <dave.hansen@intel.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Willis Kung <williskung@google.com>,
+        Guenter Roeck <groeck@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        "# v4 . 10+" <stable@vger.kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,93 +77,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Feb 17, 2022 at 11:44 AM Dave Hansen <dave.hansen@intel.com> wrote:
+>
+> On 2/17/22 05:31, Brian Geffon wrote:
+> > How would you and Greg KH like to proceed with this? I'm happy to help
+> > however I can.
+>
+> If I could wave a magic wand, I'd just apply the whole FPU rewrite to
+> stable.
+>
+> My second choice would be to stop managing PKRU with XSAVE.
+> x86_pkru_load() uses WRPKRU instead of XSAVE and keeps the task's PKRU
+> in task->pkru instead of the XSAVE buffer.  Doing that will take some
+> care, including pulling XFEATURE_PKRU out of the feature mask (RFBM) at
+> XRSTOR.  I _think_ that can be done in a manageable set of patches which
+>  will keep stable close to mainline.  I recognize that more bugs might
+> get introduced in the process which are unique to stable.
 
---myH/wTAdfqNU0plQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi Dave,
+I did take some time to look through that series and pick out what I
+think is the minimum set that would pull out PKRU from xstate, that
+list is:
 
-Hi Greg,
+   9782a712eb  x86/fpu: Add PKRU storage outside of task XSAVE buffer
+   784a46618f   x86/pkeys: Move read_pkru() and write_pkru()
+   ff7ebff47c59  x86/pkru: Provide pkru_write_default()
+   739e2eec0f   x86/pkru: Provide pkru_get_init_value()
+   fa8c84b77a   x86/cpu: Write the default PKRU value when enabling PKE
+   72a6c08c44  x86/pkru: Remove xstate fiddling from write_pkru()
+   2ebe81c6d8  x86/fpu: Dont restore PKRU in fpregs_restore_userspace()
+   71ef453355   x86/kvm: Avoid looking up PKRU in XSAVE buffer
+   954436989c  x86/fpu: Remove PKRU handling from switch_fpu_finish()
+   e84ba47e31  x86/fpu: Hook up PKRU into ptrace()
+   30a304a138  x86/fpu: Mask PKRU from kernel XRSTOR[S] operations
+   0e8c54f6b2c  x86/fpu: Don't store PKRU in xstate in fpu_reset_fpstate()
 
-On Mon, Jan 24, 2022 at 02:11:16PM +0100, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 5.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+The majority of these don't apply cleanly to 5.4, and there are some
+other patches we'd have to pull back too that moved code and some of
+the those won't be needed for 5.10 though. TBH, I'm not sure it makes
+sense to try to do this just given the fact that most do not cleanly
+apply.
 
-Here is the backport, will also apply to all branches till 4.9-stable.
+Brian
 
---
-Regards
-Sudip
-
---myH/wTAdfqNU0plQ
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment;
-	filename="0001-taskstats-Cleanup-the-use-of-task-exit_code.patch"
-
-From ca66fe9c13da7f1d14149b4a11bbd5dc2950180c Mon Sep 17 00:00:00 2001
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Mon, 3 Jan 2022 11:32:36 -0600
-Subject: [PATCH] taskstats: Cleanup the use of task->exit_code
-
-commit 1b5a42d9c85f0e731f01c8d1129001fd8531a8a0 upstream.
-
-In the function bacct_add_task the code reading task->exit_code was
-introduced in commit f3cef7a99469 ("[PATCH] csa: basic accounting over
-taskstats"), and it is not entirely clear what the taskstats interface
-is trying to return as only returning the exit_code of the first task
-in a process doesn't make a lot of sense.
-
-As best as I can figure the intent is to return task->exit_code after
-a task exits.  The field is returned with per task fields, so the
-exit_code of the entire process is not wanted.  Only the value of the
-first task is returned so this is not a useful way to get the per task
-ptrace stop code.  The ordinary case of returning this value is
-returning after a task exits, which also precludes use for getting
-a ptrace value.
-
-It is common to for the first task of a process to also be the last
-task of a process so this field may have done something reasonable by
-accident in testing.
-
-Make ac_exitcode a reliable per task value by always returning it for
-every exited task.
-
-Setting ac_exitcode in a sensible mannter makes it possible to continue
-to provide this value going forward.
-
-Cc: Balbir Singh <bsingharora@gmail.com>
-Fixes: f3cef7a99469 ("[PATCH] csa: basic accounting over taskstats")
-Link: https://lkml.kernel.org/r/20220103213312.9144-5-ebiederm@xmission.com
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- kernel/tsacct.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
-
-diff --git a/kernel/tsacct.c b/kernel/tsacct.c
-index 7be3e7530841..33a4093306f9 100644
---- a/kernel/tsacct.c
-+++ b/kernel/tsacct.c
-@@ -35,11 +35,10 @@ void bacct_add_tsk(struct user_namespace *user_ns,
- 	/* Convert to seconds for btime */
- 	do_div(delta, USEC_PER_SEC);
- 	stats->ac_btime = get_seconds() - delta;
--	if (thread_group_leader(tsk)) {
-+	if (tsk->flags & PF_EXITING)
- 		stats->ac_exitcode = tsk->exit_code;
--		if (tsk->flags & PF_FORKNOEXEC)
--			stats->ac_flag |= AFORK;
--	}
-+	if (thread_group_leader(tsk) && (tsk->flags & PF_FORKNOEXEC))
-+		stats->ac_flag |= AFORK;
- 	if (tsk->flags & PF_SUPERPRIV)
- 		stats->ac_flag |= ASU;
- 	if (tsk->flags & PF_DUMPCORE)
--- 
-2.30.2
-
-
---myH/wTAdfqNU0plQ--
+>
+> If you give that a shot and realize that it's not feasible to do a
+> subset, then we can fall back to the minimal fix.  I'm not asking for a
+> multi-month engineering effort here.  Maybe an hour or two to see if
+> it's really as scary as it looks.
