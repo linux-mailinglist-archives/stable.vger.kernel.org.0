@@ -2,132 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC0874BA07E
-	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 14:00:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA9544BA140
+	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 14:31:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236638AbiBQM7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Feb 2022 07:59:07 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55252 "EHLO
+        id S229667AbiBQNcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Feb 2022 08:32:07 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230093AbiBQM7G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 07:59:06 -0500
-Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5852284212;
-        Thu, 17 Feb 2022 04:58:52 -0800 (PST)
-Received: by mail-ot1-x32a.google.com with SMTP id s1-20020a056830148100b005acfdcb1f4bso2826803otq.4;
-        Thu, 17 Feb 2022 04:58:52 -0800 (PST)
+        with ESMTP id S240965AbiBQNcF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 08:32:05 -0500
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C063DECB3C
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 05:31:50 -0800 (PST)
+Received: by mail-ed1-x536.google.com with SMTP id h18so9646270edb.7
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 05:31:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to;
-        bh=4ItLHsT9GMA4Z+/1ZE9OLKoHvk5KsaRvDPYgW0Wxndo=;
-        b=XqjFRi+Lr11n0mgDE75LXWRp5Vg9/r15F1YkzYVSjVMBdurarBLIjG5MsXLn3msCgC
-         jFwAhLEdyV35PtZx/14nn5G8782r0Rpf6LgbYfMgrBGEpx1iej6MNivwsGM/L8SZn1Et
-         b8dJ++N4fHRaF/0WQy2akPE15dxQBDk1VkpwQTNeWIZDrGh8pnxtndC2MoFkMYuAcvcM
-         u3FBibd8g07HQ5FF3ib5g0IOo78kLvB+rbE9hAdEzg5d3Hx7s1P7lJJGxwtWq6jhEC/T
-         QMbVQZdiIN36t8UQ+V2B3yi1l3mANrYQKpXpDA5vFDjwCMQcV28sF8pOUUZRXGxvAIp1
-         Zi8g==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=B0M/IeDIZGDcjbJ+9jtwyMZRbiHqmRKaJeE0g2p7LE4=;
+        b=EcO/f6Ht5+dpl6IvTJTBMSv3SiVfR0UbSXtnhj76Rm8qfUeUWKPvAkaw/yX3GVPcs4
+         VkU/hBPdgZxB448qYxGahx6hEj2NnLDW5/8WRTE50C6q6pDcanFpnv0Sn8iHqQhouK2U
+         8/QJuyK0Pv9MSmWICgutOvhlLrDv2++0a9EIPsKFss6wpT9YPqVAzfRDK4pEp39DIfBe
+         guhZsQxb2H8l56cLwclMKHaerODFXqdEoInf2OQZFwggBDthun7OJg4H6UQjrNQyGXEQ
+         cxJG+bfK96XlCfJ4nZDusI7G3GtmGsm4NL2m8CdHG/s+vhvF8RjwApKeWa3gidQW3iYd
+         qezw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to;
-        bh=4ItLHsT9GMA4Z+/1ZE9OLKoHvk5KsaRvDPYgW0Wxndo=;
-        b=HA3Ci1H+UBUAL9v0EZZRao2vr+1S7+GNoEzHc1hgNbceGPcnv88GqmfEvBvatAe4Xy
-         9i1omG2Ehc1D0K+bDgFQEiyn6ySLUObYkoZul7W77h9V/LwZaZZHVkyAYBlpqJzfOM0G
-         R9RgjqPbtRpxyxLTQD48e0oE8GAAUoubcKIAe6VOhJFzXcyBnm3kOv2X8YWSwAW2+O95
-         eH4F0hETO3BOYa3scQzCIygYNbk1VohgZ9WKdp0JbO0c3Bon9QokYL8U/Qy0sFSVdxN/
-         25MmGARcXTXnPEToo/5UE9NLHXd7upflfI6TuhiVA/8YMkWPRZSazQI0tzYoHdmXq8ve
-         QK8w==
-X-Gm-Message-State: AOAM530MntRXgePxNZQ+QiZKvR8uKPnYXVMl19s31Rw8lmfY5wk4/rZ9
-        2xYEAbsclDn3tybk0+agVBEAJ/hDYUY=
-X-Google-Smtp-Source: ABdhPJzeuWqOz2ANQBh591q1b4yfz1BSsnB/mpuwSeOcUJL0vckfIGUrpIZOzqMIJjpUI9dxvcKEig==
-X-Received: by 2002:a9d:6489:0:b0:5ad:1cd:94b1 with SMTP id g9-20020a9d6489000000b005ad01cd94b1mr750530otl.321.1645102731686;
-        Thu, 17 Feb 2022 04:58:51 -0800 (PST)
-Received: from [192.168.91.2] ([181.97.181.211])
-        by smtp.gmail.com with ESMTPSA id t21sm16241569otj.26.2022.02.17.04.58.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Feb 2022 04:58:50 -0800 (PST)
-Message-ID: <3c258c11-7f4b-790e-b820-9959a128a51a@gmail.com>
-Date:   Thu, 17 Feb 2022 09:58:48 -0300
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=B0M/IeDIZGDcjbJ+9jtwyMZRbiHqmRKaJeE0g2p7LE4=;
+        b=fEqzI4awpvO+gQl3EOT8vxNHNO3NRiSOyQXbKRyTbqKvTwL9HB0IQfi25a9+Ck8OLQ
+         KeKyDFQYKXEflhqDDI1Ja/Jyr5DweFt6KGaV6XVDyIPfOgKdWe8vs4ipmpzutmZeqjju
+         uSNJ42/CkmTjeF0Flr2f1iyy/gBUDEvDKmbXLswxeXlUjF4xih3r6e9li3LJgX9FpsoD
+         RCIhf2APqwa9W4IRO1DCH6qoAEemDTyvaLdmLD8KAPWxlcMlrBSUaA7/XJfSirUTLRc/
+         s3wPDzplZ6JkmU6+f+/+OLmnpfTtaJDogGNKAbFNpK/UuHP2VVaua6fi9AzqGmO6Kga5
+         qCLg==
+X-Gm-Message-State: AOAM532Afl3ENQVU7NW69+WweoqsUGW2S5yYLHrv8kXVX3Ial+ngBzy0
+        pcq5NP/0aRyK2ZcO/mEJVz6q9HtZL3XatUPoG08Cfg==
+X-Google-Smtp-Source: ABdhPJy2VS2aswdOO3DumeVi/SW/abrgycj4jXJPEjtyYzCgFJSj6xjCtQrAxiqrFht8TNaoQkT6V6rZJhZEgXHrFF4=
+X-Received: by 2002:aa7:d8cb:0:b0:406:3135:51c7 with SMTP id
+ k11-20020aa7d8cb000000b00406313551c7mr2504206eds.233.1645104709080; Thu, 17
+ Feb 2022 05:31:49 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.1
-Subject: Re: missing patch in 5.15? {drm/i915: Workaround broken BIOS DBUF
- configuration on TGL/RKL}
-Content-Language: es-AR
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <3cf60426-ce15-f51c-36c9-180431f2f7d5@gmail.com>
- <Yg03NpL7WDMtQWmK@kroah.com>
-From:   Gerardo Exequiel Pozzi <vmlinuz386@gmail.com>
-In-Reply-To: <Yg03NpL7WDMtQWmK@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------BK9ELzur0jpqCyi5gfSnWcti"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <543efc25-9b99-53cd-e305-d8b4d917b64b@intel.com>
+ <20220215192233.8717-1-bgeffon@google.com> <YgwCuGcg6adXAXIz@kroah.com>
+ <CADyq12wByWhsHNOnokrSwCDeEhPdyO6WNJNjpHE1ORgKwwwXgg@mail.gmail.com>
+ <YgzMTrVMCVt+n7cE@kroah.com> <fc86d51c-7aa2-6379-5f26-ad533c762da3@intel.com>
+In-Reply-To: <fc86d51c-7aa2-6379-5f26-ad533c762da3@intel.com>
+From:   Brian Geffon <bgeffon@google.com>
+Date:   Thu, 17 Feb 2022 08:31:12 -0500
+Message-ID: <CADyq12yGvqbb3+hp6f39RqyEM3Mu896yY6ik7Lh39W=o44bYbA@mail.gmail.com>
+Subject: Re: [PATCH stable 5.4,5.10] x86/fpu: Correct pkru/xstate inconsistency
+To:     Dave Hansen <dave.hansen@intel.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Willis Kung <williskung@google.com>,
+        Guenter Roeck <groeck@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        "# v4 . 10+" <stable@vger.kernel.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------BK9ELzur0jpqCyi5gfSnWcti
-Content-Type: multipart/mixed; boundary="------------31ohOSgaBHD5ofR0YG85Z9Op";
- protected-headers="v1"
-From: Gerardo Exequiel Pozzi <vmlinuz386@gmail.com>
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-ID: <3c258c11-7f4b-790e-b820-9959a128a51a@gmail.com>
-Subject: Re: missing patch in 5.15? {drm/i915: Workaround broken BIOS DBUF
- configuration on TGL/RKL}
-References: <3cf60426-ce15-f51c-36c9-180431f2f7d5@gmail.com>
- <Yg03NpL7WDMtQWmK@kroah.com>
-In-Reply-To: <Yg03NpL7WDMtQWmK@kroah.com>
+On Wed, Feb 16, 2022 at 10:16 AM Dave Hansen <dave.hansen@intel.com> wrote:
+>
+> On 2/16/22 02:05, Greg KH wrote:
+> >>> How was this tested, and what do the maintainers of this subsystem
+> >>> think?  And will you be around to fix the bugs in this when they are
+> >>> found?
+> >> This has been trivial to reproduce, I've used a small repro which I've
+> >> put here: https://gist.github.com/bgaff/9f8cbfc8dd22e60f9492e4f0aff8f04f
+> >> , I also was able to reproduce this using the protection_keys self
+> >> tests on a 11th Gen Core i5-1135G7. I'm happy to commit to addressing
+> >> any bugs that may appear. I'll see what the maintainers say, but there
+> >> is also a smaller fix that just involves using this_cpu_read() in
+> >> switch_fpu_finish() for this specific issue, although that approach
+> >> isn't as clean.
+> > Can you add the test to the in-kernel tests so that we make sure it is
+> > fixed and never comes back?
+>
+> It would be great if Brian could confirm this.  But, I'm 99% sure that
+> this can be reproduced in the vm/protection_keys.c selftest, if you run
+> it for long enough.
 
---------------31ohOSgaBHD5ofR0YG85Z9Op
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Hi Dave,
+Yes, this is reproduced by the protection keys selfs tests. If your
+kernel was compiled in a way which caches current_task when read via
+this_cpu_read_stable(), then when switching from a kernel thread to a
+user thread you will observe this behavior, so the only situation
+where it's timing related is waiting for that switch from a kernel to
+user thread. If your kernel is compiled in a way which does not cache
+the value of current_task then you will never observe this behavior.
+My understanding is that this is perfectly valid for the compiler to
+produce that code.
 
-T24gMi8xNi8yMiAxNDo0MSwgR3JlZyBLSCB3cm90ZToNCj4gT24gV2VkLCBGZWIgMTYsIDIw
-MjIgYXQgMTI6Mzc6NTVQTSAtMDMwMCwgR2VyYXJkbyBFeGVxdWllbCBQb3p6aSB3cm90ZToN
-Cj4+IEhpDQo+Pg0KPj4gQ2FuIGFwcGx5IHtkcm0vaTkxNTogV29ya2Fyb3VuZCBicm9rZW4g
-QklPUyBEQlVGIGNvbmZpZ3VyYXRpb24gb24gVEdML1JLTH0NCj4+IFsjMV0sIHRoYXQgaXMg
-bm93IGluIDUuMTYuMTAsIGluIDUuMTUgYnJhbmNoPyBBY2NvcmRpbmcgdG8gY29tbWl0IG1l
-c3NhZ2UgaXMNCj4+IHZhbGlkIGZvciB2NS4xNCsuDQo+Pg0KPj4gVGFrZSBjYXJlLg0KPj4N
-Cj4+DQo+PiBbIzFdIGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJu
-ZWwvZ2l0L3N0YWJsZS9zdGFibGUtcXVldWUuZ2l0L2RpZmYvcmVsZWFzZXMvNS4xNi4xMC9k
-cm0taTkxNS13b3JrYXJvdW5kLWJyb2tlbi1iaW9zLWRidWYtY29uZmlndXJhdGlvbi1vbi10
-Z2wtcmtsLnBhdGNoP2lkPTE1NGFkMDk4YjczYmNjYWIzYjkxY2VmMzNmMGFlYzI2NzhjZWQ3
-MWENCj4gDQo+IA0KPiBBcyBwcmV2aW91c2x5IHJlcG9ydGVkLCBpdCBkb2VzIG5vdCBhcHBs
-eSB0byB0aGUgNS4xNS55IGtlcm5lbCBicmFuY2gNCj4gcmlnaHQgbm93LCBhcyBpdCBicmVh
-a3MgdGhlIGJ1aWxkLg0KPiANCg0KT2ggT0suIEkgZGlkIG5vdCBrbm93IHRoaXMuDQoNCj4g
-SG93IGRpZCB5b3UgdGVzdCB0aGlzIG9uIDUuMTUgdG8gdmVyaWZ5IHRoYXQgaXQgc29sdmVz
-IHRoZSBwcm9ibGVtIGZvcg0KPiB5b3U/ICBEbyB5b3UgaGF2ZSBhIHdvcmtpbmcgcGF0Y2g/
-ICBJZiBzbywgcGxlYXNlIGZvcndhcmQgaXQgdG8gdXMgc28NCj4gdGhhdCB3ZSBjYW4gYXBw
-bHkgaXQuDQo+IA0KPiB0aGFua3MsDQo+IA0KPiBncmVnIGstaA0KDQpOby4gT25seSBpbiA1
-LjE2LiBTb3JyeSBmb3IgdGhlIG5vaXNlLg0KDQpUaGFua3MgZm9yIHlvdXIgdGltZSENCg==
+>
+> The symptom here is corruption of the PKRU register.  I created *lots*
+> of bugs like this during protection keys development so the selftest
+> keeps a shadow copy of the register to specifically watch for corruption.
+>
+> It's _plausible_ that no one ever ran the pkey selftests with a
+> clang-compiled kernel for long enough to hit this issue.
 
+For ChromeOS we use clang and when I tested a vanilla 5.10 kernel
+_built with clang_ it also reproduced, so I suspect you're right that
+the self tests just haven't been run against clang built kernels all
+that often.
 
---------------31ohOSgaBHD5ofR0YG85Z9Op--
+How would you and Greg KH like to proceed with this? I'm happy to help
+however I can.
 
---------------BK9ELzur0jpqCyi5gfSnWcti
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEDzNNhpiIFXj2XSrlXtUUpFvVyTgFAmIORogFAwAAAAAACgkQXtUUpFvVyThg
-5wgAlTxaWATpCj5zZtV3wIl89sQPbU2zAByssRYJYSLhV1Qxk9w3hUUoo1vvmq9tlkG3gBx4nIx8
-tUCVQ7v+GcOBK3I0ACf3XEckzis9499Fjpwuo/+3z159BM7nXpuoC2XjfKWikngfjfXOJTHA2i0+
-ZFD2MYcsAOmtr0ot0iHWeO/6H2PhxRFIT03eGpC4yTbm5oHRTQXf8VE2nCpV8UnXDgqmDPuWoSNx
-jK4VbYgw6zLCdPTLwdrQF+rXo7Esd5esnHrZTXk3WyUae3yfCxLe1fZsduyOqPz0cqJghL2TIMy/
-tN3LB7tAXJ9VC+uIwBkcUEWBUVREN4T5nAjl+BBM9Q==
-=nGYh
------END PGP SIGNATURE-----
-
---------------BK9ELzur0jpqCyi5gfSnWcti--
+Brian
