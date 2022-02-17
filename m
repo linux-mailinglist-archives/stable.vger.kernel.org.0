@@ -2,123 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BD734BA380
-	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 15:50:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D62D74BA3EC
+	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 16:02:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242137AbiBQOtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Feb 2022 09:49:42 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38936 "EHLO
+        id S234301AbiBQPC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Feb 2022 10:02:59 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242122AbiBQOtj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 09:49:39 -0500
-Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com [185.132.182.106])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0145721FC69;
-        Thu, 17 Feb 2022 06:49:24 -0800 (PST)
-Received: from pps.filterd (m0288072.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 21HBatfR010860;
-        Thu, 17 Feb 2022 15:49:03 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=selector1;
- bh=uDBTaIhKiAzA8mTM+6OWIIjO0uszxvkCNaIBSKJuIPE=;
- b=cepx7Q01ybZURJgeAHcz2UECpj/Q9EsgWS4PVaF5dwaGrgoTsMzL7htjFyB8m5ejX1p8
- WYvFMuaT/HJ4DGehMlTtL2aL7b9uLABGuhnaOQKtTOFaEgfK3wCgcrmRv63SmM8M8X2+
- UBFI8SXObppvaFqdXNYtJFiUj0sxBOiaZTIcaiY/WuaszmB/Nz+ug0JikV48mz6xPDjX
- 9aVWlxV/5GxkL/GK41YpNhQVK9Fpwkjn2+rx8cyyaOwUvuyjwOt5lqc8Tkzwez3SgJJn
- T0pywHZdKhQeZZXieE7c5ZTGQWGFwLnW0pQLRJotZ/CnJ0LosPOU439bOoa3YfsGULWZ +Q== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3e9hvgjmpp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Feb 2022 15:49:03 +0100
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 509B710002A;
-        Thu, 17 Feb 2022 15:49:03 +0100 (CET)
-Received: from Webmail-eu.st.com (sfhdag2node2.st.com [10.75.127.5])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 4722E2278A1;
-        Thu, 17 Feb 2022 15:49:03 +0100 (CET)
-Received: from localhost (10.75.127.50) by SFHDAG2NODE2.st.com (10.75.127.5)
- with Microsoft SMTP Server (TLS) id 15.0.1497.26; Thu, 17 Feb 2022 15:49:02
- +0100
-From:   Christophe Kerello <christophe.kerello@foss.st.com>
-To:     <miquel.raynal@bootlin.com>, <richard@nod.at>, <vigneshr@ti.com>,
-        <robh+dt@kernel.org>, <srinivas.kandagatla@linaro.org>,
-        <p.yadav@ti.com>
-CC:     <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <devicetree@vger.kernel.org>, <chenshumin86@sina.com>,
-        Christophe Kerello <christophe.kerello@foss.st.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v3 4/4] mtd: core: Fix a conflict between MTD and NVMEM on wp-gpios property
-Date:   Thu, 17 Feb 2022 15:47:55 +0100
-Message-ID: <20220217144755.270679-5-christophe.kerello@foss.st.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220217144755.270679-1-christophe.kerello@foss.st.com>
-References: <20220217144755.270679-1-christophe.kerello@foss.st.com>
+        with ESMTP id S229513AbiBQPC6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 10:02:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB0891D0EC
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 07:02:42 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AC2861E74
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 15:02:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E8B6C340E9;
+        Thu, 17 Feb 2022 15:02:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1645110158;
+        bh=FtBhB67av2ZfPY0VMQF6gqc4EOoqWCPa+0YrfGzYLtE=;
+        h=Subject:To:From:Date:From;
+        b=GDKYLQUPeNF9YMDi08mecsDSnxOfln/3q5JBoOn+1A0OlFGf3lj5nvjxf/dQH7wNU
+         OdQQEFbVCt1sRIMnuDBHVcCgBsqlz6LAjpA3P7WHQyYrJQaEkfeIF8SOWcdfa1I1WL
+         Rux6eY8bb6TRk/xPr6allcehA8nB0MEBxb68fHfU=
+Subject: patch "tps6598x: clear int mask on probe failure" added to usb-linus
+To:     axboe@kernel.dk, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, stable@vger.kernel.org,
+        sven@svenpeter.dev
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 17 Feb 2022 16:02:36 +0100
+Message-ID: <164511015615244@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.75.127.50]
-X-ClientProxiedBy: SFHDAG2NODE1.st.com (10.75.127.4) To SFHDAG2NODE2.st.com
- (10.75.127.5)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-02-17_05,2022-02-17_01,2021-12-02_01
-X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Wp-gpios property can be used on NVMEM nodes and the same property can
-be also used on MTD NAND nodes. In case of the wp-gpios property is
-defined at NAND level node, the GPIO management is done at NAND driver
-level. Write protect is disabled when the driver is probed or resumed
-and is enabled when the driver is released or suspended.
 
-When no partitions are defined in the NAND DT node, then the NAND DT node
-will be passed to NVMEM framework. If wp-gpios property is defined in
-this node, the GPIO resource is taken twice and the NAND controller
-driver fails to probe.
+This is a note to let you know that I've just added the patch titled
 
-A new Boolean flag named ignore_wp has been added in nvmem_config.
-In case ignore_wp is set, it means that the GPIO is handled by the
-provider. Lets set this flag in MTD layer to avoid the conflict on
-wp_gpios property.
+    tps6598x: clear int mask on probe failure
 
-Fixes: 2a127da461a9 ("nvmem: add support for the write-protect pin")
-Signed-off-by: Christophe Kerello <christophe.kerello@foss.st.com>
-Cc: stable@vger.kernel.org
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From aba2081e0a9c977396124aa6df93b55ed5912b19 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Tue, 15 Feb 2022 11:22:04 -0700
+Subject: tps6598x: clear int mask on probe failure
+
+The interrupt mask is enabled before any potential failure points in
+the driver, which can leave a failure path where we exit with
+interrupts enabled but the device not live. This causes an infinite
+stream of interrupts on an Apple M1 Pro laptop on USB-C.
+
+Add a failure label that's used post enabling interrupts, where we
+mask them again before returning an error.
+
+Suggested-by: Sven Peter <sven@svenpeter.dev>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/e6b80669-20f3-06e7-9ed5-8951a9c6db6f@kernel.dk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-Changes in v3:
- - add a fixes tag
- - rename skip_wp_gpio by ignore_wp in nvmen_config.
+ drivers/usb/typec/tipd/core.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
- drivers/mtd/mtdcore.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
-index 70f492dce158..eef87b28d6c8 100644
---- a/drivers/mtd/mtdcore.c
-+++ b/drivers/mtd/mtdcore.c
-@@ -546,6 +546,7 @@ static int mtd_nvmem_add(struct mtd_info *mtd)
- 	config.stride = 1;
- 	config.read_only = true;
- 	config.root_only = true;
-+	config.ignore_wp = true;
- 	config.no_of_node = !of_device_is_compatible(node, "nvmem-cells");
- 	config.priv = mtd;
+diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
+index 6d27a5b5e3ca..7ffcda94d323 100644
+--- a/drivers/usb/typec/tipd/core.c
++++ b/drivers/usb/typec/tipd/core.c
+@@ -761,12 +761,12 @@ static int tps6598x_probe(struct i2c_client *client)
  
-@@ -833,6 +834,7 @@ static struct nvmem_device *mtd_otp_nvmem_register(struct mtd_info *mtd,
- 	config.owner = THIS_MODULE;
- 	config.type = NVMEM_TYPE_OTP;
- 	config.root_only = true;
-+	config.ignore_wp = true;
- 	config.reg_read = reg_read;
- 	config.size = size;
- 	config.of_node = np;
+ 	ret = tps6598x_read32(tps, TPS_REG_STATUS, &status);
+ 	if (ret < 0)
+-		return ret;
++		goto err_clear_mask;
+ 	trace_tps6598x_status(status);
+ 
+ 	ret = tps6598x_read32(tps, TPS_REG_SYSTEM_CONF, &conf);
+ 	if (ret < 0)
+-		return ret;
++		goto err_clear_mask;
+ 
+ 	/*
+ 	 * This fwnode has a "compatible" property, but is never populated as a
+@@ -855,7 +855,8 @@ static int tps6598x_probe(struct i2c_client *client)
+ 	usb_role_switch_put(tps->role_sw);
+ err_fwnode_put:
+ 	fwnode_handle_put(fwnode);
+-
++err_clear_mask:
++	tps6598x_write64(tps, TPS_REG_INT_MASK1, 0);
+ 	return ret;
+ }
+ 
 -- 
-2.25.1
+2.35.1
+
 
