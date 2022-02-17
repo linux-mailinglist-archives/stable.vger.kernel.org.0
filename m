@@ -2,118 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFBDD4B9B90
-	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 09:57:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 187D64B9DAC
+	for <lists+stable@lfdr.de>; Thu, 17 Feb 2022 11:55:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238254AbiBQI5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Feb 2022 03:57:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42038 "EHLO
+        id S232767AbiBQKzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Feb 2022 05:55:14 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:53204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238248AbiBQI5S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 03:57:18 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EEA422656C
-        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 00:57:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1645088222;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=m+PV3OZADpNe2kw4Z7nkM5UpGpDI3QTeZpn64zU3Xck=;
-        b=S93S9QnQcjeNaCp8iQXwUPuCoemVv8E9Ht2QhekCYEZdMAo5r8QF4+agqoFpH6mzmSaXPj
-        huDpjw4jFg1+eA8g2rVOW3ZUzMAQsh5ZkgvRfMdlaySm/zYfqF3vLUeCgGtxLwYkBxKDCy
-        fctAOAC86IvzjRAXZY7L7uKubcuWIlc=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-532-4tlm8Tg6O6GTLejI83Sf_A-1; Thu, 17 Feb 2022 03:56:58 -0500
-X-MC-Unique: 4tlm8Tg6O6GTLejI83Sf_A-1
-Received: by mail-ej1-f72.google.com with SMTP id h22-20020a1709060f5600b006b11a2d3dcfso1206098ejj.4
-        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 00:56:58 -0800 (PST)
+        with ESMTP id S237894AbiBQKzO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Feb 2022 05:55:14 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FA682944C2
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 02:55:00 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id v8-20020a17090a634800b001bb78857ccdso6737581pjs.1
+        for <stable@vger.kernel.org>; Thu, 17 Feb 2022 02:55:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ventanamicro.com; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Fnwcqhh2WiJm+E2KIQNPJuGkoPvnjSJ+UBtZWNW9CHc=;
+        b=Cesm3oQNnw/my6XDNUnTjVHK/VKYNXbSaAMCwD9OODC79yTE0JATBJuCuLdz2ZuMEX
+         vYjXEpoSoohhTuNzqszr9E3C2UdO5E3MT+sVktzQW6Rck54mkh3ZRqwUReS4qIbqPucV
+         GCySJJm6Rq90E0fBDJqc+OIAeX8yjgFzZnGhspsFZ2h1HAh+HOBqVGEPz4IWYWki4Sx3
+         /820XTBrj11tk1q6TS/E6QJYevrUBd04UquRaaU3N7NfVlX3GpbATqCCg4IHZDp1ECGR
+         HuVq+OIiaX2U4FJe7zashtP0fxAiYg93Y+jm12FQ7a0pXTeFegEAIu5vKBf4LbZxtYq3
+         ALxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=m+PV3OZADpNe2kw4Z7nkM5UpGpDI3QTeZpn64zU3Xck=;
-        b=1Oi07oBRlp2amwd/Z70QwvQcpmd6+Qn4jLvyzJU6B3FwzWFbmR/LKo+dFq1PUSIEUN
-         4ID4KA7+7j1U7+VDol5aSdLuf7gkm8asd8j7V6lJuKxkT7oTnd+nlDME86i2wwTCnK4X
-         fZpxTdg6hY5i/mBAsmdzZmdY63SKQqqvCs0vRxASsRLil6ipRKiQAWme1yKa5lI3Qw4k
-         dOv8WFfAptZ/f1656r9y1G2z5rnFmJHcM1ES0w4mt5g/wZOEyH+xintuqhKLbjaJbhM1
-         SwD9VtzDDJXs5TBtSSK0bEpaqlQTuV4RL9ZTahU4AS6D9D9YvoSWJMN3CVDIPatbSYTc
-         qWsg==
-X-Gm-Message-State: AOAM531hrbHCOwVjcvO9c9Bp83Osn2cUyWzrgJ02dsX1IMD4ADgLh2G+
-        FmG44NmaGZ8d7HffLCVFhDM1F2/aNv2U6AS+2YEs3GMdP2NRWRK4m2Q4uqzUyJUbW8fiu0Zm70k
-        n5TvO/y4DX8FeyQhH
-X-Received: by 2002:a17:906:5804:b0:6ce:3f17:bf35 with SMTP id m4-20020a170906580400b006ce3f17bf35mr1503341ejq.346.1645088217578;
-        Thu, 17 Feb 2022 00:56:57 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzNvgzq7ojbEwxfSo08JfU/P8TRiyKKW/bXmQmsDhGqyNsIPeOpkuAQDMeGfQXZomm/oDkzZQ==
-X-Received: by 2002:a17:906:5804:b0:6ce:3f17:bf35 with SMTP id m4-20020a170906580400b006ce3f17bf35mr1503325ejq.346.1645088217320;
-        Thu, 17 Feb 2022 00:56:57 -0800 (PST)
-Received: from ?IPV6:2003:cb:c711:b800:254c:2d22:aab2:20a? (p200300cbc711b800254c2d22aab2020a.dip0.t-ipconnect.de. [2003:cb:c711:b800:254c:2d22:aab2:20a])
-        by smtp.gmail.com with ESMTPSA id c5sm2914605edk.43.2022.02.17.00.56.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Feb 2022 00:56:56 -0800 (PST)
-Message-ID: <aa1f2e9f-d165-e4a4-d5c3-d285dae4e1a0@redhat.com>
-Date:   Thu, 17 Feb 2022 09:56:56 +0100
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Fnwcqhh2WiJm+E2KIQNPJuGkoPvnjSJ+UBtZWNW9CHc=;
+        b=Rfgi40rGZU3vSUXTWyL6CkgGxm9IdIzdgFwto6ELCd+OCotzOuVWtD7vOxnL1ChDGK
+         Y43SI/N+oGG3vzVrwk0hnhVVKIzAlzOvqnuopSQ04J6D1falK0CTZnD2eeJgP7X2AGd1
+         32mWfnu51UNKqF+XfO4BRWAqtkpu/hBH1d3BmUT4QoALicv4yDhuV/OgVz1cK/+M0JM+
+         rNGf/6iwVBuhytOGfNb5zaPYFevhdQ03RyumWpz922zLtfCVegTd6/ApVQkZBB48oPCj
+         d1QDjGpxgXnc0nUFBwnrY6nrVFT0CCeXiPlB0vPT23fPfu2CJ2Nh0jC1Sjgnvyi1ut+Z
+         tuIg==
+X-Gm-Message-State: AOAM533XkzMSgoVH+wI03URv/WMq1xLDHFu4EF+YmSDxpQt1erH/4dkZ
+        dZ2ixMiUdIobF/agWTGiO4b5jQ==
+X-Google-Smtp-Source: ABdhPJyqYiv4ku/c/Cu0cd/Ah85FRKAie0Vzan4s13zN7vGnIECKh344pF3tvaNTHF8UA9ka3rVvIA==
+X-Received: by 2002:a17:90b:4c4a:b0:1b7:9c92:1cbe with SMTP id np10-20020a17090b4c4a00b001b79c921cbemr6604071pjb.229.1645095299834;
+        Thu, 17 Feb 2022 02:54:59 -0800 (PST)
+Received: from sunil-ThinkPad-T490 ([49.206.7.17])
+        by smtp.gmail.com with ESMTPSA id l8sm50606835pfc.187.2022.02.17.02.54.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Feb 2022 02:54:59 -0800 (PST)
+Date:   Thu, 17 Feb 2022 16:24:50 +0530
+From:   Sunil V L <sunilvl@ventanamicro.com>
+To:     Andreas Schwab <schwab@linux-m68k.org>
+Cc:     Heinrich Schuchardt <xypron.glpk@gmx.de>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Atish Patra <atishp@atishpatra.org>, linux-efi@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Anup Patel <apatel@ventanamicro.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] riscv/efi_stub: Fix get_boot_hartid_from_fdt() return
+ value
+Message-ID: <20220217105450.GA20183@sunil-ThinkPad-T490>
+References: <20220128045004.4843-1-sunilvl@ventanamicro.com>
+ <877d9xx14f.fsf@igel.home>
+ <9cd9f149-d2ea-eb55-b774-8d817b9b6cc9@gmx.de>
+ <87tud1vjn4.fsf@igel.home>
+ <49d3aeab-1fe6-8d17-bc83-78f3555109c7@gmx.de>
+ <87pmnpvh66.fsf@igel.home>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH] mm: fix dereference a null pointer in
- migrate[_huge]_page_move_mapping()
-Content-Language: en-US
-To:     =?UTF-8?B?5p2O5Yqb55C8?= <liqiong@nfschina.com>,
-        Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20220217063808.42018-1-liqiong@nfschina.com>
- <Yg35UXjB7RpqVCOI@kroah.com>
- <d29fd91b-2043-0880-17ab-0ef7ec14bf62@redhat.com>
- <8f00ecbf-245d-f063-40a3-4aaa77680b73@nfschina.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <8f00ecbf-245d-f063-40a3-4aaa77680b73@nfschina.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87pmnpvh66.fsf@igel.home>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 17.02.22 09:48, 李力琼 wrote:
-> 在 2022/2/17 下午3:51, David Hildenbrand 写道:
->> On 17.02.22 08:29, Greg KH wrote:
->>> On Thu, Feb 17, 2022 at 02:38:08PM +0800, liqiong wrote:
->>>> Upstream has no this bug.
->>> What do you mean by this?
->>>
->>> confused,
->> Dito. If this is fixed upstream and broken in stable kernels, we'd want
->> either a backport of the relevant upstream fix, or if too complicated, a
->> stable-only fix.
->>
->>
-> There is a wrong describe， i thought 'Upstream' as the newest code.
-> The newest code has no this bug, i should submit this patch to "longterm:4.19".
+On Mon, Feb 14, 2022 at 12:09:05PM +0100, Andreas Schwab wrote:
+> On Feb 14 2022, Heinrich Schuchardt wrote:
+> 
+> > On 2/14/22 11:15, Andreas Schwab wrote:
+> >> On Feb 14 2022, Heinrich Schuchardt wrote:
+> >>
+> >>> set_boot_hartid() implies that the caller can change the boot hart ID.
+> >>> As this is not a case this name obviously would be a misnomer.
+> >>
+> >> initialize_boot_hartid would fit better.
+> >>
+> >
+> > Another misnomer.
+> 
+> But the best fit so far.
 
-See https://www.kernel.org/doc/Documentation/process/stable-kernel-rules.rst
+Can we use the name init_boot_hartid_from_fdt()? While I understand
+Heinrich's point, I think since we have "_from_fdt", this may be fine.
 
-Make sure your patch subject starts with something like "[PATCH 4.19
-STABLE]" and that your patch targets that stable branch.
+I didn't rename the function since it was not recommended to do multiple
+things in a "Fix" patch. If we can consider this as not very serious
+issue which needs a "Fix" patch, then I can combine this patch with the
+RISCV_EFI_BOOT_PROTOCOL patch series. 
 
-Make sure to describe why it doesn't apply to upstream, how it was fixed
-upstream, and why we cannot simply backport the upstream way to fix it.
+Hi Ard, let me know your suggestion on how to proceed with this.
 
-Thanks!
-
--- 
-Thanks,
-
-David / dhildenb
-
+Thanks
+Sunil
+> 
+> -- 
+> Andreas Schwab, schwab@linux-m68k.org
+> GPG Key fingerprint = 7578 EB47 D4E5 4D69 2510  2552 DF73 E780 A9DA AEC1
+> "And now for something completely different."
