@@ -2,136 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F5684BB6FC
-	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 11:37:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8658B4BB6FB
+	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 11:36:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233516AbiBRKhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Feb 2022 05:37:17 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50120 "EHLO
+        id S232283AbiBRKhH convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 18 Feb 2022 05:37:07 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229694AbiBRKhQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 05:37:16 -0500
-Received: from new1-smtp.messagingengine.com (new1-smtp.messagingengine.com [66.111.4.221])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8EA2636A;
-        Fri, 18 Feb 2022 02:36:59 -0800 (PST)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 94CA758034C;
-        Fri, 18 Feb 2022 05:36:57 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Fri, 18 Feb 2022 05:36:57 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm3; bh=2M482WJpspdP0M9aq+xDp/jCcE8RYRfd8264dt
-        8riP0=; b=pigrYCz/nRvqvfe3fn19OseG2VmEVoVNogADzCWeFbHJqntvb9npCN
-        Q2juAq5pDEkV+W2wyIE6fWSwISWwbB44m808ZnExf8LPwGaFFRQqU9xXdPEJqxuV
-        +xZZKM7SsGUo1TyyWV0Np+Z7oq+FKExfu65Fc6uOBNz+h7s63Ye0HrSL1u5abnRi
-        IGss5nnvD85rWMCHJtTgu3QyStCrkR8VBBGH6Ske+1dks3PIeekkQOM2QMLwxWdh
-        h4QsAA4jEE49U/CnBe0nxCEX3xSEAGk8A/OL7JARVtpjlWKFbce81tzc2ftWxp4g
-        maogHgZj4KJF1RyPAtMF9s47SqcRjvCA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=2M482WJpspdP0M9aq
-        +xDp/jCcE8RYRfd8264dt8riP0=; b=W0/nDAEyRIqKnn+7YBCSBL+ZXoeoATo7h
-        sBNlDhh9KHGE+k0rQK+HQqhWKIUk9kLs9cJTznqnsLRD/NNtbCgdQuR2TJ1tvo32
-        jkNMtjnQw/pWWVWRoirccy6adtRhajb6pBrhw9p5Hmw8eW3+QZt+u0fTmtrOvYMh
-        8vDoRkk2lE0CFzlrDbUQGPvc08hbRXAsbQcOxcT1XadIsZYrFozeRPFAfZFWF0CS
-        qY05qXRBJIEPvCUV+BuxRTZ++0KJMZkaGdmE4z8w08et9BW33QVz8y+FBpaD3LrJ
-        W1O/vu0yWBEKlas4JEibZr5PnVgcVG1jwZktq2zZhUk4UnyC2EJcg==
-X-ME-Sender: <xms:yXYPYvw_79xaQ7rDh3VIqHE71u3E7mRt7vx2IQPIHZGWB9yA_PV1FA>
-    <xme:yXYPYnTCoNFV_DAxPNjzayacJEhBaTR6wzBliNqGDpCtlYMcNIeadLIsBr0pLpKKi
-    8WLhh7AYMNZ2Q>
-X-ME-Received: <xmr:yXYPYpVbd4I1R7O9FSXCHf0Eu1C9149bR2uKY0pAYJV1OUPA8ULtuCgaLaow9vrGcwhrov0CiYhLEzvcUB4T_Tm2laiYNxJj>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrkedtgdduiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:yXYPYphIWbHTxQjunp15iTygx62D3INsbUT7uL-XAnRrceBl4IsGbw>
-    <xmx:yXYPYhA9oLLODIdQFs37gAqSNCTQ5UkfBY9FJy-oPkD13f4EGhtgSA>
-    <xmx:yXYPYiL8vLAdomspPXXOgAe2ZUlP5h3Ekemau84jPazqxsq-vSwnvg>
-    <xmx:yXYPYpbuPee_aQnaNDj5SosxVM50PdH0JxnJryNvfN6Ufjjh8tJmiQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 18 Feb 2022 05:36:56 -0500 (EST)
-Date:   Fri, 18 Feb 2022 11:36:46 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Su Yue <l@damenly.su>, David Sterba <dsterba@suse.com>,
-        clm@fb.com, josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.10 16/27] btrfs: tree-checker: check item_size
- for dev_item
-Message-ID: <Yg92voqmS9jz/rI+@kroah.com>
-References: <20220209184103.47635-1-sashal@kernel.org>
- <20220209184103.47635-16-sashal@kernel.org>
+        with ESMTP id S229694AbiBRKhH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 05:37:07 -0500
+Received: from mail4.swissbit.com (mail4.swissbit.com [176.95.1.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D82F636A
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 02:36:50 -0800 (PST)
+Received: from mail4.swissbit.com (localhost [127.0.0.1])
+        by DDEI (Postfix) with ESMTP id 435E3122DB1;
+        Fri, 18 Feb 2022 11:36:48 +0100 (CET)
+Received: from mail4.swissbit.com (localhost [127.0.0.1])
+        by DDEI (Postfix) with ESMTP id 32195122D56;
+        Fri, 18 Feb 2022 11:36:48 +0100 (CET)
+X-TM-AS-ERS: 10.149.2.84-127.5.254.253
+X-TM-AS-SMTP: 1.0 ZXguc3dpc3NiaXQuY29t Y2xvZWhsZUBoeXBlcnN0b25lLmNvbQ==
+X-DDEI-TLS-USAGE: Used
+Received: from ex.swissbit.com (SBDEEX02.sbitdom.lan [10.149.2.84])
+        by mail4.swissbit.com (Postfix) with ESMTPS;
+        Fri, 18 Feb 2022 11:36:48 +0100 (CET)
+Received: from sbdeex02.sbitdom.lan (10.149.2.84) by sbdeex02.sbitdom.lan
+ (10.149.2.84) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.15; Fri, 18 Feb
+ 2022 11:36:47 +0100
+Received: from sbdeex02.sbitdom.lan ([fe80::e0eb:ade8:2d90:1f74]) by
+ sbdeex02.sbitdom.lan ([fe80::e0eb:ade8:2d90:1f74%8]) with mapi id
+ 15.02.0986.015; Fri, 18 Feb 2022 11:36:47 +0100
+From:   =?iso-8859-1?Q?Christian_L=F6hle?= <CLoehle@hyperstone.com>
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+CC:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Adrian Hunter <adrian.hunter@intel.com>
+Subject: Re: [PATCH] mmc: block: fix read single on recovery logic
+Thread-Topic: [PATCH] mmc: block: fix read single on recovery logic
+Thread-Index: AQHYJK0F7THTFUoG1UqyVjHZgEpMkKyZC9uAgAARJTU=
+Date:   Fri, 18 Feb 2022 10:36:47 +0000
+Message-ID: <03b3664476424756867d9dd76f984002@hyperstone.com>
+References: <16451252511822@kroah.com>
+ <abf69d264c7845bab8433ccae7ed0e0f@hyperstone.com>,<Yg92AW1onRd47G9z@kroah.com>
+In-Reply-To: <Yg92AW1onRd47G9z@kroah.com>
+Accept-Language: en-US, de-DE
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.242.2.66]
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220209184103.47635-16-sashal@kernel.org>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-TMASE-Version: DDEI-5.1-8.6.1018-26722.007
+X-TMASE-Result: 10--18.286300-10.000000
+X-TMASE-MatchedRID: Y6GLOewO+JjUL3YCMmnG4qzGfgakLdjaGbJMFqqIm9xXGTbsQqHbkpZh
+        jmb07zEXsY+8nR90dzsknOGoeIQzlh/Qfe1gmZY9DstQFfLVA/ClLADMASK8xy2is8s1ivBkBk0
+        sRysFrTDPQfWquCqW3djW4z+YWqqJ9xWd9ZideuhNsVUJg8FOpk+crEA4+nhZnhD4vcFcha4aT/
+        e9Mxzf2PRhdDOk28T8+rMhH9g4h++h+znN1Lt6wN0KiTeJteVBfS0Ip2eEHny4wTpaFKqo4dRnE
+        QCUU+jzjoczmuoPCq0nmzRvsQXrCr+44iuSrD8nXIHVMieLY8gUJI8by46oaiYtX7th1Qun
+X-TMASE-SNAP-Result: 1.821001.0001-0-1-22:0,33:0,34:0-0
+X-TMASE-INERTIA: 0-0;;;;
+X-TMASE-XGENCLOUD: c041232f-d5e6-4f23-8acc-efb0a165d9a6-0-0-200-0
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 09, 2022 at 01:40:52PM -0500, Sasha Levin wrote:
-> From: Su Yue <l@damenly.su>
-> 
-> [ Upstream commit ea1d1ca4025ac6c075709f549f9aa036b5b6597d ]
-> 
-> Check item size before accessing the device item to avoid out of bound
-> access, similar to inode_item check.
-> 
-> Signed-off-by: Su Yue <l@damenly.su>
-> Reviewed-by: David Sterba <dsterba@suse.com>
-> Signed-off-by: David Sterba <dsterba@suse.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  fs/btrfs/tree-checker.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
-> index d4a3a56726aa8..4a5ee516845f7 100644
-> --- a/fs/btrfs/tree-checker.c
-> +++ b/fs/btrfs/tree-checker.c
-> @@ -947,6 +947,7 @@ static int check_dev_item(struct extent_buffer *leaf,
->  			  struct btrfs_key *key, int slot)
->  {
->  	struct btrfs_dev_item *ditem;
-> +	const u32 item_size = btrfs_item_size(leaf, slot);
->  
->  	if (key->objectid != BTRFS_DEV_ITEMS_OBJECTID) {
->  		dev_item_err(leaf, slot,
-> @@ -954,6 +955,13 @@ static int check_dev_item(struct extent_buffer *leaf,
->  			     key->objectid, BTRFS_DEV_ITEMS_OBJECTID);
->  		return -EUCLEAN;
->  	}
-> +
-> +	if (unlikely(item_size != sizeof(*ditem))) {
-> +		dev_item_err(leaf, slot, "invalid item size: has %u expect %zu",
-> +			     item_size, sizeof(*ditem));
-> +		return -EUCLEAN;
-> +	}
-> +
->  	ditem = btrfs_item_ptr(leaf, slot, struct btrfs_dev_item);
->  	if (btrfs_device_id(leaf, ditem) != key->offset) {
->  		dev_item_err(leaf, slot,
-> -- 
-> 2.34.1
-> 
+This is the backport for 4.19, it applied for more recent branches and is not applicable to 4.14.
 
-This adds a build warning, showing that the backport is not correct, so
-I'll go drop this :(
+
+
+From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>
+Sent: Friday, February 18, 2022 11:33 AM
+To: Christian Löhle
+Cc: stable@vger.kernel.org; Ulf Hansson; Adrian Hunter
+Subject: Re: [PATCH] mmc: block: fix read single on recovery logic
+    
+On Fri, Feb 18, 2022 at 09:50:54AM +0000, Christian Löhle wrote:
+> commit 54309fde1a352ad2674ebba004a79f7d20b9f037 upstream.
+> 
+> On reads with MMC_READ_MULTIPLE_BLOCK that fail,
+> the recovery handler will use MMC_READ_SINGLE_BLOCK for
+> each of the blocks, up to MMC_READ_SINGLE_RETRIES times each.
+> The logic for this is fixed to never report unsuccessful reads
+> as success to the block layer.
+> 
+> On command error with retries remaining, blk_update_request was
+> called with whatever value error was set last to.
+> In case it was last set to BLK_STS_OK (default), the read will be
+> reported as success, even though there was no data read from the device.
+> This could happen on a CRC mismatch for the response,
+> a card rejecting the command (e.g. again due to a CRC mismatch).
+> In case it was last set to BLK_STS_IOERR, the error is reported correctly,
+> but no retries will be attempted.
+> 
+> Fixes: 81196976ed946c ("mmc: block: Add blk-mq support")
+> 
+> Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
+> ---
+>  drivers/mmc/core/block.c | 28 ++++++++++++++--------------
+>  1 file changed, 14 insertions(+), 14 deletions(-)
+
+What stable branch(s) is this backport for?
 
 thanks,
 
 greg k-h
+    =
+Hyperstone GmbH | Reichenaustr. 39a  | 78467 Konstanz
+Managing Director: Dr. Jan Peter Berns.
+Commercial register of local courts: Freiburg HRB381782
+
