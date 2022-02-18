@@ -2,110 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ECAB4BBFCB
-	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 19:47:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAC694BBFF9
+	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 19:54:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239373AbiBRSru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Feb 2022 13:47:50 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43960 "EHLO
+        id S234556AbiBRSyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Feb 2022 13:54:36 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238706AbiBRSrt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 13:47:49 -0500
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABDB712AC3
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 10:47:32 -0800 (PST)
-Received: by mail-pf1-x430.google.com with SMTP id d187so2988972pfa.10
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 10:47:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:from:to:cc:subject:in-reply-to:message-id:references
-         :mime-version;
-        bh=9s/ZIHrGES7feK2tz5dP1rmrFQ/RLT8GNy7zBmf9EgA=;
-        b=f0H3TVA9AOk2uGP+1p95rEv5SaFwf75XopgpbmOxZY8zZsMWRS7/ilyAzemq42ESPm
-         wlFR7t4VyV+eB83JWky1FqzO4CdSZjDePKhOC5uuKA42mL9nd98/EVdL9zpuiudJCRHG
-         E/569cf/0s3ZM93xiPP35gjTOIeT6l97ECf0fifUKeerHnYhMsaBs/uZnBlqlDJvqtX8
-         9zyEy2gnZm6ck0iYurd/2iReR+k7ZeFKo/nzibUUGYQkf6MeYCCb7CUMpRqjEUOum+zH
-         z0+tIlA6QCpa+mIRTL/DQP/NDl3xZeu/8IIub+8KNEX5t30zXH6yiACac5mO3G2kSuAH
-         2HyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
-         :references:mime-version;
-        bh=9s/ZIHrGES7feK2tz5dP1rmrFQ/RLT8GNy7zBmf9EgA=;
-        b=6uaH5zBJ2Hd7pc9x/70+AMovGDPA2dTPrWa9CxVzKj+l8VheIAll4UuTiOhr/YhAxU
-         v6BWoUG7hUf1vX1BeOjOOz6sZNcLj7u4HQYXoQoxbh0zudy+kGzUR2CQa7ruIf/nQjvT
-         /DM4FhCBYH1txyyprI02tJNMSxXtQgf8IgpJFUeQ1YgfCKtMrPAc4RxByqtAlFbyZJKa
-         qcE6ahR4rnVwBH/i5pu2AobTs1OGFjCZg6K06KqKooYDLzqMTg5wrREBRVfQZh7thT+Q
-         lIPzqDna07wgMbU3wLkJNse0AFm7mQeVhc2+JCGq7n6HGwTDg3FHcSaxHiMPMUUDo2xb
-         zBsg==
-X-Gm-Message-State: AOAM530R9yFZkHbRrjhMks995aKhT7wUK6tFsNYtQIsvp22gLF2uk0pD
-        vjZoJldH/l/uSle2dKptUXTDqTkD9eILHg==
-X-Google-Smtp-Source: ABdhPJxbZeaBnK2HPkHb7qJeePZrSd31i9bN8DyNF4o8wa3tB2DdFjfjcOKFTXhdLq/D0WfDRNYbsQ==
-X-Received: by 2002:a62:3085:0:b0:4e0:1218:6d03 with SMTP id w127-20020a623085000000b004e012186d03mr9053021pfw.19.1645210051404;
-        Fri, 18 Feb 2022 10:47:31 -0800 (PST)
-Received: from [2620:15c:29:204:701:472c:4005:6710] ([2620:15c:29:204:701:472c:4005:6710])
-        by smtp.gmail.com with ESMTPSA id h5sm3534755pfc.118.2022.02.18.10.47.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Feb 2022 10:47:30 -0800 (PST)
-Date:   Fri, 18 Feb 2022 10:47:30 -0800 (PST)
-From:   David Rientjes <rientjes@google.com>
+        with ESMTP id S231234AbiBRSye (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 13:54:34 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FC2E212E2D;
+        Fri, 18 Feb 2022 10:54:16 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id BA49D1F380;
+        Fri, 18 Feb 2022 18:54:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1645210454; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=7xBLRQZhq3/skvOmeDBJB14+LYXLehKVzIynhx/JjM0=;
+        b=0jXyJ65ecJsaSLvPCVibOVAuY3OGK4usVKD2EERKyiLsHHz0e7QV4ZYTI3Rbt+GijfiPAG
+        xIwopJxYs0ot03/jzftod8OrUCu8aNBPsxw0mQJkerkALjDt7nHVaIaaaszd+tdaM61Yh8
+        d+1wWi8yXTM/1QG71yycfwTLocwKzPk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1645210454;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=7xBLRQZhq3/skvOmeDBJB14+LYXLehKVzIynhx/JjM0=;
+        b=80A1QJM3/GCBQg8FBevUB/VqXoEnD5gOwj9dFfPlDytKxWCjOlLQ3vd3yEu21dWjq5f7Ox
+        JiaCkAMG6wXNfDDQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 87D2513C9F;
+        Fri, 18 Feb 2022 18:54:14 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id Zl1lIFbrD2KneQAAMHmgww
+        (envelope-from <vbabka@suse.cz>); Fri, 18 Feb 2022 18:54:14 +0000
+Message-ID: <c237f6d1-4219-0e6d-6aca-9c29d060bb4f@suse.cz>
+Date:   Fri, 18 Feb 2022 19:54:14 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Subject: Re: [PATCH] slab: remove __alloc_size attribute from
+ __kmalloc_track_caller
+Content-Language: en-US
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-cc:     linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>,
+Cc:     linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>,
         Kees Cook <keescook@chromium.org>,
         Daniel Micay <danielmicay@gmail.com>,
         Nick Desaulniers <ndesaulniers@google.com>,
         Christoph Lameter <cl@linux.com>,
         Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
         Joonsoo Kim <iamjoonsoo.kim@lge.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
         Nathan Chancellor <nathan@kernel.org>, linux-mm@kvack.org,
         llvm@lists.linux.dev
-Subject: Re: [PATCH] slab: remove __alloc_size attribute from
- __kmalloc_track_caller
-In-Reply-To: <20220218131358.3032912-1-gregkh@linuxfoundation.org>
-Message-ID: <b8e9dcd2-5b2d-af7d-e4e6-c6bd4a7e4315@google.com>
 References: <20220218131358.3032912-1-gregkh@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=unavailable autolearn_force=no version=3.4.6
+ <a5ab4496-8190-6221-72c7-d1ff2e6cf1d4@suse.cz> <Yg/eG4X7Esa0h1al@kroah.com>
+From:   Vlastimil Babka <vbabka@suse.cz>
+In-Reply-To: <Yg/eG4X7Esa0h1al@kroah.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 18 Feb 2022, Greg Kroah-Hartman wrote:
-
-> Commit c37495d6254c ("slab: add __alloc_size attributes for better
-> bounds checking") added __alloc_size attributes to a bunch of kmalloc
-> function prototypes.  Unfortunately the change to __kmalloc_track_caller
-> seems to cause clang to generate broken code and the first time this is
-> called when booting, the box will crash.
+On 2/18/22 18:57, Greg Kroah-Hartman wrote:
+> On Fri, Feb 18, 2022 at 06:14:55PM +0100, Vlastimil Babka wrote:
+>> On 2/18/22 14:13, Greg Kroah-Hartman wrote:
+>> > Commit c37495d6254c ("slab: add __alloc_size attributes for better
+>> > bounds checking") added __alloc_size attributes to a bunch of kmalloc
+>> > function prototypes.  Unfortunately the change to __kmalloc_track_caller
+>> > seems to cause clang to generate broken code and the first time this is
+>> > called when booting, the box will crash.
+>> > 
+>> > While the compiler problems are being reworked and attempted to be
+>> > solved, let's just drop the attribute to solve the issue now.  Once it
+>> > is resolved it can be added back.
+>> 
+>> Could we instead wrap it in some #ifdef that' only true for clang build?
+>> That would make the workaround more precise and self-documented. Even
+>> better if it can trigger using clang version range and once a fixed
+>> clang version is here, it can be updated to stay true for older clangs.
 > 
-> While the compiler problems are being reworked and attempted to be
-> solved, let's just drop the attribute to solve the issue now.  Once it
-> is resolved it can be added back.
+> It's not doing all that much good like this, let's just remove it for
+> now until it does actually provide a benifit and not just crash the box :)
 > 
-> Fixes: c37495d6254c ("slab: add __alloc_size attributes for better bounds checking")
-> Cc: stable <stable@vger.kernel.org>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: Daniel Micay <danielmicay@gmail.com>
-> Cc: Nick Desaulniers <ndesaulniers@google.com>
-> Cc: Christoph Lameter <cl@linux.com>
-> Cc: Pekka Enberg <penberg@kernel.org>
-> Cc: David Rientjes <rientjes@google.com>
-> Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Vlastimil Babka <vbabka@suse.cz>
-> Cc: Nathan Chancellor <nathan@kernel.org>
-> Cc: linux-mm@kvack.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: llvm@lists.linux.dev
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> This is only 1 function, that is used in only a very small number of
+> callers.  I do not think it will be missed.
 
-Acked-by: David Rientjes <rientjes@google.com>
+Fair enough, added to the slab tree:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/vbabka/slab.git/log/?h=for-5.17/fixup5
+
+> thanks,
+> 
+> greg k-h
+> 
+
