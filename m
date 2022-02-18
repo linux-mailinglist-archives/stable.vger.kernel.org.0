@@ -2,120 +2,373 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8658B4BB6FB
-	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 11:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EF714BB728
+	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 11:45:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232283AbiBRKhH convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 18 Feb 2022 05:37:07 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49306 "EHLO
+        id S234185AbiBRKqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Feb 2022 05:46:09 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229694AbiBRKhH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 05:37:07 -0500
-Received: from mail4.swissbit.com (mail4.swissbit.com [176.95.1.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D82F636A
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 02:36:50 -0800 (PST)
-Received: from mail4.swissbit.com (localhost [127.0.0.1])
-        by DDEI (Postfix) with ESMTP id 435E3122DB1;
-        Fri, 18 Feb 2022 11:36:48 +0100 (CET)
-Received: from mail4.swissbit.com (localhost [127.0.0.1])
-        by DDEI (Postfix) with ESMTP id 32195122D56;
-        Fri, 18 Feb 2022 11:36:48 +0100 (CET)
-X-TM-AS-ERS: 10.149.2.84-127.5.254.253
-X-TM-AS-SMTP: 1.0 ZXguc3dpc3NiaXQuY29t Y2xvZWhsZUBoeXBlcnN0b25lLmNvbQ==
-X-DDEI-TLS-USAGE: Used
-Received: from ex.swissbit.com (SBDEEX02.sbitdom.lan [10.149.2.84])
-        by mail4.swissbit.com (Postfix) with ESMTPS;
-        Fri, 18 Feb 2022 11:36:48 +0100 (CET)
-Received: from sbdeex02.sbitdom.lan (10.149.2.84) by sbdeex02.sbitdom.lan
- (10.149.2.84) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.15; Fri, 18 Feb
- 2022 11:36:47 +0100
-Received: from sbdeex02.sbitdom.lan ([fe80::e0eb:ade8:2d90:1f74]) by
- sbdeex02.sbitdom.lan ([fe80::e0eb:ade8:2d90:1f74%8]) with mapi id
- 15.02.0986.015; Fri, 18 Feb 2022 11:36:47 +0100
-From:   =?iso-8859-1?Q?Christian_L=F6hle?= <CLoehle@hyperstone.com>
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Adrian Hunter <adrian.hunter@intel.com>
-Subject: Re: [PATCH] mmc: block: fix read single on recovery logic
-Thread-Topic: [PATCH] mmc: block: fix read single on recovery logic
-Thread-Index: AQHYJK0F7THTFUoG1UqyVjHZgEpMkKyZC9uAgAARJTU=
-Date:   Fri, 18 Feb 2022 10:36:47 +0000
-Message-ID: <03b3664476424756867d9dd76f984002@hyperstone.com>
-References: <16451252511822@kroah.com>
- <abf69d264c7845bab8433ccae7ed0e0f@hyperstone.com>,<Yg92AW1onRd47G9z@kroah.com>
-In-Reply-To: <Yg92AW1onRd47G9z@kroah.com>
-Accept-Language: en-US, de-DE
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.242.2.66]
-Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+        with ESMTP id S234145AbiBRKqB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 05:46:01 -0500
+Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86D8129690D
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 02:45:44 -0800 (PST)
+Received: by mail-lj1-x234.google.com with SMTP id bn33so3654474ljb.6
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 02:45:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=NmrZAaTzmzY3f8j8ur3y+/Pq9p4qw3PiRXeLKHLYG7o=;
+        b=XRSnK/j3ywwJk/R4Hs10Q1+vin6YrzTg8jWQ3Xtyp2Qg3WYOmqzBXBHUR7k+E0unb6
+         9syHrAoKKB+KU9Vd3jquqxwCu6oDyKInVrq8gDZHoffYH3UAPg4Y6HYlVL2FozMFq5Ox
+         PtDQQkbrAUOZCvAvjcdvcuKEgzOcuBlSvtC6w/HNlHh9umLg+9CBsww4ZwXT6FiqXV98
+         UZlDbDhGpbLlTDAYcQU0qy2VhtrRnHMizQZYoPwC9r8yMtksUa6BjPwNO1ypLz5z84if
+         Ab3VJxDmU7I5sZ14ubuKJUSd209bCvEMES1Y0YCzMypxQWjWNFxHn7JJCwfzBfTWuuOF
+         w0Kg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=NmrZAaTzmzY3f8j8ur3y+/Pq9p4qw3PiRXeLKHLYG7o=;
+        b=Lnp4DC0sWNmK7oIbdCcL5Chtm8BgmVjSHaWzWKwBIa2IP9Ly24+vTW0Muu8flX6x0w
+         Ignk+EerilOxWW5eulmEel6z4fRoWG+FAM80a12ROIOFwMQa5ytWAyDk2U1ZuCohFrSY
+         QYlwEN7OyIPJF1CKX25IxALKuZACJYlSDZ+pHIqKnhe854Z+ZsbNPNgH+mhGCMqqrwZ0
+         aHOaCWaCF5mtddWd7DXdb7pkKqR7uH10P4qqAgOkh7B+5Zfcnai+bPmFRcsaGfP3SwCm
+         ALZOPAAPMx/aL7rPOuQokKt3Hpn5+r3DIZbc5JWjnz1iTsG7gDcE7JC7ebkISHD8IW7+
+         b55A==
+X-Gm-Message-State: AOAM532X+92q/mg7BS2g9MUqBciFsHWJ89KEjTs9AeMwP6svkQj0DFIK
+        UwMp9E876sUQxCL3470+taCzWDg2CzPrNw==
+X-Google-Smtp-Source: ABdhPJzjZ+QCfMCUFQP7ZIML9wJXFBs5jo727g4PqnF+1IfVr23/dF6hVXgteI3WuqqQWkq7Lbu0Ng==
+X-Received: by 2002:a05:651c:2119:b0:246:32a:4248 with SMTP id a25-20020a05651c211900b00246032a4248mr5362319ljq.111.1645181142526;
+        Fri, 18 Feb 2022 02:45:42 -0800 (PST)
+Received: from jade.urgonet (h-94-254-48-165.A175.priv.bahnhof.se. [94.254.48.165])
+        by smtp.gmail.com with ESMTPSA id l24sm277775ljb.90.2022.02.18.02.45.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Feb 2022 02:45:42 -0800 (PST)
+From:   Jens Wiklander <jens.wiklander@linaro.org>
+To:     stable@vger.kernel.org
+Cc:     Sumit Garg <sumit.garg@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
+        Lars Persson <larper@axis.com>
+Subject: [PATCH backportt 5.16] optee: use driver internal tee_context for some rpc
+Date:   Fri, 18 Feb 2022 11:45:29 +0100
+Message-Id: <20220218104529.436040-1-jens.wiklander@linaro.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-X-TMASE-Version: DDEI-5.1-8.6.1018-26722.007
-X-TMASE-Result: 10--18.286300-10.000000
-X-TMASE-MatchedRID: Y6GLOewO+JjUL3YCMmnG4qzGfgakLdjaGbJMFqqIm9xXGTbsQqHbkpZh
-        jmb07zEXsY+8nR90dzsknOGoeIQzlh/Qfe1gmZY9DstQFfLVA/ClLADMASK8xy2is8s1ivBkBk0
-        sRysFrTDPQfWquCqW3djW4z+YWqqJ9xWd9ZideuhNsVUJg8FOpk+crEA4+nhZnhD4vcFcha4aT/
-        e9Mxzf2PRhdDOk28T8+rMhH9g4h++h+znN1Lt6wN0KiTeJteVBfS0Ip2eEHny4wTpaFKqo4dRnE
-        QCUU+jzjoczmuoPCq0nmzRvsQXrCr+44iuSrD8nXIHVMieLY8gUJI8by46oaiYtX7th1Qun
-X-TMASE-SNAP-Result: 1.821001.0001-0-1-22:0,33:0,34:0-0
-X-TMASE-INERTIA: 0-0;;;;
-X-TMASE-XGENCLOUD: c041232f-d5e6-4f23-8acc-efb0a165d9a6-0-0-200-0
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the backport for 4.19, it applied for more recent branches and is not applicable to 4.14.
+commit aceeafefff736057e8f93f19bbfbef26abd94604 upstream
 
+Adds a driver private tee_context to struct optee.
 
+The new driver internal tee_context is used when allocating driver
+private shared memory. This decouples the shared memory object from its
+original tee_context. This is needed when the life time of such a memory
+allocation outlives the client tee_context.
 
-From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>
-Sent: Friday, February 18, 2022 11:33 AM
-To: Christian Löhle
-Cc: stable@vger.kernel.org; Ulf Hansson; Adrian Hunter
-Subject: Re: [PATCH] mmc: block: fix read single on recovery logic
-    
-On Fri, Feb 18, 2022 at 09:50:54AM +0000, Christian Löhle wrote:
-> commit 54309fde1a352ad2674ebba004a79f7d20b9f037 upstream.
-> 
-> On reads with MMC_READ_MULTIPLE_BLOCK that fail,
-> the recovery handler will use MMC_READ_SINGLE_BLOCK for
-> each of the blocks, up to MMC_READ_SINGLE_RETRIES times each.
-> The logic for this is fixed to never report unsuccessful reads
-> as success to the block layer.
-> 
-> On command error with retries remaining, blk_update_request was
-> called with whatever value error was set last to.
-> In case it was last set to BLK_STS_OK (default), the read will be
-> reported as success, even though there was no data read from the device.
-> This could happen on a CRC mismatch for the response,
-> a card rejecting the command (e.g. again due to a CRC mismatch).
-> In case it was last set to BLK_STS_IOERR, the error is reported correctly,
-> but no retries will be attempted.
-> 
-> Fixes: 81196976ed946c ("mmc: block: Add blk-mq support")
-> 
-> Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
-> ---
->  drivers/mmc/core/block.c | 28 ++++++++++++++--------------
->  1 file changed, 14 insertions(+), 14 deletions(-)
+This patch fixes the problem described below:
 
-What stable branch(s) is this backport for?
+The addition of a shutdown hook by commit f25889f93184 ("optee: fix tee out
+of memory failure seen during kexec reboot") introduced a kernel shutdown
+regression that can be triggered after running the OP-TEE xtest suites.
 
-thanks,
+Once the shutdown hook is called it is not possible to communicate any more
+with the supplicant process because the system is not scheduling task any
+longer. Thus if the optee driver shutdown path receives a supplicant RPC
+request from the OP-TEE we will deadlock the kernel's shutdown.
 
-greg k-h
-    =
-Hyperstone GmbH | Reichenaustr. 39a  | 78467 Konstanz
-Managing Director: Dr. Jan Peter Berns.
-Commercial register of local courts: Freiburg HRB381782
+Fixes: f25889f93184 ("optee: fix tee out of memory failure seen during kexec reboot")
+Fixes: 217e0250cccb ("tee: use reference counting for tee_context")
+Reported-by: Lars Persson <larper@axis.com>
+Cc: stable@vger.kernel.org # 1e2c3ef0496e tee: export teedev_open() and teedev_close_context()
+Cc: stable@vger.kernel.org
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+[JW: backport to 5.16-stable + update commit message]
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+---
+ drivers/tee/optee/core.c          |  1 +
+ drivers/tee/optee/ffa_abi.c       | 70 ++++++++++++++++++-------------
+ drivers/tee/optee/optee_private.h |  4 +-
+ drivers/tee/optee/smc_abi.c       | 13 ++++--
+ 4 files changed, 54 insertions(+), 34 deletions(-)
+
+diff --git a/drivers/tee/optee/core.c b/drivers/tee/optee/core.c
+index 2a66a5203d2f..7bf9e888b621 100644
+--- a/drivers/tee/optee/core.c
++++ b/drivers/tee/optee/core.c
+@@ -157,6 +157,7 @@ void optee_remove_common(struct optee *optee)
+ 	/* Unregister OP-TEE specific client devices on TEE bus */
+ 	optee_unregister_devices();
+ 
++	teedev_close_context(optee->ctx);
+ 	/*
+ 	 * The two devices have to be unregistered before we can free the
+ 	 * other resources.
+diff --git a/drivers/tee/optee/ffa_abi.c b/drivers/tee/optee/ffa_abi.c
+index d8c8683863aa..3c151d4e7f3a 100644
+--- a/drivers/tee/optee/ffa_abi.c
++++ b/drivers/tee/optee/ffa_abi.c
+@@ -424,6 +424,7 @@ static struct tee_shm_pool_mgr *optee_ffa_shm_pool_alloc_pages(void)
+  */
+ 
+ static void handle_ffa_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
++					      struct optee *optee,
+ 					      struct optee_msg_arg *arg)
+ {
+ 	struct tee_shm *shm;
+@@ -439,7 +440,7 @@ static void handle_ffa_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
+ 		shm = optee_rpc_cmd_alloc_suppl(ctx, arg->params[0].u.value.b);
+ 		break;
+ 	case OPTEE_RPC_SHM_TYPE_KERNEL:
+-		shm = tee_shm_alloc(ctx, arg->params[0].u.value.b,
++		shm = tee_shm_alloc(optee->ctx, arg->params[0].u.value.b,
+ 				    TEE_SHM_MAPPED | TEE_SHM_PRIV);
+ 		break;
+ 	default:
+@@ -493,14 +494,13 @@ static void handle_ffa_rpc_func_cmd_shm_free(struct tee_context *ctx,
+ }
+ 
+ static void handle_ffa_rpc_func_cmd(struct tee_context *ctx,
++				    struct optee *optee,
+ 				    struct optee_msg_arg *arg)
+ {
+-	struct optee *optee = tee_get_drvdata(ctx->teedev);
+-
+ 	arg->ret_origin = TEEC_ORIGIN_COMMS;
+ 	switch (arg->cmd) {
+ 	case OPTEE_RPC_CMD_SHM_ALLOC:
+-		handle_ffa_rpc_func_cmd_shm_alloc(ctx, arg);
++		handle_ffa_rpc_func_cmd_shm_alloc(ctx, optee, arg);
+ 		break;
+ 	case OPTEE_RPC_CMD_SHM_FREE:
+ 		handle_ffa_rpc_func_cmd_shm_free(ctx, optee, arg);
+@@ -510,12 +510,12 @@ static void handle_ffa_rpc_func_cmd(struct tee_context *ctx,
+ 	}
+ }
+ 
+-static void optee_handle_ffa_rpc(struct tee_context *ctx, u32 cmd,
+-				 struct optee_msg_arg *arg)
++static void optee_handle_ffa_rpc(struct tee_context *ctx, struct optee *optee,
++				 u32 cmd, struct optee_msg_arg *arg)
+ {
+ 	switch (cmd) {
+ 	case OPTEE_FFA_YIELDING_CALL_RETURN_RPC_CMD:
+-		handle_ffa_rpc_func_cmd(ctx, arg);
++		handle_ffa_rpc_func_cmd(ctx, optee, arg);
+ 		break;
+ 	case OPTEE_FFA_YIELDING_CALL_RETURN_INTERRUPT:
+ 		/* Interrupt delivered by now */
+@@ -582,7 +582,7 @@ static int optee_ffa_yielding_call(struct tee_context *ctx,
+ 		 * above.
+ 		 */
+ 		cond_resched();
+-		optee_handle_ffa_rpc(ctx, data->data1, rpc_arg);
++		optee_handle_ffa_rpc(ctx, optee, data->data1, rpc_arg);
+ 		cmd = OPTEE_FFA_YIELDING_CALL_RESUME;
+ 		data->data0 = cmd;
+ 		data->data1 = 0;
+@@ -793,7 +793,9 @@ static int optee_ffa_probe(struct ffa_device *ffa_dev)
+ {
+ 	const struct ffa_dev_ops *ffa_ops;
+ 	unsigned int rpc_arg_count;
++	struct tee_shm_pool *pool;
+ 	struct tee_device *teedev;
++	struct tee_context *ctx;
+ 	struct optee *optee;
+ 	int rc;
+ 
+@@ -813,12 +815,12 @@ static int optee_ffa_probe(struct ffa_device *ffa_dev)
+ 	if (!optee)
+ 		return -ENOMEM;
+ 
+-	optee->pool = optee_ffa_config_dyn_shm();
+-	if (IS_ERR(optee->pool)) {
+-		rc = PTR_ERR(optee->pool);
+-		optee->pool = NULL;
+-		goto err;
++	pool = optee_ffa_config_dyn_shm();
++	if (IS_ERR(pool)) {
++		rc = PTR_ERR(pool);
++		goto err_free_optee;
+ 	}
++	optee->pool = pool;
+ 
+ 	optee->ops = &optee_ffa_ops;
+ 	optee->ffa.ffa_dev = ffa_dev;
+@@ -829,7 +831,7 @@ static int optee_ffa_probe(struct ffa_device *ffa_dev)
+ 				  optee);
+ 	if (IS_ERR(teedev)) {
+ 		rc = PTR_ERR(teedev);
+-		goto err;
++		goto err_free_pool;
+ 	}
+ 	optee->teedev = teedev;
+ 
+@@ -837,46 +839,54 @@ static int optee_ffa_probe(struct ffa_device *ffa_dev)
+ 				  optee);
+ 	if (IS_ERR(teedev)) {
+ 		rc = PTR_ERR(teedev);
+-		goto err;
++		goto err_unreg_teedev;
+ 	}
+ 	optee->supp_teedev = teedev;
+ 
+ 	rc = tee_device_register(optee->teedev);
+ 	if (rc)
+-		goto err;
++		goto err_unreg_supp_teedev;
+ 
+ 	rc = tee_device_register(optee->supp_teedev);
+ 	if (rc)
+-		goto err;
++		goto err_unreg_supp_teedev;
+ 
+ 	rc = rhashtable_init(&optee->ffa.global_ids, &shm_rhash_params);
+ 	if (rc)
+-		goto err;
++		goto err_unreg_supp_teedev;
+ 	mutex_init(&optee->ffa.mutex);
+ 	mutex_init(&optee->call_queue.mutex);
+ 	INIT_LIST_HEAD(&optee->call_queue.waiters);
+ 	optee_wait_queue_init(&optee->wait_queue);
+ 	optee_supp_init(&optee->supp);
+ 	ffa_dev_set_drvdata(ffa_dev, optee);
++	ctx = teedev_open(optee->teedev);
++	if (IS_ERR(ctx))
++		goto err_rhashtable_free;
++	optee->ctx = ctx;
++
+ 
+ 	rc = optee_enumerate_devices(PTA_CMD_GET_DEVICES);
+-	if (rc) {
+-		optee_ffa_remove(ffa_dev);
+-		return rc;
+-	}
++	if (rc)
++		goto err_unregister_devices;
+ 
+ 	pr_info("initialized driver\n");
+ 	return 0;
+-err:
+-	/*
+-	 * tee_device_unregister() is safe to call even if the
+-	 * devices hasn't been registered with
+-	 * tee_device_register() yet.
+-	 */
++
++err_unregister_devices:
++	optee_unregister_devices();
++	teedev_close_context(ctx);
++err_rhashtable_free:
++	rhashtable_free_and_destroy(&optee->ffa.global_ids, rh_free_fn, NULL);
++	optee_supp_uninit(&optee->supp);
++	mutex_destroy(&optee->call_queue.mutex);
++err_unreg_supp_teedev:
+ 	tee_device_unregister(optee->supp_teedev);
++err_unreg_teedev:
+ 	tee_device_unregister(optee->teedev);
+-	if (optee->pool)
+-		tee_shm_pool_free(optee->pool);
++err_free_pool:
++	tee_shm_pool_free(pool);
++err_free_optee:
+ 	kfree(optee);
+ 	return rc;
+ }
+diff --git a/drivers/tee/optee/optee_private.h b/drivers/tee/optee/optee_private.h
+index 6660e05298db..912b04697656 100644
+--- a/drivers/tee/optee/optee_private.h
++++ b/drivers/tee/optee/optee_private.h
+@@ -123,9 +123,10 @@ struct optee_ops {
+ /**
+  * struct optee - main service struct
+  * @supp_teedev:	supplicant device
++ * @teedev:		client device
+  * @ops:		internal callbacks for different ways to reach secure
+  *			world
+- * @teedev:		client device
++ * @ctx:		driver internal TEE context
+  * @smc:		specific to SMC ABI
+  * @ffa:		specific to FF-A ABI
+  * @call_queue:		queue of threads waiting to call @invoke_fn
+@@ -142,6 +143,7 @@ struct optee {
+ 	struct tee_device *supp_teedev;
+ 	struct tee_device *teedev;
+ 	const struct optee_ops *ops;
++	struct tee_context *ctx;
+ 	union {
+ 		struct optee_smc smc;
+ 		struct optee_ffa ffa;
+diff --git a/drivers/tee/optee/smc_abi.c b/drivers/tee/optee/smc_abi.c
+index cf2e3293567d..a00394149acb 100644
+--- a/drivers/tee/optee/smc_abi.c
++++ b/drivers/tee/optee/smc_abi.c
+@@ -618,6 +618,7 @@ static void handle_rpc_func_cmd_shm_free(struct tee_context *ctx,
+ }
+ 
+ static void handle_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
++					  struct optee *optee,
+ 					  struct optee_msg_arg *arg,
+ 					  struct optee_call_ctx *call_ctx)
+ {
+@@ -647,7 +648,8 @@ static void handle_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
+ 		shm = optee_rpc_cmd_alloc_suppl(ctx, sz);
+ 		break;
+ 	case OPTEE_RPC_SHM_TYPE_KERNEL:
+-		shm = tee_shm_alloc(ctx, sz, TEE_SHM_MAPPED | TEE_SHM_PRIV);
++		shm = tee_shm_alloc(optee->ctx, sz,
++				    TEE_SHM_MAPPED | TEE_SHM_PRIV);
+ 		break;
+ 	default:
+ 		arg->ret = TEEC_ERROR_BAD_PARAMETERS;
+@@ -743,7 +745,7 @@ static void handle_rpc_func_cmd(struct tee_context *ctx, struct optee *optee,
+ 	switch (arg->cmd) {
+ 	case OPTEE_RPC_CMD_SHM_ALLOC:
+ 		free_pages_list(call_ctx);
+-		handle_rpc_func_cmd_shm_alloc(ctx, arg, call_ctx);
++		handle_rpc_func_cmd_shm_alloc(ctx, optee, arg, call_ctx);
+ 		break;
+ 	case OPTEE_RPC_CMD_SHM_FREE:
+ 		handle_rpc_func_cmd_shm_free(ctx, arg);
+@@ -772,7 +774,7 @@ static void optee_handle_rpc(struct tee_context *ctx,
+ 
+ 	switch (OPTEE_SMC_RETURN_GET_RPC_FUNC(param->a0)) {
+ 	case OPTEE_SMC_RPC_FUNC_ALLOC:
+-		shm = tee_shm_alloc(ctx, param->a1,
++		shm = tee_shm_alloc(optee->ctx, param->a1,
+ 				    TEE_SHM_MAPPED | TEE_SHM_PRIV);
+ 		if (!IS_ERR(shm) && !tee_shm_get_pa(shm, 0, &pa)) {
+ 			reg_pair_from_64(&param->a1, &param->a2, pa);
+@@ -1217,6 +1219,7 @@ static int optee_probe(struct platform_device *pdev)
+ 	struct optee *optee = NULL;
+ 	void *memremaped_shm = NULL;
+ 	struct tee_device *teedev;
++	struct tee_context *ctx;
+ 	u32 sec_caps;
+ 	int rc;
+ 
+@@ -1294,6 +1297,10 @@ static int optee_probe(struct platform_device *pdev)
+ 	optee_supp_init(&optee->supp);
+ 	optee->smc.memremaped_shm = memremaped_shm;
+ 	optee->pool = pool;
++	ctx = teedev_open(optee->teedev);
++	if (IS_ERR(ctx))
++		goto err;
++	optee->ctx = ctx;
+ 
+ 	/*
+ 	 * Ensure that there are no pre-existing shm objects before enabling
+-- 
+2.31.1
 
