@@ -2,63 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F2C64BBAEB
-	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 15:50:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2A154BBAEC
+	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 15:50:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236169AbiBROuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Feb 2022 09:50:20 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60220 "EHLO
+        id S236167AbiBROuk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Feb 2022 09:50:40 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236158AbiBROuT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 09:50:19 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C0CFE1B60
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 06:50:01 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id 27so2853672pgk.10
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 06:50:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kcMM/QY8/JYHp5O/bMIZ4DVF6TOb0BklgL7v6D5F5xQ=;
-        b=lchJ9qjsYYftNffhSPrvdlTY6kzeCxh885tq9ZYRDkL2EEtY3oBwTFQ+ZOAzTJZjuK
-         1w08xR7o1j+AyZeuO9gKYxO3wen7Kq5e9dNLdpcteQ+x7GUw15XxZm750K+GD0+QRigT
-         FQgwrcFYD/jxdeXxNVKZ/aAFY1G8NDLrrmbcKjYNd5lFoEr+AD2dps3f7dp4jsq6EjCM
-         0uPjpaWIJJ6Amk60f7ILcwuDmN8s9raWRI5zSFu3kpnd4dTTieyklW+FoAajJfdXoLZQ
-         lTEc5t51yFf2pobj611WfU+yhcAB2+uorMI4cafu98/GzvZ1uNcwuRzKUryNt3uvrYC/
-         G36w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kcMM/QY8/JYHp5O/bMIZ4DVF6TOb0BklgL7v6D5F5xQ=;
-        b=a8szcOfxJpnjyFH6dzQdTUE3gJJ8glxfTs/GermVYKipxDOMXwL5HIYuzSUP58fDoA
-         tm/HBjQ0hf21n33aAPTvP5YCYo3zX476+ewcFZundhI8edwAAqlWqIvA0DYQ5DTdadQD
-         15zlaCGF+mnHeWulAgCM7a96sn/i9NP7S1HZ9SqcZTNPHT/8o3zedzjgWhiwA7UfNm4w
-         M+kt1gAEaHKQWxpgk82M4BSvHIzI59+cP2677FFG3pX1MyrAi8nmkhn43yVl4yCF6Il2
-         7yMXaonoLdH0Sxh9FhSAx7IvbUnnQUgSHqM02rA+5qJOjtJCcTe0K0gcKs8sRufXUCvd
-         /U1w==
-X-Gm-Message-State: AOAM531N6awe4F1cxV4wiVMyx8AYQwLVFEaTpPD74Wqrp1S0IcEqFhbM
-        NSrlfU31G6Lq47DVCd3kksOx2uXxXLcPXczNoKDWkg==
-X-Google-Smtp-Source: ABdhPJwIFzi+R5Soq37EODzziuKd2yZpO3EcgQFvZMeM3UYwDT1gH3USnGQpDknjaNMcJq9ZHCIa84vn0RUowsVl5U0=
-X-Received: by 2002:a63:44c:0:b0:373:a7aa:9267 with SMTP id
- 73-20020a63044c000000b00373a7aa9267mr6330270pge.107.1645195800697; Fri, 18
- Feb 2022 06:50:00 -0800 (PST)
+        with ESMTP id S236158AbiBROuk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 09:50:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B1A03FDAD
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 06:50:23 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0463EB82656
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 14:50:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43100C340E9;
+        Fri, 18 Feb 2022 14:50:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1645195820;
+        bh=li6p9t6THUJzLblnyPyRQmKFJdd7ULQA53YjcmBB5Rk=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Ls/cNVyGx8ti3asV3mwC1+Y6UG+BNWSBo4yp4FdI+YZjN3Cr5fhvJecpasWO1g4+T
+         oWdCX+NJUfYKc7NaoUxqiWEmKumHZ48BSl7koBzyRkTrU0DmmaqMYLxQ5BPOKvp/cV
+         kfFv2Jg62ixmAUcwQ+mpTeI/gFDF779+/zB+BCTI=
+Subject: FAILED: patch "[PATCH] ice: enable parsing IPSEC SPI headers for RSS" failed to apply to 5.10-stable tree
+To:     jesse.brandeburg@intel.com, anthony.l.nguyen@intel.com,
+        davem@davemloft.net, gurucharanx.g@intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 18 Feb 2022 15:50:17 +0100
+Message-ID: <1645195817108147@kroah.com>
 MIME-Version: 1.0
-References: <CA+G9fYuDLxwN97GdYhyQ2kz=WD1ASKE4HzDC1GKfrhPvk2xaXA@mail.gmail.com>
-In-Reply-To: <CA+G9fYuDLxwN97GdYhyQ2kz=WD1ASKE4HzDC1GKfrhPvk2xaXA@mail.gmail.com>
-From:   Jens Wiklander <jens.wiklander@linaro.org>
-Date:   Fri, 18 Feb 2022 15:49:49 +0100
-Message-ID: <CAHUa44FAh89fRQMB7XgjDrwjv-7iye721CHi6jDe8VchLwZijg@mail.gmail.com>
-Subject: Re: stable-rc/queue: 5.15 5.16 arm64 builds failed
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     linux-stable <stable@vger.kernel.org>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Lars Persson <larper@axis.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -67,62 +48,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Naresh,
 
-On Fri, Feb 18, 2022 at 3:36 PM Naresh Kamboju
-<naresh.kamboju@linaro.org> wrote:
->
-> While building stable rc queues for arch arm64 on queue/5.15 and
-> queue/5.16 the following build errors / warnings were noticed.
->
-> ## Fails
-> * arm64, build
->   - gcc-11-defconfig-5e73d44a
->
-> Committing details,
-> optee: use driver internal tee_context for some rpc
-> commit aceeafefff736057e8f93f19bbfbef26abd94604 upstream.
->
->
-> build error / warning.
-> drivers/tee/optee/core.c: In function 'optee_remove':
-> drivers/tee/optee/core.c:591:9: error: implicit declaration of
-> function 'teedev_close_context'; did you mean
-> 'tee_client_close_context'? [-Werror=implicit-function-declaration]
->   591 |         teedev_close_context(optee->ctx);
->       |         ^~~~~~~~~~~~~~~~~~~~
->       |         tee_client_close_context
-> drivers/tee/optee/core.c: In function 'optee_probe':
-> drivers/tee/optee/core.c:724:15: error: implicit declaration of
-> function 'teedev_open' [-Werror=implicit-function-declaration]
->   724 |         ctx = teedev_open(optee->teedev);
->       |               ^~~~~~~~~~~
-> drivers/tee/optee/core.c:724:13: warning: assignment to 'struct
-> tee_context *' from 'int' makes pointer from integer without a cast
-> [-Wint-conversion]
->   724 |         ctx = teedev_open(optee->teedev);
->       |             ^
-> drivers/tee/optee/core.c:726:20: warning: operation on 'rc' may be
-> undefined [-Wsequence-point]
->   726 |                 rc = rc = PTR_ERR(ctx);
->       |                 ~~~^~~~~~~~~~~~~~~~~~~
-> cc1: some warnings being treated as errors
->
->
->
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-It looks like 1e2c3ef0496e ("tee: export teedev_open() and
-teedev_close_context()") is missing. I noted the dependency as:
-    Cc: stable@vger.kernel.org # 1e2c3ef0496e tee: export
-teedev_open() and teedev_close_context()
-in the commit. Perhaps I've misunderstood how this is supposed to be done.
+thanks,
 
-Thanks,
-Jens
+greg k-h
 
-> --
-> Linaro LKFT
-> https://lkft.linaro.org
->
-> [1] https://qa-reports.linaro.org/lkft/linux-stable-rc-queues-queue_5.16/build/v5.16.10-87-gb5b4ed62d295
-> [2]  https://qa-reports.linaro.org/lkft/linux-stable-rc-queues-queue_5.16/build/v5.16.10-87-gb5b4ed62d295
+------------------ original commit in Linus's tree ------------------
+
+From 86006f996346e8a5a1ea80637ec949ceeea4ecbc Mon Sep 17 00:00:00 2001
+From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Date: Fri, 11 Feb 2022 09:14:18 -0800
+Subject: [PATCH] ice: enable parsing IPSEC SPI headers for RSS
+
+The COMMS package can enable the hardware parser to recognize IPSEC
+frames with ESP header and SPI identifier.  If this package is available
+and configured for loading in /lib/firmware, then the driver will
+succeed in enabling this protocol type for RSS.
+
+This in turn allows the hardware to hash over the SPI and use it to pick
+a consistent receive queue for the same secure flow. Without this all
+traffic is steered to the same queue for multiple traffic threads from
+the same IP address. For that reason this is marked as a fix, as the
+driver supports the model, but it wasn't enabled.
+
+If the package is not available, adding this type will fail, but the
+failure is ignored on purpose as it has no negative affect.
+
+Fixes: c90ed40cefe1 ("ice: Enable writing hardware filtering tables")
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
+index 0c187cf04fcf..53256aca27c7 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_lib.c
+@@ -1684,6 +1684,12 @@ static void ice_vsi_set_rss_flow_fld(struct ice_vsi *vsi)
+ 	if (status)
+ 		dev_dbg(dev, "ice_add_rss_cfg failed for sctp6 flow, vsi = %d, error = %d\n",
+ 			vsi_num, status);
++
++	status = ice_add_rss_cfg(hw, vsi_handle, ICE_FLOW_HASH_ESP_SPI,
++				 ICE_FLOW_SEG_HDR_ESP);
++	if (status)
++		dev_dbg(dev, "ice_add_rss_cfg failed for esp/spi flow, vsi = %d, error = %d\n",
++			vsi_num, status);
+ }
+ 
+ /**
+
