@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 052324BBAA1
-	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 15:31:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F13514BBAA4
+	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 15:32:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232839AbiBRObd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Feb 2022 09:31:33 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51610 "EHLO
+        id S233838AbiBROcU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Feb 2022 09:32:20 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:53648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232748AbiBRObd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 09:31:33 -0500
+        with ESMTP id S232748AbiBROcU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 09:32:20 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FD1320A367
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 06:31:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C29244D9E
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 06:32:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20EB1B82656
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 14:31:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C09DC340E9;
-        Fri, 18 Feb 2022 14:31:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A0DAB82657
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 14:32:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88063C340E9;
+        Fri, 18 Feb 2022 14:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645194673;
-        bh=+Oqu57Pxy7QkYKdHas7tBer8NBbokdIErcThXROeXAE=;
+        s=korg; t=1645194721;
+        bh=o7qiBqlE6quEeakgRkocE/VJvop86UJSjFHrNuwu6Zs=;
         h=Subject:To:Cc:From:Date:From;
-        b=pG0utnq61khgXNniApC6IKcKjtwZKGXqxIkg9GB3U81TxhvAutMwxuUpO6cCIi291
-         9pjLPv06Qj8/bubo536gdm9aA21ws22JtVZNqYU2bjXuYVRj0egYm8s3sLGUCly/QN
-         gQlzst3+Bg+KEbqT37fi9R772kfjsP2axULCHgRw=
-Subject: FAILED: patch "[PATCH] mac80211: mlme: check for null after calling kmemdup" failed to apply to 5.10-stable tree
-To:     jiasheng@iscas.ac.cn, johannes.berg@intel.com
+        b=WxPXrXnysrGCM6/TkGmh6nfpL0sSJeugY8UyGk0ZCaxE+7yO7xS+J/PXwr+xY9VL9
+         aTlZ6ex4SP3xaR84wLPG36tOBaV+AGDKvBfChEP7ar4HIjB/Id/StAtOR/ySKGkxhK
+         yrOvhaQe3w/7gaYW5/tFWReH/U8DwGy6/KgIiZ2Q=
+Subject: FAILED: patch "[PATCH] net: dsa: lan9303: fix reset on probe" failed to apply to 4.14-stable tree
+To:     mans@mansr.com, andrew@lunn.ch, f.fainelli@gmail.com,
+        kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 18 Feb 2022 15:31:03 +0100
-Message-ID: <1645194663204241@kroah.com>
+Date:   Fri, 18 Feb 2022 15:31:58 +0100
+Message-ID: <1645194718215180@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,116 +60,34 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a72c01a94f1d285a274219d36e2a17b4846c0615 Mon Sep 17 00:00:00 2001
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Date: Wed, 5 Jan 2022 16:15:59 +0800
-Subject: [PATCH] mac80211: mlme: check for null after calling kmemdup
+From 6bb9681a43f34f2cab4aad6e2a02da4ce54d13c5 Mon Sep 17 00:00:00 2001
+From: Mans Rullgard <mans@mansr.com>
+Date: Wed, 9 Feb 2022 14:54:54 +0000
+Subject: [PATCH] net: dsa: lan9303: fix reset on probe
 
-As the possible failure of the alloc, the ifmgd->assoc_req_ies might be
-NULL pointer returned from kmemdup().
-Therefore it might be better to free the skb and return error in order
-to fail the association, like ieee80211_assoc_success().
-Also, the caller, ieee80211_do_assoc(), needs to deal with the return
-value from ieee80211_send_assoc().
+The reset input to the LAN9303 chip is active low, and devicetree
+gpio handles reflect this.  Therefore, the gpio should be requested
+with an initial state of high in order for the reset signal to be
+asserted.  Other uses of the gpio already use the correct polarity.
 
-Fixes: 4d9ec73d2b78 ("cfg80211: Report Association Request frame IEs in association events")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220105081559.2387083-1-jiasheng@iscas.ac.cn
-[fix some paths to be errors, not success]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: a1292595e006 ("net: dsa: add new DSA switch driver for the SMSC-LAN9303")
+Signed-off-by: Mans Rullgard <mans@mansr.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fianelil <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220209145454.19749-1-mans@mansr.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 1eeabdf10052..e5ccf17618ab 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -666,7 +666,7 @@ static void ieee80211_add_he_ie(struct ieee80211_sub_if_data *sdata,
- 	ieee80211_ie_build_he_6ghz_cap(sdata, skb);
- }
- 
--static void ieee80211_send_assoc(struct ieee80211_sub_if_data *sdata)
-+static int ieee80211_send_assoc(struct ieee80211_sub_if_data *sdata)
+diff --git a/drivers/net/dsa/lan9303-core.c b/drivers/net/dsa/lan9303-core.c
+index d55784d19fa4..873a5588171b 100644
+--- a/drivers/net/dsa/lan9303-core.c
++++ b/drivers/net/dsa/lan9303-core.c
+@@ -1310,7 +1310,7 @@ static int lan9303_probe_reset_gpio(struct lan9303 *chip,
+ 				     struct device_node *np)
  {
- 	struct ieee80211_local *local = sdata->local;
- 	struct ieee80211_if_managed *ifmgd = &sdata->u.mgd;
-@@ -686,6 +686,7 @@ static void ieee80211_send_assoc(struct ieee80211_sub_if_data *sdata)
- 	enum nl80211_iftype iftype = ieee80211_vif_type_p2p(&sdata->vif);
- 	const struct ieee80211_sband_iftype_data *iftd;
- 	struct ieee80211_prep_tx_info info = {};
-+	int ret;
+ 	chip->reset_gpio = devm_gpiod_get_optional(chip->dev, "reset",
+-						   GPIOD_OUT_LOW);
++						   GPIOD_OUT_HIGH);
+ 	if (IS_ERR(chip->reset_gpio))
+ 		return PTR_ERR(chip->reset_gpio);
  
- 	/* we know it's writable, cast away the const */
- 	if (assoc_data->ie_len)
-@@ -699,7 +700,7 @@ static void ieee80211_send_assoc(struct ieee80211_sub_if_data *sdata)
- 	chanctx_conf = rcu_dereference(sdata->vif.chanctx_conf);
- 	if (WARN_ON(!chanctx_conf)) {
- 		rcu_read_unlock();
--		return;
-+		return -EINVAL;
- 	}
- 	chan = chanctx_conf->def.chan;
- 	rcu_read_unlock();
-@@ -750,7 +751,7 @@ static void ieee80211_send_assoc(struct ieee80211_sub_if_data *sdata)
- 			(iftd ? iftd->vendor_elems.len : 0),
- 			GFP_KERNEL);
- 	if (!skb)
--		return;
-+		return -ENOMEM;
- 
- 	skb_reserve(skb, local->hw.extra_tx_headroom);
- 
-@@ -1031,15 +1032,22 @@ static void ieee80211_send_assoc(struct ieee80211_sub_if_data *sdata)
- 		skb_put_data(skb, assoc_data->ie + offset, noffset - offset);
- 	}
- 
--	if (assoc_data->fils_kek_len &&
--	    fils_encrypt_assoc_req(skb, assoc_data) < 0) {
--		dev_kfree_skb(skb);
--		return;
-+	if (assoc_data->fils_kek_len) {
-+		ret = fils_encrypt_assoc_req(skb, assoc_data);
-+		if (ret < 0) {
-+			dev_kfree_skb(skb);
-+			return ret;
-+		}
- 	}
- 
- 	pos = skb_tail_pointer(skb);
- 	kfree(ifmgd->assoc_req_ies);
- 	ifmgd->assoc_req_ies = kmemdup(ie_start, pos - ie_start, GFP_ATOMIC);
-+	if (!ifmgd->assoc_req_ies) {
-+		dev_kfree_skb(skb);
-+		return -ENOMEM;
-+	}
-+
- 	ifmgd->assoc_req_ies_len = pos - ie_start;
- 
- 	drv_mgd_prepare_tx(local, sdata, &info);
-@@ -1049,6 +1057,8 @@ static void ieee80211_send_assoc(struct ieee80211_sub_if_data *sdata)
- 		IEEE80211_SKB_CB(skb)->flags |= IEEE80211_TX_CTL_REQ_TX_STATUS |
- 						IEEE80211_TX_INTFL_MLME_CONN_TX;
- 	ieee80211_tx_skb(sdata, skb);
-+
-+	return 0;
- }
- 
- void ieee80211_send_pspoll(struct ieee80211_local *local,
-@@ -4497,6 +4507,7 @@ static int ieee80211_do_assoc(struct ieee80211_sub_if_data *sdata)
- {
- 	struct ieee80211_mgd_assoc_data *assoc_data = sdata->u.mgd.assoc_data;
- 	struct ieee80211_local *local = sdata->local;
-+	int ret;
- 
- 	sdata_assert_lock(sdata);
- 
-@@ -4517,7 +4528,9 @@ static int ieee80211_do_assoc(struct ieee80211_sub_if_data *sdata)
- 	sdata_info(sdata, "associate with %pM (try %d/%d)\n",
- 		   assoc_data->bss->bssid, assoc_data->tries,
- 		   IEEE80211_ASSOC_MAX_TRIES);
--	ieee80211_send_assoc(sdata);
-+	ret = ieee80211_send_assoc(sdata);
-+	if (ret)
-+		return ret;
- 
- 	if (!ieee80211_hw_check(&local->hw, REPORTS_TX_ACK_STATUS)) {
- 		assoc_data->timeout = jiffies + IEEE80211_ASSOC_TIMEOUT;
 
