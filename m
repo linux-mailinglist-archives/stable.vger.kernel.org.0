@@ -2,88 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 789BB4BBED8
-	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 18:57:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA7E04BBEEF
+	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 19:04:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237952AbiBRR6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Feb 2022 12:58:10 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33162 "EHLO
+        id S238903AbiBRSFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Feb 2022 13:05:04 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237328AbiBRR6J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 12:58:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9931103E;
-        Fri, 18 Feb 2022 09:57:52 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D6D2B826A7;
-        Fri, 18 Feb 2022 17:57:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75124C340E9;
-        Fri, 18 Feb 2022 17:57:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645207070;
-        bh=dP5b+VA+uAx3bJhnVmVq20KQ+X+9Cy6qAmDwVZSVETA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QvDPAbFjC/4BDN5N4QWsBAXqH2By2fN9OfvYaiEa2EMGl4mymWW8xR+qlQyNEIuA8
-         TPqKYelwYUzcA6s0HPFMHH/nhichKTgj+hHrBc37kVQaDoNGGuLZTVgIDxzZ9up4Nv
-         3l394mt2DHKY8m9e4DnwbzD5MGioZ5eock/RE5GY=
-Date:   Fri, 18 Feb 2022 18:57:47 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Vlastimil Babka <vbabka@suse.cz>
-Cc:     linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Daniel Micay <danielmicay@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nathan Chancellor <nathan@kernel.org>, linux-mm@kvack.org,
-        llvm@lists.linux.dev
-Subject: Re: [PATCH] slab: remove __alloc_size attribute from
- __kmalloc_track_caller
-Message-ID: <Yg/eG4X7Esa0h1al@kroah.com>
-References: <20220218131358.3032912-1-gregkh@linuxfoundation.org>
- <a5ab4496-8190-6221-72c7-d1ff2e6cf1d4@suse.cz>
+        with ESMTP id S238889AbiBRSFE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 13:05:04 -0500
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D65E177E57
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 10:04:47 -0800 (PST)
+Received: by mail-pf1-f169.google.com with SMTP id z16so2910593pfh.3
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 10:04:47 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/dGNExtEWUtpB0Je9MbDKe5uZz/BEfHGlBDv4b2V+U8=;
+        b=CGFuBrugsYYuPSS7cikxz2Q/OXnqG8VspF2ClcJE8eV2+P/os2s2Kwx2yAnJMPjPdw
+         XqwfDQ21KYK0/i5rvZ5SS7BY7X/j9JIXbAYiOlgrZ6thE7RrRoDjUx6ZT2jENRzo7AkB
+         rD2efEafJFGzl+mFEAITWPJtCsQtxnLRQjiVEBMFOmaTd8d51HOtANJ+glDqXXsInz0i
+         VCbxiFO7MvmJO0QGd8P1xPtBB1c90Z6K6HuHdbR4ivDJ1l8GR/bnVAuf0NwvPgueBZ4x
+         RkMeSAUjE5xQcozE6jsupVAAMCrANaPcRRFvW0q26dyKqcHNU0B4xiBBfHiSvueYPAe3
+         lfBw==
+X-Gm-Message-State: AOAM531dxkOA9V5ovRkVhBcp+U3G+QIuK8sU8QZ3esIB8HW+DHbmaBz1
+        vsgCQJQpfSDbmRsEU7YbMGE=
+X-Google-Smtp-Source: ABdhPJy4J1PGed2bFRntO9OC9p+veKupPMwSyjzG+083o8uWmWmJ18LYY9mdEdPPCHHxBewht9Eajg==
+X-Received: by 2002:a62:8c44:0:b0:4c4:8072:e588 with SMTP id m65-20020a628c44000000b004c48072e588mr8733591pfd.11.1645207486543;
+        Fri, 18 Feb 2022 10:04:46 -0800 (PST)
+Received: from asus.hsd1.ca.comcast.net ([2601:647:4000:d7:feaa:14ff:fe9d:6dbd])
+        by smtp.gmail.com with ESMTPSA id q21sm3808745pfu.188.2022.02.18.10.04.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Feb 2022 10:04:44 -0800 (PST)
+From:   Bart Van Assche <bvanassche@acm.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>,
+        Kiwoong Kim <kwmad.kim@samsung.com>, stable@vger.kernel.org,
+        Bart Van Assche <bvanassche@acm.org>
+Subject: [PATCH 0/2] Backport an UFS error handler fix to the 5.15 stable tree
+Date:   Fri, 18 Feb 2022 10:04:37 -0800
+Message-Id: <20220218180439.19858-1-bvanassche@acm.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a5ab4496-8190-6221-72c7-d1ff2e6cf1d4@suse.cz>
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 18, 2022 at 06:14:55PM +0100, Vlastimil Babka wrote:
-> On 2/18/22 14:13, Greg Kroah-Hartman wrote:
-> > Commit c37495d6254c ("slab: add __alloc_size attributes for better
-> > bounds checking") added __alloc_size attributes to a bunch of kmalloc
-> > function prototypes.  Unfortunately the change to __kmalloc_track_caller
-> > seems to cause clang to generate broken code and the first time this is
-> > called when booting, the box will crash.
-> > 
-> > While the compiler problems are being reworked and attempted to be
-> > solved, let's just drop the attribute to solve the issue now.  Once it
-> > is resolved it can be added back.
-> 
-> Could we instead wrap it in some #ifdef that' only true for clang build?
-> That would make the workaround more precise and self-documented. Even
-> better if it can trigger using clang version range and once a fixed
-> clang version is here, it can be updated to stay true for older clangs.
+Hi Greg,
 
-It's not doing all that much good like this, let's just remove it for
-now until it does actually provide a benifit and not just crash the box :)
+This series includes two patches:
+- A backport of "scsi: ufs: Remove dead code".
+- A backport of "scsi: ufs: Fix a deadlock in the error handler"
 
-This is only 1 function, that is used in only a very small number of
-callers.  I do not think it will be missed.
+Although the first patch is a code cleanup patch, I have included it in this
+series because the second patch depends on it.
 
-thanks,
+An Android developer requested a backport of the second patch to the
+android13-5.15 stable tree.
 
-greg k-h
+Please consider these patches for inclusion in the 5.15 stable tree.
+
+Thanks,
+
+Bart.
+
+Bart Van Assche (2):
+  scsi: ufs: Remove dead code
+  scsi: ufs: Fix a deadlock in the error handler
+
+ drivers/scsi/ufs/ufshcd.c | 58 ++++++++++-----------------------------
+ drivers/scsi/ufs/ufshcd.h |  2 ++
+ 2 files changed, 16 insertions(+), 44 deletions(-)
+
