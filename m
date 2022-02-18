@@ -2,108 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8637C4BBAC0
-	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 15:36:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B34724BBACF
+	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 15:40:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236110AbiBROgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Feb 2022 09:36:37 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40090 "EHLO
+        id S234378AbiBROks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Feb 2022 09:40:48 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231318AbiBROgh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 09:36:37 -0500
-Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B7328198D
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 06:36:20 -0800 (PST)
-Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-2d07ae0b1c4so68308647b3.11
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 06:36:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=mICZMxN16YtpMTKFxVA+ZyzD5lCQCniyHtnn8EqScYQ=;
-        b=R9NBEsWl0gsBBSadcoXXR6J0FErdrnZpGQRpVHk4/BiJZn2LSeCFxnmeDS4/7wbdCH
-         o9kgvdAmph76nfTTLBDEeh+33gZy0c/b6BzLsK58kKL4flY5Ey4vSCGHRC6vT7qPBo1R
-         4JdSJUCH13tgI7ND+jBqhCpssVUfcVhjpjSF06T7ds3xqYNDu5rQKlcSAvs3WW3k4int
-         66+Q9K4NL4402fl1jJ7LHMQB99LQZkFg8Z6mYod7soqht52ejpoOFfRYbV1hegcasOHz
-         UnMMMg9bTdR01BZFcZ+Xjcgf+9raOKWFnwJ9wT8QyUoGCLbwuI/8kWzAHlu8XdEYxS20
-         JwKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=mICZMxN16YtpMTKFxVA+ZyzD5lCQCniyHtnn8EqScYQ=;
-        b=GfKG3MixoVumOvVHxOUSk6x8Qt+tfsPUZzfTpFTEUlxhQjykQLcqpn4eEF1hCoY5Rr
-         QoxJUt2StP5S3gPPVf6f8Td9LRpshim0L0zTnvcvlZWCKlcsvAZGx26cIOyYIIeISl5G
-         apMTAedHHjm8EtU2pEY6XIzw4D0QTeH8qf93oWCYjCAcy98/TTJrtSqiED9HvNFksb4o
-         sNQp0FL1p4hNGH3tf31vziM2Cd/x3EJERSjI/6c+IbPr2gN2Iq2vTf2y5GeQqJ4gl46v
-         BjlMM5xc9cfOvX2g9omWN8JTzv+4az2PUHl8SL6JaKl50pTRGHFkEImqf2wCzzBHbH9d
-         I9lA==
-X-Gm-Message-State: AOAM531tVY1chFXJ7guxwfC5dTg5JaG1NyhggcZYOKANvlXXHj9PkgLR
-        pzu7lBl8aNyMZtda5SRP4tAE5EoCa5Af8kd3Lzn4VBBamJdq2g==
-X-Google-Smtp-Source: ABdhPJyP0ir08LgmNUZzfFvqHe8q7R74bxjiJgULJ0YAKtO3BKH/7StWB0useQjcjqoh0S+rHwLEiDuVw0UMuUaukqU=
-X-Received: by 2002:a81:5454:0:b0:2d0:e7d6:ebac with SMTP id
- i81-20020a815454000000b002d0e7d6ebacmr8189188ywb.166.1645194978971; Fri, 18
- Feb 2022 06:36:18 -0800 (PST)
+        with ESMTP id S233801AbiBROkr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 09:40:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F05D294FCE
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 06:40:31 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D0EAC61B71
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 14:40:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7CA7C340E9;
+        Fri, 18 Feb 2022 14:40:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1645195230;
+        bh=M3eVaoS2E1ygA3iMLNQGBTxdwROeV0e4o9vFr8/injU=;
+        h=Subject:To:Cc:From:Date:From;
+        b=D6qTG/SoHoDYiva+ChmPNeG2Y5Bc+SxSx86Z0gWStoYxiTMWsGbpVtxe8m0QRWbdp
+         xP0aGSier0alLVE/3KANEh1RLKFspipQDymGw2Ks3MxLFBTjxAcY88cQ+TU0eMuyIS
+         XOy9M2OxSP441jW0Cf/m4jqitK7sEsyl0gs8EIK4=
+Subject: FAILED: patch "[PATCH] net: dsa: lan9303: add VLAN IDs to master device" failed to apply to 4.14-stable tree
+To:     mans@mansr.com, f.fainelli@gmail.com, kuba@kernel.org,
+        olteanv@gmail.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 18 Feb 2022 15:40:27 +0100
+Message-ID: <164519522715541@kroah.com>
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 18 Feb 2022 20:06:06 +0530
-Message-ID: <CA+G9fYuDLxwN97GdYhyQ2kz=WD1ASKE4HzDC1GKfrhPvk2xaXA@mail.gmail.com>
-Subject: stable-rc/queue: 5.15 5.16 arm64 builds failed
-To:     linux-stable <stable@vger.kernel.org>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Lars Persson <larper@axis.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While building stable rc queues for arch arm64 on queue/5.15 and
-queue/5.16 the following build errors / warnings were noticed.
 
-## Fails
-* arm64, build
-  - gcc-11-defconfig-5e73d44a
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Committing details,
-optee: use driver internal tee_context for some rpc
-commit aceeafefff736057e8f93f19bbfbef26abd94604 upstream.
+thanks,
 
+greg k-h
 
-build error / warning.
-drivers/tee/optee/core.c: In function 'optee_remove':
-drivers/tee/optee/core.c:591:9: error: implicit declaration of
-function 'teedev_close_context'; did you mean
-'tee_client_close_context'? [-Werror=implicit-function-declaration]
-  591 |         teedev_close_context(optee->ctx);
-      |         ^~~~~~~~~~~~~~~~~~~~
-      |         tee_client_close_context
-drivers/tee/optee/core.c: In function 'optee_probe':
-drivers/tee/optee/core.c:724:15: error: implicit declaration of
-function 'teedev_open' [-Werror=implicit-function-declaration]
-  724 |         ctx = teedev_open(optee->teedev);
-      |               ^~~~~~~~~~~
-drivers/tee/optee/core.c:724:13: warning: assignment to 'struct
-tee_context *' from 'int' makes pointer from integer without a cast
-[-Wint-conversion]
-  724 |         ctx = teedev_open(optee->teedev);
-      |             ^
-drivers/tee/optee/core.c:726:20: warning: operation on 'rc' may be
-undefined [-Wsequence-point]
-  726 |                 rc = rc = PTR_ERR(ctx);
-      |                 ~~~^~~~~~~~~~~~~~~~~~~
-cc1: some warnings being treated as errors
+------------------ original commit in Linus's tree ------------------
 
+From 430065e2671905ac675f97b7af240cc255964e93 Mon Sep 17 00:00:00 2001
+From: Mans Rullgard <mans@mansr.com>
+Date: Wed, 16 Feb 2022 20:48:18 +0000
+Subject: [PATCH] net: dsa: lan9303: add VLAN IDs to master device
 
+If the master device does VLAN filtering, the IDs used by the switch
+must be added for any frames to be received.  Do this in the
+port_enable() function, and remove them in port_disable().
 
---
-Linaro LKFT
-https://lkft.linaro.org
+Fixes: a1292595e006 ("net: dsa: add new DSA switch driver for the SMSC-LAN9303")
+Signed-off-by: Mans Rullgard <mans@mansr.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20220216204818.28746-1-mans@mansr.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-[1] https://qa-reports.linaro.org/lkft/linux-stable-rc-queues-queue_5.16/build/v5.16.10-87-gb5b4ed62d295
-[2]  https://qa-reports.linaro.org/lkft/linux-stable-rc-queues-queue_5.16/build/v5.16.10-87-gb5b4ed62d295
+diff --git a/drivers/net/dsa/Kconfig b/drivers/net/dsa/Kconfig
+index c0c91440340a..0029d279616f 100644
+--- a/drivers/net/dsa/Kconfig
++++ b/drivers/net/dsa/Kconfig
+@@ -82,6 +82,7 @@ config NET_DSA_REALTEK_SMI
+ 
+ config NET_DSA_SMSC_LAN9303
+ 	tristate
++	depends on VLAN_8021Q || VLAN_8021Q=n
+ 	select NET_DSA_TAG_LAN9303
+ 	select REGMAP
+ 	help
+diff --git a/drivers/net/dsa/lan9303-core.c b/drivers/net/dsa/lan9303-core.c
+index 873a5588171b..3969d89fa4db 100644
+--- a/drivers/net/dsa/lan9303-core.c
++++ b/drivers/net/dsa/lan9303-core.c
+@@ -10,6 +10,7 @@
+ #include <linux/mii.h>
+ #include <linux/phy.h>
+ #include <linux/if_bridge.h>
++#include <linux/if_vlan.h>
+ #include <linux/etherdevice.h>
+ 
+ #include "lan9303.h"
+@@ -1083,21 +1084,27 @@ static void lan9303_adjust_link(struct dsa_switch *ds, int port,
+ static int lan9303_port_enable(struct dsa_switch *ds, int port,
+ 			       struct phy_device *phy)
+ {
++	struct dsa_port *dp = dsa_to_port(ds, port);
+ 	struct lan9303 *chip = ds->priv;
+ 
+-	if (!dsa_is_user_port(ds, port))
++	if (!dsa_port_is_user(dp))
+ 		return 0;
+ 
++	vlan_vid_add(dp->cpu_dp->master, htons(ETH_P_8021Q), port);
++
+ 	return lan9303_enable_processing_port(chip, port);
+ }
+ 
+ static void lan9303_port_disable(struct dsa_switch *ds, int port)
+ {
++	struct dsa_port *dp = dsa_to_port(ds, port);
+ 	struct lan9303 *chip = ds->priv;
+ 
+-	if (!dsa_is_user_port(ds, port))
++	if (!dsa_port_is_user(dp))
+ 		return;
+ 
++	vlan_vid_del(dp->cpu_dp->master, htons(ETH_P_8021Q), port);
++
+ 	lan9303_disable_processing_port(chip, port);
+ 	lan9303_phy_write(ds, chip->phy_addr_base + port, MII_BMCR, BMCR_PDOWN);
+ }
+
