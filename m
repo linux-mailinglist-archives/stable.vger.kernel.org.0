@@ -2,373 +2,393 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EF714BB728
-	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 11:45:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 189AA4BB730
+	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 11:46:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234185AbiBRKqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Feb 2022 05:46:09 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34956 "EHLO
+        id S231252AbiBRKqq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Feb 2022 05:46:46 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234145AbiBRKqB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 05:46:01 -0500
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86D8129690D
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 02:45:44 -0800 (PST)
-Received: by mail-lj1-x234.google.com with SMTP id bn33so3654474ljb.6
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 02:45:44 -0800 (PST)
+        with ESMTP id S234145AbiBRKql (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 05:46:41 -0500
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 750DBF47
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 02:46:23 -0800 (PST)
+Received: by mail-pj1-x1032.google.com with SMTP id v8-20020a17090a634800b001bb78857ccdso9674830pjs.1
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 02:46:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=NmrZAaTzmzY3f8j8ur3y+/Pq9p4qw3PiRXeLKHLYG7o=;
-        b=XRSnK/j3ywwJk/R4Hs10Q1+vin6YrzTg8jWQ3Xtyp2Qg3WYOmqzBXBHUR7k+E0unb6
-         9syHrAoKKB+KU9Vd3jquqxwCu6oDyKInVrq8gDZHoffYH3UAPg4Y6HYlVL2FozMFq5Ox
-         PtDQQkbrAUOZCvAvjcdvcuKEgzOcuBlSvtC6w/HNlHh9umLg+9CBsww4ZwXT6FiqXV98
-         UZlDbDhGpbLlTDAYcQU0qy2VhtrRnHMizQZYoPwC9r8yMtksUa6BjPwNO1ypLz5z84if
-         Ab3VJxDmU7I5sZ14ubuKJUSd209bCvEMES1Y0YCzMypxQWjWNFxHn7JJCwfzBfTWuuOF
-         w0Kg==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=XmkqIMBCX7hbADET9pQeqjsjhn4057RiiRqiuRPEiV0=;
+        b=d5QiiMmk/QPylg2qqC/11aRxmg3cuYJOcyX+Du9qzV0hZv+Aa4PK5EciS9OKWh/Bfx
+         eopYnG6/c5tiRq+CxlhPU3D1AyOBhPjG3WTZzkA6/86fPle/f+qneO68U0A0xNSPX8zW
+         vyjyg7irpR5NJxGQIuIlFKkN9ILb2mgjBHhPkC+CEpRs1h45m5e/GTX4DAUoTvLA1Xu/
+         7jT0rZI5/UGs5qeXlvJsiLHXJqya6HWz7iXdrH/vaNfRsnhn/Z5Td0VnxIXp6mRMCQxh
+         zo7bLaM/bQCpA/lftUnLEqKegjx3S276+f59lAqrv0I2fJ+PhIPHbof3VvuMLtb4/zrs
+         MTtQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=NmrZAaTzmzY3f8j8ur3y+/Pq9p4qw3PiRXeLKHLYG7o=;
-        b=Lnp4DC0sWNmK7oIbdCcL5Chtm8BgmVjSHaWzWKwBIa2IP9Ly24+vTW0Muu8flX6x0w
-         Ignk+EerilOxWW5eulmEel6z4fRoWG+FAM80a12ROIOFwMQa5ytWAyDk2U1ZuCohFrSY
-         QYlwEN7OyIPJF1CKX25IxALKuZACJYlSDZ+pHIqKnhe854Z+ZsbNPNgH+mhGCMqqrwZ0
-         aHOaCWaCF5mtddWd7DXdb7pkKqR7uH10P4qqAgOkh7B+5Zfcnai+bPmFRcsaGfP3SwCm
-         ALZOPAAPMx/aL7rPOuQokKt3Hpn5+r3DIZbc5JWjnz1iTsG7gDcE7JC7ebkISHD8IW7+
-         b55A==
-X-Gm-Message-State: AOAM532X+92q/mg7BS2g9MUqBciFsHWJ89KEjTs9AeMwP6svkQj0DFIK
-        UwMp9E876sUQxCL3470+taCzWDg2CzPrNw==
-X-Google-Smtp-Source: ABdhPJzjZ+QCfMCUFQP7ZIML9wJXFBs5jo727g4PqnF+1IfVr23/dF6hVXgteI3WuqqQWkq7Lbu0Ng==
-X-Received: by 2002:a05:651c:2119:b0:246:32a:4248 with SMTP id a25-20020a05651c211900b00246032a4248mr5362319ljq.111.1645181142526;
-        Fri, 18 Feb 2022 02:45:42 -0800 (PST)
-Received: from jade.urgonet (h-94-254-48-165.A175.priv.bahnhof.se. [94.254.48.165])
-        by smtp.gmail.com with ESMTPSA id l24sm277775ljb.90.2022.02.18.02.45.41
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=XmkqIMBCX7hbADET9pQeqjsjhn4057RiiRqiuRPEiV0=;
+        b=sh8wY6fESUxd5NmEo2r4LJ2/YOqIPRtAvOHg7BvVYBkFm7EtgTG8SEh6eh9Bm6k1ux
+         GOoilJ36iYHUL0Hm5zsJhgkdFcZeyAxaDWOgn+CRUW6dKMbzurcQHoaD5bRX5QIkzKkP
+         fxz3lzcsC2y+UAvkiKKg90tGBCCMB00hBc8P+R6CqwXG7YZoJB0Josp+4FcrUPyQ9+tb
+         mWX1EKgmqGlagcLlATxuoRWU9E3V+QBzUpo0ddvIIBHXEoRm8oqp9eL/eWE95wWf41t8
+         9wi1pS+ohtUvftnohnwsroF77b3TAiligjWhw3sQxFBjfRiTZJhQQHAKuQJAxuB0EN9t
+         TJzw==
+X-Gm-Message-State: AOAM533M5UJNXZsV0eybkUr/o/IwapX8Exc2D0xvXnnID/fPcX0FKi/6
+        /cg4HHIf+YIPsUW64RD+duLhG5DUEC7V3WHN
+X-Google-Smtp-Source: ABdhPJxBUPjTtw2byzZ6POfk8JZseOgIF1il9BqM7tpv31ONiX4L6e3m5XCtZwDkufWZpZnVz1UMhg==
+X-Received: by 2002:a17:902:ab18:b0:14f:3c15:8f18 with SMTP id ik24-20020a170902ab1800b0014f3c158f18mr6993369plb.21.1645181182761;
+        Fri, 18 Feb 2022 02:46:22 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m1sm2775670pfk.202.2022.02.18.02.46.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Feb 2022 02:45:42 -0800 (PST)
-From:   Jens Wiklander <jens.wiklander@linaro.org>
-To:     stable@vger.kernel.org
-Cc:     Sumit Garg <sumit.garg@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Lars Persson <larper@axis.com>
-Subject: [PATCH backportt 5.16] optee: use driver internal tee_context for some rpc
-Date:   Fri, 18 Feb 2022 11:45:29 +0100
-Message-Id: <20220218104529.436040-1-jens.wiklander@linaro.org>
-X-Mailer: git-send-email 2.31.1
+        Fri, 18 Feb 2022 02:46:22 -0800 (PST)
+Message-ID: <620f78fe.1c69fb81.df733.8002@mx.google.com>
+Date:   Fri, 18 Feb 2022 02:46:22 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.16
+X-Kernelci-Kernel: v5.16.10-70-g34b09b16161f
+Subject: stable-rc/queue/5.16 baseline: 71 runs,
+ 8 regressions (v5.16.10-70-g34b09b16161f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit aceeafefff736057e8f93f19bbfbef26abd94604 upstream
+stable-rc/queue/5.16 baseline: 71 runs, 8 regressions (v5.16.10-70-g34b09b1=
+6161f)
 
-Adds a driver private tee_context to struct optee.
+Regressions Summary
+-------------------
 
-The new driver internal tee_context is used when allocating driver
-private shared memory. This decouples the shared memory object from its
-original tee_context. This is needed when the life time of such a memory
-allocation outlives the client tee_context.
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
-This patch fixes the problem described below:
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
-The addition of a shutdown hook by commit f25889f93184 ("optee: fix tee out
-of memory failure seen during kexec reboot") introduced a kernel shutdown
-regression that can be triggered after running the OP-TEE xtest suites.
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
-Once the shutdown hook is called it is not possible to communicate any more
-with the supplicant process because the system is not scheduling task any
-longer. Thus if the optee driver shutdown path receives a supplicant RPC
-request from the OP-TEE we will deadlock the kernel's shutdown.
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
-Fixes: f25889f93184 ("optee: fix tee out of memory failure seen during kexec reboot")
-Fixes: 217e0250cccb ("tee: use reference counting for tee_context")
-Reported-by: Lars Persson <larper@axis.com>
-Cc: stable@vger.kernel.org # 1e2c3ef0496e tee: export teedev_open() and teedev_close_context()
-Cc: stable@vger.kernel.org
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-[JW: backport to 5.16-stable + update commit message]
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
----
- drivers/tee/optee/core.c          |  1 +
- drivers/tee/optee/ffa_abi.c       | 70 ++++++++++++++++++-------------
- drivers/tee/optee/optee_private.h |  4 +-
- drivers/tee/optee/smc_abi.c       | 13 ++++--
- 4 files changed, 54 insertions(+), 34 deletions(-)
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
-diff --git a/drivers/tee/optee/core.c b/drivers/tee/optee/core.c
-index 2a66a5203d2f..7bf9e888b621 100644
---- a/drivers/tee/optee/core.c
-+++ b/drivers/tee/optee/core.c
-@@ -157,6 +157,7 @@ void optee_remove_common(struct optee *optee)
- 	/* Unregister OP-TEE specific client devices on TEE bus */
- 	optee_unregister_devices();
- 
-+	teedev_close_context(optee->ctx);
- 	/*
- 	 * The two devices have to be unregistered before we can free the
- 	 * other resources.
-diff --git a/drivers/tee/optee/ffa_abi.c b/drivers/tee/optee/ffa_abi.c
-index d8c8683863aa..3c151d4e7f3a 100644
---- a/drivers/tee/optee/ffa_abi.c
-+++ b/drivers/tee/optee/ffa_abi.c
-@@ -424,6 +424,7 @@ static struct tee_shm_pool_mgr *optee_ffa_shm_pool_alloc_pages(void)
-  */
- 
- static void handle_ffa_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
-+					      struct optee *optee,
- 					      struct optee_msg_arg *arg)
- {
- 	struct tee_shm *shm;
-@@ -439,7 +440,7 @@ static void handle_ffa_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
- 		shm = optee_rpc_cmd_alloc_suppl(ctx, arg->params[0].u.value.b);
- 		break;
- 	case OPTEE_RPC_SHM_TYPE_KERNEL:
--		shm = tee_shm_alloc(ctx, arg->params[0].u.value.b,
-+		shm = tee_shm_alloc(optee->ctx, arg->params[0].u.value.b,
- 				    TEE_SHM_MAPPED | TEE_SHM_PRIV);
- 		break;
- 	default:
-@@ -493,14 +494,13 @@ static void handle_ffa_rpc_func_cmd_shm_free(struct tee_context *ctx,
- }
- 
- static void handle_ffa_rpc_func_cmd(struct tee_context *ctx,
-+				    struct optee *optee,
- 				    struct optee_msg_arg *arg)
- {
--	struct optee *optee = tee_get_drvdata(ctx->teedev);
--
- 	arg->ret_origin = TEEC_ORIGIN_COMMS;
- 	switch (arg->cmd) {
- 	case OPTEE_RPC_CMD_SHM_ALLOC:
--		handle_ffa_rpc_func_cmd_shm_alloc(ctx, arg);
-+		handle_ffa_rpc_func_cmd_shm_alloc(ctx, optee, arg);
- 		break;
- 	case OPTEE_RPC_CMD_SHM_FREE:
- 		handle_ffa_rpc_func_cmd_shm_free(ctx, optee, arg);
-@@ -510,12 +510,12 @@ static void handle_ffa_rpc_func_cmd(struct tee_context *ctx,
- 	}
- }
- 
--static void optee_handle_ffa_rpc(struct tee_context *ctx, u32 cmd,
--				 struct optee_msg_arg *arg)
-+static void optee_handle_ffa_rpc(struct tee_context *ctx, struct optee *optee,
-+				 u32 cmd, struct optee_msg_arg *arg)
- {
- 	switch (cmd) {
- 	case OPTEE_FFA_YIELDING_CALL_RETURN_RPC_CMD:
--		handle_ffa_rpc_func_cmd(ctx, arg);
-+		handle_ffa_rpc_func_cmd(ctx, optee, arg);
- 		break;
- 	case OPTEE_FFA_YIELDING_CALL_RETURN_INTERRUPT:
- 		/* Interrupt delivered by now */
-@@ -582,7 +582,7 @@ static int optee_ffa_yielding_call(struct tee_context *ctx,
- 		 * above.
- 		 */
- 		cond_resched();
--		optee_handle_ffa_rpc(ctx, data->data1, rpc_arg);
-+		optee_handle_ffa_rpc(ctx, optee, data->data1, rpc_arg);
- 		cmd = OPTEE_FFA_YIELDING_CALL_RESUME;
- 		data->data0 = cmd;
- 		data->data1 = 0;
-@@ -793,7 +793,9 @@ static int optee_ffa_probe(struct ffa_device *ffa_dev)
- {
- 	const struct ffa_dev_ops *ffa_ops;
- 	unsigned int rpc_arg_count;
-+	struct tee_shm_pool *pool;
- 	struct tee_device *teedev;
-+	struct tee_context *ctx;
- 	struct optee *optee;
- 	int rc;
- 
-@@ -813,12 +815,12 @@ static int optee_ffa_probe(struct ffa_device *ffa_dev)
- 	if (!optee)
- 		return -ENOMEM;
- 
--	optee->pool = optee_ffa_config_dyn_shm();
--	if (IS_ERR(optee->pool)) {
--		rc = PTR_ERR(optee->pool);
--		optee->pool = NULL;
--		goto err;
-+	pool = optee_ffa_config_dyn_shm();
-+	if (IS_ERR(pool)) {
-+		rc = PTR_ERR(pool);
-+		goto err_free_optee;
- 	}
-+	optee->pool = pool;
- 
- 	optee->ops = &optee_ffa_ops;
- 	optee->ffa.ffa_dev = ffa_dev;
-@@ -829,7 +831,7 @@ static int optee_ffa_probe(struct ffa_device *ffa_dev)
- 				  optee);
- 	if (IS_ERR(teedev)) {
- 		rc = PTR_ERR(teedev);
--		goto err;
-+		goto err_free_pool;
- 	}
- 	optee->teedev = teedev;
- 
-@@ -837,46 +839,54 @@ static int optee_ffa_probe(struct ffa_device *ffa_dev)
- 				  optee);
- 	if (IS_ERR(teedev)) {
- 		rc = PTR_ERR(teedev);
--		goto err;
-+		goto err_unreg_teedev;
- 	}
- 	optee->supp_teedev = teedev;
- 
- 	rc = tee_device_register(optee->teedev);
- 	if (rc)
--		goto err;
-+		goto err_unreg_supp_teedev;
- 
- 	rc = tee_device_register(optee->supp_teedev);
- 	if (rc)
--		goto err;
-+		goto err_unreg_supp_teedev;
- 
- 	rc = rhashtable_init(&optee->ffa.global_ids, &shm_rhash_params);
- 	if (rc)
--		goto err;
-+		goto err_unreg_supp_teedev;
- 	mutex_init(&optee->ffa.mutex);
- 	mutex_init(&optee->call_queue.mutex);
- 	INIT_LIST_HEAD(&optee->call_queue.waiters);
- 	optee_wait_queue_init(&optee->wait_queue);
- 	optee_supp_init(&optee->supp);
- 	ffa_dev_set_drvdata(ffa_dev, optee);
-+	ctx = teedev_open(optee->teedev);
-+	if (IS_ERR(ctx))
-+		goto err_rhashtable_free;
-+	optee->ctx = ctx;
-+
- 
- 	rc = optee_enumerate_devices(PTA_CMD_GET_DEVICES);
--	if (rc) {
--		optee_ffa_remove(ffa_dev);
--		return rc;
--	}
-+	if (rc)
-+		goto err_unregister_devices;
- 
- 	pr_info("initialized driver\n");
- 	return 0;
--err:
--	/*
--	 * tee_device_unregister() is safe to call even if the
--	 * devices hasn't been registered with
--	 * tee_device_register() yet.
--	 */
-+
-+err_unregister_devices:
-+	optee_unregister_devices();
-+	teedev_close_context(ctx);
-+err_rhashtable_free:
-+	rhashtable_free_and_destroy(&optee->ffa.global_ids, rh_free_fn, NULL);
-+	optee_supp_uninit(&optee->supp);
-+	mutex_destroy(&optee->call_queue.mutex);
-+err_unreg_supp_teedev:
- 	tee_device_unregister(optee->supp_teedev);
-+err_unreg_teedev:
- 	tee_device_unregister(optee->teedev);
--	if (optee->pool)
--		tee_shm_pool_free(optee->pool);
-+err_free_pool:
-+	tee_shm_pool_free(pool);
-+err_free_optee:
- 	kfree(optee);
- 	return rc;
- }
-diff --git a/drivers/tee/optee/optee_private.h b/drivers/tee/optee/optee_private.h
-index 6660e05298db..912b04697656 100644
---- a/drivers/tee/optee/optee_private.h
-+++ b/drivers/tee/optee/optee_private.h
-@@ -123,9 +123,10 @@ struct optee_ops {
- /**
-  * struct optee - main service struct
-  * @supp_teedev:	supplicant device
-+ * @teedev:		client device
-  * @ops:		internal callbacks for different ways to reach secure
-  *			world
-- * @teedev:		client device
-+ * @ctx:		driver internal TEE context
-  * @smc:		specific to SMC ABI
-  * @ffa:		specific to FF-A ABI
-  * @call_queue:		queue of threads waiting to call @invoke_fn
-@@ -142,6 +143,7 @@ struct optee {
- 	struct tee_device *supp_teedev;
- 	struct tee_device *teedev;
- 	const struct optee_ops *ops;
-+	struct tee_context *ctx;
- 	union {
- 		struct optee_smc smc;
- 		struct optee_ffa ffa;
-diff --git a/drivers/tee/optee/smc_abi.c b/drivers/tee/optee/smc_abi.c
-index cf2e3293567d..a00394149acb 100644
---- a/drivers/tee/optee/smc_abi.c
-+++ b/drivers/tee/optee/smc_abi.c
-@@ -618,6 +618,7 @@ static void handle_rpc_func_cmd_shm_free(struct tee_context *ctx,
- }
- 
- static void handle_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
-+					  struct optee *optee,
- 					  struct optee_msg_arg *arg,
- 					  struct optee_call_ctx *call_ctx)
- {
-@@ -647,7 +648,8 @@ static void handle_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
- 		shm = optee_rpc_cmd_alloc_suppl(ctx, sz);
- 		break;
- 	case OPTEE_RPC_SHM_TYPE_KERNEL:
--		shm = tee_shm_alloc(ctx, sz, TEE_SHM_MAPPED | TEE_SHM_PRIV);
-+		shm = tee_shm_alloc(optee->ctx, sz,
-+				    TEE_SHM_MAPPED | TEE_SHM_PRIV);
- 		break;
- 	default:
- 		arg->ret = TEEC_ERROR_BAD_PARAMETERS;
-@@ -743,7 +745,7 @@ static void handle_rpc_func_cmd(struct tee_context *ctx, struct optee *optee,
- 	switch (arg->cmd) {
- 	case OPTEE_RPC_CMD_SHM_ALLOC:
- 		free_pages_list(call_ctx);
--		handle_rpc_func_cmd_shm_alloc(ctx, arg, call_ctx);
-+		handle_rpc_func_cmd_shm_alloc(ctx, optee, arg, call_ctx);
- 		break;
- 	case OPTEE_RPC_CMD_SHM_FREE:
- 		handle_rpc_func_cmd_shm_free(ctx, arg);
-@@ -772,7 +774,7 @@ static void optee_handle_rpc(struct tee_context *ctx,
- 
- 	switch (OPTEE_SMC_RETURN_GET_RPC_FUNC(param->a0)) {
- 	case OPTEE_SMC_RPC_FUNC_ALLOC:
--		shm = tee_shm_alloc(ctx, param->a1,
-+		shm = tee_shm_alloc(optee->ctx, param->a1,
- 				    TEE_SHM_MAPPED | TEE_SHM_PRIV);
- 		if (!IS_ERR(shm) && !tee_shm_get_pa(shm, 0, &pa)) {
- 			reg_pair_from_64(&param->a1, &param->a2, pa);
-@@ -1217,6 +1219,7 @@ static int optee_probe(struct platform_device *pdev)
- 	struct optee *optee = NULL;
- 	void *memremaped_shm = NULL;
- 	struct tee_device *teedev;
-+	struct tee_context *ctx;
- 	u32 sec_caps;
- 	int rc;
- 
-@@ -1294,6 +1297,10 @@ static int optee_probe(struct platform_device *pdev)
- 	optee_supp_init(&optee->supp);
- 	optee->smc.memremaped_shm = memremaped_shm;
- 	optee->pool = pool;
-+	ctx = teedev_open(optee->teedev);
-+	if (IS_ERR(ctx))
-+		goto err;
-+	optee->ctx = ctx;
- 
- 	/*
- 	 * Ensure that there are no pre-existing shm objects before enabling
--- 
-2.31.1
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.16/ker=
+nel/v5.16.10-70-g34b09b16161f/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.16
+  Describe: v5.16.10-70-g34b09b16161f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      34b09b16161f0544a76e2b8c98f2f73f66e28422 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/620f3c506d30175dcfc62988
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/basel=
+ine-qemu_arm64-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/basel=
+ine-qemu_arm64-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220211.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/620f3c506d30175dcfc62=
+989
+        failing since 9 days (last pass: v5.16.7-127-g225efc2847e3, first f=
+ail: v5.16.7-127-g3b11c0b71857) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/620f3c60a804816b5ec62986
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseli=
+ne-qemu_arm64-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseli=
+ne-qemu_arm64-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220211.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/620f3c60a804816b5ec62=
+987
+        failing since 9 days (last pass: v5.16.7-127-g225efc2847e3, first f=
+ail: v5.16.7-127-g3b11c0b71857) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/620f3c4d6d30175dcfc6297c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/basel=
+ine-qemu_arm64-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/basel=
+ine-qemu_arm64-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220211.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/620f3c4d6d30175dcfc62=
+97d
+        failing since 9 days (last pass: v5.16.7-127-g225efc2847e3, first f=
+ail: v5.16.7-127-g3b11c0b71857) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/620f3c71f072a54649c62968
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseli=
+ne-qemu_arm64-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseli=
+ne-qemu_arm64-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220211.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/620f3c71f072a54649c62=
+969
+        failing since 9 days (last pass: v5.16.7-127-g225efc2847e3, first f=
+ail: v5.16.7-127-g3b11c0b71857) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/620f3c4e6d30175dcfc62982
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/basel=
+ine-qemu_arm64-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/basel=
+ine-qemu_arm64-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220211.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/620f3c4e6d30175dcfc62=
+983
+        failing since 9 days (last pass: v5.16.7-127-g225efc2847e3, first f=
+ail: v5.16.7-127-g3b11c0b71857) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/620f3c5ea16e6ae5acc62968
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseli=
+ne-qemu_arm64-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseli=
+ne-qemu_arm64-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220211.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/620f3c5ea16e6ae5acc62=
+969
+        failing since 9 days (last pass: v5.16.7-127-g225efc2847e3, first f=
+ail: v5.16.7-127-g3b11c0b71857) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/620f3c4fa804816b5ec62970
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/basel=
+ine-qemu_arm64-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/basel=
+ine-qemu_arm64-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220211.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/620f3c4fa804816b5ec62=
+971
+        failing since 9 days (last pass: v5.16.7-127-g225efc2847e3, first f=
+ail: v5.16.7-127-g3b11c0b71857) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/620f3c5fa804816b5ec62981
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseli=
+ne-qemu_arm64-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
+70-g34b09b16161f/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/baseli=
+ne-qemu_arm64-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220211.1/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/620f3c5fa804816b5ec62=
+982
+        failing since 9 days (last pass: v5.16.7-127-g225efc2847e3, first f=
+ail: v5.16.7-127-g3b11c0b71857) =
+
+ =20
