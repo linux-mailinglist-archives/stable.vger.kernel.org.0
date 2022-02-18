@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 646B54BBEF0
-	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 19:04:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2D394BBEF1
+	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 19:04:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238906AbiBRSFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Feb 2022 13:05:05 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60002 "EHLO
+        id S238907AbiBRSFH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Feb 2022 13:05:07 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238889AbiBRSFF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 13:05:05 -0500
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB9217E978
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 10:04:48 -0800 (PST)
-Received: by mail-pj1-f54.google.com with SMTP id r64-20020a17090a43c600b001b8854e682eso9272724pjg.0
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 10:04:48 -0800 (PST)
+        with ESMTP id S238889AbiBRSFH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 13:05:07 -0500
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B6E187E35
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 10:04:50 -0800 (PST)
+Received: by mail-pl1-f178.google.com with SMTP id i10so7783074plr.2
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 10:04:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=BPi9DPzZjlmeLMULlupc+kkTuRwo4vQ/f+aaQWdHAZ8=;
-        b=UQp1HZftA3rAXSU5MFiHwN2+rRPcagKN1vo85dUIgB7/q0Zz/7xSLk+dcCK/oAD71h
-         +KB6svRafVr/f3daQDS2msOLxg362tzxiBwMatgAxUr1flOyBiy1phC7nFb1QqtSTIF/
-         Y7NGtBhgp3xYmfMj/9hhe4dILYr0c8WRqZsJcTT3WJvVMA5RM6o66sKFAC8yJakRKPoN
-         Dij35jvSXwgi1sg2odb073V5HEO2PwvnYhzJnXuLfSIQPfUpLN2oDrq6Syp0k1gyuYo+
-         9YXBhACGnNgwvbYI+sHHQtgP+aLF7CwVQiqBXhXNcxUDqgZGcOw64/jiSL4Hjskjc+HU
-         sQlQ==
-X-Gm-Message-State: AOAM531rwCTfsuQSiD+DDmkImxjomR6uzOIX6ZBNI2pq9/7vBjixowAh
-        Nb4kx3PMDwbHdb3hLxzmHlA=
-X-Google-Smtp-Source: ABdhPJwdkQCQbiSQ8UdD424gvBBbVD3a05fTgY3BtwEF04nRmofIHXFf8RExE4Ikk2YK9vm2XAAK7Q==
-X-Received: by 2002:a17:902:bc82:b0:14f:2b9c:4aa with SMTP id bb2-20020a170902bc8200b0014f2b9c04aamr8381474plb.145.1645207488207;
-        Fri, 18 Feb 2022 10:04:48 -0800 (PST)
+        bh=OGUopJSlNS3q0V6llUHBIGOClwfT9wZShnCgaWB0Dh4=;
+        b=cAWAmbvNh70Mcv5AVcrAQkHd56SjV2Xqj95YkFvImcFV9PBi9wR+PeY1lmzfc4/6sC
+         BIUnclhfy4cBsHamAAAJphUk+Fecm/Skn1GkGB3y92CvQVnGDM2AiqfiP9t+GE0lSQ0k
+         E+vEkLhIwAlVM5UF6xJlJIGU9T+zJHaiICsp0EVCFl+S2dujQOanoWUaZU3gwGpQ9ljz
+         CqIKVRAnxlAWXN+Jd98XKNnxqiqtAQPoAZ36g+ZSt+QtFJM9Z7ayPOYWlKXM589O8rXt
+         aTwjM0PAaV8m1Gauh6+e1+pvIGO2TVTJxXppEHbgAEGlN0AGomalShn+20S0VPZ72yM8
+         LDyA==
+X-Gm-Message-State: AOAM531HHRTWKT8qyGxb0z571KnudmIwP52GTGU62pC0vXLQtbWRC9rI
+        BNQckVB7mLhPfCzPf1mbVcc=
+X-Google-Smtp-Source: ABdhPJwVyUXj1txUOGZ2eDXmq56qjPWuJ4Oy1s5t5ZIsrWh+UmYdC5av0AvWm3M1amRC1POysIXhEw==
+X-Received: by 2002:a17:902:ec81:b0:14d:54c2:b8ba with SMTP id x1-20020a170902ec8100b0014d54c2b8bamr8194792plg.17.1645207489868;
+        Fri, 18 Feb 2022 10:04:49 -0800 (PST)
 Received: from asus.hsd1.ca.comcast.net ([2601:647:4000:d7:feaa:14ff:fe9d:6dbd])
-        by smtp.gmail.com with ESMTPSA id q21sm3808745pfu.188.2022.02.18.10.04.46
+        by smtp.gmail.com with ESMTPSA id q21sm3808745pfu.188.2022.02.18.10.04.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Feb 2022 10:04:47 -0800 (PST)
+        Fri, 18 Feb 2022 10:04:49 -0800 (PST)
 From:   Bart Van Assche <bvanassche@acm.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Jaegeuk Kim <jaegeuk@kernel.org>,
         Kiwoong Kim <kwmad.kim@samsung.com>, stable@vger.kernel.org,
         Bart Van Assche <bvanassche@acm.org>,
         Bean Huo <beanhuo@micron.com>,
-        Avri Altman <avri.altman@wdc.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 1/2] scsi: ufs: Remove dead code
-Date:   Fri, 18 Feb 2022 10:04:38 -0800
-Message-Id: <20220218180439.19858-2-bvanassche@acm.org>
+Subject: [PATCH 2/2] scsi: ufs: Fix a deadlock in the error handler
+Date:   Fri, 18 Feb 2022 10:04:39 -0800
+Message-Id: <20220218180439.19858-3-bvanassche@acm.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220218180439.19858-1-bvanassche@acm.org>
 References: <20220218180439.19858-1-bvanassche@acm.org>
@@ -63,46 +63,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit d77ea8226b3be23b0b45aa42851243b62a27bda1 upstream.
+commit 945c3cca05d78351bba29fa65d93834cb7934c7b upstream.
 
-Commit 7252a3603015 ("scsi: ufs: Avoid busy-waiting by eliminating tag
-conflicts") guarantees that 'tag' is not in use by any SCSI command.
-Remove the check that returns early if a conflict occurs.
+The following deadlock has been observed on a test setup:
 
-Link: https://lore.kernel.org/r/20211203231950.193369-6-bvanassche@acm.org
+ - All tags allocated
+
+ - The SCSI error handler calls ufshcd_eh_host_reset_handler()
+
+ - ufshcd_eh_host_reset_handler() queues work that calls
+   ufshcd_err_handler()
+
+ - ufshcd_err_handler() locks up as follows:
+
+Workqueue: ufs_eh_wq_0 ufshcd_err_handler.cfi_jt
+Call trace:
+ __switch_to+0x298/0x5d8
+ __schedule+0x6cc/0xa94
+ schedule+0x12c/0x298
+ blk_mq_get_tag+0x210/0x480
+ __blk_mq_alloc_request+0x1c8/0x284
+ blk_get_request+0x74/0x134
+ ufshcd_exec_dev_cmd+0x68/0x640
+ ufshcd_verify_dev_init+0x68/0x35c
+ ufshcd_probe_hba+0x12c/0x1cb8
+ ufshcd_host_reset_and_restore+0x88/0x254
+ ufshcd_reset_and_restore+0xd0/0x354
+ ufshcd_err_handler+0x408/0xc58
+ process_one_work+0x24c/0x66c
+ worker_thread+0x3e8/0xa4c
+ kthread+0x150/0x1b4
+ ret_from_fork+0x10/0x30
+
+Fix this lockup by making ufshcd_exec_dev_cmd() allocate a reserved
+request.
+
+Link: https://lore.kernel.org/r/20211203231950.193369-10-bvanassche@acm.org
 Tested-by: Bean Huo <beanhuo@micron.com>
+Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
 Reviewed-by: Bean Huo <beanhuo@micron.com>
-Acked-by: Avri Altman <avri.altman@wdc.com>
 Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 53 +++++++++++----------------------------
+ drivers/scsi/ufs/ufshcd.h |  2 ++
+ 2 files changed, 16 insertions(+), 39 deletions(-)
 
 diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index f489954e4632..92e4f0dbb791 100644
+index 92e4f0dbb791..cdec85bcc4cc 100644
 --- a/drivers/scsi/ufs/ufshcd.c
 +++ b/drivers/scsi/ufs/ufshcd.c
-@@ -6658,11 +6658,6 @@ static int ufshcd_issue_devman_upiu_cmd(struct ufs_hba *hba,
- 	tag = req->tag;
- 	WARN_ONCE(tag < 0, "Invalid tag %d\n", tag);
+@@ -125,8 +125,9 @@ EXPORT_SYMBOL_GPL(ufshcd_dump_regs);
+ enum {
+ 	UFSHCD_MAX_CHANNEL	= 0,
+ 	UFSHCD_MAX_ID		= 1,
+-	UFSHCD_CMD_PER_LUN	= 32,
+-	UFSHCD_CAN_QUEUE	= 32,
++	UFSHCD_NUM_RESERVED	= 1,
++	UFSHCD_CMD_PER_LUN	= 32 - UFSHCD_NUM_RESERVED,
++	UFSHCD_CAN_QUEUE	= 32 - UFSHCD_NUM_RESERVED,
+ };
  
--	if (unlikely(test_bit(tag, &hba->outstanding_reqs))) {
--		err = -EBUSY;
--		goto out;
+ /* UFSHCD error handling flags */
+@@ -2185,6 +2186,7 @@ static inline int ufshcd_hba_capabilities(struct ufs_hba *hba)
+ 	hba->nutrs = (hba->capabilities & MASK_TRANSFER_REQUESTS_SLOTS) + 1;
+ 	hba->nutmrs =
+ 	((hba->capabilities & MASK_TASK_MANAGEMENT_REQUEST_SLOTS) >> 16) + 1;
++	hba->reserved_slot = hba->nutrs - 1;
+ 
+ 	/* Read crypto capabilities */
+ 	err = ufshcd_hba_init_crypto_capabilities(hba);
+@@ -2910,30 +2912,15 @@ static int ufshcd_wait_for_dev_cmd(struct ufs_hba *hba,
+ static int ufshcd_exec_dev_cmd(struct ufs_hba *hba,
+ 		enum dev_cmd_type cmd_type, int timeout)
+ {
+-	struct request_queue *q = hba->cmd_queue;
+ 	DECLARE_COMPLETION_ONSTACK(wait);
+-	struct request *req;
++	const u32 tag = hba->reserved_slot;
+ 	struct ufshcd_lrb *lrbp;
+ 	int err;
+-	int tag;
+ 
+-	down_read(&hba->clk_scaling_lock);
++	/* Protects use of hba->reserved_slot. */
++	lockdep_assert_held(&hba->dev_cmd.lock);
+ 
+-	/*
+-	 * Get free slot, sleep if slots are unavailable.
+-	 * Even though we use wait_event() which sleeps indefinitely,
+-	 * the maximum wait time is bounded by SCSI request timeout.
+-	 */
+-	req = blk_get_request(q, REQ_OP_DRV_OUT, 0);
+-	if (IS_ERR(req)) {
+-		err = PTR_ERR(req);
+-		goto out_unlock;
 -	}
--
+-	tag = req->tag;
+-	WARN_ONCE(tag < 0, "Invalid tag %d\n", tag);
+-	/* Set the timeout such that the SCSI error handler is not activated. */
+-	req->timeout = msecs_to_jiffies(2 * timeout);
+-	blk_mq_start_request(req);
++	down_read(&hba->clk_scaling_lock);
+ 
  	lrbp = &hba->lrb[tag];
  	WARN_ON(lrbp->cmd);
- 	lrbp->cmd = NULL;
-@@ -6730,8 +6725,8 @@ static int ufshcd_issue_devman_upiu_cmd(struct ufs_hba *hba,
+@@ -2951,8 +2938,6 @@ static int ufshcd_exec_dev_cmd(struct ufs_hba *hba,
+ 				    (struct utp_upiu_req *)lrbp->ucd_rsp_ptr);
+ 
+ out:
+-	blk_put_request(req);
+-out_unlock:
+ 	up_read(&hba->clk_scaling_lock);
+ 	return err;
+ }
+@@ -6640,23 +6625,16 @@ static int ufshcd_issue_devman_upiu_cmd(struct ufs_hba *hba,
+ 					enum dev_cmd_type cmd_type,
+ 					enum query_opcode desc_op)
+ {
+-	struct request_queue *q = hba->cmd_queue;
+ 	DECLARE_COMPLETION_ONSTACK(wait);
+-	struct request *req;
++	const u32 tag = hba->reserved_slot;
+ 	struct ufshcd_lrb *lrbp;
+ 	int err = 0;
+-	int tag;
+ 	u8 upiu_flags;
+ 
+-	down_read(&hba->clk_scaling_lock);
++	/* Protects use of hba->reserved_slot. */
++	lockdep_assert_held(&hba->dev_cmd.lock);
+ 
+-	req = blk_get_request(q, REQ_OP_DRV_OUT, 0);
+-	if (IS_ERR(req)) {
+-		err = PTR_ERR(req);
+-		goto out_unlock;
+-	}
+-	tag = req->tag;
+-	WARN_ONCE(tag < 0, "Invalid tag %d\n", tag);
++	down_read(&hba->clk_scaling_lock);
+ 
+ 	lrbp = &hba->lrb[tag];
+ 	WARN_ON(lrbp->cmd);
+@@ -6725,9 +6703,6 @@ static int ufshcd_issue_devman_upiu_cmd(struct ufs_hba *hba,
  	ufshcd_add_query_upiu_trace(hba, err ? UFS_QUERY_ERR : UFS_QUERY_COMP,
  				    (struct utp_upiu_req *)lrbp->ucd_rsp_ptr);
  
--out:
- 	blk_put_request(req);
-+
- out_unlock:
+-	blk_put_request(req);
+-
+-out_unlock:
  	up_read(&hba->clk_scaling_lock);
  	return err;
+ }
+@@ -9418,8 +9393,8 @@ int ufshcd_init(struct ufs_hba *hba, void __iomem *mmio_base, unsigned int irq)
+ 	/* Configure LRB */
+ 	ufshcd_host_memory_configure(hba);
+ 
+-	host->can_queue = hba->nutrs;
+-	host->cmd_per_lun = hba->nutrs;
++	host->can_queue = hba->nutrs - UFSHCD_NUM_RESERVED;
++	host->cmd_per_lun = hba->nutrs - UFSHCD_NUM_RESERVED;
+ 	host->max_id = UFSHCD_MAX_ID;
+ 	host->max_lun = UFS_MAX_LUNS;
+ 	host->max_channel = UFSHCD_MAX_CHANNEL;
+diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
+index 07ada6676c3b..d470a52ff24c 100644
+--- a/drivers/scsi/ufs/ufshcd.h
++++ b/drivers/scsi/ufs/ufshcd.h
+@@ -725,6 +725,7 @@ struct ufs_hba_monitor {
+  * @capabilities: UFS Controller Capabilities
+  * @nutrs: Transfer Request Queue depth supported by controller
+  * @nutmrs: Task Management Queue depth supported by controller
++ * @reserved_slot: Used to submit device commands. Protected by @dev_cmd.lock.
+  * @ufs_version: UFS Version to which controller complies
+  * @vops: pointer to variant specific operations
+  * @priv: pointer to variant specific private data
+@@ -813,6 +814,7 @@ struct ufs_hba {
+ 	u32 capabilities;
+ 	int nutrs;
+ 	int nutmrs;
++	u32 reserved_slot;
+ 	u32 ufs_version;
+ 	const struct ufs_hba_variant_ops *vops;
+ 	struct ufs_hba_variant_params *vps;
