@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0913F4BBAF6
+	by mail.lfdr.de (Postfix) with ESMTP id 54DC34BBAF7
 	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 15:52:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232070AbiBROwW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Feb 2022 09:52:22 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35626 "EHLO
+        id S233944AbiBROwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Feb 2022 09:52:24 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233795AbiBROwV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 09:52:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 306323B559
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 06:52:05 -0800 (PST)
+        with ESMTP id S233795AbiBROwX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 09:52:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA4F43C49C
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 06:52:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2EF1B82666
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 14:52:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1CF0C340E9;
-        Fri, 18 Feb 2022 14:52:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57D4E617CB
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 14:52:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17C10C340E9;
+        Fri, 18 Feb 2022 14:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645195922;
-        bh=qwzlPJpQwL/OP9gtrFpMoopqimOWEL+7GzMyKROintA=;
+        s=korg; t=1645195925;
+        bh=8LHfCzvVGIMgDsbMV+xKkmWi3pVv2YurgllhtvMOFo0=;
         h=Subject:To:Cc:From:Date:From;
-        b=FIB3/gQDMUQWlcF4EHNVc+z/QAT59PgI4/LDjfgcH3P8yKD3MkVKmyXz8UpqUS9oF
-         XRzsKjHqWLdoadxBRQjKm/ZVYO5wzAJWgrby/iQB6BV5heU1r2JZZyvOpfEtjiAWVS
-         cn+YefIstnrFKda1irvalf9Q9LGepbDPN+YX9tkY=
-Subject: FAILED: patch "[PATCH] net: bridge: multicast: notify switchdev driver whenever MC" failed to apply to 4.19-stable tree
+        b=bRo+Q8UeMyTTlhljof/SxJG4I2n7rfgVgeMAgwdAPGufvbnVZSX0lsIdAWYK34dvh
+         BQ/8aW/zrUjr8vg+TY1X7ZQLaZW4FsNDJk98XnqJO24FjROvmggHVA979Vvue143qF
+         NufrarS93LEMlCqUiXYKsYFE6L+t3ZwHL31XyHbA=
+Subject: FAILED: patch "[PATCH] net: bridge: multicast: notify switchdev driver whenever MC" failed to apply to 4.14-stable tree
 To:     oleksandr.mazur@plvision.eu, kuba@kernel.org, nikolay@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 18 Feb 2022 15:51:57 +0100
-Message-ID: <1645195917181233@kroah.com>
+Date:   Fri, 18 Feb 2022 15:51:59 +0100
+Message-ID: <164519591918944@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
