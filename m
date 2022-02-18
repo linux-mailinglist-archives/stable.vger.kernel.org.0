@@ -2,161 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 253AB4BB6F9
-	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 11:36:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F5684BB6FC
+	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 11:37:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232208AbiBRKgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Feb 2022 05:36:23 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46464 "EHLO
+        id S233516AbiBRKhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Feb 2022 05:37:17 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229694AbiBRKgX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 05:36:23 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4570B2B3575;
-        Fri, 18 Feb 2022 02:36:05 -0800 (PST)
-Date:   Fri, 18 Feb 2022 10:36:01 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1645180562;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=vrDjnYGriIcx9Ox1QC6AoQgMAAK0YnoxLVYtUNI8yIQ=;
-        b=43/GBuKy0U0w/+9/D/lAt4il4dHMluOl6XnW7S7rnpxWhW2Fyr33xbmUfTSz6xKT6AS++A
-        OafHmrqgTw7xLfWaC0Clp3ryTAFqpxYhHQJhYxNiy/su7amUuDKT5jJr0cYTbw92zUeiLQ
-        i0a5fI9e+SBxiixSPL69SaGEBHXkYQkX3gif/a6+dZ0JBv3EA7rX1+M1wI+mR8arYPnS1/
-        iNVsSsDcshmCmu4j9e5AYqnahswp5sLvlgR03LMKwHSfqnoaTcAmrOghDjXtwW//tHS4Hn
-        ysOER9Udk1E1zjnGxMjx9bFgJxXpcGdelNCr+v/xkK8UKmikOTH0/od53k2A1w==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1645180562;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=vrDjnYGriIcx9Ox1QC6AoQgMAAK0YnoxLVYtUNI8yIQ=;
-        b=j2IMPyqZipmgd30pxq3e8vN2JWUv9bHEvb/cPuIqtU2mejAbHAWvPOMdPz5kZP0a+tOibW
-        2Bka7hN1uXw6DzDg==
-From:   "tip-bot2 for Andy Lutomirski" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/ptrace: Fix xfpregs_set()'s incorrect xmm clearing
-Cc:     contact@lsferreira.net, Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@suse.de>, <stable@vger.kernel.org>,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <YgpFnZpF01WwR8wU@zn.tnic>
-References: <YgpFnZpF01WwR8wU@zn.tnic>
+        with ESMTP id S229694AbiBRKhQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 05:37:16 -0500
+Received: from new1-smtp.messagingengine.com (new1-smtp.messagingengine.com [66.111.4.221])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8EA2636A;
+        Fri, 18 Feb 2022 02:36:59 -0800 (PST)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 94CA758034C;
+        Fri, 18 Feb 2022 05:36:57 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Fri, 18 Feb 2022 05:36:57 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm3; bh=2M482WJpspdP0M9aq+xDp/jCcE8RYRfd8264dt
+        8riP0=; b=pigrYCz/nRvqvfe3fn19OseG2VmEVoVNogADzCWeFbHJqntvb9npCN
+        Q2juAq5pDEkV+W2wyIE6fWSwISWwbB44m808ZnExf8LPwGaFFRQqU9xXdPEJqxuV
+        +xZZKM7SsGUo1TyyWV0Np+Z7oq+FKExfu65Fc6uOBNz+h7s63Ye0HrSL1u5abnRi
+        IGss5nnvD85rWMCHJtTgu3QyStCrkR8VBBGH6Ske+1dks3PIeekkQOM2QMLwxWdh
+        h4QsAA4jEE49U/CnBe0nxCEX3xSEAGk8A/OL7JARVtpjlWKFbce81tzc2ftWxp4g
+        maogHgZj4KJF1RyPAtMF9s47SqcRjvCA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=2M482WJpspdP0M9aq
+        +xDp/jCcE8RYRfd8264dt8riP0=; b=W0/nDAEyRIqKnn+7YBCSBL+ZXoeoATo7h
+        sBNlDhh9KHGE+k0rQK+HQqhWKIUk9kLs9cJTznqnsLRD/NNtbCgdQuR2TJ1tvo32
+        jkNMtjnQw/pWWVWRoirccy6adtRhajb6pBrhw9p5Hmw8eW3+QZt+u0fTmtrOvYMh
+        8vDoRkk2lE0CFzlrDbUQGPvc08hbRXAsbQcOxcT1XadIsZYrFozeRPFAfZFWF0CS
+        qY05qXRBJIEPvCUV+BuxRTZ++0KJMZkaGdmE4z8w08et9BW33QVz8y+FBpaD3LrJ
+        W1O/vu0yWBEKlas4JEibZr5PnVgcVG1jwZktq2zZhUk4UnyC2EJcg==
+X-ME-Sender: <xms:yXYPYvw_79xaQ7rDh3VIqHE71u3E7mRt7vx2IQPIHZGWB9yA_PV1FA>
+    <xme:yXYPYnTCoNFV_DAxPNjzayacJEhBaTR6wzBliNqGDpCtlYMcNIeadLIsBr0pLpKKi
+    8WLhh7AYMNZ2Q>
+X-ME-Received: <xmr:yXYPYpVbd4I1R7O9FSXCHf0Eu1C9149bR2uKY0pAYJV1OUPA8ULtuCgaLaow9vrGcwhrov0CiYhLEzvcUB4T_Tm2laiYNxJj>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrkedtgdduiecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:yXYPYphIWbHTxQjunp15iTygx62D3INsbUT7uL-XAnRrceBl4IsGbw>
+    <xmx:yXYPYhA9oLLODIdQFs37gAqSNCTQ5UkfBY9FJy-oPkD13f4EGhtgSA>
+    <xmx:yXYPYiL8vLAdomspPXXOgAe2ZUlP5h3Ekemau84jPazqxsq-vSwnvg>
+    <xmx:yXYPYpbuPee_aQnaNDj5SosxVM50PdH0JxnJryNvfN6Ufjjh8tJmiQ>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 18 Feb 2022 05:36:56 -0500 (EST)
+Date:   Fri, 18 Feb 2022 11:36:46 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Su Yue <l@damenly.su>, David Sterba <dsterba@suse.com>,
+        clm@fb.com, josef@toxicpanda.com, linux-btrfs@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.10 16/27] btrfs: tree-checker: check item_size
+ for dev_item
+Message-ID: <Yg92voqmS9jz/rI+@kroah.com>
+References: <20220209184103.47635-1-sashal@kernel.org>
+ <20220209184103.47635-16-sashal@kernel.org>
 MIME-Version: 1.0
-Message-ID: <164518056109.16921.5538462519727377256.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220209184103.47635-16-sashal@kernel.org>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+On Wed, Feb 09, 2022 at 01:40:52PM -0500, Sasha Levin wrote:
+> From: Su Yue <l@damenly.su>
+> 
+> [ Upstream commit ea1d1ca4025ac6c075709f549f9aa036b5b6597d ]
+> 
+> Check item size before accessing the device item to avoid out of bound
+> access, similar to inode_item check.
+> 
+> Signed-off-by: Su Yue <l@damenly.su>
+> Reviewed-by: David Sterba <dsterba@suse.com>
+> Signed-off-by: David Sterba <dsterba@suse.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  fs/btrfs/tree-checker.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
+> index d4a3a56726aa8..4a5ee516845f7 100644
+> --- a/fs/btrfs/tree-checker.c
+> +++ b/fs/btrfs/tree-checker.c
+> @@ -947,6 +947,7 @@ static int check_dev_item(struct extent_buffer *leaf,
+>  			  struct btrfs_key *key, int slot)
+>  {
+>  	struct btrfs_dev_item *ditem;
+> +	const u32 item_size = btrfs_item_size(leaf, slot);
+>  
+>  	if (key->objectid != BTRFS_DEV_ITEMS_OBJECTID) {
+>  		dev_item_err(leaf, slot,
+> @@ -954,6 +955,13 @@ static int check_dev_item(struct extent_buffer *leaf,
+>  			     key->objectid, BTRFS_DEV_ITEMS_OBJECTID);
+>  		return -EUCLEAN;
+>  	}
+> +
+> +	if (unlikely(item_size != sizeof(*ditem))) {
+> +		dev_item_err(leaf, slot, "invalid item size: has %u expect %zu",
+> +			     item_size, sizeof(*ditem));
+> +		return -EUCLEAN;
+> +	}
+> +
+>  	ditem = btrfs_item_ptr(leaf, slot, struct btrfs_dev_item);
+>  	if (btrfs_device_id(leaf, ditem) != key->offset) {
+>  		dev_item_err(leaf, slot,
+> -- 
+> 2.34.1
+> 
 
-Commit-ID:     44cad52cc14ae10062f142ec16ede489bccf4469
-Gitweb:        https://git.kernel.org/tip/44cad52cc14ae10062f142ec16ede489bcc=
-f4469
-Author:        Andy Lutomirski <luto@kernel.org>
-AuthorDate:    Mon, 14 Feb 2022 13:05:49 +01:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Fri, 18 Feb 2022 11:23:21 +01:00
+This adds a build warning, showing that the backport is not correct, so
+I'll go drop this :(
 
-x86/ptrace: Fix xfpregs_set()'s incorrect xmm clearing
+thanks,
 
-xfpregs_set() handles 32-bit REGSET_XFP and 64-bit REGSET_FP. The actual
-code treats these regsets as modern FX state (i.e. the beginning part of
-XSTATE). The declarations of the regsets thought they were the legacy
-i387 format. The code thought they were the 32-bit (no xmm8..15) variant
-of XSTATE and, for good measure, made the high bits disappear by zeroing
-the wrong part of the buffer. The latter broke ptrace, and everything
-else confused anyone trying to understand the code. In particular, the
-nonsense definitions of the regsets confused me when I wrote this code.
-
-Clean this all up. Change the declarations to match reality (which
-shouldn't change the generated code, let alone the ABI) and fix
-xfpregs_set() to clear the correct bits and to only do so for 32-bit
-callers.
-
-Fixes: 6164331d15f7 ("x86/fpu: Rewrite xfpregs_set()")
-Reported-by: Lu=C3=ADs Ferreira <contact@lsferreira.net>
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D215524
-Link: https://lore.kernel.org/r/YgpFnZpF01WwR8wU@zn.tnic
----
- arch/x86/kernel/fpu/regset.c |  9 ++++-----
- arch/x86/kernel/ptrace.c     |  4 ++--
- 2 files changed, 6 insertions(+), 7 deletions(-)
-
-diff --git a/arch/x86/kernel/fpu/regset.c b/arch/x86/kernel/fpu/regset.c
-index 437d7c9..75ffaef 100644
---- a/arch/x86/kernel/fpu/regset.c
-+++ b/arch/x86/kernel/fpu/regset.c
-@@ -91,11 +91,9 @@ int xfpregs_set(struct task_struct *target, const struct u=
-ser_regset *regset,
- 		const void *kbuf, const void __user *ubuf)
- {
- 	struct fpu *fpu =3D &target->thread.fpu;
--	struct user32_fxsr_struct newstate;
-+	struct fxregs_state newstate;
- 	int ret;
-=20
--	BUILD_BUG_ON(sizeof(newstate) !=3D sizeof(struct fxregs_state));
--
- 	if (!cpu_feature_enabled(X86_FEATURE_FXSR))
- 		return -ENODEV;
-=20
-@@ -116,9 +114,10 @@ int xfpregs_set(struct task_struct *target, const struct=
- user_regset *regset,
- 	/* Copy the state  */
- 	memcpy(&fpu->fpstate->regs.fxsave, &newstate, sizeof(newstate));
-=20
--	/* Clear xmm8..15 */
-+	/* Clear xmm8..15 for 32-bit callers */
- 	BUILD_BUG_ON(sizeof(fpu->__fpstate.regs.fxsave.xmm_space) !=3D 16 * 16);
--	memset(&fpu->fpstate->regs.fxsave.xmm_space[8], 0, 8 * 16);
-+	if (in_ia32_syscall())
-+		memset(&fpu->fpstate->regs.fxsave.xmm_space[8*4], 0, 8 * 16);
-=20
- 	/* Mark FP and SSE as in use when XSAVE is enabled */
- 	if (use_xsave())
-diff --git a/arch/x86/kernel/ptrace.c b/arch/x86/kernel/ptrace.c
-index 6d2244c..8d2f2f9 100644
---- a/arch/x86/kernel/ptrace.c
-+++ b/arch/x86/kernel/ptrace.c
-@@ -1224,7 +1224,7 @@ static struct user_regset x86_64_regsets[] __ro_after_i=
-nit =3D {
- 	},
- 	[REGSET_FP] =3D {
- 		.core_note_type =3D NT_PRFPREG,
--		.n =3D sizeof(struct user_i387_struct) / sizeof(long),
-+		.n =3D sizeof(struct fxregs_state) / sizeof(long),
- 		.size =3D sizeof(long), .align =3D sizeof(long),
- 		.active =3D regset_xregset_fpregs_active, .regset_get =3D xfpregs_get, .se=
-t =3D xfpregs_set
- 	},
-@@ -1271,7 +1271,7 @@ static struct user_regset x86_32_regsets[] __ro_after_i=
-nit =3D {
- 	},
- 	[REGSET_XFP] =3D {
- 		.core_note_type =3D NT_PRXFPREG,
--		.n =3D sizeof(struct user32_fxsr_struct) / sizeof(u32),
-+		.n =3D sizeof(struct fxregs_state) / sizeof(u32),
- 		.size =3D sizeof(u32), .align =3D sizeof(u32),
- 		.active =3D regset_xregset_fpregs_active, .regset_get =3D xfpregs_get, .se=
-t =3D xfpregs_set
- 	},
+greg k-h
