@@ -2,183 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECD6F4BB9C9
-	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 14:04:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92C414BB9DE
+	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 14:11:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232738AbiBRNEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Feb 2022 08:04:36 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41010 "EHLO
+        id S235693AbiBRNL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Feb 2022 08:11:57 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232256AbiBRNEg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 08:04:36 -0500
-Received: from new4-smtp.messagingengine.com (new4-smtp.messagingengine.com [66.111.4.230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3D242B4618;
-        Fri, 18 Feb 2022 05:04:19 -0800 (PST)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.nyi.internal (Postfix) with ESMTP id F278D580226;
-        Fri, 18 Feb 2022 08:04:17 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Fri, 18 Feb 2022 08:04:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm3; bh=pxpqD2+sLe6m/z/BcNmFIUMN1NaFzbA2gxa6Sn
-        G8FAE=; b=YkFltgs/c6JzKnjmgH8tHs+8cIg9owcvVpqyEagiIVRJ9bSEj1WQQ4
-        ToRrhcr4eSxTfN8YK279owt59FbvtFqd0r16BgV4FNPxcNVotRdE8NKhbPv/hd79
-        2Z4KaSShethSnnJhtocSPa3wJe+Kqgtsa0Ajokvu+RWPiHml0VG+lQJ9xB0RupSA
-        rDP40DVjUlvbXmSCYbqgpU5Us4Y/zNWFhlAZO9lg+qZkS8z00wZ4uCx4nAKWqm0+
-        jjyuWpxAwVLSxbJN6Q3yP1vrKkZa+bIrHADBD6azZA9KlxmcrBgTLK1ODPkLphE/
-        sl2ApynvQXp1tKkmPEqf12n1m1XdN6pA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=pxpqD2+sLe6m/z/Bc
-        NmFIUMN1NaFzbA2gxa6SnG8FAE=; b=WbwYTPkqk0SGSvuwi4hwM4TZzpgA3XNd7
-        wv27aKMOCVhvX9gnFwPVEne69GFZFbI3HtbGh7QKwNTG6UFQsQsrAgj60RDgn9wl
-        OQA8HpsOn+L4ORcoKjLZFXiFpzWTHW41QvEmuqQM6gqzjpZSy9b/za37y1h3+e9+
-        ZQ1/LxBUVUvW/Dixu/oap0jKWkMhHZAGI+BgU3DcZ6Gm7Oe6YZOdJjlTUwWjW+sW
-        8UWpVUHmOWaYxyrmI1st9346rijZkQFD/9yXdN7ptt1ud9CbYO6D6KOKRTtyejyt
-        Ks7ZzFLzq4c4hjpXwD7FGUvVxr/CrjKExXyDDcXmaepz8SEgTkTGg==
-X-ME-Sender: <xms:UZkPYktVLygxxXeO3qfwmn_ksqtSTVg48CPJLwdtQT9xFlUjWx_5LQ>
-    <xme:UZkPYhfP4pUaK0LhAQ-50255ESPE5GUXn2qlGumdhTZ5-8z3iZALJapsRlW6C99y1
-    PP5huOxzD7rIA>
-X-ME-Received: <xmr:UZkPYvwuNWocT16q2ezjMBMp1anqIk_Scs07YgdFzSPWET5ZZgsqh0u9IMJSywyepx_oOYKSP8kUIPEOizstVsVIg6geq7t0>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrkedtgdeghecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:UZkPYnPVDh6GLp2R8Sn2csqEhtGXq5cw9PmtlzNM7yUvY0QQ-PlE2Q>
-    <xmx:UZkPYk_4XdxzbSs83w8Y41rugLb5f_eEh71kjNxLK7aljvhDKd06-Q>
-    <xmx:UZkPYvVP1CwpPaQ2XpVAVfExnOvSUhwxRdwlLxVgqAsDqLY76of18A>
-    <xmx:UZkPYoUoiNB3WBcARV4FjZi9NGc92yFyyRDafFIlIheOzoL0bbaomw>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 18 Feb 2022 08:04:16 -0500 (EST)
-Date:   Fri, 18 Feb 2022 14:04:15 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Su Yue <l@damenly.su>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        clm@fb.com, josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.10 16/27] btrfs: tree-checker: check item_size
- for dev_item
-Message-ID: <Yg+ZT4b8J+MRU2nG@kroah.com>
-References: <20220209184103.47635-1-sashal@kernel.org>
- <20220209184103.47635-16-sashal@kernel.org>
- <Yg92voqmS9jz/rI+@kroah.com>
- <1r00qtxj.fsf@damenly.su>
+        with ESMTP id S235686AbiBRNL4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 08:11:56 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1326115A
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 05:11:38 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id u12so7110227plf.13
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 05:11:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Wo/7v9jYM4ocIRifY0MeIVv01VpZbWGud5FrKmGExyo=;
+        b=jw1b9P+uQvdA7zVHp2y9IPS6rauQBxH84UAHzFJ1FugjXmEYP6HcebsbDUtjiVOfbQ
+         ZX2bZ85hQ+jW3KFYwDrqpWb2cvqh+5/J3aSJqzpgrnbdDodCpF1pSpgIppKMKY41ezA8
+         T+bVhR7/vCIH+7kRvnIUE7TDySmP0oxwE4P0lqdRCUknLZ5JgVemUmdpHcUQyFC+31Jh
+         tW6RS+TZRDw5G8C/cTDrgki1ZEdSQJK5x9Ktg6Q/WS64fTvr6OZheKeaWsgW68E7II3I
+         KXLi0Ie8b0u9vDtnIJkoA+EbvdLyzP0ynCjEprD+tK2hZj0zTD820adPNvS4PicdJcVE
+         Erpw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Wo/7v9jYM4ocIRifY0MeIVv01VpZbWGud5FrKmGExyo=;
+        b=CW/u9isQKFLZIHtGL9XtZK+IYml0KVd3trNRBCbY4PA8011PcPQa5tQcuSbg5bF69W
+         1geGQviD6EwoMwwkKqTdRtAEMlyRznE3VFn3M3tPWBZ3j99RCL3Xe44/lM73dsxip8lQ
+         iEr6qUIOHMWiHDf6QnfHpQDUpfJoJKq5RKzFUc/TvqLUblINvRf+urf8Ih1QAA4/i6fx
+         bSmRc48b3tSzfFbTM0q2BLQC7KXFWxDBYCOMjp8tngFwZv2eMG9SzRjM+tmBj2xou73J
+         Z1be0bpYqFkE1LDGq0aZwadheZQEW8i7MJCefAJy4TLZaeDtlxQWWcS/YPuWULD52Oea
+         Yrjw==
+X-Gm-Message-State: AOAM532wsgP3WHe9SCi9Ny3SDOe7YUs/VQUpfRdmSBQf97/cmO/Wgr/y
+        Pc1RvFiYk1gpo61tglbszWiPRi4MRZlMN3BGu6arLA==
+X-Google-Smtp-Source: ABdhPJxDEBPGMkac5tL2zrxZboqw22AgXSC0pjrE/1B/cp0toro1ps4DZBQxy6DuWDrzfd0ahMqlUadXYLWIJTHznGM=
+X-Received: by 2002:a17:902:7485:b0:14f:3b6:1847 with SMTP id
+ h5-20020a170902748500b0014f03b61847mr7393989pll.70.1645189897875; Fri, 18 Feb
+ 2022 05:11:37 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1r00qtxj.fsf@damenly.su>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+References: <20220218104529.436040-1-jens.wiklander@linaro.org> <Yg+ZJeviMupQrGo4@kroah.com>
+In-Reply-To: <Yg+ZJeviMupQrGo4@kroah.com>
+From:   Jens Wiklander <jens.wiklander@linaro.org>
+Date:   Fri, 18 Feb 2022 14:11:27 +0100
+Message-ID: <CAHUa44FXN9A+Md0h3i66wiUQ8gQGQXedi=P80Hs_BeVLcOadNg@mail.gmail.com>
+Subject: Re: [PATCH backportt 5.16] optee: use driver internal tee_context for
+ some rpc
+To:     Greg KH <greg@kroah.com>
+Cc:     stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
+        Lars Persson <larper@axis.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 18, 2022 at 07:25:20PM +0800, Su Yue wrote:
-> 
-> On Fri 18 Feb 2022 at 11:36, Greg KH <greg@kroah.com> wrote:
-> 
-> > On Wed, Feb 09, 2022 at 01:40:52PM -0500, Sasha Levin wrote:
-> > > From: Su Yue <l@damenly.su>
-> > > 
-> > > [ Upstream commit ea1d1ca4025ac6c075709f549f9aa036b5b6597d ]
-> > > 
-> > > Check item size before accessing the device item to avoid out of
-> > > bound
-> > > access, similar to inode_item check.
-> > > 
-> > > Signed-off-by: Su Yue <l@damenly.su>
-> > > Reviewed-by: David Sterba <dsterba@suse.com>
-> > > Signed-off-by: David Sterba <dsterba@suse.com>
-> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > > ---
-> > >  fs/btrfs/tree-checker.c | 8 ++++++++
-> > >  1 file changed, 8 insertions(+)
-> > > 
-> > > diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
-> > > index d4a3a56726aa8..4a5ee516845f7 100644
-> > > --- a/fs/btrfs/tree-checker.c
-> > > +++ b/fs/btrfs/tree-checker.c
-> > > @@ -947,6 +947,7 @@ static int check_dev_item(struct extent_buffer
-> > > *leaf,
-> > >  			  struct btrfs_key *key, int slot)
-> > >  {
-> > >  	struct btrfs_dev_item *ditem;
-> > > +	const u32 item_size = btrfs_item_size(leaf, slot);
-> > > 
-> > >  	if (key->objectid != BTRFS_DEV_ITEMS_OBJECTID) {
-> > >  		dev_item_err(leaf, slot,
-> > > @@ -954,6 +955,13 @@ static int check_dev_item(struct extent_buffer
-> > > *leaf,
-> > >  			     key->objectid,  BTRFS_DEV_ITEMS_OBJECTID);
-> > >  		return -EUCLEAN;
-> > >  	}
-> > > +
-> > > +	if (unlikely(item_size != sizeof(*ditem))) {
-> > > +		dev_item_err(leaf, slot, "invalid item size: has %u expect %zu",
-> > > +			     item_size, sizeof(*ditem));
-> > > +		return -EUCLEAN;
-> > > +	}
-> > > +
-> > >  	ditem = btrfs_item_ptr(leaf, slot, struct btrfs_dev_item);
-> > >  	if (btrfs_device_id(leaf, ditem) != key->offset) {
-> > >  		dev_item_err(leaf, slot,
-> > > --
-> > > 2.34.1
-> > > 
-> > 
-> > This adds a build warning, showing that the backport is not correct, so
-> > I'll go drop this :(
-> > 
-> And the warning is
-> ========================================================================
-> arch/x86/kernel/head_64.o: warning: objtool: .text+0x5: unreachable
-> instruction
-> fs/btrfs/tree-checker.c: In function \342\200\230check_dev_item\342\200\231:
-> fs/btrfs/tree-checker.c:950:53: warning: passing argument 2 of
-> \342\200\230btrfs_item_size\342\200\231 makes pointer from integer without a
-> cast [-Wint-conversion]
->  950 |         const u32 item_size = btrfs_item_size(leaf, slot);
->      |                                                     ^~~~
->      |                                                     |
->      |                                                     int
-> In file included from fs/btrfs/tree-checker.c:21:
-> fs/btrfs/ctree.h:1474:48: note: expected \342\200\230const struct btrfs_item
-> *\342\200\231 but argument is of type \342\200\230int\342\200\231
-> 1474 |                                    const type *s) \
->      |                                    ~~~~~~~~~~~~^
-> fs/btrfs/ctree.h:1833:1: note: in expansion of macro
-> \342\200\230BTRFS_SETGET_FUNCS\342\200\231
-> 1833 | BTRFS_SETGET_FUNCS(item_size, struct btrfs_item, size, 32);
->      | ^~~~~~~~~~~~~~~~~~
-> ========================================================================
-> 
-> The upstream patchset[1] merged in 5.17-rc1, changed second parameter
-> of btrfs_item_size() from btrfs_item * to int directly.
-> So yes, the backport is wrong.
-> 
-> I'm not familiar with stable backport progress. Should I file a patch
-> using btrfs_item *? Or just drop it?
+On Fri, Feb 18, 2022 at 2:03 PM Greg KH <greg@kroah.com> wrote:
+>
+> On Fri, Feb 18, 2022 at 11:45:29AM +0100, Jens Wiklander wrote:
+> > commit aceeafefff736057e8f93f19bbfbef26abd94604 upstream
+> >
+> > Adds a driver private tee_context to struct optee.
+> >
+> > The new driver internal tee_context is used when allocating driver
+> > private shared memory. This decouples the shared memory object from its
+> > original tee_context. This is needed when the life time of such a memory
+> > allocation outlives the client tee_context.
+> >
+> > This patch fixes the problem described below:
+> >
+> > The addition of a shutdown hook by commit f25889f93184 ("optee: fix tee out
+> > of memory failure seen during kexec reboot") introduced a kernel shutdown
+> > regression that can be triggered after running the OP-TEE xtest suites.
+> >
+> > Once the shutdown hook is called it is not possible to communicate any more
+> > with the supplicant process because the system is not scheduling task any
+> > longer. Thus if the optee driver shutdown path receives a supplicant RPC
+> > request from the OP-TEE we will deadlock the kernel's shutdown.
+> >
+> > Fixes: f25889f93184 ("optee: fix tee out of memory failure seen during kexec reboot")
+> > Fixes: 217e0250cccb ("tee: use reference counting for tee_context")
+> > Reported-by: Lars Persson <larper@axis.com>
+> > Cc: stable@vger.kernel.org # 1e2c3ef0496e tee: export teedev_open() and teedev_close_context()
+> > Cc: stable@vger.kernel.org
+> > Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+> > [JW: backport to 5.16-stable + update commit message]
+>
+> This and 5.15 backport now queued up.
+>
+> This needs to go farther back as well, right?
 
-If you think this needs to be in the stable tree, yes please backport it
-and send it to us.
+Correct, I'm backporting and testing for the different stable branches.
 
-> The patch is related to  0c982944af27d131d3b74242f3528169f66950ad but
-> I wonder why the 0c98294 is not selected automatically.
+Cheers,
+Jens
 
-No idea, if you think that is needed to, please send it to us.
-
-thanks,
-
-greg k-h
+>
+> thanks
+>
+> greg k-h
