@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0EDC4BBAD0
-	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 15:40:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D2A74BBAD1
+	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 15:41:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236135AbiBROk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Feb 2022 09:40:58 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57018 "EHLO
+        id S234404AbiBROl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Feb 2022 09:41:58 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233801AbiBROk6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 09:40:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A536E294FCE
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 06:40:41 -0800 (PST)
+        with ESMTP id S233801AbiBROl5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 09:41:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECA2924F06
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 06:41:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B639B8265D
-        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 14:40:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 693D3C340E9;
-        Fri, 18 Feb 2022 14:40:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88630618EA
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 14:41:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E94CC340E9;
+        Fri, 18 Feb 2022 14:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645195239;
-        bh=vOhrJOSwHUamIVcFXlNH1Pbt7CG+8NDl+OWfAcyWqyA=;
+        s=korg; t=1645195299;
+        bh=Qj+NWyHorJjyUv8SRXHhXftn1Qs5G4PJJsNE1+H1CD0=;
         h=Subject:To:Cc:From:Date:From;
-        b=Jk8s9Lh9QBfuBtI7SBT/Yc/CNgJOJDAxA9LusBivXqWPZUA872pWR84TDbMJt+3eL
-         n1B7d3UTLb3uyg+4eL89/5yahIlcFZF5EqrtoZvir+cOe2NtmbhJwl3GT6KGl2Tl38
-         hkiWCud9DIwZ8GcgI8Kx4Cw10M3nM0qYNv6G5pDI=
-Subject: FAILED: patch "[PATCH] net: dsa: lan9303: add VLAN IDs to master device" failed to apply to 4.19-stable tree
-To:     mans@mansr.com, f.fainelli@gmail.com, kuba@kernel.org,
-        olteanv@gmail.com
+        b=Fyks7HbwdLfNvfdxkFYMMmIOqqu0L+pUJiP9PYasZzzgTXZbWXtipOScgV0N6Rp7h
+         pe+knwx/4G5jd2kMUalEq20Q1cRtCs782+H/NvKWjB6f+uQrPrl6oJErpNbu4AWNXs
+         NWXEuyFdKLlaVg6ATM6+h6u9z6yCjWllmfqoxdrQ=
+Subject: FAILED: patch "[PATCH] ping: fix the dif and sdif check in ping_lookup" failed to apply to 4.9-stable tree
+To:     lucien.xin@gmail.com, davem@davemloft.net, jishi@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 18 Feb 2022 15:40:28 +0100
-Message-ID: <1645195228160240@kroah.com>
+Date:   Fri, 18 Feb 2022 15:41:36 +0100
+Message-ID: <164519529610510@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,74 +59,76 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 430065e2671905ac675f97b7af240cc255964e93 Mon Sep 17 00:00:00 2001
-From: Mans Rullgard <mans@mansr.com>
-Date: Wed, 16 Feb 2022 20:48:18 +0000
-Subject: [PATCH] net: dsa: lan9303: add VLAN IDs to master device
+From 35a79e64de29e8d57a5989aac57611c0cd29e13e Mon Sep 17 00:00:00 2001
+From: Xin Long <lucien.xin@gmail.com>
+Date: Wed, 16 Feb 2022 00:20:52 -0500
+Subject: [PATCH] ping: fix the dif and sdif check in ping_lookup
 
-If the master device does VLAN filtering, the IDs used by the switch
-must be added for any frames to be received.  Do this in the
-port_enable() function, and remove them in port_disable().
+When 'ping' changes to use PING socket instead of RAW socket by:
 
-Fixes: a1292595e006 ("net: dsa: add new DSA switch driver for the SMSC-LAN9303")
-Signed-off-by: Mans Rullgard <mans@mansr.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20220216204818.28746-1-mans@mansr.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+   # sysctl -w net.ipv4.ping_group_range="0 100"
 
-diff --git a/drivers/net/dsa/Kconfig b/drivers/net/dsa/Kconfig
-index c0c91440340a..0029d279616f 100644
---- a/drivers/net/dsa/Kconfig
-+++ b/drivers/net/dsa/Kconfig
-@@ -82,6 +82,7 @@ config NET_DSA_REALTEK_SMI
+There is another regression caused when matching sk_bound_dev_if
+and dif, RAW socket is using inet_iif() while PING socket lookup
+is using skb->dev->ifindex, the cmd below fails due to this:
+
+  # ip link add dummy0 type dummy
+  # ip link set dummy0 up
+  # ip addr add 192.168.111.1/24 dev dummy0
+  # ping -I dummy0 192.168.111.1 -c1
+
+The issue was also reported on:
+
+  https://github.com/iputils/iputils/issues/104
+
+But fixed in iputils in a wrong way by not binding to device when
+destination IP is on device, and it will cause some of kselftests
+to fail, as Jianlin noticed.
+
+This patch is to use inet(6)_iif and inet(6)_sdif to get dif and
+sdif for PING socket, and keep consistent with RAW socket.
+
+Fixes: c319b4d76b9e ("net: ipv4: add IPPROTO_ICMP socket kind")
+Reported-by: Jianlin Shi <jishi@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/net/ipv4/ping.c b/net/ipv4/ping.c
+index bcf7bc71cb56..3a5994b50571 100644
+--- a/net/ipv4/ping.c
++++ b/net/ipv4/ping.c
+@@ -172,16 +172,23 @@ static struct sock *ping_lookup(struct net *net, struct sk_buff *skb, u16 ident)
+ 	struct sock *sk = NULL;
+ 	struct inet_sock *isk;
+ 	struct hlist_nulls_node *hnode;
+-	int dif = skb->dev->ifindex;
++	int dif, sdif;
  
- config NET_DSA_SMSC_LAN9303
- 	tristate
-+	depends on VLAN_8021Q || VLAN_8021Q=n
- 	select NET_DSA_TAG_LAN9303
- 	select REGMAP
- 	help
-diff --git a/drivers/net/dsa/lan9303-core.c b/drivers/net/dsa/lan9303-core.c
-index 873a5588171b..3969d89fa4db 100644
---- a/drivers/net/dsa/lan9303-core.c
-+++ b/drivers/net/dsa/lan9303-core.c
-@@ -10,6 +10,7 @@
- #include <linux/mii.h>
- #include <linux/phy.h>
- #include <linux/if_bridge.h>
-+#include <linux/if_vlan.h>
- #include <linux/etherdevice.h>
+ 	if (skb->protocol == htons(ETH_P_IP)) {
++		dif = inet_iif(skb);
++		sdif = inet_sdif(skb);
+ 		pr_debug("try to find: num = %d, daddr = %pI4, dif = %d\n",
+ 			 (int)ident, &ip_hdr(skb)->daddr, dif);
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	} else if (skb->protocol == htons(ETH_P_IPV6)) {
++		dif = inet6_iif(skb);
++		sdif = inet6_sdif(skb);
+ 		pr_debug("try to find: num = %d, daddr = %pI6c, dif = %d\n",
+ 			 (int)ident, &ipv6_hdr(skb)->daddr, dif);
+ #endif
++	} else {
++		pr_err("ping: protocol(%x) is not supported\n", ntohs(skb->protocol));
++		return NULL;
+ 	}
  
- #include "lan9303.h"
-@@ -1083,21 +1084,27 @@ static void lan9303_adjust_link(struct dsa_switch *ds, int port,
- static int lan9303_port_enable(struct dsa_switch *ds, int port,
- 			       struct phy_device *phy)
- {
-+	struct dsa_port *dp = dsa_to_port(ds, port);
- 	struct lan9303 *chip = ds->priv;
+ 	read_lock_bh(&ping_table.lock);
+@@ -221,7 +228,7 @@ static struct sock *ping_lookup(struct net *net, struct sk_buff *skb, u16 ident)
+ 		}
  
--	if (!dsa_is_user_port(ds, port))
-+	if (!dsa_port_is_user(dp))
- 		return 0;
+ 		if (sk->sk_bound_dev_if && sk->sk_bound_dev_if != dif &&
+-		    sk->sk_bound_dev_if != inet_sdif(skb))
++		    sk->sk_bound_dev_if != sdif)
+ 			continue;
  
-+	vlan_vid_add(dp->cpu_dp->master, htons(ETH_P_8021Q), port);
-+
- 	return lan9303_enable_processing_port(chip, port);
- }
- 
- static void lan9303_port_disable(struct dsa_switch *ds, int port)
- {
-+	struct dsa_port *dp = dsa_to_port(ds, port);
- 	struct lan9303 *chip = ds->priv;
- 
--	if (!dsa_is_user_port(ds, port))
-+	if (!dsa_port_is_user(dp))
- 		return;
- 
-+	vlan_vid_del(dp->cpu_dp->master, htons(ETH_P_8021Q), port);
-+
- 	lan9303_disable_processing_port(chip, port);
- 	lan9303_phy_write(ds, chip->phy_addr_base + port, MII_BMCR, BMCR_PDOWN);
- }
+ 		sock_hold(sk);
 
