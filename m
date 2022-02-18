@@ -2,133 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6EA04BBEA7
-	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 18:49:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0B224BBEC1
+	for <lists+stable@lfdr.de>; Fri, 18 Feb 2022 18:52:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232849AbiBRRtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Feb 2022 12:49:45 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56344 "EHLO
+        id S234822AbiBRRww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Feb 2022 12:52:52 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235838AbiBRRtp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 12:49:45 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79EE927CD4;
-        Fri, 18 Feb 2022 09:49:26 -0800 (PST)
-Date:   Fri, 18 Feb 2022 18:49:23 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1645206564;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=zmVi8TBeXUlm/v/kPHbfKCWVJ4hV0bUUD/V9V8Aajwc=;
-        b=Pol6RFBLpkYOCYLyjLzz/sxKGhLrPXB2+06UELwZFXetgUTPPlh8mIbEP/SdhpnFWuWiA2
-        Xm0Y0WyA0x/kX4jM1XluaNUu9t9Cm5atkxlOIp73quo7qegfoid9TlznnU4EMdjKL9o5Go
-        vv7eEyv0XA+X/3QW7EvPVd8p6yABQGH/x1FpX/kjqohFDPWg7dyBQD2iooMqLu9Y5kvPiG
-        kKTbulSpf+FX6u3j62LbQpuPHD3t3E+9uMsgZNlIEPkzN4XqFbPJhJO9iklmPhrKejcefe
-        bErtdGN52gzkfJeI9pg5P+U+eXmOPsMuKngc+4pPSnBDvqACYitkk8aS97XjsA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1645206564;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=zmVi8TBeXUlm/v/kPHbfKCWVJ4hV0bUUD/V9V8Aajwc=;
-        b=6xaSHPiTAR090p8kNmJv8YY6vgpJcvJKTiqI1NpA9RolkaSOl56GGOSeyhkY696fyePXLJ
-        qwd6dik4PjBfEFAg==
-From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-To:     Jann Horn <jannh@google.com>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Anton Vorontsov <anton@enomsg.org>,
-        Colin Cross <ccross@android.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Ard Biesheuvel <ardb@kernel.org>, linux-efi@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] pstore: Don't use semaphores in always-atomic-context
- code
-Message-ID: <Yg/cIzXsya8dNLYp@linutronix.de>
-References: <20220218172901.1425605-1-jannh@google.com>
+        with ESMTP id S234278AbiBRRwv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Feb 2022 12:52:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47E2B434B5
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 09:52:34 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B79176200D
+        for <stable@vger.kernel.org>; Fri, 18 Feb 2022 17:52:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B80C340E9;
+        Fri, 18 Feb 2022 17:52:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1645206753;
+        bh=ypLbDgEt+KB6pda274Fj/MtS8UfPyMX2q6NCYb2kNZE=;
+        h=Subject:To:Cc:From:Date:From;
+        b=kfaMW7GVU6FNUV6wehU9r+oDjoQ/PFbucjWp19/bPNbDF5zn/wd4GLW7GyuOY9p0i
+         QuFByEt934+1sfDfsl80oEZ+Ikd0Dd/U5Fs1mWqGlFcHyBAVLaphLCAWx2fayyWAGZ
+         Crs6FK2W2KBjqSPqUCJJuzZX9pWOlbys3WSXUkvk=
+Subject: FAILED: patch "[PATCH] net: dsa: lan9303: add VLAN IDs to master device" failed to apply to 5.4-stable tree
+To:     mans@mansr.com, f.fainelli@gmail.com, kuba@kernel.org,
+        olteanv@gmail.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 18 Feb 2022 18:52:29 +0100
+Message-ID: <164520674968173@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20220218172901.1425605-1-jannh@google.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-02-18 18:29:01 [+0100], Jann Horn wrote:
-=E2=80=A6
-> Lockdep probably never caught the problem because it's very rare that you
-> actually hit the contended case, and lockdep can't check a
 
-I appears that after =C2=B4a' a few words would follow.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> Fixes: ea84b580b955 ("pstore: Convert buf_lock to semaphore")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jann Horn <jannh@google.com>
-> ---
-> Testing on 5.15.24 (latest stable), with CONFIG_PREEMPT=3Dy, when I trigg=
-er
-> a BUG() via LKDTM ("echo BUG > /sys/kernel/debug/provoke-crash/DIRECT"),
-> I first get the expected BUG splat, followed by this RCU warning:
->=20
-> Voluntary context switch within RCU read-side critical section!
+thanks,
 
-Right, scheduling not allowed within a RCU read-side section. I'm not
-sure if lockdep cares but if you enable CONFIG_DEBUG_ATOMIC_SLEEP then
-the might_sleep() will complain if you are in a RCU section.
+greg k-h
 
-> This patch makes the RCU context warning go away.
+------------------ original commit in Linus's tree ------------------
 
-Makes sense.
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From 430065e2671905ac675f97b7af240cc255964e93 Mon Sep 17 00:00:00 2001
+From: Mans Rullgard <mans@mansr.com>
+Date: Wed, 16 Feb 2022 20:48:18 +0000
+Subject: [PATCH] net: dsa: lan9303: add VLAN IDs to master device
 
-> --- a/fs/pstore/platform.c
-> +++ b/fs/pstore/platform.c
-> @@ -143,27 +143,26 @@ static void pstore_timer_kick(void)
->  	mod_timer(&pstore_timer, jiffies + msecs_to_jiffies(pstore_update_ms));
->  }
-> =20
-> -/*
-> - * Should pstore_dump() wait for a concurrent pstore_dump()? If
-> - * not, the current pstore_dump() will report a failure to dump
-> - * and return.
-> - */
-> -static bool pstore_cannot_wait(enum kmsg_dump_reason reason)
-> +bool pstore_cannot_block_path(enum kmsg_dump_reason reason)
->  {
-> -	/* In NMI path, pstore shouldn't block regardless of reason. */
-> +	/*
-> +	 * In case of NMI path, pstore shouldn't be blocked
-> +	 * regardless of reason.
-> +	 */
->  	if (in_nmi())
->  		return true;
-> =20
->  	switch (reason) {
->  	/* In panic case, other cpus are stopped by smp_send_stop(). */
->  	case KMSG_DUMP_PANIC:
-> -	/* Emergency restart shouldn't be blocked. */
-> +	/* Emergency restart shouldn't be blocked by spin lock. */
+If the master device does VLAN filtering, the IDs used by the switch
+must be added for any frames to be received.  Do this in the
+port_enable() function, and remove them in port_disable().
 
- by spinning on pstore_info::buf_lock
+Fixes: a1292595e006 ("net: dsa: add new DSA switch driver for the SMSC-LAN9303")
+Signed-off-by: Mans Rullgard <mans@mansr.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20220216204818.28746-1-mans@mansr.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
->  	case KMSG_DUMP_EMERG:
->  		return true;
->  	default:
->  		return false;
->  	}
->  }
-> +EXPORT_SYMBOL_GPL(pstore_cannot_block_path);
-> =20
->  #if IS_ENABLED(CONFIG_PSTORE_DEFLATE_COMPRESS)
->  static int zbufsize_deflate(size_t size)
+diff --git a/drivers/net/dsa/Kconfig b/drivers/net/dsa/Kconfig
+index c0c91440340a..0029d279616f 100644
+--- a/drivers/net/dsa/Kconfig
++++ b/drivers/net/dsa/Kconfig
+@@ -82,6 +82,7 @@ config NET_DSA_REALTEK_SMI
+ 
+ config NET_DSA_SMSC_LAN9303
+ 	tristate
++	depends on VLAN_8021Q || VLAN_8021Q=n
+ 	select NET_DSA_TAG_LAN9303
+ 	select REGMAP
+ 	help
+diff --git a/drivers/net/dsa/lan9303-core.c b/drivers/net/dsa/lan9303-core.c
+index 873a5588171b..3969d89fa4db 100644
+--- a/drivers/net/dsa/lan9303-core.c
++++ b/drivers/net/dsa/lan9303-core.c
+@@ -10,6 +10,7 @@
+ #include <linux/mii.h>
+ #include <linux/phy.h>
+ #include <linux/if_bridge.h>
++#include <linux/if_vlan.h>
+ #include <linux/etherdevice.h>
+ 
+ #include "lan9303.h"
+@@ -1083,21 +1084,27 @@ static void lan9303_adjust_link(struct dsa_switch *ds, int port,
+ static int lan9303_port_enable(struct dsa_switch *ds, int port,
+ 			       struct phy_device *phy)
+ {
++	struct dsa_port *dp = dsa_to_port(ds, port);
+ 	struct lan9303 *chip = ds->priv;
+ 
+-	if (!dsa_is_user_port(ds, port))
++	if (!dsa_port_is_user(dp))
+ 		return 0;
+ 
++	vlan_vid_add(dp->cpu_dp->master, htons(ETH_P_8021Q), port);
++
+ 	return lan9303_enable_processing_port(chip, port);
+ }
+ 
+ static void lan9303_port_disable(struct dsa_switch *ds, int port)
+ {
++	struct dsa_port *dp = dsa_to_port(ds, port);
+ 	struct lan9303 *chip = ds->priv;
+ 
+-	if (!dsa_is_user_port(ds, port))
++	if (!dsa_port_is_user(dp))
+ 		return;
+ 
++	vlan_vid_del(dp->cpu_dp->master, htons(ETH_P_8021Q), port);
++
+ 	lan9303_disable_processing_port(chip, port);
+ 	lan9303_phy_write(ds, chip->phy_addr_base + port, MII_BMCR, BMCR_PDOWN);
+ }
 
-Sebastian
