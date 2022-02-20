@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 442804BCF32
-	for <lists+stable@lfdr.de>; Sun, 20 Feb 2022 15:58:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F06D4BCF25
+	for <lists+stable@lfdr.de>; Sun, 20 Feb 2022 15:58:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235011AbiBTOyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Feb 2022 09:54:08 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38768 "EHLO
+        id S238766AbiBTOzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Feb 2022 09:55:36 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230108AbiBTOyH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Feb 2022 09:54:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC06845AD8
-        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 06:53:46 -0800 (PST)
+        with ESMTP id S238761AbiBTOzf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 20 Feb 2022 09:55:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C59F45AD8
+        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 06:55:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7378EB80D44
-        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 14:53:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A065BC340E8;
-        Sun, 20 Feb 2022 14:53:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF897611B3
+        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 14:55:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3631C340E8;
+        Sun, 20 Feb 2022 14:55:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645368824;
-        bh=rqkCyMVWtgNQyFXnyVB31y9DXzQkyiUyo2zqtX1hgI0=;
+        s=korg; t=1645368914;
+        bh=i/3rODA4wv4cZuIrQH0EwmzJRM+tfWrOVasUJom1XFU=;
         h=Subject:To:Cc:From:Date:From;
-        b=iNiuwgiO9EL3pjQ+DYz2owAEOkYEH8Re6zljH4RaHiyBlIoOxzXhUeXnr8qFHWHjA
-         tKtguBLKmVSBiQI3wIBX9L6QJZFyxCjIElvt5Z7MrjAijEdMS5YxANWEYDb9+SxqwW
-         XWd3+L6Gu4Av16l9Bi1DWXDfZrzZD6CuivfB4cYE=
-Subject: FAILED: patch "[PATCH] ASoC: wm_adsp: Correct control read size when parsing" failed to apply to 5.16-stable tree
-To:     ckeepax@opensource.cirrus.com, broonie@kernel.org
+        b=b/bMIDZ54EbQRGxMF/FIMIDAJpjF2XtO9696Xmcv+83UXLuObcfHamtqLlK2JBRit
+         nV4ztLsxvSnC2mMgHs7BILUc3kMzgPs4JmgIjMxCVvczXCeGaXI8JkxnRaWyz0lewW
+         bfY0VoOYUIChitYRguvudNKmcdSOLcAqxcphVy1E=
+Subject: FAILED: patch "[PATCH] NFS: Remove an incorrect revalidation in" failed to apply to 5.10-stable tree
+To:     trond.myklebust@hammerspace.com, Anna.Schumaker@Netapp.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 20 Feb 2022 15:53:41 +0100
-Message-ID: <164536882154112@kroah.com>
+Date:   Sun, 20 Feb 2022 15:55:11 +0100
+Message-ID: <1645368911171166@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,41 +59,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a887f9c7a4d37a8e874ba8415a42a92a1b5139fc Mon Sep 17 00:00:00 2001
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Date: Thu, 10 Feb 2022 17:20:51 +0000
-Subject: [PATCH] ASoC: wm_adsp: Correct control read size when parsing
- compressed buffer
+From 9d047bf68fe8cdb4086deaf4edd119731a9481ed Mon Sep 17 00:00:00 2001
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
+Date: Tue, 8 Feb 2022 12:14:44 -0500
+Subject: [PATCH] NFS: Remove an incorrect revalidation in
+ nfs4_update_changeattr_locked()
 
-When parsing the compressed stream the whole buffer descriptor is
-now read in a single cs_dsp_coeff_read_ctrl; on older firmwares
-this descriptor is just 4 bytes but on more modern firmwares it is
-24 bytes. The current code reads the full 24 bytes regardless, this
-was working but reading junk for the last 20 bytes. However commit
-f444da38ac92 ("firmware: cs_dsp: Add offset to cs_dsp read/write")
-added a size check into cs_dsp_coeff_read_ctrl, causing the older
-firmwares to now return an error.
+In nfs4_update_changeattr_locked(), we don't need to set the
+NFS_INO_REVAL_PAGECACHE flag, because we already know the value of the
+change attribute, and we're already flagging the size. In fact, this
+forces us to revalidate the change attribute a second time for no good
+reason.
+This extra flag appears to have been introduced as part of the xattr
+feature, when update_changeattr_locked() was converted for use by the
+xattr code.
 
-Update the code to only read the amount of data appropriate for
-the firmware loaded.
+Fixes: 1b523ca972ed ("nfs: modify update_changeattr to deal with regular files")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 
-Fixes: 04ae08596737 ("ASoC: wm_adsp: Switch to using wm_coeff_read_ctrl for compressed buffers")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220210172053.22782-1-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-
-diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
-index f3672e3d1703..0582585236a2 100644
---- a/sound/soc/codecs/wm_adsp.c
-+++ b/sound/soc/codecs/wm_adsp.c
-@@ -1441,7 +1441,8 @@ static int wm_adsp_buffer_parse_coeff(struct cs_dsp_coeff_ctl *cs_ctl)
- 	int ret, i;
- 
- 	for (i = 0; i < 5; ++i) {
--		ret = cs_dsp_coeff_read_ctrl(cs_ctl, 0, &coeff_v1, sizeof(coeff_v1));
-+		ret = cs_dsp_coeff_read_ctrl(cs_ctl, 0, &coeff_v1,
-+					     min(cs_ctl->len, sizeof(coeff_v1)));
- 		if (ret < 0)
- 			return ret;
- 
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index f5020828ab65..0e0db6c27619 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -1229,8 +1229,7 @@ nfs4_update_changeattr_locked(struct inode *inode,
+ 				NFS_INO_INVALID_ACCESS | NFS_INO_INVALID_ACL |
+ 				NFS_INO_INVALID_SIZE | NFS_INO_INVALID_OTHER |
+ 				NFS_INO_INVALID_BLOCKS | NFS_INO_INVALID_NLINK |
+-				NFS_INO_INVALID_MODE | NFS_INO_INVALID_XATTR |
+-				NFS_INO_REVAL_PAGECACHE;
++				NFS_INO_INVALID_MODE | NFS_INO_INVALID_XATTR;
+ 		nfsi->attrtimeo = NFS_MINATTRTIMEO(inode);
+ 	}
+ 	nfsi->attrtimeo_timestamp = jiffies;
 
