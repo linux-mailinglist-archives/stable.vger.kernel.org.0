@@ -2,91 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 526354BCDA6
-	for <lists+stable@lfdr.de>; Sun, 20 Feb 2022 11:21:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96F814BCDFA
+	for <lists+stable@lfdr.de>; Sun, 20 Feb 2022 11:21:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243460AbiBTJLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Feb 2022 04:11:25 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57306 "EHLO
+        id S231843AbiBTJzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Feb 2022 04:55:23 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243443AbiBTJLY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Feb 2022 04:11:24 -0500
-X-Greylist: delayed 398 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 20 Feb 2022 01:11:02 PST
-Received: from mx-out.tlen.pl (mx-out.tlen.pl [193.222.135.145])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8B9626565
-        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 01:11:02 -0800 (PST)
-Received: (wp-smtpd smtp.tlen.pl 23161 invoked from network); 20 Feb 2022 10:04:19 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
-          t=1645347860; bh=X+qXjhMw4ablrWBQcUFh/9RQ37lVwgA+fXmJmWBXEBs=;
-          h=From:To:Cc:Subject;
-          b=OwmhmOB65Z+svcWXNDTfJdHDSZSVc59X6f/5Yyh8Qp+bWY/F2Lh3yIc4UtUx79ijc
-           FGXlT4h59kNjAW3JJjSXxmQBnv8NNdpq6TZd4xYfAvWx3fBgPetcZun75ArDN01R/n
-           Dlz1LV+uEYpHI+NMFBXKzL2uInDwZ6M8IHjn3qSU=
-Received: from aaew227.neoplus.adsl.tpnet.pl (HELO localhost.localdomain) (mat.jonczyk@o2.pl@[83.4.126.227])
-          (envelope-sender <mat.jonczyk@o2.pl>)
-          by smtp.tlen.pl (WP-SMTPD) with SMTP
-          for <linux-rtc@vger.kernel.org>; 20 Feb 2022 10:04:19 +0100
-From:   =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
-To:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
-Subject: [PATCH] rtc-mc146818-lib: fix locking in mc146818_set_time
-Date:   Sun, 20 Feb 2022 10:04:03 +0100
-Message-Id: <20220220090403.153928-1-mat.jonczyk@o2.pl>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S231245AbiBTJzW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 20 Feb 2022 04:55:22 -0500
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD4443ED6;
+        Sun, 20 Feb 2022 01:55:01 -0800 (PST)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 16E9C1C0B77; Sun, 20 Feb 2022 10:54:59 +0100 (CET)
+Date:   Sun, 20 Feb 2022 10:54:33 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Guo Ren <guoren@linux.alibaba.com>,
+        Anup Patel <anup@brainfault.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thomas Gleixner <tglx@linutronix.de>, paul.walmsley@sifive.com,
+        aou@eecs.berkeley.edu, linux-riscv@lists.infradead.org
+Subject: Re: [PATCH AUTOSEL 4.19 03/11] irqchip/sifive-plic: Add missing
+ thead,c900-plic match string
+Message-ID: <20220220095431.GA5251@amd>
+References: <20220215153104.581786-1-sashal@kernel.org>
+ <20220215153104.581786-3-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-WP-MailID: e253a7ce734dbc8d685bdec651998b01
-X-WP-AV: skaner antywirusowy Poczty o2
-X-WP-SPAM: NO 0000000 [QWMU]                               
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_MSPIKE_H5,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
+Content-Disposition: inline
+In-Reply-To: <20220215153104.581786-3-sashal@kernel.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In mc146818_set_time(), CMOS_READ(RTC_CONTROL) was performed without the
-rtc_lock taken, which is required for CMOS accesses. Fix this.
 
-Nothing in kernel modifies RTC_DM_BINARY, so a separate critical section
-is allowed here.
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Fixes: dcf257e92622 ("rtc: mc146818: Reduce spinlock section in mc146818_set_time()")
-Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
----
- drivers/rtc/rtc-mc146818-lib.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Hi!
 
-diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
-index ae9f131b43c0..562f99b664a2 100644
---- a/drivers/rtc/rtc-mc146818-lib.c
-+++ b/drivers/rtc/rtc-mc146818-lib.c
-@@ -232,8 +232,10 @@ int mc146818_set_time(struct rtc_time *time)
- 	if (yrs >= 100)
- 		yrs -= 100;
- 
--	if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY)
--	    || RTC_ALWAYS_BCD) {
-+	spin_lock_irqsave(&rtc_lock, flags);
-+	save_control = CMOS_READ(RTC_CONTROL);
-+	spin_unlock_irqrestore(&rtc_lock, flags);
-+	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
- 		sec = bin2bcd(sec);
- 		min = bin2bcd(min);
- 		hrs = bin2bcd(hrs);
+> [ Upstream commit 1d4df649cbb4b26d19bea38ecff4b65b10a1bbca ]
+>=20
+> The thead,c900-plic has been used in opensbi to distinguish
+> PLIC [1]. Although PLICs have the same behaviors in Linux,
+> they are different hardware with some custom initializing in
+> firmware(opensbi).
+>=20
+> Qute opensbi patch commit-msg by Samuel:
+>=20
+>   The T-HEAD PLIC implementation requires setting a delegation bit
+>   to allow access from S-mode. Now that the T-HEAD PLIC has its own
+>   compatible string, set this bit automatically from the PLIC driver,
+>   instead of reaching into the PLIC's MMIO space from another driver.
+>=20
+> [1]: https://github.com/riscv-software-src/opensbi/commit/78c2b19218bd626=
+53b9fb31623a42ced45f38ea6
+>
 
-base-commit: 754e0b0e35608ed5206d6a67a791563c631cec07
--- 
-2.25.1
+The "thead,c900-plic" string is added into single place in the
+kernel. This means that a) it will probably not do anything useful in
+-stable kernels and b) it is certainly missing documentation etc.
 
+In mainline, string is documented in
+Documentation/devicetree/bindings/interrupt-controller/sifive,plic-1.0.0.ya=
+ml
+
+Best regards,
+								Pavel
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmISD9YACgkQMOfwapXb+vK9jACfQTLkUHy984y7w6PEcmacU/f5
+gl0AoMGom32Nsn9qBUIkVf8Gzsw0x861
+=5jIH
+-----END PGP SIGNATURE-----
+
+--VbJkn9YxBvnuCH5J--
