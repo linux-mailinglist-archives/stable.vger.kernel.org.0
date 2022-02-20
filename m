@@ -2,91 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 048A04BCE32
-	for <lists+stable@lfdr.de>; Sun, 20 Feb 2022 12:39:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E37FE4BCE91
+	for <lists+stable@lfdr.de>; Sun, 20 Feb 2022 14:13:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237353AbiBTLjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Feb 2022 06:39:49 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43458 "EHLO
+        id S229450AbiBTNLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Feb 2022 08:11:50 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237687AbiBTLjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Feb 2022 06:39:48 -0500
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 320D531DDE
-        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 03:39:28 -0800 (PST)
-Received: by mail-wr1-x430.google.com with SMTP id d27so22215499wrc.6
-        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 03:39:28 -0800 (PST)
+        with ESMTP id S243457AbiBTNLu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 20 Feb 2022 08:11:50 -0500
+X-Greylist: delayed 697 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 20 Feb 2022 05:11:28 PST
+Received: from host.metropolit-asset.online (metropolit-asset.online [62.173.139.199])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9E3714ECE0
+        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 05:11:28 -0800 (PST)
+Received: from metropolit-asset.online (ec2-34-222-56-183.us-west-2.compute.amazonaws.com [34.222.56.183])
+        by host.metropolit-asset.online (Postfix) with ESMTPA id D881B112D204
+        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 15:59:07 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 host.metropolit-asset.online D881B112D204
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:from:mime-version:content-transfer-encoding
-         :content-description:subject:to:date:reply-to;
-        bh=T28r8IcApmahqshNb89Vq7Sss5daNXvHX2RvLjpVFBs=;
-        b=EYv710q1PhTWzZ/CdtTWXzxhRYjWSI+5maJroipOyCIHe4I+3X60V/3ksOYafCWgme
-         0Hx/j2nu87g6u1JxdKKDg+NFkI36xMuGRJnwxRbxJ1qaxFDtoO4hEBwg6EQdNvlzRlcY
-         Y+GYbsQ1C9+CjEtCqz4rUKEHMgkAwe2xd6cYl5/F6FIqQel1ukV/e8mcBIWNb/p/Zuh4
-         uY1kFQG5lMRXTTYmGnzmy9Da1r2NNYKsng7N0NVktV1gxT3ZPnF7+9wvyX5bUCspAbBN
-         ouqTEmMQSJMuZn8W+q5afnCUn+cUrIwawyVmFBkxsAZbibceOlN9Nr8FoYyl2ef+4Srx
-         hG8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:from:mime-version
-         :content-transfer-encoding:content-description:subject:to:date
-         :reply-to;
-        bh=T28r8IcApmahqshNb89Vq7Sss5daNXvHX2RvLjpVFBs=;
-        b=SUWEyM6jXfdqT23V50hhcIiczXUdLMYJ11tSa5c6cIJepGURzTRu3CX1kEIa+wlwFa
-         1cD2GzpwLAUV0pxJ7TLaO5ifSKXbHkgstO6Pa1qGHDrbssFhcEKdnCezG4bY/AG6JlOU
-         cTExgIdQwSaYdLD0z9H06twJ1lI9DdY71nYzHKGedVihpj5G2ScLNGxEjEurpX2lzTR0
-         j3Qut8WKBBrHtHnaT2LWbeaN4Sp9xoo0VSOCy+Rg5Ntn05WX5wA9jz/uHwE2HpL0er79
-         iR9XNqdOjhMsrXpXKfETCvaEZxUZYhS0pCmNBi6rJC6KQQ2H73nLLw4WyicdvCQGPWxW
-         XszA==
-X-Gm-Message-State: AOAM530dXhk3iFZYrzV6Gs61Yd6ERfl/LUX7neHmX0Zgtta8F5cGzr6w
-        5MgpYaFdHT/dKvG7m//+A7I=
-X-Google-Smtp-Source: ABdhPJyYqpJEzO0u6Sfkka5ABDjQPpCOu/lPpvR9eFY+ewXAyTK3QtDjdyVLstrjCZWhCEgE4Gc5Pw==
-X-Received: by 2002:adf:c38c:0:b0:1db:7e03:a015 with SMTP id p12-20020adfc38c000000b001db7e03a015mr12126657wrf.186.1645357166737;
-        Sun, 20 Feb 2022 03:39:26 -0800 (PST)
-Received: from [192.168.0.133] ([5.193.8.34])
-        by smtp.gmail.com with ESMTPSA id k3sm9938640wrm.69.2022.02.20.03.39.23
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Sun, 20 Feb 2022 03:39:26 -0800 (PST)
-Message-ID: <6212286e.1c69fb81.c425a.3dff@mx.google.com>
-From:   Mrs Maria Elisabeth Schaeffler <loganethan51@gmail.com>
-X-Google-Original-From: Mrs Maria Elisabeth Schaeffler
-Content-Type: text/plain; charset="iso-8859-1"
-MIME-Version: 1.0
+        d=metropolit-asset.online; s=default; t=1645361948;
+        bh=F0V0UwkGd3ilh52tQhqKWeOyepzfLAjwBRALY2kUnJA=;
+        h=Reply-To:From:To:Subject:Date:From;
+        b=oBS4rRpfkJ8nFU+eRstj0T5B1SIlb1+4pUBamPQg6LnEa1IdyI24eQiGp953V9NgK
+         TOQ5T7F32rI2jWCg+pIiBtbCP9/Oa3FUSUNQ59xD1211HtexNlirowCI4fGGc12y2J
+         K4xHPo5QKt/y7zMyHCU49sYapXs6Fjf9fA4zdjIQ=
+DKIM-Filter: OpenDKIM Filter v2.11.0 host.metropolit-asset.online D881B112D204
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=metropolit-asset.online; s=default; t=1645361948;
+        bh=F0V0UwkGd3ilh52tQhqKWeOyepzfLAjwBRALY2kUnJA=;
+        h=Reply-To:From:To:Subject:Date:From;
+        b=oBS4rRpfkJ8nFU+eRstj0T5B1SIlb1+4pUBamPQg6LnEa1IdyI24eQiGp953V9NgK
+         TOQ5T7F32rI2jWCg+pIiBtbCP9/Oa3FUSUNQ59xD1211HtexNlirowCI4fGGc12y2J
+         K4xHPo5QKt/y7zMyHCU49sYapXs6Fjf9fA4zdjIQ=
+Reply-To: ematare05@metropolitanassetmanager.com
+From:   E Matare <ematare05@metropolit-asset.online>
+To:     stable@vger.kernel.org
+Subject: Get Back To Me
+Date:   20 Feb 2022 12:59:07 +0000
+Message-ID: <20220220125907.458112001F7CC484@metropolit-asset.online>
+Mime-Version: 1.0
+Content-Type: text/plain;
+        charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: Spende
-To:     Recipients <Mrs@vger.kernel.org>
-Date:   Sun, 20 Feb 2022 15:39:20 +0400
-Reply-To: mariaeisaeth001@gmail.com
-X-Spam-Status: No, score=2.2 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,TO_MALFORMED,T_HK_NAME_FM_MR_MRS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: **
+X-Spam-Status: Yes, score=5.1 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FROM_SUSPICIOUS_NTLD,
+        FROM_SUSPICIOUS_NTLD_FP,PDS_OTHER_BAD_TLD,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5679]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  2.0 PDS_OTHER_BAD_TLD Untrustworthy TLDs
+        *      [URI: metropolit-asset.online (online)]
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  0.5 FROM_SUSPICIOUS_NTLD From abused NTLD
+        *  2.0 FROM_SUSPICIOUS_NTLD_FP From abused NTLD
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hallo, =
+Good day. My name is Elliot Matare. I sent you a very important=20
+business proposal last week but I am yet to receive a response=20
+from you as of yet. I am not sure if you did receive the proposal=20
+or not so if you would be so kind to confirm if you got my=20
+previous email and if you are interested in what was being=20
+proposed, I will appreciate it. On the hand, if you I can resend=20
+it to you if you did not receive my previous message with the=20
+proposal. Looking forward to your response.
 
+Regards,
 
-Ich bin Frau Maria Elisabeth Schaeffler, eine deutsche Wirtschaftsmagnatin,=
- Investorin und Philanthropin. Ich bin der Vorsitzende von Wipro Limited. I=
-ch habe 25 Prozent meines pers=F6nlichen Verm=F6gens f=FCr wohlt=E4tige Zwe=
-cke ausgegeben. Und ich habe auch versprochen, die restlichen 25% dieses Ja=
-hr 2022 an Einzelpersonen zu verschenken. Ich habe mich entschlossen, Ihnen=
- 1.500.000,00 Euro zu spenden. Wenn Sie an meiner Spende interessiert sind,=
- kontaktieren Sie mich bitte f=FCr weitere Informationen.
-
-Sie k=F6nnen auch =FCber den folgenden Link mehr =FCber mich lesen
-https://en.wikipedia.org/wiki/Maria-Elisabeth_Schaeffler
-
-Gr=FC=DFe
-Gesch=E4ftsf=FChrer Wipro Limited
-Maria-Elisabeth_Schaeffler
-E-Mail: mariaeisaeth001@gmail.com
+Elliot Matare
+Metropolitan Asset Managers
+Telephone: 010 442 6203
+metropolitanassetmanager.com
