@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABFBB4BCF36
-	for <lists+stable@lfdr.de>; Sun, 20 Feb 2022 15:58:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 266E04BCF41
+	for <lists+stable@lfdr.de>; Sun, 20 Feb 2022 16:07:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239844AbiBTO6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Feb 2022 09:58:45 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48174 "EHLO
+        id S241781AbiBTO7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Feb 2022 09:59:43 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239167AbiBTO6o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Feb 2022 09:58:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE26A1D0DC
-        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 06:58:23 -0800 (PST)
+        with ESMTP id S239167AbiBTO7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 20 Feb 2022 09:59:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA581D0DC
+        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 06:59:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A0C9611C8
-        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 14:58:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 625DDC340E8;
-        Sun, 20 Feb 2022 14:58:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DA84B80B0A
+        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 14:59:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1372C340E8;
+        Sun, 20 Feb 2022 14:59:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645369103;
-        bh=vuq8jgpiJTvytfN4VBKiuRd0vdoDKiJdewIRFlJmezM=;
+        s=korg; t=1645369157;
+        bh=kP0diiiGdBLToBzHPp/dgyBAzdvRFSOHFZGT5X85Nxg=;
         h=Subject:To:Cc:From:Date:From;
-        b=aB9u+nFcQxhajIcugHqDWdPyZHXMekKkq3JMcuEjAHyZ5EFtLiBisnS7892XY0f4R
-         ULBuqarZX6Y+mwYGxOulTjf/iU3M4fIpMApDs1DvWlpBn8GEt+NO6jIws3nHr2n7yN
-         TylQPxfweD1rMVUiXRorgI3UmN5auyhUaw6JHljE=
-Subject: FAILED: patch "[PATCH] mtd: rawnand: qcom: Fix clock sequencing in" failed to apply to 4.14-stable tree
-To:     bryan.odonoghue@linaro.org, mani@kernel.org,
-        miquel.raynal@bootlin.com
+        b=HAr6AIUl22XqF+fcbJWMG4LKtSx5HFaQSaIF9F4+VlvvegO71YzHu9jP0CasyTQfP
+         bFyjKIHBDvnHd55nVzG/ZpdDxt1HrYxj+eti2qTWtWfcn7EqEnqTYWatjUvOnBSh/T
+         kbLg7TF/p8zUIUSPcB9wcyWfIBL1tEehaABZ6osk=
+Subject: FAILED: patch "[PATCH] mtd: rawnand: brcmnand: Fixed incorrect sub-page ECC status" failed to apply to 4.19-stable tree
+To:     dregan@mail.com, f.fainelli@gmail.com, miquel.raynal@bootlin.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 20 Feb 2022 15:58:12 +0100
-Message-ID: <16453690924156@kroah.com>
+Date:   Sun, 20 Feb 2022 15:59:14 +0100
+Message-ID: <16453691548857@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,90 +59,41 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5c23b3f965bc9ee696bf2ed4bdc54d339dd9a455 Mon Sep 17 00:00:00 2001
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Date: Mon, 3 Jan 2022 03:03:15 +0000
-Subject: [PATCH] mtd: rawnand: qcom: Fix clock sequencing in
- qcom_nandc_probe()
+From 36415a7964711822e63695ea67fede63979054d9 Mon Sep 17 00:00:00 2001
+From: david regan <dregan@mail.com>
+Date: Wed, 26 Jan 2022 23:43:44 +0100
+Subject: [PATCH] mtd: rawnand: brcmnand: Fixed incorrect sub-page ECC status
 
-Interacting with a NAND chip on an IPQ6018 I found that the qcomsmem NAND
-partition parser was returning -EPROBE_DEFER waiting for the main smem
-driver to load.
+The brcmnand driver contains a bug in which if a page (example 2k byte)
+is read from the parallel/ONFI NAND and within that page a subpage (512
+byte) has correctable errors which is followed by a subpage with
+uncorrectable errors, the page read will return the wrong status of
+correctable (as opposed to the actual status of uncorrectable.)
 
-This caused the board to reset. Playing about with the probe() function
-shows that the problem lies in the core clock being switched off before the
-nandc_unalloc() routine has completed.
+The bug is in function brcmnand_read_by_pio where there is a check for
+uncorrectable bits which will be preempted if a previous status for
+correctable bits is detected.
 
-If we look at how qcom_nandc_remove() tears down allocated resources we see
-the expected order is
+The fix is to stop checking for bad bits only if we already have a bad
+bits status.
 
-qcom_nandc_unalloc(nandc);
-
-clk_disable_unprepare(nandc->aon_clk);
-clk_disable_unprepare(nandc->core_clk);
-
-dma_unmap_resource(&pdev->dev, nandc->base_dma, resource_size(res),
-		   DMA_BIDIRECTIONAL, 0);
-
-Tweaking probe() to both bring up and tear-down in that order removes the
-reset if we end up deferring elsewhere.
-
-Fixes: c76b78d8ec05 ("mtd: nand: Qualcomm NAND controller driver")
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Fixes: 27c5b17cd1b1 ("mtd: nand: add NAND driver "library" for Broadcom STB NAND controller")
+Signed-off-by: david regan <dregan@mail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220103030316.58301-2-bryan.odonoghue@linaro.org
+Link: https://lore.kernel.org/linux-mtd/trinity-478e0c09-9134-40e8-8f8c-31c371225eda-1643237024774@3c-app-mailcom-lxa02
 
-diff --git a/drivers/mtd/nand/raw/qcom_nandc.c b/drivers/mtd/nand/raw/qcom_nandc.c
-index 7c6efa3b6255..1a77542c6d67 100644
---- a/drivers/mtd/nand/raw/qcom_nandc.c
-+++ b/drivers/mtd/nand/raw/qcom_nandc.c
-@@ -2,7 +2,6 @@
- /*
-  * Copyright (c) 2016, The Linux Foundation. All rights reserved.
-  */
--
- #include <linux/clk.h>
- #include <linux/slab.h>
- #include <linux/bitops.h>
-@@ -3073,10 +3072,6 @@ static int qcom_nandc_probe(struct platform_device *pdev)
- 	if (dma_mapping_error(dev, nandc->base_dma))
- 		return -ENXIO;
+diff --git a/drivers/mtd/nand/raw/brcmnand/brcmnand.c b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
+index f75929783b94..aee78f5f4f15 100644
+--- a/drivers/mtd/nand/raw/brcmnand/brcmnand.c
++++ b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
+@@ -2106,7 +2106,7 @@ static int brcmnand_read_by_pio(struct mtd_info *mtd, struct nand_chip *chip,
+ 					mtd->oobsize / trans,
+ 					host->hwcfg.sector_size_1k);
  
--	ret = qcom_nandc_alloc(nandc);
--	if (ret)
--		goto err_nandc_alloc;
--
- 	ret = clk_prepare_enable(nandc->core_clk);
- 	if (ret)
- 		goto err_core_clk;
-@@ -3085,6 +3080,10 @@ static int qcom_nandc_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_aon_clk;
+-		if (!ret) {
++		if (ret != -EBADMSG) {
+ 			*err_addr = brcmnand_get_uncorrecc_addr(ctrl);
  
-+	ret = qcom_nandc_alloc(nandc);
-+	if (ret)
-+		goto err_nandc_alloc;
-+
- 	ret = qcom_nandc_setup(nandc);
- 	if (ret)
- 		goto err_setup;
-@@ -3096,15 +3095,14 @@ static int qcom_nandc_probe(struct platform_device *pdev)
- 	return 0;
- 
- err_setup:
-+	qcom_nandc_unalloc(nandc);
-+err_nandc_alloc:
- 	clk_disable_unprepare(nandc->aon_clk);
- err_aon_clk:
- 	clk_disable_unprepare(nandc->core_clk);
- err_core_clk:
--	qcom_nandc_unalloc(nandc);
--err_nandc_alloc:
- 	dma_unmap_resource(dev, res->start, resource_size(res),
- 			   DMA_BIDIRECTIONAL, 0);
--
- 	return ret;
- }
- 
+ 			if (*err_addr)
 
