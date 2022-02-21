@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A6794BDE1C
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:46:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A2674BE688
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:02:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351693AbiBUJug (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:50:36 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42232 "EHLO
+        id S1349007AbiBUJXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:23:35 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352484AbiBUJrb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:31 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06A8033E06;
-        Mon, 21 Feb 2022 01:20:02 -0800 (PST)
+        with ESMTP id S1349668AbiBUJVi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:21:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E023024BC1;
+        Mon, 21 Feb 2022 01:08:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 68B79CE0E7D;
-        Mon, 21 Feb 2022 09:20:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CA9BC340E9;
-        Mon, 21 Feb 2022 09:19:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C9D56097C;
+        Mon, 21 Feb 2022 09:08:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FDFDC340EB;
+        Mon, 21 Feb 2022 09:08:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435198;
-        bh=qxGRsbf8hg4HMax8tspTmAjZi7JK5DAqGQ7B8X5vXhs=;
+        s=korg; t=1645434517;
+        bh=Pyle2Jv95r7tRGL+Wt4CcA9lvvZjHbaudDrcD8CL6tU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iOKdH0ZYSCWxUOrauxEonVjETKzN95Cf2ObjwnecooXxNEvlLgd54s8ZH5HCnpwI5
-         ehwzeR1usqgCrP/+x/nui3f/n5LlmUz4Acp9zUkkaDxCHlAgtHBM5xSl31lGiEV6Gl
-         czIKOyOxnbkjwL4nPcxJA+mbXIMoRflZHZvSKk8k=
+        b=OqoOVzMLoUi2xnH9fk1wmKU0rvqo1bUWuSAXsMcmwQ5CyMuA3efiNDTsT4Z7dbJaV
+         aKhxOMzc3QUvD5QkJMouM/cozVIomnsdYqncBszKh3KoK7YZTOJ+48G9YdJ/khRR+7
+         yFwwLFMx4Nu0ADHAr0AE7xE0Gb4OQo1daCnCTAp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Julian Braha <julianbraha@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 048/227] cifs: unlock chan_lock before calling cifs_put_tcp_session
+Subject: [PATCH 5.15 035/196] pinctrl: bcm63xx: fix unmet dependency on REGMAP for GPIO_REGMAP
 Date:   Mon, 21 Feb 2022 09:47:47 +0100
-Message-Id: <20220221084936.475750953@linuxfoundation.org>
+Message-Id: <20220221084932.106974847@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Julian Braha <julianbraha@gmail.com>
 
-[ Upstream commit 489f710a738e24d887823a010b8b206b4124e26f ]
+[ Upstream commit 3a5286955bf5febc3d151bcb2c5e272e383b64aa ]
 
-While removing an smb session, we need to free up the
-tcp session for each channel for that session. We were
-doing this with chan_lock held. This results in a
-cyclic dependency with cifs_tcp_ses_lock.
+When PINCTRL_BCM63XX is selected,
+and REGMAP is not selected,
+Kbuild gives the following warning:
 
-For now, unlock the chan_lock temporarily before calling
-cifs_put_tcp_session. This should not cause any problem
-for now, since we do not remove channels anywhere else.
-And this code segment will not be called by two threads.
+WARNING: unmet direct dependencies detected for GPIO_REGMAP
+  Depends on [n]: GPIOLIB [=y] && REGMAP [=n]
+  Selected by [y]:
+  - PINCTRL_BCM63XX [=y] && PINCTRL [=y]
 
-When we do implement the code for removing channels, we
-will need to execute proper ref counting here.
+This is because PINCTRL_BCM63XX
+selects GPIO_REGMAP without selecting or depending on
+REGMAP, despite GPIO_REGMAP depending on REGMAP.
 
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+This unmet dependency bug was detected by Kismet,
+a static analysis tool for Kconfig. Please advise
+if this is not the appropriate solution.
+
+Signed-off-by: Julian Braha <julianbraha@gmail.com>
+Link: https://lore.kernel.org/r/20220117062557.89568-1-julianbraha@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/pinctrl/bcm/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index cefd0e9623ba9..fb69524a992bb 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -1796,13 +1796,9 @@ void cifs_put_smb_ses(struct cifs_ses *ses)
- 		int i;
+diff --git a/drivers/pinctrl/bcm/Kconfig b/drivers/pinctrl/bcm/Kconfig
+index c9c5efc927311..5973a279e6b8c 100644
+--- a/drivers/pinctrl/bcm/Kconfig
++++ b/drivers/pinctrl/bcm/Kconfig
+@@ -35,6 +35,7 @@ config PINCTRL_BCM63XX
+ 	select PINCONF
+ 	select GENERIC_PINCONF
+ 	select GPIOLIB
++	select REGMAP
+ 	select GPIO_REGMAP
  
- 		for (i = 1; i < chan_count; i++) {
--			/*
--			 * note: for now, we're okay accessing ses->chans
--			 * without chan_lock. But when chans can go away, we'll
--			 * need to introduce ref counting to make sure that chan
--			 * is not freed from under us.
--			 */
-+			spin_unlock(&ses->chan_lock);
- 			cifs_put_tcp_session(ses->chans[i].server, 0);
-+			spin_lock(&ses->chan_lock);
- 			ses->chans[i].server = NULL;
- 		}
- 	}
+ config PINCTRL_BCM6318
 -- 
 2.34.1
 
