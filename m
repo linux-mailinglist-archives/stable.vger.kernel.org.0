@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDC784BE630
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D86974BE2C1
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:55:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352455AbiBUKES (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 05:04:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56972 "EHLO
+        id S1350668AbiBUJjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:39:12 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353477AbiBUJ52 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62A6239693;
-        Mon, 21 Feb 2022 01:26:08 -0800 (PST)
+        with ESMTP id S1351631AbiBUJhb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:37:31 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C51331FA6C;
+        Mon, 21 Feb 2022 01:16:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2135AB80EBB;
-        Mon, 21 Feb 2022 09:26:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C86FC340E9;
-        Mon, 21 Feb 2022 09:26:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 31333CE0E76;
+        Mon, 21 Feb 2022 09:16:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17FDFC340E9;
+        Mon, 21 Feb 2022 09:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435565;
-        bh=I+jBkflwt0aPUiUvWdQx+Obp5Zu9ym9Yrxeq3MFXuxg=;
+        s=korg; t=1645434970;
+        bh=K2r7w6c7JERUiFfgDQTwNfEg6cNBTBPtay/zoh5rttc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aGrGFSEQF28ExQm9ZyYnFaEZvH+jnUsYbfqpdKoRfq6aVAKEUw+97fGazN6Ucs3pl
-         YCFci+USD/rtnfMjQH2jgYc3A6OgeQKzC36s2wNg2xSRBNTXD6g+tgdEejbfCRS+R8
-         Uf0QCqx4v8uc5iCbckJ5z66fubGUaDMZPDKfL3Dk=
+        b=jhoq80DYrFG3UzXhkc2n+0dP0DYBmtnWnFHp0BOQ05VQQ+3ryEEolz867uNQLpeMy
+         ajHWxLNoAv8U636m2Tt0NWNM4vPtMEk3YQyCO4rXgFe1EQAwJwtgl1IGM381Wgm6ms
+         CCEh3DfADgG/tFVs3WKiSVK59zMrSYzWTs6ezLb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mateusz Krzak <kszaquitto@gmail.com>,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 208/227] arm64: dts: meson-gx: add ATF BL32 reserved-memory region
-Date:   Mon, 21 Feb 2022 09:50:27 +0100
-Message-Id: <20220221084941.745794268@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Cheng Jui Wang <cheng-jui.wang@mediatek.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Boqun Feng <boqun.feng@gmail.com>
+Subject: [PATCH 5.15 196/196] lockdep: Correct lock_classes index mapping
+Date:   Mon, 21 Feb 2022 09:50:28 +0100
+Message-Id: <20220221084937.489236430@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Cheng Jui Wang <cheng-jui.wang@mediatek.com>
 
-[ Upstream commit 76577c9137456febb05b0e17d244113196a98968 ]
+commit 28df029d53a2fd80c1b8674d47895648ad26dcfb upstream.
 
-Add an additional reserved memory region for the BL32 trusted firmware
-present in many devices that boot from Amlogic vendor u-boot.
+A kernel exception was hit when trying to dump /proc/lockdep_chains after
+lockdep report "BUG: MAX_LOCKDEP_CHAIN_HLOCKS too low!":
 
-Suggested-by: Mateusz Krzak <kszaquitto@gmail.com>
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220126044954.19069-2-christianshewitt@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Unable to handle kernel paging request at virtual address 00054005450e05c3
+...
+00054005450e05c3] address between user and kernel address ranges
+...
+pc : [0xffffffece769b3a8] string+0x50/0x10c
+lr : [0xffffffece769ac88] vsnprintf+0x468/0x69c
+...
+ Call trace:
+  string+0x50/0x10c
+  vsnprintf+0x468/0x69c
+  seq_printf+0x8c/0xd8
+  print_name+0x64/0xf4
+  lc_show+0xb8/0x128
+  seq_read_iter+0x3cc/0x5fc
+  proc_reg_read_iter+0xdc/0x1d4
+
+The cause of the problem is the function lock_chain_get_class() will
+shift lock_classes index by 1, but the index don't need to be shifted
+anymore since commit 01bb6f0af992 ("locking/lockdep: Change the range
+of class_idx in held_lock struct") already change the index to start
+from 0.
+
+The lock_classes[-1] located at chain_hlocks array. When printing
+lock_classes[-1] after the chain_hlocks entries are modified, the
+exception happened.
+
+The output of lockdep_chains are incorrect due to this problem too.
+
+Fixes: f611e8cf98ec ("lockdep: Take read/write status in consideration when generate chainkey")
+Signed-off-by: Cheng Jui Wang <cheng-jui.wang@mediatek.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Boqun Feng <boqun.feng@gmail.com>
+Link: https://lore.kernel.org/r/20220210105011.21712-1-cheng-jui.wang@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gx.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/locking/lockdep.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-index 6b457b2c30a4b..aa14ea017a613 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-@@ -49,6 +49,12 @@
- 			no-map;
- 		};
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -3450,7 +3450,7 @@ struct lock_class *lock_chain_get_class(
+ 	u16 chain_hlock = chain_hlocks[chain->base + i];
+ 	unsigned int class_idx = chain_hlock_class_idx(chain_hlock);
  
-+		/* 32 MiB reserved for ARM Trusted Firmware (BL32) */
-+		secmon_reserved_bl32: secmon@5300000 {
-+			reg = <0x0 0x05300000 0x0 0x2000000>;
-+			no-map;
-+		};
-+
- 		linux,cma {
- 			compatible = "shared-dma-pool";
- 			reusable;
--- 
-2.34.1
-
+-	return lock_classes + class_idx - 1;
++	return lock_classes + class_idx;
+ }
+ 
+ /*
+@@ -3518,7 +3518,7 @@ static void print_chain_keys_chain(struc
+ 		hlock_id = chain_hlocks[chain->base + i];
+ 		chain_key = print_chain_key_iteration(hlock_id, chain_key);
+ 
+-		print_lock_name(lock_classes + chain_hlock_class_idx(hlock_id) - 1);
++		print_lock_name(lock_classes + chain_hlock_class_idx(hlock_id));
+ 		printk("\n");
+ 	}
+ }
 
 
