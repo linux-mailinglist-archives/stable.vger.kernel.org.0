@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7795D4BE1E4
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 294E24BE8C4
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:06:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352293AbiBUKAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 05:00:41 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55896 "EHLO
+        id S1347113AbiBUJDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:03:32 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353022AbiBUJ5C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:02 -0500
+        with ESMTP id S1347315AbiBUJBO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:01:14 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 659EF45790;
-        Mon, 21 Feb 2022 01:24:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2FB627CEB;
+        Mon, 21 Feb 2022 00:56:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26C5BB80ECB;
-        Mon, 21 Feb 2022 09:24:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46CA3C340E9;
-        Mon, 21 Feb 2022 09:24:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9580BB80EB7;
+        Mon, 21 Feb 2022 08:56:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 966C0C340E9;
+        Mon, 21 Feb 2022 08:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435491;
-        bh=n1f98Y30u1MRoTvXq5oADRdUKbZtJKh6KWD/vuLlgzY=;
+        s=korg; t=1645433769;
+        bh=7q0BDtyRXVNalxa0DqT6OCIOkrN0gIrOxt75iA2zV+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZVACbFM/ca8sUwtvgst5CeDNdlR9xGCMD9mZ+c8xYZDUNiPe98G6ogAQeMiCM9LB
-         1M3Z8Ne/ywmKTAMU2PqCgsd+VXGnmJc/SItKGiEXdWY/jmfwzAcCGRWpCdgV9/Tgct
-         U/ulLGUO21PeoQQiJfM29fNulIcVS+2EXmdf5HKA=
+        b=LaTPXrNA1rrxzixDVfsS5Eri4fK6YAtj2pwSVtRKxR7X0zMJElLbElvubJhFtKFPk
+         zB85ctvh1tb9DCzdsiBVQdiSLuzKM1tCXOgnmHRglEYtrxnfkV902hk1LB05NIRGAh
+         QcEei8Ow9dKKeOO8Ub6KSeW/mH7ZI1xTL9VAlzPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Bizon <mbizon@freebox.fr>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.16 150/227] powerpc/603: Fix boot failure with DEBUG_PAGEALLOC and KFENCE
+        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
+        Theodore Tso <tytso@mit.edu>,
+        Leah Rumancik <leah.rumancik@gmail.com>
+Subject: [PATCH 4.19 36/58] ext4: check for out-of-order index extents in ext4_valid_extent_entries()
 Date:   Mon, 21 Feb 2022 09:49:29 +0100
-Message-Id: <20220221084939.819973632@linuxfoundation.org>
+Message-Id: <20220221084913.044238604@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
+References: <20220221084911.895146879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-commit 9bb162fa26ed76031ed0e7dbc77ccea0bf977758 upstream.
+commit 8dd27fecede55e8a4e67eef2878040ecad0f0d33 upstream.
 
-Allthough kernel text is always mapped with BATs, we still have
-inittext mapped with pages, so TLB miss handling is required
-when CONFIG_DEBUG_PAGEALLOC or CONFIG_KFENCE is set.
+After commit 5946d089379a ("ext4: check for overlapping extents in
+ext4_valid_extent_entries()"), we can check out the overlapping extent
+entry in leaf extent blocks. But the out-of-order extent entry in index
+extent blocks could also trigger bad things if the filesystem is
+inconsistent. So this patch add a check to figure out the out-of-order
+index extents and return error.
 
-The final solution should be to set a BAT that also maps inittext
-but that BAT then needs to be cleared at end of init, and it will
-require more changes to be able to do it properly.
-
-As DEBUG_PAGEALLOC or KFENCE are debugging, performance is not a big
-deal so let's fix it simply for now to enable easy stable application.
-
-Fixes: 035b19a15a98 ("powerpc/32s: Always map kernel text and rodata with BATs")
-Cc: stable@vger.kernel.org # v5.11+
-Reported-by: Maxime Bizon <mbizon@freebox.fr>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/aea33b4813a26bdb9378b5f273f00bd5d4abe240.1638857364.git.christophe.leroy@csgroup.eu
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Reviewed-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210908120850.4012324-2-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/head_book3s_32.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/extents.c |   21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
---- a/arch/powerpc/kernel/head_book3s_32.S
-+++ b/arch/powerpc/kernel/head_book3s_32.S
-@@ -421,14 +421,14 @@ InstructionTLBMiss:
-  */
- 	/* Get PTE (linux-style) and check access */
- 	mfspr	r3,SPRN_IMISS
--#ifdef CONFIG_MODULES
-+#if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_KFENCE)
- 	lis	r1, TASK_SIZE@h		/* check if kernel address */
- 	cmplw	0,r1,r3
- #endif
- 	mfspr	r2, SPRN_SDR1
- 	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC | _PAGE_USER
- 	rlwinm	r2, r2, 28, 0xfffff000
--#ifdef CONFIG_MODULES
-+#if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_KFENCE)
- 	bgt-	112f
- 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
- 	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -390,9 +390,12 @@ static int ext4_valid_extent_idx(struct
+ 
+ static int ext4_valid_extent_entries(struct inode *inode,
+ 				struct ext4_extent_header *eh,
+-				int depth)
++				ext4_fsblk_t *pblk, int depth)
+ {
+ 	unsigned short entries;
++	ext4_lblk_t lblock = 0;
++	ext4_lblk_t prev = 0;
++
+ 	if (eh->eh_entries == 0)
+ 		return 1;
+ 
+@@ -403,32 +406,36 @@ static int ext4_valid_extent_entries(str
+ 		struct ext4_extent *ext = EXT_FIRST_EXTENT(eh);
+ 		struct ext4_super_block *es = EXT4_SB(inode->i_sb)->s_es;
+ 		ext4_fsblk_t pblock = 0;
+-		ext4_lblk_t lblock = 0;
+-		ext4_lblk_t prev = 0;
+-		int len = 0;
+ 		while (entries) {
+ 			if (!ext4_valid_extent(inode, ext))
+ 				return 0;
+ 
+ 			/* Check for overlapping extents */
+ 			lblock = le32_to_cpu(ext->ee_block);
+-			len = ext4_ext_get_actual_len(ext);
+ 			if ((lblock <= prev) && prev) {
+ 				pblock = ext4_ext_pblock(ext);
+ 				es->s_last_error_block = cpu_to_le64(pblock);
+ 				return 0;
+ 			}
++			prev = lblock + ext4_ext_get_actual_len(ext) - 1;
+ 			ext++;
+ 			entries--;
+-			prev = lblock + len - 1;
+ 		}
+ 	} else {
+ 		struct ext4_extent_idx *ext_idx = EXT_FIRST_INDEX(eh);
+ 		while (entries) {
+ 			if (!ext4_valid_extent_idx(inode, ext_idx))
+ 				return 0;
++
++			/* Check for overlapping index extents */
++			lblock = le32_to_cpu(ext_idx->ei_block);
++			if ((lblock <= prev) && prev) {
++				*pblk = ext4_idx_pblock(ext_idx);
++				return 0;
++			}
+ 			ext_idx++;
+ 			entries--;
++			prev = lblock;
+ 		}
+ 	}
+ 	return 1;
+@@ -462,7 +469,7 @@ static int __ext4_ext_check(const char *
+ 		error_msg = "invalid eh_entries";
+ 		goto corrupted;
+ 	}
+-	if (!ext4_valid_extent_entries(inode, eh, depth)) {
++	if (!ext4_valid_extent_entries(inode, eh, &pblk, depth)) {
+ 		error_msg = "invalid extent entries";
+ 		goto corrupted;
+ 	}
 
 
