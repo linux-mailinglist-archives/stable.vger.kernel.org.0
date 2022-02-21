@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 524F34BE465
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:59:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F3C84BDED5
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:47:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347715AbiBUJKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:10:07 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33872 "EHLO
+        id S244018AbiBUJth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:49:37 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347713AbiBUJJN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 255A7D6D;
-        Mon, 21 Feb 2022 01:01:32 -0800 (PST)
+        with ESMTP id S1352950AbiBUJsD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C435BC80;
+        Mon, 21 Feb 2022 01:21:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0821B80EB5;
-        Mon, 21 Feb 2022 09:01:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFD40C340F1;
-        Mon, 21 Feb 2022 09:01:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 08E3E60B1E;
+        Mon, 21 Feb 2022 09:21:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E27D5C340F0;
+        Mon, 21 Feb 2022 09:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434089;
-        bh=Zt9qi23eS8zYLN+BEhLKUBkGlfrKDNwe6e4w79x+CEU=;
+        s=korg; t=1645435303;
+        bh=rB4nAhkTCwWmazNpxyjwfP2TsWxjP1bB4Ig9i3tECL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GQ5BjT3/HH4Vs9VQQ/08GHKYGz/d+346gq9cImUXrEIyq4LAe2XJfkM7K6uVhfFEz
-         EV+E/rq3+guX4SrUaq653phpshHwHFoeoWdv6wGz2AL6uC5QHwf+LtmdeRkUzLbbCK
-         cpHFvBO6BFM7ev/jVMMh0oQq0hCr7V1ib3BV+8NA=
+        b=sUuf/EvHe12phvrKvBhvFXxIr+cuogU2japC9DLu+Dh1c40I1VF9UNrv7bpB04ihD
+         MQSu3AzT9CcgWqvRXWvNc7a9++A0tY5aNspRC3pbz3rmT26H3TNObMsasKq72bK02c
+         KvmLsyhs4Tk8VqvbshQ+M46REcQzc5w2hLXazP2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>
-Subject: [PATCH 5.10 001/121] drm/nouveau/pmu/gm200-: use alternate falcon reset sequence
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.16 074/227] KVM: x86: nSVM: fix potential NULL derefernce on nested migration
 Date:   Mon, 21 Feb 2022 09:48:13 +0100
-Message-Id: <20220221084921.195979565@linuxfoundation.org>
+Message-Id: <20220221084937.327978665@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,126 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit 4cdd2450bf739bada353e82d27b00db9af8c3001 upstream.
+commit e1779c2714c3023e4629825762bcbc43a3b943df upstream.
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Karol Herbst <kherbst@redhat.com>
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
-Link: https://gitlab.freedesktop.org/drm/nouveau/-/merge_requests/10
+Turns out that due to review feedback and/or rebases
+I accidentally moved the call to nested_svm_load_cr3 to be too early,
+before the NPT is enabled, which is very wrong to do.
+
+KVM can't even access guest memory at that point as nested NPT
+is needed for that, and of course it won't initialize the walk_mmu,
+which is main issue the patch was addressing.
+
+Fix this for real.
+
+Fixes: 232f75d3b4b5 ("KVM: nSVM: call nested_svm_load_cr3 on nested state load")
+Cc: stable@vger.kernel.org
+
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220207155447.840194-3-mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/falcon/base.c      |    8 ++++--
- drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm200.c |   31 +++++++++++++++++++++++-
- drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c |    2 -
- drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c |    2 -
- drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c |    2 -
- drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h  |    2 +
- 6 files changed, 41 insertions(+), 6 deletions(-)
+ arch/x86/kvm/svm/nested.c |   26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nvkm/falcon/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/falcon/base.c
-@@ -119,8 +119,12 @@ nvkm_falcon_disable(struct nvkm_falcon *
- int
- nvkm_falcon_reset(struct nvkm_falcon *falcon)
- {
--	nvkm_falcon_disable(falcon);
--	return nvkm_falcon_enable(falcon);
-+	if (!falcon->func->reset) {
-+		nvkm_falcon_disable(falcon);
-+		return nvkm_falcon_enable(falcon);
-+	}
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -1389,18 +1389,6 @@ static int svm_set_nested_state(struct k
+ 	    !nested_vmcb_valid_sregs(vcpu, save))
+ 		goto out_free;
+ 
+-	/*
+-	 * While the nested guest CR3 is already checked and set by
+-	 * KVM_SET_SREGS, it was set when nested state was yet loaded,
+-	 * thus MMU might not be initialized correctly.
+-	 * Set it again to fix this.
+-	 */
+-
+-	ret = nested_svm_load_cr3(&svm->vcpu, vcpu->arch.cr3,
+-				  nested_npt_enabled(svm), false);
+-	if (WARN_ON_ONCE(ret))
+-		goto out_free;
+-
+ 
+ 	/*
+ 	 * All checks done, we can enter guest mode. Userspace provides
+@@ -1426,6 +1414,20 @@ static int svm_set_nested_state(struct k
+ 
+ 	svm_switch_vmcb(svm, &svm->nested.vmcb02);
+ 	nested_vmcb02_prepare_control(svm);
 +
-+	return falcon->func->reset(falcon);
- }
- 
- int
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm200.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm200.c
-@@ -23,9 +23,38 @@
-  */
- #include "priv.h"
- 
-+static int
-+gm200_pmu_flcn_reset(struct nvkm_falcon *falcon)
-+{
-+	struct nvkm_pmu *pmu = container_of(falcon, typeof(*pmu), falcon);
++	/*
++	 * While the nested guest CR3 is already checked and set by
++	 * KVM_SET_SREGS, it was set when nested state was yet loaded,
++	 * thus MMU might not be initialized correctly.
++	 * Set it again to fix this.
++	 */
 +
-+	nvkm_falcon_wr32(falcon, 0x014, 0x0000ffff);
-+	pmu->func->reset(pmu);
-+	return nvkm_falcon_enable(falcon);
-+}
++	ret = nested_svm_load_cr3(&svm->vcpu, vcpu->arch.cr3,
++				  nested_npt_enabled(svm), false);
++	if (WARN_ON_ONCE(ret))
++		goto out_free;
 +
-+const struct nvkm_falcon_func
-+gm200_pmu_flcn = {
-+	.debug = 0xc08,
-+	.fbif = 0xe00,
-+	.load_imem = nvkm_falcon_v1_load_imem,
-+	.load_dmem = nvkm_falcon_v1_load_dmem,
-+	.read_dmem = nvkm_falcon_v1_read_dmem,
-+	.bind_context = nvkm_falcon_v1_bind_context,
-+	.wait_for_halt = nvkm_falcon_v1_wait_for_halt,
-+	.clear_interrupt = nvkm_falcon_v1_clear_interrupt,
-+	.set_start_addr = nvkm_falcon_v1_set_start_addr,
-+	.start = nvkm_falcon_v1_start,
-+	.enable = nvkm_falcon_v1_enable,
-+	.disable = nvkm_falcon_v1_disable,
-+	.reset = gm200_pmu_flcn_reset,
-+	.cmdq = { 0x4a0, 0x4b0, 4 },
-+	.msgq = { 0x4c8, 0x4cc, 0 },
-+};
 +
- static const struct nvkm_pmu_func
- gm200_pmu = {
--	.flcn = &gt215_pmu_flcn,
-+	.flcn = &gm200_pmu_flcn,
- 	.enabled = gf100_pmu_enabled,
- 	.reset = gf100_pmu_reset,
- };
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c
-@@ -211,7 +211,7 @@ gm20b_pmu_recv(struct nvkm_pmu *pmu)
- 
- static const struct nvkm_pmu_func
- gm20b_pmu = {
--	.flcn = &gt215_pmu_flcn,
-+	.flcn = &gm200_pmu_flcn,
- 	.enabled = gf100_pmu_enabled,
- 	.intr = gt215_pmu_intr,
- 	.recv = gm20b_pmu_recv,
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c
-@@ -39,7 +39,7 @@ gp102_pmu_enabled(struct nvkm_pmu *pmu)
- 
- static const struct nvkm_pmu_func
- gp102_pmu = {
--	.flcn = &gt215_pmu_flcn,
-+	.flcn = &gm200_pmu_flcn,
- 	.enabled = gp102_pmu_enabled,
- 	.reset = gp102_pmu_reset,
- };
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c
-@@ -78,7 +78,7 @@ gp10b_pmu_acr = {
- 
- static const struct nvkm_pmu_func
- gp10b_pmu = {
--	.flcn = &gt215_pmu_flcn,
-+	.flcn = &gm200_pmu_flcn,
- 	.enabled = gf100_pmu_enabled,
- 	.intr = gt215_pmu_intr,
- 	.recv = gm20b_pmu_recv,
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h
-@@ -44,6 +44,8 @@ void gf100_pmu_reset(struct nvkm_pmu *);
- 
- void gk110_pmu_pgob(struct nvkm_pmu *, bool);
- 
-+extern const struct nvkm_falcon_func gm200_pmu_flcn;
-+
- void gm20b_pmu_acr_bld_patch(struct nvkm_acr *, u32, s64);
- void gm20b_pmu_acr_bld_write(struct nvkm_acr *, u32, struct nvkm_acr_lsfw *);
- int gm20b_pmu_acr_boot(struct nvkm_falcon *);
+ 	kvm_make_request(KVM_REQ_GET_NESTED_STATE_PAGES, vcpu);
+ 	ret = 0;
+ out_free:
 
 
