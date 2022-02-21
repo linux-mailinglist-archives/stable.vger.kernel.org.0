@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4234BE6C6
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:02:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 029BD4BE506
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:59:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350503AbiBUJei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:34:38 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36286 "EHLO
+        id S1347215AbiBUJGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:06:23 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350521AbiBUJeH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:34:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD5C029C89;
-        Mon, 21 Feb 2022 01:14:18 -0800 (PST)
+        with ESMTP id S1347350AbiBUJFc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:05:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BA7125C5E;
+        Mon, 21 Feb 2022 00:58:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE01460018;
-        Mon, 21 Feb 2022 09:14:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9324C340E9;
-        Mon, 21 Feb 2022 09:14:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CC2AB80E72;
+        Mon, 21 Feb 2022 08:58:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61632C340E9;
+        Mon, 21 Feb 2022 08:58:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434857;
-        bh=Y+8wWX/+BHdYHM4G0Ut01oY1twruDTgP/fIUZ6UlneE=;
+        s=korg; t=1645433935;
+        bh=miOqyMglvPOrw76ooaKXt1oEIjR+yKYxEFBxaK+Q+I4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ULpM8Q4s6JRFhiazIiLzI4eLiNGz9HxxnkZWu27EhL8hp9jAQ11eiAmlJWfeW7a6C
-         48lketTq2i7/6fseeNl5y4r6vzl4aFLpLPyp7DXEY8W2LXXNDIiGuSHllvlSXlhJR5
-         2zb4Ln97HIAhic5jOqAphmRUt/pNe0iTm1YHimx8=
+        b=1e27++8GBsCYYd38R5DDPWaBdkkBFq5/qxARsiksX/k1Az7rh7B09vgRmd+DcK7EA
+         RcReTvpwqNNS3LKDYMAsIZhaQ1HhNnavnMMafOvhkAQhNQW1a/Ee8VVu69EOgCAkEm
+         KsqLIl6W+TOG8pQxmjvo0Fit4YKhsFdv/lgVa4m4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Christian Eggers <ceggers@arri.de>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.15 123/196] mtd: rawnand: gpmi: dont leak PM reference in error path
+        stable@vger.kernel.org, Christian Loehle <cloehle@hyperstone.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 35/80] mmc: block: fix read single on recovery logic
 Date:   Mon, 21 Feb 2022 09:49:15 +0100
-Message-Id: <20220221084935.052504671@linuxfoundation.org>
+Message-Id: <20220221084916.722372444@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Eggers <ceggers@arri.de>
+From: Christian Löhle <CLoehle@hyperstone.com>
 
-commit 9161f365c91614e5a3f5c6dcc44c3b1b33bc59c0 upstream.
+commit 54309fde1a352ad2674ebba004a79f7d20b9f037 upstream.
 
-If gpmi_nfc_apply_timings() fails, the PM runtime usage counter must be
-dropped.
+On reads with MMC_READ_MULTIPLE_BLOCK that fail,
+the recovery handler will use MMC_READ_SINGLE_BLOCK for
+each of the blocks, up to MMC_READ_SINGLE_RETRIES times each.
+The logic for this is fixed to never report unsuccessful reads
+as success to the block layer.
 
-Reported-by: Pavel Machek <pavel@denx.de>
-Fixes: f53d4c109a66 ("mtd: rawnand: gpmi: Add ERR007117 protection for nfc_apply_timings")
-Signed-off-by: Christian Eggers <ceggers@arri.de>
+On command error with retries remaining, blk_update_request was
+called with whatever value error was set last to.
+In case it was last set to BLK_STS_OK (default), the read will be
+reported as success, even though there was no data read from the device.
+This could happen on a CRC mismatch for the response,
+a card rejecting the command (e.g. again due to a CRC mismatch).
+In case it was last set to BLK_STS_IOERR, the error is reported correctly,
+but no retries will be attempted.
+
+Fixes: 81196976ed946c ("mmc: block: Add blk-mq support")
 Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220125081619.6286-1-ceggers@arri.de
+Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
+Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/bc706a6ab08c4fe2834ba0c05a804672@hyperstone.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/core/block.c |   28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
---- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-+++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-@@ -2293,7 +2293,7 @@ static int gpmi_nfc_exec_op(struct nand_
- 		this->hw.must_apply_timings = false;
- 		ret = gpmi_nfc_apply_timings(this);
- 		if (ret)
--			return ret;
-+			goto out_pm;
- 	}
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -1671,31 +1671,31 @@ static void mmc_blk_read_single(struct m
+ 	struct mmc_card *card = mq->card;
+ 	struct mmc_host *host = card->host;
+ 	blk_status_t error = BLK_STS_OK;
+-	int retries = 0;
  
- 	dev_dbg(this->dev, "%s: %d instructions\n", __func__, op->ninstrs);
-@@ -2422,6 +2422,7 @@ unmap:
+ 	do {
+ 		u32 status;
+ 		int err;
++		int retries = 0;
  
- 	this->bch = false;
+-		mmc_blk_rw_rq_prep(mqrq, card, 1, mq);
++		while (retries++ <= MMC_READ_SINGLE_RETRIES) {
++			mmc_blk_rw_rq_prep(mqrq, card, 1, mq);
  
-+out_pm:
- 	pm_runtime_mark_last_busy(this->dev);
- 	pm_runtime_put_autosuspend(this->dev);
+-		mmc_wait_for_req(host, mrq);
++			mmc_wait_for_req(host, mrq);
  
+-		err = mmc_send_status(card, &status);
+-		if (err)
+-			goto error_exit;
+-
+-		if (!mmc_host_is_spi(host) &&
+-		    !mmc_blk_in_tran_state(status)) {
+-			err = mmc_blk_fix_state(card, req);
++			err = mmc_send_status(card, &status);
+ 			if (err)
+ 				goto error_exit;
+-		}
+ 
+-		if (mrq->cmd->error && retries++ < MMC_READ_SINGLE_RETRIES)
+-			continue;
++			if (!mmc_host_is_spi(host) &&
++			    !mmc_blk_in_tran_state(status)) {
++				err = mmc_blk_fix_state(card, req);
++				if (err)
++					goto error_exit;
++			}
+ 
+-		retries = 0;
++			if (!mrq->cmd->error)
++				break;
++		}
+ 
+ 		if (mrq->cmd->error ||
+ 		    mrq->data->error ||
 
 
