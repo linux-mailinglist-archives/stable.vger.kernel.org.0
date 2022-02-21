@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 879054BDF38
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:49:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12B3C4BDF1F
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:49:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346007AbiBUIzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:55:03 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44684 "EHLO
+        id S1350529AbiBUJeM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:34:12 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346019AbiBUIyn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:54:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72B455B0;
-        Mon, 21 Feb 2022 00:53:12 -0800 (PST)
+        with ESMTP id S1350584AbiBUJdr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:33:47 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E3228E3D;
+        Mon, 21 Feb 2022 01:14:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4BF59B80EB0;
-        Mon, 21 Feb 2022 08:53:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72D23C340E9;
-        Mon, 21 Feb 2022 08:53:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 925D6CE0E86;
+        Mon, 21 Feb 2022 09:14:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83366C340E9;
+        Mon, 21 Feb 2022 09:14:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433590;
-        bh=dqhZXcYGSmYEY2QiI4bfsAYG/h1pQHli22DXouIR2yE=;
+        s=korg; t=1645434843;
+        bh=3fs6oNe7Ko7oVKXh9CVZYXEcEJvtYZ0K6qMFrb5P8Jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9KhWqUB4SlHwGDpR0c4BQRGTUovdV9v+iNSsS3BDmhjYE0HgGGHcY2FotpHF90bh
-         wFXST0WrgPU6b2lHYPiMn53vNGFdldX76MjLlhGt0jguDoEQDi5QPXXkcvVhtLe050
-         IsHwFs/SV0TZA6/HkZwdVV0BYaoXR8ymjGkYz97c=
+        b=aBLX6pvA/VBRSmUkM3ZoJOwEcaemnzV2KMB0b3ugdP8a5bNQon8qnLeSXQIrHrWFZ
+         OBY5Bj7SM7QQOqGvpn9FaOBy0suMSOgo8LP2BrubA25F5g5tzgGxK6SMRxvQQut1e4
+         wKB2EpTmfWEvRCOBBzFRIGQ4Z9SgEW5jEH99yra8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 19/45] vsock: remove vsock from connected table when connect is interrupted by a signal
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 118/196] ASoC: ops: Fix stereo change notifications in snd_soc_put_volsw_sx()
 Date:   Mon, 21 Feb 2022 09:49:10 +0100
-Message-Id: <20220221084911.083294445@linuxfoundation.org>
+Message-Id: <20220221084934.887990642@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seth Forshee <sforshee@digitalocean.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit b9208492fcaecff8f43915529ae34b3bcb03877c upstream.
+commit 7f3d90a3519680dfa23e750f80bfdefc0f5eda4a upstream.
 
-vsock_connect() expects that the socket could already be in the
-TCP_ESTABLISHED state when the connecting task wakes up with a signal
-pending. If this happens the socket will be in the connected table, and
-it is not removed when the socket state is reset. In this situation it's
-common for the process to retry connect(), and if the connection is
-successful the socket will be added to the connected table a second
-time, corrupting the list.
+When writing out a stereo control we discard the change notification from
+the first channel, meaning that events are only generated based on changes
+to the second channel. Ensure that we report a change if either channel
+has changed.
 
-Prevent this by calling vsock_remove_connected() if a signal is received
-while waiting for a connection. This is harmless if the socket is not in
-the connected table, and if it is in the table then removing it will
-prevent list corruption from a double add.
-
-Note for backporting: this patch requires d5afa82c977e ("vsock: correct
-removal of socket from the list"), which is in all current stable trees
-except 4.9.y.
-
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Signed-off-by: Seth Forshee <sforshee@digitalocean.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/20220217141312.2297547-1-sforshee@digitalocean.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220201155629.120510-3-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/vmw_vsock/af_vsock.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/soc-ops.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1237,6 +1237,7 @@ static int vsock_stream_connect(struct s
- 			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
- 			sock->state = SS_UNCONNECTED;
- 			vsock_transport_cancel_pkt(vsk);
-+			vsock_remove_connected(vsk);
- 			goto out_wait;
- 		} else if (timeout == 0) {
- 			err = -ETIMEDOUT;
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -427,6 +427,7 @@ int snd_soc_put_volsw_sx(struct snd_kcon
+ 	int min = mc->min;
+ 	unsigned int mask = (1U << (fls(min + max) - 1)) - 1;
+ 	int err = 0;
++	int ret;
+ 	unsigned int val, val_mask;
+ 
+ 	val = ucontrol->value.integer.value[0];
+@@ -443,6 +444,7 @@ int snd_soc_put_volsw_sx(struct snd_kcon
+ 	err = snd_soc_component_update_bits(component, reg, val_mask, val);
+ 	if (err < 0)
+ 		return err;
++	ret = err;
+ 
+ 	if (snd_soc_volsw_is_stereo(mc)) {
+ 		unsigned int val2;
+@@ -453,6 +455,11 @@ int snd_soc_put_volsw_sx(struct snd_kcon
+ 
+ 		err = snd_soc_component_update_bits(component, reg2, val_mask,
+ 			val2);
++
++		/* Don't discard any error code or drop change flag */
++		if (ret == 0 || err < 0) {
++			ret = err;
++		}
+ 	}
+ 	return err;
+ }
 
 
