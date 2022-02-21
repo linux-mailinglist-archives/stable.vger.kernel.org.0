@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25B874BDE20
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:46:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E939C4BDB71
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:40:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346301AbiBUI4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:56:30 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44676 "EHLO
+        id S1351936AbiBUJyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:54:36 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346329AbiBUIzo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:55:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9065C1AD9A;
-        Mon, 21 Feb 2022 00:53:45 -0800 (PST)
+        with ESMTP id S1352013AbiBUJxA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:53:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 669981D317;
+        Mon, 21 Feb 2022 01:23:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D988B61140;
-        Mon, 21 Feb 2022 08:53:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD422C340EB;
-        Mon, 21 Feb 2022 08:53:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19146B80EAF;
+        Mon, 21 Feb 2022 09:23:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CFACC340E9;
+        Mon, 21 Feb 2022 09:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433624;
-        bh=jq0IZZMNLqbynoTr7qWYEP7/cjlKhs6FfrgJYs/FnmA=;
+        s=korg; t=1645435397;
+        bh=SH5kv4+d2g9ytmY1kPDcn0mQvYvUQiU/BXUGy5MogX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p8XccNOFHGEhcp8b332PRbhDMT649eBW+Cry7k4STyUks7EftoGd7zy6wnPeooSeL
-         t8dw0KQB1vu4FdOkjtOItM8TcpUTM6KWWqddwkbI3FUGjgDTy1zodnMu+FVr+7z9Sy
-         ZumISMs1kyM1PV0gaT+MivbUT+QFTBx+zR/mTp2M=
+        b=lLall1nHhA8Xk+mWFHTLsBqhGTflRMRNa8/6or2CFMOVJJuOkE0V58KoRac46C71u
+         vDKgfQSCjrfZ+vudBgPaAS3B+9PdzzKP/LaD0tUl0g4bw+7ytqU9WoUXHBK3ZSmqMb
+         D9ym82nU50ETN/iWmSFg2dD7ZuayU6d1fN925RsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 05/45] parisc: Fix sglist access in ccio-dma.c
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 117/227] mctp: fix use after free
 Date:   Mon, 21 Feb 2022 09:48:56 +0100
-Message-Id: <20220221084910.637678831@linuxfoundation.org>
+Message-Id: <20220221084938.753002243@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Tom Rix <trix@redhat.com>
 
-commit d7da660cab47183cded65e11b64497d0f56c6edf upstream.
+commit 7e5b6a5c8c44310784c88c1c198dde79f6402f7b upstream.
 
-This patch implements the same bug fix to ccio-dma.c as to sba_iommu.c.
-It ensures that only the allocated entries of the sglist are accessed.
+Clang static analysis reports this problem
+route.c:425:4: warning: Use of memory after it is freed
+  trace_mctp_key_acquire(key);
+  ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+When mctp_key_add() fails, key is freed but then is later
+used in trace_mctp_key_acquire().  Add an else statement
+to use the key only when mctp_key_add() is successful.
 
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 4f9e1ba6de45 ("mctp: Add tracepoints for tag/key handling")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/parisc/ccio-dma.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/mctp/route.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/parisc/ccio-dma.c
-+++ b/drivers/parisc/ccio-dma.c
-@@ -1010,7 +1010,7 @@ ccio_unmap_sg(struct device *dev, struct
- 	ioc->usg_calls++;
- #endif
+--- a/net/mctp/route.c
++++ b/net/mctp/route.c
+@@ -414,13 +414,14 @@ static int mctp_route_input(struct mctp_
+ 			 * this function.
+ 			 */
+ 			rc = mctp_key_add(key, msk);
+-			if (rc)
++			if (rc) {
+ 				kfree(key);
++			} else {
++				trace_mctp_key_acquire(key);
  
--	while(sg_dma_len(sglist) && nents--) {
-+	while (nents && sg_dma_len(sglist)) {
+-			trace_mctp_key_acquire(key);
+-
+-			/* we don't need to release key->lock on exit */
+-			mctp_key_unref(key);
++				/* we don't need to release key->lock on exit */
++				mctp_key_unref(key);
++			}
+ 			key = NULL;
  
- #ifdef CCIO_COLLECT_STATS
- 		ioc->usg_pages += sg_dma_len(sglist) >> PAGE_SHIFT;
-@@ -1018,6 +1018,7 @@ ccio_unmap_sg(struct device *dev, struct
- 		ccio_unmap_page(dev, sg_dma_address(sglist),
- 				  sg_dma_len(sglist), direction, 0);
- 		++sglist;
-+		nents--;
- 	}
- 
- 	DBG_RUN_SG("%s() DONE (nents %d)\n", __func__, nents);
+ 		} else {
 
 
