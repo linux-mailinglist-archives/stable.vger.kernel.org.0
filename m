@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FDC94BE02C
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FF434BDCFD
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:43:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352300AbiBUJyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:54:25 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56922 "EHLO
+        id S1350514AbiBUJeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:34:07 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:32996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352374AbiBUJxy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:53:54 -0500
+        with ESMTP id S1350552AbiBUJdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:33:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDBD33702E;
-        Mon, 21 Feb 2022 01:23:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D28128E18;
+        Mon, 21 Feb 2022 01:14:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EA4B60F8C;
-        Mon, 21 Feb 2022 09:23:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D2A0C340E9;
-        Mon, 21 Feb 2022 09:23:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6BA260DF6;
+        Mon, 21 Feb 2022 09:14:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8B00C340E9;
+        Mon, 21 Feb 2022 09:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435429;
-        bh=QtspzRerDno9ochBQSZOIaBlkiKsCe5W6y6V+OTBPv8=;
+        s=korg; t=1645434840;
+        bh=E8X8be894fHh241pFPixddfhnlq8eHFkwL8tLTXtjqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x8UH1UoFYTKSZ1v5kG9diLA9JLZa+p4bSnPlgOlxdPUmkjmkiOqgWqoKpM3ZvHzYY
-         K3Qww058K8Xcd+j8mqMBI0PLkD0EsJGk/ltqQULYYceZxIdJxdZmSt0sr1ASXIYWnP
-         k8M3Skta/cbC181Hr/Hnp47SgGU7hS2a4Kz7A++8=
+        b=U6aSfbl3C7zzfLY2fS40bDWa4FevX9sTuXzk3Jee7Rd/lFYtN0WPviUJ2q5h5J8Wl
+         Pa/mB9Jo+QO83Uu+zQ8ozn7CkW5LELP9paYQQ0+m9zAMVxgqudUnLKwrq2zhjN04cC
+         N664HbZeRSE3K4JRxwFqICUwQVCsXFisWOLRMmms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Donald Buczek <buczek@molgen.mpg.de>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.16 161/227] NFS: LOOKUP_DIRECTORY is also ok with symlinks
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Ye Guojin <ye.guojin@zte.com.cn>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 148/196] ARM: OMAP2+: adjust the location of put_device() call in omapdss_init_of
 Date:   Mon, 21 Feb 2022 09:49:40 +0100
-Message-Id: <20220221084940.176331248@linuxfoundation.org>
+Message-Id: <20220221084935.874643667@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Ye Guojin <ye.guojin@zte.com.cn>
 
-commit e0caaf75d443e02e55e146fd75fe2efc8aed5540 upstream.
+[ Upstream commit 34596ba380b03d181e24efd50e2f21045bde3696 ]
 
-Commit ac795161c936 (NFSv4: Handle case where the lookup of a directory
-fails) [1], part of Linux since 5.17-rc2, introduced a regression, where
-a symbolic link on an NFS mount to a directory on another NFS does not
-resolve(?) the first time it is accessed:
+This was found by coccicheck:
+./arch/arm/mach-omap2/display.c, 272, 1-7, ERROR missing put_device;
+call of_find_device_by_node on line 258, but without a corresponding
+object release within this function.
 
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Fixes: ac795161c936 ("NFSv4: Handle case where the lookup of a directory fails")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Tested-by: Donald Buczek <buczek@molgen.mpg.de>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Move the put_device() call before the if judgment.
+
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Ye Guojin <ye.guojin@zte.com.cn>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/dir.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/mach-omap2/display.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -1982,14 +1982,14 @@ no_open:
- 	if (!res) {
- 		inode = d_inode(dentry);
- 		if ((lookup_flags & LOOKUP_DIRECTORY) && inode &&
--		    !S_ISDIR(inode->i_mode))
-+		    !(S_ISDIR(inode->i_mode) || S_ISLNK(inode->i_mode)))
- 			res = ERR_PTR(-ENOTDIR);
- 		else if (inode && S_ISREG(inode->i_mode))
- 			res = ERR_PTR(-EOPENSTALE);
- 	} else if (!IS_ERR(res)) {
- 		inode = d_inode(res);
- 		if ((lookup_flags & LOOKUP_DIRECTORY) && inode &&
--		    !S_ISDIR(inode->i_mode)) {
-+		    !(S_ISDIR(inode->i_mode) || S_ISLNK(inode->i_mode))) {
- 			dput(res);
- 			res = ERR_PTR(-ENOTDIR);
- 		} else if (inode && S_ISREG(inode->i_mode)) {
+diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
+index 6daaa645ae5d9..21413a9b7b6c6 100644
+--- a/arch/arm/mach-omap2/display.c
++++ b/arch/arm/mach-omap2/display.c
+@@ -263,9 +263,9 @@ static int __init omapdss_init_of(void)
+ 	}
+ 
+ 	r = of_platform_populate(node, NULL, NULL, &pdev->dev);
++	put_device(&pdev->dev);
+ 	if (r) {
+ 		pr_err("Unable to populate DSS submodule devices\n");
+-		put_device(&pdev->dev);
+ 		return r;
+ 	}
+ 
+-- 
+2.34.1
+
 
 
