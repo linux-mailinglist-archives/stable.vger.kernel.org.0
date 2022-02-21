@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2996D4BE1E1
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B611B4BE6C4
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:02:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347996AbiBUJPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:15:21 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36374 "EHLO
+        id S1350637AbiBUJed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:34:33 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349106AbiBUJMC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:12:02 -0500
+        with ESMTP id S1350409AbiBUJeG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:34:06 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9DDE2A24A;
-        Mon, 21 Feb 2022 01:04:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E70A29826;
+        Mon, 21 Feb 2022 01:14:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4D8EFCE0E7F;
-        Mon, 21 Feb 2022 09:04:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25030C340E9;
-        Mon, 21 Feb 2022 09:04:50 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6CB8ACE0E93;
+        Mon, 21 Feb 2022 09:13:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BDC1C340EB;
+        Mon, 21 Feb 2022 09:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434291;
-        bh=dBtYkSvhfP/MKC7GzCnKXVVASZczZWYeyfLous7eP6w=;
+        s=korg; t=1645434811;
+        bh=BNVmtUYVnmuinax3C7ACSj9zjInJX74bgTglaPhnYKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VYHjKhZwBaXH99XWW3JAkKZEq14FiiTfunMZmO9D+bhosUQxQopmq2YcTC53AwHob
-         SR49d49EA/xjmApru0DdEqpUPp9nutqLxzFAETYIl6VTKNNEY2GFe2fXrA76tnNyrS
-         EwLhYQniP6f7+0ppXEDVtVGtjnORxCNSGUX3zbrU=
+        b=uMadomUPY9+dE4GKOaPpqoKdxd/5dRu3Y37rV06kW3u0ySZluQyGNB3v9OxJYX0Un
+         x0ISlwB9Lt7YCyyOaNHETtgvLe04gTG/gLS4w636P8bIkcyvACdpm4RM30ftcA3LU3
+         Ob9BVZu5vyYxHSh6O5uVBFyl4LXLQ6wyhUbTAQ1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>
-Subject: [PATCH 5.10 078/121] tee: export teedev_open() and teedev_close_context()
-Date:   Mon, 21 Feb 2022 09:49:30 +0100
-Message-Id: <20220221084923.853968915@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.15 139/196] mtd: phram: Prevent divide by zero bug in phram_setup()
+Date:   Mon, 21 Feb 2022 09:49:31 +0100
+Message-Id: <20220221084935.577841576@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 1e2c3ef0496e72ba9001da5fd1b7ed56ccb30597 upstream.
+commit 3e3765875b1b8864898603768fd5c93eeb552211 upstream.
 
-Exports the two functions teedev_open() and teedev_close_context() in
-order to make it easier to create a driver internal struct tee_context.
+The problem is that "erasesize" is a uint64_t type so it might be
+non-zero but the lower 32 bits are zero so when it's truncated,
+"(uint32_t)erasesize", then that value is zero. This leads to a
+divide by zero bug.
 
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Avoid the bug by delaying the divide until after we have validated
+that "erasesize" is non-zero and within the uint32_t range.
+
+Fixes: dc2b3e5cbc80 ("mtd: phram: use div_u64_rem to stop overwrite len in phram_setup")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220121115505.GI1978@kadam
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/tee_core.c  |    6 ++++--
- include/linux/tee_drv.h |   14 ++++++++++++++
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ drivers/mtd/devices/phram.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/tee/tee_core.c
-+++ b/drivers/tee/tee_core.c
-@@ -43,7 +43,7 @@ static DEFINE_SPINLOCK(driver_lock);
- static struct class *tee_class;
- static dev_t tee_devt;
+--- a/drivers/mtd/devices/phram.c
++++ b/drivers/mtd/devices/phram.c
+@@ -264,15 +264,19 @@ static int phram_setup(const char *val)
+ 		}
+ 	}
  
--static struct tee_context *teedev_open(struct tee_device *teedev)
-+struct tee_context *teedev_open(struct tee_device *teedev)
- {
- 	int rc;
- 	struct tee_context *ctx;
-@@ -70,6 +70,7 @@ err:
- 	return ERR_PTR(rc);
- 
- }
-+EXPORT_SYMBOL_GPL(teedev_open);
- 
- void teedev_ctx_get(struct tee_context *ctx)
- {
-@@ -96,13 +97,14 @@ void teedev_ctx_put(struct tee_context *
- 	kref_put(&ctx->refcount, teedev_ctx_release);
- }
- 
--static void teedev_close_context(struct tee_context *ctx)
-+void teedev_close_context(struct tee_context *ctx)
- {
- 	struct tee_device *teedev = ctx->teedev;
- 
- 	teedev_ctx_put(ctx);
- 	tee_device_put(teedev);
- }
-+EXPORT_SYMBOL_GPL(teedev_close_context);
- 
- static int tee_open(struct inode *inode, struct file *filp)
- {
---- a/include/linux/tee_drv.h
-+++ b/include/linux/tee_drv.h
-@@ -582,4 +582,18 @@ struct tee_client_driver {
- #define to_tee_client_driver(d) \
- 		container_of(d, struct tee_client_driver, driver)
- 
-+/**
-+ * teedev_open() - Open a struct tee_device
-+ * @teedev:	Device to open
-+ *
-+ * @return a pointer to struct tee_context on success or an ERR_PTR on failure.
-+ */
-+struct tee_context *teedev_open(struct tee_device *teedev);
+-	if (erasesize)
+-		div_u64_rem(len, (uint32_t)erasesize, &rem);
+-
+ 	if (len == 0 || erasesize == 0 || erasesize > len
+-	    || erasesize > UINT_MAX || rem) {
++	    || erasesize > UINT_MAX) {
+ 		parse_err("illegal erasesize or len\n");
+ 		ret = -EINVAL;
+ 		goto error;
+ 	}
 +
-+/**
-+ * teedev_close_context() - closes a struct tee_context
-+ * @ctx:	The struct tee_context to close
-+ */
-+void teedev_close_context(struct tee_context *ctx);
-+
- #endif /*__TEE_DRV_H*/
++	div_u64_rem(len, (uint32_t)erasesize, &rem);
++	if (rem) {
++		parse_err("len is not multiple of erasesize\n");
++		ret = -EINVAL;
++		goto error;
++	}
+ 
+ 	ret = register_device(name, start, len, (uint32_t)erasesize);
+ 	if (ret)
 
 
