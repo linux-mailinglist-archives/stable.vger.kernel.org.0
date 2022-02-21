@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7007C4BDE86
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:47:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30B254BE42A
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:58:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237315AbiBUJPi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:15:38 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48418 "EHLO
+        id S1343656AbiBUKD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 05:03:57 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348240AbiBUJOr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:14:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3936F9FDE;
-        Mon, 21 Feb 2022 01:06:39 -0800 (PST)
+        with ESMTP id S1353256AbiBUJ5R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E6313914F;
+        Mon, 21 Feb 2022 01:25:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAE2761267;
-        Mon, 21 Feb 2022 09:06:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B06E3C340E9;
-        Mon, 21 Feb 2022 09:06:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C8A2B80EBC;
+        Mon, 21 Feb 2022 09:25:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62228C340E9;
+        Mon, 21 Feb 2022 09:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434398;
-        bh=R4TuLef2DSgjZ3rFzWIyayhSS9Db1ZXijWzAtPi6lX0=;
+        s=korg; t=1645435508;
+        bh=gIuvYrTqGaDPEsHHMoTOQ65Y5dAWBVbFGsrAzoAq1Js=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yKtfZBygJuBUqMPv8MGD0Hb4oxwd1aHI80wsX18h7u7Oe/ujppT2rpNEJUfEjM20f
-         hFYPT/9QAQ6AJ4xqF74+vmeaE/viwGJFMU7RH7Cnxi0aN9Gn+gw+GE306k2lgYV9E0
-         fQHE6A+SWTCDKyw4Xybpm9zw3kN+bxS3yjS8OmOg=
+        b=wsubSSlq/lPwp2LI/dp5aumr/byRRswRRCjhFJZLWBLxXGUA2hyPZ/S4058+K5lMW
+         BhYMVgaIp4iB1Rtx/36Den/b1pZrEYR76JLphhExFkCjOrRfJj9WFHk2Tx4SgyH4nR
+         5pS6dJnM1q5eTAjk9JNa6o/Hln+yBkaANMeR1mf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.10 115/121] dmaengine: stm32-dmamux: Fix PM disable depth imbalance in stm32_dmamux_probe
-Date:   Mon, 21 Feb 2022 09:50:07 +0100
-Message-Id: <20220221084925.077466840@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Gurucharan G <gurucharanx.g@intel.com>
+Subject: [PATCH 5.16 189/227] ice: enable parsing IPSEC SPI headers for RSS
+Date:   Mon, 21 Feb 2022 09:50:08 +0100
+Message-Id: <20220221084941.105054926@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jesse Brandeburg <jesse.brandeburg@intel.com>
 
-commit e831c7aba950f3ae94002b10321279654525e5ec upstream.
+commit 86006f996346e8a5a1ea80637ec949ceeea4ecbc upstream.
 
-The pm_runtime_enable will increase power disable depth.
-If the probe fails, we should use pm_runtime_disable() to balance
-pm_runtime_enable().
+The COMMS package can enable the hardware parser to recognize IPSEC
+frames with ESP header and SPI identifier.  If this package is available
+and configured for loading in /lib/firmware, then the driver will
+succeed in enabling this protocol type for RSS.
 
-Fixes: 4f3ceca254e0 ("dmaengine: stm32-dmamux: Add PM Runtime support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20220108085336.11992-1-linmq006@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+This in turn allows the hardware to hash over the SPI and use it to pick
+a consistent receive queue for the same secure flow. Without this all
+traffic is steered to the same queue for multiple traffic threads from
+the same IP address. For that reason this is marked as a fix, as the
+driver supports the model, but it wasn't enabled.
+
+If the package is not available, adding this type will fail, but the
+failure is ignored on purpose as it has no negative affect.
+
+Fixes: c90ed40cefe1 ("ice: Enable writing hardware filtering tables")
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/stm32-dmamux.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_lib.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/dma/stm32-dmamux.c
-+++ b/drivers/dma/stm32-dmamux.c
-@@ -292,10 +292,12 @@ static int stm32_dmamux_probe(struct pla
- 	ret = of_dma_router_register(node, stm32_dmamux_route_allocate,
- 				     &stm32_dmamux->dmarouter);
- 	if (ret)
--		goto err_clk;
-+		goto pm_disable;
+--- a/drivers/net/ethernet/intel/ice/ice_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_lib.c
+@@ -1641,6 +1641,12 @@ static void ice_vsi_set_rss_flow_fld(str
+ 	if (status)
+ 		dev_dbg(dev, "ice_add_rss_cfg failed for sctp6 flow, vsi = %d, error = %s\n",
+ 			vsi_num, ice_stat_str(status));
++
++	status = ice_add_rss_cfg(hw, vsi_handle, ICE_FLOW_HASH_ESP_SPI,
++				 ICE_FLOW_SEG_HDR_ESP);
++	if (status)
++		dev_dbg(dev, "ice_add_rss_cfg failed for esp/spi flow, vsi = %d, error = %d\n",
++			vsi_num, status);
+ }
  
- 	return 0;
- 
-+pm_disable:
-+	pm_runtime_disable(&pdev->dev);
- err_clk:
- 	clk_disable_unprepare(stm32_dmamux->clk);
- 
+ /**
 
 
