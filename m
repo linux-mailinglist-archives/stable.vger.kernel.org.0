@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5301F4BDEAD
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:47:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEB124BE3B0
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:57:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344048AbiBUJiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:38:13 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45644 "EHLO
+        id S235527AbiBUJ7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:59:18 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351085AbiBUJgm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:36:42 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 408EC2CC92;
-        Mon, 21 Feb 2022 01:15:11 -0800 (PST)
+        with ESMTP id S1353519AbiBUJ5b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1228FDF89;
+        Mon, 21 Feb 2022 01:26:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 425DDCE0EAF;
-        Mon, 21 Feb 2022 09:15:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 387C3C36AE2;
-        Mon, 21 Feb 2022 09:15:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A177C61016;
+        Mon, 21 Feb 2022 09:26:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86E15C340E9;
+        Mon, 21 Feb 2022 09:26:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434907;
-        bh=mBFW0v1udwYjkI9mRDNHQtF9GGNt96cBVf2w2wtCggo=;
+        s=korg; t=1645435597;
+        bh=gTQ04QDOxJ+4r8PsB+BEiOsQwripN+5lfxt370p67Sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IEN9oCAVN2TpsH+h4MZVUW5qgHkd5NwIEov1rC5OZROHSxWrfW+0jAEEY6X50EYWM
-         HjXoCf0R9kxpVHGZ9Q/Lue3lGsEvUF8fIATQ7RPhozBw5xE4w4kVM2fMf/N/NtTCpC
-         7cIDkrgRFtB5eFuNIeve+hzlnQx2lskRVEt+LFxg=
+        b=F0Q8o8uCGoK4yancxqRc3jeOLuOf+FRTf6Q1N9xIRHtZX11tJF9nz0hCYNjN033PO
+         dYSrnccdk4SXwBNeZ1vvHz3glRjlx0E+8Zh94u4KW4YuyOQH0xw5RPJKamLbXj1RkA
+         UYV33TuKt6zUtq6TRuYfFiSeSBdmIyV+vBtehCJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 173/196] net: usb: qmi_wwan: Add support for Dell DW5829e
-Date:   Mon, 21 Feb 2022 09:50:05 +0100
-Message-Id: <20220221084936.739925969@linuxfoundation.org>
+        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.16 187/227] scsi: qedi: Fix ABBA deadlock in qedi_process_tmf_resp() and qedi_process_cmd_cleanup_resp()
+Date:   Mon, 21 Feb 2022 09:50:06 +0100
+Message-Id: <20220221084941.030096409@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +57,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 8ecbb179286cbc91810c16caeb3396e06305cd0c ]
+commit f10f582d28220f50099d3f561116256267821429 upstream.
 
-Dell DW5829e same as DW5821e except the CAT level.
-DW5821e supports CAT16 but DW5829e supports CAT9.
-Also, DW5829e includes normal and eSIM type.
-Please see below test evidence:
+This fixes a deadlock added with commit b40f3894e39e ("scsi: qedi: Complete
+TMF works before disconnect")
 
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  5 Spd=5000 MxCh= 0
-D:  Ver= 3.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=413c ProdID=81e6 Rev=03.18
-S:  Manufacturer=Dell Inc.
-S:  Product=DW5829e Snapdragon X20 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+Bug description from Jia-Ju Bai:
 
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  7 Spd=5000 MxCh= 0
-D:  Ver= 3.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=413c ProdID=81e4 Rev=03.18
-S:  Manufacturer=Dell Inc.
-S:  Product=DW5829e-eSIM Snapdragon X20 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+qedi_process_tmf_resp()
+  spin_lock(&session->back_lock); --> Line 201 (Lock A)
+  spin_lock(&qedi_conn->tmf_work_lock); --> Line 230 (Lock B)
 
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Acked-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/20220209024717.8564-1-slark_xiao@163.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+qedi_process_cmd_cleanup_resp()
+  spin_lock_bh(&qedi_conn->tmf_work_lock); --> Line 752 (Lock B)
+  spin_lock_bh(&conn->session->back_lock); --> Line 784 (Lock A)
+
+When qedi_process_tmf_resp() and qedi_process_cmd_cleanup_resp() are
+concurrently executed, the deadlock can occur.
+
+This patch fixes the deadlock by not holding the tmf_work_lock in
+qedi_process_cmd_cleanup_resp while holding the back_lock. The
+tmf_work_lock is only needed while we remove the tmf_work from the
+work_list.
+
+Link: https://lore.kernel.org/r/20220208185448.6206-1-michael.christie@oracle.com
+Fixes: b40f3894e39e ("scsi: qedi: Complete TMF works before disconnect")
+Cc: Manish Rangankar <mrangankar@marvell.com>
+Cc: Nilesh Javali <njavali@marvell.com>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Reported-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/qmi_wwan.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/qedi/qedi_fw.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index 33ada2c59952e..0c7f02ca6822b 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1395,6 +1395,8 @@ static const struct usb_device_id products[] = {
- 	{QMI_FIXED_INTF(0x413c, 0x81d7, 0)},	/* Dell Wireless 5821e */
- 	{QMI_FIXED_INTF(0x413c, 0x81d7, 1)},	/* Dell Wireless 5821e preproduction config */
- 	{QMI_FIXED_INTF(0x413c, 0x81e0, 0)},	/* Dell Wireless 5821e with eSIM support*/
-+	{QMI_FIXED_INTF(0x413c, 0x81e4, 0)},	/* Dell Wireless 5829e with eSIM support*/
-+	{QMI_FIXED_INTF(0x413c, 0x81e6, 0)},	/* Dell Wireless 5829e */
- 	{QMI_FIXED_INTF(0x03f0, 0x4e1d, 8)},	/* HP lt4111 LTE/EV-DO/HSPA+ Gobi 4G Module */
- 	{QMI_FIXED_INTF(0x03f0, 0x9d1d, 1)},	/* HP lt4120 Snapdragon X5 LTE */
- 	{QMI_FIXED_INTF(0x22de, 0x9061, 3)},	/* WeTelecom WPD-600N */
--- 
-2.34.1
-
+--- a/drivers/scsi/qedi/qedi_fw.c
++++ b/drivers/scsi/qedi/qedi_fw.c
+@@ -771,11 +771,10 @@ static void qedi_process_cmd_cleanup_res
+ 			qedi_cmd->list_tmf_work = NULL;
+ 		}
+ 	}
++	spin_unlock_bh(&qedi_conn->tmf_work_lock);
+ 
+-	if (!found) {
+-		spin_unlock_bh(&qedi_conn->tmf_work_lock);
++	if (!found)
+ 		goto check_cleanup_reqs;
+-	}
+ 
+ 	QEDI_INFO(&qedi->dbg_ctx, QEDI_LOG_SCSI_TM,
+ 		  "TMF work, cqe->tid=0x%x, tmf flags=0x%x, cid=0x%x\n",
+@@ -806,7 +805,6 @@ static void qedi_process_cmd_cleanup_res
+ 	qedi_cmd->state = CLEANUP_RECV;
+ unlock:
+ 	spin_unlock_bh(&conn->session->back_lock);
+-	spin_unlock_bh(&qedi_conn->tmf_work_lock);
+ 	wake_up_interruptible(&qedi_conn->wait_queue);
+ 	return;
+ 
 
 
