@@ -2,393 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A2764BE2F2
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:56:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6A974BDC90
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356277AbiBUL02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 06:26:28 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60030 "EHLO
+        id S1356757AbiBULv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 06:51:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356653AbiBUL0P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 06:26:15 -0500
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62163FD30
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 03:22:05 -0800 (PST)
-Received: by mail-pl1-x634.google.com with SMTP id i10so12670789plr.2
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 03:22:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=xyr1RrXpf9+hiRoXeul8L7ckJNrRhL4Hj6uizTnRHOw=;
-        b=PLoUX7dnJRHMMjJZ2iscs180svQgZ7sTvRE4VKFriV+kvgEYQHNP3qQQXrlRPgjCrW
-         2Et83B3u64vwdIRYW5f3IxdJJXu4Texi0mDjw+OI3dfkHaDkZsDaXKagZodHila8jAoB
-         onQ6El26ddCeKRLy8Gv6D3zCcqFO8Smy4pYODtUtJhg6z34Ij6zoi4s0aACbEifXSSfW
-         4cbjajXAWb2qa4RXEjxJaFGFp+OLNvLxOpajVHXZbgL7BzZIAMLP+1bMB9WY3X59VRvx
-         vRFiMAH7K73Cwsl4MNEMQJmqKNmFzSA/9P1FKk6eXAm+CpNgIyTEg8Qxuouw/PMGJavL
-         Ai/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=xyr1RrXpf9+hiRoXeul8L7ckJNrRhL4Hj6uizTnRHOw=;
-        b=y3Z2t1KL5Bk9aew9WnpomP0ZZHuojI/NvblEuAv74jhrHfJm0NTlB5a7769JCSDgq0
-         yZsfBnjQeCKTQOH+Od07m0S+sXAr5S+/JoPO8nb+Z784G/ye+hx4Q1/ySETR9396fU9J
-         QU1PVgpvjMiDKj3T5gWvsj7ufsM+e1y5oeqp4Dt10UqX1zhsX4R+yZESZ3WZI+fte8JC
-         M+jzAQtGZygU93EToH4jptf+Qyh0v6aNB6pgpg6F9xsswpztOe+k2IqaB918+nPKkW62
-         PD8LjTTgf3axd8UntMjvLuQpQRvJuAn1Q9wIuaU0JAbfWBjIZCZBSp1fxtL7Pp0q/73b
-         siSA==
-X-Gm-Message-State: AOAM533RpVL/s8LCKfR21sF+Nw7xxYrxxYtjNpA+rSdAfMevGEbhXC2B
-        0r4IxlhB9IpkpfmbL7cscLyPeuHurW293Axa
-X-Google-Smtp-Source: ABdhPJwBGrrVSngF6e7Hu6WjoA04i4I4qUjlapO4+rgZ8qIc3QnrWF/guoDOiyJSfJS8jEs8ONP0Ww==
-X-Received: by 2002:a17:90a:77cb:b0:1b9:71e4:24a9 with SMTP id e11-20020a17090a77cb00b001b971e424a9mr20802552pjs.234.1645442524686;
-        Mon, 21 Feb 2022 03:22:04 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q22-20020a17090a2e1600b001b9c387d0f5sm7457463pjd.28.2022.02.21.03.22.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Feb 2022 03:22:04 -0800 (PST)
-Message-ID: <621375dc.1c69fb81.7bb19.4d1a@mx.google.com>
-Date:   Mon, 21 Feb 2022 03:22:04 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1356882AbiBULvF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 06:51:05 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57E401EEE9;
+        Mon, 21 Feb 2022 03:50:41 -0800 (PST)
+Received: from ip4d144895.dynamic.kabel-deutschland.de ([77.20.72.149] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1nM7DA-0004w3-Ce; Mon, 21 Feb 2022 12:50:36 +0100
+Message-ID: <72b499e9-4f23-bbf8-f026-4d4e074df268@leemhuis.info>
+Date:   Mon, 21 Feb 2022 12:50:35 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.16
-X-Kernelci-Kernel: v5.16.10-205-gb1b372a8b80e
-Subject: stable-rc/queue/5.16 baseline: 124 runs,
- 8 regressions (v5.16.10-205-gb1b372a8b80e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+Subject: Re: [PATCH] PCI: xgene: Fix IB window setup
+To:     dann frazier <dann.frazier@canonical.com>,
+        Rob Herring <robh@kernel.org>
+Cc:     Toan Le <toan@os.amperecomputing.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?Q?Krzysztof_Wilczy=c5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andrew Murray <amurray@thegoodpenguin.co.uk>,
+        =?UTF-8?Q?St=c3=a9phane_Graber?= <stgraber@ubuntu.com>,
+        stable <stable@vger.kernel.org>, PCI <linux-pci@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>
+References: <20211129173637.303201-1-robh@kernel.org>
+ <Yf2wTLjmcRj+AbDv@xps13.dannf>
+ <CAL_Jsq+4b4Yy8rJGJv9j9j_TCm6mTAkW5fzcDuuW-jOoiZ2GLg@mail.gmail.com>
+ <CALdTtnuK+D7gNbEDgHbrc29pFFCR3XYAHqrK3=X_hQxUx-Seow@mail.gmail.com>
+ <CAL_JsqJUmjG-SiuR9T7f=5nGcSjTLhuF_382EQDf74kcqdAq_w@mail.gmail.com>
+ <YgHFFIRT6E0j9TlX@xps13.dannf>
+ <CAL_JsqJLTkDm_ZbFWSKwKvVAh0KpxiS9y6LEwmhQ-kejTcLq7A@mail.gmail.com>
+ <YgXG838iMrS1l8SC@xps13.dannf>
+Content-Language: en-BS
+In-Reply-To: <YgXG838iMrS1l8SC@xps13.dannf>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1645444241;627a70cd;
+X-HE-SMSGID: 1nM7DA-0004w3-Ce
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.16 baseline: 124 runs, 8 regressions (v5.16.10-205-gb1b37=
-2a8b80e)
+Hi, this is your Linux kernel regression tracker speaking. Top-posting
+for once, to make this easy accessible to everyone.
+
+What's the status of this regression and getting it fixed? It looks like
+there was quite some progress for a while, but then things seem to have
+come to a halt ten days ago. Could anyone please provide a status
+update, please?
+
+Ciao, Thorsten (wearing his 'Linux kernel regression tracker' hat)
+
+P.S.: As a Linux kernel regression tracker I'm getting a lot of reports
+on my table. I can only look briefly into most of them. Unfortunately
+therefore I sometimes will get things wrong or miss something important.
+I hope that's not the case here; if you think it is, don't hesitate to
+tell me about it in a public reply, that's in everyone's interest.
+
+#regzbot poke
+
+
+On 11.02.22 03:16, dann frazier wrote:
+> On Tue, Feb 08, 2022 at 08:34:45AM -0600, Rob Herring wrote:
+>> On Mon, Feb 7, 2022 at 7:19 PM dann frazier <dann.frazier@canonical.com> wrote:
+>>>
+>>> On Mon, Feb 07, 2022 at 10:09:31AM -0600, Rob Herring wrote:
+>>>> On Sat, Feb 5, 2022 at 3:13 PM dann frazier <dann.frazier@canonical.com> wrote:
+>>>>>
+>>>>> On Sat, Feb 5, 2022 at 9:05 AM Rob Herring <robh@kernel.org> wrote:
+>>>>>>
+>>>>>> On Fri, Feb 4, 2022 at 5:01 PM dann frazier <dann.frazier@canonical.com> wrote:
+>>>>>>>
+>>>>>>> On Mon, Nov 29, 2021 at 11:36:37AM -0600, Rob Herring wrote:
+>>>>>>>> Commit 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
+>>>>>>>> broke PCI support on XGene. The cause is the IB resources are now sorted
+>>>>>>>> in address order instead of being in DT dma-ranges order. The result is
+>>>>>>>> which inbound registers are used for each region are swapped. I don't
+>>>>>>>> know the details about this h/w, but it appears that IB region 0
+>>>>>>>> registers can't handle a size greater than 4GB. In any case, limiting
+>>>>>>>> the size for region 0 is enough to get back to the original assignment
+>>>>>>>> of dma-ranges to regions.
+>>>>>>>
+>>>>>>> hey Rob!
+>>>>>>>
+>>>>>>> I've been seeing a panic on HP Moonshoot m400 cartridges (X-Gene1) -
+>>>>>>> only during network installs - that I also bisected down to commit
+>>>>>>> 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup"). I was
+>>>>>>> hoping that this patch that fixed the issue on Stéphane's X-Gene2
+>>>>>>> system would also fix my issue, but no luck. In fact, it seems to just
+>>>>>>> makes it fail differently. Reverting both patches is required to get a
+>>>>>>> v5.17-rc kernel to boot.
+>>>>>>>
+>>>>>>> I've collected the following logs - let me know if anything else would
+>>>>>>> be useful.
+>>>>>>>
+>>>>>>> 1) v5.17-rc2+ (unmodified):
+>>>>>>>    http://dannf.org/bugs/m400-no-reverts.log
+>>>>>>>    Note that the mlx4 driver fails initialization.
+>>>>>>>
+>>>>>>> 2) v5.17-rc2+, w/o the commit that fixed Stéphane's system:
+>>>>>>>    http://dannf.org/bugs/m400-xgene2-fix-reverted.log
+>>>>>>>    Note the mlx4 MSI-X timeout, and later panic.
+>>>>>>>
+>>>>>>> 3) v5.17-rc2+, w/ both commits reverted (works)
+>>>>>>>    http://dannf.org/bugs/m400-both-reverted.log
+>>>>>>
+>>>>>> The ranges and dma-ranges addresses don't appear to match up with any
+>>>>>> upstream dts files. Can you send me the DT?
+>>>>>
+>>>>> Sure: http://dannf.org/bugs/fdt
+>>>>
+>>>> The first fix certainly is a problem. It's going to need something
+>>>> besides size to key off of (originally it was dependent on order of
+>>>> dma-ranges entries).
+>>>>
+>>>> The 2nd issue is the 'dma-ranges' has a second entry that is now ignored:
+>>>>
+>>>> dma-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00>, <0x00
+>>>> 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>>>
+>>>> Based on the flags (3rd addr cell: 0x0), we have an inbound config
+>>>> space which the kernel now ignores because inbound config space
+>>>> accesses make no sense. But clearly some setup is needed. Upstream, in
+>>>> contrast, sets up a memory range that includes this region, so the
+>>>> setup does happen:
+>>>>
+>>>> <0x42000000 0x00 0x00000000 0x00 0x00000000 0x80 0x00000000>
+>>>>
+>>>> Minimally, I suspect it will work if you change dma-ranges 2nd entry to:
+>>>>
+>>>> <0x42000000 0x79000000 0x00 0x79000000 0x00 0x800000>
+>>>
+>>> Thanks for looking into this Rob. I tried to test that theory, but it
+>>> didn't seem to work. This is what I tried:
+>>>
+>>> --- m400.dts    2022-02-07 20:16:44.840475323 +0000
+>>> +++ m400.dts.dmaonly    2022-02-08 00:17:54.097132000 +0000
+>>> @@ -446,7 +446,7 @@
+>>>                         reg = <0x00 0x1f2b0000 0x00 0x10000 0xe0 0xd0000000 0x00 0x200000 0x00 0x79e00000 0x00 0x2000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         reg-names = "csr\0cfg\0msi_gen\0msi_term";
+>>>                         ranges = <0x1000000 0x00 0x00 0xe0 0x10000000 0x00 0x10000 0x2000000 0x00 0x30000000 0xe1 0x30000000 0x00 0x80000000>;
+>>> -                       dma-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x00 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>> +                       dma-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x42000000 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         ib-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x00 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         ib-ranges-ep = <0x2000000 0x00 0x00 0x00 0x00 0x00 0x400000 0x2000000 0x00 0x00 0x00 0x00 0x00 0x400000 0x2000000 0x00 0x79000000 0x00 0x79000000 0x00 0x100000>;
+>>>                         interrupts = <0x00 0x10 0x04>;
+>>> @@ -471,7 +471,7 @@
+>>>                         reg = <0x00 0x1f2c0000 0x00 0x10000 0xd0 0xd0000000 0x00 0x200000 0x00 0x79e00000 0x00 0x2000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         reg-names = "csr\0cfg\0msi_gen\0msi_term";
+>>>                         ranges = <0x1000000 0x00 0x00 0xd0 0x10000000 0x00 0x10000 0x2000000 0x00 0x30000000 0xd1 0x30000000 0x00 0x80000000>;
+>>> -                       dma-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x00 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>> +                       dma-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x42000000 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         ib-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x00 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         ib-ranges-ep = <0x2000000 0x00 0x00 0x00 0x00 0x00 0x400000 0x2000000 0x00 0x00 0x00 0x00 0x00 0x400000 0x2000000 0x00 0x79000000 0x00 0x79000000 0x00 0x100000>;
+>>>                         interrupts = <0x00 0x10 0x04>;
+>>> @@ -496,7 +496,7 @@
+>>>                         reg = <0x00 0x1f2d0000 0x00 0x10000 0x90 0xd0000000 0x00 0x200000 0x00 0x79e00000 0x00 0x2000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         reg-names = "csr\0cfg\0msi_gen\0msi_term";
+>>>                         ranges = <0x1000000 0x00 0x00 0x90 0x10000000 0x00 0x10000 0x2000000 0x00 0x30000000 0x91 0x30000000 0x00 0x80000000>;
+>>> -                       dma-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x00 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>> +                       dma-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x42000000 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         ib-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x00 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         ib-ranges-ep = <0x2000000 0x00 0x00 0x00 0x00 0x00 0x400000 0x2000000 0x00 0x00 0x00 0x00 0x00 0x400000 0x2000000 0x00 0x79000000 0x00 0x79000000 0x00 0x100000>;
+>>>                         interrupts = <0x00 0x10 0x04>;
+>>> @@ -522,7 +522,7 @@
+>>>                         reg = <0x00 0x1f500000 0x00 0x10000 0xa0 0xd0000000 0x00 0x200000 0x00 0x79e00000 0x00 0x2000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         reg-names = "csr\0cfg\0msi_gen\0msi_term";
+>>>                         ranges = <0x2000000 0x00 0x30000000 0xa1 0x30000000 0x00 0x80000000>;
+>>> -                       dma-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x00 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>> +                       dma-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x42000000 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         ib-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x00 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         ib-ranges-ep = <0x2000000 0x00 0x00 0x00 0x00 0x00 0x400000 0x2000000 0x00 0x00 0x00 0x00 0x00 0x400000 0x2000000 0x00 0x79000000 0x00 0x79000000 0x00 0x100000>;
+>>>                         interrupts = <0x00 0x10 0x04>;
+>>> @@ -547,7 +547,7 @@
+>>>                         reg = <0x00 0x1f510000 0x00 0x10000 0xc0 0xd0000000 0x00 0x200000 0x00 0x79e00000 0x00 0x2000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         reg-names = "csr\0cfg\0msi_gen\0msi_term";
+>>>                         ranges = <0x1000000 0x00 0x00 0xc0 0x10000000 0x00 0x10000 0x2000000 0x00 0x30000000 0xc1 0x30000000 0x00 0x80000000>;
+>>> -                       dma-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x00 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>> +                       dma-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x42000000 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         ib-ranges = <0x42000000 0x40 0x00 0x40 0x00 0x40 0x00 0x00 0x00 0x79000000 0x00 0x79000000 0x00 0x800000>;
+>>>                         ib-ranges-ep = <0x2000000 0x00 0x00 0x00 0x00 0x00 0x400000 0x2000000 0x00 0x00 0x00 0x00 0x00 0x400000 0x2000000 0x00 0x79000000 0x00 0x79000000 0x00 0x100000>;
+>>>                         interrupts = <0x00 0x10 0x04>;
+>>>
+>>> And that failed to boot with a 5.17-rc3. Since dma-ranges was
+>>> previously identical to ib-ranges, I also tried making the same change
+>>> to ib-ranges, but with no success.
+>>
+>> Failed to boot at all or just PCIe still didn't work causing boot to
+>> eventually fail?
+> 
+> Sorry, I mean PCIe still didn't work, here's the log:
+>  http://dannf.org/bugs/m400-tweaked_dtb.log
+> (unmodified kernel source w/ above dtb change)
+> 
+>> 'ib-ranges' is unknown to the kernel, so the firmware
+>> is using it somehow?
+>>
+>> You also need to revert the first fix for PCIe to work.
+> 
+> Oh, OK. I misunderstood. I tried reverting commit 6dce5aa59e0b "PCI:
+> xgene: Use inbound resources for setup" along with a dtb with the
+> dma-ranges change in the diff above, but PCIe still didn't
+> work. Here's the log:
+> 
+> http://dannf.org/bugs/m400-6dce5aa5_reverted+tweaked_dtb.log
+> 
+>   -dann
+>   
+>>
+>>>> While we shouldn't break existing DTs, the moonshot DT doesn't use
+>>>> what's documented upstream. There are multiple differences compared to
+>>>> what's documented. Is upstream supposed to support upstream DTs,
+>>>> downstream DTs, and ACPI for XGene which is an abandoned platform with
+>>>> only a handful of users?
+>>>
+>>> That's a fair question, though it's one of a policy, and I feel I'd be
+>>> overstepping by weighing in. I suppose one option I have is to try
+>>> and create and upstream a dts for these systems and modify our
+>>> boot.scr to always load that over the one provided by firmware. While
+>>> we do have some of these systems in production, they are being retired
+>>> and replaced with newer kit over time, and it's possible we'll never
+>>> need to upgrade them to a modern kernel.
+>>>
+>>>   -dann
 
-Regressions Summary
--------------------
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.16/ker=
-nel/v5.16.10-205-gb1b372a8b80e/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.16
-  Describe: v5.16.10-205-gb1b372a8b80e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b1b372a8b80eb3770e51d7ff91c36e4e2ac3f665 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62133d4e2a460e8002c62982
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
-line-qemu_arm64-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
-line-qemu_arm64-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220211.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62133d4e2a460e8002c62=
-983
-        failing since 12 days (last pass: v5.16.7-127-g225efc2847e3, first =
-fail: v5.16.7-127-g3b11c0b71857) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62133d2f352dc93c5ec62993
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/basel=
-ine-qemu_arm64-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/basel=
-ine-qemu_arm64-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220211.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62133d2f352dc93c5ec62=
-994
-        failing since 12 days (last pass: v5.16.7-127-g225efc2847e3, first =
-fail: v5.16.7-127-g3b11c0b71857) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62133ceb17d98ea31dc6298a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
-line-qemu_arm64-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
-line-qemu_arm64-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220211.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62133ceb17d98ea31dc62=
-98b
-        failing since 12 days (last pass: v5.16.7-127-g225efc2847e3, first =
-fail: v5.16.7-127-g3b11c0b71857) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62133cdf17d98ea31dc6297e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/basel=
-ine-qemu_arm64-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/basel=
-ine-qemu_arm64-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220211.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62133cdf17d98ea31dc62=
-97f
-        failing since 12 days (last pass: v5.16.7-127-g225efc2847e3, first =
-fail: v5.16.7-127-g3b11c0b71857) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62133cea17d98ea31dc62987
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
-line-qemu_arm64-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
-line-qemu_arm64-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220211.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62133cea17d98ea31dc62=
-988
-        failing since 12 days (last pass: v5.16.7-127-g225efc2847e3, first =
-fail: v5.16.7-127-g3b11c0b71857) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62133cde17d98ea31dc6297b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/basel=
-ine-qemu_arm64-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/basel=
-ine-qemu_arm64-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220211.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62133cde17d98ea31dc62=
-97c
-        failing since 12 days (last pass: v5.16.7-127-g225efc2847e3, first =
-fail: v5.16.7-127-g3b11c0b71857) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62133ced17d98ea31dc6298d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
-line-qemu_arm64-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
-line-qemu_arm64-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220211.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62133ced17d98ea31dc62=
-98e
-        failing since 12 days (last pass: v5.16.7-127-g225efc2847e3, first =
-fail: v5.16.7-127-g3b11c0b71857) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-               | regressions
----------------------------+-------+--------------+----------+-------------=
----------------+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
-m64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62133ce117d98ea31dc62981
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/basel=
-ine-qemu_arm64-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.10-=
-205-gb1b372a8b80e/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/basel=
-ine-qemu_arm64-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220211.1/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62133ce117d98ea31dc62=
-982
-        failing since 12 days (last pass: v5.16.7-127-g225efc2847e3, first =
-fail: v5.16.7-127-g3b11c0b71857) =
-
- =20
