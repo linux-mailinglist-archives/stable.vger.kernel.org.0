@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 536E44BE07B
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B247D4BDFF8
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346750AbiBUJAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:00:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58130 "EHLO
+        id S1345326AbiBUIxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:53:33 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346949AbiBUI7r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:59:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D93FA26564;
-        Mon, 21 Feb 2022 00:55:16 -0800 (PST)
+        with ESMTP id S1345588AbiBUIwy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:52:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 580B62AC7;
+        Mon, 21 Feb 2022 00:52:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E653B80EB0;
-        Mon, 21 Feb 2022 08:54:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94CA8C340E9;
-        Mon, 21 Feb 2022 08:54:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB81861133;
+        Mon, 21 Feb 2022 08:52:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9E59C340E9;
+        Mon, 21 Feb 2022 08:52:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433675;
-        bh=2q4UXnd3Xm4j8S6LXhTHHIr/l1gojctX/Mcti5T1R18=;
+        s=korg; t=1645433550;
+        bh=5C8MD+mk+Eb5UUBsFV2o0TrobpgLPD9Gi8Eu2lLIYVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mfC59+tWq+6MwLs1KbR8TFRyjyggGe1oCXswzr0x2subU1Sot2Esj8E7fYi5V3k7S
-         uNR8wcWgkj/VkMef+SiMbNi9cbh0GGJv2eUophY4JZn50+cKIlOsC/Dg9WVH4087P8
-         g0hqucPS0HAVzVj3la7g+tHgLsG2VMWIsy/feidk=
+        b=UsgPHbPw24OggaO64eTXc8JcXmPaCxyUA9EMm8xiQpiBsYts5MoDsHau+st+3++vN
+         Q54bFgz86ueLyUihCBxrDRyeSAdLJqpwyef4GSQ28blwMRCbmHhngAAhjX7I4P/Tzj
+         jZ/MU7q1UpdJGo1Ow8lEt0QmADV/NBnVxaq8yK1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eliav Farber <farbere@amazon.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.14 33/45] EDAC: Fix calculation of returned address and next offset in edac_align_ptr()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?= 
+        <zboszor@gmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 31/33] ata: libata-core: Disable TRIM on M88V29
 Date:   Mon, 21 Feb 2022 09:49:24 +0100
-Message-Id: <20220221084911.517804904@linuxfoundation.org>
+Message-Id: <20220221084909.770943733@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
+References: <20220221084908.568970525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eliav Farber <farbere@amazon.com>
+From: Zoltán Böszörményi <zboszor@gmail.com>
 
-commit f8efca92ae509c25e0a4bd5d0a86decea4f0c41e upstream.
+[ Upstream commit c8ea23d5fa59f28302d4e3370c75d9c308e64410 ]
 
-Do alignment logic properly and use the "ptr" local variable for
-calculating the remainder of the alignment.
+This device is a CF card, or possibly an SSD in CF form factor.
+It supports NCQ and high speed DMA.
 
-This became an issue because struct edac_mc_layer has a size that is not
-zero modulo eight, and the next offset that was prepared for the private
-data was unaligned, causing an alignment exception.
+While it also advertises TRIM support, I/O errors are reported
+when the discard mount option fstrim is used. TRIM also fails
+when disabling NCQ and not just as an NCQ command.
 
-The patch in Fixes: which broke this actually wanted to "what we
-actually care about is the alignment of the actual pointer that's about
-to be returned." But it didn't check that alignment.
+TRIM must be disabled for this device.
 
-Use the correct variable "ptr" for that.
-
-  [ bp: Massage commit message. ]
-
-Fixes: 8447c4d15e35 ("edac: Do alignment logic properly in edac_align_ptr()")
-Signed-off-by: Eliav Farber <farbere@amazon.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220113100622.12783-2-farbere@amazon.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Zoltán Böszörményi <zboszor@gmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_mc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/libata-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/edac/edac_mc.c
-+++ b/drivers/edac/edac_mc.c
-@@ -264,7 +264,7 @@ void *edac_align_ptr(void **p, unsigned
- 	else
- 		return (char *)ptr;
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index a92cbe1aa72a2..35db918a1de56 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -4486,6 +4486,7 @@ static const struct ata_blacklist_entry ata_device_blacklist [] = {
  
--	r = (unsigned long)p % align;
-+	r = (unsigned long)ptr % align;
+ 	/* devices that don't properly handle TRIM commands */
+ 	{ "SuperSSpeed S238*",		NULL,	ATA_HORKAGE_NOTRIM, },
++	{ "M88V29*",			NULL,	ATA_HORKAGE_NOTRIM, },
  
- 	if (r == 0)
- 		return (char *)ptr;
+ 	/*
+ 	 * As defined, the DRAT (Deterministic Read After Trim) and RZAT
+-- 
+2.34.1
+
 
 
