@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2683A4BDBF5
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD2C54BDC89
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244345AbiBUJuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:50:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43542 "EHLO
+        id S1349934AbiBUJ2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:28:45 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352887AbiBUJsA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44CE6193EC;
-        Mon, 21 Feb 2022 01:20:59 -0800 (PST)
+        with ESMTP id S1349196AbiBUJ1g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:36 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 328F8237D7;
+        Mon, 21 Feb 2022 01:12:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4659608C4;
-        Mon, 21 Feb 2022 09:20:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8152C340E9;
-        Mon, 21 Feb 2022 09:20:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A514DCE0E88;
+        Mon, 21 Feb 2022 09:12:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1576C340E9;
+        Mon, 21 Feb 2022 09:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435258;
-        bh=bN043WedEhBYdSu+Ret7cNF7R/i2stufqlZsoE2K6Es=;
+        s=korg; t=1645434755;
+        bh=qdKhP+Yu3uEce58zCR/FGGWQkn0rFoSPSBzckS41AFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=teak/tgj4gnJFFmOuILb/GUQNQXIw0/Ealqsu06K4E6zZgE2juWcJqnW16nIgtkGA
-         K2hn5DmHQNNTTyh9VjWj89iGMX2tI/L43I9xPWzkt32zchSvapHCklUA5bYwZffJBu
-         NIoJ4leV38dQSCyXPpU7fRpCtz0y+eAop2ksECjg=
+        b=w3TYtWOX7VcDnB2USDFGzyybGIW+hh9b0SaRdXzlTiYSlLTO7lcgWVZaWmEIZrIsV
+         9DIEBeqpiG8pzO2uwnYYXVNA7QTwds24h+iMB1wa+4wGDn8p6W9Xb0WcqF+V0RmN2H
+         OHSyMh/Z2/5Sm1s9e6sVkfc9JqBn0U7h9upnXOxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Chen <yiche@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.16 100/227] selftests: netfilter: disable rp_filter on router
+        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.15 087/196] brcmfmac: firmware: Fix crash in brcm_alt_fw_path
 Date:   Mon, 21 Feb 2022 09:48:39 +0100
-Message-Id: <20220221084938.206979851@linuxfoundation.org>
+Message-Id: <20220221084933.841627872@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Phil Elwell <phil@raspberrypi.com>
 
-commit bbe4c0896d25009a7c86285d2ab024eed4374eea upstream.
+commit 665408f4c3a5c83e712871daa062721624b2b79e upstream.
 
-Some distros may enable rp_filter by default. After ns1 change addr to
-10.0.2.99 and set default router to 10.0.2.1, while the connected router
-address is still 10.0.1.1. The router will not reply the arp request
-from ns1. Fix it by setting the router's veth0 rp_filter to 0.
+The call to brcm_alt_fw_path in brcmf_fw_get_firmwares is not protected
+by a check to the validity of the fwctx->req->board_type pointer. This
+results in a crash in strlcat when, for example, the WLAN chip is found
+in a USB dongle.
 
-Before the fix:
-  # ./nft_fib.sh
-  PASS: fib expression did not cause unwanted packet drops
-  Netns nsrouter-HQkDORO2 fib counter doesn't match expected packet count of 1 for 1.1.1.1
-  table inet filter {
-          chain prerouting {
-                  type filter hook prerouting priority filter; policy accept;
-                  ip daddr 1.1.1.1 fib saddr . iif oif missing counter packets 0 bytes 0 drop
-                  ip6 daddr 1c3::c01d fib saddr . iif oif missing counter packets 0 bytes 0 drop
-          }
-  }
+Prevent the crash by adding the necessary check.
 
-After the fix:
-  # ./nft_fib.sh
-  PASS: fib expression did not cause unwanted packet drops
-  PASS: fib expression did drop packets for 1.1.1.1
-  PASS: fib expression did drop packets for 1c3::c01d
+See: https://github.com/raspberrypi/linux/issues/4833
 
-Fixes: 82944421243e ("selftests: netfilter: add fib test case")
-Signed-off-by: Yi Chen <yiche@redhat.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 5ff013914c62 ("brcmfmac: firmware: Allow per-board firmware binaries")
+Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220118154514.3245524-1-phil@raspberrypi.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/netfilter/nft_fib.sh |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/tools/testing/selftests/netfilter/nft_fib.sh
-+++ b/tools/testing/selftests/netfilter/nft_fib.sh
-@@ -174,6 +174,7 @@ test_ping() {
- ip netns exec ${nsrouter} sysctl net.ipv6.conf.all.forwarding=1 > /dev/null
- ip netns exec ${nsrouter} sysctl net.ipv4.conf.veth0.forwarding=1 > /dev/null
- ip netns exec ${nsrouter} sysctl net.ipv4.conf.veth1.forwarding=1 > /dev/null
-+ip netns exec ${nsrouter} sysctl net.ipv4.conf.veth0.rp_filter=0 > /dev/null
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+@@ -693,7 +693,7 @@ int brcmf_fw_get_firmwares(struct device
+ {
+ 	struct brcmf_fw_item *first = &req->items[0];
+ 	struct brcmf_fw *fwctx;
+-	char *alt_path;
++	char *alt_path = NULL;
+ 	int ret;
  
- sleep 3
+ 	brcmf_dbg(TRACE, "enter: dev=%s\n", dev_name(dev));
+@@ -712,7 +712,9 @@ int brcmf_fw_get_firmwares(struct device
+ 	fwctx->done = fw_cb;
  
+ 	/* First try alternative board-specific path if any */
+-	alt_path = brcm_alt_fw_path(first->path, fwctx->req->board_type);
++	if (fwctx->req->board_type)
++		alt_path = brcm_alt_fw_path(first->path,
++					    fwctx->req->board_type);
+ 	if (alt_path) {
+ 		ret = request_firmware_nowait(THIS_MODULE, true, alt_path,
+ 					      fwctx->dev, GFP_KERNEL, fwctx,
 
 
