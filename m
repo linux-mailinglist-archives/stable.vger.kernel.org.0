@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE1454BE189
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC7E24BE53F
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:00:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352284AbiBUJzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:55:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57250 "EHLO
+        id S1347516AbiBUJJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:09:08 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352328AbiBUJzK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:55:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23EF538792;
-        Mon, 21 Feb 2022 01:24:09 -0800 (PST)
+        with ESMTP id S1347773AbiBUJIe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:08:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 248FE3205A;
+        Mon, 21 Feb 2022 01:00:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C600AB80EB9;
-        Mon, 21 Feb 2022 09:24:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8830C340E9;
-        Mon, 21 Feb 2022 09:24:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D211EB80EB7;
+        Mon, 21 Feb 2022 09:00:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EBE3C340E9;
+        Mon, 21 Feb 2022 09:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435446;
-        bh=kPsipjtm5BFbOtdKq1wVwjsC6HImBrZUVW4TMQmoygI=;
+        s=korg; t=1645434018;
+        bh=56qsthHrRBoFHqDWWpaeZQq+7/bpnQRvecrGixEmZW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=av8480uENwpCN3B6p0CT0l9pk8bEliQvLFtrJz3JpQMoPtgCCx8gef4t3OTbsRJX6
-         PQtM1i5yuGRL0fLQ474LPdS9hmkk7Mcmbh+kSwAQ8aDcsGGBYINf99JdkCf32DnH13
-         BRAUnp0y+0KYP4Qc8WM83KI1cNXk9Ch0duTzkse8=
+        b=0Ok8n8v4OZcI5ZyC1uDdTN1sVtlCyEgSIF3Gzq14lZEkyufP0ZhsL8i87vhfzP5xI
+         fHyZPIw+/HKTuBe0I5hn/GV47drtWYWf0fQnL+zbhujm7g+vxPrfCHwFyAyWuP6YmD
+         a5M6R301q3qh25DdiWTMJlZ9WRDLBxEL4LSIEHaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ansuel Smith <ansuelsmth@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.16 166/227] mtd: parsers: qcom: Fix kernel panic on skipped partition
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Juan Vazquez <juvazq@linux.microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 65/80] Drivers: hv: vmbus: Fix memory leak in vmbus_add_channel_kobj
 Date:   Mon, 21 Feb 2022 09:49:45 +0100
-Message-Id: <20220221084940.343157397@linuxfoundation.org>
+Message-Id: <20220221084917.715623302@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,106 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ansuel Smith <ansuelsmth@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 65d003cca335cabc0160d3cd7daa689eaa9dd3cd upstream.
+[ Upstream commit 8bc69f86328e87a0ffa79438430cc82f3aa6a194 ]
 
-In the event of a skipped partition (case when the entry name is empty)
-the kernel panics in the cleanup function as the name entry is NULL.
-Rework the parser logic by first checking the real partition number and
-then allocate the space and set the data for the valid partitions.
+kobject_init_and_add() takes reference even when it fails.
+According to the doc of kobject_init_and_add()：
 
-The logic was also fundamentally wrong as with a skipped partition, the
-parts number returned was incorrect by not decreasing it for the skipped
-partitions.
+   If this function returns an error, kobject_put() must be called to
+   properly clean up the memory associated with the object.
 
-Fixes: 803eb124e1a6 ("mtd: parsers: Add Qcom SMEM parser")
-Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220116032211.9728-1-ansuelsmth@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix memory leak by calling kobject_put().
+
+Fixes: c2e5df616e1a ("vmbus: add per-channel sysfs info")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Juan Vazquez <juvazq@linux.microsoft.com>
+Link: https://lore.kernel.org/r/20220203173008.43480-1-linmq006@gmail.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/parsers/qcomsmempart.c |   31 +++++++++++++++++++------------
- 1 file changed, 19 insertions(+), 12 deletions(-)
+ drivers/hv/vmbus_drv.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/parsers/qcomsmempart.c
-+++ b/drivers/mtd/parsers/qcomsmempart.c
-@@ -58,11 +58,11 @@ static int parse_qcomsmem_part(struct mt
- 			       const struct mtd_partition **pparts,
- 			       struct mtd_part_parser_data *data)
- {
-+	size_t len = SMEM_FLASH_PTABLE_HDR_LEN;
-+	int ret, i, j, tmpparts, numparts = 0;
- 	struct smem_flash_pentry *pentry;
- 	struct smem_flash_ptable *ptable;
--	size_t len = SMEM_FLASH_PTABLE_HDR_LEN;
- 	struct mtd_partition *parts;
--	int ret, i, numparts;
- 	char *name, *c;
- 
- 	if (IS_ENABLED(CONFIG_MTD_SPI_NOR_USE_4K_SECTORS)
-@@ -87,8 +87,8 @@ static int parse_qcomsmem_part(struct mt
- 	}
- 
- 	/* Ensure that # of partitions is less than the max we have allocated */
--	numparts = le32_to_cpu(ptable->numparts);
--	if (numparts > SMEM_FLASH_PTABLE_MAX_PARTS_V4) {
-+	tmpparts = le32_to_cpu(ptable->numparts);
-+	if (tmpparts > SMEM_FLASH_PTABLE_MAX_PARTS_V4) {
- 		pr_err("Partition numbers exceed the max limit\n");
- 		return -EINVAL;
- 	}
-@@ -116,11 +116,17 @@ static int parse_qcomsmem_part(struct mt
- 		return PTR_ERR(ptable);
- 	}
- 
-+	for (i = 0; i < tmpparts; i++) {
-+		pentry = &ptable->pentry[i];
-+		if (pentry->name[0] != '\0')
-+			numparts++;
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 2d2568dac2a66..6b7ab8f234e87 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -1787,8 +1787,10 @@ int vmbus_add_channel_kobj(struct hv_device *dev, struct vmbus_channel *channel)
+ 	kobj->kset = dev->channels_kset;
+ 	ret = kobject_init_and_add(kobj, &vmbus_chan_ktype, NULL,
+ 				   "%u", relid);
+-	if (ret)
++	if (ret) {
++		kobject_put(kobj);
+ 		return ret;
 +	}
-+
- 	parts = kcalloc(numparts, sizeof(*parts), GFP_KERNEL);
- 	if (!parts)
- 		return -ENOMEM;
  
--	for (i = 0; i < numparts; i++) {
-+	for (i = 0, j = 0; i < tmpparts; i++) {
- 		pentry = &ptable->pentry[i];
- 		if (pentry->name[0] == '\0')
- 			continue;
-@@ -135,24 +141,25 @@ static int parse_qcomsmem_part(struct mt
- 		for (c = name; *c != '\0'; c++)
- 			*c = tolower(*c);
+ 	ret = sysfs_create_group(kobj, &vmbus_chan_group);
  
--		parts[i].name = name;
--		parts[i].offset = le32_to_cpu(pentry->offset) * mtd->erasesize;
--		parts[i].mask_flags = pentry->attr;
--		parts[i].size = le32_to_cpu(pentry->length) * mtd->erasesize;
-+		parts[j].name = name;
-+		parts[j].offset = le32_to_cpu(pentry->offset) * mtd->erasesize;
-+		parts[j].mask_flags = pentry->attr;
-+		parts[j].size = le32_to_cpu(pentry->length) * mtd->erasesize;
- 		pr_debug("%d: %s offs=0x%08x size=0x%08x attr:0x%08x\n",
- 			 i, pentry->name, le32_to_cpu(pentry->offset),
- 			 le32_to_cpu(pentry->length), pentry->attr);
-+		j++;
+@@ -1797,6 +1799,7 @@ int vmbus_add_channel_kobj(struct hv_device *dev, struct vmbus_channel *channel)
+ 		 * The calling functions' error handling paths will cleanup the
+ 		 * empty channel directory.
+ 		 */
++		kobject_put(kobj);
+ 		dev_err(device, "Unable to set up channel sysfs files\n");
+ 		return ret;
  	}
- 
- 	pr_debug("SMEM partition table found: ver: %d len: %d\n",
--		 le32_to_cpu(ptable->version), numparts);
-+		 le32_to_cpu(ptable->version), tmpparts);
- 	*pparts = parts;
- 
- 	return numparts;
- 
- out_free_parts:
--	while (--i >= 0)
--		kfree(parts[i].name);
-+	while (--j >= 0)
-+		kfree(parts[j].name);
- 	kfree(parts);
- 	*pparts = NULL;
- 
+-- 
+2.34.1
+
 
 
