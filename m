@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 091A74BE772
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CE974BE9C6
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:08:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348047AbiBUJKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:10:41 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36066 "EHLO
+        id S1344336AbiBUJu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:50:28 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347862AbiBUJJe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD810BCB6;
-        Mon, 21 Feb 2022 01:01:50 -0800 (PST)
+        with ESMTP id S1352780AbiBUJry (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:54 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1833143EE6;
+        Mon, 21 Feb 2022 01:20:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40F8D6112B;
-        Mon, 21 Feb 2022 09:01:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 275E5C340E9;
-        Mon, 21 Feb 2022 09:01:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7ABE8CE0E7A;
+        Mon, 21 Feb 2022 09:20:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62F43C340E9;
+        Mon, 21 Feb 2022 09:20:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434109;
-        bh=jpZH6xrh9hccXtiZXWyWHqnt+rfjkT9gFkXP6XsvMPw=;
+        s=korg; t=1645435224;
+        bh=el3CFeUVm30INR3zTOAQtFL7itAtHKIRWEsTcnAERWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=agi0BXEy6NlT8XYmL8wETOH7xpSsoQazZ4zTgYwXV1AqcwxYXzz7lyInjXkmIPBOC
-         I4TNr0Ti5sNuxPgkJfICg5U+yQMz/8+jdg9OzR0PT9MoOyzZQY6qD8DKzh28z4gkEB
-         u8omsYIJydnyfpooHt1QLJ0f+LCnT2dU9nn7CnZU=
+        b=TLjISFWsjppRHtwmMFuwCOIhFwebjlPPtYC47g1Zy7+UlVHdwXCUZKjK2zyYHdVST
+         ZYZN2fmHllIFZ1LouydBTQyN3fIuXUkZCwLPecsF2e2rOK+ZXeBFEPi0xa8uoeS+XW
+         90qtzzHSeNuO2FmgnpGRt+rdh+gw2fpoLWGOD2/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Oded Gabbay <oded.gabbay@gmail.com>
-Subject: [PATCH 5.10 016/121] mm: dont try to NUMA-migrate COW pages that have other uses
+        stable@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Subject: [PATCH 5.16 089/227] drm/cma-helper: Set VM_DONTEXPAND for mmap
 Date:   Mon, 21 Feb 2022 09:48:28 +0100
-Message-Id: <20220221084921.697909406@linuxfoundation.org>
+Message-Id: <20220221084937.836469644@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,75 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Robin Murphy <robin.murphy@arm.com>
 
-commit 80d47f5de5e311cbc0d01ebb6ee684e8f4c196c6 upstream.
+commit 59f39bfa6553d598cb22f694d45e89547f420d85 upstream.
 
-Oded Gabbay reports that enabling NUMA balancing causes corruption with
-his Gaudi accelerator test load:
+drm_gem_cma_mmap() cannot assume every implementation of dma_mmap_wc()
+will end up calling remap_pfn_range() (which happens to set the relevant
+vma flag, among others), so in order to make sure expectations around
+VM_DONTEXPAND are met, let it explicitly set the flag like most other
+GEM mmap implementations do.
 
- "All the details are in the bug, but the bottom line is that somehow,
-  this patch causes corruption when the numa balancing feature is
-  enabled AND we don't use process affinity AND we use GUP to pin pages
-  so our accelerator can DMA to/from system memory.
+This avoids repeated warnings on a small minority of systems where the
+display is behind an IOMMU, and has a simple driver which does not
+override drm_gem_cma_default_funcs. Arm hdlcd is an in-tree affected
+driver. Out-of-tree, the Apple DCP driver is affected; this fix is
+required for DCP to be mainlined.
 
-  Either disabling numa balancing, using process affinity to bind to
-  specific numa-node or reverting this patch causes the bug to
-  disappear"
+[Alyssa: Update commit message.]
 
-and Oded bisected the issue to commit 09854ba94c6a ("mm: do_wp_page()
-simplification").
-
-Now, the NUMA balancing shouldn't actually be changing the writability
-of a page, and as such shouldn't matter for COW.  But it appears it
-does.  Suspicious.
-
-However, regardless of that, the condition for enabling NUMA faults in
-change_pte_range() is nonsensical.  It uses "page_mapcount(page)" to
-decide if a COW page should be NUMA-protected or not, and that makes
-absolutely no sense.
-
-The number of mappings a page has is irrelevant: not only does GUP get a
-reference to a page as in Oded's case, but the other mappings migth be
-paged out and the only reference to them would be in the page count.
-
-Since we should never try to NUMA-balance a page that we can't move
-anyway due to other references, just fix the code to use 'page_count()'.
-Oded confirms that that fixes his issue.
-
-Now, this does imply that something in NUMA balancing ends up changing
-page protections (other than the obvious one of making the page
-inaccessible to get the NUMA faulting information).  Otherwise the COW
-simplification wouldn't matter - since doing the GUP on the page would
-make sure it's writable.
-
-The cause of that permission change would be good to figure out too,
-since it clearly results in spurious COW events - but fixing the
-nonsensical test that just happened to work before is obviously the
-CorrectThing(tm) to do regardless.
-
-Fixes: 09854ba94c6a ("mm: do_wp_page() simplification")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215616
-Link: https://lore.kernel.org/all/CAFCwf10eNmwq2wD71xjUhqkvv5+_pJMR1nPug2RqNDcFT4H86Q@mail.gmail.com/
-Reported-and-tested-by: Oded Gabbay <oded.gabbay@gmail.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Peter Xu <peterx@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: c40069cb7bd6 ("drm: add mmap() to drm_gem_object_funcs")
+Acked-by: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211013143654.39031-1-alyssa@rosenzweig.io
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mprotect.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_gem_cma_helper.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/mprotect.c
-+++ b/mm/mprotect.c
-@@ -94,7 +94,7 @@ static unsigned long change_pte_range(st
+--- a/drivers/gpu/drm/drm_gem_cma_helper.c
++++ b/drivers/gpu/drm/drm_gem_cma_helper.c
+@@ -518,6 +518,7 @@ int drm_gem_cma_mmap(struct drm_gem_obje
+ 	 */
+ 	vma->vm_pgoff -= drm_vma_node_start(&obj->vma_node);
+ 	vma->vm_flags &= ~VM_PFNMAP;
++	vma->vm_flags |= VM_DONTEXPAND;
  
- 				/* Also skip shared copy-on-write pages */
- 				if (is_cow_mapping(vma->vm_flags) &&
--				    page_mapcount(page) != 1)
-+				    page_count(page) != 1)
- 					continue;
+ 	cma_obj = to_drm_gem_cma_obj(obj);
  
- 				/*
 
 
