@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86C084BE902
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:06:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 975DA4BE19B
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347666AbiBUJJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:09:40 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36146 "EHLO
+        id S238811AbiBUJN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:13:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347668AbiBUJI7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:08:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F4B51110;
-        Mon, 21 Feb 2022 01:01:00 -0800 (PST)
+        with ESMTP id S1349961AbiBUJNF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:13:05 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89B482DD41;
+        Mon, 21 Feb 2022 01:06:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C9EFB80EAF;
-        Mon, 21 Feb 2022 09:00:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99D10C340E9;
-        Mon, 21 Feb 2022 09:00:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 05464CE0E8C;
+        Mon, 21 Feb 2022 09:06:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EACA7C340E9;
+        Mon, 21 Feb 2022 09:06:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434058;
-        bh=yeyqDJlMEt+4yzU6WmDQQiir8Jj+abTOVCAaaeSLr5Q=;
+        s=korg; t=1645434369;
+        bh=RNW58nSsRsrieD9LQbLqGoEK92RO06a2eAk7Sjr86jQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XSDqj6/LynmVIdbuwcroYAjO8IIV0dsvqYotXvtw+h2NGLGRJnbDZMAQSQ2Mc3J3J
-         tt0FiCtR41ckdrSzNIXAhTVmn70aFoTL5zNCrIlETg5X3w54RXq3Af4zbWd16e/Q+n
-         715pWza6aU7Ihn4tKxwLouxXqpsa2NEcwWFxP5K4=
+        b=e7yL3bqRmT1a3yRZ2E6C+BGYXbCO3U0lRRagKrSGzsqLwPFp3OwL+IULrAvVOC0t5
+         mktAgNH/35DRSjLRISDG66hnpIp0CsY7spwhACYZffSFjrmE6CrYnYJ1zVnToh/FxS
+         2YAkpix4i0dvuR5XgMyUm8uCRu93RlwrkdEpjThM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, JaeSang Yoo <jsyoo5b@gmail.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 77/80] tracing: Fix tp_printk option related with tp_printk_stop_on_boot
-Date:   Mon, 21 Feb 2022 09:49:57 +0100
-Message-Id: <20220221084918.105304722@linuxfoundation.org>
+Subject: [PATCH 5.10 106/121] drm/rockchip: dw_hdmi: Do not leave clock enabled in error case
+Date:   Mon, 21 Feb 2022 09:49:58 +0100
+Message-Id: <20220221084924.771185292@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: JaeSang Yoo <js.yoo.5b@gmail.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit 3203ce39ac0b2a57a84382ec184c7d4a0bede175 ]
+[ Upstream commit c0cfbb122275da1b726481de5a8cffeb24e6322b ]
 
-The kernel parameter "tp_printk_stop_on_boot" starts with "tp_printk" which is
-the same as another kernel parameter "tp_printk". If "tp_printk" setup is
-called before the "tp_printk_stop_on_boot", it will override the latter
-and keep it from being set.
+The driver returns an error when devm_phy_optional_get() fails leaving
+the previously enabled clock turned on. Change order and enable the
+clock only after the phy has been acquired.
 
-This is similar to other kernel parameter issues, such as:
-  Commit 745a600cf1a6 ("um: console: Ignore console= option")
-or init/do_mounts.c:45 (setup function of "ro" kernel param)
-
-Fix it by checking for a "_" right after the "tp_printk" and if that
-exists do not process the parameter.
-
-Link: https://lkml.kernel.org/r/20220208195421.969326-1-jsyoo5b@gmail.com
-
-Signed-off-by: JaeSang Yoo <jsyoo5b@gmail.com>
-[ Fixed up change log and added space after if condition ]
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220126145549.617165-3-s.hauer@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 5a4dfb55ba16b..615259d8fa9ad 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -236,6 +236,10 @@ __setup("trace_clock=", set_trace_boot_clock);
+diff --git a/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c b/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
+index 23de359a1dec6..515e6f187dc77 100644
+--- a/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
++++ b/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
+@@ -529,13 +529,6 @@ static int dw_hdmi_rockchip_bind(struct device *dev, struct device *master,
+ 		return ret;
+ 	}
  
- static int __init set_tracepoint_printk(char *str)
- {
-+	/* Ignore the "tp_printk_stop_on_boot" param */
-+	if (*str == '_')
-+		return 0;
+-	ret = clk_prepare_enable(hdmi->vpll_clk);
+-	if (ret) {
+-		DRM_DEV_ERROR(hdmi->dev, "Failed to enable HDMI vpll: %d\n",
+-			      ret);
+-		return ret;
+-	}
+-
+ 	hdmi->phy = devm_phy_optional_get(dev, "hdmi");
+ 	if (IS_ERR(hdmi->phy)) {
+ 		ret = PTR_ERR(hdmi->phy);
+@@ -544,6 +537,13 @@ static int dw_hdmi_rockchip_bind(struct device *dev, struct device *master,
+ 		return ret;
+ 	}
+ 
++	ret = clk_prepare_enable(hdmi->vpll_clk);
++	if (ret) {
++		DRM_DEV_ERROR(hdmi->dev, "Failed to enable HDMI vpll: %d\n",
++			      ret);
++		return ret;
++	}
 +
- 	if ((strcmp(str, "=0") != 0 && strcmp(str, "=off") != 0))
- 		tracepoint_printk = 1;
- 	return 1;
+ 	drm_encoder_helper_add(encoder, &dw_hdmi_rockchip_encoder_helper_funcs);
+ 	drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_TMDS);
+ 
 -- 
 2.34.1
 
