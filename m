@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA7304BDD51
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:45:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D69C4BE13D
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345534AbiBUJvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:51:44 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60898 "EHLO
+        id S1346789AbiBUJAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:00:07 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351781AbiBUJqh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:46:37 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C341403DD;
-        Mon, 21 Feb 2022 01:18:41 -0800 (PST)
+        with ESMTP id S1346934AbiBUI7p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:59:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C2692613F;
+        Mon, 21 Feb 2022 00:55:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 581B2CE0E96;
-        Mon, 21 Feb 2022 09:13:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41596C340EB;
-        Mon, 21 Feb 2022 09:13:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18CA36113E;
+        Mon, 21 Feb 2022 08:54:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9F1BC340E9;
+        Mon, 21 Feb 2022 08:54:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434814;
-        bh=cpdzsA5c5JM7G2P5UtQuYbH2avba+bmbzjIUFc05maI=;
+        s=korg; t=1645433652;
+        bh=76N9Jpv3lPzZqSOgH99gJE2ukwlxN4IW0ahXY5jT7gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=muD55ckLCTXmeMFDdsDpQoLug+Cl9rhZe/LLdgZedOGt8whoo4zh78DjbYwON49mp
-         s2y77dVX9DspcdvIlcexN1Zd0yBKkHyMcHZc3dMY9cNxV/qXDL+oObUtrcOtgBWLhJ
-         T2j2Ygvg83aG3b0g4DMjNonOHSBkGSElQLdhDUz0=
+        b=NAidlvsrftHXJP2VQAKtITAfJyWYLxusMXBoUmwvZfOReCo6+s/WFsJxwE+lt7TTK
+         4rFlP/LqTVFgHoiaQbWCL0fyMVh464Fe28T3NUqAVTlFBGUefAFSdG+D+3+UHQN+DX
+         y/DojKoDpO/H2gHDQRMKduDOTAJOFnhpDQVE4dDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, david regan <dregan@mail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.15 140/196] mtd: rawnand: brcmnand: Fixed incorrect sub-page ECC status
+        stable@vger.kernel.org, Wan Jiabing <wanjiabing@vivo.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 41/45] ARM: OMAP2+: hwmod: Add of_node_put() before break
 Date:   Mon, 21 Feb 2022 09:49:32 +0100
-Message-Id: <20220221084935.608785455@linuxfoundation.org>
+Message-Id: <20220221084911.787862017@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
+References: <20220221084910.454824160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: david regan <dregan@mail.com>
+From: Wan Jiabing <wanjiabing@vivo.com>
 
-commit 36415a7964711822e63695ea67fede63979054d9 upstream.
+[ Upstream commit 80c469a0a03763f814715f3d12b6f3964c7423e8 ]
 
-The brcmnand driver contains a bug in which if a page (example 2k byte)
-is read from the parallel/ONFI NAND and within that page a subpage (512
-byte) has correctable errors which is followed by a subpage with
-uncorrectable errors, the page read will return the wrong status of
-correctable (as opposed to the actual status of uncorrectable.)
+Fix following coccicheck warning:
+./arch/arm/mach-omap2/omap_hwmod.c:753:1-23: WARNING: Function
+for_each_matching_node should have of_node_put() before break
 
-The bug is in function brcmnand_read_by_pio where there is a check for
-uncorrectable bits which will be preempted if a previous status for
-correctable bits is detected.
+Early exits from for_each_matching_node should decrement the
+node reference counter.
 
-The fix is to stop checking for bad bits only if we already have a bad
-bits status.
-
-Fixes: 27c5b17cd1b1 ("mtd: nand: add NAND driver "library" for Broadcom STB NAND controller")
-Signed-off-by: david regan <dregan@mail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/trinity-478e0c09-9134-40e8-8f8c-31c371225eda-1643237024774@3c-app-mailcom-lxa02
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/brcmnand/brcmnand.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-omap2/omap_hwmod.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-+++ b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-@@ -2106,7 +2106,7 @@ static int brcmnand_read_by_pio(struct m
- 					mtd->oobsize / trans,
- 					host->hwcfg.sector_size_1k);
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index 9274a484c6a39..f6afd866e4cf9 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -768,8 +768,10 @@ static int _init_clkctrl_providers(void)
  
--		if (!ret) {
-+		if (ret != -EBADMSG) {
- 			*err_addr = brcmnand_get_uncorrecc_addr(ctrl);
+ 	for_each_matching_node(np, ti_clkctrl_match_table) {
+ 		ret = _setup_clkctrl_provider(np);
+-		if (ret)
++		if (ret) {
++			of_node_put(np);
+ 			break;
++		}
+ 	}
  
- 			if (*err_addr)
+ 	return ret;
+-- 
+2.34.1
+
 
 
