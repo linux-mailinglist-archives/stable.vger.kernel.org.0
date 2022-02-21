@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D53BE4BE01F
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 879054BDF38
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:49:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351675AbiBUJub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:50:31 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43810 "EHLO
+        id S1346007AbiBUIzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:55:03 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350932AbiBUJsf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:35 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F3FD31903;
-        Mon, 21 Feb 2022 01:22:29 -0800 (PST)
+        with ESMTP id S1346019AbiBUIyn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:54:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72B455B0;
+        Mon, 21 Feb 2022 00:53:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C9574CE0E9F;
-        Mon, 21 Feb 2022 09:22:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF8D5C340EB;
-        Mon, 21 Feb 2022 09:22:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4BF59B80EB0;
+        Mon, 21 Feb 2022 08:53:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72D23C340E9;
+        Mon, 21 Feb 2022 08:53:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435346;
-        bh=VLLiuLRtlIOdNKwOXTrIBHRlol07DVdf54qswhdIWCI=;
+        s=korg; t=1645433590;
+        bh=dqhZXcYGSmYEY2QiI4bfsAYG/h1pQHli22DXouIR2yE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/JB8SDqupbHfWr1PgwXJVaAfOYLJ4CY5NghQwn6pFdBoTi9XmlenN52XvMIBRCYX
-         cTu4k4FOAgZbWXSwlu+/I5vSUyvO6hw29f/bD4gECGIVwkax6S97x8sYtbMftf85X/
-         nhhzc/7n2NF0b2cXZoAzV/c0HigjCdrhg1rJr9Z0=
+        b=j9KhWqUB4SlHwGDpR0c4BQRGTUovdV9v+iNSsS3BDmhjYE0HgGGHcY2FotpHF90bh
+         wFXST0WrgPU6b2lHYPiMn53vNGFdldX76MjLlhGt0jguDoEQDi5QPXXkcvVhtLe050
+         IsHwFs/SV0TZA6/HkZwdVV0BYaoXR8ymjGkYz97c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oleksandr Mazur <oleksandr.mazur@plvision.eu>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 131/227] net: bridge: multicast: notify switchdev driver whenever MC processing gets disabled
+Subject: [PATCH 4.14 19/45] vsock: remove vsock from connected table when connect is interrupted by a signal
 Date:   Mon, 21 Feb 2022 09:49:10 +0100
-Message-Id: <20220221084939.208173805@linuxfoundation.org>
+Message-Id: <20220221084911.083294445@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
+References: <20220221084910.454824160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Mazur <oleksandr.mazur@plvision.eu>
+From: Seth Forshee <sforshee@digitalocean.com>
 
-commit c832962ac972082b3a1f89775c9d4274c8cb5670 upstream.
+commit b9208492fcaecff8f43915529ae34b3bcb03877c upstream.
 
-Whenever bridge driver hits the max capacity of MDBs, it disables
-the MC processing (by setting corresponding bridge option), but never
-notifies switchdev about such change (the notifiers are called only upon
-explicit setting of this option, through the registered netlink interface).
+vsock_connect() expects that the socket could already be in the
+TCP_ESTABLISHED state when the connecting task wakes up with a signal
+pending. If this happens the socket will be in the connected table, and
+it is not removed when the socket state is reset. In this situation it's
+common for the process to retry connect(), and if the connection is
+successful the socket will be added to the connected table a second
+time, corrupting the list.
 
-This could lead to situation when Software MDB processing gets disabled,
-but this event never gets offloaded to the underlying Hardware.
+Prevent this by calling vsock_remove_connected() if a signal is received
+while waiting for a connection. This is harmless if the socket is not in
+the connected table, and if it is in the table then removing it will
+prevent list corruption from a double add.
 
-Fix this by adding a notify message in such case.
+Note for backporting: this patch requires d5afa82c977e ("vsock: correct
+removal of socket from the list"), which is in all current stable trees
+except 4.9.y.
 
-Fixes: 147c1e9b902c ("switchdev: bridge: Offload multicast disabled")
-Signed-off-by: Oleksandr Mazur <oleksandr.mazur@plvision.eu>
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Link: https://lore.kernel.org/r/20220215165303.31908-1-oleksandr.mazur@plvision.eu
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: Seth Forshee <sforshee@digitalocean.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/r/20220217141312.2297547-1-sforshee@digitalocean.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_multicast.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/vmw_vsock/af_vsock.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -82,6 +82,9 @@ static void br_multicast_find_del_pg(str
- 				     struct net_bridge_port_group *pg);
- static void __br_multicast_stop(struct net_bridge_mcast *brmctx);
- 
-+static int br_mc_disabled_update(struct net_device *dev, bool value,
-+				 struct netlink_ext_ack *extack);
-+
- static struct net_bridge_port_group *
- br_sg_port_find(struct net_bridge *br,
- 		struct net_bridge_port_group_sg_key *sg_p)
-@@ -1156,6 +1159,7 @@ struct net_bridge_mdb_entry *br_multicas
- 		return mp;
- 
- 	if (atomic_read(&br->mdb_hash_tbl.nelems) >= br->hash_max) {
-+		br_mc_disabled_update(br->dev, false, NULL);
- 		br_opt_toggle(br, BROPT_MULTICAST_ENABLED, false);
- 		return ERR_PTR(-E2BIG);
- 	}
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1237,6 +1237,7 @@ static int vsock_stream_connect(struct s
+ 			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
+ 			sock->state = SS_UNCONNECTED;
+ 			vsock_transport_cancel_pkt(vsk);
++			vsock_remove_connected(vsk);
+ 			goto out_wait;
+ 		} else if (timeout == 0) {
+ 			err = -ETIMEDOUT;
 
 
