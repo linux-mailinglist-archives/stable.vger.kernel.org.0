@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CEF74BE745
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 625834BE49A
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:59:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351103AbiBUJuF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:50:05 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42660 "EHLO
+        id S1349102AbiBUJXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:23:49 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352936AbiBUJsC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:02 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7837C262F;
-        Mon, 21 Feb 2022 01:21:35 -0800 (PST)
+        with ESMTP id S1350445AbiBUJWd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:22:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D914C38BDD;
+        Mon, 21 Feb 2022 01:10:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E8B83CE0E89;
-        Mon, 21 Feb 2022 09:21:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4700C340E9;
-        Mon, 21 Feb 2022 09:21:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3AFC608C1;
+        Mon, 21 Feb 2022 09:10:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 833F0C340E9;
+        Mon, 21 Feb 2022 09:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435292;
-        bh=GD8jGo6Q+HJ1uMXDjuZtebM7kKMzIBsEqRPZY3MkF0s=;
+        s=korg; t=1645434609;
+        bh=EYtRDvgqtHYLLBYQB7EGKb1gI58MEzvShWdMSQvoFFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FJNEeFQ+THCQSC0Nh6Rhet/lPIQeMCmh5gIsJ0TfsmVTFMxThQ6cw7Mvvb6D/Q0uu
-         MWsUPDn09SDBwPZsa03GLL4FCyFwbWVcCN+EmUwQjI8Zrgt9mrtk3rTUa5UgQoCP/H
-         uoS+szlgNV7N6Hf0MFgsVzqLb+vuDlwCImz62iME=
+        b=AgduV25Ouvcz2/8iF/wBR7Y5qHfJv+vLm1wXKISN5vZSAffDH3CbjSiiALNf2ENLg
+         Fp2s1imsEwTtMH761LoMaJgg18Vi9dLH7HHWG9BaWd8ROj7+GnbNY9SpXNBK2NLC6C
+         ctBr0qo9axFEiUkDzKbebvk4aY5GU+Lksur74AoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, fuyufan <fuyufan@huawei.com>,
+        stable@vger.kernel.org,
         =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 5.16 080/227] drm/atomic: Dont pollute crtc_state->mode_blob with error pointers
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.15 067/196] drm/i915: Fix mbus join config lookup
 Date:   Mon, 21 Feb 2022 09:48:19 +0100
-Message-Id: <20220221084937.524263514@linuxfoundation.org>
+Message-Id: <20220221084933.180819022@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +58,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 439cf34c8e0a8a33d8c15a31be1b7423426bc765 upstream.
+commit 8d9d2a723d64b650f2e6423024ccb4a33f0cdc40 upstream.
 
-Make sure we don't assign an error pointer to crtc_state->mode_blob
-as that will break all kinds of places that assume either NULL or a
-valid pointer (eg. drm_property_blob_put()).
+The bogus loop from compute_dbuf_slices() was copied into
+check_mbus_joined() as well. So this lookup is wrong as well.
+Fix it.
 
 Cc: stable@vger.kernel.org
-Reported-by: fuyufan <fuyufan@huawei.com>
+Fixes: f4dc00863226 ("drm/i915/adl_p: MBUS programming")
 Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220209091928.14766-1-ville.syrjala@linux.intel.com
-Acked-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220207132700.481-2-ville.syrjala@linux.intel.com
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit 053f2b85631316a9226f6340c1c0fd95634f7a5b)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_atomic_uapi.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/i915/intel_pm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_atomic_uapi.c
-+++ b/drivers/gpu/drm/drm_atomic_uapi.c
-@@ -76,15 +76,17 @@ int drm_atomic_set_mode_for_crtc(struct
- 	state->mode_blob = NULL;
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -4844,7 +4844,7 @@ static bool check_mbus_joined(u8 active_
+ {
+ 	int i;
  
- 	if (mode) {
-+		struct drm_property_blob *blob;
-+
- 		drm_mode_convert_to_umode(&umode, mode);
--		state->mode_blob =
--			drm_property_create_blob(state->crtc->dev,
--						 sizeof(umode),
--						 &umode);
--		if (IS_ERR(state->mode_blob))
--			return PTR_ERR(state->mode_blob);
-+		blob = drm_property_create_blob(crtc->dev,
-+						sizeof(umode), &umode);
-+		if (IS_ERR(blob))
-+			return PTR_ERR(blob);
- 
- 		drm_mode_copy(&state->mode, mode);
-+
-+		state->mode_blob = blob;
- 		state->enable = true;
- 		drm_dbg_atomic(crtc->dev,
- 			       "Set [MODE:%s] for [CRTC:%d:%s] state %p\n",
+-	for (i = 0; i < dbuf_slices[i].active_pipes; i++) {
++	for (i = 0; dbuf_slices[i].active_pipes != 0; i++) {
+ 		if (dbuf_slices[i].active_pipes == active_pipes)
+ 			return dbuf_slices[i].join_mbus;
+ 	}
 
 
