@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE8484BE570
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:00:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6B8D4BE859
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:05:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244477AbiBUJmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:42:06 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59638 "EHLO
+        id S1348980AbiBUJX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:23:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343960AbiBUJlR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:41:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EC8C3CA51;
-        Mon, 21 Feb 2022 01:17:29 -0800 (PST)
+        with ESMTP id S1349710AbiBUJVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:21:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 465F526AEA;
+        Mon, 21 Feb 2022 01:08:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A868608C4;
-        Mon, 21 Feb 2022 09:17:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AACFC340E9;
-        Mon, 21 Feb 2022 09:17:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6FD860B1E;
+        Mon, 21 Feb 2022 09:08:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA21CC340E9;
+        Mon, 21 Feb 2022 09:08:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435047;
-        bh=Vz4WDZtoUOzAcf9QAL9mQykts41Q8Xh0KlaY1mwEN2o=;
+        s=korg; t=1645434529;
+        bh=CYOTbDCLUGrJotI7Jyz4UqYmv4jCCN8nYYgwmy1/Vig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x2ShE3k6FL4OA7b54Jz3FoaBhJsF1JTiW/biKgjjzNU8GbKGekguLv24XgzoeEQV+
-         lunGosk41cNzm6O3dfVAu4RFUPE+dyQK0d0x6SmZHJez4pdVgqV//yVU4/dzGTbduL
-         3Sws32DwHpoPiIEw7v0RujyYQSTkcEVvHkAPxAW8=
+        b=rfzqWMmm9gfGUpWeeVZEiTataryaVO98kJctfqvy15ak70Nwr49qHRUj48cSJ0ehd
+         tLX9WOd7pvBvz/7XkxFiha+sXFtuLDH0Ht3c08d5jF2usqVnqJ0lwNt/V2s3oZnEwC
+         zmINUjIKxW95WwNfr1Q3Gl68seMIJ0Xic7k57wL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Long Li <longli@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Purna Pavan Chandra Aekkaladevi <paekkaladevi@microsoft.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Wei Liu <wei.liu@kernel.org>
-Subject: [PATCH 5.16 025/227] PCI: hv: Fix NUMA node assignment when kernel boots with custom NUMA topology
+        stable@vger.kernel.org, Christian Loehle <cloehle@hyperstone.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 012/196] mmc: block: fix read single on recovery logic
 Date:   Mon, 21 Feb 2022 09:47:24 +0100
-Message-Id: <20220221084935.674987825@linuxfoundation.org>
+Message-Id: <20220221084931.301444682@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Long Li <longli@microsoft.com>
+From: Christian Löhle <CLoehle@hyperstone.com>
 
-commit 3149efcdf2c6314420c418dfc94de53bfd076b1f upstream.
+commit 54309fde1a352ad2674ebba004a79f7d20b9f037 upstream.
 
-When kernel boots with a NUMA topology with some NUMA nodes offline, the PCI
-driver should only set an online NUMA node on the device. This can happen
-during KDUMP where some NUMA nodes are not made online by the KDUMP kernel.
+On reads with MMC_READ_MULTIPLE_BLOCK that fail,
+the recovery handler will use MMC_READ_SINGLE_BLOCK for
+each of the blocks, up to MMC_READ_SINGLE_RETRIES times each.
+The logic for this is fixed to never report unsuccessful reads
+as success to the block layer.
 
-This patch also fixes the case where kernel is booting with "numa=off".
+On command error with retries remaining, blk_update_request was
+called with whatever value error was set last to.
+In case it was last set to BLK_STS_OK (default), the read will be
+reported as success, even though there was no data read from the device.
+This could happen on a CRC mismatch for the response,
+a card rejecting the command (e.g. again due to a CRC mismatch).
+In case it was last set to BLK_STS_IOERR, the error is reported correctly,
+but no retries will be attempted.
 
-Fixes: 999dd956d838 ("PCI: hv: Add support for protocol 1.3 and support PCI_BUS_RELATIONS2")
-Signed-off-by: Long Li <longli@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Tested-by: Purna Pavan Chandra Aekkaladevi <paekkaladevi@microsoft.com>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Link: https://lore.kernel.org/r/1643247814-15184-1-git-send-email-longli@linuxonhyperv.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: 81196976ed946c ("mmc: block: Add blk-mq support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
+Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/bc706a6ab08c4fe2834ba0c05a804672@hyperstone.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-hyperv.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/mmc/core/block.c |   28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -1899,8 +1899,17 @@ static void hv_pci_assign_numa_node(stru
- 		if (!hv_dev)
- 			continue;
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -1682,31 +1682,31 @@ static void mmc_blk_read_single(struct m
+ 	struct mmc_card *card = mq->card;
+ 	struct mmc_host *host = card->host;
+ 	blk_status_t error = BLK_STS_OK;
+-	int retries = 0;
  
--		if (hv_dev->desc.flags & HV_PCI_DEVICE_FLAG_NUMA_AFFINITY)
--			set_dev_node(&dev->dev, hv_dev->desc.virtual_numa_node);
-+		if (hv_dev->desc.flags & HV_PCI_DEVICE_FLAG_NUMA_AFFINITY &&
-+		    hv_dev->desc.virtual_numa_node < num_possible_nodes())
-+			/*
-+			 * The kernel may boot with some NUMA nodes offline
-+			 * (e.g. in a KDUMP kernel) or with NUMA disabled via
-+			 * "numa=off". In those cases, adjust the host provided
-+			 * NUMA node to a valid NUMA node used by the kernel.
-+			 */
-+			set_dev_node(&dev->dev,
-+				     numa_map_to_online_node(
-+					     hv_dev->desc.virtual_numa_node));
+ 	do {
+ 		u32 status;
+ 		int err;
++		int retries = 0;
  
- 		put_pcichild(hv_dev);
- 	}
+-		mmc_blk_rw_rq_prep(mqrq, card, 1, mq);
++		while (retries++ <= MMC_READ_SINGLE_RETRIES) {
++			mmc_blk_rw_rq_prep(mqrq, card, 1, mq);
+ 
+-		mmc_wait_for_req(host, mrq);
++			mmc_wait_for_req(host, mrq);
+ 
+-		err = mmc_send_status(card, &status);
+-		if (err)
+-			goto error_exit;
+-
+-		if (!mmc_host_is_spi(host) &&
+-		    !mmc_ready_for_data(status)) {
+-			err = mmc_blk_fix_state(card, req);
++			err = mmc_send_status(card, &status);
+ 			if (err)
+ 				goto error_exit;
+-		}
+ 
+-		if (mrq->cmd->error && retries++ < MMC_READ_SINGLE_RETRIES)
+-			continue;
++			if (!mmc_host_is_spi(host) &&
++			    !mmc_ready_for_data(status)) {
++				err = mmc_blk_fix_state(card, req);
++				if (err)
++					goto error_exit;
++			}
+ 
+-		retries = 0;
++			if (!mrq->cmd->error)
++				break;
++		}
+ 
+ 		if (mrq->cmd->error ||
+ 		    mrq->data->error ||
 
 
