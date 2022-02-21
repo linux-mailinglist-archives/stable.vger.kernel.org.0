@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B078E4BDC2B
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF2964BE4F9
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:59:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238562AbiBUJxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:53:32 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49880 "EHLO
+        id S1347125AbiBUJFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:05:34 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352076AbiBUJwt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:52:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A874836686;
-        Mon, 21 Feb 2022 01:23:14 -0800 (PST)
+        with ESMTP id S1347254AbiBUJEl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:04:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92C6125C55;
+        Mon, 21 Feb 2022 00:58:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6107DB80EA1;
-        Mon, 21 Feb 2022 09:23:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78823C340E9;
-        Mon, 21 Feb 2022 09:23:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3F36B80EAF;
+        Mon, 21 Feb 2022 08:58:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE718C340E9;
+        Mon, 21 Feb 2022 08:58:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435392;
-        bh=8E9nmzjr+oVBPaIx2NahacyRPguKBnPNkSFQybHOK2E=;
+        s=korg; t=1645433924;
+        bh=FYwL1b4M3GccrtCBjz07QnsLhydRhFMZnVAOaArXwAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c9viq9eKochMI1Fs9PXBIEtEwZEUgTvSIgLLTfr3GsbiU/SCS3dVJ8kQZUYaOP8AY
-         AnK3EUkec5Y2HwVE7mYqXERtssqEq7YxeRuVDHHr/6wSzjZRfzadU5/hz5y8CAOawh
-         LN9+Essro1C37FwTnDAxV1EHqTYXfy68R1rPq68M=
+        b=1nII6VwERNWU8lG6l11FxjCMZfouJ4xeznjT20MWlVkiqKwzLx8PbvAyA2HAlogIV
+         4zwkv0A5wbTwYABOlMTbTTjub2BE5Qyi9sgAutBiRY89JTtURNUEkGJl9yjrodkRaQ
+         0kUU9ByUcCchVly9Oy3jt/ZgMvMbyMWDrpqg8wc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 115/227] ping: fix the dif and sdif check in ping_lookup
+        stable@vger.kernel.org, Yang Xu <xuyang2018.jy@fujitsu.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 14/80] selftests/zram: Adapt the situation that /dev/zram0 is being used
 Date:   Mon, 21 Feb 2022 09:48:54 +0100
-Message-Id: <20220221084938.689761389@linuxfoundation.org>
+Message-Id: <20220221084916.054112713@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +54,329 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Yang Xu <xuyang2018.jy@fujitsu.com>
 
-commit 35a79e64de29e8d57a5989aac57611c0cd29e13e upstream.
+[ Upstream commit 01dabed20573804750af5c7bf8d1598a6bf7bf6e ]
 
-When 'ping' changes to use PING socket instead of RAW socket by:
+If zram-generator package is installed and works, then we can not remove
+zram module because zram swap is being used. This case needs a clean zram
+environment, change this test by using hot_add/hot_remove interface. So
+even zram device is being used, we still can add zram device and remove
+them in cleanup.
 
-   # sysctl -w net.ipv4.ping_group_range="0 100"
+The two interface was introduced since kernel commit 6566d1a32bf7("zram:
+add dynamic device add/remove functionality") in v4.2-rc1. If kernel
+supports these two interface, we use hot_add/hot_remove to slove this
+problem, if not, just check whether zram is being used or built in, then
+skip it on old kernel.
 
-There is another regression caused when matching sk_bound_dev_if
-and dif, RAW socket is using inet_iif() while PING socket lookup
-is using skb->dev->ifindex, the cmd below fails due to this:
-
-  # ip link add dummy0 type dummy
-  # ip link set dummy0 up
-  # ip addr add 192.168.111.1/24 dev dummy0
-  # ping -I dummy0 192.168.111.1 -c1
-
-The issue was also reported on:
-
-  https://github.com/iputils/iputils/issues/104
-
-But fixed in iputils in a wrong way by not binding to device when
-destination IP is on device, and it will cause some of kselftests
-to fail, as Jianlin noticed.
-
-This patch is to use inet(6)_iif and inet(6)_sdif to get dif and
-sdif for PING socket, and keep consistent with RAW socket.
-
-Fixes: c319b4d76b9e ("net: ipv4: add IPPROTO_ICMP socket kind")
-Reported-by: Jianlin Shi <jishi@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yang Xu <xuyang2018.jy@fujitsu.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ping.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ tools/testing/selftests/zram/zram.sh     |  15 +---
+ tools/testing/selftests/zram/zram01.sh   |   3 +-
+ tools/testing/selftests/zram/zram02.sh   |   1 -
+ tools/testing/selftests/zram/zram_lib.sh | 110 +++++++++++++----------
+ 4 files changed, 66 insertions(+), 63 deletions(-)
 
---- a/net/ipv4/ping.c
-+++ b/net/ipv4/ping.c
-@@ -172,16 +172,23 @@ static struct sock *ping_lookup(struct n
- 	struct sock *sk = NULL;
- 	struct inet_sock *isk;
- 	struct hlist_nulls_node *hnode;
--	int dif = skb->dev->ifindex;
-+	int dif, sdif;
+diff --git a/tools/testing/selftests/zram/zram.sh b/tools/testing/selftests/zram/zram.sh
+index 232e958ec4547..b0b91d9b0dc21 100755
+--- a/tools/testing/selftests/zram/zram.sh
++++ b/tools/testing/selftests/zram/zram.sh
+@@ -2,9 +2,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ TCID="zram.sh"
  
- 	if (skb->protocol == htons(ETH_P_IP)) {
-+		dif = inet_iif(skb);
-+		sdif = inet_sdif(skb);
- 		pr_debug("try to find: num = %d, daddr = %pI4, dif = %d\n",
- 			 (int)ident, &ip_hdr(skb)->daddr, dif);
- #if IS_ENABLED(CONFIG_IPV6)
- 	} else if (skb->protocol == htons(ETH_P_IPV6)) {
-+		dif = inet6_iif(skb);
-+		sdif = inet6_sdif(skb);
- 		pr_debug("try to find: num = %d, daddr = %pI6c, dif = %d\n",
- 			 (int)ident, &ipv6_hdr(skb)->daddr, dif);
- #endif
-+	} else {
-+		pr_err("ping: protocol(%x) is not supported\n", ntohs(skb->protocol));
-+		return NULL;
- 	}
+-# Kselftest framework requirement - SKIP code is 4.
+-ksft_skip=4
+-
+ . ./zram_lib.sh
  
- 	read_lock_bh(&ping_table.lock);
-@@ -221,7 +228,7 @@ static struct sock *ping_lookup(struct n
- 		}
+ run_zram () {
+@@ -18,14 +15,4 @@ echo ""
  
- 		if (sk->sk_bound_dev_if && sk->sk_bound_dev_if != dif &&
--		    sk->sk_bound_dev_if != inet_sdif(skb))
-+		    sk->sk_bound_dev_if != sdif)
- 			continue;
+ check_prereqs
  
- 		sock_hold(sk);
+-# check zram module exists
+-MODULE_PATH=/lib/modules/`uname -r`/kernel/drivers/block/zram/zram.ko
+-if [ -f $MODULE_PATH ]; then
+-	run_zram
+-elif [ -b /dev/zram0 ]; then
+-	run_zram
+-else
+-	echo "$TCID : No zram.ko module or /dev/zram0 device file not found"
+-	echo "$TCID : CONFIG_ZRAM is not set"
+-	exit $ksft_skip
+-fi
++run_zram
+diff --git a/tools/testing/selftests/zram/zram01.sh b/tools/testing/selftests/zram/zram01.sh
+index e9e9eb777e2c7..8f4affe34f3e4 100755
+--- a/tools/testing/selftests/zram/zram01.sh
++++ b/tools/testing/selftests/zram/zram01.sh
+@@ -33,7 +33,7 @@ zram_algs="lzo"
+ 
+ zram_fill_fs()
+ {
+-	for i in $(seq 0 $(($dev_num - 1))); do
++	for i in $(seq $dev_start $dev_end); do
+ 		echo "fill zram$i..."
+ 		local b=0
+ 		while [ true ]; do
+@@ -67,7 +67,6 @@ zram_mount
+ 
+ zram_fill_fs
+ zram_cleanup
+-zram_unload
+ 
+ if [ $ERR_CODE -ne 0 ]; then
+ 	echo "$TCID : [FAIL]"
+diff --git a/tools/testing/selftests/zram/zram02.sh b/tools/testing/selftests/zram/zram02.sh
+index e83b404807c09..2418b0c4ed136 100755
+--- a/tools/testing/selftests/zram/zram02.sh
++++ b/tools/testing/selftests/zram/zram02.sh
+@@ -36,7 +36,6 @@ zram_set_memlimit
+ zram_makeswap
+ zram_swapoff
+ zram_cleanup
+-zram_unload
+ 
+ if [ $ERR_CODE -ne 0 ]; then
+ 	echo "$TCID : [FAIL]"
+diff --git a/tools/testing/selftests/zram/zram_lib.sh b/tools/testing/selftests/zram/zram_lib.sh
+index f47fc0f27e99e..21ec1966de76c 100755
+--- a/tools/testing/selftests/zram/zram_lib.sh
++++ b/tools/testing/selftests/zram/zram_lib.sh
+@@ -5,10 +5,12 @@
+ # Author: Alexey Kodanev <alexey.kodanev@oracle.com>
+ # Modified: Naresh Kamboju <naresh.kamboju@linaro.org>
+ 
+-MODULE=0
+ dev_makeswap=-1
+ dev_mounted=-1
+-
++dev_start=0
++dev_end=-1
++module_load=-1
++sys_control=-1
+ # Kselftest framework requirement - SKIP code is 4.
+ ksft_skip=4
+ kernel_version=`uname -r | cut -d'.' -f1,2`
+@@ -46,57 +48,72 @@ zram_cleanup()
+ {
+ 	echo "zram cleanup"
+ 	local i=
+-	for i in $(seq 0 $dev_makeswap); do
++	for i in $(seq $dev_start $dev_makeswap); do
+ 		swapoff /dev/zram$i
+ 	done
+ 
+-	for i in $(seq 0 $dev_mounted); do
++	for i in $(seq $dev_start $dev_mounted); do
+ 		umount /dev/zram$i
+ 	done
+ 
+-	for i in $(seq 0 $(($dev_num - 1))); do
++	for i in $(seq $dev_start $dev_end); do
+ 		echo 1 > /sys/block/zram${i}/reset
+ 		rm -rf zram$i
+ 	done
+ 
+-}
++	if [ $sys_control -eq 1 ]; then
++		for i in $(seq $dev_start $dev_end); do
++			echo $i > /sys/class/zram-control/hot_remove
++		done
++	fi
+ 
+-zram_unload()
+-{
+-	if [ $MODULE -ne 0 ] ; then
+-		echo "zram rmmod zram"
++	if [ $module_load -eq 1 ]; then
+ 		rmmod zram > /dev/null 2>&1
+ 	fi
+ }
+ 
+ zram_load()
+ {
+-	# check zram module exists
+-	MODULE_PATH=/lib/modules/`uname -r`/kernel/drivers/block/zram/zram.ko
+-	if [ -f $MODULE_PATH ]; then
+-		MODULE=1
+-		echo "create '$dev_num' zram device(s)"
+-		modprobe zram num_devices=$dev_num
+-		if [ $? -ne 0 ]; then
+-			echo "failed to insert zram module"
+-			exit 1
+-		fi
+-
+-		dev_num_created=$(ls /dev/zram* | wc -w)
++	echo "create '$dev_num' zram device(s)"
++
++	# zram module loaded, new kernel
++	if [ -d "/sys/class/zram-control" ]; then
++		echo "zram modules already loaded, kernel supports" \
++			"zram-control interface"
++		dev_start=$(ls /dev/zram* | wc -w)
++		dev_end=$(($dev_start + $dev_num - 1))
++		sys_control=1
++
++		for i in $(seq $dev_start $dev_end); do
++			cat /sys/class/zram-control/hot_add > /dev/null
++		done
++
++		echo "all zram devices (/dev/zram$dev_start~$dev_end" \
++			"successfully created"
++		return 0
++	fi
+ 
+-		if [ "$dev_num_created" -ne "$dev_num" ]; then
+-			echo "unexpected num of devices: $dev_num_created"
+-			ERR_CODE=-1
++	# detect old kernel or built-in
++	modprobe zram num_devices=$dev_num
++	if [ ! -d "/sys/class/zram-control" ]; then
++		if grep -q '^zram' /proc/modules; then
++			rmmod zram > /dev/null 2>&1
++			if [ $? -ne 0 ]; then
++				echo "zram module is being used on old kernel" \
++					"without zram-control interface"
++				exit $ksft_skip
++			fi
+ 		else
+-			echo "zram load module successful"
++			echo "test needs CONFIG_ZRAM=m on old kernel without" \
++				"zram-control interface"
++			exit $ksft_skip
+ 		fi
+-	elif [ -b /dev/zram0 ]; then
+-		echo "/dev/zram0 device file found: OK"
+-	else
+-		echo "ERROR: No zram.ko module or no /dev/zram0 device found"
+-		echo "$TCID : CONFIG_ZRAM is not set"
+-		exit 1
++		modprobe zram num_devices=$dev_num
+ 	fi
++
++	module_load=1
++	dev_end=$(($dev_num - 1))
++	echo "all zram devices (/dev/zram0~$dev_end) successfully created"
+ }
+ 
+ zram_max_streams()
+@@ -110,7 +127,7 @@ zram_max_streams()
+ 		return 0
+ 	fi
+ 
+-	local i=0
++	local i=$dev_start
+ 	for max_s in $zram_max_streams; do
+ 		local sys_path="/sys/block/zram${i}/max_comp_streams"
+ 		echo $max_s > $sys_path || \
+@@ -122,7 +139,7 @@ zram_max_streams()
+ 			echo "FAIL can't set max_streams '$max_s', get $max_stream"
+ 
+ 		i=$(($i + 1))
+-		echo "$sys_path = '$max_streams' ($i/$dev_num)"
++		echo "$sys_path = '$max_streams'"
+ 	done
+ 
+ 	echo "zram max streams: OK"
+@@ -132,15 +149,16 @@ zram_compress_alg()
+ {
+ 	echo "test that we can set compression algorithm"
+ 
+-	local algs=$(cat /sys/block/zram0/comp_algorithm)
++	local i=$dev_start
++	local algs=$(cat /sys/block/zram${i}/comp_algorithm)
+ 	echo "supported algs: $algs"
+-	local i=0
++
+ 	for alg in $zram_algs; do
+ 		local sys_path="/sys/block/zram${i}/comp_algorithm"
+ 		echo "$alg" >	$sys_path || \
+ 			echo "FAIL can't set '$alg' to $sys_path"
+ 		i=$(($i + 1))
+-		echo "$sys_path = '$alg' ($i/$dev_num)"
++		echo "$sys_path = '$alg'"
+ 	done
+ 
+ 	echo "zram set compression algorithm: OK"
+@@ -149,14 +167,14 @@ zram_compress_alg()
+ zram_set_disksizes()
+ {
+ 	echo "set disk size to zram device(s)"
+-	local i=0
++	local i=$dev_start
+ 	for ds in $zram_sizes; do
+ 		local sys_path="/sys/block/zram${i}/disksize"
+ 		echo "$ds" >	$sys_path || \
+ 			echo "FAIL can't set '$ds' to $sys_path"
+ 
+ 		i=$(($i + 1))
+-		echo "$sys_path = '$ds' ($i/$dev_num)"
++		echo "$sys_path = '$ds'"
+ 	done
+ 
+ 	echo "zram set disksizes: OK"
+@@ -166,14 +184,14 @@ zram_set_memlimit()
+ {
+ 	echo "set memory limit to zram device(s)"
+ 
+-	local i=0
++	local i=$dev_start
+ 	for ds in $zram_mem_limits; do
+ 		local sys_path="/sys/block/zram${i}/mem_limit"
+ 		echo "$ds" >	$sys_path || \
+ 			echo "FAIL can't set '$ds' to $sys_path"
+ 
+ 		i=$(($i + 1))
+-		echo "$sys_path = '$ds' ($i/$dev_num)"
++		echo "$sys_path = '$ds'"
+ 	done
+ 
+ 	echo "zram set memory limit: OK"
+@@ -182,8 +200,8 @@ zram_set_memlimit()
+ zram_makeswap()
+ {
+ 	echo "make swap with zram device(s)"
+-	local i=0
+-	for i in $(seq 0 $(($dev_num - 1))); do
++	local i=$dev_start
++	for i in $(seq $dev_start $dev_end); do
+ 		mkswap /dev/zram$i > err.log 2>&1
+ 		if [ $? -ne 0 ]; then
+ 			cat err.log
+@@ -206,7 +224,7 @@ zram_makeswap()
+ zram_swapoff()
+ {
+ 	local i=
+-	for i in $(seq 0 $dev_makeswap); do
++	for i in $(seq $dev_start $dev_end); do
+ 		swapoff /dev/zram$i > err.log 2>&1
+ 		if [ $? -ne 0 ]; then
+ 			cat err.log
+@@ -220,7 +238,7 @@ zram_swapoff()
+ 
+ zram_makefs()
+ {
+-	local i=0
++	local i=$dev_start
+ 	for fs in $zram_filesystems; do
+ 		# if requested fs not supported default it to ext2
+ 		which mkfs.$fs > /dev/null 2>&1 || fs=ext2
+@@ -239,7 +257,7 @@ zram_makefs()
+ zram_mount()
+ {
+ 	local i=0
+-	for i in $(seq 0 $(($dev_num - 1))); do
++	for i in $(seq $dev_start $dev_end); do
+ 		echo "mount /dev/zram$i"
+ 		mkdir zram$i
+ 		mount /dev/zram$i zram$i > /dev/null || \
+-- 
+2.34.1
+
 
 
