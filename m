@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 142AB4BDDC0
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:46:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 835094BE519
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:00:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350847AbiBUJsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:48:35 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41694 "EHLO
+        id S1348175AbiBUJTa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:19:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351463AbiBUJp0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:45:26 -0500
+        with ESMTP id S1348247AbiBUJSz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:18:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A05CB3F897;
-        Mon, 21 Feb 2022 01:18:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAF8B31233;
+        Mon, 21 Feb 2022 01:07:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F87A60EDF;
-        Mon, 21 Feb 2022 09:18:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B61EC340F3;
-        Mon, 21 Feb 2022 09:18:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55E9F61252;
+        Mon, 21 Feb 2022 09:07:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D21DC340E9;
+        Mon, 21 Feb 2022 09:07:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435105;
-        bh=HKrIBi5m5CFXzZ+6/xBVUfB/8hJp8GunVilEDIKwwTQ=;
+        s=korg; t=1645434440;
+        bh=6cvYlkqn5yFOmgKwTXG4kZ4WRgkDJOCytnbnYwNNro0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kCT8vsVpUOkV/nYEknVs0EKe9WQOFGaqiV2AOEsc1YT1qfzSSjAZ8hom800iN1+4U
-         j1+lG82WGuT/wEJe9u1wjLdMUfHLkVKw2Rt+eWdToKk25XLr9C5D1u8PyF7PDpzHrD
-         GB/B864hd1T1lb/FhGcqNkH1G0FlKL/kVloCZaMk=
+        b=Kdf/UZD6porbSmiXZj1HxdKvzkd+dNioJsRmgrc+oTacRbgq4w5GebK063wdzMbME
+         4s8tnftrqA3VD/tn3Dw/40x3BZ4z4comHUTrP/7kb4ywAeUdFnMH5dUoxr9MpIwQuz
+         YpH2UodB3mH7J5UzSU9PLoI2dynMD5/VsKzdxtX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
-        linux-serial@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.16 014/227] serial: parisc: GSC: fix build when IOSAPIC is not set
+        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>
+Subject: [PATCH 5.15 001/196] drm/nouveau/pmu/gm200-: use alternate falcon reset sequence
 Date:   Mon, 21 Feb 2022 09:47:13 +0100
-Message-Id: <20220221084935.310770945@linuxfoundation.org>
+Message-Id: <20220221084930.923926935@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,54 +55,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-commit 6e8793674bb0d1135ca0e5c9f7e16fecbf815926 upstream.
+commit 4cdd2450bf739bada353e82d27b00db9af8c3001 upstream.
 
-There is a build error when using a kernel .config file from
-'kernel test robot' for a different build problem:
-
-hppa64-linux-ld: drivers/tty/serial/8250/8250_gsc.o: in function `.LC3':
-(.data.rel.ro+0x18): undefined reference to `iosapic_serial_irq'
-
-when:
-  CONFIG_GSC=y
-  CONFIG_SERIO_GSCPS2=y
-  CONFIG_SERIAL_8250_GSC=y
-  CONFIG_PCI is not set
-    and hence PCI_LBA is not set.
-  IOSAPIC depends on PCI_LBA, so IOSAPIC is not set/enabled.
-
-Make the use of iosapic_serial_irq() conditional to fix the build error.
-
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: linux-parisc@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-serial@vger.kernel.org
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Cc: Johan Hovold <johan@kernel.org>
-Suggested-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Link: https://gitlab.freedesktop.org/drm/nouveau/-/merge_requests/10
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_gsc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nvkm/falcon/base.c      |    8 ++++--
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm200.c |   31 +++++++++++++++++++++++-
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c |    2 -
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c |    2 -
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c |    2 -
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h  |    2 +
+ 6 files changed, 41 insertions(+), 6 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_gsc.c
-+++ b/drivers/tty/serial/8250/8250_gsc.c
-@@ -26,7 +26,7 @@ static int __init serial_init_chip(struc
- 	unsigned long address;
- 	int err;
+--- a/drivers/gpu/drm/nouveau/nvkm/falcon/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/falcon/base.c
+@@ -117,8 +117,12 @@ nvkm_falcon_disable(struct nvkm_falcon *
+ int
+ nvkm_falcon_reset(struct nvkm_falcon *falcon)
+ {
+-	nvkm_falcon_disable(falcon);
+-	return nvkm_falcon_enable(falcon);
++	if (!falcon->func->reset) {
++		nvkm_falcon_disable(falcon);
++		return nvkm_falcon_enable(falcon);
++	}
++
++	return falcon->func->reset(falcon);
+ }
  
--#ifdef CONFIG_64BIT
-+#if defined(CONFIG_64BIT) && defined(CONFIG_IOSAPIC)
- 	if (!dev->irq && (dev->id.sversion == 0xad))
- 		dev->irq = iosapic_serial_irq(dev);
- #endif
+ int
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm200.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm200.c
+@@ -23,9 +23,38 @@
+  */
+ #include "priv.h"
+ 
++static int
++gm200_pmu_flcn_reset(struct nvkm_falcon *falcon)
++{
++	struct nvkm_pmu *pmu = container_of(falcon, typeof(*pmu), falcon);
++
++	nvkm_falcon_wr32(falcon, 0x014, 0x0000ffff);
++	pmu->func->reset(pmu);
++	return nvkm_falcon_enable(falcon);
++}
++
++const struct nvkm_falcon_func
++gm200_pmu_flcn = {
++	.debug = 0xc08,
++	.fbif = 0xe00,
++	.load_imem = nvkm_falcon_v1_load_imem,
++	.load_dmem = nvkm_falcon_v1_load_dmem,
++	.read_dmem = nvkm_falcon_v1_read_dmem,
++	.bind_context = nvkm_falcon_v1_bind_context,
++	.wait_for_halt = nvkm_falcon_v1_wait_for_halt,
++	.clear_interrupt = nvkm_falcon_v1_clear_interrupt,
++	.set_start_addr = nvkm_falcon_v1_set_start_addr,
++	.start = nvkm_falcon_v1_start,
++	.enable = nvkm_falcon_v1_enable,
++	.disable = nvkm_falcon_v1_disable,
++	.reset = gm200_pmu_flcn_reset,
++	.cmdq = { 0x4a0, 0x4b0, 4 },
++	.msgq = { 0x4c8, 0x4cc, 0 },
++};
++
+ static const struct nvkm_pmu_func
+ gm200_pmu = {
+-	.flcn = &gt215_pmu_flcn,
++	.flcn = &gm200_pmu_flcn,
+ 	.enabled = gf100_pmu_enabled,
+ 	.reset = gf100_pmu_reset,
+ };
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gm20b.c
+@@ -211,7 +211,7 @@ gm20b_pmu_recv(struct nvkm_pmu *pmu)
+ 
+ static const struct nvkm_pmu_func
+ gm20b_pmu = {
+-	.flcn = &gt215_pmu_flcn,
++	.flcn = &gm200_pmu_flcn,
+ 	.enabled = gf100_pmu_enabled,
+ 	.intr = gt215_pmu_intr,
+ 	.recv = gm20b_pmu_recv,
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp102.c
+@@ -39,7 +39,7 @@ gp102_pmu_enabled(struct nvkm_pmu *pmu)
+ 
+ static const struct nvkm_pmu_func
+ gp102_pmu = {
+-	.flcn = &gt215_pmu_flcn,
++	.flcn = &gm200_pmu_flcn,
+ 	.enabled = gp102_pmu_enabled,
+ 	.reset = gp102_pmu_reset,
+ };
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/gp10b.c
+@@ -78,7 +78,7 @@ gp10b_pmu_acr = {
+ 
+ static const struct nvkm_pmu_func
+ gp10b_pmu = {
+-	.flcn = &gt215_pmu_flcn,
++	.flcn = &gm200_pmu_flcn,
+ 	.enabled = gf100_pmu_enabled,
+ 	.intr = gt215_pmu_intr,
+ 	.recv = gm20b_pmu_recv,
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/priv.h
+@@ -44,6 +44,8 @@ void gf100_pmu_reset(struct nvkm_pmu *);
+ 
+ void gk110_pmu_pgob(struct nvkm_pmu *, bool);
+ 
++extern const struct nvkm_falcon_func gm200_pmu_flcn;
++
+ void gm20b_pmu_acr_bld_patch(struct nvkm_acr *, u32, s64);
+ void gm20b_pmu_acr_bld_write(struct nvkm_acr *, u32, struct nvkm_acr_lsfw *);
+ int gm20b_pmu_acr_boot(struct nvkm_falcon *);
 
 
