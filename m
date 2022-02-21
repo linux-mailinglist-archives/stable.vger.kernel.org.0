@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0964E4BDF9B
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:50:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 592C24BDD97
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:45:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347448AbiBUJG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:06:26 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40146 "EHLO
+        id S1346927AbiBUJAa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:00:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347669AbiBUJGA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:06:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2322625EBE;
-        Mon, 21 Feb 2022 00:59:31 -0800 (PST)
+        with ESMTP id S1346770AbiBUJAG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:00:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0318519295;
+        Mon, 21 Feb 2022 00:55:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B05E261132;
-        Mon, 21 Feb 2022 08:59:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80CA6C340E9;
-        Mon, 21 Feb 2022 08:59:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48D69B80E9E;
+        Mon, 21 Feb 2022 08:54:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62414C340E9;
+        Mon, 21 Feb 2022 08:54:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433970;
-        bh=fRYzu8oNYmmRxDyftiE1S8iNc/Oub5p27g99oVY1Hx8=;
+        s=korg; t=1645433681;
+        bh=HhQaT2I6hTqDmHreQpT5At+njtsHty3J1e80ZceAYXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F6ZQxZj1d5OG0vYc+HXRL2/3IK8Yhi3TvCzSzDgWNLZBwbD/3lv6nYhwKAnzHUhxu
-         Uyes3ppdEBdYRWcjBSTvaF3mMR0mSPkRbeMtryfT5HXejN0nuTTANcvAnxsYj0uk2v
-         jNQE9dItsj8E8pLrVP05kP2AVWf4WtHbfrEUHXDE=
+        b=2CXW1pufR7zRrmSJGoFb4qZeBbnwPH4GaUOEqN+/YaEaqFH5oQDSHONgZPu1FUrFI
+         7nmWTqAdvNopICgU07Al/LZ6bBLED1WAdNbV3zCbOSCMdfotRCRPYM5MR8HrWQEuEt
+         NW9JS96/P5x4pf90cXbQgVPOMVqTCmSZ9nbuGXYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, dmummenschanz@web.de,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 46/80] ALSA: hda: Fix regression on forced probe mask option
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.14 35/45] dmaengine: sh: rcar-dmac: Check for error num after setting mask
 Date:   Mon, 21 Feb 2022 09:49:26 +0100
-Message-Id: <20220221084917.081214114@linuxfoundation.org>
+Message-Id: <20220221084911.580279156@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
+References: <20220221084910.454824160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 6317f7449348a897483a2b4841f7a9190745c81b upstream.
+commit 2d21543efe332cd8c8f212fb7d365bc8b0690bfa upstream.
 
-The forced probe mask via probe_mask 0x100 bit doesn't work any longer
-as expected since the bus init code was moved and it's clearing the
-codec_mask value that was set beforehand.  This patch fixes the
-long-time regression by moving the check_probe_mask() call.
+Because of the possible failure of the dma_supported(), the
+dma_set_mask_and_coherent() may return error num.
+Therefore, it should be better to check it and return the error if
+fails.
 
-Fixes: a41d122449be ("ALSA: hda - Embed bus into controller object")
-Reported-by: dmummenschanz@web.de
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/trinity-f018660b-95c9-442b-a2a8-c92a56eb07ed-1644345967148@3c-app-webde-bap22
-Link: https://lore.kernel.org/r/20220214100020.8870-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: dc312349e875 ("dmaengine: rcar-dmac: Widen DMA mask to 40 bits")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20220106030939.2644320-1-jiasheng@iscas.ac.cn
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_intel.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/dma/sh/rcar-dmac.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -1793,8 +1793,6 @@ static int azx_create(struct snd_card *c
+--- a/drivers/dma/sh/rcar-dmac.c
++++ b/drivers/dma/sh/rcar-dmac.c
+@@ -1767,7 +1767,9 @@ static int rcar_dmac_probe(struct platfo
+ 	platform_set_drvdata(pdev, dmac);
+ 	dmac->dev->dma_parms = &dmac->parms;
+ 	dma_set_max_seg_size(dmac->dev, RCAR_DMATCR_MASK);
+-	dma_set_mask_and_coherent(dmac->dev, DMA_BIT_MASK(40));
++	ret = dma_set_mask_and_coherent(dmac->dev, DMA_BIT_MASK(40));
++	if (ret)
++		return ret;
  
- 	assign_position_fix(chip, check_position_fix(chip, position_fix[dev]));
- 
--	check_probe_mask(chip, dev);
--
- 	if (single_cmd < 0) /* allow fallback to single_cmd at errors */
- 		chip->fallback_to_single_cmd = 1;
- 	else /* explicitly set to single_cmd or not */
-@@ -1826,6 +1824,8 @@ static int azx_create(struct snd_card *c
- 		chip->bus.needs_damn_long_delay = 1;
- 	}
- 
-+	check_probe_mask(chip, dev);
-+
- 	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops);
- 	if (err < 0) {
- 		dev_err(card->dev, "Error creating device [card]!\n");
+ 	ret = rcar_dmac_parse_of(&pdev->dev, dmac);
+ 	if (ret < 0)
 
 
