@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 502D84BE10F
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FCF74BE815
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:04:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350760AbiBUJpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:45:25 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34306 "EHLO
+        id S1348651AbiBUJW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:22:59 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351363AbiBUJn7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:43:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194DB3EF36;
-        Mon, 21 Feb 2022 01:18:07 -0800 (PST)
+        with ESMTP id S1349335AbiBUJVR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:21:17 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E2EF17A9F;
+        Mon, 21 Feb 2022 01:08:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A85F960F1E;
-        Mon, 21 Feb 2022 09:18:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8914DC340E9;
-        Mon, 21 Feb 2022 09:18:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 17343CE0E77;
+        Mon, 21 Feb 2022 09:08:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BE57C340E9;
+        Mon, 21 Feb 2022 09:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435086;
-        bh=5qhkVxfItGQQNxvUKf+JzHc+TAsYK+cLdIQAogmQhQ4=;
+        s=korg; t=1645434486;
+        bh=qpKXmq3SY6mhExkKTzKyH2WV4QpU0WkZoSqvrwQR5fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQICsgqYSs6dhmIDybBLzIwMQvTj5PCFrJh0fiuMHPnPkirYI22PvGRNpymMVefow
-         hbxnjfPsGjB8pUWYF7AwoS8ALuEMXdZ+E4nwTYkisxh/2NrN2jvhHbW2c08hzsyKcM
-         TXsEiB+cNwDTV9OH74Pr2Bdn/G9na0A7TH3beK+k=
+        b=b5YCGOQ+KxlegLxNmq42jr2uhpSynYrztMjgzjsuxxk1HnBBZ8K2cgNOpeRM4LP6M
+         kcOB48M3uct5lBG0WhPXVbJU1bzKoDPMTh1O6wv1Vd4ACxU3arX6msDMQEca1HyrUW
+         H6Zy83uDRjlmfLk9B9rsD3YdK/sYO52eAOdM7b38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, yang xu <xuyang2018.jy@cn.fujitsu.com>,
+        Li Zhijian <lizhijian@cn.fujitsu.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 038/227] selftests: netfilter: reduce zone stress test running time
+Subject: [PATCH 5.15 025/196] kselftest: signal all child processes
 Date:   Mon, 21 Feb 2022 09:47:37 +0100
-Message-Id: <20220221084936.127082941@linuxfoundation.org>
+Message-Id: <20220221084931.740963893@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Li Zhijian <lizhijian@cn.fujitsu.com>
 
-[ Upstream commit c858620d2ae3489409af593f005a48a8a324da3d ]
+[ Upstream commit 92d25637a3a45904292c93f1863c6bbda4e3e38f ]
 
-This selftests needs almost 3 minutes to complete, reduce the
-insertes zones to 1000.  Test now completes in about 20 seconds.
+We have some many cases that will create child process as well, such as
+pidfd_wait. Previously, we will signal/kill the parent process when it
+is time out, but this signal will not be sent to its child process. In
+such case, if child process doesn't terminate itself, ksefltest framework
+will hang forever.
 
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Here we group all its child processes so that kill() can signal all of
+them in timeout.
+
+Fixed change log: Shuah Khan <skhan@linuxfoundation.org>
+
+Suggested-by: yang xu <xuyang2018.jy@cn.fujitsu.com>
+Signed-off-by: Li Zhijian <lizhijian@cn.fujitsu.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/netfilter/nft_zones_many.sh | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ tools/testing/selftests/kselftest_harness.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/netfilter/nft_zones_many.sh b/tools/testing/selftests/netfilter/nft_zones_many.sh
-index 04633119b29a0..5a8db0b48928f 100755
---- a/tools/testing/selftests/netfilter/nft_zones_many.sh
-+++ b/tools/testing/selftests/netfilter/nft_zones_many.sh
-@@ -9,7 +9,7 @@ ns="ns-$sfx"
- # Kselftest framework requirement - SKIP code is 4.
- ksft_skip=4
+diff --git a/tools/testing/selftests/kselftest_harness.h b/tools/testing/selftests/kselftest_harness.h
+index 79a182cfa43ad..78e59620d28de 100644
+--- a/tools/testing/selftests/kselftest_harness.h
++++ b/tools/testing/selftests/kselftest_harness.h
+@@ -875,7 +875,8 @@ static void __timeout_handler(int sig, siginfo_t *info, void *ucontext)
+ 	}
  
--zones=20000
-+zones=2000
- have_ct_tool=0
- ret=0
+ 	t->timed_out = true;
+-	kill(t->pid, SIGKILL);
++	// signal process group
++	kill(-(t->pid), SIGKILL);
+ }
  
-@@ -75,10 +75,10 @@ EOF
- 
- 	while [ $i -lt $max_zones ]; do
- 		local start=$(date +%s%3N)
--		i=$((i + 10000))
-+		i=$((i + 1000))
- 		j=$((j + 1))
- 		# nft rule in output places each packet in a different zone.
--		dd if=/dev/zero of=/dev/stdout bs=8k count=10000 2>/dev/null | ip netns exec "$ns" socat STDIN UDP:127.0.0.1:12345,sourceport=12345
-+		dd if=/dev/zero of=/dev/stdout bs=8k count=1000 2>/dev/null | ip netns exec "$ns" socat STDIN UDP:127.0.0.1:12345,sourceport=12345
- 		if [ $? -ne 0 ] ;then
- 			ret=1
- 			break
-@@ -86,7 +86,7 @@ EOF
- 
- 		stop=$(date +%s%3N)
- 		local duration=$((stop-start))
--		echo "PASS: added 10000 entries in $duration ms (now $i total, loop $j)"
-+		echo "PASS: added 1000 entries in $duration ms (now $i total, loop $j)"
- 	done
- 
- 	if [ $have_ct_tool -eq 1 ]; then
-@@ -128,11 +128,11 @@ test_conntrack_tool() {
- 			break
- 		fi
- 
--		if [ $((i%10000)) -eq 0 ];then
-+		if [ $((i%1000)) -eq 0 ];then
- 			stop=$(date +%s%3N)
- 
- 			local duration=$((stop-start))
--			echo "PASS: added 10000 entries in $duration ms (now $i total)"
-+			echo "PASS: added 1000 entries in $duration ms (now $i total)"
- 			start=$stop
- 		fi
- 	done
+ void __wait_for_test(struct __test_metadata *t)
+@@ -985,6 +986,7 @@ void __run_test(struct __fixture_metadata *f,
+ 		ksft_print_msg("ERROR SPAWNING TEST CHILD\n");
+ 		t->passed = 0;
+ 	} else if (t->pid == 0) {
++		setpgrp();
+ 		t->fn(t, variant);
+ 		if (t->skip)
+ 			_exit(255);
 -- 
 2.34.1
 
