@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B7A94BE2FB
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:56:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B0674BE276
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:55:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237258AbiBUJtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:49:16 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43754 "EHLO
+        id S1347775AbiBUJKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:10:24 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352668AbiBUJro (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:44 -0500
+        with ESMTP id S1347779AbiBUJJO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:14 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB7043AC0;
-        Mon, 21 Feb 2022 01:20:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DC4262DA;
+        Mon, 21 Feb 2022 01:01:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 35FCE60F46;
-        Mon, 21 Feb 2022 09:20:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49A00C340E9;
-        Mon, 21 Feb 2022 09:20:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDCD76112C;
+        Mon, 21 Feb 2022 09:01:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC7ECC340E9;
+        Mon, 21 Feb 2022 09:01:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435215;
-        bh=u1VESbYTBB2j0uL6y0zoMIwdzny/GFPCUlEFzINx4XA=;
+        s=korg; t=1645434101;
+        bh=tP5CUsGrhz28rz/+xDcgKWdz9OnlZ9AuyjX1ULukau8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hyUbQ9j+rSPTWuvTmp56IkntTD2xbXHTGjsGVf/gZ7g7HHqeVUQ3mCpllq0rgcAhL
-         PLqXYN4iQtr0rBKkx4F0GczCq1elf5Dmxq2AkHvkPsC0kbFaJEJQTukOIHn/44Vpnh
-         rQiUZ8JOaxxxnxe72y3SGKHnsnKlRyS9e8/tSGXQ=
+        b=onl1/74M1LxKn/8vEbajvS6fyU+auYLvN2Rdf/3VtPZa9Nsj6Su/7nCc36qvdQ0VN
+         c5YjGpLC5wVox4O+6P1HKv09aIGduiKShi6Ct/uf4C1MvY/Zp6QiQBaMs6+7yBcy5K
+         9pzuAE9DTSGXH9DzOt2m+OEMCUHnxUo8tA/dHQ0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 086/227] vsock: remove vsock from connected table when connect is interrupted by a signal
+        stable@vger.kernel.org, Rolf Eike Beer <eike-kernel@sf-tec.de>,
+        John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.10 013/121] parisc: Fix data TLB miss in sba_unmap_sg
 Date:   Mon, 21 Feb 2022 09:48:25 +0100
-Message-Id: <20220221084937.737285754@linuxfoundation.org>
+Message-Id: <20220221084921.590961242@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seth Forshee <sforshee@digitalocean.com>
+From: John David Anglin <dave.anglin@bell.net>
 
-commit b9208492fcaecff8f43915529ae34b3bcb03877c upstream.
+commit b7d6f44a0fa716a82969725516dc0b16bc7cd514 upstream.
 
-vsock_connect() expects that the socket could already be in the
-TCP_ESTABLISHED state when the connecting task wakes up with a signal
-pending. If this happens the socket will be in the connected table, and
-it is not removed when the socket state is reset. In this situation it's
-common for the process to retry connect(), and if the connection is
-successful the socket will be added to the connected table a second
-time, corrupting the list.
+Rolf Eike Beer reported the following bug:
 
-Prevent this by calling vsock_remove_connected() if a signal is received
-while waiting for a connection. This is harmless if the socket is not in
-the connected table, and if it is in the table then removing it will
-prevent list corruption from a double add.
+[1274934.746891] Bad Address (null pointer deref?): Code=15 (Data TLB miss fault) at addr 0000004140000018
+[1274934.746891] CPU: 3 PID: 5549 Comm: cmake Not tainted 5.15.4-gentoo-parisc64 #4
+[1274934.746891] Hardware name: 9000/785/C8000
+[1274934.746891]
+[1274934.746891]      YZrvWESTHLNXBCVMcbcbcbcbOGFRQPDI
+[1274934.746891] PSW: 00001000000001001111111000001110 Not tainted
+[1274934.746891] r00-03  000000ff0804fe0e 0000000040bc9bc0 00000000406760e4 0000004140000000
+[1274934.746891] r04-07  0000000040b693c0 0000004140000000 000000004a2b08b0 0000000000000001
+[1274934.746891] r08-11  0000000041f98810 0000000000000000 000000004a0a7000 0000000000000001
+[1274934.746891] r12-15  0000000040bddbc0 0000000040c0cbc0 0000000040bddbc0 0000000040bddbc0
+[1274934.746891] r16-19  0000000040bde3c0 0000000040bddbc0 0000000040bde3c0 0000000000000007
+[1274934.746891] r20-23  0000000000000006 000000004a368950 0000000000000000 0000000000000001
+[1274934.746891] r24-27  0000000000001fff 000000000800000e 000000004a1710f0 0000000040b693c0
+[1274934.746891] r28-31  0000000000000001 0000000041f988b0 0000000041f98840 000000004a171118
+[1274934.746891] sr00-03  00000000066e5800 0000000000000000 0000000000000000 00000000066e5800
+[1274934.746891] sr04-07  0000000000000000 0000000000000000 0000000000000000 0000000000000000
+[1274934.746891]
+[1274934.746891] IASQ: 0000000000000000 0000000000000000 IAOQ: 00000000406760e8 00000000406760ec
+[1274934.746891]  IIR: 48780030    ISR: 0000000000000000  IOR: 0000004140000018
+[1274934.746891]  CPU:        3   CR30: 00000040e3a9c000 CR31: ffffffffffffffff
+[1274934.746891]  ORIG_R28: 0000000040acdd58
+[1274934.746891]  IAOQ[0]: sba_unmap_sg+0xb0/0x118
+[1274934.746891]  IAOQ[1]: sba_unmap_sg+0xb4/0x118
+[1274934.746891]  RP(r2): sba_unmap_sg+0xac/0x118
+[1274934.746891] Backtrace:
+[1274934.746891]  [<00000000402740cc>] dma_unmap_sg_attrs+0x6c/0x70
+[1274934.746891]  [<000000004074d6bc>] scsi_dma_unmap+0x54/0x60
+[1274934.746891]  [<00000000407a3488>] mptscsih_io_done+0x150/0xd70
+[1274934.746891]  [<0000000040798600>] mpt_interrupt+0x168/0xa68
+[1274934.746891]  [<0000000040255a48>] __handle_irq_event_percpu+0xc8/0x278
+[1274934.746891]  [<0000000040255c34>] handle_irq_event_percpu+0x3c/0xd8
+[1274934.746891]  [<000000004025ecb4>] handle_percpu_irq+0xb4/0xf0
+[1274934.746891]  [<00000000402548e0>] generic_handle_irq+0x50/0x70
+[1274934.746891]  [<000000004019a254>] call_on_stack+0x18/0x24
+[1274934.746891]
+[1274934.746891] Kernel panic - not syncing: Bad Address (null pointer deref?)
 
-Note for backporting: this patch requires d5afa82c977e ("vsock: correct
-removal of socket from the list"), which is in all current stable trees
-except 4.9.y.
+The bug is caused by overrunning the sglist and incorrectly testing
+sg_dma_len(sglist) before nents. Normally this doesn't cause a crash,
+but in this case sglist crossed a page boundary. This occurs in the
+following code:
 
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Signed-off-by: Seth Forshee <sforshee@digitalocean.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/20220217141312.2297547-1-sforshee@digitalocean.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+	while (sg_dma_len(sglist) && nents--) {
+
+The fix is simply to test nents first and move the decrement of nents
+into the loop.
+
+Reported-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/vmw_vsock/af_vsock.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/parisc/sba_iommu.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1400,6 +1400,7 @@ static int vsock_connect(struct socket *
- 			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
- 			sock->state = SS_UNCONNECTED;
- 			vsock_transport_cancel_pkt(vsk);
-+			vsock_remove_connected(vsk);
- 			goto out_wait;
- 		} else if (timeout == 0) {
- 			err = -ETIMEDOUT;
+--- a/drivers/parisc/sba_iommu.c
++++ b/drivers/parisc/sba_iommu.c
+@@ -1047,7 +1047,7 @@ sba_unmap_sg(struct device *dev, struct
+ 	spin_unlock_irqrestore(&ioc->res_lock, flags);
+ #endif
+ 
+-	while (sg_dma_len(sglist) && nents--) {
++	while (nents && sg_dma_len(sglist)) {
+ 
+ 		sba_unmap_page(dev, sg_dma_address(sglist), sg_dma_len(sglist),
+ 				direction, 0);
+@@ -1056,6 +1056,7 @@ sba_unmap_sg(struct device *dev, struct
+ 		ioc->usingle_calls--;	/* kluge since call is unmap_sg() */
+ #endif
+ 		++sglist;
++		nents--;
+ 	}
+ 
+ 	DBG_RUN_SG("%s() DONE (nents %d)\n", __func__,  nents);
 
 
