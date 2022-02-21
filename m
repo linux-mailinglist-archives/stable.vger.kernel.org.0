@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A9CA4BE139
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE9454BE97D
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:07:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346498AbiBUI5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:57:53 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43776 "EHLO
+        id S1347629AbiBUJI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:08:56 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346433AbiBUI5A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:57:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 986FA24F35;
-        Mon, 21 Feb 2022 00:54:11 -0800 (PST)
+        with ESMTP id S1347625AbiBUJIi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:08:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BF9D245AF;
+        Mon, 21 Feb 2022 01:00:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78A3060FB6;
-        Mon, 21 Feb 2022 08:54:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62991C340E9;
-        Mon, 21 Feb 2022 08:54:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD2196112C;
+        Mon, 21 Feb 2022 09:00:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A28B8C340E9;
+        Mon, 21 Feb 2022 09:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433643;
-        bh=6LMTJymLcHBzX6coi3x+0TcnDuzE9a9Gnd4VQCaZv4A=;
+        s=korg; t=1645434024;
+        bh=+K0VwmMexA2L3+pqCHBDD2Xt8G4WfkwYOqLZIN+59Dw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b66HuuGbFphdVUq23FOWDQz0e38ITcJNH/z+2T5dYiL7P/OGGwx5sO+bo7ulaNX31
-         6uiS/taujk+l7dOXsPALpoR0kJa0tkxWhghEI/VluAFcrv8OAyPHxoYLBEXoNr2+tD
-         gB5cZO/eFwNnQo7hAqAuiLEzvRGDWiKGRo8myePo=
+        b=biajW6tDtXnKwLdn3dKoLMeLc3ZA5dB2HtONnLa3qxKk3sf9gwk0ZCOjTI8R6yUsU
+         Bd9mjwxoYdo+T4gB5FYG3zaN4CxWFuSBxZAkMrtNy6FywIDCwFuwA/QFjBGNZm50sz
+         tnc6hK7f185GHy6u8wuMw49DlfrUU6BV836KiG9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, david regan <dregan@mail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 38/45] mtd: rawnand: brcmnand: Fixed incorrect sub-page ECC status
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 49/80] ASoC: ops: Fix stereo change notifications in snd_soc_put_volsw_range()
 Date:   Mon, 21 Feb 2022 09:49:29 +0100
-Message-Id: <20220221084911.685226217@linuxfoundation.org>
+Message-Id: <20220221084917.183135042@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: david regan <dregan@mail.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 36415a7964711822e63695ea67fede63979054d9 ]
+commit 650204ded3703b5817bd4b6a77fa47d333c4f902 upstream.
 
-The brcmnand driver contains a bug in which if a page (example 2k byte)
-is read from the parallel/ONFI NAND and within that page a subpage (512
-byte) has correctable errors which is followed by a subpage with
-uncorrectable errors, the page read will return the wrong status of
-correctable (as opposed to the actual status of uncorrectable.)
+When writing out a stereo control we discard the change notification from
+the first channel, meaning that events are only generated based on changes
+to the second channel. Ensure that we report a change if either channel
+has changed.
 
-The bug is in function brcmnand_read_by_pio where there is a check for
-uncorrectable bits which will be preempted if a previous status for
-correctable bits is detected.
-
-The fix is to stop checking for bad bits only if we already have a bad
-bits status.
-
-Fixes: 27c5b17cd1b1 ("mtd: nand: add NAND driver "library" for Broadcom STB NAND controller")
-Signed-off-by: david regan <dregan@mail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/trinity-478e0c09-9134-40e8-8f8c-31c371225eda-1643237024774@3c-app-mailcom-lxa02
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220201155629.120510-4-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/brcmnand/brcmnand.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/soc-ops.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mtd/nand/brcmnand/brcmnand.c b/drivers/mtd/nand/brcmnand/brcmnand.c
-index be4c6f256e807..2741147481c0a 100644
---- a/drivers/mtd/nand/brcmnand/brcmnand.c
-+++ b/drivers/mtd/nand/brcmnand/brcmnand.c
-@@ -1673,7 +1673,7 @@ static int brcmnand_read_by_pio(struct mtd_info *mtd, struct nand_chip *chip,
- 					mtd->oobsize / trans,
- 					host->hwcfg.sector_size_1k);
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -523,7 +523,7 @@ int snd_soc_put_volsw_range(struct snd_k
+ 	unsigned int mask = (1 << fls(max)) - 1;
+ 	unsigned int invert = mc->invert;
+ 	unsigned int val, val_mask;
+-	int ret;
++	int err, ret;
  
--		if (!ret) {
-+		if (ret != -EBADMSG) {
- 			*err_addr = brcmnand_get_uncorrecc_addr(ctrl);
+ 	if (invert)
+ 		val = (max - ucontrol->value.integer.value[0]) & mask;
+@@ -532,9 +532,10 @@ int snd_soc_put_volsw_range(struct snd_k
+ 	val_mask = mask << shift;
+ 	val = val << shift;
  
- 			if (*err_addr)
--- 
-2.34.1
-
+-	ret = snd_soc_component_update_bits(component, reg, val_mask, val);
+-	if (ret < 0)
+-		return ret;
++	err = snd_soc_component_update_bits(component, reg, val_mask, val);
++	if (err < 0)
++		return err;
++	ret = err;
+ 
+ 	if (snd_soc_volsw_is_stereo(mc)) {
+ 		if (invert)
+@@ -544,8 +545,12 @@ int snd_soc_put_volsw_range(struct snd_k
+ 		val_mask = mask << shift;
+ 		val = val << shift;
+ 
+-		ret = snd_soc_component_update_bits(component, rreg, val_mask,
++		err = snd_soc_component_update_bits(component, rreg, val_mask,
+ 			val);
++		/* Don't discard any error code or drop change flag */
++		if (ret == 0 || err < 0) {
++			ret = err;
++		}
+ 	}
+ 
+ 	return ret;
 
 
