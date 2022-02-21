@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B56174BE6C3
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:02:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C93F4BE40E
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:58:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347721AbiBUJOr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:14:47 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36352 "EHLO
+        id S236951AbiBUKEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 05:04:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349988AbiBUJNG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:13:06 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89F8726101;
-        Mon, 21 Feb 2022 01:06:15 -0800 (PST)
+        with ESMTP id S1353226AbiBUJ5R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2610846646;
+        Mon, 21 Feb 2022 01:25:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C8FEBCE0E97;
-        Mon, 21 Feb 2022 09:06:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEED6C340E9;
-        Mon, 21 Feb 2022 09:06:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE97D60FE0;
+        Mon, 21 Feb 2022 09:25:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BCBAC340E9;
+        Mon, 21 Feb 2022 09:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434372;
-        bh=ByQlx2/Jf/R4CwJu/sdtRN1UzlkUt8oJnCrautKDukc=;
+        s=korg; t=1645435506;
+        bh=R4TuLef2DSgjZ3rFzWIyayhSS9Db1ZXijWzAtPi6lX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OkR0tGQmGMXKlSG/W94eH9XqinqhjMsdO2r/p41WwZwY1vlZ1zBnHuAXuisJv+Faq
-         24PTt6aiRaJ2Q2CjqleqCpV6uVMIHhR14i6gHndoZ3AvP+BYuAAKEIqiIGQeeDadLd
-         L6E1B4iniincU+8Q6xyCuvbeEa0+mCDIWtxKZV6Y=
+        b=i3tyon1FaPaiL5/OiqcIaPOa6tHcBM5RhnJuAOBiAtYQR2CkMXv4AzOo8UpfxWQK5
+         qn74usyIAK7Ihj7eI9e7HS+Q2xJFfM+XFuUhz2jRayyVRkmr1rO9ete78e7l6OVxsa
+         RHSedNW9GguXky+yLYcCBcrGxpy9KYPc+BArJHRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, JaeSang Yoo <jsyoo5b@gmail.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 107/121] tracing: Fix tp_printk option related with tp_printk_stop_on_boot
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.16 180/227] dmaengine: stm32-dmamux: Fix PM disable depth imbalance in stm32_dmamux_probe
 Date:   Mon, 21 Feb 2022 09:49:59 +0100
-Message-Id: <20220221084924.808384997@linuxfoundation.org>
+Message-Id: <20220221084940.797979682@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: JaeSang Yoo <js.yoo.5b@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 3203ce39ac0b2a57a84382ec184c7d4a0bede175 ]
+commit e831c7aba950f3ae94002b10321279654525e5ec upstream.
 
-The kernel parameter "tp_printk_stop_on_boot" starts with "tp_printk" which is
-the same as another kernel parameter "tp_printk". If "tp_printk" setup is
-called before the "tp_printk_stop_on_boot", it will override the latter
-and keep it from being set.
+The pm_runtime_enable will increase power disable depth.
+If the probe fails, we should use pm_runtime_disable() to balance
+pm_runtime_enable().
 
-This is similar to other kernel parameter issues, such as:
-  Commit 745a600cf1a6 ("um: console: Ignore console= option")
-or init/do_mounts.c:45 (setup function of "ro" kernel param)
-
-Fix it by checking for a "_" right after the "tp_printk" and if that
-exists do not process the parameter.
-
-Link: https://lkml.kernel.org/r/20220208195421.969326-1-jsyoo5b@gmail.com
-
-Signed-off-by: JaeSang Yoo <jsyoo5b@gmail.com>
-[ Fixed up change log and added space after if condition ]
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4f3ceca254e0 ("dmaengine: stm32-dmamux: Add PM Runtime support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Link: https://lore.kernel.org/r/20220108085336.11992-1-linmq006@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/dma/stm32-dmamux.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index a0729213f37be..f9fad789321b0 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -250,6 +250,10 @@ __setup("trace_clock=", set_trace_boot_clock);
+--- a/drivers/dma/stm32-dmamux.c
++++ b/drivers/dma/stm32-dmamux.c
+@@ -292,10 +292,12 @@ static int stm32_dmamux_probe(struct pla
+ 	ret = of_dma_router_register(node, stm32_dmamux_route_allocate,
+ 				     &stm32_dmamux->dmarouter);
+ 	if (ret)
+-		goto err_clk;
++		goto pm_disable;
  
- static int __init set_tracepoint_printk(char *str)
- {
-+	/* Ignore the "tp_printk_stop_on_boot" param */
-+	if (*str == '_')
-+		return 0;
-+
- 	if ((strcmp(str, "=0") != 0 && strcmp(str, "=off") != 0))
- 		tracepoint_printk = 1;
- 	return 1;
--- 
-2.34.1
-
+ 	return 0;
+ 
++pm_disable:
++	pm_runtime_disable(&pdev->dev);
+ err_clk:
+ 	clk_disable_unprepare(stm32_dmamux->clk);
+ 
 
 
