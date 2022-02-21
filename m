@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A62034BD6FB
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 08:43:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99C4D4BD6FE
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 08:43:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229744AbiBUHRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 02:17:01 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46888 "EHLO
+        id S239156AbiBUHRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 02:17:08 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234591AbiBUHQ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 02:16:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C878FB5E
-        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 23:16:35 -0800 (PST)
+        with ESMTP id S231303AbiBUHRH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 02:17:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 493F41FE
+        for <stable@vger.kernel.org>; Sun, 20 Feb 2022 23:16:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20411B80E7D
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 07:16:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45F1DC340E9;
-        Mon, 21 Feb 2022 07:16:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D806B60F21
+        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 07:16:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC8C4C340E9;
+        Mon, 21 Feb 2022 07:16:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645427792;
-        bh=O+XAku0YpNNXgXWH+AgI62VOPaE0EV4gG3OV3YhO5Pk=;
+        s=korg; t=1645427804;
+        bh=MdNmbwHwLqds/C983HOdC4vuOZrpspF7ux0gXm2q+X8=;
         h=Subject:To:Cc:From:Date:From;
-        b=v7/jMJgDdLD1zn9gXANzVlnvdM3jjoO81Xv3puLxJNBHRVOleU7ONwaaY03oaax3j
-         HNQpefVZrKEy+47GzHriGftQTxjxb4BJYGwigwO+W6nb/VyBQ0qiYT5kKfGERZ0Lux
-         ZH2SQ7tOLjYj2dktKFUkn8vaF0sBj8N8xhoNjtcg=
-Subject: FAILED: patch "[PATCH] sched: Fix yet more sched_fork() races" failed to apply to 5.10-stable tree
+        b=LzooN7/7VxBmktScFxeQeBaDdAM23rMPhgH7D41gqcrWJnZ5hS1JYhdSBfUa9lE3w
+         GU8HsPq0J1ZOtUpHO8B/TONL24XBDgCoRlTRmwkbATTVosPr5BfEzyzAOgkZ6TjY7l
+         NEjtsI/xeQ+gLexJ0QymUDsDEMIKwQDU/Y21DTI0=
+Subject: FAILED: patch "[PATCH] sched: Fix yet more sched_fork() races" failed to apply to 5.16-stable tree
 To:     peterz@infradead.org, dietmar.eggemann@arm.com,
         tadeusz.struk@linaro.org, torvalds@linux-foundation.org,
         zhangqiao22@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Feb 2022 08:16:30 +0100
-Message-ID: <1645427790130195@kroah.com>
+Date:   Mon, 21 Feb 2022 08:16:31 +0100
+Message-ID: <16454277918679@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
