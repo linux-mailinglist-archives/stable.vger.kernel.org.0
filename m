@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D75504BDC80
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00A574BDC3F
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232346AbiBUJjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:39:17 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37492 "EHLO
+        id S1352434AbiBUKDi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 05:03:38 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350684AbiBUJf3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:35:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 634B1659B;
-        Mon, 21 Feb 2022 01:14:51 -0800 (PST)
+        with ESMTP id S1353428AbiBUJ50 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CA5D47AC2;
+        Mon, 21 Feb 2022 01:25:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E43960EA3;
-        Mon, 21 Feb 2022 09:14:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C71EC340E9;
-        Mon, 21 Feb 2022 09:14:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2121560F8C;
+        Mon, 21 Feb 2022 09:25:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08AD5C340E9;
+        Mon, 21 Feb 2022 09:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434890;
-        bh=BOnIhtOxhnn7VldcjnILH2G5d8hO49/zPZe3pqe3v6o=;
+        s=korg; t=1645435537;
+        bh=Kj5P1zY5l6pTNOhGPDTG6um+5ioqc9DX0x+C/sMtssQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KH2NUv00GD51kFNW4EDROIjIuouumc94QrX/XXCdRbpjbNZ/FV0735org6eBuLOQT
-         prq+D8aWHyZg4jl4tAcQaCPuIiqD7pB25hd5plEsXBzFDWpq0wSghbslxTPYMziAV8
-         Poww9BGMwYBTQyYgdIzznF61AJIcAwNdsQdjWl94=
+        b=p3tKIDeNGl16zxKzqDQbOqhXtL4H0vnZQ3kaoxKdv0/qouyYou2cIe5joxVAM6cc3
+         aKk5dWyx6HEVIDE0C4Tmp0N/od9BJ3h4oiWqu5x7ZSKm0xjR77q+/nfIne1O83N9gB
+         xHHZ9T9LqpsAmV7Fh/ItRd9+jCfoaouq/QjH+P2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 168/196] drm/rockchip: dw_hdmi: Do not leave clock enabled in error case
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.16 181/227] dmaengine: sh: rcar-dmac: Check for error num after dma_set_max_seg_size
 Date:   Mon, 21 Feb 2022 09:50:00 +0100
-Message-Id: <20220221084936.570013696@linuxfoundation.org>
+Message-Id: <20220221084940.829316946@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit c0cfbb122275da1b726481de5a8cffeb24e6322b ]
+commit da2ad87fba0891576aadda9161b8505fde81a84d upstream.
 
-The driver returns an error when devm_phy_optional_get() fails leaving
-the previously enabled clock turned on. Change order and enable the
-clock only after the phy has been acquired.
+As the possible failure of the dma_set_max_seg_size(), it should be
+better to check the return value of the dma_set_max_seg_size().
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220126145549.617165-3-s.hauer@pengutronix.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 97d49c59e219 ("dmaengine: rcar-dmac: set scatter/gather max segment size")
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20220111011239.452837-1-jiasheng@iscas.ac.cn
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/dma/sh/rcar-dmac.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c b/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
-index 830bdd5e9b7ce..8677c82716784 100644
---- a/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
-@@ -529,13 +529,6 @@ static int dw_hdmi_rockchip_bind(struct device *dev, struct device *master,
- 		return ret;
- 	}
+--- a/drivers/dma/sh/rcar-dmac.c
++++ b/drivers/dma/sh/rcar-dmac.c
+@@ -1868,7 +1868,10 @@ static int rcar_dmac_probe(struct platfo
  
--	ret = clk_prepare_enable(hdmi->vpll_clk);
--	if (ret) {
--		DRM_DEV_ERROR(hdmi->dev, "Failed to enable HDMI vpll: %d\n",
--			      ret);
--		return ret;
--	}
--
- 	hdmi->phy = devm_phy_optional_get(dev, "hdmi");
- 	if (IS_ERR(hdmi->phy)) {
- 		ret = PTR_ERR(hdmi->phy);
-@@ -544,6 +537,13 @@ static int dw_hdmi_rockchip_bind(struct device *dev, struct device *master,
- 		return ret;
- 	}
- 
-+	ret = clk_prepare_enable(hdmi->vpll_clk);
-+	if (ret) {
-+		DRM_DEV_ERROR(hdmi->dev, "Failed to enable HDMI vpll: %d\n",
-+			      ret);
+ 	dmac->dev = &pdev->dev;
+ 	platform_set_drvdata(pdev, dmac);
+-	dma_set_max_seg_size(dmac->dev, RCAR_DMATCR_MASK);
++	ret = dma_set_max_seg_size(dmac->dev, RCAR_DMATCR_MASK);
++	if (ret)
 +		return ret;
-+	}
 +
- 	drm_encoder_helper_add(encoder, &dw_hdmi_rockchip_encoder_helper_funcs);
- 	drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_TMDS);
- 
--- 
-2.34.1
-
+ 	ret = dma_set_mask_and_coherent(dmac->dev, DMA_BIT_MASK(40));
+ 	if (ret)
+ 		return ret;
 
 
