@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 784FE4BE8E4
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:06:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71D724BDC63
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346939AbiBUJAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:00:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58386 "EHLO
+        id S1345025AbiBUIvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:51:47 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346061AbiBUI7r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:59:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD74D2655D;
-        Mon, 21 Feb 2022 00:55:16 -0800 (PST)
+        with ESMTP id S1345012AbiBUIvq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:51:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 824C65F64;
+        Mon, 21 Feb 2022 00:51:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 847B861133;
-        Mon, 21 Feb 2022 08:55:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61517C340E9;
-        Mon, 21 Feb 2022 08:55:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EE216114A;
+        Mon, 21 Feb 2022 08:51:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0330C340EB;
+        Mon, 21 Feb 2022 08:51:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433710;
-        bh=oyFYobVkluLYsmiNyANfzF/cCwasyGX2hI+4PT+cfbg=;
+        s=korg; t=1645433482;
+        bh=kGaxBwPREl1YNNSsVl3yhY4N9ZSYBCM7azMKuUbnDI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0XOcL1K7Jhs4yoIQ+oHpQ6HzzORKI4ZvGF9waGDBIGedMQdRA8kmCdlY9n0Tumesi
-         WQFXBuQSkEJeAarQvSVer+T4gGmfrs85UE1A5ZzPtB1607+YlAhuSA/eguX35G3omP
-         RmiGnVIWWVXAUvE4K+czUX45jI0kGHfd/5r6Uh3E=
+        b=bQErazDxYmCY6ZaMTIfE/HU749WJU3fKxpIicwtwtQkGwH2oqB4O/hEPAE/H0cQij
+         P4V/JRlc+HucEVS4TiWkPdvKZTMC7DNXTriPFChH6cBZnIa7tH6xGCoLzy2o86DAgL
+         xfpwCYJ9DSliUdZyvH65xhxnfsj9XXkTDlCqGIOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 15/58] nvme-rdma: fix possible use-after-free in transport error_recovery work
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 15/33] xfrm: Dont accidentally set RTO_ONLINK in decode_session4()
 Date:   Mon, 21 Feb 2022 09:49:08 +0100
-Message-Id: <20220221084912.382212952@linuxfoundation.org>
+Message-Id: <20220221084909.273177621@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
-References: <20220221084911.895146879@linuxfoundation.org>
+In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
+References: <20220221084908.568970525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit b6bb1722f34bbdbabed27acdceaf585d300c5fd2 ]
+commit 23e7b1bfed61e301853b5e35472820d919498278 upstream.
 
-While nvme_rdma_submit_async_event_work is checking the ctrl and queue
-state before preparing the AER command and scheduling io_work, in order
-to fully prevent a race where this check is not reliable the error
-recovery work must flush async_event_work before continuing to destroy
-the admin queue after setting the ctrl state to RESETTING such that
-there is no race .submit_async_event and the error recovery handler
-itself changing the ctrl state.
+Similar to commit 94e2238969e8 ("xfrm4: strip ECN bits from tos field"),
+clear the ECN bits from iph->tos when setting ->flowi4_tos.
+This ensures that the last bit of ->flowi4_tos is cleared, so
+ip_route_output_key_hash() isn't going to restrict the scope of the
+route lookup.
 
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Use ~INET_ECN_MASK instead of IPTOS_RT_MASK, because we have no reason
+to clear the high order bits.
+
+Found by code inspection, compile tested only.
+
+Fixes: 4da3089f2b58 ("[IPSEC]: Use TOS when doing tunnel lookups")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[sudip: manually backport to previous location]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/rdma.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/xfrm4_policy.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index 1f41cf80f827c..55f4999525037 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -1050,6 +1050,7 @@ static void nvme_rdma_error_recovery_work(struct work_struct *work)
- 			struct nvme_rdma_ctrl, err_work);
+--- a/net/ipv4/xfrm4_policy.c
++++ b/net/ipv4/xfrm4_policy.c
+@@ -16,6 +16,7 @@
+ #include <net/xfrm.h>
+ #include <net/ip.h>
+ #include <net/l3mdev.h>
++#include <net/inet_ecn.h>
  
- 	nvme_stop_keep_alive(&ctrl->ctrl);
-+	flush_work(&ctrl->ctrl.async_event_work);
- 	nvme_rdma_teardown_io_queues(ctrl, false);
- 	nvme_start_queues(&ctrl->ctrl);
- 	nvme_rdma_teardown_admin_queue(ctrl, false);
--- 
-2.34.1
-
+ static struct xfrm_policy_afinfo xfrm4_policy_afinfo;
+ 
+@@ -123,7 +124,7 @@ _decode_session4(struct sk_buff *skb, st
+ 	fl4->flowi4_proto = iph->protocol;
+ 	fl4->daddr = reverse ? iph->saddr : iph->daddr;
+ 	fl4->saddr = reverse ? iph->daddr : iph->saddr;
+-	fl4->flowi4_tos = iph->tos;
++	fl4->flowi4_tos = iph->tos & ~INET_ECN_MASK;
+ 
+ 	if (!ip_is_fragment(iph)) {
+ 		switch (iph->protocol) {
 
 
