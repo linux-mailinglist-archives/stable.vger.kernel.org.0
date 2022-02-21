@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2F14BE708
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 259194BE0B9
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349400AbiBUJ1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:27:42 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48096 "EHLO
+        id S1343521AbiBUJRP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:17:15 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350037AbiBUJ1H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F2F522509;
-        Mon, 21 Feb 2022 01:11:20 -0800 (PST)
+        with ESMTP id S1348007AbiBUJK0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:10:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7BD91DA7E;
+        Mon, 21 Feb 2022 01:02:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B7F0608C1;
-        Mon, 21 Feb 2022 09:11:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3EA9C340E9;
-        Mon, 21 Feb 2022 09:11:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40632B80EAC;
+        Mon, 21 Feb 2022 09:02:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CEFFC340E9;
+        Mon, 21 Feb 2022 09:02:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434679;
-        bh=ayzhbvHTxFCtndecG3ypBvvwBNMj+DuyAJR3DFc4phw=;
+        s=korg; t=1645434160;
+        bh=JNoR1dBtACClSBXxV0FH73AMGx14ZhyytNu9vXoNPt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yqtKOcrGJFPkp9TJ9m7cmMcKkgfV3jxtHQAAqKOo7U9H7fhTThTY9X6X/0HV/uiMT
-         6qTgPAZOgr0dIQYbpPSc3L4WyWZksOmb9FXCCv0oZBl7bj2cpQ3+AYt938czoLtPJF
-         qzHSUa+CT//cXXFnHTRy087B3gBrLu3b2E5HSShU=
+        b=KveYsZEKBg3mz+gpIrTyi8ITRSOOc+VkWeunXHhyRSFfUcNjiDUqO45CQDf2qJqAo
+         fHQrlWljr47tPNKwiu8MZOBlI6u/wei9l8h2FhSVjoQSaAJc7UqE6YIoVLlyDNRLgz
+         AAgxMEMUxiJT5n7EN42tW0dk1U+jZRJF2JFA9Fqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mans Rullgard <mans@mansr.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 093/196] net: dsa: lan9303: add VLAN IDs to master device
-Date:   Mon, 21 Feb 2022 09:48:45 +0100
-Message-Id: <20220221084934.056130208@linuxfoundation.org>
+        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Christian Brauner <brauner@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 034/121] quota: make dquot_quota_sync return errors from ->sync_fs
+Date:   Mon, 21 Feb 2022 09:48:46 +0100
+Message-Id: <20220221084922.337947397@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,75 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mans Rullgard <mans@mansr.com>
+From: Darrick J. Wong <djwong@kernel.org>
 
-commit 430065e2671905ac675f97b7af240cc255964e93 upstream.
+[ Upstream commit dd5532a4994bfda0386eb2286ec00758cee08444 ]
 
-If the master device does VLAN filtering, the IDs used by the switch
-must be added for any frames to be received.  Do this in the
-port_enable() function, and remove them in port_disable().
+Strangely, dquot_quota_sync ignores the return code from the ->sync_fs
+call, which means that quotacalls like Q_SYNC never see the error.  This
+doesn't seem right, so fix that.
 
-Fixes: a1292595e006 ("net: dsa: add new DSA switch driver for the SMSC-LAN9303")
-Signed-off-by: Mans Rullgard <mans@mansr.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20220216204818.28746-1-mans@mansr.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Christian Brauner <brauner@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/Kconfig        |    1 +
- drivers/net/dsa/lan9303-core.c |   11 +++++++++--
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ fs/quota/dquot.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/net/dsa/Kconfig
-+++ b/drivers/net/dsa/Kconfig
-@@ -81,6 +81,7 @@ config NET_DSA_REALTEK_SMI
+diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
+index 4f13734637660..09fb8459bb5ce 100644
+--- a/fs/quota/dquot.c
++++ b/fs/quota/dquot.c
+@@ -692,9 +692,14 @@ int dquot_quota_sync(struct super_block *sb, int type)
+ 	/* This is not very clever (and fast) but currently I don't know about
+ 	 * any other simple way of getting quota data to disk and we must get
+ 	 * them there for userspace to be visible... */
+-	if (sb->s_op->sync_fs)
+-		sb->s_op->sync_fs(sb, 1);
+-	sync_blockdev(sb->s_bdev);
++	if (sb->s_op->sync_fs) {
++		ret = sb->s_op->sync_fs(sb, 1);
++		if (ret)
++			return ret;
++	}
++	ret = sync_blockdev(sb->s_bdev);
++	if (ret)
++		return ret;
  
- config NET_DSA_SMSC_LAN9303
- 	tristate
-+	depends on VLAN_8021Q || VLAN_8021Q=n
- 	select NET_DSA_TAG_LAN9303
- 	select REGMAP
- 	help
---- a/drivers/net/dsa/lan9303-core.c
-+++ b/drivers/net/dsa/lan9303-core.c
-@@ -10,6 +10,7 @@
- #include <linux/mii.h>
- #include <linux/phy.h>
- #include <linux/if_bridge.h>
-+#include <linux/if_vlan.h>
- #include <linux/etherdevice.h>
- 
- #include "lan9303.h"
-@@ -1083,21 +1084,27 @@ static void lan9303_adjust_link(struct d
- static int lan9303_port_enable(struct dsa_switch *ds, int port,
- 			       struct phy_device *phy)
- {
-+	struct dsa_port *dp = dsa_to_port(ds, port);
- 	struct lan9303 *chip = ds->priv;
- 
--	if (!dsa_is_user_port(ds, port))
-+	if (!dsa_port_is_user(dp))
- 		return 0;
- 
-+	vlan_vid_add(dp->cpu_dp->master, htons(ETH_P_8021Q), port);
-+
- 	return lan9303_enable_processing_port(chip, port);
- }
- 
- static void lan9303_port_disable(struct dsa_switch *ds, int port)
- {
-+	struct dsa_port *dp = dsa_to_port(ds, port);
- 	struct lan9303 *chip = ds->priv;
- 
--	if (!dsa_is_user_port(ds, port))
-+	if (!dsa_port_is_user(dp))
- 		return;
- 
-+	vlan_vid_del(dp->cpu_dp->master, htons(ETH_P_8021Q), port);
-+
- 	lan9303_disable_processing_port(chip, port);
- 	lan9303_phy_write(ds, chip->phy_addr_base + port, MII_BMCR, BMCR_PDOWN);
- }
+ 	/*
+ 	 * Now when everything is written we can discard the pagecache so
+-- 
+2.34.1
+
 
 
