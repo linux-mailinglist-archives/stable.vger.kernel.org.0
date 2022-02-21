@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CA1E4BDF45
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:49:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAC314BE239
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:55:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350364AbiBUJj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:39:28 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48444 "EHLO
+        id S1347748AbiBUJJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:09:14 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351546AbiBUJhY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:37:24 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 628C83A1B7;
-        Mon, 21 Feb 2022 01:16:00 -0800 (PST)
+        with ESMTP id S1347800AbiBUJIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:08:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F56A24BE0;
+        Mon, 21 Feb 2022 01:00:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BD68ACE0E86;
-        Mon, 21 Feb 2022 09:15:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C93E4C340E9;
-        Mon, 21 Feb 2022 09:15:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF73761132;
+        Mon, 21 Feb 2022 09:00:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D36AEC340E9;
+        Mon, 21 Feb 2022 09:00:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434956;
-        bh=vTNezd7ITeYogPa6Ic5lEnlszyEHwfYUKwFOjDwVfeY=;
+        s=korg; t=1645434035;
+        bh=0x6i4OlwnfiUrwgKFWTgJ7ebyVDAj1Ju/6rNnIfShrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qAk2fmBUPUKK+lpKxPZjvQxtGUUsoacHJHuUViYqkOlA5sgVSWbBM5wIISPJ3dKHP
-         pMD+8E6E5A0Iib0Ai4/zcFcwC163gdA29M1Y0TIaQ8nuZMvFhRIuse7Pa483FB65YV
-         8NKE4KmNuG5qgP6RCbJ6rZA3a0efX2Qzu43BmdJ8=
+        b=KPtNI3+wF+VboUD0Y72V+UyuES9/dj46TfO4NhT/ugSIxq8yb/YPMDKAtqCVNTJW2
+         9IvvlDF0sB8CZxwWrLPKVhoPGE5/WnLgIbFsXZoC0KJqcb05LkzD5Ulf8/ZoH7Mrdc
+         FJKf+ULFHY3g2IzeNM6ShJ9qelVtAKac3y0TZmuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 158/196] arm64: dts: meson-g12: add ATF BL32 reserved-memory region
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Vivek Thrivikraman <vivek.thrivikraman@est.tech>
+Subject: [PATCH 5.4 70/80] netfilter: conntrack: dont refresh sctp entries in closed state
 Date:   Mon, 21 Feb 2022 09:49:50 +0100
-Message-Id: <20220221084936.234368164@linuxfoundation.org>
+Message-Id: <20220221084917.876437921@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,40 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 08982a1b3aa2611c9c711d24825c9002d28536f4 ]
+[ Upstream commit 77b337196a9d87f3d6bb9b07c0436ecafbffda1e ]
 
-Add an additional reserved memory region for the BL32 trusted firmware
-present in many devices that boot from Amlogic vendor u-boot.
+Vivek Thrivikraman reported:
+ An SCTP server application which is accessed continuously by client
+ application.
+ When the session disconnects the client retries to establish a connection.
+ After restart of SCTP server application the session is not established
+ because of stale conntrack entry with connection state CLOSED as below.
 
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220126044954.19069-3-christianshewitt@gmail.com
+ (removing this entry manually established new connection):
+
+ sctp 9 CLOSED src=10.141.189.233 [..]  [ASSURED]
+
+Just skip timeout update of closed entries, we don't want them to
+stay around forever.
+
+Reported-and-tested-by: Vivek Thrivikraman <vivek.thrivikraman@est.tech>
+Closes: https://bugzilla.netfilter.org/show_bug.cgi?id=1579
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/netfilter/nf_conntrack_proto_sctp.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-index 428449d98c0ae..a3a1ea0f21340 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-@@ -107,6 +107,12 @@
- 			no-map;
- 		};
- 
-+		/* 32 MiB reserved for ARM Trusted Firmware (BL32) */
-+		secmon_reserved_bl32: secmon@5300000 {
-+			reg = <0x0 0x05300000 0x0 0x2000000>;
-+			no-map;
-+		};
+diff --git a/net/netfilter/nf_conntrack_proto_sctp.c b/net/netfilter/nf_conntrack_proto_sctp.c
+index 810cca24b3990..7626f3e1c70a7 100644
+--- a/net/netfilter/nf_conntrack_proto_sctp.c
++++ b/net/netfilter/nf_conntrack_proto_sctp.c
+@@ -489,6 +489,15 @@ int nf_conntrack_sctp_packet(struct nf_conn *ct,
+ 			pr_debug("Setting vtag %x for dir %d\n",
+ 				 ih->init_tag, !dir);
+ 			ct->proto.sctp.vtag[!dir] = ih->init_tag;
 +
- 		linux,cma {
- 			compatible = "shared-dma-pool";
- 			reusable;
++			/* don't renew timeout on init retransmit so
++			 * port reuse by client or NAT middlebox cannot
++			 * keep entry alive indefinitely (incl. nat info).
++			 */
++			if (new_state == SCTP_CONNTRACK_CLOSED &&
++			    old_state == SCTP_CONNTRACK_CLOSED &&
++			    nf_ct_is_confirmed(ct))
++				ignore = true;
+ 		}
+ 
+ 		ct->proto.sctp.state = new_state;
 -- 
 2.34.1
 
