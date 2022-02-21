@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E41B4BE030
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED4A34BE11D
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350846AbiBUJvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:51:36 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42172 "EHLO
+        id S1346438AbiBUJ16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:27:58 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352270AbiBUJrS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AED5041996;
-        Mon, 21 Feb 2022 01:19:17 -0800 (PST)
+        with ESMTP id S1349961AbiBUJ06 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:26:58 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 458E51EED6;
+        Mon, 21 Feb 2022 01:10:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45A6360F16;
-        Mon, 21 Feb 2022 09:19:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26AD7C340E9;
-        Mon, 21 Feb 2022 09:19:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B9A3CCE0E76;
+        Mon, 21 Feb 2022 09:10:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D19C3C340EB;
+        Mon, 21 Feb 2022 09:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435156;
-        bh=DrAGn9se/iGO7lfeJv3SLyvoSg1DSodiMoS+m2ZYLYc=;
+        s=korg; t=1645434654;
+        bh=bVSySelnyAeahJMSw/l2RKJiTmriqOVNBjS17DZ/XGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DCb7nO7amRowhUP8FgLEXgri115xdM5gsqE42ycxtyjGGrQwO1mts2quWI3sD+NwT
-         lu/+XfTnwJc3wCgZsrmS6lzdxRZZUS9ROfufCPtHTHHTSt2gXVhBoDs4OneAEBztCb
-         AYBTgLOCJs+K3fKJSYizsA3nrT80RvMpWnVLfvA8=
+        b=mandIbmO1Lr6Zugza+AtLfPTYBdunbKBKD8ryGTwvD8c4FXYKMvYa4aYTBWSPmebV
+         mNFkktlo9SrSwm1qm/hpqdXP8xiuO2jMU24R+QjYfVYo141R7DaUccCDrAlHPF8Xfh
+         68hmhhHCSz/IzIN08I2PtB9UKt/TKTFC0SFM4wdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 064/227] drm/amd: add support to check whether the system is set to s3
+Subject: [PATCH 5.15 051/196] x86/Xen: streamline (and fix) PV CPU enumeration
 Date:   Mon, 21 Feb 2022 09:48:03 +0100
-Message-Id: <20220221084937.001389776@linuxfoundation.org>
+Message-Id: <20220221084932.647903781@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +55,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit f52a2b8badbd24faf73a13c9c07fdb9d07352944 ]
+[ Upstream commit e25a8d959992f61b64a58fc62fb7951dc6f31d1f ]
 
-This will be used to help make decisions on what to do in
-misconfigured systems.
+This started out with me noticing that "dom0_max_vcpus=<N>" with <N>
+larger than the number of physical CPUs reported through ACPI tables
+would not bring up the "excess" vCPU-s. Addressing this is the primary
+purpose of the change; CPU maps handling is being tidied only as far as
+is necessary for the change here (with the effect of also avoiding the
+setting up of too much per-CPU infrastructure, i.e. for CPUs which can
+never come online).
 
-v2: squash in semicolon fix from Stephen Rothwell
+Noticing that xen_fill_possible_map() is called way too early, whereas
+xen_filter_cpu_maps() is called too late (after per-CPU areas were
+already set up), and further observing that each of the functions serves
+only one of Dom0 or DomU, it looked like it was better to simplify this.
+Use the .get_smp_config hook instead, uniformly for Dom0 and DomU.
+xen_fill_possible_map() can be dropped altogether, while
+xen_filter_cpu_maps() is re-purposed but not otherwise changed.
 
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/2dbd5f0a-9859-ca2d-085e-a02f7166c610@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu.h      |  2 ++
- drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c | 13 +++++++++++++
- 2 files changed, 15 insertions(+)
+ arch/x86/xen/enlighten_pv.c |  4 ----
+ arch/x86/xen/smp_pv.c       | 26 ++++++--------------------
+ 2 files changed, 6 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu.h b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-index 0a5a5370a2004..f59121ec26485 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-@@ -1419,9 +1419,11 @@ static inline int amdgpu_acpi_smart_shift_update(struct drm_device *dev,
- #endif
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index a7b7d674f5005..133ef31639df1 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1364,10 +1364,6 @@ asmlinkage __visible void __init xen_start_kernel(void)
  
- #if defined(CONFIG_ACPI) && defined(CONFIG_SUSPEND)
-+bool amdgpu_acpi_is_s3_active(struct amdgpu_device *adev);
- bool amdgpu_acpi_is_s0ix_active(struct amdgpu_device *adev);
- #else
- static inline bool amdgpu_acpi_is_s0ix_active(struct amdgpu_device *adev) { return false; }
-+static inline bool amdgpu_acpi_is_s3_active(struct amdgpu_device *adev) { return false; }
- #endif
+ 		xen_acpi_sleep_register();
  
- int amdgpu_cs_find_mapping(struct amdgpu_cs_parser *parser,
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
-index b19d407518024..0e12315fa0cb8 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
-@@ -1032,6 +1032,19 @@ void amdgpu_acpi_detect(void)
+-		/* Avoid searching for BIOS MP tables */
+-		x86_init.mpparse.find_smp_config = x86_init_noop;
+-		x86_init.mpparse.get_smp_config = x86_init_uint_noop;
+-
+ 		xen_boot_params_init_edd();
+ 
+ #ifdef CONFIG_ACPI
+diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
+index 7ed56c6075b0c..477c484eb202c 100644
+--- a/arch/x86/xen/smp_pv.c
++++ b/arch/x86/xen/smp_pv.c
+@@ -148,28 +148,12 @@ int xen_smp_intr_init_pv(unsigned int cpu)
+ 	return rc;
  }
  
- #if IS_ENABLED(CONFIG_SUSPEND)
-+/**
-+ * amdgpu_acpi_is_s3_active
-+ *
-+ * @adev: amdgpu_device_pointer
-+ *
-+ * returns true if supported, false if not.
-+ */
-+bool amdgpu_acpi_is_s3_active(struct amdgpu_device *adev)
-+{
-+	return !(adev->flags & AMD_IS_APU) ||
-+		(pm_suspend_target_state == PM_SUSPEND_MEM);
-+}
+-static void __init xen_fill_possible_map(void)
+-{
+-	int i, rc;
+-
+-	if (xen_initial_domain())
+-		return;
+-
+-	for (i = 0; i < nr_cpu_ids; i++) {
+-		rc = HYPERVISOR_vcpu_op(VCPUOP_is_up, i, NULL);
+-		if (rc >= 0) {
+-			num_processors++;
+-			set_cpu_possible(i, true);
+-		}
+-	}
+-}
+-
+-static void __init xen_filter_cpu_maps(void)
++static void __init _get_smp_config(unsigned int early)
+ {
+ 	int i, rc;
+ 	unsigned int subtract = 0;
+ 
+-	if (!xen_initial_domain())
++	if (early)
+ 		return;
+ 
+ 	num_processors = 0;
+@@ -210,7 +194,6 @@ static void __init xen_pv_smp_prepare_boot_cpu(void)
+ 		 * sure the old memory can be recycled. */
+ 		make_lowmem_page_readwrite(xen_initial_gdt);
+ 
+-	xen_filter_cpu_maps();
+ 	xen_setup_vcpu_info_placement();
+ 
+ 	/*
+@@ -486,5 +469,8 @@ static const struct smp_ops xen_smp_ops __initconst = {
+ void __init xen_smp_init(void)
+ {
+ 	smp_ops = xen_smp_ops;
+-	xen_fill_possible_map();
 +
- /**
-  * amdgpu_acpi_is_s0ix_active
-  *
++	/* Avoid searching for BIOS MP tables */
++	x86_init.mpparse.find_smp_config = x86_init_noop;
++	x86_init.mpparse.get_smp_config = _get_smp_config;
+ }
 -- 
 2.34.1
 
