@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 091D44BE610
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E9994BE707
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348169AbiBUJOX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:14:23 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60540 "EHLO
+        id S237857AbiBUJQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:16:41 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348928AbiBUJLv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:51 -0500
+        with ESMTP id S1348944AbiBUJLw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:52 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B664D28E0A;
-        Mon, 21 Feb 2022 01:04:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9626528E22;
+        Mon, 21 Feb 2022 01:04:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 35E1DCE0E95;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 13DC4CE0E6D;
+        Mon, 21 Feb 2022 09:04:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF485C340E9;
         Mon, 21 Feb 2022 09:04:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16455C340E9;
-        Mon, 21 Feb 2022 09:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434265;
-        bh=fL4/Dra4cE3mCT/ue01DU22/SzyOjDpE0T3ldSIbAG0=;
+        s=korg; t=1645434268;
+        bh=uZgeIOlLsvVD5iElQGJhHXz3bdc7jZQ5AEpDpH33PSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BQqLrtZOqC3QEtVOLJgfZxDZPy6vOFdYyEtT3ZFc7cz1VLmXXLv6rwrWaGW6F4dzC
-         9H3zN9LlKpUPexlTDdlXaE/7tgdAc/SbubZlwlonwEPi32LNapCDPT4RpLdTP3KBAf
-         2o4g78lqUIY1Q3GZfOIAMF49xyTb+OSZzDU/pKZ4=
+        b=eTbN4fXay8qJzB/oM/05ZXCIH/D+91IO3oO8rNJDkUoclSJBj7lVBbfNPAdEgVKgi
+         TEH0yQE0MM4y/NwSdGhbRSEG1n2NGuwIrFzgy5qP+rwLv5As0TZeGLvd1EBXVffmGc
+         m4YxkMy698xNIkbum5KNVw9GSL3mrg5FzjSzXc1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Julian Wollrath <jwollrath@web.de>
-Subject: [PATCH 5.10 070/121] ALSA: hda/realtek: Fix deadlock by COEF mutex
-Date:   Mon, 21 Feb 2022 09:49:22 +0100
-Message-Id: <20220221084923.569773210@linuxfoundation.org>
+        stable@vger.kernel.org, dmummenschanz@web.de,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 071/121] ALSA: hda: Fix regression on forced probe mask option
+Date:   Mon, 21 Feb 2022 09:49:23 +0100
+Message-Id: <20220221084923.608959658@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
 References: <20220221084921.147454846@linuxfoundation.org>
@@ -55,116 +55,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 2a845837e3d0ddaed493b4c5c4643d7f0542804d upstream.
+commit 6317f7449348a897483a2b4841f7a9190745c81b upstream.
 
-The recently introduced coef_mutex for Realtek codec seems causing a
-deadlock when the relevant code is invoked from the power-off state;
-then the HD-audio core tries to power-up internally, and this kicks
-off the codec runtime PM code that tries to take the same coef_mutex.
+The forced probe mask via probe_mask 0x100 bit doesn't work any longer
+as expected since the bus init code was moved and it's clearing the
+codec_mask value that was set beforehand.  This patch fixes the
+long-time regression by moving the check_probe_mask() call.
 
-In order to avoid the deadlock, do the temporary power up/down around
-the coef_mutex acquisition and release.  This assures that the
-power-up sequence runs before the mutex, hence no re-entrance will
-happen.
-
-Fixes: b837a9f5ab3b ("ALSA: hda: realtek: Fix race at concurrent COEF updates")
-Reported-and-tested-by: Julian Wollrath <jwollrath@web.de>
+Fixes: a41d122449be ("ALSA: hda - Embed bus into controller object")
+Reported-by: dmummenschanz@web.de
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220214132838.4db10fca@schienar
-Link: https://lore.kernel.org/r/20220214130410.21230-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/trinity-f018660b-95c9-442b-a2a8-c92a56eb07ed-1644345967148@3c-app-webde-bap22
+Link: https://lore.kernel.org/r/20220214100020.8870-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   39 ++++++++++++++++++++++++---------------
- 1 file changed, 24 insertions(+), 15 deletions(-)
+ sound/pci/hda/hda_intel.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -134,6 +134,22 @@ struct alc_spec {
-  * COEF access helper functions
-  */
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1837,8 +1837,6 @@ static int azx_create(struct snd_card *c
  
-+static void coef_mutex_lock(struct hda_codec *codec)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	snd_hda_power_up_pm(codec);
-+	mutex_lock(&spec->coef_mutex);
-+}
-+
-+static void coef_mutex_unlock(struct hda_codec *codec)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	mutex_unlock(&spec->coef_mutex);
-+	snd_hda_power_down_pm(codec);
-+}
-+
- static int __alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
- 				 unsigned int coef_idx)
- {
-@@ -147,12 +163,11 @@ static int __alc_read_coefex_idx(struct
- static int alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
- 			       unsigned int coef_idx)
- {
--	struct alc_spec *spec = codec->spec;
- 	unsigned int val;
+ 	assign_position_fix(chip, check_position_fix(chip, position_fix[dev]));
  
--	mutex_lock(&spec->coef_mutex);
-+	coef_mutex_lock(codec);
- 	val = __alc_read_coefex_idx(codec, nid, coef_idx);
--	mutex_unlock(&spec->coef_mutex);
-+	coef_mutex_unlock(codec);
- 	return val;
- }
- 
-@@ -169,11 +184,9 @@ static void __alc_write_coefex_idx(struc
- static void alc_write_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
- 				 unsigned int coef_idx, unsigned int coef_val)
- {
--	struct alc_spec *spec = codec->spec;
+-	check_probe_mask(chip, dev);
 -
--	mutex_lock(&spec->coef_mutex);
-+	coef_mutex_lock(codec);
- 	__alc_write_coefex_idx(codec, nid, coef_idx, coef_val);
--	mutex_unlock(&spec->coef_mutex);
-+	coef_mutex_unlock(codec);
- }
- 
- #define alc_write_coef_idx(codec, coef_idx, coef_val) \
-@@ -194,11 +207,9 @@ static void alc_update_coefex_idx(struct
- 				  unsigned int coef_idx, unsigned int mask,
- 				  unsigned int bits_set)
- {
--	struct alc_spec *spec = codec->spec;
--
--	mutex_lock(&spec->coef_mutex);
-+	coef_mutex_lock(codec);
- 	__alc_update_coefex_idx(codec, nid, coef_idx, mask, bits_set);
--	mutex_unlock(&spec->coef_mutex);
-+	coef_mutex_unlock(codec);
- }
- 
- #define alc_update_coef_idx(codec, coef_idx, mask, bits_set)	\
-@@ -231,9 +242,7 @@ struct coef_fw {
- static void alc_process_coef_fw(struct hda_codec *codec,
- 				const struct coef_fw *fw)
- {
--	struct alc_spec *spec = codec->spec;
--
--	mutex_lock(&spec->coef_mutex);
-+	coef_mutex_lock(codec);
- 	for (; fw->nid; fw++) {
- 		if (fw->mask == (unsigned short)-1)
- 			__alc_write_coefex_idx(codec, fw->nid, fw->idx, fw->val);
-@@ -241,7 +250,7 @@ static void alc_process_coef_fw(struct h
- 			__alc_update_coefex_idx(codec, fw->nid, fw->idx,
- 						fw->mask, fw->val);
+ 	if (single_cmd < 0) /* allow fallback to single_cmd at errors */
+ 		chip->fallback_to_single_cmd = 1;
+ 	else /* explicitly set to single_cmd or not */
+@@ -1866,6 +1864,8 @@ static int azx_create(struct snd_card *c
+ 		chip->bus.core.needs_damn_long_delay = 1;
  	}
--	mutex_unlock(&spec->coef_mutex);
-+	coef_mutex_unlock(codec);
- }
  
- /*
++	check_probe_mask(chip, dev);
++
+ 	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops);
+ 	if (err < 0) {
+ 		dev_err(card->dev, "Error creating device [card]!\n");
 
 
