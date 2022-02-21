@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6A764BDCC9
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB6194BE6E3
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:02:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349946AbiBUJ36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:29:58 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51996 "EHLO
+        id S1351581AbiBUJwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:52:50 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349304AbiBUJ2r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:28:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DB54240A2;
-        Mon, 21 Feb 2022 01:12:58 -0800 (PST)
+        with ESMTP id S1351482AbiBUJwG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:52:06 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C17521C11E;
+        Mon, 21 Feb 2022 01:22:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BE9D9CE0E79;
-        Mon, 21 Feb 2022 09:12:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC855C340E9;
-        Mon, 21 Feb 2022 09:12:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1D307CE0E95;
+        Mon, 21 Feb 2022 09:22:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0106EC340F8;
+        Mon, 21 Feb 2022 09:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434775;
-        bh=SK0woKC69aS1dpqIlWjbdHwaagPL1JG3IRZDlQJKPpE=;
+        s=korg; t=1645435374;
+        bh=CvA19KV9FG1Gjf9m0b3HLPFaZC9yM084E9lwfwyuGhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MInopzXv/njEdN/Jd0UCf5TwgpFJKAOfjcRuewGE5YFCxsCv2ybbJmHxGdFNDdFJL
-         cJthextqUH6iEvTYm7Jg+Z5piEEjUAWxQFAV1fOq/GJouBWC3TPy+msidFF/+xNw2s
-         EXTNbP3I9tjxGtdNn6Z3cdSuU4OWLUapAsjnyYIo=
+        b=LbFUfA5CF0Q9/vf1afLC1WFFzh4W+PyVuey3xDp7iMS2lN6lZ9Hdxnn8ou3jfPecq
+         vX9N9/2teoWSwHstiLIG3qkG+eHt75KrqiAfWUOqx1014snV0hp3js5Q1LPympljiv
+         1LRh2/zJ8KzntS4Nh75bkV2AYSq/PnHpZaXY07eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 127/196] scsi: ufs: Fix a deadlock in the error handler
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Julian Wollrath <jwollrath@web.de>
+Subject: [PATCH 5.16 140/227] ALSA: hda/realtek: Fix deadlock by COEF mutex
 Date:   Mon, 21 Feb 2022 09:49:19 +0100
-Message-Id: <20220221084935.189662360@linuxfoundation.org>
+Message-Id: <20220221084939.495721883@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,187 +53,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 945c3cca05d78351bba29fa65d93834cb7934c7b upstream.
+commit 2a845837e3d0ddaed493b4c5c4643d7f0542804d upstream.
 
-The following deadlock has been observed on a test setup:
+The recently introduced coef_mutex for Realtek codec seems causing a
+deadlock when the relevant code is invoked from the power-off state;
+then the HD-audio core tries to power-up internally, and this kicks
+off the codec runtime PM code that tries to take the same coef_mutex.
 
- - All tags allocated
+In order to avoid the deadlock, do the temporary power up/down around
+the coef_mutex acquisition and release.  This assures that the
+power-up sequence runs before the mutex, hence no re-entrance will
+happen.
 
- - The SCSI error handler calls ufshcd_eh_host_reset_handler()
-
- - ufshcd_eh_host_reset_handler() queues work that calls
-   ufshcd_err_handler()
-
- - ufshcd_err_handler() locks up as follows:
-
-Workqueue: ufs_eh_wq_0 ufshcd_err_handler.cfi_jt
-Call trace:
- __switch_to+0x298/0x5d8
- __schedule+0x6cc/0xa94
- schedule+0x12c/0x298
- blk_mq_get_tag+0x210/0x480
- __blk_mq_alloc_request+0x1c8/0x284
- blk_get_request+0x74/0x134
- ufshcd_exec_dev_cmd+0x68/0x640
- ufshcd_verify_dev_init+0x68/0x35c
- ufshcd_probe_hba+0x12c/0x1cb8
- ufshcd_host_reset_and_restore+0x88/0x254
- ufshcd_reset_and_restore+0xd0/0x354
- ufshcd_err_handler+0x408/0xc58
- process_one_work+0x24c/0x66c
- worker_thread+0x3e8/0xa4c
- kthread+0x150/0x1b4
- ret_from_fork+0x10/0x30
-
-Fix this lockup by making ufshcd_exec_dev_cmd() allocate a reserved
-request.
-
-Link: https://lore.kernel.org/r/20211203231950.193369-10-bvanassche@acm.org
-Tested-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: b837a9f5ab3b ("ALSA: hda: realtek: Fix race at concurrent COEF updates")
+Reported-and-tested-by: Julian Wollrath <jwollrath@web.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220214132838.4db10fca@schienar
+Link: https://lore.kernel.org/r/20220214130410.21230-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshcd.c |   53 ++++++++++++----------------------------------
- drivers/scsi/ufs/ufshcd.h |    2 +
- 2 files changed, 16 insertions(+), 39 deletions(-)
+ sound/pci/hda/patch_realtek.c |   39 ++++++++++++++++++++++++---------------
+ 1 file changed, 24 insertions(+), 15 deletions(-)
 
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -125,8 +125,9 @@ EXPORT_SYMBOL_GPL(ufshcd_dump_regs);
- enum {
- 	UFSHCD_MAX_CHANNEL	= 0,
- 	UFSHCD_MAX_ID		= 1,
--	UFSHCD_CMD_PER_LUN	= 32,
--	UFSHCD_CAN_QUEUE	= 32,
-+	UFSHCD_NUM_RESERVED	= 1,
-+	UFSHCD_CMD_PER_LUN	= 32 - UFSHCD_NUM_RESERVED,
-+	UFSHCD_CAN_QUEUE	= 32 - UFSHCD_NUM_RESERVED,
- };
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -133,6 +133,22 @@ struct alc_spec {
+  * COEF access helper functions
+  */
  
- /* UFSHCD error handling flags */
-@@ -2185,6 +2186,7 @@ static inline int ufshcd_hba_capabilitie
- 	hba->nutrs = (hba->capabilities & MASK_TRANSFER_REQUESTS_SLOTS) + 1;
- 	hba->nutmrs =
- 	((hba->capabilities & MASK_TASK_MANAGEMENT_REQUEST_SLOTS) >> 16) + 1;
-+	hba->reserved_slot = hba->nutrs - 1;
- 
- 	/* Read crypto capabilities */
- 	err = ufshcd_hba_init_crypto_capabilities(hba);
-@@ -2910,30 +2912,15 @@ static int ufshcd_wait_for_dev_cmd(struc
- static int ufshcd_exec_dev_cmd(struct ufs_hba *hba,
- 		enum dev_cmd_type cmd_type, int timeout)
++static void coef_mutex_lock(struct hda_codec *codec)
++{
++	struct alc_spec *spec = codec->spec;
++
++	snd_hda_power_up_pm(codec);
++	mutex_lock(&spec->coef_mutex);
++}
++
++static void coef_mutex_unlock(struct hda_codec *codec)
++{
++	struct alc_spec *spec = codec->spec;
++
++	mutex_unlock(&spec->coef_mutex);
++	snd_hda_power_down_pm(codec);
++}
++
+ static int __alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+ 				 unsigned int coef_idx)
  {
--	struct request_queue *q = hba->cmd_queue;
- 	DECLARE_COMPLETION_ONSTACK(wait);
--	struct request *req;
-+	const u32 tag = hba->reserved_slot;
- 	struct ufshcd_lrb *lrbp;
- 	int err;
--	int tag;
+@@ -146,12 +162,11 @@ static int __alc_read_coefex_idx(struct
+ static int alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+ 			       unsigned int coef_idx)
+ {
+-	struct alc_spec *spec = codec->spec;
+ 	unsigned int val;
  
--	down_read(&hba->clk_scaling_lock);
-+	/* Protects use of hba->reserved_slot. */
-+	lockdep_assert_held(&hba->dev_cmd.lock);
- 
--	/*
--	 * Get free slot, sleep if slots are unavailable.
--	 * Even though we use wait_event() which sleeps indefinitely,
--	 * the maximum wait time is bounded by SCSI request timeout.
--	 */
--	req = blk_get_request(q, REQ_OP_DRV_OUT, 0);
--	if (IS_ERR(req)) {
--		err = PTR_ERR(req);
--		goto out_unlock;
--	}
--	tag = req->tag;
--	WARN_ONCE(tag < 0, "Invalid tag %d\n", tag);
--	/* Set the timeout such that the SCSI error handler is not activated. */
--	req->timeout = msecs_to_jiffies(2 * timeout);
--	blk_mq_start_request(req);
-+	down_read(&hba->clk_scaling_lock);
- 
- 	lrbp = &hba->lrb[tag];
- 	WARN_ON(lrbp->cmd);
-@@ -2951,8 +2938,6 @@ static int ufshcd_exec_dev_cmd(struct uf
- 				    (struct utp_upiu_req *)lrbp->ucd_rsp_ptr);
- 
- out:
--	blk_put_request(req);
--out_unlock:
- 	up_read(&hba->clk_scaling_lock);
- 	return err;
+-	mutex_lock(&spec->coef_mutex);
++	coef_mutex_lock(codec);
+ 	val = __alc_read_coefex_idx(codec, nid, coef_idx);
+-	mutex_unlock(&spec->coef_mutex);
++	coef_mutex_unlock(codec);
+ 	return val;
  }
-@@ -6640,23 +6625,16 @@ static int ufshcd_issue_devman_upiu_cmd(
- 					enum dev_cmd_type cmd_type,
- 					enum query_opcode desc_op)
+ 
+@@ -168,11 +183,9 @@ static void __alc_write_coefex_idx(struc
+ static void alc_write_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+ 				 unsigned int coef_idx, unsigned int coef_val)
  {
--	struct request_queue *q = hba->cmd_queue;
- 	DECLARE_COMPLETION_ONSTACK(wait);
--	struct request *req;
-+	const u32 tag = hba->reserved_slot;
- 	struct ufshcd_lrb *lrbp;
- 	int err = 0;
--	int tag;
- 	u8 upiu_flags;
- 
--	down_read(&hba->clk_scaling_lock);
-+	/* Protects use of hba->reserved_slot. */
-+	lockdep_assert_held(&hba->dev_cmd.lock);
- 
--	req = blk_get_request(q, REQ_OP_DRV_OUT, 0);
--	if (IS_ERR(req)) {
--		err = PTR_ERR(req);
--		goto out_unlock;
--	}
--	tag = req->tag;
--	WARN_ONCE(tag < 0, "Invalid tag %d\n", tag);
-+	down_read(&hba->clk_scaling_lock);
- 
- 	lrbp = &hba->lrb[tag];
- 	WARN_ON(lrbp->cmd);
-@@ -6725,9 +6703,6 @@ static int ufshcd_issue_devman_upiu_cmd(
- 	ufshcd_add_query_upiu_trace(hba, err ? UFS_QUERY_ERR : UFS_QUERY_COMP,
- 				    (struct utp_upiu_req *)lrbp->ucd_rsp_ptr);
- 
--	blk_put_request(req);
+-	struct alc_spec *spec = codec->spec;
 -
--out_unlock:
- 	up_read(&hba->clk_scaling_lock);
- 	return err;
+-	mutex_lock(&spec->coef_mutex);
++	coef_mutex_lock(codec);
+ 	__alc_write_coefex_idx(codec, nid, coef_idx, coef_val);
+-	mutex_unlock(&spec->coef_mutex);
++	coef_mutex_unlock(codec);
  }
-@@ -9418,8 +9393,8 @@ int ufshcd_init(struct ufs_hba *hba, voi
- 	/* Configure LRB */
- 	ufshcd_host_memory_configure(hba);
  
--	host->can_queue = hba->nutrs;
--	host->cmd_per_lun = hba->nutrs;
-+	host->can_queue = hba->nutrs - UFSHCD_NUM_RESERVED;
-+	host->cmd_per_lun = hba->nutrs - UFSHCD_NUM_RESERVED;
- 	host->max_id = UFSHCD_MAX_ID;
- 	host->max_lun = UFS_MAX_LUNS;
- 	host->max_channel = UFSHCD_MAX_CHANNEL;
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -725,6 +725,7 @@ struct ufs_hba_monitor {
-  * @capabilities: UFS Controller Capabilities
-  * @nutrs: Transfer Request Queue depth supported by controller
-  * @nutmrs: Task Management Queue depth supported by controller
-+ * @reserved_slot: Used to submit device commands. Protected by @dev_cmd.lock.
-  * @ufs_version: UFS Version to which controller complies
-  * @vops: pointer to variant specific operations
-  * @priv: pointer to variant specific private data
-@@ -813,6 +814,7 @@ struct ufs_hba {
- 	u32 capabilities;
- 	int nutrs;
- 	int nutmrs;
-+	u32 reserved_slot;
- 	u32 ufs_version;
- 	const struct ufs_hba_variant_ops *vops;
- 	struct ufs_hba_variant_params *vps;
+ #define alc_write_coef_idx(codec, coef_idx, coef_val) \
+@@ -193,11 +206,9 @@ static void alc_update_coefex_idx(struct
+ 				  unsigned int coef_idx, unsigned int mask,
+ 				  unsigned int bits_set)
+ {
+-	struct alc_spec *spec = codec->spec;
+-
+-	mutex_lock(&spec->coef_mutex);
++	coef_mutex_lock(codec);
+ 	__alc_update_coefex_idx(codec, nid, coef_idx, mask, bits_set);
+-	mutex_unlock(&spec->coef_mutex);
++	coef_mutex_unlock(codec);
+ }
+ 
+ #define alc_update_coef_idx(codec, coef_idx, mask, bits_set)	\
+@@ -230,9 +241,7 @@ struct coef_fw {
+ static void alc_process_coef_fw(struct hda_codec *codec,
+ 				const struct coef_fw *fw)
+ {
+-	struct alc_spec *spec = codec->spec;
+-
+-	mutex_lock(&spec->coef_mutex);
++	coef_mutex_lock(codec);
+ 	for (; fw->nid; fw++) {
+ 		if (fw->mask == (unsigned short)-1)
+ 			__alc_write_coefex_idx(codec, fw->nid, fw->idx, fw->val);
+@@ -240,7 +249,7 @@ static void alc_process_coef_fw(struct h
+ 			__alc_update_coefex_idx(codec, fw->nid, fw->idx,
+ 						fw->mask, fw->val);
+ 	}
+-	mutex_unlock(&spec->coef_mutex);
++	coef_mutex_unlock(codec);
+ }
+ 
+ /*
 
 
