@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBB744BDD85
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:45:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E67484BE9BB
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:08:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350390AbiBUJmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:42:21 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58486 "EHLO
+        id S1348663AbiBUJXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:23:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350933AbiBUJls (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:41:48 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2A373DA67;
-        Mon, 21 Feb 2022 01:17:36 -0800 (PST)
+        with ESMTP id S1349817AbiBUJVt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:21:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C3E1369C8;
+        Mon, 21 Feb 2022 01:09:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 57690CE0EA4;
-        Mon, 21 Feb 2022 09:17:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3780DC340FC;
-        Mon, 21 Feb 2022 09:17:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15C196092A;
+        Mon, 21 Feb 2022 09:09:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF138C340E9;
+        Mon, 21 Feb 2022 09:09:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435049;
-        bh=QVHi1Fo2w+5SF4nm3Aba/ncolOFBS7ktXZEtqMSRG1w=;
+        s=korg; t=1645434546;
+        bh=jpZH6xrh9hccXtiZXWyWHqnt+rfjkT9gFkXP6XsvMPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1CqfhpZwK4jQZxYvQ00zJtyE3UiZhXpW3Wa7rxmvCMkLA5c2+cwTUFgNflkBa8olk
-         J3vaioM0GCOuVYiox7CwvFqlc0yJPj2njqsSHgQbWF7HKHeNXoxywYMuZIDtOO9rBQ
-         gdwqtVNPiKASxvhtjZ3So7WjF2/0grcl5+DmvPDk=
+        b=wn7F9wNY4nqklOp0tkIxLdFI+8xvM7mXK51Z3JaV+H+AHvMpdQsIh2aLKPfuqLOn5
+         sFdUvSQPG2T2B9IvqV92g+EPI8MDB5bPm6FDv6f8CHxa3LGqHUsOK8cNq4r766BA7K
+         L0dJ/kYw54HSr1i2PLmcOiXfQpICKSifrewdsD7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.16 026/227] parisc: Add ioread64_lo_hi() and iowrite64_lo_hi()
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Oded Gabbay <oded.gabbay@gmail.com>
+Subject: [PATCH 5.15 013/196] mm: dont try to NUMA-migrate COW pages that have other uses
 Date:   Mon, 21 Feb 2022 09:47:25 +0100
-Message-Id: <20220221084935.708276643@linuxfoundation.org>
+Message-Id: <20220221084931.336758063@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 18a1d5e1945385d9b5adc3fe11427ce4a9d2826e upstream.
+commit 80d47f5de5e311cbc0d01ebb6ee684e8f4c196c6 upstream.
 
-It's a followup to the previous commit f15309d7ad5d ("parisc: Add
-ioread64_hi_lo() and iowrite64_hi_lo()") which does only half of
-the job. Add the rest, so we won't get a new kernel test robot
-reports.
+Oded Gabbay reports that enabling NUMA balancing causes corruption with
+his Gaudi accelerator test load:
 
-Fixes: f15309d7ad5d ("parisc: Add ioread64_hi_lo() and iowrite64_hi_lo()")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+ "All the details are in the bug, but the bottom line is that somehow,
+  this patch causes corruption when the numa balancing feature is
+  enabled AND we don't use process affinity AND we use GUP to pin pages
+  so our accelerator can DMA to/from system memory.
+
+  Either disabling numa balancing, using process affinity to bind to
+  specific numa-node or reverting this patch causes the bug to
+  disappear"
+
+and Oded bisected the issue to commit 09854ba94c6a ("mm: do_wp_page()
+simplification").
+
+Now, the NUMA balancing shouldn't actually be changing the writability
+of a page, and as such shouldn't matter for COW.  But it appears it
+does.  Suspicious.
+
+However, regardless of that, the condition for enabling NUMA faults in
+change_pte_range() is nonsensical.  It uses "page_mapcount(page)" to
+decide if a COW page should be NUMA-protected or not, and that makes
+absolutely no sense.
+
+The number of mappings a page has is irrelevant: not only does GUP get a
+reference to a page as in Oded's case, but the other mappings migth be
+paged out and the only reference to them would be in the page count.
+
+Since we should never try to NUMA-balance a page that we can't move
+anyway due to other references, just fix the code to use 'page_count()'.
+Oded confirms that that fixes his issue.
+
+Now, this does imply that something in NUMA balancing ends up changing
+page protections (other than the obvious one of making the page
+inaccessible to get the NUMA faulting information).  Otherwise the COW
+simplification wouldn't matter - since doing the GUP on the page would
+make sure it's writable.
+
+The cause of that permission change would be good to figure out too,
+since it clearly results in spurious COW events - but fixing the
+nonsensical test that just happened to work before is obviously the
+CorrectThing(tm) to do regardless.
+
+Fixes: 09854ba94c6a ("mm: do_wp_page() simplification")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215616
+Link: https://lore.kernel.org/all/CAFCwf10eNmwq2wD71xjUhqkvv5+_pJMR1nPug2RqNDcFT4H86Q@mail.gmail.com/
+Reported-and-tested-by: Oded Gabbay <oded.gabbay@gmail.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Peter Xu <peterx@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/lib/iomap.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ mm/mprotect.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/parisc/lib/iomap.c
-+++ b/arch/parisc/lib/iomap.c
-@@ -346,6 +346,16 @@ u64 ioread64be(const void __iomem *addr)
- 	return *((u64 *)addr);
- }
+--- a/mm/mprotect.c
++++ b/mm/mprotect.c
+@@ -94,7 +94,7 @@ static unsigned long change_pte_range(st
  
-+u64 ioread64_lo_hi(const void __iomem *addr)
-+{
-+	u32 low, high;
-+
-+	low = ioread32(addr);
-+	high = ioread32(addr + sizeof(u32));
-+
-+	return low + ((u64)high << 32);
-+}
-+
- u64 ioread64_hi_lo(const void __iomem *addr)
- {
- 	u32 low, high;
-@@ -419,6 +429,12 @@ void iowrite64be(u64 datum, void __iomem
- 	}
- }
+ 				/* Also skip shared copy-on-write pages */
+ 				if (is_cow_mapping(vma->vm_flags) &&
+-				    page_mapcount(page) != 1)
++				    page_count(page) != 1)
+ 					continue;
  
-+void iowrite64_lo_hi(u64 val, void __iomem *addr)
-+{
-+	iowrite32(val, addr);
-+	iowrite32(val >> 32, addr + sizeof(u32));
-+}
-+
- void iowrite64_hi_lo(u64 val, void __iomem *addr)
- {
- 	iowrite32(val >> 32, addr + sizeof(u32));
-@@ -530,6 +546,7 @@ EXPORT_SYMBOL(ioread32);
- EXPORT_SYMBOL(ioread32be);
- EXPORT_SYMBOL(ioread64);
- EXPORT_SYMBOL(ioread64be);
-+EXPORT_SYMBOL(ioread64_lo_hi);
- EXPORT_SYMBOL(ioread64_hi_lo);
- EXPORT_SYMBOL(iowrite8);
- EXPORT_SYMBOL(iowrite16);
-@@ -538,6 +555,7 @@ EXPORT_SYMBOL(iowrite32);
- EXPORT_SYMBOL(iowrite32be);
- EXPORT_SYMBOL(iowrite64);
- EXPORT_SYMBOL(iowrite64be);
-+EXPORT_SYMBOL(iowrite64_lo_hi);
- EXPORT_SYMBOL(iowrite64_hi_lo);
- EXPORT_SYMBOL(ioread8_rep);
- EXPORT_SYMBOL(ioread16_rep);
+ 				/*
 
 
