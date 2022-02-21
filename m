@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E58C4BE08B
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EA424BDB5E
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:40:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347103AbiBUJDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:03:32 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33072 "EHLO
+        id S1347827AbiBUJJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:09:36 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347410AbiBUJBV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:01:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB14127FFD;
-        Mon, 21 Feb 2022 00:56:26 -0800 (PST)
+        with ESMTP id S1347833AbiBUJI5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:08:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38B710C7;
+        Mon, 21 Feb 2022 01:00:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D5A061132;
-        Mon, 21 Feb 2022 08:56:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26C94C340E9;
-        Mon, 21 Feb 2022 08:56:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 854CAB80E9F;
+        Mon, 21 Feb 2022 09:00:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8E82C340EB;
+        Mon, 21 Feb 2022 09:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433774;
-        bh=Fx69TGtCU+DC6D/k/su0vz+KUpPNih+GxX4SBwdw02A=;
+        s=korg; t=1645434055;
+        bh=8EwKBdDVSWMetdB7ddbuUVk0uMEgmlhr2j3tMEZx9HQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NPAMku/hOewOw1ayIE02iToFCS8ppjT10M9tkE0Pmm/phRyMffjnPTruZMu2ElW71
-         SdPJ0zAHit6cQZU8sq74Yz4Ycs3UG3/TlU4WGvNQWvVtRLReXcIKMvz3WSw2gZgKox
-         uT/ByyG5rwNQ1DjHPCEerDey5bDyqeLchCkNtJt0=
+        b=O4+Ig2NRIShy3DxKxo2wigrC0pYDzxPN2ZHqaNb3M59jyeLy2x+SDyNhgeHJMXoIR
+         xQ7YCKhfQh85gs/q+1x/Kukl8i9YowDqMoB0ssZA6YqWNsAEdnMNiYHNhMx2qJ3kYq
+         NOv+HeRLArBQcQb6SiHiSzwLp6+iJ0RymcPFid5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@rehdat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Laibin Qiu <qiulaibin@huawei.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 37/58] block/wbt: fix negative inflight counter when remove scsi device
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 50/80] powerpc/lib/sstep: fix ptesync build error
 Date:   Mon, 21 Feb 2022 09:49:30 +0100
-Message-Id: <20220221084913.075259372@linuxfoundation.org>
+Message-Id: <20220221084917.214820783@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
-References: <20220221084911.895146879@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laibin Qiu <qiulaibin@huawei.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-commit e92bc4cd34de2ce454bdea8cd198b8067ee4e123 upstream.
+commit fe663df7825811358531dc2e8a52d9eaa5e3515e upstream.
 
-Now that we disable wbt by set WBT_STATE_OFF_DEFAULT in
-wbt_disable_default() when switch elevator to bfq. And when
-we remove scsi device, wbt will be enabled by wbt_enable_default.
-If it become false positive between wbt_wait() and wbt_track()
-when submit write request.
+Building tinyconfig with gcc (Debian 11.2.0-16) and assembler (Debian
+2.37.90.20220207) the following build error shows up:
 
-The following is the scenario that triggered the problem.
+  {standard input}: Assembler messages:
+  {standard input}:2088: Error: unrecognized opcode: `ptesync'
+  make[3]: *** [/builds/linux/scripts/Makefile.build:287: arch/powerpc/lib/sstep.o] Error 1
 
-T1                          T2                           T3
-                            elevator_switch_mq
-                            bfq_init_queue
-                            wbt_disable_default <= Set
-                            rwb->enable_state (OFF)
-Submit_bio
-blk_mq_make_request
-rq_qos_throttle
-<= rwb->enable_state (OFF)
-                                                         scsi_remove_device
-                                                         sd_remove
-                                                         del_gendisk
-                                                         blk_unregister_queue
-                                                         elv_unregister_queue
-                                                         wbt_enable_default
-                                                         <= Set rwb->enable_state (ON)
-q_qos_track
-<= rwb->enable_state (ON)
-^^^^^^ this request will mark WBT_TRACKED without inflight add and will
-lead to drop rqw->inflight to -1 in wbt_done() which will trigger IO hung.
+Add the 'ifdef CONFIG_PPC64' around the 'ptesync' in function
+'emulate_update_regs()' to like it is in 'analyse_instr()'. Since it looks like
+it got dropped inadvertently by commit 3cdfcbfd32b9 ("powerpc: Change
+analyse_instr so it doesn't modify *regs").
 
-Fix this by move wbt_enable_default() from elv_unregister to
-bfq_exit_queue(). Only re-enable wbt when bfq exit.
+A key detail is that analyse_instr() will never recognise lwsync or
+ptesync on 32-bit (because of the existing ifdef), and as a result
+emulate_update_regs() should never be called with an op specifying
+either of those on 32-bit. So removing them from emulate_update_regs()
+should be a nop in terms of runtime behaviour.
 
-Fixes: 76a8040817b4b ("blk-wbt: make sure throttle is enabled properly")
-
-Remove oneline stale comment, and kill one oneshot local variable.
-
-Signed-off-by: Ming Lei <ming.lei@rehdat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/linux-block/20211214133103.551813-1-qiulaibin@huawei.com/
-Signed-off-by: Laibin Qiu <qiulaibin@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 3cdfcbfd32b9 ("powerpc: Change analyse_instr so it doesn't modify *regs")
+Cc: stable@vger.kernel.org # v4.14+
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+[mpe: Add last paragraph of change log mentioning analyse_instr() details]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220211005113.1361436-1-anders.roxell@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-iosched.c |    2 ++
- block/elevator.c    |    2 --
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/lib/sstep.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -5417,6 +5417,8 @@ static void bfq_exit_queue(struct elevat
- 	spin_unlock_irq(&bfqd->lock);
- #endif
- 
-+	wbt_enable_default(bfqd->queue);
-+
- 	kfree(bfqd);
- }
- 
---- a/block/elevator.c
-+++ b/block/elevator.c
-@@ -877,8 +877,6 @@ void elv_unregister_queue(struct request
- 		kobject_del(&e->kobj);
- 
- 		e->registered = 0;
--		/* Re-enable throttling in case elevator disabled it */
--		wbt_enable_default(q);
- 	}
- }
+--- a/arch/powerpc/lib/sstep.c
++++ b/arch/powerpc/lib/sstep.c
+@@ -2787,12 +2787,14 @@ void emulate_update_regs(struct pt_regs
+ 		case BARRIER_EIEIO:
+ 			eieio();
+ 			break;
++#ifdef CONFIG_PPC64
+ 		case BARRIER_LWSYNC:
+ 			asm volatile("lwsync" : : : "memory");
+ 			break;
+ 		case BARRIER_PTESYNC:
+ 			asm volatile("ptesync" : : : "memory");
+ 			break;
++#endif
+ 		}
+ 		break;
  
 
 
