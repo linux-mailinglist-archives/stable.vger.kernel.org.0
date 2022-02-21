@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 445834BE3C7
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:57:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A99034BE9A5
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:07:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351117AbiBUJsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:48:36 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41642 "EHLO
+        id S1348924AbiBUJXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:23:18 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351572AbiBUJqK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:46:10 -0500
+        with ESMTP id S1349418AbiBUJVT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:21:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 850543FBD5;
-        Mon, 21 Feb 2022 01:18:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DB1631DCF;
+        Mon, 21 Feb 2022 01:08:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D95D60E2C;
-        Mon, 21 Feb 2022 09:18:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 009C5C340E9;
-        Mon, 21 Feb 2022 09:18:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE13E608C1;
+        Mon, 21 Feb 2022 09:08:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D78BC340E9;
+        Mon, 21 Feb 2022 09:08:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435111;
+        s=korg; t=1645434495;
         bh=G/siQvji3HalXvhT5qhWku0cnOVs8mMRnHkwATbA3bA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HPh3MDVDNoawIor3Rm1UUGSkxQNBhnqHmdOwVSo0u6HnvCOjiblypbiQr39oqC57K
-         AJ4xuQfZy3gmPPlMTcJlKZLcseK6MvIhVUw1UatI5cYEweMTwfp2NbGSlurS3HsBYb
-         V8Rw8+38NHx0Qu9/9ypkOXMmRdirAAKW6+8lsv74=
+        b=sOoEXYdyqbzv2s0jWeWG/2k/dyTu6ekkMCReqX1vFJ+ETNiPUqD+/ygCBpfWnaBCI
+         snsShDa+40/7TG/K1dIgNTtmjF9Z+d6FTgp3Edc8CA9KyQ8afGxuNU4mgwaJJrtviL
+         +nGt0pUqckDoDduUUG2cviLmqNnVJ3Yr6hpzkjWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Yang Xu <xuyang2018.jy@fujitsu.com>,
         Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 041/227] selftests/zram01.sh: Fix compression ratio calculation
+Subject: [PATCH 5.15 028/196] selftests/zram01.sh: Fix compression ratio calculation
 Date:   Mon, 21 Feb 2022 09:47:40 +0100
-Message-Id: <20220221084936.231242501@linuxfoundation.org>
+Message-Id: <20220221084931.854069577@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
