@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F4F44BE1BB
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6415E4BE616
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344357AbiBUJvn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:51:43 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34332 "EHLO
+        id S1348929AbiBUJXT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:23:19 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351918AbiBUJqr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:46:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A75C26553;
-        Mon, 21 Feb 2022 01:18:45 -0800 (PST)
+        with ESMTP id S1349739AbiBUJVl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:21:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D1BC26AF4;
+        Mon, 21 Feb 2022 01:08:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 71C90CE0E79;
-        Mon, 21 Feb 2022 09:18:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50FE9C340E9;
-        Mon, 21 Feb 2022 09:18:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F13B6077B;
+        Mon, 21 Feb 2022 09:08:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7682EC340F4;
+        Mon, 21 Feb 2022 09:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435122;
-        bh=WmPZXkYgM9yn7boO9/5pU3rwI0agwNsW1QZJMs+aPwc=;
+        s=korg; t=1645434535;
+        bh=lBS1PiFdP3yxD/PYLR6hsDp3zi/r/zvvJWP4zHDftYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T3aVJSrczmvSjTK1WjC8zZf1qIpn7mf9Z0HGdvt4BifjNjcCgSAXjW1rQyKt/jPX1
-         MGY3FqXt3GKk1ks5XKIv5XsdOHC4z9o1v/GI1iXzr/nlqlGM7Ntb7kj5gd7uaJuJ1U
-         TPwLcnHfr2Fu43YqGP6VxUb9j8Tn7PBqj8eWjPBo=
+        b=MXoKhJIt3wBv1QTlYPgWYiNeihTS5lsnlDNPaAcFLkePzOB+5QtiXJGQiIKoQx+9B
+         SdaeO2j7IamZyoNFEW8ho70WZbkgJDjwsxY9JfWDtfndag7Z2++IcXFGopcdTgeZQP
+         T78nmhJYQc96+M1iyl/PsiY9RDcx0xeubEusZOHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Viswas G <Viswas.G@microchip.com>,
-        Ajish Koshy <Ajish.Koshy@microchip.com>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Martin Wilck <martin.wilck@suse.com>,
+        Martin Wilck <mwilck@suse.com>, Ming Lei <ming.lei@redhat.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 053/227] scsi: pm80xx: Fix double completion for SATA devices
+Subject: [PATCH 5.15 040/196] scsi: core: Reallocate devices budget map on queue depth change
 Date:   Mon, 21 Feb 2022 09:47:52 +0100
-Message-Id: <20220221084936.635316463@linuxfoundation.org>
+Message-Id: <20220221084932.279177221@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,145 +56,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajish Koshy <Ajish.Koshy@microchip.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit c26b85ea16365079be8d206b20556a60a0c69ad4 ]
+[ Upstream commit edb854a3680bacc9ef9b91ec0c5ff6105886f6f3 ]
 
-Current code handles completions for SATA devices in mpi_sata_completion()
-and mpi_sata_event().
+We currently use ->cmd_per_lun as initial queue depth for setting up the
+budget_map. Martin Wilck reported that it is common for the queue_depth to
+be subsequently updated in slave_configure() based on detected hardware
+characteristics.
 
-However, at the time when any SATA event happens, for almost all the event
-types, the command is still in the target. It is therefore incorrect to
-complete the task in sata_event().
+As a result, for some drivers, the static host template settings for
+cmd_per_lun and can_queue won't actually get used in practice. And if the
+default values are used to allocate the budget_map, memory may be consumed
+unnecessarily.
 
-There are some events for which we get sata_completions, some need recovery
-procedure and others abort. All the tasks must be completed via
-sata_completion() path.
+Fix the issue by reallocating the budget_map after ->slave_configure()
+returns. At that time the device queue_depth should accurately reflect what
+the hardware needs.
 
-Removed the task done related code from sata_events().  For tasks where we
-don't get completions, let top layer call abort() to abort the command post
-timeout.
-
-Link: https://lore.kernel.org/r/20220124082255.86223-1-Ajish.Koshy@microchip.com
-Acked-by: Jack Wang <jinpu.wang@ionos.com>
-Co-developed-by: Viswas G <Viswas.G@microchip.com>
-Signed-off-by: Viswas G <Viswas.G@microchip.com>
-Signed-off-by: Ajish Koshy <Ajish.Koshy@microchip.com>
+Link: https://lore.kernel.org/r/20220127153733.409132-1-ming.lei@redhat.com
+Cc: Bart Van Assche <bvanassche@acm.org>
+Reported-by: Martin Wilck <martin.wilck@suse.com>
+Suggested-by: Martin Wilck <martin.wilck@suse.com>
+Tested-by: Martin Wilck <mwilck@suse.com>
+Reviewed-by: Martin Wilck <mwilck@suse.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_hwi.c | 18 ------------------
- drivers/scsi/pm8001/pm80xx_hwi.c | 26 --------------------------
- 2 files changed, 44 deletions(-)
+ drivers/scsi/scsi_scan.c | 55 ++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 50 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
-index 4390c8b9170cd..066290dd57565 100644
---- a/drivers/scsi/pm8001/pm8001_hwi.c
-+++ b/drivers/scsi/pm8001/pm8001_hwi.c
-@@ -2695,7 +2695,6 @@ static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 	u32 tag = le32_to_cpu(psataPayload->tag);
- 	u32 port_id = le32_to_cpu(psataPayload->port_id);
- 	u32 dev_id = le32_to_cpu(psataPayload->device_id);
--	unsigned long flags;
- 
- 	ccb = &pm8001_ha->ccb_info[tag];
- 
-@@ -2735,8 +2734,6 @@ static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 		ts->resp = SAS_TASK_COMPLETE;
- 		ts->stat = SAS_DATA_OVERRUN;
- 		ts->residual = 0;
--		if (pm8001_dev)
--			atomic_dec(&pm8001_dev->running_req);
- 		break;
- 	case IO_XFER_ERROR_BREAK:
- 		pm8001_dbg(pm8001_ha, IO, "IO_XFER_ERROR_BREAK\n");
-@@ -2778,7 +2775,6 @@ static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 				IO_OPEN_CNX_ERROR_IT_NEXUS_LOSS);
- 			ts->resp = SAS_TASK_COMPLETE;
- 			ts->stat = SAS_QUEUE_FULL;
--			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
- 			return;
- 		}
- 		break;
-@@ -2864,20 +2860,6 @@ static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 		ts->stat = SAS_OPEN_TO;
- 		break;
- 	}
--	spin_lock_irqsave(&t->task_state_lock, flags);
--	t->task_state_flags &= ~SAS_TASK_STATE_PENDING;
--	t->task_state_flags &= ~SAS_TASK_AT_INITIATOR;
--	t->task_state_flags |= SAS_TASK_STATE_DONE;
--	if (unlikely((t->task_state_flags & SAS_TASK_STATE_ABORTED))) {
--		spin_unlock_irqrestore(&t->task_state_lock, flags);
--		pm8001_dbg(pm8001_ha, FAIL,
--			   "task 0x%p done with io_status 0x%x resp 0x%x stat 0x%x but aborted by upper layer!\n",
--			   t, event, ts->resp, ts->stat);
--		pm8001_ccb_task_free(pm8001_ha, t, ccb, tag);
--	} else {
--		spin_unlock_irqrestore(&t->task_state_lock, flags);
--		pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
--	}
+diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
+index fe22191522a3b..7266880c70c21 100644
+--- a/drivers/scsi/scsi_scan.c
++++ b/drivers/scsi/scsi_scan.c
+@@ -198,6 +198,48 @@ static void scsi_unlock_floptical(struct scsi_device *sdev,
+ 			 SCSI_TIMEOUT, 3, NULL);
  }
  
- /*See the comments for mpi_ssp_completion */
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index 4c5b945bf3187..885bc9e71ff64 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -2828,7 +2828,6 @@ static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha,
- 	u32 tag = le32_to_cpu(psataPayload->tag);
- 	u32 port_id = le32_to_cpu(psataPayload->port_id);
- 	u32 dev_id = le32_to_cpu(psataPayload->device_id);
--	unsigned long flags;
- 
- 	ccb = &pm8001_ha->ccb_info[tag];
- 
-@@ -2866,8 +2865,6 @@ static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha,
- 		ts->resp = SAS_TASK_COMPLETE;
- 		ts->stat = SAS_DATA_OVERRUN;
- 		ts->residual = 0;
--		if (pm8001_dev)
--			atomic_dec(&pm8001_dev->running_req);
- 		break;
- 	case IO_XFER_ERROR_BREAK:
- 		pm8001_dbg(pm8001_ha, IO, "IO_XFER_ERROR_BREAK\n");
-@@ -2916,11 +2913,6 @@ static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha,
- 				IO_OPEN_CNX_ERROR_IT_NEXUS_LOSS);
- 			ts->resp = SAS_TASK_COMPLETE;
- 			ts->stat = SAS_QUEUE_FULL;
--			spin_unlock_irqrestore(&circularQ->oq_lock,
--					circularQ->lock_flags);
--			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
--			spin_lock_irqsave(&circularQ->oq_lock,
--					circularQ->lock_flags);
- 			return;
++static int scsi_realloc_sdev_budget_map(struct scsi_device *sdev,
++					unsigned int depth)
++{
++	int new_shift = sbitmap_calculate_shift(depth);
++	bool need_alloc = !sdev->budget_map.map;
++	bool need_free = false;
++	int ret;
++	struct sbitmap sb_backup;
++
++	/*
++	 * realloc if new shift is calculated, which is caused by setting
++	 * up one new default queue depth after calling ->slave_configure
++	 */
++	if (!need_alloc && new_shift != sdev->budget_map.shift)
++		need_alloc = need_free = true;
++
++	if (!need_alloc)
++		return 0;
++
++	/*
++	 * Request queue has to be frozen for reallocating budget map,
++	 * and here disk isn't added yet, so freezing is pretty fast
++	 */
++	if (need_free) {
++		blk_mq_freeze_queue(sdev->request_queue);
++		sb_backup = sdev->budget_map;
++	}
++	ret = sbitmap_init_node(&sdev->budget_map,
++				scsi_device_max_queue_depth(sdev),
++				new_shift, GFP_KERNEL,
++				sdev->request_queue->node, false, true);
++	if (need_free) {
++		if (ret)
++			sdev->budget_map = sb_backup;
++		else
++			sbitmap_free(&sb_backup);
++		ret = 0;
++		blk_mq_unfreeze_queue(sdev->request_queue);
++	}
++	return ret;
++}
++
+ /**
+  * scsi_alloc_sdev - allocate and setup a scsi_Device
+  * @starget: which target to allocate a &scsi_device for
+@@ -291,11 +333,7 @@ static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
+ 	 * default device queue depth to figure out sbitmap shift
+ 	 * since we use this queue depth most of times.
+ 	 */
+-	if (sbitmap_init_node(&sdev->budget_map,
+-				scsi_device_max_queue_depth(sdev),
+-				sbitmap_calculate_shift(depth),
+-				GFP_KERNEL, sdev->request_queue->node,
+-				false, true)) {
++	if (scsi_realloc_sdev_budget_map(sdev, depth)) {
+ 		put_device(&starget->dev);
+ 		kfree(sdev);
+ 		goto out;
+@@ -1001,6 +1039,13 @@ static int scsi_add_lun(struct scsi_device *sdev, unsigned char *inq_result,
+ 			}
+ 			return SCSI_SCAN_NO_RESPONSE;
  		}
- 		break;
-@@ -3020,24 +3012,6 @@ static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha,
- 		ts->stat = SAS_OPEN_TO;
- 		break;
++
++		/*
++		 * The queue_depth is often changed in ->slave_configure.
++		 * Set up budget map again since memory consumption of
++		 * the map depends on actual queue depth.
++		 */
++		scsi_realloc_sdev_budget_map(sdev, sdev->queue_depth);
  	}
--	spin_lock_irqsave(&t->task_state_lock, flags);
--	t->task_state_flags &= ~SAS_TASK_STATE_PENDING;
--	t->task_state_flags &= ~SAS_TASK_AT_INITIATOR;
--	t->task_state_flags |= SAS_TASK_STATE_DONE;
--	if (unlikely((t->task_state_flags & SAS_TASK_STATE_ABORTED))) {
--		spin_unlock_irqrestore(&t->task_state_lock, flags);
--		pm8001_dbg(pm8001_ha, FAIL,
--			   "task 0x%p done with io_status 0x%x resp 0x%x stat 0x%x but aborted by upper layer!\n",
--			   t, event, ts->resp, ts->stat);
--		pm8001_ccb_task_free(pm8001_ha, t, ccb, tag);
--	} else {
--		spin_unlock_irqrestore(&t->task_state_lock, flags);
--		spin_unlock_irqrestore(&circularQ->oq_lock,
--				circularQ->lock_flags);
--		pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
--		spin_lock_irqsave(&circularQ->oq_lock,
--				circularQ->lock_flags);
--	}
- }
  
- /*See the comments for mpi_ssp_completion */
+ 	if (sdev->scsi_level >= SCSI_3)
 -- 
 2.34.1
 
