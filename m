@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B0674BE276
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:55:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24D804BDC2E
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347775AbiBUJKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:10:24 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57008 "EHLO
+        id S232134AbiBUJ1a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:27:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347779AbiBUJJO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:14 -0500
+        with ESMTP id S1349303AbiBUJZb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:25:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DC4262DA;
-        Mon, 21 Feb 2022 01:01:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A1E639699;
+        Mon, 21 Feb 2022 01:10:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CDCD76112C;
-        Mon, 21 Feb 2022 09:01:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC7ECC340E9;
-        Mon, 21 Feb 2022 09:01:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DD9D608C4;
+        Mon, 21 Feb 2022 09:10:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79A41C340E9;
+        Mon, 21 Feb 2022 09:10:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434101;
-        bh=tP5CUsGrhz28rz/+xDcgKWdz9OnlZ9AuyjX1ULukau8=;
+        s=korg; t=1645434626;
+        bh=64VlcYegJ7J3ajnlObHc0xZ4ibsZb9NovkvekZYyx/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=onl1/74M1LxKn/8vEbajvS6fyU+auYLvN2Rdf/3VtPZa9Nsj6Su/7nCc36qvdQ0VN
-         c5YjGpLC5wVox4O+6P1HKv09aIGduiKShi6Ct/uf4C1MvY/Zp6QiQBaMs6+7yBcy5K
-         9pzuAE9DTSGXH9DzOt2m+OEMCUHnxUo8tA/dHQ0Q=
+        b=CDuHZrw4vynd7iesf82NmKOe8TclrpyOA4WGq+1/wfRfV9cEy3Sg/ny1n2AoVOssG
+         PeLYSLDmgOcLzVKIs0V9nNRbWC4C+W2/4+A1HOpB8tm0sT3IF4D5cXb1Fxz3Xl8JIy
+         YAPpdO49MDeRi4GVSBkxf0d5PAvXxblIOqSXFvnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rolf Eike Beer <eike-kernel@sf-tec.de>,
-        John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 013/121] parisc: Fix data TLB miss in sba_unmap_sg
+        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.15 073/196] drm/i915/ttm: tweak priority hint selection
 Date:   Mon, 21 Feb 2022 09:48:25 +0100
-Message-Id: <20220221084921.590961242@linuxfoundation.org>
+Message-Id: <20220221084933.386477663@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,86 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Matthew Auld <matthew.auld@intel.com>
 
-commit b7d6f44a0fa716a82969725516dc0b16bc7cd514 upstream.
+commit 0bdc0a0699929c814a8aecd55d2accb8c11beae2 upstream.
 
-Rolf Eike Beer reported the following bug:
+For some reason we are selecting PRIO_HAS_PAGES when we don't have
+mm.pages, and vice versa.
 
-[1274934.746891] Bad Address (null pointer deref?): Code=15 (Data TLB miss fault) at addr 0000004140000018
-[1274934.746891] CPU: 3 PID: 5549 Comm: cmake Not tainted 5.15.4-gentoo-parisc64 #4
-[1274934.746891] Hardware name: 9000/785/C8000
-[1274934.746891]
-[1274934.746891]      YZrvWESTHLNXBCVMcbcbcbcbOGFRQPDI
-[1274934.746891] PSW: 00001000000001001111111000001110 Not tainted
-[1274934.746891] r00-03  000000ff0804fe0e 0000000040bc9bc0 00000000406760e4 0000004140000000
-[1274934.746891] r04-07  0000000040b693c0 0000004140000000 000000004a2b08b0 0000000000000001
-[1274934.746891] r08-11  0000000041f98810 0000000000000000 000000004a0a7000 0000000000000001
-[1274934.746891] r12-15  0000000040bddbc0 0000000040c0cbc0 0000000040bddbc0 0000000040bddbc0
-[1274934.746891] r16-19  0000000040bde3c0 0000000040bddbc0 0000000040bde3c0 0000000000000007
-[1274934.746891] r20-23  0000000000000006 000000004a368950 0000000000000000 0000000000000001
-[1274934.746891] r24-27  0000000000001fff 000000000800000e 000000004a1710f0 0000000040b693c0
-[1274934.746891] r28-31  0000000000000001 0000000041f988b0 0000000041f98840 000000004a171118
-[1274934.746891] sr00-03  00000000066e5800 0000000000000000 0000000000000000 00000000066e5800
-[1274934.746891] sr04-07  0000000000000000 0000000000000000 0000000000000000 0000000000000000
-[1274934.746891]
-[1274934.746891] IASQ: 0000000000000000 0000000000000000 IAOQ: 00000000406760e8 00000000406760ec
-[1274934.746891]  IIR: 48780030    ISR: 0000000000000000  IOR: 0000004140000018
-[1274934.746891]  CPU:        3   CR30: 00000040e3a9c000 CR31: ffffffffffffffff
-[1274934.746891]  ORIG_R28: 0000000040acdd58
-[1274934.746891]  IAOQ[0]: sba_unmap_sg+0xb0/0x118
-[1274934.746891]  IAOQ[1]: sba_unmap_sg+0xb4/0x118
-[1274934.746891]  RP(r2): sba_unmap_sg+0xac/0x118
-[1274934.746891] Backtrace:
-[1274934.746891]  [<00000000402740cc>] dma_unmap_sg_attrs+0x6c/0x70
-[1274934.746891]  [<000000004074d6bc>] scsi_dma_unmap+0x54/0x60
-[1274934.746891]  [<00000000407a3488>] mptscsih_io_done+0x150/0xd70
-[1274934.746891]  [<0000000040798600>] mpt_interrupt+0x168/0xa68
-[1274934.746891]  [<0000000040255a48>] __handle_irq_event_percpu+0xc8/0x278
-[1274934.746891]  [<0000000040255c34>] handle_irq_event_percpu+0x3c/0xd8
-[1274934.746891]  [<000000004025ecb4>] handle_percpu_irq+0xb4/0xf0
-[1274934.746891]  [<00000000402548e0>] generic_handle_irq+0x50/0x70
-[1274934.746891]  [<000000004019a254>] call_on_stack+0x18/0x24
-[1274934.746891]
-[1274934.746891] Kernel panic - not syncing: Bad Address (null pointer deref?)
+v2(Thomas):
+  - Add missing fixes tag
 
-The bug is caused by overrunning the sglist and incorrectly testing
-sg_dma_len(sglist) before nents. Normally this doesn't cause a crash,
-but in this case sglist crossed a page boundary. This occurs in the
-following code:
-
-	while (sg_dma_len(sglist) && nents--) {
-
-The fix is simply to test nents first and move the decrement of nents
-into the loop.
-
-Reported-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 213d50927763 ("drm/i915/ttm: Introduce a TTM i915 gem object backend")
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220209111652.468762-1-matthew.auld@intel.com
+(cherry picked from commit ba2c5d15022a565da187d90e2fe44768e33e5034)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/parisc/sba_iommu.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gem/i915_gem_ttm.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/parisc/sba_iommu.c
-+++ b/drivers/parisc/sba_iommu.c
-@@ -1047,7 +1047,7 @@ sba_unmap_sg(struct device *dev, struct
- 	spin_unlock_irqrestore(&ioc->res_lock, flags);
- #endif
- 
--	while (sg_dma_len(sglist) && nents--) {
-+	while (nents && sg_dma_len(sglist)) {
- 
- 		sba_unmap_page(dev, sg_dma_address(sglist), sg_dma_len(sglist),
- 				direction, 0);
-@@ -1056,6 +1056,7 @@ sba_unmap_sg(struct device *dev, struct
- 		ioc->usingle_calls--;	/* kluge since call is unmap_sg() */
- #endif
- 		++sglist;
-+		nents--;
+--- a/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
+@@ -759,11 +759,9 @@ static void i915_ttm_adjust_lru(struct d
+ 	if (obj->mm.madv != I915_MADV_WILLNEED) {
+ 		bo->priority = I915_TTM_PRIO_PURGE;
+ 	} else if (!i915_gem_object_has_pages(obj)) {
+-		if (bo->priority < I915_TTM_PRIO_HAS_PAGES)
+-			bo->priority = I915_TTM_PRIO_HAS_PAGES;
++		bo->priority = I915_TTM_PRIO_NO_PAGES;
+ 	} else {
+-		if (bo->priority > I915_TTM_PRIO_NO_PAGES)
+-			bo->priority = I915_TTM_PRIO_NO_PAGES;
++		bo->priority = I915_TTM_PRIO_HAS_PAGES;
  	}
  
- 	DBG_RUN_SG("%s() DONE (nents %d)\n", __func__,  nents);
+ 	ttm_bo_move_to_lru_tail(bo, bo->resource, NULL);
 
 
