@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C67DD4BE94E
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:07:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4865D4BE63F
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239167AbiBUJ7o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:59:44 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56886 "EHLO
+        id S1347741AbiBUJJB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:09:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352445AbiBUJzQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:55:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8A1638BE7;
-        Mon, 21 Feb 2022 01:24:18 -0800 (PST)
+        with ESMTP id S1347745AbiBUJIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:08:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D9B624BDA;
+        Mon, 21 Feb 2022 01:00:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4634D608C4;
-        Mon, 21 Feb 2022 09:24:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 324A4C340E9;
-        Mon, 21 Feb 2022 09:24:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D72C0B80E9F;
+        Mon, 21 Feb 2022 09:00:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 123AEC340E9;
+        Mon, 21 Feb 2022 09:00:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435457;
-        bh=QcUBMHPNBxs3Vwa65XpqXRo4gnp1hYylS8Di3NrTDAo=;
+        s=korg; t=1645434032;
+        bh=D+Ib7wkm+pUgHIFpFkgZMNVJA3CmXTMDtP5x7u0Q6fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ztqWIt1HItv0OwsQC04beqZjDjVz++1wRifnj3ZqzuhgFR1F+EYfmYMTVq1ZneAkG
-         U8V2XyKIvIgVn5dmhkowlQPG/Mpj1tcTnGCIMBfgWDFopIIcWXCVwMcqZLVnUktx68
-         7OklWq/HqVJCS+6uhLFDxx03NEuC2/0pCadl2ZgI=
+        b=zT09jOLDlfvlsn29qFp8YyqeE1fQXmRV3hywzI43V3AMKmmj4Co5GiO2/9/uoJ2mo
+         ynNJby53LwYm8hhcXFwX4ftRG76pNs+iEdDb6/kgZppvUUKszLHc/9ax0q2VIca1ZM
+         QcCNNcMWLRsG18MTZTzjvXR4KTf2j0zhTCx37xt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.16 170/227] scsi: lpfc: Fix pt2pt NVMe PRLI reject LOGO loop
+        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
+        Anup Patel <anup@brainfault.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 69/80] irqchip/sifive-plic: Add missing thead,c900-plic match string
 Date:   Mon, 21 Feb 2022 09:49:49 +0100
-Message-Id: <20220221084940.468721356@linuxfoundation.org>
+Message-Id: <20220221084917.844882267@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,111 +58,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-commit 7f4c5a26f735dea4bbc0eb8eb9da99cda95a8563 upstream.
+[ Upstream commit 1d4df649cbb4b26d19bea38ecff4b65b10a1bbca ]
 
-When connected point to point, the driver does not know the FC4's supported
-by the other end. In Fabrics, it can query the nameserver.  Thus the driver
-must send PRLIs for the FC4s it supports and enable support based on the
-acc(ept) or rej(ect) of the respective FC4 PRLI.  Currently the driver
-supports SCSI and NVMe PRLIs.
+The thead,c900-plic has been used in opensbi to distinguish
+PLIC [1]. Although PLICs have the same behaviors in Linux,
+they are different hardware with some custom initializing in
+firmware(opensbi).
 
-Unfortunately, although the behavior is per standard, many devices have
-come to expect only SCSI PRLIs. In this particular example, the NVMe PRLI
-is properly RJT'd but the target decided that it must LOGO after seeing the
-unexpected NVMe PRLI. The LOGO causes the sequence to restart and login is
-now in an infinite failure loop.
+Qute opensbi patch commit-msg by Samuel:
 
-Fix the problem by having the driver, on a pt2pt link, remember NVMe PRLI
-accept or reject status across logout as long as the link stays "up".  When
-retrying login, if the prior NVMe PRLI was rejected, it will not be sent on
-the next login.
+  The T-HEAD PLIC implementation requires setting a delegation bit
+  to allow access from S-mode. Now that the T-HEAD PLIC has its own
+  compatible string, set this bit automatically from the PLIC driver,
+  instead of reaching into the PLIC's MMIO space from another driver.
 
-Link: https://lore.kernel.org/r/20220212163120.15385-1-jsmart2021@gmail.com
-Cc: <stable@vger.kernel.org> # v5.4+
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[1]: https://github.com/riscv-software-src/opensbi/commit/78c2b19218bd62653b9fb31623a42ced45f38ea6
+
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Cc: Anup Patel <anup@brainfault.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Samuel Holland <samuel@sholland.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220130135634.1213301-3-guoren@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc.h           |    1 +
- drivers/scsi/lpfc/lpfc_attr.c      |    3 +++
- drivers/scsi/lpfc/lpfc_els.c       |   20 +++++++++++++++++++-
- drivers/scsi/lpfc/lpfc_nportdisc.c |    5 +++--
- 4 files changed, 26 insertions(+), 3 deletions(-)
+ drivers/irqchip/irq-sifive-plic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/lpfc/lpfc.h
-+++ b/drivers/scsi/lpfc/lpfc.h
-@@ -594,6 +594,7 @@ struct lpfc_vport {
- #define FC_VPORT_LOGO_RCVD      0x200    /* LOGO received on vport */
- #define FC_RSCN_DISCOVERY       0x400	 /* Auth all devices after RSCN */
- #define FC_LOGO_RCVD_DID_CHNG   0x800    /* FDISC on phys port detect DID chng*/
-+#define FC_PT2PT_NO_NVME        0x1000   /* Don't send NVME PRLI */
- #define FC_SCSI_SCAN_TMO        0x4000	 /* scsi scan timer running */
- #define FC_ABORT_DISCOVERY      0x8000	 /* we want to abort discovery */
- #define FC_NDISC_ACTIVE         0x10000	 /* NPort discovery active */
---- a/drivers/scsi/lpfc/lpfc_attr.c
-+++ b/drivers/scsi/lpfc/lpfc_attr.c
-@@ -1315,6 +1315,9 @@ lpfc_issue_lip(struct Scsi_Host *shost)
- 	pmboxq->u.mb.mbxCommand = MBX_DOWN_LINK;
- 	pmboxq->u.mb.mbxOwner = OWN_HOST;
+diff --git a/drivers/irqchip/irq-sifive-plic.c b/drivers/irqchip/irq-sifive-plic.c
+index 7cd7b140dfe97..9dad45d928bfe 100644
+--- a/drivers/irqchip/irq-sifive-plic.c
++++ b/drivers/irqchip/irq-sifive-plic.c
+@@ -313,3 +313,4 @@ static int __init plic_init(struct device_node *node,
  
-+	if ((vport->fc_flag & FC_PT2PT) && (vport->fc_flag & FC_PT2PT_NO_NVME))
-+		vport->fc_flag &= ~FC_PT2PT_NO_NVME;
-+
- 	mbxstatus = lpfc_sli_issue_mbox_wait(phba, pmboxq, LPFC_MBOX_TMO * 2);
- 
- 	if ((mbxstatus == MBX_SUCCESS) &&
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -1072,7 +1072,8 @@ stop_rr_fcf_flogi:
- 
- 		/* FLOGI failed, so there is no fabric */
- 		spin_lock_irq(shost->host_lock);
--		vport->fc_flag &= ~(FC_FABRIC | FC_PUBLIC_LOOP);
-+		vport->fc_flag &= ~(FC_FABRIC | FC_PUBLIC_LOOP |
-+				    FC_PT2PT_NO_NVME);
- 		spin_unlock_irq(shost->host_lock);
- 
- 		/* If private loop, then allow max outstanding els to be
-@@ -4607,6 +4608,23 @@ lpfc_els_retry(struct lpfc_hba *phba, st
- 		/* Added for Vendor specifc support
- 		 * Just keep retrying for these Rsn / Exp codes
- 		 */
-+		if ((vport->fc_flag & FC_PT2PT) &&
-+		    cmd == ELS_CMD_NVMEPRLI) {
-+			switch (stat.un.b.lsRjtRsnCode) {
-+			case LSRJT_UNABLE_TPC:
-+			case LSRJT_INVALID_CMD:
-+			case LSRJT_LOGICAL_ERR:
-+			case LSRJT_CMD_UNSUPPORTED:
-+				lpfc_printf_vlog(vport, KERN_WARNING, LOG_ELS,
-+						 "0168 NVME PRLI LS_RJT "
-+						 "reason %x port doesn't "
-+						 "support NVME, disabling NVME\n",
-+						 stat.un.b.lsRjtRsnCode);
-+				retry = 0;
-+				vport->fc_flag |= FC_PT2PT_NO_NVME;
-+				goto out_retry;
-+			}
-+		}
- 		switch (stat.un.b.lsRjtRsnCode) {
- 		case LSRJT_UNABLE_TPC:
- 			/* The driver has a VALID PLOGI but the rport has
---- a/drivers/scsi/lpfc/lpfc_nportdisc.c
-+++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
-@@ -1961,8 +1961,9 @@ lpfc_cmpl_reglogin_reglogin_issue(struct
- 			 * is configured try it.
- 			 */
- 			ndlp->nlp_fc4_type |= NLP_FC4_FCP;
--			if ((vport->cfg_enable_fc4_type == LPFC_ENABLE_BOTH) ||
--			    (vport->cfg_enable_fc4_type == LPFC_ENABLE_NVME)) {
-+			if ((!(vport->fc_flag & FC_PT2PT_NO_NVME)) &&
-+			    (vport->cfg_enable_fc4_type == LPFC_ENABLE_BOTH ||
-+			    vport->cfg_enable_fc4_type == LPFC_ENABLE_NVME)) {
- 				ndlp->nlp_fc4_type |= NLP_FC4_NVME;
- 				/* We need to update the localport also */
- 				lpfc_nvme_update_localport(vport);
+ IRQCHIP_DECLARE(sifive_plic, "sifive,plic-1.0.0", plic_init);
+ IRQCHIP_DECLARE(riscv_plic0, "riscv,plic0", plic_init); /* for legacy systems */
++IRQCHIP_DECLARE(thead_c900_plic, "thead,c900-plic", plic_init); /* for firmware driver */
+-- 
+2.34.1
+
 
 
