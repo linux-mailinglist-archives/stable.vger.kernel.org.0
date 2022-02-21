@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABE9E4BE266
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:55:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E533B4BDFAE
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:50:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242981AbiBUJPC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:15:02 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49156 "EHLO
+        id S1354294AbiBUKD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 05:03:26 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242243AbiBUJNf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:13:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7420D21AC;
-        Mon, 21 Feb 2022 01:06:33 -0800 (PST)
+        with ESMTP id S1353514AbiBUJ5b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7BB9B851;
+        Mon, 21 Feb 2022 01:26:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB73260FB6;
-        Mon, 21 Feb 2022 09:06:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6D83C340E9;
-        Mon, 21 Feb 2022 09:06:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7866BB80EB1;
+        Mon, 21 Feb 2022 09:26:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B813DC340E9;
+        Mon, 21 Feb 2022 09:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434392;
-        bh=+zQ3vkC5VFX/SUFEUKwj6oP1e9T0HaQHQhrCfqehZZc=;
+        s=korg; t=1645435594;
+        bh=K3wtqMvTczX/YYT1K8fzaos+POq0zwUsG4xrvFbl/1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iA+GJmpOrA81c1lZxw5yq76wvTRWGeiNGF0+WK/rHQs1zGLrlGfC+0eHEvMpgYqWg
-         0E4t5w6GdU1KTUV734Gt/r+Wi/FPWPIvfHSeBPKFbg/IitXM2omMkRWYviUGPasfnJ
-         OMiwNJO1xIOCW3IP5HHA465KcgnCjvpR9qC7wK7M=
+        b=ErAc4AI/gSEPnLqXTkRNiL+aqNEckNQCheJn0s8ykhXSR7Qu6QT9vR1hskrh4O8j4
+         YitkiJLnZ1DK1d2hNLO1rdg78CQ8Ca4ALHbbM9mAi5OSRCbpZexcYMnpy9cmjZvjd0
+         anG8aVV7ZeXs0emBJZz+jNvRkvFZeKsE2YyHCsjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 113/121] net: sched: limit TC_ACT_REPEAT loops
+        stable@vger.kernel.org,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Waiman Long <longman@redhat.com>,
+        Christian Brauner <brauner@kernel.org>
+Subject: [PATCH 5.16 186/227] copy_process(): Move fd_install() out of sighand->siglock critical section
 Date:   Mon, 21 Feb 2022 09:50:05 +0100
-Message-Id: <20220221084925.013612380@linuxfoundation.org>
+Message-Id: <20220221084940.999342649@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,244 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Waiman Long <longman@redhat.com>
 
-commit 5740d068909676d4bdb5c9c00c37a83df7728909 upstream.
+commit ddc204b517e60ae64db34f9832dc41dafa77c751 upstream.
 
-We have been living dangerously, at the mercy of malicious users,
-abusing TC_ACT_REPEAT, as shown by this syzpot report [1].
+I was made aware of the following lockdep splat:
 
-Add an arbitrary limit (32) to the number of times an action can
-return TC_ACT_REPEAT.
+[ 2516.308763] =====================================================
+[ 2516.309085] WARNING: HARDIRQ-safe -> HARDIRQ-unsafe lock order detected
+[ 2516.309433] 5.14.0-51.el9.aarch64+debug #1 Not tainted
+[ 2516.309703] -----------------------------------------------------
+[ 2516.310149] stress-ng/153663 [HC0[0]:SC0[0]:HE0:SE1] is trying to acquire:
+[ 2516.310512] ffff0000e422b198 (&newf->file_lock){+.+.}-{2:2}, at: fd_install+0x368/0x4f0
+[ 2516.310944]
+               and this task is already holding:
+[ 2516.311248] ffff0000c08140d8 (&sighand->siglock){-.-.}-{2:2}, at: copy_process+0x1e2c/0x3e80
+[ 2516.311804] which would create a new lock dependency:
+[ 2516.312066]  (&sighand->siglock){-.-.}-{2:2} -> (&newf->file_lock){+.+.}-{2:2}
+[ 2516.312446]
+               but this new dependency connects a HARDIRQ-irq-safe lock:
+[ 2516.312983]  (&sighand->siglock){-.-.}-{2:2}
+   :
+[ 2516.330700]  Possible interrupt unsafe locking scenario:
 
-v2: switch the limit to 32 instead of 10.
-    Use net_warn_ratelimited() instead of pr_err_once().
+[ 2516.331075]        CPU0                    CPU1
+[ 2516.331328]        ----                    ----
+[ 2516.331580]   lock(&newf->file_lock);
+[ 2516.331790]                                local_irq_disable();
+[ 2516.332231]                                lock(&sighand->siglock);
+[ 2516.332579]                                lock(&newf->file_lock);
+[ 2516.332922]   <Interrupt>
+[ 2516.333069]     lock(&sighand->siglock);
+[ 2516.333291]
+                *** DEADLOCK ***
+[ 2516.389845]
+               stack backtrace:
+[ 2516.390101] CPU: 3 PID: 153663 Comm: stress-ng Kdump: loaded Not tainted 5.14.0-51.el9.aarch64+debug #1
+[ 2516.390756] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+[ 2516.391155] Call trace:
+[ 2516.391302]  dump_backtrace+0x0/0x3e0
+[ 2516.391518]  show_stack+0x24/0x30
+[ 2516.391717]  dump_stack_lvl+0x9c/0xd8
+[ 2516.391938]  dump_stack+0x1c/0x38
+[ 2516.392247]  print_bad_irq_dependency+0x620/0x710
+[ 2516.392525]  check_irq_usage+0x4fc/0x86c
+[ 2516.392756]  check_prev_add+0x180/0x1d90
+[ 2516.392988]  validate_chain+0x8e0/0xee0
+[ 2516.393215]  __lock_acquire+0x97c/0x1e40
+[ 2516.393449]  lock_acquire.part.0+0x240/0x570
+[ 2516.393814]  lock_acquire+0x90/0xb4
+[ 2516.394021]  _raw_spin_lock+0xe8/0x154
+[ 2516.394244]  fd_install+0x368/0x4f0
+[ 2516.394451]  copy_process+0x1f5c/0x3e80
+[ 2516.394678]  kernel_clone+0x134/0x660
+[ 2516.394895]  __do_sys_clone3+0x130/0x1f4
+[ 2516.395128]  __arm64_sys_clone3+0x5c/0x7c
+[ 2516.395478]  invoke_syscall.constprop.0+0x78/0x1f0
+[ 2516.395762]  el0_svc_common.constprop.0+0x22c/0x2c4
+[ 2516.396050]  do_el0_svc+0xb0/0x10c
+[ 2516.396252]  el0_svc+0x24/0x34
+[ 2516.396436]  el0t_64_sync_handler+0xa4/0x12c
+[ 2516.396688]  el0t_64_sync+0x198/0x19c
+[ 2517.491197] NET: Registered PF_ATMPVC protocol family
+[ 2517.491524] NET: Registered PF_ATMSVC protocol family
+[ 2591.991877] sched: RT throttling activated
 
-[1] (C repro available on demand)
+One way to solve this problem is to move the fd_install() call out of
+the sighand->siglock critical section.
 
-rcu: INFO: rcu_preempt self-detected stall on CPU
-rcu:    1-...!: (10500 ticks this GP) idle=021/1/0x4000000000000000 softirq=5592/5592 fqs=0
-        (t=10502 jiffies g=5305 q=190)
-rcu: rcu_preempt kthread timer wakeup didn't happen for 10502 jiffies! g5305 f0x0 RCU_GP_WAIT_FQS(5) ->state=0x402
-rcu:    Possible timer handling issue on cpu=0 timer-softirq=3527
-rcu: rcu_preempt kthread starved for 10505 jiffies! g5305 f0x0 RCU_GP_WAIT_FQS(5) ->state=0x402 ->cpu=0
-rcu:    Unless rcu_preempt kthread gets sufficient CPU time, OOM is now expected behavior.
-rcu: RCU grace-period kthread stack dump:
-task:rcu_preempt     state:I stack:29344 pid:   14 ppid:     2 flags:0x00004000
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:4986 [inline]
- __schedule+0xab2/0x4db0 kernel/sched/core.c:6295
- schedule+0xd2/0x260 kernel/sched/core.c:6368
- schedule_timeout+0x14a/0x2a0 kernel/time/timer.c:1881
- rcu_gp_fqs_loop+0x186/0x810 kernel/rcu/tree.c:1963
- rcu_gp_kthread+0x1de/0x320 kernel/rcu/tree.c:2136
- kthread+0x2e9/0x3a0 kernel/kthread.c:377
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
- </TASK>
-rcu: Stack dump where RCU GP kthread last ran:
-Sending NMI from CPU 1 to CPUs 0:
-NMI backtrace for cpu 0
-CPU: 0 PID: 3646 Comm: syz-executor358 Not tainted 5.17.0-rc3-syzkaller-00149-gbf8e59fd315f #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:rep_nop arch/x86/include/asm/vdso/processor.h:13 [inline]
-RIP: 0010:cpu_relax arch/x86/include/asm/vdso/processor.h:18 [inline]
-RIP: 0010:pv_wait_head_or_lock kernel/locking/qspinlock_paravirt.h:437 [inline]
-RIP: 0010:__pv_queued_spin_lock_slowpath+0x3b8/0xb40 kernel/locking/qspinlock.c:508
-Code: 48 89 eb c6 45 01 01 41 bc 00 80 00 00 48 c1 e9 03 83 e3 07 41 be 01 00 00 00 48 b8 00 00 00 00 00 fc ff df 4c 8d 2c 01 eb 0c <f3> 90 41 83 ec 01 0f 84 72 04 00 00 41 0f b6 45 00 38 d8 7f 08 84
-RSP: 0018:ffffc9000283f1b0 EFLAGS: 00000206
-RAX: 0000000000000003 RBX: 0000000000000000 RCX: 1ffff1100fc0071e
-RDX: 0000000000000001 RSI: 0000000000000201 RDI: 0000000000000000
-RBP: ffff88807e0038f0 R08: 0000000000000001 R09: ffffffff8ffbf9ff
-R10: 0000000000000001 R11: 0000000000000001 R12: 0000000000004c1e
-R13: ffffed100fc0071e R14: 0000000000000001 R15: ffff8880b9c3aa80
-FS:  00005555562bf300(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffdbfef12b8 CR3: 00000000723c2000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- pv_queued_spin_lock_slowpath arch/x86/include/asm/paravirt.h:591 [inline]
- queued_spin_lock_slowpath arch/x86/include/asm/qspinlock.h:51 [inline]
- queued_spin_lock include/asm-generic/qspinlock.h:85 [inline]
- do_raw_spin_lock+0x200/0x2b0 kernel/locking/spinlock_debug.c:115
- spin_lock_bh include/linux/spinlock.h:354 [inline]
- sch_tree_lock include/net/sch_generic.h:610 [inline]
- sch_tree_lock include/net/sch_generic.h:605 [inline]
- prio_tune+0x3b9/0xb50 net/sched/sch_prio.c:211
- prio_init+0x5c/0x80 net/sched/sch_prio.c:244
- qdisc_create.constprop.0+0x44a/0x10f0 net/sched/sch_api.c:1253
- tc_modify_qdisc+0x4c5/0x1980 net/sched/sch_api.c:1660
- rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5594
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2494
- netlink_unicast_kernel net/netlink/af_netlink.c:1317 [inline]
- netlink_unicast+0x539/0x7e0 net/netlink/af_netlink.c:1343
- netlink_sendmsg+0x904/0xe00 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:705 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:725
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2413
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2467
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2496
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f7ee98aae99
-Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 41 15 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffdbfef12d8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00007ffdbfef1300 RCX: 00007f7ee98aae99
-RDX: 0000000000000000 RSI: 0000000020000000 RDI: 0000000000000003
-RBP: 0000000000000000 R08: 000000000000000d R09: 000000000000000d
-R10: 000000000000000d R11: 0000000000000246 R12: 00007ffdbfef12f0
-R13: 00000000000f4240 R14: 000000000004ca47 R15: 00007ffdbfef12e4
- </TASK>
-INFO: NMI handler (nmi_cpu_backtrace_handler) took too long to run: 2.293 msecs
-NMI backtrace for cpu 1
-CPU: 1 PID: 3260 Comm: kworker/1:3 Not tainted 5.17.0-rc3-syzkaller-00149-gbf8e59fd315f #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: mld mld_ifc_work
-Call Trace:
- <IRQ>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- nmi_cpu_backtrace.cold+0x47/0x144 lib/nmi_backtrace.c:111
- nmi_trigger_cpumask_backtrace+0x1b3/0x230 lib/nmi_backtrace.c:62
- trigger_single_cpu_backtrace include/linux/nmi.h:164 [inline]
- rcu_dump_cpu_stacks+0x25e/0x3f0 kernel/rcu/tree_stall.h:343
- print_cpu_stall kernel/rcu/tree_stall.h:604 [inline]
- check_cpu_stall kernel/rcu/tree_stall.h:688 [inline]
- rcu_pending kernel/rcu/tree.c:3919 [inline]
- rcu_sched_clock_irq.cold+0x5c/0x759 kernel/rcu/tree.c:2617
- update_process_times+0x16d/0x200 kernel/time/timer.c:1785
- tick_sched_handle+0x9b/0x180 kernel/time/tick-sched.c:226
- tick_sched_timer+0x1b0/0x2d0 kernel/time/tick-sched.c:1428
- __run_hrtimer kernel/time/hrtimer.c:1685 [inline]
- __hrtimer_run_queues+0x1c0/0xe50 kernel/time/hrtimer.c:1749
- hrtimer_interrupt+0x31c/0x790 kernel/time/hrtimer.c:1811
- local_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1086 [inline]
- __sysvec_apic_timer_interrupt+0x146/0x530 arch/x86/kernel/apic/apic.c:1103
- sysvec_apic_timer_interrupt+0x8e/0xc0 arch/x86/kernel/apic/apic.c:1097
- </IRQ>
- <TASK>
- asm_sysvec_apic_timer_interrupt+0x12/0x20 arch/x86/include/asm/idtentry.h:638
-RIP: 0010:__sanitizer_cov_trace_const_cmp4+0xc/0x70 kernel/kcov.c:286
-Code: 00 00 00 48 89 7c 30 e8 48 89 4c 30 f0 4c 89 54 d8 20 48 89 10 5b c3 0f 1f 80 00 00 00 00 41 89 f8 bf 03 00 00 00 4c 8b 14 24 <89> f1 65 48 8b 34 25 00 70 02 00 e8 14 f9 ff ff 84 c0 74 4b 48 8b
-RSP: 0018:ffffc90002c5eea8 EFLAGS: 00000246
-RAX: 0000000000000007 RBX: ffff88801c625800 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000003
-RBP: ffff8880137d3100 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffff874fcd88 R11: 0000000000000000 R12: ffff88801d692dc0
-R13: ffff8880137d3104 R14: 0000000000000000 R15: ffff88801d692de8
- tcf_police_act+0x358/0x11d0 net/sched/act_police.c:256
- tcf_action_exec net/sched/act_api.c:1049 [inline]
- tcf_action_exec+0x1a6/0x530 net/sched/act_api.c:1026
- tcf_exts_exec include/net/pkt_cls.h:326 [inline]
- route4_classify+0xef0/0x1400 net/sched/cls_route.c:179
- __tcf_classify net/sched/cls_api.c:1549 [inline]
- tcf_classify+0x3e8/0x9d0 net/sched/cls_api.c:1615
- prio_classify net/sched/sch_prio.c:42 [inline]
- prio_enqueue+0x3a7/0x790 net/sched/sch_prio.c:75
- dev_qdisc_enqueue+0x40/0x300 net/core/dev.c:3668
- __dev_xmit_skb net/core/dev.c:3756 [inline]
- __dev_queue_xmit+0x1f61/0x3660 net/core/dev.c:4081
- neigh_hh_output include/net/neighbour.h:533 [inline]
- neigh_output include/net/neighbour.h:547 [inline]
- ip_finish_output2+0x14dc/0x2170 net/ipv4/ip_output.c:228
- __ip_finish_output net/ipv4/ip_output.c:306 [inline]
- __ip_finish_output+0x396/0x650 net/ipv4/ip_output.c:288
- ip_finish_output+0x32/0x200 net/ipv4/ip_output.c:316
- NF_HOOK_COND include/linux/netfilter.h:296 [inline]
- ip_output+0x196/0x310 net/ipv4/ip_output.c:430
- dst_output include/net/dst.h:451 [inline]
- ip_local_out+0xaf/0x1a0 net/ipv4/ip_output.c:126
- iptunnel_xmit+0x628/0xa50 net/ipv4/ip_tunnel_core.c:82
- geneve_xmit_skb drivers/net/geneve.c:966 [inline]
- geneve_xmit+0x10c8/0x3530 drivers/net/geneve.c:1077
- __netdev_start_xmit include/linux/netdevice.h:4683 [inline]
- netdev_start_xmit include/linux/netdevice.h:4697 [inline]
- xmit_one net/core/dev.c:3473 [inline]
- dev_hard_start_xmit+0x1eb/0x920 net/core/dev.c:3489
- __dev_queue_xmit+0x2985/0x3660 net/core/dev.c:4116
- neigh_hh_output include/net/neighbour.h:533 [inline]
- neigh_output include/net/neighbour.h:547 [inline]
- ip6_finish_output2+0xf7a/0x14f0 net/ipv6/ip6_output.c:126
- __ip6_finish_output net/ipv6/ip6_output.c:191 [inline]
- __ip6_finish_output+0x61e/0xe90 net/ipv6/ip6_output.c:170
- ip6_finish_output+0x32/0x200 net/ipv6/ip6_output.c:201
- NF_HOOK_COND include/linux/netfilter.h:296 [inline]
- ip6_output+0x1e4/0x530 net/ipv6/ip6_output.c:224
- dst_output include/net/dst.h:451 [inline]
- NF_HOOK include/linux/netfilter.h:307 [inline]
- NF_HOOK include/linux/netfilter.h:301 [inline]
- mld_sendpack+0x9a3/0xe40 net/ipv6/mcast.c:1826
- mld_send_cr net/ipv6/mcast.c:2127 [inline]
- mld_ifc_work+0x71c/0xdc0 net/ipv6/mcast.c:2659
- process_one_work+0x9ac/0x1650 kernel/workqueue.c:2307
- worker_thread+0x657/0x1110 kernel/workqueue.c:2454
- kthread+0x2e9/0x3a0 kernel/kthread.c:377
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
- </TASK>
-----------------
-Code disassembly (best guess):
-   0:   48 89 eb                mov    %rbp,%rbx
-   3:   c6 45 01 01             movb   $0x1,0x1(%rbp)
-   7:   41 bc 00 80 00 00       mov    $0x8000,%r12d
-   d:   48 c1 e9 03             shr    $0x3,%rcx
-  11:   83 e3 07                and    $0x7,%ebx
-  14:   41 be 01 00 00 00       mov    $0x1,%r14d
-  1a:   48 b8 00 00 00 00 00    movabs $0xdffffc0000000000,%rax
-  21:   fc ff df
-  24:   4c 8d 2c 01             lea    (%rcx,%rax,1),%r13
-  28:   eb 0c                   jmp    0x36
-* 2a:   f3 90                   pause <-- trapping instruction
-  2c:   41 83 ec 01             sub    $0x1,%r12d
-  30:   0f 84 72 04 00 00       je     0x4a8
-  36:   41 0f b6 45 00          movzbl 0x0(%r13),%eax
-  3b:   38 d8                   cmp    %bl,%al
-  3d:   7f 08                   jg     0x47
-  3f:   84                      .byte 0x84
+Before commit 6fd2fe494b17 ("copy_process(): don't use ksys_close()
+on cleanups"), the pidfd installation was done without holding both
+the task_list lock and the sighand->siglock. Obviously, holding these
+two locks are not really needed to protect the fd_install() call.
+So move the fd_install() call down to after the releases of both locks.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20220215235305.3272331-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20220208163912.1084752-1-longman@redhat.com
+Fixes: 6fd2fe494b17 ("copy_process(): don't use ksys_close() on cleanups")
+Reviewed-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Christian Brauner <brauner@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_api.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ kernel/fork.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/net/sched/act_api.c
-+++ b/net/sched/act_api.c
-@@ -680,15 +680,24 @@ int tcf_action_exec(struct sk_buff *skb,
- restart_act_graph:
- 	for (i = 0; i < nr_actions; i++) {
- 		const struct tc_action *a = actions[i];
-+		int repeat_ttl;
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2350,10 +2350,6 @@ static __latent_entropy struct task_stru
+ 		goto bad_fork_cancel_cgroup;
+ 	}
  
- 		if (jmp_prgcnt > 0) {
- 			jmp_prgcnt -= 1;
- 			continue;
- 		}
-+
-+		repeat_ttl = 32;
- repeat:
- 		ret = a->ops->act(skb, a, res);
--		if (ret == TC_ACT_REPEAT)
--			goto repeat;	/* we need a ttl - JHS */
-+
-+		if (unlikely(ret == TC_ACT_REPEAT)) {
-+			if (--repeat_ttl != 0)
-+				goto repeat;
-+			/* suspicious opcode, stop pipeline */
-+			net_warn_ratelimited("TC_ACT_REPEAT abuse ?\n");
-+			return TC_ACT_OK;
-+		}
+-	/* past the last point of failure */
+-	if (pidfile)
+-		fd_install(pidfd, pidfile);
+-
+ 	init_task_pid_links(p);
+ 	if (likely(p->pid)) {
+ 		ptrace_init_task(p, (clone_flags & CLONE_PTRACE) || trace);
+@@ -2402,6 +2398,9 @@ static __latent_entropy struct task_stru
+ 	syscall_tracepoint_update(p);
+ 	write_unlock_irq(&tasklist_lock);
  
- 		if (TC_ACT_EXT_CMP(ret, TC_ACT_JUMP)) {
- 			jmp_prgcnt = ret & TCA_ACT_MAX_PRIO_MASK;
++	if (pidfile)
++		fd_install(pidfd, pidfile);
++
+ 	proc_fork_connector(p);
+ 	sched_post_fork(p, args);
+ 	cgroup_post_fork(p, args);
 
 
