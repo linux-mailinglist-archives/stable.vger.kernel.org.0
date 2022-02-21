@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 574114BE355
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:57:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A923B4BDD18
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345113AbiBUIwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:52:10 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42138 "EHLO
+        id S1347039AbiBUJEE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:04:04 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345117AbiBUIv6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:51:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B474027D;
-        Mon, 21 Feb 2022 00:51:33 -0800 (PST)
+        with ESMTP id S1347114AbiBUJAv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:00:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3B1275D7;
+        Mon, 21 Feb 2022 00:55:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BAF7B80EAB;
-        Mon, 21 Feb 2022 08:51:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A858DC340E9;
-        Mon, 21 Feb 2022 08:51:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35E87B80EC2;
+        Mon, 21 Feb 2022 08:55:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C8DFC340F1;
+        Mon, 21 Feb 2022 08:55:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433491;
-        bh=O+sY+LfRJbQKaEA7wqHvgzawuelz+mmhjbQAWSz1BlA=;
+        s=korg; t=1645433741;
+        bh=Mai+XZZ5bZosq8IMIflJ00QJoMKyaZmq3O3tVX1mM9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4oBg0yM38dt4lbyAsWNp6WxvuDyUjSAwP5kT74aNW+7ueRsh0J4AyTsdDNZFsV4c
-         nyXVppXQnBVSI9jTfCAOUZtAkuAy5FgjOmulcGDGIAxo8ipfwAUQlY5bF8CAtTCY70
-         mpUIv00/Il7x1ZVQTmFnpfPhyY2r/CrpdDmLj0UA=
+        b=m/ZbiAHFOPhCXfO3CFXx9cuWazmZv93BNJTsi+7M8kkClx6rFpZgzXTeZQDOI5kNw
+         +WKDr1vvrwDT6oDcvC2pPdqAz1dbtv2qIJ3+aE4PWyZeAjlIO/YkQREtqBlGtddDGZ
+         bsPae47AOnF4CwRCj6LKbw2QLcZlRhNb8CIxO+Qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 18/33] vsock: remove vsock from connected table when connect is interrupted by a signal
+        stable@vger.kernel.org,
+        Nicholas Bishop <nicholasbishop@google.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.19 18/58] drm/radeon: Fix backlight control on iMac 12,1
 Date:   Mon, 21 Feb 2022 09:49:11 +0100
-Message-Id: <20220221084909.365239841@linuxfoundation.org>
+Message-Id: <20220221084912.475424562@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
-References: <20220221084908.568970525@linuxfoundation.org>
+In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
+References: <20220221084911.895146879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seth Forshee <sforshee@digitalocean.com>
+From: Nicholas Bishop <nicholasbishop@google.com>
 
-commit b9208492fcaecff8f43915529ae34b3bcb03877c upstream.
+commit 364438fd629f7611a84c8e6d7de91659300f1502 upstream.
 
-vsock_connect() expects that the socket could already be in the
-TCP_ESTABLISHED state when the connecting task wakes up with a signal
-pending. If this happens the socket will be in the connected table, and
-it is not removed when the socket state is reset. In this situation it's
-common for the process to retry connect(), and if the connection is
-successful the socket will be added to the connected table a second
-time, corrupting the list.
+The iMac 12,1 does not use the gmux driver for backlight, so the radeon
+backlight device is needed to set the brightness.
 
-Prevent this by calling vsock_remove_connected() if a signal is received
-while waiting for a connection. This is harmless if the socket is not in
-the connected table, and if it is in the table then removing it will
-prevent list corruption from a double add.
-
-Note for backporting: this patch requires d5afa82c977e ("vsock: correct
-removal of socket from the list"), which is in all current stable trees
-except 4.9.y.
-
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Signed-off-by: Seth Forshee <sforshee@digitalocean.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/20220217141312.2297547-1-sforshee@digitalocean.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1838
+Signed-off-by: Nicholas Bishop <nicholasbishop@google.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/vmw_vsock/af_vsock.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/radeon/atombios_encoders.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1220,6 +1220,7 @@ static int vsock_stream_connect(struct s
- 			sk->sk_state = SS_UNCONNECTED;
- 			sock->state = SS_UNCONNECTED;
- 			vsock_transport_cancel_pkt(vsk);
-+			vsock_remove_connected(vsk);
- 			goto out_wait;
- 		} else if (timeout == 0) {
- 			err = -ETIMEDOUT;
+--- a/drivers/gpu/drm/radeon/atombios_encoders.c
++++ b/drivers/gpu/drm/radeon/atombios_encoders.c
+@@ -193,7 +193,8 @@ void radeon_atom_backlight_init(struct r
+ 	 * so don't register a backlight device
+ 	 */
+ 	if ((rdev->pdev->subsystem_vendor == PCI_VENDOR_ID_APPLE) &&
+-	    (rdev->pdev->device == 0x6741))
++	    (rdev->pdev->device == 0x6741) &&
++	    !dmi_match(DMI_PRODUCT_NAME, "iMac12,1"))
+ 		return;
+ 
+ 	if (!radeon_encoder->enc_priv)
 
 
