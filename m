@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD7024BDDCB
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:46:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB1634BDC0F
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244730AbiBUIyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:54:43 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43148 "EHLO
+        id S1347115AbiBUJFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:05:33 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345773AbiBUIyR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:54:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38F8237CE;
-        Mon, 21 Feb 2022 00:53:05 -0800 (PST)
+        with ESMTP id S1347124AbiBUJEl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:04:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF2F925C58;
+        Mon, 21 Feb 2022 00:58:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 179B06114B;
-        Mon, 21 Feb 2022 08:53:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE1D3C340E9;
-        Mon, 21 Feb 2022 08:53:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1664CB80EB6;
+        Mon, 21 Feb 2022 08:58:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47210C340E9;
+        Mon, 21 Feb 2022 08:58:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433584;
-        bh=3hY4r8/3UO+KDlgWBI1PWNsgwmTFyNxZwI7NNxVqog0=;
+        s=korg; t=1645433912;
+        bh=CMmA/IivKrWnzV7tqHqyjVNnVmgLacPECP9NWZX5YPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJrcETf3e23SBoAsaD6+SaKS1ZKUk0gRErAQ9ly8Rh+tCwOQ1tOQ1mBIpvlsdyEjm
-         YAt9DEXBHfSECS0RvntzphlovNhxPbzelwI/902TkgrjTy5sNHziniastZuNAIwin1
-         jcAophyWRbeBLenMfYdtiuLZfJs8FYCmt8RZb3Tg=
+        b=kKhD/VJ0XVqKN7TEcoX8HkrYItD/U1idw1iBpEyMlGiTwnNKcQhBEX4WVbacnWy8A
+         InXp6AqJs74DZRY6pcywlaFgKK5FFBQz0eD4K1yENhi5WhPrVx38Q/4Uz0/d2FLEm9
+         0jHUSHN+Vl9yJC6cE1Y6XTzNSy5OqTrY2bCGYGWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 17/45] xfrm: Dont accidentally set RTO_ONLINK in decode_session4()
+        stable@vger.kernel.org,
+        Nicholas Bishop <nicholasbishop@google.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 28/80] drm/radeon: Fix backlight control on iMac 12,1
 Date:   Mon, 21 Feb 2022 09:49:08 +0100
-Message-Id: <20220221084911.021608828@linuxfoundation.org>
+Message-Id: <20220221084916.504044802@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Nicholas Bishop <nicholasbishop@google.com>
 
-commit 23e7b1bfed61e301853b5e35472820d919498278 upstream.
+commit 364438fd629f7611a84c8e6d7de91659300f1502 upstream.
 
-Similar to commit 94e2238969e8 ("xfrm4: strip ECN bits from tos field"),
-clear the ECN bits from iph->tos when setting ->flowi4_tos.
-This ensures that the last bit of ->flowi4_tos is cleared, so
-ip_route_output_key_hash() isn't going to restrict the scope of the
-route lookup.
+The iMac 12,1 does not use the gmux driver for backlight, so the radeon
+backlight device is needed to set the brightness.
 
-Use ~INET_ECN_MASK instead of IPTOS_RT_MASK, because we have no reason
-to clear the high order bits.
-
-Found by code inspection, compile tested only.
-
-Fixes: 4da3089f2b58 ("[IPSEC]: Use TOS when doing tunnel lookups")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[sudip: manually backport to previous location]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1838
+Signed-off-by: Nicholas Bishop <nicholasbishop@google.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/xfrm4_policy.c |    3 ++-
+ drivers/gpu/drm/radeon/atombios_encoders.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ipv4/xfrm4_policy.c
-+++ b/net/ipv4/xfrm4_policy.c
-@@ -17,6 +17,7 @@
- #include <net/xfrm.h>
- #include <net/ip.h>
- #include <net/l3mdev.h>
-+#include <net/inet_ecn.h>
+--- a/drivers/gpu/drm/radeon/atombios_encoders.c
++++ b/drivers/gpu/drm/radeon/atombios_encoders.c
+@@ -197,7 +197,8 @@ void radeon_atom_backlight_init(struct r
+ 	 * so don't register a backlight device
+ 	 */
+ 	if ((rdev->pdev->subsystem_vendor == PCI_VENDOR_ID_APPLE) &&
+-	    (rdev->pdev->device == 0x6741))
++	    (rdev->pdev->device == 0x6741) &&
++	    !dmi_match(DMI_PRODUCT_NAME, "iMac12,1"))
+ 		return;
  
- static struct dst_entry *__xfrm4_dst_lookup(struct net *net, struct flowi4 *fl4,
- 					    int tos, int oif,
-@@ -126,7 +127,7 @@ _decode_session4(struct sk_buff *skb, st
- 	fl4->flowi4_proto = iph->protocol;
- 	fl4->daddr = reverse ? iph->saddr : iph->daddr;
- 	fl4->saddr = reverse ? iph->daddr : iph->saddr;
--	fl4->flowi4_tos = iph->tos;
-+	fl4->flowi4_tos = iph->tos & ~INET_ECN_MASK;
- 
- 	if (!ip_is_fragment(iph)) {
- 		switch (iph->protocol) {
+ 	if (!radeon_encoder->enc_priv)
 
 
