@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6A8C4BE400
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:58:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F25344BE304
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:56:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349705AbiBUJd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:33:57 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36784 "EHLO
+        id S243898AbiBUJPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:15:43 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350229AbiBUJc0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:32:26 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC14F286F3;
-        Mon, 21 Feb 2022 01:13:49 -0800 (PST)
+        with ESMTP id S1348996AbiBUJLz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B42CA2981B;
+        Mon, 21 Feb 2022 01:04:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 84F0ECE0E8B;
-        Mon, 21 Feb 2022 09:13:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76EFDC340E9;
-        Mon, 21 Feb 2022 09:13:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C860611D0;
+        Mon, 21 Feb 2022 09:04:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0D7C340E9;
+        Mon, 21 Feb 2022 09:04:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434826;
-        bh=/rVQc5X3gc9hZxDfwiYO+NWPlyKyUVGzQf69JUU2P68=;
+        s=korg; t=1645434279;
+        bh=VYHruU6s7ovyeUStIRiMtr1mC9ghTv6y/HdCLaFw9KA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oKbsLJZEot4Qxy6pFrfg0nFnhsvMf2I1A0Pk4RhQ9aIycFvruKFq1urhFtvtDg2gV
-         kWFjOJrfX2LM+IFQ8V2NRmZP8nV8kSrVV7Sf9KjC4b5JoiDJO9PmxonN6pBqwSuyKb
-         xTItXDw4sikxzpV65vDrnl8Gts7RsShCRirL4eug=
+        b=nBBgnmXdCJazfzO1GCgtFW/1HpPrH4ksl9Fu5Hti244TSQXz8W/+K2a6nWndp44i9
+         JMEHHYnkFptZmy2n1/EzaauEjm/7s0wZM/4kkfvbJcpHdstpNDV7sNunWz69fZCE5l
+         g9jwSb9zCK+LRRVEbTr9+/H2OmjKRizHVNoYV/As=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.15 117/196] ASoC: ops: Fix stereo change notifications in snd_soc_put_volsw_range()
+        stable@vger.kernel.org, Mans Rullgard <mans@mansr.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fianelil <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 057/121] net: dsa: lan9303: fix reset on probe
 Date:   Mon, 21 Feb 2022 09:49:09 +0100
-Message-Id: <20220221084934.858819708@linuxfoundation.org>
+Message-Id: <20220221084923.151899517@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,62 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Mans Rullgard <mans@mansr.com>
 
-commit 650204ded3703b5817bd4b6a77fa47d333c4f902 upstream.
+commit 6bb9681a43f34f2cab4aad6e2a02da4ce54d13c5 upstream.
 
-When writing out a stereo control we discard the change notification from
-the first channel, meaning that events are only generated based on changes
-to the second channel. Ensure that we report a change if either channel
-has changed.
+The reset input to the LAN9303 chip is active low, and devicetree
+gpio handles reflect this.  Therefore, the gpio should be requested
+with an initial state of high in order for the reset signal to be
+asserted.  Other uses of the gpio already use the correct polarity.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220201155629.120510-4-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: a1292595e006 ("net: dsa: add new DSA switch driver for the SMSC-LAN9303")
+Signed-off-by: Mans Rullgard <mans@mansr.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fianelil <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220209145454.19749-1-mans@mansr.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-ops.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/net/dsa/lan9303-core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/soc-ops.c
-+++ b/sound/soc/soc-ops.c
-@@ -512,7 +512,7 @@ int snd_soc_put_volsw_range(struct snd_k
- 	unsigned int mask = (1 << fls(max)) - 1;
- 	unsigned int invert = mc->invert;
- 	unsigned int val, val_mask;
--	int ret;
-+	int err, ret;
+--- a/drivers/net/dsa/lan9303-core.c
++++ b/drivers/net/dsa/lan9303-core.c
+@@ -1305,7 +1305,7 @@ static int lan9303_probe_reset_gpio(stru
+ 				     struct device_node *np)
+ {
+ 	chip->reset_gpio = devm_gpiod_get_optional(chip->dev, "reset",
+-						   GPIOD_OUT_LOW);
++						   GPIOD_OUT_HIGH);
+ 	if (IS_ERR(chip->reset_gpio))
+ 		return PTR_ERR(chip->reset_gpio);
  
- 	if (invert)
- 		val = (max - ucontrol->value.integer.value[0]) & mask;
-@@ -521,9 +521,10 @@ int snd_soc_put_volsw_range(struct snd_k
- 	val_mask = mask << shift;
- 	val = val << shift;
- 
--	ret = snd_soc_component_update_bits(component, reg, val_mask, val);
--	if (ret < 0)
--		return ret;
-+	err = snd_soc_component_update_bits(component, reg, val_mask, val);
-+	if (err < 0)
-+		return err;
-+	ret = err;
- 
- 	if (snd_soc_volsw_is_stereo(mc)) {
- 		if (invert)
-@@ -533,8 +534,12 @@ int snd_soc_put_volsw_range(struct snd_k
- 		val_mask = mask << shift;
- 		val = val << shift;
- 
--		ret = snd_soc_component_update_bits(component, rreg, val_mask,
-+		err = snd_soc_component_update_bits(component, rreg, val_mask,
- 			val);
-+		/* Don't discard any error code or drop change flag */
-+		if (ret == 0 || err < 0) {
-+			ret = err;
-+		}
- 	}
- 
- 	return ret;
 
 
