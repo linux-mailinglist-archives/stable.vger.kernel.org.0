@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 292FE4BE172
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D8C64BE488
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:59:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347873AbiBUJJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:09:35 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34774 "EHLO
+        id S1350787AbiBUJjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:39:45 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347825AbiBUJI4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:08:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 841EA24BE9;
-        Mon, 21 Feb 2022 01:00:53 -0800 (PST)
+        with ESMTP id S1351139AbiBUJgp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:36:45 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BCB62D1C7;
+        Mon, 21 Feb 2022 01:15:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2071E6112C;
-        Mon, 21 Feb 2022 09:00:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 012B1C340E9;
-        Mon, 21 Feb 2022 09:00:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C26A3CE0E79;
+        Mon, 21 Feb 2022 09:14:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E073AC340E9;
+        Mon, 21 Feb 2022 09:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434052;
-        bh=Tp7Y9YHMOncNoiZZF7GWXAcQGmy39O0B35RFEcRctCM=;
+        s=korg; t=1645434879;
+        bh=mlCVfXCI/MPFLPPvRfg1e5hONyIiSJQMvH37hKzLE5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=seGelVc2Odd0XIf+l0B0MoYp9TNX5ECL14Wh07ZiP92FjAvGtUilCPrC6Uljspe/6
-         WzC7suJYKTPYvyaXC+FkPX2GQAaBjAoBt83eBLjgxqAZx6l69GTpOgdF+zRbA2QElK
-         o3M33XQeZDVNZZaYw4ygJWzsqo6wH9uwrWXZmJr8=
+        b=GlMfiIEK65YFnksZbS2XcUvqYGdn+sBZjWraU1z1fblUIDCyvGTqyK3J1daELCljG
+         zlu2ebjsagwSCr07bxT616cm78kN8aQ07orxZ3S51YssfHDYQNcExCg25QJaCzUEl2
+         NbG9Z9i9v9rZ50F4bU39DcmD889zeaWMkEsK2BOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Brenda Streiff <brenda.streiff@ni.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 76/80] drm/rockchip: dw_hdmi: Do not leave clock enabled in error case
+Subject: [PATCH 5.15 164/196] kconfig: let shell return enough output for deep path names
 Date:   Mon, 21 Feb 2022 09:49:56 +0100
-Message-Id: <20220221084918.069503376@linuxfoundation.org>
+Message-Id: <20220221084936.444466277@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Brenda Streiff <brenda.streiff@ni.com>
 
-[ Upstream commit c0cfbb122275da1b726481de5a8cffeb24e6322b ]
+[ Upstream commit 8a4c5b2a6d8ea079fa36034e8167de87ab6f8880 ]
 
-The driver returns an error when devm_phy_optional_get() fails leaving
-the previously enabled clock turned on. Change order and enable the
-clock only after the phy has been acquired.
+The 'shell' built-in only returns the first 256 bytes of the command's
+output. In some cases, 'shell' is used to return a path; by bumping up
+the buffer size to 4096 this lets us capture up to PATH_MAX.
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220126145549.617165-3-s.hauer@pengutronix.de
+The specific case where I ran into this was due to commit 1e860048c53e
+("gcc-plugins: simplify GCC plugin-dev capability test"). After this
+change, we now use `$(shell,$(CC) -print-file-name=plugin)` to return
+a path; if the gcc path is particularly long, then the path ends up
+truncated at the 256 byte mark, which makes the HAVE_GCC_PLUGINS
+depends test always fail.
+
+Signed-off-by: Brenda Streiff <brenda.streiff@ni.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ scripts/kconfig/preprocess.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c b/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
-index 906891b03a38d..7805091bac32d 100644
---- a/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c
-@@ -528,13 +528,6 @@ static int dw_hdmi_rockchip_bind(struct device *dev, struct device *master,
- 		return ret;
- 	}
- 
--	ret = clk_prepare_enable(hdmi->vpll_clk);
--	if (ret) {
--		DRM_DEV_ERROR(hdmi->dev, "Failed to enable HDMI vpll: %d\n",
--			      ret);
--		return ret;
--	}
--
- 	hdmi->phy = devm_phy_optional_get(dev, "hdmi");
- 	if (IS_ERR(hdmi->phy)) {
- 		ret = PTR_ERR(hdmi->phy);
-@@ -543,6 +536,13 @@ static int dw_hdmi_rockchip_bind(struct device *dev, struct device *master,
- 		return ret;
- 	}
- 
-+	ret = clk_prepare_enable(hdmi->vpll_clk);
-+	if (ret) {
-+		DRM_DEV_ERROR(hdmi->dev, "Failed to enable HDMI vpll: %d\n",
-+			      ret);
-+		return ret;
-+	}
-+
- 	drm_encoder_helper_add(encoder, &dw_hdmi_rockchip_encoder_helper_funcs);
- 	drm_encoder_init(drm, encoder, &dw_hdmi_rockchip_encoder_funcs,
- 			 DRM_MODE_ENCODER_TMDS, NULL);
+diff --git a/scripts/kconfig/preprocess.c b/scripts/kconfig/preprocess.c
+index 0590f86df6e40..748da578b418c 100644
+--- a/scripts/kconfig/preprocess.c
++++ b/scripts/kconfig/preprocess.c
+@@ -141,7 +141,7 @@ static char *do_lineno(int argc, char *argv[])
+ static char *do_shell(int argc, char *argv[])
+ {
+ 	FILE *p;
+-	char buf[256];
++	char buf[4096];
+ 	char *cmd;
+ 	size_t nread;
+ 	int i;
 -- 
 2.34.1
 
