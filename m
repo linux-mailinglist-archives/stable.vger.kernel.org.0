@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4854D4BE34F
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:57:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94E2B4BE1F3
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351345AbiBUJsw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:48:52 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42350 "EHLO
+        id S244944AbiBUJtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:49:39 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352246AbiBUJrQ (ORCPT
+        with ESMTP id S1352248AbiBUJrQ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:16 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2623F4162F;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2CCC41639;
         Mon, 21 Feb 2022 01:19:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 970BDCE0E92;
-        Mon, 21 Feb 2022 09:19:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE1BC340E9;
-        Mon, 21 Feb 2022 09:19:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 701FE60F4E;
+        Mon, 21 Feb 2022 09:19:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58FD0C340EB;
+        Mon, 21 Feb 2022 09:19:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435151;
-        bh=uOGHB0PhJWRjRJyytDv6xrbR6xnITxBkeN0s7zIIQGY=;
+        s=korg; t=1645435153;
+        bh=06AEE+dTILRtwDY8oQbRofaIwu30iB9WUEgyuAH6rvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vHGwT+O2xFhPS8bv8rHRublq1r55XaTHtLFUEtkGQGc578xnMSCuPrDFIWA0HKXuL
-         Au4w3BJvSk0tdfmoxPx+yyCFHzIOQQtigAOpsaYZqFSQvUHw2UfJeJdHNvq3j+tT1N
-         6X/V4wz3+aMfCTBer8sOlXaBFkrMk50X0Otu0hQ4=
+        b=1Q+DpLYsLywg7KMgsOHUY8euPwfPTEpRtHuGVUr+V8/3N9ANTiZZ+sDI4iKAAtJCQ
+         3leRcox1hkgqOFTbRsIRobH2fK/baSZ3mDH6m3lvAfya84iUrDrRRkLixQtbkVAhIO
+         RADhiYtLbSsQaJH8s1W8VQ+/jMCu/umIsAlMf5bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Steen Hegelund <steen.hegelund@microchip.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 062/227] nvme-rdma: fix possible use-after-free in transport error_recovery work
-Date:   Mon, 21 Feb 2022 09:48:01 +0100
-Message-Id: <20220221084936.938754076@linuxfoundation.org>
+Subject: [PATCH 5.16 063/227] net: sparx5: do not refer to skb after passing it on
+Date:   Mon, 21 Feb 2022 09:48:02 +0100
+Message-Id: <20220221084936.969692755@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
 References: <20220221084934.836145070@linuxfoundation.org>
@@ -53,36 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Steen Hegelund <steen.hegelund@microchip.com>
 
-[ Upstream commit b6bb1722f34bbdbabed27acdceaf585d300c5fd2 ]
+[ Upstream commit 81eb8b0b18789e647e65579303529fd52d861cc2 ]
 
-While nvme_rdma_submit_async_event_work is checking the ctrl and queue
-state before preparing the AER command and scheduling io_work, in order
-to fully prevent a race where this check is not reliable the error
-recovery work must flush async_event_work before continuing to destroy
-the admin queue after setting the ctrl state to RESETTING such that
-there is no race .submit_async_event and the error recovery handler
-itself changing the ctrl state.
+Do not try to use any SKB fields after the packet has been passed up in the
+receive stack.
 
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Steen Hegelund <steen.hegelund@microchip.com>
+Link: https://lore.kernel.org/r/20220202083039.3774851-1-steen.hegelund@microchip.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/rdma.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/microchip/sparx5/sparx5_packet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index 850f84d204d05..9c55e4be8a398 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -1200,6 +1200,7 @@ static void nvme_rdma_error_recovery_work(struct work_struct *work)
- 			struct nvme_rdma_ctrl, err_work);
+diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
+index dc7e5ea6ec158..148d431fcde42 100644
+--- a/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
++++ b/drivers/net/ethernet/microchip/sparx5/sparx5_packet.c
+@@ -145,9 +145,9 @@ static void sparx5_xtr_grp(struct sparx5 *sparx5, u8 grp, bool byte_swap)
+ 	skb_put(skb, byte_cnt - ETH_FCS_LEN);
+ 	eth_skb_pad(skb);
+ 	skb->protocol = eth_type_trans(skb, netdev);
+-	netif_rx(skb);
+ 	netdev->stats.rx_bytes += skb->len;
+ 	netdev->stats.rx_packets++;
++	netif_rx(skb);
+ }
  
- 	nvme_stop_keep_alive(&ctrl->ctrl);
-+	flush_work(&ctrl->ctrl.async_event_work);
- 	nvme_rdma_teardown_io_queues(ctrl, false);
- 	nvme_start_queues(&ctrl->ctrl);
- 	nvme_rdma_teardown_admin_queue(ctrl, false);
+ static int sparx5_inject(struct sparx5 *sparx5,
 -- 
 2.34.1
 
