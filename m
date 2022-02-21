@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C61F4BE5A3
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:00:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 188FC4BDD9D
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:45:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347445AbiBUJG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:06:26 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46276 "EHLO
+        id S1347271AbiBUJGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:06:09 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347670AbiBUJGA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:06:00 -0500
+        with ESMTP id S1347615AbiBUJF5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:05:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A94725EB8;
-        Mon, 21 Feb 2022 00:59:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FAF72FFFC;
+        Mon, 21 Feb 2022 00:59:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E249BB80EB2;
-        Mon, 21 Feb 2022 08:54:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 145A6C36AE2;
-        Mon, 21 Feb 2022 08:54:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8F70B80EA1;
+        Mon, 21 Feb 2022 08:59:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F0E5C340E9;
+        Mon, 21 Feb 2022 08:59:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433666;
-        bh=5sLu45vTwCyC0fAQEh4BeyyVfv4gE8u5PKzwexJXSbM=;
+        s=korg; t=1645433958;
+        bh=BZJKDf3a+IYJe+hB4lx8b3I9lBUrZ3vzyayzam2oyPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gdYd8NkRxVCURVae0OgbbSPkBxrzdT1xD/cHyEeqRnjs066O5nJpFoaOhCDBgokxO
-         k8fMyPoiMUJJ4aKfVV1GD/JX7d4+10p+ofOjgJneMhyPDlokQf5K2IYWCDZP9x13Pp
-         EbYLnQj8seh92wCA06bty3pLjdg8/BPnNBqDRH3I=
+        b=WDqdVjxmgkV+/fFqJV/B+iLrz4yOJCju2Ix68HW0HgyAv6HZau5KfoyAwAy22BK5o
+         aFmOC6bKNTzeymiQTEzgDtHhCCpear+B9MGJg/XDj0zMBA8pSJfZ7C8u7COMwI6Pv5
+         M4X/JOk6sNN6GLciL9GrjMB8Hi6dnzrE4BHDu5Xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 30/45] ASoC: ops: Fix stereo change notifications in snd_soc_put_volsw_range()
-Date:   Mon, 21 Feb 2022 09:49:21 +0100
-Message-Id: <20220221084911.424167338@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 42/80] bonding: force carrier update when releasing slave
+Date:   Mon, 21 Feb 2022 09:49:22 +0100
+Message-Id: <20220221084916.955104533@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,62 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit 650204ded3703b5817bd4b6a77fa47d333c4f902 upstream.
+commit a6ab75cec1e461f8a35559054c146c21428430b8 upstream.
 
-When writing out a stereo control we discard the change notification from
-the first channel, meaning that events are only generated based on changes
-to the second channel. Ensure that we report a change if either channel
-has changed.
+In __bond_release_one(), bond_set_carrier() is only called when bond
+device has no slave. Therefore, if we remove the up slave from a master
+with two slaves and keep the down slave, the master will remain up.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220201155629.120510-4-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix this by moving bond_set_carrier() out of if (!bond_has_slaves(bond))
+statement.
+
+Reproducer:
+$ insmod bonding.ko mode=0 miimon=100 max_bonds=2
+$ ifconfig bond0 up
+$ ifenslave bond0 eth0 eth1
+$ ifconfig eth0 down
+$ ifenslave -d bond0 eth1
+$ cat /proc/net/bonding/bond0
+
+Fixes: ff59c4563a8d ("[PATCH] bonding: support carrier state for master")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Link: https://lore.kernel.org/r/1645021088-38370-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-ops.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/net/bonding/bond_main.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/sound/soc/soc-ops.c
-+++ b/sound/soc/soc-ops.c
-@@ -528,7 +528,7 @@ int snd_soc_put_volsw_range(struct snd_k
- 	unsigned int mask = (1 << fls(max)) - 1;
- 	unsigned int invert = mc->invert;
- 	unsigned int val, val_mask;
--	int ret;
-+	int err, ret;
- 
- 	if (invert)
- 		val = (max - ucontrol->value.integer.value[0]) & mask;
-@@ -537,9 +537,10 @@ int snd_soc_put_volsw_range(struct snd_k
- 	val_mask = mask << shift;
- 	val = val << shift;
- 
--	ret = snd_soc_component_update_bits(component, reg, val_mask, val);
--	if (ret < 0)
--		return ret;
-+	err = snd_soc_component_update_bits(component, reg, val_mask, val);
-+	if (err < 0)
-+		return err;
-+	ret = err;
- 
- 	if (snd_soc_volsw_is_stereo(mc)) {
- 		if (invert)
-@@ -549,8 +550,12 @@ int snd_soc_put_volsw_range(struct snd_k
- 		val_mask = mask << shift;
- 		val = val << shift;
- 
--		ret = snd_soc_component_update_bits(component, rreg, val_mask,
-+		err = snd_soc_component_update_bits(component, rreg, val_mask,
- 			val);
-+		/* Don't discard any error code or drop change flag */
-+		if (ret == 0 || err < 0) {
-+			ret = err;
-+		}
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -1979,10 +1979,9 @@ static int __bond_release_one(struct net
+ 		bond_select_active_slave(bond);
  	}
  
- 	return ret;
+-	if (!bond_has_slaves(bond)) {
+-		bond_set_carrier(bond);
++	bond_set_carrier(bond);
++	if (!bond_has_slaves(bond))
+ 		eth_hw_addr_random(bond_dev);
+-	}
+ 
+ 	unblock_netpoll_tx();
+ 	synchronize_rcu();
 
 
