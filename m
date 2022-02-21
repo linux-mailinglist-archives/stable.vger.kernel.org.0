@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED03A4BE11C
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A617B4BDC15
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347375AbiBUJHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:07:44 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45072 "EHLO
+        id S1349854AbiBUJeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:34:06 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:32992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347687AbiBUJHg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:07:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 789F331360;
-        Mon, 21 Feb 2022 01:00:02 -0800 (PST)
+        with ESMTP id S1350532AbiBUJdf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:33:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAA1F28E01;
+        Mon, 21 Feb 2022 01:13:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1422D61149;
-        Mon, 21 Feb 2022 09:00:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA304C340EB;
-        Mon, 21 Feb 2022 09:00:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F44D60018;
+        Mon, 21 Feb 2022 09:13:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E48CBC340E9;
+        Mon, 21 Feb 2022 09:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434001;
-        bh=/i4s5Nyh22igYp0YsnBo/myl2caQGCsyvzfoJmCotUM=;
+        s=korg; t=1645434837;
+        bh=vzkAtfuzlu8dQOlYBZ0ZwVL69Dz2j+un5CWuJ+ielgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hHshlMjG3DvfVtobqTmz2K09uCZzE76APaHH2rGzHfh7fx+0MT3XSNPBLVOwdPrMC
-         Y6fAp2xst1ajPVcz3G8IwJLeiIlTBtjkul//RXIh6d/JRgtjbrDDEBpJCxfpuy1ibz
-         3z8HqJ1SSxgH+EqsTNljcmnWuzoIERbQEFFjXyqc=
+        b=r/uIb8MhZMux4T07Pu/ZazKaG/nu+OLjcHjh+ftv6ImlROVFgBDLK4VupMqefix95
+         JF37kBuWZvE7DV9M1mWFIL3t3qXD9QdiqeQvYsAmBzAPyMAK8qaPEartleCLBgIFcj
+         +QMnN8bmGF2wt6jluvThc7f1uYKnpv5FtnGDpcVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 59/80] scsi: lpfc: Fix pt2pt NVMe PRLI reject LOGO loop
+        stable@vger.kernel.org, Wan Jiabing <wanjiabing@vivo.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 147/196] ARM: OMAP2+: hwmod: Add of_node_put() before break
 Date:   Mon, 21 Feb 2022 09:49:39 +0100
-Message-Id: <20220221084917.514697154@linuxfoundation.org>
+Message-Id: <20220221084935.842981814@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,111 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Wan Jiabing <wanjiabing@vivo.com>
 
-commit 7f4c5a26f735dea4bbc0eb8eb9da99cda95a8563 upstream.
+[ Upstream commit 80c469a0a03763f814715f3d12b6f3964c7423e8 ]
 
-When connected point to point, the driver does not know the FC4's supported
-by the other end. In Fabrics, it can query the nameserver.  Thus the driver
-must send PRLIs for the FC4s it supports and enable support based on the
-acc(ept) or rej(ect) of the respective FC4 PRLI.  Currently the driver
-supports SCSI and NVMe PRLIs.
+Fix following coccicheck warning:
+./arch/arm/mach-omap2/omap_hwmod.c:753:1-23: WARNING: Function
+for_each_matching_node should have of_node_put() before break
 
-Unfortunately, although the behavior is per standard, many devices have
-come to expect only SCSI PRLIs. In this particular example, the NVMe PRLI
-is properly RJT'd but the target decided that it must LOGO after seeing the
-unexpected NVMe PRLI. The LOGO causes the sequence to restart and login is
-now in an infinite failure loop.
+Early exits from for_each_matching_node should decrement the
+node reference counter.
 
-Fix the problem by having the driver, on a pt2pt link, remember NVMe PRLI
-accept or reject status across logout as long as the link stays "up".  When
-retrying login, if the prior NVMe PRLI was rejected, it will not be sent on
-the next login.
-
-Link: https://lore.kernel.org/r/20220212163120.15385-1-jsmart2021@gmail.com
-Cc: <stable@vger.kernel.org> # v5.4+
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc.h           |    1 +
- drivers/scsi/lpfc/lpfc_attr.c      |    3 +++
- drivers/scsi/lpfc/lpfc_els.c       |   20 +++++++++++++++++++-
- drivers/scsi/lpfc/lpfc_nportdisc.c |    5 +++--
- 4 files changed, 26 insertions(+), 3 deletions(-)
+ arch/arm/mach-omap2/omap_hwmod.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/lpfc/lpfc.h
-+++ b/drivers/scsi/lpfc/lpfc.h
-@@ -377,6 +377,7 @@ struct lpfc_vport {
- #define FC_VPORT_LOGO_RCVD      0x200    /* LOGO received on vport */
- #define FC_RSCN_DISCOVERY       0x400	 /* Auth all devices after RSCN */
- #define FC_LOGO_RCVD_DID_CHNG   0x800    /* FDISC on phys port detect DID chng*/
-+#define FC_PT2PT_NO_NVME        0x1000   /* Don't send NVME PRLI */
- #define FC_SCSI_SCAN_TMO        0x4000	 /* scsi scan timer running */
- #define FC_ABORT_DISCOVERY      0x8000	 /* we want to abort discovery */
- #define FC_NDISC_ACTIVE         0x10000	 /* NPort discovery active */
---- a/drivers/scsi/lpfc/lpfc_attr.c
-+++ b/drivers/scsi/lpfc/lpfc_attr.c
-@@ -1145,6 +1145,9 @@ lpfc_issue_lip(struct Scsi_Host *shost)
- 	pmboxq->u.mb.mbxCommand = MBX_DOWN_LINK;
- 	pmboxq->u.mb.mbxOwner = OWN_HOST;
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index 0c2936c7a3799..a5e9cffcac10c 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -752,8 +752,10 @@ static int __init _init_clkctrl_providers(void)
  
-+	if ((vport->fc_flag & FC_PT2PT) && (vport->fc_flag & FC_PT2PT_NO_NVME))
-+		vport->fc_flag &= ~FC_PT2PT_NO_NVME;
-+
- 	mbxstatus = lpfc_sli_issue_mbox_wait(phba, pmboxq, LPFC_MBOX_TMO * 2);
- 
- 	if ((mbxstatus == MBX_SUCCESS) &&
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -1066,7 +1066,8 @@ stop_rr_fcf_flogi:
- 
- 		/* FLOGI failed, so there is no fabric */
- 		spin_lock_irq(shost->host_lock);
--		vport->fc_flag &= ~(FC_FABRIC | FC_PUBLIC_LOOP);
-+		vport->fc_flag &= ~(FC_FABRIC | FC_PUBLIC_LOOP |
-+				    FC_PT2PT_NO_NVME);
- 		spin_unlock_irq(shost->host_lock);
- 
- 		/* If private loop, then allow max outstanding els to be
-@@ -3740,6 +3741,23 @@ lpfc_els_retry(struct lpfc_hba *phba, st
- 		/* Added for Vendor specifc support
- 		 * Just keep retrying for these Rsn / Exp codes
- 		 */
-+		if ((vport->fc_flag & FC_PT2PT) &&
-+		    cmd == ELS_CMD_NVMEPRLI) {
-+			switch (stat.un.b.lsRjtRsnCode) {
-+			case LSRJT_UNABLE_TPC:
-+			case LSRJT_INVALID_CMD:
-+			case LSRJT_LOGICAL_ERR:
-+			case LSRJT_CMD_UNSUPPORTED:
-+				lpfc_printf_vlog(vport, KERN_WARNING, LOG_ELS,
-+						 "0168 NVME PRLI LS_RJT "
-+						 "reason %x port doesn't "
-+						 "support NVME, disabling NVME\n",
-+						 stat.un.b.lsRjtRsnCode);
-+				retry = 0;
-+				vport->fc_flag |= FC_PT2PT_NO_NVME;
-+				goto out_retry;
-+			}
+ 	for_each_matching_node(np, ti_clkctrl_match_table) {
+ 		ret = _setup_clkctrl_provider(np);
+-		if (ret)
++		if (ret) {
++			of_node_put(np);
+ 			break;
 +		}
- 		switch (stat.un.b.lsRjtRsnCode) {
- 		case LSRJT_UNABLE_TPC:
- 			/* The driver has a VALID PLOGI but the rport has
---- a/drivers/scsi/lpfc/lpfc_nportdisc.c
-+++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
-@@ -1987,8 +1987,9 @@ lpfc_cmpl_reglogin_reglogin_issue(struct
- 			 * is configured try it.
- 			 */
- 			ndlp->nlp_fc4_type |= NLP_FC4_FCP;
--			if ((vport->cfg_enable_fc4_type == LPFC_ENABLE_BOTH) ||
--			    (vport->cfg_enable_fc4_type == LPFC_ENABLE_NVME)) {
-+			if ((!(vport->fc_flag & FC_PT2PT_NO_NVME)) &&
-+			    (vport->cfg_enable_fc4_type == LPFC_ENABLE_BOTH ||
-+			    vport->cfg_enable_fc4_type == LPFC_ENABLE_NVME)) {
- 				ndlp->nlp_fc4_type |= NLP_FC4_NVME;
- 				/* We need to update the localport also */
- 				lpfc_nvme_update_localport(vport);
+ 	}
+ 
+ 	return ret;
+-- 
+2.34.1
+
 
 
