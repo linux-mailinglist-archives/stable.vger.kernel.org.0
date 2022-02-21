@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CE974BE9C6
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:08:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C00424BE7FE
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:04:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344336AbiBUJu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:50:28 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41642 "EHLO
+        id S1348043AbiBUJKj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:10:39 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352780AbiBUJry (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:54 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1833143EE6;
-        Mon, 21 Feb 2022 01:20:27 -0800 (PST)
+        with ESMTP id S1347869AbiBUJJf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B290DFF3;
+        Mon, 21 Feb 2022 01:01:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7ABE8CE0E7A;
-        Mon, 21 Feb 2022 09:20:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62F43C340E9;
-        Mon, 21 Feb 2022 09:20:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CBA85B80EB3;
+        Mon, 21 Feb 2022 09:01:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA257C340E9;
+        Mon, 21 Feb 2022 09:01:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435224;
-        bh=el3CFeUVm30INR3zTOAQtFL7itAtHKIRWEsTcnAERWQ=;
+        s=korg; t=1645434112;
+        bh=ZuE/Z/bq3S+9y920nyWf42fUMdYekNAaXDde+xO2nPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TLjISFWsjppRHtwmMFuwCOIhFwebjlPPtYC47g1Zy7+UlVHdwXCUZKjK2zyYHdVST
-         ZYZN2fmHllIFZ1LouydBTQyN3fIuXUkZCwLPecsF2e2rOK+ZXeBFEPi0xa8uoeS+XW
-         90qtzzHSeNuO2FmgnpGRt+rdh+gw2fpoLWGOD2/E=
+        b=WD4tuGIOEPkD7Ubw5hVU24o8Sn+kKOLVSjviY1+vKC/4gXccvH0DOI6MyR1yeZFX0
+         aTcxZt1nxWtHc4b6xkG4w7KGNfIPcs3I6Rxw+UmZE8FrTTWQVB8tmsqVVWMxsEw9F/
+         PeXgmFVoMfYcW6VG9waC1aZXPIckeJDrrXvCt3Ik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Subject: [PATCH 5.16 089/227] drm/cma-helper: Set VM_DONTEXPAND for mmap
-Date:   Mon, 21 Feb 2022 09:48:28 +0100
-Message-Id: <20220221084937.836469644@linuxfoundation.org>
+        stable@vger.kernel.org, Long Li <longli@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Purna Pavan Chandra Aekkaladevi <paekkaladevi@microsoft.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Wei Liu <wei.liu@kernel.org>
+Subject: [PATCH 5.10 017/121] PCI: hv: Fix NUMA node assignment when kernel boots with custom NUMA topology
+Date:   Mon, 21 Feb 2022 09:48:29 +0100
+Message-Id: <20220221084921.732987240@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Long Li <longli@microsoft.com>
 
-commit 59f39bfa6553d598cb22f694d45e89547f420d85 upstream.
+commit 3149efcdf2c6314420c418dfc94de53bfd076b1f upstream.
 
-drm_gem_cma_mmap() cannot assume every implementation of dma_mmap_wc()
-will end up calling remap_pfn_range() (which happens to set the relevant
-vma flag, among others), so in order to make sure expectations around
-VM_DONTEXPAND are met, let it explicitly set the flag like most other
-GEM mmap implementations do.
+When kernel boots with a NUMA topology with some NUMA nodes offline, the PCI
+driver should only set an online NUMA node on the device. This can happen
+during KDUMP where some NUMA nodes are not made online by the KDUMP kernel.
 
-This avoids repeated warnings on a small minority of systems where the
-display is behind an IOMMU, and has a simple driver which does not
-override drm_gem_cma_default_funcs. Arm hdlcd is an in-tree affected
-driver. Out-of-tree, the Apple DCP driver is affected; this fix is
-required for DCP to be mainlined.
+This patch also fixes the case where kernel is booting with "numa=off".
 
-[Alyssa: Update commit message.]
-
-Fixes: c40069cb7bd6 ("drm: add mmap() to drm_gem_object_funcs")
-Acked-by: Daniel Vetter <daniel@ffwll.ch>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211013143654.39031-1-alyssa@rosenzweig.io
+Fixes: 999dd956d838 ("PCI: hv: Add support for protocol 1.3 and support PCI_BUS_RELATIONS2")
+Signed-off-by: Long Li <longli@microsoft.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Tested-by: Purna Pavan Chandra Aekkaladevi <paekkaladevi@microsoft.com>
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Link: https://lore.kernel.org/r/1643247814-15184-1-git-send-email-longli@linuxonhyperv.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_gem_cma_helper.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/controller/pci-hyperv.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/drm_gem_cma_helper.c
-+++ b/drivers/gpu/drm/drm_gem_cma_helper.c
-@@ -518,6 +518,7 @@ int drm_gem_cma_mmap(struct drm_gem_obje
- 	 */
- 	vma->vm_pgoff -= drm_vma_node_start(&obj->vma_node);
- 	vma->vm_flags &= ~VM_PFNMAP;
-+	vma->vm_flags |= VM_DONTEXPAND;
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -1841,8 +1841,17 @@ static void hv_pci_assign_numa_node(stru
+ 		if (!hv_dev)
+ 			continue;
  
- 	cma_obj = to_drm_gem_cma_obj(obj);
+-		if (hv_dev->desc.flags & HV_PCI_DEVICE_FLAG_NUMA_AFFINITY)
+-			set_dev_node(&dev->dev, hv_dev->desc.virtual_numa_node);
++		if (hv_dev->desc.flags & HV_PCI_DEVICE_FLAG_NUMA_AFFINITY &&
++		    hv_dev->desc.virtual_numa_node < num_possible_nodes())
++			/*
++			 * The kernel may boot with some NUMA nodes offline
++			 * (e.g. in a KDUMP kernel) or with NUMA disabled via
++			 * "numa=off". In those cases, adjust the host provided
++			 * NUMA node to a valid NUMA node used by the kernel.
++			 */
++			set_dev_node(&dev->dev,
++				     numa_map_to_online_node(
++					     hv_dev->desc.virtual_numa_node));
  
+ 		put_pcichild(hv_dev);
+ 	}
 
 
