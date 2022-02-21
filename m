@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A26574BDFE6
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:50:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A2534BDE67
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:47:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351244AbiBUJuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:50:01 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42172 "EHLO
+        id S1347719AbiBUJKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:10:08 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352948AbiBUJsD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95B4E5F80;
-        Mon, 21 Feb 2022 01:21:41 -0800 (PST)
+        with ESMTP id S1347733AbiBUJJN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAE45D96;
+        Mon, 21 Feb 2022 01:01:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 329E960F3C;
-        Mon, 21 Feb 2022 09:21:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47EE5C340E9;
-        Mon, 21 Feb 2022 09:21:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92CCAB80EB2;
+        Mon, 21 Feb 2022 09:01:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7A9FC340EB;
+        Mon, 21 Feb 2022 09:01:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435300;
-        bh=y0Tx4Ij1gHeXKe15K/HgbNer42IaWDRrzCvEiQYmuhc=;
+        s=korg; t=1645434092;
+        bh=xZ9fA8FQTlhqSO4xb2BTS+Tte660lRoSeEI0kUbK64E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=acllwBgKDZ1Dmih6icYd2jICGEc1fHGirv5z7779Lk0q0dfsuNdVvK+2kZk35gwmw
-         F452AfHXgqykqfsEYtkXbKmKKoYCXEqnE7GsT8nq1Nn/J/UdigZaFlxdtMxZivUN9Z
-         NSHBr8vTycHTo1i5LTlY1y8yYNbqOeCLEkqFfg1U=
+        b=mAXyNo50cAwzspWWoi/ETAm1ANB9fmqH42O58PFrpUkzmc6J1XcD0Eyrym6WQBhaV
+         hDtWOnDyOA39sWNEySWNPEeO01SydJwfk9nXRkFdw0LGDQ/jFz84Oltyb9kMGmSZff
+         6jOnhQmkj3rI+hOGp+iUSWwTS5fp6/+LirymonWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.16 083/227] drm/i915/opregion: check port number bounds for SWSCI display power state
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 010/121] Revert "svm: Add warning message for AVIC IPI invalid target"
 Date:   Mon, 21 Feb 2022 09:48:22 +0100
-Message-Id: <20220221084937.629373006@linuxfoundation.org>
+Message-Id: <20220221084921.498275586@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,59 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit ea958422291de248b9e2eaaeea36004e84b64043 upstream.
+commit dd4589eee99db8f61f7b8f7df1531cad3f74a64d upstream.
 
-The mapping from enum port to whatever port numbering scheme is used by
-the SWSCI Display Power State Notification is odd, and the memory of it
-has faded. In any case, the parameter only has space for ports numbered
-[0..4], and UBSAN reports bit shift beyond it when the platform has port
-F or more.
+Remove a WARN on an "AVIC IPI invalid target" exit, the WARN is trivial
+to trigger from guest as it will fail on any destination APIC ID that
+doesn't exist from the guest's perspective.
 
-Since the SWSCI functionality is supposed to be obsolete for new
-platforms (i.e. ones that might have port F or more), just bail out
-early if the mapped and mangled port number is beyond what the Display
-Power State Notification can support.
+Don't bother recording anything in the kernel log, the common tracepoint
+for kvm_avic_incomplete_ipi() is sufficient for debugging.
 
-Fixes: 9c4b0a683193 ("drm/i915: add opregion function to notify bios of encoder enable/disable")
-Cc: <stable@vger.kernel.org> # v3.13+
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Lucas De Marchi <lucas.demarchi@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4800
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/cc363f42d6b5a5932b6d218fefcc8bdfb15dbbe5.1644489329.git.jani.nikula@intel.com
-(cherry picked from commit 24a644ebbfd3b13cda702f98907f9dd123e34bf9)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+This reverts commit 37ef0c4414c9743ba7f1af4392f0a27a99649f2a.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220204214205.3306634-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_opregion.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ arch/x86/kvm/svm/avic.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_opregion.c
-+++ b/drivers/gpu/drm/i915/display/intel_opregion.c
-@@ -360,6 +360,21 @@ int intel_opregion_notify_encoder(struct
- 		port++;
+--- a/arch/x86/kvm/svm/avic.c
++++ b/arch/x86/kvm/svm/avic.c
+@@ -344,8 +344,6 @@ int avic_incomplete_ipi_interception(str
+ 		break;
  	}
- 
-+	/*
-+	 * The port numbering and mapping here is bizarre. The now-obsolete
-+	 * swsci spec supports ports numbered [0..4]. Port E is handled as a
-+	 * special case, but port F and beyond are not. The functionality is
-+	 * supposed to be obsolete for new platforms. Just bail out if the port
-+	 * number is out of bounds after mapping.
-+	 */
-+	if (port > 4) {
-+		drm_dbg_kms(&dev_priv->drm,
-+			    "[ENCODER:%d:%s] port %c (index %u) out of bounds for display power state notification\n",
-+			    intel_encoder->base.base.id, intel_encoder->base.name,
-+			    port_name(intel_encoder->port), port);
-+		return -EINVAL;
-+	}
-+
- 	if (!enable)
- 		parm |= 4 << 8;
- 
+ 	case AVIC_IPI_FAILURE_INVALID_TARGET:
+-		WARN_ONCE(1, "Invalid IPI target: index=%u, vcpu=%d, icr=%#0x:%#0x\n",
+-			  index, svm->vcpu.vcpu_id, icrh, icrl);
+ 		break;
+ 	case AVIC_IPI_FAILURE_INVALID_BACKING_PAGE:
+ 		WARN_ONCE(1, "Invalid backing page\n");
 
 
