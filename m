@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98C174BE213
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:54:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE6654BE1EC
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344881AbiBUIvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:51:36 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41572 "EHLO
+        id S1351565AbiBUJtr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:49:47 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344876AbiBUIve (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:51:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F21DC2BCB;
-        Mon, 21 Feb 2022 00:51:11 -0800 (PST)
+        with ESMTP id S1352977AbiBUJsF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:05 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4747FD6D;
+        Mon, 21 Feb 2022 01:22:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FD4C61132;
-        Mon, 21 Feb 2022 08:51:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 738DEC340E9;
-        Mon, 21 Feb 2022 08:51:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B7906CE0E90;
+        Mon, 21 Feb 2022 09:22:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99F4BC340E9;
+        Mon, 21 Feb 2022 09:22:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433471;
-        bh=/hVOJlsFWLKRbsZ0LCXQz1BHsIWJgYUIFS3HbLPfFkY=;
+        s=korg; t=1645435326;
+        bh=gWrhBUVDvQ6S4mikWmV2cQBDKkGwyarz86IOQR8HysI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ExED1Hb3Ma2O8c8wBlaHVAWABDKAIQdkVll3OF21Emk4XZvHUC3rr8ZTl/GSLul7R
-         p+NyuYTu9u7Tgcx+FOqjdtcCjMpwq8NAB6GxT/VDYmzAcmP1Ut7ANaM+BbKP9SNK+I
-         14Oh/A5ws1v3eavRkQ4Ob0MYIt/xhJmIjo1NnOXA=
+        b=KhOZ+7H8lldPYeS1qrfLaiqkrhBxq/ZHlX//CsvqK21ClAGaxv11DeUjjF9VgrMVN
+         obeGjGWYJLGpiVe3gtWxC+02oDhLBWGiCDGZ1EyiS1X3WNdMbwmKLZlFP1ojqJuDeU
+         t9trafOeTrmh/bY6mIyY7s4KQxInOAG00JCT5Gh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/33] ax25: improve the incomplete fix to avoid UAF and NPD bugs
+        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
+        DENG Qingfang <dqfext@gmail.com>,
+        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 125/227] net: phy: mediatek: remove PHY mode check on MT7531
 Date:   Mon, 21 Feb 2022 09:49:04 +0100
-Message-Id: <20220221084908.924052016@linuxfoundation.org>
+Message-Id: <20220221084939.004206929@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
-References: <20220221084908.568970525@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,90 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: DENG Qingfang <dqfext@gmail.com>
 
-[ Upstream commit 4e0f718daf97d47cf7dec122da1be970f145c809 ]
+commit 525b108e6d95b643eccbd84fb10aa9aa101b18dd upstream.
 
-The previous commit 1ade48d0c27d ("ax25: NPD bug when detaching
-AX25 device") introduce lock_sock() into ax25_kill_by_device to
-prevent NPD bug. But the concurrency NPD or UAF bug will occur,
-when lock_sock() or release_sock() dereferences the ax25_cb->sock.
+The function mt7531_phy_mode_supported in the DSA driver set supported
+mode to PHY_INTERFACE_MODE_GMII instead of PHY_INTERFACE_MODE_INTERNAL
+for the internal PHY, so this check breaks the PHY initialization:
 
-The NULL pointer dereference bug can be shown as below:
+mt7530 mdio-bus:00 wan (uninitialized): failed to connect to PHY: -EINVAL
 
-ax25_kill_by_device()        | ax25_release()
-                             |   ax25_destroy_socket()
-                             |     ax25_cb_del()
-  ...                        |     ...
-                             |     ax25->sk=NULL;
-  lock_sock(s->sk); //(1)    |
-  s->ax25_dev = NULL;        |     ...
-  release_sock(s->sk); //(2) |
-  ...                        |
+Remove the check to make it work again.
 
-The root cause is that the sock is set to null before dereference
-site (1) or (2). Therefore, this patch extracts the ax25_cb->sock
-in advance, and uses ax25_list_lock to protect it, which can synchronize
-with ax25_cb_del() and ensure the value of sock is not null before
-dereference sites.
-
-The concurrency UAF bug can be shown as below:
-
-ax25_kill_by_device()        | ax25_release()
-                             |   ax25_destroy_socket()
-  ...                        |   ...
-                             |   sock_put(sk); //FREE
-  lock_sock(s->sk); //(1)    |
-  s->ax25_dev = NULL;        |   ...
-  release_sock(s->sk); //(2) |
-  ...                        |
-
-The root cause is that the sock is released before dereference
-site (1) or (2). Therefore, this patch uses sock_hold() to increase
-the refcount of sock and uses ax25_list_lock to protect it, which
-can synchronize with ax25_cb_del() in ax25_destroy_socket() and
-ensure the sock wil not be released before dereference sites.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reported-by: Hauke Mehrtens <hauke@hauke-m.de>
+Fixes: e40d2cca0189 ("net: phy: add MediaTek Gigabit Ethernet PHY driver")
+Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+Acked-by: Arınç ÜNAL <arinc.unal@arinc9.com>
+Tested-by: Hauke Mehrtens <hauke@hauke-m.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ax25/af_ax25.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/phy/mediatek-ge.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index f4c8567e91b38..c4ef1be59cb19 100644
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -80,6 +80,7 @@ static void ax25_kill_by_device(struct net_device *dev)
- {
- 	ax25_dev *ax25_dev;
- 	ax25_cb *s;
-+	struct sock *sk;
+--- a/drivers/net/phy/mediatek-ge.c
++++ b/drivers/net/phy/mediatek-ge.c
+@@ -55,9 +55,6 @@ static int mt7530_phy_config_init(struct
  
- 	if ((ax25_dev = ax25_dev_ax25dev(dev)) == NULL)
- 		return;
-@@ -88,13 +89,15 @@ static void ax25_kill_by_device(struct net_device *dev)
- again:
- 	ax25_for_each(s, &ax25_list) {
- 		if (s->ax25_dev == ax25_dev) {
-+			sk = s->sk;
-+			sock_hold(sk);
- 			spin_unlock_bh(&ax25_list_lock);
--			lock_sock(s->sk);
-+			lock_sock(sk);
- 			s->ax25_dev = NULL;
--			release_sock(s->sk);
-+			release_sock(sk);
- 			ax25_disconnect(s, ENETUNREACH);
- 			spin_lock_bh(&ax25_list_lock);
+ static int mt7531_phy_config_init(struct phy_device *phydev)
+ {
+-	if (phydev->interface != PHY_INTERFACE_MODE_INTERNAL)
+-		return -EINVAL;
 -
-+			sock_put(sk);
- 			/* The entry could have been deleted from the
- 			 * list meanwhile and thus the next pointer is
- 			 * no longer valid.  Play it safe and restart
--- 
-2.34.1
-
+ 	mtk_gephy_config_init(phydev);
+ 
+ 	/* PHY link down power saving enable */
 
 
