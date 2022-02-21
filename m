@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCB184BE0FF
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 405204BE1BC
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351667AbiBUJu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:50:27 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43540 "EHLO
+        id S1348027AbiBUJK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:10:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352799AbiBUJrz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:55 -0500
+        with ESMTP id S1347831AbiBUJJj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:39 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83ACC43EFC;
-        Mon, 21 Feb 2022 01:20:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DBB3E0E0;
+        Mon, 21 Feb 2022 01:01:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19AD160B1E;
-        Mon, 21 Feb 2022 09:20:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 057C5C340E9;
-        Mon, 21 Feb 2022 09:20:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A9D16112F;
+        Mon, 21 Feb 2022 09:01:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA80AC340E9;
+        Mon, 21 Feb 2022 09:01:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435229;
-        bh=RJrbhiB+QqFTSX2dxz9U5PNVkSWtc67m/JMmEgb5Ax4=;
+        s=korg; t=1645434115;
+        bh=bUh9fKHd0prqcKbko2AZrnRE8vBsI+Z+fI9LilLTeIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wrGjg0ZzNfK7USS3lpOMqUu53uivj7qHRDGs91WNO/HyAquvDm3axypyG7F0VuEIw
-         GoC4UhUgmHg0Be15vXiJdmIs+4GEBbdpRtPJmicFrXfN1KsC/4/CNzlEbjUd4RqYlw
-         E0lmWqQWUJeZ8uNKJUPTuE0ThKDEJK6lxUEcd/og=
+        b=eZ3Hjh9cPniI9i3jVNipwtv+L7R8p1MWHOA2/R8HAxV6Q2lvP/NnYBizebxB1lsWX
+         MkvjZ2+pWPhx8qieJmDLpDydaX6Xrq18PljLfIRnxdJfxLMx0EZCv2x2sxNymc3fy4
+         4v0HoPiFnCnH3LrLztCGAQA6XooTXmAYAs64yyEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.16 091/227] drm/i915/ttm: tweak priority hint selection
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.10 018/121] parisc: Add ioread64_lo_hi() and iowrite64_lo_hi()
 Date:   Mon, 21 Feb 2022 09:48:30 +0100
-Message-Id: <20220221084937.897987684@linuxfoundation.org>
+Message-Id: <20220221084921.769440860@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Auld <matthew.auld@intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 0bdc0a0699929c814a8aecd55d2accb8c11beae2 upstream.
+commit 18a1d5e1945385d9b5adc3fe11427ce4a9d2826e upstream.
 
-For some reason we are selecting PRIO_HAS_PAGES when we don't have
-mm.pages, and vice versa.
+It's a followup to the previous commit f15309d7ad5d ("parisc: Add
+ioread64_hi_lo() and iowrite64_hi_lo()") which does only half of
+the job. Add the rest, so we won't get a new kernel test robot
+reports.
 
-v2(Thomas):
-  - Add missing fixes tag
-
-Fixes: 213d50927763 ("drm/i915/ttm: Introduce a TTM i915 gem object backend")
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220209111652.468762-1-matthew.auld@intel.com
-(cherry picked from commit ba2c5d15022a565da187d90e2fe44768e33e5034)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Fixes: f15309d7ad5d ("parisc: Add ioread64_hi_lo() and iowrite64_hi_lo()")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_ttm.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/parisc/lib/iomap.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
-@@ -787,11 +787,9 @@ static void i915_ttm_adjust_lru(struct d
- 	if (obj->mm.madv != I915_MADV_WILLNEED) {
- 		bo->priority = I915_TTM_PRIO_PURGE;
- 	} else if (!i915_gem_object_has_pages(obj)) {
--		if (bo->priority < I915_TTM_PRIO_HAS_PAGES)
--			bo->priority = I915_TTM_PRIO_HAS_PAGES;
-+		bo->priority = I915_TTM_PRIO_NO_PAGES;
- 	} else {
--		if (bo->priority > I915_TTM_PRIO_NO_PAGES)
--			bo->priority = I915_TTM_PRIO_NO_PAGES;
-+		bo->priority = I915_TTM_PRIO_HAS_PAGES;
- 	}
+--- a/arch/parisc/lib/iomap.c
++++ b/arch/parisc/lib/iomap.c
+@@ -346,6 +346,16 @@ u64 ioread64be(const void __iomem *addr)
+ 	return *((u64 *)addr);
+ }
  
- 	ttm_bo_move_to_lru_tail(bo, bo->resource, NULL);
++u64 ioread64_lo_hi(const void __iomem *addr)
++{
++	u32 low, high;
++
++	low = ioread32(addr);
++	high = ioread32(addr + sizeof(u32));
++
++	return low + ((u64)high << 32);
++}
++
+ u64 ioread64_hi_lo(const void __iomem *addr)
+ {
+ 	u32 low, high;
+@@ -419,6 +429,12 @@ void iowrite64be(u64 datum, void __iomem
+ 	}
+ }
+ 
++void iowrite64_lo_hi(u64 val, void __iomem *addr)
++{
++	iowrite32(val, addr);
++	iowrite32(val >> 32, addr + sizeof(u32));
++}
++
+ void iowrite64_hi_lo(u64 val, void __iomem *addr)
+ {
+ 	iowrite32(val >> 32, addr + sizeof(u32));
+@@ -527,6 +543,7 @@ EXPORT_SYMBOL(ioread32);
+ EXPORT_SYMBOL(ioread32be);
+ EXPORT_SYMBOL(ioread64);
+ EXPORT_SYMBOL(ioread64be);
++EXPORT_SYMBOL(ioread64_lo_hi);
+ EXPORT_SYMBOL(ioread64_hi_lo);
+ EXPORT_SYMBOL(iowrite8);
+ EXPORT_SYMBOL(iowrite16);
+@@ -535,6 +552,7 @@ EXPORT_SYMBOL(iowrite32);
+ EXPORT_SYMBOL(iowrite32be);
+ EXPORT_SYMBOL(iowrite64);
+ EXPORT_SYMBOL(iowrite64be);
++EXPORT_SYMBOL(iowrite64_lo_hi);
+ EXPORT_SYMBOL(iowrite64_hi_lo);
+ EXPORT_SYMBOL(ioread8_rep);
+ EXPORT_SYMBOL(ioread16_rep);
 
 
