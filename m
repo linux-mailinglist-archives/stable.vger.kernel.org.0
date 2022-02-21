@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C85994BE18F
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE1B94BE309
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:56:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242216AbiBUJta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:49:30 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42570 "EHLO
+        id S1351470AbiBUJt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:49:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352899AbiBUJsB (ORCPT
+        with ESMTP id S1352902AbiBUJsB (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:01 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05ABB192BB;
-        Mon, 21 Feb 2022 01:21:10 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6841193E7;
+        Mon, 21 Feb 2022 01:21:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7891BCE0E77;
-        Mon, 21 Feb 2022 09:21:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63F9FC340E9;
-        Mon, 21 Feb 2022 09:21:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 567A060F4E;
+        Mon, 21 Feb 2022 09:21:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C462C340E9;
+        Mon, 21 Feb 2022 09:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435267;
-        bh=oHyaj2IoqWn77jI/uHM8i2KP9/MKCnezer/d0gGGdE0=;
+        s=korg; t=1645435272;
+        bh=lO9+SfRYxZy7LfpZ9kZoV+XdWXmb8YWDq3BsOi5WrkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aA8cgiXk4GGjIrjpWsEm4mOkTym+ZCgB71tYIO+Oc5AMRnbZLTCvSHQxxg+09ZuHh
-         qPs4XmT4vRadsbTZI52/UPyq0jdDcGCjwRPM8Y957f2mxfPWcobKWYHZ2HZG3wn8ea
-         S6HwuCdbQd/FjruTYa9boe8+8mjEBl75ERujqFVs=
+        b=ciS78LNanpAgj67Efyw40P9mmncYXwYAYeVs3+iOmgGjy8VQyvJsh1KQaUVYw3BpB
+         SRJ7YVR/GUE/3swUHIe3RNKiQuWa1tT8xr4vp9aPeLJxN1s3vq7xYFU5TiuciND/nJ
+         hR6DHVyrQfkU6K4+RZpBmsPE0uZNx+8G3b7DL8IE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        David Pinilla Caparros <dpini@cloudflare.com>,
-        Ignat Korchagin <ignat@cloudflare.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 103/227] ipv6: mcast: use rcu-safe version of ipv6_get_lladdr()
-Date:   Mon, 21 Feb 2022 09:48:42 +0100
-Message-Id: <20220221084938.300149913@linuxfoundation.org>
+        stable@vger.kernel.org, Congyu Liu <liu3101@purdue.edu>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.16 104/227] ipv6: per-netns exclusive flowlabel checks
+Date:   Mon, 21 Feb 2022 09:48:43 +0100
+Message-Id: <20220221084938.336077170@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
 References: <20220221084934.836145070@linuxfoundation.org>
@@ -55,97 +54,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ignat Korchagin <ignat@cloudflare.com>
+From: Willem de Bruijn <willemb@google.com>
 
-commit 26394fc118d6115390bd5b3a0fb17096271da227 upstream.
+commit 0b0dff5b3b98c5c7ce848151df9da0b3cdf0cc8b upstream.
 
-Some time ago 8965779d2c0e ("ipv6,mcast: always hold idev->lock before mca_lock")
-switched ipv6_get_lladdr() to __ipv6_get_lladdr(), which is rcu-unsafe
-version. That was OK, because idev->lock was held for these codepaths.
+Ipv6 flowlabels historically require a reservation before use.
+Optionally in exclusive mode (e.g., user-private).
 
-In 88e2ca308094 ("mld: convert ifmcaddr6 to RCU") these external locks were
-removed, so we probably need to restore the original rcu-safe call.
+Commit 59c820b2317f ("ipv6: elide flowlabel check if no exclusive
+leases exist") introduced a fastpath that avoids this check when no
+exclusive leases exist in the system, and thus any flowlabel use
+will be granted.
 
-Otherwise, we occasionally get a machine crashed/stalled with the following
-in dmesg:
+That allows skipping the control operation to reserve a flowlabel
+entirely. Though with a warning if the fast path fails:
 
-[ 3405.966610][T230589] general protection fault, probably for non-canonical address 0xdead00000000008c: 0000 [#1] SMP NOPTI
-[ 3405.982083][T230589] CPU: 44 PID: 230589 Comm: kworker/44:3 Tainted: G           O      5.15.19-cloudflare-2022.2.1 #1
-[ 3405.998061][T230589] Hardware name: SUPA-COOL-SERV
-[ 3406.009552][T230589] Workqueue: mld mld_ifc_work
-[ 3406.017224][T230589] RIP: 0010:__ipv6_get_lladdr+0x34/0x60
-[ 3406.025780][T230589] Code: 57 10 48 83 c7 08 48 89 e5 48 39 d7 74 3e 48 8d 82 38 ff ff ff eb 13 48 8b 90 d0 00 00 00 48 8d 82 38 ff ff ff 48 39 d7 74 22 <66> 83 78 32 20 77 1b 75 e4 89 ca 23 50 2c 75 dd 48 8b 50 08 48 8b
-[ 3406.055748][T230589] RSP: 0018:ffff94e4b3fc3d10 EFLAGS: 00010202
-[ 3406.065617][T230589] RAX: dead00000000005a RBX: ffff94e4b3fc3d30 RCX: 0000000000000040
-[ 3406.077477][T230589] RDX: dead000000000122 RSI: ffff94e4b3fc3d30 RDI: ffff8c3a31431008
-[ 3406.089389][T230589] RBP: ffff94e4b3fc3d10 R08: 0000000000000000 R09: 0000000000000000
-[ 3406.101445][T230589] R10: ffff8c3a31430000 R11: 000000000000000b R12: ffff8c2c37887100
-[ 3406.113553][T230589] R13: ffff8c3a39537000 R14: 00000000000005dc R15: ffff8c3a31431000
-[ 3406.125730][T230589] FS:  0000000000000000(0000) GS:ffff8c3b9fc80000(0000) knlGS:0000000000000000
-[ 3406.138992][T230589] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 3406.149895][T230589] CR2: 00007f0dfea1db60 CR3: 000000387b5f2000 CR4: 0000000000350ee0
-[ 3406.162421][T230589] Call Trace:
-[ 3406.170235][T230589]  <TASK>
-[ 3406.177736][T230589]  mld_newpack+0xfe/0x1a0
-[ 3406.186686][T230589]  add_grhead+0x87/0xa0
-[ 3406.195498][T230589]  add_grec+0x485/0x4e0
-[ 3406.204310][T230589]  ? newidle_balance+0x126/0x3f0
-[ 3406.214024][T230589]  mld_ifc_work+0x15d/0x450
-[ 3406.223279][T230589]  process_one_work+0x1e6/0x380
-[ 3406.232982][T230589]  worker_thread+0x50/0x3a0
-[ 3406.242371][T230589]  ? rescuer_thread+0x360/0x360
-[ 3406.252175][T230589]  kthread+0x127/0x150
-[ 3406.261197][T230589]  ? set_kthread_struct+0x40/0x40
-[ 3406.271287][T230589]  ret_from_fork+0x22/0x30
-[ 3406.280812][T230589]  </TASK>
-[ 3406.288937][T230589] Modules linked in: ... [last unloaded: kheaders]
-[ 3406.476714][T230589] ---[ end trace 3525a7655f2f3b9e ]---
+  This is an optimization. Robust applications still have to revert to
+  requesting leases if the fast path fails due to an exclusive lease.
 
-Fixes: 88e2ca308094 ("mld: convert ifmcaddr6 to RCU")
-Reported-by: David Pinilla Caparros <dpini@cloudflare.com>
-Signed-off-by: Ignat Korchagin <ignat@cloudflare.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Still, this is subtle. Better isolate network namespaces from each
+other. Flowlabels are per-netns. Also record per-netns whether
+exclusive leases are in use. Then behavior does not change based on
+activity in other netns.
+
+Changes
+  v2
+    - wrap in IS_ENABLED(CONFIG_IPV6) to avoid breakage if disabled
+
+Fixes: 59c820b2317f ("ipv6: elide flowlabel check if no exclusive leases exist")
+Link: https://lore.kernel.org/netdev/MWHPR2201MB1072BCCCFCE779E4094837ACD0329@MWHPR2201MB1072.namprd22.prod.outlook.com/
+Reported-by: Congyu Liu <liu3101@purdue.edu>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Tested-by: Congyu Liu <liu3101@purdue.edu>
+Link: https://lore.kernel.org/r/20220215160037.1976072-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/addrconf.h |    2 --
- net/ipv6/addrconf.c    |    4 ++--
- net/ipv6/mcast.c       |    2 +-
- 3 files changed, 3 insertions(+), 5 deletions(-)
+ include/net/ipv6.h       |    5 ++++-
+ include/net/netns/ipv6.h |    3 ++-
+ net/ipv6/ip6_flowlabel.c |    4 +++-
+ 3 files changed, 9 insertions(+), 3 deletions(-)
 
---- a/include/net/addrconf.h
-+++ b/include/net/addrconf.h
-@@ -109,8 +109,6 @@ struct inet6_ifaddr *ipv6_get_ifaddr(str
- int ipv6_dev_get_saddr(struct net *net, const struct net_device *dev,
- 		       const struct in6_addr *daddr, unsigned int srcprefs,
- 		       struct in6_addr *saddr);
--int __ipv6_get_lladdr(struct inet6_dev *idev, struct in6_addr *addr,
--		      u32 banned_flags);
- int ipv6_get_lladdr(struct net_device *dev, struct in6_addr *addr,
- 		    u32 banned_flags);
- bool inet_rcv_saddr_equal(const struct sock *sk, const struct sock *sk2,
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -1839,8 +1839,8 @@ out:
+--- a/include/net/ipv6.h
++++ b/include/net/ipv6.h
+@@ -391,17 +391,20 @@ static inline void txopt_put(struct ipv6
+ 		kfree_rcu(opt, rcu);
  }
- EXPORT_SYMBOL(ipv6_dev_get_saddr);
  
--int __ipv6_get_lladdr(struct inet6_dev *idev, struct in6_addr *addr,
--		      u32 banned_flags)
-+static int __ipv6_get_lladdr(struct inet6_dev *idev, struct in6_addr *addr,
-+			      u32 banned_flags)
++#if IS_ENABLED(CONFIG_IPV6)
+ struct ip6_flowlabel *__fl6_sock_lookup(struct sock *sk, __be32 label);
+ 
+ extern struct static_key_false_deferred ipv6_flowlabel_exclusive;
+ static inline struct ip6_flowlabel *fl6_sock_lookup(struct sock *sk,
+ 						    __be32 label)
  {
- 	struct inet6_ifaddr *ifp;
- 	int err = -EADDRNOTAVAIL;
---- a/net/ipv6/mcast.c
-+++ b/net/ipv6/mcast.c
-@@ -1759,7 +1759,7 @@ static struct sk_buff *mld_newpack(struc
- 	skb_reserve(skb, hlen);
- 	skb_tailroom_reserve(skb, mtu, tlen);
+-	if (static_branch_unlikely(&ipv6_flowlabel_exclusive.key))
++	if (static_branch_unlikely(&ipv6_flowlabel_exclusive.key) &&
++	    READ_ONCE(sock_net(sk)->ipv6.flowlabel_has_excl))
+ 		return __fl6_sock_lookup(sk, label) ? : ERR_PTR(-ENOENT);
  
--	if (__ipv6_get_lladdr(idev, &addr_buf, IFA_F_TENTATIVE)) {
-+	if (ipv6_get_lladdr(dev, &addr_buf, IFA_F_TENTATIVE)) {
- 		/* <draft-ietf-magma-mld-source-05.txt>:
- 		 * use unspecified address as the source address
- 		 * when a valid link-local address is not available.
+ 	return NULL;
+ }
++#endif
+ 
+ struct ipv6_txoptions *fl6_merge_options(struct ipv6_txoptions *opt_space,
+ 					 struct ip6_flowlabel *fl,
+--- a/include/net/netns/ipv6.h
++++ b/include/net/netns/ipv6.h
+@@ -77,9 +77,10 @@ struct netns_ipv6 {
+ 	spinlock_t		fib6_gc_lock;
+ 	unsigned int		 ip6_rt_gc_expire;
+ 	unsigned long		 ip6_rt_last_gc;
++	unsigned char		flowlabel_has_excl;
+ #ifdef CONFIG_IPV6_MULTIPLE_TABLES
+-	unsigned int		fib6_rules_require_fldissect;
+ 	bool			fib6_has_custom_rules;
++	unsigned int		fib6_rules_require_fldissect;
+ #ifdef CONFIG_IPV6_SUBTREES
+ 	unsigned int		fib6_routes_require_src;
+ #endif
+--- a/net/ipv6/ip6_flowlabel.c
++++ b/net/ipv6/ip6_flowlabel.c
+@@ -450,8 +450,10 @@ fl_create(struct net *net, struct sock *
+ 		err = -EINVAL;
+ 		goto done;
+ 	}
+-	if (fl_shared_exclusive(fl) || fl->opt)
++	if (fl_shared_exclusive(fl) || fl->opt) {
++		WRITE_ONCE(sock_net(sk)->ipv6.flowlabel_has_excl, 1);
+ 		static_branch_deferred_inc(&ipv6_flowlabel_exclusive);
++	}
+ 	return fl;
+ 
+ done:
 
 
