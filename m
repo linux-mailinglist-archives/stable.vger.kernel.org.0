@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FF434BDCFD
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:43:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C91BE4BE38E
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:57:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350514AbiBUJeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:34:07 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:32996 "EHLO
+        id S1352394AbiBUJyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:54:21 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350552AbiBUJdm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:33:42 -0500
+        with ESMTP id S1352401AbiBUJxz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:53:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D28128E18;
-        Mon, 21 Feb 2022 01:14:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3A1F377CC;
+        Mon, 21 Feb 2022 01:23:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6BA260DF6;
-        Mon, 21 Feb 2022 09:14:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8B00C340E9;
-        Mon, 21 Feb 2022 09:13:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6347C60B1E;
+        Mon, 21 Feb 2022 09:23:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49435C340EB;
+        Mon, 21 Feb 2022 09:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434840;
-        bh=E8X8be894fHh241pFPixddfhnlq8eHFkwL8tLTXtjqA=;
+        s=korg; t=1645435431;
+        bh=LrdZ9NuSnqB/v6pJkg+tjtQ+DXMSkX1J7sTxDxjkw0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6aSfbl3C7zzfLY2fS40bDWa4FevX9sTuXzk3Jee7Rd/lFYtN0WPviUJ2q5h5J8Wl
-         Pa/mB9Jo+QO83Uu+zQ8ozn7CkW5LELP9paYQQ0+m9zAMVxgqudUnLKwrq2zhjN04cC
-         N664HbZeRSE3K4JRxwFqICUwQVCsXFisWOLRMmms=
+        b=ZsyjOxsNRkywNE3K9DeLGuJvl6sLTpHL1OdZUPUohT3/ifNaUghkcQLKbAlC3Nohz
+         bfIJgelViacYjvIp5bey7cE6FLjJo3biGYGXzjvdNqX3UfTmaCxHuWj1GouhJ0S6Lj
+         XUCQPXMCkvixjVlHJuSnWgyim9qGc6x+8zCPmsAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Ye Guojin <ye.guojin@zte.com.cn>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 148/196] ARM: OMAP2+: adjust the location of put_device() call in omapdss_init_of
-Date:   Mon, 21 Feb 2022 09:49:40 +0100
-Message-Id: <20220221084935.874643667@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.16 162/227] NFS: Do not report writeback errors in nfs_getattr()
+Date:   Mon, 21 Feb 2022 09:49:41 +0100
+Message-Id: <20220221084940.207345936@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Guojin <ye.guojin@zte.com.cn>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 34596ba380b03d181e24efd50e2f21045bde3696 ]
+commit d19e0183a88306acda07f4a01fedeeffe2a2a06b upstream.
 
-This was found by coccicheck:
-./arch/arm/mach-omap2/display.c, 272, 1-7, ERROR missing put_device;
-call of_find_device_by_node on line 258, but without a corresponding
-object release within this function.
+The result of the writeback, whether it is an ENOSPC or an EIO, or
+anything else, does not inhibit the NFS client from reporting the
+correct file timestamps.
 
-Move the put_device() call before the if judgment.
-
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Ye Guojin <ye.guojin@zte.com.cn>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 79566ef018f5 ("NFS: Getattr doesn't require data sync semantics")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-omap2/display.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/inode.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/mach-omap2/display.c b/arch/arm/mach-omap2/display.c
-index 6daaa645ae5d9..21413a9b7b6c6 100644
---- a/arch/arm/mach-omap2/display.c
-+++ b/arch/arm/mach-omap2/display.c
-@@ -263,9 +263,9 @@ static int __init omapdss_init_of(void)
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -853,12 +853,9 @@ int nfs_getattr(struct user_namespace *m
  	}
  
- 	r = of_platform_populate(node, NULL, NULL, &pdev->dev);
-+	put_device(&pdev->dev);
- 	if (r) {
- 		pr_err("Unable to populate DSS submodule devices\n");
--		put_device(&pdev->dev);
- 		return r;
- 	}
+ 	/* Flush out writes to the server in order to update c/mtime.  */
+-	if ((request_mask & (STATX_CTIME|STATX_MTIME)) &&
+-			S_ISREG(inode->i_mode)) {
+-		err = filemap_write_and_wait(inode->i_mapping);
+-		if (err)
+-			goto out;
+-	}
++	if ((request_mask & (STATX_CTIME | STATX_MTIME)) &&
++	    S_ISREG(inode->i_mode))
++		filemap_write_and_wait(inode->i_mapping);
  
--- 
-2.34.1
-
+ 	/*
+ 	 * We may force a getattr if the user cares about atime.
 
 
