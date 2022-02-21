@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEC684BDC46
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD7DC4BDCC1
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345923AbiBUIzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:55:47 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44728 "EHLO
+        id S1347814AbiBUJOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:14:50 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345903AbiBUIzW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:55:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E3B0245AF;
-        Mon, 21 Feb 2022 00:53:37 -0800 (PST)
+        with ESMTP id S1349619AbiBUJMh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:12:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A74BA240B5;
+        Mon, 21 Feb 2022 01:05:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 839196112B;
-        Mon, 21 Feb 2022 08:53:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BC40C340EB;
-        Mon, 21 Feb 2022 08:53:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F3AB61152;
+        Mon, 21 Feb 2022 09:05:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1039AC340E9;
+        Mon, 21 Feb 2022 09:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433606;
-        bh=L0t5YggnSs2Fv0Sq5c+rxg4RYmPux4JjVL50pIWCAGY=;
+        s=korg; t=1645434340;
+        bh=4d5H1SLVsMpH6k/OoKR9BqoYuBZ3mGAqqTcqKAWwj9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jgD0ZRBtLkwSGnAyhAExcEduNYgIp1LdiUDSX4XJY3LJbkMT8GsmTHfXoBDlL/dOo
-         vpBGC638++meNhvQK2gSeovW7pUHiXz4AeTOACszHN/PYSS6dGaL368R+Gu6N5w1QZ
-         m0u5FDg7LC+dSk7f3AovcZ+q9giGasPZV4OWNadk=
+        b=OJgFIC3MSvXcdv3jQEP3849GqRbFq+ezszQVrk5fDQ0xMqnFshGQr95P/sjvgXgOs
+         zgJMvhkv2+UChzhBDHiiSHsq/AuWENZm51dAsZHmQKK7CWCJtWWCyIJ+8BbLfKnLkD
+         TqidxR8cr/ZGxHO/D6a3PrUwBnBCMSukFoO1TgrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
+        Vlad Buslov <vladbu@mellanox.com>,
         syzbot <syzkaller@googlegroups.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@resnulli.us>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 24/45] drop_monitor: fix data-race in dropmon_net_event / trace_napi_poll_hit
+Subject: [PATCH 5.10 063/121] net_sched: add __rcu annotation to netdev->qdisc
 Date:   Mon, 21 Feb 2022 09:49:15 +0100
-Message-Id: <20220221084911.239012656@linuxfoundation.org>
+Message-Id: <20220221084923.339519479@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,101 +60,325 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-commit dcd54265c8bc14bd023815e36e2d5f9d66ee1fee upstream.
+commit 5891cd5ec46c2c2eb6427cb54d214b149635dd0e upstream.
 
-trace_napi_poll_hit() is reading stat->dev while another thread can write
-on it from dropmon_net_event()
+syzbot found a data-race [1] which lead me to add __rcu
+annotations to netdev->qdisc, and proper accessors
+to get LOCKDEP support.
 
-Use READ_ONCE()/WRITE_ONCE() here, RCU rules are properly enforced already,
-we only have to take care of load/store tearing.
+[1]
+BUG: KCSAN: data-race in dev_activate / qdisc_lookup_rcu
 
-BUG: KCSAN: data-race in dropmon_net_event / trace_napi_poll_hit
+write to 0xffff888168ad6410 of 8 bytes by task 13559 on cpu 1:
+ attach_default_qdiscs net/sched/sch_generic.c:1167 [inline]
+ dev_activate+0x2ed/0x8f0 net/sched/sch_generic.c:1221
+ __dev_open+0x2e9/0x3a0 net/core/dev.c:1416
+ __dev_change_flags+0x167/0x3f0 net/core/dev.c:8139
+ rtnl_configure_link+0xc2/0x150 net/core/rtnetlink.c:3150
+ __rtnl_newlink net/core/rtnetlink.c:3489 [inline]
+ rtnl_newlink+0xf4d/0x13e0 net/core/rtnetlink.c:3529
+ rtnetlink_rcv_msg+0x745/0x7e0 net/core/rtnetlink.c:5594
+ netlink_rcv_skb+0x14e/0x250 net/netlink/af_netlink.c:2494
+ rtnetlink_rcv+0x18/0x20 net/core/rtnetlink.c:5612
+ netlink_unicast_kernel net/netlink/af_netlink.c:1317 [inline]
+ netlink_unicast+0x602/0x6d0 net/netlink/af_netlink.c:1343
+ netlink_sendmsg+0x728/0x850 net/netlink/af_netlink.c:1919
+ sock_sendmsg_nosec net/socket.c:705 [inline]
+ sock_sendmsg net/socket.c:725 [inline]
+ ____sys_sendmsg+0x39a/0x510 net/socket.c:2413
+ ___sys_sendmsg net/socket.c:2467 [inline]
+ __sys_sendmsg+0x195/0x230 net/socket.c:2496
+ __do_sys_sendmsg net/socket.c:2505 [inline]
+ __se_sys_sendmsg net/socket.c:2503 [inline]
+ __x64_sys_sendmsg+0x42/0x50 net/socket.c:2503
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-write to 0xffff88816f3ab9c0 of 8 bytes by task 20260 on cpu 1:
- dropmon_net_event+0xb8/0x2b0 net/core/drop_monitor.c:1579
- notifier_call_chain kernel/notifier.c:84 [inline]
- raw_notifier_call_chain+0x53/0xb0 kernel/notifier.c:392
- call_netdevice_notifiers_info net/core/dev.c:1919 [inline]
- call_netdevice_notifiers_extack net/core/dev.c:1931 [inline]
- call_netdevice_notifiers net/core/dev.c:1945 [inline]
- unregister_netdevice_many+0x867/0xfb0 net/core/dev.c:10415
- ip_tunnel_delete_nets+0x24a/0x280 net/ipv4/ip_tunnel.c:1123
- vti_exit_batch_net+0x2a/0x30 net/ipv4/ip_vti.c:515
- ops_exit_list net/core/net_namespace.c:173 [inline]
- cleanup_net+0x4dc/0x8d0 net/core/net_namespace.c:597
- process_one_work+0x3f6/0x960 kernel/workqueue.c:2307
- worker_thread+0x616/0xa70 kernel/workqueue.c:2454
- kthread+0x1bf/0x1e0 kernel/kthread.c:377
- ret_from_fork+0x1f/0x30
+read to 0xffff888168ad6410 of 8 bytes by task 13560 on cpu 0:
+ qdisc_lookup_rcu+0x30/0x2e0 net/sched/sch_api.c:323
+ __tcf_qdisc_find+0x74/0x3a0 net/sched/cls_api.c:1050
+ tc_del_tfilter+0x1c7/0x1350 net/sched/cls_api.c:2211
+ rtnetlink_rcv_msg+0x5ba/0x7e0 net/core/rtnetlink.c:5585
+ netlink_rcv_skb+0x14e/0x250 net/netlink/af_netlink.c:2494
+ rtnetlink_rcv+0x18/0x20 net/core/rtnetlink.c:5612
+ netlink_unicast_kernel net/netlink/af_netlink.c:1317 [inline]
+ netlink_unicast+0x602/0x6d0 net/netlink/af_netlink.c:1343
+ netlink_sendmsg+0x728/0x850 net/netlink/af_netlink.c:1919
+ sock_sendmsg_nosec net/socket.c:705 [inline]
+ sock_sendmsg net/socket.c:725 [inline]
+ ____sys_sendmsg+0x39a/0x510 net/socket.c:2413
+ ___sys_sendmsg net/socket.c:2467 [inline]
+ __sys_sendmsg+0x195/0x230 net/socket.c:2496
+ __do_sys_sendmsg net/socket.c:2505 [inline]
+ __se_sys_sendmsg net/socket.c:2503 [inline]
+ __x64_sys_sendmsg+0x42/0x50 net/socket.c:2503
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-read to 0xffff88816f3ab9c0 of 8 bytes by interrupt on cpu 0:
- trace_napi_poll_hit+0x89/0x1c0 net/core/drop_monitor.c:292
- trace_napi_poll include/trace/events/napi.h:14 [inline]
- __napi_poll+0x36b/0x3f0 net/core/dev.c:6366
- napi_poll net/core/dev.c:6432 [inline]
- net_rx_action+0x29e/0x650 net/core/dev.c:6519
- __do_softirq+0x158/0x2de kernel/softirq.c:558
- do_softirq+0xb1/0xf0 kernel/softirq.c:459
- __local_bh_enable_ip+0x68/0x70 kernel/softirq.c:383
- __raw_spin_unlock_bh include/linux/spinlock_api_smp.h:167 [inline]
- _raw_spin_unlock_bh+0x33/0x40 kernel/locking/spinlock.c:210
- spin_unlock_bh include/linux/spinlock.h:394 [inline]
- ptr_ring_consume_bh include/linux/ptr_ring.h:367 [inline]
- wg_packet_decrypt_worker+0x73c/0x780 drivers/net/wireguard/receive.c:506
- process_one_work+0x3f6/0x960 kernel/workqueue.c:2307
- worker_thread+0x616/0xa70 kernel/workqueue.c:2454
- kthread+0x1bf/0x1e0 kernel/kthread.c:377
- ret_from_fork+0x1f/0x30
-
-value changed: 0xffff88815883e000 -> 0x0000000000000000
+value changed: 0xffffffff85dee080 -> 0xffff88815d96ec00
 
 Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 26435 Comm: kworker/0:1 Not tainted 5.17.0-rc1-syzkaller #0
+CPU: 0 PID: 13560 Comm: syz-executor.2 Not tainted 5.17.0-rc3-syzkaller-00116-gf1baf68e1383-dirty #0
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: wg-crypt-wg2 wg_packet_decrypt_worker
 
-Fixes: 4ea7e38696c7 ("dropmon: add ability to detect when hardware dropsrxpackets")
+Fixes: 470502de5bdb ("net: sched: unlock rules update API")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Neil Horman <nhorman@tuxdriver.com>
+Cc: Vlad Buslov <vladbu@mellanox.com>
 Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/drop_monitor.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ include/linux/netdevice.h |    2 +-
+ net/core/rtnetlink.c      |    6 ++++--
+ net/sched/cls_api.c       |    6 +++---
+ net/sched/sch_api.c       |   22 ++++++++++++----------
+ net/sched/sch_generic.c   |   29 ++++++++++++++++-------------
+ 5 files changed, 36 insertions(+), 29 deletions(-)
 
---- a/net/core/drop_monitor.c
-+++ b/net/core/drop_monitor.c
-@@ -219,13 +219,17 @@ static void trace_napi_poll_hit(void *ig
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -2061,7 +2061,7 @@ struct net_device {
+ 	struct netdev_queue	*_tx ____cacheline_aligned_in_smp;
+ 	unsigned int		num_tx_queues;
+ 	unsigned int		real_num_tx_queues;
+-	struct Qdisc		*qdisc;
++	struct Qdisc __rcu	*qdisc;
+ 	unsigned int		tx_queue_len;
+ 	spinlock_t		tx_global_lock;
  
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(new_stat, &hw_stats_list, list) {
-+		struct net_device *dev;
-+
- 		/*
- 		 * only add a note to our monitor buffer if:
- 		 * 1) this is the dev we received on
- 		 * 2) its after the last_rx delta
- 		 * 3) our rx_dropped count has gone up
- 		 */
--		if ((new_stat->dev == napi->dev)  &&
-+		/* Paired with WRITE_ONCE() in dropmon_net_event() */
-+		dev = READ_ONCE(new_stat->dev);
-+		if ((dev == napi->dev)  &&
- 		    (time_after(jiffies, new_stat->last_rx + dm_hw_check_delta)) &&
- 		    (napi->dev->stats.rx_dropped != new_stat->last_drop_val)) {
- 			trace_drop_common(NULL, NULL);
-@@ -340,7 +344,10 @@ static int dropmon_net_event(struct noti
- 		mutex_lock(&trace_state_mutex);
- 		list_for_each_entry_safe(new_stat, tmp, &hw_stats_list, list) {
- 			if (new_stat->dev == dev) {
--				new_stat->dev = NULL;
-+
-+				/* Paired with READ_ONCE() in trace_napi_poll_hit() */
-+				WRITE_ONCE(new_stat->dev, NULL);
-+
- 				if (trace_state == TRACE_OFF) {
- 					list_del_rcu(&new_stat->list);
- 					kfree_rcu(new_stat, rcu);
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -1705,6 +1705,7 @@ static int rtnl_fill_ifinfo(struct sk_bu
+ {
+ 	struct ifinfomsg *ifm;
+ 	struct nlmsghdr *nlh;
++	struct Qdisc *qdisc;
+ 
+ 	ASSERT_RTNL();
+ 	nlh = nlmsg_put(skb, pid, seq, type, sizeof(*ifm), flags);
+@@ -1722,6 +1723,7 @@ static int rtnl_fill_ifinfo(struct sk_bu
+ 	if (tgt_netnsid >= 0 && nla_put_s32(skb, IFLA_TARGET_NETNSID, tgt_netnsid))
+ 		goto nla_put_failure;
+ 
++	qdisc = rtnl_dereference(dev->qdisc);
+ 	if (nla_put_string(skb, IFLA_IFNAME, dev->name) ||
+ 	    nla_put_u32(skb, IFLA_TXQLEN, dev->tx_queue_len) ||
+ 	    nla_put_u8(skb, IFLA_OPERSTATE,
+@@ -1740,8 +1742,8 @@ static int rtnl_fill_ifinfo(struct sk_bu
+ #endif
+ 	    put_master_ifindex(skb, dev) ||
+ 	    nla_put_u8(skb, IFLA_CARRIER, netif_carrier_ok(dev)) ||
+-	    (dev->qdisc &&
+-	     nla_put_string(skb, IFLA_QDISC, dev->qdisc->ops->id)) ||
++	    (qdisc &&
++	     nla_put_string(skb, IFLA_QDISC, qdisc->ops->id)) ||
+ 	    nla_put_ifalias(skb, dev) ||
+ 	    nla_put_u32(skb, IFLA_CARRIER_CHANGES,
+ 			atomic_read(&dev->carrier_up_count) +
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -1045,7 +1045,7 @@ static int __tcf_qdisc_find(struct net *
+ 
+ 	/* Find qdisc */
+ 	if (!*parent) {
+-		*q = dev->qdisc;
++		*q = rcu_dereference(dev->qdisc);
+ 		*parent = (*q)->handle;
+ 	} else {
+ 		*q = qdisc_lookup_rcu(dev, TC_H_MAJ(*parent));
+@@ -2591,7 +2591,7 @@ static int tc_dump_tfilter(struct sk_buf
+ 
+ 		parent = tcm->tcm_parent;
+ 		if (!parent)
+-			q = dev->qdisc;
++			q = rtnl_dereference(dev->qdisc);
+ 		else
+ 			q = qdisc_lookup(dev, TC_H_MAJ(tcm->tcm_parent));
+ 		if (!q)
+@@ -2977,7 +2977,7 @@ static int tc_dump_chain(struct sk_buff
+ 
+ 		parent = tcm->tcm_parent;
+ 		if (!parent) {
+-			q = dev->qdisc;
++			q = rtnl_dereference(dev->qdisc);
+ 			parent = q->handle;
+ 		} else {
+ 			q = qdisc_lookup(dev, TC_H_MAJ(tcm->tcm_parent));
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -301,7 +301,7 @@ struct Qdisc *qdisc_lookup(struct net_de
+ 
+ 	if (!handle)
+ 		return NULL;
+-	q = qdisc_match_from_root(dev->qdisc, handle);
++	q = qdisc_match_from_root(rtnl_dereference(dev->qdisc), handle);
+ 	if (q)
+ 		goto out;
+ 
+@@ -320,7 +320,7 @@ struct Qdisc *qdisc_lookup_rcu(struct ne
+ 
+ 	if (!handle)
+ 		return NULL;
+-	q = qdisc_match_from_root(dev->qdisc, handle);
++	q = qdisc_match_from_root(rcu_dereference(dev->qdisc), handle);
+ 	if (q)
+ 		goto out;
+ 
+@@ -1082,10 +1082,10 @@ static int qdisc_graft(struct net_device
+ skip:
+ 		if (!ingress) {
+ 			notify_and_destroy(net, skb, n, classid,
+-					   dev->qdisc, new);
++					   rtnl_dereference(dev->qdisc), new);
+ 			if (new && !new->ops->attach)
+ 				qdisc_refcount_inc(new);
+-			dev->qdisc = new ? : &noop_qdisc;
++			rcu_assign_pointer(dev->qdisc, new ? : &noop_qdisc);
+ 
+ 			if (new && new->ops->attach)
+ 				new->ops->attach(new);
+@@ -1460,7 +1460,7 @@ static int tc_get_qdisc(struct sk_buff *
+ 				q = dev_ingress_queue(dev)->qdisc_sleeping;
+ 			}
+ 		} else {
+-			q = dev->qdisc;
++			q = rtnl_dereference(dev->qdisc);
+ 		}
+ 		if (!q) {
+ 			NL_SET_ERR_MSG(extack, "Cannot find specified qdisc on specified device");
+@@ -1549,7 +1549,7 @@ replay:
+ 				q = dev_ingress_queue(dev)->qdisc_sleeping;
+ 			}
+ 		} else {
+-			q = dev->qdisc;
++			q = rtnl_dereference(dev->qdisc);
+ 		}
+ 
+ 		/* It may be default qdisc, ignore it */
+@@ -1771,7 +1771,8 @@ static int tc_dump_qdisc(struct sk_buff
+ 			s_q_idx = 0;
+ 		q_idx = 0;
+ 
+-		if (tc_dump_qdisc_root(dev->qdisc, skb, cb, &q_idx, s_q_idx,
++		if (tc_dump_qdisc_root(rtnl_dereference(dev->qdisc),
++				       skb, cb, &q_idx, s_q_idx,
+ 				       true, tca[TCA_DUMP_INVISIBLE]) < 0)
+ 			goto done;
+ 
+@@ -2047,7 +2048,7 @@ static int tc_ctl_tclass(struct sk_buff
+ 		} else if (qid1) {
+ 			qid = qid1;
+ 		} else if (qid == 0)
+-			qid = dev->qdisc->handle;
++			qid = rtnl_dereference(dev->qdisc)->handle;
+ 
+ 		/* Now qid is genuine qdisc handle consistent
+ 		 * both with parent and child.
+@@ -2058,7 +2059,7 @@ static int tc_ctl_tclass(struct sk_buff
+ 			portid = TC_H_MAKE(qid, portid);
+ 	} else {
+ 		if (qid == 0)
+-			qid = dev->qdisc->handle;
++			qid = rtnl_dereference(dev->qdisc)->handle;
+ 	}
+ 
+ 	/* OK. Locate qdisc */
+@@ -2219,7 +2220,8 @@ static int tc_dump_tclass(struct sk_buff
+ 	s_t = cb->args[0];
+ 	t = 0;
+ 
+-	if (tc_dump_tclass_root(dev->qdisc, skb, tcm, cb, &t, s_t, true) < 0)
++	if (tc_dump_tclass_root(rtnl_dereference(dev->qdisc),
++				skb, tcm, cb, &t, s_t, true) < 0)
+ 		goto done;
+ 
+ 	dev_queue = dev_ingress_queue(dev);
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -1088,30 +1088,33 @@ static void attach_default_qdiscs(struct
+ 	if (!netif_is_multiqueue(dev) ||
+ 	    dev->priv_flags & IFF_NO_QUEUE) {
+ 		netdev_for_each_tx_queue(dev, attach_one_default_qdisc, NULL);
+-		dev->qdisc = txq->qdisc_sleeping;
+-		qdisc_refcount_inc(dev->qdisc);
++		qdisc = txq->qdisc_sleeping;
++		rcu_assign_pointer(dev->qdisc, qdisc);
++		qdisc_refcount_inc(qdisc);
+ 	} else {
+ 		qdisc = qdisc_create_dflt(txq, &mq_qdisc_ops, TC_H_ROOT, NULL);
+ 		if (qdisc) {
+-			dev->qdisc = qdisc;
++			rcu_assign_pointer(dev->qdisc, qdisc);
+ 			qdisc->ops->attach(qdisc);
+ 		}
+ 	}
++	qdisc = rtnl_dereference(dev->qdisc);
+ 
+ 	/* Detect default qdisc setup/init failed and fallback to "noqueue" */
+-	if (dev->qdisc == &noop_qdisc) {
++	if (qdisc == &noop_qdisc) {
+ 		netdev_warn(dev, "default qdisc (%s) fail, fallback to %s\n",
+ 			    default_qdisc_ops->id, noqueue_qdisc_ops.id);
+ 		dev->priv_flags |= IFF_NO_QUEUE;
+ 		netdev_for_each_tx_queue(dev, attach_one_default_qdisc, NULL);
+-		dev->qdisc = txq->qdisc_sleeping;
+-		qdisc_refcount_inc(dev->qdisc);
++		qdisc = txq->qdisc_sleeping;
++		rcu_assign_pointer(dev->qdisc, qdisc);
++		qdisc_refcount_inc(qdisc);
+ 		dev->priv_flags ^= IFF_NO_QUEUE;
+ 	}
+ 
+ #ifdef CONFIG_NET_SCHED
+-	if (dev->qdisc != &noop_qdisc)
+-		qdisc_hash_add(dev->qdisc, false);
++	if (qdisc != &noop_qdisc)
++		qdisc_hash_add(qdisc, false);
+ #endif
+ }
+ 
+@@ -1141,7 +1144,7 @@ void dev_activate(struct net_device *dev
+ 	 * and noqueue_qdisc for virtual interfaces
+ 	 */
+ 
+-	if (dev->qdisc == &noop_qdisc)
++	if (rtnl_dereference(dev->qdisc) == &noop_qdisc)
+ 		attach_default_qdiscs(dev);
+ 
+ 	if (!netif_carrier_ok(dev))
+@@ -1306,7 +1309,7 @@ static int qdisc_change_tx_queue_len(str
+ void dev_qdisc_change_real_num_tx(struct net_device *dev,
+ 				  unsigned int new_real_tx)
+ {
+-	struct Qdisc *qdisc = dev->qdisc;
++	struct Qdisc *qdisc = rtnl_dereference(dev->qdisc);
+ 
+ 	if (qdisc->ops->change_real_num_tx)
+ 		qdisc->ops->change_real_num_tx(qdisc, new_real_tx);
+@@ -1346,7 +1349,7 @@ static void dev_init_scheduler_queue(str
+ 
+ void dev_init_scheduler(struct net_device *dev)
+ {
+-	dev->qdisc = &noop_qdisc;
++	rcu_assign_pointer(dev->qdisc, &noop_qdisc);
+ 	netdev_for_each_tx_queue(dev, dev_init_scheduler_queue, &noop_qdisc);
+ 	if (dev_ingress_queue(dev))
+ 		dev_init_scheduler_queue(dev, dev_ingress_queue(dev), &noop_qdisc);
+@@ -1374,8 +1377,8 @@ void dev_shutdown(struct net_device *dev
+ 	netdev_for_each_tx_queue(dev, shutdown_scheduler_queue, &noop_qdisc);
+ 	if (dev_ingress_queue(dev))
+ 		shutdown_scheduler_queue(dev, dev_ingress_queue(dev), &noop_qdisc);
+-	qdisc_put(dev->qdisc);
+-	dev->qdisc = &noop_qdisc;
++	qdisc_put(rtnl_dereference(dev->qdisc));
++	rcu_assign_pointer(dev->qdisc, &noop_qdisc);
+ 
+ 	WARN_ON(timer_pending(&dev->watchdog_timer));
+ }
 
 
