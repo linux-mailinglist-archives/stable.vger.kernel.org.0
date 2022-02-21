@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADF8E4BE4BE
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:59:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C7624BE5B9
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349535AbiBUJ17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:27:59 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42426 "EHLO
+        id S1348147AbiBUJOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:14:16 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349986AbiBUJ1B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:01 -0500
+        with ESMTP id S1348804AbiBUJLn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:43 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD62F1EEF9;
-        Mon, 21 Feb 2022 01:11:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF22A286D4;
+        Mon, 21 Feb 2022 01:04:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2D623CE0E79;
-        Mon, 21 Feb 2022 09:11:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F754C340E9;
-        Mon, 21 Feb 2022 09:11:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 22326CE0E69;
+        Mon, 21 Feb 2022 09:04:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09126C340E9;
+        Mon, 21 Feb 2022 09:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434665;
-        bh=bN043WedEhBYdSu+Ret7cNF7R/i2stufqlZsoE2K6Es=;
+        s=korg; t=1645434245;
+        bh=JFakvK8607UA2o62LWq8p0ThgIQUef2OWViBTDQfYQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8264EGwY7Otw0s+ZiD2vk71qLcoJDW4np5BXsBeGwg90Oonn/5/0JTsYpiAE/E4y
-         FdhccU83DdEW1oY5J2qQj1PIW3B+4GpFIBOrITvojEYGullZqhwa5hGtG3Gc0qb2VB
-         ZJ3TDpZXDHgoNSCmJmA7nhEb2rScG8CdUax/bo3k=
+        b=YszRTTEZknmUA5WIYSK9gEOLBWyhlfNnfvlPnoCUdIA+rIwA+QyUZHmaT1930NR/A
+         AgfOnuwM4GftUYG42VKIjV42sTkCqLX+eioRLtAWUOXoRwCvQHLbM6BJ8FeISv25k/
+         NPVzrHX6EQ6MXF3taP8DpNiYzZTotpeHWLzxJY0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Chen <yiche@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.15 080/196] selftests: netfilter: disable rp_filter on router
+        stable@vger.kernel.org, Yuka Kawajiri <yukx00@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 020/121] platform/x86: touchscreen_dmi: Add info for the RWC NANOTE P8 AY07J 2-in-1
 Date:   Mon, 21 Feb 2022 09:48:32 +0100
-Message-Id: <20220221084933.610821514@linuxfoundation.org>
+Message-Id: <20220221084921.843959510@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Yuka Kawajiri <yukx00@gmail.com>
 
-commit bbe4c0896d25009a7c86285d2ab024eed4374eea upstream.
+[ Upstream commit 512eb73cfd1208898cf10cb06094e0ee0bb53b58 ]
 
-Some distros may enable rp_filter by default. After ns1 change addr to
-10.0.2.99 and set default router to 10.0.2.1, while the connected router
-address is still 10.0.1.1. The router will not reply the arp request
-from ns1. Fix it by setting the router's veth0 rp_filter to 0.
+Add touchscreen info for RWC NANOTE P8 (AY07J) 2-in-1.
 
-Before the fix:
-  # ./nft_fib.sh
-  PASS: fib expression did not cause unwanted packet drops
-  Netns nsrouter-HQkDORO2 fib counter doesn't match expected packet count of 1 for 1.1.1.1
-  table inet filter {
-          chain prerouting {
-                  type filter hook prerouting priority filter; policy accept;
-                  ip daddr 1.1.1.1 fib saddr . iif oif missing counter packets 0 bytes 0 drop
-                  ip6 daddr 1c3::c01d fib saddr . iif oif missing counter packets 0 bytes 0 drop
-          }
-  }
-
-After the fix:
-  # ./nft_fib.sh
-  PASS: fib expression did not cause unwanted packet drops
-  PASS: fib expression did drop packets for 1.1.1.1
-  PASS: fib expression did drop packets for 1c3::c01d
-
-Fixes: 82944421243e ("selftests: netfilter: add fib test case")
-Signed-off-by: Yi Chen <yiche@redhat.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yuka Kawajiri <yukx00@gmail.com>
+Link: https://lore.kernel.org/r/20220111154019.4599-1-yukx00@gmail.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/netfilter/nft_fib.sh |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/x86/touchscreen_dmi.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/tools/testing/selftests/netfilter/nft_fib.sh
-+++ b/tools/testing/selftests/netfilter/nft_fib.sh
-@@ -174,6 +174,7 @@ test_ping() {
- ip netns exec ${nsrouter} sysctl net.ipv6.conf.all.forwarding=1 > /dev/null
- ip netns exec ${nsrouter} sysctl net.ipv4.conf.veth0.forwarding=1 > /dev/null
- ip netns exec ${nsrouter} sysctl net.ipv4.conf.veth1.forwarding=1 > /dev/null
-+ip netns exec ${nsrouter} sysctl net.ipv4.conf.veth0.rp_filter=0 > /dev/null
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 59b7e90cd5875..ab6a9369649db 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -756,6 +756,21 @@ static const struct ts_dmi_data predia_basic_data = {
+ 	.properties	= predia_basic_props,
+ };
  
- sleep 3
- 
++static const struct property_entry rwc_nanote_p8_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 46),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1140),
++	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-rwc-nanote-p8.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	{ }
++};
++
++static const struct ts_dmi_data rwc_nanote_p8_data = {
++	.acpi_name = "MSSL1680:00",
++	.properties = rwc_nanote_p8_props,
++};
++
+ static const struct property_entry schneider_sct101ctm_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-size-x", 1715),
+ 	PROPERTY_ENTRY_U32("touchscreen-size-y", 1140),
+@@ -1326,6 +1341,15 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_EXACT_MATCH(DMI_BOARD_NAME, "0E57"),
+ 		},
+ 	},
++	{
++		/* RWC NANOTE P8 */
++		.driver_data = (void *)&rwc_nanote_p8_data,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Default string"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "AY07J"),
++			DMI_MATCH(DMI_PRODUCT_SKU, "0001")
++		},
++	},
+ 	{
+ 		/* Schneider SCT101CTM */
+ 		.driver_data = (void *)&schneider_sct101ctm_data,
+-- 
+2.34.1
+
 
 
