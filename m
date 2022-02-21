@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9F154BDC4A
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2226D4BDCA8
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235367AbiBUJKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:10:40 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33916 "EHLO
+        id S238146AbiBUJDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:03:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347949AbiBUJKH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:10:07 -0500
+        with ESMTP id S1348312AbiBUJCj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:02:39 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA521D32C;
-        Mon, 21 Feb 2022 01:02:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1862B2C106;
+        Mon, 21 Feb 2022 00:57:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C66260FB6;
-        Mon, 21 Feb 2022 09:02:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 834EDC340E9;
-        Mon, 21 Feb 2022 09:02:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC9D061152;
+        Mon, 21 Feb 2022 08:57:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6E60C340EB;
+        Mon, 21 Feb 2022 08:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434155;
-        bh=aTGTPT/7hWx4tc2XHp3CRc8jZVh4W6036HHeZlprClc=;
+        s=korg; t=1645433873;
+        bh=HKrIBi5m5CFXzZ+6/xBVUfB/8hJp8GunVilEDIKwwTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wsd/EB2k2fNl/KsGYxbYdmnRFuFbyGQkAyrN12Hkq4a1CjTpE3rc3ee01toDCy0Rd
-         zvXPNtuGot2NXrCbfT+OF6+JBDIjw5B3hF70/lXp6ZajD49eAP03lR9cvhheok7tcv
-         ZLa5aQlbvPTtPgtJ+cGn3SAuITIXDU1g/d/+daqA=
+        b=tR0Ia0+XftoxZ2Nev8SPakCUk9LBtiQ2LkYGqgxi+G2dWHO9sIMj18JWG8NZsid41
+         4r2j4YnL1SOsGWRRpf4som3kDMZvRVgBNyhHqCir3JCAoVw/ZpNhbq9jJlSyeplN0m
+         ibv3Ukrf0sRmFyOkIHScgwc1FxziZg6Y5+OqqDl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 032/121] ax25: improve the incomplete fix to avoid UAF and NPD bugs
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
+        linux-serial@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 04/80] serial: parisc: GSC: fix build when IOSAPIC is not set
 Date:   Mon, 21 Feb 2022 09:48:44 +0100
-Message-Id: <20220221084922.268428906@linuxfoundation.org>
+Message-Id: <20220221084915.714278330@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,90 +57,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 4e0f718daf97d47cf7dec122da1be970f145c809 ]
+commit 6e8793674bb0d1135ca0e5c9f7e16fecbf815926 upstream.
 
-The previous commit 1ade48d0c27d ("ax25: NPD bug when detaching
-AX25 device") introduce lock_sock() into ax25_kill_by_device to
-prevent NPD bug. But the concurrency NPD or UAF bug will occur,
-when lock_sock() or release_sock() dereferences the ax25_cb->sock.
+There is a build error when using a kernel .config file from
+'kernel test robot' for a different build problem:
 
-The NULL pointer dereference bug can be shown as below:
+hppa64-linux-ld: drivers/tty/serial/8250/8250_gsc.o: in function `.LC3':
+(.data.rel.ro+0x18): undefined reference to `iosapic_serial_irq'
 
-ax25_kill_by_device()        | ax25_release()
-                             |   ax25_destroy_socket()
-                             |     ax25_cb_del()
-  ...                        |     ...
-                             |     ax25->sk=NULL;
-  lock_sock(s->sk); //(1)    |
-  s->ax25_dev = NULL;        |     ...
-  release_sock(s->sk); //(2) |
-  ...                        |
+when:
+  CONFIG_GSC=y
+  CONFIG_SERIO_GSCPS2=y
+  CONFIG_SERIAL_8250_GSC=y
+  CONFIG_PCI is not set
+    and hence PCI_LBA is not set.
+  IOSAPIC depends on PCI_LBA, so IOSAPIC is not set/enabled.
 
-The root cause is that the sock is set to null before dereference
-site (1) or (2). Therefore, this patch extracts the ax25_cb->sock
-in advance, and uses ax25_list_lock to protect it, which can synchronize
-with ax25_cb_del() and ensure the value of sock is not null before
-dereference sites.
+Make the use of iosapic_serial_irq() conditional to fix the build error.
 
-The concurrency UAF bug can be shown as below:
-
-ax25_kill_by_device()        | ax25_release()
-                             |   ax25_destroy_socket()
-  ...                        |   ...
-                             |   sock_put(sk); //FREE
-  lock_sock(s->sk); //(1)    |
-  s->ax25_dev = NULL;        |   ...
-  release_sock(s->sk); //(2) |
-  ...                        |
-
-The root cause is that the sock is released before dereference
-site (1) or (2). Therefore, this patch uses sock_hold() to increase
-the refcount of sock and uses ax25_list_lock to protect it, which
-can synchronize with ax25_cb_del() in ax25_destroy_socket() and
-ensure the sock wil not be released before dereference sites.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: linux-parisc@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-serial@vger.kernel.org
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Cc: Johan Hovold <johan@kernel.org>
+Suggested-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ax25/af_ax25.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_gsc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index 5e84dce5ff7ae..23bd26057a828 100644
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -77,6 +77,7 @@ static void ax25_kill_by_device(struct net_device *dev)
- {
- 	ax25_dev *ax25_dev;
- 	ax25_cb *s;
-+	struct sock *sk;
+--- a/drivers/tty/serial/8250/8250_gsc.c
++++ b/drivers/tty/serial/8250/8250_gsc.c
+@@ -26,7 +26,7 @@ static int __init serial_init_chip(struc
+ 	unsigned long address;
+ 	int err;
  
- 	if ((ax25_dev = ax25_dev_ax25dev(dev)) == NULL)
- 		return;
-@@ -85,13 +86,15 @@ static void ax25_kill_by_device(struct net_device *dev)
- again:
- 	ax25_for_each(s, &ax25_list) {
- 		if (s->ax25_dev == ax25_dev) {
-+			sk = s->sk;
-+			sock_hold(sk);
- 			spin_unlock_bh(&ax25_list_lock);
--			lock_sock(s->sk);
-+			lock_sock(sk);
- 			s->ax25_dev = NULL;
--			release_sock(s->sk);
-+			release_sock(sk);
- 			ax25_disconnect(s, ENETUNREACH);
- 			spin_lock_bh(&ax25_list_lock);
--
-+			sock_put(sk);
- 			/* The entry could have been deleted from the
- 			 * list meanwhile and thus the next pointer is
- 			 * no longer valid.  Play it safe and restart
--- 
-2.34.1
-
+-#ifdef CONFIG_64BIT
++#if defined(CONFIG_64BIT) && defined(CONFIG_IOSAPIC)
+ 	if (!dev->irq && (dev->id.sversion == 0xad))
+ 		dev->irq = iosapic_serial_irq(dev);
+ #endif
 
 
