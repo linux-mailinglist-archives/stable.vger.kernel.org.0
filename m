@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C3674BE29C
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:55:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 913434BE580
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:00:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351448AbiBUJtW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:49:22 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42440 "EHLO
+        id S1349958AbiBUJ2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:28:47 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352890AbiBUJsA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:00 -0500
+        with ESMTP id S1349194AbiBUJ1g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4015D1093;
-        Mon, 21 Feb 2022 01:21:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E194D237D9;
+        Mon, 21 Feb 2022 01:12:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF59F60EDF;
-        Mon, 21 Feb 2022 09:21:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E910C340E9;
-        Mon, 21 Feb 2022 09:21:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D5A660B1B;
+        Mon, 21 Feb 2022 09:12:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62625C340E9;
+        Mon, 21 Feb 2022 09:12:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435261;
-        bh=aLlUyRFCl2yf8SFOi1QbSC5tkLl75pWSR8YH7hutPeA=;
+        s=korg; t=1645434757;
+        bh=lIrrySYVtcncVdCuEiZ4YiYeeNz35RMRuhzq2z1xfFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CN/rGiL7U8O28l1dPYHaSLkzh82fPyzERX0/wKlZoLivxMLs7FRO5hmOhjEVVwwBM
-         jkVDJs0VCJOlvpHbYPW9JGwUKWR0h81UcC9cEPBsXLERM9yBbuWUJUVUEAeMfRxrB3
-         gUrndi+WB3K29ABwTRqAcO/Zl+4nswixG3ssNT2E=
+        b=f+zw9hhsQKXGtCn01pUJ5cbm+B91bEROQaka2ACixy5tIr0v/Ymxlrr2ol7vhb8YH
+         CbSeD+3twblbD8dC1zwQSPF1sG+I0ORgHd2p0nt6B9Y2v1eu4c4SUbc2dZnlr9+oiF
+         Zb0J/yNjPat7yn3sdCt3rZXVWiKwD8+TXh0vq+fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 101/227] ipv4: fix data races in fib_alias_hw_flags_set
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.15 088/196] cfg80211: fix race in netlink owner interface destruction
 Date:   Mon, 21 Feb 2022 09:48:40 +0100
-Message-Id: <20220221084938.237236515@linuxfoundation.org>
+Message-Id: <20220221084933.870043992@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,159 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 9fcf986cc4bc6a3a39f23fbcbbc3a9e52d3c24fd upstream.
+commit f0a6fd1527067da537e9c48390237488719948ed upstream.
 
-fib_alias_hw_flags_set() can be used by concurrent threads,
-and is only RCU protected.
+My previous fix here to fix the deadlock left a race where
+the exact same deadlock (see the original commit referenced
+below) can still happen if cfg80211_destroy_ifaces() already
+runs while nl80211_netlink_notify() is still marking some
+interfaces as nl_owner_dead.
 
-We need to annotate accesses to following fields of struct fib_alias:
+The race happens because we have two loops here - first we
+dev_close() all the netdevs, and then we destroy them. If we
+also have two netdevs (first one need only be a wdev though)
+then we can find one during the first iteration, close it,
+and go to the second iteration -- but then find two, and try
+to destroy also the one we didn't close yet.
 
-    offload, trap, offload_failed
+Fix this by only iterating once.
 
-Because of READ_ONCE()WRITE_ONCE() limitations, make these
-field u8.
-
-BUG: KCSAN: data-race in fib_alias_hw_flags_set / fib_alias_hw_flags_set
-
-read to 0xffff888134224a6a of 1 bytes by task 2013 on cpu 1:
- fib_alias_hw_flags_set+0x28a/0x470 net/ipv4/fib_trie.c:1050
- nsim_fib4_rt_hw_flags_set drivers/net/netdevsim/fib.c:350 [inline]
- nsim_fib4_rt_add drivers/net/netdevsim/fib.c:367 [inline]
- nsim_fib4_rt_insert drivers/net/netdevsim/fib.c:429 [inline]
- nsim_fib4_event drivers/net/netdevsim/fib.c:461 [inline]
- nsim_fib_event drivers/net/netdevsim/fib.c:881 [inline]
- nsim_fib_event_work+0x1852/0x2cf0 drivers/net/netdevsim/fib.c:1477
- process_one_work+0x3f6/0x960 kernel/workqueue.c:2307
- process_scheduled_works kernel/workqueue.c:2370 [inline]
- worker_thread+0x7df/0xa70 kernel/workqueue.c:2456
- kthread+0x1bf/0x1e0 kernel/kthread.c:377
- ret_from_fork+0x1f/0x30
-
-write to 0xffff888134224a6a of 1 bytes by task 4872 on cpu 0:
- fib_alias_hw_flags_set+0x2d5/0x470 net/ipv4/fib_trie.c:1054
- nsim_fib4_rt_hw_flags_set drivers/net/netdevsim/fib.c:350 [inline]
- nsim_fib4_rt_add drivers/net/netdevsim/fib.c:367 [inline]
- nsim_fib4_rt_insert drivers/net/netdevsim/fib.c:429 [inline]
- nsim_fib4_event drivers/net/netdevsim/fib.c:461 [inline]
- nsim_fib_event drivers/net/netdevsim/fib.c:881 [inline]
- nsim_fib_event_work+0x1852/0x2cf0 drivers/net/netdevsim/fib.c:1477
- process_one_work+0x3f6/0x960 kernel/workqueue.c:2307
- process_scheduled_works kernel/workqueue.c:2370 [inline]
- worker_thread+0x7df/0xa70 kernel/workqueue.c:2456
- kthread+0x1bf/0x1e0 kernel/kthread.c:377
- ret_from_fork+0x1f/0x30
-
-value changed: 0x00 -> 0x02
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 4872 Comm: kworker/0:0 Not tainted 5.17.0-rc3-syzkaller-00188-g1d41d2e82623-dirty #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events nsim_fib_event_work
-
-Fixes: 90b93f1b31f8 ("ipv4: Add "offload" and "trap" indications to routes")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/20220216173217.3792411-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Fixes: ea6b2098dd02 ("cfg80211: fix locking in netlink owner interface destruction")
+Tested-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Link: https://lore.kernel.org/r/20220201130951.22093-1-johannes@sipsolutions.net
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_lookup.h    |    7 +++----
- net/ipv4/fib_semantics.c |    6 +++---
- net/ipv4/fib_trie.c      |   22 +++++++++++++---------
- net/ipv4/route.c         |    4 ++--
- 4 files changed, 21 insertions(+), 18 deletions(-)
+ net/wireless/core.c |   17 ++++-------------
+ 1 file changed, 4 insertions(+), 13 deletions(-)
 
---- a/net/ipv4/fib_lookup.h
-+++ b/net/ipv4/fib_lookup.h
-@@ -16,10 +16,9 @@ struct fib_alias {
- 	u8			fa_slen;
- 	u32			tb_id;
- 	s16			fa_default;
--	u8			offload:1,
--				trap:1,
--				offload_failed:1,
--				unused:5;
-+	u8			offload;
-+	u8			trap;
-+	u8			offload_failed;
- 	struct rcu_head		rcu;
- };
+--- a/net/wireless/core.c
++++ b/net/wireless/core.c
+@@ -5,7 +5,7 @@
+  * Copyright 2006-2010		Johannes Berg <johannes@sipsolutions.net>
+  * Copyright 2013-2014  Intel Mobile Communications GmbH
+  * Copyright 2015-2017	Intel Deutschland GmbH
+- * Copyright (C) 2018-2021 Intel Corporation
++ * Copyright (C) 2018-2022 Intel Corporation
+  */
  
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -524,9 +524,9 @@ void rtmsg_fib(int event, __be32 key, st
- 	fri.dst_len = dst_len;
- 	fri.tos = fa->fa_tos;
- 	fri.type = fa->fa_type;
--	fri.offload = fa->offload;
--	fri.trap = fa->trap;
--	fri.offload_failed = fa->offload_failed;
-+	fri.offload = READ_ONCE(fa->offload);
-+	fri.trap = READ_ONCE(fa->trap);
-+	fri.offload_failed = READ_ONCE(fa->offload_failed);
- 	err = fib_dump_info(skb, info->portid, seq, event, &fri, nlm_flags);
- 	if (err < 0) {
- 		/* -EMSGSIZE implies BUG in fib_nlmsg_size() */
---- a/net/ipv4/fib_trie.c
-+++ b/net/ipv4/fib_trie.c
-@@ -1047,19 +1047,23 @@ void fib_alias_hw_flags_set(struct net *
- 	if (!fa_match)
- 		goto out;
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+@@ -332,29 +332,20 @@ static void cfg80211_event_work(struct w
+ void cfg80211_destroy_ifaces(struct cfg80211_registered_device *rdev)
+ {
+ 	struct wireless_dev *wdev, *tmp;
+-	bool found = false;
  
--	if (fa_match->offload == fri->offload && fa_match->trap == fri->trap &&
--	    fa_match->offload_failed == fri->offload_failed)
-+	/* These are paired with the WRITE_ONCE() happening in this function.
-+	 * The reason is that we are only protected by RCU at this point.
-+	 */
-+	if (READ_ONCE(fa_match->offload) == fri->offload &&
-+	    READ_ONCE(fa_match->trap) == fri->trap &&
-+	    READ_ONCE(fa_match->offload_failed) == fri->offload_failed)
- 		goto out;
+ 	ASSERT_RTNL();
  
--	fa_match->offload = fri->offload;
--	fa_match->trap = fri->trap;
-+	WRITE_ONCE(fa_match->offload, fri->offload);
-+	WRITE_ONCE(fa_match->trap, fri->trap);
+-	list_for_each_entry(wdev, &rdev->wiphy.wdev_list, list) {
++	list_for_each_entry_safe(wdev, tmp, &rdev->wiphy.wdev_list, list) {
+ 		if (wdev->nl_owner_dead) {
+ 			if (wdev->netdev)
+ 				dev_close(wdev->netdev);
+-			found = true;
+-		}
+-	}
+-
+-	if (!found)
+-		return;
  
- 	/* 2 means send notifications only if offload_failed was changed. */
- 	if (net->ipv4.sysctl_fib_notify_on_flag_change == 2 &&
--	    fa_match->offload_failed == fri->offload_failed)
-+	    READ_ONCE(fa_match->offload_failed) == fri->offload_failed)
- 		goto out;
+-	wiphy_lock(&rdev->wiphy);
+-	list_for_each_entry_safe(wdev, tmp, &rdev->wiphy.wdev_list, list) {
+-		if (wdev->nl_owner_dead) {
++			wiphy_lock(&rdev->wiphy);
+ 			cfg80211_leave(rdev, wdev);
+ 			rdev_del_virtual_intf(rdev, wdev);
++			wiphy_unlock(&rdev->wiphy);
+ 		}
+ 	}
+-	wiphy_unlock(&rdev->wiphy);
+ }
  
--	fa_match->offload_failed = fri->offload_failed;
-+	WRITE_ONCE(fa_match->offload_failed, fri->offload_failed);
- 
- 	if (!net->ipv4.sysctl_fib_notify_on_flag_change)
- 		goto out;
-@@ -2297,9 +2301,9 @@ static int fn_trie_dump_leaf(struct key_
- 				fri.dst_len = KEYLENGTH - fa->fa_slen;
- 				fri.tos = fa->fa_tos;
- 				fri.type = fa->fa_type;
--				fri.offload = fa->offload;
--				fri.trap = fa->trap;
--				fri.offload_failed = fa->offload_failed;
-+				fri.offload = READ_ONCE(fa->offload);
-+				fri.trap = READ_ONCE(fa->trap);
-+				fri.offload_failed = READ_ONCE(fa->offload_failed);
- 				err = fib_dump_info(skb,
- 						    NETLINK_CB(cb->skb).portid,
- 						    cb->nlh->nlmsg_seq,
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -3393,8 +3393,8 @@ static int inet_rtm_getroute(struct sk_b
- 				    fa->fa_tos == fri.tos &&
- 				    fa->fa_info == res.fi &&
- 				    fa->fa_type == fri.type) {
--					fri.offload = fa->offload;
--					fri.trap = fa->trap;
-+					fri.offload = READ_ONCE(fa->offload);
-+					fri.trap = READ_ONCE(fa->trap);
- 					break;
- 				}
- 			}
+ static void cfg80211_destroy_iface_wk(struct work_struct *work)
 
 
