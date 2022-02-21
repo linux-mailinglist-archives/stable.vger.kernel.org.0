@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68F6D4BE3D8
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:57:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F3C4BE268
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:55:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347802AbiBUJOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:14:55 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48308 "EHLO
+        id S1350794AbiBUJjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:39:54 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347594AbiBUJNN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:13:13 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1D2FB39;
-        Mon, 21 Feb 2022 01:06:29 -0800 (PST)
+        with ESMTP id S1351004AbiBUJgh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:36:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 807B66466;
+        Mon, 21 Feb 2022 01:15:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2FDB7CE0E7C;
-        Mon, 21 Feb 2022 09:06:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F6D1C340E9;
-        Mon, 21 Feb 2022 09:06:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 819CD60C1D;
+        Mon, 21 Feb 2022 09:15:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6616BC340F4;
+        Mon, 21 Feb 2022 09:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434386;
-        bh=RlIJkqhJeywI1Lv4jsN4NDzXdBOtJClYZToweQ8aOgQ=;
+        s=korg; t=1645434905;
+        bh=TmLejLW9mEBO5G5fDzZMrMFnVitxe+SOqkA4tEbNZvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yGclNhWZa/J0/B1ofOkGoDRWD5dyI/kOq3M1TuTUA6RJLiVOnDuxROwm+011HkQIe
-         taztgOef4gVnTn9ITAnwWJ03apo2LYg6aJYEbtajoUO3mPTSbm317eX0grgMwLdTu0
-         gC/FoVpRDGBN6gsQ68yRPtHZCiMXIB4T2yFAlCAA=
+        b=am24mhg72B43Dq1iePI9lk+W9mc2sqpb6RZBftEhntzgn1oskgn6uqjwER7+rzeDI
+         +mgQ+5emcrjZRLcAQ39Vmiy2UuUhmG18CvTU/NTMbXS/AYfp/i7r18N0D0dJdGEvA9
+         MDmYWcblCLXS+kcUvGuBYTXQKCk/hlUAPa6ZGa78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 111/121] scsi: lpfc: Fix pt2pt NVMe PRLI reject LOGO loop
-Date:   Mon, 21 Feb 2022 09:50:03 +0100
-Message-Id: <20220221084924.951071389@linuxfoundation.org>
+        stable@vger.kernel.org, Charlene Liu <Charlene.Liu@amd.com>,
+        Jasdeep Dhillon <jdhillon@amd.com>,
+        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 172/196] drm/amd/display: fix yellow carp wm clamping
+Date:   Mon, 21 Feb 2022 09:50:04 +0100
+Message-Id: <20220221084936.697751684@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,111 +57,293 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
 
-commit 7f4c5a26f735dea4bbc0eb8eb9da99cda95a8563 upstream.
+[ Upstream commit 60fdf98a774eee244a4e00c34a9e7729b61d0f44 ]
 
-When connected point to point, the driver does not know the FC4's supported
-by the other end. In Fabrics, it can query the nameserver.  Thus the driver
-must send PRLIs for the FC4s it supports and enable support based on the
-acc(ept) or rej(ect) of the respective FC4 PRLI.  Currently the driver
-supports SCSI and NVMe PRLIs.
+Fix clamping to match register field size
 
-Unfortunately, although the behavior is per standard, many devices have
-come to expect only SCSI PRLIs. In this particular example, the NVMe PRLI
-is properly RJT'd but the target decided that it must LOGO after seeing the
-unexpected NVMe PRLI. The LOGO causes the sequence to restart and login is
-now in an infinite failure loop.
-
-Fix the problem by having the driver, on a pt2pt link, remember NVMe PRLI
-accept or reject status across logout as long as the link stays "up".  When
-retrying login, if the prior NVMe PRLI was rejected, it will not be sent on
-the next login.
-
-Link: https://lore.kernel.org/r/20220212163120.15385-1-jsmart2021@gmail.com
-Cc: <stable@vger.kernel.org> # v5.4+
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
+Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
+Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc.h           |    1 +
- drivers/scsi/lpfc/lpfc_attr.c      |    3 +++
- drivers/scsi/lpfc/lpfc_els.c       |   20 +++++++++++++++++++-
- drivers/scsi/lpfc/lpfc_nportdisc.c |    5 +++--
- 4 files changed, 26 insertions(+), 3 deletions(-)
+ .../drm/amd/display/dc/dcn31/dcn31_hubbub.c   | 61 ++++++++++---------
+ 1 file changed, 32 insertions(+), 29 deletions(-)
 
---- a/drivers/scsi/lpfc/lpfc.h
-+++ b/drivers/scsi/lpfc/lpfc.h
-@@ -374,6 +374,7 @@ struct lpfc_vport {
- #define FC_VPORT_LOGO_RCVD      0x200    /* LOGO received on vport */
- #define FC_RSCN_DISCOVERY       0x400	 /* Auth all devices after RSCN */
- #define FC_LOGO_RCVD_DID_CHNG   0x800    /* FDISC on phys port detect DID chng*/
-+#define FC_PT2PT_NO_NVME        0x1000   /* Don't send NVME PRLI */
- #define FC_SCSI_SCAN_TMO        0x4000	 /* scsi scan timer running */
- #define FC_ABORT_DISCOVERY      0x8000	 /* we want to abort discovery */
- #define FC_NDISC_ACTIVE         0x10000	 /* NPort discovery active */
---- a/drivers/scsi/lpfc/lpfc_attr.c
-+++ b/drivers/scsi/lpfc/lpfc_attr.c
-@@ -1142,6 +1142,9 @@ lpfc_issue_lip(struct Scsi_Host *shost)
- 	pmboxq->u.mb.mbxCommand = MBX_DOWN_LINK;
- 	pmboxq->u.mb.mbxOwner = OWN_HOST;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c
+index 90c73a1cb9861..5e3bcaf12cac4 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c
+@@ -138,8 +138,11 @@ static uint32_t convert_and_clamp(
+ 	ret_val = wm_ns * refclk_mhz;
+ 	ret_val /= 1000;
  
-+	if ((vport->fc_flag & FC_PT2PT) && (vport->fc_flag & FC_PT2PT_NO_NVME))
-+		vport->fc_flag &= ~FC_PT2PT_NO_NVME;
-+
- 	mbxstatus = lpfc_sli_issue_mbox_wait(phba, pmboxq, LPFC_MBOX_TMO * 2);
+-	if (ret_val > clamp_value)
++	if (ret_val > clamp_value) {
++		/* clamping WMs is abnormal, unexpected and may lead to underflow*/
++		ASSERT(0);
+ 		ret_val = clamp_value;
++	}
  
- 	if ((mbxstatus == MBX_SUCCESS) &&
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -1067,7 +1067,8 @@ stop_rr_fcf_flogi:
+ 	return ret_val;
+ }
+@@ -159,7 +162,7 @@ static bool hubbub31_program_urgent_watermarks(
+ 	if (safe_to_lower || watermarks->a.urgent_ns > hubbub2->watermarks.a.urgent_ns) {
+ 		hubbub2->watermarks.a.urgent_ns = watermarks->a.urgent_ns;
+ 		prog_wm_value = convert_and_clamp(watermarks->a.urgent_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0x3fff);
+ 		REG_SET(DCHUBBUB_ARB_DATA_URGENCY_WATERMARK_A, 0,
+ 				DCHUBBUB_ARB_DATA_URGENCY_WATERMARK_A, prog_wm_value);
  
- 		/* FLOGI failed, so there is no fabric */
- 		spin_lock_irq(shost->host_lock);
--		vport->fc_flag &= ~(FC_FABRIC | FC_PUBLIC_LOOP);
-+		vport->fc_flag &= ~(FC_FABRIC | FC_PUBLIC_LOOP |
-+				    FC_PT2PT_NO_NVME);
- 		spin_unlock_irq(shost->host_lock);
+@@ -193,7 +196,7 @@ static bool hubbub31_program_urgent_watermarks(
+ 	if (safe_to_lower || watermarks->a.urgent_latency_ns > hubbub2->watermarks.a.urgent_latency_ns) {
+ 		hubbub2->watermarks.a.urgent_latency_ns = watermarks->a.urgent_latency_ns;
+ 		prog_wm_value = convert_and_clamp(watermarks->a.urgent_latency_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0x3fff);
+ 		REG_SET(DCHUBBUB_ARB_REFCYC_PER_TRIP_TO_MEMORY_A, 0,
+ 				DCHUBBUB_ARB_REFCYC_PER_TRIP_TO_MEMORY_A, prog_wm_value);
+ 	} else if (watermarks->a.urgent_latency_ns < hubbub2->watermarks.a.urgent_latency_ns)
+@@ -203,7 +206,7 @@ static bool hubbub31_program_urgent_watermarks(
+ 	if (safe_to_lower || watermarks->b.urgent_ns > hubbub2->watermarks.b.urgent_ns) {
+ 		hubbub2->watermarks.b.urgent_ns = watermarks->b.urgent_ns;
+ 		prog_wm_value = convert_and_clamp(watermarks->b.urgent_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0x3fff);
+ 		REG_SET(DCHUBBUB_ARB_DATA_URGENCY_WATERMARK_B, 0,
+ 				DCHUBBUB_ARB_DATA_URGENCY_WATERMARK_B, prog_wm_value);
  
- 		/* If private loop, then allow max outstanding els to be
-@@ -3945,6 +3946,23 @@ lpfc_els_retry(struct lpfc_hba *phba, st
- 		/* Added for Vendor specifc support
- 		 * Just keep retrying for these Rsn / Exp codes
- 		 */
-+		if ((vport->fc_flag & FC_PT2PT) &&
-+		    cmd == ELS_CMD_NVMEPRLI) {
-+			switch (stat.un.b.lsRjtRsnCode) {
-+			case LSRJT_UNABLE_TPC:
-+			case LSRJT_INVALID_CMD:
-+			case LSRJT_LOGICAL_ERR:
-+			case LSRJT_CMD_UNSUPPORTED:
-+				lpfc_printf_vlog(vport, KERN_WARNING, LOG_ELS,
-+						 "0168 NVME PRLI LS_RJT "
-+						 "reason %x port doesn't "
-+						 "support NVME, disabling NVME\n",
-+						 stat.un.b.lsRjtRsnCode);
-+				retry = 0;
-+				vport->fc_flag |= FC_PT2PT_NO_NVME;
-+				goto out_retry;
-+			}
-+		}
- 		switch (stat.un.b.lsRjtRsnCode) {
- 		case LSRJT_UNABLE_TPC:
- 			/* The driver has a VALID PLOGI but the rport has
---- a/drivers/scsi/lpfc/lpfc_nportdisc.c
-+++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
-@@ -2010,8 +2010,9 @@ lpfc_cmpl_reglogin_reglogin_issue(struct
- 			 * is configured try it.
- 			 */
- 			ndlp->nlp_fc4_type |= NLP_FC4_FCP;
--			if ((vport->cfg_enable_fc4_type == LPFC_ENABLE_BOTH) ||
--			    (vport->cfg_enable_fc4_type == LPFC_ENABLE_NVME)) {
-+			if ((!(vport->fc_flag & FC_PT2PT_NO_NVME)) &&
-+			    (vport->cfg_enable_fc4_type == LPFC_ENABLE_BOTH ||
-+			    vport->cfg_enable_fc4_type == LPFC_ENABLE_NVME)) {
- 				ndlp->nlp_fc4_type |= NLP_FC4_NVME;
- 				/* We need to update the localport also */
- 				lpfc_nvme_update_localport(vport);
+@@ -237,7 +240,7 @@ static bool hubbub31_program_urgent_watermarks(
+ 	if (safe_to_lower || watermarks->b.urgent_latency_ns > hubbub2->watermarks.b.urgent_latency_ns) {
+ 		hubbub2->watermarks.b.urgent_latency_ns = watermarks->b.urgent_latency_ns;
+ 		prog_wm_value = convert_and_clamp(watermarks->b.urgent_latency_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0x3fff);
+ 		REG_SET(DCHUBBUB_ARB_REFCYC_PER_TRIP_TO_MEMORY_B, 0,
+ 				DCHUBBUB_ARB_REFCYC_PER_TRIP_TO_MEMORY_B, prog_wm_value);
+ 	} else if (watermarks->b.urgent_latency_ns < hubbub2->watermarks.b.urgent_latency_ns)
+@@ -247,7 +250,7 @@ static bool hubbub31_program_urgent_watermarks(
+ 	if (safe_to_lower || watermarks->c.urgent_ns > hubbub2->watermarks.c.urgent_ns) {
+ 		hubbub2->watermarks.c.urgent_ns = watermarks->c.urgent_ns;
+ 		prog_wm_value = convert_and_clamp(watermarks->c.urgent_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0x3fff);
+ 		REG_SET(DCHUBBUB_ARB_DATA_URGENCY_WATERMARK_C, 0,
+ 				DCHUBBUB_ARB_DATA_URGENCY_WATERMARK_C, prog_wm_value);
+ 
+@@ -281,7 +284,7 @@ static bool hubbub31_program_urgent_watermarks(
+ 	if (safe_to_lower || watermarks->c.urgent_latency_ns > hubbub2->watermarks.c.urgent_latency_ns) {
+ 		hubbub2->watermarks.c.urgent_latency_ns = watermarks->c.urgent_latency_ns;
+ 		prog_wm_value = convert_and_clamp(watermarks->c.urgent_latency_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0x3fff);
+ 		REG_SET(DCHUBBUB_ARB_REFCYC_PER_TRIP_TO_MEMORY_C, 0,
+ 				DCHUBBUB_ARB_REFCYC_PER_TRIP_TO_MEMORY_C, prog_wm_value);
+ 	} else if (watermarks->c.urgent_latency_ns < hubbub2->watermarks.c.urgent_latency_ns)
+@@ -291,7 +294,7 @@ static bool hubbub31_program_urgent_watermarks(
+ 	if (safe_to_lower || watermarks->d.urgent_ns > hubbub2->watermarks.d.urgent_ns) {
+ 		hubbub2->watermarks.d.urgent_ns = watermarks->d.urgent_ns;
+ 		prog_wm_value = convert_and_clamp(watermarks->d.urgent_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0x3fff);
+ 		REG_SET(DCHUBBUB_ARB_DATA_URGENCY_WATERMARK_D, 0,
+ 				DCHUBBUB_ARB_DATA_URGENCY_WATERMARK_D, prog_wm_value);
+ 
+@@ -325,7 +328,7 @@ static bool hubbub31_program_urgent_watermarks(
+ 	if (safe_to_lower || watermarks->d.urgent_latency_ns > hubbub2->watermarks.d.urgent_latency_ns) {
+ 		hubbub2->watermarks.d.urgent_latency_ns = watermarks->d.urgent_latency_ns;
+ 		prog_wm_value = convert_and_clamp(watermarks->d.urgent_latency_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0x3fff);
+ 		REG_SET(DCHUBBUB_ARB_REFCYC_PER_TRIP_TO_MEMORY_D, 0,
+ 				DCHUBBUB_ARB_REFCYC_PER_TRIP_TO_MEMORY_D, prog_wm_value);
+ 	} else if (watermarks->d.urgent_latency_ns < hubbub2->watermarks.d.urgent_latency_ns)
+@@ -351,7 +354,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->a.cstate_pstate.cstate_enter_plus_exit_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->a.cstate_pstate.cstate_enter_plus_exit_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_A, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_A, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_ENTER_EXIT_WATERMARK_A calculated =%d\n"
+@@ -367,7 +370,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->a.cstate_pstate.cstate_exit_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->a.cstate_pstate.cstate_exit_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_A, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_A, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_EXIT_WATERMARK_A calculated =%d\n"
+@@ -383,7 +386,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->a.cstate_pstate.cstate_enter_plus_exit_z8_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->a.cstate_pstate.cstate_enter_plus_exit_z8_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_Z8_A, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_Z8_A, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_ENTER_WATERMARK_Z8_A calculated =%d\n"
+@@ -399,7 +402,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->a.cstate_pstate.cstate_exit_z8_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->a.cstate_pstate.cstate_exit_z8_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_Z8_A, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_Z8_A, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_EXIT_WATERMARK_Z8_A calculated =%d\n"
+@@ -416,7 +419,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->b.cstate_pstate.cstate_enter_plus_exit_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->b.cstate_pstate.cstate_enter_plus_exit_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_B, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_B, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_ENTER_EXIT_WATERMARK_B calculated =%d\n"
+@@ -432,7 +435,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->b.cstate_pstate.cstate_exit_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->b.cstate_pstate.cstate_exit_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_B, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_B, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_EXIT_WATERMARK_B calculated =%d\n"
+@@ -448,7 +451,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->b.cstate_pstate.cstate_enter_plus_exit_z8_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->b.cstate_pstate.cstate_enter_plus_exit_z8_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_Z8_B, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_Z8_B, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_ENTER_WATERMARK_Z8_B calculated =%d\n"
+@@ -464,7 +467,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->b.cstate_pstate.cstate_exit_z8_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->b.cstate_pstate.cstate_exit_z8_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_Z8_B, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_Z8_B, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_EXIT_WATERMARK_Z8_B calculated =%d\n"
+@@ -481,7 +484,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->c.cstate_pstate.cstate_enter_plus_exit_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->c.cstate_pstate.cstate_enter_plus_exit_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_C, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_C, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_ENTER_EXIT_WATERMARK_C calculated =%d\n"
+@@ -497,7 +500,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->c.cstate_pstate.cstate_exit_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->c.cstate_pstate.cstate_exit_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_C, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_C, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_EXIT_WATERMARK_C calculated =%d\n"
+@@ -513,7 +516,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->c.cstate_pstate.cstate_enter_plus_exit_z8_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->c.cstate_pstate.cstate_enter_plus_exit_z8_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_Z8_C, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_Z8_C, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_ENTER_WATERMARK_Z8_C calculated =%d\n"
+@@ -529,7 +532,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->c.cstate_pstate.cstate_exit_z8_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->c.cstate_pstate.cstate_exit_z8_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_Z8_C, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_Z8_C, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_EXIT_WATERMARK_Z8_C calculated =%d\n"
+@@ -546,7 +549,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->d.cstate_pstate.cstate_enter_plus_exit_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->d.cstate_pstate.cstate_enter_plus_exit_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_D, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_D, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_ENTER_EXIT_WATERMARK_D calculated =%d\n"
+@@ -562,7 +565,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->d.cstate_pstate.cstate_exit_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->d.cstate_pstate.cstate_exit_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_D, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_D, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_EXIT_WATERMARK_D calculated =%d\n"
+@@ -578,7 +581,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->d.cstate_pstate.cstate_enter_plus_exit_z8_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->d.cstate_pstate.cstate_enter_plus_exit_z8_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_Z8_D, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_ENTER_WATERMARK_Z8_D, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_ENTER_WATERMARK_Z8_D calculated =%d\n"
+@@ -594,7 +597,7 @@ static bool hubbub31_program_stutter_watermarks(
+ 				watermarks->d.cstate_pstate.cstate_exit_z8_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->d.cstate_pstate.cstate_exit_z8_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_Z8_D, 0,
+ 				DCHUBBUB_ARB_ALLOW_SR_EXIT_WATERMARK_Z8_D, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("SR_EXIT_WATERMARK_Z8_D calculated =%d\n"
+@@ -625,7 +628,7 @@ static bool hubbub31_program_pstate_watermarks(
+ 				watermarks->a.cstate_pstate.pstate_change_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->a.cstate_pstate.pstate_change_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_DRAM_CLK_CHANGE_WATERMARK_A, 0,
+ 				DCHUBBUB_ARB_ALLOW_DRAM_CLK_CHANGE_WATERMARK_A, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("DRAM_CLK_CHANGE_WATERMARK_A calculated =%d\n"
+@@ -642,7 +645,7 @@ static bool hubbub31_program_pstate_watermarks(
+ 				watermarks->b.cstate_pstate.pstate_change_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->b.cstate_pstate.pstate_change_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_DRAM_CLK_CHANGE_WATERMARK_B, 0,
+ 				DCHUBBUB_ARB_ALLOW_DRAM_CLK_CHANGE_WATERMARK_B, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("DRAM_CLK_CHANGE_WATERMARK_B calculated =%d\n"
+@@ -659,7 +662,7 @@ static bool hubbub31_program_pstate_watermarks(
+ 				watermarks->c.cstate_pstate.pstate_change_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->c.cstate_pstate.pstate_change_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_DRAM_CLK_CHANGE_WATERMARK_C, 0,
+ 				DCHUBBUB_ARB_ALLOW_DRAM_CLK_CHANGE_WATERMARK_C, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("DRAM_CLK_CHANGE_WATERMARK_C calculated =%d\n"
+@@ -676,7 +679,7 @@ static bool hubbub31_program_pstate_watermarks(
+ 				watermarks->d.cstate_pstate.pstate_change_ns;
+ 		prog_wm_value = convert_and_clamp(
+ 				watermarks->d.cstate_pstate.pstate_change_ns,
+-				refclk_mhz, 0x1fffff);
++				refclk_mhz, 0xffff);
+ 		REG_SET(DCHUBBUB_ARB_ALLOW_DRAM_CLK_CHANGE_WATERMARK_D, 0,
+ 				DCHUBBUB_ARB_ALLOW_DRAM_CLK_CHANGE_WATERMARK_D, prog_wm_value);
+ 		DC_LOG_BANDWIDTH_CALCS("DRAM_CLK_CHANGE_WATERMARK_D calculated =%d\n"
+-- 
+2.34.1
+
 
 
