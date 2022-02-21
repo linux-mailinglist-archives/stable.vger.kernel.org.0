@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00A574BDC3F
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CCB04BE562
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:00:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352434AbiBUKDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 05:03:38 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55782 "EHLO
+        id S1348152AbiBUJOR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:14:17 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353428AbiBUJ50 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CA5D47AC2;
-        Mon, 21 Feb 2022 01:25:38 -0800 (PST)
+        with ESMTP id S1350004AbiBUJNH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:13:07 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23AD72DD6A;
+        Mon, 21 Feb 2022 01:06:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2121560F8C;
-        Mon, 21 Feb 2022 09:25:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08AD5C340E9;
-        Mon, 21 Feb 2022 09:25:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A4BA0CE0E88;
+        Mon, 21 Feb 2022 09:06:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C5AFC340E9;
+        Mon, 21 Feb 2022 09:06:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435537;
-        bh=Kj5P1zY5l6pTNOhGPDTG6um+5ioqc9DX0x+C/sMtssQ=;
+        s=korg; t=1645434375;
+        bh=PpJMoP/AvxA2ya/EU1jNkVp0NRXKahVKOUJ2AY+EMzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p3tKIDeNGl16zxKzqDQbOqhXtL4H0vnZQ3kaoxKdv0/qouyYou2cIe5joxVAM6cc3
-         aKk5dWyx6HEVIDE0C4Tmp0N/od9BJ3h4oiWqu5x7ZSKm0xjR77q+/nfIne1O83N9gB
-         xHHZ9T9LqpsAmV7Fh/ItRd9+jCfoaouq/QjH+P2s=
+        b=KDw/GuqKc+8TwV2SHCSWv/qBRFqhS72275Tb9jBZj1coyb5he1QPV7HoVa29AQbUU
+         ze2FBHvwanmomcLjPvKnXyizv79X8RdP70NdbOVdTt2ywKXerJhMtMh77cQQBAu3V5
+         yyrP3L0HQB1CyNo32C3gGWYhgmvBRBdBggn/oAIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.16 181/227] dmaengine: sh: rcar-dmac: Check for error num after dma_set_max_seg_size
+        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 108/121] net: usb: qmi_wwan: Add support for Dell DW5829e
 Date:   Mon, 21 Feb 2022 09:50:00 +0100
-Message-Id: <20220221084940.829316946@linuxfoundation.org>
+Message-Id: <20220221084924.847493886@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Slark Xiao <slark_xiao@163.com>
 
-commit da2ad87fba0891576aadda9161b8505fde81a84d upstream.
+[ Upstream commit 8ecbb179286cbc91810c16caeb3396e06305cd0c ]
 
-As the possible failure of the dma_set_max_seg_size(), it should be
-better to check the return value of the dma_set_max_seg_size().
+Dell DW5829e same as DW5821e except the CAT level.
+DW5821e supports CAT16 but DW5829e supports CAT9.
+Also, DW5829e includes normal and eSIM type.
+Please see below test evidence:
 
-Fixes: 97d49c59e219 ("dmaengine: rcar-dmac: set scatter/gather max segment size")
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20220111011239.452837-1-jiasheng@iscas.ac.cn
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  5 Spd=5000 MxCh= 0
+D:  Ver= 3.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
+P:  Vendor=413c ProdID=81e6 Rev=03.18
+S:  Manufacturer=Dell Inc.
+S:  Product=DW5829e Snapdragon X20 LTE
+S:  SerialNumber=0123456789ABCDEF
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+
+T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  7 Spd=5000 MxCh= 0
+D:  Ver= 3.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
+P:  Vendor=413c ProdID=81e4 Rev=03.18
+S:  Manufacturer=Dell Inc.
+S:  Product=DW5829e-eSIM Snapdragon X20 LTE
+S:  SerialNumber=0123456789ABCDEF
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+
+Signed-off-by: Slark Xiao <slark_xiao@163.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20220209024717.8564-1-slark_xiao@163.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sh/rcar-dmac.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/usb/qmi_wwan.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/dma/sh/rcar-dmac.c
-+++ b/drivers/dma/sh/rcar-dmac.c
-@@ -1868,7 +1868,10 @@ static int rcar_dmac_probe(struct platfo
- 
- 	dmac->dev = &pdev->dev;
- 	platform_set_drvdata(pdev, dmac);
--	dma_set_max_seg_size(dmac->dev, RCAR_DMATCR_MASK);
-+	ret = dma_set_max_seg_size(dmac->dev, RCAR_DMATCR_MASK);
-+	if (ret)
-+		return ret;
-+
- 	ret = dma_set_mask_and_coherent(dmac->dev, DMA_BIT_MASK(40));
- 	if (ret)
- 		return ret;
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 6e033ba717030..597766d14563e 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1333,6 +1333,8 @@ static const struct usb_device_id products[] = {
+ 	{QMI_FIXED_INTF(0x413c, 0x81d7, 0)},	/* Dell Wireless 5821e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81d7, 1)},	/* Dell Wireless 5821e preproduction config */
+ 	{QMI_FIXED_INTF(0x413c, 0x81e0, 0)},	/* Dell Wireless 5821e with eSIM support*/
++	{QMI_FIXED_INTF(0x413c, 0x81e4, 0)},	/* Dell Wireless 5829e with eSIM support*/
++	{QMI_FIXED_INTF(0x413c, 0x81e6, 0)},	/* Dell Wireless 5829e */
+ 	{QMI_FIXED_INTF(0x03f0, 0x4e1d, 8)},	/* HP lt4111 LTE/EV-DO/HSPA+ Gobi 4G Module */
+ 	{QMI_FIXED_INTF(0x03f0, 0x9d1d, 1)},	/* HP lt4120 Snapdragon X5 LTE */
+ 	{QMI_FIXED_INTF(0x22de, 0x9061, 3)},	/* WeTelecom WPD-600N */
+-- 
+2.34.1
+
 
 
