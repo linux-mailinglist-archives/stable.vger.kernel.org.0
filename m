@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86FAD4BE62F
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24BB84BE976
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:07:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235613AbiBUJ1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:27:48 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48084 "EHLO
+        id S1348044AbiBUJKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:10:40 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350004AbiBUJ1B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02EC51D335;
-        Mon, 21 Feb 2022 01:11:15 -0800 (PST)
+        with ESMTP id S1347650AbiBUJKH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:10:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDDE81D328;
+        Mon, 21 Feb 2022 01:02:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92A2760018;
-        Mon, 21 Feb 2022 09:11:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76953C340E9;
-        Mon, 21 Feb 2022 09:11:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C443B80EAC;
+        Mon, 21 Feb 2022 09:02:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8016C340E9;
+        Mon, 21 Feb 2022 09:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434674;
-        bh=42BZzAIrhChSJ2BfYlKST5WzCDRyABo6KiK+ubfK/54=;
+        s=korg; t=1645434152;
+        bh=GDe3jRGeoV8MhQkHc5TTNRZYGcruBsUt0qonQe0epg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tq3EeP+GNL52Oy6AqG0gKPFgEH6E+1KOupDepwPDoDYr6ByS8nauf6quKRwdJ+kT
-         ssJVqLk5H8aMQTn39MtrQTQJ6RoSN6SUu8cj8Sxmi2rq4xWm3uQfWT5pUU5lwiZc74
-         r2+HlP58Cy4HE+SP2PiK49HAEtdSxgO4SK6vZnAo=
+        b=J006aznAibKs+SQbLxsw+By1HfDvWmFr4uXDoRHooLT/gEGld7FiuF9sgIsmh3n7v
+         YFq/xalR1L1RyPf+Qign8V24PtRENHVFx2GYnzybWKiAuiGRiBqocjt7MshZbpeKGc
+         daDVM7zjKNmpS1Vh31mvSgLdtoa5I/A12Zcc2JSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 091/196] net: dsa: lantiq_gswip: fix use after free in gswip_remove()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 031/121] selftests: skip mincore.check_file_mmap when fs lacks needed support
 Date:   Mon, 21 Feb 2022 09:48:43 +0100
-Message-Id: <20220221084933.987875225@linuxfoundation.org>
+Message-Id: <20220221084922.236450727@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Khoroshilov <khoroshilov@ispras.ru>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-commit 8c6ae46150a453f8ae9a6cd49b45f354f478587d upstream.
+[ Upstream commit dae1d8ac31896988e7313384c0370176a75e9b45 ]
 
-of_node_put(priv->ds->slave_mii_bus->dev.of_node) should be
-done before mdiobus_free(priv->ds->slave_mii_bus).
+Report mincore.check_file_mmap as SKIP instead of FAIL if the underlying
+filesystem lacks support of O_TMPFILE or fallocate since such failures
+are not really related to mincore functionality.
 
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Fixes: 0d120dfb5d67 ("net: dsa: lantiq_gswip: don't use devres for mdiobus")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/1644921768-26477-1-git-send-email-khoroshilov@ispras.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/lantiq_gswip.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../selftests/mincore/mincore_selftest.c      | 20 +++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
---- a/drivers/net/dsa/lantiq_gswip.c
-+++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -2201,8 +2201,8 @@ static int gswip_remove(struct platform_
+diff --git a/tools/testing/selftests/mincore/mincore_selftest.c b/tools/testing/selftests/mincore/mincore_selftest.c
+index 5a1e85ff5d32a..2cf6f2f277ab8 100644
+--- a/tools/testing/selftests/mincore/mincore_selftest.c
++++ b/tools/testing/selftests/mincore/mincore_selftest.c
+@@ -208,15 +208,21 @@ TEST(check_file_mmap)
  
- 	if (priv->ds->slave_mii_bus) {
- 		mdiobus_unregister(priv->ds->slave_mii_bus);
--		mdiobus_free(priv->ds->slave_mii_bus);
- 		of_node_put(priv->ds->slave_mii_bus->dev.of_node);
-+		mdiobus_free(priv->ds->slave_mii_bus);
+ 	errno = 0;
+ 	fd = open(".", O_TMPFILE | O_RDWR, 0600);
+-	ASSERT_NE(-1, fd) {
+-		TH_LOG("Can't create temporary file: %s",
+-			strerror(errno));
++	if (fd < 0) {
++		ASSERT_EQ(errno, EOPNOTSUPP) {
++			TH_LOG("Can't create temporary file: %s",
++			       strerror(errno));
++		}
++		SKIP(goto out_free, "O_TMPFILE not supported by filesystem.");
+ 	}
+ 	errno = 0;
+ 	retval = fallocate(fd, 0, 0, FILE_SIZE);
+-	ASSERT_EQ(0, retval) {
+-		TH_LOG("Error allocating space for the temporary file: %s",
+-			strerror(errno));
++	if (retval) {
++		ASSERT_EQ(errno, EOPNOTSUPP) {
++			TH_LOG("Error allocating space for the temporary file: %s",
++			       strerror(errno));
++		}
++		SKIP(goto out_close, "fallocate not supported by filesystem.");
  	}
  
- 	for (i = 0; i < priv->num_gphy_fw; i++)
+ 	/*
+@@ -272,7 +278,9 @@ TEST(check_file_mmap)
+ 	}
+ 
+ 	munmap(addr, FILE_SIZE);
++out_close:
+ 	close(fd);
++out_free:
+ 	free(vec);
+ }
+ 
+-- 
+2.34.1
+
 
 
