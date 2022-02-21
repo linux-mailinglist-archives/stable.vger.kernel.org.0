@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E9684BE89C
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:06:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C17104BDB70
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:40:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229526AbiBUJiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:38:17 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46308 "EHLO
+        id S1350852AbiBUJm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:42:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352102AbiBUJiD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:38:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 293571D0D8;
-        Mon, 21 Feb 2022 01:16:55 -0800 (PST)
+        with ESMTP id S1350849AbiBUJlh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:41:37 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2F993D489;
+        Mon, 21 Feb 2022 01:17:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97C2F608C1;
-        Mon, 21 Feb 2022 09:16:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A95C5C340EB;
-        Mon, 21 Feb 2022 09:16:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CF88BCE0E8B;
+        Mon, 21 Feb 2022 09:17:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF7B3C340E9;
+        Mon, 21 Feb 2022 09:17:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435013;
-        bh=+8zlUxd5tIndKPPZA3jaxwDkOfCJtW/lS2dkXSYvgNY=;
+        s=korg; t=1645435044;
+        bh=VWGfAshiuYdLKS4NFlADuZCK20g14roqriy9aABhR0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MKe8fup3gt4PUQsul1Q3y875mLJ8C7cKbnyTgv5ylppT3W7N/4iwf+uLq5B2+kdcx
-         KpjtettALvGqGxABaK9GwGQPnDRwzObAtgQ9qM3rAObdBD6OhmAlUd4SZQI8v8fgMv
-         Si5vEcyC/uDTxPGujKm7OmPken43RpZjcrSiJ/HU=
+        b=ki0VWzG3IeyQy3WhigoGqw6d7Q/BVK/6SpzvxIHyi1I2t2WF46qO2byie7vqIlXH8
+         lHttUhbdErGQBaDjxrrxBCUY9flJkXBE6V7BNKw1mp5z2MKZRQgzkQmkhmwttPUELD
+         RlVJNXcSpbmaLSMiULdCISlPXHx45EnPyw5Hacow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hao Luo <haoluo@google.com>,
         Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.16 006/227] bpf: Introduce MEM_RDONLY flag
-Date:   Mon, 21 Feb 2022 09:47:05 +0100
-Message-Id: <20220221084935.044999793@linuxfoundation.org>
+Subject: [PATCH 5.16 007/227] bpf: Convert PTR_TO_MEM_OR_NULL to composable types.
+Date:   Mon, 21 Feb 2022 09:47:06 +0100
+Message-Id: <20220221084935.087780011@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
 References: <20220221084934.836145070@linuxfoundation.org>
@@ -55,253 +55,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hao Luo <haoluo@google.com>
 
-commit 20b2aff4bc15bda809f994761d5719827d66c0b4 upstream.
+commit cf9f2f8d62eca810afbd1ee6cc0800202b000e57 upstream.
 
-This patch introduce a flag MEM_RDONLY to tag a reg value
-pointing to read-only memory. It makes the following changes:
-
-1. PTR_TO_RDWR_BUF -> PTR_TO_BUF
-2. PTR_TO_RDONLY_BUF -> PTR_TO_BUF | MEM_RDONLY
+Remove PTR_TO_MEM_OR_NULL and replace it with PTR_TO_MEM combined with
+flag PTR_MAYBE_NULL.
 
 Signed-off-by: Hao Luo <haoluo@google.com>
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20211217003152.48334-6-haoluo@google.com
+Link: https://lore.kernel.org/bpf/20211217003152.48334-7-haoluo@google.com
 Cc: stable@vger.kernel.org # 5.16.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/bpf.h       |    8 ++--
- kernel/bpf/btf.c          |    3 -
- kernel/bpf/map_iter.c     |    4 +-
- kernel/bpf/verifier.c     |   84 +++++++++++++++++++++++++++-------------------
- net/core/bpf_sk_storage.c |    2 -
- net/core/sock_map.c       |    2 -
- 6 files changed, 60 insertions(+), 43 deletions(-)
+ include/linux/bpf.h   |    1 -
+ kernel/bpf/btf.c      |    2 +-
+ kernel/bpf/verifier.c |    2 +-
+ 3 files changed, 2 insertions(+), 3 deletions(-)
 
 --- a/include/linux/bpf.h
 +++ b/include/linux/bpf.h
-@@ -311,7 +311,10 @@ enum bpf_type_flag {
- 	/* PTR may be NULL. */
- 	PTR_MAYBE_NULL		= BIT(0 + BPF_BASE_TYPE_BITS),
+@@ -506,7 +506,6 @@ enum bpf_reg_type {
+ 	PTR_TO_SOCK_COMMON_OR_NULL	= PTR_MAYBE_NULL | PTR_TO_SOCK_COMMON,
+ 	PTR_TO_TCP_SOCK_OR_NULL		= PTR_MAYBE_NULL | PTR_TO_TCP_SOCK,
+ 	PTR_TO_BTF_ID_OR_NULL		= PTR_MAYBE_NULL | PTR_TO_BTF_ID,
+-	PTR_TO_MEM_OR_NULL		= PTR_MAYBE_NULL | PTR_TO_MEM,
  
--	__BPF_TYPE_LAST_FLAG	= PTR_MAYBE_NULL,
-+	/* MEM is read-only. */
-+	MEM_RDONLY		= BIT(1 + BPF_BASE_TYPE_BITS),
-+
-+	__BPF_TYPE_LAST_FLAG	= MEM_RDONLY,
- };
- 
- /* Max number of base types. */
-@@ -492,8 +495,7 @@ enum bpf_reg_type {
- 	 * an explicit null check is required for this struct.
- 	 */
- 	PTR_TO_MEM,		 /* reg points to valid memory region */
--	PTR_TO_RDONLY_BUF,	 /* reg points to a readonly buffer */
--	PTR_TO_RDWR_BUF,	 /* reg points to a read/write buffer */
-+	PTR_TO_BUF,		 /* reg points to a read/write buffer */
- 	PTR_TO_PERCPU_BTF_ID,	 /* reg points to a percpu kernel variable */
- 	PTR_TO_FUNC,		 /* reg points to a bpf program function */
- 	__BPF_REG_TYPE_MAX,
+ 	/* This must be the last entry. Its purpose is to ensure the enum is
+ 	 * wide enough to hold the higher bits reserved for bpf_type_flag.
 --- a/kernel/bpf/btf.c
 +++ b/kernel/bpf/btf.c
-@@ -4932,8 +4932,7 @@ bool btf_ctx_access(int off, int size, e
+@@ -5847,7 +5847,7 @@ int btf_prepare_func_args(struct bpf_ver
+ 				return -EINVAL;
+ 			}
  
- 		type = base_type(ctx_arg_info->reg_type);
- 		flag = type_flag(ctx_arg_info->reg_type);
--		if (ctx_arg_info->offset == off &&
--		    (type == PTR_TO_RDWR_BUF || type == PTR_TO_RDONLY_BUF) &&
-+		if (ctx_arg_info->offset == off && type == PTR_TO_BUF &&
- 		    (flag & PTR_MAYBE_NULL)) {
- 			info->reg_type = ctx_arg_info->reg_type;
- 			return true;
---- a/kernel/bpf/map_iter.c
-+++ b/kernel/bpf/map_iter.c
-@@ -174,9 +174,9 @@ static const struct bpf_iter_reg bpf_map
- 	.ctx_arg_info_size	= 2,
- 	.ctx_arg_info		= {
- 		{ offsetof(struct bpf_iter__bpf_map_elem, key),
--		  PTR_TO_RDONLY_BUF | PTR_MAYBE_NULL },
-+		  PTR_TO_BUF | PTR_MAYBE_NULL | MEM_RDONLY },
- 		{ offsetof(struct bpf_iter__bpf_map_elem, value),
--		  PTR_TO_RDWR_BUF | PTR_MAYBE_NULL },
-+		  PTR_TO_BUF | PTR_MAYBE_NULL },
- 	},
- };
+-			reg->type = PTR_TO_MEM_OR_NULL;
++			reg->type = PTR_TO_MEM | PTR_MAYBE_NULL;
+ 			reg->id = ++env->id_gen;
  
+ 			continue;
 --- a/kernel/bpf/verifier.c
 +++ b/kernel/bpf/verifier.c
-@@ -452,6 +452,11 @@ static bool reg_type_may_be_refcounted_o
- 		base_type(type) == PTR_TO_MEM;
- }
+@@ -13336,7 +13336,7 @@ static int do_check_common(struct bpf_ve
+ 				mark_reg_known_zero(env, regs, i);
+ 			else if (regs[i].type == SCALAR_VALUE)
+ 				mark_reg_unknown(env, regs, i);
+-			else if (regs[i].type == PTR_TO_MEM_OR_NULL) {
++			else if (base_type(regs[i].type) == PTR_TO_MEM) {
+ 				const u32 mem_size = regs[i].mem_size;
  
-+static bool type_is_rdonly_mem(u32 type)
-+{
-+	return type & MEM_RDONLY;
-+}
-+
- static bool arg_type_may_be_refcounted(enum bpf_arg_type type)
- {
- 	return type == ARG_PTR_TO_SOCK_COMMON;
-@@ -527,7 +532,7 @@ static bool is_cmpxchg_insn(const struct
- static const char *reg_type_str(struct bpf_verifier_env *env,
- 				enum bpf_reg_type type)
- {
--	char postfix[16] = {0};
-+	char postfix[16] = {0}, prefix[16] = {0};
- 	static const char * const str[] = {
- 		[NOT_INIT]		= "?",
- 		[SCALAR_VALUE]		= "inv",
-@@ -547,8 +552,7 @@ static const char *reg_type_str(struct b
- 		[PTR_TO_BTF_ID]		= "ptr_",
- 		[PTR_TO_PERCPU_BTF_ID]	= "percpu_ptr_",
- 		[PTR_TO_MEM]		= "mem",
--		[PTR_TO_RDONLY_BUF]	= "rdonly_buf",
--		[PTR_TO_RDWR_BUF]	= "rdwr_buf",
-+		[PTR_TO_BUF]		= "buf",
- 		[PTR_TO_FUNC]		= "func",
- 		[PTR_TO_MAP_KEY]	= "map_key",
- 	};
-@@ -561,8 +565,11 @@ static const char *reg_type_str(struct b
- 			strncpy(postfix, "_or_null", 16);
- 	}
- 
--	snprintf(env->type_str_buf, TYPE_STR_BUF_LEN, "%s%s",
--		 str[base_type(type)], postfix);
-+	if (type & MEM_RDONLY)
-+		strncpy(prefix, "rdonly_", 16);
-+
-+	snprintf(env->type_str_buf, TYPE_STR_BUF_LEN, "%s%s%s",
-+		 prefix, str[base_type(type)], postfix);
- 	return env->type_str_buf;
- }
- 
-@@ -2688,8 +2695,7 @@ static bool is_spillable_regtype(enum bp
- 	case PTR_TO_TCP_SOCK:
- 	case PTR_TO_XDP_SOCK:
- 	case PTR_TO_BTF_ID:
--	case PTR_TO_RDONLY_BUF:
--	case PTR_TO_RDWR_BUF:
-+	case PTR_TO_BUF:
- 	case PTR_TO_PERCPU_BTF_ID:
- 	case PTR_TO_MEM:
- 	case PTR_TO_FUNC:
-@@ -4442,22 +4448,28 @@ static int check_mem_access(struct bpf_v
- 	} else if (reg->type == CONST_PTR_TO_MAP) {
- 		err = check_ptr_to_map_access(env, regs, regno, off, size, t,
- 					      value_regno);
--	} else if (reg->type == PTR_TO_RDONLY_BUF) {
--		if (t == BPF_WRITE) {
--			verbose(env, "R%d cannot write into %s\n",
--				regno, reg_type_str(env, reg->type));
--			return -EACCES;
-+	} else if (base_type(reg->type) == PTR_TO_BUF) {
-+		bool rdonly_mem = type_is_rdonly_mem(reg->type);
-+		const char *buf_info;
-+		u32 *max_access;
-+
-+		if (rdonly_mem) {
-+			if (t == BPF_WRITE) {
-+				verbose(env, "R%d cannot write into %s\n",
-+					regno, reg_type_str(env, reg->type));
-+				return -EACCES;
-+			}
-+			buf_info = "rdonly";
-+			max_access = &env->prog->aux->max_rdonly_access;
-+		} else {
-+			buf_info = "rdwr";
-+			max_access = &env->prog->aux->max_rdwr_access;
- 		}
-+
- 		err = check_buffer_access(env, reg, regno, off, size, false,
--					  "rdonly",
--					  &env->prog->aux->max_rdonly_access);
--		if (!err && value_regno >= 0)
--			mark_reg_unknown(env, regs, value_regno);
--	} else if (reg->type == PTR_TO_RDWR_BUF) {
--		err = check_buffer_access(env, reg, regno, off, size, false,
--					  "rdwr",
--					  &env->prog->aux->max_rdwr_access);
--		if (!err && t == BPF_READ && value_regno >= 0)
-+					  buf_info, max_access);
-+
-+		if (!err && value_regno >= 0 && (rdonly_mem || t == BPF_READ))
- 			mark_reg_unknown(env, regs, value_regno);
- 	} else {
- 		verbose(env, "R%d invalid mem access '%s'\n", regno,
-@@ -4718,8 +4730,10 @@ static int check_helper_mem_access(struc
- 				   struct bpf_call_arg_meta *meta)
- {
- 	struct bpf_reg_state *regs = cur_regs(env), *reg = &regs[regno];
-+	const char *buf_info;
-+	u32 *max_access;
- 
--	switch (reg->type) {
-+	switch (base_type(reg->type)) {
- 	case PTR_TO_PACKET:
- 	case PTR_TO_PACKET_META:
- 		return check_packet_access(env, regno, reg->off, access_size,
-@@ -4738,18 +4752,20 @@ static int check_helper_mem_access(struc
- 		return check_mem_region_access(env, regno, reg->off,
- 					       access_size, reg->mem_size,
- 					       zero_size_allowed);
--	case PTR_TO_RDONLY_BUF:
--		if (meta && meta->raw_mode)
--			return -EACCES;
--		return check_buffer_access(env, reg, regno, reg->off,
--					   access_size, zero_size_allowed,
--					   "rdonly",
--					   &env->prog->aux->max_rdonly_access);
--	case PTR_TO_RDWR_BUF:
-+	case PTR_TO_BUF:
-+		if (type_is_rdonly_mem(reg->type)) {
-+			if (meta && meta->raw_mode)
-+				return -EACCES;
-+
-+			buf_info = "rdonly";
-+			max_access = &env->prog->aux->max_rdonly_access;
-+		} else {
-+			buf_info = "rdwr";
-+			max_access = &env->prog->aux->max_rdwr_access;
-+		}
- 		return check_buffer_access(env, reg, regno, reg->off,
- 					   access_size, zero_size_allowed,
--					   "rdwr",
--					   &env->prog->aux->max_rdwr_access);
-+					   buf_info, max_access);
- 	case PTR_TO_STACK:
- 		return check_stack_range_initialized(
- 				env,
-@@ -5028,8 +5044,8 @@ static const struct bpf_reg_types mem_ty
- 		PTR_TO_MAP_KEY,
- 		PTR_TO_MAP_VALUE,
- 		PTR_TO_MEM,
--		PTR_TO_RDONLY_BUF,
--		PTR_TO_RDWR_BUF,
-+		PTR_TO_BUF,
-+		PTR_TO_BUF | MEM_RDONLY,
- 	},
- };
- 
---- a/net/core/bpf_sk_storage.c
-+++ b/net/core/bpf_sk_storage.c
-@@ -929,7 +929,7 @@ static struct bpf_iter_reg bpf_sk_storag
- 		{ offsetof(struct bpf_iter__bpf_sk_storage_map, sk),
- 		  PTR_TO_BTF_ID_OR_NULL },
- 		{ offsetof(struct bpf_iter__bpf_sk_storage_map, value),
--		  PTR_TO_RDWR_BUF | PTR_MAYBE_NULL },
-+		  PTR_TO_BUF | PTR_MAYBE_NULL },
- 	},
- 	.seq_info		= &iter_seq_info,
- };
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -1569,7 +1569,7 @@ static struct bpf_iter_reg sock_map_iter
- 	.ctx_arg_info_size	= 2,
- 	.ctx_arg_info		= {
- 		{ offsetof(struct bpf_iter__sockmap, key),
--		  PTR_TO_RDONLY_BUF | PTR_MAYBE_NULL },
-+		  PTR_TO_BUF | PTR_MAYBE_NULL | MEM_RDONLY },
- 		{ offsetof(struct bpf_iter__sockmap, sk),
- 		  PTR_TO_BTF_ID_OR_NULL },
- 	},
+ 				mark_reg_known_zero(env, regs, i);
 
 
