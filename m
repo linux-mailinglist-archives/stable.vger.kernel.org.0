@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E81C34BE018
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADAA24BDBA2
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:40:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347074AbiBUJEL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:04:11 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41870 "EHLO
+        id S239737AbiBUJt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:49:57 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348518AbiBUJC4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:02:56 -0500
+        with ESMTP id S1352963AbiBUJsF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A2372CC88;
-        Mon, 21 Feb 2022 00:58:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8377CCFE;
+        Mon, 21 Feb 2022 01:22:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91C6760FB6;
-        Mon, 21 Feb 2022 08:58:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C9E7C340EB;
-        Mon, 21 Feb 2022 08:58:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 219DE608C4;
+        Mon, 21 Feb 2022 09:22:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF05DC340E9;
+        Mon, 21 Feb 2022 09:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433896;
-        bh=6ISO8dDd+jBpPTo5s/rGjUHrpeEbfdrVumxDZHMAUh8=;
+        s=korg; t=1645435320;
+        bh=8IUsyVO3CUV/NHmrn9iyf0MiQePqG+1lN0ZMxV/tScY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NWuR7OTStFO/RpsrXbhrhuQTXKN+tROyHlqkeondhXIf7lRWoJBawtg4o58FgWHnU
-         3JKT/6T7dxeTzmSmVtU4I77tmxXXMS30q90K2YcJNYKFBaMwgq9bS9X/Mwa2mQ5mqk
-         955G1qkMX2aL6u97Ez38DDwinDk7KfLo3zc1O5Es=
+        b=qdjUFveKP9l+CTHTunC4vSQcq1/JQX+VMIn3E3VD8lbmMPHwtIRjnymnsVvhOuhuY
+         UJAzQc6Ej+HLJhBt9l09EIQUFgwwmqldXY8PJhgw999+ZrMDFWl9Sj8DiRqL4MtAQf
+         +VsUHVqZ9pwVw8PuQKVGrUfJMyraBxnJVxhyhS2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Pylypiv <ipylypiv@google.com>,
-        Changyuan Lyu <changyuanl@google.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Tejun Heo <tj@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/80] Revert "module, async: async_synchronize_full() on module init iff async is used"
+        stable@vger.kernel.org,
+        =?UTF-8?q?Valdis=20Kl=C4=93tnieks?= <valdis.kletnieks@vt.edu>,
+        Kees Kook <keescook@chromium.org>,
+        "Justin M. Forbes" <jforbes@fedoraproject.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        linux-hardening@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.16 123/227] libsubcmd: Fix use-after-free for realloc(..., 0)
 Date:   Mon, 21 Feb 2022 09:49:02 +0100
-Message-Id: <20220221084916.312284506@linuxfoundation.org>
+Message-Id: <20220221084938.941272051@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,143 +58,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Igor Pylypiv <ipylypiv@google.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 67d6212afda218d564890d1674bab28e8612170f ]
+commit 52a9dab6d892763b2a8334a568bd4e2c1a6fde66 upstream.
 
-This reverts commit 774a1221e862b343388347bac9b318767336b20b.
+GCC 12 correctly reports a potential use-after-free condition in the
+xrealloc helper. Fix the warning by avoiding an implicit "free(ptr)"
+when size == 0:
 
-We need to finish all async code before the module init sequence is
-done.  In the reverted commit the PF_USED_ASYNC flag was added to mark a
-thread that called async_schedule().  Then the PF_USED_ASYNC flag was
-used to determine whether or not async_synchronize_full() needs to be
-invoked.  This works when modprobe thread is calling async_schedule(),
-but it does not work if module dispatches init code to a worker thread
-which then calls async_schedule().
+In file included from help.c:12:
+In function 'xrealloc',
+    inlined from 'add_cmdname' at help.c:24:2: subcmd-util.h:56:23: error: pointer may be used after 'realloc' [-Werror=use-after-free]
+   56 |                 ret = realloc(ptr, size);
+      |                       ^~~~~~~~~~~~~~~~~~
+subcmd-util.h:52:21: note: call to 'realloc' here
+   52 |         void *ret = realloc(ptr, size);
+      |                     ^~~~~~~~~~~~~~~~~~
+subcmd-util.h:58:31: error: pointer may be used after 'realloc' [-Werror=use-after-free]
+   58 |                         ret = realloc(ptr, 1);
+      |                               ^~~~~~~~~~~~~~~
+subcmd-util.h:52:21: note: call to 'realloc' here
+   52 |         void *ret = realloc(ptr, size);
+      |                     ^~~~~~~~~~~~~~~~~~
 
-For example, PCI driver probing is invoked from a worker thread based on
-a node where device is attached:
-
-	if (cpu < nr_cpu_ids)
-		error = work_on_cpu(cpu, local_pci_probe, &ddi);
-	else
-		error = local_pci_probe(&ddi);
-
-We end up in a situation where a worker thread gets the PF_USED_ASYNC
-flag set instead of the modprobe thread.  As a result,
-async_synchronize_full() is not invoked and modprobe completes without
-waiting for the async code to finish.
-
-The issue was discovered while loading the pm80xx driver:
-(scsi_mod.scan=async)
-
-modprobe pm80xx                      worker
-...
-  do_init_module()
-  ...
-    pci_call_probe()
-      work_on_cpu(local_pci_probe)
-                                     local_pci_probe()
-                                       pm8001_pci_probe()
-                                         scsi_scan_host()
-                                           async_schedule()
-                                           worker->flags |= PF_USED_ASYNC;
-                                     ...
-      < return from worker >
-  ...
-  if (current->flags & PF_USED_ASYNC) <--- false
-  	async_synchronize_full();
-
-Commit 21c3c5d28007 ("block: don't request module during elevator init")
-fixed the deadlock issue which the reverted commit 774a1221e862
-("module, async: async_synchronize_full() on module init iff async is
-used") tried to fix.
-
-Since commit 0fdff3ec6d87 ("async, kmod: warn on synchronous
-request_module() from async workers") synchronous module loading from
-async is not allowed.
-
-Given that the original deadlock issue is fixed and it is no longer
-allowed to call synchronous request_module() from async we can remove
-PF_USED_ASYNC flag to make module init consistently invoke
-async_synchronize_full() unless async module probe is requested.
-
-Signed-off-by: Igor Pylypiv <ipylypiv@google.com>
-Reviewed-by: Changyuan Lyu <changyuanl@google.com>
-Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
-Acked-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2f4ce5ec1d447beb ("perf tools: Finalize subcmd independence")
+Reported-by: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+Signed-off-by: Kees Kook <keescook@chromium.org>
+Tested-by: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: linux-hardening@vger.kernel.org
+Cc: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+Link: http://lore.kernel.org/lkml/20220213182443.4037039-1-keescook@chromium.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/sched.h |    1 -
- kernel/async.c        |    3 ---
- kernel/module.c       |   25 +++++--------------------
- 3 files changed, 5 insertions(+), 24 deletions(-)
+ tools/lib/subcmd/subcmd-util.h |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1454,7 +1454,6 @@ extern struct pid *cad_pid;
- #define PF_MEMALLOC		0x00000800	/* Allocating memory */
- #define PF_NPROC_EXCEEDED	0x00001000	/* set_user() noticed that RLIMIT_NPROC was exceeded */
- #define PF_USED_MATH		0x00002000	/* If unset the fpu must be initialized before use */
--#define PF_USED_ASYNC		0x00004000	/* Used async_schedule*(), used by module init */
- #define PF_NOFREEZE		0x00008000	/* This thread should not be frozen */
- #define PF_FROZEN		0x00010000	/* Frozen for system suspend */
- #define PF_KSWAPD		0x00020000	/* I am kswapd */
---- a/kernel/async.c
-+++ b/kernel/async.c
-@@ -205,9 +205,6 @@ async_cookie_t async_schedule_node_domai
- 	atomic_inc(&entry_count);
- 	spin_unlock_irqrestore(&async_lock, flags);
+--- a/tools/lib/subcmd/subcmd-util.h
++++ b/tools/lib/subcmd/subcmd-util.h
+@@ -50,15 +50,8 @@ static NORETURN inline void die(const ch
+ static inline void *xrealloc(void *ptr, size_t size)
+ {
+ 	void *ret = realloc(ptr, size);
+-	if (!ret && !size)
+-		ret = realloc(ptr, 1);
+-	if (!ret) {
+-		ret = realloc(ptr, size);
+-		if (!ret && !size)
+-			ret = realloc(ptr, 1);
+-		if (!ret)
+-			die("Out of memory, realloc failed");
+-	}
++	if (!ret)
++		die("Out of memory, realloc failed");
+ 	return ret;
+ }
  
--	/* mark that this task has queued an async job, used by module init */
--	current->flags |= PF_USED_ASYNC;
--
- 	/* schedule for execution */
- 	queue_work_node(node, system_unbound_wq, &entry->work);
- 
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3711,12 +3711,6 @@ static noinline int do_init_module(struc
- 	}
- 	freeinit->module_init = mod->init_layout.base;
- 
--	/*
--	 * We want to find out whether @mod uses async during init.  Clear
--	 * PF_USED_ASYNC.  async_schedule*() will set it.
--	 */
--	current->flags &= ~PF_USED_ASYNC;
--
- 	do_mod_ctors(mod);
- 	/* Start the module */
- 	if (mod->init != NULL)
-@@ -3742,22 +3736,13 @@ static noinline int do_init_module(struc
- 
- 	/*
- 	 * We need to finish all async code before the module init sequence
--	 * is done.  This has potential to deadlock.  For example, a newly
--	 * detected block device can trigger request_module() of the
--	 * default iosched from async probing task.  Once userland helper
--	 * reaches here, async_synchronize_full() will wait on the async
--	 * task waiting on request_module() and deadlock.
--	 *
--	 * This deadlock is avoided by perfomring async_synchronize_full()
--	 * iff module init queued any async jobs.  This isn't a full
--	 * solution as it will deadlock the same if module loading from
--	 * async jobs nests more than once; however, due to the various
--	 * constraints, this hack seems to be the best option for now.
--	 * Please refer to the following thread for details.
-+	 * is done. This has potential to deadlock if synchronous module
-+	 * loading is requested from async (which is not allowed!).
- 	 *
--	 * http://thread.gmane.org/gmane.linux.kernel/1420814
-+	 * See commit 0fdff3ec6d87 ("async, kmod: warn on synchronous
-+	 * request_module() from async workers") for more details.
- 	 */
--	if (!mod->async_probe_requested && (current->flags & PF_USED_ASYNC))
-+	if (!mod->async_probe_requested)
- 		async_synchronize_full();
- 
- 	ftrace_free_mem(mod, mod->init_layout.base, mod->init_layout.base +
 
 
