@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E95E74BE6F8
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:02:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A9EC4BDE0B
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:46:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245017AbiBUJlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:41:24 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48748 "EHLO
+        id S245176AbiBUJXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:23:33 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350846AbiBUJkM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:40:12 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 895E732EEE;
-        Mon, 21 Feb 2022 01:17:21 -0800 (PST)
+        with ESMTP id S1349502AbiBUJVb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:21:31 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E65B31DEF;
+        Mon, 21 Feb 2022 01:08:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E81EFCE0E88;
-        Mon, 21 Feb 2022 09:17:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8715C340E9;
-        Mon, 21 Feb 2022 09:17:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A1126CE0E92;
+        Mon, 21 Feb 2022 09:08:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82954C340E9;
+        Mon, 21 Feb 2022 09:08:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435038;
-        bh=jYwiTOzuxOogEwmmZu7c9TjY0pi0EyrysgTTXTM6OZc=;
+        s=korg; t=1645434498;
+        bh=B3V/EFHY9+d/uJRBcFrB7LlPclALnd89vW1EiTlJXt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wp6DdanR5PfhX5M2ZSY018gKGChmh/qd35NEKSY/P4CXrCpZnxMmx2yVx06Xy993j
-         YSxeHCP4ykEOvF/AQx0nBK/bDz1cGqqd6PYorDlRmiMD+CTDkavX4aZOmVLrm0xW9E
-         5By53FY8wiptYYjUuuCYSYTo7G5FIovwj0V20Xwc=
+        b=u595Jq9GAXgNetUTTiOBcqDa9Xp185eTqyJcDj2wGxRvzaiyIq3fqfJ2Hx3q3Sx/B
+         YwAPDgiiugtAU230kidBVcmSS+spe/1VpnuP6Y/UXXEBiDQ/4LY75nvRfszTI5ohfJ
+         VW///G0dn+mkj+2Ke6Ca2RdXkTKcE419onMksuxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.16 023/227] selftests: kvm: Remove absent target file
-Date:   Mon, 21 Feb 2022 09:47:22 +0100
-Message-Id: <20220221084935.613639074@linuxfoundation.org>
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.15 011/196] parisc: Fix sglist access in ccio-dma.c
+Date:   Mon, 21 Feb 2022 09:47:23 +0100
+Message-Id: <20220221084931.272531006@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muhammad Usama Anjum <usama.anjum@collabora.com>
+From: John David Anglin <dave.anglin@bell.net>
 
-commit 0316dbb9a017d3231f86e0188376f067ec26a59c upstream.
+commit d7da660cab47183cded65e11b64497d0f56c6edf upstream.
 
-There is no vmx_pi_mmio_test file. Remove it to get rid of error while
-creation of selftest archive:
+This patch implements the same bug fix to ccio-dma.c as to sba_iommu.c.
+It ensures that only the allocated entries of the sglist are accessed.
 
-rsync: [sender] link_stat "/kselftest/kvm/x86_64/vmx_pi_mmio_test" failed: No such file or directory (2)
-rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1333) [sender=3.2.3]
-
-Fixes: 6a58150859fd ("selftest: KVM: Add intra host migration tests")
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Message-Id: <20220210172352.1317554-1-usama.anjum@collabora.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/kvm/Makefile |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/parisc/ccio-dma.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/kvm/Makefile
-+++ b/tools/testing/selftests/kvm/Makefile
-@@ -75,7 +75,6 @@ TEST_GEN_PROGS_x86_64 += x86_64/tsc_msrs
- TEST_GEN_PROGS_x86_64 += x86_64/vmx_pmu_msrs_test
- TEST_GEN_PROGS_x86_64 += x86_64/xen_shinfo_test
- TEST_GEN_PROGS_x86_64 += x86_64/xen_vmcall_test
--TEST_GEN_PROGS_x86_64 += x86_64/vmx_pi_mmio_test
- TEST_GEN_PROGS_x86_64 += x86_64/sev_migrate_tests
- TEST_GEN_PROGS_x86_64 += access_tracking_perf_test
- TEST_GEN_PROGS_x86_64 += demand_paging_test
+--- a/drivers/parisc/ccio-dma.c
++++ b/drivers/parisc/ccio-dma.c
+@@ -1003,7 +1003,7 @@ ccio_unmap_sg(struct device *dev, struct
+ 	ioc->usg_calls++;
+ #endif
+ 
+-	while(sg_dma_len(sglist) && nents--) {
++	while (nents && sg_dma_len(sglist)) {
+ 
+ #ifdef CCIO_COLLECT_STATS
+ 		ioc->usg_pages += sg_dma_len(sglist) >> PAGE_SHIFT;
+@@ -1011,6 +1011,7 @@ ccio_unmap_sg(struct device *dev, struct
+ 		ccio_unmap_page(dev, sg_dma_address(sglist),
+ 				  sg_dma_len(sglist), direction, 0);
+ 		++sglist;
++		nents--;
+ 	}
+ 
+ 	DBG_RUN_SG("%s() DONE (nents %d)\n", __func__, nents);
 
 
