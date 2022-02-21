@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBB4E4BDB96
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:40:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 304114BE996
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:07:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350627AbiBUJlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:41:21 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48764 "EHLO
+        id S1348915AbiBUJXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:23:18 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350847AbiBUJkM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:40:12 -0500
+        with ESMTP id S1348920AbiBUJUz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:20:55 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56B7B3C4AD;
-        Mon, 21 Feb 2022 01:17:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E7334661;
+        Mon, 21 Feb 2022 01:07:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 955E5CE0E95;
-        Mon, 21 Feb 2022 09:17:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B454C340E9;
-        Mon, 21 Feb 2022 09:17:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DF88FCE0E88;
+        Mon, 21 Feb 2022 09:07:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D391CC340E9;
+        Mon, 21 Feb 2022 09:07:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435030;
-        bh=4Lw5sX1tifu8IyOSlRMu1EukX6y0YMtLS+3/GtEkHug=;
+        s=korg; t=1645434460;
+        bh=HKrIBi5m5CFXzZ+6/xBVUfB/8hJp8GunVilEDIKwwTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aI9KmIzaChUaaYg/bwprM6RiqXF0RdXg2o6hcL1qp6Ep8wYXLUWvRv7ByxCxz+//e
-         N/HKxSikpBkD5sPfUcmTnsbjygXXaoif2tTlTsCIfyWRwHz0WZbhmOKONFdut8dsP+
-         dGLfAlh1u4kMaIW0HfrJQhjM1ltCRwSCDlMHyJYQ=
+        b=JEIebeZA7vLIgvYaZibUDWnjiNGWBmsC+l7xGj2YSYGPBWfuhjjID/0zTaoPSre0d
+         Fi8+LKMWWXMrTI4WF502K2u1SQnG+TKC8QdM72MbR/583abZywebsy/6MoQyolJFBG
+         xSRhSW3NR6xjNW8GAwJpoMZHOoO0OpfPXb34dbjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.16 020/227] HID: amd_sfh: Add illuminance mask to limit ALS max value
-Date:   Mon, 21 Feb 2022 09:47:19 +0100
-Message-Id: <20220221084935.512948346@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
+        linux-serial@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.15 008/196] serial: parisc: GSC: fix build when IOSAPIC is not set
+Date:   Mon, 21 Feb 2022 09:47:20 +0100
+Message-Id: <20220221084931.173905801@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +57,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 91aaea527bc3b707c5d3208cde035421ed54f79c upstream.
+commit 6e8793674bb0d1135ca0e5c9f7e16fecbf815926 upstream.
 
-ALS illuminance value present only in first 15 bits from SFH firmware
-for V2 platforms. Hence added a mask of 15 bit to limit ALS max
-illuminance values to get correct illuminance value.
+There is a build error when using a kernel .config file from
+'kernel test robot' for a different build problem:
 
-Fixes: 0aad9c95eb9a ("HID: amd_sfh: Extend ALS support for newer AMD platform")
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+hppa64-linux-ld: drivers/tty/serial/8250/8250_gsc.o: in function `.LC3':
+(.data.rel.ro+0x18): undefined reference to `iosapic_serial_irq'
+
+when:
+  CONFIG_GSC=y
+  CONFIG_SERIO_GSCPS2=y
+  CONFIG_SERIAL_8250_GSC=y
+  CONFIG_PCI is not set
+    and hence PCI_LBA is not set.
+  IOSAPIC depends on PCI_LBA, so IOSAPIC is not set/enabled.
+
+Make the use of iosapic_serial_irq() conditional to fix the build error.
+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: linux-parisc@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-serial@vger.kernel.org
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Cc: Johan Hovold <johan@kernel.org>
+Suggested-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_gsc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
-+++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
-@@ -27,6 +27,7 @@
- #define HID_USAGE_SENSOR_STATE_READY_ENUM                             0x02
- #define HID_USAGE_SENSOR_STATE_INITIALIZING_ENUM                      0x05
- #define HID_USAGE_SENSOR_EVENT_DATA_UPDATED_ENUM                      0x04
-+#define ILLUMINANCE_MASK					GENMASK(14, 0)
+--- a/drivers/tty/serial/8250/8250_gsc.c
++++ b/drivers/tty/serial/8250/8250_gsc.c
+@@ -26,7 +26,7 @@ static int __init serial_init_chip(struc
+ 	unsigned long address;
+ 	int err;
  
- int get_report_descriptor(int sensor_idx, u8 *rep_desc)
- {
-@@ -246,7 +247,8 @@ u8 get_input_report(u8 current_index, in
- 		get_common_inputs(&als_input.common_property, report_id);
- 		/* For ALS ,V2 Platforms uses C2P_MSG5 register instead of DRAM access method */
- 		if (supported_input == V2_STATUS)
--			als_input.illuminance_value = (int)readl(privdata->mmio + AMD_C2P_MSG(5));
-+			als_input.illuminance_value =
-+				readl(privdata->mmio + AMD_C2P_MSG(5)) & ILLUMINANCE_MASK;
- 		else
- 			als_input.illuminance_value =
- 				(int)sensor_virt_addr[0] / AMD_SFH_FW_MULTIPLIER;
+-#ifdef CONFIG_64BIT
++#if defined(CONFIG_64BIT) && defined(CONFIG_IOSAPIC)
+ 	if (!dev->irq && (dev->id.sversion == 0xad))
+ 		dev->irq = iosapic_serial_irq(dev);
+ #endif
 
 
