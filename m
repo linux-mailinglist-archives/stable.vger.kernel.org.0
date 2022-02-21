@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C43A4BDF23
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:49:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E6374BDB89
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:40:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345110AbiBUIwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:52:08 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41880 "EHLO
+        id S235172AbiBUJiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:38:18 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345120AbiBUIv6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:51:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E770F31F;
-        Mon, 21 Feb 2022 00:51:34 -0800 (PST)
+        with ESMTP id S1350790AbiBUJfy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:35:54 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50DE02BB1E;
+        Mon, 21 Feb 2022 01:14:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84BE961152;
-        Mon, 21 Feb 2022 08:51:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63AFDC340F1;
-        Mon, 21 Feb 2022 08:51:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4A3FCCE0E76;
+        Mon, 21 Feb 2022 09:14:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F36EC340E9;
+        Mon, 21 Feb 2022 09:14:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433494;
-        bh=CRLmCcLcaUSSFZGN2e4RrOg8+cXiq/qFlo1AsvRapV0=;
+        s=korg; t=1645434851;
+        bh=n1f98Y30u1MRoTvXq5oADRdUKbZtJKh6KWD/vuLlgzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I6ZfyN1xonOJ9XzpGSk8C/ha6uVwJoko3aXC12ZjS//3CHBfSxM0+GfG7yT9IWeZv
-         d4sxypIijQmfWEMTc+DmhXIauieugb+/4CNRTHOdI0kT5tMGoWWcoKCU0ryWXS2wT/
-         nFM1yhmoWFviva74gGE9hcTozoj44nI/CLXf86WE=
+        b=iuMMx18d59/3xmBIivhvlkVxg3/WVlIc20dZ6ug5WGyhQBauvuqtSzsl3w8bG8gm+
+         0r6IIvNBcPCFZGLnS61KgTMOG4C/d2C9BJs13yit623FN3JgxcZ84jHwhTsSdFYHPG
+         ayL6ehvAAe8KszhMZBTmVtun6hCW6GfNkKoAihIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 4.9 19/33] iwlwifi: pcie: fix locking when "HW not ready"
-Date:   Mon, 21 Feb 2022 09:49:12 +0100
-Message-Id: <20220221084909.397277489@linuxfoundation.org>
+        stable@vger.kernel.org, Maxime Bizon <mbizon@freebox.fr>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.15 121/196] powerpc/603: Fix boot failure with DEBUG_PAGEALLOC and KFENCE
+Date:   Mon, 21 Feb 2022 09:49:13 +0100
+Message-Id: <20220221084934.988246553@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
-References: <20220221084908.568970525@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit e9848aed147708a06193b40d78493b0ef6abccf2 upstream.
+commit 9bb162fa26ed76031ed0e7dbc77ccea0bf977758 upstream.
 
-If we run into this error path, we shouldn't unlock the mutex
-since it's not locked since. Fix this.
+Allthough kernel text is always mapped with BATs, we still have
+inittext mapped with pages, so TLB miss handling is required
+when CONFIG_DEBUG_PAGEALLOC or CONFIG_KFENCE is set.
 
-Fixes: a6bd005fe92d ("iwlwifi: pcie: fix RF-Kill vs. firmware load race")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/iwlwifi.20220128142706.5d16821d1433.Id259699ddf9806459856d6aefbdbe54477aecffd@changeid
+The final solution should be to set a BAT that also maps inittext
+but that BAT then needs to be cleared at end of init, and it will
+require more changes to be able to do it properly.
+
+As DEBUG_PAGEALLOC or KFENCE are debugging, performance is not a big
+deal so let's fix it simply for now to enable easy stable application.
+
+Fixes: 035b19a15a98 ("powerpc/32s: Always map kernel text and rodata with BATs")
+Cc: stable@vger.kernel.org # v5.11+
+Reported-by: Maxime Bizon <mbizon@freebox.fr>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/aea33b4813a26bdb9378b5f273f00bd5d4abe240.1638857364.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/trans.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/powerpc/kernel/head_book3s_32.S |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-@@ -1183,8 +1183,7 @@ static int iwl_trans_pcie_start_fw(struc
- 	/* This may fail if AMT took ownership of the device */
- 	if (iwl_pcie_prepare_card_hw(trans)) {
- 		IWL_WARN(trans, "Exit HW not ready\n");
--		ret = -EIO;
--		goto out;
-+		return -EIO;
- 	}
- 
- 	iwl_enable_rfkill_int(trans);
+--- a/arch/powerpc/kernel/head_book3s_32.S
++++ b/arch/powerpc/kernel/head_book3s_32.S
+@@ -421,14 +421,14 @@ InstructionTLBMiss:
+  */
+ 	/* Get PTE (linux-style) and check access */
+ 	mfspr	r3,SPRN_IMISS
+-#ifdef CONFIG_MODULES
++#if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_KFENCE)
+ 	lis	r1, TASK_SIZE@h		/* check if kernel address */
+ 	cmplw	0,r1,r3
+ #endif
+ 	mfspr	r2, SPRN_SDR1
+ 	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC | _PAGE_USER
+ 	rlwinm	r2, r2, 28, 0xfffff000
+-#ifdef CONFIG_MODULES
++#if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_KFENCE)
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+ 	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
 
 
