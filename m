@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6018E4BE7CB
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:04:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75BE04BE7F6
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:04:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347423AbiBUJHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:07:24 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42848 "EHLO
+        id S1349691AbiBUJ2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:28:25 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347432AbiBUJGZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:06:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A2231205;
-        Mon, 21 Feb 2022 00:59:46 -0800 (PST)
+        with ESMTP id S1348931AbiBUJ1e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:34 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35461657B;
+        Mon, 21 Feb 2022 01:12:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8E01B80EA1;
-        Mon, 21 Feb 2022 08:59:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A583C340E9;
-        Mon, 21 Feb 2022 08:59:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A5FB7CE0E88;
+        Mon, 21 Feb 2022 09:12:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80B13C340E9;
+        Mon, 21 Feb 2022 09:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433984;
-        bh=xbseft0bFThlkg8lFzuN/SR2wFUAQLzKHqgJRlH3A6E=;
+        s=korg; t=1645434724;
+        bh=08eY0msXADLduerMwecp2drQdDRqyeIrBiLp/rfWPzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zrCcEp3rLBjL+P3IL8biltaDjTd1Gs7Ix/sZnvKug1x2SXJuvaw2pmHVUjHevccKl
-         H0nji1Zyir1OzVviLbyvWUHz5HvNokBPj790bFG1O61hmuRcF+RnQ8uiIJeg4hLFCo
-         pz2MLQSBSxO0jmj8n1oQWonE0kOqsdmTXAMP3SA8=
+        b=ia6VvZcy3V/v2AY31FRlV2fIS0FTzLT1cz2Pm7WweTw4Xm8Oao+Rank+xGIt0wCRc
+         SSY9Yj7/XV8F+gfFEE5xYri0BctuukJ8oB6/8UYNPgFZ333lRYcQlEwXiyXNSUF045
+         BKAIXKb+XKyiu54+Mf0MegDMpYYYIbbOFPfZLodc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 20/80] nvme-rdma: fix possible use-after-free in transport error_recovery work
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.15 108/196] perf bpf: Defer freeing string after possible strlen() on it
 Date:   Mon, 21 Feb 2022 09:49:00 +0100
-Message-Id: <20220221084916.247334386@linuxfoundation.org>
+Message-Id: <20220221084934.551769405@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit b6bb1722f34bbdbabed27acdceaf585d300c5fd2 ]
+commit 31ded1535e3182778a1d0e5c32711f55da3bc512 upstream.
 
-While nvme_rdma_submit_async_event_work is checking the ctrl and queue
-state before preparing the AER command and scheduling io_work, in order
-to fully prevent a race where this check is not reliable the error
-recovery work must flush async_event_work before continuing to destroy
-the admin queue after setting the ctrl state to RESETTING such that
-there is no race .submit_async_event and the error recovery handler
-itself changing the ctrl state.
+This was detected by the gcc in Fedora Rawhide's gcc:
 
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  50    11.01 fedora:rawhide                : FAIL gcc version 12.0.1 20220205 (Red Hat 12.0.1-0) (GCC)
+        inlined from 'bpf__config_obj' at util/bpf-loader.c:1242:9:
+    util/bpf-loader.c:1225:34: error: pointer 'map_opt' may be used after 'free' [-Werror=use-after-free]
+     1225 |                 *key_scan_pos += strlen(map_opt);
+          |                                  ^~~~~~~~~~~~~~~
+    util/bpf-loader.c:1223:9: note: call to 'free' here
+     1223 |         free(map_name);
+          |         ^~~~~~~~~~~~~~
+    cc1: all warnings being treated as errors
+
+So do the calculations on the pointer before freeing it.
+
+Fixes: 04f9bf2bac72480c ("perf bpf-loader: Add missing '*' for key_scan_pos")
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Link: https://lore.kernel.org/lkml/Yg1VtQxKrPpS3uNA@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/rdma.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/util/bpf-loader.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index 08a23bb4b8b57..4213c71b02a4b 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -1110,6 +1110,7 @@ static void nvme_rdma_error_recovery_work(struct work_struct *work)
- 			struct nvme_rdma_ctrl, err_work);
+--- a/tools/perf/util/bpf-loader.c
++++ b/tools/perf/util/bpf-loader.c
+@@ -1214,9 +1214,10 @@ bpf__obj_config_map(struct bpf_object *o
+ 	pr_debug("ERROR: Invalid map config option '%s'\n", map_opt);
+ 	err = -BPF_LOADER_ERRNO__OBJCONF_MAP_OPT;
+ out:
+-	free(map_name);
+ 	if (!err)
+ 		*key_scan_pos += strlen(map_opt);
++
++	free(map_name);
+ 	return err;
+ }
  
- 	nvme_stop_keep_alive(&ctrl->ctrl);
-+	flush_work(&ctrl->ctrl.async_event_work);
- 	nvme_rdma_teardown_io_queues(ctrl, false);
- 	nvme_start_queues(&ctrl->ctrl);
- 	nvme_rdma_teardown_admin_queue(ctrl, false);
--- 
-2.34.1
-
 
 
