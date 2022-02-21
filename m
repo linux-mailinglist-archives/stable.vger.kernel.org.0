@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3AA24BDF88
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:50:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2F14BE708
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347054AbiBUJEK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:04:10 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:32960 "EHLO
+        id S1349400AbiBUJ1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:27:42 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348487AbiBUJCy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:02:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CDC12C678;
-        Mon, 21 Feb 2022 00:58:14 -0800 (PST)
+        with ESMTP id S1350037AbiBUJ1H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F2F522509;
+        Mon, 21 Feb 2022 01:11:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB84B6112B;
-        Mon, 21 Feb 2022 08:57:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3071C340E9;
-        Mon, 21 Feb 2022 08:57:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B7F0608C1;
+        Mon, 21 Feb 2022 09:11:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3EA9C340E9;
+        Mon, 21 Feb 2022 09:11:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433876;
-        bh=jth1zaFSPBq8shktgRO3aI+1QIAjT7qWetuzUubsnf0=;
+        s=korg; t=1645434679;
+        bh=ayzhbvHTxFCtndecG3ypBvvwBNMj+DuyAJR3DFc4phw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B/0X5lvriF0seuspW9Y2Bd1sQDvHcWFu4j4ifQjkZMoMo/dVN9Fbe5DZdVMGcUidc
-         V4GYtAlQHk8j3KA27QRsq9OSHku8izXdVmjGc1FXhw0USBuTu0nfqkgHPd10T+WnF+
-         nFzd0iXpAz4AIuX7r3gVOFqLP1Rqa1gaFtAHXKRY=
+        b=yqtKOcrGJFPkp9TJ9m7cmMcKkgfV3jxtHQAAqKOo7U9H7fhTThTY9X6X/0HV/uiMT
+         6qTgPAZOgr0dIQYbpPSc3L4WyWZksOmb9FXCCv0oZBl7bj2cpQ3+AYt938czoLtPJF
+         qzHSUa+CT//cXXFnHTRy087B3gBrLu3b2E5HSShU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 05/80] parisc: Drop __init from map_pages declaration
+        stable@vger.kernel.org, Mans Rullgard <mans@mansr.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 093/196] net: dsa: lan9303: add VLAN IDs to master device
 Date:   Mon, 21 Feb 2022 09:48:45 +0100
-Message-Id: <20220221084915.762531012@linuxfoundation.org>
+Message-Id: <20220221084934.056130208@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Mans Rullgard <mans@mansr.com>
 
-commit 9129886b88185962538180625ca8051362b01327 upstream.
+commit 430065e2671905ac675f97b7af240cc255964e93 upstream.
 
-With huge kernel pages, we randomly eat a SPARC in map_pages(). This
-is fixed by dropping __init from the declaration.
+If the master device does VLAN filtering, the IDs used by the switch
+must be added for any frames to be received.  Do this in the
+port_enable() function, and remove them in port_disable().
 
-However, map_pages references the __init routine memblock_alloc_try_nid
-via memblock_alloc.  Thus, it needs to be marked with __ref.
-
-memblock_alloc is only called before the kernel text is set to readonly.
-
-The __ref on free_initmem is no longer needed.
-
-Comment regarding map_pages being in the init section is removed.
-
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: a1292595e006 ("net: dsa: add new DSA switch driver for the SMSC-LAN9303")
+Signed-off-by: Mans Rullgard <mans@mansr.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20220216204818.28746-1-mans@mansr.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/mm/init.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/dsa/Kconfig        |    1 +
+ drivers/net/dsa/lan9303-core.c |   11 +++++++++--
+ 2 files changed, 10 insertions(+), 2 deletions(-)
 
---- a/arch/parisc/mm/init.c
-+++ b/arch/parisc/mm/init.c
-@@ -347,9 +347,9 @@ static void __init setup_bootmem(void)
+--- a/drivers/net/dsa/Kconfig
++++ b/drivers/net/dsa/Kconfig
+@@ -81,6 +81,7 @@ config NET_DSA_REALTEK_SMI
  
- static bool kernel_set_to_readonly;
+ config NET_DSA_SMSC_LAN9303
+ 	tristate
++	depends on VLAN_8021Q || VLAN_8021Q=n
+ 	select NET_DSA_TAG_LAN9303
+ 	select REGMAP
+ 	help
+--- a/drivers/net/dsa/lan9303-core.c
++++ b/drivers/net/dsa/lan9303-core.c
+@@ -10,6 +10,7 @@
+ #include <linux/mii.h>
+ #include <linux/phy.h>
+ #include <linux/if_bridge.h>
++#include <linux/if_vlan.h>
+ #include <linux/etherdevice.h>
  
--static void __init map_pages(unsigned long start_vaddr,
--			     unsigned long start_paddr, unsigned long size,
--			     pgprot_t pgprot, int force)
-+static void __ref map_pages(unsigned long start_vaddr,
-+			    unsigned long start_paddr, unsigned long size,
-+			    pgprot_t pgprot, int force)
+ #include "lan9303.h"
+@@ -1083,21 +1084,27 @@ static void lan9303_adjust_link(struct d
+ static int lan9303_port_enable(struct dsa_switch *ds, int port,
+ 			       struct phy_device *phy)
  {
- 	pgd_t *pg_dir;
- 	pmd_t *pmd;
-@@ -485,7 +485,7 @@ void __init set_kernel_text_rw(int enabl
- 	flush_tlb_all();
++	struct dsa_port *dp = dsa_to_port(ds, port);
+ 	struct lan9303 *chip = ds->priv;
+ 
+-	if (!dsa_is_user_port(ds, port))
++	if (!dsa_port_is_user(dp))
+ 		return 0;
+ 
++	vlan_vid_add(dp->cpu_dp->master, htons(ETH_P_8021Q), port);
++
+ 	return lan9303_enable_processing_port(chip, port);
  }
  
--void __ref free_initmem(void)
-+void free_initmem(void)
+ static void lan9303_port_disable(struct dsa_switch *ds, int port)
  {
- 	unsigned long init_begin = (unsigned long)__init_begin;
- 	unsigned long init_end = (unsigned long)__init_end;
-@@ -499,7 +499,6 @@ void __ref free_initmem(void)
- 	/* The init text pages are marked R-X.  We have to
- 	 * flush the icache and mark them RW-
- 	 *
--	 * This is tricky, because map_pages is in the init section.
- 	 * Do a dummy remap of the data section first (the data
- 	 * section is already PAGE_KERNEL) to pull in the TLB entries
- 	 * for map_kernel */
++	struct dsa_port *dp = dsa_to_port(ds, port);
+ 	struct lan9303 *chip = ds->priv;
+ 
+-	if (!dsa_is_user_port(ds, port))
++	if (!dsa_port_is_user(dp))
+ 		return;
+ 
++	vlan_vid_del(dp->cpu_dp->master, htons(ETH_P_8021Q), port);
++
+ 	lan9303_disable_processing_port(chip, port);
+ 	lan9303_phy_write(ds, chip->phy_addr_base + port, MII_BMCR, BMCR_PDOWN);
+ }
 
 
