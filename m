@@ -2,59 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01D3C4BED3A
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 23:31:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92A964BED4E
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 23:40:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235514AbiBUWbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 17:31:42 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54582 "EHLO
+        id S235703AbiBUWkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 17:40:24 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230030AbiBUWbl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 17:31:41 -0500
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5EFE240AF
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 14:31:16 -0800 (PST)
-Received: by mail-lf1-x133.google.com with SMTP id j15so21141529lfe.11
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 14:31:16 -0800 (PST)
+        with ESMTP id S231206AbiBUWkW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 17:40:22 -0500
+Received: from mail-lj1-x22e.google.com (mail-lj1-x22e.google.com [IPv6:2a00:1450:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51999240BE
+        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 14:39:58 -0800 (PST)
+Received: by mail-lj1-x22e.google.com with SMTP id bn33so16692541ljb.6
+        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 14:39:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=t4FKpmfawksEhm+jzkPiql5/S562rLPjx4bLrRwHlmY=;
-        b=dTJ5eemI939UULzMGZ9P82AVIfuIfSQTLZjswpQrt1gMfpxLJxLOJrXRzg9f/LOHUz
-         60ocXh1B9+1gQs5D3w7tGr401y3RA4T9OfhMYBlym5IlihXgVd4u8IpuAL6W9eufHp7K
-         hdMSoUD168wZcwOXChaYGJh9UUmuVLW7Rg4ya5l/FiWL6r87RduACGYY8s5i3Qu1OFcX
-         2F0vrT2Qpc6Oo9EmCS7kU45bmA7+FcGyI+zWtfUD1351Q6uRo70mmKL2ftz6cKaNpUMm
-         JvE07qY3vmD4K7LMbzzVUCRWwmoExFsxdNSHcj9xPRuLxJm7Ut0g3tBQrajkFI0Nl1GQ
-         sEuA==
+        bh=EvxSzPgUawvqyT3B9i8z5b23xFX8vnyeQCzV2De0VoA=;
+        b=bQ50SB9vc/pTHEVINdyHV26MtZZs7bD5rRM7biP7u1L3WyNa0klkzsAPSk9Yp/H66q
+         st7SWohSdRCpz74GzZ273N/b02DvrungbvTLrMXp8KGnLZnlKHP3AJk4UVtaoATPXSUN
+         VYaVgd8orz9ojyC5FF/gTWx0r92z1F+5WHF5ldfMyNPF/oHLT75Ap46GrSOaGTjR0atr
+         ZdPF5x8LQg6gKsNp4M4V5OXeRGLe42avZFJxQhin4wuhDKDGSsFztQa9i6cfRkZSN//e
+         QyBvNU+AR9F2j5N1LlfN3zNc3KnX8827VV25PVMfvgfb5zDHPZl2As70JuDS0fQbU3qn
+         RUkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=t4FKpmfawksEhm+jzkPiql5/S562rLPjx4bLrRwHlmY=;
-        b=XXMbFodxRE9+gc906CE0yGVQLpoJS98o+BIcl7GY/8kcarRVJll3cSWejUsXPP605U
-         ydvyWuAkEAK5+7oDDLZAQfsdpTmqSEC9294Xjoi9s4CPzPbLmcAsQ950lKupwg+9PnUU
-         0xt4T0olWelWElg+nD+9o+G9rmLGwOHH4zGhtG1nyX95yan+qeVmfEvQwiII7mukpUym
-         lqDC7lxGbKdJxwwZRSUMT1ZeMf+l8nD1g+7+yRdIS9/UPpeq9ThRHvvANH9w08E4ES6m
-         yBnku1SgRHpat4CWy4V9zD638QwDsRUcQSHyH8dgg5ZZ6aDGcoPtdNw86KRWQiyNz4D1
-         IRAQ==
-X-Gm-Message-State: AOAM531ZrXMa9Dle0vAqc/fVTU4CvwGX3oHqvZ0yLKs1ssK0G0BFAIMr
-        S/jPqifAa3s/vBkH2Qtiv99vrbk27G94vw==
-X-Google-Smtp-Source: ABdhPJybSu2FH43X3vgVTApqMwT0M4qk75tna3EyTGjIPCgMtOryqt6Lq890reMobWmKhun21i5ZQg==
-X-Received: by 2002:a05:6512:2294:b0:442:7e24:9628 with SMTP id f20-20020a056512229400b004427e249628mr15042307lfu.357.1645482674763;
-        Mon, 21 Feb 2022 14:31:14 -0800 (PST)
+        bh=EvxSzPgUawvqyT3B9i8z5b23xFX8vnyeQCzV2De0VoA=;
+        b=T1lRMfiDYSwCeHpFLCa7hITSsl+P87k/qSRfQXISLtnLxdU1k29AbJJUEjXfxEiUuM
+         BLIaxVS0nXVJf+H36j/lOF9v/e2ghyt0mruAw/BP4ZLlwEclctSX3eGAlPvKv50essHc
+         5bln7FifFF4fQfx9VKF/JuWWGpvMZQrzpLghTkUHwgsGFE+cqOqNsohwdOOUpDBV9buj
+         ZdXwwZu+4iDFxcIhemC46fx5wnm+oDV7F8dTx5SurFo/DHmr+YYJcJxU4O34H1dseZYP
+         RU5x8bGwj6myrDJMk+G4y+wdh25ss9OqrV7d4xYoa6M8+ypAgNPnZmNQGenMGnLkWm1d
+         X2AA==
+X-Gm-Message-State: AOAM530tcupG/hOxZLePwlaFqA8bxU2sLZ8LV9KYTNoj+UPk965IHRqX
+        CoBUT3bsT4MFUv2qUi5/ZwkLbPUAM94cZg==
+X-Google-Smtp-Source: ABdhPJysFtuwDL4rksC+ZYESJwi0vO5CDk4obGED0KSPTknn1cD7QMK+TKG6mI5795uLRDx4OJZi5A==
+X-Received: by 2002:a2e:b0fa:0:b0:246:291a:5232 with SMTP id h26-20020a2eb0fa000000b00246291a5232mr11818669ljl.317.1645483196288;
+        Mon, 21 Feb 2022 14:39:56 -0800 (PST)
 Received: from localhost.localdomain (ua-84-216-128-36.bbcust.telenor.se. [84.216.128.36])
-        by smtp.gmail.com with ESMTPSA id a9sm1215495lfb.191.2022.02.21.14.31.13
+        by smtp.gmail.com with ESMTPSA id k14sm1492400ljh.82.2022.02.21.14.39.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Feb 2022 14:31:14 -0800 (PST)
+        Mon, 21 Feb 2022 14:39:55 -0800 (PST)
 From:   Jens Wiklander <jens.wiklander@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Sumit Garg <sumit.garg@linaro.org>,
         Jens Wiklander <jens.wiklander@linaro.org>,
         Lars Persson <larper@axis.com>
-Subject: [PATCH backport 5.15 v2] optee: use driver internal tee_context for some rpc
-Date:   Mon, 21 Feb 2022 23:31:05 +0100
-Message-Id: <20220221223105.1423455-1-jens.wiklander@linaro.org>
+Subject: [PATCH backport 5.10 v2] optee: use driver internal tee_context for some rpc
+Date:   Mon, 21 Feb 2022 23:39:45 +0100
+Message-Id: <20220221223945.1482216-1-jens.wiklander@linaro.org>
 X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -94,7 +94,7 @@ Reported-by: Lars Persson <larper@axis.com>
 Cc: stable@vger.kernel.org # 1e2c3ef0496e tee: export teedev_open() and teedev_close_context()
 Cc: stable@vger.kernel.org
 Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-[JW: backport to 5.15-stable + update commit message]
+[JW: backport to 5.10-stable + update commit message]
 Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 ---
 Hi,
@@ -114,7 +114,7 @@ Jens
  3 files changed, 15 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/tee/optee/core.c b/drivers/tee/optee/core.c
-index 5363ebebfc35..50c0d839fe75 100644
+index f255a96ae5a4..6ea80add7378 100644
 --- a/drivers/tee/optee/core.c
 +++ b/drivers/tee/optee/core.c
 @@ -588,6 +588,7 @@ static int optee_remove(struct platform_device *pdev)
@@ -167,10 +167,10 @@ index f6bb4a763ba9..ea09533e30cd 100644
  	struct optee_wait_queue wait_queue;
  	struct optee_supp supp;
 diff --git a/drivers/tee/optee/rpc.c b/drivers/tee/optee/rpc.c
-index efbaff7ad7e5..456833d82007 100644
+index 9dbdd783d6f2..f1e0332b0f6e 100644
 --- a/drivers/tee/optee/rpc.c
 +++ b/drivers/tee/optee/rpc.c
-@@ -285,6 +285,7 @@ static struct tee_shm *cmd_alloc_suppl(struct tee_context *ctx, size_t sz)
+@@ -284,6 +284,7 @@ static struct tee_shm *cmd_alloc_suppl(struct tee_context *ctx, size_t sz)
  }
  
  static void handle_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
@@ -178,26 +178,26 @@ index efbaff7ad7e5..456833d82007 100644
  					  struct optee_msg_arg *arg,
  					  struct optee_call_ctx *call_ctx)
  {
-@@ -314,7 +315,8 @@ static void handle_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
+@@ -313,7 +314,8 @@ static void handle_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
  		shm = cmd_alloc_suppl(ctx, sz);
  		break;
- 	case OPTEE_RPC_SHM_TYPE_KERNEL:
+ 	case OPTEE_MSG_RPC_SHM_TYPE_KERNEL:
 -		shm = tee_shm_alloc(ctx, sz, TEE_SHM_MAPPED | TEE_SHM_PRIV);
 +		shm = tee_shm_alloc(optee->ctx, sz,
 +				    TEE_SHM_MAPPED | TEE_SHM_PRIV);
  		break;
  	default:
  		arg->ret = TEEC_ERROR_BAD_PARAMETERS;
-@@ -471,7 +473,7 @@ static void handle_rpc_func_cmd(struct tee_context *ctx, struct optee *optee,
+@@ -470,7 +472,7 @@ static void handle_rpc_func_cmd(struct tee_context *ctx, struct optee *optee,
  		break;
- 	case OPTEE_RPC_CMD_SHM_ALLOC:
+ 	case OPTEE_MSG_RPC_CMD_SHM_ALLOC:
  		free_pages_list(call_ctx);
 -		handle_rpc_func_cmd_shm_alloc(ctx, arg, call_ctx);
 +		handle_rpc_func_cmd_shm_alloc(ctx, optee, arg, call_ctx);
  		break;
- 	case OPTEE_RPC_CMD_SHM_FREE:
+ 	case OPTEE_MSG_RPC_CMD_SHM_FREE:
  		handle_rpc_func_cmd_shm_free(ctx, arg);
-@@ -502,7 +504,7 @@ void optee_handle_rpc(struct tee_context *ctx, struct optee_rpc_param *param,
+@@ -501,7 +503,7 @@ void optee_handle_rpc(struct tee_context *ctx, struct optee_rpc_param *param,
  
  	switch (OPTEE_SMC_RETURN_GET_RPC_FUNC(param->a0)) {
  	case OPTEE_SMC_RPC_FUNC_ALLOC:
