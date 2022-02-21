@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A7994BDD13
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:43:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87C454BE503
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:59:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346046AbiBUIy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:54:56 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44272 "EHLO
+        id S1345092AbiBUIv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:51:59 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345991AbiBUIy2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:54:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAB5523BC2;
-        Mon, 21 Feb 2022 00:53:09 -0800 (PST)
+        with ESMTP id S1345095AbiBUIvy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:51:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC34F132;
+        Mon, 21 Feb 2022 00:51:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 624CEB80EA5;
-        Mon, 21 Feb 2022 08:53:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6BE0C340EB;
-        Mon, 21 Feb 2022 08:53:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9087BB80EAA;
+        Mon, 21 Feb 2022 08:51:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B958AC340F5;
+        Mon, 21 Feb 2022 08:51:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433587;
-        bh=Jx8LAhV6OIpIdGMzBxuqr8O6xckWBkwl6Prj0jsGmvw=;
+        s=korg; t=1645433488;
+        bh=cPrAsdAmXvt/iJsjtbMVLHpcB1qHV3cAWgflQkk1CR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zix+Hcz6bfu4TJAxmkklnmJtK2ugCbhf0X7FvOeoV1Ku89mBd8STHotSzMLlke6ek
-         gL4afMWWZUWqo30UKPoE2wVHSYObOjyP6ymPAU6ODsa5b0c8ygGNRNxqCUE2mN4pJd
-         89YHl0Ah7K7fcYqDlFbPKM8iQQP9l0Tg2B5UK8WA=
+        b=cEVZLHsqTM86nKz1ssd5Ts/+LjuChARkPQXxC6yBP4fKB15EoOKH+FcXgeZptgqI3
+         ewKpW+0kIMngIOMbxscthmtRi4q/8SvbtFVbO1yo2w+raRCnwNOrmUsCSRHED9EgGA
+         SiT4poFu/Vdoo1cygwk+kV9B5Ng0agWhMR1CXCqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Balbir Singh <bsingharora@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 18/45] taskstats: Cleanup the use of task->exit_code
-Date:   Mon, 21 Feb 2022 09:49:09 +0100
-Message-Id: <20220221084911.052411167@linuxfoundation.org>
+        stable@vger.kernel.org, Sunil Muthuswamy <sunilmut@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 17/33] vsock: correct removal of socket from the list
+Date:   Mon, 21 Feb 2022 09:49:10 +0100
+Message-Id: <20220221084909.334642970@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
+References: <20220221084908.568970525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,61 +53,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+From: Sunil Muthuswamy <sunilmut@microsoft.com>
 
-commit 1b5a42d9c85f0e731f01c8d1129001fd8531a8a0 upstream.
+commit d5afa82c977ea06f7119058fa0eb8519ea501031 upstream.
 
-In the function bacct_add_task the code reading task->exit_code was
-introduced in commit f3cef7a99469 ("[PATCH] csa: basic accounting over
-taskstats"), and it is not entirely clear what the taskstats interface
-is trying to return as only returning the exit_code of the first task
-in a process doesn't make a lot of sense.
+The current vsock code for removal of socket from the list is both
+subject to race and inefficient. It takes the lock, checks whether
+the socket is in the list, drops the lock and if the socket was on the
+list, deletes it from the list. This is subject to race because as soon
+as the lock is dropped once it is checked for presence, that condition
+cannot be relied upon for any decision. It is also inefficient because
+if the socket is present in the list, it takes the lock twice.
 
-As best as I can figure the intent is to return task->exit_code after
-a task exits.  The field is returned with per task fields, so the
-exit_code of the entire process is not wanted.  Only the value of the
-first task is returned so this is not a useful way to get the per task
-ptrace stop code.  The ordinary case of returning this value is
-returning after a task exits, which also precludes use for getting
-a ptrace value.
-
-It is common to for the first task of a process to also be the last
-task of a process so this field may have done something reasonable by
-accident in testing.
-
-Make ac_exitcode a reliable per task value by always returning it for
-every exited task.
-
-Setting ac_exitcode in a sensible mannter makes it possible to continue
-to provide this value going forward.
-
-Cc: Balbir Singh <bsingharora@gmail.com>
-Fixes: f3cef7a99469 ("[PATCH] csa: basic accounting over taskstats")
-Link: https://lkml.kernel.org/r/20220103213312.9144-5-ebiederm@xmission.com
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/tsacct.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ net/vmw_vsock/af_vsock.c |   38 +++++++-------------------------------
+ 1 file changed, 7 insertions(+), 31 deletions(-)
 
---- a/kernel/tsacct.c
-+++ b/kernel/tsacct.c
-@@ -46,11 +46,10 @@ void bacct_add_tsk(struct user_namespace
- 	/* Convert to seconds for btime */
- 	do_div(delta, USEC_PER_SEC);
- 	stats->ac_btime = get_seconds() - delta;
--	if (thread_group_leader(tsk)) {
-+	if (tsk->flags & PF_EXITING)
- 		stats->ac_exitcode = tsk->exit_code;
--		if (tsk->flags & PF_FORKNOEXEC)
--			stats->ac_flag |= AFORK;
--	}
-+	if (thread_group_leader(tsk) && (tsk->flags & PF_FORKNOEXEC))
-+		stats->ac_flag |= AFORK;
- 	if (tsk->flags & PF_SUPERPRIV)
- 		stats->ac_flag |= ASU;
- 	if (tsk->flags & PF_DUMPCORE)
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -279,7 +279,8 @@ EXPORT_SYMBOL_GPL(vsock_insert_connected
+ void vsock_remove_bound(struct vsock_sock *vsk)
+ {
+ 	spin_lock_bh(&vsock_table_lock);
+-	__vsock_remove_bound(vsk);
++	if (__vsock_in_bound_table(vsk))
++		__vsock_remove_bound(vsk);
+ 	spin_unlock_bh(&vsock_table_lock);
+ }
+ EXPORT_SYMBOL_GPL(vsock_remove_bound);
+@@ -287,7 +288,8 @@ EXPORT_SYMBOL_GPL(vsock_remove_bound);
+ void vsock_remove_connected(struct vsock_sock *vsk)
+ {
+ 	spin_lock_bh(&vsock_table_lock);
+-	__vsock_remove_connected(vsk);
++	if (__vsock_in_connected_table(vsk))
++		__vsock_remove_connected(vsk);
+ 	spin_unlock_bh(&vsock_table_lock);
+ }
+ EXPORT_SYMBOL_GPL(vsock_remove_connected);
+@@ -323,35 +325,10 @@ struct sock *vsock_find_connected_socket
+ }
+ EXPORT_SYMBOL_GPL(vsock_find_connected_socket);
+ 
+-static bool vsock_in_bound_table(struct vsock_sock *vsk)
+-{
+-	bool ret;
+-
+-	spin_lock_bh(&vsock_table_lock);
+-	ret = __vsock_in_bound_table(vsk);
+-	spin_unlock_bh(&vsock_table_lock);
+-
+-	return ret;
+-}
+-
+-static bool vsock_in_connected_table(struct vsock_sock *vsk)
+-{
+-	bool ret;
+-
+-	spin_lock_bh(&vsock_table_lock);
+-	ret = __vsock_in_connected_table(vsk);
+-	spin_unlock_bh(&vsock_table_lock);
+-
+-	return ret;
+-}
+-
+ void vsock_remove_sock(struct vsock_sock *vsk)
+ {
+-	if (vsock_in_bound_table(vsk))
+-		vsock_remove_bound(vsk);
+-
+-	if (vsock_in_connected_table(vsk))
+-		vsock_remove_connected(vsk);
++	vsock_remove_bound(vsk);
++	vsock_remove_connected(vsk);
+ }
+ EXPORT_SYMBOL_GPL(vsock_remove_sock);
+ 
+@@ -482,8 +459,7 @@ static void vsock_pending_work(struct wo
+ 	 * incoming packets can't find this socket, and to reduce the reference
+ 	 * count.
+ 	 */
+-	if (vsock_in_connected_table(vsk))
+-		vsock_remove_connected(vsk);
++	vsock_remove_connected(vsk);
+ 
+ 	sk->sk_state = SS_FREE;
+ 
 
 
