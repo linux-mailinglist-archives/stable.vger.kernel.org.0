@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 259194BE0B9
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C41C04BDD27
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:45:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343521AbiBUJRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:17:15 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36374 "EHLO
+        id S1346950AbiBUJDk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:03:40 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348007AbiBUJK0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:10:26 -0500
+        with ESMTP id S1348369AbiBUJCm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:02:42 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7BD91DA7E;
-        Mon, 21 Feb 2022 01:02:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6599237D3;
+        Mon, 21 Feb 2022 00:58:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40632B80EAC;
-        Mon, 21 Feb 2022 09:02:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CEFFC340E9;
-        Mon, 21 Feb 2022 09:02:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C78FB80EB7;
+        Mon, 21 Feb 2022 08:58:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CEB2C340EB;
+        Mon, 21 Feb 2022 08:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434160;
-        bh=JNoR1dBtACClSBXxV0FH73AMGx14ZhyytNu9vXoNPt8=;
+        s=korg; t=1645433879;
+        bh=tP5CUsGrhz28rz/+xDcgKWdz9OnlZ9AuyjX1ULukau8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KveYsZEKBg3mz+gpIrTyi8ITRSOOc+VkWeunXHhyRSFfUcNjiDUqO45CQDf2qJqAo
-         fHQrlWljr47tPNKwiu8MZOBlI6u/wei9l8h2FhSVjoQSaAJc7UqE6YIoVLlyDNRLgz
-         AAgxMEMUxiJT5n7EN42tW0dk1U+jZRJF2JFA9Fqk=
+        b=ePdri9BITk0EYeCSdYMNwnYBAVQRZ8LdnFpFIq0q8M8Yn7RYMQi4aErxgUQDI+YqA
+         TjVX1u/rr9OzsBQyvEMnYNhEwq/NYF6nzY90a0T3/gh8tTSN1VkqgAMES2cTGJUteD
+         q7S15HW+51zIR4RCSUw1F4K2UbbYL6xlRduvMU/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Christian Brauner <brauner@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 034/121] quota: make dquot_quota_sync return errors from ->sync_fs
+        stable@vger.kernel.org, Rolf Eike Beer <eike-kernel@sf-tec.de>,
+        John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.4 06/80] parisc: Fix data TLB miss in sba_unmap_sg
 Date:   Mon, 21 Feb 2022 09:48:46 +0100
-Message-Id: <20220221084922.337947397@linuxfoundation.org>
+Message-Id: <20220221084915.795234345@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <djwong@kernel.org>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit dd5532a4994bfda0386eb2286ec00758cee08444 ]
+commit b7d6f44a0fa716a82969725516dc0b16bc7cd514 upstream.
 
-Strangely, dquot_quota_sync ignores the return code from the ->sync_fs
-call, which means that quotacalls like Q_SYNC never see the error.  This
-doesn't seem right, so fix that.
+Rolf Eike Beer reported the following bug:
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Christian Brauner <brauner@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1274934.746891] Bad Address (null pointer deref?): Code=15 (Data TLB miss fault) at addr 0000004140000018
+[1274934.746891] CPU: 3 PID: 5549 Comm: cmake Not tainted 5.15.4-gentoo-parisc64 #4
+[1274934.746891] Hardware name: 9000/785/C8000
+[1274934.746891]
+[1274934.746891]      YZrvWESTHLNXBCVMcbcbcbcbOGFRQPDI
+[1274934.746891] PSW: 00001000000001001111111000001110 Not tainted
+[1274934.746891] r00-03  000000ff0804fe0e 0000000040bc9bc0 00000000406760e4 0000004140000000
+[1274934.746891] r04-07  0000000040b693c0 0000004140000000 000000004a2b08b0 0000000000000001
+[1274934.746891] r08-11  0000000041f98810 0000000000000000 000000004a0a7000 0000000000000001
+[1274934.746891] r12-15  0000000040bddbc0 0000000040c0cbc0 0000000040bddbc0 0000000040bddbc0
+[1274934.746891] r16-19  0000000040bde3c0 0000000040bddbc0 0000000040bde3c0 0000000000000007
+[1274934.746891] r20-23  0000000000000006 000000004a368950 0000000000000000 0000000000000001
+[1274934.746891] r24-27  0000000000001fff 000000000800000e 000000004a1710f0 0000000040b693c0
+[1274934.746891] r28-31  0000000000000001 0000000041f988b0 0000000041f98840 000000004a171118
+[1274934.746891] sr00-03  00000000066e5800 0000000000000000 0000000000000000 00000000066e5800
+[1274934.746891] sr04-07  0000000000000000 0000000000000000 0000000000000000 0000000000000000
+[1274934.746891]
+[1274934.746891] IASQ: 0000000000000000 0000000000000000 IAOQ: 00000000406760e8 00000000406760ec
+[1274934.746891]  IIR: 48780030    ISR: 0000000000000000  IOR: 0000004140000018
+[1274934.746891]  CPU:        3   CR30: 00000040e3a9c000 CR31: ffffffffffffffff
+[1274934.746891]  ORIG_R28: 0000000040acdd58
+[1274934.746891]  IAOQ[0]: sba_unmap_sg+0xb0/0x118
+[1274934.746891]  IAOQ[1]: sba_unmap_sg+0xb4/0x118
+[1274934.746891]  RP(r2): sba_unmap_sg+0xac/0x118
+[1274934.746891] Backtrace:
+[1274934.746891]  [<00000000402740cc>] dma_unmap_sg_attrs+0x6c/0x70
+[1274934.746891]  [<000000004074d6bc>] scsi_dma_unmap+0x54/0x60
+[1274934.746891]  [<00000000407a3488>] mptscsih_io_done+0x150/0xd70
+[1274934.746891]  [<0000000040798600>] mpt_interrupt+0x168/0xa68
+[1274934.746891]  [<0000000040255a48>] __handle_irq_event_percpu+0xc8/0x278
+[1274934.746891]  [<0000000040255c34>] handle_irq_event_percpu+0x3c/0xd8
+[1274934.746891]  [<000000004025ecb4>] handle_percpu_irq+0xb4/0xf0
+[1274934.746891]  [<00000000402548e0>] generic_handle_irq+0x50/0x70
+[1274934.746891]  [<000000004019a254>] call_on_stack+0x18/0x24
+[1274934.746891]
+[1274934.746891] Kernel panic - not syncing: Bad Address (null pointer deref?)
+
+The bug is caused by overrunning the sglist and incorrectly testing
+sg_dma_len(sglist) before nents. Normally this doesn't cause a crash,
+but in this case sglist crossed a page boundary. This occurs in the
+following code:
+
+	while (sg_dma_len(sglist) && nents--) {
+
+The fix is simply to test nents first and move the decrement of nents
+into the loop.
+
+Reported-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/quota/dquot.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/parisc/sba_iommu.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
-index 4f13734637660..09fb8459bb5ce 100644
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -692,9 +692,14 @@ int dquot_quota_sync(struct super_block *sb, int type)
- 	/* This is not very clever (and fast) but currently I don't know about
- 	 * any other simple way of getting quota data to disk and we must get
- 	 * them there for userspace to be visible... */
--	if (sb->s_op->sync_fs)
--		sb->s_op->sync_fs(sb, 1);
--	sync_blockdev(sb->s_bdev);
-+	if (sb->s_op->sync_fs) {
-+		ret = sb->s_op->sync_fs(sb, 1);
-+		if (ret)
-+			return ret;
-+	}
-+	ret = sync_blockdev(sb->s_bdev);
-+	if (ret)
-+		return ret;
+--- a/drivers/parisc/sba_iommu.c
++++ b/drivers/parisc/sba_iommu.c
+@@ -1047,7 +1047,7 @@ sba_unmap_sg(struct device *dev, struct
+ 	spin_unlock_irqrestore(&ioc->res_lock, flags);
+ #endif
  
- 	/*
- 	 * Now when everything is written we can discard the pagecache so
--- 
-2.34.1
-
+-	while (sg_dma_len(sglist) && nents--) {
++	while (nents && sg_dma_len(sglist)) {
+ 
+ 		sba_unmap_page(dev, sg_dma_address(sglist), sg_dma_len(sglist),
+ 				direction, 0);
+@@ -1056,6 +1056,7 @@ sba_unmap_sg(struct device *dev, struct
+ 		ioc->usingle_calls--;	/* kluge since call is unmap_sg() */
+ #endif
+ 		++sglist;
++		nents--;
+ 	}
+ 
+ 	DBG_RUN_SG("%s() DONE (nents %d)\n", __func__,  nents);
 
 
