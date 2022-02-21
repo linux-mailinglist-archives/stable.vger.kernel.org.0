@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D8C64BE488
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:59:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D5974BDF90
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:50:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350787AbiBUJjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:39:45 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46324 "EHLO
+        id S1352265AbiBUKFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 05:05:05 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351139AbiBUJgp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:36:45 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BCB62D1C7;
-        Mon, 21 Feb 2022 01:15:17 -0800 (PST)
+        with ESMTP id S1352868AbiBUJ4y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:56:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D51B445048;
+        Mon, 21 Feb 2022 01:24:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C26A3CE0E79;
-        Mon, 21 Feb 2022 09:14:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E073AC340E9;
-        Mon, 21 Feb 2022 09:14:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83E6FB80EB8;
+        Mon, 21 Feb 2022 09:24:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD81DC340E9;
+        Mon, 21 Feb 2022 09:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434879;
-        bh=mlCVfXCI/MPFLPPvRfg1e5hONyIiSJQMvH37hKzLE5Q=;
+        s=korg; t=1645435480;
+        bh=7/FBbwrvHWUltZ4Jxxrkk2lhlNEV2NohBiXF+5Bj8II=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GlMfiIEK65YFnksZbS2XcUvqYGdn+sBZjWraU1z1fblUIDCyvGTqyK3J1daELCljG
-         zlu2ebjsagwSCr07bxT616cm78kN8aQ07orxZ3S51YssfHDYQNcExCg25QJaCzUEl2
-         NbG9Z9i9v9rZ50F4bU39DcmD889zeaWMkEsK2BOc=
+        b=JpJOqU9b3kLwHvoFCSUhxjjZmO2fmAzGUtK0H2+cYBdS0CCM9CCO8bxbpJ4m2JO6S
+         IbUYRhD+Q5uZhDeHgZuMllVJVy5SHWJQFFdXFLfJgOXj0u6HDwxYNLKjL3h+orz+Ab
+         PCQLJb/fKc4PVEcfb1f3CVtM21+NYjqjJZ8odrvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brenda Streiff <brenda.streiff@ni.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 164/196] kconfig: let shell return enough output for deep path names
+        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.16 177/227] ucounts: Move RLIMIT_NPROC handling after set_user
 Date:   Mon, 21 Feb 2022 09:49:56 +0100
-Message-Id: <20220221084936.444466277@linuxfoundation.org>
+Message-Id: <20220221084940.695551387@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +52,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brenda Streiff <brenda.streiff@ni.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 8a4c5b2a6d8ea079fa36034e8167de87ab6f8880 ]
+commit c923a8e7edb010da67424077cbf1a6f1396ebd2e upstream.
 
-The 'shell' built-in only returns the first 256 bytes of the command's
-output. In some cases, 'shell' is used to return a path; by bumping up
-the buffer size to 4096 this lets us capture up to PATH_MAX.
+During set*id() which cred->ucounts to charge the the current process
+to is not known until after set_cred_ucounts.  So move the
+RLIMIT_NPROC checking into a new helper flag_nproc_exceeded and call
+flag_nproc_exceeded after set_cred_ucounts.
 
-The specific case where I ran into this was due to commit 1e860048c53e
-("gcc-plugins: simplify GCC plugin-dev capability test"). After this
-change, we now use `$(shell,$(CC) -print-file-name=plugin)` to return
-a path; if the gcc path is particularly long, then the path ends up
-truncated at the 256 byte mark, which makes the HAVE_GCC_PLUGINS
-depends test always fail.
+This is very much an arbitrary subset of the places where we currently
+change the RLIMIT_NPROC accounting, designed to preserve the existing
+logic.
 
-Signed-off-by: Brenda Streiff <brenda.streiff@ni.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixing the existing logic will be the subject of another series of
+changes.
+
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20220216155832.680775-4-ebiederm@xmission.com
+Fixes: 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of ucounts")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/kconfig/preprocess.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sys.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/scripts/kconfig/preprocess.c b/scripts/kconfig/preprocess.c
-index 0590f86df6e40..748da578b418c 100644
---- a/scripts/kconfig/preprocess.c
-+++ b/scripts/kconfig/preprocess.c
-@@ -141,7 +141,7 @@ static char *do_lineno(int argc, char *argv[])
- static char *do_shell(int argc, char *argv[])
- {
- 	FILE *p;
--	char buf[256];
-+	char buf[4096];
- 	char *cmd;
- 	size_t nread;
- 	int i;
--- 
-2.34.1
-
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -472,6 +472,16 @@ static int set_user(struct cred *new)
+ 	if (!new_user)
+ 		return -EAGAIN;
+ 
++	free_uid(new->user);
++	new->user = new_user;
++	return 0;
++}
++
++static void flag_nproc_exceeded(struct cred *new)
++{
++	if (new->ucounts == current_ucounts())
++		return;
++
+ 	/*
+ 	 * We don't fail in case of NPROC limit excess here because too many
+ 	 * poorly written programs don't check set*uid() return code, assuming
+@@ -480,14 +490,10 @@ static int set_user(struct cred *new)
+ 	 * failure to the execve() stage.
+ 	 */
+ 	if (is_ucounts_overlimit(new->ucounts, UCOUNT_RLIMIT_NPROC, rlimit(RLIMIT_NPROC)) &&
+-			new_user != INIT_USER)
++			new->user != INIT_USER)
+ 		current->flags |= PF_NPROC_EXCEEDED;
+ 	else
+ 		current->flags &= ~PF_NPROC_EXCEEDED;
+-
+-	free_uid(new->user);
+-	new->user = new_user;
+-	return 0;
+ }
+ 
+ /*
+@@ -562,6 +568,7 @@ long __sys_setreuid(uid_t ruid, uid_t eu
+ 	if (retval < 0)
+ 		goto error;
+ 
++	flag_nproc_exceeded(new);
+ 	return commit_creds(new);
+ 
+ error:
+@@ -624,6 +631,7 @@ long __sys_setuid(uid_t uid)
+ 	if (retval < 0)
+ 		goto error;
+ 
++	flag_nproc_exceeded(new);
+ 	return commit_creds(new);
+ 
+ error:
+@@ -703,6 +711,7 @@ long __sys_setresuid(uid_t ruid, uid_t e
+ 	if (retval < 0)
+ 		goto error;
+ 
++	flag_nproc_exceeded(new);
+ 	return commit_creds(new);
+ 
+ error:
 
 
