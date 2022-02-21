@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFD604BE281
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:55:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 142AB4BDDC0
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:46:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351131AbiBUJsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:48:37 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58482 "EHLO
+        id S1350847AbiBUJsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:48:35 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351461AbiBUJp0 (ORCPT
+        with ESMTP id S1351463AbiBUJp0 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:45:26 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE4553F889;
-        Mon, 21 Feb 2022 01:18:24 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A05CB3F897;
+        Mon, 21 Feb 2022 01:18:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6DEA9CE0E76;
-        Mon, 21 Feb 2022 09:18:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 590A6C340E9;
-        Mon, 21 Feb 2022 09:18:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F87A60EDF;
+        Mon, 21 Feb 2022 09:18:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B61EC340F3;
+        Mon, 21 Feb 2022 09:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435102;
-        bh=E7FOSdbTRTgamGUuWjaPs4cyaZmb3dvKjzdHiR8bK6g=;
+        s=korg; t=1645435105;
+        bh=HKrIBi5m5CFXzZ+6/xBVUfB/8hJp8GunVilEDIKwwTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7GCHcvbU1S241NytxAuH+kfz2nSkayzYpW/v73rWmtgUmm3wooNMuTOGTATLKHPQ
-         74n9weEa6naK2p5MtkIBOuWk5Hu1/eD7XojI34Rr6asiEKzi1MShswohgw8G/a1saE
-         NKjxvURparNqiwqBwlswM6nQOmu7nPttMO8nP02E=
+        b=kCT8vsVpUOkV/nYEknVs0EKe9WQOFGaqiV2AOEsc1YT1qfzSSjAZ8hom800iN1+4U
+         j1+lG82WGuT/wEJe9u1wjLdMUfHLkVKw2Rt+eWdToKk25XLr9C5D1u8PyF7PDpzHrD
+         GB/B864hd1T1lb/FhGcqNkH1G0FlKL/kVloCZaMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.16 013/227] parisc: Show error if wrong 32/64-bit compiler is being used
-Date:   Mon, 21 Feb 2022 09:47:12 +0100
-Message-Id: <20220221084935.279675188@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
+        linux-serial@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.16 014/227] serial: parisc: GSC: fix build when IOSAPIC is not set
+Date:   Mon, 21 Feb 2022 09:47:13 +0100
+Message-Id: <20220221084935.310770945@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
 References: <20220221084934.836145070@linuxfoundation.org>
@@ -52,42 +57,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit b160628e9ebcdc85d0db9d7f423c26b3c7c179d0 upstream.
+commit 6e8793674bb0d1135ca0e5c9f7e16fecbf815926 upstream.
 
-It happens quite often that people use the wrong compiler to build the
-kernel:
+There is a build error when using a kernel .config file from
+'kernel test robot' for a different build problem:
 
-make ARCH=parisc   -> builds the 32-bit kernel
-make ARCH=parisc64 -> builds the 64-bit kernel
+hppa64-linux-ld: drivers/tty/serial/8250/8250_gsc.o: in function `.LC3':
+(.data.rel.ro+0x18): undefined reference to `iosapic_serial_irq'
 
-This patch adds a sanity check which errors out with an instruction how
-use the correct ARCH= option.
+when:
+  CONFIG_GSC=y
+  CONFIG_SERIO_GSCPS2=y
+  CONFIG_SERIAL_8250_GSC=y
+  CONFIG_PCI is not set
+    and hence PCI_LBA is not set.
+  IOSAPIC depends on PCI_LBA, so IOSAPIC is not set/enabled.
 
+Make the use of iosapic_serial_irq() conditional to fix the build error.
+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: linux-parisc@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-serial@vger.kernel.org
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Cc: Johan Hovold <johan@kernel.org>
+Suggested-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org # v5.15+
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/include/asm/bitops.h |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/tty/serial/8250/8250_gsc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/parisc/include/asm/bitops.h
-+++ b/arch/parisc/include/asm/bitops.h
-@@ -12,6 +12,14 @@
- #include <asm/barrier.h>
- #include <linux/atomic.h>
+--- a/drivers/tty/serial/8250/8250_gsc.c
++++ b/drivers/tty/serial/8250/8250_gsc.c
+@@ -26,7 +26,7 @@ static int __init serial_init_chip(struc
+ 	unsigned long address;
+ 	int err;
  
-+/* compiler build environment sanity checks: */
-+#if !defined(CONFIG_64BIT) && defined(__LP64__)
-+#error "Please use 'ARCH=parisc' to build the 32-bit kernel."
-+#endif
-+#if defined(CONFIG_64BIT) && !defined(__LP64__)
-+#error "Please use 'ARCH=parisc64' to build the 64-bit kernel."
-+#endif
-+
- /* See http://marc.theaimsgroup.com/?t=108826637900003 for discussion
-  * on use of volatile and __*_bit() (set/clear/change):
-  *	*_bit() want use of volatile.
+-#ifdef CONFIG_64BIT
++#if defined(CONFIG_64BIT) && defined(CONFIG_IOSAPIC)
+ 	if (!dev->irq && (dev->id.sversion == 0xad))
+ 		dev->irq = iosapic_serial_irq(dev);
+ #endif
 
 
