@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 141824BE573
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:00:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FCEF4BE1DC
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351715AbiBUJuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:50:39 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41662 "EHLO
+        id S1348678AbiBUJXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:23:06 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352375AbiBUJrY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56BE3424A3;
-        Mon, 21 Feb 2022 01:19:37 -0800 (PST)
+        with ESMTP id S1350236AbiBUJWQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:22:16 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CED237BEC;
+        Mon, 21 Feb 2022 01:09:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C567960F46;
-        Mon, 21 Feb 2022 09:19:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC52FC340E9;
-        Mon, 21 Feb 2022 09:19:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8CB12CE0E96;
+        Mon, 21 Feb 2022 09:09:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70534C340F6;
+        Mon, 21 Feb 2022 09:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435176;
-        bh=tn9KiBfIResCyFFjyiBMQXV3QP7d83OBpO7pCS0v74M=;
+        s=korg; t=1645434578;
+        bh=gIfNhR54g7OTklTqzjeHb/ybmRQgcuW62HjKCcKfRYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RbyAfB83apnkOCwvtIUnaQzWbJDxymuaZ0aiUFDtmMXKQ9Wd4U01/2afQnPhUfPng
-         SGx3gZy6rpB8wwXlg3F98s9LB0sMY5125wha2T9APaPzBTI62PNp0dNgbeHcII4F8R
-         0Lynwn/2/kdHpeQ4IJP+HxZpKIluFN0d+HeQH82E=
+        b=iaVtlBJMYwWW8KfE75OSViVUA71g5qnuTlPDCQqU7x3FP3xqp1ObIBvK2ORguTJly
+         tqobhasUSRWMEEm4YsRwggzZpbjBkaYfWKegUymCaAUcu8h1Eyt72mYTb1H0DxZ6gm
+         5Q+ZSwx57f8RudvARCq3Iz9BsRkuu1AvmYCunu4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 070/227] random: wake up /dev/random writers after zap
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 057/196] KVM: x86: SVM: dont passthrough SMAP/SMEP/PKE bits in !NPT && !gCR0.PG case
 Date:   Mon, 21 Feb 2022 09:48:09 +0100
-Message-Id: <20220221084937.205361841@linuxfoundation.org>
+Message-Id: <20220221084932.839293131@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +53,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-[ Upstream commit 042e293e16e3aa9794ce60c29f5b7b0c8170f933 ]
+commit c53bbe2145f51d3bc0438c2db02e737b9b598bf3 upstream.
 
-When account() is called, and the amount of entropy dips below
-random_write_wakeup_bits, we wake up the random writers, so that they
-can write some more in. However, the RNDZAPENTCNT/RNDCLEARPOOL ioctl
-sets the entropy count to zero -- a potential reduction just like
-account() -- but does not unblock writers. This commit adds the missing
-logic to that ioctl to unblock waiting writers.
+When the guest doesn't enable paging, and NPT/EPT is disabled, we
+use guest't paging CR3's as KVM's shadow paging pointer and
+we are technically in direct mode as if we were to use NPT/EPT.
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In direct mode we create SPTEs with user mode permissions
+because usually in the direct mode the NPT/EPT doesn't
+need to restrict access based on guest CPL
+(there are MBE/GMET extenstions for that but KVM doesn't use them).
+
+In this special "use guest paging as direct" mode however,
+and if CR4.SMAP/CR4.SMEP are enabled, that will make the CPU
+fault on each access and KVM will enter endless loop of page faults.
+
+Since page protection doesn't have any meaning in !PG case,
+just don't passthrough these bits.
+
+The fix is the same as was done for VMX in commit:
+commit 656ec4a4928a ("KVM: VMX: fix SMEP and SMAP without EPT")
+
+This fixes the boot of windows 10 without NPT for good.
+(Without this patch, BSP boots, but APs were stuck in endless
+loop of page faults, causing the VM boot with 1 CPU)
+
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Cc: stable@vger.kernel.org
+Message-Id: <20220207155447.840194-2-mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/kvm/svm/svm.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index a27ae3999ff32..ebe86de9d0acc 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1963,7 +1963,10 @@ static long random_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
- 		 */
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
--		input_pool.entropy_count = 0;
-+		if (xchg(&input_pool.entropy_count, 0) && random_write_wakeup_bits) {
-+			wake_up_interruptible(&random_write_wait);
-+			kill_fasync(&fasync, SIGIO, POLL_OUT);
-+		}
- 		return 0;
- 	case RNDRESEEDCRNG:
- 		if (!capable(CAP_SYS_ADMIN))
--- 
-2.34.1
-
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -1727,6 +1727,7 @@ void svm_set_cr0(struct kvm_vcpu *vcpu,
+ {
+ 	struct vcpu_svm *svm = to_svm(vcpu);
+ 	u64 hcr0 = cr0;
++	bool old_paging = is_paging(vcpu);
+ 
+ #ifdef CONFIG_X86_64
+ 	if (vcpu->arch.efer & EFER_LME && !vcpu->arch.guest_state_protected) {
+@@ -1743,8 +1744,11 @@ void svm_set_cr0(struct kvm_vcpu *vcpu,
+ #endif
+ 	vcpu->arch.cr0 = cr0;
+ 
+-	if (!npt_enabled)
++	if (!npt_enabled) {
+ 		hcr0 |= X86_CR0_PG | X86_CR0_WP;
++		if (old_paging != is_paging(vcpu))
++			svm_set_cr4(vcpu, kvm_read_cr4(vcpu));
++	}
+ 
+ 	/*
+ 	 * re-enable caching here because the QEMU bios
+@@ -1788,8 +1792,12 @@ void svm_set_cr4(struct kvm_vcpu *vcpu,
+ 		svm_flush_tlb(vcpu);
+ 
+ 	vcpu->arch.cr4 = cr4;
+-	if (!npt_enabled)
++	if (!npt_enabled) {
+ 		cr4 |= X86_CR4_PAE;
++
++		if (!is_paging(vcpu))
++			cr4 &= ~(X86_CR4_SMEP | X86_CR4_SMAP | X86_CR4_PKE);
++	}
+ 	cr4 |= host_cr4_mce;
+ 	to_svm(vcpu)->vmcb->save.cr4 = cr4;
+ 	vmcb_mark_dirty(to_svm(vcpu)->vmcb, VMCB_CR);
 
 
