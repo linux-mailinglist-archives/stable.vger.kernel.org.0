@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 244DF4BE476
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:59:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 013624BE0CA
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345578AbiBUJjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:39:25 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49230 "EHLO
+        id S231864AbiBUKD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 05:03:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351599AbiBUJh2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:37:28 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 095793A5F3;
-        Mon, 21 Feb 2022 01:16:07 -0800 (PST)
+        with ESMTP id S1353473AbiBUJ52 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CD063968C;
+        Mon, 21 Feb 2022 01:26:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5FE3ACE0E66;
-        Mon, 21 Feb 2022 09:16:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40043C340E9;
-        Mon, 21 Feb 2022 09:16:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42C6EB80EB9;
+        Mon, 21 Feb 2022 09:26:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 830F3C340E9;
+        Mon, 21 Feb 2022 09:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434964;
-        bh=AF4LPCrgwjOuXSZomLZknzmmQQy0BdX+8IprKl36ljU=;
+        s=korg; t=1645435563;
+        bh=eEcLGIVXMQkyu6JpN7qeQfTNgzp08OYhHxab6htHh+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PddCbHdlHRzuhguxGZFXtJOGXEmkKlYRh7Dp/c5pHr6sg1t6obo6y1VcPr7vd/cG8
-         2GWoqvR7O+HE36LYrzI7lZoe0C/94dvXt50I2mGiYuvDn7B+2FVdUfVX/mGSO2uaeO
-         CqD0G92WHPHam+YUZmJngRrHk8BMxCeYXKLA67sg=
+        b=LDOgD04kyn9/fcAe/AhvIGSm8psdiZuX53zsCvN6dhk8xB7b41aWvEn8n2GAz1PGP
+         LssbQEIdwlHIwAjUIrlkXI74PQK8coETm+SuxZc0QVA6XJUSUISXMeP8ffKi/q9p9G
+         AweHoBxmGaUFBnmvp3Vktqm/N9/yL9jW5FwnjkOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 5.15 194/196] ice: enable parsing IPSEC SPI headers for RSS
+        stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 207/227] ksmbd: dont align last entry offset in smb2 query directory
 Date:   Mon, 21 Feb 2022 09:50:26 +0100
-Message-Id: <20220221084937.425843337@linuxfoundation.org>
+Message-Id: <20220221084941.707495122@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,48 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-commit 86006f996346e8a5a1ea80637ec949ceeea4ecbc upstream.
+[ Upstream commit 04e260948a160d3b7d622bf4c8a96fa4577c09bd ]
 
-The COMMS package can enable the hardware parser to recognize IPSEC
-frames with ESP header and SPI identifier.  If this package is available
-and configured for loading in /lib/firmware, then the driver will
-succeed in enabling this protocol type for RSS.
+When checking smb2 query directory packets from other servers,
+OutputBufferLength is different with ksmbd. Other servers add an unaligned
+next offset to OutputBufferLength for the last entry.
 
-This in turn allows the hardware to hash over the SPI and use it to pick
-a consistent receive queue for the same secure flow. Without this all
-traffic is steered to the same queue for multiple traffic threads from
-the same IP address. For that reason this is marked as a fix, as the
-driver supports the model, but it wasn't enabled.
-
-If the package is not available, adding this type will fail, but the
-failure is ignored on purpose as it has no negative affect.
-
-Fixes: c90ed40cefe1 ("ice: Enable writing hardware filtering tables")
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_lib.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/ksmbd/smb2pdu.c | 7 ++++---
+ fs/ksmbd/vfs.h     | 1 +
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/intel/ice/ice_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_lib.c
-@@ -1521,6 +1521,12 @@ static void ice_vsi_set_rss_flow_fld(str
- 	if (status)
- 		dev_dbg(dev, "ice_add_rss_cfg failed for sctp6 flow, vsi = %d, error = %s\n",
- 			vsi_num, ice_stat_str(status));
-+
-+	status = ice_add_rss_cfg(hw, vsi_handle, ICE_FLOW_HASH_ESP_SPI,
-+				 ICE_FLOW_SEG_HDR_ESP);
-+	if (status)
-+		dev_dbg(dev, "ice_add_rss_cfg failed for esp/spi flow, vsi = %d, error = %d\n",
-+			vsi_num, status);
- }
+diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
+index 1ff1e52f398fc..cbbbccdc5a0a5 100644
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -3423,9 +3423,9 @@ static int smb2_populate_readdir_entry(struct ksmbd_conn *conn, int info_level,
+ 		goto free_conv_name;
+ 	}
  
- /**
+-	struct_sz = readdir_info_level_struct_sz(info_level);
+-	next_entry_offset = ALIGN(struct_sz - 1 + conv_len,
+-				  KSMBD_DIR_INFO_ALIGNMENT);
++	struct_sz = readdir_info_level_struct_sz(info_level) - 1 + conv_len;
++	next_entry_offset = ALIGN(struct_sz, KSMBD_DIR_INFO_ALIGNMENT);
++	d_info->last_entry_off_align = next_entry_offset - struct_sz;
+ 
+ 	if (next_entry_offset > d_info->out_buf_len) {
+ 		d_info->out_buf_len = 0;
+@@ -3977,6 +3977,7 @@ int smb2_query_dir(struct ksmbd_work *work)
+ 		((struct file_directory_info *)
+ 		((char *)rsp->Buffer + d_info.last_entry_offset))
+ 		->NextEntryOffset = 0;
++		d_info.data_count -= d_info.last_entry_off_align;
+ 
+ 		rsp->StructureSize = cpu_to_le16(9);
+ 		rsp->OutputBufferOffset = cpu_to_le16(72);
+diff --git a/fs/ksmbd/vfs.h b/fs/ksmbd/vfs.h
+index adf94a4f22fa6..8c37aaf936ab1 100644
+--- a/fs/ksmbd/vfs.h
++++ b/fs/ksmbd/vfs.h
+@@ -47,6 +47,7 @@ struct ksmbd_dir_info {
+ 	int		last_entry_offset;
+ 	bool		hide_dot_file;
+ 	int		flags;
++	int		last_entry_off_align;
+ };
+ 
+ struct ksmbd_readdir_data {
+-- 
+2.34.1
+
 
 
