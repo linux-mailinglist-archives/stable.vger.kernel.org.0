@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF9504BE2D5
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:56:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BC7E4BDC38
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352261AbiBUJzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:55:07 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56890 "EHLO
+        id S1347440AbiBUJGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:06:25 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352304AbiBUJyU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:54:20 -0500
+        with ESMTP id S1347658AbiBUJF7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:05:59 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3F4837A8B;
-        Mon, 21 Feb 2022 01:23:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDA0625EAA;
+        Mon, 21 Feb 2022 00:59:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59935608C4;
-        Mon, 21 Feb 2022 09:23:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EE73C340E9;
-        Mon, 21 Feb 2022 09:23:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE5D661204;
+        Mon, 21 Feb 2022 08:59:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96871C340E9;
+        Mon, 21 Feb 2022 08:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435437;
-        bh=ihAIbfYlvinEEfGKUNpuvcQtGz1ie3/Qc9/kth+Vujs=;
+        s=korg; t=1645433967;
+        bh=8IUsyVO3CUV/NHmrn9iyf0MiQePqG+1lN0ZMxV/tScY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eNaMmqcjaqNC3lVQCnju0t5knYvFJ9SbE2PWnUIEXHok/34TKqz/kEAAKJBWklFd7
-         bMsjeuUZrDHdYkkirKWeud/YsO0H9zdKTZzbtyndPuHcKU56r40M08k1vcGrpYNO5v
-         9pOFcLltGyl4iziGMkkbUTbQjT29f3UDahPcSs1Q=
+        b=Zrndo4lug0l8Nu2hxfDA/TRbptrt2HAopmliJZKqx6ZnN6+6vZUqkHlwoTZqBje8L
+         yS5prmK2qmkmS9NATrRNaPCFaf5rF8sVFseTYqEwHSWdvYoC9XrzaxGU8aOR3/f+Q4
+         WR28Ep3HHIt/7ZKnGUNrq6WM2ersnjfq0HLmCIsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.16 146/227] ASoC: ops: Fix stereo change notifications in snd_soc_put_xr_sx()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Valdis=20Kl=C4=93tnieks?= <valdis.kletnieks@vt.edu>,
+        Kees Kook <keescook@chromium.org>,
+        "Justin M. Forbes" <jforbes@fedoraproject.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        linux-hardening@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.4 45/80] libsubcmd: Fix use-after-free for realloc(..., 0)
 Date:   Mon, 21 Feb 2022 09:49:25 +0100
-Message-Id: <20220221084939.685159541@linuxfoundation.org>
+Message-Id: <20220221084917.048654891@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,46 +58,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit 2b7c46369f09c358164d31d17e5695185403185e upstream.
+commit 52a9dab6d892763b2a8334a568bd4e2c1a6fde66 upstream.
 
-When writing out a stereo control we discard the change notification from
-the first channel, meaning that events are only generated based on changes
-to the second channel. Ensure that we report a change if either channel
-has changed.
+GCC 12 correctly reports a potential use-after-free condition in the
+xrealloc helper. Fix the warning by avoiding an implicit "free(ptr)"
+when size == 0:
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220201155629.120510-5-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+In file included from help.c:12:
+In function 'xrealloc',
+    inlined from 'add_cmdname' at help.c:24:2: subcmd-util.h:56:23: error: pointer may be used after 'realloc' [-Werror=use-after-free]
+   56 |                 ret = realloc(ptr, size);
+      |                       ^~~~~~~~~~~~~~~~~~
+subcmd-util.h:52:21: note: call to 'realloc' here
+   52 |         void *ret = realloc(ptr, size);
+      |                     ^~~~~~~~~~~~~~~~~~
+subcmd-util.h:58:31: error: pointer may be used after 'realloc' [-Werror=use-after-free]
+   58 |                         ret = realloc(ptr, 1);
+      |                               ^~~~~~~~~~~~~~~
+subcmd-util.h:52:21: note: call to 'realloc' here
+   52 |         void *ret = realloc(ptr, size);
+      |                     ^~~~~~~~~~~~~~~~~~
+
+Fixes: 2f4ce5ec1d447beb ("perf tools: Finalize subcmd independence")
+Reported-by: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+Signed-off-by: Kees Kook <keescook@chromium.org>
+Tested-by: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: linux-hardening@vger.kernel.org
+Cc: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+Link: http://lore.kernel.org/lkml/20220213182443.4037039-1-keescook@chromium.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-ops.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tools/lib/subcmd/subcmd-util.h |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
---- a/sound/soc/soc-ops.c
-+++ b/sound/soc/soc-ops.c
-@@ -895,6 +895,7 @@ int snd_soc_put_xr_sx(struct snd_kcontro
- 	unsigned long mask = (1UL<<mc->nbits)-1;
- 	long max = mc->max;
- 	long val = ucontrol->value.integer.value[0];
-+	int ret = 0;
- 	unsigned int i;
- 
- 	if (val < mc->min || val > mc->max)
-@@ -909,9 +910,11 @@ int snd_soc_put_xr_sx(struct snd_kcontro
- 							regmask, regval);
- 		if (err < 0)
- 			return err;
-+		if (err > 0)
-+			ret = err;
- 	}
- 
--	return 0;
-+	return ret;
+--- a/tools/lib/subcmd/subcmd-util.h
++++ b/tools/lib/subcmd/subcmd-util.h
+@@ -50,15 +50,8 @@ static NORETURN inline void die(const ch
+ static inline void *xrealloc(void *ptr, size_t size)
+ {
+ 	void *ret = realloc(ptr, size);
+-	if (!ret && !size)
+-		ret = realloc(ptr, 1);
+-	if (!ret) {
+-		ret = realloc(ptr, size);
+-		if (!ret && !size)
+-			ret = realloc(ptr, 1);
+-		if (!ret)
+-			die("Out of memory, realloc failed");
+-	}
++	if (!ret)
++		die("Out of memory, realloc failed");
+ 	return ret;
  }
- EXPORT_SYMBOL_GPL(snd_soc_put_xr_sx);
  
 
 
