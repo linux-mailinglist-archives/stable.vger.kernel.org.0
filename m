@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 436604BE03F
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C8234BDBFB
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351110AbiBUJvh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:51:37 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41668 "EHLO
+        id S1346357AbiBUI41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:56:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351632AbiBUJtz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:49:55 -0500
+        with ESMTP id S1346302AbiBUIzo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:55:44 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F5AB34B8B;
-        Mon, 21 Feb 2022 01:22:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5341024BEC;
+        Mon, 21 Feb 2022 00:53:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C915160F3C;
-        Mon, 21 Feb 2022 09:22:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC204C340EB;
-        Mon, 21 Feb 2022 09:22:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D58F6118D;
+        Mon, 21 Feb 2022 08:53:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86B96C340F1;
+        Mon, 21 Feb 2022 08:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435357;
-        bh=4/IQDapPhOfUHZ8I/bXCAqRqXgprEmYdeOsY8JUFMrw=;
+        s=korg; t=1645433604;
+        bh=Sho+2EN2OREeQ4S2SFRqB7ZQHvCM/jTHANkhtSh03Gk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nemIO3vDO6nbq3rN5HagG0zNwCMK9Cd3sJrcTn4GppDJ6DqNwHBaFySmBU6Swi9rF
-         oi81m0RG2L5gHQ9ZMX39Kid+cjVW1AVYIV8/tSv76ruorQ9/ZGIumh6qrxjy/sW72W
-         xmy0fQaazfpRW5XQxYbNbSCHkSz3fHQCQ5lhJU94=
+        b=h91WGHZc7U5KR0B+QkzlF2nx3DfDFy9SCMomuvnnJ4D/N+5e6H02+3g3k6GKHdsMD
+         VjZTFWkvEW08J+yGY1PzpqzABRgaMziAy7WBlB7WpgxZzOO8gQySyVj2ZyBmtYyzWw
+         acojSZHGnHPB90LSy5fZmxk/2tx4eAgQOFVgRNc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.16 135/227] ALSA: usb-audio: Dont abort resume upon errors
+        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 23/45] ping: fix the dif and sdif check in ping_lookup
 Date:   Mon, 21 Feb 2022 09:49:14 +0100
-Message-Id: <20220221084939.341918784@linuxfoundation.org>
+Message-Id: <20220221084911.208158188@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
+References: <20220221084910.454824160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,57 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 9a5adeb28b77416446658e75bdef3bbe5fb92a83 upstream.
+commit 35a79e64de29e8d57a5989aac57611c0cd29e13e upstream.
 
-The default mixer resume code treats the errors at restoring the
-modified mixer items as a fatal error, and it returns back to the
-caller.  This ends up in the resume failure, and the device will be
-come unavailable, although basically those errors are intermittent and
-can be safely ignored.
+When 'ping' changes to use PING socket instead of RAW socket by:
 
-The problem itself has been present from the beginning, but it didn't
-hit usually because the code tries to resume only the modified items.
-But now with the recent commit to forcibly initialize each item at the
-probe time, the problem surfaced more often, hence it appears as a
-regression.
+   # sysctl -w net.ipv4.ping_group_range="0 100"
 
-This patch fixes the regression simply by ignoring the errors at
-resume.
+There is another regression caused when matching sk_bound_dev_if
+and dif, RAW socket is using inet_iif() while PING socket lookup
+is using skb->dev->ifindex, the cmd below fails due to this:
 
-Fixes: b96681bd5827 ("ALSA: usb-audio: Initialize every feature unit once at probe time")
-Cc: <stable@vger.kernel.org>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215561
-Link: https://lore.kernel.org/r/20220214125711.20531-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  # ip link add dummy0 type dummy
+  # ip link set dummy0 up
+  # ip addr add 192.168.111.1/24 dev dummy0
+  # ping -I dummy0 192.168.111.1 -c1
+
+The issue was also reported on:
+
+  https://github.com/iputils/iputils/issues/104
+
+But fixed in iputils in a wrong way by not binding to device when
+destination IP is on device, and it will cause some of kselftests
+to fail, as Jianlin noticed.
+
+This patch is to use inet(6)_iif and inet(6)_sdif to get dif and
+sdif for PING socket, and keep consistent with RAW socket.
+
+Fixes: c319b4d76b9e ("net: ipv4: add IPPROTO_ICMP socket kind")
+Reported-by: Jianlin Shi <jishi@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/mixer.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ net/ipv4/ping.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -3678,17 +3678,14 @@ static int restore_mixer_value(struct us
- 				err = snd_usb_set_cur_mix_value(cval, c + 1, idx,
- 							cval->cache_val[idx]);
- 				if (err < 0)
--					return err;
-+					break;
- 			}
- 			idx++;
- 		}
- 	} else {
- 		/* master */
--		if (cval->cached) {
--			err = snd_usb_set_cur_mix_value(cval, 0, 0, *cval->cache_val);
--			if (err < 0)
--				return err;
--		}
-+		if (cval->cached)
-+			snd_usb_set_cur_mix_value(cval, 0, 0, *cval->cache_val);
+--- a/net/ipv4/ping.c
++++ b/net/ipv4/ping.c
+@@ -177,16 +177,23 @@ static struct sock *ping_lookup(struct n
+ 	struct sock *sk = NULL;
+ 	struct inet_sock *isk;
+ 	struct hlist_nulls_node *hnode;
+-	int dif = skb->dev->ifindex;
++	int dif, sdif;
+ 
+ 	if (skb->protocol == htons(ETH_P_IP)) {
++		dif = inet_iif(skb);
++		sdif = inet_sdif(skb);
+ 		pr_debug("try to find: num = %d, daddr = %pI4, dif = %d\n",
+ 			 (int)ident, &ip_hdr(skb)->daddr, dif);
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	} else if (skb->protocol == htons(ETH_P_IPV6)) {
++		dif = inet6_iif(skb);
++		sdif = inet6_sdif(skb);
+ 		pr_debug("try to find: num = %d, daddr = %pI6c, dif = %d\n",
+ 			 (int)ident, &ipv6_hdr(skb)->daddr, dif);
+ #endif
++	} else {
++		pr_err("ping: protocol(%x) is not supported\n", ntohs(skb->protocol));
++		return NULL;
  	}
  
- 	return 0;
+ 	read_lock_bh(&ping_table.lock);
+@@ -226,7 +233,7 @@ static struct sock *ping_lookup(struct n
+ 		}
+ 
+ 		if (sk->sk_bound_dev_if && sk->sk_bound_dev_if != dif &&
+-		    sk->sk_bound_dev_if != inet_sdif(skb))
++		    sk->sk_bound_dev_if != sdif)
+ 			continue;
+ 
+ 		sock_hold(sk);
 
 
