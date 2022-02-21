@@ -2,142 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9B3C4BEAC6
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 20:37:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 742CF4BEADE
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 20:37:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229729AbiBUSOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 13:14:21 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41104 "EHLO
+        id S231234AbiBUSWq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 13:22:46 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232278AbiBUSMe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 13:12:34 -0500
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11BAC625F
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 10:03:07 -0800 (PST)
-Received: by mail-pf1-x436.google.com with SMTP id l19so9564618pfu.2
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 10:03:07 -0800 (PST)
+        with ESMTP id S230200AbiBUSUm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 13:20:42 -0500
+Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC2A811C0C;
+        Mon, 21 Feb 2022 10:12:49 -0800 (PST)
+Received: by mail-vs1-xe36.google.com with SMTP id t22so18461339vsa.4;
+        Mon, 21 Feb 2022 10:12:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=De5dOyD6lkBkAbVgk7RvMpL0WarOuZqFAOxsNLM0u5s=;
-        b=l+9asHh2N1DHXrm3NjxFWmJ7oWYGGdSxxIWtXtn2r8HbPI+Zv7lOPVZ8GsEduJxhlw
-         UOg3tHGT+jVda3p4mEZFhBL7BE4DAS/8mZf346wmWr+6Ei02HkbGRzEXO8HKNCUH7cpf
-         2YvJ/h5vD6phy9WYflCgqZZQ99SBMdugOtUgH/5ZZX1oD57TyItZPJWtsUn9p3ojX8is
-         LitvJrK2fMqlsiN0on/GTA9TvBqRPmeBqe9j7KOY1j+qbWrOnRLU01EZC1UHZI0Fo8Sr
-         vtFBnK6eInEbOASZMQe+E7ta+mkTrdreaYBGv6ccWw9pJrbaqSmb9JJ9Je771m36Pyv5
-         lz8Q==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ifxp+oAlm2yMFNon3VLJzDL+D3DBh2HNHEmG4Ml9zb0=;
+        b=Rlr9COL1Llqt7kw3rO7nvsMKahQFjas2hu/wLUz4jU939rpNXGjySCevgwWcfTu+/j
+         gZPHu4QRXTPCkmBBAwGeP1X1lcIk7YkiwmCjjwPr89EDPA2NI+XorD1kpcNyuqRKz5eq
+         6m07UoguhQW+/TAQmM7xpJIbd4Gvz9+xcsO7uj34HuW/OtABV3iVNeoeLVE4CT2IoVzc
+         GecghsENS5WOApHe9nhcNUaEhNkx9gsrsXekGedb1K2eQxUiDpVouuMpUb5BMcru9sBS
+         X2gRStEWtcWyrnwG2W0Gu0QiCkkm9vVlT5BJMSZZk6e/AbBUVWDDftEkf947CqYijPus
+         Azmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=De5dOyD6lkBkAbVgk7RvMpL0WarOuZqFAOxsNLM0u5s=;
-        b=a2b2UqwkJXyjisF39eQseMxxULOhNK5+XgvqOYoMBn4YIBX8EJfXinjHNBw+tri/W+
-         cj/X3v0uzA7gEBO8huCcEwcY6CdJQrCfpikW1lxK1sYqRlkwzgLc0zkdVrNhn3fjmgxB
-         fEVYrNW4ISQuKBzilSCDlFcVF+0P2abwwN6LpQ/6/+c66kZfLhsMErp4lvXq5HIidr8D
-         Z3HB++5Ei2fuh4dgGuu8gKygCTBtROlsKZBs21E20xi3z9AFKkYPxbpeQ9fnfEtGGkBz
-         cB3/Am8AT0GaUKSQWfGKu8PkCIuVN2xJVypOd0TUlp7nv0tO5qWYtZKpbk8qaeYalX4P
-         dNww==
-X-Gm-Message-State: AOAM533UYE9Q0NkAju3w2iVZ/+E8uwfqowfXbhik+r/zcYEsNNOo8IuN
-        6pUgWT5qt82XVtaR4VrG/slhRPgYMW4vmKKM
-X-Google-Smtp-Source: ABdhPJwTo+iC68dp4+pjyU1Vzc4hQnhVILNzBQAJfcadulNmy99H54CpYm3i2W4axS/loDtan/bYGA==
-X-Received: by 2002:a05:6a00:130b:b0:4e1:7b1e:6c6 with SMTP id j11-20020a056a00130b00b004e17b1e06c6mr21389445pfu.22.1645466586263;
-        Mon, 21 Feb 2022 10:03:06 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t2sm14032838pfg.207.2022.02.21.10.03.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Feb 2022 10:03:06 -0800 (PST)
-Message-ID: <6213d3da.1c69fb81.97fc3.647f@mx.google.com>
-Date:   Mon, 21 Feb 2022 10:03:06 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ifxp+oAlm2yMFNon3VLJzDL+D3DBh2HNHEmG4Ml9zb0=;
+        b=Z7equoiVXH0rC6iO1o2zfgz2sli9SHaUoxmK0vi63Jnid94jys7/ZjfuS2P9gQjcmb
+         gIX32zFXJ+GQ6b/emCImr9829fRGzfsmfwens8PK5kWpDv5W2JtAlY/jud3+cNg9c9LY
+         PDyfJJwRacze2ZPV3RvlCuTLpPISKzxD9Fc8VI3KznrsuqBDuciIW+EIs5URDjfjBLPV
+         lpRTtfo5drTS2XC7WCJztL0s0QsYG+bnv3BeoAE7QQASMd6kT1g33v186glcd9JFK8tR
+         /oNLeeDvxgu+ri9uEcNIjc+UMemM/BqCN+v0DtdfTLQkJQn9U1jml+YcCSg7vWU1JnxW
+         RPzw==
+X-Gm-Message-State: AOAM533BxiAvAzLOICTf8rtxT+d3T7XQkbJdpIOjDTuFULnYI7UfXCcG
+        gE1kXsyvKWxe9zx9xbLYa522peGa1U1cQWE/7x4=
+X-Google-Smtp-Source: ABdhPJzFoIn78Lp4wnf0kYFF3TXrdo7QcL9/NZ62n/cDuV0zl3L5ZDiqeB+mDhq4xkfM35WmnUHJuj5OJliHPXU6gGM=
+X-Received: by 2002:a05:6102:5715:b0:31b:3dc6:10fd with SMTP id
+ dg21-20020a056102571500b0031b3dc610fdmr7679285vsb.50.1645467168788; Mon, 21
+ Feb 2022 10:12:48 -0800 (PST)
 MIME-Version: 1.0
+References: <yonglin.tan@outlook.com> <MEYP282MB237454C97E14056454FBBC77FD3A9@MEYP282MB2374.AUSP282.PROD.OUTLOOK.COM>
+ <CAMZdPi_7KGx69s5tFumkswVXiQSdxXZjDXT5f9njRnBNz1k-VA@mail.gmail.com> <MEYP282MB2374BDAB34B7AE65C1246A44FD3A9@MEYP282MB2374.AUSP282.PROD.OUTLOOK.COM>
+In-Reply-To: <MEYP282MB2374BDAB34B7AE65C1246A44FD3A9@MEYP282MB2374.AUSP282.PROD.OUTLOOK.COM>
+From:   Sergey Ryazanov <ryazanov.s.a@gmail.com>
+Date:   Mon, 21 Feb 2022 21:12:55 +0300
+Message-ID: <CAHNKnsQtENMg2pv+AD1BYm=MA63O3j=1agUXGdgogpZh5c6JCw@mail.gmail.com>
+Subject: Re: [PATCH] net: wwan: To support SAHARA port for Qualcomm WWAN module.
+To:     =?UTF-8?B?6LCtIOawuOaelw==?= <yonglin.tan@outlook.com>
+Cc:     Loic Poulain <loic.poulain@linaro.org>,
+        "johannes@sipsolutions.net" <johannes@sipsolutions.net>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "kuba@kernel.org" <kuba@kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Kernel: v4.9.302-34-g6686f147d38f
-Subject: stable-rc/linux-4.9.y baseline: 58 runs,
- 1 regressions (v4.9.302-34-g6686f147d38f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 58 runs, 1 regressions (v4.9.302-34-g6686f1=
-47d38f)
+Hello Yonglin,
 
-Regressions Summary
--------------------
+On Mon, Feb 21, 2022 at 7:21 PM =E8=B0=AD =E6=B0=B8=E6=9E=97 <yonglin.tan@o=
+utlook.com> wrote:
+> SAHARA protocol is used not only to dump the memory but also to enable FW=
+ downloading.
+> The protocol is designed primarily for transferring software images from =
+a host to a target and provides a simple mechanism for requesting data to b=
+e transferred over any physical link.
+>
+> To conclude, the SAHARA port provide a mechanism to transfer messages bet=
+ween host and device during SBL.
+>
+> -----=E9=82=AE=E4=BB=B6=E5=8E=9F=E4=BB=B6-----
+> =E5=8F=91=E4=BB=B6=E4=BA=BA: Loic Poulain <loic.poulain@linaro.org>
+> =E5=8F=91=E9=80=81=E6=97=B6=E9=97=B4: 2022=E5=B9=B42=E6=9C=8822=E6=97=A5 =
+0:03
+> =E6=94=B6=E4=BB=B6=E4=BA=BA: Yonglin Tan <yonglin.tan@outlook.com>
+> =E6=8A=84=E9=80=81: ryazanov.s.a@gmail.com; johannes@sipsolutions.net; da=
+vem@davemloft.net; kuba@kernel.org; netdev@vger.kernel.org; linux-kernel@vg=
+er.kernel.org; stable@vger.kernel.org
+> =E4=B8=BB=E9=A2=98: Re: [PATCH] net: wwan: To support SAHARA port for Qua=
+lcomm WWAN module.
+>
+> Hi Yonglin,
+>
+> On Mon, 21 Feb 2022 at 13:21, Yonglin Tan <yonglin.tan@outlook.com> wrote=
+:
+>>
+>> The SAHARA port for Qualcomm WWAN module is used to capture memory
+>> dump. But now this feature has not been supported by linux kernel
+>> code. Such that no SAHARA driver matched while the device entered to
+>> DUMP mode. Once the device crashed due to some reasons, device will
+>> enter into DUMP mode and running in SBL stage. After that, the device
+>> change EE to SBL and the host will detect the EE change event and
+>> re-enumerate SAHARA port.
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: fa588eba632d ("net: Add Qcom WWAN control driver")
+>> Signed-off-by: Yonglin Tan <yonglin.tan@outlook.com>
+>> Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+>
+> Sorry, but I've not yet offered that tag :-)
+>
+> The WWAN framework is a generic way to expose a WWAN device and its relat=
+ed control/data protocols, such as AT, QMI, MBIM, QCDM, etc...
+> All the exposed protocols are supported by open-source user tools/daemons=
+ such as ModemManager, ofono, fwupd... SAHARA does not seem to be WWAN spec=
+ific and is not something needed for controlling a modem, right?
+>
+> I know it would be easier to just add this channel to the WWAN ports, but=
+ we don't want to rawly expose something that could fit into an existing fr=
+amework/subsystem, that's why I referred to the devcoredump framework, whic=
+h 'seems' a better place for its integration. But I could be wrong, I don't=
+ know much about devcoredump and maybe SAHARA is doing much more than a fir=
+mware coredump...
+>
+> As a last resort, I think this kind of debug interface should go to debug=
+fs.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Here I agree with Loic. An interface that is exported through the WWAN
+subsystem should be common enough for WWAN devices. For a firmware
+crash dump collection, there are better solutions like devcoredump as
+already pointed out by Loic. The firmware update function can be
+implemented using the devlink firmware flashing API. You could see the
+use of both APIs in the IOSM driver.
 
+If none of these interfaces can be used to utilize the SAHARA
+functionality, then, as Loic has already pointed out, such an
+interface should probably go to the debugfs. But I suggest to
+implement the firmware management functionality using the generic
+kernel API. This will save time for end users, distro maintainers and
+probably for modem vendor support too.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.302-34-g6686f147d38f/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.302-34-g6686f147d38f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6686f147d38ff2b3ffc43718976bb9ff43c5fcc5 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/62139fcc3bd9b5067cc629bb
-
-  Results:     4 PASS, 1 FAIL, 2 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.302=
--34-g6686f147d38f/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.302=
--34-g6686f147d38f/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220218.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/62139fcc3bd9b50=
-67cc629be
-        failing since 4 days (last pass: v4.9.301-35-g133617288e03, first f=
-ail: v4.9.302)
-        2 lines
-
-    2022-02-21T14:20:45.729619  [   20.692626] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-02-21T14:20:45.774681  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/122
-    2022-02-21T14:20:45.783967  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
+--=20
+Sergey
