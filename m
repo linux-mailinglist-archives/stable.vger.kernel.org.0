@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA394BE1C2
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09C4E4BE200
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:54:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351454AbiBUJtY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:49:24 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42464 "EHLO
+        id S1346204AbiBUJ2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:28:34 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352884AbiBUJsA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:00 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0A34192B7;
-        Mon, 21 Feb 2022 01:20:52 -0800 (PST)
+        with ESMTP id S1349141AbiBUJ1f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C909913F12;
+        Mon, 21 Feb 2022 01:12:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4C747CE0E7A;
-        Mon, 21 Feb 2022 09:20:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31F84C340E9;
-        Mon, 21 Feb 2022 09:20:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6638560018;
+        Mon, 21 Feb 2022 09:12:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C370C340E9;
+        Mon, 21 Feb 2022 09:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435249;
-        bh=bYmxFUxu5FgBnwgvdPY3DcQ50JmfRGtEJ/k/w9849Q0=;
+        s=korg; t=1645434746;
+        bh=lO9+SfRYxZy7LfpZ9kZoV+XdWXmb8YWDq3BsOi5WrkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/9qnWVRnyPdyO1f+4r2brJ+qvbuRMpAI0+cX3xOBIB1V8TKL+QOatWp4N0nnsno4
-         OHdTCSdqe8Zr24dPIxkePAEUBLK+WBfBdKbS0+KFmcnGj5UMNm3L6/dvXB7BonjVKO
-         deClWiHyNT8A8F/wZgEzATHLst2QaCNF+0fzbshY=
+        b=GInGNqsRouSkb4v2u6VrWdpcTGEqSQCBKIBReyktHbfl+ALi8P4NbzspzWo0DEhwW
+         s77tDg9ln3KgcpafrIQY3WmzVESqM0JrHHiy7fjPwktGrFigCZWQ2TXcUH+jID7/2n
+         0rrcvZv4QABtoZoQc5at7TM9jyZeYWKwr2QZcqdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.16 097/227] netfilter: xt_socket: fix a typo in socket_mt_destroy()
+        stable@vger.kernel.org, Congyu Liu <liu3101@purdue.edu>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 084/196] ipv6: per-netns exclusive flowlabel checks
 Date:   Mon, 21 Feb 2022 09:48:36 +0100
-Message-Id: <20220221084938.106083394@linuxfoundation.org>
+Message-Id: <20220221084933.742361302@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Willem de Bruijn <willemb@google.com>
 
-commit 75063c9294fb239bbe64eb72141b6871fe526d29 upstream.
+commit 0b0dff5b3b98c5c7ce848151df9da0b3cdf0cc8b upstream.
 
-Calling nf_defrag_ipv4_disable() instead of nf_defrag_ipv6_disable()
-was probably not the intent.
+Ipv6 flowlabels historically require a reservation before use.
+Optionally in exclusive mode (e.g., user-private).
 
-I found this by code inspection, while chasing a possible issue in TPROXY.
+Commit 59c820b2317f ("ipv6: elide flowlabel check if no exclusive
+leases exist") introduced a fastpath that avoids this check when no
+exclusive leases exist in the system, and thus any flowlabel use
+will be granted.
 
-Fixes: de8c12110a13 ("netfilter: disable defrag once its no longer needed")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+That allows skipping the control operation to reserve a flowlabel
+entirely. Though with a warning if the fast path fails:
+
+  This is an optimization. Robust applications still have to revert to
+  requesting leases if the fast path fails due to an exclusive lease.
+
+Still, this is subtle. Better isolate network namespaces from each
+other. Flowlabels are per-netns. Also record per-netns whether
+exclusive leases are in use. Then behavior does not change based on
+activity in other netns.
+
+Changes
+  v2
+    - wrap in IS_ENABLED(CONFIG_IPV6) to avoid breakage if disabled
+
+Fixes: 59c820b2317f ("ipv6: elide flowlabel check if no exclusive leases exist")
+Link: https://lore.kernel.org/netdev/MWHPR2201MB1072BCCCFCE779E4094837ACD0329@MWHPR2201MB1072.namprd22.prod.outlook.com/
+Reported-by: Congyu Liu <liu3101@purdue.edu>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Tested-by: Congyu Liu <liu3101@purdue.edu>
+Link: https://lore.kernel.org/r/20220215160037.1976072-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/xt_socket.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/ipv6.h       |    5 ++++-
+ include/net/netns/ipv6.h |    3 ++-
+ net/ipv6/ip6_flowlabel.c |    4 +++-
+ 3 files changed, 9 insertions(+), 3 deletions(-)
 
---- a/net/netfilter/xt_socket.c
-+++ b/net/netfilter/xt_socket.c
-@@ -221,7 +221,7 @@ static void socket_mt_destroy(const stru
- 	if (par->family == NFPROTO_IPV4)
- 		nf_defrag_ipv4_disable(par->net);
- 	else if (par->family == NFPROTO_IPV6)
--		nf_defrag_ipv4_disable(par->net);
-+		nf_defrag_ipv6_disable(par->net);
+--- a/include/net/ipv6.h
++++ b/include/net/ipv6.h
+@@ -391,17 +391,20 @@ static inline void txopt_put(struct ipv6
+ 		kfree_rcu(opt, rcu);
  }
  
- static struct xt_match socket_mt_reg[] __read_mostly = {
++#if IS_ENABLED(CONFIG_IPV6)
+ struct ip6_flowlabel *__fl6_sock_lookup(struct sock *sk, __be32 label);
+ 
+ extern struct static_key_false_deferred ipv6_flowlabel_exclusive;
+ static inline struct ip6_flowlabel *fl6_sock_lookup(struct sock *sk,
+ 						    __be32 label)
+ {
+-	if (static_branch_unlikely(&ipv6_flowlabel_exclusive.key))
++	if (static_branch_unlikely(&ipv6_flowlabel_exclusive.key) &&
++	    READ_ONCE(sock_net(sk)->ipv6.flowlabel_has_excl))
+ 		return __fl6_sock_lookup(sk, label) ? : ERR_PTR(-ENOENT);
+ 
+ 	return NULL;
+ }
++#endif
+ 
+ struct ipv6_txoptions *fl6_merge_options(struct ipv6_txoptions *opt_space,
+ 					 struct ip6_flowlabel *fl,
+--- a/include/net/netns/ipv6.h
++++ b/include/net/netns/ipv6.h
+@@ -77,9 +77,10 @@ struct netns_ipv6 {
+ 	spinlock_t		fib6_gc_lock;
+ 	unsigned int		 ip6_rt_gc_expire;
+ 	unsigned long		 ip6_rt_last_gc;
++	unsigned char		flowlabel_has_excl;
+ #ifdef CONFIG_IPV6_MULTIPLE_TABLES
+-	unsigned int		fib6_rules_require_fldissect;
+ 	bool			fib6_has_custom_rules;
++	unsigned int		fib6_rules_require_fldissect;
+ #ifdef CONFIG_IPV6_SUBTREES
+ 	unsigned int		fib6_routes_require_src;
+ #endif
+--- a/net/ipv6/ip6_flowlabel.c
++++ b/net/ipv6/ip6_flowlabel.c
+@@ -450,8 +450,10 @@ fl_create(struct net *net, struct sock *
+ 		err = -EINVAL;
+ 		goto done;
+ 	}
+-	if (fl_shared_exclusive(fl) || fl->opt)
++	if (fl_shared_exclusive(fl) || fl->opt) {
++		WRITE_ONCE(sock_net(sk)->ipv6.flowlabel_has_excl, 1);
+ 		static_branch_deferred_inc(&ipv6_flowlabel_exclusive);
++	}
+ 	return fl;
+ 
+ done:
 
 
