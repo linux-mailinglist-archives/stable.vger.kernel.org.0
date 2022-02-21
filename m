@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A388D4BE061
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52CBA4BDC62
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347090AbiBUJEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:04:15 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45918 "EHLO
+        id S1349206AbiBUJ2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:28:46 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347088AbiBUJD2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:03:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5BCE2D1ED;
-        Mon, 21 Feb 2022 00:58:32 -0800 (PST)
+        with ESMTP id S1349297AbiBUJ1h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C1BB237E0;
+        Mon, 21 Feb 2022 01:12:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29EB5B80EB7;
-        Mon, 21 Feb 2022 08:58:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68031C340E9;
-        Mon, 21 Feb 2022 08:58:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3891360B1B;
+        Mon, 21 Feb 2022 09:12:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F873C340E9;
+        Mon, 21 Feb 2022 09:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433910;
-        bh=S9gZPcdScvRNbdzVA9eIvwHOVONnGM7IUeu6UrDlv2o=;
+        s=korg; t=1645434763;
+        bh=g/HgtpBBObGeQPvjdrbi8IklQvypj/Rpp30Wgl/uAwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lu2LV/ZNPcqMnUs8U4FR9uhRAAQRoNrTSlNqjDFkvudZ4Atl0yIXNBOgSlufN9AMW
-         NtSexv7QiJH7IIBkTX/ydIgxtln5exS+s0WhIJt7PC29l6mOWUlzD/AEfwnZRFjsyZ
-         JPqgPta8Pn1LSItPCmDt9OY+97pt2rIivJNsMp6s=
+        b=G3zrkz3EUfLHWEtuuaajsayj2MJaKouxjNnD45TzXx1X2ZRNFbkY7a0hO14an5Rk8
+         pvhEz9OYdoXymWfWTA0woot0RPTI6Y0d6rOTxy5A6zCSmqtQvVJiwYxoSG0BMoCRpa
+         tNlbMvLjnqE0vK9Gb4VZEwyPrx85fXswzfoOOJLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
-        Wolfgang Walter <linux@stwm.de>,
-        Jason Self <jason@bluehome.net>,
-        Dominik Behr <dominik@dominikbehr.com>,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.4 27/80] iwlwifi: fix use-after-free
+        stable@vger.kernel.org, dmummenschanz@web.de,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 115/196] ALSA: hda: Fix missing codec probe on Shenker Dock 15
 Date:   Mon, 21 Feb 2022 09:49:07 +0100
-Message-Id: <20220221084916.473428932@linuxfoundation.org>
+Message-Id: <20220221084934.796379626@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,45 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit bea2662e7818e15d7607d17d57912ac984275d94 upstream.
+commit dd8e5b161d7fb9cefa1f1d6e35a39b9e1563c8d3 upstream.
 
-If no firmware was present at all (or, presumably, all of the
-firmware files failed to parse), we end up unbinding by calling
-device_release_driver(), which calls remove(), which then in
-iwlwifi calls iwl_drv_stop(), freeing the 'drv' struct. However
-the new code I added will still erroneously access it after it
-was freed.
+By some unknown reason, BIOS on Shenker Dock 15 doesn't set up the
+codec mask properly for the onboard audio.  Let's set the forced codec
+mask to enable the codec discovery.
 
-Set 'failure=false' in this case to avoid the access, all data
-was already freed anyway.
-
-Cc: stable@vger.kernel.org
-Reported-by: Stefan Agner <stefan@agner.ch>
-Reported-by: Wolfgang Walter <linux@stwm.de>
-Reported-by: Jason Self <jason@bluehome.net>
-Reported-by: Dominik Behr <dominik@dominikbehr.com>
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Fixes: ab07506b0454 ("iwlwifi: fix leaks/bad data after failed firmware load")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220208114728.e6b514cf4c85.Iffb575ca2a623d7859b542c33b2a507d01554251@changeid
+Reported-by: dmummenschanz@web.de
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/trinity-f018660b-95c9-442b-a2a8-c92a56eb07ed-1644345967148@3c-app-webde-bap22
+Link: https://lore.kernel.org/r/20220214100020.8870-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/iwl-drv.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/hda_intel.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-@@ -1616,6 +1616,8 @@ static void iwl_req_fw_callback(const st
-  out_unbind:
- 	complete(&drv->request_firmware_complete);
- 	device_release_driver(drv->trans->dev);
-+	/* drv has just been freed by the release */
-+	failure = false;
-  free:
- 	if (failure)
- 		iwl_dealloc_ucode(drv);
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1611,6 +1611,7 @@ static const struct snd_pci_quirk probe_
+ 	/* forced codec slots */
+ 	SND_PCI_QUIRK(0x1043, 0x1262, "ASUS W5Fm", 0x103),
+ 	SND_PCI_QUIRK(0x1046, 0x1262, "ASUS W5F", 0x103),
++	SND_PCI_QUIRK(0x1558, 0x0351, "Schenker Dock 15", 0x105),
+ 	/* WinFast VP200 H (Teradici) user reported broken communication */
+ 	SND_PCI_QUIRK(0x3a21, 0x040d, "WinFast VP200 H", 0x101),
+ 	{}
 
 
