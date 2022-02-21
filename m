@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB8A94BE97C
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:07:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C26AC4BE161
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346833AbiBUJGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:06:03 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42032 "EHLO
+        id S1347847AbiBUJOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:14:11 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343987AbiBUJEs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:04:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C50632DD70;
-        Mon, 21 Feb 2022 00:58:51 -0800 (PST)
+        with ESMTP id S1349600AbiBUJMh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:12:37 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 024D6240B1;
+        Mon, 21 Feb 2022 01:05:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69C8CB80EBB;
-        Mon, 21 Feb 2022 08:58:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DA38C340E9;
-        Mon, 21 Feb 2022 08:58:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 72FE3CE0E93;
+        Mon, 21 Feb 2022 09:05:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5637CC340E9;
+        Mon, 21 Feb 2022 09:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433930;
-        bh=ww4qvgER5OPZ4qzfq4h55HS9IV8nlvw5JDBb4dbZ2SY=;
+        s=korg; t=1645434334;
+        bh=jv+AVOl/lBgMwyLrAswELFvOAFp14rzSsl/8i6LyfMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rpew3xnRZCpT1e3NMO5M5VLZCr9iZmG/UC03ZYnoHzZ4DCAcUq7WaZ0avYFai724t
-         ar2pr0ufgZTP6zRnX1KMW3tZvW7T3TrJBHHEy8lhs2n3GoRNp01SmyPw2aGB7tAB+C
-         vWmSo+kUAYC3BoJoH/AFYfXwbIEjZNn1WCVIcsp4=
+        b=QvIv2tAmGEPkzy82gmIKnKsYONwzLGPyOHJ13zdZw7jGPPznKdZF2YVxH2Y8IPCHd
+         4OXehJzqKzZuJ63SLmWFC63IeNr00ZHXx5JOiHNBP/dTBpk867X/dnTrxQTJnnRhYA
+         VpQox7mo9SkSUcs5thzCMaVFN6i8vGvm/vOG8E3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Mickael GARDET <m.gardet@overkiz.com>
-Subject: [PATCH 5.4 33/80] dmaengine: at_xdmac: Start transfer for cyclic channels in issue_pending
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 061/121] bonding: force carrier update when releasing slave
 Date:   Mon, 21 Feb 2022 09:49:13 +0100
-Message-Id: <20220221084916.660763875@linuxfoundation.org>
+Message-Id: <20220221084923.279700717@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit e6af9b05bec63cd4d1de2a33968cd0be2a91282a upstream.
+commit a6ab75cec1e461f8a35559054c146c21428430b8 upstream.
 
-Cyclic channels must too call issue_pending in order to start a transfer.
-Start the transfer in issue_pending regardless of the type of channel.
-This wrongly worked before, because in the past the transfer was started
-at tx_submit level when only a desc in the transfer list.
+In __bond_release_one(), bond_set_carrier() is only called when bond
+device has no slave. Therefore, if we remove the up slave from a master
+with two slaves and keep the down slave, the master will remain up.
 
-Fixes: e1f7c9eee707 ("dmaengine: at_xdmac: creation of the atmel eXtended DMA Controller driver")
-Change-Id: If1bf3e13329cebb9904ae40620f6cf2b7f06fe9f
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Link: https://lore.kernel.org/r/20211215110115.191749-3-tudor.ambarus@microchip.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Mickael GARDET <m.gardet@overkiz.com>
+Fix this by moving bond_set_carrier() out of if (!bond_has_slaves(bond))
+statement.
+
+Reproducer:
+$ insmod bonding.ko mode=0 miimon=100 max_bonds=2
+$ ifconfig bond0 up
+$ ifenslave bond0 eth0 eth1
+$ ifconfig eth0 down
+$ ifenslave -d bond0 eth1
+$ cat /proc/net/bonding/bond0
+
+Fixes: ff59c4563a8d ("[PATCH] bonding: support carrier state for master")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Link: https://lore.kernel.org/r/1645021088-38370-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/at_xdmac.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/bonding/bond_main.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/dma/at_xdmac.c
-+++ b/drivers/dma/at_xdmac.c
-@@ -1726,11 +1726,13 @@ static irqreturn_t at_xdmac_interrupt(in
- static void at_xdmac_issue_pending(struct dma_chan *chan)
- {
- 	struct at_xdmac_chan *atchan = to_at_xdmac_chan(chan);
-+	unsigned long flags;
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2272,10 +2272,9 @@ static int __bond_release_one(struct net
+ 		bond_select_active_slave(bond);
+ 	}
  
- 	dev_dbg(chan2dev(&atchan->chan), "%s\n", __func__);
+-	if (!bond_has_slaves(bond)) {
+-		bond_set_carrier(bond);
++	bond_set_carrier(bond);
++	if (!bond_has_slaves(bond))
+ 		eth_hw_addr_random(bond_dev);
+-	}
  
--	if (!at_xdmac_chan_is_cyclic(atchan))
--		at_xdmac_advance_work(atchan);
-+	spin_lock_irqsave(&atchan->lock, flags);
-+	at_xdmac_advance_work(atchan);
-+	spin_unlock_irqrestore(&atchan->lock, flags);
- 
- 	return;
- }
+ 	unblock_netpoll_tx();
+ 	synchronize_rcu();
 
 
