@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F2D54BE627
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E921D4BE80E
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:04:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350617AbiBUJsc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:48:32 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41550 "EHLO
+        id S242871AbiBUJse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:48:34 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351431AbiBUJpS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:45:18 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E44F24583;
-        Mon, 21 Feb 2022 01:18:19 -0800 (PST)
+        with ESMTP id S1351367AbiBUJpY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:45:24 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 204763F33A;
+        Mon, 21 Feb 2022 01:18:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BFF20CE0E95;
-        Mon, 21 Feb 2022 09:18:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9057C340E9;
-        Mon, 21 Feb 2022 09:18:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8282FCE0EA6;
+        Mon, 21 Feb 2022 09:18:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75275C340E9;
+        Mon, 21 Feb 2022 09:18:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435097;
-        bh=njprf4EQZkcdf9skW1BHjZeK2PaGU6yJPOz+Hrf9oxY=;
+        s=korg; t=1645435100;
+        bh=6wwCy+7tkebM8/7dK4CKcqnK1CtFIcuPJOwlQ8zq+bc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJNrUXnT9Ufg8hzBcjNz20tKINP4Z/xxq7KvwP5RODk58VOvej02Db4o305cP5j3F
-         hS+LL2JcyVCIStJ1TS/WUF6UBdYHc3q43De+u3Hh0tIZN0idqxMJ305TZ6RWbDgGPt
-         NaWReurrcbrdHvJKj0T0qE45hAUGl26m7FmG/s3c=
+        b=imOh8pCzKkoYebuXY8VIT6Mr3iykDaNxnsmlheR5K9GyjayNzAew0pToHEBBJD+WM
+         EAOMjLdr1kxcpvWcXNFvkqfdxfu3XYBHfRDE9T81m3q/i8hYaFNfv4d2GHIvLx4Fjd
+         /zYZuTMuuLhCdmiL9+mc02HZZSnFXAA774ZkrE3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergio Costas <rastersoft@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 5.16 011/227] HID:Add support for UGTABLET WP5540
-Date:   Mon, 21 Feb 2022 09:47:10 +0100
-Message-Id: <20220221084935.216097176@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.16 012/227] Revert "svm: Add warning message for AVIC IPI invalid target"
+Date:   Mon, 21 Feb 2022 09:47:11 +0100
+Message-Id: <20220221084935.246938526@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
 References: <20220221084934.836145070@linuxfoundation.org>
@@ -53,43 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergio Costas <rastersoft@gmail.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit fd5dd6acd8f823ea804f76d3af64fa1be9d5fb78 upstream.
+commit dd4589eee99db8f61f7b8f7df1531cad3f74a64d upstream.
 
-This patch adds support for the UGTABLET WP5540 digitizer tablet
-devices. Without it, the pen moves the cursor, but neither the
-buttons nor the tap sensor in the tip do work.
+Remove a WARN on an "AVIC IPI invalid target" exit, the WARN is trivial
+to trigger from guest as it will fail on any destination APIC ID that
+doesn't exist from the guest's perspective.
 
-Signed-off-by: Sergio Costas <rastersoft@gmail.com>
-Link: https://lore.kernel.org/r/63dece1d-91ca-1b1b-d90d-335be66896be@gmail.com
+Don't bother recording anything in the kernel log, the common tracepoint
+for kvm_avic_incomplete_ipi() is sufficient for debugging.
+
+This reverts commit 37ef0c4414c9743ba7f1af4392f0a27a99649f2a.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220204214205.3306634-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-ids.h    |    1 +
- drivers/hid/hid-quirks.c |    1 +
- 2 files changed, 2 insertions(+)
+ arch/x86/kvm/svm/avic.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1365,6 +1365,7 @@
- #define USB_VENDOR_ID_UGTIZER			0x2179
- #define USB_DEVICE_ID_UGTIZER_TABLET_GP0610	0x0053
- #define USB_DEVICE_ID_UGTIZER_TABLET_GT5040	0x0077
-+#define USB_DEVICE_ID_UGTIZER_TABLET_WP5540	0x0004
- 
- #define USB_VENDOR_ID_VIEWSONIC			0x0543
- #define USB_DEVICE_ID_VIEWSONIC_PD1011		0xe621
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -187,6 +187,7 @@ static const struct hid_device_id hid_qu
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWA60), HID_QUIRK_MULTI_INPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER, USB_DEVICE_ID_UGTIZER_TABLET_WP5540), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SIRIUS_BATTERY_FREE_TABLET), HID_QUIRK_MULTI_INPUT },
+--- a/arch/x86/kvm/svm/avic.c
++++ b/arch/x86/kvm/svm/avic.c
+@@ -342,8 +342,6 @@ int avic_incomplete_ipi_interception(str
+ 		avic_kick_target_vcpus(vcpu->kvm, apic, icrl, icrh);
+ 		break;
+ 	case AVIC_IPI_FAILURE_INVALID_TARGET:
+-		WARN_ONCE(1, "Invalid IPI target: index=%u, vcpu=%d, icr=%#0x:%#0x\n",
+-			  index, vcpu->vcpu_id, icrh, icrl);
+ 		break;
+ 	case AVIC_IPI_FAILURE_INVALID_BACKING_PAGE:
+ 		WARN_ONCE(1, "Invalid backing page\n");
 
 
