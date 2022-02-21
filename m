@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C8234BDBFB
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A455E4BDE96
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:47:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346357AbiBUI41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:56:27 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44340 "EHLO
+        id S1344179AbiBUJi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:38:28 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346302AbiBUIzo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:55:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5341024BEC;
-        Mon, 21 Feb 2022 00:53:43 -0800 (PST)
+        with ESMTP id S1350390AbiBUJfa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:35:30 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 831632B268;
+        Mon, 21 Feb 2022 01:14:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D58F6118D;
-        Mon, 21 Feb 2022 08:53:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86B96C340F1;
-        Mon, 21 Feb 2022 08:53:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 143D8CE0E8C;
+        Mon, 21 Feb 2022 09:14:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F00C1C340E9;
+        Mon, 21 Feb 2022 09:14:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433604;
-        bh=Sho+2EN2OREeQ4S2SFRqB7ZQHvCM/jTHANkhtSh03Gk=;
+        s=korg; t=1645434854;
+        bh=UDbRe6SGnnIy1uHh+lYT6drs/fy3wFOcDJ5jmYqvJfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h91WGHZc7U5KR0B+QkzlF2nx3DfDFy9SCMomuvnnJ4D/N+5e6H02+3g3k6GKHdsMD
-         VjZTFWkvEW08J+yGY1PzpqzABRgaMziAy7WBlB7WpgxZzOO8gQySyVj2ZyBmtYyzWw
-         acojSZHGnHPB90LSy5fZmxk/2tx4eAgQOFVgRNc8=
+        b=P2YrgEsXs5YbdtvCy1Z0/xJenmBt3Lol++4xIz9hCbgRmSUKuh3VICrulwLQoMWtl
+         8/YQUs5rNa6Qegn51EccZt0ubrc8EA6fqfnF60nKaFfwBbQPHDv+wSmYy5p34/fdV/
+         wgXJZfGlx/4TCNgYWLXEsC1H3mq0YtrfXYG1W8e4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 23/45] ping: fix the dif and sdif check in ping_lookup
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.15 122/196] powerpc/lib/sstep: fix ptesync build error
 Date:   Mon, 21 Feb 2022 09:49:14 +0100
-Message-Id: <20220221084911.208158188@linuxfoundation.org>
+Message-Id: <20220221084935.020048805@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-commit 35a79e64de29e8d57a5989aac57611c0cd29e13e upstream.
+commit fe663df7825811358531dc2e8a52d9eaa5e3515e upstream.
 
-When 'ping' changes to use PING socket instead of RAW socket by:
+Building tinyconfig with gcc (Debian 11.2.0-16) and assembler (Debian
+2.37.90.20220207) the following build error shows up:
 
-   # sysctl -w net.ipv4.ping_group_range="0 100"
+  {standard input}: Assembler messages:
+  {standard input}:2088: Error: unrecognized opcode: `ptesync'
+  make[3]: *** [/builds/linux/scripts/Makefile.build:287: arch/powerpc/lib/sstep.o] Error 1
 
-There is another regression caused when matching sk_bound_dev_if
-and dif, RAW socket is using inet_iif() while PING socket lookup
-is using skb->dev->ifindex, the cmd below fails due to this:
+Add the 'ifdef CONFIG_PPC64' around the 'ptesync' in function
+'emulate_update_regs()' to like it is in 'analyse_instr()'. Since it looks like
+it got dropped inadvertently by commit 3cdfcbfd32b9 ("powerpc: Change
+analyse_instr so it doesn't modify *regs").
 
-  # ip link add dummy0 type dummy
-  # ip link set dummy0 up
-  # ip addr add 192.168.111.1/24 dev dummy0
-  # ping -I dummy0 192.168.111.1 -c1
+A key detail is that analyse_instr() will never recognise lwsync or
+ptesync on 32-bit (because of the existing ifdef), and as a result
+emulate_update_regs() should never be called with an op specifying
+either of those on 32-bit. So removing them from emulate_update_regs()
+should be a nop in terms of runtime behaviour.
 
-The issue was also reported on:
-
-  https://github.com/iputils/iputils/issues/104
-
-But fixed in iputils in a wrong way by not binding to device when
-destination IP is on device, and it will cause some of kselftests
-to fail, as Jianlin noticed.
-
-This patch is to use inet(6)_iif and inet(6)_sdif to get dif and
-sdif for PING socket, and keep consistent with RAW socket.
-
-Fixes: c319b4d76b9e ("net: ipv4: add IPPROTO_ICMP socket kind")
-Reported-by: Jianlin Shi <jishi@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3cdfcbfd32b9 ("powerpc: Change analyse_instr so it doesn't modify *regs")
+Cc: stable@vger.kernel.org # v4.14+
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+[mpe: Add last paragraph of change log mentioning analyse_instr() details]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220211005113.1361436-1-anders.roxell@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ping.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/powerpc/lib/sstep.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/ipv4/ping.c
-+++ b/net/ipv4/ping.c
-@@ -177,16 +177,23 @@ static struct sock *ping_lookup(struct n
- 	struct sock *sk = NULL;
- 	struct inet_sock *isk;
- 	struct hlist_nulls_node *hnode;
--	int dif = skb->dev->ifindex;
-+	int dif, sdif;
- 
- 	if (skb->protocol == htons(ETH_P_IP)) {
-+		dif = inet_iif(skb);
-+		sdif = inet_sdif(skb);
- 		pr_debug("try to find: num = %d, daddr = %pI4, dif = %d\n",
- 			 (int)ident, &ip_hdr(skb)->daddr, dif);
- #if IS_ENABLED(CONFIG_IPV6)
- 	} else if (skb->protocol == htons(ETH_P_IPV6)) {
-+		dif = inet6_iif(skb);
-+		sdif = inet6_sdif(skb);
- 		pr_debug("try to find: num = %d, daddr = %pI6c, dif = %d\n",
- 			 (int)ident, &ipv6_hdr(skb)->daddr, dif);
- #endif
-+	} else {
-+		pr_err("ping: protocol(%x) is not supported\n", ntohs(skb->protocol));
-+		return NULL;
- 	}
- 
- 	read_lock_bh(&ping_table.lock);
-@@ -226,7 +233,7 @@ static struct sock *ping_lookup(struct n
+--- a/arch/powerpc/lib/sstep.c
++++ b/arch/powerpc/lib/sstep.c
+@@ -3181,12 +3181,14 @@ void emulate_update_regs(struct pt_regs
+ 		case BARRIER_EIEIO:
+ 			eieio();
+ 			break;
++#ifdef CONFIG_PPC64
+ 		case BARRIER_LWSYNC:
+ 			asm volatile("lwsync" : : : "memory");
+ 			break;
+ 		case BARRIER_PTESYNC:
+ 			asm volatile("ptesync" : : : "memory");
+ 			break;
++#endif
  		}
+ 		break;
  
- 		if (sk->sk_bound_dev_if && sk->sk_bound_dev_if != dif &&
--		    sk->sk_bound_dev_if != inet_sdif(skb))
-+		    sk->sk_bound_dev_if != sdif)
- 			continue;
- 
- 		sock_hold(sk);
 
 
