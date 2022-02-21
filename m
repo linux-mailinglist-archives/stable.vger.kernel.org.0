@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF5394BDBF3
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE6DA4BDBD5
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346702AbiBUI7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:59:55 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60038 "EHLO
+        id S1350621AbiBUJtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:49:46 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346913AbiBUI7Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:59:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1947025EAB;
-        Mon, 21 Feb 2022 00:55:04 -0800 (PST)
+        with ESMTP id S1352978AbiBUJsF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:05 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4386BF25;
+        Mon, 21 Feb 2022 01:22:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63646B80EB6;
-        Mon, 21 Feb 2022 08:55:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B3FFC36AE7;
-        Mon, 21 Feb 2022 08:55:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A50D1CE0E8B;
+        Mon, 21 Feb 2022 09:22:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C8C2C340E9;
+        Mon, 21 Feb 2022 09:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433701;
-        bh=EvN0GrYMLAEr8DvuwAt9cCcnYzuYRDJPR2oa4KU8Eq0=;
+        s=korg; t=1645435329;
+        bh=mc0aKOxSsDuTXpmJoC/IG9w3zf1N4r0QHjUEA7j//a4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lrxqP4mMhxXSZN/xgEt0csonlpVXWvnSMS+ACQgayzbK//KTIaK6vsDe9U7Fl2FXJ
-         0SnmjQsLKPzf8MUCXVigFGb7JcMdI8CMWQnSOxHMjywQgvQOZapN7kxczrDk+wWXWv
-         FaLV6w3nexCeqSloO+wERKT5uwt2+CAflvf9Lmg0=
+        b=W6YOrFc9EjaJOeL+Qxfp1il7YRCjFa8+dc1lkTCbDUD9suRhDkMC8OzAeK9A2US0x
+         4GBz0zjhwwU8IMSuqotR8fmtiD/ynJaMjaIbyuc5DYrgpQNDDSzgDhcbtmUMjwLL6Y
+         Nmg4AXsXLT4KZPMzJIqIWzuZ9YUt2ZOzDdlg9vYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Christian Brauner <brauner@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/58] vfs: make freeze_super abort when sync_filesystem returns error
+        stable@vger.kernel.org, Gatis Peisenieks <gatis@mikrotik.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.16 126/227] atl1c: fix tx timeout after link flap on Mikrotik 10/25G NIC
 Date:   Mon, 21 Feb 2022 09:49:05 +0100
-Message-Id: <20220221084912.286653712@linuxfoundation.org>
+Message-Id: <20220221084939.035155227@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
-References: <20220221084911.895146879@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <djwong@kernel.org>
+From: Gatis Peisenieks <gatis@mikrotik.com>
 
-[ Upstream commit 2719c7160dcfaae1f73a1c0c210ad3281c19022e ]
+commit bf8e59fd315f304eb538546e35de6dc603e4709f upstream.
 
-If we fail to synchronize the filesystem while preparing to freeze the
-fs, abort the freeze.
+If NIC had packets in tx queue at the moment link down event
+happened, it could result in tx timeout when link got back up.
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Christian Brauner <brauner@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Since device has more than one tx queue we need to reset them
+accordingly.
+
+Fixes: 057f4af2b171 ("atl1c: add 4 RX/TX queue support for Mikrotik 10/25G NIC")
+Signed-off-by: Gatis Peisenieks <gatis@mikrotik.com>
+Link: https://lore.kernel.org/r/20220211065123.4187615-1-gatis@mikrotik.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/super.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/atheros/atl1c/atl1c_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/super.c b/fs/super.c
-index 9fb4553c46e63..8dc26e23f1a35 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -1404,11 +1404,9 @@ static void lockdep_sb_freeze_acquire(struct super_block *sb)
- 		percpu_rwsem_acquire(sb->s_writers.rw_sem + level, 0, _THIS_IP_);
- }
- 
--static void sb_freeze_unlock(struct super_block *sb)
-+static void sb_freeze_unlock(struct super_block *sb, int level)
- {
--	int level;
--
--	for (level = SB_FREEZE_LEVELS - 1; level >= 0; level--)
-+	for (level--; level >= 0; level--)
- 		percpu_up_write(sb->s_writers.rw_sem + level);
- }
- 
-@@ -1479,7 +1477,14 @@ int freeze_super(struct super_block *sb)
- 	sb_wait_write(sb, SB_FREEZE_PAGEFAULT);
- 
- 	/* All writers are done so after syncing there won't be dirty data */
--	sync_filesystem(sb);
-+	ret = sync_filesystem(sb);
-+	if (ret) {
-+		sb->s_writers.frozen = SB_UNFROZEN;
-+		sb_freeze_unlock(sb, SB_FREEZE_PAGEFAULT);
-+		wake_up(&sb->s_writers.wait_unfrozen);
-+		deactivate_locked_super(sb);
-+		return ret;
-+	}
- 
- 	/* Now wait for internal filesystem counter */
- 	sb->s_writers.frozen = SB_FREEZE_FS;
-@@ -1491,7 +1496,7 @@ int freeze_super(struct super_block *sb)
- 			printk(KERN_ERR
- 				"VFS:Filesystem freeze failed\n");
- 			sb->s_writers.frozen = SB_UNFROZEN;
--			sb_freeze_unlock(sb);
-+			sb_freeze_unlock(sb, SB_FREEZE_FS);
- 			wake_up(&sb->s_writers.wait_unfrozen);
- 			deactivate_locked_super(sb);
- 			return ret;
-@@ -1542,7 +1547,7 @@ static int thaw_super_locked(struct super_block *sb)
+--- a/drivers/net/ethernet/atheros/atl1c/atl1c_main.c
++++ b/drivers/net/ethernet/atheros/atl1c/atl1c_main.c
+@@ -900,7 +900,7 @@ static void atl1c_clean_tx_ring(struct a
+ 		atl1c_clean_buffer(pdev, buffer_info);
  	}
  
- 	sb->s_writers.frozen = SB_UNFROZEN;
--	sb_freeze_unlock(sb);
-+	sb_freeze_unlock(sb, SB_FREEZE_FS);
- out:
- 	wake_up(&sb->s_writers.wait_unfrozen);
- 	deactivate_locked_super(sb);
--- 
-2.34.1
-
+-	netdev_reset_queue(adapter->netdev);
++	netdev_tx_reset_queue(netdev_get_tx_queue(adapter->netdev, queue));
+ 
+ 	/* Zero out Tx-buffers */
+ 	memset(tpd_ring->desc, 0, sizeof(struct atl1c_tpd_desc) *
 
 
