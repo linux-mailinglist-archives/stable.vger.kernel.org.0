@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 802BF4BE634
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBC044BE927
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:06:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347369AbiBUJHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:07:51 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46224 "EHLO
+        id S245119AbiBUKFA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 05:05:00 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347598AbiBUJHI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:07:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D81CE26567;
-        Mon, 21 Feb 2022 00:59:53 -0800 (PST)
+        with ESMTP id S1352990AbiBUJ5A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90C3B45530;
+        Mon, 21 Feb 2022 01:24:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74FA461152;
-        Mon, 21 Feb 2022 08:59:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 606D0C340E9;
-        Mon, 21 Feb 2022 08:59:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E753B80EB1;
+        Mon, 21 Feb 2022 09:24:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CBF1C340E9;
+        Mon, 21 Feb 2022 09:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433992;
-        bh=XNcZJD8WoDEQAQnmMUE/R3Xrqgj7fY2o72ZslMisX7s=;
+        s=korg; t=1645435489;
+        bh=yZXY8AcCl5920w1ObP5o3jbBfBFqVp7ha7l5VdB4S+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=moSkn9ZBd2mvChxlwmrK7IlPsOv8HF4ZG/IhUzhfzaUKpmhanOu7NYdVNqcMYYEpm
-         tV205QsdnOAW4p4o3G2slWGmfR6+67qK1r0qRQO/i2kQUrPwezz9DYoQM8w0vJBDWP
-         n5KMGwkiLxJgBgiFH036Wa7eBlhmSobcE3eCvmpE=
+        b=jxrmUK7U45Tt1b3cVEeECAMObbtsizKGwJ+Uk7cwp1mfo0Tz5VynRcaCu0A/h46sx
+         gTXtGwMVMbArR9bBTezdekLHb2Dg21cJ3pfuhF4ZRs5Scia+5zKKYC3YV5iNOlnSFw
+         AoIjH7XY+j0nLTRo5gbobOYFWPJpaeM8CKEoIf/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 48/80] ASoC: ops: Fix stereo change notifications in snd_soc_put_volsw()
+        stable@vger.kernel.org, Woody Suwalski <wsuwalski@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.16 149/227] ACPI: processor: idle: fix lockup regression on 32-bit ThinkPad T40
 Date:   Mon, 21 Feb 2022 09:49:28 +0100
-Message-Id: <20220221084917.145751668@linuxfoundation.org>
+Message-Id: <20220221084939.789054473@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Woody Suwalski <wsuwalski@gmail.com>
 
-commit 564778d7b1ea465f9487eedeece7527a033549c5 upstream.
+commit bfe55a1f7fd6bfede16078bf04c6250fbca11588 upstream.
 
-When writing out a stereo control we discard the change notification from
-the first channel, meaning that events are only generated based on changes
-to the second channel. Ensure that we report a change if either channel
-has changed.
+Add and ACPI idle power level limit for 32-bit ThinkPad T40.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220201155629.120510-2-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+There is a regression on T40 introduced by commit d6b88ce2, starting
+with kernel 5.16:
+
+commit d6b88ce2eb9d2698eb24451eb92c0a1649b17bb1
+Author: Richard Gong <richard.gong@amd.com>
+Date:   Wed Sep 22 08:31:16 2021 -0500
+
+  ACPI: processor idle: Allow playing dead in C3 state
+
+The above patch is trying to enter C3 state during init, what is causing
+a T40 system freeze. I have not found a similar issue on any other of my
+32-bit machines.
+
+The fix is to add another exception to the processor_power_dmi_table[] list.
+As a result the dmesg shows as expected:
+
+[2.155398] ACPI: IBM ThinkPad T40 detected - limiting to C2 max_cstate. Override with "processor.max_cstate=9"
+[2.155404] ACPI: processor limited to max C-state 2
+
+The fix is trivial and affects only vintage T40 systems.
+
+Fixes: d6b88ce2eb9d ("CPI: processor idle: Allow playing dead in C3 state")
+Signed-off-by: Woody Suwalski <wsuwalski@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Cc: 5.16+ <stable@vger.kernel.org> # 5.16+
+[ rjw: New subject ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-ops.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/acpi/processor_idle.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/sound/soc/soc-ops.c
-+++ b/sound/soc/soc-ops.c
-@@ -314,7 +314,7 @@ int snd_soc_put_volsw(struct snd_kcontro
- 	unsigned int sign_bit = mc->sign_bit;
- 	unsigned int mask = (1 << fls(max)) - 1;
- 	unsigned int invert = mc->invert;
--	int err;
-+	int err, ret;
- 	bool type_2r = false;
- 	unsigned int val2 = 0;
- 	unsigned int val, val_mask;
-@@ -356,12 +356,18 @@ int snd_soc_put_volsw(struct snd_kcontro
- 	err = snd_soc_component_update_bits(component, reg, val_mask, val);
- 	if (err < 0)
- 		return err;
-+	ret = err;
- 
--	if (type_2r)
-+	if (type_2r) {
- 		err = snd_soc_component_update_bits(component, reg2, val_mask,
--			val2);
-+						    val2);
-+		/* Don't discard any error code or drop change flag */
-+		if (ret == 0 || err < 0) {
-+			ret = err;
-+		}
-+	}
- 
--	return err;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(snd_soc_put_volsw);
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -95,6 +95,11 @@ static const struct dmi_system_id proces
+ 	  DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK Computer Inc."),
+ 	  DMI_MATCH(DMI_PRODUCT_NAME,"L8400B series Notebook PC")},
+ 	 (void *)1},
++	/* T40 can not handle C3 idle state */
++	{ set_max_cstate, "IBM ThinkPad T40", {
++	  DMI_MATCH(DMI_SYS_VENDOR, "IBM"),
++	  DMI_MATCH(DMI_PRODUCT_NAME, "23737CU")},
++	 (void *)2},
+ 	{},
+ };
  
 
 
