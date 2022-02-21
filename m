@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F34B14BDD87
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:45:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B591F4BDFBA
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:50:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349588AbiBUJ2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:28:05 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48062 "EHLO
+        id S1349571AbiBUJ2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:28:04 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345134AbiBUJ1X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:23 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB8776344;
-        Mon, 21 Feb 2022 01:11:52 -0800 (PST)
+        with ESMTP id S1348513AbiBUJ1c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8783E634A;
+        Mon, 21 Feb 2022 01:11:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 56CBECE0E79;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22BE260C1D;
+        Mon, 21 Feb 2022 09:11:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0952DC340E9;
         Mon, 21 Feb 2022 09:11:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36B83C340E9;
-        Mon, 21 Feb 2022 09:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434709;
-        bh=mc0aKOxSsDuTXpmJoC/IG9w3zf1N4r0QHjUEA7j//a4=;
+        s=korg; t=1645434712;
+        bh=2EEr04gVgGbLsytWBTlmHhQnd4tyf8xiRRSDPKxgK2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EAQbweblt57duCKMUIgnBPpaCUpksBKhzn/jvBZDRjdZnHdLptyMrqWWxXqokdYP+
-         ZMzYA+b2dKMsJq8BgKtRsju2Zs4NdIZ18TjigdBnnz18x92UKC2nT97mp0/hq4yQti
-         6nUVYZg6pDkFB0X5Vxx95/zq0bGMc5WHLy9dnoYs=
+        b=XMdbMN6swEgqA3GjWGypsKzGtQbgMTAIGhCOg5D1as5fFFwcf/NyxCCNU295XN8ei
+         iVhP/Ve6NS0d7hFtmGRFdSg9F9BGKCqTmImULrtGuXTkpfkx5fwfguxEhT11Za8wn5
+         ogA2fELxXf3VFovAYFZwujhiZzjlI+ib/bOaC09o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gatis Peisenieks <gatis@mikrotik.com>,
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 103/196] atl1c: fix tx timeout after link flap on Mikrotik 10/25G NIC
-Date:   Mon, 21 Feb 2022 09:48:55 +0100
-Message-Id: <20220221084934.382608307@linuxfoundation.org>
+Subject: [PATCH 5.15 104/196] tipc: fix wrong publisher node address in link publications
+Date:   Mon, 21 Feb 2022 09:48:56 +0100
+Message-Id: <20220221084934.413078038@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
 References: <20220221084930.872957717@linuxfoundation.org>
@@ -53,35 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gatis Peisenieks <gatis@mikrotik.com>
+From: Jon Maloy <jmaloy@redhat.com>
 
-commit bf8e59fd315f304eb538546e35de6dc603e4709f upstream.
+commit 032062f363b4bf02b1d547f329aa5d97b6a17410 upstream.
 
-If NIC had packets in tx queue at the moment link down event
-happened, it could result in tx timeout when link got back up.
+When a link comes up we add its presence to the name table to make it
+possible for users to subscribe for link up/down events. However, after
+a previous call signature change the binding is wrongly published with
+the peer node as publishing node, instead of the own node as it should
+be. This has the effect that the command 'tipc name table show' will
+list the link binding (service type 2) with node scope and a peer node
+as originator, something that obviously is impossible.
 
-Since device has more than one tx queue we need to reset them
-accordingly.
+We correct this bug here.
 
-Fixes: 057f4af2b171 ("atl1c: add 4 RX/TX queue support for Mikrotik 10/25G NIC")
-Signed-off-by: Gatis Peisenieks <gatis@mikrotik.com>
-Link: https://lore.kernel.org/r/20220211065123.4187615-1-gatis@mikrotik.com
+Fixes: 50a3499ab853 ("tipc: simplify signature of tipc_namtbl_publish()")
+Signed-off-by: Jon Maloy <jmaloy@redhat.com>
+Link: https://lore.kernel.org/r/20220214013852.2803940-1-jmaloy@redhat.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/atheros/atl1c/atl1c_main.c |    2 +-
+ net/tipc/node.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/atheros/atl1c/atl1c_main.c
-+++ b/drivers/net/ethernet/atheros/atl1c/atl1c_main.c
-@@ -900,7 +900,7 @@ static void atl1c_clean_tx_ring(struct a
- 		atl1c_clean_buffer(pdev, buffer_info);
- 	}
+--- a/net/tipc/node.c
++++ b/net/tipc/node.c
+@@ -413,7 +413,7 @@ static void tipc_node_write_unlock(struc
+ 	tipc_uaddr(&ua, TIPC_SERVICE_RANGE, TIPC_NODE_SCOPE,
+ 		   TIPC_LINK_STATE, n->addr, n->addr);
+ 	sk.ref = n->link_id;
+-	sk.node = n->addr;
++	sk.node = tipc_own_addr(net);
+ 	bearer_id = n->link_id & 0xffff;
+ 	publ_list = &n->publ_list;
  
--	netdev_reset_queue(adapter->netdev);
-+	netdev_tx_reset_queue(netdev_get_tx_queue(adapter->netdev, queue));
- 
- 	/* Zero out Tx-buffers */
- 	memset(tpd_ring->desc, 0, sizeof(struct atl1c_tpd_desc) *
 
 
