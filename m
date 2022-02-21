@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38C9A4BDE94
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:47:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17EDF4BE7BE
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348125AbiBUJRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:17:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36060 "EHLO
+        id S1351114AbiBUJuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:50:11 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347976AbiBUJKY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:10:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFDA11DA57;
-        Mon, 21 Feb 2022 01:02:40 -0800 (PST)
+        with ESMTP id S1352916AbiBUJsC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:02 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D018924590;
+        Mon, 21 Feb 2022 01:21:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BD17B80EB5;
-        Mon, 21 Feb 2022 09:02:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7396FC340E9;
-        Mon, 21 Feb 2022 09:02:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D240ECE0E89;
+        Mon, 21 Feb 2022 09:21:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAB0BC340EC;
+        Mon, 21 Feb 2022 09:21:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434158;
-        bh=Hvoc5/oixVwDtMTrYiY4hIXwCiEPYc8z0RiNxBavBTo=;
+        s=korg; t=1645435278;
+        bh=2okCbzb+8btK/pWqiwqGxhM4vD/yRs/35UwQ0lDpdPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6UvWOOXCsOzaPQCqfIEPA3WoHhMTFbuEu/1eaBSOI/j1DtGfucTwjW+lA1Eyoiqx
-         Gk5d6kKKzK0Urgigy2ka4ZZyfrSt5BjjHANP/fFUYTNZ0bZwOrLIersi/rtyJzHfy/
-         ijI05BgcUpzJfbc9hg5YH1aPmYo9RqMxL9HARnUA=
+        b=kr7ODH7YwdzWvE67ik4VKiRDTf/oKH1WL03MrYKvtkkk0F2GxCZIg9+Ntjm85Xv2t
+         AzJAe2Sf/lItQp1Xjvds2QvZZDV818hZwnSofip7URynDkxrlSn06ZBgGhkZ/M58Dx
+         BetpIFoShNjz9OcMUEWutBS+PCDMIa1nXAwPOMU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Christian Brauner <brauner@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 033/121] vfs: make freeze_super abort when sync_filesystem returns error
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.16 106/227] mac80211: mlme: check for null after calling kmemdup
 Date:   Mon, 21 Feb 2022 09:48:45 +0100
-Message-Id: <20220221084922.302363650@linuxfoundation.org>
+Message-Id: <20220221084938.397787007@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +53,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <djwong@kernel.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 2719c7160dcfaae1f73a1c0c210ad3281c19022e ]
+commit a72c01a94f1d285a274219d36e2a17b4846c0615 upstream.
 
-If we fail to synchronize the filesystem while preparing to freeze the
-fs, abort the freeze.
+As the possible failure of the alloc, the ifmgd->assoc_req_ies might be
+NULL pointer returned from kmemdup().
+Therefore it might be better to free the skb and return error in order
+to fail the association, like ieee80211_assoc_success().
+Also, the caller, ieee80211_do_assoc(), needs to deal with the return
+value from ieee80211_send_assoc().
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Christian Brauner <brauner@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4d9ec73d2b78 ("cfg80211: Report Association Request frame IEs in association events")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220105081559.2387083-1-jiasheng@iscas.ac.cn
+[fix some paths to be errors, not success]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/super.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ net/mac80211/mlme.c |   29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/fs/super.c b/fs/super.c
-index 20f1707807bbd..bae3fe80f852e 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -1667,11 +1667,9 @@ static void lockdep_sb_freeze_acquire(struct super_block *sb)
- 		percpu_rwsem_acquire(sb->s_writers.rw_sem + level, 0, _THIS_IP_);
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -664,7 +664,7 @@ static void ieee80211_add_he_ie(struct i
+ 	ieee80211_ie_build_he_6ghz_cap(sdata, skb);
  }
  
--static void sb_freeze_unlock(struct super_block *sb)
-+static void sb_freeze_unlock(struct super_block *sb, int level)
+-static void ieee80211_send_assoc(struct ieee80211_sub_if_data *sdata)
++static int ieee80211_send_assoc(struct ieee80211_sub_if_data *sdata)
  {
--	int level;
--
--	for (level = SB_FREEZE_LEVELS - 1; level >= 0; level--)
-+	for (level--; level >= 0; level--)
- 		percpu_up_write(sb->s_writers.rw_sem + level);
- }
+ 	struct ieee80211_local *local = sdata->local;
+ 	struct ieee80211_if_managed *ifmgd = &sdata->u.mgd;
+@@ -684,6 +684,7 @@ static void ieee80211_send_assoc(struct
+ 	enum nl80211_iftype iftype = ieee80211_vif_type_p2p(&sdata->vif);
+ 	const struct ieee80211_sband_iftype_data *iftd;
+ 	struct ieee80211_prep_tx_info info = {};
++	int ret;
  
-@@ -1742,7 +1740,14 @@ int freeze_super(struct super_block *sb)
- 	sb_wait_write(sb, SB_FREEZE_PAGEFAULT);
+ 	/* we know it's writable, cast away the const */
+ 	if (assoc_data->ie_len)
+@@ -697,7 +698,7 @@ static void ieee80211_send_assoc(struct
+ 	chanctx_conf = rcu_dereference(sdata->vif.chanctx_conf);
+ 	if (WARN_ON(!chanctx_conf)) {
+ 		rcu_read_unlock();
+-		return;
++		return -EINVAL;
+ 	}
+ 	chan = chanctx_conf->def.chan;
+ 	rcu_read_unlock();
+@@ -748,7 +749,7 @@ static void ieee80211_send_assoc(struct
+ 			(iftd ? iftd->vendor_elems.len : 0),
+ 			GFP_KERNEL);
+ 	if (!skb)
+-		return;
++		return -ENOMEM;
  
- 	/* All writers are done so after syncing there won't be dirty data */
--	sync_filesystem(sb);
-+	ret = sync_filesystem(sb);
-+	if (ret) {
-+		sb->s_writers.frozen = SB_UNFROZEN;
-+		sb_freeze_unlock(sb, SB_FREEZE_PAGEFAULT);
-+		wake_up(&sb->s_writers.wait_unfrozen);
-+		deactivate_locked_super(sb);
-+		return ret;
-+	}
+ 	skb_reserve(skb, local->hw.extra_tx_headroom);
  
- 	/* Now wait for internal filesystem counter */
- 	sb->s_writers.frozen = SB_FREEZE_FS;
-@@ -1754,7 +1759,7 @@ int freeze_super(struct super_block *sb)
- 			printk(KERN_ERR
- 				"VFS:Filesystem freeze failed\n");
- 			sb->s_writers.frozen = SB_UNFROZEN;
--			sb_freeze_unlock(sb);
-+			sb_freeze_unlock(sb, SB_FREEZE_FS);
- 			wake_up(&sb->s_writers.wait_unfrozen);
- 			deactivate_locked_super(sb);
- 			return ret;
-@@ -1805,7 +1810,7 @@ static int thaw_super_locked(struct super_block *sb)
+@@ -1029,15 +1030,22 @@ skip_rates:
+ 		skb_put_data(skb, assoc_data->ie + offset, noffset - offset);
  	}
  
- 	sb->s_writers.frozen = SB_UNFROZEN;
--	sb_freeze_unlock(sb);
-+	sb_freeze_unlock(sb, SB_FREEZE_FS);
- out:
- 	wake_up(&sb->s_writers.wait_unfrozen);
- 	deactivate_locked_super(sb);
--- 
-2.34.1
-
+-	if (assoc_data->fils_kek_len &&
+-	    fils_encrypt_assoc_req(skb, assoc_data) < 0) {
+-		dev_kfree_skb(skb);
+-		return;
++	if (assoc_data->fils_kek_len) {
++		ret = fils_encrypt_assoc_req(skb, assoc_data);
++		if (ret < 0) {
++			dev_kfree_skb(skb);
++			return ret;
++		}
+ 	}
+ 
+ 	pos = skb_tail_pointer(skb);
+ 	kfree(ifmgd->assoc_req_ies);
+ 	ifmgd->assoc_req_ies = kmemdup(ie_start, pos - ie_start, GFP_ATOMIC);
++	if (!ifmgd->assoc_req_ies) {
++		dev_kfree_skb(skb);
++		return -ENOMEM;
++	}
++
+ 	ifmgd->assoc_req_ies_len = pos - ie_start;
+ 
+ 	drv_mgd_prepare_tx(local, sdata, &info);
+@@ -1047,6 +1055,8 @@ skip_rates:
+ 		IEEE80211_SKB_CB(skb)->flags |= IEEE80211_TX_CTL_REQ_TX_STATUS |
+ 						IEEE80211_TX_INTFL_MLME_CONN_TX;
+ 	ieee80211_tx_skb(sdata, skb);
++
++	return 0;
+ }
+ 
+ void ieee80211_send_pspoll(struct ieee80211_local *local,
+@@ -4491,6 +4501,7 @@ static int ieee80211_do_assoc(struct iee
+ {
+ 	struct ieee80211_mgd_assoc_data *assoc_data = sdata->u.mgd.assoc_data;
+ 	struct ieee80211_local *local = sdata->local;
++	int ret;
+ 
+ 	sdata_assert_lock(sdata);
+ 
+@@ -4511,7 +4522,9 @@ static int ieee80211_do_assoc(struct iee
+ 	sdata_info(sdata, "associate with %pM (try %d/%d)\n",
+ 		   assoc_data->bss->bssid, assoc_data->tries,
+ 		   IEEE80211_ASSOC_MAX_TRIES);
+-	ieee80211_send_assoc(sdata);
++	ret = ieee80211_send_assoc(sdata);
++	if (ret)
++		return ret;
+ 
+ 	if (!ieee80211_hw_check(&local->hw, REPORTS_TX_ACK_STATUS)) {
+ 		assoc_data->timeout = jiffies + IEEE80211_ASSOC_TIMEOUT;
 
 
