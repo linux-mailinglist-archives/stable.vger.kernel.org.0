@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FCEF4BE1DC
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C24F74BE9D3
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:08:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348678AbiBUJXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:23:06 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37036 "EHLO
+        id S1348366AbiBUJXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:23:23 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350236AbiBUJWQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:22:16 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CED237BEC;
-        Mon, 21 Feb 2022 01:09:43 -0800 (PST)
+        with ESMTP id S1350252AbiBUJWR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:22:17 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DF6E37BFD;
+        Mon, 21 Feb 2022 01:09:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8CB12CE0E96;
-        Mon, 21 Feb 2022 09:09:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70534C340F6;
-        Mon, 21 Feb 2022 09:09:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4941CCE0E7A;
+        Mon, 21 Feb 2022 09:09:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37E8CC340E9;
+        Mon, 21 Feb 2022 09:09:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434578;
-        bh=gIfNhR54g7OTklTqzjeHb/ybmRQgcuW62HjKCcKfRYU=;
+        s=korg; t=1645434580;
+        bh=fvC8mgEqM0sNPjHWfcaQegTk0lDRPsXfkTgiTAslmzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iaVtlBJMYwWW8KfE75OSViVUA71g5qnuTlPDCQqU7x3FP3xqp1ObIBvK2ORguTJly
-         tqobhasUSRWMEEm4YsRwggzZpbjBkaYfWKegUymCaAUcu8h1Eyt72mYTb1H0DxZ6gm
-         5Q+ZSwx57f8RudvARCq3Iz9BsRkuu1AvmYCunu4o=
+        b=nID7J0A5bWI+W2MVYLqdbF4BMNCohCdOCcz5OdVRzqoh7UKxL0j7UwQuo7rdO4xdn
+         JbsGRmRuJZdse4vLCsdvGBDVcpVD09sM+X8CKfeEI2EJxgwFScxVMps3I07LQ/yOQJ
+         buuto9n/nZKXFGsADGXlCpDSQRI9bVAF+gRknV0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 057/196] KVM: x86: SVM: dont passthrough SMAP/SMEP/PKE bits in !NPT && !gCR0.PG case
-Date:   Mon, 21 Feb 2022 09:48:09 +0100
-Message-Id: <20220221084932.839293131@linuxfoundation.org>
+Subject: [PATCH 5.15 058/196] KVM: x86: nSVM: fix potential NULL derefernce on nested migration
+Date:   Mon, 21 Feb 2022 09:48:10 +0100
+Message-Id: <20220221084932.884963726@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
 References: <20220221084930.872957717@linuxfoundation.org>
@@ -55,76 +55,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit c53bbe2145f51d3bc0438c2db02e737b9b598bf3 upstream.
+commit e1779c2714c3023e4629825762bcbc43a3b943df upstream.
 
-When the guest doesn't enable paging, and NPT/EPT is disabled, we
-use guest't paging CR3's as KVM's shadow paging pointer and
-we are technically in direct mode as if we were to use NPT/EPT.
+Turns out that due to review feedback and/or rebases
+I accidentally moved the call to nested_svm_load_cr3 to be too early,
+before the NPT is enabled, which is very wrong to do.
 
-In direct mode we create SPTEs with user mode permissions
-because usually in the direct mode the NPT/EPT doesn't
-need to restrict access based on guest CPL
-(there are MBE/GMET extenstions for that but KVM doesn't use them).
+KVM can't even access guest memory at that point as nested NPT
+is needed for that, and of course it won't initialize the walk_mmu,
+which is main issue the patch was addressing.
 
-In this special "use guest paging as direct" mode however,
-and if CR4.SMAP/CR4.SMEP are enabled, that will make the CPU
-fault on each access and KVM will enter endless loop of page faults.
+Fix this for real.
 
-Since page protection doesn't have any meaning in !PG case,
-just don't passthrough these bits.
-
-The fix is the same as was done for VMX in commit:
-commit 656ec4a4928a ("KVM: VMX: fix SMEP and SMAP without EPT")
-
-This fixes the boot of windows 10 without NPT for good.
-(Without this patch, BSP boots, but APs were stuck in endless
-loop of page faults, causing the VM boot with 1 CPU)
+Fixes: 232f75d3b4b5 ("KVM: nSVM: call nested_svm_load_cr3 on nested state load")
+Cc: stable@vger.kernel.org
 
 Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Cc: stable@vger.kernel.org
-Message-Id: <20220207155447.840194-2-mlevitsk@redhat.com>
+Message-Id: <20220207155447.840194-3-mlevitsk@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/svm.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/x86/kvm/svm/nested.c |   26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -1727,6 +1727,7 @@ void svm_set_cr0(struct kvm_vcpu *vcpu,
- {
- 	struct vcpu_svm *svm = to_svm(vcpu);
- 	u64 hcr0 = cr0;
-+	bool old_paging = is_paging(vcpu);
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -1357,18 +1357,6 @@ static int svm_set_nested_state(struct k
+ 	    !nested_vmcb_valid_sregs(vcpu, save))
+ 		goto out_free;
  
- #ifdef CONFIG_X86_64
- 	if (vcpu->arch.efer & EFER_LME && !vcpu->arch.guest_state_protected) {
-@@ -1743,8 +1744,11 @@ void svm_set_cr0(struct kvm_vcpu *vcpu,
- #endif
- 	vcpu->arch.cr0 = cr0;
- 
--	if (!npt_enabled)
-+	if (!npt_enabled) {
- 		hcr0 |= X86_CR0_PG | X86_CR0_WP;
-+		if (old_paging != is_paging(vcpu))
-+			svm_set_cr4(vcpu, kvm_read_cr4(vcpu));
-+	}
+-	/*
+-	 * While the nested guest CR3 is already checked and set by
+-	 * KVM_SET_SREGS, it was set when nested state was yet loaded,
+-	 * thus MMU might not be initialized correctly.
+-	 * Set it again to fix this.
+-	 */
+-
+-	ret = nested_svm_load_cr3(&svm->vcpu, vcpu->arch.cr3,
+-				  nested_npt_enabled(svm), false);
+-	if (WARN_ON_ONCE(ret))
+-		goto out_free;
+-
  
  	/*
- 	 * re-enable caching here because the QEMU bios
-@@ -1788,8 +1792,12 @@ void svm_set_cr4(struct kvm_vcpu *vcpu,
- 		svm_flush_tlb(vcpu);
+ 	 * All checks done, we can enter guest mode. Userspace provides
+@@ -1394,6 +1382,20 @@ static int svm_set_nested_state(struct k
  
- 	vcpu->arch.cr4 = cr4;
--	if (!npt_enabled)
-+	if (!npt_enabled) {
- 		cr4 |= X86_CR4_PAE;
+ 	svm_switch_vmcb(svm, &svm->nested.vmcb02);
+ 	nested_vmcb02_prepare_control(svm);
 +
-+		if (!is_paging(vcpu))
-+			cr4 &= ~(X86_CR4_SMEP | X86_CR4_SMAP | X86_CR4_PKE);
-+	}
- 	cr4 |= host_cr4_mce;
- 	to_svm(vcpu)->vmcb->save.cr4 = cr4;
- 	vmcb_mark_dirty(to_svm(vcpu)->vmcb, VMCB_CR);
++	/*
++	 * While the nested guest CR3 is already checked and set by
++	 * KVM_SET_SREGS, it was set when nested state was yet loaded,
++	 * thus MMU might not be initialized correctly.
++	 * Set it again to fix this.
++	 */
++
++	ret = nested_svm_load_cr3(&svm->vcpu, vcpu->arch.cr3,
++				  nested_npt_enabled(svm), false);
++	if (WARN_ON_ONCE(ret))
++		goto out_free;
++
++
+ 	kvm_make_request(KVM_REQ_GET_NESTED_STATE_PAGES, vcpu);
+ 	ret = 0;
+ out_free:
 
 
