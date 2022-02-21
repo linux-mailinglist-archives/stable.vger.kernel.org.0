@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF5164BDCA3
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EA544BE235
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:54:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348926AbiBUJXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:23:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40022 "EHLO
+        id S1348660AbiBUJXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:23:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349062AbiBUJU7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:20:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84F9731536;
-        Mon, 21 Feb 2022 01:07:49 -0800 (PST)
+        with ESMTP id S1349110AbiBUJVB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:21:01 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D4BD35259;
+        Mon, 21 Feb 2022 01:07:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C88D9608C1;
-        Mon, 21 Feb 2022 09:07:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8C79C340E9;
-        Mon, 21 Feb 2022 09:07:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8ABF9CE0E93;
+        Mon, 21 Feb 2022 09:07:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D111C340E9;
+        Mon, 21 Feb 2022 09:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434469;
-        bh=QVHi1Fo2w+5SF4nm3Aba/ncolOFBS7ktXZEtqMSRG1w=;
+        s=korg; t=1645434472;
+        bh=/N9KiyRHRNC1Xdut6D39Oz083rW0QRKFf+9KWMr8LOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Je/OBJ4bkjTBP54eVGFhMVz+f34G2cZ7DVrPbLHfRlS8xWm0ORDJDTuUTnzLtmSoQ
-         VDdFTiEF2qPH6GJWKzTo2Mn5rQ5u0ttqlYbHLRg/uqnu+MM4lWxtxA5d/qg8H2O4Dd
-         otXyzWaym3Qca+8cmvU53+LkMwSkQb/ZagN5FF2g=
+        b=oxZlUJ+3VcrVJObtXcp70fhOxgKOTSvAT/AuRgFLRFllBzazjWTrGygAqvccwzwPl
+         X5z5szar2R8h/jxGIW0ZuKf71HjEHcIJQb8GvTIsZovpxCk0xtUqqQtWqsC8WV3rjD
+         kphMQ2Ah68SS9EeL56XcplalSdXZFRviN+MAt2oI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.15 019/196] parisc: Add ioread64_lo_hi() and iowrite64_lo_hi()
-Date:   Mon, 21 Feb 2022 09:47:31 +0100
-Message-Id: <20220221084931.536620132@linuxfoundation.org>
+        =?UTF-8?q?D=C4=81vis=20Mos=C4=81ns?= <davispuh@gmail.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 020/196] btrfs: send: in case of IO error log it
+Date:   Mon, 21 Feb 2022 09:47:32 +0100
+Message-Id: <20220221084931.575990318@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
 References: <20220221084930.872957717@linuxfoundation.org>
@@ -54,70 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Dāvis Mosāns <davispuh@gmail.com>
 
-commit 18a1d5e1945385d9b5adc3fe11427ce4a9d2826e upstream.
+commit 2e7be9db125a0bf940c5d65eb5c40d8700f738b5 upstream.
 
-It's a followup to the previous commit f15309d7ad5d ("parisc: Add
-ioread64_hi_lo() and iowrite64_hi_lo()") which does only half of
-the job. Add the rest, so we won't get a new kernel test robot
-reports.
+Currently if we get IO error while doing send then we abort without
+logging information about which file caused issue.  So log it to help
+with debugging.
 
-Fixes: f15309d7ad5d ("parisc: Add ioread64_hi_lo() and iowrite64_hi_lo()")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Dāvis Mosāns <davispuh@gmail.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/lib/iomap.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ fs/btrfs/send.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/parisc/lib/iomap.c
-+++ b/arch/parisc/lib/iomap.c
-@@ -346,6 +346,16 @@ u64 ioread64be(const void __iomem *addr)
- 	return *((u64 *)addr);
- }
- 
-+u64 ioread64_lo_hi(const void __iomem *addr)
-+{
-+	u32 low, high;
-+
-+	low = ioread32(addr);
-+	high = ioread32(addr + sizeof(u32));
-+
-+	return low + ((u64)high << 32);
-+}
-+
- u64 ioread64_hi_lo(const void __iomem *addr)
- {
- 	u32 low, high;
-@@ -419,6 +429,12 @@ void iowrite64be(u64 datum, void __iomem
- 	}
- }
- 
-+void iowrite64_lo_hi(u64 val, void __iomem *addr)
-+{
-+	iowrite32(val, addr);
-+	iowrite32(val >> 32, addr + sizeof(u32));
-+}
-+
- void iowrite64_hi_lo(u64 val, void __iomem *addr)
- {
- 	iowrite32(val >> 32, addr + sizeof(u32));
-@@ -530,6 +546,7 @@ EXPORT_SYMBOL(ioread32);
- EXPORT_SYMBOL(ioread32be);
- EXPORT_SYMBOL(ioread64);
- EXPORT_SYMBOL(ioread64be);
-+EXPORT_SYMBOL(ioread64_lo_hi);
- EXPORT_SYMBOL(ioread64_hi_lo);
- EXPORT_SYMBOL(iowrite8);
- EXPORT_SYMBOL(iowrite16);
-@@ -538,6 +555,7 @@ EXPORT_SYMBOL(iowrite32);
- EXPORT_SYMBOL(iowrite32be);
- EXPORT_SYMBOL(iowrite64);
- EXPORT_SYMBOL(iowrite64be);
-+EXPORT_SYMBOL(iowrite64_lo_hi);
- EXPORT_SYMBOL(iowrite64_hi_lo);
- EXPORT_SYMBOL(ioread8_rep);
- EXPORT_SYMBOL(ioread16_rep);
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -4978,6 +4978,10 @@ static int put_file_data(struct send_ctx
+ 			lock_page(page);
+ 			if (!PageUptodate(page)) {
+ 				unlock_page(page);
++				btrfs_err(fs_info,
++			"send: IO error at offset %llu for inode %llu root %llu",
++					page_offset(page), sctx->cur_ino,
++					sctx->send_root->root_key.objectid);
+ 				put_page(page);
+ 				ret = -EIO;
+ 				break;
 
 
