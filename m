@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACB414BE1E9
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 101F54BE1F7
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348185AbiBUJO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:14:26 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36152 "EHLO
+        id S231714AbiBUIvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:51:31 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348268AbiBUJLK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:10 -0500
+        with ESMTP id S1344871AbiBUIva (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:51:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD47B237CB;
-        Mon, 21 Feb 2022 01:03:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECB7E2BCB;
+        Mon, 21 Feb 2022 00:51:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80E31B80EB1;
-        Mon, 21 Feb 2022 09:03:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9623BC36AE3;
-        Mon, 21 Feb 2022 09:03:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3800B80E9E;
+        Mon, 21 Feb 2022 08:51:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE643C340E9;
+        Mon, 21 Feb 2022 08:51:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434185;
-        bh=Y8q/J0Iry0Dpi9EHXI2yalvcbthB960zMJ7G+0SH+Rw=;
+        s=korg; t=1645433465;
+        bh=E9F/O+mQYHL8w3t40Odt55FrpN5ng82YJzsgM/QiLqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KA6krGMNkPYm1nD9LDX2Bu27j0cod9Pvgc6bCw91UDUh3uzE2iajerpEmOoVp36OI
-         p1k1b+N10WLbOtvfw0TjFpEgESO0mMdN7E3yLbu8cbTL4RpVidKUemwlJx61R61+cE
-         KHf5INhfflRg2CBWaWvPd6UPZ5vVYPmrWxI5dziI=
+        b=mpJk2bxToXEhHaJK97UmcVLsf+ZNtX8WZSAkCAxvRXaBgpOAPeReMpxBkew1zFIXK
+         LLFXx8mgrrsXtF8Dt8OiK0BUb1P7aOdXO46H5pQl8TN4K5435ALEb6yRL/N9Ba0gTk
+         0Cu30stFlTg7S4dv19LNljdKEHy4Hdei0A4Se6pA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 041/121] x86/Xen: streamline (and fix) PV CPU enumeration
-Date:   Mon, 21 Feb 2022 09:48:53 +0100
-Message-Id: <20220221084922.600374607@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 4.9 01/33] Makefile.extrawarn: Move -Wunaligned-access to W=1
+Date:   Mon, 21 Feb 2022 09:48:54 +0100
+Message-Id: <20220221084908.615678129@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
+References: <20220221084908.568970525@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,106 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit e25a8d959992f61b64a58fc62fb7951dc6f31d1f ]
+commit 1cf5f151d25fcca94689efd91afa0253621fb33a upstream.
 
-This started out with me noticing that "dom0_max_vcpus=<N>" with <N>
-larger than the number of physical CPUs reported through ACPI tables
-would not bring up the "excess" vCPU-s. Addressing this is the primary
-purpose of the change; CPU maps handling is being tidied only as far as
-is necessary for the change here (with the effect of also avoiding the
-setting up of too much per-CPU infrastructure, i.e. for CPUs which can
-never come online).
+-Wunaligned-access is a new warning in clang that is default enabled for
+arm and arm64 under certain circumstances within the clang frontend (see
+LLVM commit below). On v5.17-rc2, an ARCH=arm allmodconfig build shows
+1284 total/70 unique instances of this warning (most of the instances
+are in header files), which is quite noisy.
 
-Noticing that xen_fill_possible_map() is called way too early, whereas
-xen_filter_cpu_maps() is called too late (after per-CPU areas were
-already set up), and further observing that each of the functions serves
-only one of Dom0 or DomU, it looked like it was better to simplify this.
-Use the .get_smp_config hook instead, uniformly for Dom0 and DomU.
-xen_fill_possible_map() can be dropped altogether, while
-xen_filter_cpu_maps() is re-purposed but not otherwise changed.
+To keep a normal build green through CONFIG_WERROR, only show this
+warning with W=1, which will allow automated build systems to catch new
+instances of the warning so that the total number can be driven down to
+zero eventually since catching unaligned accesses at compile time would
+be generally useful.
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/2dbd5f0a-9859-ca2d-085e-a02f7166c610@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://github.com/llvm/llvm-project/commit/35737df4dcd28534bd3090157c224c19b501278a
+Link: https://github.com/ClangBuiltLinux/linux/issues/1569
+Link: https://github.com/ClangBuiltLinux/linux/issues/1576
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+[nathan: Fix conflict due to lack of afe956c577b2d]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/xen/enlighten_pv.c |  4 ----
- arch/x86/xen/smp_pv.c       | 26 ++++++--------------------
- 2 files changed, 6 insertions(+), 24 deletions(-)
+ scripts/Makefile.extrawarn |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 16ff25d6935e7..804c65d2b95f3 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1387,10 +1387,6 @@ asmlinkage __visible void __init xen_start_kernel(void)
- 
- 		xen_acpi_sleep_register();
- 
--		/* Avoid searching for BIOS MP tables */
--		x86_init.mpparse.find_smp_config = x86_init_noop;
--		x86_init.mpparse.get_smp_config = x86_init_uint_noop;
--
- 		xen_boot_params_init_edd();
- 
- #ifdef CONFIG_ACPI
-diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
-index c2ac319f11a4b..8f9e7e2407c87 100644
---- a/arch/x86/xen/smp_pv.c
-+++ b/arch/x86/xen/smp_pv.c
-@@ -149,28 +149,12 @@ int xen_smp_intr_init_pv(unsigned int cpu)
- 	return rc;
- }
- 
--static void __init xen_fill_possible_map(void)
--{
--	int i, rc;
--
--	if (xen_initial_domain())
--		return;
--
--	for (i = 0; i < nr_cpu_ids; i++) {
--		rc = HYPERVISOR_vcpu_op(VCPUOP_is_up, i, NULL);
--		if (rc >= 0) {
--			num_processors++;
--			set_cpu_possible(i, true);
--		}
--	}
--}
--
--static void __init xen_filter_cpu_maps(void)
-+static void __init _get_smp_config(unsigned int early)
- {
- 	int i, rc;
- 	unsigned int subtract = 0;
- 
--	if (!xen_initial_domain())
-+	if (early)
- 		return;
- 
- 	num_processors = 0;
-@@ -211,7 +195,6 @@ static void __init xen_pv_smp_prepare_boot_cpu(void)
- 		 * sure the old memory can be recycled. */
- 		make_lowmem_page_readwrite(xen_initial_gdt);
- 
--	xen_filter_cpu_maps();
- 	xen_setup_vcpu_info_placement();
- 
- 	/*
-@@ -491,5 +474,8 @@ static const struct smp_ops xen_smp_ops __initconst = {
- void __init xen_smp_init(void)
- {
- 	smp_ops = xen_smp_ops;
--	xen_fill_possible_map();
-+
-+	/* Avoid searching for BIOS MP tables */
-+	x86_init.mpparse.find_smp_config = x86_init_noop;
-+	x86_init.mpparse.get_smp_config = _get_smp_config;
- }
--- 
-2.34.1
-
+--- a/scripts/Makefile.extrawarn
++++ b/scripts/Makefile.extrawarn
+@@ -71,5 +71,6 @@ KBUILD_CFLAGS += $(call cc-disable-warni
+ KBUILD_CFLAGS += $(call cc-disable-warning, format-zero-length)
+ KBUILD_CFLAGS += $(call cc-disable-warning, uninitialized)
+ KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
++KBUILD_CFLAGS += $(call cc-disable-warning, unaligned-access)
+ endif
+ endif
 
 
