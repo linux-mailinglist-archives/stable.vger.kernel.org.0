@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8BD14BE0F6
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE4234BE6C6
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:02:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345122AbiBUIw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:52:29 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42994 "EHLO
+        id S1350503AbiBUJei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:34:38 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345207AbiBUIwN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:52:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF63231D;
-        Mon, 21 Feb 2022 00:51:47 -0800 (PST)
+        with ESMTP id S1350521AbiBUJeH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:34:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD5C029C89;
+        Mon, 21 Feb 2022 01:14:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9B47B80EAF;
-        Mon, 21 Feb 2022 08:51:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1D79C340E9;
-        Mon, 21 Feb 2022 08:51:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE01460018;
+        Mon, 21 Feb 2022 09:14:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9324C340E9;
+        Mon, 21 Feb 2022 09:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433505;
-        bh=IKosZnxsR4TZjrNqs+GBJ/ZnecQof4vVbduHHjS6+V8=;
+        s=korg; t=1645434857;
+        bh=Y+8wWX/+BHdYHM4G0Ut01oY1twruDTgP/fIUZ6UlneE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NFzF8jS7ZAzY1zz05H4i7LSrxNyO4JdppSkJ72UxDETtgcg8FF0vKAqe9OZXqrLiH
-         UpsjejLS/bxP3VwHAGNgXeLxk9dxifoaB3qyFeCZoyLsYRUVCLawfF0WjUA4tDwaGm
-         mI7oXJ81juXK1EtOij2E1Q7OMQB8JNT6rbHSvagM=
+        b=ULpM8Q4s6JRFhiazIiLzI4eLiNGz9HxxnkZWu27EhL8hp9jAQ11eiAmlJWfeW7a6C
+         48lketTq2i7/6fseeNl5y4r6vzl4aFLpLPyp7DXEY8W2LXXNDIiGuSHllvlSXlhJR5
+         2zb4Ln97HIAhic5jOqAphmRUt/pNe0iTm1YHimx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, dmummenschanz@web.de,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 22/33] ALSA: hda: Fix regression on forced probe mask option
+        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        Christian Eggers <ceggers@arri.de>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.15 123/196] mtd: rawnand: gpmi: dont leak PM reference in error path
 Date:   Mon, 21 Feb 2022 09:49:15 +0100
-Message-Id: <20220221084909.492830709@linuxfoundation.org>
+Message-Id: <20220221084935.052504671@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
-References: <20220221084908.568970525@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Christian Eggers <ceggers@arri.de>
 
-commit 6317f7449348a897483a2b4841f7a9190745c81b upstream.
+commit 9161f365c91614e5a3f5c6dcc44c3b1b33bc59c0 upstream.
 
-The forced probe mask via probe_mask 0x100 bit doesn't work any longer
-as expected since the bus init code was moved and it's clearing the
-codec_mask value that was set beforehand.  This patch fixes the
-long-time regression by moving the check_probe_mask() call.
+If gpmi_nfc_apply_timings() fails, the PM runtime usage counter must be
+dropped.
 
-Fixes: a41d122449be ("ALSA: hda - Embed bus into controller object")
-Reported-by: dmummenschanz@web.de
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/trinity-f018660b-95c9-442b-a2a8-c92a56eb07ed-1644345967148@3c-app-webde-bap22
-Link: https://lore.kernel.org/r/20220214100020.8870-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Pavel Machek <pavel@denx.de>
+Fixes: f53d4c109a66 ("mtd: rawnand: gpmi: Add ERR007117 protection for nfc_apply_timings")
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220125081619.6286-1-ceggers@arri.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_intel.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -1609,8 +1609,6 @@ static int azx_create(struct snd_card *c
- 
- 	assign_position_fix(chip, check_position_fix(chip, position_fix[dev]));
- 
--	check_probe_mask(chip, dev);
--
- 	chip->single_cmd = single_cmd;
- 	azx_check_snoop_available(chip);
- 
-@@ -1631,6 +1629,8 @@ static int azx_create(struct snd_card *c
- 		chip->bus.needs_damn_long_delay = 1;
+--- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
++++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+@@ -2293,7 +2293,7 @@ static int gpmi_nfc_exec_op(struct nand_
+ 		this->hw.must_apply_timings = false;
+ 		ret = gpmi_nfc_apply_timings(this);
+ 		if (ret)
+-			return ret;
++			goto out_pm;
  	}
  
-+	check_probe_mask(chip, dev);
-+
- 	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops);
- 	if (err < 0) {
- 		dev_err(card->dev, "Error creating device [card]!\n");
+ 	dev_dbg(this->dev, "%s: %d instructions\n", __func__, op->ninstrs);
+@@ -2422,6 +2422,7 @@ unmap:
+ 
+ 	this->bch = false;
+ 
++out_pm:
+ 	pm_runtime_mark_last_busy(this->dev);
+ 	pm_runtime_put_autosuspend(this->dev);
+ 
 
 
