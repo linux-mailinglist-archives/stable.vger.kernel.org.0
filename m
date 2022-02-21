@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AC7A4BE2E8
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:56:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A65864BDB7B
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:40:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348965AbiBUJ1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:27:37 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48088 "EHLO
+        id S231814AbiBUJN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:13:59 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350046AbiBUJ1I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:08 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED9AF2251C;
-        Mon, 21 Feb 2022 01:11:27 -0800 (PST)
+        with ESMTP id S1347896AbiBUJKc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:10:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D86A1EC41;
+        Mon, 21 Feb 2022 01:02:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 64A0FCE0E76;
-        Mon, 21 Feb 2022 09:11:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56874C340E9;
-        Mon, 21 Feb 2022 09:11:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05161B80EB5;
+        Mon, 21 Feb 2022 09:02:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B865C340E9;
+        Mon, 21 Feb 2022 09:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434684;
-        bh=8E9nmzjr+oVBPaIx2NahacyRPguKBnPNkSFQybHOK2E=;
+        s=korg; t=1645434163;
+        bh=PuqeZjP8n5+z4Xnrox4z6+i3H+J6DathD7t+AFuJ8nM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C88S3M3lXAu07a/AVpVXAigcSICe+2sgDDDLumCV4mkLDtrvwJrthW1mMOAOrBs8X
-         ehyleLp5Zwmi8UkGc5eXvpEtxTmcgNRBu7/jaWm6+M6V71lhwlHsVGpUJzxbRiiWxv
-         lluBPiUTEyh2owq/9x2oKD870tXLwY5nf83rLWR4=
+        b=UC5+WetxSUUQJJmnWVg9/Od1zrHxDtiEQRmTZ1NAN3rAOpPTA1Kr7/+CsDMyZbdNH
+         vhxcoomR+kZFrwIncrtiOOh4GAxP7rszqTTgPUEv1G/HkYWGifxddF49PhiEO7DjPG
+         cmQY7Ca8iN7EAoZzTJgCF2Il4AKMqGe5i1X81rJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 095/196] ping: fix the dif and sdif check in ping_lookup
+        stable@vger.kernel.org,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 035/121] scsi: pm8001: Fix use-after-free for aborted TMF sas_task
 Date:   Mon, 21 Feb 2022 09:48:47 +0100
-Message-Id: <20220221084934.115451407@linuxfoundation.org>
+Message-Id: <20220221084922.377881789@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: John Garry <john.garry@huawei.com>
 
-commit 35a79e64de29e8d57a5989aac57611c0cd29e13e upstream.
+[ Upstream commit 61f162aa4381845acbdc7f2be4dfb694d027c018 ]
 
-When 'ping' changes to use PING socket instead of RAW socket by:
+Currently a use-after-free may occur if a TMF sas_task is aborted before we
+handle the IO completion in mpi_ssp_completion(). The abort occurs due to
+timeout.
 
-   # sysctl -w net.ipv4.ping_group_range="0 100"
+When the timeout occurs, the SAS_TASK_STATE_ABORTED flag is set and the
+sas_task is freed in pm8001_exec_internal_tmf_task().
 
-There is another regression caused when matching sk_bound_dev_if
-and dif, RAW socket is using inet_iif() while PING socket lookup
-is using skb->dev->ifindex, the cmd below fails due to this:
+However, if the I/O completion occurs later, the I/O completion still
+thinks that the sas_task is available. Fix this by clearing the ccb->task
+if the TMF times out - the I/O completion handler does nothing if this
+pointer is cleared.
 
-  # ip link add dummy0 type dummy
-  # ip link set dummy0 up
-  # ip addr add 192.168.111.1/24 dev dummy0
-  # ping -I dummy0 192.168.111.1 -c1
-
-The issue was also reported on:
-
-  https://github.com/iputils/iputils/issues/104
-
-But fixed in iputils in a wrong way by not binding to device when
-destination IP is on device, and it will cause some of kselftests
-to fail, as Jianlin noticed.
-
-This patch is to use inet(6)_iif and inet(6)_sdif to get dif and
-sdif for PING socket, and keep consistent with RAW socket.
-
-Fixes: c319b4d76b9e ("net: ipv4: add IPPROTO_ICMP socket kind")
-Reported-by: Jianlin Shi <jishi@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/1643289172-165636-3-git-send-email-john.garry@huawei.com
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Acked-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ping.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/scsi/pm8001/pm8001_sas.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/net/ipv4/ping.c
-+++ b/net/ipv4/ping.c
-@@ -172,16 +172,23 @@ static struct sock *ping_lookup(struct n
- 	struct sock *sk = NULL;
- 	struct inet_sock *isk;
- 	struct hlist_nulls_node *hnode;
--	int dif = skb->dev->ifindex;
-+	int dif, sdif;
- 
- 	if (skb->protocol == htons(ETH_P_IP)) {
-+		dif = inet_iif(skb);
-+		sdif = inet_sdif(skb);
- 		pr_debug("try to find: num = %d, daddr = %pI4, dif = %d\n",
- 			 (int)ident, &ip_hdr(skb)->daddr, dif);
- #if IS_ENABLED(CONFIG_IPV6)
- 	} else if (skb->protocol == htons(ETH_P_IPV6)) {
-+		dif = inet6_iif(skb);
-+		sdif = inet6_sdif(skb);
- 		pr_debug("try to find: num = %d, daddr = %pI6c, dif = %d\n",
- 			 (int)ident, &ipv6_hdr(skb)->daddr, dif);
- #endif
-+	} else {
-+		pr_err("ping: protocol(%x) is not supported\n", ntohs(skb->protocol));
-+		return NULL;
- 	}
- 
- 	read_lock_bh(&ping_table.lock);
-@@ -221,7 +228,7 @@ static struct sock *ping_lookup(struct n
+diff --git a/drivers/scsi/pm8001/pm8001_sas.c b/drivers/scsi/pm8001/pm8001_sas.c
+index c3bb58885033b..75ac4d86d9c4b 100644
+--- a/drivers/scsi/pm8001/pm8001_sas.c
++++ b/drivers/scsi/pm8001/pm8001_sas.c
+@@ -753,8 +753,13 @@ static int pm8001_exec_internal_tmf_task(struct domain_device *dev,
+ 		res = -TMF_RESP_FUNC_FAILED;
+ 		/* Even TMF timed out, return direct. */
+ 		if (task->task_state_flags & SAS_TASK_STATE_ABORTED) {
++			struct pm8001_ccb_info *ccb = task->lldd_task;
++
+ 			pm8001_dbg(pm8001_ha, FAIL, "TMF task[%x]timeout.\n",
+ 				   tmf->tmf);
++
++			if (ccb)
++				ccb->task = NULL;
+ 			goto ex_err;
  		}
  
- 		if (sk->sk_bound_dev_if && sk->sk_bound_dev_if != dif &&
--		    sk->sk_bound_dev_if != inet_sdif(skb))
-+		    sk->sk_bound_dev_if != sdif)
- 			continue;
- 
- 		sock_hold(sk);
+-- 
+2.34.1
+
 
 
