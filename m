@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 277C14BE9AC
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:07:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A74064BE5C4
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352067AbiBUJwt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:52:49 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42722 "EHLO
+        id S1346039AbiBUIz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:55:57 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352123AbiBUJvM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:51:12 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D93E013E20;
-        Mon, 21 Feb 2022 01:22:54 -0800 (PST)
+        with ESMTP id S1346184AbiBUIzl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:55:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B14324BD0;
+        Mon, 21 Feb 2022 00:53:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 55E62CE0E80;
-        Mon, 21 Feb 2022 09:22:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35F70C340E9;
-        Mon, 21 Feb 2022 09:22:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DEA18B80EB5;
+        Mon, 21 Feb 2022 08:53:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 114DCC340E9;
+        Mon, 21 Feb 2022 08:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435371;
-        bh=XHeZTLhOEsGIZMErWZ33p31NioQ7wMoUH7X7H5dXHEE=;
+        s=korg; t=1645433615;
+        bh=7olKYaqtu+BxZjg1A+48Fj6BNudVjfaeR4CAz1kvzAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QDi1bKwFpZYT+GY+R9/qRONxtv+0JgpYjyZOMtnRf/tWYat/rG6OUKiU3TuVFZrTn
-         LVSiiNclasINPsZvnERy6cuUzfyPZe9Uc9+X2n/9oM5LGS7wvJMRJyxX8zV68fiv11
-         sAhbgq60p76ki+dVZeMusH04j0vOVbJwW2C6t/dI=
+        b=vqAHCmnN9n3A5BK3GfOpLMPEzyM4YU/hBDHfilTn+Ys45MfH9Sa3FHfU+Fos5EpTS
+         +kLfUN41hVT9O5A0FGS6q5zG0rThBRorWupZn+DW8Cg+RZ7qufcUaeAMkr19RTOqNm
+         Z1Fmv4rzl1U/jnq4V2D/mxzueKijkYgMkyRdmPc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Huang <diwang90@gmail.com>,
+        stable@vger.kernel.org, dmummenschanz@web.de,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.16 139/227] ALSA: hda/realtek: Add quirk for Legion Y9000X 2019
+Subject: [PATCH 4.14 27/45] ALSA: hda: Fix regression on forced probe mask option
 Date:   Mon, 21 Feb 2022 09:49:18 +0100
-Message-Id: <20220221084939.466504140@linuxfoundation.org>
+Message-Id: <20220221084911.332791452@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
+References: <20220221084910.454824160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Huang <diwang90@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit c07f2c7b45413a9e50ba78630fda04ecfa17b4f2 upstream.
+commit 6317f7449348a897483a2b4841f7a9190745c81b upstream.
 
-Legion Y9000X 2019 has the same speaker with Y9000X 2020,
-but with a different quirk address. Add one quirk entry
-to make the speaker work on Y9000X 2019 too.
+The forced probe mask via probe_mask 0x100 bit doesn't work any longer
+as expected since the bus init code was moved and it's clearing the
+codec_mask value that was set beforehand.  This patch fixes the
+long-time regression by moving the check_probe_mask() call.
 
-Signed-off-by: Yu Huang <diwang90@gmail.com>
+Fixes: a41d122449be ("ALSA: hda - Embed bus into controller object")
+Reported-by: dmummenschanz@web.de
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220212160835.165065-1-diwang90@gmail.com
+Link: https://lore.kernel.org/r/trinity-f018660b-95c9-442b-a2a8-c92a56eb07ed-1644345967148@3c-app-webde-bap22
+Link: https://lore.kernel.org/r/20220214100020.8870-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/hda_intel.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9013,6 +9013,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x3824, "Legion Y9000X 2020", ALC285_FIXUP_LEGION_Y9000X_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3827, "Ideapad S740", ALC285_FIXUP_IDEAPAD_S740_COEF),
- 	SND_PCI_QUIRK(0x17aa, 0x3834, "Lenovo IdeaPad Slim 9i 14ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
-+	SND_PCI_QUIRK(0x17aa, 0x383d, "Legion Y9000X 2019", ALC285_FIXUP_LEGION_Y9000X_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3843, "Yoga 9i", ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP),
- 	SND_PCI_QUIRK(0x17aa, 0x384a, "Lenovo Yoga 7 15ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3852, "Lenovo Yoga 7 14ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1821,8 +1821,6 @@ static int azx_create(struct snd_card *c
+ 
+ 	assign_position_fix(chip, check_position_fix(chip, position_fix[dev]));
+ 
+-	check_probe_mask(chip, dev);
+-
+ 	if (single_cmd < 0) /* allow fallback to single_cmd at errors */
+ 		chip->fallback_to_single_cmd = 1;
+ 	else /* explicitly set to single_cmd or not */
+@@ -1851,6 +1849,8 @@ static int azx_create(struct snd_card *c
+ 		chip->bus.needs_damn_long_delay = 1;
+ 	}
+ 
++	check_probe_mask(chip, dev);
++
+ 	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops);
+ 	if (err < 0) {
+ 		dev_err(card->dev, "Error creating device [card]!\n");
 
 
