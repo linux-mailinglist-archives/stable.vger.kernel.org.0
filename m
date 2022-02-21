@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E2BD4BDEF8
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:49:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF9504BE2D5
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:56:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239689AbiBUJPo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:15:44 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38844 "EHLO
+        id S1352261AbiBUJzH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:55:07 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348978AbiBUJLy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:54 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 235BF29801;
-        Mon, 21 Feb 2022 01:04:37 -0800 (PST)
+        with ESMTP id S1352304AbiBUJyU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:54:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3F4837A8B;
+        Mon, 21 Feb 2022 01:23:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 96FB2CE0E7C;
-        Mon, 21 Feb 2022 09:04:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89536C340E9;
-        Mon, 21 Feb 2022 09:04:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59935608C4;
+        Mon, 21 Feb 2022 09:23:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EE73C340E9;
+        Mon, 21 Feb 2022 09:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434274;
-        bh=NKr8jcP1dVRBCsxqTN+6PsHJDCIyuR2K4W8XcO7Uze0=;
+        s=korg; t=1645435437;
+        bh=ihAIbfYlvinEEfGKUNpuvcQtGz1ie3/Qc9/kth+Vujs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LqlssyL1EIQNd9s0U3C1PIM1MJG6GszJ+78xvPZXK6CFTV98CUJ9662EaM0jiEGpH
-         mzPbvnzHpvXfXRqvMqWtfCdnkblzy1q/dhfLRI8hS7TOkuinAIHhZ3ukPjykP44BCi
-         d4QW+TfZ5tqFtoIW31IBJacPVVDSAq0hV3EtSu1k=
+        b=eNaMmqcjaqNC3lVQCnju0t5knYvFJ9SbE2PWnUIEXHok/34TKqz/kEAAKJBWklFd7
+         bMsjeuUZrDHdYkkirKWeud/YsO0H9zdKTZzbtyndPuHcKU56r40M08k1vcGrpYNO5v
+         9pOFcLltGyl4iziGMkkbUTbQjT29f3UDahPcSs1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 073/121] ASoC: ops: Fix stereo change notifications in snd_soc_put_volsw()
+Subject: [PATCH 5.16 146/227] ASoC: ops: Fix stereo change notifications in snd_soc_put_xr_sx()
 Date:   Mon, 21 Feb 2022 09:49:25 +0100
-Message-Id: <20220221084923.679783480@linuxfoundation.org>
+Message-Id: <20220221084939.685159541@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,7 +54,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mark Brown <broonie@kernel.org>
 
-commit 564778d7b1ea465f9487eedeece7527a033549c5 upstream.
+commit 2b7c46369f09c358164d31d17e5695185403185e upstream.
 
 When writing out a stereo control we discard the change notification from
 the first channel, meaning that events are only generated based on changes
@@ -63,45 +63,35 @@ has changed.
 
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220201155629.120510-2-broonie@kernel.org
+Link: https://lore.kernel.org/r/20220201155629.120510-5-broonie@kernel.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-ops.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ sound/soc/soc-ops.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 --- a/sound/soc/soc-ops.c
 +++ b/sound/soc/soc-ops.c
-@@ -308,7 +308,7 @@ int snd_soc_put_volsw(struct snd_kcontro
- 	unsigned int sign_bit = mc->sign_bit;
- 	unsigned int mask = (1 << fls(max)) - 1;
- 	unsigned int invert = mc->invert;
--	int err;
-+	int err, ret;
- 	bool type_2r = false;
- 	unsigned int val2 = 0;
- 	unsigned int val, val_mask;
-@@ -350,12 +350,18 @@ int snd_soc_put_volsw(struct snd_kcontro
- 	err = snd_soc_component_update_bits(component, reg, val_mask, val);
- 	if (err < 0)
- 		return err;
-+	ret = err;
+@@ -895,6 +895,7 @@ int snd_soc_put_xr_sx(struct snd_kcontro
+ 	unsigned long mask = (1UL<<mc->nbits)-1;
+ 	long max = mc->max;
+ 	long val = ucontrol->value.integer.value[0];
++	int ret = 0;
+ 	unsigned int i;
  
--	if (type_2r)
-+	if (type_2r) {
- 		err = snd_soc_component_update_bits(component, reg2, val_mask,
--			val2);
-+						    val2);
-+		/* Don't discard any error code or drop change flag */
-+		if (ret == 0 || err < 0) {
+ 	if (val < mc->min || val > mc->max)
+@@ -909,9 +910,11 @@ int snd_soc_put_xr_sx(struct snd_kcontro
+ 							regmask, regval);
+ 		if (err < 0)
+ 			return err;
++		if (err > 0)
 +			ret = err;
-+		}
-+	}
+ 	}
  
--	return err;
+-	return 0;
 +	return ret;
  }
- EXPORT_SYMBOL_GPL(snd_soc_put_volsw);
+ EXPORT_SYMBOL_GPL(snd_soc_put_xr_sx);
  
 
 
