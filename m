@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B7354BE72A
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A2FF4BE84C
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:05:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241229AbiBUJDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:03:01 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60040 "EHLO
+        id S1348032AbiBUJNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:13:38 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347642AbiBUJBi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:01:38 -0500
+        with ESMTP id S1349528AbiBUJMd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:12:33 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD9266435;
-        Mon, 21 Feb 2022 00:56:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A67E223BFE;
+        Mon, 21 Feb 2022 01:05:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 34F9961206;
-        Mon, 21 Feb 2022 08:56:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18F3FC340E9;
-        Mon, 21 Feb 2022 08:56:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D971E60FB6;
+        Mon, 21 Feb 2022 09:05:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BABEFC340E9;
+        Mon, 21 Feb 2022 09:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433808;
-        bh=oQnpziJx3hOw14sJEPgcvF6w7v96hYdi1wqcsp84XMA=;
+        s=korg; t=1645434326;
+        bh=qnSnh9JH8x5NjQ7abNLRm4IzMCEKc45hKrIIqnFozoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zDEw6QB9kdjIbuFx3EdI1FZguAgHJ20lPgr9XlVNoI6Q5sTub/QN92cokndmFX9ix
-         L5kyVc8uw2jIoq1VDEAkAlbgCCdjtu3mBAo3zHifXhh1emdeoSPPAOthVrDZra6jpo
-         I0gs49Xzvli9zkJwBGJ+0lDTybNUp6s8gnE+pRRw=
+        b=tBkonuZFzIE2OKnW0koUFRb3NUnCzdVj7OHmKBYqMc/2gMLVFCTPNlZeixWFvDScX
+         GyaZ89cKMfrJTsq2JBsvksedwWwBZRnAud9wN1UW+38NaE3/cSf5WzLY173npbDrHU
+         1uQEokubDqIM6XRs/ZrYhc+va4DS2Jzh5Y2nP0b4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Juan Vazquez <juvazq@linux.microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 48/58] Drivers: hv: vmbus: Fix memory leak in vmbus_add_channel_kobj
+        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        David Dunn <daviddunn@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 089/121] KVM: x86/pmu: Dont truncate the PerfEvtSeln MSR when creating a perf event
 Date:   Mon, 21 Feb 2022 09:49:41 +0100
-Message-Id: <20220221084913.425983021@linuxfoundation.org>
+Message-Id: <20220221084924.214633843@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
-References: <20220221084911.895146879@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jim Mattson <jmattson@google.com>
 
-[ Upstream commit 8bc69f86328e87a0ffa79438430cc82f3aa6a194 ]
+[ Upstream commit b8bfee85f1307426e0242d654f3a14c06ef639c5 ]
 
-kobject_init_and_add() takes reference even when it fails.
-According to the doc of kobject_init_and_add()：
+AMD's event select is 3 nybbles, with the high nybble in bits 35:32 of
+a PerfEvtSeln MSR. Don't drop the high nybble when setting up the
+config field of a perf_event_attr structure for a call to
+perf_event_create_kernel_counter().
 
-   If this function returns an error, kobject_put() must be called to
-   properly clean up the memory associated with the object.
-
-Fix memory leak by calling kobject_put().
-
-Fixes: c2e5df616e1a ("vmbus: add per-channel sysfs info")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Juan Vazquez <juvazq@linux.microsoft.com>
-Link: https://lore.kernel.org/r/20220203173008.43480-1-linmq006@gmail.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: ca724305a2b0 ("KVM: x86/vPMU: Implement AMD vPMU code for KVM")
+Reported-by: Stephane Eranian <eranian@google.com>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Message-Id: <20220203014813.2130559-1-jmattson@google.com>
+Reviewed-by: David Dunn <daviddunn@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/vmbus_drv.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/kvm/pmu.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index aab21c1534a10..51fe219c91fc3 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -1556,8 +1556,10 @@ int vmbus_add_channel_kobj(struct hv_device *dev, struct vmbus_channel *channel)
- 	kobj->kset = dev->channels_kset;
- 	ret = kobject_init_and_add(kobj, &vmbus_chan_ktype, NULL,
- 				   "%u", relid);
--	if (ret)
-+	if (ret) {
-+		kobject_put(kobj);
- 		return ret;
-+	}
+diff --git a/arch/x86/kvm/pmu.c b/arch/x86/kvm/pmu.c
+index 20092a56de8b0..2d91e39dbdf67 100644
+--- a/arch/x86/kvm/pmu.c
++++ b/arch/x86/kvm/pmu.c
+@@ -95,7 +95,7 @@ static void kvm_perf_overflow_intr(struct perf_event *perf_event,
+ }
  
- 	ret = sysfs_create_group(kobj, &vmbus_chan_group);
+ static void pmc_reprogram_counter(struct kvm_pmc *pmc, u32 type,
+-				  unsigned config, bool exclude_user,
++				  u64 config, bool exclude_user,
+ 				  bool exclude_kernel, bool intr,
+ 				  bool in_tx, bool in_tx_cp)
+ {
+@@ -170,7 +170,8 @@ static bool pmc_resume_counter(struct kvm_pmc *pmc)
  
-@@ -1566,6 +1568,7 @@ int vmbus_add_channel_kobj(struct hv_device *dev, struct vmbus_channel *channel)
- 		 * The calling functions' error handling paths will cleanup the
- 		 * empty channel directory.
- 		 */
-+		kobject_put(kobj);
- 		dev_err(device, "Unable to set up channel sysfs files\n");
- 		return ret;
- 	}
+ void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel)
+ {
+-	unsigned config, type = PERF_TYPE_RAW;
++	u64 config;
++	u32 type = PERF_TYPE_RAW;
+ 	struct kvm *kvm = pmc->vcpu->kvm;
+ 	struct kvm_pmu_event_filter *filter;
+ 	int i;
 -- 
 2.34.1
 
