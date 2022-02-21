@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC5D64BDDAE
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:45:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 363214BE043
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349334AbiBUJZc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:25:32 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48066 "EHLO
+        id S1347998AbiBUJKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:10:25 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349112AbiBUJX6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:23:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C704239153;
-        Mon, 21 Feb 2022 01:10:23 -0800 (PST)
+        with ESMTP id S1347777AbiBUJJO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D4E60E0;
+        Mon, 21 Feb 2022 01:01:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A71F9608C1;
-        Mon, 21 Feb 2022 09:10:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BE1DC340E9;
-        Mon, 21 Feb 2022 09:10:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59EB9B80EB3;
+        Mon, 21 Feb 2022 09:01:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91ADFC340E9;
+        Mon, 21 Feb 2022 09:01:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434623;
-        bh=iEba06o/oGl22y6I53bs1uk6+Fw+mDOTjDSpVXQksxM=;
+        s=korg; t=1645434098;
+        bh=D5BeF7ORIpjrg18ZTSztcItjTnnVDILUKmtchbDAmlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJ9xKNUGERY3PyvsOA5kSikHHUucEr+SSJxB5/EIYDhF62RXA0od15dukK1jdE8Kc
-         vq0Dd9mtXahtY6TqEMwrIOj7s/sHaThl5niSZYCHKnv2oO+ejV/4423Q7TZHKcCXv0
-         CosBZ4H3pO45y8X74DFYCrlvQLagnYqKGTNImQCU=
+        b=rxU0CEFMa+A9ernkeyRCMm68r0kBAoIurTnGsFRMgzohv/pkvTVNthJb3jEyXae9z
+         DWYamrwWX+79GA/AB9RZO2dFKRDjTu7l1m8NFb0Myk3eGh0YtljBfirsgMpMO0ZG7m
+         7EqdE3tvstdMnF/o55mRnBJ6B4rQK39rk3g19TmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Siva Mullati <siva.mullati@intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>
-Subject: [PATCH 5.15 072/196] drm/i915/gvt: Make DRM_I915_GVT depend on X86
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.10 012/121] parisc: Drop __init from map_pages declaration
 Date:   Mon, 21 Feb 2022 09:48:24 +0100
-Message-Id: <20220221084933.350821484@linuxfoundation.org>
+Message-Id: <20220221084921.559838914@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siva Mullati <siva.mullati@intel.com>
+From: John David Anglin <dave.anglin@bell.net>
 
-commit d72d69abfdb6e0375981cfdda8eb45143f12c77d upstream.
+commit 9129886b88185962538180625ca8051362b01327 upstream.
 
-GVT is not supported on non-x86 platforms, So add
-dependency of X86 on config parameter DRM_I915_GVT.
+With huge kernel pages, we randomly eat a SPARC in map_pages(). This
+is fixed by dropping __init from the declaration.
 
-Fixes: 0ad35fed618c ("drm/i915: gvt: Introduce the basic architecture of GVT-g")
-Signed-off-by: Siva Mullati <siva.mullati@intel.com>
-Signed-off-by: Zhi Wang <zhi.a.wang@intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20220107095235.243448-1-siva.mullati@intel.com
-Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
-Signed-off-by: Zhi Wang <zhi.a.wang@intel.com>
+However, map_pages references the __init routine memblock_alloc_try_nid
+via memblock_alloc.  Thus, it needs to be marked with __ref.
+
+memblock_alloc is only called before the kernel text is set to readonly.
+
+The __ref on free_initmem is no longer needed.
+
+Comment regarding map_pages being in the init section is removed.
+
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ arch/parisc/mm/init.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/i915/Kconfig
-+++ b/drivers/gpu/drm/i915/Kconfig
-@@ -101,6 +101,7 @@ config DRM_I915_USERPTR
- config DRM_I915_GVT
- 	bool "Enable Intel GVT-g graphics virtualization host support"
- 	depends on DRM_I915
-+	depends on X86
- 	depends on 64BIT
- 	default n
- 	help
+--- a/arch/parisc/mm/init.c
++++ b/arch/parisc/mm/init.c
+@@ -346,9 +346,9 @@ static void __init setup_bootmem(void)
+ 
+ static bool kernel_set_to_readonly;
+ 
+-static void __init map_pages(unsigned long start_vaddr,
+-			     unsigned long start_paddr, unsigned long size,
+-			     pgprot_t pgprot, int force)
++static void __ref map_pages(unsigned long start_vaddr,
++			    unsigned long start_paddr, unsigned long size,
++			    pgprot_t pgprot, int force)
+ {
+ 	pmd_t *pmd;
+ 	pte_t *pg_table;
+@@ -458,7 +458,7 @@ void __init set_kernel_text_rw(int enabl
+ 	flush_tlb_all();
+ }
+ 
+-void __ref free_initmem(void)
++void free_initmem(void)
+ {
+ 	unsigned long init_begin = (unsigned long)__init_begin;
+ 	unsigned long init_end = (unsigned long)__init_end;
+@@ -472,7 +472,6 @@ void __ref free_initmem(void)
+ 	/* The init text pages are marked R-X.  We have to
+ 	 * flush the icache and mark them RW-
+ 	 *
+-	 * This is tricky, because map_pages is in the init section.
+ 	 * Do a dummy remap of the data section first (the data
+ 	 * section is already PAGE_KERNEL) to pull in the TLB entries
+ 	 * for map_kernel */
 
 
