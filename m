@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 179754BDF2A
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:49:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E04254BDE26
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:46:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347010AbiBUJDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:03:15 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58526 "EHLO
+        id S239770AbiBUJRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:17:51 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347836AbiBUJB6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:01:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B73B929C9D;
-        Mon, 21 Feb 2022 00:57:10 -0800 (PST)
+        with ESMTP id S1348860AbiBUJLr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:47 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DAD828985;
+        Mon, 21 Feb 2022 01:04:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F530B80EB1;
-        Mon, 21 Feb 2022 08:57:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AB1FC340EB;
-        Mon, 21 Feb 2022 08:57:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9926DCE0E7C;
+        Mon, 21 Feb 2022 09:04:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 813CCC340EB;
+        Mon, 21 Feb 2022 09:04:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433828;
-        bh=Exhw9qRz6Onrs4C2zIQQBF5Ajw38MzW0hDSwUJtPan8=;
+        s=korg; t=1645434254;
+        bh=w9ICo0eUuFq9Mff2xQ1Px7fiTbmfJPGbT2iyXlS0BsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zAzDEh93J3YbP7xobAcDreiXUWUYxaAy4kQRukE70SvefEx9V0zPr/MIvWNK5H0v7
-         aEvI2nCImFKW0GBDuAZ17Gt01F/bE9gzNZyg7+gTecL9W7xfFVUoLXLjQu4DZ+eqar
-         3+D7i05PSfrcSW1lMMnrL6GGVOARKFr3r0i/Kpog=
+        b=TLkz5UU3nGy4LKkleQM1VXYVp4UiDbWzGIUw3ImAAEVGIZuu/gIhPMlTRMSJ89Cxw
+         iynnpvhfWLGDOrcodbmPKt1BLv7PcJ+o3Rbz/6vxC/XbJ9mA+zQx2NtcqRAkC18aEP
+         ipnHhz8O0wjzuOD9sX0yJb/sNmfK8H78MFOA1qDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 4.19 24/58] iwlwifi: pcie: gen2: fix locking when "HW not ready"
-Date:   Mon, 21 Feb 2022 09:49:17 +0100
-Message-Id: <20220221084912.663313232@linuxfoundation.org>
+        stable@vger.kernel.org, Radu Bulie <radu-andrei.bulie@nxp.com>,
+        Ioana Ciornei <ioana.ciornei@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 066/121] dpaa2-eth: Initialize mutex used in one step timestamping path
+Date:   Mon, 21 Feb 2022 09:49:18 +0100
+Message-Id: <20220221084923.435265799@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
-References: <20220221084911.895146879@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Radu Bulie <radu-andrei.bulie@nxp.com>
 
-commit 4c29c1e27a1e178a219b3877d055e6dd643bdfda upstream.
+commit 07dd44852be89386ab12210df90a2d78779f3bff upstream.
 
-If we run into this error path, we shouldn't unlock the mutex
-since it's not locked since. Fix this in the gen2 code as well.
+1588 Single Step Timestamping code path uses a mutex to
+enforce atomicity for two events:
+- update of ptp single step register
+- transmit ptp event packet
 
-Fixes: eda50cde58de ("iwlwifi: pcie: add context information support")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/iwlwifi.20220128142706.b8b0dfce16ef.Ie20f0f7b23e5911350a2766524300d2915e7b677@changeid
+Before this patch the mutex was not initialized. This
+caused unexpected crashes in the Tx function.
+
+Fixes: c55211892f463 ("dpaa2-eth: support PTP Sync packet one-step timestamping")
+Signed-off-by: Radu Bulie <radu-andrei.bulie@nxp.com>
+Reviewed-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c
-@@ -310,8 +310,7 @@ int iwl_trans_pcie_gen2_start_fw(struct
- 	/* This may fail if AMT took ownership of the device */
- 	if (iwl_pcie_prepare_card_hw(trans)) {
- 		IWL_WARN(trans, "Exit HW not ready\n");
--		ret = -EIO;
--		goto out;
-+		return -EIO;
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+@@ -4225,7 +4225,7 @@ static int dpaa2_eth_probe(struct fsl_mc
  	}
  
- 	iwl_enable_rfkill_int(trans);
+ 	INIT_WORK(&priv->tx_onestep_tstamp, dpaa2_eth_tx_onestep_tstamp);
+-
++	mutex_init(&priv->onestep_tstamp_lock);
+ 	skb_queue_head_init(&priv->tx_skbs);
+ 
+ 	/* Obtain a MC portal */
 
 
