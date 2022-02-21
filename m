@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35ADD4BE71F
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB6DD4BE0B6
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237992AbiBUJvj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:51:39 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41696 "EHLO
+        id S1347742AbiBUJ1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:27:24 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352216AbiBUJrO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:14 -0500
+        with ESMTP id S1349809AbiBUJ0n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:26:43 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 438BE4133D;
-        Mon, 21 Feb 2022 01:19:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9F0BDCE;
+        Mon, 21 Feb 2022 01:10:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AC800CE0E76;
-        Mon, 21 Feb 2022 09:19:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96E40C340E9;
-        Mon, 21 Feb 2022 09:19:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 50BD2CE0E79;
+        Mon, 21 Feb 2022 09:10:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40720C340E9;
+        Mon, 21 Feb 2022 09:10:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435148;
-        bh=T/9a8ZFqzI04rIa9qySyU7dRfHWzV44EAOAJRgZ3a+U=;
+        s=korg; t=1645434645;
+        bh=wGO2C/+5/UpsUQ1fbHIpV6d7ywQrzR6tQA1uBrprlcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EzQN1BsqeHL2gLGt2fZCu1vrGlTjgbz/28eIQm5Si2cIatsk2bI9Qec3tZAogUFsE
-         PvZtXUBUZFItJe5CW3Jhh8Hsdx2SmY3yvd+uiOXo79kM94Wv0sTPfwf21D81qVy+w1
-         18uenlXxj06HtwvotIZQb5RKRzn7bkSj0SkSq4qs=
+        b=AOCMq4ub5sYgur7DzNOMjHlvQ4BitZTbDqSB5BuD+OGQKYStkBqziA2Q1Sos8z7vH
+         w+eFY13XdMS337nKiVwGFyvp4MH8RafyH0wowhPytLwgKcAb5E2AQ2i++TjOMWaFO5
+         gbaGlnzZz5yit9jE1MnZNnZL76HgvOD+BXw8g/io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Leech <cleech@redhat.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 061/227] nvme-tcp: fix possible use-after-free in transport error_recovery work
+Subject: [PATCH 5.15 048/196] drm/amd: add support to check whether the system is set to s3
 Date:   Mon, 21 Feb 2022 09:48:00 +0100
-Message-Id: <20220221084936.905930014@linuxfoundation.org>
+Message-Id: <20220221084932.535775640@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit ff9fc7ebf5c06de1ef72a69f9b1ab40af8b07f9e ]
+[ Upstream commit f52a2b8badbd24faf73a13c9c07fdb9d07352944 ]
 
-While nvme_tcp_submit_async_event_work is checking the ctrl and queue
-state before preparing the AER command and scheduling io_work, in order
-to fully prevent a race where this check is not reliable the error
-recovery work must flush async_event_work before continuing to destroy
-the admin queue after setting the ctrl state to RESETTING such that
-there is no race .submit_async_event and the error recovery handler
-itself changing the ctrl state.
+This will be used to help make decisions on what to do in
+misconfigured systems.
 
-Tested-by: Chris Leech <cleech@redhat.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+v2: squash in semicolon fix from Stephen Rothwell
+
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu.h      |  2 ++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c | 13 +++++++++++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 22046415a0942..891a36d02e7c7 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -2104,6 +2104,7 @@ static void nvme_tcp_error_recovery_work(struct work_struct *work)
- 	struct nvme_ctrl *ctrl = &tcp_ctrl->ctrl;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu.h b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
+index c8d31a22176f3..7e73ac6fb21db 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
+@@ -1410,9 +1410,11 @@ static inline int amdgpu_acpi_smart_shift_update(struct drm_device *dev,
+ #endif
  
- 	nvme_stop_keep_alive(ctrl);
-+	flush_work(&ctrl->async_event_work);
- 	nvme_tcp_teardown_io_queues(ctrl, false);
- 	/* unquiesce to fail fast pending requests */
- 	nvme_start_queues(ctrl);
+ #if defined(CONFIG_ACPI) && defined(CONFIG_SUSPEND)
++bool amdgpu_acpi_is_s3_active(struct amdgpu_device *adev);
+ bool amdgpu_acpi_is_s0ix_active(struct amdgpu_device *adev);
+ #else
+ static inline bool amdgpu_acpi_is_s0ix_active(struct amdgpu_device *adev) { return false; }
++static inline bool amdgpu_acpi_is_s3_active(struct amdgpu_device *adev) { return false; }
+ #endif
+ 
+ int amdgpu_cs_find_mapping(struct amdgpu_cs_parser *parser,
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
+index b19d407518024..0e12315fa0cb8 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
+@@ -1032,6 +1032,19 @@ void amdgpu_acpi_detect(void)
+ }
+ 
+ #if IS_ENABLED(CONFIG_SUSPEND)
++/**
++ * amdgpu_acpi_is_s3_active
++ *
++ * @adev: amdgpu_device_pointer
++ *
++ * returns true if supported, false if not.
++ */
++bool amdgpu_acpi_is_s3_active(struct amdgpu_device *adev)
++{
++	return !(adev->flags & AMD_IS_APU) ||
++		(pm_suspend_target_state == PM_SUSPEND_MEM);
++}
++
+ /**
+  * amdgpu_acpi_is_s0ix_active
+  *
 -- 
 2.34.1
 
