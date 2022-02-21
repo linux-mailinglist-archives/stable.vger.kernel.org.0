@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 294E24BE8C4
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:06:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A9CA4BE139
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347113AbiBUJDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:03:32 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58560 "EHLO
+        id S1346498AbiBUI5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:57:53 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347315AbiBUJBO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:01:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2FB627CEB;
-        Mon, 21 Feb 2022 00:56:17 -0800 (PST)
+        with ESMTP id S1346433AbiBUI5A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:57:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 986FA24F35;
+        Mon, 21 Feb 2022 00:54:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9580BB80EB7;
-        Mon, 21 Feb 2022 08:56:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 966C0C340E9;
-        Mon, 21 Feb 2022 08:56:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78A3060FB6;
+        Mon, 21 Feb 2022 08:54:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62991C340E9;
+        Mon, 21 Feb 2022 08:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433769;
-        bh=7q0BDtyRXVNalxa0DqT6OCIOkrN0gIrOxt75iA2zV+A=;
+        s=korg; t=1645433643;
+        bh=6LMTJymLcHBzX6coi3x+0TcnDuzE9a9Gnd4VQCaZv4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LaTPXrNA1rrxzixDVfsS5Eri4fK6YAtj2pwSVtRKxR7X0zMJElLbElvubJhFtKFPk
-         zB85ctvh1tb9DCzdsiBVQdiSLuzKM1tCXOgnmHRglEYtrxnfkV902hk1LB05NIRGAh
-         QcEei8Ow9dKKeOO8Ub6KSeW/mH7ZI1xTL9VAlzPo=
+        b=b66HuuGbFphdVUq23FOWDQz0e38ITcJNH/z+2T5dYiL7P/OGGwx5sO+bo7ulaNX31
+         6uiS/taujk+l7dOXsPALpoR0kJa0tkxWhghEI/VluAFcrv8OAyPHxoYLBEXoNr2+tD
+         gB5cZO/eFwNnQo7hAqAuiLEzvRGDWiKGRo8myePo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
-        Theodore Tso <tytso@mit.edu>,
-        Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 4.19 36/58] ext4: check for out-of-order index extents in ext4_valid_extent_entries()
+        stable@vger.kernel.org, david regan <dregan@mail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 38/45] mtd: rawnand: brcmnand: Fixed incorrect sub-page ECC status
 Date:   Mon, 21 Feb 2022 09:49:29 +0100
-Message-Id: <20220221084913.044238604@linuxfoundation.org>
+Message-Id: <20220221084911.685226217@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
-References: <20220221084911.895146879@linuxfoundation.org>
+In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
+References: <20220221084910.454824160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,93 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: david regan <dregan@mail.com>
 
-commit 8dd27fecede55e8a4e67eef2878040ecad0f0d33 upstream.
+[ Upstream commit 36415a7964711822e63695ea67fede63979054d9 ]
 
-After commit 5946d089379a ("ext4: check for overlapping extents in
-ext4_valid_extent_entries()"), we can check out the overlapping extent
-entry in leaf extent blocks. But the out-of-order extent entry in index
-extent blocks could also trigger bad things if the filesystem is
-inconsistent. So this patch add a check to figure out the out-of-order
-index extents and return error.
+The brcmnand driver contains a bug in which if a page (example 2k byte)
+is read from the parallel/ONFI NAND and within that page a subpage (512
+byte) has correctable errors which is followed by a subpage with
+uncorrectable errors, the page read will return the wrong status of
+correctable (as opposed to the actual status of uncorrectable.)
 
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20210908120850.4012324-2-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The bug is in function brcmnand_read_by_pio where there is a check for
+uncorrectable bits which will be preempted if a previous status for
+correctable bits is detected.
+
+The fix is to stop checking for bad bits only if we already have a bad
+bits status.
+
+Fixes: 27c5b17cd1b1 ("mtd: nand: add NAND driver "library" for Broadcom STB NAND controller")
+Signed-off-by: david regan <dregan@mail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/trinity-478e0c09-9134-40e8-8f8c-31c371225eda-1643237024774@3c-app-mailcom-lxa02
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/extents.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/mtd/nand/brcmnand/brcmnand.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -390,9 +390,12 @@ static int ext4_valid_extent_idx(struct
+diff --git a/drivers/mtd/nand/brcmnand/brcmnand.c b/drivers/mtd/nand/brcmnand/brcmnand.c
+index be4c6f256e807..2741147481c0a 100644
+--- a/drivers/mtd/nand/brcmnand/brcmnand.c
++++ b/drivers/mtd/nand/brcmnand/brcmnand.c
+@@ -1673,7 +1673,7 @@ static int brcmnand_read_by_pio(struct mtd_info *mtd, struct nand_chip *chip,
+ 					mtd->oobsize / trans,
+ 					host->hwcfg.sector_size_1k);
  
- static int ext4_valid_extent_entries(struct inode *inode,
- 				struct ext4_extent_header *eh,
--				int depth)
-+				ext4_fsblk_t *pblk, int depth)
- {
- 	unsigned short entries;
-+	ext4_lblk_t lblock = 0;
-+	ext4_lblk_t prev = 0;
-+
- 	if (eh->eh_entries == 0)
- 		return 1;
+-		if (!ret) {
++		if (ret != -EBADMSG) {
+ 			*err_addr = brcmnand_get_uncorrecc_addr(ctrl);
  
-@@ -403,32 +406,36 @@ static int ext4_valid_extent_entries(str
- 		struct ext4_extent *ext = EXT_FIRST_EXTENT(eh);
- 		struct ext4_super_block *es = EXT4_SB(inode->i_sb)->s_es;
- 		ext4_fsblk_t pblock = 0;
--		ext4_lblk_t lblock = 0;
--		ext4_lblk_t prev = 0;
--		int len = 0;
- 		while (entries) {
- 			if (!ext4_valid_extent(inode, ext))
- 				return 0;
- 
- 			/* Check for overlapping extents */
- 			lblock = le32_to_cpu(ext->ee_block);
--			len = ext4_ext_get_actual_len(ext);
- 			if ((lblock <= prev) && prev) {
- 				pblock = ext4_ext_pblock(ext);
- 				es->s_last_error_block = cpu_to_le64(pblock);
- 				return 0;
- 			}
-+			prev = lblock + ext4_ext_get_actual_len(ext) - 1;
- 			ext++;
- 			entries--;
--			prev = lblock + len - 1;
- 		}
- 	} else {
- 		struct ext4_extent_idx *ext_idx = EXT_FIRST_INDEX(eh);
- 		while (entries) {
- 			if (!ext4_valid_extent_idx(inode, ext_idx))
- 				return 0;
-+
-+			/* Check for overlapping index extents */
-+			lblock = le32_to_cpu(ext_idx->ei_block);
-+			if ((lblock <= prev) && prev) {
-+				*pblk = ext4_idx_pblock(ext_idx);
-+				return 0;
-+			}
- 			ext_idx++;
- 			entries--;
-+			prev = lblock;
- 		}
- 	}
- 	return 1;
-@@ -462,7 +469,7 @@ static int __ext4_ext_check(const char *
- 		error_msg = "invalid eh_entries";
- 		goto corrupted;
- 	}
--	if (!ext4_valid_extent_entries(inode, eh, depth)) {
-+	if (!ext4_valid_extent_entries(inode, eh, &pblk, depth)) {
- 		error_msg = "invalid extent entries";
- 		goto corrupted;
- 	}
+ 			if (*err_addr)
+-- 
+2.34.1
+
 
 
