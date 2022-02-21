@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA1B64BDFCC
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:50:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25B874BDE20
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:46:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347528AbiBUJGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:06:48 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43678 "EHLO
+        id S1346301AbiBUI4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:56:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347707AbiBUJGB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:06:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 792E126128;
-        Mon, 21 Feb 2022 00:59:35 -0800 (PST)
+        with ESMTP id S1346329AbiBUIzo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:55:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9065C1AD9A;
+        Mon, 21 Feb 2022 00:53:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2BF09B80EAC;
-        Mon, 21 Feb 2022 08:59:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BA92C340E9;
-        Mon, 21 Feb 2022 08:59:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D988B61140;
+        Mon, 21 Feb 2022 08:53:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD422C340EB;
+        Mon, 21 Feb 2022 08:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433972;
-        bh=bNuYXFbCZ5mrCCRAjSQ6gMyKhbK+/OC4G2sR7LxHKw4=;
+        s=korg; t=1645433624;
+        bh=jq0IZZMNLqbynoTr7qWYEP7/cjlKhs6FfrgJYs/FnmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zm091h0C30A+Q6nEt9MmXGpzpwmQwb8KQbH3VuqhPnBwhjSc9WZnqkED+KDN+m2MZ
-         Hsg3z99OKxcyfc47y6BA6Zjpo+stXIrVPOc5OLyepxiA2KmK46liaKRsaSAb883KpL
-         zdsLy2X0YUL7vfZktNpoOQvSMd+ZrSmS400EYtkM=
+        b=p8XccNOFHGEhcp8b332PRbhDMT649eBW+Cry7k4STyUks7EftoGd7zy6wnPeooSeL
+         t8dw0KQB1vu4FdOkjtOItM8TcpUTM6KWWqddwkbI3FUGjgDTy1zodnMu+FVr+7z9Sy
+         ZumISMs1kyM1PV0gaT+MivbUT+QFTBx+zR/mTp2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Christian Brauner <brauner@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 16/80] vfs: make freeze_super abort when sync_filesystem returns error
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.14 05/45] parisc: Fix sglist access in ccio-dma.c
 Date:   Mon, 21 Feb 2022 09:48:56 +0100
-Message-Id: <20220221084916.116545193@linuxfoundation.org>
+Message-Id: <20220221084910.637678831@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
+References: <20220221084910.454824160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <djwong@kernel.org>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit 2719c7160dcfaae1f73a1c0c210ad3281c19022e ]
+commit d7da660cab47183cded65e11b64497d0f56c6edf upstream.
 
-If we fail to synchronize the filesystem while preparing to freeze the
-fs, abort the freeze.
+This patch implements the same bug fix to ccio-dma.c as to sba_iommu.c.
+It ensures that only the allocated entries of the sglist are accessed.
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Christian Brauner <brauner@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/super.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/parisc/ccio-dma.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/super.c b/fs/super.c
-index b289356f302fc..e255c18fa2c88 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -1691,11 +1691,9 @@ static void lockdep_sb_freeze_acquire(struct super_block *sb)
- 		percpu_rwsem_acquire(sb->s_writers.rw_sem + level, 0, _THIS_IP_);
- }
+--- a/drivers/parisc/ccio-dma.c
++++ b/drivers/parisc/ccio-dma.c
+@@ -1010,7 +1010,7 @@ ccio_unmap_sg(struct device *dev, struct
+ 	ioc->usg_calls++;
+ #endif
  
--static void sb_freeze_unlock(struct super_block *sb)
-+static void sb_freeze_unlock(struct super_block *sb, int level)
- {
--	int level;
--
--	for (level = SB_FREEZE_LEVELS - 1; level >= 0; level--)
-+	for (level--; level >= 0; level--)
- 		percpu_up_write(sb->s_writers.rw_sem + level);
- }
+-	while(sg_dma_len(sglist) && nents--) {
++	while (nents && sg_dma_len(sglist)) {
  
-@@ -1766,7 +1764,14 @@ int freeze_super(struct super_block *sb)
- 	sb_wait_write(sb, SB_FREEZE_PAGEFAULT);
- 
- 	/* All writers are done so after syncing there won't be dirty data */
--	sync_filesystem(sb);
-+	ret = sync_filesystem(sb);
-+	if (ret) {
-+		sb->s_writers.frozen = SB_UNFROZEN;
-+		sb_freeze_unlock(sb, SB_FREEZE_PAGEFAULT);
-+		wake_up(&sb->s_writers.wait_unfrozen);
-+		deactivate_locked_super(sb);
-+		return ret;
-+	}
- 
- 	/* Now wait for internal filesystem counter */
- 	sb->s_writers.frozen = SB_FREEZE_FS;
-@@ -1778,7 +1783,7 @@ int freeze_super(struct super_block *sb)
- 			printk(KERN_ERR
- 				"VFS:Filesystem freeze failed\n");
- 			sb->s_writers.frozen = SB_UNFROZEN;
--			sb_freeze_unlock(sb);
-+			sb_freeze_unlock(sb, SB_FREEZE_FS);
- 			wake_up(&sb->s_writers.wait_unfrozen);
- 			deactivate_locked_super(sb);
- 			return ret;
-@@ -1829,7 +1834,7 @@ static int thaw_super_locked(struct super_block *sb)
+ #ifdef CCIO_COLLECT_STATS
+ 		ioc->usg_pages += sg_dma_len(sglist) >> PAGE_SHIFT;
+@@ -1018,6 +1018,7 @@ ccio_unmap_sg(struct device *dev, struct
+ 		ccio_unmap_page(dev, sg_dma_address(sglist),
+ 				  sg_dma_len(sglist), direction, 0);
+ 		++sglist;
++		nents--;
  	}
  
- 	sb->s_writers.frozen = SB_UNFROZEN;
--	sb_freeze_unlock(sb);
-+	sb_freeze_unlock(sb, SB_FREEZE_FS);
- out:
- 	wake_up(&sb->s_writers.wait_unfrozen);
- 	deactivate_locked_super(sb);
--- 
-2.34.1
-
+ 	DBG_RUN_SG("%s() DONE (nents %d)\n", __func__, nents);
 
 
