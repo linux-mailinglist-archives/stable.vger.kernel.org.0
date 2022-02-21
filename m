@@ -2,71 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57BA54BE963
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D2B04BDE79
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:47:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355770AbiBULMX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 06:12:23 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40690 "EHLO
+        id S1355588AbiBULRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 06:17:07 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355419AbiBULMM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 06:12:12 -0500
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59AC324BFF
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 02:44:39 -0800 (PST)
-Received: by mail-wr1-x434.google.com with SMTP id e3so26332891wra.0
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 02:44:39 -0800 (PST)
+        with ESMTP id S1356010AbiBULPm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 06:15:42 -0500
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B0056394
+        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 02:55:43 -0800 (PST)
+Received: by mail-pj1-x1036.google.com with SMTP id gf13-20020a17090ac7cd00b001bbfb9d760eso4911980pjb.2
+        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 02:55:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=5Qz7wK6li8P/fiukKFPzdBLxnK/7sm/mLgvbY1F8kaI=;
-        b=dZQm/LjpsC157kkJOIL2aDidnjKU2Idrq0tb0EqLdKn0iQlNdBtno31kputse8Q0xe
-         bK1mXa4W7FV3AW5E7hrJdoNz8y9Hl/QaGmnw7Z2T7Cnh8oKdYviWHnmKrCGlkAc1jm5I
-         LPsU8LGpYZkAnnXLdY7BpkqD3UCjPl0odaIK1nS+LBqRp0+vWdaSXITKT9ed/J8e5vxL
-         z3/Yu/NBFdcYtXx6o/KXU0EeAYHWc6K9z42SSWv9yB7lubb9cTV48oPDwoerf/2f34br
-         TDS0QQ/Mi4h6LP4r5QjusSDdhuvqYl8En5lHeFJvvw82BgmW7zMkSmJzyoURyHV3kQCD
-         sezg==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=zBMxT6mUsrZF5CxDEWFMeByDYV1JnyiE3N8k2hcGECU=;
+        b=oqqOHqSypYg25IJxdVoI6B6JMbaJVEET4dh0ZwvKdM02nESkKShqcQcEAeJH4V0VCM
+         uXI9iuhFXbb++O9ukcBiCbNALAKfx5DpdMHwczy9DbTUsW44kL/lnka85qqWvRej0RPF
+         RnZ5VQi9/Mjq9HqVC0zMI/jx6jaX6l3eySLLacUi2cknQyzHpMuotUajsmC3GEpzlOin
+         o1tPkiMKwsJupC8oYXfyRQVBef8zEU0ZGw4rtAZoHwAnKLbd9vZK1AgZndTWoifXBC8/
+         AuESCa6BessImTSDHkf64leJzic5r/rVZzBOg5nQtxSNoV3iHs4YEsgn1YleKilaig88
+         BkCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=5Qz7wK6li8P/fiukKFPzdBLxnK/7sm/mLgvbY1F8kaI=;
-        b=0oiYw775nZWJeGziWBGcVW1+rbzJPeq2RmlWt3IbvRiP9Rv7pd1pHh4fZ83HRS0Pxx
-         TdSZIi0AILsorV8d5R3sTlYFAfgssSEg14vF3iasd9BB9Xw+o8P2JDSajs5BvDlc7QmJ
-         xRNIyNgfFmIrmFVaIpU24esUlUCLG9Y9YGaWOiLud3yICqy1cfi7zp6HfE+wXUNuy3rU
-         Rm2G4A+THG8GmCAMVfyz6MaL5pgmu3AOZjO+TR4i2Kp9z4dvE0JAKPYN/W/K2E6NgwnJ
-         tPjL8wt8D2bFdr/Q5XLOK80bF0kli0voO+L1ziX0u5vxmh+2D1XkFmziHtY0rEnxpDSI
-         2cGg==
-X-Gm-Message-State: AOAM533u+K2IfRT5NjywQjUbdeLeiuqeJwhfCUdVWVcvK2OULneNwnbJ
-        dC2RQTge9mi4+4cIa/X5JpEJ1A==
-X-Google-Smtp-Source: ABdhPJyjP2brHJSi14Rvypw/usC1rea4FCRME/3nG5blkzYsT0UGiOgjet2cyne9OQbbpfaIKQ+J2w==
-X-Received: by 2002:a05:6000:c:b0:1e3:24e8:ab97 with SMTP id h12-20020a056000000c00b001e324e8ab97mr15565960wrx.593.1645440277872;
-        Mon, 21 Feb 2022 02:44:37 -0800 (PST)
-Received: from google.com (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
-        by smtp.gmail.com with ESMTPSA id y6sm30161680wrd.30.2022.02.21.02.44.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Feb 2022 02:44:37 -0800 (PST)
-Date:   Mon, 21 Feb 2022 10:44:35 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     daniel@iogearbox.net
-Cc:     andrii@kernel.org, ast@kernel.org, stable@vger.kernel.org,
-        Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: FAILED: patch "[PATCH] bpf: Fix toctou on read-only map's
- constant scalar tracking" failed to apply to 5.4-stable tree
-Message-ID: <YhNtE/sIdv5OkBQT@google.com>
-References: <163757721744154@kroah.com>
- <Yg5wY5FKj0ikiq+A@google.com>
- <Yg51IuzfMnU8Uo6v@kroah.com>
- <Yg6AbfbFgDqbhq0e@google.com>
- <YhNg4uM1gIN89B7U@google.com>
- <YhNoZy415MYPH+GR@kroah.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=zBMxT6mUsrZF5CxDEWFMeByDYV1JnyiE3N8k2hcGECU=;
+        b=K+pPYFOiOC7vJw95ajK5PDBXrYJzLYnpnNPt4eGt37UcrJPA7mEzq2axQQuhZQWlK3
+         vs6YRHEKuPRHt1SDgX2eChg33Vkm3tte/3gvXbA+b6YLqHaE9u3sxfEsAqRIG+QcgziM
+         A74qdtMmzG8wPrpqebOe31BMbKT6xjpS8SDrGo8AHSng6hyoAEg1sqj3Lw8RNj5+Rm/c
+         DAtQImh1sR69UyuVXMRt5MTkeR91wANAdkwbyHKFhaf2XBU+NGqbpDT9ni3Ec1b9+6Qx
+         3V5sSdLtgSjhiQXzzyQoZDOZVLq1kqmz5VL+J0h0l/kg/FgDG1PQPzN4xCoYYGJo/gaX
+         H0+w==
+X-Gm-Message-State: AOAM531fprrdwpKNT1K4tf35jEwI79DWqVXeq277rb6Ov1FhJbdoFZtC
+        TQu+clCuFWTGkLlBmgtwyGfDnxMVKNa7uNzQd9hpUA==
+X-Google-Smtp-Source: ABdhPJzLPLl27GzyMzXw22z+KHCroSxZ4M5UCV0cxecdAaXbkaNvw97Gtw7SM49XgmH59JPQQgrNHNZqjAsxzIhWJ+U=
+X-Received: by 2002:a17:90a:db90:b0:1bc:529f:7071 with SMTP id
+ h16-20020a17090adb9000b001bc529f7071mr1589092pjv.40.1645440943069; Mon, 21
+ Feb 2022 02:55:43 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YhNoZy415MYPH+GR@kroah.com>
+References: <yonglin.tan@outlook.com> <MEYP282MB237443EA389045F03FF2B48BFD3A9@MEYP282MB2374.AUSP282.PROD.OUTLOOK.COM>
+ <CAMZdPi9xN_gQRUz3C2MPoSu9O_byaHnydZm3spX3Buecb8_hng@mail.gmail.com> <MEYP282MB2374345FC80FFA7045D897FEFD3A9@MEYP282MB2374.AUSP282.PROD.OUTLOOK.COM>
+In-Reply-To: <MEYP282MB2374345FC80FFA7045D897FEFD3A9@MEYP282MB2374.AUSP282.PROD.OUTLOOK.COM>
+From:   Loic Poulain <loic.poulain@linaro.org>
+Date:   Mon, 21 Feb 2022 11:55:07 +0100
+Message-ID: <CAMZdPi__Kf__hy4TGJ1sz=VA_PCZpKk_HPgXX8+AH3sv_8mkmg@mail.gmail.com>
+Subject: Re: [PATCH] net: wwan: To support SAHARA port for Qualcomm WWAN module.
+To:     =?UTF-8?B?6LCtIOawuOaelw==?= <yonglin.tan@outlook.com>
+Cc:     "ryazanov.s.a@gmail.com" <ryazanov.s.a@gmail.com>,
+        "johannes@sipsolutions.net" <johannes@sipsolutions.net>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "kuba@kernel.org" <kuba@kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Manivannan Sadhasivam <mani@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -77,51 +73,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 21 Feb 2022, Greg KH wrote:
+On Mon, 21 Feb 2022 at 10:27, =E8=B0=AD =E6=B0=B8=E6=9E=97 <yonglin.tan@out=
+look.com> wrote:
+>
+> Dear Loic,
+>
+> The Qualcomm x24&x55&x6x platform are all using SAHARA port to collect me=
+mory dump log. User can use QLOG tool to collect the whole memory dump of d=
+evice while the device entered into Dump mode. The firehose protocol is use=
+d to download FW from the host, it's different from SAHARA. MHI CH 2&3 are =
+used as SAHARA CH but firehose use 34&35 CH.
 
-> On Mon, Feb 21, 2022 at 09:52:34AM +0000, Lee Jones wrote:
-> > On Thu, 17 Feb 2022, Lee Jones wrote:
-> > 
-> > > On Thu, 17 Feb 2022, Greg KH wrote:
-> > > 
-> > > > On Thu, Feb 17, 2022 at 03:57:23PM +0000, Lee Jones wrote:
-> > > > > Good afternoon Daniel,
-> > > > > 
-> > > > > On Mon, 22 Nov 2021, gregkh@linuxfoundation.org wrote:
-> > > > > > 
-> > > > > > The patch below does not apply to the 5.4-stable tree.
-> > > > > > If someone wants it applied there, or to any other stable or longterm
-> > > > > > tree, then please email the backport, including the original git commit
-> > > > > > id to <stable@vger.kernel.org>.
-> > > > > 
-> > > > > We are in receipt of a bug report which cites this patch as the fix.
-> > > > 
-> > > > Does the bug report really say that this issue is present in the 5.4
-> > > > kernel tree?  Anything older?
-> > > 
-> > > Not specifically, but the commit referenced in the Fixes tag landed in
-> > > v5.5. and was successfully back-ported to v5.4.144.
-> > 
-> > Another potential avenue might to be revert the back-ported commit
-> > which caused the issue from v5.4.y.
-> 
-> Unless that was fixing a different issue?  I have no idea at this point
-> what commit you are talking about, sorry :(
+Ah right, firehose programmer is loaded when entering EDL mode, not SBL.
 
-The bad-commit mentioned in "the Fixes tag":
+>
+> The bus driver use " MHI_CHANNEL_CONFIG_UL&DL_SBL " to initiate SAHARA CH=
+ configs.
+>
+> The code is Quectel EM1XX channel config.
+> MHI_CHANNEL_CONFIG_DL_SBL(3, "SAHARA", 32, 0),
+>
+> For example,
+> - Once the device crashed due to some reasons.
+> - The module entered into DUMP mode(SBL Stage), and changed the EE to SBL=
+.
+> - Then the host should detect the change and re-enumerate the SAHARA port=
+.
+> - Then users can use QLOG tool to collect the Device Memory LOG by SAHARA=
+ Protocol via CH 2&3.
 
-Fixes: a23740ec43ba ("bpf: Track contents of read-only maps as scalars")
+OK, you should add that to the commit message.
 
-Which as you say, could well have been fixing another issue.
+Also, instead of exposing the raw sahara protocol, can't this be
+integrated with the devcoredump framework
+(https://lwn.net/Articles/610887/)?
 
-In fact, yes it was:
-
-https://lore.kernel.org/stable/20210821203108.215937-2-rafaeldtinoco@gmail.com/
-
-Daniel, what do you suggest please?
-
--- 
-Lee Jones [李琼斯]
-Principal Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Regards,
+Loic
