@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FA6B4BE0DF
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B6314BDBAB
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:40:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345759AbiBUIzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:55:23 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43802 "EHLO
+        id S1346271AbiBUJu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:50:29 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345674AbiBUIzE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:55:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1541240B7;
-        Mon, 21 Feb 2022 00:53:25 -0800 (PST)
+        with ESMTP id S1351343AbiBUJsw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DBBC3205A;
+        Mon, 21 Feb 2022 01:22:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 176CF61149;
-        Mon, 21 Feb 2022 08:53:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F081CC340E9;
-        Mon, 21 Feb 2022 08:53:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70C8360B1E;
+        Mon, 21 Feb 2022 09:22:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 587DCC340EB;
+        Mon, 21 Feb 2022 09:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433598;
-        bh=wVBKcepK6ofvfIi4wuqL8gC+94QFVq/5PWNf8Z/HNFM=;
+        s=korg; t=1645435351;
+        bh=zPEyfU1ecxpvXSoCI9xFguvbg7TQZ1EtnpjrPVaVoKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KQGw1h4gb3VkTufFzj8AFwhxfa5ZMyO1RGShrV5EvN+DPcoOwsoq/62SagStUJww6
-         NxESC5yNH7JZk+yh9Z5Q7zW+E7Uqt9S3CCSzTtuw2lOoNWXnNjgTkNJ8oJFLoudLyg
-         Foj4Sz0JfHEjDaRVNl6NIDgFaAT5mtzAUIk6Oysw=
+        b=PRF6anelFRHR9Rw96fPNstebQQu0PmHjUKH943umEZle+QHN8usesAh+dJFhHGQCc
+         PN++hU7SCTssCdGv4LVGxZgqwxCfRGUM3NtEs/syUnsn4TSoB4NW4/gqnkTUqmr1tL
+         7Vn9xEVzdOD8XcCTY27Fg926PzuBgqYVExamN+3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 4.14 21/45] iwlwifi: pcie: gen2: fix locking when "HW not ready"
+        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.16 133/227] selftests/exec: Add non-regular to TEST_GEN_PROGS
 Date:   Mon, 21 Feb 2022 09:49:12 +0100
-Message-Id: <20220221084911.146802957@linuxfoundation.org>
+Message-Id: <20220221084939.278758067@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Muhammad Usama Anjum <usama.anjum@collabora.com>
 
-commit 4c29c1e27a1e178a219b3877d055e6dd643bdfda upstream.
+commit a7e793a867ae312cecdeb6f06cceff98263e75dd upstream.
 
-If we run into this error path, we shouldn't unlock the mutex
-since it's not locked since. Fix this in the gen2 code as well.
+non-regular file needs to be compiled and then copied to the output
+directory. Remove it from TEST_PROGS and add it to TEST_GEN_PROGS. This
+removes error thrown by rsync when non-regular object isn't found:
 
-Fixes: eda50cde58de ("iwlwifi: pcie: add context information support")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/iwlwifi.20220128142706.b8b0dfce16ef.Ie20f0f7b23e5911350a2766524300d2915e7b677@changeid
+rsync: [sender] link_stat "/linux/tools/testing/selftests/exec/non-regular" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1333) [sender=3.2.3]
+
+Fixes: 0f71241a8e32 ("selftests/exec: add file type errno tests")
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ tools/testing/selftests/exec/Makefile |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c
-@@ -292,8 +292,7 @@ int iwl_trans_pcie_gen2_start_fw(struct
- 	/* This may fail if AMT took ownership of the device */
- 	if (iwl_pcie_prepare_card_hw(trans)) {
- 		IWL_WARN(trans, "Exit HW not ready\n");
--		ret = -EIO;
--		goto out;
-+		return -EIO;
- 	}
+--- a/tools/testing/selftests/exec/Makefile
++++ b/tools/testing/selftests/exec/Makefile
+@@ -3,8 +3,8 @@ CFLAGS = -Wall
+ CFLAGS += -Wno-nonnull
+ CFLAGS += -D_GNU_SOURCE
  
- 	iwl_enable_rfkill_int(trans);
+-TEST_PROGS := binfmt_script non-regular
+-TEST_GEN_PROGS := execveat load_address_4096 load_address_2097152 load_address_16777216
++TEST_PROGS := binfmt_script
++TEST_GEN_PROGS := execveat load_address_4096 load_address_2097152 load_address_16777216 non-regular
+ TEST_GEN_FILES := execveat.symlink execveat.denatured script subdir
+ # Makefile is a run-time dependency, since it's accessed by the execveat test
+ TEST_FILES := Makefile
 
 
