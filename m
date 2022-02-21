@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64DB04BDC97
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A52C4BE575
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:00:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346067AbiBUI5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:57:42 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44520 "EHLO
+        id S1347883AbiBUJQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:16:50 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346241AbiBUI46 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:56:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C198C22BED;
-        Mon, 21 Feb 2022 00:54:08 -0800 (PST)
+        with ESMTP id S1348466AbiBUJLT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:19 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8E24205D7;
+        Mon, 21 Feb 2022 01:03:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD31FB80EB2;
-        Mon, 21 Feb 2022 08:53:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 148F8C340E9;
-        Mon, 21 Feb 2022 08:53:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 59C0DCE0E6D;
+        Mon, 21 Feb 2022 09:03:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AC03C340F3;
+        Mon, 21 Feb 2022 09:03:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433635;
-        bh=wDua54V40aYcPDnGD2qM9MjIhK8Jdh3ufrb+uJTT5ro=;
+        s=korg; t=1645434204;
+        bh=CMmA/IivKrWnzV7tqHqyjVNnVmgLacPECP9NWZX5YPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eUbyaQMlwaIyYS3KStK0Q4ziJn5sjLSk6LfLK7SbUteEDwRbQbkLRyhAy7y6RK8qM
-         3Y1UcMgYSFlA4LZ1Ord+kSuRVo3KSyjwGbLE5nLIcQWb/384vU6CWcM+kyJ7Ita771
-         OB6ruo0bhSbZkfV+WHbBQSMfKSMATAliC5VgoT/Q=
+        b=FcimDmGgHfUcKA2pTKyG67D8wPY7VQWA1NLz6WTrAtfK9p2g9ZrLFprgOoZxaHWzO
+         EYlVIPfz9koavYIPSxwXqryK7osSuQ7i5oeROf6wCT4DKRpYFfWJ6AN4q5tv1tPJ1E
+         EwvzFRndaCL1PgoUmxvG4PZp0K2lJZGqFF3g7EwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Xu <xuyang2018.jy@fujitsu.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/45] selftests/zram01.sh: Fix compression ratio calculation
+        stable@vger.kernel.org,
+        Nicholas Bishop <nicholasbishop@google.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 048/121] drm/radeon: Fix backlight control on iMac 12,1
 Date:   Mon, 21 Feb 2022 09:49:00 +0100
-Message-Id: <20220221084910.769452135@linuxfoundation.org>
+Message-Id: <20220221084922.835388437@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Xu <xuyang2018.jy@fujitsu.com>
+From: Nicholas Bishop <nicholasbishop@google.com>
 
-[ Upstream commit d18da7ec3719559d6e74937266d0416e6c7e0b31 ]
+commit 364438fd629f7611a84c8e6d7de91659300f1502 upstream.
 
-zram01 uses `free -m` to measure zram memory usage. The results are no
-sense because they are polluted by all running processes on the system.
+The iMac 12,1 does not use the gmux driver for backlight, so the radeon
+backlight device is needed to set the brightness.
 
-We Should only calculate the free memory delta for the current process.
-So use the third field of /sys/block/zram<id>/mm_stat to measure memory
-usage instead. The file is available since kernel 4.1.
-
-orig_data_size(first): uncompressed size of data stored in this disk.
-compr_data_size(second): compressed size of data stored in this disk
-mem_used_total(third): the amount of memory allocated for this disk
-
-Also remove useless zram cleanup call in zram_fill_fs and so we don't
-need to cleanup zram twice if fails.
-
-Signed-off-by: Yang Xu <xuyang2018.jy@fujitsu.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1838
+Signed-off-by: Nicholas Bishop <nicholasbishop@google.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/zram/zram01.sh | 30 +++++++-------------------
- 1 file changed, 8 insertions(+), 22 deletions(-)
+ drivers/gpu/drm/radeon/atombios_encoders.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/zram/zram01.sh b/tools/testing/selftests/zram/zram01.sh
-index b9566a6478a9c..ac6e4ddd2604e 100755
---- a/tools/testing/selftests/zram/zram01.sh
-+++ b/tools/testing/selftests/zram/zram01.sh
-@@ -42,8 +42,6 @@ zram_algs="lzo"
+--- a/drivers/gpu/drm/radeon/atombios_encoders.c
++++ b/drivers/gpu/drm/radeon/atombios_encoders.c
+@@ -197,7 +197,8 @@ void radeon_atom_backlight_init(struct r
+ 	 * so don't register a backlight device
+ 	 */
+ 	if ((rdev->pdev->subsystem_vendor == PCI_VENDOR_ID_APPLE) &&
+-	    (rdev->pdev->device == 0x6741))
++	    (rdev->pdev->device == 0x6741) &&
++	    !dmi_match(DMI_PRODUCT_NAME, "iMac12,1"))
+ 		return;
  
- zram_fill_fs()
- {
--	local mem_free0=$(free -m | awk 'NR==2 {print $4}')
--
- 	for i in $(seq 0 $(($dev_num - 1))); do
- 		echo "fill zram$i..."
- 		local b=0
-@@ -54,29 +52,17 @@ zram_fill_fs()
- 			b=$(($b + 1))
- 		done
- 		echo "zram$i can be filled with '$b' KB"
--	done
- 
--	local mem_free1=$(free -m | awk 'NR==2 {print $4}')
--	local used_mem=$(($mem_free0 - $mem_free1))
-+		local mem_used_total=`awk '{print $3}' "/sys/block/zram$i/mm_stat"`
-+		local v=$((100 * 1024 * $b / $mem_used_total))
-+		if [ "$v" -lt 100 ]; then
-+			 echo "FAIL compression ratio: 0.$v:1"
-+			 ERR_CODE=-1
-+			 return
-+		fi
- 
--	local total_size=0
--	for sm in $zram_sizes; do
--		local s=$(echo $sm | sed 's/M//')
--		total_size=$(($total_size + $s))
-+		echo "zram compression ratio: $(echo "scale=2; $v / 100 " | bc):1: OK"
- 	done
--
--	echo "zram used ${used_mem}M, zram disk sizes ${total_size}M"
--
--	local v=$((100 * $total_size / $used_mem))
--
--	if [ "$v" -lt 100 ]; then
--		echo "FAIL compression ratio: 0.$v:1"
--		ERR_CODE=-1
--		zram_cleanup
--		return
--	fi
--
--	echo "zram compression ratio: $(echo "scale=2; $v / 100 " | bc):1: OK"
- }
- 
- check_prereqs
--- 
-2.34.1
-
+ 	if (!radeon_encoder->enc_priv)
 
 
