@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15A674BDC25
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2518B4BE5A5
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:00:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350096AbiBUJdu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:33:50 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36254 "EHLO
+        id S1346967AbiBUJA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:00:29 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350315AbiBUJc1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:32:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F7E28982;
-        Mon, 21 Feb 2022 01:13:51 -0800 (PST)
+        with ESMTP id S1346895AbiBUJAE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:00:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4967214086;
+        Mon, 21 Feb 2022 00:55:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E9F1860B1E;
-        Mon, 21 Feb 2022 09:13:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D07BBC340E9;
-        Mon, 21 Feb 2022 09:13:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E97B1B80EAF;
+        Mon, 21 Feb 2022 08:54:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24A96C340E9;
+        Mon, 21 Feb 2022 08:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434803;
-        bh=/NW4lK+cwpAZ+jx+0oSMQYbrYONrpg8H23rLb64Kxbk=;
+        s=korg; t=1645433686;
+        bh=FND7irY5FD1eoc9+qgWldfdeCJy+ApBZ9xE7IEBQV0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KUSZcSDh/qtbJUlRG/ypl7pq1yerrN6JODEmVnBdLz64Sf3v66eWu1OW6RcLFEpvL
-         Pf6rhpZDxDx2UaNX1nirp+KS/8T5t6mA8MST1iqdXM1QKIJnHEOSiC1FYZN+EVgrqQ
-         Qm0QRh5GVQvIqdupqPP2wZxpdhV5oETBXfgT8Pro=
+        b=ehfkrpD7+VQGDinnxw2KJ8j4i5HiKZb4fY1rMQHHzPtBhZHhkJ0tudlVYbQEMzfP+
+         HFkyKNXWVXmXnYp1KxulC89cR2xLykyq2ju59pzGldAc86cFNJ7B6NIdxraECYD5HP
+         DUIjSfRXTgdJCFLiIKsMwCID6pVoWAFO7k/bUOEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.15 136/196] mtd: rawnand: qcom: Fix clock sequencing in qcom_nandc_probe()
+        stable@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 37/45] mtd: rawnand: brcmnand: Refactored code to introduce helper functions
 Date:   Mon, 21 Feb 2022 09:49:28 +0100
-Message-Id: <20220221084935.469327304@linuxfoundation.org>
+Message-Id: <20220221084911.651433263@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
+References: <20220221084910.454824160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,91 +54,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Kamal Dasu <kdasu.kdev@gmail.com>
 
-commit 5c23b3f965bc9ee696bf2ed4bdc54d339dd9a455 upstream.
+[ Upstream commit 3c7c1e4594efd57b98ae6f7298f40cff4f4fb47b ]
 
-Interacting with a NAND chip on an IPQ6018 I found that the qcomsmem NAND
-partition parser was returning -EPROBE_DEFER waiting for the main smem
-driver to load.
+Refactored NAND ECC and CMD address configuration code to use helper
+functions.
 
-This caused the board to reset. Playing about with the probe() function
-shows that the problem lies in the core clock being switched off before the
-nandc_unalloc() routine has completed.
-
-If we look at how qcom_nandc_remove() tears down allocated resources we see
-the expected order is
-
-qcom_nandc_unalloc(nandc);
-
-clk_disable_unprepare(nandc->aon_clk);
-clk_disable_unprepare(nandc->core_clk);
-
-dma_unmap_resource(&pdev->dev, nandc->base_dma, resource_size(res),
-		   DMA_BIDIRECTIONAL, 0);
-
-Tweaking probe() to both bring up and tear-down in that order removes the
-reset if we end up deferring elsewhere.
-
-Fixes: c76b78d8ec05 ("mtd: nand: Qualcomm NAND controller driver")
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220103030316.58301-2-bryan.odonoghue@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/qcom_nandc.c |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/mtd/nand/brcmnand/brcmnand.c | 100 +++++++++++++++++----------
+ 1 file changed, 62 insertions(+), 38 deletions(-)
 
---- a/drivers/mtd/nand/raw/qcom_nandc.c
-+++ b/drivers/mtd/nand/raw/qcom_nandc.c
-@@ -2,7 +2,6 @@
- /*
-  * Copyright (c) 2016, The Linux Foundation. All rights reserved.
-  */
--
- #include <linux/clk.h>
- #include <linux/slab.h>
- #include <linux/bitops.h>
-@@ -3063,10 +3062,6 @@ static int qcom_nandc_probe(struct platf
- 	if (dma_mapping_error(dev, nandc->base_dma))
- 		return -ENXIO;
- 
--	ret = qcom_nandc_alloc(nandc);
--	if (ret)
--		goto err_nandc_alloc;
--
- 	ret = clk_prepare_enable(nandc->core_clk);
- 	if (ret)
- 		goto err_core_clk;
-@@ -3075,6 +3070,10 @@ static int qcom_nandc_probe(struct platf
- 	if (ret)
- 		goto err_aon_clk;
- 
-+	ret = qcom_nandc_alloc(nandc);
-+	if (ret)
-+		goto err_nandc_alloc;
-+
- 	ret = qcom_nandc_setup(nandc);
- 	if (ret)
- 		goto err_setup;
-@@ -3086,15 +3085,14 @@ static int qcom_nandc_probe(struct platf
- 	return 0;
- 
- err_setup:
-+	qcom_nandc_unalloc(nandc);
-+err_nandc_alloc:
- 	clk_disable_unprepare(nandc->aon_clk);
- err_aon_clk:
- 	clk_disable_unprepare(nandc->core_clk);
- err_core_clk:
--	qcom_nandc_unalloc(nandc);
--err_nandc_alloc:
- 	dma_unmap_resource(dev, res->start, resource_size(res),
- 			   DMA_BIDIRECTIONAL, 0);
--
- 	return ret;
+diff --git a/drivers/mtd/nand/brcmnand/brcmnand.c b/drivers/mtd/nand/brcmnand/brcmnand.c
+index c65724d0c725d..be4c6f256e807 100644
+--- a/drivers/mtd/nand/brcmnand/brcmnand.c
++++ b/drivers/mtd/nand/brcmnand/brcmnand.c
+@@ -589,6 +589,54 @@ static inline void brcmnand_write_fc(struct brcmnand_controller *ctrl,
+ 	__raw_writel(val, ctrl->nand_fc + word * 4);
  }
  
++static void brcmnand_clear_ecc_addr(struct brcmnand_controller *ctrl)
++{
++
++	/* Clear error addresses */
++	brcmnand_write_reg(ctrl, BRCMNAND_UNCORR_ADDR, 0);
++	brcmnand_write_reg(ctrl, BRCMNAND_CORR_ADDR, 0);
++	brcmnand_write_reg(ctrl, BRCMNAND_UNCORR_EXT_ADDR, 0);
++	brcmnand_write_reg(ctrl, BRCMNAND_CORR_EXT_ADDR, 0);
++}
++
++static u64 brcmnand_get_uncorrecc_addr(struct brcmnand_controller *ctrl)
++{
++	u64 err_addr;
++
++	err_addr = brcmnand_read_reg(ctrl, BRCMNAND_UNCORR_ADDR);
++	err_addr |= ((u64)(brcmnand_read_reg(ctrl,
++					     BRCMNAND_UNCORR_EXT_ADDR)
++					     & 0xffff) << 32);
++
++	return err_addr;
++}
++
++static u64 brcmnand_get_correcc_addr(struct brcmnand_controller *ctrl)
++{
++	u64 err_addr;
++
++	err_addr = brcmnand_read_reg(ctrl, BRCMNAND_CORR_ADDR);
++	err_addr |= ((u64)(brcmnand_read_reg(ctrl,
++					     BRCMNAND_CORR_EXT_ADDR)
++					     & 0xffff) << 32);
++
++	return err_addr;
++}
++
++static void brcmnand_set_cmd_addr(struct mtd_info *mtd, u64 addr)
++{
++	struct nand_chip *chip =  mtd_to_nand(mtd);
++	struct brcmnand_host *host = nand_get_controller_data(chip);
++	struct brcmnand_controller *ctrl = host->ctrl;
++
++	brcmnand_write_reg(ctrl, BRCMNAND_CMD_EXT_ADDRESS,
++			   (host->cs << 16) | ((addr >> 32) & 0xffff));
++	(void)brcmnand_read_reg(ctrl, BRCMNAND_CMD_EXT_ADDRESS);
++	brcmnand_write_reg(ctrl, BRCMNAND_CMD_ADDRESS,
++			   lower_32_bits(addr));
++	(void)brcmnand_read_reg(ctrl, BRCMNAND_CMD_ADDRESS);
++}
++
+ static inline u16 brcmnand_cs_offset(struct brcmnand_controller *ctrl, int cs,
+ 				     enum brcmnand_cs_reg reg)
+ {
+@@ -1217,9 +1265,12 @@ static void brcmnand_send_cmd(struct brcmnand_host *host, int cmd)
+ {
+ 	struct brcmnand_controller *ctrl = host->ctrl;
+ 	int ret;
++	u64 cmd_addr;
++
++	cmd_addr = brcmnand_read_reg(ctrl, BRCMNAND_CMD_ADDRESS);
++
++	dev_dbg(ctrl->dev, "send native cmd %d addr 0x%llx\n", cmd, cmd_addr);
+ 
+-	dev_dbg(ctrl->dev, "send native cmd %d addr_lo 0x%x\n", cmd,
+-		brcmnand_read_reg(ctrl, BRCMNAND_CMD_ADDRESS));
+ 	BUG_ON(ctrl->cmd_pending != 0);
+ 	ctrl->cmd_pending = cmd;
+ 
+@@ -1380,12 +1431,7 @@ static void brcmnand_cmdfunc(struct mtd_info *mtd, unsigned command,
+ 	if (!native_cmd)
+ 		return;
+ 
+-	brcmnand_write_reg(ctrl, BRCMNAND_CMD_EXT_ADDRESS,
+-		(host->cs << 16) | ((addr >> 32) & 0xffff));
+-	(void)brcmnand_read_reg(ctrl, BRCMNAND_CMD_EXT_ADDRESS);
+-	brcmnand_write_reg(ctrl, BRCMNAND_CMD_ADDRESS, lower_32_bits(addr));
+-	(void)brcmnand_read_reg(ctrl, BRCMNAND_CMD_ADDRESS);
+-
++	brcmnand_set_cmd_addr(mtd, addr);
+ 	brcmnand_send_cmd(host, native_cmd);
+ 	brcmnand_waitfunc(mtd, chip);
+ 
+@@ -1605,20 +1651,10 @@ static int brcmnand_read_by_pio(struct mtd_info *mtd, struct nand_chip *chip,
+ 	struct brcmnand_controller *ctrl = host->ctrl;
+ 	int i, j, ret = 0;
+ 
+-	/* Clear error addresses */
+-	brcmnand_write_reg(ctrl, BRCMNAND_UNCORR_ADDR, 0);
+-	brcmnand_write_reg(ctrl, BRCMNAND_CORR_ADDR, 0);
+-	brcmnand_write_reg(ctrl, BRCMNAND_UNCORR_EXT_ADDR, 0);
+-	brcmnand_write_reg(ctrl, BRCMNAND_CORR_EXT_ADDR, 0);
+-
+-	brcmnand_write_reg(ctrl, BRCMNAND_CMD_EXT_ADDRESS,
+-			(host->cs << 16) | ((addr >> 32) & 0xffff));
+-	(void)brcmnand_read_reg(ctrl, BRCMNAND_CMD_EXT_ADDRESS);
++	brcmnand_clear_ecc_addr(ctrl);
+ 
+ 	for (i = 0; i < trans; i++, addr += FC_BYTES) {
+-		brcmnand_write_reg(ctrl, BRCMNAND_CMD_ADDRESS,
+-				   lower_32_bits(addr));
+-		(void)brcmnand_read_reg(ctrl, BRCMNAND_CMD_ADDRESS);
++		brcmnand_set_cmd_addr(mtd, addr);
+ 		/* SPARE_AREA_READ does not use ECC, so just use PAGE_READ */
+ 		brcmnand_send_cmd(host, CMD_PAGE_READ);
+ 		brcmnand_waitfunc(mtd, chip);
+@@ -1638,21 +1674,15 @@ static int brcmnand_read_by_pio(struct mtd_info *mtd, struct nand_chip *chip,
+ 					host->hwcfg.sector_size_1k);
+ 
+ 		if (!ret) {
+-			*err_addr = brcmnand_read_reg(ctrl,
+-					BRCMNAND_UNCORR_ADDR) |
+-				((u64)(brcmnand_read_reg(ctrl,
+-						BRCMNAND_UNCORR_EXT_ADDR)
+-					& 0xffff) << 32);
++			*err_addr = brcmnand_get_uncorrecc_addr(ctrl);
++
+ 			if (*err_addr)
+ 				ret = -EBADMSG;
+ 		}
+ 
+ 		if (!ret) {
+-			*err_addr = brcmnand_read_reg(ctrl,
+-					BRCMNAND_CORR_ADDR) |
+-				((u64)(brcmnand_read_reg(ctrl,
+-						BRCMNAND_CORR_EXT_ADDR)
+-					& 0xffff) << 32);
++			*err_addr = brcmnand_get_correcc_addr(ctrl);
++
+ 			if (*err_addr)
+ 				ret = -EUCLEAN;
+ 		}
+@@ -1723,7 +1753,7 @@ static int brcmnand_read(struct mtd_info *mtd, struct nand_chip *chip,
+ 	dev_dbg(ctrl->dev, "read %llx -> %p\n", (unsigned long long)addr, buf);
+ 
+ try_dmaread:
+-	brcmnand_write_reg(ctrl, BRCMNAND_UNCORR_COUNT, 0);
++	brcmnand_clear_ecc_addr(ctrl);
+ 
+ 	if (has_flash_dma(ctrl) && !oob && flash_dma_buf_ok(buf)) {
+ 		err = brcmnand_dma_trans(host, addr, buf, trans * FC_BYTES,
+@@ -1863,15 +1893,9 @@ static int brcmnand_write(struct mtd_info *mtd, struct nand_chip *chip,
+ 		goto out;
+ 	}
+ 
+-	brcmnand_write_reg(ctrl, BRCMNAND_CMD_EXT_ADDRESS,
+-			(host->cs << 16) | ((addr >> 32) & 0xffff));
+-	(void)brcmnand_read_reg(ctrl, BRCMNAND_CMD_EXT_ADDRESS);
+-
+ 	for (i = 0; i < trans; i++, addr += FC_BYTES) {
+ 		/* full address MUST be set before populating FC */
+-		brcmnand_write_reg(ctrl, BRCMNAND_CMD_ADDRESS,
+-				   lower_32_bits(addr));
+-		(void)brcmnand_read_reg(ctrl, BRCMNAND_CMD_ADDRESS);
++		brcmnand_set_cmd_addr(mtd, addr);
+ 
+ 		if (buf) {
+ 			brcmnand_soc_data_bus_prepare(ctrl->soc, false);
+-- 
+2.34.1
+
 
 
