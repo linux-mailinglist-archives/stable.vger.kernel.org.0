@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76B774BE7CC
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:04:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 502A44BE347
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:57:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238872AbiBUKD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 05:03:29 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57196 "EHLO
+        id S1350685AbiBUJjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:39:16 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353478AbiBUJ53 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7459E39694;
-        Mon, 21 Feb 2022 01:26:11 -0800 (PST)
+        with ESMTP id S1350838AbiBUJgG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:36:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 052492BB37;
+        Mon, 21 Feb 2022 01:14:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 23A13B80EB8;
-        Mon, 21 Feb 2022 09:26:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 379ADC340E9;
-        Mon, 21 Feb 2022 09:26:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE7E0608C4;
+        Mon, 21 Feb 2022 09:14:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1ED9C340E9;
+        Mon, 21 Feb 2022 09:14:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435568;
-        bh=CGKZKpHdtpHjqx8nLIub2ekK7SpErawCOlzQRha/BlY=;
+        s=korg; t=1645434896;
+        bh=irm/IpB0amb9hj620Syux/kXZz0jKhnqBvMBFBvfmTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f3HNBXose7IfmENmIunnE5iGkcAE8MKnjtca9xMVrLb/uIdBA5EjGG4zHpX2eabJ1
-         lLbnK9hd+DMVfU/mfVHMjbj4GU3VKPTrkhoDATWtJitWTQbb6PmmDmc8oGGRFy+i5s
-         ESg6JhbG7O50NlGCX3cOBWO5KQcFAzSPJku4qzQ4=
+        b=Pr7/vi1mCynzxooBWv/pg90t3nQRa8Q1hosYoEozsNkX1bVl1x6I3IFs3CInHGILt
+         syyPHqPxjzxSijXkBmPtNdHQCg83677fjKXH0D8/yXrOO3uZ0Wnhhhq+9RJjlH/Zs4
+         GJ4BOnvkPdFzTOMSdM1ACoB9hZZjhTjSGXJjeQUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Seth Forshee <seth.forshee@digitalocean.com>,
-        Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
-        Christian Brauner <brauner@kernel.org>
-Subject: [PATCH 5.16 182/227] tests: fix idmapped mount_setattr test
+        stable@vger.kernel.org, JaeSang Yoo <jsyoo5b@gmail.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 169/196] tracing: Fix tp_printk option related with tp_printk_stop_on_boot
 Date:   Mon, 21 Feb 2022 09:50:01 +0100
-Message-Id: <20220221084940.869374838@linuxfoundation.org>
+Message-Id: <20220221084936.599307147@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <brauner@kernel.org>
+From: JaeSang Yoo <js.yoo.5b@gmail.com>
 
-commit d1c56bfdaca465bd1d0e913053a9c5cafe8b6a6c upstream.
+[ Upstream commit 3203ce39ac0b2a57a84382ec184c7d4a0bede175 ]
 
-The test treated zero as a successful run when it really should treat
-non-zero as a successful run. A mount's idmapping can't change once it
-has been attached to the filesystem.
+The kernel parameter "tp_printk_stop_on_boot" starts with "tp_printk" which is
+the same as another kernel parameter "tp_printk". If "tp_printk" setup is
+called before the "tp_printk_stop_on_boot", it will override the latter
+and keep it from being set.
 
-Link: https://lore.kernel.org/r/20220203131411.3093040-2-brauner@kernel.org
-Fixes: 01eadc8dd96d ("tests: add mount_setattr() selftests")
-Cc: Seth Forshee <seth.forshee@digitalocean.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: linux-fsdevel@vger.kernel.org
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Christian Brauner <brauner@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is similar to other kernel parameter issues, such as:
+  Commit 745a600cf1a6 ("um: console: Ignore console= option")
+or init/do_mounts.c:45 (setup function of "ro" kernel param)
+
+Fix it by checking for a "_" right after the "tp_printk" and if that
+exists do not process the parameter.
+
+Link: https://lkml.kernel.org/r/20220208195421.969326-1-jsyoo5b@gmail.com
+
+Signed-off-by: JaeSang Yoo <jsyoo5b@gmail.com>
+[ Fixed up change log and added space after if condition ]
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/mount_setattr/mount_setattr_test.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/trace/trace.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/tools/testing/selftests/mount_setattr/mount_setattr_test.c
-+++ b/tools/testing/selftests/mount_setattr/mount_setattr_test.c
-@@ -1236,7 +1236,7 @@ static int get_userns_fd(unsigned long n
- }
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 51a87a67e2abe..618c20ce2479d 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -252,6 +252,10 @@ __setup("trace_clock=", set_trace_boot_clock);
  
- /**
-- * Validate that an attached mount in our mount namespace can be idmapped.
-+ * Validate that an attached mount in our mount namespace cannot be idmapped.
-  * (The kernel enforces that the mount's mount namespace and the caller's mount
-  *  namespace match.)
-  */
-@@ -1259,7 +1259,7 @@ TEST_F(mount_setattr_idmapped, attached_
- 
- 	attr.userns_fd	= get_userns_fd(0, 10000, 10000);
- 	ASSERT_GE(attr.userns_fd, 0);
--	ASSERT_EQ(sys_mount_setattr(open_tree_fd, "", AT_EMPTY_PATH, &attr, sizeof(attr)), 0);
-+	ASSERT_NE(sys_mount_setattr(open_tree_fd, "", AT_EMPTY_PATH, &attr, sizeof(attr)), 0);
- 	ASSERT_EQ(close(attr.userns_fd), 0);
- 	ASSERT_EQ(close(open_tree_fd), 0);
- }
+ static int __init set_tracepoint_printk(char *str)
+ {
++	/* Ignore the "tp_printk_stop_on_boot" param */
++	if (*str == '_')
++		return 0;
++
+ 	if ((strcmp(str, "=0") != 0 && strcmp(str, "=off") != 0))
+ 		tracepoint_printk = 1;
+ 	return 1;
+-- 
+2.34.1
+
 
 
