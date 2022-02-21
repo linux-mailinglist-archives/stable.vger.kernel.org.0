@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A74064BE5C4
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 654A94BDDED
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:46:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346039AbiBUIz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:55:57 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44708 "EHLO
+        id S1348164AbiBUJOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:14:23 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346184AbiBUIzl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:55:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B14324BD0;
-        Mon, 21 Feb 2022 00:53:39 -0800 (PST)
+        with ESMTP id S1348864AbiBUJLs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D33C228988;
+        Mon, 21 Feb 2022 01:04:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEA18B80EB5;
-        Mon, 21 Feb 2022 08:53:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 114DCC340E9;
-        Mon, 21 Feb 2022 08:53:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EE4160FB6;
+        Mon, 21 Feb 2022 09:04:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52FBDC340E9;
+        Mon, 21 Feb 2022 09:04:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433615;
-        bh=7olKYaqtu+BxZjg1A+48Fj6BNudVjfaeR4CAz1kvzAY=;
+        s=korg; t=1645434256;
+        bh=w7C2GgCRtP1+xltsNW+WDszYMEqhmA+wflbrN7qr1Ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vqAHCmnN9n3A5BK3GfOpLMPEzyM4YU/hBDHfilTn+Ys45MfH9Sa3FHfU+Fos5EpTS
-         +kLfUN41hVT9O5A0FGS6q5zG0rThBRorWupZn+DW8Cg+RZ7qufcUaeAMkr19RTOqNm
-         Z1Fmv4rzl1U/jnq4V2D/mxzueKijkYgMkyRdmPc0=
+        b=dxdk/+52oV79MA/rMQ/vjSa3m6L4MXCIlAgTjNuVNDK21DTPM+cATWEYl5b05KHnm
+         +KgJQkxRuL/gWNUSiIZ7i83urF2tstKWB/zZC6vSLuJ66s7PNsfR1yp4wAFgjzq1jV
+         ARUNZsgFKRdYN0ZaY6G9Ab01dvclps1q9xU6lPTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, dmummenschanz@web.de,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 27/45] ALSA: hda: Fix regression on forced probe mask option
-Date:   Mon, 21 Feb 2022 09:49:18 +0100
-Message-Id: <20220221084911.332791452@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 067/121] perf bpf: Defer freeing string after possible strlen() on it
+Date:   Mon, 21 Feb 2022 09:49:19 +0100
+Message-Id: <20220221084923.467669276@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit 6317f7449348a897483a2b4841f7a9190745c81b upstream.
+commit 31ded1535e3182778a1d0e5c32711f55da3bc512 upstream.
 
-The forced probe mask via probe_mask 0x100 bit doesn't work any longer
-as expected since the bus init code was moved and it's clearing the
-codec_mask value that was set beforehand.  This patch fixes the
-long-time regression by moving the check_probe_mask() call.
+This was detected by the gcc in Fedora Rawhide's gcc:
 
-Fixes: a41d122449be ("ALSA: hda - Embed bus into controller object")
-Reported-by: dmummenschanz@web.de
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/trinity-f018660b-95c9-442b-a2a8-c92a56eb07ed-1644345967148@3c-app-webde-bap22
-Link: https://lore.kernel.org/r/20220214100020.8870-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  50    11.01 fedora:rawhide                : FAIL gcc version 12.0.1 20220205 (Red Hat 12.0.1-0) (GCC)
+        inlined from 'bpf__config_obj' at util/bpf-loader.c:1242:9:
+    util/bpf-loader.c:1225:34: error: pointer 'map_opt' may be used after 'free' [-Werror=use-after-free]
+     1225 |                 *key_scan_pos += strlen(map_opt);
+          |                                  ^~~~~~~~~~~~~~~
+    util/bpf-loader.c:1223:9: note: call to 'free' here
+     1223 |         free(map_name);
+          |         ^~~~~~~~~~~~~~
+    cc1: all warnings being treated as errors
+
+So do the calculations on the pointer before freeing it.
+
+Fixes: 04f9bf2bac72480c ("perf bpf-loader: Add missing '*' for key_scan_pos")
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Link: https://lore.kernel.org/lkml/Yg1VtQxKrPpS3uNA@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_intel.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/perf/util/bpf-loader.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -1821,8 +1821,6 @@ static int azx_create(struct snd_card *c
- 
- 	assign_position_fix(chip, check_position_fix(chip, position_fix[dev]));
- 
--	check_probe_mask(chip, dev);
--
- 	if (single_cmd < 0) /* allow fallback to single_cmd at errors */
- 		chip->fallback_to_single_cmd = 1;
- 	else /* explicitly set to single_cmd or not */
-@@ -1851,6 +1849,8 @@ static int azx_create(struct snd_card *c
- 		chip->bus.needs_damn_long_delay = 1;
- 	}
- 
-+	check_probe_mask(chip, dev);
+--- a/tools/perf/util/bpf-loader.c
++++ b/tools/perf/util/bpf-loader.c
+@@ -1215,9 +1215,10 @@ bpf__obj_config_map(struct bpf_object *o
+ 	pr_debug("ERROR: Invalid map config option '%s'\n", map_opt);
+ 	err = -BPF_LOADER_ERRNO__OBJCONF_MAP_OPT;
+ out:
+-	free(map_name);
+ 	if (!err)
+ 		*key_scan_pos += strlen(map_opt);
 +
- 	err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops);
- 	if (err < 0) {
- 		dev_err(card->dev, "Error creating device [card]!\n");
++	free(map_name);
+ 	return err;
+ }
+ 
 
 
