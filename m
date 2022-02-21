@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4FE74BDCD3
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 865C54BE5C8
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350047AbiBUJi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:38:56 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49238 "EHLO
+        id S244067AbiBUJiq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:38:46 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351517AbiBUJhW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:37:22 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBF893A180;
-        Mon, 21 Feb 2022 01:15:56 -0800 (PST)
+        with ESMTP id S1351347AbiBUJhA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:37:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D96EC2E088;
+        Mon, 21 Feb 2022 01:15:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AC898CE0E90;
-        Mon, 21 Feb 2022 09:15:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 933E9C340E9;
-        Mon, 21 Feb 2022 09:15:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88D3E60ED4;
+        Mon, 21 Feb 2022 09:15:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D7ADC340E9;
+        Mon, 21 Feb 2022 09:15:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434936;
-        bh=bVtbcFu1bP+aF7lF8UMTo0RVnvCW+DX0l8LGlJdH/wM=;
+        s=korg; t=1645434939;
+        bh=7/FBbwrvHWUltZ4Jxxrkk2lhlNEV2NohBiXF+5Bj8II=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VqpawUgRwJZoFthG+biqOrj6XdFWYpSbvgNLJq2/nk6VxV02ydHBglmLxYXCDsxdn
-         CL8Lwb3kp80E8v8iIFKNcSR25t4tyjeiXduir93Zs11HeeflIlu/DEcVcIvGt1bQAP
-         rEbdJXMsl0+tftqhucfjs8Kkurw7BMqHd3VZ2/9k=
+        b=Zn03hV+92fPA/KDU27CMmNBNyzd1ncBfrkNfCnLRHACZ5gWsosX+hOSX1Ds+hzBb0
+         7fN4hK4dcOgo45fw4IJ/rwksyu+8Q0Fo6UGoBTivbi+g8BzQkrYIm+/t7dP+Pc/+v8
+         DA1H6mWGFDVn4huBc8b/5ooLExPsqGDiugsKBBy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Solar Designer <solar@openwall.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.15 182/196] rlimit: Fix RLIMIT_NPROC enforcement failure caused by capability calls in set_user
-Date:   Mon, 21 Feb 2022 09:50:14 +0100
-Message-Id: <20220221084937.031868839@linuxfoundation.org>
+        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.15 183/196] ucounts: Move RLIMIT_NPROC handling after set_user
+Date:   Mon, 21 Feb 2022 09:50:15 +0100
+Message-Id: <20220221084937.065172247@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
 References: <20220221084930.872957717@linuxfoundation.org>
@@ -55,101 +54,87 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit c16bdeb5a39ffa3f32b32f812831a2092d2a3061 upstream.
+commit c923a8e7edb010da67424077cbf1a6f1396ebd2e upstream.
 
-Solar Designer <solar@openwall.com> wrote:
-> I'm not aware of anyone actually running into this issue and reporting
-> it.  The systems that I personally know use suexec along with rlimits
-> still run older/distro kernels, so would not yet be affected.
->
-> So my mention was based on my understanding of how suexec works, and
-> code review.  Specifically, Apache httpd has the setting RLimitNPROC,
-> which makes it set RLIMIT_NPROC:
->
-> https://httpd.apache.org/docs/2.4/mod/core.html#rlimitnproc
->
-> The above documentation for it includes:
->
-> "This applies to processes forked from Apache httpd children servicing
-> requests, not the Apache httpd children themselves. This includes CGI
-> scripts and SSI exec commands, but not any processes forked from the
-> Apache httpd parent, such as piped logs."
->
-> In code, there are:
->
-> ./modules/generators/mod_cgid.c:        ( (cgid_req.limits.limit_nproc_set) && ((rc = apr_procattr_limit_set(procattr, APR_LIMIT_NPROC,
-> ./modules/generators/mod_cgi.c:        ((rc = apr_procattr_limit_set(procattr, APR_LIMIT_NPROC,
-> ./modules/filters/mod_ext_filter.c:    rv = apr_procattr_limit_set(procattr, APR_LIMIT_NPROC, conf->limit_nproc);
->
-> For example, in mod_cgi.c this is in run_cgi_child().
->
-> I think this means an httpd child sets RLIMIT_NPROC shortly before it
-> execs suexec, which is a SUID root program.  suexec then switches to the
-> target user and execs the CGI script.
->
-> Before 2863643fb8b9, the setuid() in suexec would set the flag, and the
-> target user's process count would be checked against RLIMIT_NPROC on
-> execve().  After 2863643fb8b9, the setuid() in suexec wouldn't set the
-> flag because setuid() is (naturally) called when the process is still
-> running as root (thus, has those limits bypass capabilities), and
-> accordingly execve() would not check the target user's process count
-> against RLIMIT_NPROC.
+During set*id() which cred->ucounts to charge the the current process
+to is not known until after set_cred_ucounts.  So move the
+RLIMIT_NPROC checking into a new helper flag_nproc_exceeded and call
+flag_nproc_exceeded after set_cred_ucounts.
 
-In commit 2863643fb8b9 ("set_user: add capability check when
-rlimit(RLIMIT_NPROC) exceeds") capable calls were added to set_user to
-make it more consistent with fork.  Unfortunately because of call site
-differences those capable calls were checking the credentials of the
-user before set*id() instead of after set*id().
+This is very much an arbitrary subset of the places where we currently
+change the RLIMIT_NPROC accounting, designed to preserve the existing
+logic.
 
-This breaks enforcement of RLIMIT_NPROC for applications that set the
-rlimit and then call set*id() while holding a full set of
-capabilities.  The capabilities are only changed in the new credential
-in security_task_fix_setuid().
-
-The code in apache suexec appears to follow this pattern.
-
-Commit 909cc4ae86f3 ("[PATCH] Fix two bugs with process limits
-(RLIMIT_NPROC)") where this check was added describes the targes of this
-capability check as:
-
-  2/ When a root-owned process (e.g. cgiwrap) sets up process limits and then
-      calls setuid, the setuid should fail if the user would then be running
-      more than rlim_cur[RLIMIT_NPROC] processes, but it doesn't.  This patch
-      adds an appropriate test.  With this patch, and per-user process limit
-      imposed in cgiwrap really works.
-
-So the original use case of this check also appears to match the broken
-pattern.
-
-Restore the enforcement of RLIMIT_NPROC by removing the bad capable
-checks added in set_user.  This unfortunately restores the
-inconsistent state the code has been in for the last 11 years, but
-dealing with the inconsistencies looks like a larger problem.
+Fixing the existing logic will be the subject of another series of
+changes.
 
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/20210907213042.GA22626@openwall.com/
-Link: https://lkml.kernel.org/r/20220212221412.GA29214@openwall.com
-Link: https://lkml.kernel.org/r/20220216155832.680775-1-ebiederm@xmission.com
-Fixes: 2863643fb8b9 ("set_user: add capability check when rlimit(RLIMIT_NPROC) exceeds")
-History-Tree: https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
-Reviewed-by: Solar Designer <solar@openwall.com>
+Link: https://lkml.kernel.org/r/20220216155832.680775-4-ebiederm@xmission.com
+Fixes: 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of ucounts")
 Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sys.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ kernel/sys.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
 --- a/kernel/sys.c
 +++ b/kernel/sys.c
-@@ -480,8 +480,7 @@ static int set_user(struct cred *new)
+@@ -472,6 +472,16 @@ static int set_user(struct cred *new)
+ 	if (!new_user)
+ 		return -EAGAIN;
+ 
++	free_uid(new->user);
++	new->user = new_user;
++	return 0;
++}
++
++static void flag_nproc_exceeded(struct cred *new)
++{
++	if (new->ucounts == current_ucounts())
++		return;
++
+ 	/*
+ 	 * We don't fail in case of NPROC limit excess here because too many
+ 	 * poorly written programs don't check set*uid() return code, assuming
+@@ -480,14 +490,10 @@ static int set_user(struct cred *new)
  	 * failure to the execve() stage.
  	 */
  	if (is_ucounts_overlimit(new->ucounts, UCOUNT_RLIMIT_NPROC, rlimit(RLIMIT_NPROC)) &&
--			new_user != INIT_USER &&
--			!capable(CAP_SYS_RESOURCE) && !capable(CAP_SYS_ADMIN))
-+			new_user != INIT_USER)
+-			new_user != INIT_USER)
++			new->user != INIT_USER)
  		current->flags |= PF_NPROC_EXCEEDED;
  	else
  		current->flags &= ~PF_NPROC_EXCEEDED;
+-
+-	free_uid(new->user);
+-	new->user = new_user;
+-	return 0;
+ }
+ 
+ /*
+@@ -562,6 +568,7 @@ long __sys_setreuid(uid_t ruid, uid_t eu
+ 	if (retval < 0)
+ 		goto error;
+ 
++	flag_nproc_exceeded(new);
+ 	return commit_creds(new);
+ 
+ error:
+@@ -624,6 +631,7 @@ long __sys_setuid(uid_t uid)
+ 	if (retval < 0)
+ 		goto error;
+ 
++	flag_nproc_exceeded(new);
+ 	return commit_creds(new);
+ 
+ error:
+@@ -703,6 +711,7 @@ long __sys_setresuid(uid_t ruid, uid_t e
+ 	if (retval < 0)
+ 		goto error;
+ 
++	flag_nproc_exceeded(new);
+ 	return commit_creds(new);
+ 
+ error:
 
 
