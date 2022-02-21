@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAF4A4BE852
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:05:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7EEB4BE48D
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:59:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348611AbiBUJWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:22:55 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36976 "EHLO
+        id S1351201AbiBUJnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:43:19 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350002AbiBUJV5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:21:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D53A537003;
-        Mon, 21 Feb 2022 01:09:21 -0800 (PST)
+        with ESMTP id S1351186AbiBUJmN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:42:13 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10F1B3E0EF;
+        Mon, 21 Feb 2022 01:17:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7253A6077B;
-        Mon, 21 Feb 2022 09:09:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50C8CC340E9;
-        Mon, 21 Feb 2022 09:09:20 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 93D93CE0E90;
+        Mon, 21 Feb 2022 09:17:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82FD9C340EB;
+        Mon, 21 Feb 2022 09:17:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434560;
-        bh=Vz4WDZtoUOzAcf9QAL9mQykts41Q8Xh0KlaY1mwEN2o=;
+        s=korg; t=1645435064;
+        bh=bFy7XXY2ACITulTCUKRC7dk/O8gBIpyeMZ3F7CKr/7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQ7NzSrQaDEyJflxgDs0y9W3BFlRrnnoqU6tW9vw9rV2DFiRLYi73d9S43pCqkbhB
-         5W4ST+dMiU2+04+ib6yuB3ec1hcGAeR6lCsBjdpJ1TcqhXQRo8zNFNDLxAK5ebV6k8
-         LwvQOCK3Lq0SMQ4XwW5TvkCS5C1P/7u/TnS6YRTg=
+        b=L2sbK57hD1MNKO96n15UxRyR1WhJHbHaNxUOXFqeT4Os2ni6F7GaDDvl+pRPX+rCW
+         CTeoVZ2MB88d0UpTf++XX4j0aHWTT/4GM3wCTOYdKorlQu5ABox0AOrgIvIHoGCpOc
+         z4Se9oKHcUFqVMKda3PiQs0Xe/MTBqmk8EJcTzS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Long Li <longli@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Purna Pavan Chandra Aekkaladevi <paekkaladevi@microsoft.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Wei Liu <wei.liu@kernel.org>
-Subject: [PATCH 5.15 018/196] PCI: hv: Fix NUMA node assignment when kernel boots with custom NUMA topology
+        stable@vger.kernel.org, Julian Braha <julianbraha@gmail.com>,
+        Tzung-Bi Shih <tzungbi@google.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 031/227] ASoC: mediatek: fix unmet dependency on GPIOLIB for SND_SOC_DMIC
 Date:   Mon, 21 Feb 2022 09:47:30 +0100
-Message-Id: <20220221084931.498848452@linuxfoundation.org>
+Message-Id: <20220221084935.883998737@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Long Li <longli@microsoft.com>
+From: Julian Braha <julianbraha@gmail.com>
 
-commit 3149efcdf2c6314420c418dfc94de53bfd076b1f upstream.
+[ Upstream commit 579b2c8f72d974f27d85bbd53846f34675ee3b01 ]
 
-When kernel boots with a NUMA topology with some NUMA nodes offline, the PCI
-driver should only set an online NUMA node on the device. This can happen
-during KDUMP where some NUMA nodes are not made online by the KDUMP kernel.
+When SND_SOC_MT8195_MT6359_RT1011_RT5682 is selected,
+and GPIOLIB is not selected,
+Kbuild gives the following warning:
 
-This patch also fixes the case where kernel is booting with "numa=off".
+WARNING: unmet direct dependencies detected for SND_SOC_DMIC
+  Depends on [n]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && GPIOLIB [=n]
+  Selected by [y]:
+  - SND_SOC_MT8195_MT6359_RT1011_RT5682 [=y] && SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && I2C [=y] && SND_SOC_MT8195 [=y] && MTK_PMIC_WRAP [=y]
 
-Fixes: 999dd956d838 ("PCI: hv: Add support for protocol 1.3 and support PCI_BUS_RELATIONS2")
-Signed-off-by: Long Li <longli@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Tested-by: Purna Pavan Chandra Aekkaladevi <paekkaladevi@microsoft.com>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Link: https://lore.kernel.org/r/1643247814-15184-1-git-send-email-longli@linuxonhyperv.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is because SND_SOC_MT8195_MT6359_RT1011_RT5682
+selects SND_SOC_DMIC without selecting or depending on
+GPIOLIB, depsite SND_SOC_DMIC depending on GPIOLIB.
+
+This unmet dependency bug was detected by Kismet,
+a static analysis tool for Kconfig. Please advise
+if this is not the appropriate solution.
+
+Signed-off-by: Julian Braha <julianbraha@gmail.com>
+Reviewed-by: Tzung-Bi Shih <tzungbi@google.com>
+Link: https://lore.kernel.org/r/20220117050324.68371-1-julianbraha@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-hyperv.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ sound/soc/mediatek/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -1899,8 +1899,17 @@ static void hv_pci_assign_numa_node(stru
- 		if (!hv_dev)
- 			continue;
+diff --git a/sound/soc/mediatek/Kconfig b/sound/soc/mediatek/Kconfig
+index 3b1ddea26a9ef..76f191ec7bf84 100644
+--- a/sound/soc/mediatek/Kconfig
++++ b/sound/soc/mediatek/Kconfig
+@@ -215,7 +215,7 @@ config SND_SOC_MT8195_MT6359_RT1019_RT5682
  
--		if (hv_dev->desc.flags & HV_PCI_DEVICE_FLAG_NUMA_AFFINITY)
--			set_dev_node(&dev->dev, hv_dev->desc.virtual_numa_node);
-+		if (hv_dev->desc.flags & HV_PCI_DEVICE_FLAG_NUMA_AFFINITY &&
-+		    hv_dev->desc.virtual_numa_node < num_possible_nodes())
-+			/*
-+			 * The kernel may boot with some NUMA nodes offline
-+			 * (e.g. in a KDUMP kernel) or with NUMA disabled via
-+			 * "numa=off". In those cases, adjust the host provided
-+			 * NUMA node to a valid NUMA node used by the kernel.
-+			 */
-+			set_dev_node(&dev->dev,
-+				     numa_map_to_online_node(
-+					     hv_dev->desc.virtual_numa_node));
- 
- 		put_pcichild(hv_dev);
- 	}
+ config SND_SOC_MT8195_MT6359_RT1011_RT5682
+ 	tristate "ASoC Audio driver for MT8195 with MT6359 RT1011 RT5682 codec"
+-	depends on I2C
++	depends on I2C && GPIOLIB
+ 	depends on SND_SOC_MT8195 && MTK_PMIC_WRAP
+ 	select SND_SOC_MT6359
+ 	select SND_SOC_RT1011
+-- 
+2.34.1
+
 
 
