@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B9894BE4CF
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:59:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C45AB4BE98B
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:07:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347353AbiBUJHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:07:43 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41962 "EHLO
+        id S244762AbiBUJNa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:13:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347680AbiBUJHg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:07:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AD1831354;
-        Mon, 21 Feb 2022 01:00:01 -0800 (PST)
+        with ESMTP id S1349483AbiBUJMb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:12:31 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 819642C11A;
+        Mon, 21 Feb 2022 01:05:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E02D1B80EA1;
-        Mon, 21 Feb 2022 08:59:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E540C36AE5;
-        Mon, 21 Feb 2022 08:59:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 404D6CE0E95;
+        Mon, 21 Feb 2022 09:05:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22C1AC340F1;
+        Mon, 21 Feb 2022 09:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433998;
-        bh=GCoGdk0Q4rkLsfz/uoPBeUGIW2nqAhB/f6dpFFN4IXk=;
+        s=korg; t=1645434317;
+        bh=+NypMh0wY0nz7uXsYrQe6An7AQyR/zc7KVML5M1wJ3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aRHd217szHcvuP5pBkNpamGFppH2kGhMT/P3uFNTWVRAS0VwLSyFBNDcDOzlLJ4Tx
-         Zi/ApmClRVflEzOM8+Xh5tHQdcjmviatZk65rNt6iDkBOoS1wTG8XBw+vBN3wRcnEq
-         04+36m20uG1WiZ2GbQsQtLqOSyYNJo0CIvJHWxO0=
+        b=lf8QxeuJmFrX+s9n4Dmug+uCduv/fUz15guguSP5S9GeUnE6jrjLF6y0x8Wz/X7Ur
+         X05a6VnztLFjCYT/4NOYKUT7D6FFwTRKB4d/L1mnM/oYn0FjyviAiVPKa1PNGz9s/g
+         H6KQTAgARaGFGxjDwn2zsiyqnhZi+3rjEo7udR6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, david regan <dregan@mail.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.4 58/80] mtd: rawnand: brcmnand: Fixed incorrect sub-page ECC status
+Subject: [PATCH 5.10 086/121] mtd: rawnand: brcmnand: Fixed incorrect sub-page ECC status
 Date:   Mon, 21 Feb 2022 09:49:38 +0100
-Message-Id: <20220221084917.482949953@linuxfoundation.org>
+Message-Id: <20220221084924.113164302@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -83,7 +83,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/mtd/nand/raw/brcmnand/brcmnand.c
 +++ b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-@@ -1756,7 +1756,7 @@ static int brcmnand_read_by_pio(struct m
+@@ -2062,7 +2062,7 @@ static int brcmnand_read_by_pio(struct m
  					mtd->oobsize / trans,
  					host->hwcfg.sector_size_1k);
  
