@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34F024BE5F3
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F34B14BDD87
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:45:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346416AbiBUJAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:00:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54332 "EHLO
+        id S1349588AbiBUJ2F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:28:05 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346954AbiBUI7r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:59:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B67F2656F;
-        Mon, 21 Feb 2022 00:55:17 -0800 (PST)
+        with ESMTP id S1345134AbiBUJ1X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:23 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB8776344;
+        Mon, 21 Feb 2022 01:11:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B381611D6;
-        Mon, 21 Feb 2022 08:55:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11A44C340EB;
-        Mon, 21 Feb 2022 08:55:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 56CBECE0E79;
+        Mon, 21 Feb 2022 09:11:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36B83C340E9;
+        Mon, 21 Feb 2022 09:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433715;
-        bh=Hf9tC3QKk1Y0RovyoIFtkKY3HOoGpop/2V+489uj8lM=;
+        s=korg; t=1645434709;
+        bh=mc0aKOxSsDuTXpmJoC/IG9w3zf1N4r0QHjUEA7j//a4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YZsRxwJwWNs+m9nfoETL/C/PKOkYA44Li9j5qRIFt/BFX2upea7Mfwnu++jjl0fcf
-         K0jgpM7g2TGzOwh0kVxYW9kpW1gUWfEE+pyybq7xdXJm2iLXqANmwbLZWLtx1yquwm
-         c+8t6ziQxen7qR+taD4hjfmr5h5zB+fWbjquGofk=
+        b=EAQbweblt57duCKMUIgnBPpaCUpksBKhzn/jvBZDRjdZnHdLptyMrqWWxXqokdYP+
+         ZMzYA+b2dKMsJq8BgKtRsju2Zs4NdIZ18TjigdBnnz18x92UKC2nT97mp0/hq4yQti
+         6nUVYZg6pDkFB0X5Vxx95/zq0bGMc5WHLy9dnoYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Jann Horn <jannh@google.com>
-Subject: [PATCH 4.19 02/58] net: usb: ax88179_178a: Fix out-of-bounds accesses in RX fixup
+        stable@vger.kernel.org, Gatis Peisenieks <gatis@mikrotik.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 103/196] atl1c: fix tx timeout after link flap on Mikrotik 10/25G NIC
 Date:   Mon, 21 Feb 2022 09:48:55 +0100
-Message-Id: <20220221084911.973807242@linuxfoundation.org>
+Message-Id: <20220221084934.382608307@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
-References: <20220221084911.895146879@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,137 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Gatis Peisenieks <gatis@mikrotik.com>
 
-commit 57bc3d3ae8c14df3ceb4e17d26ddf9eeab304581 upstream.
+commit bf8e59fd315f304eb538546e35de6dc603e4709f upstream.
 
-ax88179_rx_fixup() contains several out-of-bounds accesses that can be
-triggered by a malicious (or defective) USB device, in particular:
+If NIC had packets in tx queue at the moment link down event
+happened, it could result in tx timeout when link got back up.
 
- - The metadata array (hdr_off..hdr_off+2*pkt_cnt) can be out of bounds,
-   causing OOB reads and (on big-endian systems) OOB endianness flips.
- - A packet can overlap the metadata array, causing a later OOB
-   endianness flip to corrupt data used by a cloned SKB that has already
-   been handed off into the network stack.
- - A packet SKB can be constructed whose tail is far beyond its end,
-   causing out-of-bounds heap data to be considered part of the SKB's
-   data.
+Since device has more than one tx queue we need to reset them
+accordingly.
 
-I have tested that this can be used by a malicious USB device to send a
-bogus ICMPv6 Echo Request and receive an ICMPv6 Echo Reply in response
-that contains random kernel heap data.
-It's probably also possible to get OOB writes from this on a
-little-endian system somehow - maybe by triggering skb_cow() via IP
-options processing -, but I haven't tested that.
-
-Fixes: e2ca90c276e1 ("ax88179_178a: ASIX AX88179_178A USB 3.0/2.0 to gigabit ethernet adapter driver")
-Cc: stable@kernel.org
-Signed-off-by: Jann Horn <jannh@google.com>
+Fixes: 057f4af2b171 ("atl1c: add 4 RX/TX queue support for Mikrotik 10/25G NIC")
+Signed-off-by: Gatis Peisenieks <gatis@mikrotik.com>
+Link: https://lore.kernel.org/r/20220211065123.4187615-1-gatis@mikrotik.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/ax88179_178a.c |   68 +++++++++++++++++++++++------------------
- 1 file changed, 39 insertions(+), 29 deletions(-)
+ drivers/net/ethernet/atheros/atl1c/atl1c_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1373,59 +1373,69 @@ static int ax88179_rx_fixup(struct usbne
- 	u16 hdr_off;
- 	u32 *pkt_hdr;
- 
--	/* This check is no longer done by usbnet */
--	if (skb->len < dev->net->hard_header_len)
-+	/* At the end of the SKB, there's a header telling us how many packets
-+	 * are bundled into this buffer and where we can find an array of
-+	 * per-packet metadata (which contains elements encoded into u16).
-+	 */
-+	if (skb->len < 4)
- 		return 0;
--
- 	skb_trim(skb, skb->len - 4);
- 	memcpy(&rx_hdr, skb_tail_pointer(skb), 4);
- 	le32_to_cpus(&rx_hdr);
--
- 	pkt_cnt = (u16)rx_hdr;
- 	hdr_off = (u16)(rx_hdr >> 16);
-+
-+	if (pkt_cnt == 0)
-+		return 0;
-+
-+	/* Make sure that the bounds of the metadata array are inside the SKB
-+	 * (and in front of the counter at the end).
-+	 */
-+	if (pkt_cnt * 2 + hdr_off > skb->len)
-+		return 0;
- 	pkt_hdr = (u32 *)(skb->data + hdr_off);
- 
--	while (pkt_cnt--) {
-+	/* Packets must not overlap the metadata array */
-+	skb_trim(skb, hdr_off);
-+
-+	for (; ; pkt_cnt--, pkt_hdr++) {
- 		u16 pkt_len;
- 
- 		le32_to_cpus(pkt_hdr);
- 		pkt_len = (*pkt_hdr >> 16) & 0x1fff;
- 
--		/* Check CRC or runt packet */
--		if ((*pkt_hdr & AX_RXHDR_CRC_ERR) ||
--		    (*pkt_hdr & AX_RXHDR_DROP_ERR)) {
--			skb_pull(skb, (pkt_len + 7) & 0xFFF8);
--			pkt_hdr++;
--			continue;
--		}
--
--		if (pkt_cnt == 0) {
--			skb->len = pkt_len;
--			/* Skip IP alignment pseudo header */
--			skb_pull(skb, 2);
--			skb_set_tail_pointer(skb, skb->len);
--			skb->truesize = pkt_len + sizeof(struct sk_buff);
--			ax88179_rx_checksum(skb, pkt_hdr);
--			return 1;
--		}
-+		if (pkt_len > skb->len)
-+			return 0;
- 
--		ax_skb = skb_clone(skb, GFP_ATOMIC);
--		if (ax_skb) {
-+		/* Check CRC or runt packet */
-+		if (((*pkt_hdr & (AX_RXHDR_CRC_ERR | AX_RXHDR_DROP_ERR)) == 0) &&
-+		    pkt_len >= 2 + ETH_HLEN) {
-+			bool last = (pkt_cnt == 0);
-+
-+			if (last) {
-+				ax_skb = skb;
-+			} else {
-+				ax_skb = skb_clone(skb, GFP_ATOMIC);
-+				if (!ax_skb)
-+					return 0;
-+			}
- 			ax_skb->len = pkt_len;
- 			/* Skip IP alignment pseudo header */
- 			skb_pull(ax_skb, 2);
- 			skb_set_tail_pointer(ax_skb, ax_skb->len);
- 			ax_skb->truesize = pkt_len + sizeof(struct sk_buff);
- 			ax88179_rx_checksum(ax_skb, pkt_hdr);
-+
-+			if (last)
-+				return 1;
-+
- 			usbnet_skb_return(dev, ax_skb);
--		} else {
--			return 0;
- 		}
- 
--		skb_pull(skb, (pkt_len + 7) & 0xFFF8);
--		pkt_hdr++;
-+		/* Trim this packet away from the SKB */
-+		if (!skb_pull(skb, (pkt_len + 7) & 0xFFF8))
-+			return 0;
+--- a/drivers/net/ethernet/atheros/atl1c/atl1c_main.c
++++ b/drivers/net/ethernet/atheros/atl1c/atl1c_main.c
+@@ -900,7 +900,7 @@ static void atl1c_clean_tx_ring(struct a
+ 		atl1c_clean_buffer(pdev, buffer_info);
  	}
--	return 1;
- }
  
- static struct sk_buff *
+-	netdev_reset_queue(adapter->netdev);
++	netdev_tx_reset_queue(netdev_get_tx_queue(adapter->netdev, queue));
+ 
+ 	/* Zero out Tx-buffers */
+ 	memset(tpd_ring->desc, 0, sizeof(struct atl1c_tpd_desc) *
 
 
