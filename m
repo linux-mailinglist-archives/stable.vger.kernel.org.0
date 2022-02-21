@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA32A4BDB75
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:40:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B05F4BE060
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344128AbiBUJP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:15:29 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49282 "EHLO
+        id S240922AbiBUJjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:39:35 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348028AbiBUJNh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:13:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E5DABE7;
-        Mon, 21 Feb 2022 01:06:36 -0800 (PST)
+        with ESMTP id S1351325AbiBUJg7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:36:59 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F22D2DD6F;
+        Mon, 21 Feb 2022 01:15:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 073CC6128D;
-        Mon, 21 Feb 2022 09:06:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9F7AC340E9;
-        Mon, 21 Feb 2022 09:06:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3BE91CE0E76;
+        Mon, 21 Feb 2022 09:15:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 219D3C340E9;
+        Mon, 21 Feb 2022 09:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434395;
-        bh=YjtDjPFwIur/j4/JR3JIG1Cf8opy/OuXbnP9cBm5Tvo=;
+        s=korg; t=1645434910;
+        bh=QX9P9b6jKNwVb+IFyUDJF/Xx6Le72wsrSkqWivmyQJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=arLAFjddSqJhWAF1OyBYsF1RlP0eHD2jsWcVI96lVVNhyQZWpjqNi9UXQ3hnhrnfO
-         X6w1HKKFefK+g6xyd869FmV8OdLkents3q2lSi4AwlLmWCeDY+eZ2o0IYAuLB9xCC5
-         kaRkwop56wR7gTo+4W01vjQc39XbiJ/CX8SdBXIM=
+        b=YOtjTu0GBqz8E6z3CMPIxagdVAZYkY7kdkFcCePrqllwy0RPiGNNfygpwWhC3H+yu
+         AgGeRPaFGVGFaizm46t2alCJbHGciG5QbVLofNky7qCBjh0qQPHsGVped96pepLnq5
+         QcwtUcnGfzKFXMvrmiyMaCd7azn3pmzLNBmGxaEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.10 114/121] dmaengine: sh: rcar-dmac: Check for error num after setting mask
+        stable@vger.kernel.org, Marc St-Amand <mstamand@ciena.com>,
+        Harini Katakam <harini.katakam@xilinx.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 174/196] net: macb: Align the dma and coherent dma masks
 Date:   Mon, 21 Feb 2022 09:50:06 +0100
-Message-Id: <20220221084925.046231994@linuxfoundation.org>
+Message-Id: <20220221084936.779910220@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Marc St-Amand <mstamand@ciena.com>
 
-commit 2d21543efe332cd8c8f212fb7d365bc8b0690bfa upstream.
+[ Upstream commit 37f7860602b5b2d99fc7465f6407f403f5941988 ]
 
-Because of the possible failure of the dma_supported(), the
-dma_set_mask_and_coherent() may return error num.
-Therefore, it should be better to check it and return the error if
-fails.
+Single page and coherent memory blocks can use different DMA masks
+when the macb accesses physical memory directly. The kernel is clever
+enough to allocate pages that fit into the requested address width.
 
-Fixes: dc312349e875 ("dmaengine: rcar-dmac: Widen DMA mask to 40 bits")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20220106030939.2644320-1-jiasheng@iscas.ac.cn
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When using the ARM SMMU, the DMA mask must be the same for single
+pages and big coherent memory blocks. Otherwise the translation
+tables turn into one big mess.
+
+  [   74.959909] macb ff0e0000.ethernet eth0: DMA bus error: HRESP not OK
+  [   74.959989] arm-smmu fd800000.smmu: Unhandled context fault: fsr=0x402, iova=0x3165687460, fsynr=0x20001, cbfrsynra=0x877, cb=1
+  [   75.173939] macb ff0e0000.ethernet eth0: DMA bus error: HRESP not OK
+  [   75.173955] arm-smmu fd800000.smmu: Unhandled context fault: fsr=0x402, iova=0x3165687460, fsynr=0x20001, cbfrsynra=0x877, cb=1
+
+Since using the same DMA mask does not hurt direct 1:1 physical
+memory mappings, this commit always aligns DMA and coherent masks.
+
+Signed-off-by: Marc St-Amand <mstamand@ciena.com>
+Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Tested-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sh/rcar-dmac.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/cadence/macb_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma/sh/rcar-dmac.c
-+++ b/drivers/dma/sh/rcar-dmac.c
-@@ -1845,7 +1845,9 @@ static int rcar_dmac_probe(struct platfo
- 	dmac->dev = &pdev->dev;
- 	platform_set_drvdata(pdev, dmac);
- 	dma_set_max_seg_size(dmac->dev, RCAR_DMATCR_MASK);
--	dma_set_mask_and_coherent(dmac->dev, DMA_BIT_MASK(40));
-+	ret = dma_set_mask_and_coherent(dmac->dev, DMA_BIT_MASK(40));
-+	if (ret)
-+		return ret;
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index d13fb1d318215..d71c11a6282ec 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -4739,7 +4739,7 @@ static int macb_probe(struct platform_device *pdev)
  
- 	ret = rcar_dmac_parse_of(&pdev->dev, dmac);
- 	if (ret < 0)
+ #ifdef CONFIG_ARCH_DMA_ADDR_T_64BIT
+ 	if (GEM_BFEXT(DAW64, gem_readl(bp, DCFG6))) {
+-		dma_set_mask(&pdev->dev, DMA_BIT_MASK(44));
++		dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(44));
+ 		bp->hw_dma_cap |= HW_DMA_CAP_64B;
+ 	}
+ #endif
+-- 
+2.34.1
+
 
 
