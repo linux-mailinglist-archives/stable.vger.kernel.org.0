@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F01354BDF1C
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:49:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F5D34BE59D
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:00:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241212AbiBUJ7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:59:47 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55764 "EHLO
+        id S1350623AbiBUJf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:35:26 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352466AbiBUJzp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:55:45 -0500
+        with ESMTP id S1350613AbiBUJek (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:34:40 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7BE2443D9;
-        Mon, 21 Feb 2022 01:24:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3F772AC50;
+        Mon, 21 Feb 2022 01:14:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 618D860F6E;
-        Mon, 21 Feb 2022 09:24:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CE95C340E9;
-        Mon, 21 Feb 2022 09:24:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A63160C1D;
+        Mon, 21 Feb 2022 09:14:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F78BC340E9;
+        Mon, 21 Feb 2022 09:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435471;
-        bh=zPYmlyTMwlVMzmNoiNA+hp2syFFidFgu756N2cZjayc=;
+        s=korg; t=1645434874;
+        bh=KOo0Lc0CAVLi3RcvWm0aAT+pWN+D05lgre7KkXptlF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QlHNGIZzwnKLZXADKCHEi1i6QK7tFdA3I9/Aw1mCOyLTpU+YE5+nwM3JGzY1IW/T5
-         CFuKn6gCf5XXIJrvcA53KzTYrJmIdc2Ic3CFJW4rBGTXLdDindrOadPgwux7iQ+0Av
-         OlDC7L4QC296IsMjRwIzIOzUN6JTe/KducNsnoHk=
+        b=HlWROzlKcHsMM15w3AouMS6119B1EBJ5GvrZa7edihQmQidPhk7t0yAq2EVsvykpz
+         P9LhMxxfT3Q8lqcf4VYKZOC/4h5GHi0MNc8ztFaV+XcO/uTX3PD3d9V92d/MQi/A7b
+         vpuN5Apk4ua1BrrM5NVgsjRTE40o9pSqxFA7yTEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.16 174/227] ucounts: Handle wrapping in is_ucounts_overlimit
-Date:   Mon, 21 Feb 2022 09:49:53 +0100
-Message-Id: <20220221084940.593128934@linuxfoundation.org>
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 162/196] mm: io_uring: allow oom-killer from io_uring_setup
+Date:   Mon, 21 Feb 2022 09:49:54 +0100
+Message-Id: <20220221084936.370990728@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Shakeel Butt <shakeelb@google.com>
 
-commit 0cbae9e24fa7d6c6e9f828562f084da82217a0c5 upstream.
+[ Upstream commit 0a3f1e0beacf6cc8ae5f846b0641c1df476e83d6 ]
 
-While examining is_ucounts_overlimit and reading the various messages
-I realized that is_ucounts_overlimit fails to deal with counts that
-may have wrapped.
+On an overcommitted system which is running multiple workloads of
+varying priorities, it is preferred to trigger an oom-killer to kill a
+low priority workload than to let the high priority workload receiving
+ENOMEMs. On our memory overcommitted systems, we are seeing a lot of
+ENOMEMs instead of oom-kills because io_uring_setup callchain is using
+__GFP_NORETRY gfp flag which avoids the oom-killer. Let's remove it and
+allow the oom-killer to kill a lower priority job.
 
-Being wrapped should be a transitory state for counts and they should
-never be wrapped for long, but it can happen so handle it.
-
-Cc: stable@vger.kernel.org
-Fixes: 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of ucounts")
-Link: https://lkml.kernel.org/r/20220216155832.680775-5-ebiederm@xmission.com
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Link: https://lore.kernel.org/r/20220125051736.2981459-1-shakeelb@google.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/ucount.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/io_uring.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/kernel/ucount.c
-+++ b/kernel/ucount.c
-@@ -350,7 +350,8 @@ bool is_ucounts_overlimit(struct ucounts
- 	if (rlimit > LONG_MAX)
- 		max = LONG_MAX;
- 	for (iter = ucounts; iter; iter = iter->ns->ucounts) {
--		if (get_ucounts_value(iter, type) > max)
-+		long val = get_ucounts_value(iter, type);
-+		if (val < 0 || val > max)
- 			return true;
- 		max = READ_ONCE(iter->ns->ucount_max[type]);
- 	}
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 993913c585fbf..21fc8ce9405d3 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8820,10 +8820,9 @@ static void io_mem_free(void *ptr)
+ 
+ static void *io_mem_alloc(size_t size)
+ {
+-	gfp_t gfp_flags = GFP_KERNEL | __GFP_ZERO | __GFP_NOWARN | __GFP_COMP |
+-				__GFP_NORETRY | __GFP_ACCOUNT;
++	gfp_t gfp = GFP_KERNEL_ACCOUNT | __GFP_ZERO | __GFP_NOWARN | __GFP_COMP;
+ 
+-	return (void *) __get_free_pages(gfp_flags, get_order(size));
++	return (void *) __get_free_pages(gfp, get_order(size));
+ }
+ 
+ static unsigned long rings_size(unsigned sq_entries, unsigned cq_entries,
+-- 
+2.34.1
+
 
 
