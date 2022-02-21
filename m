@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B55B4BE120
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B5EB4BE90C
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:06:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347204AbiBUJEO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:04:14 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43678 "EHLO
+        id S241090AbiBUJuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:50:04 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346987AbiBUJDF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:03:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D919A2CCBA;
-        Mon, 21 Feb 2022 00:58:27 -0800 (PST)
+        with ESMTP id S1352951AbiBUJsD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B96C12ADB;
+        Mon, 21 Feb 2022 01:21:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A88AB80E9F;
-        Mon, 21 Feb 2022 08:58:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E949CC340EB;
-        Mon, 21 Feb 2022 08:58:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED5FB608C4;
+        Mon, 21 Feb 2022 09:21:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE41AC340E9;
+        Mon, 21 Feb 2022 09:21:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433887;
-        bh=1DHbdGxJ4/bK7M6HfagiOwNN9waYSr1PE3n4r6TtNGQ=;
+        s=korg; t=1645435306;
+        bh=cNKbHEAwNRiOzp4mcFCpsdlbV3sVT1yjGvzETBBzb9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dL3LfwwzPWRUFo7OI3CjRhyJlSraDEgk1gYl0Hh2zXrvX/U5v6qIfuaQD0hIdWoTa
-         nrqpTKf3YmUNd8+cEf2ORcSK0uSTKyPtZ3y7w9OTZHtopvPRvds/rHFiABmoZcMLa3
-         H8Bv+I13ENwXnYXoplpnNzNkyMLAGd/9K5muwi/8=
+        b=gCT40HzufNtAs9H7ZNi9zBzkzvPS79AYOHFQreSlXhSvmy29AGhCogJFlPsEXk77b
+         Z1GfcvBanyQpcgPeQcGAM8jyIorX6Xa4MkPxcEjUeMe5qWY6uZTitAsI2//D0NIXvg
+         wzxM0lGVG0tcCI1PCQLXsa45gVQ2+cLYITNg2t0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Liwei Song <liwei.song@windriver.com>
-Subject: [PATCH 5.4 09/80] platform/x86: ISST: Fix possible circular locking dependency detected
+        stable@vger.kernel.org, Rafael Richter <rafael.richter@gin.de>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 110/227] net: dsa: mv88e6xxx: flush switchdev FDB workqueue before removing VLAN
 Date:   Mon, 21 Feb 2022 09:48:49 +0100
-Message-Id: <20220221084915.899066825@linuxfoundation.org>
+Message-Id: <20220221084938.519965985@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,254 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 17da2d5f93692086dd096a975225ffd5622d0bf8 ]
+commit a2614140dc0f467a83aa3bb4b6ee2d6480a76202 upstream.
 
-As reported:
+mv88e6xxx is special among DSA drivers in that it requires the VTU to
+contain the VID of the FDB entry it modifies in
+mv88e6xxx_port_db_load_purge(), otherwise it will return -EOPNOTSUPP.
 
-[  256.104522] ======================================================
-[  256.113783] WARNING: possible circular locking dependency detected
-[  256.120093] 5.16.0-rc6-yocto-standard+ #99 Not tainted
-[  256.125362] ------------------------------------------------------
-[  256.131673] intel-speed-sel/844 is trying to acquire lock:
-[  256.137290] ffffffffc036f0d0 (punit_misc_dev_lock){+.+.}-{3:3}, at: isst_if_open+0x18/0x90 [isst_if_common]
-[  256.147171]
-[  256.147171] but task is already holding lock:
-[  256.153135] ffffffff8ee7cb50 (misc_mtx){+.+.}-{3:3}, at: misc_open+0x2a/0x170
-[  256.160407]
-[  256.160407] which lock already depends on the new lock.
-[  256.160407]
-[  256.168712]
-[  256.168712] the existing dependency chain (in reverse order) is:
-[  256.176327]
-[  256.176327] -> #1 (misc_mtx){+.+.}-{3:3}:
-[  256.181946]        lock_acquire+0x1e6/0x330
-[  256.186265]        __mutex_lock+0x9b/0x9b0
-[  256.190497]        mutex_lock_nested+0x1b/0x20
-[  256.195075]        misc_register+0x32/0x1a0
-[  256.199390]        isst_if_cdev_register+0x65/0x180 [isst_if_common]
-[  256.205878]        isst_if_probe+0x144/0x16e [isst_if_mmio]
-...
-[  256.241976]
-[  256.241976] -> #0 (punit_misc_dev_lock){+.+.}-{3:3}:
-[  256.248552]        validate_chain+0xbc6/0x1750
-[  256.253131]        __lock_acquire+0x88c/0xc10
-[  256.257618]        lock_acquire+0x1e6/0x330
-[  256.261933]        __mutex_lock+0x9b/0x9b0
-[  256.266165]        mutex_lock_nested+0x1b/0x20
-[  256.270739]        isst_if_open+0x18/0x90 [isst_if_common]
-[  256.276356]        misc_open+0x100/0x170
-[  256.280409]        chrdev_open+0xa5/0x1e0
-...
+Sometimes due to races this is not always satisfied even if external
+code does everything right (first deletes the FDB entries, then the
+VLAN), because DSA commits to hardware FDB entries asynchronously since
+commit c9eb3e0f8701 ("net: dsa: Add support for learning FDB through
+notification").
 
-The call sequence suggested that misc_device /dev file can be opened
-before misc device is yet to be registered, which is done only once.
+Therefore, the mv88e6xxx driver must close this race condition by
+itself, by asking DSA to flush the switchdev workqueue of any FDB
+deletions in progress, prior to exiting a VLAN.
 
-Here punit_misc_dev_lock was used as common lock, to protect the
-registration by multiple ISST HW drivers, one time setup, prevent
-duplicate registry of misc device and prevent load/unload when device
-is open.
-
-We can split into locks:
-- One which just prevent duplicate call to misc_register() and one
-time setup. Also never call again if the misc_register() failed or
-required one time setup is failed. This lock is not shared with
-any misc device callbacks.
-
-- The other lock protects registry, load and unload of HW drivers.
-
-Sequence in isst_if_cdev_register()
-- Register callbacks under punit_misc_dev_open_lock
-- Call isst_misc_reg() which registers misc_device on the first
-registry which is under punit_misc_dev_reg_lock, which is not
-shared with callbacks.
-
-Sequence in isst_if_cdev_unregister
-Just opposite of isst_if_cdev_register
-
-Reported-and-tested-by: Liwei Song <liwei.song@windriver.com>
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Link: https://lore.kernel.org/r/20220112022521.54669-1-srinivas.pandruvada@linux.intel.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c9eb3e0f8701 ("net: dsa: Add support for learning FDB through notification")
+Reported-by: Rafael Richter <rafael.richter@gin.de>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../intel_speed_select_if/isst_if_common.c    | 97 ++++++++++++-------
- 1 file changed, 63 insertions(+), 34 deletions(-)
+ drivers/net/dsa/mv88e6xxx/chip.c |    7 +++++++
+ include/net/dsa.h                |    1 +
+ net/dsa/dsa.c                    |    1 +
+ net/dsa/dsa_priv.h               |    1 -
+ 4 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/intel_speed_select_if/isst_if_common.c b/drivers/platform/x86/intel_speed_select_if/isst_if_common.c
-index 3de5a3c66529d..cf7b6dee82191 100644
---- a/drivers/platform/x86/intel_speed_select_if/isst_if_common.c
-+++ b/drivers/platform/x86/intel_speed_select_if/isst_if_common.c
-@@ -529,7 +529,10 @@ static long isst_if_def_ioctl(struct file *file, unsigned int cmd,
- 	return ret;
- }
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -2290,6 +2290,13 @@ static int mv88e6xxx_port_vlan_del(struc
+ 	if (!mv88e6xxx_max_vid(chip))
+ 		return -EOPNOTSUPP;
  
--static DEFINE_MUTEX(punit_misc_dev_lock);
-+/* Lock to prevent module registration when already opened by user space */
-+static DEFINE_MUTEX(punit_misc_dev_open_lock);
-+/* Lock to allow one share misc device for all ISST interace */
-+static DEFINE_MUTEX(punit_misc_dev_reg_lock);
- static int misc_usage_count;
- static int misc_device_ret;
- static int misc_device_open;
-@@ -539,7 +542,7 @@ static int isst_if_open(struct inode *inode, struct file *file)
- 	int i, ret = 0;
++	/* The ATU removal procedure needs the FID to be mapped in the VTU,
++	 * but FDB deletion runs concurrently with VLAN deletion. Flush the DSA
++	 * switchdev workqueue to ensure that all FDB entries are deleted
++	 * before we remove the VLAN.
++	 */
++	dsa_flush_workqueue();
++
+ 	mv88e6xxx_reg_lock(chip);
  
- 	/* Fail open, if a module is going away */
--	mutex_lock(&punit_misc_dev_lock);
-+	mutex_lock(&punit_misc_dev_open_lock);
- 	for (i = 0; i < ISST_IF_DEV_MAX; ++i) {
- 		struct isst_if_cmd_cb *cb = &punit_callbacks[i];
- 
-@@ -561,7 +564,7 @@ static int isst_if_open(struct inode *inode, struct file *file)
- 	} else {
- 		misc_device_open++;
- 	}
--	mutex_unlock(&punit_misc_dev_lock);
-+	mutex_unlock(&punit_misc_dev_open_lock);
- 
- 	return ret;
- }
-@@ -570,7 +573,7 @@ static int isst_if_relase(struct inode *inode, struct file *f)
+ 	err = mv88e6xxx_port_get_pvid(chip, port, &pvid);
+--- a/include/net/dsa.h
++++ b/include/net/dsa.h
+@@ -1094,6 +1094,7 @@ void dsa_unregister_switch(struct dsa_sw
+ int dsa_register_switch(struct dsa_switch *ds);
+ void dsa_switch_shutdown(struct dsa_switch *ds);
+ struct dsa_switch *dsa_switch_find(int tree_index, int sw_index);
++void dsa_flush_workqueue(void);
+ #ifdef CONFIG_PM_SLEEP
+ int dsa_switch_suspend(struct dsa_switch *ds);
+ int dsa_switch_resume(struct dsa_switch *ds);
+--- a/net/dsa/dsa.c
++++ b/net/dsa/dsa.c
+@@ -349,6 +349,7 @@ void dsa_flush_workqueue(void)
  {
- 	int i;
- 
--	mutex_lock(&punit_misc_dev_lock);
-+	mutex_lock(&punit_misc_dev_open_lock);
- 	misc_device_open--;
- 	for (i = 0; i < ISST_IF_DEV_MAX; ++i) {
- 		struct isst_if_cmd_cb *cb = &punit_callbacks[i];
-@@ -578,7 +581,7 @@ static int isst_if_relase(struct inode *inode, struct file *f)
- 		if (cb->registered)
- 			module_put(cb->owner);
- 	}
--	mutex_unlock(&punit_misc_dev_lock);
-+	mutex_unlock(&punit_misc_dev_open_lock);
- 
- 	return 0;
+ 	flush_workqueue(dsa_owq);
  }
-@@ -595,6 +598,43 @@ static struct miscdevice isst_if_char_driver = {
- 	.fops		= &isst_if_char_driver_ops,
- };
++EXPORT_SYMBOL_GPL(dsa_flush_workqueue);
  
-+static int isst_misc_reg(void)
-+{
-+	mutex_lock(&punit_misc_dev_reg_lock);
-+	if (misc_device_ret)
-+		goto unlock_exit;
-+
-+	if (!misc_usage_count) {
-+		misc_device_ret = isst_if_cpu_info_init();
-+		if (misc_device_ret)
-+			goto unlock_exit;
-+
-+		misc_device_ret = misc_register(&isst_if_char_driver);
-+		if (misc_device_ret) {
-+			isst_if_cpu_info_exit();
-+			goto unlock_exit;
-+		}
-+	}
-+	misc_usage_count++;
-+
-+unlock_exit:
-+	mutex_unlock(&punit_misc_dev_reg_lock);
-+
-+	return misc_device_ret;
-+}
-+
-+static void isst_misc_unreg(void)
-+{
-+	mutex_lock(&punit_misc_dev_reg_lock);
-+	if (misc_usage_count)
-+		misc_usage_count--;
-+	if (!misc_usage_count && !misc_device_ret) {
-+		misc_deregister(&isst_if_char_driver);
-+		isst_if_cpu_info_exit();
-+	}
-+	mutex_unlock(&punit_misc_dev_reg_lock);
-+}
-+
- /**
-  * isst_if_cdev_register() - Register callback for IOCTL
-  * @device_type: The device type this callback handling.
-@@ -612,38 +652,31 @@ static struct miscdevice isst_if_char_driver = {
-  */
- int isst_if_cdev_register(int device_type, struct isst_if_cmd_cb *cb)
- {
--	if (misc_device_ret)
--		return misc_device_ret;
-+	int ret;
+ int dsa_devlink_param_get(struct devlink *dl, u32 id,
+ 			  struct devlink_param_gset_ctx *ctx)
+--- a/net/dsa/dsa_priv.h
++++ b/net/dsa/dsa_priv.h
+@@ -170,7 +170,6 @@ void dsa_tag_driver_put(const struct dsa
+ const struct dsa_device_ops *dsa_find_tagger_by_name(const char *buf);
  
- 	if (device_type >= ISST_IF_DEV_MAX)
- 		return -EINVAL;
+ bool dsa_schedule_work(struct work_struct *work);
+-void dsa_flush_workqueue(void);
+ const char *dsa_tag_protocol_to_str(const struct dsa_device_ops *ops);
  
--	mutex_lock(&punit_misc_dev_lock);
-+	mutex_lock(&punit_misc_dev_open_lock);
-+	/* Device is already open, we don't want to add new callbacks */
- 	if (misc_device_open) {
--		mutex_unlock(&punit_misc_dev_lock);
-+		mutex_unlock(&punit_misc_dev_open_lock);
- 		return -EAGAIN;
- 	}
--	if (!misc_usage_count) {
--		int ret;
--
--		misc_device_ret = misc_register(&isst_if_char_driver);
--		if (misc_device_ret)
--			goto unlock_exit;
--
--		ret = isst_if_cpu_info_init();
--		if (ret) {
--			misc_deregister(&isst_if_char_driver);
--			misc_device_ret = ret;
--			goto unlock_exit;
--		}
--	}
- 	memcpy(&punit_callbacks[device_type], cb, sizeof(*cb));
- 	punit_callbacks[device_type].registered = 1;
--	misc_usage_count++;
--unlock_exit:
--	mutex_unlock(&punit_misc_dev_lock);
-+	mutex_unlock(&punit_misc_dev_open_lock);
- 
--	return misc_device_ret;
-+	ret = isst_misc_reg();
-+	if (ret) {
-+		/*
-+		 * No need of mutex as the misc device register failed
-+		 * as no one can open device yet. Hence no contention.
-+		 */
-+		punit_callbacks[device_type].registered = 0;
-+		return ret;
-+	}
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(isst_if_cdev_register);
- 
-@@ -658,16 +691,12 @@ EXPORT_SYMBOL_GPL(isst_if_cdev_register);
-  */
- void isst_if_cdev_unregister(int device_type)
- {
--	mutex_lock(&punit_misc_dev_lock);
--	misc_usage_count--;
-+	isst_misc_unreg();
-+	mutex_lock(&punit_misc_dev_open_lock);
- 	punit_callbacks[device_type].registered = 0;
- 	if (device_type == ISST_IF_DEV_MBOX)
- 		isst_delete_hash();
--	if (!misc_usage_count && !misc_device_ret) {
--		misc_deregister(&isst_if_char_driver);
--		isst_if_cpu_info_exit();
--	}
--	mutex_unlock(&punit_misc_dev_lock);
-+	mutex_unlock(&punit_misc_dev_open_lock);
- }
- EXPORT_SYMBOL_GPL(isst_if_cdev_unregister);
- 
--- 
-2.34.1
-
+ static inline int dsa_tag_protocol_overhead(const struct dsa_device_ops *ops)
 
 
