@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E50B84BE748
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C6734BE1F8
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350780AbiBUJjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:39:39 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48446 "EHLO
+        id S241921AbiBUJ7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:59:23 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351635AbiBUJhc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:37:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55BFE205CB;
-        Mon, 21 Feb 2022 01:16:17 -0800 (PST)
+        with ESMTP id S1353440AbiBUJ51 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A6A639171;
+        Mon, 21 Feb 2022 01:25:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8CA260018;
-        Mon, 21 Feb 2022 09:16:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6748C340E9;
-        Mon, 21 Feb 2022 09:16:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21A2BB80EBB;
+        Mon, 21 Feb 2022 09:25:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 597FAC340E9;
+        Mon, 21 Feb 2022 09:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434976;
-        bh=Kj5P1zY5l6pTNOhGPDTG6um+5ioqc9DX0x+C/sMtssQ=;
+        s=korg; t=1645435545;
+        bh=MdwLK2UIQOUxi6p575z+uN8iqZmVWfHrE1bzAHEJX8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JQb+A/wWZZVsNCdfvZvOR8nHxF+A35kZq+AL53wzP6UPbVOKc3RS4580weyIY/dBL
-         W/qBvJMZK09Szhtme0uS54oaIyWiQIwJAeGSTQE/2Z40uYwl2jIw3+ctutAr7MmQi3
-         FAuSVLPCMkC8yL6KccfqZsuFteHEqsnCI+mtgSXY=
+        b=rROmi3T7VeWatEfoFqCfJUcy8dnzKbGyQvxMygFBCAJ7VVjw2PBDML8sboLoUdDhb
+         FFbBsdpuEWV+wYNYiGSdF6FkrGoI0MUvg454AnnI1xoqZMk/xFrAD4+X8HlnUGvd2m
+         FypuKcPhwBcaF3H4mKloT8qp2XV0rw1Rlmj3Js7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 187/196] dmaengine: sh: rcar-dmac: Check for error num after dma_set_max_seg_size
-Date:   Mon, 21 Feb 2022 09:50:19 +0100
-Message-Id: <20220221084937.206219394@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Padmanabha Srinivasaiah <treasure4paddy@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 201/227] staging: vc04_services: Fix RCU dereference check
+Date:   Mon, 21 Feb 2022 09:50:20 +0100
+Message-Id: <20220221084941.499932186@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Padmanabha Srinivasaiah <treasure4paddy@gmail.com>
 
-commit da2ad87fba0891576aadda9161b8505fde81a84d upstream.
+[ Upstream commit 0cea730cac824edf78ffd3302938ed5fe2b9d50d ]
 
-As the possible failure of the dma_set_max_seg_size(), it should be
-better to check the return value of the dma_set_max_seg_size().
+In service_callback path RCU dereferenced pointer struct vchiq_service
+need to be accessed inside rcu read-critical section.
 
-Fixes: 97d49c59e219 ("dmaengine: rcar-dmac: set scatter/gather max segment size")
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20220111011239.452837-1-jiasheng@iscas.ac.cn
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Also userdata/user_service part of vchiq_service is accessed around
+different synchronization mechanism, getting an extra reference to a
+pointer keeps sematics simpler and avoids prolonged graceperiod.
+
+Accessing vchiq_service with rcu_read_[lock/unlock] fixes below issue.
+
+[   32.201659] =============================
+[   32.201664] WARNING: suspicious RCU usage
+[   32.201670] 5.15.11-rt24-v8+ #3 Not tainted
+[   32.201680] -----------------------------
+[   32.201685] drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.h:529 suspicious rcu_dereference_check() usage!
+[   32.201695]
+[   32.201695] other info that might help us debug this:
+[   32.201695]
+[   32.201700]
+[   32.201700] rcu_scheduler_active = 2, debug_locks = 1
+[   32.201708] no locks held by vchiq-slot/0/98.
+[   32.201715]
+[   32.201715] stack backtrace:
+[   32.201723] CPU: 1 PID: 98 Comm: vchiq-slot/0 Not tainted 5.15.11-rt24-v8+ #3
+[   32.201733] Hardware name: Raspberry Pi 4 Model B Rev 1.4 (DT)
+[   32.201739] Call trace:
+[   32.201742]  dump_backtrace+0x0/0x1b8
+[   32.201772]  show_stack+0x20/0x30
+[   32.201784]  dump_stack_lvl+0x8c/0xb8
+[   32.201799]  dump_stack+0x18/0x34
+[   32.201808]  lockdep_rcu_suspicious+0xe4/0xf8
+[   32.201817]  service_callback+0x124/0x400
+[   32.201830]  slot_handler_func+0xf60/0x1e20
+[   32.201839]  kthread+0x19c/0x1a8
+[   32.201849]  ret_from_fork+0x10/0x20
+
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Padmanabha Srinivasaiah <treasure4paddy@gmail.com>
+Link: https://lore.kernel.org/r/20211231195406.5479-1-treasure4paddy@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sh/rcar-dmac.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ .../interface/vchiq_arm/vchiq_arm.c           | 20 +++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
---- a/drivers/dma/sh/rcar-dmac.c
-+++ b/drivers/dma/sh/rcar-dmac.c
-@@ -1868,7 +1868,10 @@ static int rcar_dmac_probe(struct platfo
+diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
+index c650a32bcedff..b9505bb51f45c 100644
+--- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
++++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
+@@ -1058,15 +1058,27 @@ service_callback(enum vchiq_reason reason, struct vchiq_header *header,
  
- 	dmac->dev = &pdev->dev;
- 	platform_set_drvdata(pdev, dmac);
--	dma_set_max_seg_size(dmac->dev, RCAR_DMATCR_MASK);
-+	ret = dma_set_max_seg_size(dmac->dev, RCAR_DMATCR_MASK);
-+	if (ret)
-+		return ret;
+ 	DEBUG_TRACE(SERVICE_CALLBACK_LINE);
+ 
++	rcu_read_lock();
+ 	service = handle_to_service(handle);
+-	if (WARN_ON(!service))
++	if (WARN_ON(!service)) {
++		rcu_read_unlock();
+ 		return VCHIQ_SUCCESS;
++	}
+ 
+ 	user_service = (struct user_service *)service->base.userdata;
+ 	instance = user_service->instance;
+ 
+-	if (!instance || instance->closing)
++	if (!instance || instance->closing) {
++		rcu_read_unlock();
+ 		return VCHIQ_SUCCESS;
++	}
 +
- 	ret = dma_set_mask_and_coherent(dmac->dev, DMA_BIT_MASK(40));
- 	if (ret)
- 		return ret;
++	/*
++	 * As hopping around different synchronization mechanism,
++	 * taking an extra reference results in simpler implementation.
++	 */
++	vchiq_service_get(service);
++	rcu_read_unlock();
+ 
+ 	vchiq_log_trace(vchiq_arm_log_level,
+ 			"%s - service %lx(%d,%p), reason %d, header %lx, instance %lx, bulk_userdata %lx",
+@@ -1097,6 +1109,7 @@ service_callback(enum vchiq_reason reason, struct vchiq_header *header,
+ 							bulk_userdata);
+ 				if (status != VCHIQ_SUCCESS) {
+ 					DEBUG_TRACE(SERVICE_CALLBACK_LINE);
++					vchiq_service_put(service);
+ 					return status;
+ 				}
+ 			}
+@@ -1105,10 +1118,12 @@ service_callback(enum vchiq_reason reason, struct vchiq_header *header,
+ 			if (wait_for_completion_interruptible(&user_service->remove_event)) {
+ 				vchiq_log_info(vchiq_arm_log_level, "%s interrupted", __func__);
+ 				DEBUG_TRACE(SERVICE_CALLBACK_LINE);
++				vchiq_service_put(service);
+ 				return VCHIQ_RETRY;
+ 			} else if (instance->closing) {
+ 				vchiq_log_info(vchiq_arm_log_level, "%s closing", __func__);
+ 				DEBUG_TRACE(SERVICE_CALLBACK_LINE);
++				vchiq_service_put(service);
+ 				return VCHIQ_ERROR;
+ 			}
+ 			DEBUG_TRACE(SERVICE_CALLBACK_LINE);
+@@ -1137,6 +1152,7 @@ service_callback(enum vchiq_reason reason, struct vchiq_header *header,
+ 		header = NULL;
+ 	}
+ 	DEBUG_TRACE(SERVICE_CALLBACK_LINE);
++	vchiq_service_put(service);
+ 
+ 	if (skip_completion)
+ 		return VCHIQ_SUCCESS;
+-- 
+2.34.1
+
 
 
