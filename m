@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B70A4BDC37
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9011A4BE05A
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350227AbiBUJbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:31:44 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33080 "EHLO
+        id S1346480AbiBUKEE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 05:04:04 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349708AbiBUJa1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:30:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19C2325C59;
-        Mon, 21 Feb 2022 01:13:12 -0800 (PST)
+        with ESMTP id S1353195AbiBUJ5Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04CAF4617B;
+        Mon, 21 Feb 2022 01:25:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F3861CE0E86;
-        Mon, 21 Feb 2022 09:13:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAD92C339C8;
-        Mon, 21 Feb 2022 09:13:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9875B80EBC;
+        Mon, 21 Feb 2022 09:25:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1718C340E9;
+        Mon, 21 Feb 2022 09:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434786;
-        bh=hUv1vw7+SG1GUc+ciH6Lke2YWRLHdxDggbqlY0eKXdo=;
+        s=korg; t=1645435503;
+        bh=/rVQc5X3gc9hZxDfwiYO+NWPlyKyUVGzQf69JUU2P68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CbRMKrhAvz44L25CsWeU4MxIC8OijPRIZGSVLPKLXWZh/fcKGmPZLG0zOaX34pYX5
-         r3Oh/dmgy/qnPfgQPxV04iBHbJv8dVdjX3QYov++XseUtOQJrNOs2mZVuUI9FScJq5
-         mDWzybyjCVGL0FQk9cjwjFDI3HoZUv28oOatbvtY=
+        b=QcXO8NxAA4b1RhJf37Y1qKEutIFNz3bfdctw3Czy3kFkmkaposn488aNj5YFWetGW
+         col9JvUI+ySV5W587a0KgvAYxIZ9GVn1+yq7j9xKxKNFrotvxGaUg3tzmdUMfcghum
+         uCmOZASIoyc/hruu0XO9AzJWDgm25ej75ZARTJiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.15 131/196] NFS: Remove an incorrect revalidation in nfs4_update_changeattr_locked()
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.16 144/227] ASoC: ops: Fix stereo change notifications in snd_soc_put_volsw_range()
 Date:   Mon, 21 Feb 2022 09:49:23 +0100
-Message-Id: <20220221084935.311257381@linuxfoundation.org>
+Message-Id: <20220221084939.622566880@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit 9d047bf68fe8cdb4086deaf4edd119731a9481ed upstream.
+commit 650204ded3703b5817bd4b6a77fa47d333c4f902 upstream.
 
-In nfs4_update_changeattr_locked(), we don't need to set the
-NFS_INO_REVAL_PAGECACHE flag, because we already know the value of the
-change attribute, and we're already flagging the size. In fact, this
-forces us to revalidate the change attribute a second time for no good
-reason.
-This extra flag appears to have been introduced as part of the xattr
-feature, when update_changeattr_locked() was converted for use by the
-xattr code.
+When writing out a stereo control we discard the change notification from
+the first channel, meaning that events are only generated based on changes
+to the second channel. Ensure that we report a change if either channel
+has changed.
 
-Fixes: 1b523ca972ed ("nfs: modify update_changeattr to deal with regular files")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220201155629.120510-4-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4proc.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/soc/soc-ops.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1232,8 +1232,7 @@ nfs4_update_changeattr_locked(struct ino
- 				NFS_INO_INVALID_ACCESS | NFS_INO_INVALID_ACL |
- 				NFS_INO_INVALID_SIZE | NFS_INO_INVALID_OTHER |
- 				NFS_INO_INVALID_BLOCKS | NFS_INO_INVALID_NLINK |
--				NFS_INO_INVALID_MODE | NFS_INO_INVALID_XATTR |
--				NFS_INO_REVAL_PAGECACHE;
-+				NFS_INO_INVALID_MODE | NFS_INO_INVALID_XATTR;
- 		nfsi->attrtimeo = NFS_MINATTRTIMEO(inode);
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -512,7 +512,7 @@ int snd_soc_put_volsw_range(struct snd_k
+ 	unsigned int mask = (1 << fls(max)) - 1;
+ 	unsigned int invert = mc->invert;
+ 	unsigned int val, val_mask;
+-	int ret;
++	int err, ret;
+ 
+ 	if (invert)
+ 		val = (max - ucontrol->value.integer.value[0]) & mask;
+@@ -521,9 +521,10 @@ int snd_soc_put_volsw_range(struct snd_k
+ 	val_mask = mask << shift;
+ 	val = val << shift;
+ 
+-	ret = snd_soc_component_update_bits(component, reg, val_mask, val);
+-	if (ret < 0)
+-		return ret;
++	err = snd_soc_component_update_bits(component, reg, val_mask, val);
++	if (err < 0)
++		return err;
++	ret = err;
+ 
+ 	if (snd_soc_volsw_is_stereo(mc)) {
+ 		if (invert)
+@@ -533,8 +534,12 @@ int snd_soc_put_volsw_range(struct snd_k
+ 		val_mask = mask << shift;
+ 		val = val << shift;
+ 
+-		ret = snd_soc_component_update_bits(component, rreg, val_mask,
++		err = snd_soc_component_update_bits(component, rreg, val_mask,
+ 			val);
++		/* Don't discard any error code or drop change flag */
++		if (ret == 0 || err < 0) {
++			ret = err;
++		}
  	}
- 	nfsi->attrtimeo_timestamp = jiffies;
+ 
+ 	return ret;
 
 
