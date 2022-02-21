@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D4884BE817
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:04:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 845074BE866
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:05:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346703AbiBUJtu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:49:50 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43810 "EHLO
+        id S1348128AbiBUJOM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:14:12 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352971AbiBUJsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:05 -0500
+        with ESMTP id S1348560AbiBUJLY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53FA4DB;
-        Mon, 21 Feb 2022 01:22:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105D827151;
+        Mon, 21 Feb 2022 01:03:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5DAA608C4;
-        Mon, 21 Feb 2022 09:22:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBA0FC340E9;
-        Mon, 21 Feb 2022 09:22:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A11D561249;
+        Mon, 21 Feb 2022 09:03:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B261C340E9;
+        Mon, 21 Feb 2022 09:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435323;
-        bh=FP0noNME49WxSoqRCZ0EQn1amRs1cgcJIiNqgWL8IT8=;
+        s=korg; t=1645434217;
+        bh=d/s8ayMpWGML2APfzZ5mEIE/nV/yXP2sKriiO11BR1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p9XoP/xwn4MFr1K2C67Io2ZQbc/oTKLbobyw+ldgALPMfXzTgq8dSOz/OdCu4wnpV
-         HbBBSgLehzliWVeuAsey826N1bMwnWU9IVrQg+uaE96tJeTidSgIX1dimXWlpiGc/9
-         tINpAAT8VHh2yD0QkHAwkOkll/Ja5RK6SV0QTiMI=
+        b=qK6XAOUyYnyJA6UUMhYJ6UJLzTIhrQD0/p9V+wBe31LrA3Oi11vFqe4w2NEX+zJNF
+         4J6Bv0CdvQGClnCRPjKclOMW0vAe8iUe+xUpiji1N27KuCrm/DkKfSn8Ys+WtbTc4s
+         AngPB76+fgUqlPKSpANozXlzR5A5pHk/fto8UTAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+4de3c0e8a263e1e499bc@syzkaller.appspotmail.com,
-        Wen Gu <guwen@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 124/227] net/smc: Avoid overwriting the copies of clcsock callback functions
+        stable@vger.kernel.org, Siva Mullati <siva.mullati@intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Subject: [PATCH 5.10 051/121] drm/i915/gvt: Make DRM_I915_GVT depend on X86
 Date:   Mon, 21 Feb 2022 09:49:03 +0100
-Message-Id: <20220221084938.974189993@linuxfoundation.org>
+Message-Id: <20220221084922.940254659@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gu <guwen@linux.alibaba.com>
+From: Siva Mullati <siva.mullati@intel.com>
 
-commit 1de9770d121ee9294794cca0e0be8fbfa0134ee8 upstream.
+commit d72d69abfdb6e0375981cfdda8eb45143f12c77d upstream.
 
-The callback functions of clcsock will be saved and replaced during
-the fallback. But if the fallback happens more than once, then the
-copies of these callback functions will be overwritten incorrectly,
-resulting in a loop call issue:
+GVT is not supported on non-x86 platforms, So add
+dependency of X86 on config parameter DRM_I915_GVT.
 
-clcsk->sk_error_report
- |- smc_fback_error_report() <------------------------------|
-     |- smc_fback_forward_wakeup()                          | (loop)
-         |- clcsock_callback()  (incorrectly overwritten)   |
-             |- smc->clcsk_error_report() ------------------|
-
-So this patch fixes the issue by saving these function pointers only
-once in the fallback and avoiding overwriting.
-
-Reported-by: syzbot+4de3c0e8a263e1e499bc@syzkaller.appspotmail.com
-Fixes: 341adeec9ada ("net/smc: Forward wakeup to smc socket waitqueue after fallback")
-Link: https://lore.kernel.org/r/0000000000006d045e05d78776f6@google.com
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0ad35fed618c ("drm/i915: gvt: Introduce the basic architecture of GVT-g")
+Signed-off-by: Siva Mullati <siva.mullati@intel.com>
+Signed-off-by: Zhi Wang <zhi.a.wang@intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20220107095235.243448-1-siva.mullati@intel.com
+Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
+Signed-off-by: Zhi Wang <zhi.a.wang@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/smc/af_smc.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -667,14 +667,17 @@ static void smc_fback_error_report(struc
- static int smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
- {
- 	struct sock *clcsk;
-+	int rc = 0;
- 
- 	mutex_lock(&smc->clcsock_release_lock);
- 	if (!smc->clcsock) {
--		mutex_unlock(&smc->clcsock_release_lock);
--		return -EBADF;
-+		rc = -EBADF;
-+		goto out;
- 	}
- 	clcsk = smc->clcsock->sk;
- 
-+	if (smc->use_fallback)
-+		goto out;
- 	smc->use_fallback = true;
- 	smc->fallback_rsn = reason_code;
- 	smc_stat_fallback(smc);
-@@ -702,8 +705,9 @@ static int smc_switch_to_fallback(struct
- 		smc->clcsock->sk->sk_user_data =
- 			(void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
- 	}
-+out:
- 	mutex_unlock(&smc->clcsock_release_lock);
--	return 0;
-+	return rc;
- }
- 
- /* fall back during connect */
+--- a/drivers/gpu/drm/i915/Kconfig
++++ b/drivers/gpu/drm/i915/Kconfig
+@@ -100,6 +100,7 @@ config DRM_I915_USERPTR
+ config DRM_I915_GVT
+ 	bool "Enable Intel GVT-g graphics virtualization host support"
+ 	depends on DRM_I915
++	depends on X86
+ 	depends on 64BIT
+ 	default n
+ 	help
 
 
