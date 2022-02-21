@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35D124BE1D5
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AABA44BE78A
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232241AbiBUJjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:39:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45648 "EHLO
+        id S244420AbiBUKDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 05:03:30 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351671AbiBUJhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:37:33 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85BFB3A71D;
-        Mon, 21 Feb 2022 01:16:24 -0800 (PST)
+        with ESMTP id S1353455AbiBUJ51 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E87C3917D;
+        Mon, 21 Feb 2022 01:25:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A1957CE0EB2;
-        Mon, 21 Feb 2022 09:16:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C97DC36AE9;
-        Mon, 21 Feb 2022 09:16:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C6DB61016;
+        Mon, 21 Feb 2022 09:25:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC29C340E9;
+        Mon, 21 Feb 2022 09:25:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434982;
-        bh=3aV9bHzykKizB1J+5Ksl6TyTU0mBhVe4TvtLefKoCRo=;
+        s=korg; t=1645435551;
+        bh=ZD01o9rSSE8LUE0dVcK7GaEZOVJK7nnDEiRaEzbfzEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uN4HmNplKnyEkDj8ZYlooPAb5sN6z5yBP5lghcy8VegrCUdvSkMEgP7AvpgaD7Y5U
-         3u5aFotAAdmR84kWjPlSkEEPN2PZdfs+86UAPh68tbBv0bIj67DMbMBIM70x5fXH+N
-         q5kgGqY9F6rsujbW0mfB2nzp+aJLS3a9wJWMQ8dY=
+        b=nQQmFKu75P+uKWiZmVKVVMQp3pmTl2B5NC2DUZ4tCt6SlqUZ74oyuIXcOUgexIDRN
+         1cVHOLB+weIYLdShv9w3QJTM5M9S+ZMc7TvG38Zmh7gvDJ15K9YVmL4WHRw5gQYRiK
+         dRJH4R3WYZL4XjBEI6Qudm4dIoE7pJZNFEMXMP0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Robert Foss <robert.foss@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.15 189/196] i2c: qcom-cci: dont delete an unregistered adapter
-Date:   Mon, 21 Feb 2022 09:50:21 +0100
-Message-Id: <20220221084937.266767413@linuxfoundation.org>
+        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
+        Anup Patel <anup@brainfault.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 203/227] irqchip/sifive-plic: Add missing thead,c900-plic match string
+Date:   Mon, 21 Feb 2022 09:50:22 +0100
+Message-Id: <20220221084941.566998100@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,40 +58,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-commit a0d48505a1d68e27220369e2dd1e3573a2f362d2 upstream.
+[ Upstream commit 1d4df649cbb4b26d19bea38ecff4b65b10a1bbca ]
 
-If i2c_add_adapter() fails to add an I2C adapter found on QCOM CCI
-controller, on error path i2c_del_adapter() is still called.
+The thead,c900-plic has been used in opensbi to distinguish
+PLIC [1]. Although PLICs have the same behaviors in Linux,
+they are different hardware with some custom initializing in
+firmware(opensbi).
 
-Fortunately there is a sanity check in the I2C core, so the only
-visible implication is a printed debug level message:
+Qute opensbi patch commit-msg by Samuel:
 
-    i2c-core: attempting to delete unregistered adapter [Qualcomm-CCI]
+  The T-HEAD PLIC implementation requires setting a delegation bit
+  to allow access from S-mode. Now that the T-HEAD PLIC has its own
+  compatible string, set this bit automatically from the PLIC driver,
+  instead of reaching into the PLIC's MMIO space from another driver.
 
-Nevertheless it would be reasonable to correct the probe error path.
+[1]: https://github.com/riscv-software-src/opensbi/commit/78c2b19218bd62653b9fb31623a42ced45f38ea6
 
-Fixes: e517526195de ("i2c: Add Qualcomm CCI I2C driver")
-Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Cc: Anup Patel <anup@brainfault.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Samuel Holland <samuel@sholland.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220130135634.1213301-3-guoren@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-qcom-cci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/irqchip/irq-sifive-plic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/i2c/busses/i2c-qcom-cci.c
-+++ b/drivers/i2c/busses/i2c-qcom-cci.c
-@@ -655,7 +655,7 @@ static int cci_probe(struct platform_dev
- 	return 0;
+diff --git a/drivers/irqchip/irq-sifive-plic.c b/drivers/irqchip/irq-sifive-plic.c
+index 259065d271ef0..09cc98266d30f 100644
+--- a/drivers/irqchip/irq-sifive-plic.c
++++ b/drivers/irqchip/irq-sifive-plic.c
+@@ -398,3 +398,4 @@ static int __init plic_init(struct device_node *node,
  
- error_i2c:
--	for (; i >= 0; i--) {
-+	for (--i ; i >= 0; i--) {
- 		if (cci->master[i].cci)
- 			i2c_del_adapter(&cci->master[i].adap);
- 	}
+ IRQCHIP_DECLARE(sifive_plic, "sifive,plic-1.0.0", plic_init);
+ IRQCHIP_DECLARE(riscv_plic0, "riscv,plic0", plic_init); /* for legacy systems */
++IRQCHIP_DECLARE(thead_c900_plic, "thead,c900-plic", plic_init); /* for firmware driver */
+-- 
+2.34.1
+
 
 
