@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C44174BE808
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:04:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 017124BE750
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352217AbiBUJyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:54:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55792 "EHLO
+        id S1347084AbiBUJEL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:04:11 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352224AbiBUJxr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:53:47 -0500
+        with ESMTP id S1346945AbiBUJDF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:03:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42FE936B66;
-        Mon, 21 Feb 2022 01:23:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DECBB2CC9D;
+        Mon, 21 Feb 2022 00:58:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB257B80EB9;
-        Mon, 21 Feb 2022 09:23:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02CAFC340E9;
-        Mon, 21 Feb 2022 09:23:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E13B3B80EBB;
+        Mon, 21 Feb 2022 08:58:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11C11C340E9;
+        Mon, 21 Feb 2022 08:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435403;
-        bh=nkcQxGdJDoVl8oaSFTYORMJhIKjObWqU0wdGclgp29w=;
+        s=korg; t=1645433884;
+        bh=co1ESIAq3cpy1ptWdGP7AI0E3ae1fIIKMfpyKgppba4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qd0pUMEN1CsKnN5Bs/2JqM1MZZ6q9t8K8g1C/0zGpTlpc+nejwTkpvUvQ3eH+6wPr
-         kVLEi6OQTazEToATz2dqnyajz5CHbSlFKrgHG0wXtJsRwJFL3gn1E3WVFegY7sfXb5
-         zUFikcRsuyNWgP7+7nS7mO92ONZhJZDMYYzLjUJw=
+        b=HQdNTxuO7VBmKyFxvibSmz6oVCi8SSv8Iz0V40b6hcG3KyKkPNiG/wGDJ9/UOJPg/
+         aU9W3KNK5oaH5y7NefvxYisgu32hewHohuprYVZMBKj4u6UGrcZAfVwjmr8SQ0u/8j
+         TLMqsgGgXZdU5W4OFUUnzy7X4vPDeC1tFEuS8ZYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mans Rullgard <mans@mansr.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fianelil <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 109/227] net: dsa: lan9303: fix reset on probe
+        stable@vger.kernel.org,
+        =?UTF-8?q?D=C4=81vis=20Mos=C4=81ns?= <davispuh@gmail.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 08/80] btrfs: send: in case of IO error log it
 Date:   Mon, 21 Feb 2022 09:48:48 +0100
-Message-Id: <20220221084938.489786570@linuxfoundation.org>
+Message-Id: <20220221084915.866825159@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mans Rullgard <mans@mansr.com>
+From: Dāvis Mosāns <davispuh@gmail.com>
 
-commit 6bb9681a43f34f2cab4aad6e2a02da4ce54d13c5 upstream.
+commit 2e7be9db125a0bf940c5d65eb5c40d8700f738b5 upstream.
 
-The reset input to the LAN9303 chip is active low, and devicetree
-gpio handles reflect this.  Therefore, the gpio should be requested
-with an initial state of high in order for the reset signal to be
-asserted.  Other uses of the gpio already use the correct polarity.
+Currently if we get IO error while doing send then we abort without
+logging information about which file caused issue.  So log it to help
+with debugging.
 
-Fixes: a1292595e006 ("net: dsa: add new DSA switch driver for the SMSC-LAN9303")
-Signed-off-by: Mans Rullgard <mans@mansr.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fianelil <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220209145454.19749-1-mans@mansr.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Dāvis Mosāns <davispuh@gmail.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/lan9303-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/send.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/dsa/lan9303-core.c
-+++ b/drivers/net/dsa/lan9303-core.c
-@@ -1309,7 +1309,7 @@ static int lan9303_probe_reset_gpio(stru
- 				     struct device_node *np)
- {
- 	chip->reset_gpio = devm_gpiod_get_optional(chip->dev, "reset",
--						   GPIOD_OUT_LOW);
-+						   GPIOD_OUT_HIGH);
- 	if (IS_ERR(chip->reset_gpio))
- 		return PTR_ERR(chip->reset_gpio);
- 
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -5005,6 +5005,10 @@ static ssize_t fill_read_buf(struct send
+ 			lock_page(page);
+ 			if (!PageUptodate(page)) {
+ 				unlock_page(page);
++				btrfs_err(fs_info,
++			"send: IO error at offset %llu for inode %llu root %llu",
++					page_offset(page), sctx->cur_ino,
++					sctx->send_root->root_key.objectid);
+ 				put_page(page);
+ 				ret = -EIO;
+ 				break;
 
 
