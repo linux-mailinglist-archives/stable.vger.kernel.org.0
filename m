@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DE6D4BDB92
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:40:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFCD34BE7E3
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:04:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348302AbiBUJO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:14:58 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36068 "EHLO
+        id S1347626AbiBUJJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:09:52 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349356AbiBUJMW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:12:22 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 403622B26B;
-        Mon, 21 Feb 2022 01:05:12 -0800 (PST)
+        with ESMTP id S1347856AbiBUJJA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A162184;
+        Mon, 21 Feb 2022 01:01:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B105CCE0E89;
-        Mon, 21 Feb 2022 09:05:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90CBEC340E9;
-        Mon, 21 Feb 2022 09:05:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 299F2B80EAF;
+        Mon, 21 Feb 2022 09:01:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5325EC340EB;
+        Mon, 21 Feb 2022 09:01:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434309;
-        bh=aK5WrDo+aEP63iaa5Ahj4m2YzjMqVpO8HdxIG1B/vQM=;
+        s=korg; t=1645434083;
+        bh=l4zb7Tl3TLdRnQjU+WUKmLsX3RlgS+sOcSxgTGvS7ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zsEMGED3NVbEfJZAZJLXug01cuCqGWIR+voMvWOG1AwKlC1+CTjCY71n9n5FfgMkI
-         beTmizmLHQo28qWQcZ9FZ9UBkVXVE39R8xt8CwFuBUnTVfHHQlP31K2E0bkBoSsdsn
-         uPcAw5lDq6J5Yjed/9jUfNztxMyDkGZI0sqPb2wA=
+        b=bOGQRXJrjDPS/h67oEFr/SxXxpG8C0I+7uPpCl1AlDCMYmIfiRUvJdOf0w4aW1tHD
+         Rq55KwwBCdmLms6hdIo65k5hnibtzxWfbi7Vy2ymrGveJSY/dfRjYb/Jb3DUYLrFYh
+         iqUfZocob8Kq53nKAHLN2mP8MwSqARlC1y7Kxjmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Hurley <peter@hurleysoftware.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Daniel Gibson <metalcaedes@gmail.com>
-Subject: [PATCH 5.10 084/121] tty: n_tty: do not look ahead for EOL character past the end of the buffer
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.4 56/80] NFS: Do not report writeback errors in nfs_getattr()
 Date:   Mon, 21 Feb 2022 09:49:36 +0100
-Message-Id: <20220221084924.052613384@linuxfoundation.org>
+Message-Id: <20220221084917.412759848@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,106 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 3593030761630e09200072a4bd06468892c27be3 upstream.
+commit d19e0183a88306acda07f4a01fedeeffe2a2a06b upstream.
 
-Daniel Gibson reports that the n_tty code gets line termination wrong in
-very specific cases:
+The result of the writeback, whether it is an ENOSPC or an EIO, or
+anything else, does not inhibit the NFS client from reporting the
+correct file timestamps.
 
- "If you feed a line with exactly 64 chars + terminating newline, and
-  directly afterwards (without reading) another line into a pseudo
-  terminal, the the first read() on the other side will return the 64
-  char line *without* terminating newline, and the next read() will
-  return the missing terminating newline AND the complete next line (if
-  it fits in the buffer)"
-
-and bisected the behavior to commit 3b830a9c34d5 ("tty: convert
-tty_ldisc_ops 'read()' function to take a kernel pointer").
-
-Now, digging deeper, it turns out that the behavior isn't exactly new:
-what changed in commit 3b830a9c34d5 was that the tty line discipline
-.read() function is now passed an intermediate kernel buffer rather than
-the final user space buffer.
-
-And that intermediate kernel buffer is 64 bytes in size - thus that
-special case with exactly 64 bytes plus terminating newline.
-
-The same problem did exist before, but historically the boundary was not
-the 64-byte chunk, but the user-supplied buffer size, which is obviously
-generally bigger (and potentially bigger than N_TTY_BUF_SIZE, which
-would hide the issue entirely).
-
-The reason is that the n_tty canon_copy_from_read_buf() code would look
-ahead for the EOL character one byte further than it would actually
-copy.  It would then decide that it had found the terminator, and unmark
-it as an EOL character - which in turn explains why the next read
-wouldn't then be terminated by it.
-
-Now, the reason it did all this in the first place is related to some
-historical and pretty obscure EOF behavior, see commit ac8f3bf8832a
-("n_tty: Fix poll() after buffer-limited eof push read") and commit
-40d5e0905a03 ("n_tty: Fix EOF push handling").
-
-And the reason for the EOL confusion is that we treat EOF as a special
-EOL condition, with the EOL character being NUL (aka "__DISABLED_CHAR"
-in the kernel sources).
-
-So that EOF look-ahead also affects the normal EOL handling.
-
-This patch just removes the look-ahead that causes problems, because EOL
-is much more critical than the historical "EOF in the middle of a line
-that coincides with the end of the buffer" handling ever was.
-
-Now, it is possible that we should indeed re-introduce the "look at next
-character to see if it's a EOF" behavior, but if so, that should be done
-not at the kernel buffer chunk boundary in canon_copy_from_read_buf(),
-but at a higher level, when we run out of the user buffer.
-
-In particular, the place to do that would be at the top of
-'n_tty_read()', where we check if it's a continuation of a previously
-started read, and there is no more buffer space left, we could decide to
-just eat the __DISABLED_CHAR at that point.
-
-But that would be a separate patch, because I suspect nobody actually
-cares, and I'd like to get a report about it before bothering.
-
-Fixes: 3b830a9c34d5 ("tty: convert tty_ldisc_ops 'read()' function to take a kernel pointer")
-Fixes: ac8f3bf8832a ("n_tty: Fix  poll() after buffer-limited eof push read")
-Fixes: 40d5e0905a03 ("n_tty: Fix EOF push handling")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215611
-Reported-and-tested-by: Daniel Gibson <metalcaedes@gmail.com>
-Cc: Peter Hurley <peter@hurleysoftware.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 79566ef018f5 ("NFS: Getattr doesn't require data sync semantics")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_tty.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/nfs/inode.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/tty/n_tty.c
-+++ b/drivers/tty/n_tty.c
-@@ -2024,7 +2024,7 @@ static bool canon_copy_from_read_buf(str
- 		return false;
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -791,12 +791,9 @@ int nfs_getattr(const struct path *path,
+ 		goto out_no_update;
  
- 	canon_head = smp_load_acquire(&ldata->canon_head);
--	n = min(*nr + 1, canon_head - ldata->read_tail);
-+	n = min(*nr, canon_head - ldata->read_tail);
- 
- 	tail = ldata->read_tail & (N_TTY_BUF_SIZE - 1);
- 	size = min_t(size_t, tail + n, N_TTY_BUF_SIZE);
-@@ -2046,10 +2046,8 @@ static bool canon_copy_from_read_buf(str
- 		n += N_TTY_BUF_SIZE;
- 	c = n + found;
- 
--	if (!found || read_buf(ldata, eol) != __DISABLED_CHAR) {
--		c = min(*nr, c);
-+	if (!found || read_buf(ldata, eol) != __DISABLED_CHAR)
- 		n = c;
+ 	/* Flush out writes to the server in order to update c/mtime.  */
+-	if ((request_mask & (STATX_CTIME|STATX_MTIME)) &&
+-			S_ISREG(inode->i_mode)) {
+-		err = filemap_write_and_wait(inode->i_mapping);
+-		if (err)
+-			goto out;
 -	}
++	if ((request_mask & (STATX_CTIME | STATX_MTIME)) &&
++	    S_ISREG(inode->i_mode))
++		filemap_write_and_wait(inode->i_mapping);
  
- 	n_tty_trace("%s: eol:%zu found:%d n:%zu c:%zu tail:%zu more:%zu\n",
- 		    __func__, eol, found, n, c, tail, more);
+ 	/*
+ 	 * We may force a getattr if the user cares about atime.
 
 
