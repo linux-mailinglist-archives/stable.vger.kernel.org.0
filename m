@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADAA24BDBA2
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:40:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10AD64BE337
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:56:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239737AbiBUJt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:49:57 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43786 "EHLO
+        id S241746AbiBUJ22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:28:28 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352963AbiBUJsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8377CCFE;
-        Mon, 21 Feb 2022 01:22:01 -0800 (PST)
+        with ESMTP id S1349099AbiBUJ1e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96DA8DF5E;
+        Mon, 21 Feb 2022 01:12:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 219DE608C4;
-        Mon, 21 Feb 2022 09:22:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF05DC340E9;
-        Mon, 21 Feb 2022 09:21:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 33ED7608C4;
+        Mon, 21 Feb 2022 09:12:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19014C340E9;
+        Mon, 21 Feb 2022 09:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435320;
-        bh=8IUsyVO3CUV/NHmrn9iyf0MiQePqG+1lN0ZMxV/tScY=;
+        s=korg; t=1645434732;
+        bh=Tmzs7DreLGoEQ0nImRKQ4cV5zyQ0u3xWsJnDnMuHTv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdjUFveKP9l+CTHTunC4vSQcq1/JQX+VMIn3E3VD8lbmMPHwtIRjnymnsVvhOuhuY
-         UJAzQc6Ej+HLJhBt9l09EIQUFgwwmqldXY8PJhgw999+ZrMDFWl9Sj8DiRqL4MtAQf
-         +VsUHVqZ9pwVw8PuQKVGrUfJMyraBxnJVxhyhS2E=
+        b=Dkjx292MdkQb2n/hz75MYJ7DTYJ5gPQQkKm0DoeiV+AaaYgrJEH+tsMB545IafjB+
+         DbLLHhfXP8bBIK13yxxYvfaL4aADBgjgHGmd+s+9oACR4/iwGvPVOH7uQB9HE4R30e
+         Jd504XybcvH9lZ3apRSW6ah3AG88A8HuZpfvF15g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Valdis=20Kl=C4=93tnieks?= <valdis.kletnieks@vt.edu>,
-        Kees Kook <keescook@chromium.org>,
-        "Justin M. Forbes" <jforbes@fedoraproject.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        linux-hardening@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.16 123/227] libsubcmd: Fix use-after-free for realloc(..., 0)
+        Joakim Tjernlund <joakim.tjernlund@infinera.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.15 110/196] arm64: Correct wrong label in macro __init_el2_gicv3
 Date:   Mon, 21 Feb 2022 09:49:02 +0100
-Message-Id: <20220221084938.941272051@linuxfoundation.org>
+Message-Id: <20220221084934.619435963@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,63 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 
-commit 52a9dab6d892763b2a8334a568bd4e2c1a6fde66 upstream.
+commit 4f6de676d94ee8ddfc2e7e7cd935fc7cb2feff3a upstream.
 
-GCC 12 correctly reports a potential use-after-free condition in the
-xrealloc helper. Fix the warning by avoiding an implicit "free(ptr)"
-when size == 0:
+In commit:
 
-In file included from help.c:12:
-In function 'xrealloc',
-    inlined from 'add_cmdname' at help.c:24:2: subcmd-util.h:56:23: error: pointer may be used after 'realloc' [-Werror=use-after-free]
-   56 |                 ret = realloc(ptr, size);
-      |                       ^~~~~~~~~~~~~~~~~~
-subcmd-util.h:52:21: note: call to 'realloc' here
-   52 |         void *ret = realloc(ptr, size);
-      |                     ^~~~~~~~~~~~~~~~~~
-subcmd-util.h:58:31: error: pointer may be used after 'realloc' [-Werror=use-after-free]
-   58 |                         ret = realloc(ptr, 1);
-      |                               ^~~~~~~~~~~~~~~
-subcmd-util.h:52:21: note: call to 'realloc' here
-   52 |         void *ret = realloc(ptr, size);
-      |                     ^~~~~~~~~~~~~~~~~~
+  114945d84a30a5fe ("arm64: Fix labels in el2_setup macros")
 
-Fixes: 2f4ce5ec1d447beb ("perf tools: Finalize subcmd independence")
-Reported-by: Valdis Klētnieks <valdis.kletnieks@vt.edu>
-Signed-off-by: Kees Kook <keescook@chromium.org>
-Tested-by: Valdis Klētnieks <valdis.kletnieks@vt.edu>
-Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: linux-hardening@vger.kernel.org
-Cc: Valdis Klētnieks <valdis.kletnieks@vt.edu>
-Link: http://lore.kernel.org/lkml/20220213182443.4037039-1-keescook@chromium.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+We renamed a label from '1' to '.Lskip_gicv3_\@', but failed to update
+a branch to it, which now targets a later label also called '1'.
+
+The branch is taken rarely, when GICv3 is present but SRE is disabled
+at EL3, causing a boot-time crash.
+
+Update the caller to the new label name.
+
+Fixes: 114945d84a30 ("arm64: Fix labels in el2_setup macros")
+Cc: <stable@vger.kernel.org> # 5.12.x
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Link: https://lore.kernel.org/r/20220214175643.21931-1-joakim.tjernlund@infinera.com
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/lib/subcmd/subcmd-util.h |   11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ arch/arm64/include/asm/el2_setup.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/lib/subcmd/subcmd-util.h
-+++ b/tools/lib/subcmd/subcmd-util.h
-@@ -50,15 +50,8 @@ static NORETURN inline void die(const ch
- static inline void *xrealloc(void *ptr, size_t size)
- {
- 	void *ret = realloc(ptr, size);
--	if (!ret && !size)
--		ret = realloc(ptr, 1);
--	if (!ret) {
--		ret = realloc(ptr, size);
--		if (!ret && !size)
--			ret = realloc(ptr, 1);
--		if (!ret)
--			die("Out of memory, realloc failed");
--	}
-+	if (!ret)
-+		die("Out of memory, realloc failed");
- 	return ret;
- }
- 
+--- a/arch/arm64/include/asm/el2_setup.h
++++ b/arch/arm64/include/asm/el2_setup.h
+@@ -106,7 +106,7 @@
+ 	msr_s	SYS_ICC_SRE_EL2, x0
+ 	isb					// Make sure SRE is now set
+ 	mrs_s	x0, SYS_ICC_SRE_EL2		// Read SRE back,
+-	tbz	x0, #0, 1f			// and check that it sticks
++	tbz	x0, #0, .Lskip_gicv3_\@		// and check that it sticks
+ 	msr_s	SYS_ICH_HCR_EL2, xzr		// Reset ICC_HCR_EL2 to defaults
+ .Lskip_gicv3_\@:
+ .endm
 
 
