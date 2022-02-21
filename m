@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C4E04BE557
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:00:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E95E74BE6F8
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:02:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239677AbiBUJXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:23:21 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60072 "EHLO
+        id S245017AbiBUJlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:41:24 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348982AbiBUJU5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:20:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B32234B89;
-        Mon, 21 Feb 2022 01:07:47 -0800 (PST)
+        with ESMTP id S1350846AbiBUJkM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:40:12 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 895E732EEE;
+        Mon, 21 Feb 2022 01:17:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCA486077B;
-        Mon, 21 Feb 2022 09:07:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFE46C340E9;
-        Mon, 21 Feb 2022 09:07:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E81EFCE0E88;
+        Mon, 21 Feb 2022 09:17:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8715C340E9;
+        Mon, 21 Feb 2022 09:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434466;
-        bh=tP5CUsGrhz28rz/+xDcgKWdz9OnlZ9AuyjX1ULukau8=;
+        s=korg; t=1645435038;
+        bh=jYwiTOzuxOogEwmmZu7c9TjY0pi0EyrysgTTXTM6OZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RFqbI04S/A5GbQqrLjNAijQCZtBCOULQa6TxgVr7AMhJeEGp2k6Cs2efKmvFdDa8f
-         z0m9CjYJy+wLFQeNZO38zNcykvyZLq91+9ghFmqsS5p1OlqexJVCCa3F6CXN1UBSQ9
-         8Kj8Nhhgi19GCGvlpXF7Jkxj1yeLzRCXDvpSjGzs=
+        b=wp6DdanR5PfhX5M2ZSY018gKGChmh/qd35NEKSY/P4CXrCpZnxMmx2yVx06Xy993j
+         YSxeHCP4ykEOvF/AQx0nBK/bDz1cGqqd6PYorDlRmiMD+CTDkavX4aZOmVLrm0xW9E
+         5By53FY8wiptYYjUuuCYSYTo7G5FIovwj0V20Xwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rolf Eike Beer <eike-kernel@sf-tec.de>,
-        John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.15 010/196] parisc: Fix data TLB miss in sba_unmap_sg
+        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.16 023/227] selftests: kvm: Remove absent target file
 Date:   Mon, 21 Feb 2022 09:47:22 +0100
-Message-Id: <20220221084931.240521487@linuxfoundation.org>
+Message-Id: <20220221084935.613639074@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,86 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Muhammad Usama Anjum <usama.anjum@collabora.com>
 
-commit b7d6f44a0fa716a82969725516dc0b16bc7cd514 upstream.
+commit 0316dbb9a017d3231f86e0188376f067ec26a59c upstream.
 
-Rolf Eike Beer reported the following bug:
+There is no vmx_pi_mmio_test file. Remove it to get rid of error while
+creation of selftest archive:
 
-[1274934.746891] Bad Address (null pointer deref?): Code=15 (Data TLB miss fault) at addr 0000004140000018
-[1274934.746891] CPU: 3 PID: 5549 Comm: cmake Not tainted 5.15.4-gentoo-parisc64 #4
-[1274934.746891] Hardware name: 9000/785/C8000
-[1274934.746891]
-[1274934.746891]      YZrvWESTHLNXBCVMcbcbcbcbOGFRQPDI
-[1274934.746891] PSW: 00001000000001001111111000001110 Not tainted
-[1274934.746891] r00-03  000000ff0804fe0e 0000000040bc9bc0 00000000406760e4 0000004140000000
-[1274934.746891] r04-07  0000000040b693c0 0000004140000000 000000004a2b08b0 0000000000000001
-[1274934.746891] r08-11  0000000041f98810 0000000000000000 000000004a0a7000 0000000000000001
-[1274934.746891] r12-15  0000000040bddbc0 0000000040c0cbc0 0000000040bddbc0 0000000040bddbc0
-[1274934.746891] r16-19  0000000040bde3c0 0000000040bddbc0 0000000040bde3c0 0000000000000007
-[1274934.746891] r20-23  0000000000000006 000000004a368950 0000000000000000 0000000000000001
-[1274934.746891] r24-27  0000000000001fff 000000000800000e 000000004a1710f0 0000000040b693c0
-[1274934.746891] r28-31  0000000000000001 0000000041f988b0 0000000041f98840 000000004a171118
-[1274934.746891] sr00-03  00000000066e5800 0000000000000000 0000000000000000 00000000066e5800
-[1274934.746891] sr04-07  0000000000000000 0000000000000000 0000000000000000 0000000000000000
-[1274934.746891]
-[1274934.746891] IASQ: 0000000000000000 0000000000000000 IAOQ: 00000000406760e8 00000000406760ec
-[1274934.746891]  IIR: 48780030    ISR: 0000000000000000  IOR: 0000004140000018
-[1274934.746891]  CPU:        3   CR30: 00000040e3a9c000 CR31: ffffffffffffffff
-[1274934.746891]  ORIG_R28: 0000000040acdd58
-[1274934.746891]  IAOQ[0]: sba_unmap_sg+0xb0/0x118
-[1274934.746891]  IAOQ[1]: sba_unmap_sg+0xb4/0x118
-[1274934.746891]  RP(r2): sba_unmap_sg+0xac/0x118
-[1274934.746891] Backtrace:
-[1274934.746891]  [<00000000402740cc>] dma_unmap_sg_attrs+0x6c/0x70
-[1274934.746891]  [<000000004074d6bc>] scsi_dma_unmap+0x54/0x60
-[1274934.746891]  [<00000000407a3488>] mptscsih_io_done+0x150/0xd70
-[1274934.746891]  [<0000000040798600>] mpt_interrupt+0x168/0xa68
-[1274934.746891]  [<0000000040255a48>] __handle_irq_event_percpu+0xc8/0x278
-[1274934.746891]  [<0000000040255c34>] handle_irq_event_percpu+0x3c/0xd8
-[1274934.746891]  [<000000004025ecb4>] handle_percpu_irq+0xb4/0xf0
-[1274934.746891]  [<00000000402548e0>] generic_handle_irq+0x50/0x70
-[1274934.746891]  [<000000004019a254>] call_on_stack+0x18/0x24
-[1274934.746891]
-[1274934.746891] Kernel panic - not syncing: Bad Address (null pointer deref?)
+rsync: [sender] link_stat "/kselftest/kvm/x86_64/vmx_pi_mmio_test" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1333) [sender=3.2.3]
 
-The bug is caused by overrunning the sglist and incorrectly testing
-sg_dma_len(sglist) before nents. Normally this doesn't cause a crash,
-but in this case sglist crossed a page boundary. This occurs in the
-following code:
-
-	while (sg_dma_len(sglist) && nents--) {
-
-The fix is simply to test nents first and move the decrement of nents
-into the loop.
-
-Reported-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 6a58150859fd ("selftest: KVM: Add intra host migration tests")
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Message-Id: <20220210172352.1317554-1-usama.anjum@collabora.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/parisc/sba_iommu.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/kvm/Makefile |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/parisc/sba_iommu.c
-+++ b/drivers/parisc/sba_iommu.c
-@@ -1047,7 +1047,7 @@ sba_unmap_sg(struct device *dev, struct
- 	spin_unlock_irqrestore(&ioc->res_lock, flags);
- #endif
- 
--	while (sg_dma_len(sglist) && nents--) {
-+	while (nents && sg_dma_len(sglist)) {
- 
- 		sba_unmap_page(dev, sg_dma_address(sglist), sg_dma_len(sglist),
- 				direction, 0);
-@@ -1056,6 +1056,7 @@ sba_unmap_sg(struct device *dev, struct
- 		ioc->usingle_calls--;	/* kluge since call is unmap_sg() */
- #endif
- 		++sglist;
-+		nents--;
- 	}
- 
- 	DBG_RUN_SG("%s() DONE (nents %d)\n", __func__,  nents);
+--- a/tools/testing/selftests/kvm/Makefile
++++ b/tools/testing/selftests/kvm/Makefile
+@@ -75,7 +75,6 @@ TEST_GEN_PROGS_x86_64 += x86_64/tsc_msrs
+ TEST_GEN_PROGS_x86_64 += x86_64/vmx_pmu_msrs_test
+ TEST_GEN_PROGS_x86_64 += x86_64/xen_shinfo_test
+ TEST_GEN_PROGS_x86_64 += x86_64/xen_vmcall_test
+-TEST_GEN_PROGS_x86_64 += x86_64/vmx_pi_mmio_test
+ TEST_GEN_PROGS_x86_64 += x86_64/sev_migrate_tests
+ TEST_GEN_PROGS_x86_64 += access_tracking_perf_test
+ TEST_GEN_PROGS_x86_64 += demand_paging_test
 
 
