@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 029A04BE9B2
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:08:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1EB44BE560
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:00:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347681AbiBUJJl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:09:41 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36208 "EHLO
+        id S1350696AbiBUJjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:39:16 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347077AbiBUJI7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:08:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 854A025CE;
-        Mon, 21 Feb 2022 01:01:06 -0800 (PST)
+        with ESMTP id S1350708AbiBUJf2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:35:28 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0820558B;
+        Mon, 21 Feb 2022 01:14:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3ABB4B80EAC;
-        Mon, 21 Feb 2022 09:01:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52101C340F3;
-        Mon, 21 Feb 2022 09:01:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4FDFBCE0E90;
+        Mon, 21 Feb 2022 09:14:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FC60C340E9;
+        Mon, 21 Feb 2022 09:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434063;
-        bh=Psmy4Is+87qpkFidA53J/KsbNElqLG7g1/V2Pwj9mlw=;
+        s=korg; t=1645434887;
+        bh=N8xWN7ToM0OURECdikdyOxvj33ARbCAMW08kXnXLDb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DKKnD83BgV3tHWjkVGz4LR5tnGkSlnz1L42iFoqRez0unGYNpWHd7sK72GoMfWJmA
-         B2l8RD1tnxf9Y8KnvbTp0XVIEZ4UMoa7ETJBzwlXe/sA2MKxmdg5aRP78IFyr/UQF1
-         ZNAoDlrZtl0mjTY1b1NoA0fkrYsu51SprgQ3tprM=
+        b=sWWtw1EEYbx4KegBTzi6ZOAUq1fi9PZ9nhOSYDclaGFHaWUfKQ5FCiJmAGt3ospk2
+         tNDUTWfIWqfjxHLyL9t5HEzPzdC5ACqYvMMxrViQpbYbSwmyfxrNVOIxL9G4taD102
+         PMvPxSM0ahSdZAyeEvqnTLlfeC8QNG/c7sPXthJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc St-Amand <mstamand@ciena.com>,
-        Harini Katakam <harini.katakam@xilinx.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dan Aloni <dan.aloni@vastdata.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 79/80] net: macb: Align the dma and coherent dma masks
+Subject: [PATCH 5.15 167/196] xprtrdma: fix pointer derefs in error cases of rpcrdma_ep_create
 Date:   Mon, 21 Feb 2022 09:49:59 +0100
-Message-Id: <20220221084918.181367079@linuxfoundation.org>
+Message-Id: <20220221084936.539521723@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,49 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc St-Amand <mstamand@ciena.com>
+From: Dan Aloni <dan.aloni@vastdata.com>
 
-[ Upstream commit 37f7860602b5b2d99fc7465f6407f403f5941988 ]
+[ Upstream commit a9c10b5b3b67b3750a10c8b089b2e05f5e176e33 ]
 
-Single page and coherent memory blocks can use different DMA masks
-when the macb accesses physical memory directly. The kernel is clever
-enough to allocate pages that fit into the requested address width.
+If there are failures then we must not leave the non-NULL pointers with
+the error value, otherwise `rpcrdma_ep_destroy` gets confused and tries
+free them, resulting in an Oops.
 
-When using the ARM SMMU, the DMA mask must be the same for single
-pages and big coherent memory blocks. Otherwise the translation
-tables turn into one big mess.
-
-  [   74.959909] macb ff0e0000.ethernet eth0: DMA bus error: HRESP not OK
-  [   74.959989] arm-smmu fd800000.smmu: Unhandled context fault: fsr=0x402, iova=0x3165687460, fsynr=0x20001, cbfrsynra=0x877, cb=1
-  [   75.173939] macb ff0e0000.ethernet eth0: DMA bus error: HRESP not OK
-  [   75.173955] arm-smmu fd800000.smmu: Unhandled context fault: fsr=0x402, iova=0x3165687460, fsynr=0x20001, cbfrsynra=0x877, cb=1
-
-Since using the same DMA mask does not hurt direct 1:1 physical
-memory mappings, this commit always aligns DMA and coherent masks.
-
-Signed-off-by: Marc St-Amand <mstamand@ciena.com>
-Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Tested-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
+Acked-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sunrpc/xprtrdma/verbs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index ebd0853a6f313..0dc52cf5367e7 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -4284,7 +4284,7 @@ static int macb_probe(struct platform_device *pdev)
- 
- #ifdef CONFIG_ARCH_DMA_ADDR_T_64BIT
- 	if (GEM_BFEXT(DAW64, gem_readl(bp, DCFG6))) {
--		dma_set_mask(&pdev->dev, DMA_BIT_MASK(44));
-+		dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(44));
- 		bp->hw_dma_cap |= HW_DMA_CAP_64B;
+diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
+index aaec3c9be8db6..1295f9ab839fd 100644
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -438,6 +438,7 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
+ 					      IB_POLL_WORKQUEUE);
+ 	if (IS_ERR(ep->re_attr.send_cq)) {
+ 		rc = PTR_ERR(ep->re_attr.send_cq);
++		ep->re_attr.send_cq = NULL;
+ 		goto out_destroy;
  	}
- #endif
+ 
+@@ -446,6 +447,7 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
+ 					      IB_POLL_WORKQUEUE);
+ 	if (IS_ERR(ep->re_attr.recv_cq)) {
+ 		rc = PTR_ERR(ep->re_attr.recv_cq);
++		ep->re_attr.recv_cq = NULL;
+ 		goto out_destroy;
+ 	}
+ 	ep->re_receive_count = 0;
+@@ -484,6 +486,7 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
+ 	ep->re_pd = ib_alloc_pd(device, 0);
+ 	if (IS_ERR(ep->re_pd)) {
+ 		rc = PTR_ERR(ep->re_pd);
++		ep->re_pd = NULL;
+ 		goto out_destroy;
+ 	}
+ 
 -- 
 2.34.1
 
