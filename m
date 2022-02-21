@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 654A94BDDED
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:46:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DCE44BE856
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:05:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348164AbiBUJOX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:14:23 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33980 "EHLO
+        id S1345612AbiBUIwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:52:55 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348864AbiBUJLs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D33C228988;
-        Mon, 21 Feb 2022 01:04:17 -0800 (PST)
+        with ESMTP id S1345615AbiBUIwu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:52:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A45CE49;
+        Mon, 21 Feb 2022 00:52:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EE4160FB6;
-        Mon, 21 Feb 2022 09:04:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52FBDC340E9;
-        Mon, 21 Feb 2022 09:04:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD0016113E;
+        Mon, 21 Feb 2022 08:52:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91D18C340E9;
+        Mon, 21 Feb 2022 08:52:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434256;
-        bh=w7C2GgCRtP1+xltsNW+WDszYMEqhmA+wflbrN7qr1Ow=;
+        s=korg; t=1645433536;
+        bh=bLYGSPg5pngi8ECVVjxmJsAUVouNH0aHvZNl9/486ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dxdk/+52oV79MA/rMQ/vjSa3m6L4MXCIlAgTjNuVNDK21DTPM+cATWEYl5b05KHnm
-         +KgJQkxRuL/gWNUSiIZ7i83urF2tstKWB/zZC6vSLuJ66s7PNsfR1yp4wAFgjzq1jV
-         ARUNZsgFKRdYN0ZaY6G9Ab01dvclps1q9xU6lPTY=
+        b=T2yp1pRpB4IUX/53O1xqMR0DicSGM9RbNPHvfpp2RNdnH3dsZEWKNRYSjidvWB3m5
+         Q1T91aTauv6TK4sT+PWrTW+gVBgm7bKfgteJoHR6ZwZ47qvq11Hha7ZoHv1YYeIxpL
+         o+CHoD96/IcuLTMPI7ETnLd60NiFBY5yavBq5io4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 067/121] perf bpf: Defer freeing string after possible strlen() on it
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Donald Buczek <buczek@molgen.mpg.de>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 4.9 26/33] NFS: LOOKUP_DIRECTORY is also ok with symlinks
 Date:   Mon, 21 Feb 2022 09:49:19 +0100
-Message-Id: <20220221084923.467669276@linuxfoundation.org>
+Message-Id: <20220221084909.615332672@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
+References: <20220221084908.568970525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 31ded1535e3182778a1d0e5c32711f55da3bc512 upstream.
+commit e0caaf75d443e02e55e146fd75fe2efc8aed5540 upstream.
 
-This was detected by the gcc in Fedora Rawhide's gcc:
+Commit ac795161c936 (NFSv4: Handle case where the lookup of a directory
+fails) [1], part of Linux since 5.17-rc2, introduced a regression, where
+a symbolic link on an NFS mount to a directory on another NFS does not
+resolve(?) the first time it is accessed:
 
-  50    11.01 fedora:rawhide                : FAIL gcc version 12.0.1 20220205 (Red Hat 12.0.1-0) (GCC)
-        inlined from 'bpf__config_obj' at util/bpf-loader.c:1242:9:
-    util/bpf-loader.c:1225:34: error: pointer 'map_opt' may be used after 'free' [-Werror=use-after-free]
-     1225 |                 *key_scan_pos += strlen(map_opt);
-          |                                  ^~~~~~~~~~~~~~~
-    util/bpf-loader.c:1223:9: note: call to 'free' here
-     1223 |         free(map_name);
-          |         ^~~~~~~~~~~~~~
-    cc1: all warnings being treated as errors
-
-So do the calculations on the pointer before freeing it.
-
-Fixes: 04f9bf2bac72480c ("perf bpf-loader: Add missing '*' for key_scan_pos")
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Link: https://lore.kernel.org/lkml/Yg1VtQxKrPpS3uNA@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Fixes: ac795161c936 ("NFSv4: Handle case where the lookup of a directory fails")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Tested-by: Donald Buczek <buczek@molgen.mpg.de>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/bpf-loader.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/nfs/dir.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/perf/util/bpf-loader.c
-+++ b/tools/perf/util/bpf-loader.c
-@@ -1215,9 +1215,10 @@ bpf__obj_config_map(struct bpf_object *o
- 	pr_debug("ERROR: Invalid map config option '%s'\n", map_opt);
- 	err = -BPF_LOADER_ERRNO__OBJCONF_MAP_OPT;
- out:
--	free(map_name);
- 	if (!err)
- 		*key_scan_pos += strlen(map_opt);
-+
-+	free(map_name);
- 	return err;
- }
- 
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -1605,14 +1605,14 @@ no_open:
+ 	if (!res) {
+ 		inode = d_inode(dentry);
+ 		if ((lookup_flags & LOOKUP_DIRECTORY) && inode &&
+-		    !S_ISDIR(inode->i_mode))
++		    !(S_ISDIR(inode->i_mode) || S_ISLNK(inode->i_mode)))
+ 			res = ERR_PTR(-ENOTDIR);
+ 		else if (inode && S_ISREG(inode->i_mode))
+ 			res = ERR_PTR(-EOPENSTALE);
+ 	} else if (!IS_ERR(res)) {
+ 		inode = d_inode(res);
+ 		if ((lookup_flags & LOOKUP_DIRECTORY) && inode &&
+-		    !S_ISDIR(inode->i_mode)) {
++		    !(S_ISDIR(inode->i_mode) || S_ISLNK(inode->i_mode))) {
+ 			dput(res);
+ 			res = ERR_PTR(-ENOTDIR);
+ 		} else if (inode && S_ISREG(inode->i_mode)) {
 
 
