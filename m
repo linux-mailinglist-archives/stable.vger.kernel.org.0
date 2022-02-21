@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15C784BDB6E
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:40:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F77C4BDD7D
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:45:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232924AbiBUJOl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:14:41 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33970 "EHLO
+        id S241738AbiBUJfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:35:34 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349922AbiBUJND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:13:03 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB6B82DA99;
-        Mon, 21 Feb 2022 01:06:09 -0800 (PST)
+        with ESMTP id S1350520AbiBUJfD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:35:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F140B2AE3D;
+        Mon, 21 Feb 2022 01:14:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 398B5CE0E86;
-        Mon, 21 Feb 2022 09:06:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B070C340E9;
-        Mon, 21 Feb 2022 09:06:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C89060EB5;
+        Mon, 21 Feb 2022 09:14:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85CBFC340E9;
+        Mon, 21 Feb 2022 09:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434366;
-        bh=vbbTpbP9u2rFn29GMsI3A4vpEDTwyx0tyee7vlCQGaE=;
+        s=korg; t=1645434882;
+        bh=myw3QrAMQ7VVVXV9oni2wkVFSEnyKFd6dj17fy2ABdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uewza1N1Nq7LCiDH8k8PlCMJg9Sjry2z7rS0bddPtGpIw97h38JOAOdr6MBC+UFuc
-         gYEVvrOXyb+R/UP4rVgvwoY8ZEN0MgRsRE8Zbu14pnmaJCC7/6Wr8FqU7aXeubb2+A
-         N9MibrWA7LlJ24/DKmhV/qZ/X+a22xTJ4UJyS/JM=
+        b=knsp71VkOVBxdDWs1n8BuWHR0i/BeXBvB3DQ8RZ3B5K/Rt/dEDx/PNuCk7pcDRogt
+         6WTBd5xRgHKNiT1i3LZYGW0tfsArGRIplWjIg6yX/UajPVh7oqn083p5xNIDVTmjDs
+         U9XlPr6FmTZE+9SglLYkkhdClt/whPJhcM7zKo+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Aloni <dan.aloni@vastdata.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?= 
+        <zboszor@gmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 105/121] xprtrdma: fix pointer derefs in error cases of rpcrdma_ep_create
+Subject: [PATCH 5.15 165/196] ata: libata-core: Disable TRIM on M88V29
 Date:   Mon, 21 Feb 2022 09:49:57 +0100
-Message-Id: <20220221084924.738812675@linuxfoundation.org>
+Message-Id: <20220221084936.475426026@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Aloni <dan.aloni@vastdata.com>
+From: Zoltán Böszörményi <zboszor@gmail.com>
 
-[ Upstream commit a9c10b5b3b67b3750a10c8b089b2e05f5e176e33 ]
+[ Upstream commit c8ea23d5fa59f28302d4e3370c75d9c308e64410 ]
 
-If there are failures then we must not leave the non-NULL pointers with
-the error value, otherwise `rpcrdma_ep_destroy` gets confused and tries
-free them, resulting in an Oops.
+This device is a CF card, or possibly an SSD in CF form factor.
+It supports NCQ and high speed DMA.
 
-Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
-Acked-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+While it also advertises TRIM support, I/O errors are reported
+when the discard mount option fstrim is used. TRIM also fails
+when disabling NCQ and not just as an NCQ command.
+
+TRIM must be disabled for this device.
+
+Signed-off-by: Zoltán Böszörményi <zboszor@gmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/verbs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/ata/libata-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
-index 25554260a5931..dcc1992b14d76 100644
---- a/net/sunrpc/xprtrdma/verbs.c
-+++ b/net/sunrpc/xprtrdma/verbs.c
-@@ -449,6 +449,7 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
- 					      IB_POLL_WORKQUEUE);
- 	if (IS_ERR(ep->re_attr.send_cq)) {
- 		rc = PTR_ERR(ep->re_attr.send_cq);
-+		ep->re_attr.send_cq = NULL;
- 		goto out_destroy;
- 	}
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index 4d848cfc406fe..24b67d78cb83d 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -4014,6 +4014,7 @@ static const struct ata_blacklist_entry ata_device_blacklist [] = {
  
-@@ -457,6 +458,7 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
- 					      IB_POLL_WORKQUEUE);
- 	if (IS_ERR(ep->re_attr.recv_cq)) {
- 		rc = PTR_ERR(ep->re_attr.recv_cq);
-+		ep->re_attr.recv_cq = NULL;
- 		goto out_destroy;
- 	}
- 	ep->re_receive_count = 0;
-@@ -495,6 +497,7 @@ static int rpcrdma_ep_create(struct rpcrdma_xprt *r_xprt)
- 	ep->re_pd = ib_alloc_pd(device, 0);
- 	if (IS_ERR(ep->re_pd)) {
- 		rc = PTR_ERR(ep->re_pd);
-+		ep->re_pd = NULL;
- 		goto out_destroy;
- 	}
+ 	/* devices that don't properly handle TRIM commands */
+ 	{ "SuperSSpeed S238*",		NULL,	ATA_HORKAGE_NOTRIM, },
++	{ "M88V29*",			NULL,	ATA_HORKAGE_NOTRIM, },
  
+ 	/*
+ 	 * As defined, the DRAT (Deterministic Read After Trim) and RZAT
 -- 
 2.34.1
 
