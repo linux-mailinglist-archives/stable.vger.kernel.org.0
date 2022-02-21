@@ -2,51 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1619E4BDF76
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:50:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4BE94BE5E8
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352046AbiBUJws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:52:48 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42568 "EHLO
+        id S1348199AbiBUJO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:14:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351948AbiBUJu7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:50:59 -0500
+        with ESMTP id S1348842AbiBUJLp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:45 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34B9635DC4;
-        Mon, 21 Feb 2022 01:22:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64F8C286F3;
+        Mon, 21 Feb 2022 01:04:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 98485CE0E99;
-        Mon, 21 Feb 2022 09:22:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84606C340E9;
-        Mon, 21 Feb 2022 09:22:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C50ECCE0E86;
+        Mon, 21 Feb 2022 09:04:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A67F0C340E9;
+        Mon, 21 Feb 2022 09:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435366;
-        bh=xfTfLuBCLxsgTOACm1b1I3fjPekjhfu0XQvZqy8k79U=;
+        s=korg; t=1645434251;
+        bh=8IUsyVO3CUV/NHmrn9iyf0MiQePqG+1lN0ZMxV/tScY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JmLk2liX8zhN01ktOv8l/sVSPUANJJyLJEKI8qUMdHv6fA9ddW0+oy7ZvL8tnwVGI
-         zwQNm4JV0FORBjiD0l9yErD+M8DcByh6nIGQkJq1cNk3b43sd3OzG8v2e+m6+UE6od
-         1B76DyZ1UPHUKQLQ27qI+m5w/SfFpZqLt/Vf93a8=
+        b=IMQx8vNcAyqO6dEGdkYG0o2lOJ238ZXCmzWgva6us1T2ykTOOZhkWTlVfE8t36RLt
+         D/u8KlIK+mu4KNXFWtaWoFBKSoW0huw2UL3vB7uD5sWEOQ7IOyIXaXbUA32G3FpxP0
+         g9+1au6YlkklOU+ZVb5vjBKds5NKfv3Q2RZmPAMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.16 138/227] ALSA: memalloc: invalidate SG pages before sync
+        =?UTF-8?q?Valdis=20Kl=C4=93tnieks?= <valdis.kletnieks@vt.edu>,
+        Kees Kook <keescook@chromium.org>,
+        "Justin M. Forbes" <jforbes@fedoraproject.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        linux-hardening@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 065/121] libsubcmd: Fix use-after-free for realloc(..., 0)
 Date:   Mon, 21 Feb 2022 09:49:17 +0100
-Message-Id: <20220221084939.433297721@linuxfoundation.org>
+Message-Id: <20220221084923.404143613@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,38 +58,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Kees Cook <keescook@chromium.org>
 
-commit 3e16dc50d77dc3494275a241fac250c94bf45206 upstream.
+commit 52a9dab6d892763b2a8334a568bd4e2c1a6fde66 upstream.
 
-It seems that calling invalidate_kernel_vmap_range() is more correct
-to be called before dma_sync_*(), judging from the other thread:
-  https://lore.kernel.org/all/20220111085958.GA22795@lst.de/
-Although this won't matter much in practice, let's fix the call order
-for consistency.
+GCC 12 correctly reports a potential use-after-free condition in the
+xrealloc helper. Fix the warning by avoiding an implicit "free(ptr)"
+when size == 0:
 
-Fixes: a25684a95646 ("ALSA: memalloc: Support for non-contiguous page allocation")
-Reported-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220210123344.8756-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+In file included from help.c:12:
+In function 'xrealloc',
+    inlined from 'add_cmdname' at help.c:24:2: subcmd-util.h:56:23: error: pointer may be used after 'realloc' [-Werror=use-after-free]
+   56 |                 ret = realloc(ptr, size);
+      |                       ^~~~~~~~~~~~~~~~~~
+subcmd-util.h:52:21: note: call to 'realloc' here
+   52 |         void *ret = realloc(ptr, size);
+      |                     ^~~~~~~~~~~~~~~~~~
+subcmd-util.h:58:31: error: pointer may be used after 'realloc' [-Werror=use-after-free]
+   58 |                         ret = realloc(ptr, 1);
+      |                               ^~~~~~~~~~~~~~~
+subcmd-util.h:52:21: note: call to 'realloc' here
+   52 |         void *ret = realloc(ptr, size);
+      |                     ^~~~~~~~~~~~~~~~~~
+
+Fixes: 2f4ce5ec1d447beb ("perf tools: Finalize subcmd independence")
+Reported-by: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+Signed-off-by: Kees Kook <keescook@chromium.org>
+Tested-by: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: linux-hardening@vger.kernel.org
+Cc: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+Link: http://lore.kernel.org/lkml/20220213182443.4037039-1-keescook@chromium.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/memalloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/subcmd/subcmd-util.h |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
---- a/sound/core/memalloc.c
-+++ b/sound/core/memalloc.c
-@@ -541,9 +541,9 @@ static void snd_dma_noncontig_sync(struc
- 	if (mode == SNDRV_DMA_SYNC_CPU) {
- 		if (dmab->dev.dir == DMA_TO_DEVICE)
- 			return;
-+		invalidate_kernel_vmap_range(dmab->area, dmab->bytes);
- 		dma_sync_sgtable_for_cpu(dmab->dev.dev, dmab->private_data,
- 					 dmab->dev.dir);
--		invalidate_kernel_vmap_range(dmab->area, dmab->bytes);
- 	} else {
- 		if (dmab->dev.dir == DMA_FROM_DEVICE)
- 			return;
+--- a/tools/lib/subcmd/subcmd-util.h
++++ b/tools/lib/subcmd/subcmd-util.h
+@@ -50,15 +50,8 @@ static NORETURN inline void die(const ch
+ static inline void *xrealloc(void *ptr, size_t size)
+ {
+ 	void *ret = realloc(ptr, size);
+-	if (!ret && !size)
+-		ret = realloc(ptr, 1);
+-	if (!ret) {
+-		ret = realloc(ptr, size);
+-		if (!ret && !size)
+-			ret = realloc(ptr, 1);
+-		if (!ret)
+-			die("Out of memory, realloc failed");
+-	}
++	if (!ret)
++		die("Out of memory, realloc failed");
+ 	return ret;
+ }
+ 
 
 
