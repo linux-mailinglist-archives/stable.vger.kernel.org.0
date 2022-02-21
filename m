@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB00C4BE59E
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:00:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A8634BE158
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349572AbiBUJ3M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:29:12 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47556 "EHLO
+        id S232331AbiBUIwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:52:55 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349552AbiBUJ2B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:28:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66ECF23BC8;
-        Mon, 21 Feb 2022 01:12:53 -0800 (PST)
+        with ESMTP id S1345606AbiBUIwj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:52:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DEAEDCF;
+        Mon, 21 Feb 2022 00:52:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F22DC60F03;
-        Mon, 21 Feb 2022 09:12:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0234C340F6;
-        Mon, 21 Feb 2022 09:12:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6A83B80EAC;
+        Mon, 21 Feb 2022 08:52:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9135C340E9;
+        Mon, 21 Feb 2022 08:52:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434772;
-        bh=kV6xglYVzvEJRVFFxgMI+g9s28ikqyFntAQqvUpyTfQ=;
+        s=korg; t=1645433533;
+        bh=5sLu45vTwCyC0fAQEh4BeyyVfv4gE8u5PKzwexJXSbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/WULOFWvVACD42jztr2kj5167CRQZvo/XDxlcRZLrBvau/X59Ba5hzbP3tFYO/72
-         9d6cbpbbV9fPZRamGg4L4D6LLxc/al5Ol5qKgT7kLkQ0CUEzKJnngidb3aXxSUvyMV
-         30z+sE7Z9tAp5I0myvmVFWPc0hcuquPTpK1N+MlE=
+        b=Rm8cV1dnfppoLkR+1+eMQZa78sWSUG+D1z9g000jV8ieFnAedQAhzh5Kn87GqFT+j
+         hnOMMFSqttma8cb+uRZjZW4OhXyhaKd5gQQ3vGidUf4DqgoWbO+hDhwoLgta1eZfV4
+         3eb8dXrsfLQGoeav1q1kqXAi5HarzHzRGTRigLJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 126/196] scsi: ufs: Remove dead code
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 25/33] ASoC: ops: Fix stereo change notifications in snd_soc_put_volsw_range()
 Date:   Mon, 21 Feb 2022 09:49:18 +0100
-Message-Id: <20220221084935.150484212@linuxfoundation.org>
+Message-Id: <20220221084909.583090885@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
+References: <20220221084908.568970525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Mark Brown <broonie@kernel.org>
 
-commit d77ea8226b3be23b0b45aa42851243b62a27bda1 upstream.
+commit 650204ded3703b5817bd4b6a77fa47d333c4f902 upstream.
 
-Commit 7252a3603015 ("scsi: ufs: Avoid busy-waiting by eliminating tag
-conflicts") guarantees that 'tag' is not in use by any SCSI command.
-Remove the check that returns early if a conflict occurs.
+When writing out a stereo control we discard the change notification from
+the first channel, meaning that events are only generated based on changes
+to the second channel. Ensure that we report a change if either channel
+has changed.
 
-Link: https://lore.kernel.org/r/20211203231950.193369-6-bvanassche@acm.org
-Tested-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Acked-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220201155629.120510-4-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshcd.c |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ sound/soc/soc-ops.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -6658,11 +6658,6 @@ static int ufshcd_issue_devman_upiu_cmd(
- 	tag = req->tag;
- 	WARN_ONCE(tag < 0, "Invalid tag %d\n", tag);
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -528,7 +528,7 @@ int snd_soc_put_volsw_range(struct snd_k
+ 	unsigned int mask = (1 << fls(max)) - 1;
+ 	unsigned int invert = mc->invert;
+ 	unsigned int val, val_mask;
+-	int ret;
++	int err, ret;
  
--	if (unlikely(test_bit(tag, &hba->outstanding_reqs))) {
--		err = -EBUSY;
--		goto out;
--	}
--
- 	lrbp = &hba->lrb[tag];
- 	WARN_ON(lrbp->cmd);
- 	lrbp->cmd = NULL;
-@@ -6730,8 +6725,8 @@ static int ufshcd_issue_devman_upiu_cmd(
- 	ufshcd_add_query_upiu_trace(hba, err ? UFS_QUERY_ERR : UFS_QUERY_COMP,
- 				    (struct utp_upiu_req *)lrbp->ucd_rsp_ptr);
+ 	if (invert)
+ 		val = (max - ucontrol->value.integer.value[0]) & mask;
+@@ -537,9 +537,10 @@ int snd_soc_put_volsw_range(struct snd_k
+ 	val_mask = mask << shift;
+ 	val = val << shift;
  
--out:
- 	blk_put_request(req);
-+
- out_unlock:
- 	up_read(&hba->clk_scaling_lock);
- 	return err;
+-	ret = snd_soc_component_update_bits(component, reg, val_mask, val);
+-	if (ret < 0)
+-		return ret;
++	err = snd_soc_component_update_bits(component, reg, val_mask, val);
++	if (err < 0)
++		return err;
++	ret = err;
+ 
+ 	if (snd_soc_volsw_is_stereo(mc)) {
+ 		if (invert)
+@@ -549,8 +550,12 @@ int snd_soc_put_volsw_range(struct snd_k
+ 		val_mask = mask << shift;
+ 		val = val << shift;
+ 
+-		ret = snd_soc_component_update_bits(component, rreg, val_mask,
++		err = snd_soc_component_update_bits(component, rreg, val_mask,
+ 			val);
++		/* Don't discard any error code or drop change flag */
++		if (ret == 0 || err < 0) {
++			ret = err;
++		}
+ 	}
+ 
+ 	return ret;
 
 
