@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89CF34BE026
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE8A64BE0D0
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348716AbiBUJXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:23:13 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35898 "EHLO
+        id S1343944AbiBUJvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:51:31 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350143AbiBUJWJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:22:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61FFD37A20;
-        Mon, 21 Feb 2022 01:09:33 -0800 (PST)
+        with ESMTP id S1352326AbiBUJrV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:21 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E42303135E;
+        Mon, 21 Feb 2022 01:19:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3FEF608C4;
-        Mon, 21 Feb 2022 09:09:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF8B6C340F3;
-        Mon, 21 Feb 2022 09:09:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5D915CE0E93;
+        Mon, 21 Feb 2022 09:19:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E7A9C340E9;
+        Mon, 21 Feb 2022 09:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434572;
-        bh=EWsuIlTcArE+Xps1yV3xF9ljHTxz1hos6F3NJR6l/Mk=;
+        s=korg; t=1645435167;
+        bh=qM+/wEV76oYlWKa8U71NI8CAdC+zm67GraWby1H9ZZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EurIU81w0ZpJua8hl9E1paG8/aEjUN6vdzMwoqeG99R1zFTvzkNSApt/3Aypuzzp8
-         NRzUDEb6dyBuTnhp5vxh5qwPPLuxA3Ftc9ujTHUKWYYxwV/FPp/UHgTFdshDLl9FBB
-         6tHn2DUbje8eJmqakP9zRbR9M+0+MePI1TWq+O24=
+        b=CAMDKlzFr3oVOTFx7x/nIDNRuw8EkjVAEPimu3+mYTdzcOy74ipDdTbZxvg3mRpov
+         9VUgx9YBmFIkqSTIx4iSM+666ezoaUdTfE+KXLzqoy9qR3LaElhKuRFkwtmOEFsbHM
+         1mIZR4INwS7jm72rXE25roxWBRN/M8HZ57qG32Ho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 055/196] KVM: x86/xen: Fix runstate updates to be atomic when preempting vCPU
+        stable@vger.kernel.org, Igor Pylypiv <ipylypiv@google.com>,
+        Changyuan Lyu <changyuanl@google.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Tejun Heo <tj@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 068/227] Revert "module, async: async_synchronize_full() on module init iff async is used"
 Date:   Mon, 21 Feb 2022 09:48:07 +0100
-Message-Id: <20220221084932.775744299@linuxfoundation.org>
+Message-Id: <20220221084937.134185364@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,211 +57,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Woodhouse <dwmw@amazon.co.uk>
+From: Igor Pylypiv <ipylypiv@google.com>
 
-commit fcb732d8f8cf6084f8480015ad41d25fb023a4dd upstream.
+[ Upstream commit 67d6212afda218d564890d1674bab28e8612170f ]
 
-There are circumstances whem kvm_xen_update_runstate_guest() should not
-sleep because it ends up being called from __schedule() when the vCPU
-is preempted:
+This reverts commit 774a1221e862b343388347bac9b318767336b20b.
 
-[  222.830825]  kvm_xen_update_runstate_guest+0x24/0x100
-[  222.830878]  kvm_arch_vcpu_put+0x14c/0x200
-[  222.830920]  kvm_sched_out+0x30/0x40
-[  222.830960]  __schedule+0x55c/0x9f0
+We need to finish all async code before the module init sequence is
+done.  In the reverted commit the PF_USED_ASYNC flag was added to mark a
+thread that called async_schedule().  Then the PF_USED_ASYNC flag was
+used to determine whether or not async_synchronize_full() needs to be
+invoked.  This works when modprobe thread is calling async_schedule(),
+but it does not work if module dispatches init code to a worker thread
+which then calls async_schedule().
 
-To handle this, make it use the same trick as __kvm_xen_has_interrupt(),
-of using the hva from the gfn_to_hva_cache directly. Then it can use
-pagefault_disable() around the accesses and just bail out if the page
-is absent (which is unlikely).
+For example, PCI driver probing is invoked from a worker thread based on
+a node where device is attached:
 
-I almost switched to using a gfn_to_pfn_cache here and bailing out if
-kvm_map_gfn() fails, like kvm_steal_time_set_preempted() does — but on
-closer inspection it looks like kvm_map_gfn() will *always* fail in
-atomic context for a page in IOMEM, which means it will silently fail
-to make the update every single time for such guests, AFAICT. So I
-didn't do it that way after all. And will probably fix that one too.
+	if (cpu < nr_cpu_ids)
+		error = work_on_cpu(cpu, local_pci_probe, &ddi);
+	else
+		error = local_pci_probe(&ddi);
 
-Cc: stable@vger.kernel.org
-Fixes: 30b5c851af79 ("KVM: x86/xen: Add support for vCPU runstate information")
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-Message-Id: <b17a93e5ff4561e57b1238e3e7ccd0b613eb827e.camel@infradead.org>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We end up in a situation where a worker thread gets the PF_USED_ASYNC
+flag set instead of the modprobe thread.  As a result,
+async_synchronize_full() is not invoked and modprobe completes without
+waiting for the async code to finish.
+
+The issue was discovered while loading the pm80xx driver:
+(scsi_mod.scan=async)
+
+modprobe pm80xx                      worker
+...
+  do_init_module()
+  ...
+    pci_call_probe()
+      work_on_cpu(local_pci_probe)
+                                     local_pci_probe()
+                                       pm8001_pci_probe()
+                                         scsi_scan_host()
+                                           async_schedule()
+                                           worker->flags |= PF_USED_ASYNC;
+                                     ...
+      < return from worker >
+  ...
+  if (current->flags & PF_USED_ASYNC) <--- false
+  	async_synchronize_full();
+
+Commit 21c3c5d28007 ("block: don't request module during elevator init")
+fixed the deadlock issue which the reverted commit 774a1221e862
+("module, async: async_synchronize_full() on module init iff async is
+used") tried to fix.
+
+Since commit 0fdff3ec6d87 ("async, kmod: warn on synchronous
+request_module() from async workers") synchronous module loading from
+async is not allowed.
+
+Given that the original deadlock issue is fixed and it is no longer
+allowed to call synchronous request_module() from async we can remove
+PF_USED_ASYNC flag to make module init consistently invoke
+async_synchronize_full() unless async module probe is requested.
+
+Signed-off-by: Igor Pylypiv <ipylypiv@google.com>
+Reviewed-by: Changyuan Lyu <changyuanl@google.com>
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/xen.c |   97 ++++++++++++++++++++++++++++++++++++-----------------
- 1 file changed, 67 insertions(+), 30 deletions(-)
+ include/linux/sched.h |  1 -
+ kernel/async.c        |  3 ---
+ kernel/module.c       | 25 +++++--------------------
+ 3 files changed, 5 insertions(+), 24 deletions(-)
 
---- a/arch/x86/kvm/xen.c
-+++ b/arch/x86/kvm/xen.c
-@@ -93,32 +93,57 @@ static void kvm_xen_update_runstate(stru
- void kvm_xen_update_runstate_guest(struct kvm_vcpu *v, int state)
- {
- 	struct kvm_vcpu_xen *vx = &v->arch.xen;
-+	struct gfn_to_hva_cache *ghc = &vx->runstate_cache;
-+	struct kvm_memslots *slots = kvm_memslots(v->kvm);
-+	bool atomic = (state == RUNSTATE_runnable);
- 	uint64_t state_entry_time;
--	unsigned int offset;
-+	int __user *user_state;
-+	uint64_t __user *user_times;
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 78c351e35fec6..ee5ed88219631 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1672,7 +1672,6 @@ extern struct pid *cad_pid;
+ #define PF_MEMALLOC		0x00000800	/* Allocating memory */
+ #define PF_NPROC_EXCEEDED	0x00001000	/* set_user() noticed that RLIMIT_NPROC was exceeded */
+ #define PF_USED_MATH		0x00002000	/* If unset the fpu must be initialized before use */
+-#define PF_USED_ASYNC		0x00004000	/* Used async_schedule*(), used by module init */
+ #define PF_NOFREEZE		0x00008000	/* This thread should not be frozen */
+ #define PF_FROZEN		0x00010000	/* Frozen for system suspend */
+ #define PF_KSWAPD		0x00020000	/* I am kswapd */
+diff --git a/kernel/async.c b/kernel/async.c
+index b8d7a663497f9..b2c4ba5686ee4 100644
+--- a/kernel/async.c
++++ b/kernel/async.c
+@@ -205,9 +205,6 @@ async_cookie_t async_schedule_node_domain(async_func_t func, void *data,
+ 	atomic_inc(&entry_count);
+ 	spin_unlock_irqrestore(&async_lock, flags);
  
- 	kvm_xen_update_runstate(v, state);
- 
- 	if (!vx->runstate_set)
- 		return;
- 
--	BUILD_BUG_ON(sizeof(struct compat_vcpu_runstate_info) != 0x2c);
-+	if (unlikely(slots->generation != ghc->generation || kvm_is_error_hva(ghc->hva)) &&
-+	    kvm_gfn_to_hva_cache_init(v->kvm, ghc, ghc->gpa, ghc->len))
-+		return;
-+
-+	/* We made sure it fits in a single page */
-+	BUG_ON(!ghc->memslot);
-+
-+	if (atomic)
-+		pagefault_disable();
- 
--	offset = offsetof(struct compat_vcpu_runstate_info, state_entry_time);
--#ifdef CONFIG_X86_64
- 	/*
--	 * The only difference is alignment of uint64_t in 32-bit.
--	 * So the first field 'state' is accessed directly using
--	 * offsetof() (where its offset happens to be zero), while the
--	 * remaining fields which are all uint64_t, start at 'offset'
--	 * which we tweak here by adding 4.
-+	 * The only difference between 32-bit and 64-bit versions of the
-+	 * runstate struct us the alignment of uint64_t in 32-bit, which
-+	 * means that the 64-bit version has an additional 4 bytes of
-+	 * padding after the first field 'state'.
-+	 *
-+	 * So we use 'int __user *user_state' to point to the state field,
-+	 * and 'uint64_t __user *user_times' for runstate_entry_time. So
-+	 * the actual array of time[] in each state starts at user_times[1].
- 	 */
-+	BUILD_BUG_ON(offsetof(struct vcpu_runstate_info, state) != 0);
-+	BUILD_BUG_ON(offsetof(struct compat_vcpu_runstate_info, state) != 0);
-+	user_state = (int __user *)ghc->hva;
-+
-+	BUILD_BUG_ON(sizeof(struct compat_vcpu_runstate_info) != 0x2c);
-+
-+	user_times = (uint64_t __user *)(ghc->hva +
-+					 offsetof(struct compat_vcpu_runstate_info,
-+						  state_entry_time));
-+#ifdef CONFIG_X86_64
- 	BUILD_BUG_ON(offsetof(struct vcpu_runstate_info, state_entry_time) !=
- 		     offsetof(struct compat_vcpu_runstate_info, state_entry_time) + 4);
- 	BUILD_BUG_ON(offsetof(struct vcpu_runstate_info, time) !=
- 		     offsetof(struct compat_vcpu_runstate_info, time) + 4);
- 
- 	if (v->kvm->arch.xen.long_mode)
--		offset = offsetof(struct vcpu_runstate_info, state_entry_time);
-+		user_times = (uint64_t __user *)(ghc->hva +
-+						 offsetof(struct vcpu_runstate_info,
-+							  state_entry_time));
- #endif
- 	/*
- 	 * First write the updated state_entry_time at the appropriate
-@@ -132,10 +157,8 @@ void kvm_xen_update_runstate_guest(struc
- 	BUILD_BUG_ON(sizeof(((struct compat_vcpu_runstate_info *)0)->state_entry_time) !=
- 		     sizeof(state_entry_time));
- 
--	if (kvm_write_guest_offset_cached(v->kvm, &v->arch.xen.runstate_cache,
--					  &state_entry_time, offset,
--					  sizeof(state_entry_time)))
--		return;
-+	if (__put_user(state_entry_time, user_times))
-+		goto out;
- 	smp_wmb();
- 
- 	/*
-@@ -149,11 +172,8 @@ void kvm_xen_update_runstate_guest(struc
- 	BUILD_BUG_ON(sizeof(((struct compat_vcpu_runstate_info *)0)->state) !=
- 		     sizeof(vx->current_runstate));
- 
--	if (kvm_write_guest_offset_cached(v->kvm, &v->arch.xen.runstate_cache,
--					  &vx->current_runstate,
--					  offsetof(struct vcpu_runstate_info, state),
--					  sizeof(vx->current_runstate)))
--		return;
-+	if (__put_user(vx->current_runstate, user_state))
-+		goto out;
- 
- 	/*
- 	 * Write the actual runstate times immediately after the
-@@ -168,24 +188,23 @@ void kvm_xen_update_runstate_guest(struc
- 	BUILD_BUG_ON(sizeof(((struct vcpu_runstate_info *)0)->time) !=
- 		     sizeof(vx->runstate_times));
- 
--	if (kvm_write_guest_offset_cached(v->kvm, &v->arch.xen.runstate_cache,
--					  &vx->runstate_times[0],
--					  offset + sizeof(u64),
--					  sizeof(vx->runstate_times)))
--		return;
+-	/* mark that this task has queued an async job, used by module init */
+-	current->flags |= PF_USED_ASYNC;
 -
-+	if (__copy_to_user(user_times + 1, vx->runstate_times, sizeof(vx->runstate_times)))
-+		goto out;
- 	smp_wmb();
+ 	/* schedule for execution */
+ 	queue_work_node(node, system_unbound_wq, &entry->work);
+ 
+diff --git a/kernel/module.c b/kernel/module.c
+index 84a9141a5e159..f25e7653aa150 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3722,12 +3722,6 @@ static noinline int do_init_module(struct module *mod)
+ 	}
+ 	freeinit->module_init = mod->init_layout.base;
+ 
+-	/*
+-	 * We want to find out whether @mod uses async during init.  Clear
+-	 * PF_USED_ASYNC.  async_schedule*() will set it.
+-	 */
+-	current->flags &= ~PF_USED_ASYNC;
+-
+ 	do_mod_ctors(mod);
+ 	/* Start the module */
+ 	if (mod->init != NULL)
+@@ -3753,22 +3747,13 @@ static noinline int do_init_module(struct module *mod)
  
  	/*
- 	 * Finally, clear the XEN_RUNSTATE_UPDATE bit in the guest's
- 	 * runstate_entry_time field.
+ 	 * We need to finish all async code before the module init sequence
+-	 * is done.  This has potential to deadlock.  For example, a newly
+-	 * detected block device can trigger request_module() of the
+-	 * default iosched from async probing task.  Once userland helper
+-	 * reaches here, async_synchronize_full() will wait on the async
+-	 * task waiting on request_module() and deadlock.
+-	 *
+-	 * This deadlock is avoided by perfomring async_synchronize_full()
+-	 * iff module init queued any async jobs.  This isn't a full
+-	 * solution as it will deadlock the same if module loading from
+-	 * async jobs nests more than once; however, due to the various
+-	 * constraints, this hack seems to be the best option for now.
+-	 * Please refer to the following thread for details.
++	 * is done. This has potential to deadlock if synchronous module
++	 * loading is requested from async (which is not allowed!).
+ 	 *
+-	 * http://thread.gmane.org/gmane.linux.kernel/1420814
++	 * See commit 0fdff3ec6d87 ("async, kmod: warn on synchronous
++	 * request_module() from async workers") for more details.
  	 */
--
- 	state_entry_time &= ~XEN_RUNSTATE_UPDATE;
--	if (kvm_write_guest_offset_cached(v->kvm, &v->arch.xen.runstate_cache,
--					  &state_entry_time, offset,
--					  sizeof(state_entry_time)))
--		return;
-+	__put_user(state_entry_time, user_times);
-+	smp_wmb();
-+
-+ out:
-+	mark_page_dirty_in_slot(v->kvm, ghc->memslot, ghc->gpa >> PAGE_SHIFT);
-+
-+	if (atomic)
-+		pagefault_enable();
- }
+-	if (!mod->async_probe_requested && (current->flags & PF_USED_ASYNC))
++	if (!mod->async_probe_requested)
+ 		async_synchronize_full();
  
- int __kvm_xen_has_interrupt(struct kvm_vcpu *v)
-@@ -337,6 +356,12 @@ int kvm_xen_vcpu_set_attr(struct kvm_vcp
- 			break;
- 		}
- 
-+		/* It must fit within a single page */
-+		if ((data->u.gpa & ~PAGE_MASK) + sizeof(struct vcpu_info) > PAGE_SIZE) {
-+			r = -EINVAL;
-+			break;
-+		}
-+
- 		r = kvm_gfn_to_hva_cache_init(vcpu->kvm,
- 					      &vcpu->arch.xen.vcpu_info_cache,
- 					      data->u.gpa,
-@@ -354,6 +379,12 @@ int kvm_xen_vcpu_set_attr(struct kvm_vcp
- 			break;
- 		}
- 
-+		/* It must fit within a single page */
-+		if ((data->u.gpa & ~PAGE_MASK) + sizeof(struct pvclock_vcpu_time_info) > PAGE_SIZE) {
-+			r = -EINVAL;
-+			break;
-+		}
-+
- 		r = kvm_gfn_to_hva_cache_init(vcpu->kvm,
- 					      &vcpu->arch.xen.vcpu_time_info_cache,
- 					      data->u.gpa,
-@@ -375,6 +406,12 @@ int kvm_xen_vcpu_set_attr(struct kvm_vcp
- 			break;
- 		}
- 
-+		/* It must fit within a single page */
-+		if ((data->u.gpa & ~PAGE_MASK) + sizeof(struct vcpu_runstate_info) > PAGE_SIZE) {
-+			r = -EINVAL;
-+			break;
-+		}
-+
- 		r = kvm_gfn_to_hva_cache_init(vcpu->kvm,
- 					      &vcpu->arch.xen.runstate_cache,
- 					      data->u.gpa,
+ 	ftrace_free_mem(mod, mod->init_layout.base, mod->init_layout.base +
+-- 
+2.34.1
+
 
 
