@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3C3E4BE7B3
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F2D54BDF9D
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:50:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245443AbiBUJIp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:08:45 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36064 "EHLO
+        id S242750AbiBUJiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:38:25 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347714AbiBUJIb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:08:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBD1431DFA;
-        Mon, 21 Feb 2022 01:00:18 -0800 (PST)
+        with ESMTP id S1351508AbiBUJhV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:37:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABDE839BBF;
+        Mon, 21 Feb 2022 01:15:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C39EB80EB5;
-        Mon, 21 Feb 2022 09:00:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51996C340E9;
-        Mon, 21 Feb 2022 09:00:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 82ECD60E9E;
+        Mon, 21 Feb 2022 09:15:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60587C340E9;
+        Mon, 21 Feb 2022 09:15:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434015;
-        bh=1FVaijZuEp9ARdDV2v2gKUqVrRqWPh6b7zi2U1QN6ko=;
+        s=korg; t=1645434942;
+        bh=4evH3cNV/TecPqqgb9DUIrLL/d4lvxxzjc2yTb+ALNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IkkF8WMIEYhrJYA2xPlyvq47mTCZeoIkPxjqGtLu5ZbT79K4TlvUC6Qy3mM8JkgKm
-         Vv5QICU6ylXSWxY4/eaPQaEK/MRET4K4gbbUALYfLavi3zkJUqOSNp0ZecHW4v7nB1
-         0hTT0k857/pRIk5ZbBvlcgBddCi0927TjDZhzXJE=
+        b=McYerJ6G42LUTGMmViv9ZrJQYP1fz3RBR5jNm6sZOFQ9UyfPXvIh9y3wGXWG+IyIm
+         RtMaUJ/REsUgmwmzTEFkNplulRwBQXDxwrYZUsNN75MldnbhCytrn9nrCtjUrkN/CL
+         RX8E0/o4rslZAKpk4hj6Rnbhph7TihTT1UrbUecE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.4 64/80] i2c: brcmstb: fix support for DSL and CM variants
-Date:   Mon, 21 Feb 2022 09:49:44 +0100
-Message-Id: <20220221084917.684012990@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 153/196] x86/bug: Merge annotate_reachable() into _BUG_FLAGS() asm
+Date:   Mon, 21 Feb 2022 09:49:45 +0100
+Message-Id: <20220221084936.052842979@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,33 +54,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 834cea3a252ed4847db076a769ad9efe06afe2d5 upstream.
+[ Upstream commit bfb1a7c91fb7758273b4a8d735313d9cc388b502 ]
 
-DSL and CM (Cable Modem) support 8 B max transfer size and have a custom
-DT binding for that reason. This driver was checking for a wrong
-"compatible" however which resulted in an incorrect setup.
+In __WARN_FLAGS(), we had two asm statements (abbreviated):
 
-Fixes: e2e5a2c61837 ("i2c: brcmstb: Adding support for CM and DSL SoCs")
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  asm volatile("ud2");
+  asm volatile(".pushsection .discard.reachable");
+
+These pair of statements are used to trigger an exception, but then help
+objtool understand that for warnings, control flow will be restored
+immediately afterwards.
+
+The problem is that volatile is not a compiler barrier. GCC explicitly
+documents this:
+
+> Note that the compiler can move even volatile asm instructions
+> relative to other code, including across jump instructions.
+
+Also, no clobbers are specified to prevent instructions from subsequent
+statements from being scheduled by compiler before the second asm
+statement. This can lead to instructions from subsequent statements
+being emitted by the compiler before the second asm statement.
+
+Providing a scheduling model such as via -march= options enables the
+compiler to better schedule instructions with known latencies to hide
+latencies from data hazards compared to inline asm statements in which
+latencies are not estimated.
+
+If an instruction gets scheduled by the compiler between the two asm
+statements, then objtool will think that it is not reachable, producing
+a warning.
+
+To prevent instructions from being scheduled in between the two asm
+statements, merge them.
+
+Also remove an unnecessary unreachable() asm annotation from BUG() in
+favor of __builtin_unreachable(). objtool is able to track that the ud2
+from BUG() terminates control flow within the function.
+
+Link: https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#Volatile
+Link: https://github.com/ClangBuiltLinux/linux/issues/1483
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lore.kernel.org/r/20220202205557.2260694-1-ndesaulniers@google.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-brcmstb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/bug.h | 20 +++++++++++---------
+ include/linux/compiler.h   | 21 +++++----------------
+ 2 files changed, 16 insertions(+), 25 deletions(-)
 
---- a/drivers/i2c/busses/i2c-brcmstb.c
-+++ b/drivers/i2c/busses/i2c-brcmstb.c
-@@ -640,7 +640,7 @@ static int brcmstb_i2c_probe(struct plat
+diff --git a/arch/x86/include/asm/bug.h b/arch/x86/include/asm/bug.h
+index 84b87538a15de..bab883c0b6fee 100644
+--- a/arch/x86/include/asm/bug.h
++++ b/arch/x86/include/asm/bug.h
+@@ -22,7 +22,7 @@
  
- 	/* set the data in/out register size for compatible SoCs */
- 	if (of_device_is_compatible(dev->device->of_node,
--				    "brcmstb,brcmper-i2c"))
-+				    "brcm,brcmper-i2c"))
- 		dev->data_regsz = sizeof(u8);
- 	else
- 		dev->data_regsz = sizeof(u32);
+ #ifdef CONFIG_DEBUG_BUGVERBOSE
+ 
+-#define _BUG_FLAGS(ins, flags)						\
++#define _BUG_FLAGS(ins, flags, extra)					\
+ do {									\
+ 	asm_inline volatile("1:\t" ins "\n"				\
+ 		     ".pushsection __bug_table,\"aw\"\n"		\
+@@ -31,7 +31,8 @@ do {									\
+ 		     "\t.word %c1"        "\t# bug_entry::line\n"	\
+ 		     "\t.word %c2"        "\t# bug_entry::flags\n"	\
+ 		     "\t.org 2b+%c3\n"					\
+-		     ".popsection"					\
++		     ".popsection\n"					\
++		     extra						\
+ 		     : : "i" (__FILE__), "i" (__LINE__),		\
+ 			 "i" (flags),					\
+ 			 "i" (sizeof(struct bug_entry)));		\
+@@ -39,14 +40,15 @@ do {									\
+ 
+ #else /* !CONFIG_DEBUG_BUGVERBOSE */
+ 
+-#define _BUG_FLAGS(ins, flags)						\
++#define _BUG_FLAGS(ins, flags, extra)					\
+ do {									\
+ 	asm_inline volatile("1:\t" ins "\n"				\
+ 		     ".pushsection __bug_table,\"aw\"\n"		\
+ 		     "2:\t" __BUG_REL(1b) "\t# bug_entry::bug_addr\n"	\
+ 		     "\t.word %c0"        "\t# bug_entry::flags\n"	\
+ 		     "\t.org 2b+%c1\n"					\
+-		     ".popsection"					\
++		     ".popsection\n"					\
++		     extra						\
+ 		     : : "i" (flags),					\
+ 			 "i" (sizeof(struct bug_entry)));		\
+ } while (0)
+@@ -55,7 +57,7 @@ do {									\
+ 
+ #else
+ 
+-#define _BUG_FLAGS(ins, flags)  asm volatile(ins)
++#define _BUG_FLAGS(ins, flags, extra)  asm volatile(ins)
+ 
+ #endif /* CONFIG_GENERIC_BUG */
+ 
+@@ -63,8 +65,8 @@ do {									\
+ #define BUG()							\
+ do {								\
+ 	instrumentation_begin();				\
+-	_BUG_FLAGS(ASM_UD2, 0);					\
+-	unreachable();						\
++	_BUG_FLAGS(ASM_UD2, 0, "");				\
++	__builtin_unreachable();				\
+ } while (0)
+ 
+ /*
+@@ -75,9 +77,9 @@ do {								\
+  */
+ #define __WARN_FLAGS(flags)					\
+ do {								\
++	__auto_type f = BUGFLAG_WARNING|(flags);		\
+ 	instrumentation_begin();				\
+-	_BUG_FLAGS(ASM_UD2, BUGFLAG_WARNING|(flags));		\
+-	annotate_reachable();					\
++	_BUG_FLAGS(ASM_UD2, f, ASM_REACHABLE);			\
+ 	instrumentation_end();					\
+ } while (0)
+ 
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 429dcebe2b992..0f7fd205ab7ea 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -117,14 +117,6 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+  */
+ #define __stringify_label(n) #n
+ 
+-#define __annotate_reachable(c) ({					\
+-	asm volatile(__stringify_label(c) ":\n\t"			\
+-		     ".pushsection .discard.reachable\n\t"		\
+-		     ".long " __stringify_label(c) "b - .\n\t"		\
+-		     ".popsection\n\t" : : "i" (c));			\
+-})
+-#define annotate_reachable() __annotate_reachable(__COUNTER__)
+-
+ #define __annotate_unreachable(c) ({					\
+ 	asm volatile(__stringify_label(c) ":\n\t"			\
+ 		     ".pushsection .discard.unreachable\n\t"		\
+@@ -133,24 +125,21 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+ })
+ #define annotate_unreachable() __annotate_unreachable(__COUNTER__)
+ 
+-#define ASM_UNREACHABLE							\
+-	"999:\n\t"							\
+-	".pushsection .discard.unreachable\n\t"				\
+-	".long 999b - .\n\t"						\
++#define ASM_REACHABLE							\
++	"998:\n\t"							\
++	".pushsection .discard.reachable\n\t"				\
++	".long 998b - .\n\t"						\
+ 	".popsection\n\t"
+ 
+ /* Annotate a C jump table to allow objtool to follow the code flow */
+ #define __annotate_jump_table __section(".rodata..c_jump_table")
+ 
+ #else
+-#define annotate_reachable()
+ #define annotate_unreachable()
++# define ASM_REACHABLE
+ #define __annotate_jump_table
+ #endif
+ 
+-#ifndef ASM_UNREACHABLE
+-# define ASM_UNREACHABLE
+-#endif
+ #ifndef unreachable
+ # define unreachable() do {		\
+ 	annotate_unreachable();		\
+-- 
+2.34.1
+
 
 
