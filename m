@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A96C4BE624
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 091D44BE610
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349704AbiBUJa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:30:27 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33034 "EHLO
+        id S1348169AbiBUJOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:14:23 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349779AbiBUJ3O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:29:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAA3F24F23;
-        Mon, 21 Feb 2022 01:13:04 -0800 (PST)
+        with ESMTP id S1348928AbiBUJLv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:51 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B664D28E0A;
+        Mon, 21 Feb 2022 01:04:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3401160EF0;
-        Mon, 21 Feb 2022 09:13:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E7F8C354B9;
-        Mon, 21 Feb 2022 09:13:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 35E1DCE0E95;
+        Mon, 21 Feb 2022 09:04:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16455C340E9;
+        Mon, 21 Feb 2022 09:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434783;
-        bh=w+UicoM5DkkuhGVLBhKd8GylSa81D5HTmjneWjIRTwc=;
+        s=korg; t=1645434265;
+        bh=fL4/Dra4cE3mCT/ue01DU22/SzyOjDpE0T3ldSIbAG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8BqM33xE60TbtFugAkVaONMTlBv+J2eixnFPW4iojOcQB55oo8lNE+WgvT2147O9
-         z1Pdlim7DACKEXw1UtQKJmtJcvaAudkvEJgMY3RnEPB2igOThdZJkHa/LeYqKgzacy
-         Odd0TF2l6ERhdwROHt+zqMBiWi9p313uLLrhf/KY=
+        b=BQqLrtZOqC3QEtVOLJgfZxDZPy6vOFdYyEtT3ZFc7cz1VLmXXLv6rwrWaGW6F4dzC
+         9H3zN9LlKpUPexlTDdlXaE/7tgdAc/SbubZlwlonwEPi32LNapCDPT4RpLdTP3KBAf
+         2o4g78lqUIY1Q3GZfOIAMF49xyTb+OSZzDU/pKZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@rehdat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Laibin Qiu <qiulaibin@huawei.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 130/196] block/wbt: fix negative inflight counter when remove scsi device
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Julian Wollrath <jwollrath@web.de>
+Subject: [PATCH 5.10 070/121] ALSA: hda/realtek: Fix deadlock by COEF mutex
 Date:   Mon, 21 Feb 2022 09:49:22 +0100
-Message-Id: <20220221084935.280505852@linuxfoundation.org>
+Message-Id: <20220221084923.569773210@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +53,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laibin Qiu <qiulaibin@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit e92bc4cd34de2ce454bdea8cd198b8067ee4e123 upstream.
+commit 2a845837e3d0ddaed493b4c5c4643d7f0542804d upstream.
 
-Now that we disable wbt by set WBT_STATE_OFF_DEFAULT in
-wbt_disable_default() when switch elevator to bfq. And when
-we remove scsi device, wbt will be enabled by wbt_enable_default.
-If it become false positive between wbt_wait() and wbt_track()
-when submit write request.
+The recently introduced coef_mutex for Realtek codec seems causing a
+deadlock when the relevant code is invoked from the power-off state;
+then the HD-audio core tries to power-up internally, and this kicks
+off the codec runtime PM code that tries to take the same coef_mutex.
 
-The following is the scenario that triggered the problem.
+In order to avoid the deadlock, do the temporary power up/down around
+the coef_mutex acquisition and release.  This assures that the
+power-up sequence runs before the mutex, hence no re-entrance will
+happen.
 
-T1                          T2                           T3
-                            elevator_switch_mq
-                            bfq_init_queue
-                            wbt_disable_default <= Set
-                            rwb->enable_state (OFF)
-Submit_bio
-blk_mq_make_request
-rq_qos_throttle
-<= rwb->enable_state (OFF)
-                                                         scsi_remove_device
-                                                         sd_remove
-                                                         del_gendisk
-                                                         blk_unregister_queue
-                                                         elv_unregister_queue
-                                                         wbt_enable_default
-                                                         <= Set rwb->enable_state (ON)
-q_qos_track
-<= rwb->enable_state (ON)
-^^^^^^ this request will mark WBT_TRACKED without inflight add and will
-lead to drop rqw->inflight to -1 in wbt_done() which will trigger IO hung.
-
-Fix this by move wbt_enable_default() from elv_unregister to
-bfq_exit_queue(). Only re-enable wbt when bfq exit.
-
-Fixes: 76a8040817b4b ("blk-wbt: make sure throttle is enabled properly")
-
-Remove oneline stale comment, and kill one oneshot local variable.
-
-Signed-off-by: Ming Lei <ming.lei@rehdat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/linux-block/20211214133103.551813-1-qiulaibin@huawei.com/
-Signed-off-by: Laibin Qiu <qiulaibin@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: b837a9f5ab3b ("ALSA: hda: realtek: Fix race at concurrent COEF updates")
+Reported-and-tested-by: Julian Wollrath <jwollrath@web.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220214132838.4db10fca@schienar
+Link: https://lore.kernel.org/r/20220214130410.21230-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-iosched.c |    2 ++
- block/elevator.c    |    2 --
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |   39 ++++++++++++++++++++++++---------------
+ 1 file changed, 24 insertions(+), 15 deletions(-)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -6878,6 +6878,8 @@ static void bfq_exit_queue(struct elevat
- 	spin_unlock_irq(&bfqd->lock);
- #endif
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -134,6 +134,22 @@ struct alc_spec {
+  * COEF access helper functions
+  */
  
-+	wbt_enable_default(bfqd->queue);
++static void coef_mutex_lock(struct hda_codec *codec)
++{
++	struct alc_spec *spec = codec->spec;
 +
- 	kfree(bfqd);
++	snd_hda_power_up_pm(codec);
++	mutex_lock(&spec->coef_mutex);
++}
++
++static void coef_mutex_unlock(struct hda_codec *codec)
++{
++	struct alc_spec *spec = codec->spec;
++
++	mutex_unlock(&spec->coef_mutex);
++	snd_hda_power_down_pm(codec);
++}
++
+ static int __alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+ 				 unsigned int coef_idx)
+ {
+@@ -147,12 +163,11 @@ static int __alc_read_coefex_idx(struct
+ static int alc_read_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+ 			       unsigned int coef_idx)
+ {
+-	struct alc_spec *spec = codec->spec;
+ 	unsigned int val;
+ 
+-	mutex_lock(&spec->coef_mutex);
++	coef_mutex_lock(codec);
+ 	val = __alc_read_coefex_idx(codec, nid, coef_idx);
+-	mutex_unlock(&spec->coef_mutex);
++	coef_mutex_unlock(codec);
+ 	return val;
  }
  
---- a/block/elevator.c
-+++ b/block/elevator.c
-@@ -523,8 +523,6 @@ void elv_unregister_queue(struct request
- 		kobject_del(&e->kobj);
+@@ -169,11 +184,9 @@ static void __alc_write_coefex_idx(struc
+ static void alc_write_coefex_idx(struct hda_codec *codec, hda_nid_t nid,
+ 				 unsigned int coef_idx, unsigned int coef_val)
+ {
+-	struct alc_spec *spec = codec->spec;
+-
+-	mutex_lock(&spec->coef_mutex);
++	coef_mutex_lock(codec);
+ 	__alc_write_coefex_idx(codec, nid, coef_idx, coef_val);
+-	mutex_unlock(&spec->coef_mutex);
++	coef_mutex_unlock(codec);
+ }
  
- 		e->registered = 0;
--		/* Re-enable throttling in case elevator disabled it */
--		wbt_enable_default(q);
+ #define alc_write_coef_idx(codec, coef_idx, coef_val) \
+@@ -194,11 +207,9 @@ static void alc_update_coefex_idx(struct
+ 				  unsigned int coef_idx, unsigned int mask,
+ 				  unsigned int bits_set)
+ {
+-	struct alc_spec *spec = codec->spec;
+-
+-	mutex_lock(&spec->coef_mutex);
++	coef_mutex_lock(codec);
+ 	__alc_update_coefex_idx(codec, nid, coef_idx, mask, bits_set);
+-	mutex_unlock(&spec->coef_mutex);
++	coef_mutex_unlock(codec);
+ }
+ 
+ #define alc_update_coef_idx(codec, coef_idx, mask, bits_set)	\
+@@ -231,9 +242,7 @@ struct coef_fw {
+ static void alc_process_coef_fw(struct hda_codec *codec,
+ 				const struct coef_fw *fw)
+ {
+-	struct alc_spec *spec = codec->spec;
+-
+-	mutex_lock(&spec->coef_mutex);
++	coef_mutex_lock(codec);
+ 	for (; fw->nid; fw++) {
+ 		if (fw->mask == (unsigned short)-1)
+ 			__alc_write_coefex_idx(codec, fw->nid, fw->idx, fw->val);
+@@ -241,7 +250,7 @@ static void alc_process_coef_fw(struct h
+ 			__alc_update_coefex_idx(codec, fw->nid, fw->idx,
+ 						fw->mask, fw->val);
  	}
+-	mutex_unlock(&spec->coef_mutex);
++	coef_mutex_unlock(codec);
  }
  
+ /*
 
 
