@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 236364BE0C4
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 536E44BE07B
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234232AbiBUJQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:16:41 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33978 "EHLO
+        id S1346750AbiBUJAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:00:18 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348960AbiBUJLx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:11:53 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B0F728E34;
-        Mon, 21 Feb 2022 01:04:34 -0800 (PST)
+        with ESMTP id S1346949AbiBUI7r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:59:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D93FA26564;
+        Mon, 21 Feb 2022 00:55:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CFA79CE0E6D;
-        Mon, 21 Feb 2022 09:04:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0D8AC340E9;
-        Mon, 21 Feb 2022 09:04:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E653B80EB0;
+        Mon, 21 Feb 2022 08:54:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94CA8C340E9;
+        Mon, 21 Feb 2022 08:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434271;
-        bh=RRfSyv+dLlbGm8dGqXa5dvVAjmTgLYJQOqcUhD4tvfc=;
+        s=korg; t=1645433675;
+        bh=2q4UXnd3Xm4j8S6LXhTHHIr/l1gojctX/Mcti5T1R18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SkMUMyLN0eWEZu15/L41QQ3aorwqvd1oum+IbEe5LKsYlflNxdOlqtuuAfF+WlniL
-         BmdlRrHiV77p4Cz0T2gc8MvcMoOQzaqHH9bnX3R0zHBPZLZc4JQRjtuTqgBq9+/1dG
-         TlvH74ng4/H1ePnpr5/Xqt4x3v7pIJe96lJIgYZ0=
+        b=mfC59+tWq+6MwLs1KbR8TFRyjyggGe1oCXswzr0x2subU1Sot2Esj8E7fYi5V3k7S
+         uNR8wcWgkj/VkMef+SiMbNi9cbh0GGJv2eUophY4JZn50+cKIlOsC/Dg9WVH4087P8
+         g0hqucPS0HAVzVj3la7g+tHgLsG2VMWIsy/feidk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, dmummenschanz@web.de,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 072/121] ALSA: hda: Fix missing codec probe on Shenker Dock 15
+        stable@vger.kernel.org, Eliav Farber <farbere@amazon.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 4.14 33/45] EDAC: Fix calculation of returned address and next offset in edac_align_ptr()
 Date:   Mon, 21 Feb 2022 09:49:24 +0100
-Message-Id: <20220221084923.640906279@linuxfoundation.org>
+Message-Id: <20220221084911.517804904@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
+References: <20220221084910.454824160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Eliav Farber <farbere@amazon.com>
 
-commit dd8e5b161d7fb9cefa1f1d6e35a39b9e1563c8d3 upstream.
+commit f8efca92ae509c25e0a4bd5d0a86decea4f0c41e upstream.
 
-By some unknown reason, BIOS on Shenker Dock 15 doesn't set up the
-codec mask properly for the onboard audio.  Let's set the forced codec
-mask to enable the codec discovery.
+Do alignment logic properly and use the "ptr" local variable for
+calculating the remainder of the alignment.
 
-Reported-by: dmummenschanz@web.de
+This became an issue because struct edac_mc_layer has a size that is not
+zero modulo eight, and the next offset that was prepared for the private
+data was unaligned, causing an alignment exception.
+
+The patch in Fixes: which broke this actually wanted to "what we
+actually care about is the alignment of the actual pointer that's about
+to be returned." But it didn't check that alignment.
+
+Use the correct variable "ptr" for that.
+
+  [ bp: Massage commit message. ]
+
+Fixes: 8447c4d15e35 ("edac: Do alignment logic properly in edac_align_ptr()")
+Signed-off-by: Eliav Farber <farbere@amazon.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/trinity-f018660b-95c9-442b-a2a8-c92a56eb07ed-1644345967148@3c-app-webde-bap22
-Link: https://lore.kernel.org/r/20220214100020.8870-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20220113100622.12783-2-farbere@amazon.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_intel.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/edac/edac_mc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -1652,6 +1652,7 @@ static const struct snd_pci_quirk probe_
- 	/* forced codec slots */
- 	SND_PCI_QUIRK(0x1043, 0x1262, "ASUS W5Fm", 0x103),
- 	SND_PCI_QUIRK(0x1046, 0x1262, "ASUS W5F", 0x103),
-+	SND_PCI_QUIRK(0x1558, 0x0351, "Schenker Dock 15", 0x105),
- 	/* WinFast VP200 H (Teradici) user reported broken communication */
- 	SND_PCI_QUIRK(0x3a21, 0x040d, "WinFast VP200 H", 0x101),
- 	{}
+--- a/drivers/edac/edac_mc.c
++++ b/drivers/edac/edac_mc.c
+@@ -264,7 +264,7 @@ void *edac_align_ptr(void **p, unsigned
+ 	else
+ 		return (char *)ptr;
+ 
+-	r = (unsigned long)p % align;
++	r = (unsigned long)ptr % align;
+ 
+ 	if (r == 0)
+ 		return (char *)ptr;
 
 
