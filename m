@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC6444BE4B4
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:59:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA94C4BE7C8
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347410AbiBUJHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:07:21 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40106 "EHLO
+        id S1345636AbiBUIwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:52:53 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347415AbiBUJGZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:06:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 047BA31202;
-        Mon, 21 Feb 2022 00:59:46 -0800 (PST)
+        with ESMTP id S1345487AbiBUIw1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:52:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5C65E23;
+        Mon, 21 Feb 2022 00:52:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85D42B80E72;
-        Mon, 21 Feb 2022 08:59:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1849C340E9;
-        Mon, 21 Feb 2022 08:59:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98E7BB80E9E;
+        Mon, 21 Feb 2022 08:52:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF6A8C340E9;
+        Mon, 21 Feb 2022 08:51:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433981;
-        bh=BS9Ko2QC+OxvdoIghWYVdEAnfZ/rzhWb6JF2Wd0BIEg=;
+        s=korg; t=1645433519;
+        bh=Ha5FXiN5IM6Ijp+HmsPrFdAwbwKjQeirEg0DSequ2Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKymfAfuoI1CiWfYWr/U6iDCw9ek5Z1zt0GiAvMFdqvVusRyu+iPx6mF5D5tZg99L
-         Eko/aF2y9vL0PPcC25Tvd7dWxmrTYmgYYV08PBnYmsL13XSVagRVN12mw2s5s1DmVO
-         rGxtUedWkSEY5pR1LofaYNefv39NVcYwLfo8s7Oo=
+        b=k0esbSUgTSOIYMZx4fDWjENlSW1Vyb5VI5OXo7aje0FnGNoFn9eCoIJ4c0WJ9Cs15
+         o/KVG1nP5ettTeWvJG6pxnuYAT0nUJXeAc8vJ6dwZnmWOmDyjMbT3rQMaE6R0wYglV
+         g12IMe1cqaBMcBSbTt+KiTAWAFDNFUCNiQHWsENA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Leech <cleech@redhat.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 19/80] nvme-tcp: fix possible use-after-free in transport error_recovery work
+        stable@vger.kernel.org,
+        =?UTF-8?q?D=C4=81vis=20Mos=C4=81ns?= <davispuh@gmail.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.9 06/33] btrfs: send: in case of IO error log it
 Date:   Mon, 21 Feb 2022 09:48:59 +0100
-Message-Id: <20220221084916.216170560@linuxfoundation.org>
+Message-Id: <20220221084908.769515115@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
+References: <20220221084908.568970525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Dāvis Mosāns <davispuh@gmail.com>
 
-[ Upstream commit ff9fc7ebf5c06de1ef72a69f9b1ab40af8b07f9e ]
+commit 2e7be9db125a0bf940c5d65eb5c40d8700f738b5 upstream.
 
-While nvme_tcp_submit_async_event_work is checking the ctrl and queue
-state before preparing the AER command and scheduling io_work, in order
-to fully prevent a race where this check is not reliable the error
-recovery work must flush async_event_work before continuing to destroy
-the admin queue after setting the ctrl state to RESETTING such that
-there is no race .submit_async_event and the error recovery handler
-itself changing the ctrl state.
+Currently if we get IO error while doing send then we abort without
+logging information about which file caused issue.  So log it to help
+with debugging.
 
-Tested-by: Chris Leech <cleech@redhat.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Dāvis Mosāns <davispuh@gmail.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/tcp.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/send.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 1eef7ed0c3026..4378344f0e7ab 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -1955,6 +1955,7 @@ static void nvme_tcp_error_recovery_work(struct work_struct *work)
- 	struct nvme_ctrl *ctrl = &tcp_ctrl->ctrl;
- 
- 	nvme_stop_keep_alive(ctrl);
-+	flush_work(&ctrl->async_event_work);
- 	nvme_tcp_teardown_io_queues(ctrl, false);
- 	/* unquiesce to fail fast pending requests */
- 	nvme_start_queues(ctrl);
--- 
-2.34.1
-
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -4675,6 +4675,10 @@ static ssize_t fill_read_buf(struct send
+ 			lock_page(page);
+ 			if (!PageUptodate(page)) {
+ 				unlock_page(page);
++				btrfs_err(fs_info,
++			"send: IO error at offset %llu for inode %llu root %llu",
++					page_offset(page), sctx->cur_ino,
++					sctx->send_root->root_key.objectid);
+ 				put_page(page);
+ 				ret = -EIO;
+ 				break;
 
 
