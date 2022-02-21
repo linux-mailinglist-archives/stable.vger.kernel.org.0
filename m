@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D309A4BE02E
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4055E4BE2E4
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:56:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347895AbiBUJKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:10:34 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60638 "EHLO
+        id S1348760AbiBUJYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:24:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347915AbiBUJJv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E61A1D0F2;
-        Mon, 21 Feb 2022 01:02:20 -0800 (PST)
+        with ESMTP id S1348772AbiBUJXQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:23:16 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E0D338BFA;
+        Mon, 21 Feb 2022 01:10:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E695B80EAC;
-        Mon, 21 Feb 2022 09:02:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D34DC340E9;
-        Mon, 21 Feb 2022 09:02:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7ACCFCE0E92;
+        Mon, 21 Feb 2022 09:10:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64A37C340E9;
+        Mon, 21 Feb 2022 09:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434137;
-        bh=fY2l95feaFzhw++5GbsdRjIvm2NcSG/lDajlKI9Tnns=;
+        s=korg; t=1645434611;
+        bh=u1VESbYTBB2j0uL6y0zoMIwdzny/GFPCUlEFzINx4XA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AC9QHYk4lyhnethz1likCIGCpsg1VNjUcEmpYztTD7xKYNBdxX/QtaTiuklhlMPX3
-         MSK0bIUDgWMbn0aOz/Lp6YcNl0JyQg5Dw+kc/3Vy8kMzCzuetGrWTm5RN32q55RZpj
-         IgaZJbOsOfbqCiACrfh8qzV37Ih5xQl7XV5Tb1Ck=
+        b=TtgGzTUVOVzFuV5xP78I2CR3K89FA5SDYrJpb+WCgfFjftQpeJcK0GxnMx+74FID8
+         wRttDibdKdrxnokKzQORlfSe/MaeKx5Lt1Wbey9W9csulPGoYOKJMlsPUr1hJadgHM
+         P/f1vaAIcmrGtUP08KeNORG0xavGwqtPArSkfbQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nigel Kirkland <nkirkland2304@gmail.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 008/121] scsi: lpfc: Fix mailbox command failure during driver initialization
+        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 068/196] vsock: remove vsock from connected table when connect is interrupted by a signal
 Date:   Mon, 21 Feb 2022 09:48:20 +0100
-Message-Id: <20220221084921.432277744@linuxfoundation.org>
+Message-Id: <20220221084933.211454174@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Seth Forshee <sforshee@digitalocean.com>
 
-commit efe1dc571a5b808baa26682eef16561be2e356fd upstream.
+commit b9208492fcaecff8f43915529ae34b3bcb03877c upstream.
 
-Contention for the mailbox interface may occur during driver initialization
-(immediately after a function reset), between mailbox commands initiated
-via ioctl (bsg) and those driver requested by the driver.
+vsock_connect() expects that the socket could already be in the
+TCP_ESTABLISHED state when the connecting task wakes up with a signal
+pending. If this happens the socket will be in the connected table, and
+it is not removed when the socket state is reset. In this situation it's
+common for the process to retry connect(), and if the connection is
+successful the socket will be added to the connected table a second
+time, corrupting the list.
 
-After setting SLI_ACTIVE flag for a port, there is a window in which the
-driver will allow an ioctl to be initiated while the adapter is
-initializing and issuing mailbox commands via polling. The polling logic
-then gets confused.
+Prevent this by calling vsock_remove_connected() if a signal is received
+while waiting for a connection. This is harmless if the socket is not in
+the connected table, and if it is in the table then removing it will
+prevent list corruption from a double add.
 
-Correct by having thread setting SLI_ACTIVE spot an active mailbox command
-and allow it complete before proceeding.
+Note for backporting: this patch requires d5afa82c977e ("vsock: correct
+removal of socket from the list"), which is in all current stable trees
+except 4.9.y.
 
-Link: https://lore.kernel.org/r/20210921143008.64212-1-jsmart2021@gmail.com
-Co-developed-by: Nigel Kirkland <nkirkland2304@gmail.com>
-Signed-off-by: Nigel Kirkland <nkirkland2304@gmail.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: Seth Forshee <sforshee@digitalocean.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/r/20220217141312.2297547-1-sforshee@digitalocean.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_sli.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ net/vmw_vsock/af_vsock.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -7372,6 +7372,7 @@ lpfc_sli4_hba_setup(struct lpfc_hba *phb
- 	struct lpfc_vport *vport = phba->pport;
- 	struct lpfc_dmabuf *mp;
- 	struct lpfc_rqb *rqbp;
-+	u32 flg;
- 
- 	/* Perform a PCI function reset to start from clean */
- 	rc = lpfc_pci_function_reset(phba);
-@@ -7385,7 +7386,17 @@ lpfc_sli4_hba_setup(struct lpfc_hba *phb
- 	else {
- 		spin_lock_irq(&phba->hbalock);
- 		phba->sli.sli_flag |= LPFC_SLI_ACTIVE;
-+		flg = phba->sli.sli_flag;
- 		spin_unlock_irq(&phba->hbalock);
-+		/* Allow a little time after setting SLI_ACTIVE for any polled
-+		 * MBX commands to complete via BSG.
-+		 */
-+		for (i = 0; i < 50 && (flg & LPFC_SLI_MBOX_ACTIVE); i++) {
-+			msleep(20);
-+			spin_lock_irq(&phba->hbalock);
-+			flg = phba->sli.sli_flag;
-+			spin_unlock_irq(&phba->hbalock);
-+		}
- 	}
- 
- 	lpfc_sli4_dip(phba);
-@@ -8922,7 +8933,7 @@ lpfc_sli_issue_mbox_s4(struct lpfc_hba *
- 					"(%d):2541 Mailbox command x%x "
- 					"(x%x/x%x) failure: "
- 					"mqe_sta: x%x mcqe_sta: x%x/x%x "
--					"Data: x%x x%x\n,",
-+					"Data: x%x x%x\n",
- 					mboxq->vport ? mboxq->vport->vpi : 0,
- 					mboxq->u.mb.mbxCommand,
- 					lpfc_sli_config_mbox_subsys_get(phba,
-@@ -8956,7 +8967,7 @@ lpfc_sli_issue_mbox_s4(struct lpfc_hba *
- 					"(%d):2597 Sync Mailbox command "
- 					"x%x (x%x/x%x) failure: "
- 					"mqe_sta: x%x mcqe_sta: x%x/x%x "
--					"Data: x%x x%x\n,",
-+					"Data: x%x x%x\n",
- 					mboxq->vport ? mboxq->vport->vpi : 0,
- 					mboxq->u.mb.mbxCommand,
- 					lpfc_sli_config_mbox_subsys_get(phba,
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1400,6 +1400,7 @@ static int vsock_connect(struct socket *
+ 			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
+ 			sock->state = SS_UNCONNECTED;
+ 			vsock_transport_cancel_pkt(vsk);
++			vsock_remove_connected(vsk);
+ 			goto out_wait;
+ 		} else if (timeout == 0) {
+ 			err = -ETIMEDOUT;
 
 
