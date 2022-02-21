@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9313C4BE6DF
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:02:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F5DA4BE1CB
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345686AbiBUIzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:55:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:46994 "EHLO
+        id S1351955AbiBUJxB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:53:01 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346042AbiBUIy4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:54:56 -0500
+        with ESMTP id S1352031AbiBUJws (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:52:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E78B24093;
-        Mon, 21 Feb 2022 00:53:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D64836323;
+        Mon, 21 Feb 2022 01:23:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D7B861133;
-        Mon, 21 Feb 2022 08:53:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 369C1C340F1;
-        Mon, 21 Feb 2022 08:53:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AECFF60EB3;
+        Mon, 21 Feb 2022 09:23:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F2EAC340E9;
+        Mon, 21 Feb 2022 09:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433592;
-        bh=Hf9tC3QKk1Y0RovyoIFtkKY3HOoGpop/2V+489uj8lM=;
+        s=korg; t=1645435389;
+        bh=MBWNJWbtH9kFyIszuJHOKyr4znqOnXDjPczikbGkrgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2lWUa7DdUvkIb5aggQ6BGV0/zbbyNiau/6bhJh0IAdkxQFm1BMsrRNhvCF+VYwM/p
-         HsugMahUFlLz1+2kPG0x9uAcCW+8z5p53ihtn6HF6wPdNUh9qeIxiBT16t2K5r6XtV
-         Gnrph48gJxGes1sD5VVTkxe2Gtv/O5kqfnWR3XkA=
+        b=gotfxtpzun/6xJx6orqWTtTGI7WPRqt/C9FHv/B3+dosH9kQXknOQpH4FbfL5/rSW
+         EseowzPbXLHpSP6h+e0ZxO/kj0KVo5LiPA9amGpjYWL+eFCmBLneqAoEXzrecglE+c
+         AJsZMeLXY9Jd5sctuFuzBLenIEcKbWRo0u8SCKgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Jann Horn <jannh@google.com>
-Subject: [PATCH 4.14 02/45] net: usb: ax88179_178a: Fix out-of-bounds accesses in RX fixup
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 5.16 114/227] net: ieee802154: ca8210: Fix lifs/sifs periods
 Date:   Mon, 21 Feb 2022 09:48:53 +0100
-Message-Id: <20220221084910.539387504@linuxfoundation.org>
+Message-Id: <20220221084938.658919849@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,137 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 57bc3d3ae8c14df3ceb4e17d26ddf9eeab304581 upstream.
+commit bdc120a2bcd834e571ce4115aaddf71ab34495de upstream.
 
-ax88179_rx_fixup() contains several out-of-bounds accesses that can be
-triggered by a malicious (or defective) USB device, in particular:
+These periods are expressed in time units (microseconds) while 40 and 12
+are the number of symbol durations these periods will last. We need to
+multiply them both with the symbol_duration in order to get these
+values in microseconds.
 
- - The metadata array (hdr_off..hdr_off+2*pkt_cnt) can be out of bounds,
-   causing OOB reads and (on big-endian systems) OOB endianness flips.
- - A packet can overlap the metadata array, causing a later OOB
-   endianness flip to corrupt data used by a cloned SKB that has already
-   been handed off into the network stack.
- - A packet SKB can be constructed whose tail is far beyond its end,
-   causing out-of-bounds heap data to be considered part of the SKB's
-   data.
-
-I have tested that this can be used by a malicious USB device to send a
-bogus ICMPv6 Echo Request and receive an ICMPv6 Echo Reply in response
-that contains random kernel heap data.
-It's probably also possible to get OOB writes from this on a
-little-endian system somehow - maybe by triggering skb_cow() via IP
-options processing -, but I haven't tested that.
-
-Fixes: e2ca90c276e1 ("ax88179_178a: ASIX AX88179_178A USB 3.0/2.0 to gigabit ethernet adapter driver")
-Cc: stable@kernel.org
-Signed-off-by: Jann Horn <jannh@google.com>
+Fixes: ded845a781a5 ("ieee802154: Add CA8210 IEEE 802.15.4 device driver")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/r/20220201180629.93410-2-miquel.raynal@bootlin.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/ax88179_178a.c |   68 +++++++++++++++++++++++------------------
- 1 file changed, 39 insertions(+), 29 deletions(-)
+ drivers/net/ieee802154/ca8210.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1373,59 +1373,69 @@ static int ax88179_rx_fixup(struct usbne
- 	u16 hdr_off;
- 	u32 *pkt_hdr;
- 
--	/* This check is no longer done by usbnet */
--	if (skb->len < dev->net->hard_header_len)
-+	/* At the end of the SKB, there's a header telling us how many packets
-+	 * are bundled into this buffer and where we can find an array of
-+	 * per-packet metadata (which contains elements encoded into u16).
-+	 */
-+	if (skb->len < 4)
- 		return 0;
--
- 	skb_trim(skb, skb->len - 4);
- 	memcpy(&rx_hdr, skb_tail_pointer(skb), 4);
- 	le32_to_cpus(&rx_hdr);
--
- 	pkt_cnt = (u16)rx_hdr;
- 	hdr_off = (u16)(rx_hdr >> 16);
-+
-+	if (pkt_cnt == 0)
-+		return 0;
-+
-+	/* Make sure that the bounds of the metadata array are inside the SKB
-+	 * (and in front of the counter at the end).
-+	 */
-+	if (pkt_cnt * 2 + hdr_off > skb->len)
-+		return 0;
- 	pkt_hdr = (u32 *)(skb->data + hdr_off);
- 
--	while (pkt_cnt--) {
-+	/* Packets must not overlap the metadata array */
-+	skb_trim(skb, hdr_off);
-+
-+	for (; ; pkt_cnt--, pkt_hdr++) {
- 		u16 pkt_len;
- 
- 		le32_to_cpus(pkt_hdr);
- 		pkt_len = (*pkt_hdr >> 16) & 0x1fff;
- 
--		/* Check CRC or runt packet */
--		if ((*pkt_hdr & AX_RXHDR_CRC_ERR) ||
--		    (*pkt_hdr & AX_RXHDR_DROP_ERR)) {
--			skb_pull(skb, (pkt_len + 7) & 0xFFF8);
--			pkt_hdr++;
--			continue;
--		}
--
--		if (pkt_cnt == 0) {
--			skb->len = pkt_len;
--			/* Skip IP alignment pseudo header */
--			skb_pull(skb, 2);
--			skb_set_tail_pointer(skb, skb->len);
--			skb->truesize = pkt_len + sizeof(struct sk_buff);
--			ax88179_rx_checksum(skb, pkt_hdr);
--			return 1;
--		}
-+		if (pkt_len > skb->len)
-+			return 0;
- 
--		ax_skb = skb_clone(skb, GFP_ATOMIC);
--		if (ax_skb) {
-+		/* Check CRC or runt packet */
-+		if (((*pkt_hdr & (AX_RXHDR_CRC_ERR | AX_RXHDR_DROP_ERR)) == 0) &&
-+		    pkt_len >= 2 + ETH_HLEN) {
-+			bool last = (pkt_cnt == 0);
-+
-+			if (last) {
-+				ax_skb = skb;
-+			} else {
-+				ax_skb = skb_clone(skb, GFP_ATOMIC);
-+				if (!ax_skb)
-+					return 0;
-+			}
- 			ax_skb->len = pkt_len;
- 			/* Skip IP alignment pseudo header */
- 			skb_pull(ax_skb, 2);
- 			skb_set_tail_pointer(ax_skb, ax_skb->len);
- 			ax_skb->truesize = pkt_len + sizeof(struct sk_buff);
- 			ax88179_rx_checksum(ax_skb, pkt_hdr);
-+
-+			if (last)
-+				return 1;
-+
- 			usbnet_skb_return(dev, ax_skb);
--		} else {
--			return 0;
- 		}
- 
--		skb_pull(skb, (pkt_len + 7) & 0xFFF8);
--		pkt_hdr++;
-+		/* Trim this packet away from the SKB */
-+		if (!skb_pull(skb, (pkt_len + 7) & 0xFFF8))
-+			return 0;
- 	}
--	return 1;
- }
- 
- static struct sk_buff *
+--- a/drivers/net/ieee802154/ca8210.c
++++ b/drivers/net/ieee802154/ca8210.c
+@@ -2975,8 +2975,8 @@ static void ca8210_hw_setup(struct ieee8
+ 	ca8210_hw->phy->cca.opt = NL802154_CCA_OPT_ENERGY_CARRIER_AND;
+ 	ca8210_hw->phy->cca_ed_level = -9800;
+ 	ca8210_hw->phy->symbol_duration = 16;
+-	ca8210_hw->phy->lifs_period = 40;
+-	ca8210_hw->phy->sifs_period = 12;
++	ca8210_hw->phy->lifs_period = 40 * ca8210_hw->phy->symbol_duration;
++	ca8210_hw->phy->sifs_period = 12 * ca8210_hw->phy->symbol_duration;
+ 	ca8210_hw->flags =
+ 		IEEE802154_HW_AFILT |
+ 		IEEE802154_HW_OMIT_CKSUM |
 
 
