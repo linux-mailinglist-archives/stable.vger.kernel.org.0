@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B1904BE325
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:56:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E914BE0B0
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240932AbiBUJ7h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:59:37 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57230 "EHLO
+        id S240728AbiBUJOK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:14:10 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352282AbiBUJzR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:55:17 -0500
+        with ESMTP id S1349781AbiBUJMz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:12:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 122EC38D9B;
-        Mon, 21 Feb 2022 01:24:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EBA72CCB9;
+        Mon, 21 Feb 2022 01:05:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A538260E77;
-        Mon, 21 Feb 2022 09:24:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88ACBC340E9;
-        Mon, 21 Feb 2022 09:24:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D04B560FB6;
+        Mon, 21 Feb 2022 09:05:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B49F9C340E9;
+        Mon, 21 Feb 2022 09:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435466;
-        bh=ndV0d7LE6q+zLbv7DPboGaYMp5aB/82uoAfM0/0l9TQ=;
+        s=korg; t=1645434355;
+        bh=qJwGXYo41BOzEX6oFtnAmcbygBymqUp/dIQMb+BAvlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ngQOg9zFDCsoJ7196LKRx+PE7RsHZlyFGI79wMGiha1rNU2VXwwzwZLEkW/BXdU+h
-         0+JlJZS0f3oolpTpM9vJgOOZ/IXjYNoz2S3NdoohUD0teinDCrANUKw/485vzxL5JL
-         KMQH4mvemnTdzaI5m6qAdJkjSBWLo55KKUe9DCXc=
+        b=uNrr43SDiCqLc4tsmtaWTLx+0xKqw7uDWNF2iP7EhJooIvSn880AEnPfxBBtTkCF4
+         cefnqxc4Ix26Lx7+J9t/wItL1SVCsm7Yo2vhfsMlXB4Vr0MAjNFFL0Xm2suZBvs/8R
+         2OBCfsRy0/4hsCmLzVrLUKULjoqBTZpJPvxATU0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.16 173/227] ucounts: Base set_cred_ucounts changes on the real user
-Date:   Mon, 21 Feb 2022 09:49:52 +0100
-Message-Id: <20220221084940.562469023@linuxfoundation.org>
+        stable@vger.kernel.org, Axel Rasmussen <axelrasmussen@google.com>,
+        Christian Brauner <brauner@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 101/121] selftests: fixup build warnings in pidfd / clone3 tests
+Date:   Mon, 21 Feb 2022 09:49:53 +0100
+Message-Id: <20220221084924.595132092@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +55,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Axel Rasmussen <axelrasmussen@google.com>
 
-commit a55d07294f1e9b576093bdfa95422f8119941e83 upstream.
+[ Upstream commit e2aa5e650b07693477dff554053605976789fd68 ]
 
-Michal Koutný <mkoutny@suse.com> wrote:
-> Tasks are associated to multiple users at once. Historically and as per
-> setrlimit(2) RLIMIT_NPROC is enforce based on real user ID.
->
-> The commit 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of ucounts")
-> made the accounting structure "indexed" by euid and hence potentially
-> account tasks differently.
->
-> The effective user ID may be different e.g. for setuid programs but
-> those are exec'd into already existing task (i.e. below limit), so
-> different accounting is moot.
->
-> Some special setresuid(2) users may notice the difference, justifying
-> this fix.
+These are some trivial fixups, which were needed to build the tests with
+clang and -Werror. The following issues are fixed:
 
-I looked at cred->ucount and it is only used for rlimit operations
-that were previously stored in cred->user.  Making the fact
-cred->ucount can refer to a different user from cred->user a bug,
-affecting all uses of cred->ulimit not just RLIMIT_NPROC.
+- Remove various unused variables.
+- In child_poll_leader_exit_test, clang isn't smart enough to realize
+  syscall(SYS_exit, 0) won't return, so it complains we never return
+  from a non-void function. Add an extra exit(0) to appease it.
+- In test_pidfd_poll_leader_exit, ret may be branched on despite being
+  uninitialized, if we have !use_waitpid. Initialize it to zero to get
+  the right behavior in that case.
 
-Fix set_cred_ucounts to always use the real uid not the effective uid.
-
-Further simplify set_cred_ucounts by noticing that set_cred_ucounts
-somehow retained a draft version of the check to see if alloc_ucounts
-was needed that checks the new->user and new->user_ns against the
-current_real_cred().  Remove that draft version of the check.
-
-All that matters for setting the cred->ucounts are the user_ns and uid
-fields in the cred.
-
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20220207121800.5079-4-mkoutny@suse.com
-Link: https://lkml.kernel.org/r/20220216155832.680775-3-ebiederm@xmission.com
-Reported-by: Michal Koutný <mkoutny@suse.com>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Fixes: 21d1c5e386bc ("Reimplement RLIMIT_NPROC on top of ucounts")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Axel Rasmussen <axelrasmussen@google.com>
+Acked-by: Christian Brauner <brauner@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cred.c |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ tools/testing/selftests/clone3/clone3.c    | 2 --
+ tools/testing/selftests/pidfd/pidfd_test.c | 6 +++---
+ tools/testing/selftests/pidfd/pidfd_wait.c | 5 ++---
+ 3 files changed, 5 insertions(+), 8 deletions(-)
 
---- a/kernel/cred.c
-+++ b/kernel/cred.c
-@@ -665,21 +665,16 @@ EXPORT_SYMBOL(cred_fscmp);
+diff --git a/tools/testing/selftests/clone3/clone3.c b/tools/testing/selftests/clone3/clone3.c
+index 076cf4325f783..cd4582129c7d6 100644
+--- a/tools/testing/selftests/clone3/clone3.c
++++ b/tools/testing/selftests/clone3/clone3.c
+@@ -126,8 +126,6 @@ static void test_clone3(uint64_t flags, size_t size, int expected,
  
- int set_cred_ucounts(struct cred *new)
+ int main(int argc, char *argv[])
  {
--	struct task_struct *task = current;
--	const struct cred *old = task->real_cred;
- 	struct ucounts *new_ucounts, *old_ucounts = new->ucounts;
- 
--	if (new->user == old->user && new->user_ns == old->user_ns)
--		return 0;
+-	pid_t pid;
 -
- 	/*
- 	 * This optimization is needed because alloc_ucounts() uses locks
- 	 * for table lookups.
+ 	uid_t uid = getuid();
+ 
+ 	ksft_print_header();
+diff --git a/tools/testing/selftests/pidfd/pidfd_test.c b/tools/testing/selftests/pidfd/pidfd_test.c
+index 529eb700ac26a..9a2d64901d591 100644
+--- a/tools/testing/selftests/pidfd/pidfd_test.c
++++ b/tools/testing/selftests/pidfd/pidfd_test.c
+@@ -441,7 +441,6 @@ static void test_pidfd_poll_exec(int use_waitpid)
+ {
+ 	int pid, pidfd = 0;
+ 	int status, ret;
+-	pthread_t t1;
+ 	time_t prog_start = time(NULL);
+ 	const char *test_name = "pidfd_poll check for premature notification on child thread exec";
+ 
+@@ -500,13 +499,14 @@ static int child_poll_leader_exit_test(void *args)
  	 */
--	if (old_ucounts->ns == new->user_ns && uid_eq(old_ucounts->uid, new->euid))
-+	if (old_ucounts->ns == new->user_ns && uid_eq(old_ucounts->uid, new->uid))
- 		return 0;
+ 	*child_exit_secs = time(NULL);
+ 	syscall(SYS_exit, 0);
++	/* Never reached, but appeases compiler thinking we should return. */
++	exit(0);
+ }
  
--	if (!(new_ucounts = alloc_ucounts(new->user_ns, new->euid)))
-+	if (!(new_ucounts = alloc_ucounts(new->user_ns, new->uid)))
- 		return -EAGAIN;
+ static void test_pidfd_poll_leader_exit(int use_waitpid)
+ {
+ 	int pid, pidfd = 0;
+-	int status, ret;
+-	time_t prog_start = time(NULL);
++	int status, ret = 0;
+ 	const char *test_name = "pidfd_poll check for premature notification on non-empty"
+ 				"group leader exit";
  
- 	new->ucounts = new_ucounts;
+diff --git a/tools/testing/selftests/pidfd/pidfd_wait.c b/tools/testing/selftests/pidfd/pidfd_wait.c
+index be2943f072f60..17999e082aa71 100644
+--- a/tools/testing/selftests/pidfd/pidfd_wait.c
++++ b/tools/testing/selftests/pidfd/pidfd_wait.c
+@@ -39,7 +39,7 @@ static int sys_waitid(int which, pid_t pid, siginfo_t *info, int options,
+ 
+ TEST(wait_simple)
+ {
+-	int pidfd = -1, status = 0;
++	int pidfd = -1;
+ 	pid_t parent_tid = -1;
+ 	struct clone_args args = {
+ 		.parent_tid = ptr_to_u64(&parent_tid),
+@@ -47,7 +47,6 @@ TEST(wait_simple)
+ 		.flags = CLONE_PIDFD | CLONE_PARENT_SETTID,
+ 		.exit_signal = SIGCHLD,
+ 	};
+-	int ret;
+ 	pid_t pid;
+ 	siginfo_t info = {
+ 		.si_signo = 0,
+@@ -88,7 +87,7 @@ TEST(wait_simple)
+ 
+ TEST(wait_states)
+ {
+-	int pidfd = -1, status = 0;
++	int pidfd = -1;
+ 	pid_t parent_tid = -1;
+ 	struct clone_args args = {
+ 		.parent_tid = ptr_to_u64(&parent_tid),
+-- 
+2.34.1
+
 
 
