@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08D354BE85B
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:05:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C2074BDCEA
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:43:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347793AbiBUJJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:09:16 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36734 "EHLO
+        id S1344177AbiBUKAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 05:00:08 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347802AbiBUJIz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:08:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B47324BEE;
-        Mon, 21 Feb 2022 01:00:39 -0800 (PST)
+        with ESMTP id S1352279AbiBUJzR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:55:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C83CF38D8E;
+        Mon, 21 Feb 2022 01:24:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC804611D0;
-        Mon, 21 Feb 2022 09:00:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A16FDC340E9;
-        Mon, 21 Feb 2022 09:00:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FFDEB80EB9;
+        Mon, 21 Feb 2022 09:24:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFF80C340E9;
+        Mon, 21 Feb 2022 09:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434038;
-        bh=u38M8+BS6yGalTsAL/4IuTwBWdycbK9wF63yvlPbP9E=;
+        s=korg; t=1645435463;
+        bh=QQ5ZIGrzyf85aJ0Ve7YOb/9ft6x8SGP+hp/fR0elpo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKmXK0/DebGxzC/58CndaMX5OFTHkVbpYAwPICA4hCmU1gBPh65S71kerbZXoH3zI
-         9XIOsSSncK5Yj32SCd2/2xu020F+11wW1wtqrAMNKyX7viPWXjTsoU2PFtOJGt1Mu7
-         R9yIOL/r8jEs4lm0Ljz6gTgCt9wKgDd1oveThiUA=
+        b=DAtUb89WLuPjd+NFV3byZ1bp/501XYXSaGnxeF7UkfY8VhVFKnB4NJAJzv2fhDPbI
+         bflo/4KlI0Ji9BAg7MFpAdpXmOp5845oES80t63DC5SOWzapFKB8SHoZw2eLSfvcGh
+         OSiy9Tk/k7eNyo/YFNviiXQIvEDiH5hOdZBhRcM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mateusz Krzak <kszaquitto@gmail.com>,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 71/80] arm64: dts: meson-gx: add ATF BL32 reserved-memory region
+        stable@vger.kernel.org,
+        =?UTF-8?q?Lu=C3=ADs=20Ferreira?= <contact@lsferreira.net>,
+        Andy Lutomirski <luto@kernel.org>, Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.16 172/227] x86/ptrace: Fix xfpregs_set()s incorrect xmm clearing
 Date:   Mon, 21 Feb 2022 09:49:51 +0100
-Message-Id: <20220221084917.908941985@linuxfoundation.org>
+Message-Id: <20220221084940.529596581@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,43 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Andy Lutomirski <luto@kernel.org>
 
-[ Upstream commit 76577c9137456febb05b0e17d244113196a98968 ]
+commit 44cad52cc14ae10062f142ec16ede489bccf4469 upstream.
 
-Add an additional reserved memory region for the BL32 trusted firmware
-present in many devices that boot from Amlogic vendor u-boot.
+xfpregs_set() handles 32-bit REGSET_XFP and 64-bit REGSET_FP. The actual
+code treats these regsets as modern FX state (i.e. the beginning part of
+XSTATE). The declarations of the regsets thought they were the legacy
+i387 format. The code thought they were the 32-bit (no xmm8..15) variant
+of XSTATE and, for good measure, made the high bits disappear by zeroing
+the wrong part of the buffer. The latter broke ptrace, and everything
+else confused anyone trying to understand the code. In particular, the
+nonsense definitions of the regsets confused me when I wrote this code.
 
-Suggested-by: Mateusz Krzak <kszaquitto@gmail.com>
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220126044954.19069-2-christianshewitt@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Clean this all up. Change the declarations to match reality (which
+shouldn't change the generated code, let alone the ABI) and fix
+xfpregs_set() to clear the correct bits and to only do so for 32-bit
+callers.
+
+Fixes: 6164331d15f7 ("x86/fpu: Rewrite xfpregs_set()")
+Reported-by: Luís Ferreira <contact@lsferreira.net>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215524
+Link: https://lore.kernel.org/r/YgpFnZpF01WwR8wU@zn.tnic
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gx.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/x86/kernel/fpu/regset.c |    9 ++++-----
+ arch/x86/kernel/ptrace.c     |    4 ++--
+ 2 files changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-index ce230d6ac35cd..ad7bc0eec6682 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-@@ -41,6 +41,12 @@
- 			no-map;
- 		};
+--- a/arch/x86/kernel/fpu/regset.c
++++ b/arch/x86/kernel/fpu/regset.c
+@@ -91,11 +91,9 @@ int xfpregs_set(struct task_struct *targ
+ 		const void *kbuf, const void __user *ubuf)
+ {
+ 	struct fpu *fpu = &target->thread.fpu;
+-	struct user32_fxsr_struct newstate;
++	struct fxregs_state newstate;
+ 	int ret;
  
-+		/* 32 MiB reserved for ARM Trusted Firmware (BL32) */
-+		secmon_reserved_bl32: secmon@5300000 {
-+			reg = <0x0 0x05300000 0x0 0x2000000>;
-+			no-map;
-+		};
-+
- 		linux,cma {
- 			compatible = "shared-dma-pool";
- 			reusable;
--- 
-2.34.1
-
+-	BUILD_BUG_ON(sizeof(newstate) != sizeof(struct fxregs_state));
+-
+ 	if (!cpu_feature_enabled(X86_FEATURE_FXSR))
+ 		return -ENODEV;
+ 
+@@ -116,9 +114,10 @@ int xfpregs_set(struct task_struct *targ
+ 	/* Copy the state  */
+ 	memcpy(&fpu->fpstate->regs.fxsave, &newstate, sizeof(newstate));
+ 
+-	/* Clear xmm8..15 */
++	/* Clear xmm8..15 for 32-bit callers */
+ 	BUILD_BUG_ON(sizeof(fpu->__fpstate.regs.fxsave.xmm_space) != 16 * 16);
+-	memset(&fpu->fpstate->regs.fxsave.xmm_space[8], 0, 8 * 16);
++	if (in_ia32_syscall())
++		memset(&fpu->fpstate->regs.fxsave.xmm_space[8*4], 0, 8 * 16);
+ 
+ 	/* Mark FP and SSE as in use when XSAVE is enabled */
+ 	if (use_xsave())
+--- a/arch/x86/kernel/ptrace.c
++++ b/arch/x86/kernel/ptrace.c
+@@ -1224,7 +1224,7 @@ static struct user_regset x86_64_regsets
+ 	},
+ 	[REGSET_FP] = {
+ 		.core_note_type = NT_PRFPREG,
+-		.n = sizeof(struct user_i387_struct) / sizeof(long),
++		.n = sizeof(struct fxregs_state) / sizeof(long),
+ 		.size = sizeof(long), .align = sizeof(long),
+ 		.active = regset_xregset_fpregs_active, .regset_get = xfpregs_get, .set = xfpregs_set
+ 	},
+@@ -1271,7 +1271,7 @@ static struct user_regset x86_32_regsets
+ 	},
+ 	[REGSET_XFP] = {
+ 		.core_note_type = NT_PRXFPREG,
+-		.n = sizeof(struct user32_fxsr_struct) / sizeof(u32),
++		.n = sizeof(struct fxregs_state) / sizeof(u32),
+ 		.size = sizeof(u32), .align = sizeof(u32),
+ 		.active = regset_xregset_fpregs_active, .regset_get = xfpregs_get, .set = xfpregs_set
+ 	},
 
 
