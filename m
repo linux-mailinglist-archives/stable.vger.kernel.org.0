@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE8A64BE0D0
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F181F4BDE85
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:47:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343944AbiBUJvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:51:31 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42660 "EHLO
+        id S1351429AbiBUJsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:48:54 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352326AbiBUJrV (ORCPT
+        with ESMTP id S1352333AbiBUJrV (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:21 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E42303135E;
-        Mon, 21 Feb 2022 01:19:30 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 029DC41F95;
+        Mon, 21 Feb 2022 01:19:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5D915CE0E93;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34816608C4;
+        Mon, 21 Feb 2022 09:19:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DBA2C340E9;
         Mon, 21 Feb 2022 09:19:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E7A9C340E9;
-        Mon, 21 Feb 2022 09:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435167;
-        bh=qM+/wEV76oYlWKa8U71NI8CAdC+zm67GraWby1H9ZZM=;
+        s=korg; t=1645435170;
+        bh=gBR3Ce/pJ47IRQg4FP9Z/vuY4SpFZJm7Vp0omlNnSeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CAMDKlzFr3oVOTFx7x/nIDNRuw8EkjVAEPimu3+mYTdzcOy74ipDdTbZxvg3mRpov
-         9VUgx9YBmFIkqSTIx4iSM+666ezoaUdTfE+KXLzqoy9qR3LaElhKuRFkwtmOEFsbHM
-         1mIZR4INwS7jm72rXE25roxWBRN/M8HZ57qG32Ho=
+        b=Z0466jwY9AozoiaNQz3cXSRXc3nEQyZq3e6tGX1t866oBXeuRqGcrq1f+EUoNlaG+
+         zE7z3kmnH0JUlB6q0bkHc0p38YnGcSEs17MY9Tjtg/lrtB69zOkAaQ/uk0uydbAucB
+         sktOYJrBFapc7FOKUhrfjyjzZZsxLZQouFhxpe8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Pylypiv <ipylypiv@google.com>,
-        Changyuan Lyu <changyuanl@google.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Tejun Heo <tj@kernel.org>,
+        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Kees Cook <keescook@chromium.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 068/227] Revert "module, async: async_synchronize_full() on module init iff async is used"
-Date:   Mon, 21 Feb 2022 09:48:07 +0100
-Message-Id: <20220221084937.134185364@linuxfoundation.org>
+Subject: [PATCH 5.16 069/227] gcc-plugins/stackleak: Use noinstr in favor of notrace
+Date:   Mon, 21 Feb 2022 09:48:08 +0100
+Message-Id: <20220221084937.167743369@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
 References: <20220221084934.836145070@linuxfoundation.org>
@@ -57,150 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Igor Pylypiv <ipylypiv@google.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 67d6212afda218d564890d1674bab28e8612170f ]
+[ Upstream commit dcb85f85fa6f142aae1fe86f399d4503d49f2b60 ]
 
-This reverts commit 774a1221e862b343388347bac9b318767336b20b.
+While the stackleak plugin was already using notrace, objtool is now a
+bit more picky.  Update the notrace uses to noinstr.  Silences the
+following objtool warnings when building with:
 
-We need to finish all async code before the module init sequence is
-done.  In the reverted commit the PF_USED_ASYNC flag was added to mark a
-thread that called async_schedule().  Then the PF_USED_ASYNC flag was
-used to determine whether or not async_synchronize_full() needs to be
-invoked.  This works when modprobe thread is calling async_schedule(),
-but it does not work if module dispatches init code to a worker thread
-which then calls async_schedule().
+CONFIG_DEBUG_ENTRY=y
+CONFIG_STACK_VALIDATION=y
+CONFIG_VMLINUX_VALIDATION=y
+CONFIG_GCC_PLUGIN_STACKLEAK=y
 
-For example, PCI driver probing is invoked from a worker thread based on
-a node where device is attached:
+  vmlinux.o: warning: objtool: do_syscall_64()+0x9: call to stackleak_track_stack() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: do_int80_syscall_32()+0x9: call to stackleak_track_stack() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: exc_general_protection()+0x22: call to stackleak_track_stack() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: fixup_bad_iret()+0x20: call to stackleak_track_stack() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: do_machine_check()+0x27: call to stackleak_track_stack() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: .text+0x5346e: call to stackleak_erase() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: .entry.text+0x143: call to stackleak_erase() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: .entry.text+0x10eb: call to stackleak_erase() leaves .noinstr.text section
+  vmlinux.o: warning: objtool: .entry.text+0x17f9: call to stackleak_erase() leaves .noinstr.text section
 
-	if (cpu < nr_cpu_ids)
-		error = work_on_cpu(cpu, local_pci_probe, &ddi);
-	else
-		error = local_pci_probe(&ddi);
+Note that the plugin's addition of calls to stackleak_track_stack() from
+noinstr functions is expected to be safe, as it isn't runtime
+instrumentation and is self-contained.
 
-We end up in a situation where a worker thread gets the PF_USED_ASYNC
-flag set instead of the modprobe thread.  As a result,
-async_synchronize_full() is not invoked and modprobe completes without
-waiting for the async code to finish.
-
-The issue was discovered while loading the pm80xx driver:
-(scsi_mod.scan=async)
-
-modprobe pm80xx                      worker
-...
-  do_init_module()
-  ...
-    pci_call_probe()
-      work_on_cpu(local_pci_probe)
-                                     local_pci_probe()
-                                       pm8001_pci_probe()
-                                         scsi_scan_host()
-                                           async_schedule()
-                                           worker->flags |= PF_USED_ASYNC;
-                                     ...
-      < return from worker >
-  ...
-  if (current->flags & PF_USED_ASYNC) <--- false
-  	async_synchronize_full();
-
-Commit 21c3c5d28007 ("block: don't request module during elevator init")
-fixed the deadlock issue which the reverted commit 774a1221e862
-("module, async: async_synchronize_full() on module init iff async is
-used") tried to fix.
-
-Since commit 0fdff3ec6d87 ("async, kmod: warn on synchronous
-request_module() from async workers") synchronous module loading from
-async is not allowed.
-
-Given that the original deadlock issue is fixed and it is no longer
-allowed to call synchronous request_module() from async we can remove
-PF_USED_ASYNC flag to make module init consistently invoke
-async_synchronize_full() unless async module probe is requested.
-
-Signed-off-by: Igor Pylypiv <ipylypiv@google.com>
-Reviewed-by: Changyuan Lyu <changyuanl@google.com>
-Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
-Acked-by: Tejun Heo <tj@kernel.org>
+Cc: Alexander Popov <alex.popov@linux.com>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sched.h |  1 -
- kernel/async.c        |  3 ---
- kernel/module.c       | 25 +++++--------------------
- 3 files changed, 5 insertions(+), 24 deletions(-)
+ kernel/stackleak.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 78c351e35fec6..ee5ed88219631 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1672,7 +1672,6 @@ extern struct pid *cad_pid;
- #define PF_MEMALLOC		0x00000800	/* Allocating memory */
- #define PF_NPROC_EXCEEDED	0x00001000	/* set_user() noticed that RLIMIT_NPROC was exceeded */
- #define PF_USED_MATH		0x00002000	/* If unset the fpu must be initialized before use */
--#define PF_USED_ASYNC		0x00004000	/* Used async_schedule*(), used by module init */
- #define PF_NOFREEZE		0x00008000	/* This thread should not be frozen */
- #define PF_FROZEN		0x00010000	/* Frozen for system suspend */
- #define PF_KSWAPD		0x00020000	/* I am kswapd */
-diff --git a/kernel/async.c b/kernel/async.c
-index b8d7a663497f9..b2c4ba5686ee4 100644
---- a/kernel/async.c
-+++ b/kernel/async.c
-@@ -205,9 +205,6 @@ async_cookie_t async_schedule_node_domain(async_func_t func, void *data,
- 	atomic_inc(&entry_count);
- 	spin_unlock_irqrestore(&async_lock, flags);
+diff --git a/kernel/stackleak.c b/kernel/stackleak.c
+index ce161a8e8d975..dd07239ddff9f 100644
+--- a/kernel/stackleak.c
++++ b/kernel/stackleak.c
+@@ -48,7 +48,7 @@ int stack_erasing_sysctl(struct ctl_table *table, int write,
+ #define skip_erasing()	false
+ #endif /* CONFIG_STACKLEAK_RUNTIME_DISABLE */
  
--	/* mark that this task has queued an async job, used by module init */
--	current->flags |= PF_USED_ASYNC;
--
- 	/* schedule for execution */
- 	queue_work_node(node, system_unbound_wq, &entry->work);
+-asmlinkage void notrace stackleak_erase(void)
++asmlinkage void noinstr stackleak_erase(void)
+ {
+ 	/* It would be nice not to have 'kstack_ptr' and 'boundary' on stack */
+ 	unsigned long kstack_ptr = current->lowest_stack;
+@@ -102,9 +102,8 @@ asmlinkage void notrace stackleak_erase(void)
+ 	/* Reset the 'lowest_stack' value for the next syscall */
+ 	current->lowest_stack = current_top_of_stack() - THREAD_SIZE/64;
+ }
+-NOKPROBE_SYMBOL(stackleak_erase);
  
-diff --git a/kernel/module.c b/kernel/module.c
-index 84a9141a5e159..f25e7653aa150 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3722,12 +3722,6 @@ static noinline int do_init_module(struct module *mod)
- 	}
- 	freeinit->module_init = mod->init_layout.base;
+-void __used __no_caller_saved_registers notrace stackleak_track_stack(void)
++void __used __no_caller_saved_registers noinstr stackleak_track_stack(void)
+ {
+ 	unsigned long sp = current_stack_pointer;
  
--	/*
--	 * We want to find out whether @mod uses async during init.  Clear
--	 * PF_USED_ASYNC.  async_schedule*() will set it.
--	 */
--	current->flags &= ~PF_USED_ASYNC;
--
- 	do_mod_ctors(mod);
- 	/* Start the module */
- 	if (mod->init != NULL)
-@@ -3753,22 +3747,13 @@ static noinline int do_init_module(struct module *mod)
- 
- 	/*
- 	 * We need to finish all async code before the module init sequence
--	 * is done.  This has potential to deadlock.  For example, a newly
--	 * detected block device can trigger request_module() of the
--	 * default iosched from async probing task.  Once userland helper
--	 * reaches here, async_synchronize_full() will wait on the async
--	 * task waiting on request_module() and deadlock.
--	 *
--	 * This deadlock is avoided by perfomring async_synchronize_full()
--	 * iff module init queued any async jobs.  This isn't a full
--	 * solution as it will deadlock the same if module loading from
--	 * async jobs nests more than once; however, due to the various
--	 * constraints, this hack seems to be the best option for now.
--	 * Please refer to the following thread for details.
-+	 * is done. This has potential to deadlock if synchronous module
-+	 * loading is requested from async (which is not allowed!).
- 	 *
--	 * http://thread.gmane.org/gmane.linux.kernel/1420814
-+	 * See commit 0fdff3ec6d87 ("async, kmod: warn on synchronous
-+	 * request_module() from async workers") for more details.
- 	 */
--	if (!mod->async_probe_requested && (current->flags & PF_USED_ASYNC))
-+	if (!mod->async_probe_requested)
- 		async_synchronize_full();
- 
- 	ftrace_free_mem(mod, mod->init_layout.base, mod->init_layout.base +
 -- 
 2.34.1
 
