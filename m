@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BC7E4BDC38
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:41:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0354BE134
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347440AbiBUJGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:06:25 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43232 "EHLO
+        id S1350196AbiBUJbx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:31:53 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347658AbiBUJF7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:05:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDA0625EAA;
-        Mon, 21 Feb 2022 00:59:27 -0800 (PST)
+        with ESMTP id S1350182AbiBUJbl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:31:41 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB71E2717A;
+        Mon, 21 Feb 2022 01:13:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE5D661204;
-        Mon, 21 Feb 2022 08:59:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96871C340E9;
-        Mon, 21 Feb 2022 08:59:26 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AC173CE0E8B;
+        Mon, 21 Feb 2022 09:13:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F1E7C339C1;
+        Mon, 21 Feb 2022 09:13:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433967;
-        bh=8IUsyVO3CUV/NHmrn9iyf0MiQePqG+1lN0ZMxV/tScY=;
+        s=korg; t=1645434792;
+        bh=D5JJpy/c72AVrlauMZGzdolk6JLEapyqWRS8VLnIalA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zrndo4lug0l8Nu2hxfDA/TRbptrt2HAopmliJZKqx6ZnN6+6vZUqkHlwoTZqBje8L
-         yS5prmK2qmkmS9NATrRNaPCFaf5rF8sVFseTYqEwHSWdvYoC9XrzaxGU8aOR3/f+Q4
-         WR28Ep3HHIt/7ZKnGUNrq6WM2ersnjfq0HLmCIsM=
+        b=ET6ZUQvuyVwe/GPXLsFvgG8pdsDEdK7XGw+t7DU+/rFRqsIZf4gWokw0aUWnVOrrf
+         hfroDTZFRyqQU0oLNGqUZOpYtx3KuIlJ+mboHODWGkthEFlWbX9nOk/bbTmyHMJZ6m
+         1hZ+ZR1bK+NlWwuTAiTjAVZVujeA6gkV8/4fDRNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Valdis=20Kl=C4=93tnieks?= <valdis.kletnieks@vt.edu>,
-        Kees Kook <keescook@chromium.org>,
-        "Justin M. Forbes" <jforbes@fedoraproject.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        linux-hardening@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 45/80] libsubcmd: Fix use-after-free for realloc(..., 0)
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.15 133/196] NFS: Do not report writeback errors in nfs_getattr()
 Date:   Mon, 21 Feb 2022 09:49:25 +0100
-Message-Id: <20220221084917.048654891@linuxfoundation.org>
+Message-Id: <20220221084935.373328706@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,63 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 52a9dab6d892763b2a8334a568bd4e2c1a6fde66 upstream.
+commit d19e0183a88306acda07f4a01fedeeffe2a2a06b upstream.
 
-GCC 12 correctly reports a potential use-after-free condition in the
-xrealloc helper. Fix the warning by avoiding an implicit "free(ptr)"
-when size == 0:
+The result of the writeback, whether it is an ENOSPC or an EIO, or
+anything else, does not inhibit the NFS client from reporting the
+correct file timestamps.
 
-In file included from help.c:12:
-In function 'xrealloc',
-    inlined from 'add_cmdname' at help.c:24:2: subcmd-util.h:56:23: error: pointer may be used after 'realloc' [-Werror=use-after-free]
-   56 |                 ret = realloc(ptr, size);
-      |                       ^~~~~~~~~~~~~~~~~~
-subcmd-util.h:52:21: note: call to 'realloc' here
-   52 |         void *ret = realloc(ptr, size);
-      |                     ^~~~~~~~~~~~~~~~~~
-subcmd-util.h:58:31: error: pointer may be used after 'realloc' [-Werror=use-after-free]
-   58 |                         ret = realloc(ptr, 1);
-      |                               ^~~~~~~~~~~~~~~
-subcmd-util.h:52:21: note: call to 'realloc' here
-   52 |         void *ret = realloc(ptr, size);
-      |                     ^~~~~~~~~~~~~~~~~~
-
-Fixes: 2f4ce5ec1d447beb ("perf tools: Finalize subcmd independence")
-Reported-by: Valdis Klētnieks <valdis.kletnieks@vt.edu>
-Signed-off-by: Kees Kook <keescook@chromium.org>
-Tested-by: Valdis Klētnieks <valdis.kletnieks@vt.edu>
-Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: linux-hardening@vger.kernel.org
-Cc: Valdis Klētnieks <valdis.kletnieks@vt.edu>
-Link: http://lore.kernel.org/lkml/20220213182443.4037039-1-keescook@chromium.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 79566ef018f5 ("NFS: Getattr doesn't require data sync semantics")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/lib/subcmd/subcmd-util.h |   11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ fs/nfs/inode.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/tools/lib/subcmd/subcmd-util.h
-+++ b/tools/lib/subcmd/subcmd-util.h
-@@ -50,15 +50,8 @@ static NORETURN inline void die(const ch
- static inline void *xrealloc(void *ptr, size_t size)
- {
- 	void *ret = realloc(ptr, size);
--	if (!ret && !size)
--		ret = realloc(ptr, 1);
--	if (!ret) {
--		ret = realloc(ptr, size);
--		if (!ret && !size)
--			ret = realloc(ptr, 1);
--		if (!ret)
--			die("Out of memory, realloc failed");
--	}
-+	if (!ret)
-+		die("Out of memory, realloc failed");
- 	return ret;
- }
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -840,12 +840,9 @@ int nfs_getattr(struct user_namespace *m
+ 	}
  
+ 	/* Flush out writes to the server in order to update c/mtime.  */
+-	if ((request_mask & (STATX_CTIME|STATX_MTIME)) &&
+-			S_ISREG(inode->i_mode)) {
+-		err = filemap_write_and_wait(inode->i_mapping);
+-		if (err)
+-			goto out;
+-	}
++	if ((request_mask & (STATX_CTIME | STATX_MTIME)) &&
++	    S_ISREG(inode->i_mode))
++		filemap_write_and_wait(inode->i_mapping);
+ 
+ 	/*
+ 	 * We may force a getattr if the user cares about atime.
 
 
