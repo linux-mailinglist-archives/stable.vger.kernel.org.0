@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C00424BE7FE
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:04:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 324894BE05E
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348043AbiBUJKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:10:39 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34782 "EHLO
+        id S1351363AbiBUJtU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:49:20 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347869AbiBUJJf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B290DFF3;
-        Mon, 21 Feb 2022 01:01:55 -0800 (PST)
+        with ESMTP id S1352788AbiBUJry (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9EDD1B78B;
+        Mon, 21 Feb 2022 01:20:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBA85B80EB3;
-        Mon, 21 Feb 2022 09:01:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA257C340E9;
-        Mon, 21 Feb 2022 09:01:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51F8560F46;
+        Mon, 21 Feb 2022 09:20:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3805EC340E9;
+        Mon, 21 Feb 2022 09:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434112;
-        bh=ZuE/Z/bq3S+9y920nyWf42fUMdYekNAaXDde+xO2nPc=;
+        s=korg; t=1645435226;
+        bh=iEba06o/oGl22y6I53bs1uk6+Fw+mDOTjDSpVXQksxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WD4tuGIOEPkD7Ubw5hVU24o8Sn+kKOLVSjviY1+vKC/4gXccvH0DOI6MyR1yeZFX0
-         aTcxZt1nxWtHc4b6xkG4w7KGNfIPcs3I6Rxw+UmZE8FrTTWQVB8tmsqVVWMxsEw9F/
-         PeXgmFVoMfYcW6VG9waC1aZXPIckeJDrrXvCt3Ik=
+        b=wb6jroPFsSkL4L0qtfFgmxqDeAbItEP0+dgrZY4sZpOH+EzmmLjPTjfLi1/X0otq4
+         1YJlwlCPfKX9Q7p8EuowXXMe8INSMvSunMvq12spT5bH459rHhea+LMhX05uhbYgkQ
+         kgaKytvZZUK8y08Z8a+wrVdFGMgevBCqB8IQqqvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Long Li <longli@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Purna Pavan Chandra Aekkaladevi <paekkaladevi@microsoft.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Wei Liu <wei.liu@kernel.org>
-Subject: [PATCH 5.10 017/121] PCI: hv: Fix NUMA node assignment when kernel boots with custom NUMA topology
+        stable@vger.kernel.org, Siva Mullati <siva.mullati@intel.com>,
+        Zhi Wang <zhi.a.wang@intel.com>
+Subject: [PATCH 5.16 090/227] drm/i915/gvt: Make DRM_I915_GVT depend on X86
 Date:   Mon, 21 Feb 2022 09:48:29 +0100
-Message-Id: <20220221084921.732987240@linuxfoundation.org>
+Message-Id: <20220221084937.865658997@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Long Li <longli@microsoft.com>
+From: Siva Mullati <siva.mullati@intel.com>
 
-commit 3149efcdf2c6314420c418dfc94de53bfd076b1f upstream.
+commit d72d69abfdb6e0375981cfdda8eb45143f12c77d upstream.
 
-When kernel boots with a NUMA topology with some NUMA nodes offline, the PCI
-driver should only set an online NUMA node on the device. This can happen
-during KDUMP where some NUMA nodes are not made online by the KDUMP kernel.
+GVT is not supported on non-x86 platforms, So add
+dependency of X86 on config parameter DRM_I915_GVT.
 
-This patch also fixes the case where kernel is booting with "numa=off".
-
-Fixes: 999dd956d838 ("PCI: hv: Add support for protocol 1.3 and support PCI_BUS_RELATIONS2")
-Signed-off-by: Long Li <longli@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Tested-by: Purna Pavan Chandra Aekkaladevi <paekkaladevi@microsoft.com>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Link: https://lore.kernel.org/r/1643247814-15184-1-git-send-email-longli@linuxonhyperv.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: 0ad35fed618c ("drm/i915: gvt: Introduce the basic architecture of GVT-g")
+Signed-off-by: Siva Mullati <siva.mullati@intel.com>
+Signed-off-by: Zhi Wang <zhi.a.wang@intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20220107095235.243448-1-siva.mullati@intel.com
+Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
+Signed-off-by: Zhi Wang <zhi.a.wang@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-hyperv.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -1841,8 +1841,17 @@ static void hv_pci_assign_numa_node(stru
- 		if (!hv_dev)
- 			continue;
- 
--		if (hv_dev->desc.flags & HV_PCI_DEVICE_FLAG_NUMA_AFFINITY)
--			set_dev_node(&dev->dev, hv_dev->desc.virtual_numa_node);
-+		if (hv_dev->desc.flags & HV_PCI_DEVICE_FLAG_NUMA_AFFINITY &&
-+		    hv_dev->desc.virtual_numa_node < num_possible_nodes())
-+			/*
-+			 * The kernel may boot with some NUMA nodes offline
-+			 * (e.g. in a KDUMP kernel) or with NUMA disabled via
-+			 * "numa=off". In those cases, adjust the host provided
-+			 * NUMA node to a valid NUMA node used by the kernel.
-+			 */
-+			set_dev_node(&dev->dev,
-+				     numa_map_to_online_node(
-+					     hv_dev->desc.virtual_numa_node));
- 
- 		put_pcichild(hv_dev);
- 	}
+--- a/drivers/gpu/drm/i915/Kconfig
++++ b/drivers/gpu/drm/i915/Kconfig
+@@ -101,6 +101,7 @@ config DRM_I915_USERPTR
+ config DRM_I915_GVT
+ 	bool "Enable Intel GVT-g graphics virtualization host support"
+ 	depends on DRM_I915
++	depends on X86
+ 	depends on 64BIT
+ 	default n
+ 	help
 
 
