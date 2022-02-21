@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CEF24BE015
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF6564BE6F7
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:02:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346345AbiBUI6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:58:35 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58054 "EHLO
+        id S1347168AbiBUJEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:04:00 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346584AbiBUI57 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:57:59 -0500
+        with ESMTP id S1347094AbiBUJAu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:00:50 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C118255B8;
-        Mon, 21 Feb 2022 00:54:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 114272717D;
+        Mon, 21 Feb 2022 00:55:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4706B80EA5;
-        Mon, 21 Feb 2022 08:54:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5DC0C340EB;
-        Mon, 21 Feb 2022 08:54:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AACF0B80EA5;
+        Mon, 21 Feb 2022 08:55:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5E48C340E9;
+        Mon, 21 Feb 2022 08:55:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433669;
-        bh=rHL55wT5u1fd4Ub6zY7bSIqS/ckbe0pehw+xqLzZBLI=;
+        s=korg; t=1645433749;
+        bh=pn7u/oGbP5SpBeqFKRsJCeQbPdo5FoZfq9rzWVoZZR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZG8R91Zgj51BIA9HIfpdHJnFcfP6VyushctcRwWV15mosAnjzhHa3E55TfbALElD/
-         tyJ8OJzekwTs6M4XePGdrctpBBcwPqeuTkYUaYjV1h/RaI00p5edi5nwbDKJlTtvp8
-         WVEjCYaggYqEknF6PEAWPtcZSol1AVictjWmY+lg=
+        b=lgbkM9Ubjt5ZXmVkmnDxrvBmUsXn9PBBKWfgAraDd7zUJ2tY8HJSLfW6RTsOj9RaW
+         ADvzqSlVjHNov2SDXPPzAgEa8rOMOefzQpTAdxIX/nFImm1JKj8TEF+dEIsoLnukTq
+         s9j18226FxNbT0wmqCx8dsgcW+Y1WSwN/rb7mNrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 31/45] powerpc/lib/sstep: fix ptesync build error
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 29/58] bonding: fix data-races around agg_select_timer
 Date:   Mon, 21 Feb 2022 09:49:22 +0100
-Message-Id: <20220221084911.454246782@linuxfoundation.org>
+Message-Id: <20220221084912.825972694@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
+References: <20220221084911.895146879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +56,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anders Roxell <anders.roxell@linaro.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit fe663df7825811358531dc2e8a52d9eaa5e3515e upstream.
+commit 9ceaf6f76b203682bb6100e14b3d7da4c0bedde8 upstream.
 
-Building tinyconfig with gcc (Debian 11.2.0-16) and assembler (Debian
-2.37.90.20220207) the following build error shows up:
+syzbot reported that two threads might write over agg_select_timer
+at the same time. Make agg_select_timer atomic to fix the races.
 
-  {standard input}: Assembler messages:
-  {standard input}:2088: Error: unrecognized opcode: `ptesync'
-  make[3]: *** [/builds/linux/scripts/Makefile.build:287: arch/powerpc/lib/sstep.o] Error 1
+BUG: KCSAN: data-race in bond_3ad_initiate_agg_selection / bond_3ad_state_machine_handler
 
-Add the 'ifdef CONFIG_PPC64' around the 'ptesync' in function
-'emulate_update_regs()' to like it is in 'analyse_instr()'. Since it looks like
-it got dropped inadvertently by commit 3cdfcbfd32b9 ("powerpc: Change
-analyse_instr so it doesn't modify *regs").
+read to 0xffff8881242aea90 of 4 bytes by task 1846 on cpu 1:
+ bond_3ad_state_machine_handler+0x99/0x2810 drivers/net/bonding/bond_3ad.c:2317
+ process_one_work+0x3f6/0x960 kernel/workqueue.c:2307
+ worker_thread+0x616/0xa70 kernel/workqueue.c:2454
+ kthread+0x1bf/0x1e0 kernel/kthread.c:377
+ ret_from_fork+0x1f/0x30
 
-A key detail is that analyse_instr() will never recognise lwsync or
-ptesync on 32-bit (because of the existing ifdef), and as a result
-emulate_update_regs() should never be called with an op specifying
-either of those on 32-bit. So removing them from emulate_update_regs()
-should be a nop in terms of runtime behaviour.
+write to 0xffff8881242aea90 of 4 bytes by task 25910 on cpu 0:
+ bond_3ad_initiate_agg_selection+0x18/0x30 drivers/net/bonding/bond_3ad.c:1998
+ bond_open+0x658/0x6f0 drivers/net/bonding/bond_main.c:3967
+ __dev_open+0x274/0x3a0 net/core/dev.c:1407
+ dev_open+0x54/0x190 net/core/dev.c:1443
+ bond_enslave+0xcef/0x3000 drivers/net/bonding/bond_main.c:1937
+ do_set_master net/core/rtnetlink.c:2532 [inline]
+ do_setlink+0x94f/0x2500 net/core/rtnetlink.c:2736
+ __rtnl_newlink net/core/rtnetlink.c:3414 [inline]
+ rtnl_newlink+0xfeb/0x13e0 net/core/rtnetlink.c:3529
+ rtnetlink_rcv_msg+0x745/0x7e0 net/core/rtnetlink.c:5594
+ netlink_rcv_skb+0x14e/0x250 net/netlink/af_netlink.c:2494
+ rtnetlink_rcv+0x18/0x20 net/core/rtnetlink.c:5612
+ netlink_unicast_kernel net/netlink/af_netlink.c:1317 [inline]
+ netlink_unicast+0x602/0x6d0 net/netlink/af_netlink.c:1343
+ netlink_sendmsg+0x728/0x850 net/netlink/af_netlink.c:1919
+ sock_sendmsg_nosec net/socket.c:705 [inline]
+ sock_sendmsg net/socket.c:725 [inline]
+ ____sys_sendmsg+0x39a/0x510 net/socket.c:2413
+ ___sys_sendmsg net/socket.c:2467 [inline]
+ __sys_sendmsg+0x195/0x230 net/socket.c:2496
+ __do_sys_sendmsg net/socket.c:2505 [inline]
+ __se_sys_sendmsg net/socket.c:2503 [inline]
+ __x64_sys_sendmsg+0x42/0x50 net/socket.c:2503
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: 3cdfcbfd32b9 ("powerpc: Change analyse_instr so it doesn't modify *regs")
-Cc: stable@vger.kernel.org # v4.14+
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-[mpe: Add last paragraph of change log mentioning analyse_instr() details]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220211005113.1361436-1-anders.roxell@linaro.org
+value changed: 0x00000050 -> 0x0000004f
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 25910 Comm: syz-executor.1 Tainted: G        W         5.17.0-rc4-syzkaller-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Cc: Veaceslav Falico <vfalico@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/lib/sstep.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/bonding/bond_3ad.c |   30 +++++++++++++++++++++++++-----
+ include/net/bond_3ad.h         |    2 +-
+ 2 files changed, 26 insertions(+), 6 deletions(-)
 
---- a/arch/powerpc/lib/sstep.c
-+++ b/arch/powerpc/lib/sstep.c
-@@ -2652,12 +2652,14 @@ void emulate_update_regs(struct pt_regs
- 		case BARRIER_EIEIO:
- 			eieio();
- 			break;
-+#ifdef CONFIG_PPC64
- 		case BARRIER_LWSYNC:
- 			asm volatile("lwsync" : : : "memory");
- 			break;
- 		case BARRIER_PTESYNC:
- 			asm volatile("ptesync" : : : "memory");
- 			break;
-+#endif
- 		}
- 		break;
+--- a/drivers/net/bonding/bond_3ad.c
++++ b/drivers/net/bonding/bond_3ad.c
+@@ -249,7 +249,7 @@ static inline int __check_agg_selection_
+ 	if (bond == NULL)
+ 		return 0;
+ 
+-	return BOND_AD_INFO(bond).agg_select_timer ? 1 : 0;
++	return atomic_read(&BOND_AD_INFO(bond).agg_select_timer) ? 1 : 0;
+ }
+ 
+ /**
+@@ -1965,7 +1965,7 @@ static void ad_marker_response_received(
+  */
+ void bond_3ad_initiate_agg_selection(struct bonding *bond, int timeout)
+ {
+-	BOND_AD_INFO(bond).agg_select_timer = timeout;
++	atomic_set(&BOND_AD_INFO(bond).agg_select_timer, timeout);
+ }
+ 
+ /**
+@@ -2250,6 +2250,28 @@ void bond_3ad_update_ad_actor_settings(s
+ }
+ 
+ /**
++ * bond_agg_timer_advance - advance agg_select_timer
++ * @bond:  bonding structure
++ *
++ * Return true when agg_select_timer reaches 0.
++ */
++static bool bond_agg_timer_advance(struct bonding *bond)
++{
++	int val, nval;
++
++	while (1) {
++		val = atomic_read(&BOND_AD_INFO(bond).agg_select_timer);
++		if (!val)
++			return false;
++		nval = val - 1;
++		if (atomic_cmpxchg(&BOND_AD_INFO(bond).agg_select_timer,
++				   val, nval) == val)
++			break;
++	}
++	return nval == 0;
++}
++
++/**
+  * bond_3ad_state_machine_handler - handle state machines timeout
+  * @bond: bonding struct to work on
+  *
+@@ -2284,9 +2306,7 @@ void bond_3ad_state_machine_handler(stru
+ 	if (!bond_has_slaves(bond))
+ 		goto re_arm;
+ 
+-	/* check if agg_select_timer timer after initialize is timed out */
+-	if (BOND_AD_INFO(bond).agg_select_timer &&
+-	    !(--BOND_AD_INFO(bond).agg_select_timer)) {
++	if (bond_agg_timer_advance(bond)) {
+ 		slave = bond_first_slave_rcu(bond);
+ 		port = slave ? &(SLAVE_AD_INFO(slave)->port) : NULL;
+ 
+--- a/include/net/bond_3ad.h
++++ b/include/net/bond_3ad.h
+@@ -265,7 +265,7 @@ struct ad_system {
+ 
+ struct ad_bond_info {
+ 	struct ad_system system;	/* 802.3ad system structure */
+-	u32 agg_select_timer;		/* Timer to select aggregator after all adapter's hand shakes */
++	atomic_t agg_select_timer;	/* Timer to select aggregator after all adapter's hand shakes */
+ 	u16 aggregator_identifier;
+ };
  
 
 
