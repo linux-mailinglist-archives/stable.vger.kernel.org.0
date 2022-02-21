@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 188FC4BDD9D
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:45:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CEF24BE015
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347271AbiBUJGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:06:09 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44914 "EHLO
+        id S1346345AbiBUI6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:58:35 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347615AbiBUJF5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:05:57 -0500
+        with ESMTP id S1346584AbiBUI57 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:57:59 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FAF72FFFC;
-        Mon, 21 Feb 2022 00:59:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C118255B8;
+        Mon, 21 Feb 2022 00:54:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8F70B80EA1;
-        Mon, 21 Feb 2022 08:59:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F0E5C340E9;
-        Mon, 21 Feb 2022 08:59:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4706B80EA5;
+        Mon, 21 Feb 2022 08:54:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5DC0C340EB;
+        Mon, 21 Feb 2022 08:54:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433958;
-        bh=BZJKDf3a+IYJe+hB4lx8b3I9lBUrZ3vzyayzam2oyPc=;
+        s=korg; t=1645433669;
+        bh=rHL55wT5u1fd4Ub6zY7bSIqS/ckbe0pehw+xqLzZBLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WDqdVjxmgkV+/fFqJV/B+iLrz4yOJCju2Ix68HW0HgyAv6HZau5KfoyAwAy22BK5o
-         aFmOC6bKNTzeymiQTEzgDtHhCCpear+B9MGJg/XDj0zMBA8pSJfZ7C8u7COMwI6Pv5
-         M4X/JOk6sNN6GLciL9GrjMB8Hi6dnzrE4BHDu5Xw=
+        b=ZG8R91Zgj51BIA9HIfpdHJnFcfP6VyushctcRwWV15mosAnjzhHa3E55TfbALElD/
+         tyJ8OJzekwTs6M4XePGdrctpBBcwPqeuTkYUaYjV1h/RaI00p5edi5nwbDKJlTtvp8
+         WVEjCYaggYqEknF6PEAWPtcZSol1AVictjWmY+lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 42/80] bonding: force carrier update when releasing slave
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 31/45] powerpc/lib/sstep: fix ptesync build error
 Date:   Mon, 21 Feb 2022 09:49:22 +0100
-Message-Id: <20220221084916.955104533@linuxfoundation.org>
+Message-Id: <20220221084911.454246782@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
+References: <20220221084910.454824160@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-commit a6ab75cec1e461f8a35559054c146c21428430b8 upstream.
+commit fe663df7825811358531dc2e8a52d9eaa5e3515e upstream.
 
-In __bond_release_one(), bond_set_carrier() is only called when bond
-device has no slave. Therefore, if we remove the up slave from a master
-with two slaves and keep the down slave, the master will remain up.
+Building tinyconfig with gcc (Debian 11.2.0-16) and assembler (Debian
+2.37.90.20220207) the following build error shows up:
 
-Fix this by moving bond_set_carrier() out of if (!bond_has_slaves(bond))
-statement.
+  {standard input}: Assembler messages:
+  {standard input}:2088: Error: unrecognized opcode: `ptesync'
+  make[3]: *** [/builds/linux/scripts/Makefile.build:287: arch/powerpc/lib/sstep.o] Error 1
 
-Reproducer:
-$ insmod bonding.ko mode=0 miimon=100 max_bonds=2
-$ ifconfig bond0 up
-$ ifenslave bond0 eth0 eth1
-$ ifconfig eth0 down
-$ ifenslave -d bond0 eth1
-$ cat /proc/net/bonding/bond0
+Add the 'ifdef CONFIG_PPC64' around the 'ptesync' in function
+'emulate_update_regs()' to like it is in 'analyse_instr()'. Since it looks like
+it got dropped inadvertently by commit 3cdfcbfd32b9 ("powerpc: Change
+analyse_instr so it doesn't modify *regs").
 
-Fixes: ff59c4563a8d ("[PATCH] bonding: support carrier state for master")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Link: https://lore.kernel.org/r/1645021088-38370-1-git-send-email-zhangchangzhong@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+A key detail is that analyse_instr() will never recognise lwsync or
+ptesync on 32-bit (because of the existing ifdef), and as a result
+emulate_update_regs() should never be called with an op specifying
+either of those on 32-bit. So removing them from emulate_update_regs()
+should be a nop in terms of runtime behaviour.
+
+Fixes: 3cdfcbfd32b9 ("powerpc: Change analyse_instr so it doesn't modify *regs")
+Cc: stable@vger.kernel.org # v4.14+
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+[mpe: Add last paragraph of change log mentioning analyse_instr() details]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220211005113.1361436-1-anders.roxell@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bonding/bond_main.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/powerpc/lib/sstep.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -1979,10 +1979,9 @@ static int __bond_release_one(struct net
- 		bond_select_active_slave(bond);
- 	}
+--- a/arch/powerpc/lib/sstep.c
++++ b/arch/powerpc/lib/sstep.c
+@@ -2652,12 +2652,14 @@ void emulate_update_regs(struct pt_regs
+ 		case BARRIER_EIEIO:
+ 			eieio();
+ 			break;
++#ifdef CONFIG_PPC64
+ 		case BARRIER_LWSYNC:
+ 			asm volatile("lwsync" : : : "memory");
+ 			break;
+ 		case BARRIER_PTESYNC:
+ 			asm volatile("ptesync" : : : "memory");
+ 			break;
++#endif
+ 		}
+ 		break;
  
--	if (!bond_has_slaves(bond)) {
--		bond_set_carrier(bond);
-+	bond_set_carrier(bond);
-+	if (!bond_has_slaves(bond))
- 		eth_hw_addr_random(bond_dev);
--	}
- 
- 	unblock_netpoll_tx();
- 	synchronize_rcu();
 
 
