@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0FC94BE611
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C19C54BE155
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351625AbiBUJtx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:49:53 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41616 "EHLO
+        id S1346980AbiBUJAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:00:12 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353187AbiBUJsP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1AEA25E85;
-        Mon, 21 Feb 2022 01:22:24 -0800 (PST)
+        with ESMTP id S1346541AbiBUI7p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:59:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAE2426543;
+        Mon, 21 Feb 2022 00:55:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7FBA60F93;
-        Mon, 21 Feb 2022 09:22:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB90AC340EB;
-        Mon, 21 Feb 2022 09:22:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F0C961132;
+        Mon, 21 Feb 2022 08:55:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40D3FC340E9;
+        Mon, 21 Feb 2022 08:55:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435343;
-        bh=UgqOh3DNQl0jLTXWGK/2TY830ollRlfmr4U5TQRvB2s=;
+        s=korg; t=1645433712;
+        bh=DxiS2imM2kRlhNNZ2tvupf0VGWXlv4zHDpnN/oeZKQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=znMkkFBWh8+isaPbL990A+y2o8w4jdC5OCeg9lV8Z7T8Wq9fwSJLvbygheCWGH9un
-         IcMUXQCoksvAzVpKhVNISE1J9hKDk3Sc3bHqWh0SZQfKZ8DyNWvGmL4DnlO5KsIgJX
-         ChMyKcjWjhqF4ANBmqy2+IhaCA6N13sVb04hQMro=
+        b=ee9XbjTfGhfUcuDDNvkVeXL4KpVlCHF3VSSe04SkN/y8rT6iYwvnDrfTbLX5NbhO8
+         czMD96BfhxLqIstWJy343lIlGcjiGj3gHnoekSkIWNw4ZEdthCwfy1IyuzPLv1A6qT
+         uY3jxYKxqY3DMls/Rkf6NwyGGMbDD4Z0wOjyxwAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 130/227] net: mscc: ocelot: fix use-after-free in ocelot_vlan_del()
+        stable@vger.kernel.org, Igor Pylypiv <ipylypiv@google.com>,
+        Changyuan Lyu <changyuanl@google.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Tejun Heo <tj@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 16/58] Revert "module, async: async_synchronize_full() on module init iff async is used"
 Date:   Mon, 21 Feb 2022 09:49:09 +0100
-Message-Id: <20220221084939.177603703@linuxfoundation.org>
+Message-Id: <20220221084912.413500007@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
+References: <20220221084911.895146879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +57,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Igor Pylypiv <ipylypiv@google.com>
 
-commit ef57640575406f57f5b3393cf57f457b0ace837e upstream.
+[ Upstream commit 67d6212afda218d564890d1674bab28e8612170f ]
 
-ocelot_vlan_member_del() will free the struct ocelot_bridge_vlan, so if
-this is the same as the port's pvid_vlan which we access afterwards,
-what we're accessing is freed memory.
+This reverts commit 774a1221e862b343388347bac9b318767336b20b.
 
-Fix the bug by determining whether to clear ocelot_port->pvid_vlan prior
-to calling ocelot_vlan_member_del().
+We need to finish all async code before the module init sequence is
+done.  In the reverted commit the PF_USED_ASYNC flag was added to mark a
+thread that called async_schedule().  Then the PF_USED_ASYNC flag was
+used to determine whether or not async_synchronize_full() needs to be
+invoked.  This works when modprobe thread is calling async_schedule(),
+but it does not work if module dispatches init code to a worker thread
+which then calls async_schedule().
 
-Fixes: d4004422f6f9 ("net: mscc: ocelot: track the port pvid using a pointer")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+For example, PCI driver probing is invoked from a worker thread based on
+a node where device is attached:
+
+	if (cpu < nr_cpu_ids)
+		error = work_on_cpu(cpu, local_pci_probe, &ddi);
+	else
+		error = local_pci_probe(&ddi);
+
+We end up in a situation where a worker thread gets the PF_USED_ASYNC
+flag set instead of the modprobe thread.  As a result,
+async_synchronize_full() is not invoked and modprobe completes without
+waiting for the async code to finish.
+
+The issue was discovered while loading the pm80xx driver:
+(scsi_mod.scan=async)
+
+modprobe pm80xx                      worker
+...
+  do_init_module()
+  ...
+    pci_call_probe()
+      work_on_cpu(local_pci_probe)
+                                     local_pci_probe()
+                                       pm8001_pci_probe()
+                                         scsi_scan_host()
+                                           async_schedule()
+                                           worker->flags |= PF_USED_ASYNC;
+                                     ...
+      < return from worker >
+  ...
+  if (current->flags & PF_USED_ASYNC) <--- false
+  	async_synchronize_full();
+
+Commit 21c3c5d28007 ("block: don't request module during elevator init")
+fixed the deadlock issue which the reverted commit 774a1221e862
+("module, async: async_synchronize_full() on module init iff async is
+used") tried to fix.
+
+Since commit 0fdff3ec6d87 ("async, kmod: warn on synchronous
+request_module() from async workers") synchronous module loading from
+async is not allowed.
+
+Given that the original deadlock issue is fixed and it is no longer
+allowed to call synchronous request_module() from async we can remove
+PF_USED_ASYNC flag to make module init consistently invoke
+async_synchronize_full() unless async module probe is requested.
+
+Signed-off-by: Igor Pylypiv <ipylypiv@google.com>
+Reviewed-by: Changyuan Lyu <changyuanl@google.com>
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ include/linux/sched.h |  1 -
+ kernel/async.c        |  3 ---
+ kernel/module.c       | 25 +++++--------------------
+ 3 files changed, 5 insertions(+), 24 deletions(-)
 
---- a/drivers/net/ethernet/mscc/ocelot.c
-+++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -480,14 +480,18 @@ EXPORT_SYMBOL(ocelot_vlan_add);
- int ocelot_vlan_del(struct ocelot *ocelot, int port, u16 vid)
- {
- 	struct ocelot_port *ocelot_port = ocelot->ports[port];
-+	bool del_pvid = false;
- 	int err;
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 761d0f85c4a50..f92d5ae6d04e7 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1389,7 +1389,6 @@ extern struct pid *cad_pid;
+ #define PF_MEMALLOC		0x00000800	/* Allocating memory */
+ #define PF_NPROC_EXCEEDED	0x00001000	/* set_user() noticed that RLIMIT_NPROC was exceeded */
+ #define PF_USED_MATH		0x00002000	/* If unset the fpu must be initialized before use */
+-#define PF_USED_ASYNC		0x00004000	/* Used async_schedule*(), used by module init */
+ #define PF_NOFREEZE		0x00008000	/* This thread should not be frozen */
+ #define PF_FROZEN		0x00010000	/* Frozen for system suspend */
+ #define PF_KSWAPD		0x00020000	/* I am kswapd */
+diff --git a/kernel/async.c b/kernel/async.c
+index a893d6170944f..4bf1b00a28d86 100644
+--- a/kernel/async.c
++++ b/kernel/async.c
+@@ -191,9 +191,6 @@ static async_cookie_t __async_schedule(async_func_t func, void *data, struct asy
+ 	atomic_inc(&entry_count);
+ 	spin_unlock_irqrestore(&async_lock, flags);
  
-+	if (ocelot_port->pvid_vlan && ocelot_port->pvid_vlan->vid == vid)
-+		del_pvid = true;
-+
- 	err = ocelot_vlan_member_del(ocelot, port, vid);
- 	if (err)
- 		return err;
+-	/* mark that this task has queued an async job, used by module init */
+-	current->flags |= PF_USED_ASYNC;
+-
+ 	/* schedule for execution */
+ 	queue_work(system_unbound_wq, &entry->work);
  
- 	/* Ingress */
--	if (ocelot_port->pvid_vlan && ocelot_port->pvid_vlan->vid == vid)
-+	if (del_pvid)
- 		ocelot_port_set_pvid(ocelot, port, NULL);
+diff --git a/kernel/module.c b/kernel/module.c
+index 68637e661d75c..42a604401c4dd 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3526,12 +3526,6 @@ static noinline int do_init_module(struct module *mod)
+ 	}
+ 	freeinit->module_init = mod->init_layout.base;
  
- 	/* Egress */
+-	/*
+-	 * We want to find out whether @mod uses async during init.  Clear
+-	 * PF_USED_ASYNC.  async_schedule*() will set it.
+-	 */
+-	current->flags &= ~PF_USED_ASYNC;
+-
+ 	do_mod_ctors(mod);
+ 	/* Start the module */
+ 	if (mod->init != NULL)
+@@ -3557,22 +3551,13 @@ static noinline int do_init_module(struct module *mod)
+ 
+ 	/*
+ 	 * We need to finish all async code before the module init sequence
+-	 * is done.  This has potential to deadlock.  For example, a newly
+-	 * detected block device can trigger request_module() of the
+-	 * default iosched from async probing task.  Once userland helper
+-	 * reaches here, async_synchronize_full() will wait on the async
+-	 * task waiting on request_module() and deadlock.
+-	 *
+-	 * This deadlock is avoided by perfomring async_synchronize_full()
+-	 * iff module init queued any async jobs.  This isn't a full
+-	 * solution as it will deadlock the same if module loading from
+-	 * async jobs nests more than once; however, due to the various
+-	 * constraints, this hack seems to be the best option for now.
+-	 * Please refer to the following thread for details.
++	 * is done. This has potential to deadlock if synchronous module
++	 * loading is requested from async (which is not allowed!).
+ 	 *
+-	 * http://thread.gmane.org/gmane.linux.kernel/1420814
++	 * See commit 0fdff3ec6d87 ("async, kmod: warn on synchronous
++	 * request_module() from async workers") for more details.
+ 	 */
+-	if (!mod->async_probe_requested && (current->flags & PF_USED_ASYNC))
++	if (!mod->async_probe_requested)
+ 		async_synchronize_full();
+ 
+ 	ftrace_free_mem(mod, mod->init_layout.base, mod->init_layout.base +
+-- 
+2.34.1
+
 
 
