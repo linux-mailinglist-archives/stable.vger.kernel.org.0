@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 740554BE64F
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:02:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF50D4BE4C7
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:59:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347149AbiBUJGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:06:06 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43596 "EHLO
+        id S1345397AbiBUIw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:52:26 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347315AbiBUJFR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:05:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 160A825C5C;
-        Mon, 21 Feb 2022 00:58:56 -0800 (PST)
+        with ESMTP id S1345106AbiBUIwI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:52:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F70713B;
+        Mon, 21 Feb 2022 00:51:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E7DDB80EAC;
-        Mon, 21 Feb 2022 08:58:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81AB6C340EB;
-        Mon, 21 Feb 2022 08:58:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D10B7B80EAF;
+        Mon, 21 Feb 2022 08:51:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C860C340E9;
+        Mon, 21 Feb 2022 08:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433933;
-        bh=os7+BbduWHsodAPKLMmu7l+9ODhuHdAKJZMGcsnJXmk=;
+        s=korg; t=1645433502;
+        bh=nJe6J7dX+m0rnm2nKvchv1+6052pMV1S6eHy69tQasE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sKdP8wC2jHSeSkuxQUSGiB7u1IpNomttBI3r3LEOmVji8hnZaglew6NUAEWnsJqUQ
-         ps0zPODRCnBOnI/QueZobkiUGSjwvx52f+EvUO1avZ3cPeFLojWR/8eItdobKIUfrp
-         tEjdfFJ6W1m3S8aZQtqVVFkCi6AtKe8PqP5sJvNg=
+        b=NHwY47/Mn30UXTsLSqI2gZiRPK079JNPsclSW/Ovm4ryNKKqF+AnyortDHOfwkDX+
+         MYcE39DFgZKCKn68Q7Od+co2VGMFFiXfg2PQvqlesZO8Dy65LXQCiPIuVeuaMGs6B5
+         uQaLcVayCvH7pjdQS0V9ZT0OAPEEOYp3/ck2IICk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 34/80] vsock: remove vsock from connected table when connect is interrupted by a signal
+        stable@vger.kernel.org,
+        =?UTF-8?q?Valdis=20Kl=C4=93tnieks?= <valdis.kletnieks@vt.edu>,
+        Kees Kook <keescook@chromium.org>,
+        "Justin M. Forbes" <jforbes@fedoraproject.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        linux-hardening@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.9 21/33] libsubcmd: Fix use-after-free for realloc(..., 0)
 Date:   Mon, 21 Feb 2022 09:49:14 +0100
-Message-Id: <20220221084916.690373564@linuxfoundation.org>
+Message-Id: <20220221084909.463671717@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
+References: <20220221084908.568970525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +58,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seth Forshee <sforshee@digitalocean.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit b9208492fcaecff8f43915529ae34b3bcb03877c upstream.
+commit 52a9dab6d892763b2a8334a568bd4e2c1a6fde66 upstream.
 
-vsock_connect() expects that the socket could already be in the
-TCP_ESTABLISHED state when the connecting task wakes up with a signal
-pending. If this happens the socket will be in the connected table, and
-it is not removed when the socket state is reset. In this situation it's
-common for the process to retry connect(), and if the connection is
-successful the socket will be added to the connected table a second
-time, corrupting the list.
+GCC 12 correctly reports a potential use-after-free condition in the
+xrealloc helper. Fix the warning by avoiding an implicit "free(ptr)"
+when size == 0:
 
-Prevent this by calling vsock_remove_connected() if a signal is received
-while waiting for a connection. This is harmless if the socket is not in
-the connected table, and if it is in the table then removing it will
-prevent list corruption from a double add.
+In file included from help.c:12:
+In function 'xrealloc',
+    inlined from 'add_cmdname' at help.c:24:2: subcmd-util.h:56:23: error: pointer may be used after 'realloc' [-Werror=use-after-free]
+   56 |                 ret = realloc(ptr, size);
+      |                       ^~~~~~~~~~~~~~~~~~
+subcmd-util.h:52:21: note: call to 'realloc' here
+   52 |         void *ret = realloc(ptr, size);
+      |                     ^~~~~~~~~~~~~~~~~~
+subcmd-util.h:58:31: error: pointer may be used after 'realloc' [-Werror=use-after-free]
+   58 |                         ret = realloc(ptr, 1);
+      |                               ^~~~~~~~~~~~~~~
+subcmd-util.h:52:21: note: call to 'realloc' here
+   52 |         void *ret = realloc(ptr, size);
+      |                     ^~~~~~~~~~~~~~~~~~
 
-Note for backporting: this patch requires d5afa82c977e ("vsock: correct
-removal of socket from the list"), which is in all current stable trees
-except 4.9.y.
-
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Signed-off-by: Seth Forshee <sforshee@digitalocean.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/20220217141312.2297547-1-sforshee@digitalocean.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 2f4ce5ec1d447beb ("perf tools: Finalize subcmd independence")
+Reported-by: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+Signed-off-by: Kees Kook <keescook@chromium.org>
+Tested-by: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: linux-hardening@vger.kernel.org
+Cc: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+Link: http://lore.kernel.org/lkml/20220213182443.4037039-1-keescook@chromium.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/vmw_vsock/af_vsock.c |    1 +
- 1 file changed, 1 insertion(+)
+ tools/lib/subcmd/subcmd-util.h |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1222,6 +1222,7 @@ static int vsock_stream_connect(struct s
- 			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
- 			sock->state = SS_UNCONNECTED;
- 			vsock_transport_cancel_pkt(vsk);
-+			vsock_remove_connected(vsk);
- 			goto out_wait;
- 		} else if (timeout == 0) {
- 			err = -ETIMEDOUT;
+--- a/tools/lib/subcmd/subcmd-util.h
++++ b/tools/lib/subcmd/subcmd-util.h
+@@ -49,15 +49,8 @@ static NORETURN inline void die(const ch
+ static inline void *xrealloc(void *ptr, size_t size)
+ {
+ 	void *ret = realloc(ptr, size);
+-	if (!ret && !size)
+-		ret = realloc(ptr, 1);
+-	if (!ret) {
+-		ret = realloc(ptr, size);
+-		if (!ret && !size)
+-			ret = realloc(ptr, 1);
+-		if (!ret)
+-			die("Out of memory, realloc failed");
+-	}
++	if (!ret)
++		die("Out of memory, realloc failed");
+ 	return ret;
+ }
+ 
 
 
