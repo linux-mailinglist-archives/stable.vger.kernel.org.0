@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A40B4BE8C9
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:06:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98C174BE213
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:54:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345895AbiBUIyG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 03:54:06 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42138 "EHLO
+        id S1344881AbiBUIvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:51:36 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345213AbiBUIxX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:53:23 -0500
+        with ESMTP id S1344876AbiBUIve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:51:34 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44FB91A3AC;
-        Mon, 21 Feb 2022 00:52:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F21DC2BCB;
+        Mon, 21 Feb 2022 00:51:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC3B06113E;
-        Mon, 21 Feb 2022 08:52:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6F16C36AE3;
-        Mon, 21 Feb 2022 08:52:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FD4C61132;
+        Mon, 21 Feb 2022 08:51:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 738DEC340E9;
+        Mon, 21 Feb 2022 08:51:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433573;
-        bh=foq7aWkmTN8QQXTsCm8X6UhWUOoorR7j+iWs6BYq42E=;
+        s=korg; t=1645433471;
+        bh=/hVOJlsFWLKRbsZ0LCXQz1BHsIWJgYUIFS3HbLPfFkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v30/eEW5xzx7+B+0VKM/wJefMwscKgMlCCnswuFc9q7KyGje+pS8CSNpFvQIrSzd4
-         RqVpVC6v4XhC+JZwhCbHzVUeAxSpSy8sEEJka2QaJoanqUPnjcLzrhrJGN1Zj3dy5Z
-         S8ZUNuWILC2XwoDxZSANSJIGD680X8tcqLAxBCfQ=
+        b=ExED1Hb3Ma2O8c8wBlaHVAWABDKAIQdkVll3OF21Emk4XZvHUC3rr8ZTl/GSLul7R
+         p+NyuYTu9u7Tgcx+FOqjdtcCjMpwq8NAB6GxT/VDYmzAcmP1Ut7ANaM+BbKP9SNK+I
+         14Oh/A5ws1v3eavRkQ4Ob0MYIt/xhJmIjo1NnOXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
-        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Christian Brauner <brauner@kernel.org>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/45] quota: make dquot_quota_sync return errors from ->sync_fs
+Subject: [PATCH 4.9 11/33] ax25: improve the incomplete fix to avoid UAF and NPD bugs
 Date:   Mon, 21 Feb 2022 09:49:04 +0100
-Message-Id: <20220221084910.896850055@linuxfoundation.org>
+Message-Id: <20220221084908.924052016@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084910.454824160@linuxfoundation.org>
-References: <20220221084910.454824160@linuxfoundation.org>
+In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
+References: <20220221084908.568970525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <djwong@kernel.org>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit dd5532a4994bfda0386eb2286ec00758cee08444 ]
+[ Upstream commit 4e0f718daf97d47cf7dec122da1be970f145c809 ]
 
-Strangely, dquot_quota_sync ignores the return code from the ->sync_fs
-call, which means that quotacalls like Q_SYNC never see the error.  This
-doesn't seem right, so fix that.
+The previous commit 1ade48d0c27d ("ax25: NPD bug when detaching
+AX25 device") introduce lock_sock() into ax25_kill_by_device to
+prevent NPD bug. But the concurrency NPD or UAF bug will occur,
+when lock_sock() or release_sock() dereferences the ax25_cb->sock.
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Christian Brauner <brauner@kernel.org>
+The NULL pointer dereference bug can be shown as below:
+
+ax25_kill_by_device()        | ax25_release()
+                             |   ax25_destroy_socket()
+                             |     ax25_cb_del()
+  ...                        |     ...
+                             |     ax25->sk=NULL;
+  lock_sock(s->sk); //(1)    |
+  s->ax25_dev = NULL;        |     ...
+  release_sock(s->sk); //(2) |
+  ...                        |
+
+The root cause is that the sock is set to null before dereference
+site (1) or (2). Therefore, this patch extracts the ax25_cb->sock
+in advance, and uses ax25_list_lock to protect it, which can synchronize
+with ax25_cb_del() and ensure the value of sock is not null before
+dereference sites.
+
+The concurrency UAF bug can be shown as below:
+
+ax25_kill_by_device()        | ax25_release()
+                             |   ax25_destroy_socket()
+  ...                        |   ...
+                             |   sock_put(sk); //FREE
+  lock_sock(s->sk); //(1)    |
+  s->ax25_dev = NULL;        |   ...
+  release_sock(s->sk); //(2) |
+  ...                        |
+
+The root cause is that the sock is released before dereference
+site (1) or (2). Therefore, this patch uses sock_hold() to increase
+the refcount of sock and uses ax25_list_lock to protect it, which
+can synchronize with ax25_cb_del() in ax25_destroy_socket() and
+ensure the sock wil not be released before dereference sites.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/quota/dquot.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ net/ax25/af_ax25.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
-index 30f5da8f4affa..7c364cda8daac 100644
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -680,9 +680,14 @@ int dquot_quota_sync(struct super_block *sb, int type)
- 	/* This is not very clever (and fast) but currently I don't know about
- 	 * any other simple way of getting quota data to disk and we must get
- 	 * them there for userspace to be visible... */
--	if (sb->s_op->sync_fs)
--		sb->s_op->sync_fs(sb, 1);
--	sync_blockdev(sb->s_bdev);
-+	if (sb->s_op->sync_fs) {
-+		ret = sb->s_op->sync_fs(sb, 1);
-+		if (ret)
-+			return ret;
-+	}
-+	ret = sync_blockdev(sb->s_bdev);
-+	if (ret)
-+		return ret;
+diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
+index f4c8567e91b38..c4ef1be59cb19 100644
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -80,6 +80,7 @@ static void ax25_kill_by_device(struct net_device *dev)
+ {
+ 	ax25_dev *ax25_dev;
+ 	ax25_cb *s;
++	struct sock *sk;
  
- 	/*
- 	 * Now when everything is written we can discard the pagecache so
+ 	if ((ax25_dev = ax25_dev_ax25dev(dev)) == NULL)
+ 		return;
+@@ -88,13 +89,15 @@ static void ax25_kill_by_device(struct net_device *dev)
+ again:
+ 	ax25_for_each(s, &ax25_list) {
+ 		if (s->ax25_dev == ax25_dev) {
++			sk = s->sk;
++			sock_hold(sk);
+ 			spin_unlock_bh(&ax25_list_lock);
+-			lock_sock(s->sk);
++			lock_sock(sk);
+ 			s->ax25_dev = NULL;
+-			release_sock(s->sk);
++			release_sock(sk);
+ 			ax25_disconnect(s, ENETUNREACH);
+ 			spin_lock_bh(&ax25_list_lock);
+-
++			sock_put(sk);
+ 			/* The entry could have been deleted from the
+ 			 * list meanwhile and thus the next pointer is
+ 			 * no longer valid.  Play it safe and restart
 -- 
 2.34.1
 
