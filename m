@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A2534BDE67
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:47:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0460E4BE197
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347719AbiBUJKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:10:08 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36734 "EHLO
+        id S1351686AbiBUJuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:50:32 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347733AbiBUJJN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAE45D96;
-        Mon, 21 Feb 2022 01:01:34 -0800 (PST)
+        with ESMTP id S1352593AbiBUJrh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1595842EF4;
+        Mon, 21 Feb 2022 01:20:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92CCAB80EB2;
-        Mon, 21 Feb 2022 09:01:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7A9FC340EB;
-        Mon, 21 Feb 2022 09:01:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A05B260EB3;
+        Mon, 21 Feb 2022 09:20:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFE5BC340EC;
+        Mon, 21 Feb 2022 09:20:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434092;
-        bh=xZ9fA8FQTlhqSO4xb2BTS+Tte660lRoSeEI0kUbK64E=;
+        s=korg; t=1645435210;
+        bh=MCHtTJpifQkGD42L/6e6W90C2fxMXP0SRmYINnpTOuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mAXyNo50cAwzspWWoi/ETAm1ANB9fmqH42O58PFrpUkzmc6J1XcD0Eyrym6WQBhaV
-         hDtWOnDyOA39sWNEySWNPEeO01SydJwfk9nXRkFdw0LGDQ/jFz84Oltyb9kMGmSZff
-         6jOnhQmkj3rI+hOGp+iUSWwTS5fp6/+LirymonWY=
+        b=Ly51+vqmFARuLaz0v2jxV8/hwi3ZymoLjez+TDAdhOo95xDJnQgQ5gq5i2QSg2Gw7
+         nmbut2GZfRhysJ6nPL9PFiFrOaKn0yUu3rBCsQWu3X50jc3OeBrSobK/VNojU3Gwwo
+         swcl1xmtzue89XkRvs+Sn5a8G2l2UDsS4ft5V3Po=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 010/121] Revert "svm: Add warning message for AVIC IPI invalid target"
-Date:   Mon, 21 Feb 2022 09:48:22 +0100
-Message-Id: <20220221084921.498275586@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.16 084/227] drm/i915: Fix dbuf slice config lookup
+Date:   Mon, 21 Feb 2022 09:48:23 +0100
+Message-Id: <20220221084937.660836840@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit dd4589eee99db8f61f7b8f7df1531cad3f74a64d upstream.
+commit 698bef8ff5d2edea5d1c9d6e5adf1bfed1e8a106 upstream.
 
-Remove a WARN on an "AVIC IPI invalid target" exit, the WARN is trivial
-to trigger from guest as it will fail on any destination APIC ID that
-doesn't exist from the guest's perspective.
+Apparently I totally fumbled the loop condition when I
+removed the ARRAY_SIZE() stuff from the dbuf slice config
+lookup. Comparing the loop index with the active_pipes bitmask
+is utter nonsense, what we want to do is check to see if the
+mask is zero or not.
 
-Don't bother recording anything in the kernel log, the common tracepoint
-for kvm_avic_incomplete_ipi() is sufficient for debugging.
-
-This reverts commit 37ef0c4414c9743ba7f1af4392f0a27a99649f2a.
+Note that the code actually ended up working correctly despite
+the fumble, up until commit eef173954432 ("drm/i915: Allow
+!join_mbus cases for adlp+ dbuf configuration") when things
+broke for real.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220204214205.3306634-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 05e8155afe35 ("drm/i915: Use a sentinel to terminate the dbuf slice arrays")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220207132700.481-1-ville.syrjala@linux.intel.com
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit a28fde308c3c1c174249ff9559b57f24e6850086)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/avic.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/gpu/drm/i915/intel_pm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/svm/avic.c
-+++ b/arch/x86/kvm/svm/avic.c
-@@ -344,8 +344,6 @@ int avic_incomplete_ipi_interception(str
- 		break;
- 	}
- 	case AVIC_IPI_FAILURE_INVALID_TARGET:
--		WARN_ONCE(1, "Invalid IPI target: index=%u, vcpu=%d, icr=%#0x:%#0x\n",
--			  index, svm->vcpu.vcpu_id, icrh, icrl);
- 		break;
- 	case AVIC_IPI_FAILURE_INVALID_BACKING_PAGE:
- 		WARN_ONCE(1, "Invalid backing page\n");
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -4860,7 +4860,7 @@ static u8 compute_dbuf_slices(enum pipe
+ {
+ 	int i;
+ 
+-	for (i = 0; i < dbuf_slices[i].active_pipes; i++) {
++	for (i = 0; dbuf_slices[i].active_pipes != 0; i++) {
+ 		if (dbuf_slices[i].active_pipes == active_pipes &&
+ 		    dbuf_slices[i].join_mbus == join_mbus)
+ 			return dbuf_slices[i].dbuf_mask[pipe];
 
 
