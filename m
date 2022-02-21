@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 636134BE87A
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:05:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DFFC4BE3B9
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:57:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242414AbiBUJii (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:38:38 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36342 "EHLO
+        id S1347166AbiBUJEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:04:00 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350672AbiBUJel (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:34:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9C6D2AC73;
-        Mon, 21 Feb 2022 01:14:36 -0800 (PST)
+        with ESMTP id S1347506AbiBUJB1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:01:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E7E624D;
+        Mon, 21 Feb 2022 00:56:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E02660E9F;
-        Mon, 21 Feb 2022 09:13:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AA36C340F6;
-        Mon, 21 Feb 2022 09:13:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D937DB80EAA;
+        Mon, 21 Feb 2022 08:56:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24F3CC340E9;
+        Mon, 21 Feb 2022 08:56:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434831;
-        bh=ZpfoQcnTmVqebXfBI40itLAdUgbRn0FhwDiHLlfqpqI=;
+        s=korg; t=1645433794;
+        bh=EteLPQ1xpo8u1pYKeNPetV3v8Y6SoK7eagmQ+X6IfdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uswXPEhonJQ3tk+tXRvX9I06jBqehnlUtj/KONkaC9iqyI4EWgiZ9+HICqSbBrFPT
-         RgxOvJLOhqquVFBZ8sw9FJ6C1E8wfGVOcfofELNUdUrnxPMJ6CZ1IPO611RBiNYueq
-         MdngXMaCIfx0yvj1abWgN1PSrWQU1wrZ1MomJ9p8=
+        b=DAvDNfCqSwAkA1SeT/GbMB11cSkHNVgbUV+M9WiSCv6yb4ovCK5cWa4vu1G547rsa
+         L11I7NJ6hNamxHDY2KAFR0JrMaK0ej3JVqFKXLIKY4zAih3MjnCGdZsEwsyDdtCcfi
+         MEK/NCl5Wc8z9K7bCCYgc67GjCu58A6VCFV8TiJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        David Dunn <daviddunn@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 145/196] KVM: x86/pmu: Dont truncate the PerfEvtSeln MSR when creating a perf event
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 4.19 44/58] i2c: brcmstb: fix support for DSL and CM variants
 Date:   Mon, 21 Feb 2022 09:49:37 +0100
-Message-Id: <20220221084935.775021299@linuxfoundation.org>
+Message-Id: <20220221084913.303040483@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
+References: <20220221084911.895146879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit b8bfee85f1307426e0242d654f3a14c06ef639c5 ]
+commit 834cea3a252ed4847db076a769ad9efe06afe2d5 upstream.
 
-AMD's event select is 3 nybbles, with the high nybble in bits 35:32 of
-a PerfEvtSeln MSR. Don't drop the high nybble when setting up the
-config field of a perf_event_attr structure for a call to
-perf_event_create_kernel_counter().
+DSL and CM (Cable Modem) support 8 B max transfer size and have a custom
+DT binding for that reason. This driver was checking for a wrong
+"compatible" however which resulted in an incorrect setup.
 
-Fixes: ca724305a2b0 ("KVM: x86/vPMU: Implement AMD vPMU code for KVM")
-Reported-by: Stephane Eranian <eranian@google.com>
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Message-Id: <20220203014813.2130559-1-jmattson@google.com>
-Reviewed-by: David Dunn <daviddunn@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e2e5a2c61837 ("i2c: brcmstb: Adding support for CM and DSL SoCs")
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/pmu.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-brcmstb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/pmu.c b/arch/x86/kvm/pmu.c
-index eec614de9af30..bfef0c658730e 100644
---- a/arch/x86/kvm/pmu.c
-+++ b/arch/x86/kvm/pmu.c
-@@ -95,7 +95,7 @@ static void kvm_perf_overflow_intr(struct perf_event *perf_event,
- }
+--- a/drivers/i2c/busses/i2c-brcmstb.c
++++ b/drivers/i2c/busses/i2c-brcmstb.c
+@@ -645,7 +645,7 @@ static int brcmstb_i2c_probe(struct plat
  
- static void pmc_reprogram_counter(struct kvm_pmc *pmc, u32 type,
--				  unsigned config, bool exclude_user,
-+				  u64 config, bool exclude_user,
- 				  bool exclude_kernel, bool intr,
- 				  bool in_tx, bool in_tx_cp)
- {
-@@ -173,7 +173,8 @@ static bool pmc_resume_counter(struct kvm_pmc *pmc)
- 
- void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel)
- {
--	unsigned config, type = PERF_TYPE_RAW;
-+	u64 config;
-+	u32 type = PERF_TYPE_RAW;
- 	struct kvm *kvm = pmc->vcpu->kvm;
- 	struct kvm_pmu_event_filter *filter;
- 	int i;
--- 
-2.34.1
-
+ 	/* set the data in/out register size for compatible SoCs */
+ 	if (of_device_is_compatible(dev->device->of_node,
+-				    "brcmstb,brcmper-i2c"))
++				    "brcm,brcmper-i2c"))
+ 		dev->data_regsz = sizeof(u8);
+ 	else
+ 		dev->data_regsz = sizeof(u32);
 
 
