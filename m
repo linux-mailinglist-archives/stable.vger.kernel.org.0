@@ -2,142 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ACA24BEAEE
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 20:37:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DE764BEBA6
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 21:16:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229510AbiBUTgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 14:36:39 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54996 "EHLO
+        id S233534AbiBUUQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 15:16:39 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229927AbiBUTgi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 14:36:38 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3062A2250E
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 11:36:14 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id qe15so16095752pjb.3
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 11:36:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=vEMHRYcbo1fWGU5Gd0fl4PzUB9u32QTAYA6VBZQRizg=;
-        b=BFS9H7uh0VFzzR7gAiwJDDDonXrB08YG2f2FLrBdDUiOC3jGTy5LHxaLoyayqYp7rt
-         yyEf7ltVqkoPEPrOO1fSswkjgWl3zwf4HtK0HNQybMUcpy1Z/66IhFxoX5EUvVNsm9AB
-         zF5L8GFq5R6xg6p9H+wbFzARF6x/eal8ksaAa4b1FvX3UX65p4cJlPqk16WClh2N8/dd
-         MMxgeVOUElcjl802ba7tEu2SbcLS7EHV6fmOfQ/55YacHpQvXhamO/pkCBfVW2IE0Uxt
-         d4h+/qDExGpSDdEESKgEoGpn+iM3PLt3+ajGHdP0CbbONuxjOx1EzWwsO0phSt3iF5L/
-         RR9g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=vEMHRYcbo1fWGU5Gd0fl4PzUB9u32QTAYA6VBZQRizg=;
-        b=x+lONXvtKsSrthzeAF8eJzoYjzz1/TYD4sS5Os85bcMoBmAu9lf06LZPfcWDh/9E0S
-         NXpGmiPuejbpDG+JRhH8oEUmsrIWwXoThUBtsVBmK4k0OvAtxTp29ft0jtGGBr0bokW5
-         182CPNuYhySUvUu0xIxCjrjvmo+hQO8RpD+D2AYX5cEM/3w/1npTmexRHbBFgN15zsee
-         Q5owCRRKRjPAq/ZuVI6qq5Rm2toEI0EiI2ki3iFgweu2xiiUuUSltS5W+ubZKJ5OP7gm
-         W2w7LaJPqOUDYDrPELqno32ZZrSJnfRTYhXQp60nCJjKGxBMmis6kyO1Xq7VUr+nWJVP
-         JjhQ==
-X-Gm-Message-State: AOAM5335YK51qXobdUwDC4HaJ1nw0vZfYqx1+7bFOKKi7lB4ketOU23h
-        80wO4R/YZDAPca3ZqHCvTBI561G/e3lcsAUD
-X-Google-Smtp-Source: ABdhPJyfbJzINI36cGFOwU/5+zgBhMWUeUHnO/5IkOpgT+1xEukHEk0Dq6SznX6ubHZ4p3zuliQ4fw==
-X-Received: by 2002:a17:902:8a8a:b0:14d:bd69:e797 with SMTP id p10-20020a1709028a8a00b0014dbd69e797mr20487232plo.49.1645472173540;
-        Mon, 21 Feb 2022 11:36:13 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f17sm10529599pfj.125.2022.02.21.11.36.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Feb 2022 11:36:13 -0800 (PST)
-Message-ID: <6213e9ad.1c69fb81.116b9.bdc8@mx.google.com>
-Date:   Mon, 21 Feb 2022 11:36:13 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229893AbiBUUQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 15:16:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD91812ABE;
+        Mon, 21 Feb 2022 12:16:13 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50F9B60FF6;
+        Mon, 21 Feb 2022 20:16:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F458C340E9;
+        Mon, 21 Feb 2022 20:16:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1645474572;
+        bh=46m+hKe2FxMP2Hp56rRFNSZ0rdlWQD3u26aizbEBFaI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HTJwlypT7i1Uc8kYuY+QrrRXqaA/kO64DCOFx2BqCOgnDB6YrqCbINz0sVK6oNPX6
+         tSVaWduDmvROXW+gyLo5srJ0TofAdqK4HjOuuwqT6MxaLyybV07Z5fDuW9tuKt1JrJ
+         ytfDU8DeGEd/vtIR2UITwzYtoIK6S5/Fhz72FsR3Iuoz1T45lDNNv+TmTduIhunJcE
+         hz4/4NNmNcH2kSJfs4Gon2erKAvR7ULfM+7Zfk/RB4Zhspn2AYOYQR44iqkJzlO27z
+         bilHDbxd4tX3e58/sKbmSYFaMQYHenJkAYhFCaRGC3XOPhl5SWlpPZeQYyOqaEN4GO
+         mdBnEum1+oJHQ==
+Date:   Mon, 21 Feb 2022 21:16:47 +0100
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     keyrings@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        linux-crypto@vger.kernel.org, linux-integrity@vger.kernel.org,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Gilad Ben-Yossef <gilad@benyossef.com>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Vitaly Chikunov <vt@altlinux.org>,
+        Mimi Zohar <zohar@linux.ibm.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] KEYS: asymmetric: properly validate hash_algo and
+ encoding
+Message-ID: <YhPzL3v9b9L76I9w@iki.fi>
+References: <20220201003414.55380-1-ebiggers@kernel.org>
+ <20220201003414.55380-3-ebiggers@kernel.org>
+ <YhLu8gZtdpphy5mB@kernel.org>
+ <YhL3MGQcwMujSxCr@sol.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Kernel: v4.14.267-45-g8a4a724f33d5
-Subject: stable-rc/queue/4.14 baseline: 36 runs,
- 1 regressions (v4.14.267-45-g8a4a724f33d5)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YhL3MGQcwMujSxCr@sol.localdomain>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 36 runs, 1 regressions (v4.14.267-45-g8a4a72=
-4f33d5)
+On Sun, Feb 20, 2022 at 06:21:36PM -0800, Eric Biggers wrote:
+> On Mon, Feb 21, 2022 at 02:46:26AM +0100, Jarkko Sakkinen wrote:
+> > On Mon, Jan 31, 2022 at 04:34:14PM -0800, Eric Biggers wrote:
+> > > From: Eric Biggers <ebiggers@google.com>
+> > > 
+> > > It is insecure to allow arbitrary hash algorithms and signature
+> > > encodings to be used with arbitrary signature algorithms.  Notably,
+> > > ECDSA, ECRDSA, and SM2 all sign/verify raw hash values and don't
+> > > disambiguate between different hash algorithms like RSA PKCS#1 v1.5
+> > > padding does.  Therefore, they need to be restricted to certain sets of
+> > > hash algorithms (ideally just one, but in practice small sets are used).
+> > > Additionally, the encoding is an integral part of modern signature
+> > > algorithms, and is not supposed to vary.
+> > > 
+> > > Therefore, tighten the checks of hash_algo and encoding done by
+> > > software_key_determine_akcipher().
+> > > 
+> > > Also rearrange the parameters to software_key_determine_akcipher() to
+> > > put the public_key first, as this is the most important parameter and it
+> > > often determines everything else.
+> > > 
+> > > Fixes: 299f561a6693 ("x509: Add support for parsing x509 certs with ECDSA keys")
+> > > Fixes: 215525639631 ("X.509: support OSCCA SM2-with-SM3 certificate verification")
+> > > Fixes: 0d7a78643f69 ("crypto: ecrdsa - add EC-RDSA (GOST 34.10) algorithm")
+> > > Cc: stable@vger.kernel.org
+> > > Signed-off-by: Eric Biggers <ebiggers@google.com>
+> > > ---
+> > >  crypto/asymmetric_keys/public_key.c | 111 +++++++++++++++++++---------
+> > >  1 file changed, 76 insertions(+), 35 deletions(-)
+> > > 
+> > > diff --git a/crypto/asymmetric_keys/public_key.c b/crypto/asymmetric_keys/public_key.c
+> > > index aba7113d86c76..a603ee8afdb8d 100644
+> > > --- a/crypto/asymmetric_keys/public_key.c
+> > > +++ b/crypto/asymmetric_keys/public_key.c
+> > > @@ -60,39 +60,83 @@ static void public_key_destroy(void *payload0, void *payload3)
+> > >  }
+> > >  
+> > >  /*
+> > > - * Determine the crypto algorithm name.
+> > > + * Given a public_key, and an encoding and hash_algo to be used for signing
+> > > + * and/or verification with that key, determine the name of the corresponding
+> > > + * akcipher algorithm.  Also check that encoding and hash_algo are allowed.
+> > >   */
+> > > -static
+> > > -int software_key_determine_akcipher(const char *encoding,
+> > > -				    const char *hash_algo,
+> > > -				    const struct public_key *pkey,
+> > > -				    char alg_name[CRYPTO_MAX_ALG_NAME])
+> > > +static int
+> > > +software_key_determine_akcipher(const struct public_key *pkey,
+> > > +				const char *encoding, const char *hash_algo,
+> > > +				char alg_name[CRYPTO_MAX_ALG_NAME])
+> > 
+> > Why is changing parameter order necessary?
+> > 
+> 
+> It's mentioned in the commit message.  It's obviously not necessary but this way
+> makes much more sense IMO.
 
-Regressions Summary
--------------------
+Ah, so it is.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.267-45-g8a4a724f33d5/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.267-45-g8a4a724f33d5
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8a4a724f33d533e71811016c239ddb11b971dfab =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6213b70639c8286b5bc62968
-
-  Results:     4 PASS, 1 FAIL, 2 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.267=
--45-g8a4a724f33d5/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.267=
--45-g8a4a724f33d5/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220218.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6213b70639c8286=
-b5bc6296b
-        failing since 3 days (last pass: v4.14.267-16-g29c6a7cc89b2, first =
-fail: v4.14.267-19-g5de9d8e4b432)
-        2 lines
-
-    2022-02-21T15:59:55.107758  [   20.714233] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-02-21T15:59:55.149918  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/97
-    2022-02-21T15:59:55.159144  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
+BR, Jarkko
