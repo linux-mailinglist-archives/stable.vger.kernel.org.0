@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD2C54BDC89
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C3674BE29C
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:55:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349934AbiBUJ2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:28:45 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51908 "EHLO
+        id S1351448AbiBUJtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:49:22 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349196AbiBUJ1g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:36 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 328F8237D7;
-        Mon, 21 Feb 2022 01:12:38 -0800 (PST)
+        with ESMTP id S1352890AbiBUJsA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4015D1093;
+        Mon, 21 Feb 2022 01:21:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A514DCE0E88;
-        Mon, 21 Feb 2022 09:12:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1576C340E9;
-        Mon, 21 Feb 2022 09:12:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF59F60EDF;
+        Mon, 21 Feb 2022 09:21:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E910C340E9;
+        Mon, 21 Feb 2022 09:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434755;
-        bh=qdKhP+Yu3uEce58zCR/FGGWQkn0rFoSPSBzckS41AFc=;
+        s=korg; t=1645435261;
+        bh=aLlUyRFCl2yf8SFOi1QbSC5tkLl75pWSR8YH7hutPeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w3TYtWOX7VcDnB2USDFGzyybGIW+hh9b0SaRdXzlTiYSlLTO7lcgWVZaWmEIZrIsV
-         9DIEBeqpiG8pzO2uwnYYXVNA7QTwds24h+iMB1wa+4wGDn8p6W9Xb0WcqF+V0RmN2H
-         OHSyMh/Z2/5Sm1s9e6sVkfc9JqBn0U7h9upnXOxk=
+        b=CN/rGiL7U8O28l1dPYHaSLkzh82fPyzERX0/wKlZoLivxMLs7FRO5hmOhjEVVwwBM
+         jkVDJs0VCJOlvpHbYPW9JGwUKWR0h81UcC9cEPBsXLERM9yBbuWUJUVUEAeMfRxrB3
+         gUrndi+WB3K29ABwTRqAcO/Zl+4nswixG3ssNT2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.15 087/196] brcmfmac: firmware: Fix crash in brcm_alt_fw_path
-Date:   Mon, 21 Feb 2022 09:48:39 +0100
-Message-Id: <20220221084933.841627872@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.16 101/227] ipv4: fix data races in fib_alias_hw_flags_set
+Date:   Mon, 21 Feb 2022 09:48:40 +0100
+Message-Id: <20220221084938.237236515@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +55,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Elwell <phil@raspberrypi.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 665408f4c3a5c83e712871daa062721624b2b79e upstream.
+commit 9fcf986cc4bc6a3a39f23fbcbbc3a9e52d3c24fd upstream.
 
-The call to brcm_alt_fw_path in brcmf_fw_get_firmwares is not protected
-by a check to the validity of the fwctx->req->board_type pointer. This
-results in a crash in strlcat when, for example, the WLAN chip is found
-in a USB dongle.
+fib_alias_hw_flags_set() can be used by concurrent threads,
+and is only RCU protected.
 
-Prevent the crash by adding the necessary check.
+We need to annotate accesses to following fields of struct fib_alias:
 
-See: https://github.com/raspberrypi/linux/issues/4833
+    offload, trap, offload_failed
 
-Fixes: 5ff013914c62 ("brcmfmac: firmware: Allow per-board firmware binaries")
-Signed-off-by: Phil Elwell <phil@raspberrypi.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220118154514.3245524-1-phil@raspberrypi.com
+Because of READ_ONCE()WRITE_ONCE() limitations, make these
+field u8.
+
+BUG: KCSAN: data-race in fib_alias_hw_flags_set / fib_alias_hw_flags_set
+
+read to 0xffff888134224a6a of 1 bytes by task 2013 on cpu 1:
+ fib_alias_hw_flags_set+0x28a/0x470 net/ipv4/fib_trie.c:1050
+ nsim_fib4_rt_hw_flags_set drivers/net/netdevsim/fib.c:350 [inline]
+ nsim_fib4_rt_add drivers/net/netdevsim/fib.c:367 [inline]
+ nsim_fib4_rt_insert drivers/net/netdevsim/fib.c:429 [inline]
+ nsim_fib4_event drivers/net/netdevsim/fib.c:461 [inline]
+ nsim_fib_event drivers/net/netdevsim/fib.c:881 [inline]
+ nsim_fib_event_work+0x1852/0x2cf0 drivers/net/netdevsim/fib.c:1477
+ process_one_work+0x3f6/0x960 kernel/workqueue.c:2307
+ process_scheduled_works kernel/workqueue.c:2370 [inline]
+ worker_thread+0x7df/0xa70 kernel/workqueue.c:2456
+ kthread+0x1bf/0x1e0 kernel/kthread.c:377
+ ret_from_fork+0x1f/0x30
+
+write to 0xffff888134224a6a of 1 bytes by task 4872 on cpu 0:
+ fib_alias_hw_flags_set+0x2d5/0x470 net/ipv4/fib_trie.c:1054
+ nsim_fib4_rt_hw_flags_set drivers/net/netdevsim/fib.c:350 [inline]
+ nsim_fib4_rt_add drivers/net/netdevsim/fib.c:367 [inline]
+ nsim_fib4_rt_insert drivers/net/netdevsim/fib.c:429 [inline]
+ nsim_fib4_event drivers/net/netdevsim/fib.c:461 [inline]
+ nsim_fib_event drivers/net/netdevsim/fib.c:881 [inline]
+ nsim_fib_event_work+0x1852/0x2cf0 drivers/net/netdevsim/fib.c:1477
+ process_one_work+0x3f6/0x960 kernel/workqueue.c:2307
+ process_scheduled_works kernel/workqueue.c:2370 [inline]
+ worker_thread+0x7df/0xa70 kernel/workqueue.c:2456
+ kthread+0x1bf/0x1e0 kernel/kthread.c:377
+ ret_from_fork+0x1f/0x30
+
+value changed: 0x00 -> 0x02
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 4872 Comm: kworker/0:0 Not tainted 5.17.0-rc3-syzkaller-00188-g1d41d2e82623-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: events nsim_fib_event_work
+
+Fixes: 90b93f1b31f8 ("ipv4: Add "offload" and "trap" indications to routes")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/20220216173217.3792411-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/ipv4/fib_lookup.h    |    7 +++----
+ net/ipv4/fib_semantics.c |    6 +++---
+ net/ipv4/fib_trie.c      |   22 +++++++++++++---------
+ net/ipv4/route.c         |    4 ++--
+ 4 files changed, 21 insertions(+), 18 deletions(-)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
-@@ -693,7 +693,7 @@ int brcmf_fw_get_firmwares(struct device
- {
- 	struct brcmf_fw_item *first = &req->items[0];
- 	struct brcmf_fw *fwctx;
--	char *alt_path;
-+	char *alt_path = NULL;
- 	int ret;
+--- a/net/ipv4/fib_lookup.h
++++ b/net/ipv4/fib_lookup.h
+@@ -16,10 +16,9 @@ struct fib_alias {
+ 	u8			fa_slen;
+ 	u32			tb_id;
+ 	s16			fa_default;
+-	u8			offload:1,
+-				trap:1,
+-				offload_failed:1,
+-				unused:5;
++	u8			offload;
++	u8			trap;
++	u8			offload_failed;
+ 	struct rcu_head		rcu;
+ };
  
- 	brcmf_dbg(TRACE, "enter: dev=%s\n", dev_name(dev));
-@@ -712,7 +712,9 @@ int brcmf_fw_get_firmwares(struct device
- 	fwctx->done = fw_cb;
+--- a/net/ipv4/fib_semantics.c
++++ b/net/ipv4/fib_semantics.c
+@@ -524,9 +524,9 @@ void rtmsg_fib(int event, __be32 key, st
+ 	fri.dst_len = dst_len;
+ 	fri.tos = fa->fa_tos;
+ 	fri.type = fa->fa_type;
+-	fri.offload = fa->offload;
+-	fri.trap = fa->trap;
+-	fri.offload_failed = fa->offload_failed;
++	fri.offload = READ_ONCE(fa->offload);
++	fri.trap = READ_ONCE(fa->trap);
++	fri.offload_failed = READ_ONCE(fa->offload_failed);
+ 	err = fib_dump_info(skb, info->portid, seq, event, &fri, nlm_flags);
+ 	if (err < 0) {
+ 		/* -EMSGSIZE implies BUG in fib_nlmsg_size() */
+--- a/net/ipv4/fib_trie.c
++++ b/net/ipv4/fib_trie.c
+@@ -1047,19 +1047,23 @@ void fib_alias_hw_flags_set(struct net *
+ 	if (!fa_match)
+ 		goto out;
  
- 	/* First try alternative board-specific path if any */
--	alt_path = brcm_alt_fw_path(first->path, fwctx->req->board_type);
-+	if (fwctx->req->board_type)
-+		alt_path = brcm_alt_fw_path(first->path,
-+					    fwctx->req->board_type);
- 	if (alt_path) {
- 		ret = request_firmware_nowait(THIS_MODULE, true, alt_path,
- 					      fwctx->dev, GFP_KERNEL, fwctx,
+-	if (fa_match->offload == fri->offload && fa_match->trap == fri->trap &&
+-	    fa_match->offload_failed == fri->offload_failed)
++	/* These are paired with the WRITE_ONCE() happening in this function.
++	 * The reason is that we are only protected by RCU at this point.
++	 */
++	if (READ_ONCE(fa_match->offload) == fri->offload &&
++	    READ_ONCE(fa_match->trap) == fri->trap &&
++	    READ_ONCE(fa_match->offload_failed) == fri->offload_failed)
+ 		goto out;
+ 
+-	fa_match->offload = fri->offload;
+-	fa_match->trap = fri->trap;
++	WRITE_ONCE(fa_match->offload, fri->offload);
++	WRITE_ONCE(fa_match->trap, fri->trap);
+ 
+ 	/* 2 means send notifications only if offload_failed was changed. */
+ 	if (net->ipv4.sysctl_fib_notify_on_flag_change == 2 &&
+-	    fa_match->offload_failed == fri->offload_failed)
++	    READ_ONCE(fa_match->offload_failed) == fri->offload_failed)
+ 		goto out;
+ 
+-	fa_match->offload_failed = fri->offload_failed;
++	WRITE_ONCE(fa_match->offload_failed, fri->offload_failed);
+ 
+ 	if (!net->ipv4.sysctl_fib_notify_on_flag_change)
+ 		goto out;
+@@ -2297,9 +2301,9 @@ static int fn_trie_dump_leaf(struct key_
+ 				fri.dst_len = KEYLENGTH - fa->fa_slen;
+ 				fri.tos = fa->fa_tos;
+ 				fri.type = fa->fa_type;
+-				fri.offload = fa->offload;
+-				fri.trap = fa->trap;
+-				fri.offload_failed = fa->offload_failed;
++				fri.offload = READ_ONCE(fa->offload);
++				fri.trap = READ_ONCE(fa->trap);
++				fri.offload_failed = READ_ONCE(fa->offload_failed);
+ 				err = fib_dump_info(skb,
+ 						    NETLINK_CB(cb->skb).portid,
+ 						    cb->nlh->nlmsg_seq,
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -3393,8 +3393,8 @@ static int inet_rtm_getroute(struct sk_b
+ 				    fa->fa_tos == fri.tos &&
+ 				    fa->fa_info == res.fi &&
+ 				    fa->fa_type == fri.type) {
+-					fri.offload = fa->offload;
+-					fri.trap = fa->trap;
++					fri.offload = READ_ONCE(fa->offload);
++					fri.trap = READ_ONCE(fa->trap);
+ 					break;
+ 				}
+ 			}
 
 
