@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F1564BDF31
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:49:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 779C54BE19A
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347515AbiBUJID (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:08:03 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48254 "EHLO
+        id S1349555AbiBUJ22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:28:28 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:51016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347523AbiBUJGr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:06:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51F6B31234;
-        Mon, 21 Feb 2022 00:59:48 -0800 (PST)
+        with ESMTP id S1349118AbiBUJ1e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:34 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E911FDEBF;
+        Mon, 21 Feb 2022 01:12:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1AB461132;
-        Mon, 21 Feb 2022 08:59:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9839C340E9;
-        Mon, 21 Feb 2022 08:59:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 572BDCE0E7D;
+        Mon, 21 Feb 2022 09:12:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B9A9C340E9;
+        Mon, 21 Feb 2022 09:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433987;
-        bh=68TEqlEr7oRnJi0vtYWnGuAH20gM7jHIJnUnx/9lt/Y=;
+        s=korg; t=1645434729;
+        bh=zPEyfU1ecxpvXSoCI9xFguvbg7TQZ1EtnpjrPVaVoKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XkPUP21T1ls3EqkntP6J4VMC3kja1GSsmV6/fH5hMGU83jOkARl6VsR8+y9zTG2nL
-         xjYssCn5XXvvQkfOcohSJehZhuc1/83E5WtbN8UH4hXmL7PWVeETSDRJvR+y6A/x9k
-         kMuTPM0kJX4KUURLIDPF0thk1LLNcdWJw/Zd+9c4=
+        b=GU06+kr/PL2TZJ3pRa/me1Wq+/v1lKt8f+wrtaamoivAWRvXrZ8uB44uxbismuml4
+         fzD5M9KAKTKeErxSiWTAuRx3xbxVRl2FCYM/sRkpFFWzwikaUID1qbQV+VpZ8qYk6p
+         ybt5+BOm6lvdnRzXEaaiSEDyZgKgXWMC+zaOeuaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/80] drm/amdgpu: fix logic inversion in check
+        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.15 109/196] selftests/exec: Add non-regular to TEST_GEN_PROGS
 Date:   Mon, 21 Feb 2022 09:49:01 +0100
-Message-Id: <20220221084916.278671251@linuxfoundation.org>
+Message-Id: <20220221084934.588735942@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Muhammad Usama Anjum <usama.anjum@collabora.com>
 
-[ Upstream commit e8ae38720e1a685fd98cfa5ae118c9d07b45ca79 ]
+commit a7e793a867ae312cecdeb6f06cceff98263e75dd upstream.
 
-We probably never trigger this, but the logic inside the check is
-inverted.
+non-regular file needs to be compiled and then copied to the output
+directory. Remove it from TEST_PROGS and add it to TEST_GEN_PROGS. This
+removes error thrown by rsync when non-regular object isn't found:
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+rsync: [sender] link_stat "/linux/tools/testing/selftests/exec/non-regular" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1333) [sender=3.2.3]
+
+Fixes: 0f71241a8e32 ("selftests/exec: add file type errno tests")
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/exec/Makefile |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index 58e14d3040f03..870dd78d5a21a 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -1976,7 +1976,7 @@ int amdgpu_copy_buffer(struct amdgpu_ring *ring, uint64_t src_offset,
- 	unsigned i;
- 	int r;
+--- a/tools/testing/selftests/exec/Makefile
++++ b/tools/testing/selftests/exec/Makefile
+@@ -3,8 +3,8 @@ CFLAGS = -Wall
+ CFLAGS += -Wno-nonnull
+ CFLAGS += -D_GNU_SOURCE
  
--	if (direct_submit && !ring->sched.ready) {
-+	if (!direct_submit && !ring->sched.ready) {
- 		DRM_ERROR("Trying to move memory with ring turned off.\n");
- 		return -EINVAL;
- 	}
--- 
-2.34.1
-
+-TEST_PROGS := binfmt_script non-regular
+-TEST_GEN_PROGS := execveat load_address_4096 load_address_2097152 load_address_16777216
++TEST_PROGS := binfmt_script
++TEST_GEN_PROGS := execveat load_address_4096 load_address_2097152 load_address_16777216 non-regular
+ TEST_GEN_FILES := execveat.symlink execveat.denatured script subdir
+ # Makefile is a run-time dependency, since it's accessed by the execveat test
+ TEST_FILES := Makefile
 
 
