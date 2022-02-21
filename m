@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 066994BE1D8
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1DEF4BE216
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:54:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352279AbiBUKDq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 05:03:46 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55786 "EHLO
+        id S1352460AbiBUKEU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 05:04:20 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353353AbiBUJ5W (ORCPT
+        with ESMTP id S1353360AbiBUJ5W (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:57:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC95C4706A;
-        Mon, 21 Feb 2022 01:25:25 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DAA847076;
+        Mon, 21 Feb 2022 01:25:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 741DCB80EB1;
-        Mon, 21 Feb 2022 09:25:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE7B5C340E9;
-        Mon, 21 Feb 2022 09:25:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C6D5060F8C;
+        Mon, 21 Feb 2022 09:25:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BD76C340E9;
+        Mon, 21 Feb 2022 09:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435523;
-        bh=PnNy4pm/URP5p1SyrTpSnRUcVuoyh4EpAMxfQCUSi8A=;
+        s=korg; t=1645435526;
+        bh=PQPTUoLU6o1hcjoQhxjKwItQRM+/Bc+2pF9vZVPUGAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KWDGa4bNKIF/0bxN3Eu/7DoM4QzPkO8jq5BKMAQCZ9YjH7rAt5yKCX/N32Z++yBjM
-         TrzKBCm1GehY6yomAcSofB/kzSuBCYFs5UoGvKeLWGQMrixJy8efZkcsN69DEPWsHX
-         8OGfc878HbsQZ4Cqxn0KBoMIPu425xo0wEKI++6I=
+        b=FiG5wUlCmfa+N/UxKT9+gN8f5Pkl0CHI4tz8g3RuEpJpwyxzLRCeEwoS1SbvEzP51
+         gEXlU2wIiPKXubU0l17VInKzmBo4mSTyj6M3RdJeaejc43UOzmh6tnItieBjtplo2m
+         kJNF2IqzsqFWaXqzIMD5zGita6JFf9j7ialWfZs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Juan Vazquez <juvazq@linux.microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 194/227] Drivers: hv: vmbus: Fix memory leak in vmbus_add_channel_kobj
-Date:   Mon, 21 Feb 2022 09:50:13 +0100
-Message-Id: <20220221084941.269900791@linuxfoundation.org>
+        stable@vger.kernel.org, Like Xu <likexu@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 195/227] KVM: x86/pmu: Refactoring find_arch_event() to pmc_perf_hw_id()
+Date:   Mon, 21 Feb 2022 09:50:14 +0100
+Message-Id: <20220221084941.301576673@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
 References: <20220221084934.836145070@linuxfoundation.org>
@@ -54,52 +54,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Like Xu <likexu@tencent.com>
 
-[ Upstream commit 8bc69f86328e87a0ffa79438430cc82f3aa6a194 ]
+[ Upstream commit 7c174f305cbee6bdba5018aae02b84369e7ab995 ]
 
-kobject_init_and_add() takes reference even when it fails.
-According to the doc of kobject_init_and_add()：
+The find_arch_event() returns a "unsigned int" value,
+which is used by the pmc_reprogram_counter() to
+program a PERF_TYPE_HARDWARE type perf_event.
 
-   If this function returns an error, kobject_put() must be called to
-   properly clean up the memory associated with the object.
+The returned value is actually the kernel defined generic
+perf_hw_id, let's rename it to pmc_perf_hw_id() with simpler
+incoming parameters for better self-explanation.
 
-Fix memory leak by calling kobject_put().
-
-Fixes: c2e5df616e1a ("vmbus: add per-channel sysfs info")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Juan Vazquez <juvazq@linux.microsoft.com>
-Link: https://lore.kernel.org/r/20220203173008.43480-1-linmq006@gmail.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Like Xu <likexu@tencent.com>
+Message-Id: <20211130074221.93635-3-likexu@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/vmbus_drv.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/kvm/pmu.c           | 8 +-------
+ arch/x86/kvm/pmu.h           | 3 +--
+ arch/x86/kvm/svm/pmu.c       | 8 ++++----
+ arch/x86/kvm/vmx/pmu_intel.c | 9 +++++----
+ 4 files changed, 11 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 392c1ac4f8193..44bd0b6ff5059 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -2027,8 +2027,10 @@ int vmbus_add_channel_kobj(struct hv_device *dev, struct vmbus_channel *channel)
- 	kobj->kset = dev->channels_kset;
- 	ret = kobject_init_and_add(kobj, &vmbus_chan_ktype, NULL,
- 				   "%u", relid);
--	if (ret)
-+	if (ret) {
-+		kobject_put(kobj);
- 		return ret;
-+	}
+diff --git a/arch/x86/kvm/pmu.c b/arch/x86/kvm/pmu.c
+index 09873f6488f7c..3b3ccf5b11064 100644
+--- a/arch/x86/kvm/pmu.c
++++ b/arch/x86/kvm/pmu.c
+@@ -174,7 +174,6 @@ static bool pmc_resume_counter(struct kvm_pmc *pmc)
+ void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel)
+ {
+ 	unsigned config, type = PERF_TYPE_RAW;
+-	u8 event_select, unit_mask;
+ 	struct kvm *kvm = pmc->vcpu->kvm;
+ 	struct kvm_pmu_event_filter *filter;
+ 	int i;
+@@ -206,17 +205,12 @@ void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel)
+ 	if (!allow_event)
+ 		return;
  
- 	ret = sysfs_create_group(kobj, &vmbus_chan_group);
- 
-@@ -2037,6 +2039,7 @@ int vmbus_add_channel_kobj(struct hv_device *dev, struct vmbus_channel *channel)
- 		 * The calling functions' error handling paths will cleanup the
- 		 * empty channel directory.
- 		 */
-+		kobject_put(kobj);
- 		dev_err(device, "Unable to set up channel sysfs files\n");
- 		return ret;
+-	event_select = eventsel & ARCH_PERFMON_EVENTSEL_EVENT;
+-	unit_mask = (eventsel & ARCH_PERFMON_EVENTSEL_UMASK) >> 8;
+-
+ 	if (!(eventsel & (ARCH_PERFMON_EVENTSEL_EDGE |
+ 			  ARCH_PERFMON_EVENTSEL_INV |
+ 			  ARCH_PERFMON_EVENTSEL_CMASK |
+ 			  HSW_IN_TX |
+ 			  HSW_IN_TX_CHECKPOINTED))) {
+-		config = kvm_x86_ops.pmu_ops->find_arch_event(pmc_to_pmu(pmc),
+-						      event_select,
+-						      unit_mask);
++		config = kvm_x86_ops.pmu_ops->pmc_perf_hw_id(pmc);
+ 		if (config != PERF_COUNT_HW_MAX)
+ 			type = PERF_TYPE_HARDWARE;
  	}
+diff --git a/arch/x86/kvm/pmu.h b/arch/x86/kvm/pmu.h
+index 59d6b76203d5b..dd7dbb1c5048d 100644
+--- a/arch/x86/kvm/pmu.h
++++ b/arch/x86/kvm/pmu.h
+@@ -24,8 +24,7 @@ struct kvm_event_hw_type_mapping {
+ };
+ 
+ struct kvm_pmu_ops {
+-	unsigned (*find_arch_event)(struct kvm_pmu *pmu, u8 event_select,
+-				    u8 unit_mask);
++	unsigned int (*pmc_perf_hw_id)(struct kvm_pmc *pmc);
+ 	unsigned (*find_fixed_event)(int idx);
+ 	bool (*pmc_is_enabled)(struct kvm_pmc *pmc);
+ 	struct kvm_pmc *(*pmc_idx_to_pmc)(struct kvm_pmu *pmu, int pmc_idx);
+diff --git a/arch/x86/kvm/svm/pmu.c b/arch/x86/kvm/svm/pmu.c
+index b4095dfeeee62..7fadfe3c67e73 100644
+--- a/arch/x86/kvm/svm/pmu.c
++++ b/arch/x86/kvm/svm/pmu.c
+@@ -134,10 +134,10 @@ static inline struct kvm_pmc *get_gp_pmc_amd(struct kvm_pmu *pmu, u32 msr,
+ 	return &pmu->gp_counters[msr_to_index(msr)];
+ }
+ 
+-static unsigned amd_find_arch_event(struct kvm_pmu *pmu,
+-				    u8 event_select,
+-				    u8 unit_mask)
++static unsigned int amd_pmc_perf_hw_id(struct kvm_pmc *pmc)
+ {
++	u8 event_select = pmc->eventsel & ARCH_PERFMON_EVENTSEL_EVENT;
++	u8 unit_mask = (pmc->eventsel & ARCH_PERFMON_EVENTSEL_UMASK) >> 8;
+ 	int i;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(amd_event_mapping); i++)
+@@ -319,7 +319,7 @@ static void amd_pmu_reset(struct kvm_vcpu *vcpu)
+ }
+ 
+ struct kvm_pmu_ops amd_pmu_ops = {
+-	.find_arch_event = amd_find_arch_event,
++	.pmc_perf_hw_id = amd_pmc_perf_hw_id,
+ 	.find_fixed_event = amd_find_fixed_event,
+ 	.pmc_is_enabled = amd_pmc_is_enabled,
+ 	.pmc_idx_to_pmc = amd_pmc_idx_to_pmc,
+diff --git a/arch/x86/kvm/vmx/pmu_intel.c b/arch/x86/kvm/vmx/pmu_intel.c
+index 1b7456b2177b9..60563a45f3eb8 100644
+--- a/arch/x86/kvm/vmx/pmu_intel.c
++++ b/arch/x86/kvm/vmx/pmu_intel.c
+@@ -68,10 +68,11 @@ static void global_ctrl_changed(struct kvm_pmu *pmu, u64 data)
+ 		reprogram_counter(pmu, bit);
+ }
+ 
+-static unsigned intel_find_arch_event(struct kvm_pmu *pmu,
+-				      u8 event_select,
+-				      u8 unit_mask)
++static unsigned int intel_pmc_perf_hw_id(struct kvm_pmc *pmc)
+ {
++	struct kvm_pmu *pmu = pmc_to_pmu(pmc);
++	u8 event_select = pmc->eventsel & ARCH_PERFMON_EVENTSEL_EVENT;
++	u8 unit_mask = (pmc->eventsel & ARCH_PERFMON_EVENTSEL_UMASK) >> 8;
+ 	int i;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(intel_arch_events); i++)
+@@ -703,7 +704,7 @@ static void intel_pmu_cleanup(struct kvm_vcpu *vcpu)
+ }
+ 
+ struct kvm_pmu_ops intel_pmu_ops = {
+-	.find_arch_event = intel_find_arch_event,
++	.pmc_perf_hw_id = intel_pmc_perf_hw_id,
+ 	.find_fixed_event = intel_find_fixed_event,
+ 	.pmc_is_enabled = intel_pmc_is_enabled,
+ 	.pmc_idx_to_pmc = intel_pmc_idx_to_pmc,
 -- 
 2.34.1
 
