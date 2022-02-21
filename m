@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F794BE890
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:05:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89CF34BE026
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236237AbiBUJva (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:51:30 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41696 "EHLO
+        id S1348716AbiBUJXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:23:13 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352317AbiBUJrV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:21 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BFCC41F8D;
-        Mon, 21 Feb 2022 01:19:28 -0800 (PST)
+        with ESMTP id S1350143AbiBUJWJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:22:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61FFD37A20;
+        Mon, 21 Feb 2022 01:09:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9C02CCE0E76;
-        Mon, 21 Feb 2022 09:19:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81887C340E9;
-        Mon, 21 Feb 2022 09:19:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3FEF608C4;
+        Mon, 21 Feb 2022 09:09:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF8B6C340F3;
+        Mon, 21 Feb 2022 09:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435165;
-        bh=fFDyHU/EXMCfwe3bvn0ogCYcjkIKtHPdA+SKnAQmZxs=;
+        s=korg; t=1645434572;
+        bh=EWsuIlTcArE+Xps1yV3xF9ljHTxz1hos6F3NJR6l/Mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HgV7JV41FTOUu1smu60f57NN8NGgeAr7B2XSBh5Qn4RUXEpHajXn0B87gXqx65qC/
-         9CcBlN8D+NjJSQufGODpkG5aib9aNn/ssq1+AacnYtz9caWisgCfhZEk8FHy9LXBeZ
-         LzaEi4iE5rwY2swqIQ5F0HtoL2wQGieop23xKcvw=
+        b=EurIU81w0ZpJua8hl9E1paG8/aEjUN6vdzMwoqeG99R1zFTvzkNSApt/3Aypuzzp8
+         NRzUDEb6dyBuTnhp5vxh5qwPPLuxA3Ftc9ujTHUKWYYxwV/FPp/UHgTFdshDLl9FBB
+         6tHn2DUbje8eJmqakP9zRbR9M+0+MePI1TWq+O24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 067/227] x86/Xen: streamline (and fix) PV CPU enumeration
-Date:   Mon, 21 Feb 2022 09:48:06 +0100
-Message-Id: <20220221084937.101310202@linuxfoundation.org>
+        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 055/196] KVM: x86/xen: Fix runstate updates to be atomic when preempting vCPU
+Date:   Mon, 21 Feb 2022 09:48:07 +0100
+Message-Id: <20220221084932.775744299@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,106 +53,211 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: David Woodhouse <dwmw@amazon.co.uk>
 
-[ Upstream commit e25a8d959992f61b64a58fc62fb7951dc6f31d1f ]
+commit fcb732d8f8cf6084f8480015ad41d25fb023a4dd upstream.
 
-This started out with me noticing that "dom0_max_vcpus=<N>" with <N>
-larger than the number of physical CPUs reported through ACPI tables
-would not bring up the "excess" vCPU-s. Addressing this is the primary
-purpose of the change; CPU maps handling is being tidied only as far as
-is necessary for the change here (with the effect of also avoiding the
-setting up of too much per-CPU infrastructure, i.e. for CPUs which can
-never come online).
+There are circumstances whem kvm_xen_update_runstate_guest() should not
+sleep because it ends up being called from __schedule() when the vCPU
+is preempted:
 
-Noticing that xen_fill_possible_map() is called way too early, whereas
-xen_filter_cpu_maps() is called too late (after per-CPU areas were
-already set up), and further observing that each of the functions serves
-only one of Dom0 or DomU, it looked like it was better to simplify this.
-Use the .get_smp_config hook instead, uniformly for Dom0 and DomU.
-xen_fill_possible_map() can be dropped altogether, while
-xen_filter_cpu_maps() is re-purposed but not otherwise changed.
+[  222.830825]  kvm_xen_update_runstate_guest+0x24/0x100
+[  222.830878]  kvm_arch_vcpu_put+0x14c/0x200
+[  222.830920]  kvm_sched_out+0x30/0x40
+[  222.830960]  __schedule+0x55c/0x9f0
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/2dbd5f0a-9859-ca2d-085e-a02f7166c610@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To handle this, make it use the same trick as __kvm_xen_has_interrupt(),
+of using the hva from the gfn_to_hva_cache directly. Then it can use
+pagefault_disable() around the accesses and just bail out if the page
+is absent (which is unlikely).
+
+I almost switched to using a gfn_to_pfn_cache here and bailing out if
+kvm_map_gfn() fails, like kvm_steal_time_set_preempted() does — but on
+closer inspection it looks like kvm_map_gfn() will *always* fail in
+atomic context for a page in IOMEM, which means it will silently fail
+to make the update every single time for such guests, AFAICT. So I
+didn't do it that way after all. And will probably fix that one too.
+
+Cc: stable@vger.kernel.org
+Fixes: 30b5c851af79 ("KVM: x86/xen: Add support for vCPU runstate information")
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Message-Id: <b17a93e5ff4561e57b1238e3e7ccd0b613eb827e.camel@infradead.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/xen/enlighten_pv.c |  4 ----
- arch/x86/xen/smp_pv.c       | 26 ++++++--------------------
- 2 files changed, 6 insertions(+), 24 deletions(-)
+ arch/x86/kvm/xen.c |   97 ++++++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 67 insertions(+), 30 deletions(-)
 
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 5004feb16783d..d47c3d176ae4b 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1341,10 +1341,6 @@ asmlinkage __visible void __init xen_start_kernel(void)
- 
- 		xen_acpi_sleep_register();
- 
--		/* Avoid searching for BIOS MP tables */
--		x86_init.mpparse.find_smp_config = x86_init_noop;
--		x86_init.mpparse.get_smp_config = x86_init_uint_noop;
--
- 		xen_boot_params_init_edd();
- 
- #ifdef CONFIG_ACPI
-diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
-index 6a8f3b53ab834..4a6019238ee7d 100644
---- a/arch/x86/xen/smp_pv.c
-+++ b/arch/x86/xen/smp_pv.c
-@@ -148,28 +148,12 @@ int xen_smp_intr_init_pv(unsigned int cpu)
- 	return rc;
- }
- 
--static void __init xen_fill_possible_map(void)
--{
--	int i, rc;
--
--	if (xen_initial_domain())
--		return;
--
--	for (i = 0; i < nr_cpu_ids; i++) {
--		rc = HYPERVISOR_vcpu_op(VCPUOP_is_up, i, NULL);
--		if (rc >= 0) {
--			num_processors++;
--			set_cpu_possible(i, true);
--		}
--	}
--}
--
--static void __init xen_filter_cpu_maps(void)
-+static void __init _get_smp_config(unsigned int early)
+--- a/arch/x86/kvm/xen.c
++++ b/arch/x86/kvm/xen.c
+@@ -93,32 +93,57 @@ static void kvm_xen_update_runstate(stru
+ void kvm_xen_update_runstate_guest(struct kvm_vcpu *v, int state)
  {
- 	int i, rc;
- 	unsigned int subtract = 0;
+ 	struct kvm_vcpu_xen *vx = &v->arch.xen;
++	struct gfn_to_hva_cache *ghc = &vx->runstate_cache;
++	struct kvm_memslots *slots = kvm_memslots(v->kvm);
++	bool atomic = (state == RUNSTATE_runnable);
+ 	uint64_t state_entry_time;
+-	unsigned int offset;
++	int __user *user_state;
++	uint64_t __user *user_times;
  
--	if (!xen_initial_domain())
-+	if (early)
+ 	kvm_xen_update_runstate(v, state);
+ 
+ 	if (!vx->runstate_set)
  		return;
  
- 	num_processors = 0;
-@@ -210,7 +194,6 @@ static void __init xen_pv_smp_prepare_boot_cpu(void)
- 		 * sure the old memory can be recycled. */
- 		make_lowmem_page_readwrite(xen_initial_gdt);
+-	BUILD_BUG_ON(sizeof(struct compat_vcpu_runstate_info) != 0x2c);
++	if (unlikely(slots->generation != ghc->generation || kvm_is_error_hva(ghc->hva)) &&
++	    kvm_gfn_to_hva_cache_init(v->kvm, ghc, ghc->gpa, ghc->len))
++		return;
++
++	/* We made sure it fits in a single page */
++	BUG_ON(!ghc->memslot);
++
++	if (atomic)
++		pagefault_disable();
  
--	xen_filter_cpu_maps();
- 	xen_setup_vcpu_info_placement();
+-	offset = offsetof(struct compat_vcpu_runstate_info, state_entry_time);
+-#ifdef CONFIG_X86_64
+ 	/*
+-	 * The only difference is alignment of uint64_t in 32-bit.
+-	 * So the first field 'state' is accessed directly using
+-	 * offsetof() (where its offset happens to be zero), while the
+-	 * remaining fields which are all uint64_t, start at 'offset'
+-	 * which we tweak here by adding 4.
++	 * The only difference between 32-bit and 64-bit versions of the
++	 * runstate struct us the alignment of uint64_t in 32-bit, which
++	 * means that the 64-bit version has an additional 4 bytes of
++	 * padding after the first field 'state'.
++	 *
++	 * So we use 'int __user *user_state' to point to the state field,
++	 * and 'uint64_t __user *user_times' for runstate_entry_time. So
++	 * the actual array of time[] in each state starts at user_times[1].
+ 	 */
++	BUILD_BUG_ON(offsetof(struct vcpu_runstate_info, state) != 0);
++	BUILD_BUG_ON(offsetof(struct compat_vcpu_runstate_info, state) != 0);
++	user_state = (int __user *)ghc->hva;
++
++	BUILD_BUG_ON(sizeof(struct compat_vcpu_runstate_info) != 0x2c);
++
++	user_times = (uint64_t __user *)(ghc->hva +
++					 offsetof(struct compat_vcpu_runstate_info,
++						  state_entry_time));
++#ifdef CONFIG_X86_64
+ 	BUILD_BUG_ON(offsetof(struct vcpu_runstate_info, state_entry_time) !=
+ 		     offsetof(struct compat_vcpu_runstate_info, state_entry_time) + 4);
+ 	BUILD_BUG_ON(offsetof(struct vcpu_runstate_info, time) !=
+ 		     offsetof(struct compat_vcpu_runstate_info, time) + 4);
+ 
+ 	if (v->kvm->arch.xen.long_mode)
+-		offset = offsetof(struct vcpu_runstate_info, state_entry_time);
++		user_times = (uint64_t __user *)(ghc->hva +
++						 offsetof(struct vcpu_runstate_info,
++							  state_entry_time));
+ #endif
+ 	/*
+ 	 * First write the updated state_entry_time at the appropriate
+@@ -132,10 +157,8 @@ void kvm_xen_update_runstate_guest(struc
+ 	BUILD_BUG_ON(sizeof(((struct compat_vcpu_runstate_info *)0)->state_entry_time) !=
+ 		     sizeof(state_entry_time));
+ 
+-	if (kvm_write_guest_offset_cached(v->kvm, &v->arch.xen.runstate_cache,
+-					  &state_entry_time, offset,
+-					  sizeof(state_entry_time)))
+-		return;
++	if (__put_user(state_entry_time, user_times))
++		goto out;
+ 	smp_wmb();
  
  	/*
-@@ -476,5 +459,8 @@ static const struct smp_ops xen_smp_ops __initconst = {
- void __init xen_smp_init(void)
- {
- 	smp_ops = xen_smp_ops;
--	xen_fill_possible_map();
+@@ -149,11 +172,8 @@ void kvm_xen_update_runstate_guest(struc
+ 	BUILD_BUG_ON(sizeof(((struct compat_vcpu_runstate_info *)0)->state) !=
+ 		     sizeof(vx->current_runstate));
+ 
+-	if (kvm_write_guest_offset_cached(v->kvm, &v->arch.xen.runstate_cache,
+-					  &vx->current_runstate,
+-					  offsetof(struct vcpu_runstate_info, state),
+-					  sizeof(vx->current_runstate)))
+-		return;
++	if (__put_user(vx->current_runstate, user_state))
++		goto out;
+ 
+ 	/*
+ 	 * Write the actual runstate times immediately after the
+@@ -168,24 +188,23 @@ void kvm_xen_update_runstate_guest(struc
+ 	BUILD_BUG_ON(sizeof(((struct vcpu_runstate_info *)0)->time) !=
+ 		     sizeof(vx->runstate_times));
+ 
+-	if (kvm_write_guest_offset_cached(v->kvm, &v->arch.xen.runstate_cache,
+-					  &vx->runstate_times[0],
+-					  offset + sizeof(u64),
+-					  sizeof(vx->runstate_times)))
+-		return;
+-
++	if (__copy_to_user(user_times + 1, vx->runstate_times, sizeof(vx->runstate_times)))
++		goto out;
+ 	smp_wmb();
+ 
+ 	/*
+ 	 * Finally, clear the XEN_RUNSTATE_UPDATE bit in the guest's
+ 	 * runstate_entry_time field.
+ 	 */
+-
+ 	state_entry_time &= ~XEN_RUNSTATE_UPDATE;
+-	if (kvm_write_guest_offset_cached(v->kvm, &v->arch.xen.runstate_cache,
+-					  &state_entry_time, offset,
+-					  sizeof(state_entry_time)))
+-		return;
++	__put_user(state_entry_time, user_times);
++	smp_wmb();
 +
-+	/* Avoid searching for BIOS MP tables */
-+	x86_init.mpparse.find_smp_config = x86_init_noop;
-+	x86_init.mpparse.get_smp_config = _get_smp_config;
++ out:
++	mark_page_dirty_in_slot(v->kvm, ghc->memslot, ghc->gpa >> PAGE_SHIFT);
++
++	if (atomic)
++		pagefault_enable();
  }
--- 
-2.34.1
-
+ 
+ int __kvm_xen_has_interrupt(struct kvm_vcpu *v)
+@@ -337,6 +356,12 @@ int kvm_xen_vcpu_set_attr(struct kvm_vcp
+ 			break;
+ 		}
+ 
++		/* It must fit within a single page */
++		if ((data->u.gpa & ~PAGE_MASK) + sizeof(struct vcpu_info) > PAGE_SIZE) {
++			r = -EINVAL;
++			break;
++		}
++
+ 		r = kvm_gfn_to_hva_cache_init(vcpu->kvm,
+ 					      &vcpu->arch.xen.vcpu_info_cache,
+ 					      data->u.gpa,
+@@ -354,6 +379,12 @@ int kvm_xen_vcpu_set_attr(struct kvm_vcp
+ 			break;
+ 		}
+ 
++		/* It must fit within a single page */
++		if ((data->u.gpa & ~PAGE_MASK) + sizeof(struct pvclock_vcpu_time_info) > PAGE_SIZE) {
++			r = -EINVAL;
++			break;
++		}
++
+ 		r = kvm_gfn_to_hva_cache_init(vcpu->kvm,
+ 					      &vcpu->arch.xen.vcpu_time_info_cache,
+ 					      data->u.gpa,
+@@ -375,6 +406,12 @@ int kvm_xen_vcpu_set_attr(struct kvm_vcp
+ 			break;
+ 		}
+ 
++		/* It must fit within a single page */
++		if ((data->u.gpa & ~PAGE_MASK) + sizeof(struct vcpu_runstate_info) > PAGE_SIZE) {
++			r = -EINVAL;
++			break;
++		}
++
+ 		r = kvm_gfn_to_hva_cache_init(vcpu->kvm,
+ 					      &vcpu->arch.xen.runstate_cache,
+ 					      data->u.gpa,
 
 
