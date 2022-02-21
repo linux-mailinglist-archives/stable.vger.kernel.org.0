@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 363214BE043
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:51:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B7A94BE2FB
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:56:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347998AbiBUJKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:10:25 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:34776 "EHLO
+        id S237258AbiBUJtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:49:16 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347777AbiBUJJO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D4E60E0;
-        Mon, 21 Feb 2022 01:01:40 -0800 (PST)
+        with ESMTP id S1352668AbiBUJro (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB7043AC0;
+        Mon, 21 Feb 2022 01:20:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59EB9B80EB3;
-        Mon, 21 Feb 2022 09:01:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91ADFC340E9;
-        Mon, 21 Feb 2022 09:01:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35FCE60F46;
+        Mon, 21 Feb 2022 09:20:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49A00C340E9;
+        Mon, 21 Feb 2022 09:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434098;
-        bh=D5BeF7ORIpjrg18ZTSztcItjTnnVDILUKmtchbDAmlo=;
+        s=korg; t=1645435215;
+        bh=u1VESbYTBB2j0uL6y0zoMIwdzny/GFPCUlEFzINx4XA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rxU0CEFMa+A9ernkeyRCMm68r0kBAoIurTnGsFRMgzohv/pkvTVNthJb3jEyXae9z
-         DWYamrwWX+79GA/AB9RZO2dFKRDjTu7l1m8NFb0Myk3eGh0YtljBfirsgMpMO0ZG7m
-         7EqdE3tvstdMnF/o55mRnBJ6B4rQK39rk3g19TmU=
+        b=hyUbQ9j+rSPTWuvTmp56IkntTD2xbXHTGjsGVf/gZ7g7HHqeVUQ3mCpllq0rgcAhL
+         PLqXYN4iQtr0rBKkx4F0GczCq1elf5Dmxq2AkHvkPsC0kbFaJEJQTukOIHn/44Vpnh
+         rQiUZ8JOaxxxnxe72y3SGKHnsnKlRyS9e8/tSGXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 012/121] parisc: Drop __init from map_pages declaration
-Date:   Mon, 21 Feb 2022 09:48:24 +0100
-Message-Id: <20220221084921.559838914@linuxfoundation.org>
+        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.16 086/227] vsock: remove vsock from connected table when connect is interrupted by a signal
+Date:   Mon, 21 Feb 2022 09:48:25 +0100
+Message-Id: <20220221084937.737285754@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Seth Forshee <sforshee@digitalocean.com>
 
-commit 9129886b88185962538180625ca8051362b01327 upstream.
+commit b9208492fcaecff8f43915529ae34b3bcb03877c upstream.
 
-With huge kernel pages, we randomly eat a SPARC in map_pages(). This
-is fixed by dropping __init from the declaration.
+vsock_connect() expects that the socket could already be in the
+TCP_ESTABLISHED state when the connecting task wakes up with a signal
+pending. If this happens the socket will be in the connected table, and
+it is not removed when the socket state is reset. In this situation it's
+common for the process to retry connect(), and if the connection is
+successful the socket will be added to the connected table a second
+time, corrupting the list.
 
-However, map_pages references the __init routine memblock_alloc_try_nid
-via memblock_alloc.  Thus, it needs to be marked with __ref.
+Prevent this by calling vsock_remove_connected() if a signal is received
+while waiting for a connection. This is harmless if the socket is not in
+the connected table, and if it is in the table then removing it will
+prevent list corruption from a double add.
 
-memblock_alloc is only called before the kernel text is set to readonly.
+Note for backporting: this patch requires d5afa82c977e ("vsock: correct
+removal of socket from the list"), which is in all current stable trees
+except 4.9.y.
 
-The __ref on free_initmem is no longer needed.
-
-Comment regarding map_pages being in the init section is removed.
-
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: Seth Forshee <sforshee@digitalocean.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/r/20220217141312.2297547-1-sforshee@digitalocean.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/mm/init.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ net/vmw_vsock/af_vsock.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/parisc/mm/init.c
-+++ b/arch/parisc/mm/init.c
-@@ -346,9 +346,9 @@ static void __init setup_bootmem(void)
- 
- static bool kernel_set_to_readonly;
- 
--static void __init map_pages(unsigned long start_vaddr,
--			     unsigned long start_paddr, unsigned long size,
--			     pgprot_t pgprot, int force)
-+static void __ref map_pages(unsigned long start_vaddr,
-+			    unsigned long start_paddr, unsigned long size,
-+			    pgprot_t pgprot, int force)
- {
- 	pmd_t *pmd;
- 	pte_t *pg_table;
-@@ -458,7 +458,7 @@ void __init set_kernel_text_rw(int enabl
- 	flush_tlb_all();
- }
- 
--void __ref free_initmem(void)
-+void free_initmem(void)
- {
- 	unsigned long init_begin = (unsigned long)__init_begin;
- 	unsigned long init_end = (unsigned long)__init_end;
-@@ -472,7 +472,6 @@ void __ref free_initmem(void)
- 	/* The init text pages are marked R-X.  We have to
- 	 * flush the icache and mark them RW-
- 	 *
--	 * This is tricky, because map_pages is in the init section.
- 	 * Do a dummy remap of the data section first (the data
- 	 * section is already PAGE_KERNEL) to pull in the TLB entries
- 	 * for map_kernel */
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1400,6 +1400,7 @@ static int vsock_connect(struct socket *
+ 			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
+ 			sock->state = SS_UNCONNECTED;
+ 			vsock_transport_cancel_pkt(vsk);
++			vsock_remove_connected(vsk);
+ 			goto out_wait;
+ 		} else if (timeout == 0) {
+ 			err = -ETIMEDOUT;
 
 
