@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE69D4BE8EC
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:06:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 605FC4BE8E8
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:06:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235503AbiBUJKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:10:31 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38024 "EHLO
+        id S1348375AbiBUJ12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:27:28 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:37026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347917AbiBUJJv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD74A1D0F7;
-        Mon, 21 Feb 2022 01:02:21 -0800 (PST)
+        with ESMTP id S1349135AbiBUJYA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:24:00 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9D9F39152;
+        Mon, 21 Feb 2022 01:10:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A1C360FB6;
-        Mon, 21 Feb 2022 09:02:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5803EC340E9;
-        Mon, 21 Feb 2022 09:02:20 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4269ECE0E95;
+        Mon, 21 Feb 2022 09:10:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CAC5C340E9;
+        Mon, 21 Feb 2022 09:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434140;
-        bh=ZH6TUb22N9Jtt2uKbR9l2Y8/rMT1ydmLe5n2WQEZP6s=;
+        s=korg; t=1645434614;
+        bh=PaaKW73KaW28UAaZXUGDURqeictQ95h8BZSpeKdhI7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1UfJ7hghkEVC0XT04n3n0wtTizzOsl7JLfQoZvQAHH422FrU3QJfIRzEdYH2qtkjd
-         k0BPDsPNGFlEJk8/xRngOYklEPt3EH9ZannTvKdYDJW8iRoyJhwjhmmu6f/4NousGD
-         fYkWPQTkrKMXYEB+kolTyKw0cRL0tsxDqCPPin5g=
+        b=R/4i2UP9Ih4WIJcfjlpK0nh5gJWSiwXtWyu2brSeU01zXm/eqbgx7lSpR7lsjhP9O
+         Bk++Ze3lbm5UBHrWQCkmlOiEdXCqPNJ+kgNPGyXGruerYl5C+SWrgdozIsbaaZEuqz
+         qqCyudqzwnGTgT/jy3ZHrk5eTWLrr6wMzo2bCwHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergio Costas <rastersoft@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 5.10 009/121] HID:Add support for UGTABLET WP5540
+        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 069/196] tee: export teedev_open() and teedev_close_context()
 Date:   Mon, 21 Feb 2022 09:48:21 +0100
-Message-Id: <20220221084921.468890515@linuxfoundation.org>
+Message-Id: <20220221084933.249069016@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
+References: <20220221084930.872957717@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergio Costas <rastersoft@gmail.com>
+From: Jens Wiklander <jens.wiklander@linaro.org>
 
-commit fd5dd6acd8f823ea804f76d3af64fa1be9d5fb78 upstream.
+[ Upstream commit 1e2c3ef0496e72ba9001da5fd1b7ed56ccb30597 ]
 
-This patch adds support for the UGTABLET WP5540 digitizer tablet
-devices. Without it, the pen moves the cursor, but neither the
-buttons nor the tap sensor in the tip do work.
+Exports the two functions teedev_open() and teedev_close_context() in
+order to make it easier to create a driver internal struct tee_context.
 
-Signed-off-by: Sergio Costas <rastersoft@gmail.com>
-Link: https://lore.kernel.org/r/63dece1d-91ca-1b1b-d90d-335be66896be@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    |    1 +
- drivers/hid/hid-quirks.c |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/tee/tee_core.c  |  6 ++++--
+ include/linux/tee_drv.h | 14 ++++++++++++++
+ 2 files changed, 18 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1318,6 +1318,7 @@
- #define USB_VENDOR_ID_UGTIZER			0x2179
- #define USB_DEVICE_ID_UGTIZER_TABLET_GP0610	0x0053
- #define USB_DEVICE_ID_UGTIZER_TABLET_GT5040	0x0077
-+#define USB_DEVICE_ID_UGTIZER_TABLET_WP5540	0x0004
+diff --git a/drivers/tee/tee_core.c b/drivers/tee/tee_core.c
+index 85102d12d7169..3fc426dad2df3 100644
+--- a/drivers/tee/tee_core.c
++++ b/drivers/tee/tee_core.c
+@@ -43,7 +43,7 @@ static DEFINE_SPINLOCK(driver_lock);
+ static struct class *tee_class;
+ static dev_t tee_devt;
  
- #define USB_VENDOR_ID_VIEWSONIC			0x0543
- #define USB_DEVICE_ID_VIEWSONIC_PD1011		0xe621
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -187,6 +187,7 @@ static const struct hid_device_id hid_qu
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWA60), HID_QUIRK_MULTI_INPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER, USB_DEVICE_ID_UGTIZER_TABLET_WP5540), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SIRIUS_BATTERY_FREE_TABLET), HID_QUIRK_MULTI_INPUT },
+-static struct tee_context *teedev_open(struct tee_device *teedev)
++struct tee_context *teedev_open(struct tee_device *teedev)
+ {
+ 	int rc;
+ 	struct tee_context *ctx;
+@@ -70,6 +70,7 @@ static struct tee_context *teedev_open(struct tee_device *teedev)
+ 	return ERR_PTR(rc);
+ 
+ }
++EXPORT_SYMBOL_GPL(teedev_open);
+ 
+ void teedev_ctx_get(struct tee_context *ctx)
+ {
+@@ -96,13 +97,14 @@ void teedev_ctx_put(struct tee_context *ctx)
+ 	kref_put(&ctx->refcount, teedev_ctx_release);
+ }
+ 
+-static void teedev_close_context(struct tee_context *ctx)
++void teedev_close_context(struct tee_context *ctx)
+ {
+ 	struct tee_device *teedev = ctx->teedev;
+ 
+ 	teedev_ctx_put(ctx);
+ 	tee_device_put(teedev);
+ }
++EXPORT_SYMBOL_GPL(teedev_close_context);
+ 
+ static int tee_open(struct inode *inode, struct file *filp)
+ {
+diff --git a/include/linux/tee_drv.h b/include/linux/tee_drv.h
+index feda1dc7f98ee..38b701b7af4cf 100644
+--- a/include/linux/tee_drv.h
++++ b/include/linux/tee_drv.h
+@@ -582,4 +582,18 @@ struct tee_client_driver {
+ #define to_tee_client_driver(d) \
+ 		container_of(d, struct tee_client_driver, driver)
+ 
++/**
++ * teedev_open() - Open a struct tee_device
++ * @teedev:	Device to open
++ *
++ * @return a pointer to struct tee_context on success or an ERR_PTR on failure.
++ */
++struct tee_context *teedev_open(struct tee_device *teedev);
++
++/**
++ * teedev_close_context() - closes a struct tee_context
++ * @ctx:	The struct tee_context to close
++ */
++void teedev_close_context(struct tee_context *ctx);
++
+ #endif /*__TEE_DRV_H*/
+-- 
+2.34.1
+
 
 
