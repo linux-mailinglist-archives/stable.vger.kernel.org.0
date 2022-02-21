@@ -2,70 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D2B04BDE79
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:47:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 576324BDC51
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355588AbiBULRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 06:17:07 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48036 "EHLO
+        id S1356042AbiBULTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 06:19:48 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356010AbiBULPm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 06:15:42 -0500
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B0056394
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 02:55:43 -0800 (PST)
-Received: by mail-pj1-x1036.google.com with SMTP id gf13-20020a17090ac7cd00b001bbfb9d760eso4911980pjb.2
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 02:55:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=zBMxT6mUsrZF5CxDEWFMeByDYV1JnyiE3N8k2hcGECU=;
-        b=oqqOHqSypYg25IJxdVoI6B6JMbaJVEET4dh0ZwvKdM02nESkKShqcQcEAeJH4V0VCM
-         uXI9iuhFXbb++O9ukcBiCbNALAKfx5DpdMHwczy9DbTUsW44kL/lnka85qqWvRej0RPF
-         RnZ5VQi9/Mjq9HqVC0zMI/jx6jaX6l3eySLLacUi2cknQyzHpMuotUajsmC3GEpzlOin
-         o1tPkiMKwsJupC8oYXfyRQVBef8zEU0ZGw4rtAZoHwAnKLbd9vZK1AgZndTWoifXBC8/
-         AuESCa6BessImTSDHkf64leJzic5r/rVZzBOg5nQtxSNoV3iHs4YEsgn1YleKilaig88
-         BkCQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=zBMxT6mUsrZF5CxDEWFMeByDYV1JnyiE3N8k2hcGECU=;
-        b=K+pPYFOiOC7vJw95ajK5PDBXrYJzLYnpnNPt4eGt37UcrJPA7mEzq2axQQuhZQWlK3
-         vs6YRHEKuPRHt1SDgX2eChg33Vkm3tte/3gvXbA+b6YLqHaE9u3sxfEsAqRIG+QcgziM
-         A74qdtMmzG8wPrpqebOe31BMbKT6xjpS8SDrGo8AHSng6hyoAEg1sqj3Lw8RNj5+Rm/c
-         DAtQImh1sR69UyuVXMRt5MTkeR91wANAdkwbyHKFhaf2XBU+NGqbpDT9ni3Ec1b9+6Qx
-         3V5sSdLtgSjhiQXzzyQoZDOZVLq1kqmz5VL+J0h0l/kg/FgDG1PQPzN4xCoYYGJo/gaX
-         H0+w==
-X-Gm-Message-State: AOAM531fprrdwpKNT1K4tf35jEwI79DWqVXeq277rb6Ov1FhJbdoFZtC
-        TQu+clCuFWTGkLlBmgtwyGfDnxMVKNa7uNzQd9hpUA==
-X-Google-Smtp-Source: ABdhPJzLPLl27GzyMzXw22z+KHCroSxZ4M5UCV0cxecdAaXbkaNvw97Gtw7SM49XgmH59JPQQgrNHNZqjAsxzIhWJ+U=
-X-Received: by 2002:a17:90a:db90:b0:1bc:529f:7071 with SMTP id
- h16-20020a17090adb9000b001bc529f7071mr1589092pjv.40.1645440943069; Mon, 21
- Feb 2022 02:55:43 -0800 (PST)
+        with ESMTP id S1356005AbiBULTd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 06:19:33 -0500
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67D391085
+        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 03:06:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1645441573; x=1676977573;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=jvQSYmPNf/M4ObWAo7GeDinh3n5l1sRP9zStScQDr2g=;
+  b=djgINc6O7ZVuL4syqYmGrSd6ahYrMyLEpflqL7c7yw60TJE462Q3elbI
+   9G0eCRX6QYfSpOY2oC1xXnE+jXebtYOb1qrgLXdjA7NvIg5VUWmXFtwaN
+   tww1QZIEb0P+iP7RqtMnb9MudOvrBTscooRia6SZdRtTRWDcHpX5II0Jx
+   0eR255vgXlGwi1shj8+aSEOnAy4i4gt1iH1psvxWYxLpgnAVVYzL5oMvu
+   no+u2iqvsyfiEA/4uCRZnbLxJcZrM54Qz8tZNcEs/nDO20KtPOswsMElv
+   2QcCn7egUlsQsEWS6UK8YV8D8BKM/VkqSAjOPnsaHAyeASzUJdPFSptgz
+   w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10264"; a="251437199"
+X-IronPort-AV: E=Sophos;i="5.88,385,1635231600"; 
+   d="scan'208";a="251437199"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Feb 2022 03:06:13 -0800
+X-IronPort-AV: E=Sophos;i="5.88,385,1635231600"; 
+   d="scan'208";a="706222571"
+Received: from ideak-desk.fi.intel.com ([10.237.68.141])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Feb 2022 03:06:11 -0800
+Date:   Mon, 21 Feb 2022 13:06:08 +0200
+From:   Imre Deak <imre.deak@intel.com>
+To:     stable@vger.kernel.org
+Cc:     Philipp Gortan <philipp@gortan.org>,
+        Jose Souza <jose.souza@intel.com>
+Subject: Re: [Intel-gfx] [PATCH] drm/i915: Disconnect PHYs left connected by
+ BIOS on disabled ports
+Message-ID: <20220221110608.GA834116@ideak-desk.fi.intel.com>
+References: <20220217152237.670220-1-imre.deak@intel.com>
 MIME-Version: 1.0
-References: <yonglin.tan@outlook.com> <MEYP282MB237443EA389045F03FF2B48BFD3A9@MEYP282MB2374.AUSP282.PROD.OUTLOOK.COM>
- <CAMZdPi9xN_gQRUz3C2MPoSu9O_byaHnydZm3spX3Buecb8_hng@mail.gmail.com> <MEYP282MB2374345FC80FFA7045D897FEFD3A9@MEYP282MB2374.AUSP282.PROD.OUTLOOK.COM>
-In-Reply-To: <MEYP282MB2374345FC80FFA7045D897FEFD3A9@MEYP282MB2374.AUSP282.PROD.OUTLOOK.COM>
-From:   Loic Poulain <loic.poulain@linaro.org>
-Date:   Mon, 21 Feb 2022 11:55:07 +0100
-Message-ID: <CAMZdPi__Kf__hy4TGJ1sz=VA_PCZpKk_HPgXX8+AH3sv_8mkmg@mail.gmail.com>
-Subject: Re: [PATCH] net: wwan: To support SAHARA port for Qualcomm WWAN module.
-To:     =?UTF-8?B?6LCtIOawuOaelw==?= <yonglin.tan@outlook.com>
-Cc:     "ryazanov.s.a@gmail.com" <ryazanov.s.a@gmail.com>,
-        "johannes@sipsolutions.net" <johannes@sipsolutions.net>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "kuba@kernel.org" <kuba@kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Manivannan Sadhasivam <mani@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220217152237.670220-1-imre.deak@intel.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -73,40 +60,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 21 Feb 2022 at 10:27, =E8=B0=AD =E6=B0=B8=E6=9E=97 <yonglin.tan@out=
-look.com> wrote:
->
-> Dear Loic,
->
-> The Qualcomm x24&x55&x6x platform are all using SAHARA port to collect me=
-mory dump log. User can use QLOG tool to collect the whole memory dump of d=
-evice while the device entered into Dump mode. The firehose protocol is use=
-d to download FW from the host, it's different from SAHARA. MHI CH 2&3 are =
-used as SAHARA CH but firehose use 34&35 CH.
+On Thu, Feb 17, 2022 at 05:22:37PM +0200, Imre Deak wrote:
+> BIOS may leave a TypeC PHY in a connected state even though the
+> corresponding port is disabled. This will prevent any hotplug events
+> from being signalled (after the monitor deasserts and then reasserts its
+> HPD) until the PHY is disconnected and so the driver will not detect a
+> connected sink. Rebooting with the PHY in the connected state also
+> results in a system hang.
+> 
+> Fix the above by disconnecting TypeC PHYs on disabled ports.
+> 
+> Before commit 64851a32c463e5 the PHY connected state was read out even
+> for disabled ports and later the PHY got disconnected as a side effect
+> of a tc_port_lock/unlock() sequence (during connector probing), hence
+> recovering the port's hotplug functionality.
+> 
+> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/5014
+> Fixes: 64851a32c463 ("drm/i915/tc: Add a mode for the TypeC PHY's disconnected state")
+> Cc: <stable@vger.kernel.org> # v5.16+
+> Cc: José Roberto de Souza <jose.souza@intel.com>
+> Signed-off-by: Imre Deak <imre.deak@intel.com>
 
-Ah right, firehose programmer is loaded when entering EDL mode, not SBL.
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Reported-and-tested-by: Philipp Gortan <philipp@gortan.org>
 
->
-> The bus driver use " MHI_CHANNEL_CONFIG_UL&DL_SBL " to initiate SAHARA CH=
- configs.
->
-> The code is Quectel EM1XX channel config.
-> MHI_CHANNEL_CONFIG_DL_SBL(3, "SAHARA", 32, 0),
->
-> For example,
-> - Once the device crashed due to some reasons.
-> - The module entered into DUMP mode(SBL Stage), and changed the EE to SBL=
-.
-> - Then the host should detect the change and re-enumerate the SAHARA port=
-.
-> - Then users can use QLOG tool to collect the Device Memory LOG by SAHARA=
- Protocol via CH 2&3.
-
-OK, you should add that to the commit message.
-
-Also, instead of exposing the raw sahara protocol, can't this be
-integrated with the devcoredump framework
-(https://lwn.net/Articles/610887/)?
-
-Regards,
-Loic
+> ---
+>  drivers/gpu/drm/i915/display/intel_tc.c | 28 ++++++++++++++++++-------
+>  1 file changed, 21 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/display/intel_tc.c b/drivers/gpu/drm/i915/display/intel_tc.c
+> index feead08ddf8ff..fc037c027ea5a 100644
+> --- a/drivers/gpu/drm/i915/display/intel_tc.c
+> +++ b/drivers/gpu/drm/i915/display/intel_tc.c
+> @@ -693,6 +693,8 @@ void intel_tc_port_sanitize(struct intel_digital_port *dig_port)
+>  {
+>  	struct drm_i915_private *i915 = to_i915(dig_port->base.base.dev);
+>  	struct intel_encoder *encoder = &dig_port->base;
+> +	intel_wakeref_t tc_cold_wref;
+> +	enum intel_display_power_domain domain;
+>  	int active_links = 0;
+>  
+>  	mutex_lock(&dig_port->tc_lock);
+> @@ -704,12 +706,11 @@ void intel_tc_port_sanitize(struct intel_digital_port *dig_port)
+>  
+>  	drm_WARN_ON(&i915->drm, dig_port->tc_mode != TC_PORT_DISCONNECTED);
+>  	drm_WARN_ON(&i915->drm, dig_port->tc_lock_wakeref);
+> +
+> +	tc_cold_wref = tc_cold_block(dig_port, &domain);
+> +
+> +	dig_port->tc_mode = intel_tc_port_get_current_mode(dig_port);
+>  	if (active_links) {
+> -		enum intel_display_power_domain domain;
+> -		intel_wakeref_t tc_cold_wref = tc_cold_block(dig_port, &domain);
+> -
+> -		dig_port->tc_mode = intel_tc_port_get_current_mode(dig_port);
+> -
+>  		if (!icl_tc_phy_is_connected(dig_port))
+>  			drm_dbg_kms(&i915->drm,
+>  				    "Port %s: PHY disconnected with %d active link(s)\n",
+> @@ -718,10 +719,23 @@ void intel_tc_port_sanitize(struct intel_digital_port *dig_port)
+>  
+>  		dig_port->tc_lock_wakeref = tc_cold_block(dig_port,
+>  							  &dig_port->tc_lock_power_domain);
+> -
+> -		tc_cold_unblock(dig_port, domain, tc_cold_wref);
+> +	} else {
+> +		/*
+> +		 * TBT-alt is the default mode in any case the PHY ownership is not
+> +		 * held (regardless of the sink's connected live state), so
+> +		 * we'll just switch to disconnected mode from it here without
+> +		 * a note.
+> +		 */
+> +		if (dig_port->tc_mode != TC_PORT_TBT_ALT)
+> +			drm_dbg_kms(&i915->drm,
+> +				    "Port %s: PHY left in %s mode on disabled port, disconnecting it\n",
+> +				    dig_port->tc_port_name,
+> +				    tc_port_mode_name(dig_port->tc_mode));
+> +		icl_tc_phy_disconnect(dig_port);
+>  	}
+>  
+> +	tc_cold_unblock(dig_port, domain, tc_cold_wref);
+> +
+>  	drm_dbg_kms(&i915->drm, "Port %s: sanitize mode (%s)\n",
+>  		    dig_port->tc_port_name,
+>  		    tc_port_mode_name(dig_port->tc_mode));
+> -- 
+> 2.27.0
+> 
