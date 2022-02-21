@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FA4A4BDB73
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:40:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C23334BDE58
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:47:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348631AbiBUJ2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:28:05 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47558 "EHLO
+        id S1347576AbiBUJHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:07:04 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:39484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348860AbiBUJ1d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 799BD6369;
-        Mon, 21 Feb 2022 01:11:56 -0800 (PST)
+        with ESMTP id S1347721AbiBUJGC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:06:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55CD030F50;
+        Mon, 21 Feb 2022 00:59:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1538D60B1B;
-        Mon, 21 Feb 2022 09:11:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E66E4C340E9;
-        Mon, 21 Feb 2022 09:11:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF2DCB80EAF;
+        Mon, 21 Feb 2022 08:59:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38B2FC36AE2;
+        Mon, 21 Feb 2022 08:59:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434715;
-        bh=nq4RGDjMqlFVwtDTrTSQfcMRT5Kyveke7zxrDBK+h7U=;
+        s=korg; t=1645433975;
+        bh=FAgBnFMSrrN/3bKFuNbXbryXkImZhZnCtcmX/wA3NG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fndYfZffTN7QVZaRi+qDxPJsAloo6J8ToOP1ialIM2LsGaT2yx0eFaej6D21/Pt1I
-         ljLAZSwSW+rW3dhZmD+Tm18TcJvNPnoEz1bqZE7+tjbh/TnolQESoZUql4ScxVG9fw
-         dxUIZGHbxiaEj9dx9bRbzW677cS1aztZL//KLP0g=
+        b=P4BGBX7mEjM3youbEr3MImRD2nYt1IaOpm4R4OpHh1ieEBJXXX8h+ZyucLz4Zt3hf
+         z2DaTExqk2W55KN0tj/rKMSh6HYM9S7H69XARiwQ+dT791IGzZkPDyx5cTujDTYQbN
+         eclC5GtuRHR3zS/3JNcMTxEBZGLa/ia5OtSiJt9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 105/196] dpaa2-switch: fix default return of dpaa2_switch_flower_parse_mirror_key
+        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Christian Brauner <brauner@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 17/80] quota: make dquot_quota_sync return errors from ->sync_fs
 Date:   Mon, 21 Feb 2022 09:48:57 +0100
-Message-Id: <20220221084934.442475821@linuxfoundation.org>
+Message-Id: <20220221084916.150145130@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Darrick J. Wong <djwong@kernel.org>
 
-commit 2a36ed7c1cd55742503bed81d2cc0ea83bd0ad0c upstream.
+[ Upstream commit dd5532a4994bfda0386eb2286ec00758cee08444 ]
 
-Clang static analysis reports this representative problem
-dpaa2-switch-flower.c:616:24: warning: The right operand of '=='
-  is a garbage value
-  tmp->cfg.vlan_id == vlan) {
-                   ^  ~~~~
-vlan is set in dpaa2_switch_flower_parse_mirror_key(). However
-this function can return success without setting vlan.  So
-change the default return to -EOPNOTSUPP.
+Strangely, dquot_quota_sync ignores the return code from the ->sync_fs
+call, which means that quotacalls like Q_SYNC never see the error.  This
+doesn't seem right, so fix that.
 
-Fixes: 0f3faece5808 ("dpaa2-switch: add VLAN based mirroring")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Ioana Ciornei <ioana.ciornei@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Christian Brauner <brauner@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-switch-flower.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/quota/dquot.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch-flower.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch-flower.c
-@@ -532,6 +532,7 @@ static int dpaa2_switch_flower_parse_mir
- 	struct flow_rule *rule = flow_cls_offload_flow_rule(cls);
- 	struct flow_dissector *dissector = rule->match.dissector;
- 	struct netlink_ext_ack *extack = cls->common.extack;
-+	int ret = -EOPNOTSUPP;
+diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
+index 7abc3230c21a4..dc5f8654b277d 100644
+--- a/fs/quota/dquot.c
++++ b/fs/quota/dquot.c
+@@ -693,9 +693,14 @@ int dquot_quota_sync(struct super_block *sb, int type)
+ 	/* This is not very clever (and fast) but currently I don't know about
+ 	 * any other simple way of getting quota data to disk and we must get
+ 	 * them there for userspace to be visible... */
+-	if (sb->s_op->sync_fs)
+-		sb->s_op->sync_fs(sb, 1);
+-	sync_blockdev(sb->s_bdev);
++	if (sb->s_op->sync_fs) {
++		ret = sb->s_op->sync_fs(sb, 1);
++		if (ret)
++			return ret;
++	}
++	ret = sync_blockdev(sb->s_bdev);
++	if (ret)
++		return ret;
  
- 	if (dissector->used_keys &
- 	    ~(BIT(FLOW_DISSECTOR_KEY_BASIC) |
-@@ -561,9 +562,10 @@ static int dpaa2_switch_flower_parse_mir
- 		}
- 
- 		*vlan = (u16)match.key->vlan_id;
-+		ret = 0;
- 	}
- 
--	return 0;
-+	return ret;
- }
- 
- static int
+ 	/*
+ 	 * Now when everything is written we can discard the pagecache so
+-- 
+2.34.1
+
 
 
