@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17EDF4BE7BE
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:03:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3AA24BDF88
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:50:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351114AbiBUJuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:50:11 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42608 "EHLO
+        id S1347054AbiBUJEK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:04:10 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:32960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352916AbiBUJsC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:48:02 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D018924590;
-        Mon, 21 Feb 2022 01:21:21 -0800 (PST)
+        with ESMTP id S1348487AbiBUJCy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:02:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CDC12C678;
+        Mon, 21 Feb 2022 00:58:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D240ECE0E89;
-        Mon, 21 Feb 2022 09:21:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAB0BC340EC;
-        Mon, 21 Feb 2022 09:21:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB84B6112B;
+        Mon, 21 Feb 2022 08:57:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3071C340E9;
+        Mon, 21 Feb 2022 08:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435278;
-        bh=2okCbzb+8btK/pWqiwqGxhM4vD/yRs/35UwQ0lDpdPk=;
+        s=korg; t=1645433876;
+        bh=jth1zaFSPBq8shktgRO3aI+1QIAjT7qWetuzUubsnf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kr7ODH7YwdzWvE67ik4VKiRDTf/oKH1WL03MrYKvtkkk0F2GxCZIg9+Ntjm85Xv2t
-         AzJAe2Sf/lItQp1Xjvds2QvZZDV818hZwnSofip7URynDkxrlSn06ZBgGhkZ/M58Dx
-         BetpIFoShNjz9OcMUEWutBS+PCDMIa1nXAwPOMU0=
+        b=B/0X5lvriF0seuspW9Y2Bd1sQDvHcWFu4j4ifQjkZMoMo/dVN9Fbe5DZdVMGcUidc
+         V4GYtAlQHk8j3KA27QRsq9OSHku8izXdVmjGc1FXhw0USBuTu0nfqkgHPd10T+WnF+
+         nFzd0iXpAz4AIuX7r3gVOFqLP1Rqa1gaFtAHXKRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.16 106/227] mac80211: mlme: check for null after calling kmemdup
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.4 05/80] parisc: Drop __init from map_pages declaration
 Date:   Mon, 21 Feb 2022 09:48:45 +0100
-Message-Id: <20220221084938.397787007@linuxfoundation.org>
+Message-Id: <20220221084915.762531012@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,118 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: John David Anglin <dave.anglin@bell.net>
 
-commit a72c01a94f1d285a274219d36e2a17b4846c0615 upstream.
+commit 9129886b88185962538180625ca8051362b01327 upstream.
 
-As the possible failure of the alloc, the ifmgd->assoc_req_ies might be
-NULL pointer returned from kmemdup().
-Therefore it might be better to free the skb and return error in order
-to fail the association, like ieee80211_assoc_success().
-Also, the caller, ieee80211_do_assoc(), needs to deal with the return
-value from ieee80211_send_assoc().
+With huge kernel pages, we randomly eat a SPARC in map_pages(). This
+is fixed by dropping __init from the declaration.
 
-Fixes: 4d9ec73d2b78 ("cfg80211: Report Association Request frame IEs in association events")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220105081559.2387083-1-jiasheng@iscas.ac.cn
-[fix some paths to be errors, not success]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+However, map_pages references the __init routine memblock_alloc_try_nid
+via memblock_alloc.  Thus, it needs to be marked with __ref.
+
+memblock_alloc is only called before the kernel text is set to readonly.
+
+The __ref on free_initmem is no longer needed.
+
+Comment regarding map_pages being in the init section is removed.
+
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/mlme.c |   29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ arch/parisc/mm/init.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -664,7 +664,7 @@ static void ieee80211_add_he_ie(struct i
- 	ieee80211_ie_build_he_6ghz_cap(sdata, skb);
+--- a/arch/parisc/mm/init.c
++++ b/arch/parisc/mm/init.c
+@@ -347,9 +347,9 @@ static void __init setup_bootmem(void)
+ 
+ static bool kernel_set_to_readonly;
+ 
+-static void __init map_pages(unsigned long start_vaddr,
+-			     unsigned long start_paddr, unsigned long size,
+-			     pgprot_t pgprot, int force)
++static void __ref map_pages(unsigned long start_vaddr,
++			    unsigned long start_paddr, unsigned long size,
++			    pgprot_t pgprot, int force)
+ {
+ 	pgd_t *pg_dir;
+ 	pmd_t *pmd;
+@@ -485,7 +485,7 @@ void __init set_kernel_text_rw(int enabl
+ 	flush_tlb_all();
  }
  
--static void ieee80211_send_assoc(struct ieee80211_sub_if_data *sdata)
-+static int ieee80211_send_assoc(struct ieee80211_sub_if_data *sdata)
+-void __ref free_initmem(void)
++void free_initmem(void)
  {
- 	struct ieee80211_local *local = sdata->local;
- 	struct ieee80211_if_managed *ifmgd = &sdata->u.mgd;
-@@ -684,6 +684,7 @@ static void ieee80211_send_assoc(struct
- 	enum nl80211_iftype iftype = ieee80211_vif_type_p2p(&sdata->vif);
- 	const struct ieee80211_sband_iftype_data *iftd;
- 	struct ieee80211_prep_tx_info info = {};
-+	int ret;
- 
- 	/* we know it's writable, cast away the const */
- 	if (assoc_data->ie_len)
-@@ -697,7 +698,7 @@ static void ieee80211_send_assoc(struct
- 	chanctx_conf = rcu_dereference(sdata->vif.chanctx_conf);
- 	if (WARN_ON(!chanctx_conf)) {
- 		rcu_read_unlock();
--		return;
-+		return -EINVAL;
- 	}
- 	chan = chanctx_conf->def.chan;
- 	rcu_read_unlock();
-@@ -748,7 +749,7 @@ static void ieee80211_send_assoc(struct
- 			(iftd ? iftd->vendor_elems.len : 0),
- 			GFP_KERNEL);
- 	if (!skb)
--		return;
-+		return -ENOMEM;
- 
- 	skb_reserve(skb, local->hw.extra_tx_headroom);
- 
-@@ -1029,15 +1030,22 @@ skip_rates:
- 		skb_put_data(skb, assoc_data->ie + offset, noffset - offset);
- 	}
- 
--	if (assoc_data->fils_kek_len &&
--	    fils_encrypt_assoc_req(skb, assoc_data) < 0) {
--		dev_kfree_skb(skb);
--		return;
-+	if (assoc_data->fils_kek_len) {
-+		ret = fils_encrypt_assoc_req(skb, assoc_data);
-+		if (ret < 0) {
-+			dev_kfree_skb(skb);
-+			return ret;
-+		}
- 	}
- 
- 	pos = skb_tail_pointer(skb);
- 	kfree(ifmgd->assoc_req_ies);
- 	ifmgd->assoc_req_ies = kmemdup(ie_start, pos - ie_start, GFP_ATOMIC);
-+	if (!ifmgd->assoc_req_ies) {
-+		dev_kfree_skb(skb);
-+		return -ENOMEM;
-+	}
-+
- 	ifmgd->assoc_req_ies_len = pos - ie_start;
- 
- 	drv_mgd_prepare_tx(local, sdata, &info);
-@@ -1047,6 +1055,8 @@ skip_rates:
- 		IEEE80211_SKB_CB(skb)->flags |= IEEE80211_TX_CTL_REQ_TX_STATUS |
- 						IEEE80211_TX_INTFL_MLME_CONN_TX;
- 	ieee80211_tx_skb(sdata, skb);
-+
-+	return 0;
- }
- 
- void ieee80211_send_pspoll(struct ieee80211_local *local,
-@@ -4491,6 +4501,7 @@ static int ieee80211_do_assoc(struct iee
- {
- 	struct ieee80211_mgd_assoc_data *assoc_data = sdata->u.mgd.assoc_data;
- 	struct ieee80211_local *local = sdata->local;
-+	int ret;
- 
- 	sdata_assert_lock(sdata);
- 
-@@ -4511,7 +4522,9 @@ static int ieee80211_do_assoc(struct iee
- 	sdata_info(sdata, "associate with %pM (try %d/%d)\n",
- 		   assoc_data->bss->bssid, assoc_data->tries,
- 		   IEEE80211_ASSOC_MAX_TRIES);
--	ieee80211_send_assoc(sdata);
-+	ret = ieee80211_send_assoc(sdata);
-+	if (ret)
-+		return ret;
- 
- 	if (!ieee80211_hw_check(&local->hw, REPORTS_TX_ACK_STATUS)) {
- 		assoc_data->timeout = jiffies + IEEE80211_ASSOC_TIMEOUT;
+ 	unsigned long init_begin = (unsigned long)__init_begin;
+ 	unsigned long init_end = (unsigned long)__init_end;
+@@ -499,7 +499,6 @@ void __ref free_initmem(void)
+ 	/* The init text pages are marked R-X.  We have to
+ 	 * flush the icache and mark them RW-
+ 	 *
+-	 * This is tricky, because map_pages is in the init section.
+ 	 * Do a dummy remap of the data section first (the data
+ 	 * section is already PAGE_KERNEL) to pull in the TLB entries
+ 	 * for map_kernel */
 
 
