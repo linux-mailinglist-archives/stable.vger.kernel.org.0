@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 323F84BE7EF
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:04:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EFCB4BE23C
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:55:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347955AbiBUJKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:10:13 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:36408 "EHLO
+        id S1351684AbiBUJub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:50:31 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:41704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347766AbiBUJJO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:09:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB7912ACB;
-        Mon, 21 Feb 2022 01:01:37 -0800 (PST)
+        with ESMTP id S1352624AbiBUJri (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:47:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAF1C43493;
+        Mon, 21 Feb 2022 01:20:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85C79B80EB5;
-        Mon, 21 Feb 2022 09:01:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3F5BC340E9;
-        Mon, 21 Feb 2022 09:01:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8579360EB3;
+        Mon, 21 Feb 2022 09:20:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65FCEC340EB;
+        Mon, 21 Feb 2022 09:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434095;
-        bh=HKrIBi5m5CFXzZ+6/xBVUfB/8hJp8GunVilEDIKwwTQ=;
+        s=korg; t=1645435213;
+        bh=MG0LT0WpiF9RrSxHDVMgtYZYTt4Y0WHzXS5mZYOvIYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vX9efIz1vFJ7aHEm3c2eFptToGoYal1gHPx16+0MUOBBvRUBoR1M8TAbExjFRRazE
-         I+GaDfqVniaS4XfADI0QKnLLX70sv0EFGMhapDZuEeBHnLGON34tvSizq3mIxcyx1U
-         t7UcLKu6nzQtiC/5rhxhxXF2QgHC9ihY3wpeGVLE=
+        b=W5ACgQ2oD/xH3169Lc0d5P3WGA+AfujknAJI66njCk0kOL2DwF1XpnOn6eGQRg0ut
+         jImrk+dA2cXqKP+gs8myrwIZqOT+Hbhbnp47Dx1Tj4nGF5Ggr2D+DMvM3BK+u1dHt1
+         b4vNYTWuXYjzGbn4EHbyip0cb/9RTGlmhWQF/ito=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
-        linux-serial@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 011/121] serial: parisc: GSC: fix build when IOSAPIC is not set
-Date:   Mon, 21 Feb 2022 09:48:23 +0100
-Message-Id: <20220221084921.527901686@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.16 085/227] drm/i915: Fix mbus join config lookup
+Date:   Mon, 21 Feb 2022 09:48:24 +0100
+Message-Id: <20220221084937.698308163@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-References: <20220221084921.147454846@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,54 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 6e8793674bb0d1135ca0e5c9f7e16fecbf815926 upstream.
+commit 8d9d2a723d64b650f2e6423024ccb4a33f0cdc40 upstream.
 
-There is a build error when using a kernel .config file from
-'kernel test robot' for a different build problem:
+The bogus loop from compute_dbuf_slices() was copied into
+check_mbus_joined() as well. So this lookup is wrong as well.
+Fix it.
 
-hppa64-linux-ld: drivers/tty/serial/8250/8250_gsc.o: in function `.LC3':
-(.data.rel.ro+0x18): undefined reference to `iosapic_serial_irq'
-
-when:
-  CONFIG_GSC=y
-  CONFIG_SERIO_GSCPS2=y
-  CONFIG_SERIAL_8250_GSC=y
-  CONFIG_PCI is not set
-    and hence PCI_LBA is not set.
-  IOSAPIC depends on PCI_LBA, so IOSAPIC is not set/enabled.
-
-Make the use of iosapic_serial_irq() conditional to fix the build error.
-
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: linux-parisc@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-serial@vger.kernel.org
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Cc: Johan Hovold <johan@kernel.org>
-Suggested-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Helge Deller <deller@gmx.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: f4dc00863226 ("drm/i915/adl_p: MBUS programming")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220207132700.481-2-ville.syrjala@linux.intel.com
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit 053f2b85631316a9226f6340c1c0fd95634f7a5b)
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_gsc.c |    2 +-
+ drivers/gpu/drm/i915/intel_pm.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_gsc.c
-+++ b/drivers/tty/serial/8250/8250_gsc.c
-@@ -26,7 +26,7 @@ static int __init serial_init_chip(struc
- 	unsigned long address;
- 	int err;
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -4843,7 +4843,7 @@ static bool check_mbus_joined(u8 active_
+ {
+ 	int i;
  
--#ifdef CONFIG_64BIT
-+#if defined(CONFIG_64BIT) && defined(CONFIG_IOSAPIC)
- 	if (!dev->irq && (dev->id.sversion == 0xad))
- 		dev->irq = iosapic_serial_irq(dev);
- #endif
+-	for (i = 0; i < dbuf_slices[i].active_pipes; i++) {
++	for (i = 0; dbuf_slices[i].active_pipes != 0; i++) {
+ 		if (dbuf_slices[i].active_pipes == active_pipes)
+ 			return dbuf_slices[i].join_mbus;
+ 	}
 
 
