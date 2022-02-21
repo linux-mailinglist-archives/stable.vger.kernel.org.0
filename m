@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4865D4BE63F
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:01:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 008774BE092
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:52:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347741AbiBUJJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:09:01 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33876 "EHLO
+        id S1344064AbiBUJDv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:03:51 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347745AbiBUJIz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:08:55 -0500
+        with ESMTP id S1348062AbiBUJCR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:02:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D9B624BDA;
-        Mon, 21 Feb 2022 01:00:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B380222BEE;
+        Mon, 21 Feb 2022 00:57:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D72C0B80E9F;
-        Mon, 21 Feb 2022 09:00:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 123AEC340E9;
-        Mon, 21 Feb 2022 09:00:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1810EB80EBA;
+        Mon, 21 Feb 2022 08:57:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36564C340E9;
+        Mon, 21 Feb 2022 08:57:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434032;
-        bh=D+Ib7wkm+pUgHIFpFkgZMNVJA3CmXTMDtP5x7u0Q6fc=;
+        s=korg; t=1645433847;
+        bh=r+bNCJC5D6dgqgospRgsdedmZ0Hcm+1d/jSHPYZYSUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zT09jOLDlfvlsn29qFp8YyqeE1fQXmRV3hywzI43V3AMKmmj4Co5GiO2/9/uoJ2mo
-         ynNJby53LwYm8hhcXFwX4ftRG76pNs+iEdDb6/kgZppvUUKszLHc/9ax0q2VIca1ZM
-         QcCNNcMWLRsG18MTZTzjvXR4KTf2j0zhTCx37xt4=
+        b=Dy0KwiqiXpyFY3MwuFBj2Ebtfk+Nj7QRC85coKOYM8eGD80BrFtBEVQu3e4d6YYvN
+         4IL4GcG45n3GSIqNs5o9rqy0Cut/J+TtfgQDL9Gi+tEr5UAxoLFfmMI6x4d++qaLuN
+         SfJYlxCZFWaC+AEOXqilMgWGW6gaZi3UVQTmzAGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
-        Anup Patel <anup@brainfault.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, JaeSang Yoo <jsyoo5b@gmail.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 69/80] irqchip/sifive-plic: Add missing thead,c900-plic match string
+Subject: [PATCH 4.19 56/58] tracing: Fix tp_printk option related with tp_printk_stop_on_boot
 Date:   Mon, 21 Feb 2022 09:49:49 +0100
-Message-Id: <20220221084917.844882267@linuxfoundation.org>
+Message-Id: <20220221084913.683951906@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
-References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
+References: <20220221084911.895146879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,47 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: JaeSang Yoo <js.yoo.5b@gmail.com>
 
-[ Upstream commit 1d4df649cbb4b26d19bea38ecff4b65b10a1bbca ]
+[ Upstream commit 3203ce39ac0b2a57a84382ec184c7d4a0bede175 ]
 
-The thead,c900-plic has been used in opensbi to distinguish
-PLIC [1]. Although PLICs have the same behaviors in Linux,
-they are different hardware with some custom initializing in
-firmware(opensbi).
+The kernel parameter "tp_printk_stop_on_boot" starts with "tp_printk" which is
+the same as another kernel parameter "tp_printk". If "tp_printk" setup is
+called before the "tp_printk_stop_on_boot", it will override the latter
+and keep it from being set.
 
-Qute opensbi patch commit-msg by Samuel:
+This is similar to other kernel parameter issues, such as:
+  Commit 745a600cf1a6 ("um: console: Ignore console= option")
+or init/do_mounts.c:45 (setup function of "ro" kernel param)
 
-  The T-HEAD PLIC implementation requires setting a delegation bit
-  to allow access from S-mode. Now that the T-HEAD PLIC has its own
-  compatible string, set this bit automatically from the PLIC driver,
-  instead of reaching into the PLIC's MMIO space from another driver.
+Fix it by checking for a "_" right after the "tp_printk" and if that
+exists do not process the parameter.
 
-[1]: https://github.com/riscv-software-src/opensbi/commit/78c2b19218bd62653b9fb31623a42ced45f38ea6
+Link: https://lkml.kernel.org/r/20220208195421.969326-1-jsyoo5b@gmail.com
 
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Cc: Anup Patel <anup@brainfault.org>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Samuel Holland <samuel@sholland.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220130135634.1213301-3-guoren@kernel.org
+Signed-off-by: JaeSang Yoo <jsyoo5b@gmail.com>
+[ Fixed up change log and added space after if condition ]
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-sifive-plic.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/trace/trace.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/irqchip/irq-sifive-plic.c b/drivers/irqchip/irq-sifive-plic.c
-index 7cd7b140dfe97..9dad45d928bfe 100644
---- a/drivers/irqchip/irq-sifive-plic.c
-+++ b/drivers/irqchip/irq-sifive-plic.c
-@@ -313,3 +313,4 @@ static int __init plic_init(struct device_node *node,
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 17e337a22c239..19a6b088f1e72 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -232,6 +232,10 @@ __setup("trace_clock=", set_trace_boot_clock);
  
- IRQCHIP_DECLARE(sifive_plic, "sifive,plic-1.0.0", plic_init);
- IRQCHIP_DECLARE(riscv_plic0, "riscv,plic0", plic_init); /* for legacy systems */
-+IRQCHIP_DECLARE(thead_c900_plic, "thead,c900-plic", plic_init); /* for firmware driver */
+ static int __init set_tracepoint_printk(char *str)
+ {
++	/* Ignore the "tp_printk_stop_on_boot" param */
++	if (*str == '_')
++		return 0;
++
+ 	if ((strcmp(str, "=0") != 0 && strcmp(str, "=off") != 0))
+ 		tracepoint_printk = 1;
+ 	return 1;
 -- 
 2.34.1
 
