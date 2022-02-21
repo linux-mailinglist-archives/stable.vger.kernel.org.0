@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CBBC4BE372
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:57:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE1454BE189
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:53:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346941AbiBUJDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:03:40 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:59658 "EHLO
+        id S1352284AbiBUJzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:55:19 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348329AbiBUJCk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:02:40 -0500
+        with ESMTP id S1352328AbiBUJzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:55:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53477255A4;
-        Mon, 21 Feb 2022 00:57:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23EF538792;
+        Mon, 21 Feb 2022 01:24:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A65A8B80EAA;
-        Mon, 21 Feb 2022 08:57:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B47A5C36AE7;
-        Mon, 21 Feb 2022 08:57:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C600AB80EB9;
+        Mon, 21 Feb 2022 09:24:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8830C340E9;
+        Mon, 21 Feb 2022 09:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645433856;
-        bh=OjeT7xbUg1MBVFOFUc1x+gta//Ub/1+0ZP9aLZZxhhc=;
+        s=korg; t=1645435446;
+        bh=kPsipjtm5BFbOtdKq1wVwjsC6HImBrZUVW4TMQmoygI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NNXru95SLSMIbc0sCjqi3vD1WsdSGh3kkrfFHdfmTuj/dQ41u3kBlDbjzCjbRubYD
-         zToZVwRNMcIAc/Ky1ES64w4sGDKZnm+sXnky0Qon9W8Gt7aV42VXM3r3sxd7ltLRdR
-         6vgfY8BGy1xrhh/rNpW3Oiq+mmox64JtB00vUSLU=
+        b=av8480uENwpCN3B6p0CT0l9pk8bEliQvLFtrJz3JpQMoPtgCCx8gef4t3OTbsRJX6
+         PQtM1i5yuGRL0fLQ474LPdS9hmkk7Mcmbh+kSwAQ8aDcsGGBYINf99JdkCf32DnH13
+         BRAUnp0y+0KYP4Qc8WM83KI1cNXk9Ch0duTzkse8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Vivek Thrivikraman <vivek.thrivikraman@est.tech>
-Subject: [PATCH 4.19 52/58] netfilter: conntrack: dont refresh sctp entries in closed state
+        stable@vger.kernel.org, Ansuel Smith <ansuelsmth@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.16 166/227] mtd: parsers: qcom: Fix kernel panic on skipped partition
 Date:   Mon, 21 Feb 2022 09:49:45 +0100
-Message-Id: <20220221084913.549519045@linuxfoundation.org>
+Message-Id: <20220221084940.343157397@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
-References: <20220221084911.895146879@linuxfoundation.org>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +53,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Ansuel Smith <ansuelsmth@gmail.com>
 
-[ Upstream commit 77b337196a9d87f3d6bb9b07c0436ecafbffda1e ]
+commit 65d003cca335cabc0160d3cd7daa689eaa9dd3cd upstream.
 
-Vivek Thrivikraman reported:
- An SCTP server application which is accessed continuously by client
- application.
- When the session disconnects the client retries to establish a connection.
- After restart of SCTP server application the session is not established
- because of stale conntrack entry with connection state CLOSED as below.
+In the event of a skipped partition (case when the entry name is empty)
+the kernel panics in the cleanup function as the name entry is NULL.
+Rework the parser logic by first checking the real partition number and
+then allocate the space and set the data for the valid partitions.
 
- (removing this entry manually established new connection):
+The logic was also fundamentally wrong as with a skipped partition, the
+parts number returned was incorrect by not decreasing it for the skipped
+partitions.
 
- sctp 9 CLOSED src=10.141.189.233 [..]  [ASSURED]
-
-Just skip timeout update of closed entries, we don't want them to
-stay around forever.
-
-Reported-and-tested-by: Vivek Thrivikraman <vivek.thrivikraman@est.tech>
-Closes: https://bugzilla.netfilter.org/show_bug.cgi?id=1579
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 803eb124e1a6 ("mtd: parsers: Add Qcom SMEM parser")
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220116032211.9728-1-ansuelsmth@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_conntrack_proto_sctp.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/mtd/parsers/qcomsmempart.c |   31 +++++++++++++++++++------------
+ 1 file changed, 19 insertions(+), 12 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_proto_sctp.c b/net/netfilter/nf_conntrack_proto_sctp.c
-index a937d4f75613f..8cb62805fd684 100644
---- a/net/netfilter/nf_conntrack_proto_sctp.c
-+++ b/net/netfilter/nf_conntrack_proto_sctp.c
-@@ -394,6 +394,15 @@ static int sctp_packet(struct nf_conn *ct,
- 			pr_debug("Setting vtag %x for dir %d\n",
- 				 ih->init_tag, !dir);
- 			ct->proto.sctp.vtag[!dir] = ih->init_tag;
-+
-+			/* don't renew timeout on init retransmit so
-+			 * port reuse by client or NAT middlebox cannot
-+			 * keep entry alive indefinitely (incl. nat info).
-+			 */
-+			if (new_state == SCTP_CONNTRACK_CLOSED &&
-+			    old_state == SCTP_CONNTRACK_CLOSED &&
-+			    nf_ct_is_confirmed(ct))
-+				ignore = true;
- 		}
+--- a/drivers/mtd/parsers/qcomsmempart.c
++++ b/drivers/mtd/parsers/qcomsmempart.c
+@@ -58,11 +58,11 @@ static int parse_qcomsmem_part(struct mt
+ 			       const struct mtd_partition **pparts,
+ 			       struct mtd_part_parser_data *data)
+ {
++	size_t len = SMEM_FLASH_PTABLE_HDR_LEN;
++	int ret, i, j, tmpparts, numparts = 0;
+ 	struct smem_flash_pentry *pentry;
+ 	struct smem_flash_ptable *ptable;
+-	size_t len = SMEM_FLASH_PTABLE_HDR_LEN;
+ 	struct mtd_partition *parts;
+-	int ret, i, numparts;
+ 	char *name, *c;
  
- 		ct->proto.sctp.state = new_state;
--- 
-2.34.1
-
+ 	if (IS_ENABLED(CONFIG_MTD_SPI_NOR_USE_4K_SECTORS)
+@@ -87,8 +87,8 @@ static int parse_qcomsmem_part(struct mt
+ 	}
+ 
+ 	/* Ensure that # of partitions is less than the max we have allocated */
+-	numparts = le32_to_cpu(ptable->numparts);
+-	if (numparts > SMEM_FLASH_PTABLE_MAX_PARTS_V4) {
++	tmpparts = le32_to_cpu(ptable->numparts);
++	if (tmpparts > SMEM_FLASH_PTABLE_MAX_PARTS_V4) {
+ 		pr_err("Partition numbers exceed the max limit\n");
+ 		return -EINVAL;
+ 	}
+@@ -116,11 +116,17 @@ static int parse_qcomsmem_part(struct mt
+ 		return PTR_ERR(ptable);
+ 	}
+ 
++	for (i = 0; i < tmpparts; i++) {
++		pentry = &ptable->pentry[i];
++		if (pentry->name[0] != '\0')
++			numparts++;
++	}
++
+ 	parts = kcalloc(numparts, sizeof(*parts), GFP_KERNEL);
+ 	if (!parts)
+ 		return -ENOMEM;
+ 
+-	for (i = 0; i < numparts; i++) {
++	for (i = 0, j = 0; i < tmpparts; i++) {
+ 		pentry = &ptable->pentry[i];
+ 		if (pentry->name[0] == '\0')
+ 			continue;
+@@ -135,24 +141,25 @@ static int parse_qcomsmem_part(struct mt
+ 		for (c = name; *c != '\0'; c++)
+ 			*c = tolower(*c);
+ 
+-		parts[i].name = name;
+-		parts[i].offset = le32_to_cpu(pentry->offset) * mtd->erasesize;
+-		parts[i].mask_flags = pentry->attr;
+-		parts[i].size = le32_to_cpu(pentry->length) * mtd->erasesize;
++		parts[j].name = name;
++		parts[j].offset = le32_to_cpu(pentry->offset) * mtd->erasesize;
++		parts[j].mask_flags = pentry->attr;
++		parts[j].size = le32_to_cpu(pentry->length) * mtd->erasesize;
+ 		pr_debug("%d: %s offs=0x%08x size=0x%08x attr:0x%08x\n",
+ 			 i, pentry->name, le32_to_cpu(pentry->offset),
+ 			 le32_to_cpu(pentry->length), pentry->attr);
++		j++;
+ 	}
+ 
+ 	pr_debug("SMEM partition table found: ver: %d len: %d\n",
+-		 le32_to_cpu(ptable->version), numparts);
++		 le32_to_cpu(ptable->version), tmpparts);
+ 	*pparts = parts;
+ 
+ 	return numparts;
+ 
+ out_free_parts:
+-	while (--i >= 0)
+-		kfree(parts[i].name);
++	while (--j >= 0)
++		kfree(parts[j].name);
+ 	kfree(parts);
+ 	*pparts = NULL;
+ 
 
 
