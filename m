@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 094B64BDD7F
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:45:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B7814BE895
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 19:05:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241113AbiBUJww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:52:52 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:56892 "EHLO
+        id S242959AbiBUIx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 03:53:27 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351991AbiBUJwq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:52:46 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B0BA1D0F2;
-        Mon, 21 Feb 2022 01:23:06 -0800 (PST)
+        with ESMTP id S1345557AbiBUIwx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 03:52:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B31B25E7;
+        Mon, 21 Feb 2022 00:52:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D9AC3CE0EA9;
-        Mon, 21 Feb 2022 09:23:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4977C340E9;
-        Mon, 21 Feb 2022 09:23:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0131BB80EB0;
+        Mon, 21 Feb 2022 08:52:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E24EC340F1;
+        Mon, 21 Feb 2022 08:52:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645435383;
-        bh=NKr8jcP1dVRBCsxqTN+6PsHJDCIyuR2K4W8XcO7Uze0=;
+        s=korg; t=1645433544;
+        bh=zZv4cf1Gxrqszl+G8uumJj1fJSQk+9B7NQtkVLy42R0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aTlrHgcfVC9vOFHNXl542g2OOFfrP76sMrnwmUKygyEv/hU/+w2qZRa2vjsQjbrGS
-         JXxn7L7SAN3qyW3Vt7+MfPtX3fT4wwIodXpuEmmIAsOTKzOsIuN4xRAZZyJSYH8thB
-         dal72T5MEzs/IlX00r0mou6wkQNzBjXMN81mnauA=
+        b=vZCyja1wFogUluo2T4uALMZeA5F6apJRd0RnCQjBMXF6UibuVSHe6RSY28c9rTRtC
+         W63IF4K2XTihxZvQGoPVWkH2B+dSsw550N+zdwyVL9waipf1PXUwLRJ7gIlR7V12et
+         8V2dn/O+qdkBCDePl+4DrEzmNeldJY2lZUQqCmMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.16 143/227] ASoC: ops: Fix stereo change notifications in snd_soc_put_volsw()
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        David Dunn <daviddunn@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 29/33] KVM: x86/pmu: Use AMD64_RAW_EVENT_MASK for PERF_TYPE_RAW
 Date:   Mon, 21 Feb 2022 09:49:22 +0100
-Message-Id: <20220221084939.592717242@linuxfoundation.org>
+Message-Id: <20220221084909.706175553@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-References: <20220221084934.836145070@linuxfoundation.org>
+In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
+References: <20220221084908.568970525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Jim Mattson <jmattson@google.com>
 
-commit 564778d7b1ea465f9487eedeece7527a033549c5 upstream.
+[ Upstream commit 710c476514313c74045c41c0571bb5178fd16e3d ]
 
-When writing out a stereo control we discard the change notification from
-the first channel, meaning that events are only generated based on changes
-to the second channel. Ensure that we report a change if either channel
-has changed.
+AMD's event select is 3 nybbles, with the high nybble in bits 35:32 of
+a PerfEvtSeln MSR. Don't mask off the high nybble when configuring a
+RAW perf event.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220201155629.120510-2-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ca724305a2b0 ("KVM: x86/vPMU: Implement AMD vPMU code for KVM")
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Message-Id: <20220203014813.2130559-2-jmattson@google.com>
+Reviewed-by: David Dunn <daviddunn@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-ops.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ arch/x86/kvm/pmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/soc-ops.c
-+++ b/sound/soc/soc-ops.c
-@@ -308,7 +308,7 @@ int snd_soc_put_volsw(struct snd_kcontro
- 	unsigned int sign_bit = mc->sign_bit;
- 	unsigned int mask = (1 << fls(max)) - 1;
- 	unsigned int invert = mc->invert;
--	int err;
-+	int err, ret;
- 	bool type_2r = false;
- 	unsigned int val2 = 0;
- 	unsigned int val, val_mask;
-@@ -350,12 +350,18 @@ int snd_soc_put_volsw(struct snd_kcontro
- 	err = snd_soc_component_update_bits(component, reg, val_mask, val);
- 	if (err < 0)
- 		return err;
-+	ret = err;
+diff --git a/arch/x86/kvm/pmu.c b/arch/x86/kvm/pmu.c
+index 0827ee7d0e9b6..f1aa0b932c547 100644
+--- a/arch/x86/kvm/pmu.c
++++ b/arch/x86/kvm/pmu.c
+@@ -164,7 +164,7 @@ void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel)
+ 	}
  
--	if (type_2r)
-+	if (type_2r) {
- 		err = snd_soc_component_update_bits(component, reg2, val_mask,
--			val2);
-+						    val2);
-+		/* Don't discard any error code or drop change flag */
-+		if (ret == 0 || err < 0) {
-+			ret = err;
-+		}
-+	}
+ 	if (type == PERF_TYPE_RAW)
+-		config = eventsel & X86_RAW_EVENT_MASK;
++		config = eventsel & AMD64_RAW_EVENT_MASK;
  
--	return err;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(snd_soc_put_volsw);
- 
+ 	pmc_reprogram_counter(pmc, type, config,
+ 			      !(eventsel & ARCH_PERFMON_EVENTSEL_USR),
+-- 
+2.34.1
+
 
 
