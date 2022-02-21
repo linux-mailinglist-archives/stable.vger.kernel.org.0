@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C309E4BD418
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 04:10:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 640304BD419
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 04:10:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343570AbiBUDKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Feb 2022 22:10:22 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55288 "EHLO
+        id S1343603AbiBUDKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Feb 2022 22:10:25 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:55298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343558AbiBUDKV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Feb 2022 22:10:21 -0500
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2367B4B1CF
+        with ESMTP id S1343558AbiBUDKW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 20 Feb 2022 22:10:22 -0500
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C495A4B1D8
         for <stable@vger.kernel.org>; Sun, 20 Feb 2022 19:09:58 -0800 (PST)
-Received: by mail-pl1-x62f.google.com with SMTP id l17so2092681plg.0
+Received: by mail-pl1-x62c.google.com with SMTP id q1so3208176plx.4
         for <stable@vger.kernel.org>; Sun, 20 Feb 2022 19:09:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=q2Nn55u48FkPlyyOXe4xwRH+DC8EIMlMnEt6IxeKFZE=;
-        b=VAq34hn5HRjeVhW83TTJZN9DIJ4nTWtPr8qkVrZn7PdjY+Vo+kiOLbolND1vOiRRG+
-         wPAlG4Ce5H7CoEbQT10MaixdUqAzbmsO94w6XhkpEhAzSUoUV8dOXbA6h60J47gfoC88
-         rC76BrNCoIDc4ERrrWzopww/ripb4l5jpiNnaeL2HbBgqhxIDC9CUtVsxGC2Sz5bvUYX
-         I5MAzJOfLjVmTeRxQBzNNxPOVwy8jo6f02XSleNOiYTBm+Cfj1mbUhXRGklpemmChAQx
-         WYRFaWaGn/erFeO44jEr57+jSJGz7Hf72cQRwLKzoK8Nssj8u07YL4O/K2p1gOzkGDi+
-         8oBQ==
+        bh=ESk0VoPSkZbDKCVTDIyCw9XOahQ2nHwQE1nBVISPm5Q=;
+        b=TUMg/IA5uoxFG8DxN6dxhJ8dae+tG9wY8OtBRPBZXpNkbJjfSU2CNM8ttUFEMPDkf+
+         PLXB7rzpGq0GAhWa/qPOR0d9PuXAac4WHBIPQ7TImKm16jfMfS9H+VPFRPqz9bFDYK98
+         82AuLa0bpVEmL5Xkug3U0DIylwDVzjAKyXlmkDI23mPO9SApUrwYWQrC3Aqv9fzXcB7k
+         WBK0oh4uZESWnO59ri42b39e8O/ApNA3cnY0Kp6cer5ZlI9ZkvjXZVsyWP+l8GfgjYrx
+         KuAzaXQPlld4dgpEzBRV6fyRHmx0Ei8m/sBK/PxuG6Oc9j+YQqMiYtjcxxh+eU+iDFR7
+         A7yQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=q2Nn55u48FkPlyyOXe4xwRH+DC8EIMlMnEt6IxeKFZE=;
-        b=pnTaNLFxmTjlQsXRVlExc241+IggcV5GOa0rltZxfIsQSQWItwPmlYqTdTSWddgKrS
-         1bVqgbcLtEo9c1HK2oD3DyKxfHvfoJLMTCHOscYjJ/tdOi9moW5ES6FG5rrqZ5zNzggi
-         fp9pl75CeWaMxX10o5cRFuzphNMI0bHNBJOVqWSplwLTDiQOws6MS6VDZ85EOMz3vXhp
-         8FIIK9wmIeMGAQRU2uqtG4wOa2u7yadW4JLbxoYXhBENkZHCfBc5BBMez67QQreC56f9
-         aC7eQSe9AXf8Wp3TCpxpE+itW0i9m1ZyYMJC5SQO+uVijSE4QQLcuCBAOcFDyHstizCf
-         irJw==
-X-Gm-Message-State: AOAM5333UI1bRogh1ZJoZaaZB0AHBTe6ciCCjftJgDPIqf5Ou2Qeh70a
-        myeprS8jyhay85pQyBewhHluJ0KVeeo5RrNn
-X-Google-Smtp-Source: ABdhPJycRS1W+oDdCR5ir+UyLP/vbqc+WWKu7A+69QHxbv5ztQl6NKUPPLO1lDxwGKzpHPxPDBubyw==
-X-Received: by 2002:a17:90a:4bc2:b0:1b8:cdd3:53e2 with SMTP id u2-20020a17090a4bc200b001b8cdd353e2mr23478759pjl.219.1645412997018;
+        bh=ESk0VoPSkZbDKCVTDIyCw9XOahQ2nHwQE1nBVISPm5Q=;
+        b=gLLImp0PaZ7XbAOCoG/YGXBzvBfKs1U1GXfofHWD9Gpt8A/txioSzKoSG550FGNlOA
+         M9VKLTI7L7AU4Zvrk3PFws56GG8SK8xxrqPxJDaEXLIA+PiGL9tMfNc0hrAMRgDKur/o
+         Qf6qZEYJKAhp28jI8y1SDbodpyYUYM7Xix9qC8o7ftlNuxihwEa8aiEMoyj+oH8yuxly
+         QSUCpW4y0gqjZgYfforCSVTuMt7aykrymf/TAulXikP5kpNohOfT/fiQgRckQUSDGDcF
+         khJWBbA1gQHLsrpldFF1Z3ucjhnAg5/giHMMEecnVKUxtPIfhpIvdHfnu69TO0N7+zgh
+         ugKQ==
+X-Gm-Message-State: AOAM532dJBn4YM1gmOLnVBhxwpwv5JTJ3w21EDtTFN91BEDCjSbgDLJZ
+        H6fTI0zh9nTOMolFubFVKCFaxFyN+T3hZ0kG
+X-Google-Smtp-Source: ABdhPJzThCLS7O6MiSXwhZPTbwCUj7A7VCR+Qiapmu8VHQKYXnRkBLAgeEkoe7/EBMjzkqISuI9b/w==
+X-Received: by 2002:a17:90a:b304:b0:1b8:b322:aa4d with SMTP id d4-20020a17090ab30400b001b8b322aa4dmr23706054pjr.12.1645412997186;
         Sun, 20 Feb 2022 19:09:57 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d20sm10832068pfu.9.2022.02.20.19.09.56
+        by smtp.gmail.com with ESMTPSA id s17-20020a17090a441100b001bc1b59fe1asm3428717pjg.38.2022.02.20.19.09.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Sun, 20 Feb 2022 19:09:56 -0800 (PST)
-Message-ID: <62130284.1c69fb81.aff32.f359@mx.google.com>
+Message-ID: <62130284.1c69fb81.7a427.bc54@mx.google.com>
 Date:   Sun, 20 Feb 2022 19:09:56 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Kernel: v5.15.24-147-gb29251d16676
-Subject: stable-rc/queue/5.15 build: 178 builds: 9 failed, 169 passed,
- 19 errors, 13 warnings (v5.15.24-147-gb29251d16676)
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Kernel: v4.14.267-36-g988b3d78e4b7
+Subject: stable-rc/queue/4.14 build: 174 builds: 3 failed, 171 passed, 2 errors,
+ 156 warnings (v4.14.267-36-g988b3d78e4b7)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,19 +70,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 build: 178 builds: 9 failed, 169 passed, 19 errors, 13=
- warnings (v5.15.24-147-gb29251d16676)
+stable-rc/queue/4.14 build: 174 builds: 3 failed, 171 passed, 2 errors, 156=
+ warnings (v4.14.267-36-g988b3d78e4b7)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-5/kernel/v5.15.24-147-gb29251d16676/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
+4/kernel/v4.14.267-36-g988b3d78e4b7/
 
 Tree: stable-rc
-Branch: queue/5.15
-Git Describe: v5.15.24-147-gb29251d16676
-Git Commit: b29251d166763f82d19378b585454d929c51db32
+Branch: queue/4.14
+Git Describe: v4.14.267-36-g988b3d78e4b7
+Git Commit: 988b3d78e4b762bd14011131cd20480a147fdf81
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 7 unique architectures
+Built: 6 unique architectures
 
 Build Failures Detected:
 
@@ -90,76 +90,185 @@ arm:
     rpc_defconfig: (gcc-10) FAIL
 
 mips:
-    decstation_64_defconfig: (gcc-10) FAIL
-    ip22_defconfig: (gcc-10) FAIL
     ip27_defconfig: (gcc-10) FAIL
     ip28_defconfig: (gcc-10) FAIL
-    malta_defconfig: (gcc-10) FAIL
-    malta_kvm_defconfig: (gcc-10) FAIL
-    nlm_xlp_defconfig: (gcc-10) FAIL
-    nlm_xlr_defconfig: (gcc-10) FAIL
 
 Errors and Warnings Detected:
 
 arc:
-    tinyconfig (gcc-10): 1 warning
+    axs103_defconfig (gcc-10): 1 warning
+    axs103_smp_defconfig (gcc-10): 1 warning
+    haps_hs_defconfig (gcc-10): 1 warning
+    haps_hs_smp_defconfig (gcc-10): 1 warning
+    hsdk_defconfig (gcc-10): 1 warning
+    nsim_hs_defconfig (gcc-10): 1 warning
+    nsimosci_hs_defconfig (gcc-10): 1 warning
+    nsimosci_hs_smp_defconfig (gcc-10): 1 warning
+    vdk_hs38_defconfig (gcc-10): 1 warning
 
 arm64:
-    defconfig (gcc-10): 1 warning
     defconfig+arm64-chromebook (gcc-10): 1 warning
 
 arm:
+    acs5k_defconfig (gcc-10): 1 warning
+    assabet_defconfig (gcc-10): 1 warning
+    at91_dt_defconfig (gcc-10): 1 warning
+    axm55xx_defconfig (gcc-10): 1 warning
+    badge4_defconfig (gcc-10): 1 warning
+    bcm2835_defconfig (gcc-10): 1 warning
+    cerfcube_defconfig (gcc-10): 1 warning
+    cm_x2xx_defconfig (gcc-10): 1 warning
+    cm_x300_defconfig (gcc-10): 1 warning
+    colibri_pxa270_defconfig (gcc-10): 1 warning
+    colibri_pxa300_defconfig (gcc-10): 1 warning
+    davinci_all_defconfig (gcc-10): 1 warning
+    dove_defconfig (gcc-10): 1 warning
+    ebsa110_defconfig (gcc-10): 1 warning
+    em_x270_defconfig (gcc-10): 1 warning
+    ep93xx_defconfig (gcc-10): 1 warning
+    eseries_pxa_defconfig (gcc-10): 1 warning
+    exynos_defconfig (gcc-10): 1 warning
+    footbridge_defconfig (gcc-10): 1 warning
+    h3600_defconfig (gcc-10): 1 warning
+    hisi_defconfig (gcc-10): 1 warning
+    imote2_defconfig (gcc-10): 1 warning
+    imx_v4_v5_defconfig (gcc-10): 1 warning
     imx_v6_v7_defconfig (gcc-10): 1 warning
-    rpc_defconfig (gcc-10): 4 errors
+    integrator_defconfig (gcc-10): 1 warning
+    iop13xx_defconfig (gcc-10): 1 warning
+    iop32x_defconfig (gcc-10): 1 warning
+    iop33x_defconfig (gcc-10): 1 warning
+    ixp4xx_defconfig (gcc-10): 1 warning
+    ks8695_defconfig (gcc-10): 1 warning
+    lart_defconfig (gcc-10): 1 warning
+    lpc32xx_defconfig (gcc-10): 1 warning
+    lpd270_defconfig (gcc-10): 1 warning
+    mainstone_defconfig (gcc-10): 1 warning
+    mini2440_defconfig (gcc-10): 2 warnings
+    mmp2_defconfig (gcc-10): 1 warning
+    mps2_defconfig (gcc-10): 1 warning
+    multi_v5_defconfig (gcc-10): 1 warning
+    multi_v7_defconfig (gcc-10): 1 warning
+    mvebu_v5_defconfig (gcc-10): 1 warning
+    mvebu_v7_defconfig (gcc-10): 1 warning
+    mxs_defconfig (gcc-10): 1 warning
+    neponset_defconfig (gcc-10): 1 warning
+    netwinder_defconfig (gcc-10): 1 warning
+    nhk8815_defconfig (gcc-10): 1 warning
+    omap1_defconfig (gcc-10): 2 warnings
+    orion5x_defconfig (gcc-10): 1 warning
+    pcm027_defconfig (gcc-10): 1 warning
+    pleb_defconfig (gcc-10): 1 warning
+    pxa168_defconfig (gcc-10): 1 warning
+    pxa255-idp_defconfig (gcc-10): 1 warning
+    pxa3xx_defconfig (gcc-10): 1 warning
+    pxa910_defconfig (gcc-10): 1 warning
+    pxa_defconfig (gcc-10): 1 warning
+    qcom_defconfig (gcc-10): 1 warning
+    raumfeld_defconfig (gcc-10): 1 warning
+    realview_defconfig (gcc-10): 1 warning
+    rpc_defconfig (gcc-10): 2 errors
+    s3c2410_defconfig (gcc-10): 2 warnings
+    sama5_defconfig (gcc-10): 1 warning
+    shannon_defconfig (gcc-10): 1 warning
+    shmobile_defconfig (gcc-10): 1 warning
+    simpad_defconfig (gcc-10): 1 warning
+    socfpga_defconfig (gcc-10): 1 warning
+    spear13xx_defconfig (gcc-10): 1 warning
+    spitz_defconfig (gcc-10): 1 warning
+    sunxi_defconfig (gcc-10): 1 warning
+    tango4_defconfig (gcc-10): 1 warning
+    tegra_defconfig (gcc-10): 1 warning
+    trizeps4_defconfig (gcc-10): 1 warning
+    u8500_defconfig (gcc-10): 1 warning
+    versatile_defconfig (gcc-10): 1 warning
+    vexpress_defconfig (gcc-10): 1 warning
+    viper_defconfig (gcc-10): 1 warning
+    vt8500_v6_v7_defconfig (gcc-10): 1 warning
+    xcep_defconfig (gcc-10): 1 warning
+    zeus_defconfig (gcc-10): 1 warning
 
 i386:
+    allnoconfig (gcc-10): 3 warnings
+    i386_defconfig (gcc-10): 4 warnings
+    tinyconfig (gcc-10): 3 warnings
 
 mips:
     32r2el_defconfig (gcc-10): 1 warning
-    bigsur_defconfig (gcc-10): 1 error
-    cavium_octeon_defconfig (gcc-10): 1 error
-    decstation_64_defconfig (gcc-10): 1 error
-    fuloong2e_defconfig (gcc-10): 1 error
-    ip22_defconfig (gcc-10): 1 error, 1 warning
-    ip32_defconfig (gcc-10): 1 error
-    lemote2f_defconfig (gcc-10): 1 error, 1 warning
-    loongson2k_defconfig (gcc-10): 1 error, 1 warning
-    loongson3_defconfig (gcc-10): 1 error
-    malta_defconfig (gcc-10): 1 error, 1 warning
-    malta_kvm_defconfig (gcc-10): 1 error, 1 warning
-    nlm_xlp_defconfig (gcc-10): 2 errors, 1 warning
-    nlm_xlr_defconfig (gcc-10): 1 error, 1 warning
+    bigsur_defconfig (gcc-10): 1 warning
+    bmips_be_defconfig (gcc-10): 1 warning
+    bmips_stb_defconfig (gcc-10): 1 warning
+    capcella_defconfig (gcc-10): 1 warning
+    cavium_octeon_defconfig (gcc-10): 1 warning
+    cobalt_defconfig (gcc-10): 1 warning
+    decstation_defconfig (gcc-10): 1 warning
+    fuloong2e_defconfig (gcc-10): 1 warning
+    gpr_defconfig (gcc-10): 1 warning
+    ip22_defconfig (gcc-10): 1 warning
+    ip32_defconfig (gcc-10): 1 warning
+    lemote2f_defconfig (gcc-10): 1 warning
+    loongson1b_defconfig (gcc-10): 1 warning
+    loongson1c_defconfig (gcc-10): 1 warning
+    loongson3_defconfig (gcc-10): 1 warning
+    malta_defconfig (gcc-10): 1 warning
+    malta_kvm_defconfig (gcc-10): 1 warning
+    malta_kvm_guest_defconfig (gcc-10): 1 warning
+    malta_qemu_32r6_defconfig (gcc-10): 2 warnings
+    maltaaprp_defconfig (gcc-10): 1 warning
+    maltaup_defconfig (gcc-10): 1 warning
+    mips_paravirt_defconfig (gcc-10): 1 warning
+    mpc30x_defconfig (gcc-10): 1 warning
+    mtx1_defconfig (gcc-10): 4 warnings
+    nlm_xlp_defconfig (gcc-10): 1 warning
+    nlm_xlr_defconfig (gcc-10): 1 warning
+    pistachio_defconfig (gcc-10): 1 warning
+    pnx8335_stb225_defconfig (gcc-10): 1 warning
+    rbtx49xx_defconfig (gcc-10): 1 warning
     rm200_defconfig (gcc-10): 1 warning
-    sb1250_swarm_defconfig (gcc-10): 1 error
-
-riscv:
+    tb0219_defconfig (gcc-10): 1 warning
+    tb0226_defconfig (gcc-10): 1 warning
+    tb0287_defconfig (gcc-10): 1 warning
+    workpad_defconfig (gcc-10): 1 warning
 
 x86_64:
+    allnoconfig (gcc-10): 4 warnings
+    tinyconfig (gcc-10): 4 warnings
+    x86_64_defconfig (gcc-10): 5 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 5 warnings
 
 Errors summary:
 
-    10   expr: syntax error: unexpected argument =E2=80=980xffffffff8000000=
-0=E2=80=99
-    5    net/netfilter/xt_socket.c:224:3: error: implicit declaration of fu=
-nction =E2=80=98nf_defrag_ipv6_disable=E2=80=99; did you mean =E2=80=98nf_d=
-efrag_ipv4_disable=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
-    2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+    1    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    1    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
 h=3D=E2=80=99
 
 Warnings summary:
 
-    5    cc1: some warnings being treated as errors
-    3    drivers/tee/optee/core.c:726:6: warning: operation on =E2=80=98rc=
-=E2=80=99 may be undefined [-Wsequence-point]
-    2    net/mac80211/mlme.c:4362:1: warning: the frame size of 1200 bytes =
-is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
-    1    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_devic=
-e_reg): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expec=
-ted "0,0"
-    1    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' i=
-s unknown, fallback to ''
+    115  fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined=
+ but not used [-Wunused-label]
+    9    fs/nfs/inode.c:775:1: warning: label 'out' defined but not used [-=
+Wunused-label]
+    7    ld: warning: creating DT_TEXTREL in a PIE
+    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+d-only section `.head.text'
+    4    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
+    4    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
+' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
+    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+d-only section `.head.text'
+    3    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic su=
+ffix given and no register operands; using default for `btr'
+    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    2    drivers/tty/serial/samsung.c:1794:34: warning: array =E2=80=98s3c2=
+4xx_uart_dt_match=E2=80=99 assumed to have one element
+    1    {standard input}:30: Warning: macro instruction expanded into mult=
+iple instructions
+    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    1    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpi=
+o_match=E2=80=99 assumed to have one element
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -174,14 +283,22 @@ Detailed per-defconfig build reports:
 ion mismatches
 
 Warnings:
-    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_device_reg=
-): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expected "=
-0,0"
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -190,8 +307,34 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
 n mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
+mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -215,8 +358,21 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -230,28 +386,48 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label 'out' defined but not used [-Wunus=
+ed-label]
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label 'out' defined but not used [-Wunus=
+ed-label]
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -265,41 +441,57 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sect=
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
 ection mismatches
 
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings,=
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning,=
  0 section mismatches
 
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -308,86 +500,66 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings,=
- 0 section mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
-smatches
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
 
 Warnings:
-    drivers/tee/optee/core.c:726:6: warning: operation on =E2=80=98rc=E2=80=
-=99 may be undefined [-Wsequence-point]
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning,=
+ 0 section mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning,=
+ 0 section mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -395,13 +567,17 @@ defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 1 warn=
 ing, 0 section mismatches
 
 Warnings:
-    drivers/tee/optee/core.c:726:6: warning: operation on =E2=80=98rc=E2=80=
-=99 may be undefined [-Wsequence-point]
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -410,42 +586,71 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
 section mismatches
 
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
 ---------------------------------------------------------------------------=
 -----
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
+exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
 ection mismatches
 
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -454,13 +659,21 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -474,38 +687,71 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label 'out' defined but not used [-Wunus=
+ed-label]
+
 ---------------------------------------------------------------------------=
 -----
-imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label 'out' defined but not used [-Wunus=
+ed-label]
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label 'out' defined but not used [-Wunus=
+ed-label]
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -513,31 +759,53 @@ imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
 ction mismatches
 
 Warnings:
-    drivers/tee/optee/core.c:726:6: warning: operation on =E2=80=98rc=E2=80=
-=99 may be undefined [-Wsequence-point]
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
- mismatches
-
-Errors:
-    net/netfilter/xt_socket.c:224:3: error: implicit declaration of functio=
-n =E2=80=98nf_defrag_ipv6_disable=E2=80=99; did you mean =E2=80=98nf_defrag=
-_ipv4_disable=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
 
 Warnings:
-    cc1: some warnings being treated as errors
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -551,27 +819,21 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sectio=
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
 n mismatches
 
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -580,58 +842,62 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
 ction mismatches
 
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
 
 Warnings:
-    net/mac80211/mlme.c:4362:1: warning: the frame size of 1200 bytes is la=
-rger than 1024 bytes [-Wframe-larger-than=3D]
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-loongson2k_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
 
 Warnings:
-    net/mac80211/mlme.c:4362:1: warning: the frame size of 1200 bytes is la=
-rger than 1024 bytes [-Wframe-larger-than=3D]
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
 ection mismatches
 
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -640,99 +906,115 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
 ction mismatches
 
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
 ---------------------------------------------------------------------------=
 -----
-mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
 ection mismatches
 
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
 ---------------------------------------------------------------------------=
 -----
-malta_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    net/netfilter/xt_socket.c:224:3: error: implicit declaration of functio=
-n =E2=80=98nf_defrag_ipv6_disable=E2=80=99; did you mean =E2=80=98nf_defrag=
-_ipv4_disable=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
+g, 0 section mismatches
 
 Warnings:
-    cc1: some warnings being treated as errors
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-malta_kvm_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    net/netfilter/xt_socket.c:224:3: error: implicit declaration of functio=
-n =E2=80=98nf_defrag_ipv6_disable=E2=80=99; did you mean =E2=80=98nf_defrag=
-_ipv4_disable=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnin=
 gs, 0 section mismatches
 
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+Warnings:
+    {standard input}:30: Warning: macro instruction expanded into multiple =
+instructions
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
+maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 se=
 ction mismatches
 
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+    drivers/tty/serial/samsung.c:1794:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
 
 ---------------------------------------------------------------------------=
 -----
-milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning,=
  0 section mismatches
 
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -741,18 +1023,41 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 secti=
 on mismatches
+
+Warnings:
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -761,96 +1066,146 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
 tion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    net/netfilter/xt_socket.c:224:3: error: implicit declaration of functio=
-n =E2=80=98nf_defrag_ipv6_disable=E2=80=99; did you mean =E2=80=98nf_defrag=
-_ipv4_disable=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
 
 Warnings:
-    cc1: some warnings being treated as errors
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
-Errors:
-    net/netfilter/xt_socket.c:224:3: error: implicit declaration of functio=
-n =E2=80=98nf_defrag_ipv6_disable=E2=80=99; did you mean =E2=80=98nf_defrag=
-_ipv4_disable=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
 
 Warnings:
-    cc1: some warnings being treated as errors
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-nommu_k210_sdcard_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 war=
-nings, 0 section mismatches
+nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label 'out' defined but not used [-Wunus=
+ed-label]
 
 ---------------------------------------------------------------------------=
 -----
-nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label 'out' defined but not used [-Wunus=
+ed-label]
 
 ---------------------------------------------------------------------------=
 -----
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label 'out' defined but not used [-Wunus=
+ed-label]
+
+---------------------------------------------------------------------------=
+-----
+nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
 on mismatches
 
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+Warnings:
+    drivers/gpio/gpio-omap.c:1152:34: warning: array =E2=80=98omap_gpio_mat=
+ch=E2=80=99 assumed to have one element
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -859,63 +1214,107 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
  mismatches
 
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
 ---------------------------------------------------------------------------=
 -----
-qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -924,18 +1323,35 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
+raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
 rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -943,25 +1359,18 @@ rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 section=
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
  mismatches
 
 Errors:
-    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
     arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
 =E2=80=99
-    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
-    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
-=E2=80=99
-
----------------------------------------------------------------------------=
------
-rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -970,18 +1379,14 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
 tion mismatches
 
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+    drivers/tty/serial/samsung.c:1794:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
 
 ---------------------------------------------------------------------------=
 -----
@@ -990,47 +1395,57 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-sama7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, =
-0 section mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1044,8 +1459,12 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1054,23 +1473,48 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1079,67 +1523,107 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
 
 Warnings:
-    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' is unk=
-nown, fallback to ''
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 ---------------------------------------------------------------------------=
 -----
-trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+ mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
-u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:482: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
-vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
-vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
 tion mismatches
 
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
 ---------------------------------------------------------------------------=
 -----
-viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label 'out' defined but not used [-Wunus=
+ed-label]
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1148,33 +1632,81 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
+vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0=
+ section mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 s=
 ection mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
 x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-0 warnings, 0 section mismatches
+5 warnings, 0 section mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
 
 ---------------------------------------------------------------------------=
 -----
-xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
 
 ---------------------------------------------------------------------------=
 -----
-zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/inode.c:775:1: warning: label =E2=80=98out=E2=80=99 defined but =
+not used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---
 For more info write to <info@kernelci.org>
