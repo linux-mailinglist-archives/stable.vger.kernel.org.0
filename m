@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 393CA4BE21B
-	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:54:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9F154BDC4A
+	for <lists+stable@lfdr.de>; Mon, 21 Feb 2022 18:42:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349156AbiBUJ1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 04:27:46 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48098 "EHLO
+        id S235367AbiBUJKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 04:10:40 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:33916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350036AbiBUJ1H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:27:07 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1084220F3;
-        Mon, 21 Feb 2022 01:11:19 -0800 (PST)
+        with ESMTP id S1347949AbiBUJKH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 04:10:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA521D32C;
+        Mon, 21 Feb 2022 01:02:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2FF3ECE0E76;
-        Mon, 21 Feb 2022 09:11:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ABA4C340E9;
-        Mon, 21 Feb 2022 09:11:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C66260FB6;
+        Mon, 21 Feb 2022 09:02:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 834EDC340E9;
+        Mon, 21 Feb 2022 09:02:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645434676;
-        bh=Qtr7JHf3mAjs2WT0nfBTCq+aPz6bs4dbO5nGkwPHaEA=;
+        s=korg; t=1645434155;
+        bh=aTGTPT/7hWx4tc2XHp3CRc8jZVh4W6036HHeZlprClc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g9dDQEtItXvD+BNmbzS+H5mprT85rfsdsOAmkUymveVcpEAfED4BUaAMJhmuGdVJx
-         wQ75HlHnaXw8tLVmYZhWvurAa3VcFHnksf7YNslkcUJtFUguRTfmaODwKerAxe/9mp
-         WsTIi8FVKkhs8tkFYCrwKjhQqp3zvKz7izLx8xtE=
+        b=wsd/EB2k2fNl/KsGYxbYdmnRFuFbyGQkAyrN12Hkq4a1CjTpE3rc3ee01toDCy0Rd
+         zvXPNtuGot2NXrCbfT+OF6+JBDIjw5B3hF70/lXp6ZajD49eAP03lR9cvhheok7tcv
+         ZLa5aQlbvPTtPgtJ+cGn3SAuITIXDU1g/d/+daqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mans Rullgard <mans@mansr.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 092/196] net: dsa: lan9303: handle hwaccel VLAN tags
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 032/121] ax25: improve the incomplete fix to avoid UAF and NPD bugs
 Date:   Mon, 21 Feb 2022 09:48:44 +0100
-Message-Id: <20220221084934.025351849@linuxfoundation.org>
+Message-Id: <20220221084922.268428906@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220221084930.872957717@linuxfoundation.org>
-References: <20220221084930.872957717@linuxfoundation.org>
+In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084921.147454846@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mans Rullgard <mans@mansr.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 017b355bbdc6620fd8fe05fe297f553ce9d855ee upstream.
+[ Upstream commit 4e0f718daf97d47cf7dec122da1be970f145c809 ]
 
-Check for a hwaccel VLAN tag on rx and use it if present.  Otherwise,
-use __skb_vlan_pop() like the other tag parsers do.  This fixes the case
-where the VLAN tag has already been consumed by the master.
+The previous commit 1ade48d0c27d ("ax25: NPD bug when detaching
+AX25 device") introduce lock_sock() into ax25_kill_by_device to
+prevent NPD bug. But the concurrency NPD or UAF bug will occur,
+when lock_sock() or release_sock() dereferences the ax25_cb->sock.
 
-Fixes: a1292595e006 ("net: dsa: add new DSA switch driver for the SMSC-LAN9303")
-Signed-off-by: Mans Rullgard <mans@mansr.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20220216124634.23123-1-mans@mansr.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The NULL pointer dereference bug can be shown as below:
+
+ax25_kill_by_device()        | ax25_release()
+                             |   ax25_destroy_socket()
+                             |     ax25_cb_del()
+  ...                        |     ...
+                             |     ax25->sk=NULL;
+  lock_sock(s->sk); //(1)    |
+  s->ax25_dev = NULL;        |     ...
+  release_sock(s->sk); //(2) |
+  ...                        |
+
+The root cause is that the sock is set to null before dereference
+site (1) or (2). Therefore, this patch extracts the ax25_cb->sock
+in advance, and uses ax25_list_lock to protect it, which can synchronize
+with ax25_cb_del() and ensure the value of sock is not null before
+dereference sites.
+
+The concurrency UAF bug can be shown as below:
+
+ax25_kill_by_device()        | ax25_release()
+                             |   ax25_destroy_socket()
+  ...                        |   ...
+                             |   sock_put(sk); //FREE
+  lock_sock(s->sk); //(1)    |
+  s->ax25_dev = NULL;        |   ...
+  release_sock(s->sk); //(2) |
+  ...                        |
+
+The root cause is that the sock is released before dereference
+site (1) or (2). Therefore, this patch uses sock_hold() to increase
+the refcount of sock and uses ax25_list_lock to protect it, which
+can synchronize with ax25_cb_del() in ax25_destroy_socket() and
+ensure the sock wil not be released before dereference sites.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/tag_lan9303.c |   21 +++++++--------------
- 1 file changed, 7 insertions(+), 14 deletions(-)
+ net/ax25/af_ax25.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/net/dsa/tag_lan9303.c
-+++ b/net/dsa/tag_lan9303.c
-@@ -77,7 +77,6 @@ static struct sk_buff *lan9303_xmit(stru
- 
- static struct sk_buff *lan9303_rcv(struct sk_buff *skb, struct net_device *dev)
+diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
+index 5e84dce5ff7ae..23bd26057a828 100644
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -77,6 +77,7 @@ static void ax25_kill_by_device(struct net_device *dev)
  {
--	__be16 *lan9303_tag;
- 	u16 lan9303_tag1;
- 	unsigned int source_port;
+ 	ax25_dev *ax25_dev;
+ 	ax25_cb *s;
++	struct sock *sk;
  
-@@ -87,14 +86,15 @@ static struct sk_buff *lan9303_rcv(struc
- 		return NULL;
- 	}
- 
--	lan9303_tag = dsa_etype_header_pos_rx(skb);
+ 	if ((ax25_dev = ax25_dev_ax25dev(dev)) == NULL)
+ 		return;
+@@ -85,13 +86,15 @@ static void ax25_kill_by_device(struct net_device *dev)
+ again:
+ 	ax25_for_each(s, &ax25_list) {
+ 		if (s->ax25_dev == ax25_dev) {
++			sk = s->sk;
++			sock_hold(sk);
+ 			spin_unlock_bh(&ax25_list_lock);
+-			lock_sock(s->sk);
++			lock_sock(sk);
+ 			s->ax25_dev = NULL;
+-			release_sock(s->sk);
++			release_sock(sk);
+ 			ax25_disconnect(s, ENETUNREACH);
+ 			spin_lock_bh(&ax25_list_lock);
 -
--	if (lan9303_tag[0] != htons(ETH_P_8021Q)) {
--		dev_warn_ratelimited(&dev->dev, "Dropping packet due to invalid VLAN marker\n");
--		return NULL;
-+	if (skb_vlan_tag_present(skb)) {
-+		lan9303_tag1 = skb_vlan_tag_get(skb);
-+		__vlan_hwaccel_clear_tag(skb);
-+	} else {
-+		skb_push_rcsum(skb, ETH_HLEN);
-+		__skb_vlan_pop(skb, &lan9303_tag1);
-+		skb_pull_rcsum(skb, ETH_HLEN);
- 	}
- 
--	lan9303_tag1 = ntohs(lan9303_tag[1]);
- 	source_port = lan9303_tag1 & 0x3;
- 
- 	skb->dev = dsa_master_find_slave(dev, 0, source_port);
-@@ -103,13 +103,6 @@ static struct sk_buff *lan9303_rcv(struc
- 		return NULL;
- 	}
- 
--	/* remove the special VLAN tag between the MAC addresses
--	 * and the current ethertype field.
--	 */
--	skb_pull_rcsum(skb, 2 + 2);
--
--	dsa_strip_etype_header(skb, LAN9303_TAG_LEN);
--
- 	if (!(lan9303_tag1 & LAN9303_TAG_RX_TRAPPED_TO_CPU))
- 		dsa_default_offload_fwd_mark(skb);
- 
++			sock_put(sk);
+ 			/* The entry could have been deleted from the
+ 			 * list meanwhile and thus the next pointer is
+ 			 * no longer valid.  Play it safe and restart
+-- 
+2.34.1
+
 
 
