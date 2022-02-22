@@ -2,66 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E5C34BEE43
-	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 00:40:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3051F4BEED3
+	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 02:15:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235827AbiBUXgS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 18:36:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:47504 "EHLO
+        id S233643AbiBVAQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 19:16:03 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233290AbiBUXgS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 18:36:18 -0500
-Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70AAD2558D;
-        Mon, 21 Feb 2022 15:35:54 -0800 (PST)
-Received: by mail-il1-x12f.google.com with SMTP id j5so8546592ila.2;
-        Mon, 21 Feb 2022 15:35:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=QsU1doQuLDWMomjns2YITOt0nS0W9JINmgNgQg1HhGw=;
-        b=nykv/uzsyVHKdVYpJn/szfh8lKKmFsx3tu6pV7fTBO2Cdb5JDbslKqMPPMQvlK4MuW
-         7ZTbTGdMiHJNbOXBnX6AIBJ2o38kyf3fEduK1v75XgXa1cp0abeS0pXVWvGMcxcQ0KMj
-         7n+GsjCunrYZPJXGlp369nEIAtWEnrQDz3l7g7qWxY9cHApwj/F7EUe/wpW4XFZKp4/x
-         aKDIh6XuH8ulNE4I2prwiZ5PbHkewPZ+DKwj+CRjRxhowP+5ZO/bY4USsLkBpQaUsp2g
-         bufHdnHuE7rQb06Wj/9+zOKvaKxCKt80QdFwaJCRVi+RNIwIT37xTOS6lmoC4KqVidek
-         PT0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=QsU1doQuLDWMomjns2YITOt0nS0W9JINmgNgQg1HhGw=;
-        b=e2ybT1TKtwzmYxTQzSbUMlUfzvL/QV9ku5boWGXDFgqADjeXWgUlMuVuYdZZTW56fP
-         CYBbK/DqJ4t75uhn2a1vBj1OQC3S+pFBrkWZGoM+1oLqlkPEaCH8RlI42axFJDMTyyxM
-         Ru1UxRfTWzkgyDkV3pDyfIi/r+wg2O8yxxSa0nBbT7GMmk2jV5xZehG+0GKSkcECs6up
-         GJk69d9JbLj2iEokZV36764JQYE2+qVKRIHIXncRifjwLQPeYGmVc0Qz7ZtxfFKqvMJd
-         xSx7a22LthepVyTNeNyX2xt7AXOEyBj1O+Moy9nn3/qi4joWpccGxUusRLNz3lY2yfTl
-         B5kg==
-X-Gm-Message-State: AOAM532Izk6wCQpw6dM+yQ3Bl+t9IRtqQWCdIetGpnHdyOwANYEcIyCg
-        UzkIugXGkJWonq2AmJeldgFeHgyahyu+unt7N0c=
-X-Google-Smtp-Source: ABdhPJw0Xv9v2mvaCvorY8c9mCVmFThM9k9j5cX2G3ihw1xx8TiKJ6Ie868SWze7xswxB9Dw/aN2HBJJKIUtTzvUXrU=
-X-Received: by 2002:a05:6e02:b4c:b0:2be:a7be:cffe with SMTP id
- f12-20020a056e020b4c00b002bea7becffemr17160826ilu.225.1645486553793; Mon, 21
- Feb 2022 15:35:53 -0800 (PST)
-MIME-Version: 1.0
-References: <20220221084934.836145070@linuxfoundation.org>
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-From:   Zan Aziz <zanaziz313@gmail.com>
-Date:   Mon, 21 Feb 2022 16:35:43 -0700
-Message-ID: <CAFU3qoa7JwdHrJzTFWY4NfnHXqErA1suJg4eLbWC=tMo9hN9wA@mail.gmail.com>
-Subject: Re: [PATCH 5.16 000/227] 5.16.11-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        with ESMTP id S229609AbiBVAQC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 19:16:02 -0500
+Received: from wout4-smtp.messagingengine.com (wout4-smtp.messagingengine.com [64.147.123.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E164224BFC;
+        Mon, 21 Feb 2022 16:15:37 -0800 (PST)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id EFD5E32020A4;
+        Mon, 21 Feb 2022 19:15:34 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Mon, 21 Feb 2022 19:15:35 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=rc93G4/qTvE1ZYiC5
+        yWr1O2C0TkaoFvvFLrkTcp0OiU=; b=Y69o6eJC81KbBulRopMzp6lUJuZ9AISxP
+        +1QcRCFA2Lymy2SX6QdNNij+bpUKjLI7JY4jk6B+bsTE4uvRYLBtYJQVtWxLXOF7
+        MC7BrgMjs73uOxKJd9JXq/llwO7LemYllNLWxpBII5AYt1DEKRPBJVbzniAl47EV
+        I9+klBHWuuqK0ub/hUfvoMiMtMxtH8+AXU2eUhu1qnegNWweYwBpOLP94gcFk3Ed
+        /xZmjxfMLtm6ggHg69s6N6iJbAvkHiohXHuNcbXTJ0JCAuGZGUMILtklyzt0pOtX
+        cCF3DmjcxDKdnzI5Gl1lgGvALIo1R+JX0RkT5U6LWasdG37Dbrdqw==
+X-ME-Sender: <xms:JisUYrJ7-Kx2Gz-DcSLX6JUni2MkM8yWYJQp4AoCgn2hvNSgKKT9zA>
+    <xme:JisUYvKy_JBBMxZSyUGE4ic2Ird8J5qQ0NkL0YVsZKDDDDr5YdhauOPKZEfTegD1y
+    GXHtTTeqwQ4Cw>
+X-ME-Received: <xmr:JisUYjv11Y6MM_noDbeYIUb00bL2l060gnp-_P2lzYgS7yb48dKXZo_tsjqwkhStKt7m7VELWr2YvwyH0hCdhxXSpyzovDUyiw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrkeejgddvtdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesghdtreertddtjeenucfhrhhomhepofgrrhgvkhcu
+    ofgrrhgtiiihkhhofihskhhiqdfikphrvggtkhhiuceomhgrrhhmrghrvghksehinhhvih
+    hsihgslhgvthhhihhnghhslhgrsgdrtghomheqnecuggftrfgrthhtvghrnhepteevffei
+    gffhkefhgfegfeffhfegveeikeettdfhheevieehieeitddugeefteffnecuvehluhhsth
+    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepmhgrrhhmrghrvghksehi
+    nhhvihhsihgslhgvthhhihhnghhslhgrsgdrtghomh
+X-ME-Proxy: <xmx:JisUYkbYs4yRQDuWPVpdWhTz-QMKtlgY3G4siF3Azf63M4nIiJq4Rg>
+    <xmx:JisUYia-rc0nv9Ddr695FsbNsEykqpokrW3ZBB2ZlTMV7xRwvbrssA>
+    <xmx:JisUYoC2vmtUkDy87UAuKxSdgXE1Y-PGs7AKNdt35uk5T5MudK5U5A>
+    <xmx:JisUYq7doJGgZO5OJpN9rhB7hPF6DYbyZo9JLQQtjrg4kaKuGWyz8w>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 21 Feb 2022 19:15:32 -0500 (EST)
+Date:   Tue, 22 Feb 2022 01:15:29 +0100
+From:   Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>
+To:     Juergen Gross <jgross@suse.com>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Antoine Tenart <atenart@kernel.org>,
+        "moderated list:XEN HYPERVISOR INTERFACE" 
+        <xen-devel@lists.xenproject.org>,
+        "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>
+Subject: Re: [PATCH] xen/netfront: destroy queues before real_num_tx_queues
+ is zeroed
+Message-ID: <YhQrIWyJ4hhEVVNb@mail-itl>
+References: <20220220134202.2187485-1-marmarek@invisiblethingslab.com>
+ <3786b4ef-68e7-5735-0841-fcbae07f7e54@suse.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="+tkBggBQeIzPYW+u"
+Content-Disposition: inline
+In-Reply-To: <3786b4ef-68e7-5735-0841-fcbae07f7e54@suse.com>
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,48 +81,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 21, 2022 at 9:01 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.16.11 release.
-> There are 227 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 23 Feb 2022 08:48:58 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.11-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
-Hi Greg,
+--+tkBggBQeIzPYW+u
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 22 Feb 2022 01:15:29 +0100
+From: Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>
+To: Juergen Gross <jgross@suse.com>
+Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Antoine Tenart <atenart@kernel.org>,
+	"moderated list:XEN HYPERVISOR INTERFACE" <xen-devel@lists.xenproject.org>,
+	"open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>
+Subject: Re: [PATCH] xen/netfront: destroy queues before real_num_tx_queues
+ is zeroed
 
-Compiled and booted on my test system Lenovo P50s: Intel Core i7
-No emergency and critical messages in the dmesg
+On Mon, Feb 21, 2022 at 07:27:32AM +0100, Juergen Gross wrote:
+> I checked some of the call paths leading to xennet_close(), and all of
+> those contained an ASSERT_RTNL(), so it seems the rtnl_lock is already
+> taken here. Could you test with adding an ASSERT_RTNL() in
+> xennet_destroy_queues()?
 
-./perf bench sched all
-# Running sched/messaging benchmark...
-# 20 sender and receiver processes per group
-# 10 groups == 400 processes run
+Tried that and no issues spotted.
 
-     Total time: 0.441 [sec]
+> In case your test with the added ASSERT_RTNL() doesn't show any
+> problem you can add my:
+>=20
+> Reviewed-by: Juergen Gross <jgross@suse.com>
 
-# Running sched/pipe benchmark...
-# Executed 1000000 pipe operations between two processes
+Thanks.
 
-     Total time: 10.147 [sec]
+--=20
+Best Regards,
+Marek Marczykowski-G=C3=B3recki
+Invisible Things Lab
 
-      10.147192 usecs/op
-          98549 ops/sec
+--+tkBggBQeIzPYW+u
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Tested-by: Zan Aziz <zanaziz313@gmail.com>
+-----BEGIN PGP SIGNATURE-----
 
-Thanks
--Zan
+iQEzBAEBCAAdFiEEhrpukzGPukRmQqkK24/THMrX1ywFAmIUKyEACgkQ24/THMrX
+1yzoYwf9Gx9pcUVHvqm8ndGiV2gIwVCSdgcmDurruCiP0HW8l4A1u6WAWRPs1qRH
+ZBdfn5OSBZwFZu0tVetXVnmWmMAKjqWAHNIF+DlptXue1GzEMa8QIy3NA5iplpOc
+E4xTNf2rn4tEhz4lunfATqTeLKtju19I0w8CD/szjq5CcqOTyHbOV5PodTF2ZdhY
+yAxGB/KTZUROG+8+orCaqmv9RTe0nob293WI8FpAGr4+QowJKuTsygIX+tryKzIA
+2baSea6s+ZjOg0d4NSGSEbU9u8o0NibNiiuT5cAVRHVkVpUNwn4bs3H7K7P25fZe
+RrtbyZfzDTeTV5TfKUQwWl9q6tORaw==
+=Kebw
+-----END PGP SIGNATURE-----
+
+--+tkBggBQeIzPYW+u--
