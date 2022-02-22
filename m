@@ -2,109 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 242B54BEECD
-	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 02:14:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E71A4BEFE4
+	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 04:16:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229621AbiBVApn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 19:45:43 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43788 "EHLO
+        id S239498AbiBVC6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 21:58:10 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231537AbiBVApn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 19:45:43 -0500
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3F7A255B4;
-        Mon, 21 Feb 2022 16:45:18 -0800 (PST)
-Received: from kwepemi500002.china.huawei.com (unknown [172.30.72.56])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4K2gNH13FQz8wvD;
-        Tue, 22 Feb 2022 08:41:51 +0800 (CST)
-Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
- kwepemi500002.china.huawei.com (7.221.188.171) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.21; Tue, 22 Feb 2022 08:45:16 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.21; Tue, 22 Feb 2022 08:45:15 +0800
-Subject: Re: [PATCH 5.10 000/121] 5.10.102-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
-        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
-        <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>
-References: <20220221084921.147454846@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <1dc5ec22-a0ca-0df9-d457-94391df8868a@huawei.com>
-Date:   Tue, 22 Feb 2022 08:45:14 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
-MIME-Version: 1.0
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- kwepemm600013.china.huawei.com (7.193.23.68)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S239494AbiBVC6K (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 21 Feb 2022 21:58:10 -0500
+X-Greylist: delayed 408 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 21 Feb 2022 18:57:46 PST
+Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC2DE75;
+        Mon, 21 Feb 2022 18:57:45 -0800 (PST)
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id F05211A0647;
+        Tue, 22 Feb 2022 03:50:55 +0100 (CET)
+Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id B90701A157F;
+        Tue, 22 Feb 2022 03:50:55 +0100 (CET)
+Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
+        by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 7596B183AC94;
+        Tue, 22 Feb 2022 10:50:54 +0800 (+08)
+From:   haibo.chen@nxp.com
+To:     jic23@kernel.org, lars@metafoo.de, linux-iio@vger.kernel.org,
+        pmeerw@pmeerw.net, martink@posteo.de
+Cc:     Stable@vger.kernel.org, haibo.chen@nxp.com, linux-imx@nxp.com
+Subject: [PATCH] iio: mma8452: use the correct logic to get mma8452_data
+Date:   Tue, 22 Feb 2022 10:42:21 +0800
+Message-Id: <1645497741-5402-1-git-send-email-haibo.chen@nxp.com>
+X-Mailer: git-send-email 2.7.4
+X-Virus-Scanned: ClamAV using ClamSMTP
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Haibo Chen <haibo.chen@nxp.com>
 
+The original logic to get mma8452_data is wrong, the *dev point to
+the device belong to iio_dev. we can't use this dev to find the
+correct i2c_client. The original logic happen to work because it
+finally use dev->driver_data to get iio_dev. Here use the API
+to_i2c_client() is wrong and make reader confuse. To correct the
+logic, it should be like this
 
-On 2022/2/21 16:48, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.102 release.
-> There are 121 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 23 Feb 2022 08:48:58 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.102-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+  struct mma8452_data *data = iio_priv(dev_get_drvdata(dev));
 
-Tested on arm64 and x86 for 5.10.102-rc1,
+But after commit 8b7651f25962 ("iio: iio_device_alloc(): Remove
+unnecessary self drvdata"), the upper logic also can't work.
+When try to show the avialable scale in userspace, will meet kernel
+dump, kernel handle NULL pointer dereference.
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.102-rc1
-Commit: 1f48487c6f051818b603f32cb79d56ff72607b2f
-Compiler: gcc version 7.3.0 (GCC)
+So use dev_to_iio_dev() to correct the logic.
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9013
-passed: 9013
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+Fixes: c3cdd6e48e35 ("iio: mma8452: refactor for seperating chip specific data")
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+---
+ drivers/iio/accel/mma8452.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9013
-passed: 9013
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+diff --git a/drivers/iio/accel/mma8452.c b/drivers/iio/accel/mma8452.c
+index 64b82b4503ad..0016bb947c10 100644
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -379,8 +379,8 @@ static ssize_t mma8452_show_scale_avail(struct device *dev,
+ 					struct device_attribute *attr,
+ 					char *buf)
+ {
+-	struct mma8452_data *data = iio_priv(i2c_get_clientdata(
+-					     to_i2c_client(dev)));
++	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
++	struct mma8452_data *data = iio_priv(indio_dev);
+ 
+ 	return mma8452_show_int_plus_micros(buf, data->chip_info->mma_scales,
+ 		ARRAY_SIZE(data->chip_info->mma_scales));
+-- 
+2.25.1
 
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
