@@ -2,152 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4683C4BFA44
-	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 15:05:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCFC44BFAC9
+	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 15:21:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229470AbiBVOGR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 09:06:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33068 "EHLO
+        id S231851AbiBVOWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 09:22:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232583AbiBVOGQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 09:06:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D249015F611;
-        Tue, 22 Feb 2022 06:05:39 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D977B819EF;
-        Tue, 22 Feb 2022 14:05:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A5D3C340F4;
-        Tue, 22 Feb 2022 14:05:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645538737;
-        bh=vJs7TKpZfBZPGDl1BKHYpsmyKvfPddQ5Air5Dpbj5ic=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=os7XBZsdl6dQEnOPHsGkRpA0uxoKELLhPqVKvS2H/21G1VdRg5HNmoOl20pnnrRP+
-         yskZoDU042NPrzp9rHS7GeAC0O+sBerqekpMCpTJzvTok01r8Hf3I80cBpc6Rl3MXB
-         MCNo4YuMjHpWI94wJDQmgtiChHNFwqS3VqZtG7EwN9woU/hNZNkg9PzyNvJlJJLrdg
-         O/PMYaSGrtI4qBvjdkC455CuP3dlxlSRUmT/8wtXkxP5OKnW+Z1heANmbv8GlSsSkK
-         +3py+CSJJ2poYDWTFk8KzORxDRA/JCPdVVsXxXTIUsVVeKZfDoETWslS3A6JmR3Q3a
-         HpEPVsER5hPwA==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.10 2/2] KVM: x86: nSVM: deal with L1 hypervisor that intercepts interrupts but lets L2 control them
-Date:   Tue, 22 Feb 2022 09:05:32 -0500
-Message-Id: <20220222140532.211620-2-sashal@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220222140532.211620-1-sashal@kernel.org>
-References: <20220222140532.211620-1-sashal@kernel.org>
+        with ESMTP id S232304AbiBVOWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 09:22:00 -0500
+X-Greylist: delayed 30148 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 22 Feb 2022 06:21:34 PST
+Received: from alt-proxy28.mail.unifiedlayer.com (alt-proxy28.mail.unifiedlayer.com [74.220.216.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 755826B0A0
+        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 06:21:34 -0800 (PST)
+Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
+        by progateway1.mail.pro1.eigbox.com (Postfix) with ESMTP id E4F961003A12D
+        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 14:21:33 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id MW2nnrhohkku4MW2nn96vc; Tue, 22 Feb 2022 14:21:33 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=LOaj/La9 c=1 sm=1 tr=0 ts=6214f16d
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=oGFeUVbbRNcA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=+bTtUnnjQep40ozlUHBwlqgi9sKTUeV160TTuTnXvcE=; b=rZq5LXg3g/gKMY4tS7dWyYv5xF
+        JX0hkdY5AJGLPZFD04l5eHgQzuy2sbWhhXWgUXBLZumtdVN2jkTgUdf0j1wBEx6Y1Egv0ZNaAQoHx
+        aJfttJdBHFp7zI2I1iAaLB15o;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:55138 helo=[10.0.1.23])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1nMW2n-003zml-1x; Tue, 22 Feb 2022 07:21:33 -0700
+Message-ID: <41106841-f445-07e4-55b3-63c87c158e8a@w6rz.net>
+Date:   Tue, 22 Feb 2022 06:21:31 -0800
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.16 000/227] 5.16.11-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220221084934.836145070@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1nMW2n-003zml-1x
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:55138
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 12
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+On 2/21/22 00:46, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.11 release.
+> There are 227 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 23 Feb 2022 08:48:58 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.11-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-[ Upstream commit 2b0ecccb55310a4b8ad5d59c703cf8c821be6260 ]
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Fix a corner case in which the L1 hypervisor intercepts
-interrupts (INTERCEPT_INTR) and either doesn't set
-virtual interrupt masking (V_INTR_MASKING) or enters a
-nested guest with EFLAGS.IF disabled prior to the entry.
-
-In this case, despite the fact that L1 intercepts the interrupts,
-KVM still needs to set up an interrupt window to wait before
-injecting the INTR vmexit.
-
-Currently the KVM instead enters an endless loop of 'req_immediate_exit'.
-
-Exactly the same issue also happens for SMIs and NMI.
-Fix this as well.
-
-Note that on VMX, this case is impossible as there is only
-'vmexit on external interrupts' execution control which either set,
-in which case both host and guest's EFLAGS.IF
-are ignored, or not set, in which case no VMexits are delivered.
-
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20220207155447.840194-8-mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/x86/kvm/svm/svm.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
-
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index d515c8e68314c..ec9586a30a50c 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -3237,11 +3237,13 @@ static int svm_nmi_allowed(struct kvm_vcpu *vcpu, bool for_injection)
- 	if (svm->nested.nested_run_pending)
- 		return -EBUSY;
- 
-+	if (svm_nmi_blocked(vcpu))
-+		return 0;
-+
- 	/* An NMI must not be injected into L2 if it's supposed to VM-Exit.  */
- 	if (for_injection && is_guest_mode(vcpu) && nested_exit_on_nmi(svm))
- 		return -EBUSY;
--
--	return !svm_nmi_blocked(vcpu);
-+	return 1;
- }
- 
- static bool svm_get_nmi_mask(struct kvm_vcpu *vcpu)
-@@ -3293,9 +3295,13 @@ bool svm_interrupt_blocked(struct kvm_vcpu *vcpu)
- static int svm_interrupt_allowed(struct kvm_vcpu *vcpu, bool for_injection)
- {
- 	struct vcpu_svm *svm = to_svm(vcpu);
-+
- 	if (svm->nested.nested_run_pending)
- 		return -EBUSY;
- 
-+	if (svm_interrupt_blocked(vcpu))
-+		return 0;
-+
- 	/*
- 	 * An IRQ must not be injected into L2 if it's supposed to VM-Exit,
- 	 * e.g. if the IRQ arrived asynchronously after checking nested events.
-@@ -3303,7 +3309,7 @@ static int svm_interrupt_allowed(struct kvm_vcpu *vcpu, bool for_injection)
- 	if (for_injection && is_guest_mode(vcpu) && nested_exit_on_intr(svm))
- 		return -EBUSY;
- 
--	return !svm_interrupt_blocked(vcpu);
-+	return 1;
- }
- 
- static void enable_irq_window(struct kvm_vcpu *vcpu)
-@@ -4023,11 +4029,14 @@ static int svm_smi_allowed(struct kvm_vcpu *vcpu, bool for_injection)
- 	if (svm->nested.nested_run_pending)
- 		return -EBUSY;
- 
-+	if (svm_smi_blocked(vcpu))
-+		return 0;
-+
- 	/* An SMI must not be injected into L2 if it's supposed to VM-Exit.  */
- 	if (for_injection && is_guest_mode(vcpu) && nested_exit_on_smi(svm))
- 		return -EBUSY;
- 
--	return !svm_smi_blocked(vcpu);
-+	return 1;
- }
- 
- static int svm_pre_enter_smm(struct kvm_vcpu *vcpu, char *smstate)
--- 
-2.34.1
+Tested-by: Ron Economos <re@w6rz.net>
 
