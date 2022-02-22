@@ -2,137 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3051F4BEED3
-	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 02:15:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC2454BEECF
+	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 02:14:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233643AbiBVAQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Feb 2022 19:16:03 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60336 "EHLO
+        id S237416AbiBVAPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Feb 2022 19:15:42 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229609AbiBVAQC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 19:16:02 -0500
-Received: from wout4-smtp.messagingengine.com (wout4-smtp.messagingengine.com [64.147.123.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E164224BFC;
-        Mon, 21 Feb 2022 16:15:37 -0800 (PST)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id EFD5E32020A4;
-        Mon, 21 Feb 2022 19:15:34 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 21 Feb 2022 19:15:35 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=rc93G4/qTvE1ZYiC5
-        yWr1O2C0TkaoFvvFLrkTcp0OiU=; b=Y69o6eJC81KbBulRopMzp6lUJuZ9AISxP
-        +1QcRCFA2Lymy2SX6QdNNij+bpUKjLI7JY4jk6B+bsTE4uvRYLBtYJQVtWxLXOF7
-        MC7BrgMjs73uOxKJd9JXq/llwO7LemYllNLWxpBII5AYt1DEKRPBJVbzniAl47EV
-        I9+klBHWuuqK0ub/hUfvoMiMtMxtH8+AXU2eUhu1qnegNWweYwBpOLP94gcFk3Ed
-        /xZmjxfMLtm6ggHg69s6N6iJbAvkHiohXHuNcbXTJ0JCAuGZGUMILtklyzt0pOtX
-        cCF3DmjcxDKdnzI5Gl1lgGvALIo1R+JX0RkT5U6LWasdG37Dbrdqw==
-X-ME-Sender: <xms:JisUYrJ7-Kx2Gz-DcSLX6JUni2MkM8yWYJQp4AoCgn2hvNSgKKT9zA>
-    <xme:JisUYvKy_JBBMxZSyUGE4ic2Ird8J5qQ0NkL0YVsZKDDDDr5YdhauOPKZEfTegD1y
-    GXHtTTeqwQ4Cw>
-X-ME-Received: <xmr:JisUYjv11Y6MM_noDbeYIUb00bL2l060gnp-_P2lzYgS7yb48dKXZo_tsjqwkhStKt7m7VELWr2YvwyH0hCdhxXSpyzovDUyiw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrkeejgddvtdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesghdtreertddtjeenucfhrhhomhepofgrrhgvkhcu
-    ofgrrhgtiiihkhhofihskhhiqdfikphrvggtkhhiuceomhgrrhhmrghrvghksehinhhvih
-    hsihgslhgvthhhihhnghhslhgrsgdrtghomheqnecuggftrfgrthhtvghrnhepteevffei
-    gffhkefhgfegfeffhfegveeikeettdfhheevieehieeitddugeefteffnecuvehluhhsth
-    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepmhgrrhhmrghrvghksehi
-    nhhvihhsihgslhgvthhhihhnghhslhgrsgdrtghomh
-X-ME-Proxy: <xmx:JisUYkbYs4yRQDuWPVpdWhTz-QMKtlgY3G4siF3Azf63M4nIiJq4Rg>
-    <xmx:JisUYia-rc0nv9Ddr695FsbNsEykqpokrW3ZBB2ZlTMV7xRwvbrssA>
-    <xmx:JisUYoC2vmtUkDy87UAuKxSdgXE1Y-PGs7AKNdt35uk5T5MudK5U5A>
-    <xmx:JisUYq7doJGgZO5OJpN9rhB7hPF6DYbyZo9JLQQtjrg4kaKuGWyz8w>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 21 Feb 2022 19:15:32 -0500 (EST)
-Date:   Tue, 22 Feb 2022 01:15:29 +0100
-From:   Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>
-To:     Juergen Gross <jgross@suse.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Antoine Tenart <atenart@kernel.org>,
-        "moderated list:XEN HYPERVISOR INTERFACE" 
-        <xen-devel@lists.xenproject.org>,
-        "open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>
-Subject: Re: [PATCH] xen/netfront: destroy queues before real_num_tx_queues
- is zeroed
-Message-ID: <YhQrIWyJ4hhEVVNb@mail-itl>
-References: <20220220134202.2187485-1-marmarek@invisiblethingslab.com>
- <3786b4ef-68e7-5735-0841-fcbae07f7e54@suse.com>
+        with ESMTP id S233643AbiBVAPl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Feb 2022 19:15:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B936924BFC;
+        Mon, 21 Feb 2022 16:15:16 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3841EB811B3;
+        Tue, 22 Feb 2022 00:15:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DB0AC340E9;
+        Tue, 22 Feb 2022 00:15:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1645488913;
+        bh=8kIH+CU4O2vOEf2rHBiux6fRL3f9GE2CqZ2PZwFgLE4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=k6Ft7IhR4B9kJrZRdtSdTsLBEAIQTApR+RTTAG9+T/MNu4zve4hcpbxffGJ4/O1BX
+         GU8/h8QmQABvoLjrepefmvjRRTiPS+wmkoTgkqfruFW5tQMdgkyxKbXA3/TQBZ6JC+
+         IW0r6hX92BhcB01ahQWfAxT4cx8BbMNUUy8BK+7BnKg/3pOGvFOaepETs0y/YZoAYD
+         yN4NxlxfTvcapY2aCQlK5pqs4u/drHen5GIJfXCRzggDii3dyPgx25ao+NeAyzhRY5
+         JZwQDFSgv5ADxTxfgsfHMB6Jmt/1nsmM95T7K6XfPHd/MQY41434CX4ySUIGq8u35n
+         T4OWbPc77ZXTA==
+Date:   Tue, 22 Feb 2022 01:15:48 +0100
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Dave Hansen <dave.hansen@intel.com>
+Cc:     linux-sgx@vger.kernel.org,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Jethro Beekman <jethro@fortanix.com>,
+        Sean Christopherson <seanjc@google.com>
+Subject: Re: [PATCH v3] x86/sgx: Free backing memory after faulting the
+ enclave page
+Message-ID: <YhQrNDMhVoKxPhFQ@iki.fi>
+References: <20220108140510.76583-1-jarkko@kernel.org>
+ <YfJDV63oGmWOmO4F@iki.fi>
+ <8afec431-4dfc-d8df-152b-76cca0e17ccb@intel.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="+tkBggBQeIzPYW+u"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3786b4ef-68e7-5735-0841-fcbae07f7e54@suse.com>
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <8afec431-4dfc-d8df-152b-76cca0e17ccb@intel.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jan 31, 2022 at 03:30:52PM -0800, Dave Hansen wrote:
+> On 1/26/22 23:01, Jarkko Sakkinen wrote:
+> > On Sat, Jan 08, 2022 at 04:05:10PM +0200, Jarkko Sakkinen wrote:
+> >> +static inline pgoff_t sgx_encl_get_backing_pcmd_nr(struct sgx_encl *encl, pgoff_t index)
+> >> +{
+> >> +	return PFN_DOWN(encl->size) + 1 + (index / sizeof(struct sgx_pcmd));
+> >> +}
+> > Found it.
+> > 
+> > This should be 
+> > 
+> > static inline pgoff_t sgx_encl_get_backing_pcmd_nr(struct sgx_encl *encl, pgoff_t index)
+> > {
+> > 	return PFN_DOWN(encl->size) + 1 + (index * PAGE_SIZE) / sizeof(struct sgx_pcmd);
+> > }
+> 
+> I've looked at this for about 10 minutes and been simultaneously
+> confused as to whether it is right or wrong.  That makes it
+> automatically wrong. :)
+> 
+> First, this isn't calculating a "PCMD number".  It's calculating backing
+> offset.  The "PCMD number" calculation is only a part of it.  I think
+> that makes the naming rather sloppy.
+> 
+> Second, I think the typing is sloppy.  page_index for example:
+> 
+> > static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
+> >                            struct sgx_epc_page *epc_page,
+> >                            struct sgx_epc_page *secs_page)
+> > {
+> ...
+> >         pgoff_t page_index;
+> 
+> It's storing a page number:
+> 
+>                 page_index = PFN_DOWN(encl->size);
+> 
+> not a real offset-into-a-file.  That makes it even more confusing when
+> 'page_index' crosses a function boundary, gets renamed to 'index' and
+> then its units get confused.
+> 
+> /*
+>  * Given a page number within an enclave (@epc_page_nr), calculate the
+>  * offset in bytes into the backing file where that page's PCMD is
+>  * located.
+>  */
+> -static inline pgoff_t sgx_encl_get_backing_pcmd_nr(struct sgx_encl
+> *encl, pgoff_t index)
+> +static inline pgoff_t sgx_page_nr_to_pcmd_nr(struct sgx_encl *encl,
+> unsigned long epc_page_nr)
+> {
+> 	pgoff_t last_epc_offset = PFN_DOWN(encl->size);
+> 	pgoff_t pcmd_offset;
+> 
+> 	// The SECS page is stashed in a slot after the
+> 	// last normal EPC page.  Leave space for it:
+> 	last_epc_offset++;
+> 
+> 	pcmd_offset = epc_page_nr / sizeof(struct sgx_pcmd);
+> 
+> 	return last_epc_offset + pcmd_offset;
+> }
+> 
+> Looking at that, I still think your *original* version is correct.
+> 
+> Am I just all twisted around from looking at this code too much?  Could
+> you please take another look and send a new version of the patch?
 
---+tkBggBQeIzPYW+u
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 22 Feb 2022 01:15:29 +0100
-From: Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>
-To: Juergen Gross <jgross@suse.com>
-Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Antoine Tenart <atenart@kernel.org>,
-	"moderated list:XEN HYPERVISOR INTERFACE" <xen-devel@lists.xenproject.org>,
-	"open list:NETWORKING DRIVERS" <netdev@vger.kernel.org>
-Subject: Re: [PATCH] xen/netfront: destroy queues before real_num_tx_queues
- is zeroed
+I gave some though and this is what I came up with.
 
-On Mon, Feb 21, 2022 at 07:27:32AM +0100, Juergen Gross wrote:
-> I checked some of the call paths leading to xennet_close(), and all of
-> those contained an ASSERT_RTNL(), so it seems the rtnl_lock is already
-> taken here. Could you test with adding an ASSERT_RTNL() in
-> xennet_destroy_queues()?
+So what do you think about this:
 
-Tried that and no issues spotted.
+	pgoff_t pcmd_off = encl->size + PAGE_SIZE + page_idex * sizeof(struct sgx_pcmd); 
+	
+This makes the calculations quite simple:
 
-> In case your test with the added ASSERT_RTNL() doesn't show any
-> problem you can add my:
->=20
-> Reviewed-by: Juergen Gross <jgross@suse.com>
+	backing->pcmd = pcmd;
+	backing->pcmd_offset = pcmd_off & PAGE_SIZE;
 
-Thanks.
+and
 
---=20
-Best Regards,
-Marek Marczykowski-G=C3=B3recki
-Invisible Things Lab
+	pcmd = sgx_encl_get_backing_page(encl, PFN_DOWN(pcmd_off));
+	
+Then pgoff_t is actually also used for what it is meant to be.
 
---+tkBggBQeIzPYW+u
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhrpukzGPukRmQqkK24/THMrX1ywFAmIUKyEACgkQ24/THMrX
-1yzoYwf9Gx9pcUVHvqm8ndGiV2gIwVCSdgcmDurruCiP0HW8l4A1u6WAWRPs1qRH
-ZBdfn5OSBZwFZu0tVetXVnmWmMAKjqWAHNIF+DlptXue1GzEMa8QIy3NA5iplpOc
-E4xTNf2rn4tEhz4lunfATqTeLKtju19I0w8CD/szjq5CcqOTyHbOV5PodTF2ZdhY
-yAxGB/KTZUROG+8+orCaqmv9RTe0nob293WI8FpAGr4+QowJKuTsygIX+tryKzIA
-2baSea6s+ZjOg0d4NSGSEbU9u8o0NibNiiuT5cAVRHVkVpUNwn4bs3H7K7P25fZe
-RrtbyZfzDTeTV5TfKUQwWl9q6tORaw==
-=Kebw
------END PGP SIGNATURE-----
-
---+tkBggBQeIzPYW+u--
+/Jarkko
