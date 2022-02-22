@@ -2,95 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCFC44BFAC9
-	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 15:21:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4A604BFAEC
+	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 15:30:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231851AbiBVOWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 09:22:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52882 "EHLO
+        id S231600AbiBVOaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 09:30:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232304AbiBVOWA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 09:22:00 -0500
-X-Greylist: delayed 30148 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 22 Feb 2022 06:21:34 PST
-Received: from alt-proxy28.mail.unifiedlayer.com (alt-proxy28.mail.unifiedlayer.com [74.220.216.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 755826B0A0
-        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 06:21:34 -0800 (PST)
-Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
-        by progateway1.mail.pro1.eigbox.com (Postfix) with ESMTP id E4F961003A12D
-        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 14:21:33 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id MW2nnrhohkku4MW2nn96vc; Tue, 22 Feb 2022 14:21:33 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=LOaj/La9 c=1 sm=1 tr=0 ts=6214f16d
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=oGFeUVbbRNcA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=+bTtUnnjQep40ozlUHBwlqgi9sKTUeV160TTuTnXvcE=; b=rZq5LXg3g/gKMY4tS7dWyYv5xF
-        JX0hkdY5AJGLPZFD04l5eHgQzuy2sbWhhXWgUXBLZumtdVN2jkTgUdf0j1wBEx6Y1Egv0ZNaAQoHx
-        aJfttJdBHFp7zI2I1iAaLB15o;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:55138 helo=[10.0.1.23])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1nMW2n-003zml-1x; Tue, 22 Feb 2022 07:21:33 -0700
-Message-ID: <41106841-f445-07e4-55b3-63c87c158e8a@w6rz.net>
-Date:   Tue, 22 Feb 2022 06:21:31 -0800
+        with ESMTP id S229779AbiBVOaY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 09:30:24 -0500
+Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 576D4149946
+        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 06:29:59 -0800 (PST)
+Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-2d07ae0b1c0so175799047b3.2
+        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 06:29:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ex7IMBlE4ONDpsQe5AW/htxkuLyXiLoSJUGFoz3TYiA=;
+        b=RAbSzio6CQUMlZvch5mL0Vyahb0A4DtHPl5lgYT7GKPaAWbjvQt30z0mO0btZf4AUY
+         0bkr+PWx2m3HeK600X0usYZLjK1SG//3pNsp3hQxcq9AiP4L5hJ8mjELqO40RmHUi6zX
+         q0j8RZr92RoklahyrT7o5HUjASqOCDSGCR48O3Aofzh8dIamZiCCjvX6/rfRiplBk6iR
+         FdnV/lJBT6uenm9MsIQl3dfRhid0BCXBHE4Ax4UuqKS+GZqmH/Qr/Id4/Yi2hXToi6po
+         r5yMgNF1ue05zPgBBDbjbBDFY2xWoqhG1qMnTLcyWFIanRGKcYu/sWFPkjUcVrzPn9w3
+         47Uw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ex7IMBlE4ONDpsQe5AW/htxkuLyXiLoSJUGFoz3TYiA=;
+        b=U74LyQv6jCLsAYpHbjB5kilopcHCelk+gji1vafVxy9yNAmb05gSVN1YCPmlOJyJwV
+         SPtUli9Uv2uHBCBKcQMebq7APd+cqgsnczerWYipFmCSUdH58X3DHDFrJ9Y/DU+c12Ku
+         c7W2aUJ3kIF4+FEIiZcecW0lTm+ZvxM3/ERyLnJURTjcBNwjdKhvVNKU/fa3i4R3fQWT
+         LGui3NNN9HzqT14FWBePjUxL1TTcSxRjqMmsDAlVhFXcG2xRAHl1ozsvdrCJcjUEBjDP
+         hDuDECWf0cIyPo/xlWQBu0lCFP6H0Z9pSNLYTK7tXcOxBT7cmmnEuo0kB+JX06oKwwI2
+         yQiQ==
+X-Gm-Message-State: AOAM532R4PkkzA05vKkF1oL0MUY66+sNYCPL9KU7SKmCPq9ilwB7H5tU
+        2U530+ldmfE/1Y6ERsTw+B9o4wHNHYbSVlqknjMe1NHLDMSPOQ==
+X-Google-Smtp-Source: ABdhPJx4ijkW7EXThE7IEUkuoMX94fseTVCvyL5IB0jVI7NHFnm8gUlDuA7v0EB1SpUWMQV6fGMeZ8hrRuUQP8TDxTU=
+X-Received: by 2002:a81:1008:0:b0:2d6:58bf:80d5 with SMTP id
+ 8-20020a811008000000b002d658bf80d5mr23462032ywq.441.1645540198361; Tue, 22
+ Feb 2022 06:29:58 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 5.16 000/227] 5.16.11-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220221084934.836145070@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1nMW2n-003zml-1x
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:55138
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 12
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220221084908.568970525@linuxfoundation.org>
+In-Reply-To: <20220221084908.568970525@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 22 Feb 2022 19:59:47 +0530
+Message-ID: <CA+G9fYuXOjvWhfxP7tCP+K764kC2nFMwO5mDzHtrEGFzEprBtw@mail.gmail.com>
+Subject: Re: [PATCH 4.9 00/33] 4.9.303-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna.schumaker@netapp.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/21/22 00:46, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.11 release.
-> There are 227 patches in this series, all will be posted as a response
+On Mon, 21 Feb 2022 at 14:22, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.303 release.
+> There are 33 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -98,16 +84,156 @@ On 2/21/22 00:46, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.11-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.303-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Tested-by: Ron Economos <re@w6rz.net>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
+NOTE:
+This build warning found on all architectures,
+
+> Trond Myklebust <trond.myklebust@hammerspace.com>
+>     NFS: Do not report writeback errors in nfs_getattr()
+
+fs/nfs/inode.c: In function 'nfs_getattr':
+fs/nfs/inode.c:693:1: warning: label 'out' defined but not used [-Wunused-l=
+abel]
+  693 | out:
+      | ^~~
+
+
+## Build
+* kernel: 4.9.303-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.9.y
+* git commit: 6686f147d38ff2b3ffc43718976bb9ff43c5fcc5
+* git describe: v4.9.302-34-g6686f147d38f
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.3=
+02-34-g6686f147d38f
+
+## Test Regressions (compared to v4.9.302-27-ge4a64678c410)
+No test regressions found.
+
+## Metric Regressions (compared to v4.9.302-27-ge4a64678c410)
+Build warning found on all architectures
+fs/nfs/inode.c: In function 'nfs_getattr':
+fs/nfs/inode.c:693:1: warning: label 'out' defined but not used [-Wunused-l=
+abel]
+  693 | out:
+      | ^~~
+
+## Test Fixes (compared to v4.9.302-27-ge4a64678c410)
+No test fixes found.
+
+## Metric Fixes (compared to v4.9.302-27-ge4a64678c410)
+No metric fixes found.
+
+## Test result summary
+total: 55842, pass: 45907, fail: 274, skip: 8635, xfail: 1026
+
+## Build Summary
+* arm: 130 total, 130 passed, 0 failed
+* arm64: 32 total, 32 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 19 total, 19 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 22 total, 22 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 2 total, 1 passed, 1 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 30 total, 30 passed, 0 failed
+
+## Test suites summary
+* fwts
+* kselftest-android
+* kselftest-bpf
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
