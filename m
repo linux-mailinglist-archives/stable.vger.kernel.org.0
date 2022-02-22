@@ -2,92 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4979F4BF2AD
-	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 08:40:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE2C54BF2CE
+	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 08:46:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231210AbiBVHbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 02:31:42 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:60070 "EHLO
+        id S230356AbiBVHmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 02:42:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231193AbiBVHbk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 02:31:40 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E034939C1;
-        Mon, 21 Feb 2022 23:31:15 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id 132so16341050pga.5;
-        Mon, 21 Feb 2022 23:31:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:from:subject:to:cc
-         :references:content-language:in-reply-to:content-transfer-encoding;
-        bh=88T01Xv11IQ7vnlMjdCLjMUwiY0xai49HxAj9U+k4mA=;
-        b=dvWsN85ePVKH9mqPejUMfjPsgCQRH5oyF4hQRpb1yCcdVYxu571HqfkIQ39CJTMTXb
-         th8pKfFZzY4j/qBjDPRg3QK2neRzbk5O9Ghf/yAlBDlLHmjA+p7rqrhaS9O9UMtnJVa8
-         UsaxRJGsmNPuFbj7BXxN3oVwSirX07MBVPrI8pfOwTz0XmNod1k8b8uGjzwtC+abReYr
-         MSvupE8JKJld/vwMdzgDxgrj6k6ZHYqRL4sT5SPqygTJ8gYwHnBexs2xg2qP3zxDg7YS
-         rEjyFzNX5piMoIiBdhcZaQVPtKquX6qRhlUaeSU9cX5SuiRC6IebZBPmHEi2f77DOwsi
-         mOoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
-         :subject:to:cc:references:content-language:in-reply-to
-         :content-transfer-encoding;
-        bh=88T01Xv11IQ7vnlMjdCLjMUwiY0xai49HxAj9U+k4mA=;
-        b=h/yGiOlziBj4W8WgXtYe0zunpspIa6UKLXWgn53dxJ9bocYhx2mHXuO12fmmz46xwK
-         9cQ/rX5WNsEKCAvZ7XlzBGjLsMQ3gMTlAk+7krN+816OeZnYaWNwjIklNM2MfOu5iGip
-         3vV1+DRiDxlBN6uh3Zty14SMJei9HeXuYLg+G2IaeSeD2tWLrR1DIQLS1wh/LQO3AVY4
-         jc6dIFc6Td0dI1swqq8AjMmolzyL0Vivy0py0HI66oBOeVWTwF/NyJQjpNYCkmU8XD6i
-         t0JnPRz9l7QxEHI6lFnhH5tF9NSAeJog8p8EEy31rcVs9hCJD5LJrkKcMRDLNInOBTL9
-         IzlA==
-X-Gm-Message-State: AOAM532ulde89uc6bpFjvqgmb1zmzd1k/jEEt4t3gCmRB1cA4CtfKoal
-        /HsjOtxAwG3sCj3Xl0lAPUY=
-X-Google-Smtp-Source: ABdhPJwLlu5MyrG0vgrOWrQu8O3OeAyFPlCYVszWZqZOLHTFr4YDRZ/cbYKyZpEaDQpcMCxLYKmQng==
-X-Received: by 2002:a63:e5f:0:b0:374:62d8:c551 with SMTP id 31-20020a630e5f000000b0037462d8c551mr3711899pgo.129.1645515074852;
-        Mon, 21 Feb 2022 23:31:14 -0800 (PST)
-Received: from [192.168.43.80] (subs03-180-214-233-30.three.co.id. [180.214.233.30])
-        by smtp.gmail.com with ESMTPSA id oj5sm1429700pjb.29.2022.02.21.23.31.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Feb 2022 23:31:14 -0800 (PST)
-Message-ID: <48821503-5b9b-6459-bcdd-c0950d23ad94@gmail.com>
-Date:   Tue, 22 Feb 2022 14:31:09 +0700
+        with ESMTP id S230126AbiBVHmC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 02:42:02 -0500
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D1F7D5DF2;
+        Mon, 21 Feb 2022 23:34:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1645515279; x=1677051279;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=X1Tz+BAoBcxBBkGR1Lq3UkI+KuWFDfPTdFcRVZ6Nc9s=;
+  b=nxBHRnVtnwXwhzs0fOD5Sec1NiVa1ConBHWYGdzBfcDWMdZQq7SE3uzi
+   lBQCrAm/tQ98yTjOWSY6iWqQsjqTEQkqaXyqV/T7RU3dbjlr7YXYDtacg
+   u0rIoBp4bBRnSjQXrozg/yj7piaISpq0HtGSrBdISkO2pKhQXm1fWmphg
+   Pyb24lOW0KGRyPNxlfqdO5NUd/6G8iI22l6cs3Ytk1HIzoNrtAz9Rgiqx
+   TCGFZ0M887ztEID00HBRt/fpGHTnqxpl6KYbweAxL8+ki8KHwgdzs/GS8
+   jEhuOtZWnkphBi3XRYbGT26LLJsRrtyhuSoD6SKflBUxO318LSHl77sj8
+   w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10265"; a="251399474"
+X-IronPort-AV: E=Sophos;i="5.88,387,1635231600"; 
+   d="scan'208";a="251399474"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Feb 2022 23:34:39 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,387,1635231600"; 
+   d="scan'208";a="591210229"
+Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.189])
+  by fmsmga008.fm.intel.com with ESMTP; 21 Feb 2022 23:34:36 -0800
+Date:   Tue, 22 Feb 2022 15:34:35 +0800
+From:   Feng Tang <feng.tang@intel.com>
+To:     srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc:     Doug Smythies <dsmythies@telus.net>,
+        "Zhang, Rui" <rui.zhang@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "paulmck@kernel.org" <paulmck@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+Subject: Re: CPU excessively long times between frequency scaling driver
+ calls - bisected
+Message-ID: <20220222073435.GB78951@shbuild999.sh.intel.com>
+References: <003f01d81c8c$d20ee3e0$762caba0$@telus.net>
+ <20220208023940.GA5558@shbuild999.sh.intel.com>
+ <CAAYoRsXrwOQgzAcED+JfVG0=JQNEXuyGcSGghL4Z5xnFgkp+TQ@mail.gmail.com>
+ <20220208091525.GA7898@shbuild999.sh.intel.com>
+ <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
+ <e185b89fb97f47758a5e10239fc3eed0@intel.com>
+ <CAAYoRsXbBJtvJzh91nTXATLL1eb2EKbTVb8vEWa3Y6DfCWhZeg@mail.gmail.com>
+ <aaace653f12b79336b6f986ef5c4f9471445372a.camel@linux.intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.1
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-Subject: Re: [PATCH 5.16 000/227] 5.16.11-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220221084934.836145070@linuxfoundation.org>
-Content-Language: en-US
-In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aaace653f12b79336b6f986ef5c4f9471445372a.camel@linux.intel.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21/02/22 15.46, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.11 release.
-> There are 227 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Mon, Feb 14, 2022 at 07:17:24AM -0800, srinivas pandruvada wrote:
+> Hi Doug,
 > 
+> I think you use CONFIG_NO_HZ_FULL.
+> Here we are getting callback from scheduler. Can we check that if
+> scheduler woke up on those CPUs?
+> We can run "trace-cmd -e sched" and check in kernel shark if there is
+> similar gaps in activity.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, gcc 10.2.0) and
-powerpc (ps3_defconfig, gcc 11.2.0).
+Srinivas analyzed the scheduler trace data from trace-cmd, and thought is
+related with the cpufreq callback is not called timeley from scheduling
+events:
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+" 
+I mean we ignore the callback when the target CPU is not a local CPU as
+we have to do IPI to adjust MSRs.
+This will happen many times when sched_wake will wake up a new CPU for
+the thread (we will get a callack for the target) but once the remote
+thread start executing "sched_switch", we will get a callback on local
+CPU, so we will adjust frequencies (provided 10ms interval from the
+last call).
 
+>From the trace file I see the scenario where it took 72sec between two
+updates:
+CPU 2
+34412.597161    busy=78         freq=3232653
+34484.450725    busy=63         freq=2606793
+
+There is periodic activity in between, related to active load balancing
+in scheduler (since last frequency was higher these small work will
+also run at higher frequency). But those threads are not CFS class, so
+scheduler callback will not be called for them.
+
+So removing the patch removed a trigger which would have caused a
+sched_switch to a CFS task and call a cpufreq/intel_pstate callback.
+But calling for every class, will be too many callbacks and not sure we
+can even call for "stop" class, which these migration threads are
+using.
+"
+
+Following this direction, I made a hacky debug patch which should help
+to restore the previous behavior.
+
+Doug, could you help to try it? thanks
+
+It basically tries to make sure the cpufreq-update-util be called timely
+even for a silent system with very few interrupts (even from tick).
+
+Thanks,
+Feng
+
+From 6be5f5da66a847860b0b9924fbb09f93b2e2d6e6 Mon Sep 17 00:00:00 2001
+From: Feng Tang <feng.tang@intel.com>
+Date: Tue, 22 Feb 2022 22:59:00 +0800
+Subject: [PATCH] idle/intel-pstate: hacky debug patch to make sure the
+ cpufreq_update_util callback being called timely in silent system
+
+---
+ kernel/sched/idle.c  | 10 ++++++++++
+ kernel/sched/sched.h | 13 +++++++++++++
+ 2 files changed, 23 insertions(+)
+
+diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
+index d17b0a5ce6ac..cc538acb3f1a 100644
+--- a/kernel/sched/idle.c
++++ b/kernel/sched/idle.c
+@@ -258,15 +258,25 @@ static void cpuidle_idle_call(void)
+  *
+  * Called with polling cleared.
+  */
++DEFINE_PER_CPU(u64, last_util_update_time);	/* in jiffies */
+ static void do_idle(void)
+ {
+ 	int cpu = smp_processor_id();
++	u64 expire;
+ 
+ 	/*
+ 	 * Check if we need to update blocked load
+ 	 */
+ 	nohz_run_idle_balance(cpu);
+ 
++#ifdef CONFIG_X86_INTEL_PSTATE
++	expire = __this_cpu_read(last_util_update_time) + HZ * 3;
++	if (unlikely(time_is_before_jiffies(expire))) {
++		idle_update_util();
++		__this_cpu_write(last_util_update_time, get_jiffies_64());
++	}
++#endif
++
+ 	/*
+ 	 * If the arch has a polling bit, we maintain an invariant:
+ 	 *
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 0e66749486e7..2a8d87988d1f 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -2809,6 +2809,19 @@ static inline void cpufreq_update_util(struct rq *rq, unsigned int flags)
+ 	if (data)
+ 		data->func(data, rq_clock(rq), flags);
+ }
++
++static inline void idle_update_util(void)
++{
++	struct update_util_data *data;
++	struct rq *rq = cpu_rq(raw_smp_processor_id());
++
++	data = rcu_dereference_sched(*per_cpu_ptr(&cpufreq_update_util_data,
++						  cpu_of(rq)));
++	if (data)
++		data->func(data, rq_clock(rq), 0);
++}
++
++
+ #else
+ static inline void cpufreq_update_util(struct rq *rq, unsigned int flags) {}
+ #endif /* CONFIG_CPU_FREQ */
 -- 
-An old man doll... just what I always wanted! - Clara
+2.25.1
+
+
+
+
