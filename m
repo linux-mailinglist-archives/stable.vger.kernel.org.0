@@ -2,116 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D623E4BFE82
-	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 17:27:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C745F4BFFE4
+	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 18:14:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233830AbiBVQ1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 11:27:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54022 "EHLO
+        id S234294AbiBVRPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 12:15:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234004AbiBVQ1s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 11:27:48 -0500
-Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F8D8AC92F
-        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 08:27:20 -0800 (PST)
-Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-2d625082ae2so180265887b3.1
-        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 08:27:20 -0800 (PST)
+        with ESMTP id S234284AbiBVRPH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 12:15:07 -0500
+Received: from mail-oo1-xc31.google.com (mail-oo1-xc31.google.com [IPv6:2607:f8b0:4864:20::c31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE83B108568
+        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 09:14:41 -0800 (PST)
+Received: by mail-oo1-xc31.google.com with SMTP id d134-20020a4a528c000000b00319244f4b04so18495058oob.8
+        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 09:14:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ORYINw67pQ5ZoOWHnhKhKbeE417mgacXszCqGXghifw=;
-        b=ZCt6TATiFHlYTc4SrTZQDV0dmODhoa/PcYUzaYZQ/ErkbsLoCq8wH8KsBjXtItT8cS
-         N8SANx/p0FDUp4stmJJ6X5vy+sc4d0MoWVvYqNKrZSPCDtTdfl7uNEPonKk1w2mb3hzk
-         ppng5/yLWk6vADRiH9gAlQb/IonUd/c5sifCkL34G040hUwt/v39rYBorFJZp3edrfCa
-         w0Tai028iJDsxKPrFr0YEFDqTKvwWy3XcJIrA2SSYQ8+CJyPWmNguGCDAJdo6bxzYFXq
-         aUMF9qDcBhmjcEw9jKhUe+KdZCVXb3g+dwY3RVhZiRnIuMiq/+veOV3u6w+wo3Ivxk9b
-         MPpA==
+        d=linuxtx.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=iyJvWO94zxROKCAmWW+SeGmGl7pyXuanhPRu1GuYlqk=;
+        b=deN0CXKmYJ6Z0HCrcZ1jVjxL1B0mDKtr8uPIq2rQnMalAWgW7Kx7yR17vydSsbhdG9
+         EmC+ZSHlcYRGl/BclXjKo/oJCCREZjwTX1GvmbeUJ1FdlwZlvZSwImYl/cA6pg88Th5c
+         Mo+WL9VJt4au2dcu7VZP6wXD6Wk/mjEzu0aVI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ORYINw67pQ5ZoOWHnhKhKbeE417mgacXszCqGXghifw=;
-        b=HhBwb3gRn/EeLIn4ri3bE0k7XDuEIriubfg+HXmuPKn+ahOhXRE9K9oT1kr2fO1n3i
-         C4v57tGHxPBxrV0cJNiJvvTtra3UX06yWYyQ4VaVHKY8EvIhxVIuOdhDsYL6SKAMnNP4
-         NrH7iGsfKkOKlvxkEM4C5LOLYElNV/aObLv+XASGD1solCeitWbkJ1yLvTvRWFNmNANR
-         Y72tmMYakegRcmUlwl9kM4FpB7tBxMp4PXX7ZziU/tnNAOnsYNEM4hqLpC2tKhv5rGVB
-         6PNr/3FW/Ta/eYM/phFuwnx5fG6wTnxVplcoJy8ZTxxTlyJWCIBRg0X/DwtdyyvaA0R1
-         rYwQ==
-X-Gm-Message-State: AOAM533/r47sjBWZwKD/43ASAWXD0MWVTwi+kptecc4a2h6BhF9An8cn
-        L18Rto5wY34k145GzjdKg/ffTw72lW1m5cuXZS6hVA==
-X-Google-Smtp-Source: ABdhPJwPwPnelkp+i0QAJ4nyGB9oFEYLPVLrlCn0wrUtvfmdCopNBZdTZ8Wt8KBysg2sSDF7fTxQNI5EOo2AnHqkorQ=
-X-Received: by 2002:a81:6a0a:0:b0:2d0:c144:4be4 with SMTP id
- f10-20020a816a0a000000b002d0c1444be4mr24759229ywc.332.1645547238650; Tue, 22
- Feb 2022 08:27:18 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=iyJvWO94zxROKCAmWW+SeGmGl7pyXuanhPRu1GuYlqk=;
+        b=PvcD2nuL0Q7Y7EV3P7+AdlsaOgnAxHKhr9K1LkBWG/E2Kb/6l5vxZSdIgVBjIVt5Nc
+         Kn4G7uq2GUg/ZKCAWx0hDpkkrI2YeL5LKvPvNUMbFMSHi6CmYT9/ME3g5Ctvwe+Bmt6G
+         0YKqaK5Oa819ykCxSrZmvcdW20EJz1KeMP/blORn4pClhUdvxeRIV+16C7AbZAxQGQmN
+         sYby7p0YtdXzZKAYr3Ez7L3msthKCjEYApQzkX9Tlkkn2hB0Y3s0nOoPeDbN3OvVTvDs
+         p1P7Qh71gPjHB9l41C4tqCSi4eRsnX6ZZEmzpQ5Wi8LOPSXg9g3KIqW59Mu97c6vXS8e
+         HWwQ==
+X-Gm-Message-State: AOAM532Td5FSA5HtBUIKbBgpsMw7qH3/ujJqyDSnMagI34IV+a/Ytttl
+        2Ye9+sS5co91/nXeg2nTHvZAPg==
+X-Google-Smtp-Source: ABdhPJyi3s8+tDXRwUA4wJeKROW1T9avDWVsehpfFDzLIK7l2lGhRxmvn8RbkOAvCnGH0iSSm81kFw==
+X-Received: by 2002:a05:6870:a68c:b0:d0:efe:5b92 with SMTP id i12-20020a056870a68c00b000d00efe5b92mr2059794oam.207.1645550080720;
+        Tue, 22 Feb 2022 09:14:40 -0800 (PST)
+Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
+        by smtp.gmail.com with ESMTPSA id b8sm16436889oae.30.2022.02.22.09.14.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Feb 2022 09:14:39 -0800 (PST)
+Date:   Tue, 22 Feb 2022 11:14:38 -0600
+From:   Justin Forbes <jmforbes@linuxtx.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.16 000/227] 5.16.11-rc1 review
+Message-ID: <YhUZ/v4DeyH3BO2V@fedora64.linuxtx.org>
+References: <20220221084934.836145070@linuxfoundation.org>
 MIME-Version: 1.0
-References: <20220221084911.895146879@linuxfoundation.org> <20220221084912.825972694@linuxfoundation.org>
- <20220222153528.GA27262@amd>
-In-Reply-To: <20220222153528.GA27262@amd>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Tue, 22 Feb 2022 08:27:07 -0800
-Message-ID: <CANn89iLOiaan+CG94+6-RsMWH5pPLJ6snfAGQ3UJfRBLijTbsQ@mail.gmail.com>
-Subject: Re: [PATCH 4.19 29/58] bonding: fix data-races around agg_select_timer
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220221084934.836145070@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 22, 2022 at 7:35 AM Pavel Machek <pavel@ucw.cz> wrote:
->
-> Hi!
->
-> > syzbot reported that two threads might write over agg_select_timer
-> > at the same time. Make agg_select_timer atomic to fix the races.
->
-> Ok, but:
->
-> > --- a/drivers/net/bonding/bond_3ad.c
-> > +++ b/drivers/net/bonding/bond_3ad.c
-> > @@ -249,7 +249,7 @@ static inline int __check_agg_selection_
-> >       if (bond == NULL)
-> >               return 0;
-> >
-> > -     return BOND_AD_INFO(bond).agg_select_timer ? 1 : 0;
-> > +     return atomic_read(&BOND_AD_INFO(bond).agg_select_timer) ? 1 : 0;
-> >  }
->
-> This could probably use !!.
+On Mon, Feb 21, 2022 at 09:46:59AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.11 release.
+> There are 227 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 23 Feb 2022 08:48:58 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.11-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Probably... I chose to not change code style in a bug fix.
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
->
-> > +static bool bond_agg_timer_advance(struct bonding *bond)
-> > +{
-> > +     int val, nval;
-> > +
-> > +     while (1) {
-> > +             val = atomic_read(&BOND_AD_INFO(bond).agg_select_timer);
-> > +             if (!val)
-> > +                     return false;
-> > +             nval = val - 1;
-> > +             if (atomic_cmpxchg(&BOND_AD_INFO(bond).agg_select_timer,
-> > +                                val, nval) == val)
-> > +                     break;
-> > +     }
-> > +     return nval == 0;
-> > +}
->
-> This should really be atomic_dec_if_positive, no?
-
-SGTM, please send a patch, thank you.
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
