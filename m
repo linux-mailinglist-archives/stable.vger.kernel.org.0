@@ -2,79 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C157C4BF4F4
-	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 10:47:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 284DE4BF581
+	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 11:10:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230263AbiBVJsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 04:48:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47466 "EHLO
+        id S230426AbiBVKK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 05:10:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230029AbiBVJsR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 04:48:17 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9796790CDC
-        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 01:47:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1645523270;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=1vLjaLOpjM/maPs9UeQipZMtimlrY+ZZDRN/XdiV3h8=;
-        b=Knbw3/bKaoIBuKz66UMr7+P+g17yBXbfPJHB0VLaO0Jb/EXnjnlm4BaJfID92FWX36++4m
-        v2GTrXoKUBG8kLBA/AxT4oV1ifGXRUNR4YIh/eAZCUMgwu/zoB0yslKFuutmZqBVpcMBBU
-        z+d84i3FAX/9s1zWOPglfN4aUmqGaGE=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-554-X9OWqKghNVSj1IoItq4FLQ-1; Tue, 22 Feb 2022 04:47:49 -0500
-X-MC-Unique: X9OWqKghNVSj1IoItq4FLQ-1
-Received: by mail-qv1-f71.google.com with SMTP id cg14-20020a05621413ce00b0042c2706a4beso20287318qvb.23
-        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 01:47:49 -0800 (PST)
+        with ESMTP id S230397AbiBVKKX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 05:10:23 -0500
+Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13BBB12867F
+        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 02:09:38 -0800 (PST)
+Received: by mail-yb1-xb2e.google.com with SMTP id w63so18679573ybe.10
+        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 02:09:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ZN9Mn7eKF7VEPOoqESh7YsrOHM1p2Rju/SK2QDt9bv8=;
+        b=BAhFDjXk2l50R715eCkMXIgzDmGhcqetlaGPIlMnAsVojznLICv0HD0MntQW3xI0Js
+         yZ78/w9KbyJgiRdOeir/u0C3kzucDr+WVlhOOoEDbofTh0QtI+ONsb92mn/rXeS220HU
+         SMHosJT4cC7cPWAm2RqAw+U6vdpewSfxLFVnltEuGQSflaUFgYxB2xml97rOJTczZxBe
+         QERNiXh2SZda4VTxZHrD1I7XmKswdInCZuiRaGWoACJVQgpfmJ9mWoocRl2q1mzyF8B2
+         /TDYtD2sVTmHAPGvRjI8ijLX0GUl/l8WAbCTzmc/quvQiVkZoOynaI2mzTiB7JApwgTn
+         nL4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=1vLjaLOpjM/maPs9UeQipZMtimlrY+ZZDRN/XdiV3h8=;
-        b=zxnxi9jClLPxY9vHTcSubU1SpZ30M2Vg8j6PmhALfo/w5DnP21VgsUp4bz8AdpkSeC
-         omao7ZN37t4JTyXxi63ehC75jAKg/nNkJzMkCKuM5A3nWGqLOALgDJVEXKlQ2CJayDI8
-         4QB0bCzi5AmS2FWmI6e7JBVJGahGbmAVoo2qMUqCyNyW0ks9JcDK00meNnpoxBXJ32Si
-         OZHCAq731OsfDq4Ghx76bun9VVxkHYhJ+9h4DzE4NyunehZL0dTPZsZ+dU90CqAHvQQd
-         k/WkR5ihMpmoRT/TerNVxWiWolSMuq+tc+fmc0sHV0l+ks6Syf2uIRm8sCtCvjBBTL6L
-         oIRw==
-X-Gm-Message-State: AOAM532c4oIx8StTSucuQWVCQYhJh9pgr9cIrnqlG8z9EDAz59OnRdex
-        JmYz5ow4uiBcjq+KHz5LSIVBi87e4+p7b3KPJ6vtaMmKSz//Mvy7V0pc9iYXjYJnyuApEGUYXyN
-        1upu9n7d631VKrnXu
-X-Received: by 2002:ac8:5f4c:0:b0:2d9:9327:1355 with SMTP id y12-20020ac85f4c000000b002d993271355mr21214805qta.518.1645523268798;
-        Tue, 22 Feb 2022 01:47:48 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzLRApCkpCfkLM6BoxEEMUdWN7hRcfpssUWglONmZj/+bkfEiUyPxNFxljOVxDFiUxHMmgtfQ==
-X-Received: by 2002:ac8:5f4c:0:b0:2d9:9327:1355 with SMTP id y12-20020ac85f4c000000b002d993271355mr21214790qta.518.1645523268571;
-        Tue, 22 Feb 2022 01:47:48 -0800 (PST)
-Received: from step1.redhat.com (host-95-248-229-156.retail.telecomitalia.it. [95.248.229.156])
-        by smtp.gmail.com with ESMTPSA id br35sm27922533qkb.118.2022.02.22.01.47.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Feb 2022 01:47:47 -0800 (PST)
-From:   Stefano Garzarella <sgarzare@redhat.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Stefan Hajnoczi <stefanha@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com,
-        kvm@vger.kernel.org, Anirudh Rayabharam <mail@anirudhrb.com>,
-        syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com,
-        linux-kernel@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] vhost/vsock: don't check owner in vhost_vsock_stop() while releasing
-Date:   Tue, 22 Feb 2022 10:47:42 +0100
-Message-Id: <20220222094742.16359-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.35.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ZN9Mn7eKF7VEPOoqESh7YsrOHM1p2Rju/SK2QDt9bv8=;
+        b=Yi18ob5URLf2d9/CHhOg5MhPc5mp/YWt+cKxC03xTrLudgoeg1THdlChpaTLpx5mbx
+         CXqbXCGn8QAe0QBLf6FCr8Eq5u4z+KaS00xOMOy2zMSoyimUtozj2G9/4x/9mwbmGSJ7
+         DEp7JxhZ5QWVv8Ypjdioo+qVPUwjK2jctVl7HFi4xL8whspsxu9gUSrYpyfac96f63NB
+         ToWsOpQcla+typudLOerOuKlxB9jhVzGKYz21m/qtS8v68bRQ8GbTNfrobyEtvKklnNQ
+         8nzd5ODRLfWj9IPqGri0RQcbipel+SPFJMj4j+/sazEzvt8odJVrjIyYPz6Jjlfy1uN5
+         w5cQ==
+X-Gm-Message-State: AOAM533vt8QdxqKZweM+xWazk1eSeVSEmsYk92XJbAPOl0iq/lyihCXW
+        MgXGonh10M1mfSifSmuV1doUNjstchlIrLTQCHoHGQ==
+X-Google-Smtp-Source: ABdhPJxFweseCasmpzAP6moZXTsTj32QvBmiCzulP4nUABjLxWd5aRTXPvDh73B9hq9aGMSuIdT49OUUdHlYUBCCphU=
+X-Received: by 2002:a05:6902:284:b0:624:1c25:cda1 with SMTP id
+ v4-20020a056902028400b006241c25cda1mr21755670ybh.480.1645524577153; Tue, 22
+ Feb 2022 02:09:37 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+References: <20220221084911.895146879@linuxfoundation.org>
+In-Reply-To: <20220221084911.895146879@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 22 Feb 2022 15:39:26 +0530
+Message-ID: <CA+G9fYud3yvjfK=R103kJyKUutq9CEwq03Jef6ej1BaO3zpHjA@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/58] 4.19.231-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -82,88 +70,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-vhost_vsock_stop() calls vhost_dev_check_owner() to check the device
-ownership. It expects current->mm to be valid.
+On Mon, 21 Feb 2022 at 14:25, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.231 release.
+> There are 58 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 23 Feb 2022 08:48:58 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.231-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-vhost_vsock_stop() is also called by vhost_vsock_dev_release() when
-the user has not done close(), so when we are in do_exit(). In this
-case current->mm is invalid and we're releasing the device, so we
-should clean it anyway.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Let's check the owner only when vhost_vsock_stop() is called
-by an ioctl.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-When invoked from release we can not fail so we don't check return
-code of vhost_vsock_stop(). We need to stop vsock even if it's not
-the owner.
+## Build
+* kernel: 4.19.231-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-4.19.y
+* git commit: 354a12b76a6c54b40409ab943189cc91fc906ac6
+* git describe: v4.19.230-59-g354a12b76a6c
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
+.230-59-g354a12b76a6c
 
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
-v2:
-- initialized `ret` in vhost_vsock_stop [Dan]
-- added comment about vhost_vsock_stop() calling in the code and an explanation
-  in the commit message [MST]
+## Test Regressions (compared to v4.19.230-41-g73351b9c55d9)
+No test regressions found.
 
-v1: https://lore.kernel.org/virtualization/20220221114916.107045-1-sgarzare@redhat.com
----
- drivers/vhost/vsock.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+## Metric Regressions (compared to v4.19.230-41-g73351b9c55d9)
+No metric regressions found.
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index d6ca1c7ad513..37f0b4274113 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -629,16 +629,18 @@ static int vhost_vsock_start(struct vhost_vsock *vsock)
- 	return ret;
- }
- 
--static int vhost_vsock_stop(struct vhost_vsock *vsock)
-+static int vhost_vsock_stop(struct vhost_vsock *vsock, bool check_owner)
- {
- 	size_t i;
--	int ret;
-+	int ret = 0;
- 
- 	mutex_lock(&vsock->dev.mutex);
- 
--	ret = vhost_dev_check_owner(&vsock->dev);
--	if (ret)
--		goto err;
-+	if (check_owner) {
-+		ret = vhost_dev_check_owner(&vsock->dev);
-+		if (ret)
-+			goto err;
-+	}
- 
- 	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
- 		struct vhost_virtqueue *vq = &vsock->vqs[i];
-@@ -753,7 +755,12 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
- 	 * inefficient.  Room for improvement here. */
- 	vsock_for_each_connected_socket(vhost_vsock_reset_orphans);
- 
--	vhost_vsock_stop(vsock);
-+	/* Don't check the owner, because we are in the release path, so we
-+	 * need to stop the vsock device in any case.
-+	 * vhost_vsock_stop() can not fail in this case, so we don't need to
-+	 * check the return code.
-+	 */
-+	vhost_vsock_stop(vsock, false);
- 	vhost_vsock_flush(vsock);
- 	vhost_dev_stop(&vsock->dev);
- 
-@@ -868,7 +875,7 @@ static long vhost_vsock_dev_ioctl(struct file *f, unsigned int ioctl,
- 		if (start)
- 			return vhost_vsock_start(vsock);
- 		else
--			return vhost_vsock_stop(vsock);
-+			return vhost_vsock_stop(vsock, true);
- 	case VHOST_GET_FEATURES:
- 		features = VHOST_VSOCK_FEATURES;
- 		if (copy_to_user(argp, &features, sizeof(features)))
--- 
-2.35.1
+## Test Fixes (compared to v4.19.230-41-g73351b9c55d9)
+No test fixes found.
 
+## Metric Fixes (compared to v4.19.230-41-g73351b9c55d9)
+No metric fixes found.
+
+## Test result summary
+total: 62331, pass: 52272, fail: 343, skip: 8895, xfail: 821
+
+## Build Summary
+* arm: 281 total, 275 passed, 6 failed
+* arm64: 39 total, 37 passed, 2 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 19 total, 19 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 27 total, 27 passed, 0 failed
+* powerpc: 60 total, 49 passed, 11 failed
+* s390: 12 total, 12 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 38 total, 38 passed, 0 failed
+
+## Test suites summary
+* fwts
+* kselftest-android
+* kselftest-bpf
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
