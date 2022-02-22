@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2584C4BF227
-	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 07:38:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6B434BF249
+	for <lists+stable@lfdr.de>; Tue, 22 Feb 2022 07:59:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229770AbiBVGi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 01:38:59 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:54930 "EHLO
+        id S230290AbiBVGz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 01:55:29 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:39496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229698AbiBVGi6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 01:38:58 -0500
-Received: from mail-yw1-x112a.google.com (mail-yw1-x112a.google.com [IPv6:2607:f8b0:4864:20::112a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA605A5BB
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 22:38:34 -0800 (PST)
-Received: by mail-yw1-x112a.google.com with SMTP id 00721157ae682-2d79394434dso19663697b3.5
-        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 22:38:34 -0800 (PST)
+        with ESMTP id S230316AbiBVGz2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 01:55:28 -0500
+Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7251D1111A6
+        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 22:55:03 -0800 (PST)
+Received: by mail-yb1-xb33.google.com with SMTP id v186so39114619ybg.1
+        for <stable@vger.kernel.org>; Mon, 21 Feb 2022 22:55:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=9JZGu7s6k48pgGptARpFNGKK6ukikwXRkWeRj4mkf6w=;
-        b=AAwUZ25AqwlCM2v5Ic1b1w/lFetp53PDZn8o9XHngoNprcgII8CPKcL7lbHyMX8IrW
-         f5dKQg3O6+l6b7GjDyCG/rGAYO03DJgz7Tj5qN8t856FZ34icqZ22VQTfEGUE6fWJP/K
-         cT2RU4fnUh/pXNTr8QWnQZexd5DB7Gq6/PRWU4uA2l3T5syZ5rHXUySKLeojRXz2f/cG
-         UXbF7RN6myR9V03F7iJ7BmPGUs8Wxam3tMDou3CdduNxTsSrTKswPczL+yUmjwiqTta/
-         rtEdxasHUMxGicci6mWi560+/++IteemomhFrupwAv06P8isbaouoGyo/sMi8q/H616P
-         0FWA==
+        bh=kZ+z7z5jkXrVOgWExbRH8CnuhmCJH6zCkVtZPJfQyF8=;
+        b=b/1GzdEp9juhNotzf7IjR9vSCN8XW7D8zTFdOIK9Q07kYMqNwtBG5NBgsrVxtajxvt
+         6g+qOo8/EOYOuhjsnaqMpho+c/fJEG+pScQ3ILJsSUdq/TUOYQvBOZhWsEWxjhsFGbX+
+         f8TiVWblYBXT4ooryjYLIubZQo/lAt0zikFYCjUICTcCht+AiZ8yQdIK/F4k5XrOwroU
+         V3jU4VPbhEmRqUihpY4mFvwdw1qeBjr5yKEOL4z9ZQCexXLUot3R2alKaW6DfDYA6TbG
+         0mzFZumpZvgh6u4hcIL4gu3zUH1lCiv8mmM9w45zT2xs1LaMt5Z74nsHYQ7nCujTXDoS
+         WDXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=9JZGu7s6k48pgGptARpFNGKK6ukikwXRkWeRj4mkf6w=;
-        b=ZgtiEjwiiuLQ09DGDCi8uilV0zBzZxKYlRG8HVI0/eBSR7dpujX9z984G6rHQTXNE8
-         HORWoS11nSJSngLUpz9JRX1Kn72uDUtdN+xgT19pQry2Xx6ZuhhNy8eorxHfpxZrOsC/
-         ROqc6/67r5rS9DHHUnI0XXU5DAhRpxq3vpJqjVY9RgWwNtiWsrXmfIhz8GOTHIUvxema
-         EW2j64w3KuIS1UEY1g+ube12rBdCVXVXCFtFRliL37fCqKZtm17sWWG5L7xPMKrGh3NN
-         rUqNRNzZNrGcZNdc46WKtL6XlYfYz2yBUJzjsGa6XRJo/TpaumgsnTeuNLdFrKzEm3MH
-         XNpQ==
-X-Gm-Message-State: AOAM5309DF3WYu+HjvfPtEl6pLLsLKUY7aWiF6tDFPVUQy8D3RKjyqPi
-        zqTvB+y5+FQdWxa34LjIoVhTeO0Uw2NpEpA8lSDZb/9Sqa6oAQ==
-X-Google-Smtp-Source: ABdhPJzIAxw+So2hADbDa1PD9YD18Whgbf4zscgkoSarj8JoxT8oiLdBaWJDWuLhBmheGND6+rm8R8C9HOZYcEvOvUE=
-X-Received: by 2002:a81:7141:0:b0:2d3:d549:23f8 with SMTP id
- m62-20020a817141000000b002d3d54923f8mr22877765ywc.87.1645511913159; Mon, 21
- Feb 2022 22:38:33 -0800 (PST)
+        bh=kZ+z7z5jkXrVOgWExbRH8CnuhmCJH6zCkVtZPJfQyF8=;
+        b=oVIEMulgDjih8+ORjXFFi+4hQd+j8mbggkt7wSWDP4UxCwHLSx5RgQqk7NqV5PFwVQ
+         T6Toasgk8ArKhK3tHl36xHF4T/CAMtPIu97F/6DMGWt7PbaYCb2l4EkFToyzmGms+gKo
+         PtXU81iTvFhITV75TGHIA1pxUPvo0OIf8UeuBjj3HGjoLUdAJqewYO0hAiMDzBu6ApJn
+         lQbl7KRrRBLZgpekApGx+Pj+eGy+JmXP4imULoYriX0wclb2MMr/uuEz4VPmE+8tUZa8
+         CNlz3Iml9d9L/Zsk818xQJosWyscIfNJsJ/B2ehY9WrcT9wrPTgDz5MF3lYYRee2OaLt
+         O7SA==
+X-Gm-Message-State: AOAM5339BZ2G2VVrwenWT8UDnccWPvCeiHJ4ZO/IEua0ob71LVkqyWYc
+        9Jykq//zOqPeDbj390i0oQu3rOMAFEVfF4k+r3BcBQ==
+X-Google-Smtp-Source: ABdhPJyshg9nNZA/OGCbZRmV8tsQQ2L61yFht0DUghUx1haGVPWzRMReaRq86jxtRHLA7kxMMps7EUEmN/wiz6SsiVQ=
+X-Received: by 2002:a05:6902:284:b0:624:1c25:cda1 with SMTP id
+ v4-20020a056902028400b006241c25cda1mr21281601ybh.480.1645512902488; Mon, 21
+ Feb 2022 22:55:02 -0800 (PST)
 MIME-Version: 1.0
-References: <20220221084921.147454846@linuxfoundation.org>
-In-Reply-To: <20220221084921.147454846@linuxfoundation.org>
+References: <20220221084915.554151737@linuxfoundation.org>
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 22 Feb 2022 12:08:22 +0530
-Message-ID: <CA+G9fYsEJ=zLgAHjk7Fp4Tf7M330Tw0vPWHNoy7LGC4LfiYyzQ@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/121] 5.10.102-rc1 review
+Date:   Tue, 22 Feb 2022 12:24:51 +0530
+Message-ID: <CA+G9fYvXCoyAK6iwr+sjt28Va3vWA7dsmWTAbou1T6x+mKd2=A@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/80] 5.4.181-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
@@ -70,11 +70,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 21 Feb 2022 at 14:32, Greg Kroah-Hartman
+On Mon, 21 Feb 2022 at 14:28, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.10.102 release.
-> There are 121 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.4.181 release.
+> There are 80 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -83,15 +83,16 @@ On Mon, 21 Feb 2022 at 14:32, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.102-rc1.gz
+5.4.181-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
+-rc.git linux-5.4.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
+>
 
 Results from Linaro=E2=80=99s test farm.
 No regressions on arm64, arm, x86_64, and i386.
@@ -99,69 +100,67 @@ No regressions on arm64, arm, x86_64, and i386.
 Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 NOTE:
-Build warning noticed on arm and arm64.
+arm and arm64 build warnings:
 drivers/tee/optee/core.c: In function 'optee_probe':
-drivers/tee/optee/core.c:726:20: warning: operation on 'rc' may be
+drivers/tee/optee/core.c:637:20: warning: operation on 'rc' may be
 undefined [-Wsequence-point]
-  726 |                 rc =3D rc =3D PTR_ERR(ctx);
+  637 |                 rc =3D rc =3D PTR_ERR(ctx);
          |                 ~~~^~~~~~~~~~~~~~~~~~~
 
 ## Build
-* kernel: 5.10.102-rc1
+* kernel: 5.4.181-rc1
 * git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
 rc.git
-* git branch: linux-5.10.y
-* git commit: 6c935cea31db8d0fa9dc4f765383345cc2ecafef
-* git describe: v5.10.101-122-g6c935cea31db
+* git branch: linux-5.4.y
+* git commit: 04ffc48b9c61bf5eb49daca8b489e326d6aed975
+* git describe: v5.4.180-81-g04ffc48b9c61
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.101-122-g6c935cea31db
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
+80-81-g04ffc48b9c61
 
-## Test Regressions (compared to v5.10.101)
+## Test Regressions (compared to v5.4.180)
 No test regressions found.
 
-## Metric Regressions (compared to v5.10.101)
+## Metric Regressions (compared to v5.4.180)
 * arm, build warnings
 * arm64, build warnings
-
 drivers/tee/optee/core.c: In function 'optee_probe':
-drivers/tee/optee/core.c:726:20: warning: operation on 'rc' may be
+drivers/tee/optee/core.c:637:20: warning: operation on 'rc' may be
 undefined [-Wsequence-point]
-  726 |                 rc =3D rc =3D PTR_ERR(ctx);
+  637 |                 rc =3D rc =3D PTR_ERR(ctx);
       |                 ~~~^~~~~~~~~~~~~~~~~~~
 
 
-## Test Fixes (compared to v5.10.101)
+## Test Fixes (compared to v5.4.180)
 No test fixes found.
 
-## Metric Fixes (compared to v5.10.101)
+## Metric Fixes (compared to v5.4.180)
 No metric fixes found.
 
 ## Test result summary
-total: 96836, pass: 83846, fail: 529, skip: 11518, xfail: 943
+total: 88681, pass: 75229, fail: 519, skip: 11581, xfail: 1352
 
 ## Build Summary
 * arc: 10 total, 10 passed, 0 failed
-* arm: 291 total, 291 passed, 0 failed
-* arm64: 41 total, 39 passed, 2 failed
+* arm: 290 total, 290 passed, 0 failed
+* arm64: 40 total, 32 passed, 8 failed
 * dragonboard-410c: 1 total, 1 passed, 0 failed
 * hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 40 total, 40 passed, 0 failed
+* i386: 20 total, 20 passed, 0 failed
 * juno-r2: 1 total, 1 passed, 0 failed
 * mips: 37 total, 37 passed, 0 failed
 * parisc: 12 total, 12 passed, 0 failed
-* powerpc: 60 total, 46 passed, 14 failed
+* powerpc: 60 total, 49 passed, 11 failed
 * riscv: 27 total, 27 passed, 0 failed
-* s390: 21 total, 21 passed, 0 failed
+* s390: 12 total, 12 passed, 0 failed
 * sh: 24 total, 24 passed, 0 failed
 * sparc: 12 total, 12 passed, 0 failed
 * x15: 1 total, 1 passed, 0 failed
 * x86: 1 total, 1 passed, 0 failed
-* x86_64: 41 total, 41 passed, 0 failed
+* x86_64: 40 total, 40 passed, 0 failed
 
 ## Test suites summary
 * fwts
-* igt-gpu-tools
 * kselftest-android
 * kselftest-bpf
 * kselftest-capabilities
@@ -217,7 +216,6 @@ total: 96836, pass: 83846, fail: 529, skip: 11518, xfail: 943
 * kselftest-vm
 * kselftest-x86
 * kselftest-zram
-* kunit
 * kvm-unit-tests
 * libgpiod
 * libhugetlbfs
