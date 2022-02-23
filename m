@@ -2,121 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 436F44C1A11
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 18:45:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E30CB4C1A3A
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 18:51:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243467AbiBWRpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Feb 2022 12:45:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34202 "EHLO
+        id S232087AbiBWRvx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Feb 2022 12:51:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243470AbiBWRpM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 12:45:12 -0500
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EA4C41FA6;
-        Wed, 23 Feb 2022 09:44:44 -0800 (PST)
-Received: by mail-pf1-x436.google.com with SMTP id d17so16074561pfl.0;
-        Wed, 23 Feb 2022 09:44:44 -0800 (PST)
+        with ESMTP id S240455AbiBWRvv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 12:51:51 -0500
+Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1E10615A
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 09:51:20 -0800 (PST)
+Received: by mail-lj1-x231.google.com with SMTP id r20so25833182ljj.1
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 09:51:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=It4RGSp99XFUqiUGEzXdClglbEaTDz0QTVwNHQyEiwQ=;
-        b=Y2CbrD5i5hegSugvrCKPHNPj29y8yZMoMRlLD0Wa8YKfeyXV3iIA9/W/w4QhNQCnvb
-         nRCsJYfZPlNwk/+TREo0CqyVtZDAIgVRKn3UvyW1YcLtnU8nKtkimcfr2ZI4fJOs7aC3
-         hOcltgb26dFihXregXwTYOspYF2buy36P3VCq6mmcWMgXJRI7nqcCKzz9vTIxtWnMbxh
-         83OyF+aOj9tIJ706ZuM4kOGuiEoMt41L4DFQAzo7cNJC2cRoDQPuoqB/twJlmojud1wO
-         GnMzlmdHQ+DuZGRZr/udfxmNHO28HBEhTM9Mg9vVxTDyQfGBCEX4G03dTEPSSh0pi9+f
-         HV4w==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=RrdEVsjsD+nqXmQqBvUEIQg+R+7+UWVmueHZbvxi/fY=;
+        b=HrqUskcTi7myVyE20lUHGxJ5Cbqhrcee6XGl5vkm8NnzpACCfPRFm/+h5jJFvLnJIH
+         J09n5gnVJYBhqvTpCNt326dmBcHXVR9YUWVcgJOUx74XOdS76Di+Wn+9quQYy+pi6ymr
+         AsBJ+RxttBSyKX71ZYQ6bNvnrcXsiJ1bMJZvziOq0mEDMa/C6SnANiHyPjCmlEDftBo/
+         /dmao04eFUAwrM4TWxdQ2+Jv6uDUNIJ/Y7xhQ5+9z5AGuZ7My4MfYahlXf0wQULDAW0S
+         WUl4lShCV5B1BEGM+itp8+KvXaDTINCwBbb3TuBr8OUEIxfhmCSDYRJNrwhzTrZlOXR8
+         AoMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=It4RGSp99XFUqiUGEzXdClglbEaTDz0QTVwNHQyEiwQ=;
-        b=Lc50exEBMbVw5wqiNXXj/XOocfpCPXiu1WGoAzFvNz3SHvp9v40Lg/3Oh43xOaopmk
-         YbwjNgwg8CX2pqJBKsm/bANVRZmCXONXmtlS0xWJjaeoo+iu5n7hVK0YhdFUgeDELRsu
-         PfGFQrEsoYtaNvL/vK9zxI2ySVD73Bmn2X++hDnQyZQVit1CiPhJ4IKxs88tLRveV/uN
-         QAhTBgh6LjadD00DpTKZW4lEa62NCoYe2UFmJimHhMULsGzyLi+r7BJ8sA7/wzuAXo6q
-         5XNB+hwcnchRd2cQtUEGRDH4WAPGQ21Tnq69NZl+yz4raA6H0r0MPqRXh8FNCg1HyRof
-         K7bQ==
-X-Gm-Message-State: AOAM530ecwB4w6yCp0IQiWLpP/a5Xqx1Is/rLzcwgkRD5WoO7Z+/9llI
-        TVUp0DNFOmZYXhSZbqY1TgRkziIKTS4=
-X-Google-Smtp-Source: ABdhPJw0SEQoMfxCDE2uBJBGJz4DQcbPvWLFTM/332KGvcRXUyWWAaCmjPtmpPPswO+vrYKctJjDPw==
-X-Received: by 2002:a63:5945:0:b0:375:799a:281d with SMTP id j5-20020a635945000000b00375799a281dmr513413pgm.605.1645638283593;
-        Wed, 23 Feb 2022 09:44:43 -0800 (PST)
-Received: from 7YHHR73.igp.broadcom.net (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
-        by smtp.gmail.com with ESMTPSA id g18sm127422pfc.108.2022.02.23.09.44.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Feb 2022 09:44:42 -0800 (PST)
-From:   Florian Fainelli <f.fainelli@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
-        david regan <dregan@mail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Brian Norris <computersforpeace@gmail.com>,
-        linux-mtd@lists.infradead.org (open list:NAND FLASH SUBSYSTEM),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH RESEND stable 4.9] mtd: rawnand: brcmnand: Fixed incorrect sub-page ECC status
-Date:   Wed, 23 Feb 2022 09:44:31 -0800
-Message-Id: <20220223174431.1083-3-f.fainelli@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220223174431.1083-1-f.fainelli@gmail.com>
-References: <20220223174431.1083-1-f.fainelli@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=RrdEVsjsD+nqXmQqBvUEIQg+R+7+UWVmueHZbvxi/fY=;
+        b=Fq11Zf3y5qgD36lj5itSLFqmgQUHHMy6IvnS6ocjU1xjNM9mJ/+gUUyutHdZ8UWZht
+         NAaZzgHG0a1TnG2xr3bHBkJ8TTn0Rj+e24aaTU96QAtB9sn8rj50ae9AYAzXoxjmAR49
+         2VqnxCDW0vwdoWrQYe06E0mRmH6hPu1rc2C+HKRQa7GpbYDER+vaXCLnICGxL9XNUJrh
+         PO2gUtfSNwXw9PpMLfcPuAawrz9gDlOufST0hgQ8/dI5om9WTLuwnGEYHCTrJ2HdTcEM
+         oRvliHauvrsgHf4KAHKijdAS/2JpRnobVDKTVx1/S0X7Dljl2VF7ogcc5NN6ILyP4oVY
+         THzQ==
+X-Gm-Message-State: AOAM530uSqdx3rqWLQtc4/KsEYasnEPkg6jlAmd12+A60K7HrUcKbNYf
+        xZu/zvsuNHy3hLd/aabWcFWi85KkBHv60yfiVAByrw==
+X-Google-Smtp-Source: ABdhPJyy2+PbEHWjK5m1pGy4RMoMiz8/1ddYOLWwa6WdZj216uctOj7fPykTeNcuWhj9vtR5ujN+1LSrAt9hQfe4l5g=
+X-Received: by 2002:a2e:b78f:0:b0:246:6331:c1bc with SMTP id
+ n15-20020a2eb78f000000b002466331c1bcmr378483ljo.188.1645638679148; Wed, 23
+ Feb 2022 09:51:19 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20220218181950.1438236-1-jannh@google.com> <8D85619E-99BD-4DB5-BDDB-A205B057C910@chromium.org>
+In-Reply-To: <8D85619E-99BD-4DB5-BDDB-A205B057C910@chromium.org>
+From:   Jann Horn <jannh@google.com>
+Date:   Wed, 23 Feb 2022 18:50:52 +0100
+Message-ID: <CAG48ez0UJDBzoaB4=c0Uju6L-eZvhWMdnzAp8N3QfeERbzYv2w@mail.gmail.com>
+Subject: Re: [PATCH v2] pstore: Don't use semaphores in always-atomic-context code
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Anton Vorontsov <anton@enomsg.org>,
+        Colin Cross <ccross@android.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: david regan <dregan@mail.com>
+On Wed, Feb 23, 2022 at 8:50 AM Kees Cook <keescook@chromium.org> wrote:
+> On February 18, 2022 10:19:50 AM PST, Jann Horn <jannh@google.com> wrote:
+> >pstore_dump() is *always* invoked in atomic context (nowadays in an RCU
+> >read-side critical section, before that under a spinlock).
+> >It doesn't make sense to try to use semaphores here.
+>
+> Ah, very nice. Thanks for the analysis!
+>
+> >[...]
+> >-static bool pstore_cannot_wait(enum kmsg_dump_reason reason)
+> >+bool pstore_cannot_block_path(enum kmsg_dump_reason reason)
+>
+> Why the rename,
 
-commit 36415a7964711822e63695ea67fede63979054d9 upstream
+That's one of the parts of commit ea84b580b955 that I included in the
+revert. "wait" in the name is not accurate, since "wait" in the kernel
+normally refers to scheduling away until some condition is fulfilled.
+(Though I guess "block" also isn't the best name either... idk.) The
+place where we might want to have different behavior depending on
+whether we're handling a kernel crash are spinlocks; during a kernel
+crash, we shouldn't deadlock on them, but otherwise, AFAIK it's fine
+to block on them.
 
-The brcmnand driver contains a bug in which if a page (example 2k byte)
-is read from the parallel/ONFI NAND and within that page a subpage (512
-byte) has correctable errors which is followed by a subpage with
-uncorrectable errors, the page read will return the wrong status of
-correctable (as opposed to the actual status of uncorrectable.)
+> extern, and EXPORT? This appears to still only have the same single caller?
 
-The bug is in function brcmnand_read_by_pio where there is a check for
-uncorrectable bits which will be preempted if a previous status for
-correctable bits is detected.
+Also part of the revert. I figured it might make sense to also revert
+that part because:
 
-The fix is to stop checking for bad bits only if we already have a bad
-bits status.
+With this commit applied, the EFI code will always take the "nonblock"
+path for now, but that's kinda suboptimal; on some platforms the
+"blocking" path uses a semaphore, so we really can't take that, but on
+x86 it uses a spinlock, which we could block on if we're not oopsing.
+We could avoid needlessly losing non-crash dmesg dumps there; I don't
+know whether we care about that though.
 
-Fixes: 27c5b17cd1b1 ("mtd: nand: add NAND driver "library" for Broadcom STB NAND controller")
-Signed-off-by: david regan <dregan@mail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/trinity-478e0c09-9134-40e8-8f8c-31c371225eda-1643237024774@3c-app-mailcom-lxa02
-[florian: make patch apply to 4.14, file was renamed]
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
----
- drivers/mtd/nand/brcmnand/brcmnand.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+So I figured that we might want to start adding new callers to this
+later on. But if you want, I'll remove that part of the revert and
+resend?
 
-diff --git a/drivers/mtd/nand/brcmnand/brcmnand.c b/drivers/mtd/nand/brcmnand/brcmnand.c
-index 40fdc9d267b9..1c8e95cf29d2 100644
---- a/drivers/mtd/nand/brcmnand/brcmnand.c
-+++ b/drivers/mtd/nand/brcmnand/brcmnand.c
-@@ -1637,7 +1637,7 @@ static int brcmnand_read_by_pio(struct mtd_info *mtd, struct nand_chip *chip,
- 					mtd->oobsize / trans,
- 					host->hwcfg.sector_size_1k);
- 
--		if (!ret) {
-+		if (ret != -EBADMSG) {
- 			*err_addr = brcmnand_read_reg(ctrl,
- 					BRCMNAND_UNCORR_ADDR) |
- 				((u64)(brcmnand_read_reg(ctrl,
--- 
-2.25.1
+> > [...]
+> >-                      pr_err("dump skipped in %s path: may corrupt error record\n",
+> >-                              in_nmi() ? "NMI" : why);
+> >-                      return;
+> >-              }
+> >-              if (down_interruptible(&psinfo->buf_lock)) {
+> >-                      pr_err("could not grab semaphore?!\n");
+> >+      if (pstore_cannot_block_path(reason)) {
+> >+              if (!spin_trylock_irqsave(&psinfo->buf_lock, flags)) {
+> >+                      pr_err("dump skipped in %s path because of concurrent dump\n"
+> >+                                     , in_nmi() ? "NMI" : why);
+>
+> The pr_err had the comma following the format string moved,
 
+Ah, whoops, that was also part of the revert, but I guess I should
+have left that part out...
+
+> and the note about corruption removed. Is that no longer accurate?
+
+There should be no more corruption since commit 959217c84c27 ("pstore:
+Actually give up during locking failure") - if we're bailing out, we
+can't be causing corruption, I believe?
