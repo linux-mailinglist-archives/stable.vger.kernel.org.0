@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F08C4C09F1
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 04:08:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88DC34C0A22
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 04:20:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232463AbiBWDIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 22:08:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50482 "EHLO
+        id S231871AbiBWDUo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 22:20:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbiBWDIb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 22:08:31 -0500
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2131.outbound.protection.outlook.com [40.107.237.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19B9E4249F;
-        Tue, 22 Feb 2022 19:08:04 -0800 (PST)
+        with ESMTP id S230118AbiBWDUo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 22:20:44 -0500
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2090.outbound.protection.outlook.com [40.107.223.90])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B73B45053;
+        Tue, 22 Feb 2022 19:20:17 -0800 (PST)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ThiM12B+/gZQAFy04+iPY5ZbSLFGbmJKhLZuC/7cFR2W/2jp/SZuzo+HqDElmmoiIowrBy/JEf1/lK2KeyLlTigTThUs7CK/WoJM+AdmX2chJgzYqvs7r2flcQDZG/YPDb/xhS2Nf4WoV84DooVKqBCn+BO91I6IBEGaU/6mlWcBAlCleheLijZt2gck/3CV8K8etQ8fYoNyZQewJ1Kug+2G7yz7nEhE8jUKZ0svgh40a+MHyvjRBmq8VJkt/16Q6bahXaI2XDZXetQziBSOfW22Fo9hPHUr8s5vYBET4r8mtQiTn9xxiEn9952Ojn9R16q/E9U2QN5j6WrqwnNlJQ==
+ b=be5dyutFTiErN8FRThiVvcZkGZcckpAbIeXPU0SaWSwDLbWN19ANFB6ZYFXBUCRuXTn2h+CNMsmewn4Xi4BojX0oB0N4hyjMiu2BNugnEH//UUNBD88HzV/7OXqP4L/hUTpznemu81qmNrDloEAgG4W8aoHbNC7ezdPloU5LFBj34QcRlxXkUtnVJWR/6Ue8Ctdytbk+mVYP+3fO4q3p0tpqO4TdXAAo2QMYqwqozE7bmtYRbcFPL7fGUtDgKbM4w/NgTaYcWBav9NAhVBLIC5NT2KRa4Qu95XHzrtB4rkJdVK0QjiJq0JiFJBk1damb67oS+jBxr4n9ZlAL7qSISA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=v153eZGUQio+588MaBwmmwfNMcW1To8KnmQffeVCKk0=;
- b=NdmlESs6Z8x24rblxqunsEEk+B0N+ayR4F/pzdBDaaBUdvjtTjkvPqxQQ2K1wUqbTd5QFdmY2PmMni9zJlPsgv0TuDnOGXZtRhfrXMF7DX98WpNYYv53BPkXAp1M6UBvbrdrY1PyFIhGWFBV0e6z7l1gn2ut3eYW5H2xouXuCMpdwLixpbMiusQF9bJGzQcr0FXhw6Xme5Yc02fZkvQG/M4h1EwP35Ep4enWYBh9F6dgqgx0qkv1YNS/wieUf94xxi8eR54FsuHZcMODIA5OIBjM+eS46i/VUYHh82UcOtzJo9+kGG16h4QkD2RYz8j5ACQ6qcOUteDqWNVof4Ev7g==
+ bh=ryIqAHNdJNeaKOsl+PmRCRKds7DFYUSZ2STlgXEt7VU=;
+ b=CI8b09wtpCjo/B36LvW43EXnaHN5j1Ex+ONL5RcO385N+Lo0aIUJgSoqWXfUQiQ8SCZo5nA2PtC72uB4N06dzmLGrzsEeRfz3DIzYUvcRvay0+6HOrbsns2nURICIPXxd1npF1CI4e31MCE4rAwwd7DniNSIgwrrdhQgrl97cCOPCJ4DHmbeAJ8FXRdCnVO4jdj99RThjK3kLO1FeeP3VykXuERAs2YQav0dWY9IFNlCLlDpTJQzn+9C/Bwbx9zkZWgpfh8+RYx9D7asK7k+dmqt2UFfZ3OdJIop/P7T8YCBQlTk7vvVnaySt6kRl8NnuJDEKGw01Pb1A9AJnFVfSg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
  header.from=os.amperecomputing.com; dkim=pass
@@ -28,22 +28,23 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=os.amperecomputing.com; s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=v153eZGUQio+588MaBwmmwfNMcW1To8KnmQffeVCKk0=;
- b=sog9ugC2XH+Ewtz094d/0t0yQWCzaP3UViau6/NTbFzh83NC1tgIgPaRV5MIrJO25KhL1XbsTJVZJSgCF8eAbAPqQ1XK2mqkxLjNU+ZzgI+wozqx4V7ndOsqTrZxl64MiDtr3LIwj5OhGQr328uGf1SAgYgJssSPGbidKquwiVc=
+ bh=ryIqAHNdJNeaKOsl+PmRCRKds7DFYUSZ2STlgXEt7VU=;
+ b=eb0m1ZbqAmyG3PLtXT+diuJWGRo7xoXUXbRb/MWJplqmjP1dXLYu5NIOtKgI8Uv1UJmbp8/LvAS2RKJHNCuk04QNec2c7R/ZPOIuY0UYmZFZlaYku4gOwGszfZrQ5aNdIep82zMyJ8Ln/TU0MhtpLh6dORuAG9nJ9HCFVzxejIo=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
 Received: from SA0PR01MB6329.prod.exchangelabs.com (2603:10b6:806:ee::12) by
- SA1PR01MB6621.prod.exchangelabs.com (2603:10b6:806:1a7::21) with Microsoft
+ PH0PR01MB6294.prod.exchangelabs.com (2603:10b6:510:18::21) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4995.24; Wed, 23 Feb 2022 03:08:00 +0000
+ 15.20.4995.16; Wed, 23 Feb 2022 03:20:15 +0000
 Received: from SA0PR01MB6329.prod.exchangelabs.com
  ([fe80::7cd6:6594:ce3c:6941]) by SA0PR01MB6329.prod.exchangelabs.com
  ([fe80::7cd6:6594:ce3c:6941%9]) with mapi id 15.20.4995.027; Wed, 23 Feb 2022
- 03:08:00 +0000
-Date:   Tue, 22 Feb 2022 19:07:57 -0800
+ 03:20:15 +0000
+Date:   Tue, 22 Feb 2022 19:20:12 -0800
 From:   Darren Hart <darren@os.amperecomputing.com>
-To:     Vincent Guittot <vincent.guittot@linaro.org>
-Cc:     Will Deacon <will@kernel.org>,
+To:     Barry Song <21cnbao@gmail.com>
+Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
+        Will Deacon <will@kernel.org>,
         "Song Bao Hua (Barry Song)" <song.bao.hua@hisilicon.com>,
         LKML <linux-kernel@vger.kernel.org>,
         Linux Arm <linux-arm-kernel@lists.infradead.org>,
@@ -54,75 +55,75 @@ Cc:     Will Deacon <will@kernel.org>,
         Ilkka Koskinen <ilkka@os.amperecomputing.com>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
 Subject: Re: [PATCH] arm64: smp: Skip MC domain for SoCs without shared cache
-Message-ID: <YhWlDUzFeG0d7z6C@fedora>
-References: <20220215163858.GA8458@willie-the-truck>
+Message-ID: <YhWn7MmBvgZzP7CA@fedora>
+References: <ec9be4eb7a0548178191edd51ddd309f@hisilicon.com>
+ <20220215163858.GA8458@willie-the-truck>
  <YgvYZy5xv1g+u5wp@fedora>
  <20220215164639.GC8458@willie-the-truck>
  <CAKfTPtAFsL+uqQiGcuh+JJZB=rPrez0=kotq76CVRcBQhcPefg@mail.gmail.com>
  <YgvjtsOZuxzbgBBl@fedora>
  <CAKfTPtCHrZCp1Uth4odyT721wE8zoNVY3Mh+DSyuTkqPafm0Hg@mail.gmail.com>
- <YgwHhxy/uGafQsak@fedora>
- <CAKfTPtAR2+bY8QpyaCCJfezsVkB62n8XZjL9c5_mPO3iyDnp4w@mail.gmail.com>
- <Yg0lULy5TmHKIHFv@fedora>
- <CAKfTPtB1Vt75ciX_V=8T3e5fgW-X7ybRk6VZvy4uXzjazjx9ZA@mail.gmail.com>
+ <CAGsJ_4yB-FOPoPjCn+T4m76tvzA6ATaz24KYM9NjBeB54nWxLA@mail.gmail.com>
+ <Yg0bu53iACDscIC6@fedora>
+ <CAGsJ_4w2r8Hp3BNOrcQYDT6JgsFWWAgVruAOXpeXrhjskJMV7w@mail.gmail.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAKfTPtB1Vt75ciX_V=8T3e5fgW-X7ybRk6VZvy4uXzjazjx9ZA@mail.gmail.com>
-X-ClientProxiedBy: CH0PR03CA0074.namprd03.prod.outlook.com
- (2603:10b6:610:cc::19) To SA0PR01MB6329.prod.exchangelabs.com
+In-Reply-To: <CAGsJ_4w2r8Hp3BNOrcQYDT6JgsFWWAgVruAOXpeXrhjskJMV7w@mail.gmail.com>
+X-ClientProxiedBy: CH2PR18CA0039.namprd18.prod.outlook.com
+ (2603:10b6:610:55::19) To SA0PR01MB6329.prod.exchangelabs.com
  (2603:10b6:806:ee::12)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: d1a58e16-5295-4dbb-a1e0-08d9f679b2d9
-X-MS-TrafficTypeDiagnostic: SA1PR01MB6621:EE_
-X-Microsoft-Antispam-PRVS: <SA1PR01MB6621DA60D429AC63800C01A6F73C9@SA1PR01MB6621.prod.exchangelabs.com>
+X-MS-Office365-Filtering-Correlation-Id: 5090c48a-954f-4363-9cc1-08d9f67b68e3
+X-MS-TrafficTypeDiagnostic: PH0PR01MB6294:EE_
+X-Microsoft-Antispam-PRVS: <PH0PR01MB62943EC5E7836A59EBCB4E39F73C9@PH0PR01MB6294.prod.exchangelabs.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: x5lXgYxJsEpBo24o6A1u2Do7kCDCQrEVUzNaS4vO3iMLSHlLN+yFbTEjZWk+cqeUDxwqOjq+0cOeVRs3VCfx2/x+Dywv1sx2FFITolWWajsXTHv+YB2+VWyogcbDZjOkG1cDguvLI7cNYdXA5CIJ1/PbjGh3yzZLx0NCvSlGNwXca9Qr5mCk/Eyxif1tQ/EmCOfm+EQVhsCEOEXNBRE3RRBxdYcvXDc4yxcpCZKmZH15Lxb7utXYcEPMkLIHppWG1Waqz7abdvRh7g+Ez5rd152hiDi0s5KkkBvVJpuhXAEzgr670p3+tZ/jDLMLHMQKgKrsi3fcEqhkWeMHFEy89PDm4NeNq3TOl2ofieHCKPRU47NEO5dml/pbCHG1oemthuYqYLErmcS0MH13fd8bkGxuPG90+bgsR3SocSa1DJZS4s5Lo+ec3ZGobGe0vsVADAca8x6/ZzeV1jw0GUg7RrKgxJEaiYT7c9z67LLHTbzPB3Ue2eiBdjbDh0ZR8u2IcXqyxuMRDswnNwNenKYIiMQLIl3HEo+y0K/1nHOfbF9YSBGP4HeAxAAgB5rM2AVJiNU8+5iH6F0/a1YMsMnr66LzyhZ8kRyrl1l3f4TpcicDamKqwzt2bW0/3Tg8QRM6mGwlkOUdHb+GsRrpb8OHkBqWty9t+pSl5VtiCMdYyjawv6sCju0/sOiV+66pPNHF8JTDzSM4BIrxHTXpJQzYuA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA0PR01MB6329.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230001)(6029001)(4636009)(7916004)(366004)(4326008)(30864003)(38100700002)(38350700002)(83380400001)(5660300002)(2906002)(8936002)(6506007)(6486002)(9686003)(66476007)(52116002)(186003)(26005)(66946007)(6512007)(66556008)(508600001)(6666004)(33716001)(86362001)(54906003)(8676002)(6916009)(316002);DIR:OUT;SFP:1102;
+X-Microsoft-Antispam-Message-Info: qM9OLrnTMg75vENIgfFOSnfRaX/cvB71hGvMUG0CA1O7EwkbECJbxxAJyky5hzCzXLSMKT44hhO2XWcH7xyzS9l+938bS/haL3LYCoM8tttJKVFKoiAm93DozNx07gpBuCdZDhY8lb/UDn84CFp9MaqwYFgFzVNiWNgwof9b5djZobrj5gaT5RXOQalsZE+4jpiaZgrPyuyKKu/g5R1X4dlb+vEe7/9K9cwgnL0o/jGKbYRuYO27mckU4tzqrfntRoBzUoIKu4N0xOAz8Ki0nvw+x6kbjvCy1zOWYXs/AFl6c+3SxMX72vFaNTHW5mN8C5OuaXPXFxvPPQI18ihkFPMry+M2OXdBeu0s3Q8W5KETw3Ogc7dmPLlnZN4P1V/93j58LwTBtWPCMSa5XC8YC3QxLKglSd0+SRA7OnMQwza/5AMjZ6FGTbF0faQ2XSoXMOi9dYTqQ3Y7ieLCOYGvaLKoSP6lalH3Jn/9pKnj2M0HDv0zk/VkATleHpoBN+1qCeEESiSLBHUEM7Gt3zPLh42SSTCbCsL2A589yo8cw8u6fFF1qP8NtyFOXZ2VavyXDKcXVI+EG8+Pks782LEQJjw+0RKve2c8g0ZRswCmUvrlJkW9DeIk1CAdBVotku5oPA+Y6C+py9ewMgr+/Se2Z+jkPPI7nSUvmWLu4hF7JPLH/8X1HODE6M1ExPUO9miOD94htggzbkC+GTSIq7ErhA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA0PR01MB6329.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230001)(6029001)(7916004)(4636009)(366004)(52116002)(186003)(26005)(66476007)(66946007)(9686003)(66556008)(6512007)(6506007)(6486002)(33716001)(6916009)(316002)(86362001)(6666004)(54906003)(508600001)(8676002)(83380400001)(4326008)(38350700002)(38100700002)(5660300002)(8936002)(2906002)(7416002);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?GJkI6gLpS7KkPJKFYRAXkrIvIyvZFgEdlHHTT83baQdt8ARngJOHlhEhiDt2?=
- =?us-ascii?Q?pG8AwnZQovfdv5MKP8O1WKcqm7+XIPsL4jadSde78o2azD/0jRhVkBW9F8+q?=
- =?us-ascii?Q?ATb1VAEzBBR7LszEiKNWg4ieObTk8aVKs0eO0AZHgxiXzcmrSARmX+L3iCF7?=
- =?us-ascii?Q?RYbLAk7F2SX4CjGYUOj8qQTAFpG88mFS9RZF5z5ypzQfPpZZeeZM/AdwL5KS?=
- =?us-ascii?Q?M1kzfA4FY90NqyMu4TWS2K1p3B5v32Lo0pWi6bYzwe4/VCFkGcGaK5oJsusi?=
- =?us-ascii?Q?Gw2r8yrxrCs3DtZ1UgbGouOOYMhoJwI28881rCWRvj+wArztCFwHD4CmdYvI?=
- =?us-ascii?Q?F5eRgqF15TWYYE7r3mq8/LD12uU9PNVn2zMH2W2LDWZVqj+snhAB0+bn0oBE?=
- =?us-ascii?Q?dOFlNjSEiIffBGp1tEUTfd6FU77HOL9qckjkmEby2KnkNTrAP23LJ7s7a5Bt?=
- =?us-ascii?Q?K/IdxgZkay+0E4kFi1S28AkShOppF/IDRqZid74ZtTbCfRSgwfLZvSvELAc1?=
- =?us-ascii?Q?C296YdOG22XV9mkxiy5DDQDu8bhwOdBCJZG06K/Y7ILTYLyFSzyqDf3qzTE1?=
- =?us-ascii?Q?p6Q/vW6/MRtCLOcl7JGjSEZ+tKR1OqZs7yMvjgLhBok6B0h0xX+toW01ran8?=
- =?us-ascii?Q?9bjMCVBiuy2BnknfPFOx6Y52FA3pxsEG6E9A20AwrOC422/VGz17gb9ziWDI?=
- =?us-ascii?Q?8iV8Y6ol0iIoIK1ZZAyewR1WPlBp3aoSVO8l6aYBs124wLJyH9D4TtxmfgNb?=
- =?us-ascii?Q?irW/fp7E3h+4/aM0sn5Ycp/+F/xFVGb0tw1NOTBRPCFX8/bex+7MgtlYnrVZ?=
- =?us-ascii?Q?LWkPVtDdP1o0BfuVUirJK34DsxxL4lnNymVsq/td/Ng4jawPgWbHQkYC5CTs?=
- =?us-ascii?Q?j7TfR+HUQcPIYMlJjqW0IGXtYnQjicr6fzxjE7CfHpO9S+dXovBitHRicunW?=
- =?us-ascii?Q?Y2XnFmJqeWSnWDuyKqvQtugrh8zyksYV/XejFBeON/x/h+WAuSshuDwreOlh?=
- =?us-ascii?Q?ly7/R4HOtRJR+tGTqbi95ZwDYVqp3jJ98iRswFe4dJNhek4XO3QdxA8OuYz2?=
- =?us-ascii?Q?BWf/LwNw0Gb1SGva6ZngHWbt0avFZIuqxgAx3g8wgLygUiN8uf1kZlSkjl8S?=
- =?us-ascii?Q?oBG5yTCptgMCorMtTnu6v1NTZev/w5LxJ4iZCvu3jH90KZBBojSnv1yY2Gyd?=
- =?us-ascii?Q?rkx8gtud3tFA45snrHsFQli+GGMl7HYXrY5tvxRSz+ETBaSG650gQki3wAZV?=
- =?us-ascii?Q?LSU0ss1LXhMpvKlMYjoaW/iXB6vdi7037zrAmhUt/6iOWJUsyC5B+XrlCpux?=
- =?us-ascii?Q?buyRd7EDiEMoj7GvDnIgqpjvAwsNy2XPBTz3qNaW7NhG0BEBvYad8/rDqQJ2?=
- =?us-ascii?Q?Fv1LRnXrB+jkr7x/l0UQFe945oMT4ho82o9ia9TqFHX4tPZs/5lSm6qGJlsv?=
- =?us-ascii?Q?+5BmbTXN4XMw/1iNNKv/iTtaefdWC8HQ0Fe4Isaap/qLr4Xoc9FDcaesByGs?=
- =?us-ascii?Q?5IaKg8IYlXV+qwT3zPaicdX3JwS5OCeUmiSuV1KFiHjexGZbhXZgi1+ZibEB?=
- =?us-ascii?Q?xAWq6/xb6oTIxeQP0XfQxwQFwJ+VKARLjGFNQORr6xYk+bAWw54PDm/TQRNO?=
- =?us-ascii?Q?POwDgX6ASs38Psoi5ifWGjLr5FNd4G4KZmSKPPMQ4Ncqkxb4oYltOfxJhn0g?=
- =?us-ascii?Q?8rF2L53Qswv5SmP4Eb5K7vQPs1Wx4KH05Afm0MnSNGh7cTnby8hD3CojpMSS?=
- =?us-ascii?Q?Nn/DiYmCnQ=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?nNgrt6xJl4gFc4tDPKJ56JSnhJweeP5YlJSU1EfkjqUL2bvAmSUp8E3UoHIs?=
+ =?us-ascii?Q?7Ah5HSpdeZsCWF+mdvQC6/PpJTZpwuHngOREiC89d7zWq2FVStbp/Ll7lwOl?=
+ =?us-ascii?Q?oqcWefNHuUmPloiKc2dD1DTNzB80+hxPK+udn8f1Y1JIpHgqWo1YJT8yu2e5?=
+ =?us-ascii?Q?S62Q+NNISuJ4v6OOUPJ3t8auqsNpGmyzAF5NN+v7VHmFkDCrc3aVR0Hy49xV?=
+ =?us-ascii?Q?9DHnAYhpvKdfAfcqLgd1AOtMUOVzRhs1QkP36jTQEbPCS/bpz7iWrPDMU91K?=
+ =?us-ascii?Q?vfOl62A7VbGYkISgP65zJeET3yfBHcO+7FdzFXJmkKtq99LHvt53SGHz4Dc2?=
+ =?us-ascii?Q?ms+e8paLqdr/uksu2XKXO6D4AZgcEdNRN5MMd0zC4m38I5GK/cjkuSKmyZF+?=
+ =?us-ascii?Q?bMVSJxTQddC2phG5OE2SPbiNN2YyD+IYDALGX0dADyPsyBncqxLkKWK602Rt?=
+ =?us-ascii?Q?+lfdf+e/5GVr+mBo6zEpqdB63qPXQklUvfnvpdKtX6vyvT0+X9SsyXf4fQlx?=
+ =?us-ascii?Q?WdAluu4bq/gVqi6AERrcMPs8krmebbqVFAqaCzT/jH161kKEm0IEw+dTugrA?=
+ =?us-ascii?Q?hCMF7a9PhOCQ7q2KY/yN5JHwJaQzeVTF9FL9cWuLJHrDlFdzApUezCEAT1Ds?=
+ =?us-ascii?Q?Km+g8Pk9V0t2C4BFVl5IJn+4RQX1togh/i6pSxntZ1aOvmjhY/f0iqbiM0D7?=
+ =?us-ascii?Q?9M4SyyJQvobm7rYGVtLFM3bBdBym4enYr4zNPXK7YgxSetym01K31YVDjxyT?=
+ =?us-ascii?Q?vsCXmz8lJ+YrFmg2vqtOSw8LnRye/SStWTJt4kB+kfYP2Q5eJG4rFfBPsV/1?=
+ =?us-ascii?Q?zX5htBmJtUK4TX6d1sHJECOsXX1BErWHpYqvKNAK/FOyetfuHoF+lpyjJZtO?=
+ =?us-ascii?Q?nPBKNTLt2VaCtRMNWhXjpUjd9/xF4Ibiv0XuqwrJBJqxh6fxMtiU+OO57x+b?=
+ =?us-ascii?Q?nYG2sXFN1hzuyzYQxuXfqy+JrU5PDgMWy2eVlHUd2YbnMHRn3M83AY/n35qO?=
+ =?us-ascii?Q?6j2nY4irTS64IqSE9bpOtDRCmq96V5z0R2YLyvxd4eWe8KUKXfwdeuV43nhU?=
+ =?us-ascii?Q?rHlx+Qdw8vafy8Au95YGRme3hwfkm8/E+46tAzIi757hoCyTyYIYB+dL7yeB?=
+ =?us-ascii?Q?y7svrGY6EZbvwCzxvwxSIMJqkgRk82UqfhI1MTGEoIsTVwEsbW5UvEBAPBZy?=
+ =?us-ascii?Q?ApsveD8O7sCslmZsgKi/2wuVw6AWlhDIcDvxPylrcHDUi3qCyk+QT5ZcGho/?=
+ =?us-ascii?Q?1e7pQeKbxJLM1IswAjbdzZyHXh7YKHDREZO6iLlqlnvTEQWUowY+CTFThkzN?=
+ =?us-ascii?Q?5TkOdQ4Fz49Y3+QgS38uwys1O92k3erzxDrXa76vREV9vAs2y03iPypesXZp?=
+ =?us-ascii?Q?7eMIcAXqRxoxoNVr23MhKZlXPaLD7tAnISUul9CH+1O41kmYpjGHo88K4b/Z?=
+ =?us-ascii?Q?FGeMts9vH49tpA8VehOKP8ndvqU5+5RXrUXw0T1J51bIK7Ct+6emp9pT2FVD?=
+ =?us-ascii?Q?pR4hPvT9xTOIls6dzXYLrx4sr94y5tiZsK60pCa5/QN0LzDf5qqb07FrZBjL?=
+ =?us-ascii?Q?bWnxcNHGGToukevCN/JBSlkjYtz6g7yHlIq8ix4Md3Mcvnp3/EVga3c7BN2a?=
+ =?us-ascii?Q?2yq9Mfu+WJx6YxsgeddlVuPR6/QkCAt/a/79I4uQaoCrkTKbrgD8zFAtHDzI?=
+ =?us-ascii?Q?XiAIRAIuSujQXQWt2r8FKNnf2p1ks8rbyi3K7XgHC0tTvac/M0Cf3DCF6V7c?=
+ =?us-ascii?Q?kxXAY3jPZw=3D=3D?=
 X-OriginatorOrg: os.amperecomputing.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d1a58e16-5295-4dbb-a1e0-08d9f679b2d9
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5090c48a-954f-4363-9cc1-08d9f67b68e3
 X-MS-Exchange-CrossTenant-AuthSource: SA0PR01MB6329.prod.exchangelabs.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Feb 2022 03:08:00.5468
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Feb 2022 03:20:15.2199
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: U55QpwdxF5KzAzCokmuHn27sbDrwav4+n/dLvMcPBgv132MXT3A7Kw5ikRk2V+QWIz4AcAnEeTJCnrnuBr6zrERnDuTB0us+Rl828Mq/4A/gqwqsiPkppII9bDx5ucTh
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR01MB6621
+X-MS-Exchange-CrossTenant-UserPrincipalName: MrIy3WnyI3z8QU5z0VsPQlFJp3CDMtiuEQRZRxje/N7IWdm8+dm4VXgcB7kX25BJnSuzGuIB6qP3nNS73oTy76cD7jn12x01wEA95QMxSu1rDslv8G+mFejgZWkC0Aht
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR01MB6294
 X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
         SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -133,241 +134,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 16, 2022 at 06:52:29PM +0100, Vincent Guittot wrote:
-> On Wed, 16 Feb 2022 at 17:24, Darren Hart <darren@os.amperecomputing.com> wrote:
-> >
-> > On Wed, Feb 16, 2022 at 09:30:49AM +0100, Vincent Guittot wrote:
-> > > On Tue, 15 Feb 2022 at 21:05, Darren Hart <darren@os.amperecomputing.com> wrote:
-> > > >
-> > > > On Tue, Feb 15, 2022 at 07:19:45PM +0100, Vincent Guittot wrote:
-> > > > > On Tue, 15 Feb 2022 at 18:32, Darren Hart <darren@os.amperecomputing.com> wrote:
-> > > > > >
-> > > > > > On Tue, Feb 15, 2022 at 06:09:08PM +0100, Vincent Guittot wrote:
-> > > > > > > On Tue, 15 Feb 2022 at 17:46, Will Deacon <will@kernel.org> wrote:
-> > > > > > > >
-> > > > > > > > On Tue, Feb 15, 2022 at 08:44:23AM -0800, Darren Hart wrote:
-> > > > > > > > > On Tue, Feb 15, 2022 at 04:38:59PM +0000, Will Decon wrote:
-> > > > > > > > > > On Fri, Feb 11, 2022 at 03:20:51AM +0000, Song Bao Hua (Barry Song) wrote:
-> > > > > > > > > > >
-> > > > > > > > > > >
-> > > > > > > > > > > > -----Original Message-----
-> > > > > > > > > > > > From: Darren Hart [mailto:darren@os.amperecomputing.com]
-> > > > > > > > > > > > Sent: Friday, February 11, 2022 2:43 PM
-> > > > > > > > > > > > To: LKML <linux-kernel@vger.kernel.org>; Linux Arm
-> > > > > > > > > > > > <linux-arm-kernel@lists.infradead.org>
-> > > > > > > > > > > > Cc: Catalin Marinas <catalin.marinas@arm.com>; Will Deacon <will@kernel.org>;
-> > > > > > > > > > > > Peter Zijlstra <peterz@infradead.org>; Vincent Guittot
-> > > > > > > > > > > > <vincent.guittot@linaro.org>; Song Bao Hua (Barry Song)
-> > > > > > > > > > > > <song.bao.hua@hisilicon.com>; Valentin Schneider
-> > > > > > > > > > > > <valentin.schneider@arm.com>; D . Scott Phillips
-> > > > > > > > > > > > <scott@os.amperecomputing.com>; Ilkka Koskinen
-> > > > > > > > > > > > <ilkka@os.amperecomputing.com>; stable@vger.kernel.org
-> > > > > > > > > > > > Subject: [PATCH] arm64: smp: Skip MC domain for SoCs without shared cache
-> > > > > > > > > > > >
-> > > > > > > > > > > > SoCs such as the Ampere Altra define clusters but have no shared
-> > > > > > > > > > > > processor-side cache. As of v5.16 with CONFIG_SCHED_CLUSTER and
-> > > > > > > > > > > > CONFIG_SCHED_MC, build_sched_domain() will BUG() with:
-> > > > > > > > > > > >
-> > > > > > > > > > > > BUG: arch topology borken
-> > > > > > > > > > > >      the CLS domain not a subset of the MC domain
-> > > > > > > > > > > >
-> > > > > > > > > > > > for each CPU (160 times for a 2 socket 80 core Altra system). The MC
-> > > > > > > > > > > > level cpu mask is then extended to that of the CLS child, and is later
-> > > > > > > > > > > > removed entirely as redundant.
-> > > > > > > > > > > >
-> > > > > > > > > > > > This change detects when all cpu_coregroup_mask weights=1 and uses an
-> > > > > > > > > > > > alternative sched_domain_topology equivalent to the default if
-> > > > > > > > > > > > CONFIG_SCHED_MC were disabled.
-> > > > > > > > > > > >
-> > > > > > > > > > > > The final resulting sched domain topology is unchanged with or without
-> > > > > > > > > > > > CONFIG_SCHED_CLUSTER, and the BUG is avoided:
-> > > > > > > > > > > >
-> > > > > > > > > > > > For CPU0:
-> > > > > > > > > > > >
-> > > > > > > > > > > > With CLS:
-> > > > > > > > > > > > CLS  [0-1]
-> > > > > > > > > > > > DIE  [0-79]
-> > > > > > > > > > > > NUMA [0-159]
-> > > > > > > > > > > >
-> > > > > > > > > > > > Without CLS:
-> > > > > > > > > > > > DIE  [0-79]
-> > > > > > > > > > > > NUMA [0-159]
-> > > > > > > > > > > >
-> > > > > > > > > > > > Cc: Catalin Marinas <catalin.marinas@arm.com>
-> > > > > > > > > > > > Cc: Will Deacon <will@kernel.org>
-> > > > > > > > > > > > Cc: Peter Zijlstra <peterz@infradead.org>
-> > > > > > > > > > > > Cc: Vincent Guittot <vincent.guittot@linaro.org>
-> > > > > > > > > > > > Cc: Barry Song <song.bao.hua@hisilicon.com>
-> > > > > > > > > > > > Cc: Valentin Schneider <valentin.schneider@arm.com>
-> > > > > > > > > > > > Cc: D. Scott Phillips <scott@os.amperecomputing.com>
-> > > > > > > > > > > > Cc: Ilkka Koskinen <ilkka@os.amperecomputing.com>
-> > > > > > > > > > > > Cc: <stable@vger.kernel.org> # 5.16.x
-> > > > > > > > > > > > Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
-> > > > > > > > > > >
-> > > > > > > > > > > Hi Darrent,
-> > > > > > > > > > > What kind of resources are clusters sharing on Ampere Altra?
-> > > > > > > > > > > So on Altra, cpus are not sharing LLC? Each LLC is separate
-> > > > > > > > > > > for each cpu?
-> > > > > > > > > > >
-> > > > > > > > > > > > ---
-> > > > > > > > > > > >  arch/arm64/kernel/smp.c | 32 ++++++++++++++++++++++++++++++++
-> > > > > > > > > > > >  1 file changed, 32 insertions(+)
-> > > > > > > > > > > >
-> > > > > > > > > > > > diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-> > > > > > > > > > > > index 27df5c1e6baa..0a78ac5c8830 100644
-> > > > > > > > > > > > --- a/arch/arm64/kernel/smp.c
-> > > > > > > > > > > > +++ b/arch/arm64/kernel/smp.c
-> > > > > > > > > > > > @@ -715,9 +715,22 @@ void __init smp_init_cpus(void)
-> > > > > > > > > > > >         }
-> > > > > > > > > > > >  }
-> > > > > > > > > > > >
-> > > > > > > > > > > > +static struct sched_domain_topology_level arm64_no_mc_topology[] = {
-> > > > > > > > > > > > +#ifdef CONFIG_SCHED_SMT
-> > > > > > > > > > > > +       { cpu_smt_mask, cpu_smt_flags, SD_INIT_NAME(SMT) },
-> > > > > > > > > > > > +#endif
-> > > > > > > > > > > > +
-> > > > > > > > > > > > +#ifdef CONFIG_SCHED_CLUSTER
-> > > > > > > > > > > > +       { cpu_clustergroup_mask, cpu_cluster_flags, SD_INIT_NAME(CLS) },
-> > > > > > > > > > > > +#endif
-> > > > > > > > > > > > +       { cpu_cpu_mask, SD_INIT_NAME(DIE) },
-> > > > > > > > > > > > +       { NULL, },
-> > > > > > > > > > > > +};
-> > > > > > > > > > > > +
-> > > > > > > > > > > >  void __init smp_prepare_cpus(unsigned int max_cpus)
-> > > > > > > > > > > >  {
-> > > > > > > > > > > >         const struct cpu_operations *ops;
-> > > > > > > > > > > > +       bool use_no_mc_topology = true;
-> > > > > > > > > > > >         int err;
-> > > > > > > > > > > >         unsigned int cpu;
-> > > > > > > > > > > >         unsigned int this_cpu;
-> > > > > > > > > > > > @@ -758,6 +771,25 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
-> > > > > > > > > > > >
-> > > > > > > > > > > >                 set_cpu_present(cpu, true);
-> > > > > > > > > > > >                 numa_store_cpu_info(cpu);
-> > > > > > > > > > > > +
-> > > > > > > > > > > > +               /*
-> > > > > > > > > > > > +                * Only use no_mc topology if all cpu_coregroup_mask weights=1
-> > > > > > > > > > > > +                */
-> > > > > > > > > > > > +               if (cpumask_weight(cpu_coregroup_mask(cpu)) > 1)
-> > > > > > > > > > > > +                       use_no_mc_topology = false;
-> > > > > > > > > > >
-> > > > > > > > > > > This seems to be wrong? If you have 5 cpus,
-> > > > > > > > > > > Cpu0 has cpu_coregroup_mask(cpu)== 1, cpu1-4
-> > > > > > > > > > > has cpu_coregroup_mask(cpu)== 4, for cpu0, you still
-> > > > > > > > > > > need to remove MC, but for cpu1-4, you will need
-> > > > > > > > > > > CLS and MC both?
-> > > > > > > > > >
-> > > > > > > > > > What is the *current* behaviour on such a system?
-> > > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > As I understand it, any system that uses the default topology which has
-> > > > > > > > > a cpus_coregroup weight of 1 and a child (cluster, smt, ...) weight > 1
-> > > > > > > > > will behave as described above by printing the following for each CPU
-> > > > > > > > > matching this criteria:
-> > > > > > > > >
-> > > > > > > > >   BUG: arch topology borken
-> > > > > > > > >         the [CLS,SMT,...] domain not a subset of the MC domain
-> > > > > > > > >
-> > > > > > > > > And then extend the MC domain cpumask to match that of the child and continue
-> > > > > > > > > on.
-> > > > > > > > >
-> > > > > > > > > That would still be the behavior for this type of system after this
-> > > > > > > > > patch is applied.
-> > > > > > > >
-> > > > > > > > That's what I thought, but in that case applying your patch is a net
-> > > > > > > > improvement: systems either get current or better behaviour.
-> > > > > > >
-> > > > > > > CLUSTER level is normally defined as a intermediate group of the MC
-> > > > > > > level and both levels have the scheduler flag SD_SHARE_PKG_RESOURCES
-> > > > > > > flag
-> > > > > > >
-> > > > > > > In the case of Ampere altra, they consider that CPUA have a CLUSTER
-> > > > > > > level which SD_SHARE_PKG_RESOURCES with another CPUB but the next and
-> > > > > > > larger MC level then says that CPUA doesn't SD_SHARE_PKG_RESOURCES
-> > > > > > > with CPUB which seems to be odd because the SD_SHARE_PKG_RESOURCES has
-> > > > > > > not disappeared Looks like there is a mismatch in topology description
-> > > > > >
-> > > > > > Hi Vincent,
-> > > > > >
-> > > > > > Agree. Where do you think this mismatch exists?
-> > > > >
-> > > > > I think that the problem comes from that the default topology order is
-> > > > > assumed to be :
-> > > > > SMT
-> > > > > CLUSTER shares pkg resources i.e. cache
-> > > > > MC
-> > > > > DIE
-> > > > > NUMA
-> > > > >
-> > > > > but in your case, you want a topology order like :
-> > > > > SMT
-> > > > > MC
-> > > > > CLUSTER shares SCU
-> > > > > DIE
-> > > > > NUMA
-> > > >
-> > > > Given the fairly loose definition of some of these domains and the
-> > > > freedom to adjust flags with custom topologies, I think it's difficult
-> > > > to say it needs to be this or that. As you point out, this stems from an
-> > > > assumption in the default topology, so eliding the MC level within the
-> > > > current set of abstractions for a very targeted topology still seems
-> > > > reasonable to address the BUG in the very near term in a contained way.
+On Thu, Feb 17, 2022 at 07:56:00AM +1300, Barry Song wrote:
+...
+> > > > Then, there is another point:
+> > > > In your case, CLUSTER level still has the flag SD_SHARE_PKG_RESOURCES
+> > > > which is used to define some scheduler internal variable like
+> > > > sd_llc(sched domain last level of cache) which allows fast task
+> > > > migration between this cpus in this level at wakeup. In your case the
+> > > > sd_llc should not be the cluster but the MC with only one CPU. But I
+> > > > would not be surprised that most of perf improvement comes from this
+> > > > sd_llc wrongly set to cluster instead of the single CPU
 > > >
-> > > But if another SoC comes with a valid MC then a CLUSTER, this proposal
-> > > will not work.
+> > > I assume this "mistake" is actually what Ampere altra needs while it
+> > > is wrong but getting
+> > > right result? Ampere altra has already got both:
+> >
+> > Hi Barry,
+> >
+> > Generally yes - although I do think we're placing too much emphasis on
+> > the "right" or "wrong" of a heuristic which are more fluid in
+> > definition over time. (e.g. I expect this will look different in a year
+> > based on what we learn from this and other non current default topologies).
+> >
+> > > 1. Load Balance between clusters
+> > > 2. wake_affine by select sibling cpu which is sharing SCU
 > > >
-> > > Keep in mind that the MC level will be removed/degenerate when
-> > > building because it is useless in your case so the scheduler topology
-> > > will still be the same at the end but it will support more case. That
-> > > why I think you should keep MC level
+> > > I am not sure how much 1 and 2 are helping Darren's workloads respectively.
 > >
-> > Hi Vincent,
-> >
-> > Thanks for reiterating, I don't think I quite understood what you were
-> > suggesting before. Is the following in line with what you were thinking?
-> >
-> > I am testing a version of this patch which uses a topology like this instead:
-> >
-> > MC
-> > CLS
-> > DIE
-> > NUMA
-> >
-> > (I tested without an SMT domain since the trigger is still MC weight==1, so
-> > there is no valid topology that includes an SMT level under these conditions).
-> >
-> > Which results in no BUG output and a final topology on Altra of:
-> >
-> > CLS
-> > DIE
-> > NUMA
-> >
-> > Which so far seems right (I still need to do some testing and review the sched
-> > debug data).
-> >
-> > If we take this approach, I think to address your concern about other systems
-> > with valid MCs, we would need a different trigger that MC weight == 1 to use
-> > this alternate topology. Do you have a suggestion on what to trigger this on?
+> > We definitely see improvements with load balancing between clusters.
+> > We're running some tests with the wake_affine patchset you pointed me to
+> > (thanks for that). My initial tbench runs resulted in higher average and
+> > max latencies reported. I need to collect more results and see the
+> > impact to other benchmarks of interest before I have more to share on
+> > that.
 > 
-> AFAICT, this CLUSTER level is only supported by ACPI. In
-> parse_acpi_topology() you should be able to know if cluster level is
-> above or below the level returned by acpi_find_last_cache_level() and
-> set the correct topology table accordingly
-> 
+> Hi Darren,
+> if you read Vincent's comments carefully, you will find it is
+> pointless for you to
+> test the wake_affine patchset as you have already got it. in your
+> case, sd_llc_id
+> is set to sd_cluster level due to PKG_RESOURCES sharing. So with my new
+> patchset for wake_affine, it is completely redundant for your machine
+> as it works
+> with the assumption cluster-> llc. but for your case, llc=cluster, so
+> it works in
+> cluster->cluster.
 
-Thanks Vincent,
+Thanks Barry,
 
-This made sense as a place to start to me. The more I dug into the ACPI PPTT
-code, I kept running into conflicts with the API which would require extending
-it in ways that seems contrary to its intent. e.g. the exposed API uses Kernel
-logical CPUs rather than the topology ids (needed for working with processor
-containers). The cpu_topology masks haven't been populated yet, and
-acpi_find_last_cache_level is decoupled from the CPU topology level. So what
-we're really testing for is if the cluster cpumask is a subset of the coregroup
-cpumask or not, and it made the most sense to me to keep that in smp.c after the
-cpumasks have been updated and stored.
-
-I'll send v2 out for review shortly using this approach.
+Makes sense as described. I did see degradation in the tests we ran with this
+patch applied to 5.17-rc3. I'll have to follow up with you on that when I can
+dig into it more. I'd be interested in the specifics of your testing to run
+something similar. I think you said you were reporting on tbench?
 
 -- 
 Darren Hart
