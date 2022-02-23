@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 989D44C0821
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:31:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09D0F4C080E
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:31:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237014AbiBWCab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:30:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42612 "EHLO
+        id S237091AbiBWCaf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:30:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237017AbiBWCaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:30:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3A245676B;
-        Tue, 22 Feb 2022 18:29:25 -0800 (PST)
+        with ESMTP id S237105AbiBWCaT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:30:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE7F256C3C;
+        Tue, 22 Feb 2022 18:29:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0641A6151F;
-        Wed, 23 Feb 2022 02:29:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 267B6C340E8;
-        Wed, 23 Feb 2022 02:29:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55CD1B81E1D;
+        Wed, 23 Feb 2022 02:29:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0BB9C340F9;
+        Wed, 23 Feb 2022 02:29:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583364;
-        bh=vK/HHEI0xeGlH7UTjcjOEOkuJUzXcQ8w+cItaKNXuLc=;
+        s=k20201202; t=1645583365;
+        bh=HFHNgNb2sk/EDRKrFsACtTis3QDI7ANP8TMbbBEU5EU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bFdFVf7O0c/zgy4so8jb/RKnZorhXJzSa/1sQopYhB94oAJP9eU7YrqLeAoRQ7z6h
-         kcs299zJ7sFhZdL9nNvSRKPnU26LUVdFYnOYBF2WRhDWVuweSIXwdWsYdGDi69uy05
-         34C5X1Dz6cFHmuCEC8F+0V0gzpQXx5W4pDJ6uxH4uSviowUuOoowrzgeM8eCZVuFzG
-         OSzHBYrwn3ZGJ9j3/nRspVA6l0NXBrix9b0K/UdT4ARoUJa+zwIBp8SKvLukTMNuI9
-         KXfcDo3PHDykEu8kr3TAirRTz46R/7lhy5gP5+ZSBfMWXZdNcrjc8k+peikrbicwxz
-         3yaqPaE3fvR1w==
+        b=syccDILwiWvGj8wtn1maN7VU0lHxFaJpT4BZ6Xo6G5eUcY3ZSQ5VgJIo8+yYr53E7
+         sclSfBe0gQSmeE8J/n6jXBZBXPjcOMgTbHXcYeqQUS1EAmxGH5mhn06GBkXeP2aoQN
+         fSZhpg/v/paxv+9Ivae9LT61l4GH6ce7Xa5wx0zdqbYT3tUd33twuRl7KlfS0IwaZe
+         5+vvTJB46lyiYZAupbx4g5U16vD1En2/7EAjUnmHaimjA2HKEmx8KiD/Lhlm5L4+k8
+         aY9Ot95FGEeW0oYYlm2sve1Hewl0AgXcHv+Lfk3nETNYGp72tlQohgyNWOEpWG31D+
+         WTFxAsiIyRbAw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        krzysztof.kozlowski@canonical.com, semen.protsenko@linaro.org,
-        yangyicong@hisilicon.com, robh@kernel.org, geert+renesas@glider.be,
-        sven@svenpeter.dev, jie.deng@intel.com, bence98@sch.bme.hu,
-        lukas.bulwahn@gmail.com, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 27/30] i2c: qup: allow COMPILE_TEST
-Date:   Tue, 22 Feb 2022 21:28:16 -0500
-Message-Id: <20220223022820.240649-27-sashal@kernel.org>
+Cc:     Oliver Neukum <oneukum@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, oliver@neukum.org,
+        kuba@kernel.org, linux-usb@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 28/30] CDC-NCM: avoid overflow in sanity checking
+Date:   Tue, 22 Feb 2022 21:28:17 -0500
+Message-Id: <20220223022820.240649-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223022820.240649-1-sashal@kernel.org>
 References: <20220223022820.240649-1-sashal@kernel.org>
@@ -58,32 +58,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa@kernel.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 5de717974005fcad2502281e9f82e139ca91f4bb ]
+[ Upstream commit 8d2b1a1ec9f559d30b724877da4ce592edc41fdc ]
 
-Driver builds fine with COMPILE_TEST. Enable it for wider test coverage
-and easier maintenance.
+A broken device may give an extreme offset like 0xFFF0
+and a reasonable length for a fragment. In the sanity
+check as formulated now, this will create an integer
+overflow, defeating the sanity check. Both offset
+and offset + len need to be checked in such a manner
+that no overflow can occur.
+And those quantities should be unsigned.
 
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/cdc_ncm.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 66476c2257553..37233bb483a17 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -935,7 +935,7 @@ config I2C_QCOM_GENI
+diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
+index e303b522efb50..15f91d691bba3 100644
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -1715,10 +1715,10 @@ int cdc_ncm_rx_fixup(struct usbnet *dev, struct sk_buff *skb_in)
+ {
+ 	struct sk_buff *skb;
+ 	struct cdc_ncm_ctx *ctx = (struct cdc_ncm_ctx *)dev->data[0];
+-	int len;
++	unsigned int len;
+ 	int nframes;
+ 	int x;
+-	int offset;
++	unsigned int offset;
+ 	union {
+ 		struct usb_cdc_ncm_ndp16 *ndp16;
+ 		struct usb_cdc_ncm_ndp32 *ndp32;
+@@ -1790,8 +1790,8 @@ int cdc_ncm_rx_fixup(struct usbnet *dev, struct sk_buff *skb_in)
+ 			break;
+ 		}
  
- config I2C_QUP
- 	tristate "Qualcomm QUP based I2C controller"
--	depends on ARCH_QCOM
-+	depends on ARCH_QCOM || COMPILE_TEST
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  built-in I2C interface on the Qualcomm SoCs.
+-		/* sanity checking */
+-		if (((offset + len) > skb_in->len) ||
++		/* sanity checking - watch out for integer wrap*/
++		if ((offset > skb_in->len) || (len > skb_in->len - offset) ||
+ 				(len > ctx->rx_max) || (len < ETH_HLEN)) {
+ 			netif_dbg(dev, rx_err, dev->net,
+ 				  "invalid frame detected (ignored) offset[%u]=%u, length=%u, skb=%p\n",
 -- 
 2.34.1
 
