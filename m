@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 333BB4C0954
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:39:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B3D34C0965
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:39:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237695AbiBWCjW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:39:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58208 "EHLO
+        id S234469AbiBWCjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:39:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237910AbiBWCie (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:38:34 -0500
+        with ESMTP id S237942AbiBWCig (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:38:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDD8F60D90;
-        Tue, 22 Feb 2022 18:33:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA22652E5;
+        Tue, 22 Feb 2022 18:33:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 986CF615C4;
-        Wed, 23 Feb 2022 02:33:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F22ADC36AED;
-        Wed, 23 Feb 2022 02:33:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D77F614CB;
+        Wed, 23 Feb 2022 02:33:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D37DC340EB;
+        Wed, 23 Feb 2022 02:33:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583595;
-        bh=1gqekEeT2EVQ5k7J7M1oUytgB0KaLNWYqYC6oHl4YM4=;
+        s=k20201202; t=1645583598;
+        bh=z26jdcz8ETQiT0yMjJkEpAN2tFFILIDjhzcZj/5HSQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=meIWi8/fK6PabjPBoN5KJZiX0THKMJiyPL/AbHgA0T5nX77VyGP1L90AYhlwQu3Ih
-         AYI4OwQwG11dwP+VlqHio6REAvTS/Xp+xm9xHeGIfZp2EGpuqwuxSMVIABEWFFQBvj
-         sq+j3ulJCs3S7Q/oVz8Skj4vOITsrFTZAIHbrgoxzlCGVM7PjNo9uSu3j10LBqLKNv
-         9AId3BnBOw17lpiRGs+axeC72OwXqtc32Q4izsPcNgfA97OnPyiVrA6BTrfmvgC8Eq
-         B2vr72wEjsZEXWFHc3Kh+ioh4WyA8H4MFiZ/0T6iQb2g8bDti1HUE1oCBAbZDSC4LA
-         DEXRsX3eMihrA==
+        b=vQDWmAoXEree6H9oN3kHsr8Fp+GYsBS5HnyIYSxpJZ5uSi1wWyymLaZ/R5SJNWzfX
+         qJHOnqJXnRa3rc5Qs7rUWVSU4clFfeiKBkKYvkjQ/Ef1lz1bYlBy6P5Fqy/4JSH7xb
+         BqcFB3MeTluQ6w0hgcsFOZEcREnRX1hHvPN6kOGhMV9u3pguDqiOoiAHh6mZfTmmjo
+         nZi/r/YF8DzBi7JBIVJ/A8udb6lcGJZsUIkN+kg7ku9TOqKmTDrtquNYB51h91gTo+
+         VL3S5pJBZTj2vSkeF6+GlLnq/otsxwmvRw2sj9fR3h6iLtn9abUgkda4yW7gtjimD6
+         6SvS32ikgA7aA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Neukum <oneukum@suse.com>,
-        Ross Maynard <bids.7405@bigpond.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, oliver@neukum.org,
-        kuba@kernel.org, linux-usb@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 6/9] USB: zaurus: support another broken Zaurus
-Date:   Tue, 22 Feb 2022 21:32:57 -0500
-Message-Id: <20220223023300.242616-6-sashal@kernel.org>
+Cc:     Yongzhi Liu <lyz_cs@pku.edu.cn>, Vinod Koul <vkoul@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, broonie@kernel.org,
+        laurent.pinchart@ideasonboard.com, christophe.jaillet@wanadoo.fr,
+        arnd@arndb.de, dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 7/9] dmaengine: shdma: Fix runtime PM imbalance on error
+Date:   Tue, 22 Feb 2022 21:32:58 -0500
+Message-Id: <20220223023300.242616-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223023300.242616-1-sashal@kernel.org>
 References: <20220223023300.242616-1-sashal@kernel.org>
@@ -58,84 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Yongzhi Liu <lyz_cs@pku.edu.cn>
 
-[ Upstream commit 6605cc67ca18b9d583eb96e18a20f5f4e726103c ]
+[ Upstream commit 455896c53d5b803733ddd84e1bf8a430644439b6 ]
 
-This SL-6000 says Direct Line, not Ethernet
+pm_runtime_get_() increments the runtime PM usage counter even
+when it returns an error code, thus a matching decrement is needed on
+the error handling path to keep the counter balanced.
 
-v2: added Reporter and Link
-
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: Ross Maynard <bids.7405@bigpond.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215361
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Yongzhi Liu <lyz_cs@pku.edu.cn>
+Link: https://lore.kernel.org/r/1642311296-87020-1-git-send-email-lyz_cs@pku.edu.cn
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc_ether.c | 12 ++++++++++++
- drivers/net/usb/zaurus.c    | 12 ++++++++++++
- 2 files changed, 24 insertions(+)
+ drivers/dma/sh/shdma-base.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/cdc_ether.c b/drivers/net/usb/cdc_ether.c
-index 8f03cc52ddda2..1819b104418c4 100644
---- a/drivers/net/usb/cdc_ether.c
-+++ b/drivers/net/usb/cdc_ether.c
-@@ -555,6 +555,11 @@ static const struct usb_device_id	products[] = {
- 	.bInterfaceSubClass	= USB_CDC_SUBCLASS_ETHERNET, \
- 	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
+diff --git a/drivers/dma/sh/shdma-base.c b/drivers/dma/sh/shdma-base.c
+index 12fa48e380cf5..4f8dfe77da3c5 100644
+--- a/drivers/dma/sh/shdma-base.c
++++ b/drivers/dma/sh/shdma-base.c
+@@ -118,8 +118,10 @@ static dma_cookie_t shdma_tx_submit(struct dma_async_tx_descriptor *tx)
+ 		ret = pm_runtime_get(schan->dev);
  
-+#define ZAURUS_FAKE_INTERFACE \
-+	.bInterfaceClass	= USB_CLASS_COMM, \
-+	.bInterfaceSubClass	= USB_CDC_SUBCLASS_MDLM, \
-+	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
-+
- /* SA-1100 based Sharp Zaurus ("collie"), or compatible;
-  * wire-incompatible with true CDC Ethernet implementations.
-  * (And, it seems, needlessly so...)
-@@ -608,6 +613,13 @@ static const struct usb_device_id	products[] = {
- 	.idProduct              = 0x9032,	/* SL-6000 */
- 	ZAURUS_MASTER_INTERFACE,
- 	.driver_info		= 0,
-+}, {
-+	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
-+		 | USB_DEVICE_ID_MATCH_DEVICE,
-+	.idVendor               = 0x04DD,
-+	.idProduct              = 0x9032,	/* SL-6000 */
-+	ZAURUS_FAKE_INTERFACE,
-+	.driver_info		= 0,
- }, {
- 	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
- 		 | USB_DEVICE_ID_MATCH_DEVICE,
-diff --git a/drivers/net/usb/zaurus.c b/drivers/net/usb/zaurus.c
-index 6aaa6eb9df72a..3d126761044f5 100644
---- a/drivers/net/usb/zaurus.c
-+++ b/drivers/net/usb/zaurus.c
-@@ -268,6 +268,11 @@ static const struct usb_device_id	products [] = {
- 	.bInterfaceSubClass	= USB_CDC_SUBCLASS_ETHERNET, \
- 	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
+ 		spin_unlock_irq(&schan->chan_lock);
+-		if (ret < 0)
++		if (ret < 0) {
+ 			dev_err(schan->dev, "%s(): GET = %d\n", __func__, ret);
++			pm_runtime_put(schan->dev);
++		}
  
-+#define ZAURUS_FAKE_INTERFACE \
-+	.bInterfaceClass	= USB_CLASS_COMM, \
-+	.bInterfaceSubClass	= USB_CDC_SUBCLASS_MDLM, \
-+	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
-+
- /* SA-1100 based Sharp Zaurus ("collie"), or compatible. */
- {
- 	.match_flags	=   USB_DEVICE_ID_MATCH_INT_INFO
-@@ -325,6 +330,13 @@ static const struct usb_device_id	products [] = {
- 	.idProduct              = 0x9032,	/* SL-6000 */
- 	ZAURUS_MASTER_INTERFACE,
- 	.driver_info = ZAURUS_PXA_INFO,
-+}, {
-+	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
-+			    | USB_DEVICE_ID_MATCH_DEVICE,
-+	.idVendor		= 0x04DD,
-+	.idProduct		= 0x9032,	/* SL-6000 */
-+	ZAURUS_FAKE_INTERFACE,
-+	.driver_info = (unsigned long)&bogus_mdlm_info,
- }, {
- 	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
- 		 | USB_DEVICE_ID_MATCH_DEVICE,
+ 		pm_runtime_barrier(schan->dev);
+ 
 -- 
 2.34.1
 
