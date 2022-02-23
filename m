@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F27774C08CB
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:37:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93E7E4C08DD
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:38:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231220AbiBWCdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:33:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43564 "EHLO
+        id S237218AbiBWCdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:33:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237659AbiBWCdT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:33:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C0A5F4D1;
-        Tue, 22 Feb 2022 18:31:28 -0800 (PST)
+        with ESMTP id S237688AbiBWCdX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:33:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D25ECBA4;
+        Tue, 22 Feb 2022 18:31:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D3B5A6155F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D068661558;
+        Wed, 23 Feb 2022 02:31:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B97BFC340F1;
         Wed, 23 Feb 2022 02:31:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C528AC340EB;
-        Wed, 23 Feb 2022 02:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583488;
-        bh=x8fJSb9IKlcqvRl4YJcfYG9sKVjOS3ECVVnLLeHY8RQ=;
+        s=k20201202; t=1645583490;
+        bh=S685cRqpnTKwPhd6Y+2lTRRBg99X0zoYvQMqbsI5vmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MPy/ci52QpCL0GC6+0MzNXTRjEIk42eK11oXHQX1j8UnY7ycSjDRK0APBtYXgpJPF
-         +ywdyLAfjWYdD8Dzxb8YGRNzpwv4E/ucpzczYJgsJnBIgm2LiYFXyCh2A0N03BpVOe
-         s7SEdRj4t575M7p5EeSuoQohSb6BzD0gEIuSAbXMpyhFEEUF1w2R6m0eVyDzUEKJXz
-         tPBJmryWhATE5boQFoup9LV/pan4R5xkqhGrS5ZUu5dxSHWlvdOmPyynfwT8fMIyvb
-         5s1y84Y5YHHKdaY/vyBF/4UNA9R+WvxHLsoBbDgxQIifqwjUoPo6uR3yvo2MwLN3oW
-         IW8EoI8EJNW2w==
+        b=Cboao/pjhUzXHuscSZ0Mhige1yYFP1WfCcrrXGs/qd0YnsB4tf2ksqipX0L25XdgX
+         gUb2rpOZ8wR5Qbij4WoWf/JDj1rx0v3b5KiLOGYxNsD5BBCDgKMHkyKEIKzguZavhn
+         o7aZoPvM/AE2n/vtKnzjoXUFeGwn+jG1nlDogsXplGO1ZuHaoFV/XBn/eLgtPU+aWl
+         zY2opeY7qHnimmyXzbHUskv98AA+TMYDuPyuiHrcRx2DkY22XvKTLHViYamNeCctPu
+         fDCZYNuOBKSptDkFXw53bI+Fy8eckpcj2HmAHhd+2QYiTNT9A9A67Xe1gLuIXT9gAo
+         AohHT/5P9yxew==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
@@ -43,9 +43,9 @@ Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>, oder_chiou@realtek.com,
         lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
         alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 04/13] ASoC: rt5668: do not block workqueue if card is unbound
-Date:   Tue, 22 Feb 2022 21:31:08 -0500
-Message-Id: <20220223023118.241815-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 05/13] ASoC: rt5682: do not block workqueue if card is unbound
+Date:   Tue, 22 Feb 2022 21:31:09 -0500
+Message-Id: <20220223023118.241815-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223023118.241815-1-sashal@kernel.org>
 References: <20220223023118.241815-1-sashal@kernel.org>
@@ -66,9 +66,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit a6d78661dc903d90a327892bbc34268f3a5f4b9c ]
+[ Upstream commit 4c33de0673ced9c7c37b3bbd9bfe0fda72340b2a ]
 
-The current rt5668_jack_detect_handler() assumes the component
+The current rt5682_jack_detect_handler() assumes the component
 and card will always show up and implements an infinite usleep
 loop waiting for them to show up.
 
@@ -89,35 +89,35 @@ Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
 Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
 Reviewed-by: Shuming Fan <shumingf@realtek.com>
-Link: https://lore.kernel.org/r/20220207153000.3452802-2-kai.vehmanen@linux.intel.com
+Link: https://lore.kernel.org/r/20220207153000.3452802-3-kai.vehmanen@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5668.c | 12 +++++++-----
+ sound/soc/codecs/rt5682.c | 12 +++++++-----
  1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5668.c b/sound/soc/codecs/rt5668.c
-index 5716cede99cb4..acc2b34ca334a 100644
---- a/sound/soc/codecs/rt5668.c
-+++ b/sound/soc/codecs/rt5668.c
-@@ -1022,11 +1022,13 @@ static void rt5668_jack_detect_handler(struct work_struct *work)
- 		container_of(work, struct rt5668_priv, jack_detect_work.work);
+diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
+index 05e883a65d7a7..a8cf4c7451304 100644
+--- a/sound/soc/codecs/rt5682.c
++++ b/sound/soc/codecs/rt5682.c
+@@ -1052,11 +1052,13 @@ static void rt5682_jack_detect_handler(struct work_struct *work)
+ 		container_of(work, struct rt5682_priv, jack_detect_work.work);
  	int val, btn_type;
  
--	while (!rt5668->component)
+-	while (!rt5682->component)
 -		usleep_range(10000, 15000);
 -
--	while (!rt5668->component->card->instantiated)
+-	while (!rt5682->component->card->instantiated)
 -		usleep_range(10000, 15000);
-+	if (!rt5668->component || !rt5668->component->card ||
-+	    !rt5668->component->card->instantiated) {
++	if (!rt5682->component || !rt5682->component->card ||
++	    !rt5682->component->card->instantiated) {
 +		/* card not yet ready, try later */
 +		mod_delayed_work(system_power_efficient_wq,
-+				 &rt5668->jack_detect_work, msecs_to_jiffies(15));
++				 &rt5682->jack_detect_work, msecs_to_jiffies(15));
 +		return;
 +	}
  
- 	mutex_lock(&rt5668->calibrate_mutex);
+ 	mutex_lock(&rt5682->calibrate_mutex);
  
 -- 
 2.34.1
