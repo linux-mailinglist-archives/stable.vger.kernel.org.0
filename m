@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 050F94C0942
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:39:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E0BF4C0949
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:39:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237632AbiBWCjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:39:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58850 "EHLO
+        id S237646AbiBWCjO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:39:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237733AbiBWCh6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:37:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 804D45DE55;
-        Tue, 22 Feb 2022 18:32:59 -0800 (PST)
+        with ESMTP id S237756AbiBWCiB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:38:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8E0E5E741;
+        Tue, 22 Feb 2022 18:33:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C29B61516;
-        Wed, 23 Feb 2022 02:32:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C0B3C340E8;
-        Wed, 23 Feb 2022 02:32:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44AD2B81E14;
+        Wed, 23 Feb 2022 02:33:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F8FAC340F1;
+        Wed, 23 Feb 2022 02:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583578;
-        bh=nB+IriusxrNw8RVnFBG5j8tEtcqp3hdPm/KX5tASSSg=;
+        s=k20201202; t=1645583579;
+        bh=VKj7xlrRFbcxioWHBRFh2u0Z7Dc86o9b0hoFi2dJGaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t31+p8xXtloEkaEpUSrZfl004AVdolZd555EBlaHF2khO/cNqfNXw4kAEyYoks/Rd
-         HsL4nL+mC0+xZHznEwDxH39Hb2luQpDSwzNKb+6EjJjr/uGMN9I8KFhQd8Jnh4lKZd
-         tErMEZzVmg+f8HCTKZmOYKl/wkMICcF5cD7WsLC2QxuaHiU7DWxj2uCMyHjTeydAOr
-         3+O3yUTpm7x+uLeJVd/mtP2ahR3sj3Y2uxWMku5o5Ujl2l9JNSkSiowjEyNXYdq2qW
-         w9qXX2xq96Cm0NkKhAhgU8KMV1XPYS1iBOLVvWBznefIDMte64y9AyOuhgwFVyG14K
-         04U9TaX9KflKQ==
+        b=P6FTPzRRfrsRraBk+/PEFi2jtEiRoYipdUzazlTyirYdjkWEp066VHF8N3gAqjSXh
+         zaoVKwgSZPZZcRKE2Wii7CoEAQ1bH4viJYyeSq2lsczlmRr2MIC1pl4bT3hQOz9Vuw
+         vhDPVt1FoyB++O0DBG2jehJFUSTjJAUn/NeGx2W5qKO8Adcp0wsMWgANYUnioBREFT
+         N0ewtKmoyIOe3FvpdL5sLlwrF2FB6+HEDNNW6wwVQlrj2diltelQ8FonnW8VLo0k7w
+         +i6/erCdyOnDVUD9VbEtzXCWTihRPT77xef6u/4wMGGUTqw7YmB6heXJdCdQ4T+tjt
+         wWNcn0elqgw+g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        krzysztof.kozlowski@canonical.com, robh@kernel.org,
-        yangyicong@hisilicon.com, semen.protsenko@linaro.org,
-        christophe.leroy@csgroup.eu, jie.deng@intel.com,
-        sven@svenpeter.dev, bence98@sch.bme.hu, lukas.bulwahn@gmail.com,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 09/10] i2c: qup: allow COMPILE_TEST
-Date:   Tue, 22 Feb 2022 21:32:32 -0500
-Message-Id: <20220223023233.242468-9-sashal@kernel.org>
+Cc:     Daniele Palmas <dnlplm@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, oliver@neukum.org,
+        kuba@kernel.org, linux-usb@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 10/10] net: usb: cdc_mbim: avoid altsetting toggling for Telit FN990
+Date:   Tue, 22 Feb 2022 21:32:33 -0500
+Message-Id: <20220223023233.242468-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223023233.242468-1-sashal@kernel.org>
 References: <20220223023233.242468-1-sashal@kernel.org>
@@ -59,32 +57,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa@kernel.org>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit 5de717974005fcad2502281e9f82e139ca91f4bb ]
+[ Upstream commit 21e8a96377e6b6debae42164605bf9dcbe5720c5 ]
 
-Driver builds fine with COMPILE_TEST. Enable it for wider test coverage
-and easier maintenance.
+Add quirk CDC_MBIM_FLAG_AVOID_ALTSETTING_TOGGLE for Telit FN990
+0x1071 composition in order to avoid bind error.
 
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/cdc_mbim.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index ab9c7f2f1f79b..2619f1dc095aa 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -836,7 +836,7 @@ config I2C_PXA_SLAVE
+diff --git a/drivers/net/usb/cdc_mbim.c b/drivers/net/usb/cdc_mbim.c
+index cdd1b193fd4fe..41bac861ca99d 100644
+--- a/drivers/net/usb/cdc_mbim.c
++++ b/drivers/net/usb/cdc_mbim.c
+@@ -660,6 +660,11 @@ static const struct usb_device_id mbim_devs[] = {
+ 	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
+ 	},
  
- config I2C_QUP
- 	tristate "Qualcomm QUP based I2C controller"
--	depends on ARCH_QCOM
-+	depends on ARCH_QCOM || COMPILE_TEST
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  built-in I2C interface on the Qualcomm SoCs.
++	/* Telit FN990 */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x1bc7, 0x1071, USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
++	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
++	},
++
+ 	/* default entry */
+ 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
+ 	  .driver_info = (unsigned long)&cdc_mbim_info_zlp,
 -- 
 2.34.1
 
