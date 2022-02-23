@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E35244C0892
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:37:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1E274C08B4
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:37:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237176AbiBWCdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:33:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42850 "EHLO
+        id S237184AbiBWCdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:33:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237202AbiBWCcl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:32:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DC0E5A0B9;
-        Tue, 22 Feb 2022 18:30:35 -0800 (PST)
+        with ESMTP id S237238AbiBWCcm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:32:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA88B5AEDA;
+        Tue, 22 Feb 2022 18:30:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44584B81E11;
-        Wed, 23 Feb 2022 02:30:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4484CC340F0;
-        Wed, 23 Feb 2022 02:30:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89E49B81CA7;
+        Wed, 23 Feb 2022 02:30:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33637C340F0;
+        Wed, 23 Feb 2022 02:30:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583434;
-        bh=Y0ydCJdLcvb/muRQhxCjXoK2Jvm2kqf39/xsowfr3bs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDY6TQjvqzUCUiBaxVxNyoghwJaONDXipUTFpOFrIg1V+SSX/7ppnwm+s2uLQZqiA
-         NLVQxAjneeKTyN6gzgxIWFqJv88wlBSXNvEEJPZykEjnZDEIsqHTknoazsuAicwSiS
-         x/fc5VPEtodJN/zPzHWDabhSapEsZzZ23PQakre8oueLQScHPkyiuCmRrV1jjb5IxB
-         NQT/9Ev3Hw5mpJByW31x1n9wudZSdzpJnax4geXdEMdLFsJP4ISH67g9T30aEaS4mm
-         jT+nghVRejgWDe9z64CIYZL3/ejwhI4DwasAE8pCI783YvBtklSPw30PQj82YJFd4/
-         SvJh31t6TUoSw==
+        s=k20201202; t=1645583438;
+        bh=z6b3zze1htEs3L7pwMXiihJzPahKJa4TbkzjB9MWkNE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JUigyyMhyFDK3TR40hNZPNzH5UH/zoj0+Ut9FYWfgzWQuQVkt2i0c4TbKw42SekJw
+         /qPAvGETpH3upHimon7Q/QxblIKDuQyKlulElZRjPfQicxaiYuJmgkzFBLAW5r7ecy
+         OtelzB0Y/XZds1NZmN8X5elb6mv7hEQESRUskeag8fHpSopGVAHtOMPoNBexNAkCAa
+         WxIIOkkjb8EVCXkch06HsXIcLZH3MNxF/yBjtv5CdL6qsxAHsjIxRr/aMQKtMTjqVk
+         B7ywoLeoQCYBNzfpDA7L3syXIg9rXOc2QHKy1Qb8vKkq9Y3sRdL2qniGoMybPEe/TZ
+         Bs9smipi3wzCw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Haimin Zhang <tcs.kernel@gmail.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 28/28] block-map: add __GFP_ZERO flag for alloc_page in function bio_copy_kern
-Date:   Tue, 22 Feb 2022 21:29:29 -0500
-Message-Id: <20220223022929.241127-28-sashal@kernel.org>
+Cc:     Benjamin Beichler <benjamin.beichler@uni-rostock.de>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
+        kvalo@kernel.org, davem@davemloft.net, kuba@kernel.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 01/18] mac80211_hwsim: report NOACK frames in tx_status
+Date:   Tue, 22 Feb 2022 21:30:18 -0500
+Message-Id: <20220223023035.241551-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220223022929.241127-1-sashal@kernel.org>
-References: <20220223022929.241127-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,36 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs.kernel@gmail.com>
+From: Benjamin Beichler <benjamin.beichler@uni-rostock.de>
 
-[ Upstream commit cc8f7fe1f5eab010191aa4570f27641876fa1267 ]
+[ Upstream commit 42a79960ffa50bfe9e0bf5d6280be89bf563a5dd ]
 
-Add __GFP_ZERO flag for alloc_page in function bio_copy_kern to initialize
-the buffer of a bio.
+Add IEEE80211_TX_STAT_NOACK_TRANSMITTED to tx_status flags to have proper
+statistics for non-acked frames.
 
-Signed-off-by: Haimin Zhang <tcs.kernel@gmail.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220216084038.15635-1-tcs.kernel@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Benjamin Beichler <benjamin.beichler@uni-rostock.de>
+Link: https://lore.kernel.org/r/20220111221327.1499881-1-benjamin.beichler@uni-rostock.de
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-map.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mac80211_hwsim.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/block/blk-map.c b/block/blk-map.c
-index 4526adde01564..c7f71d83eff18 100644
---- a/block/blk-map.c
-+++ b/block/blk-map.c
-@@ -446,7 +446,7 @@ static struct bio *bio_copy_kern(struct request_queue *q, void *data,
- 		if (bytes > len)
- 			bytes = len;
- 
--		page = alloc_page(GFP_NOIO | gfp_mask);
-+		page = alloc_page(GFP_NOIO | __GFP_ZERO | gfp_mask);
- 		if (!page)
- 			goto cleanup;
- 
+diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
+index b793d61d15d27..0122585a1e500 100644
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -3567,6 +3567,10 @@ static int hwsim_tx_info_frame_received_nl(struct sk_buff *skb_2,
+ 		}
+ 		txi->flags |= IEEE80211_TX_STAT_ACK;
+ 	}
++
++	if (hwsim_flags & HWSIM_TX_CTL_NO_ACK)
++		txi->flags |= IEEE80211_TX_STAT_NOACK_TRANSMITTED;
++
+ 	ieee80211_tx_status_irqsafe(data2->hw, skb);
+ 	return 0;
+ out:
 -- 
 2.34.1
 
