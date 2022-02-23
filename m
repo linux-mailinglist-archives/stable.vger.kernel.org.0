@@ -2,72 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 403C44C0648
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 01:40:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ECC64C0672
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 01:54:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236434AbiBWAlL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 19:41:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47798 "EHLO
+        id S235318AbiBWAyk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 19:54:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231518AbiBWAlL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 19:41:11 -0500
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D19735F8F7;
-        Tue, 22 Feb 2022 16:40:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1645576844; x=1677112844;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=bXG/hqPanWAZqS1VkKyT5WERuxbLoNAjWQs8L+yqxEg=;
-  b=YftGCQmzBOAr6wQwUjZ6cNYRcnQZMx1kGLyYkYhh9MC/xxUIosKClf/G
-   3U4T1VZz5hmv3ymt1vfy7KqgePwItipphY8T4wQ8ToCJ3lXzWuGxoj/59
-   0FqWkIiw9cnRU5meORy1qWOPAmzgkNEgqlfIG/2Zu2auln5JQ+BVJPqO1
-   EoNF6tUkIEPnICWeZefEnRAYTaz5s8YofpFOY6b1hikZ1+mYTxjARoLhX
-   27dQn3481V5C1UjQ2X4qzUrNi31u5BuUL9uCwc6AP0n+tTcjgLlWdb5TJ
-   075q/2b3BmGemlpYdCQmSx18sbXGeb6qds8LedT5wVYeCzfze13RkosNo
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10266"; a="235360402"
-X-IronPort-AV: E=Sophos;i="5.88,389,1635231600"; 
-   d="scan'208";a="235360402"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Feb 2022 16:40:44 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,389,1635231600"; 
-   d="scan'208";a="776497120"
-Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.189])
-  by fmsmga006.fm.intel.com with ESMTP; 22 Feb 2022 16:40:41 -0800
-Date:   Wed, 23 Feb 2022 08:40:41 +0800
-From:   Feng Tang <feng.tang@intel.com>
-To:     srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc:     Doug Smythies <dsmythies@telus.net>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        "Zhang, Rui" <rui.zhang@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "paulmck@kernel.org" <paulmck@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
-Subject: Re: CPU excessively long times between frequency scaling driver
- calls - bisected
-Message-ID: <20220223004041.GA4548@shbuild999.sh.intel.com>
-References: <CAAYoRsXrwOQgzAcED+JfVG0=JQNEXuyGcSGghL4Z5xnFgkp+TQ@mail.gmail.com>
- <20220208091525.GA7898@shbuild999.sh.intel.com>
- <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
- <e185b89fb97f47758a5e10239fc3eed0@intel.com>
- <CAAYoRsXbBJtvJzh91nTXATLL1eb2EKbTVb8vEWa3Y6DfCWhZeg@mail.gmail.com>
- <aaace653f12b79336b6f986ef5c4f9471445372a.camel@linux.intel.com>
- <20220222073435.GB78951@shbuild999.sh.intel.com>
- <CAJZ5v0iXQ=qXiZoF_qb1hdBh=yfZ13-of3y3LFu2m6gZh9peTw@mail.gmail.com>
- <CAAYoRsX-iw+88R9ZizMwJw2qc99XJZ8Fe0M5ETOy4=RUNsxWhQ@mail.gmail.com>
- <24f7d485dc60ba3ed5938230f477bf22a220d596.camel@linux.intel.com>
+        with ESMTP id S234184AbiBWAyk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 19:54:40 -0500
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD85342485;
+        Tue, 22 Feb 2022 16:54:13 -0800 (PST)
+Received: from kwepemi100001.china.huawei.com (unknown [172.30.72.53])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4K3HVs3k6Xz1FDVN;
+        Wed, 23 Feb 2022 08:49:41 +0800 (CST)
+Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
+ kwepemi100001.china.huawei.com (7.221.188.215) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Wed, 23 Feb 2022 08:54:11 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Wed, 23 Feb 2022 08:54:10 +0800
+Subject: Re: [PATCH 5.4 00/80] 5.4.181-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <stable@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <sudipm.mukherjee@gmail.com>, <slade@sladewatkins.com>
+References: <20220221084915.554151737@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <26742b63-3931-ca54-d4df-0334f162e1f8@huawei.com>
+Date:   Wed, 23 Feb 2022 08:54:09 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <24f7d485dc60ba3ed5938230f477bf22a220d596.camel@linux.intel.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+In-Reply-To: <20220221084915.554151737@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ kwepemm600013.china.huawei.com (7.193.23.68)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,34 +59,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 22, 2022 at 04:32:29PM -0800, srinivas pandruvada wrote:
-> Hi Doug,
-> 
-> On Tue, 2022-02-22 at 16:07 -0800, Doug Smythies wrote:
-> > Hi All,
-> > 
-> > I am about 1/2 way through testing Feng's "hacky debug patch",
-> > let me know if I am wasting my time, and I'll abort. So far, it
-> > works fine.
-> This just proves that if you add some callback during long idle,  you
-> will reach a less aggressive p-state. I think you already proved that
-> with your results below showing 1W less average power ("Kernel 5.17-rc3
-> + Feng patch (6 samples at 300 sec per").
-> 
-> Rafael replied with one possible option. Alternatively when planing to
-> enter deep idle, set P-state to min with a callback like we do in
-> offline callback.
- 
-Yes, if the system is going to idle, it makes sense to goto a lower
-cpufreq first (also what my debug patch will essentially lead to).
 
-Given cprfreq-util's normal running frequency is every 10ms, doing
-this before entering idle is not a big extra burden.
 
-Thanks,
-Feng
-
-> So we need to think about a proper solution for this.
+On 2022/2/21 16:48, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.181 release.
+> There are 80 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Thanks,
-> Srinivas
+> Responses should be made by Wed, 23 Feb 2022 08:48:58 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.181-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+Tested on arm64 and x86 for 5.4.181-rc1,
+
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.4.y
+Version: 5.4.181-rc1
+Commit: 04ffc48b9c61bf5eb49daca8b489e326d6aed975
+Compiler: gcc version 7.3.0 (GCC)
+
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9008
+passed: 9008
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9008
+passed: 9008
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
