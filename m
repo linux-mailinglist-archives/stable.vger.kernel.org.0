@@ -2,85 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 745214C159B
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 15:42:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DA774C15DD
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 15:55:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240494AbiBWOmd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Feb 2022 09:42:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33566 "EHLO
+        id S241774AbiBWO4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Feb 2022 09:56:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229893AbiBWOmc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 09:42:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D9DFB3E6C;
-        Wed, 23 Feb 2022 06:42:04 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1339EB81FCE;
-        Wed, 23 Feb 2022 14:42:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AABBBC340E7;
-        Wed, 23 Feb 2022 14:42:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645627321;
-        bh=54knkAHgw4FVQ6bPw0gxjMifXkkf7pu6KINdWoLri+c=;
-        h=From:To:Cc:Subject:Date:From;
-        b=rkQtj8PDP2Deulram9ERTWwLjDnlpnC2sBniN8+liD+2uHbKr1Kf63qH9E5vKC2cu
-         TaRTlmooVLtbpbbSPgE/6oMo0qGBspX3dhfcq2DpSFyahkIGqtoZpmSRxzx++qaC9T
-         8rFD1ghTUCPHv8qPHhjfwOMf2hrpqKT+gbxScNeZDajJ/VRHEGvdgoP1nMxMYQdUx+
-         p94GK5cekpWzW9sAgDFTkqO2WtWbHTtE3jgd92lA0eoFOJg5/D4mreEGSIRp+hkU8b
-         GbUBZqiR3WNFkolC/Wcd058whKkQFqsTDzi2DUDRNUrk/XvdJVGlRUYkPla+ZTvQ0E
-         ze78UZuKW7S7Q==
-From:   Dinh Nguyen <dinguyen@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     dinguyen@kernel.org, linux-fpga@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Ang Tien Sung <tien.sung.ang@intel.com>,
+        with ESMTP id S231152AbiBWO4W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 09:56:22 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F9B2B65E9
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 06:55:55 -0800 (PST)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 1BF251F43D;
+        Wed, 23 Feb 2022 14:55:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1645628154; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=8p03YFSiQNYbmpdsHRPWLLm9yRxaqTmYDt6YPNvOYuc=;
+        b=dCoFYXHJqJOuPfQ10Gjy0smCHzI5UqlCM5C26sm1cHxRdor+0qIaKalp9r9hiL8fff2w84
+        9iFxafCtJxJYjmEamz3qRAevdF+HLXPWu5MDsyj7cMP+DBgk+ILXMpCrZ6bQRIQdi4fRAo
+        UtbldQu+8dx7TgMm1AbpPymJ6rvxzts=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1645628154;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=8p03YFSiQNYbmpdsHRPWLLm9yRxaqTmYDt6YPNvOYuc=;
+        b=ChEjBgXjp3n30A1chu0JGP69O7X2htRlokSQAwrc2pl01FTpCf6K81aINMpacoD2cDqp9W
+        1dOvXuaN/rt90BDA==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id 115FFA3B81;
+        Wed, 23 Feb 2022 14:55:54 +0000 (UTC)
+Date:   Wed, 23 Feb 2022 15:55:54 +0100
+Message-ID: <s5hy221y6md.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Marek Vasut <marex@denx.de>
+Cc:     alsa-devel@alsa-project.org, Mark Brown <broonie@kernel.org>,
         stable@vger.kernel.org
-Subject: [PATCH] firmware: stratix10-svc: add missing callback parameter on RSU
-Date:   Wed, 23 Feb 2022 08:41:46 -0600
-Message-Id: <20220223144146.399263-1-dinguyen@kernel.org>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Subject: Re: [PATCH] ASoC: ops: Shift tested values in snd_soc_put_volsw() by +min
+In-Reply-To: <20220215130645.164025-1-marex@denx.de>
+References: <20220215130645.164025-1-marex@denx.de>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ang Tien Sung <tien.sung.ang@intel.com>
+On Tue, 15 Feb 2022 14:06:45 +0100,
+Marek Vasut wrote:
+> 
+> While the $val/$val2 values passed in from userspace are always >= 0
+> integers, the limits of the control can be signed integers and the $min
+> can be non-zero and less than zero. To correctly validate $val/$val2
+> against platform_max, add the $min offset to val first.
+> 
+> Fixes: 817f7c9335ec0 ("ASoC: ops: Reject out of bounds values in snd_soc_put_volsw()")
+> Signed-off-by: Marek Vasut <marex@denx.de>
+> Cc: Mark Brown <broonie@kernel.org>
+> Cc: stable@vger.kernel.org
 
-Fix a bug whereby, the return response of parameter a1 from an
-SMC call is not properly set to the callback data during an
-INTEL_SIP_SMC_RSU_ERROR command.
+Now I'm looking at this since I pulled Mark's PR, and noticed that
+snd_soc_put_volsw_sx() may have a similar problem.  Care to cover
+that, too?
 
-Cc: stable@vger.kernel.org
-Fixes: 6b50d882d38d ("firmware: add remote status update client support")
-Link: https://lore.kernel.org/lkml/20220216081513.28319-1-tien.sung.ang@intel.com
-Signed-off-by: Ang Tien Sung <tien.sung.ang@intel.com>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
----
- drivers/firmware/stratix10-svc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/stratix10-svc.c b/drivers/firmware/stratix10-svc.c
-index 29c0a616b317..c4bf934e3553 100644
---- a/drivers/firmware/stratix10-svc.c
-+++ b/drivers/firmware/stratix10-svc.c
-@@ -477,7 +477,7 @@ static int svc_normal_to_secure_thread(void *data)
- 		case INTEL_SIP_SMC_RSU_ERROR:
- 			pr_err("%s: STATUS_ERROR\n", __func__);
- 			cbdata->status = BIT(SVC_STATUS_ERROR);
--			cbdata->kaddr1 = NULL;
-+			cbdata->kaddr1 = &res.a1;
- 			cbdata->kaddr2 = NULL;
- 			cbdata->kaddr3 = NULL;
- 			pdata->chan->scl->receive_cb(pdata->chan->scl, cbdata);
--- 
-2.25.1
+But, more reading the code, I suspect whether the function does work
+correctly at all...  How is the mask calculation done in that way?
+  unsigned int mask = (1U << (fls(min + max) - 1)) - 1;
+What's the difference of this function with snd_soc_put_volsw()?
 
+Furthermore, the mask calculation and usage in snd_soc_put_volsw()
+isn't right, either, I'm afraid; if the range is [-10, 0], max=0, then
+mask will 0, which will omit all values...
+
+I guess we need to revisit those functions (or I need more coffee).
+
+
+thanks,
+
+Takashi
