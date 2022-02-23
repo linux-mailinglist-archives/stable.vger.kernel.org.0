@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D29474C1A91
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 19:02:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FA0D4C1AA0
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 19:07:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243655AbiBWSDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Feb 2022 13:03:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32922 "EHLO
+        id S242325AbiBWSHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Feb 2022 13:07:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241883AbiBWSDO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 13:03:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 394EE35856
-        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 10:02:47 -0800 (PST)
+        with ESMTP id S237596AbiBWSHn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 13:07:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA6F745AF0
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 10:07:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA45761551
-        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 18:02:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC436C340E7;
-        Wed, 23 Feb 2022 18:02:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94AC1B8213E
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 18:07:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AEC3C340E7;
+        Wed, 23 Feb 2022 18:07:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645639366;
-        bh=KnmgKBC3pGydoaYS169jgh6+jgyn7Y+DFWd14zgRrNc=;
+        s=korg; t=1645639633;
+        bh=sSECbsTUHzVaqypZgeqLSTgfJLDrKqlRYN70OzuLRIQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=PnXcFdBiRnKmER4NRZZsYoJy2IVNDWWcLsXwIVejx29YP6xzdbWQNBHPa5bXhF+Fb
-         1EppgJ7gwf+THHoaeKVUTxDdsLXL9yL21HVNkZn2IBr80d156U22ZQsLIqI7VNHX+E
-         626zwtU3aSVGW93KVb8J7SXCNlnsUF6NxokVjAX0=
-Subject: FAILED: patch "[PATCH] cgroup/cpuset: Fix a race between cpuset_attach() and cpu" failed to apply to 4.9-stable tree
-To:     zhangqiao22@huawei.com, longman@redhat.com, mkoutny@suse.com,
-        tj@kernel.org, zhaogongyi@huawei.com
+        b=tnhpIOZRiiNtVDUvZkeuzWxWOS403YUSx++7GB5HEbsXFdtTylXj3j9sd1jFGpr0t
+         hMxxFNqncmRZVMeyv0yFa7LA9h/9yjspqQ7XqkIbrPy0YGyBuQtmB35JeajSMrUwhi
+         yrJ4ViLz2BTeB26/nDUmyW/ItFIh5PXF45Ge5ZGM=
+Subject: FAILED: patch "[PATCH] cgroup-v1: Correct privileges check in release_agent writes" failed to apply to 4.9-stable tree
+To:     mkoutny@suse.com, masami.ichikawa@cybertrust.co.jp, tj@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 23 Feb 2022 19:02:43 +0100
-Message-ID: <1645639363101174@kroah.com>
+Date:   Wed, 23 Feb 2022 19:07:10 +0100
+Message-ID: <1645639630120160@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -60,61 +59,53 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 05c7b7a92cc87ff8d7fde189d0fade250697573c Mon Sep 17 00:00:00 2001
-From: Zhang Qiao <zhangqiao22@huawei.com>
-Date: Fri, 21 Jan 2022 18:12:10 +0800
-Subject: [PATCH] cgroup/cpuset: Fix a race between cpuset_attach() and cpu
- hotplug
+From 467a726b754f474936980da793b4ff2ec3e382a7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>
+Date: Thu, 17 Feb 2022 17:11:28 +0100
+Subject: [PATCH] cgroup-v1: Correct privileges check in release_agent writes
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-As previously discussed(https://lkml.org/lkml/2022/1/20/51),
-cpuset_attach() is affected with similar cpu hotplug race,
-as follow scenario:
+The idea is to check: a) the owning user_ns of cgroup_ns, b)
+capabilities in init_user_ns.
 
-     cpuset_attach()				cpu hotplug
-    ---------------------------            ----------------------
-    down_write(cpuset_rwsem)
-    guarantee_online_cpus() // (load cpus_attach)
-					sched_cpu_deactivate
-					  set_cpu_active()
-					  // will change cpu_active_mask
-    set_cpus_allowed_ptr(cpus_attach)
-      __set_cpus_allowed_ptr_locked()
-       // (if the intersection of cpus_attach and
-         cpu_active_mask is empty, will return -EINVAL)
-    up_write(cpuset_rwsem)
+The commit 24f600856418 ("cgroup-v1: Require capabilities to set
+release_agent") got this wrong in the write handler of release_agent
+since it checked user_ns of the opener (may be different from the owning
+user_ns of cgroup_ns).
+Secondly, to avoid possibly confused deputy, the capability of the
+opener must be checked.
 
-To avoid races such as described above, protect cpuset_attach() call
-with cpu_hotplug_lock.
-
-Fixes: be367d099270 ("cgroups: let ss->can_attach and ss->attach do whole threadgroups at a time")
-Cc: stable@vger.kernel.org # v2.6.32+
-Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
-Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
-Acked-by: Waiman Long <longman@redhat.com>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Fixes: 24f600856418 ("cgroup-v1: Require capabilities to set release_agent")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/stable/20220216121142.GB30035@blackbody.suse.cz/
+Signed-off-by: Michal Koutný <mkoutny@suse.com>
+Reviewed-by: Masami Ichikawa(CIP) <masami.ichikawa@cybertrust.co.jp>
 Signed-off-by: Tejun Heo <tj@kernel.org>
 
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index 4c7254e8f49a..97c53f3cc917 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -2289,6 +2289,7 @@ static void cpuset_attach(struct cgroup_taskset *tset)
- 	cgroup_taskset_first(tset, &css);
- 	cs = css_cs(css);
+diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
+index 0e877dbcfeea..afc6c0e9c966 100644
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -546,6 +546,7 @@ static ssize_t cgroup_release_agent_write(struct kernfs_open_file *of,
+ 					  char *buf, size_t nbytes, loff_t off)
+ {
+ 	struct cgroup *cgrp;
++	struct cgroup_file_ctx *ctx;
  
-+	cpus_read_lock();
- 	percpu_down_write(&cpuset_rwsem);
+ 	BUILD_BUG_ON(sizeof(cgrp->root->release_agent_path) < PATH_MAX);
  
- 	guarantee_online_mems(cs, &cpuset_attach_nodemask_to);
-@@ -2342,6 +2343,7 @@ static void cpuset_attach(struct cgroup_taskset *tset)
- 		wake_up(&cpuset_attach_wq);
+@@ -553,8 +554,9 @@ static ssize_t cgroup_release_agent_write(struct kernfs_open_file *of,
+ 	 * Release agent gets called with all capabilities,
+ 	 * require capabilities to set release agent.
+ 	 */
+-	if ((of->file->f_cred->user_ns != &init_user_ns) ||
+-	    !capable(CAP_SYS_ADMIN))
++	ctx = of->priv;
++	if ((ctx->ns->user_ns != &init_user_ns) ||
++	    !file_ns_capable(of->file, &init_user_ns, CAP_SYS_ADMIN))
+ 		return -EPERM;
  
- 	percpu_up_write(&cpuset_rwsem);
-+	cpus_read_unlock();
- }
- 
- /* The various types of files and directories in a cpuset file system */
+ 	cgrp = cgroup_kn_lock_live(of->kn, false);
 
