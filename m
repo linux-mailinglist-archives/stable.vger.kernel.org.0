@@ -2,135 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38ADA4C1AEF
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 19:30:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DE874C1BD2
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 20:16:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243752AbiBWSa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Feb 2022 13:30:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36502 "EHLO
+        id S235568AbiBWTQR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Feb 2022 14:16:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236852AbiBWSa0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 13:30:26 -0500
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A93A045AE4;
-        Wed, 23 Feb 2022 10:29:58 -0800 (PST)
-Received: by mail-pf1-x430.google.com with SMTP id g1so16190027pfv.1;
-        Wed, 23 Feb 2022 10:29:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=SkZuVNW5EhwJqSpZnaByyGJdLCPW7Ju2zPYGUOXsjqM=;
-        b=dC5HMCo5K4kF82jU3P9MGgHYmjD3SgZHQBVNL8r+3dcbwmwSC9FQKBkqvwUDKNSIp1
-         MEJXGQh9ZvlPZlPWjKdxsCvDCNJ9CF/6kZTPmNfEU9zMdR7ip8su2U1QLXEkj+uZ0Jdl
-         2LIt4R6GhXnT6bo77+ag2StqHl6/Wc/CKcePtMk8lgWmY7INuVg1XBlwFI7py58WhosU
-         T3ETmSugjcBdc7g0NTMlrTOu/e5m1qXcbYXgJT1VCavksgHjRjqvKYyV01YZMLj1l5Ej
-         lSsJ6sPdEzh1zrKnvYQa1ctRd5vPshfZS06bFcoNE1QEIpXoq3z7Fpw8j5DCOmo+IYPs
-         3+vQ==
+        with ESMTP id S244299AbiBWTQN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 14:16:13 -0500
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E07E2424B1
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 11:15:41 -0800 (PST)
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com [209.85.208.200])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 8202C4092F
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 19:15:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1645643740;
+        bh=WWBR/3RyyId0ctzqGYcSjorUZAyYEVp2bjQXWveQ/28=;
+        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+         MIME-Version;
+        b=pVjMCgYzqof1V+7Sr6zskvN4auZKMkmvxFetwxMlLgm43iRoOU0cHfKf/FjW2Izgm
+         NwZmNVC3Fqp+/2iCyYLp4m49XZ5yiUT2zkX+d3dX0mszf+fB7uCNB53PfToZc9DtY5
+         Z0ZKXQB8d4E9d8q2zJpPJuaDvFkbZmTHooQfxSLKUf0+SCDWd/Ib5uIagnVezKm7u1
+         zY2EBhQbWkUJ/bM4XmXynvohpoowflKNaVIzYK9dHlIiIraOftWYxrEC5qC+L25yqF
+         TZGWn0Ln1e8BFgnx8SWXmwlO4BnbHL2NgbjUCOlW9VQhZPSnySc2R4oKIB0P1Gq+hN
+         u7x+5/9yZ38ww==
+Received: by mail-lj1-f200.google.com with SMTP id e9-20020a05651c090900b0024630875e4eso6010441ljq.18
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 11:15:40 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=SkZuVNW5EhwJqSpZnaByyGJdLCPW7Ju2zPYGUOXsjqM=;
-        b=sf2xsP8uIHKMxP/A+mP54ZLPnEHHf3O23u/u/JrHX+gjlqvjMl8dCBWqmVonRPrdts
-         b+ZsBBVh6aus4pKGTKPBT/ZzCJmvSHW517YU+Sy+4+bsbZiJeAaTPeyeu4zeuKSUmNzW
-         p5yomj4r3PNoSUEbXNIT2R+xq4LrFuo6bW/YLu4JDbP7iTnXRBkjy86MQnhQ7oZA/KND
-         3ADcGjWnDvXgAuR27OxfrHbgL8MghsO/Dk7CMi85v7fb0ULcnrQdGdQ6CnfciiBJfhdM
-         ss8qRNbzedOWJRt/kIK5J+UBrfR9rBjWUS/r/HU+f0xyej+y5PNvMRv52CPDfdobg4Bj
-         zwEQ==
-X-Gm-Message-State: AOAM533niuAwbb1S+RdVBZEPM4o2CzMIHZhAzrsf1yntg8Dp2zfmdtC0
-        ZCf4Acgd4/BoxNs92WqofvU=
-X-Google-Smtp-Source: ABdhPJw/aMkWYOkacTh9GK6zrN6Pxp+9MvTli2gOQggpOzRKne7hPDI4EZw1xVpdukjvOB118IG5Lg==
-X-Received: by 2002:a05:6a00:198f:b0:4e1:abfd:43cc with SMTP id d15-20020a056a00198f00b004e1abfd43ccmr1069614pfl.20.1645640998104;
-        Wed, 23 Feb 2022 10:29:58 -0800 (PST)
-Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
-        by smtp.gmail.com with ESMTPSA id u25sm224039pfh.46.2022.02.23.10.29.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Feb 2022 10:29:57 -0800 (PST)
-Message-ID: <0a1d6269-62b2-ebd4-f302-efe14ffa4b66@gmail.com>
-Date:   Wed, 23 Feb 2022 10:29:55 -0800
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=WWBR/3RyyId0ctzqGYcSjorUZAyYEVp2bjQXWveQ/28=;
+        b=FltyeoXvLuRGdFfqXlHnbL/zn53GYMz2jarlh5bnURwXKqupu46VAVtQ++Owjm3UQg
+         zfphk+xElWRDTSUIL8Bz4NEBDg9Xa7aKmifFXuSW85DZ9NuWXdIR5n9vnw4kr84/vPWv
+         deU99wLH18i4K7kN6i/RpzLoqW7YXb+Ib+SstT6PHzuUe77abDo3qsRWaN0dTcp74Mqg
+         baqNSGn34pMl/4L8uWfMKutJIXxQn9R7zvT5S6xXYGKjwszUepcUZ+AO/6zWT37y1Idl
+         62B8edjEE9DLE0bNS3ICqqqhCN1hNxTfl7S8gF0V5a4sPV8RfbNOY3l5DOZ8DRpLcY0t
+         D7cw==
+X-Gm-Message-State: AOAM531nc0i+7w8/72zK56oy1CBargIkkiosw2x8uFTxySMLJYUPZbqC
+        Sr3stFa1Ltf4g4QTmXA4BaJKZd4RdtQZSQBuwL/13s1K7J8BpnZ8FXg6SevIwXtMynTBGtIJXIi
+        FVi/8EdNqb1zHcLVkhW6tLh+UfzW2gccDug==
+X-Received: by 2002:a05:6402:70d:b0:410:ba4d:736f with SMTP id w13-20020a056402070d00b00410ba4d736fmr891862edx.0.1645643727233;
+        Wed, 23 Feb 2022 11:15:27 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJw8vcySNYfbv43Pk2WXynTAOxXboVgUUSRQKZSxFWxW+kHULs5hedJTU2eFScz4UFZao2eyYQ==
+X-Received: by 2002:a05:6402:70d:b0:410:ba4d:736f with SMTP id w13-20020a056402070d00b00410ba4d736fmr891811edx.0.1645643727044;
+        Wed, 23 Feb 2022 11:15:27 -0800 (PST)
+Received: from localhost.localdomain (xdsl-188-155-181-108.adslplus.ch. [188.155.181.108])
+        by smtp.gmail.com with ESMTPSA id b3sm208368ejl.67.2022.02.23.11.15.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Feb 2022 11:15:26 -0800 (PST)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Stuart Yoder <stuyoder@gmail.com>,
+        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Andy Gross <agross@kernel.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 09/11] clk: imx: scu: fix kfree() of static memory on setting driver_override
+Date:   Wed, 23 Feb 2022 20:14:39 +0100
+Message-Id: <20220223191441.348109-3-krzysztof.kozlowski@canonical.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220223191310.347669-1-krzysztof.kozlowski@canonical.com>
+References: <20220223191310.347669-1-krzysztof.kozlowski@canonical.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.0
-Subject: Re: [PATCH RESEND stable 4.9] mtd: rawnand: brcmnand: Fixed incorrect
- sub-page ECC status
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, sashal@kernel.org,
-        david regan <dregan@mail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Brian Norris <computersforpeace@gmail.com>,
-        "open list:NAND FLASH SUBSYSTEM" <linux-mtd@lists.infradead.org>,
-        open list <linux-kernel@vger.kernel.org>
-References: <20220223174431.1083-1-f.fainelli@gmail.com>
- <20220223174431.1083-3-f.fainelli@gmail.com> <YhZ0vZxlp1VTgNG8@kroah.com>
- <325bb69b-691b-3c61-9578-d42ec33277b8@gmail.com> <YhZ70pTGdGoPEMUb@kroah.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <YhZ70pTGdGoPEMUb@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The driver_override field from platform driver should not be initialized
+from static memory (string literal) because the core later kfree() it,
+for example when driver_override is set via sysfs.
 
+Use dedicated helper to set driver_override properly.
 
-On 2/23/2022 10:24 AM, Greg KH wrote:
-> On Wed, Feb 23, 2022 at 09:54:59AM -0800, Florian Fainelli wrote:
->>
->>
->> On 2/23/2022 9:54 AM, Greg KH wrote:
->>> On Wed, Feb 23, 2022 at 09:44:31AM -0800, Florian Fainelli wrote:
->>>> From: david regan <dregan@mail.com>
->>>>
->>>> commit 36415a7964711822e63695ea67fede63979054d9 upstream
->>>>
->>>> The brcmnand driver contains a bug in which if a page (example 2k byte)
->>>> is read from the parallel/ONFI NAND and within that page a subpage (512
->>>> byte) has correctable errors which is followed by a subpage with
->>>> uncorrectable errors, the page read will return the wrong status of
->>>> correctable (as opposed to the actual status of uncorrectable.)
->>>>
->>>> The bug is in function brcmnand_read_by_pio where there is a check for
->>>> uncorrectable bits which will be preempted if a previous status for
->>>> correctable bits is detected.
->>>>
->>>> The fix is to stop checking for bad bits only if we already have a bad
->>>> bits status.
->>>>
->>>> Fixes: 27c5b17cd1b1 ("mtd: nand: add NAND driver "library" for Broadcom STB NAND controller")
->>>> Signed-off-by: david regan <dregan@mail.com>
->>>> Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
->>>> Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
->>>> Link: https://lore.kernel.org/linux-mtd/trinity-478e0c09-9134-40e8-8f8c-31c371225eda-1643237024774@3c-app-mailcom-lxa02
->>>> [florian: make patch apply to 4.14, file was renamed]
->>>> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
->>>> ---
->>>>    drivers/mtd/nand/brcmnand/brcmnand.c | 2 +-
->>>>    1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> Why is this a RESEND?  What happened with the first set?
->>
->> I forgot to copy stable and you and Sasha, wanted to make it clear to the
->> MTD folks why this is being resent.
-> 
-> But this commit is already in the 4.14.268 and 4.19.231 release, why do
-> we need to add it again?
+Fixes: 77d8f3068c63 ("clk: imx: scu: add two cells binding support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+---
+ drivers/clk/imx/clk-scu.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-We don't, sorry I got an email that the patch failed to apply and forgot 
-to check 4.19 and 4.14 thinking they would not be there.
-
->  > For 4.9 we need the backport, I'll take that one...
-
-Thanks!
+diff --git a/drivers/clk/imx/clk-scu.c b/drivers/clk/imx/clk-scu.c
+index 083da31dc3ea..15e1d670e51f 100644
+--- a/drivers/clk/imx/clk-scu.c
++++ b/drivers/clk/imx/clk-scu.c
+@@ -683,7 +683,12 @@ struct clk_hw *imx_clk_scu_alloc_dev(const char *name,
+ 		return ERR_PTR(ret);
+ 	}
+ 
+-	pdev->driver_override = "imx-scu-clk";
++	ret = driver_set_override(&pdev->dev, &pdev->driver_override,
++				  "imx-scu-clk");
++	if (ret) {
++		platform_device_put(pdev);
++		return ret;
++	}
+ 
+ 	ret = imx_clk_scu_attach_pd(&pdev->dev, rsrc_id);
+ 	if (ret)
 -- 
-Florian
+2.32.0
+
