@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6DF94C08CA
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:37:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D6104C08E9
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:38:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235129AbiBWCeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:34:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43556 "EHLO
+        id S237181AbiBWCdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:33:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237350AbiBWCc6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:32:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72C8F583BB;
-        Tue, 22 Feb 2022 18:30:51 -0800 (PST)
+        with ESMTP id S237498AbiBWCdI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:33:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D25E95C84B;
+        Tue, 22 Feb 2022 18:31:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10771B81E14;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79E58614FF;
+        Wed, 23 Feb 2022 02:30:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8590C340F0;
         Wed, 23 Feb 2022 02:30:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC281C340E8;
-        Wed, 23 Feb 2022 02:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583449;
-        bh=Fd8k9zjN9MKZhmz8EI1W6exj0crf5+KIJ0aYg4ut/bo=;
+        s=k20201202; t=1645583452;
+        bh=dD+9dySqOBY0GnPXc0vqEOlGIoqkKIGq+vQ0XmTQUfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ipWVRQNVPJWcnjT+FwpRkavQU7B5ZOI4H9DwCPnP/O2v/EvlYVawOb1G0ABBiOvs3
-         eutK6hYqLloQkBX2o1EjOfAUnlkAkpJFjfOMcum+OqQ8ggqx0/bur70oIrrHBIfdwW
-         aCsOBJ6HUK7pWq3TfhzUcwZAHF1WDOXF9Bfn5EAH8unipg4bnAs/3qLmg0zC6wXc6+
-         1+z+r0ehmXO305+dCT2XdhPyABbTdKRWtNq3T8TJeD3u9XUU4hIQmDS0QFDLI8SThB
-         6aK4keUFEOVPRg94ZG429wPNRKrI1ZH+0CKYZWkxkwA5d7pfTysj4szgWJy6075piu
-         2p0bIP5s1s9Yg==
+        b=p8MzRb4Zqp3XES7w0W+zRRwQFRSeDAB5v0lzI3hvi/xHIMNLFHcbAMBz/NaVMWQVb
+         30IaAY72aogps7/C7yHUupykDZvniz37o5vGavEnYYrRW75OmwNwFUv1A5TNMfiD0m
+         ALou3c1E0cFaItu/p7Ixj5N12mWzMlSejlekBNQylvkXC2AG0FXDzaBeVyRXTXCb2m
+         ArffD5YrPn9XKpH1Zb9jmk+5dmV47slBSUwrISNwAu0SbIHSSCABxEUBn/p6GXK511
+         VSbO3dunn0JkjXmqAaNaD5h/C/WVxovwaSUHhtBIBa0kyamgn46tPh+s4XDsTdqbUt
+         S9L9VpuF6Vn+A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Peter Hutterer <peter.hutterer@who-t.net>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 07/18] Input: clear BTN_RIGHT/MIDDLE on buttonpads
-Date:   Tue, 22 Feb 2022 21:30:24 -0500
-Message-Id: <20220223023035.241551-7-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>,
+        Ricardo Koller <ricarkol@google.com>,
+        Sasha Levin <sashal@kernel.org>, catalin.marinas@arm.com,
+        will@kernel.org, rikard.falkeborn@gmail.com, eric.auger@redhat.com,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu
+Subject: [PATCH AUTOSEL 5.10 08/18] KVM: arm64: vgic: Read HW interrupt pending state from the HW
+Date:   Tue, 22 Feb 2022 21:30:25 -0500
+Message-Id: <20220223023035.241551-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223023035.241551-1-sashal@kernel.org>
 References: <20220223023035.241551-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,80 +58,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 37ef4c19b4c659926ce65a7ac709ceaefb211c40 ]
+[ Upstream commit 5bfa685e62e9ba93c303a9a8db646c7228b9b570 ]
 
-Buttonpads are expected to map the INPUT_PROP_BUTTONPAD property bit
-and the BTN_LEFT key bit.
+It appears that a read access to GIC[DR]_I[CS]PENDRn doesn't always
+result in the pending interrupts being accurately reported if they are
+mapped to a HW interrupt. This is particularily visible when acking
+the timer interrupt and reading the GICR_ISPENDR1 register immediately
+after, for example (the interrupt appears as not-pending while it really
+is...).
 
-As explained in the specification, where a device has a button type
-value of 0 (click-pad) or 1 (pressure-pad) there should not be
-discrete buttons:
-https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/touchpad-windows-precision-touchpad-collection#device-capabilities-feature-report
+This is because a HW interrupt has its 'active and pending state' kept
+in the *physical* distributor, and not in the virtual one, as mandated
+by the spec (this is what allows the direct deactivation). The virtual
+distributor only caries the pending and active *states* (note the
+plural, as these are two independent and non-overlapping states).
 
-However, some drivers map the BTN_RIGHT and/or BTN_MIDDLE key bits even
-though the device is a buttonpad and therefore does not have those
-buttons.
+Fix it by reading the HW state back, either from the timer itself or
+from the distributor if necessary.
 
-This behavior has forced userspace applications like libinput to
-implement different workarounds and quirks to detect buttonpads and
-offer to the user the right set of features and configuration options.
-For more information:
-https://gitlab.freedesktop.org/libinput/libinput/-/merge_requests/726
-
-In order to avoid this issue clear the BTN_RIGHT and BTN_MIDDLE key
-bits when the input device is register if the INPUT_PROP_BUTTONPAD
-property bit is set.
-
-Notice that this change will not affect udev because it does not check
-for buttons. See systemd/src/udev/udev-builtin-input_id.c.
-
-List of known affected hardware:
-
- - Chuwi AeroBook Plus
- - Chuwi Gemibook
- - Framework Laptop
- - GPD Win Max
- - Huawei MateBook 2020
- - Prestigio Smartbook 141 C2
- - Purism Librem 14v1
- - StarLite Mk II   - AMI firmware
- - StarLite Mk II   - Coreboot firmware
- - StarLite Mk III  - AMI firmware
- - StarLite Mk III  - Coreboot firmware
- - StarLabTop Mk IV - AMI firmware
- - StarLabTop Mk IV - Coreboot firmware
- - StarBook Mk V
-
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Link: https://lore.kernel.org/r/20220208174806.17183-1-jose.exposito89@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reported-by: Ricardo Koller <ricarkol@google.com>
+Tested-by: Ricardo Koller <ricarkol@google.com>
+Reviewed-by: Ricardo Koller <ricarkol@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220208123726.3604198-1-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/input.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/kvm/vgic/vgic-mmio.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 3cfd2c18eebd9..ff9dc37eff345 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -2179,6 +2179,12 @@ int input_register_device(struct input_dev *dev)
- 	/* KEY_RESERVED is not supposed to be transmitted to userspace. */
- 	__clear_bit(KEY_RESERVED, dev->keybit);
- 
-+	/* Buttonpads should not map BTN_RIGHT and/or BTN_MIDDLE. */
-+	if (test_bit(INPUT_PROP_BUTTONPAD, dev->propbit)) {
-+		__clear_bit(BTN_RIGHT, dev->keybit);
-+		__clear_bit(BTN_MIDDLE, dev->keybit);
-+	}
-+
- 	/* Make sure that bitmasks not mentioned in dev->evbit are clean. */
- 	input_cleanse_bitmasks(dev);
- 
+diff --git a/arch/arm64/kvm/vgic/vgic-mmio.c b/arch/arm64/kvm/vgic/vgic-mmio.c
+index b2d73fc0d1ef4..9e1459534ce54 100644
+--- a/arch/arm64/kvm/vgic/vgic-mmio.c
++++ b/arch/arm64/kvm/vgic/vgic-mmio.c
+@@ -248,6 +248,8 @@ unsigned long vgic_mmio_read_pending(struct kvm_vcpu *vcpu,
+ 						    IRQCHIP_STATE_PENDING,
+ 						    &val);
+ 			WARN_RATELIMIT(err, "IRQ %d", irq->host_irq);
++		} else if (vgic_irq_is_mapped_level(irq)) {
++			val = vgic_get_phys_line_level(irq);
+ 		} else {
+ 			val = irq_is_pending(irq);
+ 		}
 -- 
 2.34.1
 
