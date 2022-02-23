@@ -2,125 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 584CD4C0593
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 00:53:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 890824C05B3
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 01:02:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236324AbiBVXyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 18:54:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40650 "EHLO
+        id S231174AbiBWADG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 19:03:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236329AbiBVXyO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 18:54:14 -0500
-Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F8452FFC3;
-        Tue, 22 Feb 2022 15:53:48 -0800 (PST)
-Received: from in01.mta.xmission.com ([166.70.13.51]:48792)
-        by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1nMeyW-00D5Zz-O9; Tue, 22 Feb 2022 16:53:45 -0700
-Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:51066 helo=email.froward.int.ebiederm.org.xmission.com)
-        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1nMeyT-008QFE-Sj; Tue, 22 Feb 2022 16:53:44 -0700
-From:   "Eric W. Biederman" <ebiederm@xmission.com>
-To:     "Dr. Thomas Orgis" <thomas.orgis@uni-hamburg.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        Balbir Singh <bsingharora@gmail.com>,
-        "Sudip Mukherjee" <sudipm.mukherjee@gmail.com>
-References: <20220221084915.554151737@linuxfoundation.org>
-        <20220221084916.628257481@linuxfoundation.org>
-        <20220221234610.0d23e2e0@plasteblaster>
-Date:   Tue, 22 Feb 2022 17:53:12 -0600
-In-Reply-To: <20220221234610.0d23e2e0@plasteblaster> (Thomas Orgis's message
-        of "Mon, 21 Feb 2022 23:46:10 +0100")
-Message-ID: <87sfsa8nmf.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S236512AbiBWADB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 19:03:01 -0500
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDFC0377F8
+        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 16:02:33 -0800 (PST)
+Received: by mail-pl1-x62a.google.com with SMTP id 4so8499713pll.6
+        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 16:02:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=IOh9p8d3qxVvUUxC81YKVchc8opA6ke0MzXBOp6M60U=;
+        b=DwKSoqA6R44ll5qfjGq6w8NcSWTMtsOqRtG8JByOEQPlGKCnQfqyoH/Eeo2kiUmkKT
+         9rHfBh0c2Z9+0xZTzJ8/FdDePteAWy1qktRHOSMNRrr1qqaiZMQr1YfxzW2Y9TNc1Vmm
+         lV2Kp7hmcAQ9VYAhNCq5aJ96//Sf978EONc1YAiNZtPDAnW1az7hD9fjViTCOQ8mMl+n
+         IvUfdAsRQWDr22DBi5lDEUlotEsdsTEATIBUkpDjzzf8PLqlKeNjRQUeeigvk7SWPODK
+         DUfcf+B8UbKjZxh815a5P+gPgMbHOJR9oqttyZcJCxps52lMG4DeIb9Yqg6eji7ClG8e
+         jQHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=IOh9p8d3qxVvUUxC81YKVchc8opA6ke0MzXBOp6M60U=;
+        b=luBqqdoWydB+JEGpwNpmNwR/mg71fL9nETTw+pwAn++RL/PlxYnT1Do8I4M1SOYXVs
+         ROX6BpspoGPPn1uORHKJcwKZiAR+LbiTlWV3loaEFUloD1FBfxDhV5t/aWFbFMV5lLPG
+         jLFG7D8j09pPBbg/QBJjevN7oNXefsy1qAj45QR5y6yivQP+Zqf3vMYnh+hrZ4lgl3Q1
+         Xebw6Hj2Ovv9RrtHQXAxv/UEEkJoGSQz9jysFAJBe0c1/+GdjsKXJDr4gMMLA8IgoAKG
+         5ZCWJMK2a9OF/8pj8EOaPJFnPqD6zcRQFLSE8hYCmddFwtyVb7eqezi1zVcHcltS6rIH
+         93Jg==
+X-Gm-Message-State: AOAM531HEEqGbuRJbx+8UA3EZQD1Mb2oNui+SQe9iBNX9rSWYSG7Dbb5
+        M2AcEhjQs2G1PBFTtvEmbn0geG62R6FIBz9q
+X-Google-Smtp-Source: ABdhPJy5FacsKirOMYuxWcauFLhePITabIu1Qy1zSidkXOLYfI0zcOdFijz9bcCX+SR3gPf+2AS6Hw==
+X-Received: by 2002:a17:902:b189:b0:14d:6f87:7c25 with SMTP id s9-20020a170902b18900b0014d6f877c25mr25731150plr.31.1645574552942;
+        Tue, 22 Feb 2022 16:02:32 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a29sm21846152pgl.24.2022.02.22.16.02.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Feb 2022 16:02:32 -0800 (PST)
+Message-ID: <62157998.1c69fb81.f61bc.aa81@mx.google.com>
+Date:   Tue, 22 Feb 2022 16:02:32 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1nMeyT-008QFE-Sj;;;mid=<87sfsa8nmf.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX18tO8ahZmJWbAsAz1uv1DwCxv6VHTabo0U=
-X-SA-Exim-Connect-IP: 68.227.174.4
-X-SA-Exim-Mail-From: ebiederm@xmission.com
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Kernel: v4.14.267-45-g5759e79797e0
+Subject: stable-rc/queue/4.14 baseline: 63 runs,
+ 1 regressions (v4.14.267-45-g5759e79797e0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
-X-Spam-DCC: XMission; sa07 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: *;"Dr. Thomas Orgis" <thomas.orgis@uni-hamburg.de>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 1594 ms - load_scoreonly_sql: 0.04 (0.0%),
-        signal_user_changed: 12 (0.7%), b_tie_ro: 10 (0.6%), parse: 1.14
-        (0.1%), extract_message_metadata: 20 (1.3%), get_uri_detail_list: 2.2
-        (0.1%), tests_pri_-1000: 18 (1.1%), tests_pri_-950: 1.32 (0.1%),
-        tests_pri_-900: 1.02 (0.1%), tests_pri_-90: 158 (9.9%), check_bayes:
-        145 (9.1%), b_tokenize: 7 (0.4%), b_tok_get_all: 7 (0.5%),
-        b_comp_prob: 2.4 (0.2%), b_tok_touch_all: 125 (7.8%), b_finish: 1.00
-        (0.1%), tests_pri_0: 1359 (85.3%), check_dkim_signature: 0.55 (0.0%),
-        check_dkim_adsp: 2.9 (0.2%), poll_dns_idle: 1.14 (0.1%), tests_pri_10:
-        3.5 (0.2%), tests_pri_500: 17 (1.0%), rewrite_mail: 0.00 (0.0%)
-Subject: Re: [PATCH 5.4 32/80] taskstats: Cleanup the use of task->exit_code
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-"Dr. Thomas Orgis" <thomas.orgis@uni-hamburg.de> writes:
+stable-rc/queue/4.14 baseline: 63 runs, 1 regressions (v4.14.267-45-g5759e7=
+9797e0)
 
-> Am Mon, 21 Feb 2022 09:49:12 +0100
-> schrieb Greg Kroah-Hartman <gregkh@linuxfoundation.org>: 
->
->> As best as I can figure the intent is to return task->exit_code after
->> a task exits.  The field is returned with per task fields, so the
->> exit_code of the entire process is not wanted.
->
-> I wondered about the use of exit_code, too, when preparing my patch
-> that introduces ac_tgid and the AGROUP flag to identify the first and
-> last tasks of a task group/process, see
->
-> 	https://lkml.org/lkml/2022/2/18/887
->
-> With the information about the position of this task in the group,
-> users can take some meaning from the exit code (individual kills?). The
-> old style ensured that you got one exit code per process.
+Regressions Summary
+-------------------
 
-How do you figure?
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
 
-For single-threaded processes ac_exitcode would always be reasonable,
-and be what userspace passed to exit(3).
 
-For multi-threaded processes ac_exitcode before my change was set to
-some completely arbitrary value for the thread whose tgid == tid.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.267-45-g5759e79797e0/plan/baseline/
 
-Frequently the thread whose tgid == tid is the last thread to
-exit and is brought down by a call to group_exit so it makes sense.
-Unfortunately there is no requirement for that to be the case.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.267-45-g5759e79797e0
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5759e79797e0115540676e5051cffc913dc979cc =
 
-If the thread whose tgid == tid happens to call pthread_exit the value
-in ac_exitcode for that thread is pretty much undefined.
 
-The ac_exitcode for the other threads would be the useless value of 0
-that the field was initialized to.  With my change the value returned is
-at least well defined.
 
-But thread_group_leader in this context does nothing except limit the
-value that is returned.
+Test Regressions
+---------------- =
 
-> I addressing ac_exitcode fits together with my patch, while increasing
-> the version of taskstats helps clients that then can know that
-> ac_exitcode now has a different meaning. Right now this is a change
-> under the hood and you can just guess (or have to know from the kernel
-> version).
 
-As best as I can tell I did not change the meaning of the field.  I
-change buggy code, and removed an arbitrary and senseless filter.
 
-Now maybe it would have been better to flag the bug fix with a version
-number.  Unfortunately I did not even realize taskstats had a version
-number.  I just know the code made no sense.
+platform         | arch | lab          | compiler | defconfig          | re=
+gressions
+-----------------+------+--------------+----------+--------------------+---=
+---------
+meson8b-odroidc1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1 =
+         =
 
-Eric
+
+  Details:     https://kernelci.org/test/plan/id/621542fa1a9478d2eac6298d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.267=
+-45-g5759e79797e0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson=
+8b-odroidc1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.267=
+-45-g5759e79797e0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meson=
+8b-odroidc1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220218.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/621542fa1a9478d2eac62=
+98e
+        failing since 9 days (last pass: v4.14.266-18-g18b83990eba9, first =
+fail: v4.14.266-28-g7d44cfe0255d) =
+
+ =20
