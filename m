@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D6104C08E9
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:38:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97E0C4C08C4
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:37:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237181AbiBWCdi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:33:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51558 "EHLO
+        id S237296AbiBWCeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:34:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237498AbiBWCdI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:33:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D25E95C84B;
-        Tue, 22 Feb 2022 18:31:09 -0800 (PST)
+        with ESMTP id S237412AbiBWCdD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:33:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D3354695;
+        Tue, 22 Feb 2022 18:30:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79E58614FF;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D3E6B81E16;
+        Wed, 23 Feb 2022 02:30:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60D66C340EB;
         Wed, 23 Feb 2022 02:30:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8590C340F0;
-        Wed, 23 Feb 2022 02:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583452;
-        bh=dD+9dySqOBY0GnPXc0vqEOlGIoqkKIGq+vQ0XmTQUfU=;
+        s=k20201202; t=1645583454;
+        bh=ivWUsLtsVfdwyX3MGqfIjbu4yO7DXDnawmsKBrxyaPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p8MzRb4Zqp3XES7w0W+zRRwQFRSeDAB5v0lzI3hvi/xHIMNLFHcbAMBz/NaVMWQVb
-         30IaAY72aogps7/C7yHUupykDZvniz37o5vGavEnYYrRW75OmwNwFUv1A5TNMfiD0m
-         ALou3c1E0cFaItu/p7Ixj5N12mWzMlSejlekBNQylvkXC2AG0FXDzaBeVyRXTXCb2m
-         ArffD5YrPn9XKpH1Zb9jmk+5dmV47slBSUwrISNwAu0SbIHSSCABxEUBn/p6GXK511
-         VSbO3dunn0JkjXmqAaNaD5h/C/WVxovwaSUHhtBIBa0kyamgn46tPh+s4XDsTdqbUt
-         S9L9VpuF6Vn+A==
+        b=Ln+etUpNr5W9YXbUS1lFUX7aN/dtF9mguuOrzF4o6ecDLwCRZNGugyWggjccm3/RN
+         L64hRGZUssZHp+Ibg+CtAVjm1+DZIXcnRWzSRiW3nGtHtLBaH5cN0nYPvb2PeBoNun
+         vQxdwreA78m3wQ3AfSlkFoOLsKDFI8zKFfNWwnhlURNOUx5442+FENrZS1KFSTyisS
+         PpG8SbHSuNg1Voa3z7gna8byj4eNM0CTQwynTfkyuWsstMHb/qxWEbbF3HBByNKRE2
+         y7VAeSSp+g/Pn5IzayIwOpRz7RcpbcxJWp79HYNmDBMwai0XS5RULvDE2U/iqVRiZg
+         Bn96hQLYE1K1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>,
-        Ricardo Koller <ricarkol@google.com>,
-        Sasha Levin <sashal@kernel.org>, catalin.marinas@arm.com,
-        will@kernel.org, rikard.falkeborn@gmail.com, eric.auger@redhat.com,
-        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu
-Subject: [PATCH AUTOSEL 5.10 08/18] KVM: arm64: vgic: Read HW interrupt pending state from the HW
-Date:   Tue, 22 Feb 2022 21:30:25 -0500
-Message-Id: <20220223023035.241551-8-sashal@kernel.org>
+Cc:     Hangyu Hua <hbh25y@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, jmaloy@redhat.com,
+        ying.xue@windriver.com, kuba@kernel.org, netdev@vger.kernel.org,
+        tipc-discussion@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.10 09/18] tipc: fix a bit overflow in tipc_crypto_key_rcv()
+Date:   Tue, 22 Feb 2022 21:30:26 -0500
+Message-Id: <20220223023035.241551-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223023035.241551-1-sashal@kernel.org>
 References: <20220223023035.241551-1-sashal@kernel.org>
@@ -58,49 +58,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 5bfa685e62e9ba93c303a9a8db646c7228b9b570 ]
+[ Upstream commit 143de8d97d79316590475dc2a84513c63c863ddf ]
 
-It appears that a read access to GIC[DR]_I[CS]PENDRn doesn't always
-result in the pending interrupts being accurately reported if they are
-mapped to a HW interrupt. This is particularily visible when acking
-the timer interrupt and reading the GICR_ISPENDR1 register immediately
-after, for example (the interrupt appears as not-pending while it really
-is...).
+msg_data_sz return a 32bit value, but size is 16bit. This may lead to a
+bit overflow.
 
-This is because a HW interrupt has its 'active and pending state' kept
-in the *physical* distributor, and not in the virtual one, as mandated
-by the spec (this is what allows the direct deactivation). The virtual
-distributor only caries the pending and active *states* (note the
-plural, as these are two independent and non-overlapping states).
-
-Fix it by reading the HW state back, either from the timer itself or
-from the distributor if necessary.
-
-Reported-by: Ricardo Koller <ricarkol@google.com>
-Tested-by: Ricardo Koller <ricarkol@google.com>
-Reviewed-by: Ricardo Koller <ricarkol@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220208123726.3604198-1-maz@kernel.org
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/vgic/vgic-mmio.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/tipc/crypto.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kvm/vgic/vgic-mmio.c b/arch/arm64/kvm/vgic/vgic-mmio.c
-index b2d73fc0d1ef4..9e1459534ce54 100644
---- a/arch/arm64/kvm/vgic/vgic-mmio.c
-+++ b/arch/arm64/kvm/vgic/vgic-mmio.c
-@@ -248,6 +248,8 @@ unsigned long vgic_mmio_read_pending(struct kvm_vcpu *vcpu,
- 						    IRQCHIP_STATE_PENDING,
- 						    &val);
- 			WARN_RATELIMIT(err, "IRQ %d", irq->host_irq);
-+		} else if (vgic_irq_is_mapped_level(irq)) {
-+			val = vgic_get_phys_line_level(irq);
- 		} else {
- 			val = irq_is_pending(irq);
- 		}
+diff --git a/net/tipc/crypto.c b/net/tipc/crypto.c
+index d8a2f424786fc..6f91b9a306dc3 100644
+--- a/net/tipc/crypto.c
++++ b/net/tipc/crypto.c
+@@ -2280,7 +2280,7 @@ static bool tipc_crypto_key_rcv(struct tipc_crypto *rx, struct tipc_msg *hdr)
+ 	struct tipc_crypto *tx = tipc_net(rx->net)->crypto_tx;
+ 	struct tipc_aead_key *skey = NULL;
+ 	u16 key_gen = msg_key_gen(hdr);
+-	u16 size = msg_data_sz(hdr);
++	u32 size = msg_data_sz(hdr);
+ 	u8 *data = msg_data(hdr);
+ 	unsigned int keylen;
+ 
 -- 
 2.34.1
 
