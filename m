@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1169D4C0852
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:32:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B89EB4C080A
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:31:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237111AbiBWCbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:31:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42604 "EHLO
+        id S237135AbiBWCbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:31:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237114AbiBWCbM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:31:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4392655491;
-        Tue, 22 Feb 2022 18:29:58 -0800 (PST)
+        with ESMTP id S237048AbiBWCbK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:31:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B48F6457A5;
+        Tue, 22 Feb 2022 18:29:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20DEBB81E18;
-        Wed, 23 Feb 2022 02:29:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1B7EC36AE3;
-        Wed, 23 Feb 2022 02:29:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59C3EB81DA6;
+        Wed, 23 Feb 2022 02:29:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41247C340EB;
+        Wed, 23 Feb 2022 02:29:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583391;
-        bh=+oaw10vcsziuPG1r4+KJScrE4s0dXjQd4Jd7dTVsJvg=;
+        s=k20201202; t=1645583393;
+        bh=pGLG2SOVo6AjJURheQjGN51ViP8G0Dfy41nopw84HZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4sqHj49BbDhafQ8PsQpWS1awxpycUd8fBPwB7RpqhyVV0mOi3NCCxspdILW8t+yn
-         lvo6eG8KyBgYjrGSpFZoqh2s+oYQQYQn/Cdj/S8l1pTsfqXwyJx3w0MNKI9dUmKC3V
-         9WkqhFDi9dEAish2P6uJ5z5cYVGooxrrtWRuKU5VSBctRYOApldGvlNl97PCLV6mV5
-         c2endY9ljAUvdh6aDS/fqmCOj6gbiSyvwvuk1kkdtWRzn6QM+fKBr/+rSlLMir26z4
-         W8GMEsSbtarrnikvWpQA8HcVEeHSKGLGyb4S6GiLUCZjjgq/atCT50bIh5NFQ44kJs
-         RA0s1CLww87kw==
+        b=jxPw6J/rI7NTjoQSsEMzkNHPo+E0KSnvai27wf7GY6pFE5wqUjnIv4Jvd+Fjqv1Uf
+         3ZnIowV1KkttOYzwDjeBeaXWb/j1y9ahBBBs63X6EAr3xCiY4/B7nLoC+56/bQCkHD
+         QQKV6NCoMoR8FXFw2VXWZQgLscjDQiT/gs8bjynRl+c2qqOIAAFW4nujiz9+ffhxw8
+         imklb0fLzS1jBsdRJ+fkPi4D000tHZ+1h9u4vBaoQdQwosikuGwNibC0KCflJNKbwc
+         O65g9kFVnODeInDTP4/iX8DqetZGgSiJspNiVE5mmBiVdaJO2ZDCqVMK5XE714LsLD
+         IT7QIcKI7ulQQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hangyu Hua <hbh25y@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, jmaloy@redhat.com,
-        ying.xue@windriver.com, kuba@kernel.org, netdev@vger.kernel.org,
-        tipc-discussion@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.15 11/28] tipc: fix a bit overflow in tipc_crypto_key_rcv()
-Date:   Tue, 22 Feb 2022 21:29:12 -0500
-Message-Id: <20220223022929.241127-11-sashal@kernel.org>
+Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
+        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.15 12/28] cifs: do not use uninitialized data in the owner/group sid
+Date:   Tue, 22 Feb 2022 21:29:13 -0500
+Message-Id: <20220223022929.241127-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223022929.241127-1-sashal@kernel.org>
 References: <20220223022929.241127-1-sashal@kernel.org>
@@ -58,33 +57,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 143de8d97d79316590475dc2a84513c63c863ddf ]
+[ Upstream commit 26d3dadebbcbddfaf1d9caad42527a28a0ed28d8 ]
 
-msg_data_sz return a 32bit value, but size is 16bit. This may lead to a
-bit overflow.
+When idsfromsid is used we create a special SID for owner/group.
+This structure must be initialized or else the first 5 bytes
+of the Authority field of the SID will contain uninitialized data
+and thus not be a valid SID.
 
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/crypto.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/cifsacl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/tipc/crypto.c b/net/tipc/crypto.c
-index d293614d5fc65..b5074957e8812 100644
---- a/net/tipc/crypto.c
-+++ b/net/tipc/crypto.c
-@@ -2287,7 +2287,7 @@ static bool tipc_crypto_key_rcv(struct tipc_crypto *rx, struct tipc_msg *hdr)
- 	struct tipc_crypto *tx = tipc_net(rx->net)->crypto_tx;
- 	struct tipc_aead_key *skey = NULL;
- 	u16 key_gen = msg_key_gen(hdr);
--	u16 size = msg_data_sz(hdr);
-+	u32 size = msg_data_sz(hdr);
- 	u8 *data = msg_data(hdr);
- 	unsigned int keylen;
+diff --git a/fs/cifs/cifsacl.c b/fs/cifs/cifsacl.c
+index ee3aab3dd4ac6..5df21d63dd04e 100644
+--- a/fs/cifs/cifsacl.c
++++ b/fs/cifs/cifsacl.c
+@@ -1297,7 +1297,7 @@ static int build_sec_desc(struct cifs_ntsd *pntsd, struct cifs_ntsd *pnntsd,
  
+ 		if (uid_valid(uid)) { /* chown */
+ 			uid_t id;
+-			nowner_sid_ptr = kmalloc(sizeof(struct cifs_sid),
++			nowner_sid_ptr = kzalloc(sizeof(struct cifs_sid),
+ 								GFP_KERNEL);
+ 			if (!nowner_sid_ptr) {
+ 				rc = -ENOMEM;
+@@ -1326,7 +1326,7 @@ static int build_sec_desc(struct cifs_ntsd *pntsd, struct cifs_ntsd *pnntsd,
+ 		}
+ 		if (gid_valid(gid)) { /* chgrp */
+ 			gid_t id;
+-			ngroup_sid_ptr = kmalloc(sizeof(struct cifs_sid),
++			ngroup_sid_ptr = kzalloc(sizeof(struct cifs_sid),
+ 								GFP_KERNEL);
+ 			if (!ngroup_sid_ptr) {
+ 				rc = -ENOMEM;
 -- 
 2.34.1
 
