@@ -2,191 +2,248 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 091BE4C14AD
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 14:49:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26F394C14CB
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 14:54:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239923AbiBWNuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Feb 2022 08:50:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56022 "EHLO
+        id S237393AbiBWNzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Feb 2022 08:55:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233661AbiBWNuG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 08:50:06 -0500
-Received: from IND01-MA1-obe.outbound.protection.outlook.com (mail-ma1ind01olkn0161.outbound.protection.outlook.com [104.47.100.161])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 757A7AF1FB;
-        Wed, 23 Feb 2022 05:49:38 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ma0fjdUz8ekrmYNDNdA3zbat0QgJufcMbfNige6QulJCY9owxWAcVSKw/qiV7VLLe0V7gP0XeJW/Xw67S4ZmTXC5Cy2JRuwGGgxor2CfKax9Wt9+HKrlXWtiO/zrf26z7bEdPyK7wlPZR+yt3boHIVudy8RHOnjS6GB58ahmfFICWMAF2LHaBuVqfd3Qrq/zYH6SCBTXHH9p/F58cE7yudUZGKK3HSsLjK+Ekh+XJD16WCaGlDeGyipaf8sSd5AgNq3YzSMGuHiwggRPuOrSsvytxGn+YPs0e+n8D6kqzHo3oEBierlGuPVoy/5pUfvbfb/FMfG6K6sM1pT9V5qErQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4u+RDUfMDE3xKyZarNNKto50bKqo0jR1iJcPz636rQU=;
- b=Nr99NYcre/nmOFvPlJqMclAtvY0ebq6CHk/BUTN7wtwafDi+RCAlt175Cwp2XDV75bGg4JDoq5ofcpOdbrsAwyeFg/sV96HPyvYVCPjEsZTgdUGyZk/4bQvivupRPYL2g6hRztX7HwqeZJXK+oVdij4Rgtf/apW4X7lNhkbpfY/FJT7ev6t1JDGg98P5Iccm7wQ98Gx5PVTaYV4+Q6Xhe2dsJHqqjwzQFoZCh6QTXnIGQWHQaTalgPQcRomZ8Age7jcvbZIa2+ImFrGXUn9FlfBxjIof5cmVL1AANOBav1Hv3t2LLIj1XOIqRmy13Y1Sg5WOZw5Q8VL53zz5sR+m1A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4u+RDUfMDE3xKyZarNNKto50bKqo0jR1iJcPz636rQU=;
- b=KKi/uPkycI4y6jgihyVfheHdvGT9JfyLJZ4wmy3LVsmrWMQlmv629LI06MZdyrtM/jLyDD8O86zvZifVyCSrOxsobm5lF4e6ihm6CS5ai5Id4zD8NSoI6FDxNU16K4tRvEoS+wZSLgcbLk0Oohmi299svSFsyThwjQcpiCr4DeH+tKAcg2KQwfN1tWswOss5CBd71kMBblOGVKO1BFpE7J8vvUpwhBTfWSfmtDcLh38Un21n4CEfr3o83r9VuOxhWUfTjw4v+SZAvqH1otAdB/zoGHSzoznC0v/gCrR+Z550WMtuYLZtrYEuf2AS3kTvaKUB1wYlzTR9A3bUB2fLXA==
-Received: from PN2PR01MB4411.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:17::10)
- by MA0PR01MB6778.INDPRD01.PROD.OUTLOOK.COM (2603:1096:a01:37::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4975.18; Wed, 23 Feb
- 2022 13:49:29 +0000
-Received: from PN2PR01MB4411.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::9051:483f:8c51:66e1]) by PN2PR01MB4411.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::9051:483f:8c51:66e1%5]) with mapi id 15.20.4995.027; Wed, 23 Feb 2022
- 13:49:29 +0000
-From:   Aditya Garg <gargaditya08@live.com>
-To:     David Laight <David.Laight@ACULAB.COM>
-CC:     Ard Biesheuvel <ardb@kernel.org>,
-        Matthew Garrett <mjg59@srcf.ucam.org>,
-        Jeremy Kerr <jk@ozlabs.org>,
-        "joeyli.kernel@gmail.com" <joeyli.kernel@gmail.com>,
-        "zohar@linux.ibm.com" <zohar@linux.ibm.com>,
-        "jmorris@namei.org" <jmorris@namei.org>,
-        "eric.snowberg@oracle.com" <eric.snowberg@oracle.com>,
-        "dhowells@redhat.com" <dhowells@redhat.com>,
-        "jlee@suse.com" <jlee@suse.com>,
-        "James.Bottomley@hansenpartnership.com" 
-        <James.Bottomley@HansenPartnership.com>,
-        "jarkko@kernel.org" <jarkko@kernel.org>,
-        "mic@digikod.net" <mic@digikod.net>,
-        "dmitry.kasatkin@gmail.com" <dmitry.kasatkin@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Aun-Ali Zaidi <admin@kodeit.net>
-Subject: Re: [PATCH v3] efi: Do not import certificates from UEFI Secure Boot
- for T2 Macs
-Thread-Topic: [PATCH v3] efi: Do not import certificates from UEFI Secure Boot
- for T2 Macs
-Thread-Index: AQHYHmuXCUX8clA/f0+kyOomS1U+nayhO3+A
-Date:   Wed, 23 Feb 2022 13:49:29 +0000
-Message-ID: <522D95FA-C088-4488-B240-1E97274CEB74@live.com>
-References: <9D0C961D-9999-4C41-A44B-22FEAF0DAB7F@live.com>
- <755cffe1dfaf43ea87cfeea124160fe0@AcuMS.aculab.com>
- <B6D697AB-2AC5-4925-8300-26BBB4AC3D99@live.com>
- <20103919-A276-4CA6-B1AD-6E45DB58500B@live.com>
- <7038A8ED-AC52-4966-836B-7B346713AEE9@live.com>
-In-Reply-To: <7038A8ED-AC52-4966-836B-7B346713AEE9@live.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [9B13q2migWtEoPivY19gt0LFRpUuxI3q8PIEfysBRFg=]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: aa7a214a-417a-4d64-e159-08d9f6d35073
-x-ms-traffictypediagnostic: MA0PR01MB6778:EE_
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 2iDNvvWmoLcGHiLnGyDcweX/EqxPVfhO29XVdqL89cz1JamNEolHuXEujUwCZkEYP3yRfdLSVdUr5/Y0fvIyxwIhyASi11BBJASm26/vPHdkJrG3mRvebBVEeRNOtYyUQvnSyGp6k0fbbRRSUgAFKQ5CKJWp+HMt28CNtb+YeAWz0yHT39TFns40wRG9nnMHsK6t5KIo8Pxx7w1M++Vm/Dx1GNP4vQN8u9ak64kazjG3jYHJauucrUcmTYopatAs0yzjA1yZWOLut3jcPN8byOq8aR0ueJ/VqHrdQK6uh2Vjb245zQknxwlABXtxEFR/dw0d5O/LKaPjnMLLye1wYwBBsPaDnCrL0onGcMCcV8VKE3g8fjhE6bJQF17T5J+hE/9wyf/269vzwP1tVXnj9pKySOmAYNC0RBf6QYyxzkMDhoFJvHO480iNZVKUrMIoAzmYWlV+p3l4FCPqvQs5wNHByVEsSrNYO0M9vBoOzY0GTcH5PkMPMZRKaNjkHPq7xLmpPFtNPHVEL8i0q8uZvaafPKjPSy4FyCWmz+dmanzYD6oUf87to/wBBZVlhTV+2yuDsBUNik+lOlobeXxVrA==
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?rSFicyk8rsPp4pB1oCeTlXSvo+FYPicqaOaaSAHlZ0WIg79clqJHHnoXwLjV?=
- =?us-ascii?Q?yRbgRKjK1vJdcNmh7NRAV/U3/E+YNsZ6QVzaZdU4tnvr9/APDI4RqRZ+Ht2G?=
- =?us-ascii?Q?XjGiB5nmZNQyCYQxBriG6xflqQufYIWtbUx7eQel9UdOXdqSetDtDu2xQrZl?=
- =?us-ascii?Q?7P5qge2TKGltQvaBs8CYj0shKo3wqoNRAJTmVQMWlwvBFGsbkyPYLo7cMKj1?=
- =?us-ascii?Q?zGm7Y0sPPpxGpTYrC+6Jh6DZVKLlhFPAlHywyi9NZf3CSyFH7WbbcVXWY5Zu?=
- =?us-ascii?Q?yvvtaFofaqAFmg+QRPkIMvnK8j8/1h2R3DRxVIH9wNAt5sC3LbkXKXkl+PaZ?=
- =?us-ascii?Q?es4hl/1NxkF6UGKsDpjufSZ7GQuCTpHS/LYbK0rZpMTDe7yB10oP2J7C8dJm?=
- =?us-ascii?Q?2cP9AXjEcIGPJNEoSfDoRKQ7RXjpK/MkR9MXmJsij4rwJoxP/0WiWhfkaH3c?=
- =?us-ascii?Q?do18ozZClFQ8Cme0Oe4r+dXWVsd3quHNWIS2Lr7LQEDxSvk1GXyAi0XSjOQz?=
- =?us-ascii?Q?ZyPHj7iooNdKwO+W44GRb1thFQZD15k/LQ/g1EOAUg/9QzHOSfztEGyFG7gx?=
- =?us-ascii?Q?LfxZWm+JcYkqcq60omxITaZf/2jm2WOKtP/df6nKRsmNv8uT431DGpWVmlAk?=
- =?us-ascii?Q?RHsEbssKYuusgjEaf3f+ZpiJbwP0Gr3wr1mtVIq8S5K13g5592mvlVhjapRi?=
- =?us-ascii?Q?priZLiN4iCkXoYRn1FSQ+HRukT04SUTI2WBBQsT8rMMR8uBCRJ8udxkiIvDE?=
- =?us-ascii?Q?KkusCuMkA2jSvGHOCNLwhoKlezkO/JwkGZlEJ4ClTHqLmHCo//bjAoakgR3M?=
- =?us-ascii?Q?MwevKIDWqmExfQo8tHDHehuKXS7zyrliZ9Elmfi8HB5rn14Rp8oZe2OOLnDo?=
- =?us-ascii?Q?an184A5YoHXfScNTmJOI6TLuZT9Z+fEN/xXYbNKQ3niCmup0L8RaN5WbgK7Y?=
- =?us-ascii?Q?YGwqgvWn+NaUYubCVuMMQ3ktKqA3yq7JAiHO9Qj/2q4=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <48868A70D4BE1D48BB730167F812112D@INDPRD01.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S230467AbiBWNzM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 08:55:12 -0500
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22170B0A65;
+        Wed, 23 Feb 2022 05:54:45 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id BE5F621155;
+        Wed, 23 Feb 2022 13:54:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1645624483; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type;
+        bh=BDDtMFSlNaRroadtmjh5Rpea2LPkFe//rdeeAscwciI=;
+        b=1hG1h0oScQB5MQ5JpmLkarELJg9Sd+dGOSWF9Sx/uh3llAxMIDnb4K2uM8fkw4yOUU/zwm
+        Na0iR8+Mx5Q4UAJCX2wi4hCGpmu0EvBT8IwdUTgY8kmVNM2JjqBVpE3cUixDIFBoEuOhfH
+        joUBQVQJi+MmhJCRQEmG2S6P531LddM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1645624483;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type;
+        bh=BDDtMFSlNaRroadtmjh5Rpea2LPkFe//rdeeAscwciI=;
+        b=Ls2d1Dv6wKxOqma4CFw+uqyp1dbt4ahwDfB7wifMeJu6wkPAFpyUIaXLvGZVElJ/1/91+u
+        dMitCnBiPMsvGNDg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 8FB4E13D72;
+        Wed, 23 Feb 2022 13:54:43 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id gELmIaM8FmIwOAAAMHmgww
+        (envelope-from <vbabka@suse.cz>); Wed, 23 Feb 2022 13:54:43 +0000
+Content-Type: multipart/mixed; boundary="------------GrTvbgEqrrcmnHjnYyoN6t08"
+Message-ID: <df3b5d1c-a36b-2c73-3e27-99e74983de3a@suse.cz>
+Date:   Wed, 23 Feb 2022 14:54:43 +0100
 MIME-Version: 1.0
-X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-42ed3.templateTenant
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PN2PR01MB4411.INDPRD01.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: aa7a214a-417a-4d64-e159-08d9f6d35073
-X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Feb 2022 13:49:29.4971
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MA0PR01MB6778
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.1
+Content-Language: en-US
+From:   Vlastimil Babka <vbabka@suse.cz>
+To:     Matthew Wilcox <willy@infradead.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     Miaohe Lin <linmiaohe@huawei.com>,
+        Christoph Hellwig <hch@infradead.org>, Jan Kara <jack@suse.cz>,
+        Takashi Iwai <tiwai@suse.de>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>, patches@lists.linux.dev,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Subject: read() data corruption with CONFIG_READ_ONLY_THP_FOR_FS=y
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------GrTvbgEqrrcmnHjnYyoN6t08
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
+Hi,
 
-> On 10-Feb-2022, at 4:17 PM, Aditya Garg <gargaditya08@live.com> wrote:
->=20
-> From: Aditya Garg <gargaditya08@live.com>
->=20
-> On T2 Macs, the secure boot is handled by the T2 Chip. If enabled, only
-> macOS and Windows are allowed to boot on these machines. Thus we need to
-> disable secure boot for Linux. If we boot into Linux after disabling
-> secure boot, if CONFIG_LOAD_UEFI_KEYS is enabled, EFI Runtime services
-> fail to start, with the following logs in dmesg
->=20
-> Call Trace:
-> <TASK>
-> page_fault_oops+0x4f/0x2c0
-> ? search_bpf_extables+0x6b/0x80
-> ? search_module_extables+0x50/0x80
-> ? search_exception_tables+0x5b/0x60
-> kernelmode_fixup_or_oops+0x9e/0x110
-> __bad_area_nosemaphore+0x155/0x190
-> bad_area_nosemaphore+0x16/0x20
-> do_kern_addr_fault+0x8c/0xa0
-> exc_page_fault+0xd8/0x180
-> asm_exc_page_fault+0x1e/0x30
-> (Removed some logs from here)
-> ? __efi_call+0x28/0x30
-> ? switch_mm+0x20/0x30
-> ? efi_call_rts+0x19a/0x8e0
-> ? process_one_work+0x222/0x3f0
-> ? worker_thread+0x4a/0x3d0
-> ? kthread+0x17a/0x1a0
-> ? process_one_work+0x3f0/0x3f0
-> ? set_kthread_struct+0x40/0x40
-> ? ret_from_fork+0x22/0x30
-> </TASK>
-> ---[ end trace 1f82023595a5927f ]---
-> efi: Froze efi_rts_wq and disabled EFI Runtime Services
-> integrity: Couldn't get size: 0x8000000000000015
-> integrity: MODSIGN: Couldn't get UEFI db list
-> efi: EFI Runtime Services are disabled!
-> integrity: Couldn't get size: 0x8000000000000015
-> integrity: Couldn't get UEFI dbx list
-> integrity: Couldn't get size: 0x8000000000000015
-> integrity: Couldn't get mokx list
-> integrity: Couldn't get size: 0x80000000
->=20
-> This patch prevents querying of these UEFI variables, since these Macs
-> seem to use a non-standard EFI hardware
->=20
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Aditya Garg <gargaditya08@live.com>
-> ---
-> v2 :- Reduce code size of the table.
-> V3 :- Close the brackets which were left open by mistake.
-> .../platform_certs/keyring_handler.h          |  8 ++++
-> security/integrity/platform_certs/load_uefi.c | 48 +++++++++++++++++++
-> 2 files changed, 56 insertions(+)
->=20
-Hi
+we have found a bug involving CONFIG_READ_ONLY_THP_FOR_FS=y, introduced in
+5.12 by cbd59c48ae2b ("mm/filemap: use head pages in
+generic_file_buffered_read")
+and apparently fixed in 5.17-rc1 by 6b24ca4a1a8d ("mm: Use multi-index
+entries in the page cache")
+The latter commit is part of folio rework so likely not stable material, so
+it would be nice to have a small fix for e.g. 5.15 LTS. Preferably from
+someone who understands xarray :)
 
-May I have any updates on this patch?
+The bug was found while building nodejs16, which involves running some
+tests, first with a non-stripped node16 binary, and then stripping it. This
+has a good chance of the stripped result becoming corrupted and not
+executable anymore due to dynamic loader failures. It turns out that while
+executed during tests, CONFIG_READ_ONLY_THP_FOR_FS=y allows khugepaged to
+collapse the large executable mappings. Then /usr/bin/strip uses read() to
+process the binary and triggers a bug introduced in cbd59c48ae2b where if a
+read spans two or more collapsed THPs in the page cache, the first one will
+be read multiple times instead.
 
+Takashi Iwai has bisected using the nodejs build scenario to commit
+cbd59c48ae2b.
+
+I have distilled the scenario to the attached reproducer. There are some
+assumptions for it to work:
+
+- the passed path for file it creates/works with should be on a filesystem
+such as xfs or ext4 that uses generic_file_buffered_read()
+- the kernel should have e6be37b2e7bd ("mm/huge_memory.c: add missing
+read-only THP checking in transparent_hugepage_enabled()") otherwise
+khugepaged will not recognize the reproducer's mm as thp eligible (it had to
+be some other mapping in nodejs that made it still possible to trigger this
+during bisect)
+- there's a pause to allow khugepaged to do its job, you can increase the
+speed as instructed and verify with /proc/pid/smaps and meminfo that the
+collapse in page cache has happened
+- if the bug is reproduced, the reproducer will complain like this:
+mismatch at offset 2097152: read value expected for offset 0 instead of 2097152
+
+I've hacked some printk on top 5.16 (attached debug.patch)
+which gives this output:
+
+i=0 page=ffffea0004340000 page_offset=0 uoff=0 bytes=2097152
+i=1 page=ffffea0004340000 page_offset=0 uoff=0 bytes=2097152
+i=2 page=ffffea0004340000 page_offset=0 uoff=0 bytes=0
+i=3 page=ffffea0004340000 page_offset=0 uoff=0 bytes=0
+i=4 page=ffffea0004340000 page_offset=0 uoff=0 bytes=0
+i=5 page=ffffea0004340000 page_offset=0 uoff=0 bytes=0
+i=6 page=ffffea0004340000 page_offset=0 uoff=0 bytes=0
+i=7 page=ffffea0004340000 page_offset=0 uoff=0 bytes=0
+i=8 page=ffffea0004470000 page_offset=2097152 uoff=0 bytes=0
+i=9 page=ffffea0004470000 page_offset=2097152 uoff=0 bytes=0
+i=10 page=ffffea0004470000 page_offset=2097152 uoff=0 bytes=0
+i=11 page=ffffea0004470000 page_offset=2097152 uoff=0 bytes=0
+i=12 page=ffffea0004470000 page_offset=2097152 uoff=0 bytes=0
+i=13 page=ffffea0004470000 page_offset=2097152 uoff=0 bytes=0
+i=14 page=ffffea0004470000 page_offset=2097152 uoff=0 bytes=0
+
+It seems filemap_get_read_batch() should be returning pages ffffea0004340000
+and ffffea0004470000 consecutively in the pvec, but returns the first one 8
+times, so it's read twice and then the rest is just skipped over as it's
+beyond the requested read size.
+
+I suspect these lines:
+  xas.xa_index = head->index + thp_nr_pages(head) - 1;
+  xas.xa_offset = (xas.xa_index >> xas.xa_shift) & XA_CHUNK_MASK;
+
+commit 6b24ca4a1a8d changes those to xas_advance() (introduced one patch
+earlier), so some self-contained fix should be possible for prior kernels?
+But I don't understand xarray well enough.
+
+My colleagues should be credited for initial analysis of the nodejs build
+scenario:
+
+Analyzed-by: Adam Majer <amajer@suse.com>
+Analyzed-by: Dirk Mueller <dmueller@suse.com>
+Bisected-by: Takashi Iwai <tiwai@suse.de>
+
+Thanks,
+Vlastimil
+--------------GrTvbgEqrrcmnHjnYyoN6t08
+Content-Type: text/x-csrc; charset=UTF-8; name="thp_reproducer.c"
+Content-Disposition: attachment; filename="thp_reproducer.c"
+Content-Transfer-Encoding: base64
+
+CiNpbmNsdWRlIDx1bmlzdGQuaD4KI2luY2x1ZGUgPHN0ZGxpYi5oPgojaW5jbHVkZSA8c3Rk
+aW8uaD4KI2luY2x1ZGUgPGZjbnRsLmg+CiNpbmNsdWRlIDxzeXMvbW1hbi5oPgojaW5jbHVk
+ZSA8c3lzL3BhcmFtLmg+CgojZGVmaW5lIFBBR0VfU0laRQkoNDA5NikKI2RlZmluZSBQTURf
+U0laRQkoUEFHRV9TSVpFICogNTEyKQojZGVmaW5lIFVMT05HX1NJWkUJKHNpemVvZih1bnNp
+Z25lZCBsb25nKSkKI2RlZmluZSBVTE9OR1NfUEVSX1BBR0UJKChQQUdFX1NJWkUpIC8gKFVM
+T05HX1NJWkUpKQojZGVmaW5lIE1BR0lDX1ZBTFVFCTB4YWJjZAoKCmludCB3cml0ZV9maWxl
+KGNoYXIgKm5hbWUsIHVuc2lnbmVkIGxvbmcgc2l6ZSkKewoJdW5zaWduZWQgbG9uZyAqYnVm
+OwoJdW5zaWduZWQgbG9uZyBpLCBwOwoJaW50IGZkOwoJaW50IHJldDsKCglidWYgPSBtbWFw
+KE5VTEwsIFBBR0VfU0laRSwgUFJPVF9SRUFEfFBST1RfV1JJVEUsCgkJCU1BUF9QUklWQVRF
+fE1BUF9BTk9OWU1PVVMsIDAsIDApOwoKCWlmIChidWYgPT0gTUFQX0ZBSUxFRCkgewoJCXBy
+aW50ZigibW1hcCBmYWlsZWRcbiIpOwoJCWV4aXQoMSk7Cgl9CgoJZmQgPSBjcmVhdChuYW1l
+LCBTX0lSV1hVKTsKCWlmIChmZCA9PSAtMSkgewoJCXBlcnJvcigiY3JlYXQiKTsKCQlleGl0
+KDEpOwoJfQoKCWZvciAoaSA9IDA7IGkgPCBzaXplIC8gUEFHRV9TSVpFOyBpKyspIHsKCQli
+dWZbMF0gPSBNQUdJQ19WQUxVRSArIGk7CgkJcmV0ID0gd3JpdGUoZmQsIGJ1ZiwgUEFHRV9T
+SVpFKTsKCQkJLy8geWVhaCwgc2xvcHB5CgkJaWYgKHJldCAhPSBQQUdFX1NJWkUpIHsKCQkJ
+cGVycm9yKCJ3cml0ZSIpOwoJCQlleGl0KDEpOwoJCX0KCX0KCgljbG9zZShmZCk7CgltdW5t
+YXAoYnVmLCBQQUdFX1NJWkUpOwp9Cgp2b2lkIHRvdWNoKGNoYXIgKiBidWYsIHVuc2lnbmVk
+IGxvbmcgc3RhcnQsIHVuc2lnbmVkIGxvbmcgc2l6ZSkKewoJdm9sYXRpbGUgY2hhciBmb287
+CgoJZm9yIChjaGFyICogcHRyID0gYnVmICsgc3RhcnQ7CgkgICAgIHB0ciA8IGJ1ZiArIHN0
+YXJ0ICsgc2l6ZTsKCSAgICAgcHRyICs9IFBBR0VfU0laRSkgewoJCWZvbyA9ICpwdHI7Cgl9
+Cn0KCnZvaWQgdGVzdF9yZWFkKGludCBmZCwgb2ZmX3Qgb2ZmLCBzaXplX3QgY291bnQsIHNp
+emVfdCBidWZzaXplKQp7CgljaGFyICpidWYgPSBOVUxMOwoJaW50IHJldDsKCglidWYgPSBt
+bWFwKE5VTEwsIGJ1ZnNpemUsIFBST1RfUkVBRHxQUk9UX1dSSVRFLAoJCQlNQVBfQU5PTllN
+T1VTfE1BUF9QUklWQVRFLCAwLCAwKTsKCWlmIChidWYgPT0gTUFQX0ZBSUxFRCkgewoJCXBl
+cnJvcigibW1hcCIpOwoJCWV4aXQoMSk7Cgl9CgoJb2ZmID0gbHNlZWsoZmQsIG9mZiwgU0VF
+S19TRVQpOwoJaWYgKG9mZiA9PSAtMSkgewoJCXBlcnJvcigibHNlZWsiKTsKCQlleGl0KDEp
+OwoJfQoKCWZvciAoc2l6ZV90IGRvbmUgPSAwOyBkb25lIDwgY291bnQ7IGRvbmUgKz0gYnVm
+c2l6ZSkgewoJCXNpemVfdCB0b19yZWFkID0gTUlOKGJ1ZnNpemUsIGNvdW50IC0gZG9uZSk7
+CgkJc2l6ZV90IGJ1Zl9yZWFkID0gMDsKCgkJd2hpbGUgKHRvX3JlYWQgPiAwKSB7CgkJCXNz
+aXplX3QgcmVhZF9vbmNlID0gcmVhZChmZCwgYnVmICsgYnVmX3JlYWQsIHRvX3JlYWQpOwoK
+CQkJaWYgKHJlYWRfb25jZSA9PSAtMSkgewoJCQkJcGVycm9yKCJyZWFkIik7CgkJCQlleGl0
+KDEpOwoJCQl9CgkJCWlmIChyZWFkX29uY2UgPT0gMCkgewoJCQkJcHJpbnRmKCJFT0Ygd2hp
+bGUgcmVhZGluZ1xuIik7CgkJCQlyZXR1cm47CgkJCX0KCQkJdG9fcmVhZCAtPSByZWFkX29u
+Y2U7CgkJCWJ1Zl9yZWFkICs9IHJlYWRfb25jZTsKCQl9CgoJCWZvciAoc2l6ZV90IHBvcyA9
+IDA7IHBvcyA8IGJ1Zl9yZWFkOyBwb3MgKz0gUE1EX1NJWkUpIHsKCQkJdW5zaWduZWQgbG9u
+ZyBhYnNfcG9zID0gb2ZmICsgZG9uZSArIHBvczsKCQkJdW5zaWduZWQgbG9uZyBmb3VuZF92
+YWwgPSAqKCh1bnNpZ25lZCBsb25nICopKGJ1ZiArIHBvcykpIC0gTUFHSUNfVkFMVUU7CgkJ
+CXVuc2lnbmVkIGxvbmcgZXhwZWN0ZWRfdmFsID0gYWJzX3BvcyAvIFBBR0VfU0laRTsKCgkJ
+CWlmIChmb3VuZF92YWwgIT0gZXhwZWN0ZWRfdmFsKSB7CgkJCQlwcmludGYoIm1pc21hdGNo
+IGF0IG9mZnNldCAlbGx1OiByZWFkIHZhbHVlIGV4cGVjdGVkIGZvciBvZmZzZXQgJWxsdSBp
+bnN0ZWFkIG9mICVsbHVcbiIsCgkJCQkJCWFic19wb3MsIGZvdW5kX3ZhbCAqIFBBR0VfU0la
+RSwgZXhwZWN0ZWRfdmFsICogUEFHRV9TSVpFKTsKCQkJfQoJCX0KCX0KCgltdW5tYXAoYnVm
+LCBidWZzaXplKTsKfQoKI2RlZmluZSBNQVBfU0laRSAoMipQTURfU0laRSkKCmludCBtYWlu
+KGludCBhcmdjLCBjaGFyICoqYXJndikKewoJaW50IGZkLCByZXQ7Cgl1bnNpZ25lZCBjaGFy
+ICpidWY7CglwaWRfdCBwaWQ7CgoJaWYgKGFyZ2MgIT0gMikgewoJCXByaW50ZigidXNhZ2U6
+ICVzIC9wYXRoL3RvL3Rlc3RfZmlsZVxuIiwgYXJndlswXSk7CgkJcHJpbnRmKCJ1c2UgYSBm
+aWxlc3lzdGVtIHVzaW5nIGdlbmVyaWNfZmlsZV9yZWFkX2l0ZXIoKSBzdWNoIGFzIGV4dDMg
+b3IgeGZzXG4iKTsKCQlleGl0KDEpOwoJfQoKCXdyaXRlX2ZpbGUoYXJndlsxXSwgTUFQX1NJ
+WkUpOwoKCWZkID0gb3Blbihhcmd2WzFdLCBPX1JET05MWSk7CgoJaWYgKGZkID09IC0xKSB7
+CgkJcGVycm9yKCJvcGVuIik7CgkJZXhpdCgxKTsKCX0KCglidWYgPSBtbWFwKCh2b2lkICop
+MHg3MDAwMDAwMDAwMDBVTCwgTUFQX1NJWkUsIFBST1RfUkVBRHxQUk9UX0VYRUMsCgkJCU1B
+UF9QUklWQVRFLCBmZCwgMCk7CgoJaWYgKGJ1ZiA9PSBNQVBfRkFJTEVEKSB7CgkJcGVycm9y
+KCJtbWFwIGZhaWxlZCIpOwoJCWV4aXQoMSk7Cgl9CgoJcmV0ID0gbWFkdmlzZShidWYsIE1B
+UF9TSVpFLCBNQURWX0hVR0VQQUdFKTsKCglpZiAocmV0KQoJCXBlcnJvcigibWFkdmlzZSIp
+OwoKCXRvdWNoKGJ1ZiwgMCwgTUFQX1NJWkUpOwoKCXByaW50ZigicGlkOiAlZFxuIiwgZ2V0
+cGlkKCkpOwoKCXByaW50ZigicHJlc3MgZW50ZXIgdG8gY29udGludWUgYWZ0ZXIga2h1Z2Vw
+YWdlZCBoYXMgY29sbGFwc2VkIHRoZSBodWdlIHBhZ2VzXG4iKTsKCXByaW50ZigiY2hlY2sg
+L3Byb2MvbWVtaW5mbyBGaWxlSHVnZVBhZ2VzOiB0byB2ZXJpZnlcbiIpOwoJcHJpbnRmKCJ1
+c2UgJ2VjaG8gMTAwID4gL3N5cy9rZXJuZWwvbW0vdHJhbnNwYXJlbnRfaHVnZXBhZ2Uva2h1
+Z2VwYWdlZC9zY2FuX3NsZWVwX21pbGxpc2VjcycgdG8gc3BlZWQga2h1Z2VwYWdlZCB1cFxu
+Iik7CgoJZ2V0Y2hhcigpOwoKCXRvdWNoKGJ1ZiwgMCwgTUFQX1NJWkUpOwoKCXJldCA9IG11
+bm1hcChidWYsIE1BUF9TSVpFKTsKCWlmIChyZXQpIHsKCQlwZXJyb3IoIm11bm1hcCIpOwoJ
+CWV4aXQoMSk7Cgl9CgoJcmV0ID0gY2xvc2UoZmQpOwoJaWYgKHJldCkgewoJCXBlcnJvcigi
+Y2xvc2UiKTsKCQlleGl0KDEpOwoJfQoKCWZkID0gb3Blbihhcmd2WzFdLCBPX1JET05MWSk7
+CgoJaWYgKGZkID09IC0xKSB7CgkJcGVycm9yKCJvcGVuIik7CgkJZXhpdCgxKTsKCX0KCgl0
+ZXN0X3JlYWQoZmQsIDAsIE1BUF9TSVpFLCBNQVBfU0laRSk7CgoJY2xvc2UoZmQpOwp9Cg==
+
+--------------GrTvbgEqrrcmnHjnYyoN6t08
+Content-Type: text/x-patch; charset=UTF-8; name="debug.patch"
+Content-Disposition: attachment; filename="debug.patch"
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtLWdpdCBhL21tL2ZpbGVtYXAuYyBiL21tL2ZpbGVtYXAuYwppbmRleCAzOWM0YzQ2
+YzYxMzMuLmNlMzljMTVlODM3OSAxMDA2NDQKLS0tIGEvbW0vZmlsZW1hcC5jCisrKyBiL21t
+L2ZpbGVtYXAuYwpAQCAtMjY4Miw2ICsyNjgyLDExIEBAIHNzaXplX3QgZmlsZW1hcF9yZWFk
+KHN0cnVjdCBraW9jYiAqaW9jYiwgc3RydWN0IGlvdl9pdGVyICppdGVyLAogCQkJCWJyZWFr
+OwogCQkJaWYgKGkgPiAwKQogCQkJCW1hcmtfcGFnZV9hY2Nlc3NlZChwYWdlKTsKKworCQkJ
+aWYgKHBhZ2Vfc2l6ZSA+IFBBR0VfU0laRSkKKwkJCQlwcl9pbmZvKCJpPSVkIHBhZ2U9JXB4
+IHBhZ2Vfb2Zmc2V0PSVsbGQgb2ZmPSVsdSBieXRlcz0lbHVcbiIsCisJCQkJCQlpLCBwYWdl
+LCBwYWdlX29mZnNldChwYWdlKSwgb2Zmc2V0LCBieXRlcyk7CisKIAkJCS8qCiAJCQkgKiBJ
+ZiB1c2VycyBjYW4gYmUgd3JpdGluZyB0byB0aGlzIHBhZ2UgdXNpbmcgYXJiaXRyYXJ5CiAJ
+CQkgKiB2aXJ0dWFsIGFkZHJlc3NlcywgdGFrZSBjYXJlIGFib3V0IHBvdGVudGlhbCBhbGlh
+c2luZwo=
+
+--------------GrTvbgEqrrcmnHjnYyoN6t08--
