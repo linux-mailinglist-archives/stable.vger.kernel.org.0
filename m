@@ -2,53 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 326214C1911
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 17:52:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32EB34C1966
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 18:05:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237711AbiBWQxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Feb 2022 11:53:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38616 "EHLO
+        id S243178AbiBWRGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Feb 2022 12:06:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231601AbiBWQxX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 11:53:23 -0500
-Received: from phobos.denx.de (phobos.denx.de [IPv6:2a01:238:438b:c500:173d:9f52:ddab:ee01])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF62913D29
-        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 08:52:54 -0800 (PST)
-Received: from [127.0.0.1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
+        with ESMTP id S236561AbiBWRGK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 12:06:10 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0446B5372C;
+        Wed, 23 Feb 2022 09:05:40 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        (Authenticated sender: marex@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id 5D39B83CA0;
-        Wed, 23 Feb 2022 17:52:52 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1645635172;
-        bh=cRIgNh9h8o+UmyeNDtBUfbZCSnTjMdwKAWQ0BzoO9Fc=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=ubHtlYPL9rWe7Fls33JL6w4o0vwn5dJ3tgbEkM/FF3qrDjFRBVvidv+LZnzg2tECo
-         SqK2E08urWFHXXhBYYtEtwEIxMO3vS7ZnVZ4kEOVN95HIH+r9U6AJnYYiA/iElQh6y
-         anaa8S5kZOFI+dXGxz3817QyGtX91pqwIZ9AVlSWp5KW+myyyFgCwwqsA8nBcixm2r
-         QKs0wp08HhTjbOeYuFxqkpIn2HTVUpPfjtq9cKk3qy5PejntWbKKNe9eVXIs+Y8Th+
-         0vz07RNv1RgiL+XxC3oGU8wS53GPGTpH4I4MvCv+eaxmQnPyXv7+mq2cH9Y5WgkGxs
-         KLDwp0WeWkehg==
-Message-ID: <ee74ed25-cd10-1047-9700-7546c7ee7052@denx.de>
-Date:   Wed, 23 Feb 2022 17:52:51 +0100
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 9E91C1F43D;
+        Wed, 23 Feb 2022 17:05:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1645635939; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2GJrbL5GtZBvRuSJ9SW+6RjiwuvjkEo2u5aLhU0R+R4=;
+        b=q/VB8Brw02rDOO+atLW8Cv3HziC+gcHX7RMqdtFFLAToVBJslZdrKkzmEJsfsj39468iSy
+        REhTEPK5jkiPfzo1CInnMbD3bv0fhFlJQdSDQlu1b390kGemVBpQohzHxwvviJpOSInPw7
+        SFzv2Yn54+xFrwVESma49x+c8RKFTlo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1645635939;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2GJrbL5GtZBvRuSJ9SW+6RjiwuvjkEo2u5aLhU0R+R4=;
+        b=ooHQ4jwNnLyDlWUM+RRrdvtNGohWztZR/KFhUJWfe3D41UBdhvj4ogq0eLgPpFQbWoTfx5
+        wltTiTmCW/jzaYBQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 35D5E13C94;
+        Wed, 23 Feb 2022 17:05:39 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id Ta9jDGNpFmIjGQAAMHmgww
+        (envelope-from <vbabka@suse.cz>); Wed, 23 Feb 2022 17:05:39 +0000
+Message-ID: <7ec07580-8430-c4ba-69e1-004de161584e@suse.cz>
+Date:   Wed, 23 Feb 2022 18:05:38 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.0
-Subject: Re: [PATCH] ASoC: ops: Shift tested values in snd_soc_put_volsw() by
- +min
+ Thunderbird/91.6.1
+Subject: Re: [PATCH] mm/filemap: Fix handling of THPs in
+ generic_file_buffered_read()
 Content-Language: en-US
-To:     Mark Brown <broonie@kernel.org>, Takashi Iwai <tiwai@suse.de>
-Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org,
-        Alexandre TORGUE <alexandre.torgue@st.com>
-References: <20220215130645.164025-1-marex@denx.de>
- <s5hy221y6md.wl-tiwai@suse.de> <YhZhkz6gQYsK3Fwd@sirena.org.uk>
-From:   Marek Vasut <marex@denx.de>
-In-Reply-To: <YhZhkz6gQYsK3Fwd@sirena.org.uk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        stable@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, kirill.shutemov@linux.intel.com,
+        Song Liu <songliubraving@fb.com>
+Cc:     Adam Majer <amajer@suse.com>, Dirk Mueller <dmueller@suse.com>,
+        Takashi Iwai <tiwai@suse.de>
+References: <20220223155918.927140-1-willy@infradead.org>
+From:   Vlastimil Babka <vbabka@suse.cz>
+In-Reply-To: <20220223155918.927140-1-willy@infradead.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: clamav-milter 0.103.5 at phobos.denx.de
-X-Virus-Status: Clean
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -59,33 +77,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/23/22 17:32, Mark Brown wrote:
-> On Wed, Feb 23, 2022 at 03:55:54PM +0100, Takashi Iwai wrote:
->>
->> But, more reading the code, I suspect whether the function does work
->> correctly at all...  How is the mask calculation done in that way?
->>    unsigned int mask = (1U << (fls(min + max) - 1)) - 1;
->> What's the difference of this function with snd_soc_put_volsw()?
+On 2/23/22 16:59, Matthew Wilcox (Oracle) wrote:
+> When a THP is present in the page cache, we can return it several times,
+> leading to userspace seeing the same data repeatedly if doing a read()
+> that crosses a 64-page boundary.  This is probably not a security issue
+> (since the data all comes from the same file), but it can be interpreted
+> as a transient data corruption issue.  Fortunately, it is very rare as
+> it can only occur when CONFIG_READ_ONLY_THP_FOR_FS is enabled, and it can
+> only happen to executables.  We don't often call read() on executables.
 > 
-> Yeah, I'm not clear either - Marek mentioned _SX when he was doing the
-> patch but I didn't get the bandwidth to figure out what it's doing
-> properly yet.  At this point I'm not clear what _SX is supposed to do,
-> I'm hoping it works well for the devices that use it but I don't have
-> any of them.
-
-Right, I wasn't sure about the remaining two -- volsw_sx and xr_sx -- 
-that's why I only did this one I could at least test.
-
-But CS42L51 is on STM32MP1 DKx devkit, CCing Alex , ST might be able to 
-look at that one and test.
-
->> Furthermore, the mask calculation and usage in snd_soc_put_volsw()
->> isn't right, either, I'm afraid; if the range is [-10, 0], max=0, then
->> mask will 0, which will omit all values...
+> This bug is fixed differently in v5.17 by commit 6b24ca4a1a8d
+> ("mm: Use multi-index entries in the page cache").  That commit is
+> unsuitable for backporting, so fix this in the clearest way.  It
+> sacrifices a little performance for clarity, but this should never
+> be a performance path in these kernel versions.
 > 
-> Indeed, if anyone did that.  Fortunately I don't *think* that's an
-> issue.  The whole way that code handles signed bitfields by remapping
-> them into unsigned user visible controls is a landmine, it's not even
-> obvious that they handle signed bitfields in the first place.
+> Fixes: cbd59c48ae2b ("mm/filemap: use head pages in generic_file_buffered_read")
+> Cc: stable@vger.kernel.org # v5.15, v5.16
+> Link: https://lore.kernel.org/r/df3b5d1c-a36b-2c73-3e27-99e74983de3a@suse.cz/
+> Analyzed-by: Adam Majer <amajer@suse.com>
+> Analyzed-by: Dirk Mueller <dmueller@suse.com>
+> Bisected-by: Takashi Iwai <tiwai@suse.de>
+> Reported-by: Vlastimil Babka <vbabka@suse.cz>
 
-[...]
+Replace with:
+
+Reported-and-tested-by: Vlastimil Babka <vbabka@suse.cz>
+
+Thanks!
+
+> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+> ---
+>  mm/filemap.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/mm/filemap.c b/mm/filemap.c
+> index 82a17c35eb96..1293c3409e42 100644
+> --- a/mm/filemap.c
+> +++ b/mm/filemap.c
+> @@ -2354,8 +2354,12 @@ static void filemap_get_read_batch(struct address_space *mapping,
+>  			break;
+>  		if (PageReadahead(head))
+>  			break;
+> -		xas.xa_index = head->index + thp_nr_pages(head) - 1;
+> -		xas.xa_offset = (xas.xa_index >> xas.xa_shift) & XA_CHUNK_MASK;
+> +		if (PageHead(head)) {
+> +			xas_set(&xas, head->index + thp_nr_pages(head));
+> +			/* Handle wrap correctly */
+> +			if (xas.xa_index - 1 >= max)
+> +				break;
+> +		}
+>  		continue;
+>  put_page:
+>  		put_page(head);
+
