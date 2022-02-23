@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F3664C0906
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:38:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 446374C08C2
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:37:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237585AbiBWChH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:37:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51564 "EHLO
+        id S237353AbiBWCee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:34:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237385AbiBWCgq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:36:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAD6A47391;
-        Tue, 22 Feb 2022 18:32:14 -0800 (PST)
+        with ESMTP id S237765AbiBWCd2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:33:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E39B3B547;
+        Tue, 22 Feb 2022 18:31:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D18B6155B;
-        Wed, 23 Feb 2022 02:31:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81E3CC340E8;
-        Wed, 23 Feb 2022 02:31:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B10D61519;
+        Wed, 23 Feb 2022 02:31:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8673C340E8;
+        Wed, 23 Feb 2022 02:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583500;
-        bh=0haXvf/LnqlzcskITnPE1evkxJQy47L5vuanxZUxGCA=;
+        s=k20201202; t=1645583503;
+        bh=mrV6dQUlm23eEo1U+VXCrk3Sau7WDOBqJMKBwzUVdnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j5tayMeDzwmRuTlQS7bfi1Ne/nEcVU/EE6YeYV5Lvk8nYc7O4KJZwwMWia73YHx6O
-         mzMVrdOlkAyl6pqAHOtdtYIYOH+rCANtW7U2Ssy7afZSN8sHotEEPueHOYIMDpYMj5
-         mNVYWCXAjq/oHbWZYJp0zz2U1THbLOnPMvIFKb2vuRhNLNqTac6jTpJE0ZYoIrPqzf
-         E/NHuFj2TV3onR9g3G9NvBhOW7RdMTvI2d6LPjx0WqU0y2GxYvOfkNUvAuF1266n2t
-         wkD4BFg4csfcBRRgf7KHsV9ssU1MboqGrEkcnBLr0Dv4qqWxQqqp3dNdmd1ptP+Ej9
-         BXNv+WUMfxvmA==
+        b=ehkYV6ySp8ObmTQodYgghP+GWQdF29fENXVezuqQuQiOVYTpUtXbbV7x0c6ysLulb
+         Vm11/C82u3DUKqmfJ1sQ60EOVL7LrwRwTWHDam4WB/7zwDsC1+Zt6U249lmFy3BRnk
+         hSPiOrwldvQ2Fh2W1kIBXOrWIVCb3UDvRpCtSW+zyM+EAD4Xd9pKcPu3dYFt9MfM5K
+         Pdcn+/0RBn4cBcxjrjnnv3yaB8uTo2WhKtUwlOtvevWl+7i1f5bZ/dESXGuELMgjPp
+         wXTfrot5kXKw5Lf74dsd11y9/K9wf90EjIjgqsUgwAbPCF0LX/8YKJUH0XS2DJM5F6
+         WIPiK5yXP1UTA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        shuah@kernel.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/13] selftests/ftrace: Do not trace do_softirq because of PREEMPT_RT
-Date:   Tue, 22 Feb 2022 21:31:13 -0500
-Message-Id: <20220223023118.241815-9-sashal@kernel.org>
+Cc:     Yongzhi Liu <lyz_cs@pku.edu.cn>, Vinod Koul <vkoul@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, christophe.jaillet@wanadoo.fr,
+        broonie@kernel.org, arnd@arndb.de,
+        laurent.pinchart@ideasonboard.com, dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 10/13] dmaengine: shdma: Fix runtime PM imbalance on error
+Date:   Tue, 22 Feb 2022 21:31:14 -0500
+Message-Id: <20220223023118.241815-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223023118.241815-1-sashal@kernel.org>
 References: <20220223023118.241815-1-sashal@kernel.org>
@@ -59,42 +57,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Yongzhi Liu <lyz_cs@pku.edu.cn>
 
-[ Upstream commit 6fec1ab67f8d60704cc7de64abcfd389ab131542 ]
+[ Upstream commit 455896c53d5b803733ddd84e1bf8a430644439b6 ]
 
-The PREEMPT_RT patchset does not use do_softirq() function thus trying
-to filter for do_softirq fails for such kernel:
+pm_runtime_get_() increments the runtime PM usage counter even
+when it returns an error code, thus a matching decrement is needed on
+the error handling path to keep the counter balanced.
 
-  echo do_softirq
-  ftracetest: 81: echo: echo: I/O error
-
-Choose some other visible function for the test.  The function does not
-have to be actually executed during the test, because it is only testing
-filter API interface.
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Yongzhi Liu <lyz_cs@pku.edu.cn>
+Link: https://lore.kernel.org/r/1642311296-87020-1-git-send-email-lyz_cs@pku.edu.cn
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/ftrace/test.d/ftrace/func_set_ftrace_file.tc      | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/sh/shdma-base.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/ftrace/func_set_ftrace_file.tc b/tools/testing/selftests/ftrace/test.d/ftrace/func_set_ftrace_file.tc
-index 51f6e6146bd93..951b4311930c5 100644
---- a/tools/testing/selftests/ftrace/test.d/ftrace/func_set_ftrace_file.tc
-+++ b/tools/testing/selftests/ftrace/test.d/ftrace/func_set_ftrace_file.tc
-@@ -22,7 +22,7 @@ fail() { # mesg
+diff --git a/drivers/dma/sh/shdma-base.c b/drivers/dma/sh/shdma-base.c
+index c51de498b5b4b..19eee3d0900b0 100644
+--- a/drivers/dma/sh/shdma-base.c
++++ b/drivers/dma/sh/shdma-base.c
+@@ -115,8 +115,10 @@ static dma_cookie_t shdma_tx_submit(struct dma_async_tx_descriptor *tx)
+ 		ret = pm_runtime_get(schan->dev);
  
- FILTER=set_ftrace_filter
- FUNC1="schedule"
--FUNC2="do_softirq"
-+FUNC2="scheduler_tick"
+ 		spin_unlock_irq(&schan->chan_lock);
+-		if (ret < 0)
++		if (ret < 0) {
+ 			dev_err(schan->dev, "%s(): GET = %d\n", __func__, ret);
++			pm_runtime_put(schan->dev);
++		}
  
- ALL_FUNCS="#### all functions enabled ####"
+ 		pm_runtime_barrier(schan->dev);
  
 -- 
 2.34.1
