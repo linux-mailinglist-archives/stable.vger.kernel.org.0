@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15DC14C07D3
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:28:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B3514C07EB
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:29:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236791AbiBWC25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:28:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41942 "EHLO
+        id S236832AbiBWC3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:29:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236777AbiBWC24 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:28:56 -0500
+        with ESMTP id S236789AbiBWC3A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:29:00 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F77C3DDC3;
-        Tue, 22 Feb 2022 18:28:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 840523DDD0;
+        Tue, 22 Feb 2022 18:28:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56474B81E0C;
-        Wed, 23 Feb 2022 02:28:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 007C7C340F0;
-        Wed, 23 Feb 2022 02:28:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41025B81E09;
+        Wed, 23 Feb 2022 02:28:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68053C340E8;
+        Wed, 23 Feb 2022 02:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583306;
-        bh=dD7/c67Sva+hXnDYcYC8UKHl8uZid1Fjht+X0oqVgiU=;
+        s=k20201202; t=1645583310;
+        bh=YfYYgfEG/tUw+RF/Z5+2ChlPUubhZWSVdHx6WExWyhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iygdDWSNrsEIdmxYiWKLoMWZ22EK910KQB37P84NCulsPXGW+0USIQj8AuS/V3HF2
-         uckHaVM5uQ1kNHqkbsmrjbhdLMr5FaCoKiTdZVtk1V2sKqgtv5YuRC0FTiGqyL6Q/Q
-         oqpXkwPIKK/0ZNJr/+MkrrMRi0e3PXXo+DApbUb9KalKzn28o22+nbbnbkv7+nfNEc
-         3QzrPB1pz96sOcT3bcMS4+p0hPdetNDzR3SVDx+FPIEF2KX7v4jJU2Pvya81yrDfLS
-         zmAQZUEgsunotctXL4V2z/FCD9KDs/5FvaPAX2b3aOO8WtCc1Tq0nk6xfNKmqBZYQ2
-         7zZUQB5pNHg+w==
+        b=sxZTsLrO/QH9RMk9HY9+yVIW6Vf7+rlHhGWNeaRKZgCmvAMWssxne1X6hvKpJDcep
+         nBxT9Qzl4+0WLJIwIAFGLmf6hjfJOaw1N22XHMAtssdzdpyQfabelqmkqweLFKHz5e
+         eXBZ7VLdSfL3BYHGhe2FuIkS+yy2bk8MDXtDslt8TEXbPqgrihlDpm0pYNjsNdFfst
+         SVdSenh9LC1sikhCzXAjtHncks+XIn9fnG/fuIY01V4b5kAzT7Og7zOR8libkUCSgB
+         WCOnkrcD6xeUeE90raQ2B9i6CAgjgSlI4sFdMSXiav7a49X77GnQmFClV1KN54V/gy
+         IfJtXX+RkNd/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     JaeMan Park <jaeman@google.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
-        kvalo@kernel.org, davem@davemloft.net, kuba@kernel.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 03/30] mac80211_hwsim: initialize ieee80211_tx_info at hw_scan_work
-Date:   Tue, 22 Feb 2022 21:27:52 -0500
-Message-Id: <20220223022820.240649-3-sashal@kernel.org>
+Cc:     Eric Anholt <eric@anholt.net>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
+        bcm-kernel-feedback-list@broadcom.com, nsaenz@kernel.org,
+        prabhakar.mahadev-lad.rj@bp.renesas.com, linux-i2c@vger.kernel.org,
+        linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.16 04/30] i2c: bcm2835: Avoid clock stretching timeouts
+Date:   Tue, 22 Feb 2022 21:27:53 -0500
+Message-Id: <20220223022820.240649-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223022820.240649-1-sashal@kernel.org>
 References: <20220223022820.240649-1-sashal@kernel.org>
@@ -58,49 +61,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: JaeMan Park <jaeman@google.com>
+From: Eric Anholt <eric@anholt.net>
 
-[ Upstream commit cacfddf82baf1470e5741edeecb187260868f195 ]
+[ Upstream commit 9495b9b31abe525ebd93da58de2c88b9f66d3a0e ]
 
-In mac80211_hwsim, the probe_req frame is created and sent while
-scanning. It is sent with ieee80211_tx_info which is not initialized.
-Uninitialized ieee80211_tx_info can cause problems when using
-mac80211_hwsim with wmediumd. wmediumd checks the tx_rates field of
-ieee80211_tx_info and doesn't relay probe_req frame to other clients
-even if it is a broadcasting message.
+The CLKT register contains at poweron 0x40, which at our typical 100kHz
+bus rate means .64ms. But there is no specified limit to how long devices
+should be able to stretch the clocks, so just disable the timeout. We
+still have a timeout wrapping the entire transfer.
 
-Call ieee80211_tx_prepare_skb() to initialize ieee80211_tx_info for
-the probe_req that is created by hw_scan_work in mac80211_hwsim.
-
-Signed-off-by: JaeMan Park <jaeman@google.com>
-Link: https://lore.kernel.org/r/20220113060235.546107-1-jaeman@google.com
-[fix memory leak]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Eric Anholt <eric@anholt.net>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+BugLink: https://github.com/raspberrypi/linux/issues/3064
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/i2c/busses/i2c-bcm2835.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index 20fae2df848fb..f7cfda9192de2 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -2336,6 +2336,15 @@ static void hw_scan_work(struct work_struct *work)
- 			if (req->ie_len)
- 				skb_put_data(probe, req->ie, req->ie_len);
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index 37443edbf7546..ad3b124a2e376 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -23,6 +23,11 @@
+ #define BCM2835_I2C_FIFO	0x10
+ #define BCM2835_I2C_DIV		0x14
+ #define BCM2835_I2C_DEL		0x18
++/*
++ * 16-bit field for the number of SCL cycles to wait after rising SCL
++ * before deciding the slave is not responding. 0 disables the
++ * timeout detection.
++ */
+ #define BCM2835_I2C_CLKT	0x1c
  
-+			if (!ieee80211_tx_prepare_skb(hwsim->hw,
-+						      hwsim->hw_scan_vif,
-+						      probe,
-+						      hwsim->tmp_chan->band,
-+						      NULL)) {
-+				kfree_skb(probe);
-+				continue;
-+			}
-+
- 			local_bh_disable();
- 			mac80211_hwsim_tx_frame(hwsim->hw, probe,
- 						hwsim->tmp_chan);
+ #define BCM2835_I2C_C_READ	BIT(0)
+@@ -477,6 +482,12 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	adap->dev.of_node = pdev->dev.of_node;
+ 	adap->quirks = of_device_get_match_data(&pdev->dev);
+ 
++	/*
++	 * Disable the hardware clock stretching timeout. SMBUS
++	 * specifies a limit for how long the device can stretch the
++	 * clock, but core I2C doesn't.
++	 */
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_CLKT, 0);
+ 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
+ 
+ 	ret = i2c_add_adapter(adap);
 -- 
 2.34.1
 
