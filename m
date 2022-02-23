@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFAE14C0903
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:38:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B67184C08E4
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:38:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237336AbiBWCeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:34:03 -0500
+        id S237187AbiBWCdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:33:40 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237564AbiBWCdM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:33:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F40C54687;
-        Tue, 22 Feb 2022 18:31:18 -0800 (PST)
+        with ESMTP id S237471AbiBWCdH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:33:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85FD845782;
+        Tue, 22 Feb 2022 18:31:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A098F61558;
-        Wed, 23 Feb 2022 02:31:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBBE7C340EB;
-        Wed, 23 Feb 2022 02:30:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39061B81E15;
+        Wed, 23 Feb 2022 02:31:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01F44C340F0;
+        Wed, 23 Feb 2022 02:31:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583461;
-        bh=124lfYyWE+LaMgjw4Q4I4/7cB+m2kmkCj43VRGmBnI4=;
+        s=k20201202; t=1645583464;
+        bh=bUoUjXun1H5cleJ/gc0H1qiSuKbmHGKHPKKSjZmqy6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bN1xHdQYHya3PP5WCJGepIbV1ubaGK2TEsVPVDq7wPFTgNIK1lo/6bl0YbtMJBakn
-         Y9sIW06B8Avy1LLospBiIGaBHsoe3IrYgh01xf4atmfK19AJM/aFaxATjE+VPnBb1w
-         P9c8OiLaSTt/sGKvOmMu2oJmYBR8KSff+T9nJJm6KsRhUWCDFLcOYjq52hMbTxSsRm
-         ywYV+V/Yf5RqatUdMzNo2b+4xVr872KiBPhIgvlStA7vFF/h5lR2RDkill1wvpOlF0
-         mOB0unfry2G1CQEkR6Pj3bpcpnauI0O9AYmR5o+QjiaocU0IEoI0hi2AvIW32Dkrm8
-         zpjyeWXL98bmw==
+        b=UaPyxfQZoGjXRZnSkSbWwaHcA3Op1R18wZkSjZi1rWXKw0FI71DvPzwymhEqi4NeI
+         hv77u4H2qCeNlSNL/jTf9jnVB6RQkdVmINYxEyyWboLzQExIFaevRTEeiuZH/nt/4E
+         i3L94ppdLOZ598yoQNR7ACPdElI/eEL+pTpn05Pe3H5RksF6zGc+pyiNps1UyGHZkZ
+         9tHUxpkP57aB0D6N6IKQyYiIT0czlNUxiC/rOA3RFLIcWfsXryYwCpsbfli02pRn5c
+         3hijLJ1ZwSBZTPdoccyAZ8+WmGl8Xz7KnXYUA9V/rQ4yO2aW5Qc2kcTiZ3kPMVHiUy
+         74L/Yi9Flc2yQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sherry Yang <sherry.yang@oracle.com>,
-        Kees Cook <keescook@chromium.org>,
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 12/18] selftests/seccomp: Fix seccomp failure by adding missing headers
-Date:   Tue, 22 Feb 2022 21:30:29 -0500
-Message-Id: <20220223023035.241551-12-sashal@kernel.org>
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        shuah@kernel.org, linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 13/18] selftests/ftrace: Do not trace do_softirq because of PREEMPT_RT
+Date:   Tue, 22 Feb 2022 21:30:30 -0500
+Message-Id: <20220223023035.241551-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223023035.241551-1-sashal@kernel.org>
 References: <20220223023035.241551-1-sashal@kernel.org>
@@ -60,40 +59,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Yang <sherry.yang@oracle.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 21bffcb76ee2fbafc7d5946cef10abc9df5cfff7 ]
+[ Upstream commit 6fec1ab67f8d60704cc7de64abcfd389ab131542 ]
 
-seccomp_bpf failed on tests 47 global.user_notification_filter_empty
-and 48 global.user_notification_filter_empty_threaded when it's
-tested on updated kernel but with old kernel headers. Because old
-kernel headers don't have definition of macro __NR_clone3 which is
-required for these two tests. Since under selftests/, we can install
-headers once for all tests (the default INSTALL_HDR_PATH is
-usr/include), fix it by adding usr/include to the list of directories
-to be searched. Use "-isystem" to indicate it's a system directory as
-the real kernel headers directories are.
+The PREEMPT_RT patchset does not use do_softirq() function thus trying
+to filter for do_softirq fails for such kernel:
 
-Signed-off-by: Sherry Yang <sherry.yang@oracle.com>
-Tested-by: Sherry Yang <sherry.yang@oracle.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
+  echo do_softirq
+  ftracetest: 81: echo: echo: I/O error
+
+Choose some other visible function for the test.  The function does not
+have to be actually executed during the test, because it is only testing
+filter API interface.
+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/seccomp/Makefile | 2 +-
+ .../selftests/ftrace/test.d/ftrace/func_set_ftrace_file.tc      | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/seccomp/Makefile b/tools/testing/selftests/seccomp/Makefile
-index 0ebfe8b0e147f..585f7a0c10cbe 100644
---- a/tools/testing/selftests/seccomp/Makefile
-+++ b/tools/testing/selftests/seccomp/Makefile
-@@ -1,5 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
--CFLAGS += -Wl,-no-as-needed -Wall
-+CFLAGS += -Wl,-no-as-needed -Wall -isystem ../../../../usr/include/
- LDFLAGS += -lpthread
+diff --git a/tools/testing/selftests/ftrace/test.d/ftrace/func_set_ftrace_file.tc b/tools/testing/selftests/ftrace/test.d/ftrace/func_set_ftrace_file.tc
+index e96e279e0533a..25432b8cd5bd2 100644
+--- a/tools/testing/selftests/ftrace/test.d/ftrace/func_set_ftrace_file.tc
++++ b/tools/testing/selftests/ftrace/test.d/ftrace/func_set_ftrace_file.tc
+@@ -19,7 +19,7 @@ fail() { # mesg
  
- TEST_GEN_PROGS := seccomp_bpf seccomp_benchmark
+ FILTER=set_ftrace_filter
+ FUNC1="schedule"
+-FUNC2="do_softirq"
++FUNC2="scheduler_tick"
+ 
+ ALL_FUNCS="#### all functions enabled ####"
+ 
 -- 
 2.34.1
 
