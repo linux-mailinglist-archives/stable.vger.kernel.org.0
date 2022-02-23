@@ -2,150 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F0644C1C0B
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 20:20:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E974F4C1C27
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 20:29:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244352AbiBWTTu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Feb 2022 14:19:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38728 "EHLO
+        id S233668AbiBWTaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Feb 2022 14:30:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243053AbiBWTTs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 14:19:48 -0500
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55A4E45AEF
-        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 11:19:20 -0800 (PST)
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com [209.85.221.71])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 11D913F1DD
-        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 19:19:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1645643959;
-        bh=OsmDWPse4xUb7lllvZErJnLq536hKmJqOuDcEnXswgI=;
-        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-         In-Reply-To:Content-Type;
-        b=s5j2PepsxZrpuRarrNEWXtkZzslwTRkDBlBldzSqLbk9r/a5L9UKDxOHzvBO855jU
-         CZ+kj2bTYA8vbQSfnMbeX7KQDtWG1i6qI8tLNiBwj/yRqvH9qeYG3tqrx1esQhsdtV
-         vfLRCkUXeTj2VyG2WZUwqsUjpIOzCI6SCkiBP/TT18GnTvuGkV/FZNr+lNgjRlcdc4
-         lzCyzpFcQDtFfSfc5k0CC0+W8JTd1zyhR2vhUgU4ncj3/0BYWRiieVnPi23IoGU+tC
-         jC9/1EaP7iQ+wm+A2P02NiGdparO8ngldk8Bcig3vLHvVP5yByC5gdrHsCk5KOxfsY
-         /0867GHBKK9kw==
-Received: by mail-wr1-f71.google.com with SMTP id j27-20020adfb31b000000b001ea8356972bso2892191wrd.1
-        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 11:19:19 -0800 (PST)
+        with ESMTP id S239342AbiBWTaN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 14:30:13 -0500
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1607147AE7
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 11:29:45 -0800 (PST)
+Received: by mail-pj1-x1029.google.com with SMTP id ev16-20020a17090aead000b001bc3835fea8so3992582pjb.0
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 11:29:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=rcZtDDDiBwFJfxUmlCOz3RDMEXHNKOOpzN1iEr3gL5U=;
+        b=QWBzyrjZbDyYSLOvasncoWEYru0Moni/yVGRO01JjZbgsx9D2Olu/maNAtD0effRNG
+         wNYTVyenRE2iN8/gxF8zvDFIp1czImRucV3q+rH/Db4mDxfkNsMa5DdPNA12q8f3hQw0
+         CGhSrzqNOX9eTGM8sUUHgDxFqNl+jJQdeU/Ko=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=OsmDWPse4xUb7lllvZErJnLq536hKmJqOuDcEnXswgI=;
-        b=FZ8nIq8rrPnu2wQKy8UNnviMBfQZCBgCA5rxaHxrzPgr1aWSTIyAwGZ7/xlvrrzkaF
-         oyoPE02p9b3mExSkwBuvreXC9UkITecNJre08iMEjw4Y4Wpt1u4a4fQjBowh7wjD6N0e
-         nT8/4ltynfTu16R6k4JjiTvXZ9G+X5GNlOGzTLCdp8bMQzvz/CQeaG2r8eD1BwoqO3vK
-         KxLN7gC/XAgVu63RkY5d3U6OGpu4DOUD8NUWGdv6BOFzy2zwVlNUgqB5ps4QR88AYDTE
-         jwZfuNGFEZabM3+O2+ntHANsu4c4mKf7as7gRMShGCONr2PgobnjWj1u4b/c8u4O2BBm
-         KMBA==
-X-Gm-Message-State: AOAM533psfuVHWO6n8VkvTWSjXGy+tXxqgplPksJcXjk1tmaMRZjNQYj
-        JcjwOaV2Wd4x4ZntRtaNoo/Dg5SPcQMY+t50QC/3IpvLXtim0FO2bDQVC4mS77jFeFIvPto1qf9
-        2Cjfgtx3gxPj5/rR/Uuj/DMnOCGcntyaGhQ==
-X-Received: by 2002:a17:906:6b8e:b0:6b9:1f27:73e with SMTP id l14-20020a1709066b8e00b006b91f27073emr863438ejr.361.1645643947960;
-        Wed, 23 Feb 2022 11:19:07 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyJ9QUyPanWfiXE6vKIo8o+c2pwl8ckmaYif3CteDvcltA9YiJZAZD09dYlCxpl8UKoIvZBag==
-X-Received: by 2002:a17:906:6b8e:b0:6b9:1f27:73e with SMTP id l14-20020a1709066b8e00b006b91f27073emr863390ejr.361.1645643947743;
-        Wed, 23 Feb 2022 11:19:07 -0800 (PST)
-Received: from [192.168.0.127] (xdsl-188-155-181-108.adslplus.ch. [188.155.181.108])
-        by smtp.gmail.com with ESMTPSA id x14sm302707edd.63.2022.02.23.11.19.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Feb 2022 11:19:07 -0800 (PST)
-Message-ID: <31c4f987-6480-278f-1d49-02bd611b521c@canonical.com>
-Date:   Wed, 23 Feb 2022 20:19:05 +0100
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=rcZtDDDiBwFJfxUmlCOz3RDMEXHNKOOpzN1iEr3gL5U=;
+        b=UHCp41ylHM2RjGH/2ZJPJcxgxSHcsFh1kPFcyZgoNIRmRVe+TuFStdgMA0KpGr0Olr
+         l3bHpT/FmafraVZJ9FnYQDLcupnkZ5GXejsim1/s/F9NulWsbZ8vhIno0XPo6F32TOZz
+         JBAo4ati4nQRVs2LmYHK/qAK+Zyly53xvnsrq61B5WCapW2KK/JsQnE778IgU5tOcJEc
+         GdvDoicucAa7e8VuZnTnwoTC5t+U+ny8Xj274vIATK5zjdjeFV1NjL08FvMGtTN7c1ud
+         hyb38EWhVZmfOOohT+NPlK6RFOUsRQ+Q2WE4GSoNcJG5q+tkbnchiP24/aXcSdAwGEKQ
+         jkfA==
+X-Gm-Message-State: AOAM531SYJBsAxz/3D4c3Re4BgX5QLHcdsn49yyhknKOJlBy4LN5F5qk
+        xXhqDJQ6heX8l2I54lf6JVu1XA==
+X-Google-Smtp-Source: ABdhPJxlXjAtTppGbdCoaBZt4izIbAhB7dGQ5TNK+YADNjZYa3D+4W9K2F3X6jY0EE0TLHnQMMfldA==
+X-Received: by 2002:a17:902:ab12:b0:14f:ce60:2ae4 with SMTP id ik18-20020a170902ab1200b0014fce602ae4mr1048141plb.87.1645644584562;
+        Wed, 23 Feb 2022 11:29:44 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id on17sm246496pjb.40.2022.02.23.11.29.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Feb 2022 11:29:44 -0800 (PST)
+Date:   Wed, 23 Feb 2022 11:29:43 -0800
+From:   Kees Cook <keescook@chromium.org>
+To:     Jann Horn <jannh@google.com>
+Cc:     Anton Vorontsov <anton@enomsg.org>,
+        Colin Cross <ccross@android.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        linux-efi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] pstore: Don't use semaphores in always-atomic-context
+ code
+Message-ID: <202202231128.E7445769AD@keescook>
+References: <20220218181950.1438236-1-jannh@google.com>
+ <8D85619E-99BD-4DB5-BDDB-A205B057C910@chromium.org>
+ <CAG48ez0UJDBzoaB4=c0Uju6L-eZvhWMdnzAp8N3QfeERbzYv2w@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v2 09/11] clk: imx: scu: fix kfree() of static memory on
- setting driver_override
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Stuart Yoder <stuyoder@gmail.com>,
-        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Abel Vesa <abel.vesa@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Andy Gross <agross@kernel.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org, linux-hyperv@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>, stable@vger.kernel.org
-References: <20220223191310.347669-1-krzysztof.kozlowski@canonical.com>
- <20220223191441.348109-3-krzysztof.kozlowski@canonical.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-In-Reply-To: <20220223191441.348109-3-krzysztof.kozlowski@canonical.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAG48ez0UJDBzoaB4=c0Uju6L-eZvhWMdnzAp8N3QfeERbzYv2w@mail.gmail.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 23/02/2022 20:14, Krzysztof Kozlowski wrote:
-> The driver_override field from platform driver should not be initialized
-> from static memory (string literal) because the core later kfree() it,
-> for example when driver_override is set via sysfs.
+On Wed, Feb 23, 2022 at 06:50:52PM +0100, Jann Horn wrote:
+> On Wed, Feb 23, 2022 at 8:50 AM Kees Cook <keescook@chromium.org> wrote:
+> > On February 18, 2022 10:19:50 AM PST, Jann Horn <jannh@google.com> wrote:
+> > >pstore_dump() is *always* invoked in atomic context (nowadays in an RCU
+> > >read-side critical section, before that under a spinlock).
+> > >It doesn't make sense to try to use semaphores here.
+> >
+> > Ah, very nice. Thanks for the analysis!
+> >
+> > >[...]
+> > >-static bool pstore_cannot_wait(enum kmsg_dump_reason reason)
+> > >+bool pstore_cannot_block_path(enum kmsg_dump_reason reason)
+> >
+> > Why the rename,
 > 
-> Use dedicated helper to set driver_override properly.
+> That's one of the parts of commit ea84b580b955 that I included in the
+> revert. "wait" in the name is not accurate, since "wait" in the kernel
+> normally refers to scheduling away until some condition is fulfilled.
+> (Though I guess "block" also isn't the best name either... idk.) The
+> place where we might want to have different behavior depending on
+> whether we're handling a kernel crash are spinlocks; during a kernel
+> crash, we shouldn't deadlock on them, but otherwise, AFAIK it's fine
+> to block on them.
+
+Gotcha. I'm find to avoid "wait"; I was just curious why it was
+changing, but I see now.
+
 > 
-> Fixes: 77d8f3068c63 ("clk: imx: scu: add two cells binding support")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-> ---
->  drivers/clk/imx/clk-scu.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
+> > extern, and EXPORT? This appears to still only have the same single caller?
 > 
-> diff --git a/drivers/clk/imx/clk-scu.c b/drivers/clk/imx/clk-scu.c
-> index 083da31dc3ea..15e1d670e51f 100644
-> --- a/drivers/clk/imx/clk-scu.c
-> +++ b/drivers/clk/imx/clk-scu.c
-> @@ -683,7 +683,12 @@ struct clk_hw *imx_clk_scu_alloc_dev(const char *name,
->  		return ERR_PTR(ret);
->  	}
->  
-> -	pdev->driver_override = "imx-scu-clk";
-> +	ret = driver_set_override(&pdev->dev, &pdev->driver_override,
-> +				  "imx-scu-clk");
-> +	if (ret) {
-> +		platform_device_put(pdev);
-> +		return ret;
+> Also part of the revert. I figured it might make sense to also revert
+> that part because:
+> 
+> With this commit applied, the EFI code will always take the "nonblock"
+> path for now, but that's kinda suboptimal; on some platforms the
+> "blocking" path uses a semaphore, so we really can't take that, but on
+> x86 it uses a spinlock, which we could block on if we're not oopsing.
+> We could avoid needlessly losing non-crash dmesg dumps there; I don't
+> know whether we care about that though.
+> 
+> So I figured that we might want to start adding new callers to this
+> later on. But if you want, I'll remove that part of the revert and
+> resend?
 
-This is wrong - should be ERR_PTR.
+Yeah, let's just keep this static -- there's no reason to export it.
 
+> 
+> > > [...]
+> > >-                      pr_err("dump skipped in %s path: may corrupt error record\n",
+> > >-                              in_nmi() ? "NMI" : why);
+> > >-                      return;
+> > >-              }
+> > >-              if (down_interruptible(&psinfo->buf_lock)) {
+> > >-                      pr_err("could not grab semaphore?!\n");
+> > >+      if (pstore_cannot_block_path(reason)) {
+> > >+              if (!spin_trylock_irqsave(&psinfo->buf_lock, flags)) {
+> > >+                      pr_err("dump skipped in %s path because of concurrent dump\n"
+> > >+                                     , in_nmi() ? "NMI" : why);
+> >
+> > The pr_err had the comma following the format string moved,
+> 
+> Ah, whoops, that was also part of the revert, but I guess I should
+> have left that part out...
+> 
+> > and the note about corruption removed. Is that no longer accurate?
+> 
+> There should be no more corruption since commit 959217c84c27 ("pstore:
+> Actually give up during locking failure") - if we're bailing out, we
+> can't be causing corruption, I believe?
 
-Best regards,
-Krzysztof
+Yeah, agreed. String content change is fine, the weird leading comma I'd
+like to do without. :)
+
+Thanks!
+
+-- 
+Kees Cook
