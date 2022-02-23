@@ -2,67 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D68974C069F
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 02:05:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B10164C06E9
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 02:30:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231434AbiBWBGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 20:06:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60888 "EHLO
+        id S235459AbiBWBbB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 20:31:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236553AbiBWBGF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 20:06:05 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3562F37BEB
-        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 17:05:39 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id v4so1241181pjh.2
-        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 17:05:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=hw6ewzegKRISD9F/Uq2/lYQH9UhZHIrJvMUTk+7vjIk=;
-        b=b2ApdbUlZ9uIHBTCuPXfNHKeJMgZ0sOOFAj8PF0vbf+nek3gx++N4jPgw6sKG31cQR
-         3UU3OrzQTYB9f48/0B6IDToieNYujozcyia0eRagAe+g9q4j88L2vGnNROFizdTfmuJF
-         NgSDKuLiN1jGZ5pxTg6bnqEaOBv3B2C9aM56s2j1ExNQ9vIpTEaCrwNKfR4RcENqO/k8
-         D51Qd7njItOZgXYtt6RzhUfEgTmkRfuWvj4BYB1arTpd9zTEBaiAA4qr4fBe+NC+lcYi
-         g9bOe31yBPkmnyYe0Gcs60TjWnOEk2ytOh1j08bqZHLI6eKxfS4iz+8U1zfEe5uwK6xl
-         XieA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=hw6ewzegKRISD9F/Uq2/lYQH9UhZHIrJvMUTk+7vjIk=;
-        b=yMCGXcRfdPPvcZMfHQPXtIgkLwnaRzn80++yJeleouYspCcUpGBR8YyPYg040/puNJ
-         KjP7DHEOvIUr3RKz5ZjWh8YLeCe5y5xlre28xq7ZMSP2pP9ow/0DYLjBd7AtfGdOuKGk
-         63wN4goG6NnBGsvRYJbphzhburGhRsyqRwGGz4Ynoxteh4R62D3IWPRWFvhs+AqPBGTe
-         J6wCed/HwiOdkMEr13/omL6pUSyhu8z/P4+CYLSGdVgTHjzkiqkb4PZIB5vYeczMZByd
-         i6Ox1U0SIel2ghNePih8wLqxBUWtvLyuBH+ENTgEQi6qi6tu4IDXySjYOSCUK2/clkDF
-         vS9A==
-X-Gm-Message-State: AOAM530m+gUlVTJCFvLj0Bd8YYcpj9/NShJD2j6B8E25DIaT4rP7LquX
-        cM41GA1k529a566kjpdyukhXRKN1hH/NuaLP
-X-Google-Smtp-Source: ABdhPJyclUr5mTQ7l0yuplBtRU2vIG6yidabdKMmWteLsw2P0TiHFKEeyJGLuarK17+KRBZ9nIBcrg==
-X-Received: by 2002:a17:902:6b81:b0:14f:37e1:3940 with SMTP id p1-20020a1709026b8100b0014f37e13940mr25092491plk.115.1645578338536;
-        Tue, 22 Feb 2022 17:05:38 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g12sm17608337pfm.119.2022.02.22.17.05.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Feb 2022 17:05:38 -0800 (PST)
-Message-ID: <62158862.1c69fb81.0b97.1217@mx.google.com>
-Date:   Tue, 22 Feb 2022 17:05:38 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S232171AbiBWBbA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 20:31:00 -0500
+Received: from mail-41104.protonmail.ch (mail-41104.protonmail.ch [185.70.41.104])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 144C849FBD
+        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 17:30:33 -0800 (PST)
+Received: from mail-0301.mail-europe.com (mail-0301.mail-europe.com [188.165.51.139])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (No client certificate requested)
+        by mail-41104.protonmail.ch (Postfix) with ESMTPS id 4K3JQ02khFz4x1HF
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 01:30:32 +0000 (UTC)
+Authentication-Results: mail-41104.protonmail.ch;
+        dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b="mvo7jVeS"
+Date:   Wed, 23 Feb 2022 01:30:23 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
+        s=protonmail2; t=1645579827;
+        bh=CQFxD1W39+Df70ddAmAdf4AQl7i9OvdeVhpyoh8lVhE=;
+        h=Date:To:From:Cc:Reply-To:Subject:Message-ID:From:To:Cc:Date:
+         Subject:Reply-To:Feedback-ID:Message-ID;
+        b=mvo7jVeSvzvjWXma7OZlSfTkGhoaZ9NX/KDBtfb+MAgm8/Kv8y6jQCkthz3aqmNVF
+         6tIQ0maSDG4WHKhwEDovLCXJoqtwCwdyySTzqlIr9Wsg0d/qYIQ6iIliVRCXho8OyC
+         y7/dsuj1YtNwC3Afgb3y/SeiaLNu3qtPz4bYoIZ4ABd9oEumVdgef3NaGtrVWa/9IL
+         VeqI6O9htqh0m5t2MSjxd0f1MMV0AHHGFXQR+ld5J0tJBaWhxnEDIKySk67quOFveZ
+         1lsL/FfGQ4/lLV1d2b0AuS9/sOLwg6hm6NQLBecphwvB4hCU+scszRgd2Dff9NRYSa
+         cHvDSeYeVyKVA==
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+From:   Alexander Lobakin <alobakin@pm.me>
+Cc:     Alexander Lobakin <alobakin@pm.me>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Davidlohr Bueso <dbueso@suse.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Liam Howlett <liam.howlett@oracle.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+        linux-mips@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Reply-To: Alexander Lobakin <alobakin@pm.me>
+Subject: [PATCH mips-fixes] MIPS: fix fortify panic when copying asm exception handlers
+Message-ID: <20220223012338.262041-1-alobakin@pm.me>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Kernel: v4.9.302-33-gc104fa3ed149
-Subject: stable-rc/queue/4.9 baseline: 61 runs,
- 1 regressions (v4.9.302-33-gc104fa3ed149)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,72 +61,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 61 runs, 1 regressions (v4.9.302-33-gc104fa3e=
-d149)
+With KCFLAGS=3D"-O3", I was able to trigger a fortify-source
+memcpy() overflow panic on set_vi_srs_handler().
+Although O3 level is not supported in the mainline, under some
+conditions that may've happened with any optimization settings,
+it's just a matter of inlining luck. The panic itself is correct,
+more precisely, 50/50 false-positive and not at the same time.
+From the one side, no real overflow happens. Exception handler
+defined in asm just gets copied to some reserved places in the
+memory.
+But the reason behind is that C code refers to that exception
+handler declares it as `char`, i.e. something of 1 byte length.
+It's obvious that the asm function itself is way more than 1 byte,
+so fortify logics thought we are going to past the symbol declared.
+The standard way to refer to asm symbols from C code which is not
+supposed to be called from C is to declare them as
+`extern const u8[]`. This is fully correct from any point of view,
+as any code itself is just a bunch of bytes (including 0 as it is
+for syms like _stext/_etext/etc.), and the exact size is not known
+at the moment of compilation.
+Adjust the type of the except_vec_vi_*() and related variables.
+Make set_handler() take `const` as a second argument to avoid
+cast-away warnings and give a little more room for optimization.
 
-Regressions Summary
--------------------
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+Fixes: e01402b115cc ("More AP / SP bits for the 34K, the Malta bits and thi=
+ngs. Still wants")
+Fixes: c65a5480ff29 ("[MIPS] Fix potential latency problem due to non-atomi=
+c cpu_wait.")
+Cc: stable@vger.kernel.org # 3.10+
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ arch/mips/include/asm/setup.h |  2 +-
+ arch/mips/kernel/traps.c      | 22 +++++++++++-----------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/arch/mips/include/asm/setup.h b/arch/mips/include/asm/setup.h
+index bb36a400203d..8c56b862fd9c 100644
+--- a/arch/mips/include/asm/setup.h
++++ b/arch/mips/include/asm/setup.h
+@@ -16,7 +16,7 @@ static inline void setup_8250_early_printk_port(unsigned =
+long base,
+ =09unsigned int reg_shift, unsigned int timeout) {}
+ #endif
+
+-extern void set_handler(unsigned long offset, void *addr, unsigned long le=
+n);
++void set_handler(unsigned long offset, const void *addr, unsigned long len=
+);
+ extern void set_uncached_handler(unsigned long offset, void *addr, unsigne=
+d long len);
+
+ typedef void (*vi_handler_t)(void);
+diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
+index a486486b2355..246c6a6b0261 100644
+--- a/arch/mips/kernel/traps.c
++++ b/arch/mips/kernel/traps.c
+@@ -2091,19 +2091,19 @@ static void *set_vi_srs_handler(int n, vi_handler_t=
+ addr, int srs)
+ =09=09 * If no shadow set is selected then use the default handler
+ =09=09 * that does normal register saving and standard interrupt exit
+ =09=09 */
+-=09=09extern char except_vec_vi, except_vec_vi_lui;
+-=09=09extern char except_vec_vi_ori, except_vec_vi_end;
+-=09=09extern char rollback_except_vec_vi;
+-=09=09char *vec_start =3D using_rollback_handler() ?
+-=09=09=09&rollback_except_vec_vi : &except_vec_vi;
++=09=09extern const u8 except_vec_vi[], except_vec_vi_lui[];
++=09=09extern const u8 except_vec_vi_ori[], except_vec_vi_end[];
++=09=09extern const u8 rollback_except_vec_vi[];
++=09=09const u8 *vec_start =3D using_rollback_handler() ?
++=09=09=09=09      rollback_except_vec_vi : except_vec_vi;
+ #if defined(CONFIG_CPU_MICROMIPS) || defined(CONFIG_CPU_BIG_ENDIAN)
+-=09=09const int lui_offset =3D &except_vec_vi_lui - vec_start + 2;
+-=09=09const int ori_offset =3D &except_vec_vi_ori - vec_start + 2;
++=09=09const int lui_offset =3D except_vec_vi_lui - vec_start + 2;
++=09=09const int ori_offset =3D except_vec_vi_ori - vec_start + 2;
+ #else
+-=09=09const int lui_offset =3D &except_vec_vi_lui - vec_start;
+-=09=09const int ori_offset =3D &except_vec_vi_ori - vec_start;
++=09=09const int lui_offset =3D except_vec_vi_lui - vec_start;
++=09=09const int ori_offset =3D except_vec_vi_ori - vec_start;
+ #endif
+-=09=09const int handler_len =3D &except_vec_vi_end - vec_start;
++=09=09const int handler_len =3D except_vec_vi_end - vec_start;
+
+ =09=09if (handler_len > VECTORSPACING) {
+ =09=09=09/*
+@@ -2311,7 +2311,7 @@ void per_cpu_trap_init(bool is_boot_cpu)
+ }
+
+ /* Install CPU exception handler */
+-void set_handler(unsigned long offset, void *addr, unsigned long size)
++void set_handler(unsigned long offset, const void *addr, unsigned long siz=
+e)
+ {
+ #ifdef CONFIG_CPU_MICROMIPS
+ =09memcpy((void *)(ebase + offset), ((unsigned char *)addr - 1), size);
+--
+2.35.1
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.302-33-gc104fa3ed149/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.302-33-gc104fa3ed149
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c104fa3ed1496dbe545173edfe2432985be8c94b =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/621550f5fcb48e8d24c6296a
-
-  Results:     4 PASS, 1 FAIL, 2 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.302-3=
-3-gc104fa3ed149/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.302-3=
-3-gc104fa3ed149/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220218.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/621550f5fcb48e8=
-d24c6296d
-        failing since 1 day (last pass: v4.9.302-26-gf49b0aafd7d5, first fa=
-il: v4.9.302-28-g96ac67c43b2b)
-        2 lines
-
-    2022-02-22T21:08:58.903808  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/125
-    2022-02-22T21:08:58.913142  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
