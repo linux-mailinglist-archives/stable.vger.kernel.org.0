@@ -2,52 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E1074C08BB
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:37:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F27774C08CB
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:37:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237343AbiBWCeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:34:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42446 "EHLO
+        id S231220AbiBWCdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:33:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237664AbiBWCdU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:33:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 234835F4C8;
+        with ESMTP id S237659AbiBWCdT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:33:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C0A5F4D1;
         Tue, 22 Feb 2022 18:31:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5E0B61519;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D3B5A6155F;
+        Wed, 23 Feb 2022 02:31:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C528AC340EB;
         Wed, 23 Feb 2022 02:31:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2C64C340E8;
-        Wed, 23 Feb 2022 02:31:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583486;
-        bh=z6WtXkdplajcHr5U4+TEBsmCq0vuiEtw9uFAEm14z5M=;
+        s=k20201202; t=1645583488;
+        bh=x8fJSb9IKlcqvRl4YJcfYG9sKVjOS3ECVVnLLeHY8RQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XmvbvVuub4yJ0jyKrSgFG1zYMs8pKlpeZmxQhxu0NGkrts5eQyvn5jERm/CM17avC
-         cMUp4OzfSHSHVxXwCzWpjZVl9ODiWF5Z6/neLd5oHctHhQfTWEyu+p3qz5CQZmwCtF
-         CK3jI5DeP0bzRiORBeSp3e4wyIbyAgMARH1URdP9WzF7AGdl/NkAZ6sLCKl6zC7cJJ
-         q8WQxSm97D+JKrtVgBPbWqUcMsSP49TIw4HqbEy/kiJcKwxUWlmtCQltHAiWhtsXKf
-         WfM8JvDUSzA0WD2onZoep6CugHhc4JS6NxnVFJaN/8aFLAH2d2iR3uxAp1rHuk+bKf
-         5UcExefX8lmPA==
+        b=MPy/ci52QpCL0GC6+0MzNXTRjEIk42eK11oXHQX1j8UnY7ycSjDRK0APBtYXgpJPF
+         +ywdyLAfjWYdD8Dzxb8YGRNzpwv4E/ucpzczYJgsJnBIgm2LiYFXyCh2A0N03BpVOe
+         s7SEdRj4t575M7p5EeSuoQohSb6BzD0gEIuSAbXMpyhFEEUF1w2R6m0eVyDzUEKJXz
+         tPBJmryWhATE5boQFoup9LV/pan4R5xkqhGrS5ZUu5dxSHWlvdOmPyynfwT8fMIyvb
+         5s1y84Y5YHHKdaY/vyBF/4UNA9R+WvxHLsoBbDgxQIifqwjUoPo6uR3yvo2MwLN3oW
+         IW8EoI8EJNW2w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Anholt <eric@anholt.net>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        f.fainelli@gmail.com, rjui@broadcom.com, sbranden@broadcom.com,
-        bcm-kernel-feedback-list@broadcom.com, nsaenz@kernel.org,
-        prabhakar.mahadev-lad.rj@bp.renesas.com, linux-i2c@vger.kernel.org,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 03/13] i2c: bcm2835: Avoid clock stretching timeouts
-Date:   Tue, 22 Feb 2022 21:31:07 -0500
-Message-Id: <20220223023118.241815-3-sashal@kernel.org>
+Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Shuming Fan <shumingf@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, oder_chiou@realtek.com,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 04/13] ASoC: rt5668: do not block workqueue if card is unbound
+Date:   Tue, 22 Feb 2022 21:31:08 -0500
+Message-Id: <20220223023118.241815-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223023118.241815-1-sashal@kernel.org>
 References: <20220223023118.241815-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,53 +64,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Anholt <eric@anholt.net>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 9495b9b31abe525ebd93da58de2c88b9f66d3a0e ]
+[ Upstream commit a6d78661dc903d90a327892bbc34268f3a5f4b9c ]
 
-The CLKT register contains at poweron 0x40, which at our typical 100kHz
-bus rate means .64ms. But there is no specified limit to how long devices
-should be able to stretch the clocks, so just disable the timeout. We
-still have a timeout wrapping the entire transfer.
+The current rt5668_jack_detect_handler() assumes the component
+and card will always show up and implements an infinite usleep
+loop waiting for them to show up.
 
-Signed-off-by: Eric Anholt <eric@anholt.net>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-BugLink: https://github.com/raspberrypi/linux/issues/3064
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+This does not hold true if a codec interrupt (or other
+event) occurs when the card is unbound. The codec driver's
+remove  or shutdown functions cannot cancel the workqueue due
+to the wait loop. As a result, code can either end up blocking
+the workqueue, or hit a kernel oops when the card is freed.
+
+Fix the issue by rescheduling the jack detect handler in
+case the card is not ready. In case card never shows up,
+the shutdown/remove/suspend calls can now cancel the detect
+task.
+
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Shuming Fan <shumingf@realtek.com>
+Link: https://lore.kernel.org/r/20220207153000.3452802-2-kai.vehmanen@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-bcm2835.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ sound/soc/codecs/rt5668.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 5ab901ad615dd..c265fe4621621 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -23,6 +23,11 @@
- #define BCM2835_I2C_FIFO	0x10
- #define BCM2835_I2C_DIV		0x14
- #define BCM2835_I2C_DEL		0x18
-+/*
-+ * 16-bit field for the number of SCL cycles to wait after rising SCL
-+ * before deciding the slave is not responding. 0 disables the
-+ * timeout detection.
-+ */
- #define BCM2835_I2C_CLKT	0x1c
+diff --git a/sound/soc/codecs/rt5668.c b/sound/soc/codecs/rt5668.c
+index 5716cede99cb4..acc2b34ca334a 100644
+--- a/sound/soc/codecs/rt5668.c
++++ b/sound/soc/codecs/rt5668.c
+@@ -1022,11 +1022,13 @@ static void rt5668_jack_detect_handler(struct work_struct *work)
+ 		container_of(work, struct rt5668_priv, jack_detect_work.work);
+ 	int val, btn_type;
  
- #define BCM2835_I2C_C_READ	BIT(0)
-@@ -479,6 +484,12 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	adap->dev.of_node = pdev->dev.of_node;
- 	adap->quirks = of_device_get_match_data(&pdev->dev);
+-	while (!rt5668->component)
+-		usleep_range(10000, 15000);
+-
+-	while (!rt5668->component->card->instantiated)
+-		usleep_range(10000, 15000);
++	if (!rt5668->component || !rt5668->component->card ||
++	    !rt5668->component->card->instantiated) {
++		/* card not yet ready, try later */
++		mod_delayed_work(system_power_efficient_wq,
++				 &rt5668->jack_detect_work, msecs_to_jiffies(15));
++		return;
++	}
  
-+	/*
-+	 * Disable the hardware clock stretching timeout. SMBUS
-+	 * specifies a limit for how long the device can stretch the
-+	 * clock, but core I2C doesn't.
-+	 */
-+	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_CLKT, 0);
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
+ 	mutex_lock(&rt5668->calibrate_mutex);
  
- 	ret = i2c_add_adapter(adap);
 -- 
 2.34.1
 
