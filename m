@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D35D64C1AA3
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 19:07:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A0AB4C1AA4
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 19:07:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243673AbiBWSIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243728AbiBWSIL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 23 Feb 2022 13:08:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39282 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243808AbiBWSH6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 13:07:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FC8347059
-        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 10:07:30 -0800 (PST)
+        with ESMTP id S243812AbiBWSH7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 13:07:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BD1347059
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 10:07:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFD4DB8213C
-        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 18:07:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2162FC340E7;
-        Wed, 23 Feb 2022 18:07:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1944A615BF
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 18:07:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29996C340E7;
+        Wed, 23 Feb 2022 18:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645639647;
-        bh=YbjYIBhR1HjxfOfUt/6f9pPKawMqR70iFjlCdbKbXeY=;
+        s=korg; t=1645639650;
+        bh=Rd4IDyNKBs9DANzswzW7iPwApgRasEIMH9TjFTSRWhk=;
         h=Subject:To:Cc:From:Date:From;
-        b=NzO9GnVjUUD8t7HmvdcbzZliDw61u9q6VGMtG8C0v0PvJaqD1vUrTOUcWh0hOqP+N
-         G5TOKV2mXaiJ8ua5npJzL1KNxOQuArcQXC32mayogXQyQ30nnGfoRz/db5ywQPAMCE
-         mJfTgtCv82CeU8dGJvEjjEJk6Cx1tS13rw5Dwg34=
-Subject: FAILED: patch "[PATCH] cgroup-v1: Correct privileges check in release_agent writes" failed to apply to 5.10-stable tree
+        b=S9k337zYd2xmo2Nvr4U21dzdP5L3n9P+cQqPeZKbSX1HoxplNAIe6ObsSvRw7xJZU
+         BLnjbI7FLQ/bua11eT2I8nTlxIAOoaS8rzhObTcD0IwhDngqpxC9Y10wgNu2a+nmrN
+         gfFXV8T1XQsaSEu8X1esrbiCowMTlw+PrqYPt5YU=
+Subject: FAILED: patch "[PATCH] cgroup-v1: Correct privileges check in release_agent writes" failed to apply to 5.4-stable tree
 To:     mkoutny@suse.com, masami.ichikawa@cybertrust.co.jp, tj@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 23 Feb 2022 19:07:12 +0100
-Message-ID: <1645639632780@kroah.com>
+Message-ID: <164563963218219@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
