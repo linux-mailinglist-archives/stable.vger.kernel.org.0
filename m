@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DBA04C092A
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:39:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F30184C095C
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:39:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238006AbiBWCjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:39:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57904 "EHLO
+        id S232462AbiBWCjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:39:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237387AbiBWChd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:37:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEA4C54BC6;
-        Tue, 22 Feb 2022 18:32:43 -0800 (PST)
+        with ESMTP id S237757AbiBWCiB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:38:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F435574C;
+        Tue, 22 Feb 2022 18:33:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CEA9E614D3;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01F72B81E16;
+        Wed, 23 Feb 2022 02:32:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1DAAC340E8;
         Wed, 23 Feb 2022 02:32:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A367C340F5;
-        Wed, 23 Feb 2022 02:32:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583563;
-        bh=YcUfRZgWEGpn1g4IoP0l5BsEI6IBAvoQlVrFxmlIMIg=;
+        s=k20201202; t=1645583564;
+        bh=N2eSg4cBpi7JwxNmSliSC4Pe8EBDIBV8CNUL9/bYicI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DZp4RvUC39vq0lNXGF/TpGl+CWIRX9rJiGHlxj1o76HwUr0U3j1/gRJ51OyQKWSbX
-         1ZqpS2vdCqVcvY264gNoGMFkKnZq0HAh5Y3UoUWVkpco+DX8D/XENGIZLkgdEMu2ZC
-         u+vW8fpqTg1ljpr3MlMwHJQw26I0yogO5dGjKUv9FB5tFT+5rGNiOKA13W6YPkFoiX
-         wU4+DJPsMwxwCH8Ob8AGX8EdC6NAF1BT9LE+wy8VyyWWHR/X7L6kS1WuP/RCHHH0GH
-         jEuumRsU8UympafV1qIYDRnG2UKgkcTDoPcvCqzlJSL0eNzxdjhlmyeKeELEeYyMXc
-         VJjeDd46fKmFA==
+        b=VB6K1c3v9VtX3DA+RH2d2AOLfJvbVEHF7EkaDRLrzCnFOtNrUJdRMkFWTfL2E5BLk
+         slmTVypscSayrt4di+5rXES47+etY8ZV91s5ZX1V91s+G+IY1Y/Mb/+2kjM/ZVOj0E
+         hfNHWE2Qw04p929sZKygGg4hm3LEkCQ1qVinVOh5Xbs6U3rtHgBoIgiCqj6O9tgSjR
+         3xWn+nxH1EgDy5Fcs3u9vXXPn6T8Zp73aMqnpxfTVStnMOciJuW4lMl7RLmeoCPdzY
+         +sE7LDMVLJFBcBmyy5Tfa4ngDAr0QnXvqdjfa8Xv0gjPgZ8MswfC8yEN2wqEI88vom
+         TCsmQhvy4lxGA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Peter Hutterer <peter.hutterer@who-t.net>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 04/10] Input: clear BTN_RIGHT/MIDDLE on buttonpads
-Date:   Tue, 22 Feb 2022 21:32:27 -0500
-Message-Id: <20220223023233.242468-4-sashal@kernel.org>
+Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
+        Shyam Prasad N <sprasad@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
+        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 4.14 05/10] cifs: fix double free race when mount fails in cifs_get_root()
+Date:   Tue, 22 Feb 2022 21:32:28 -0500
+Message-Id: <20220223023233.242468-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223023233.242468-1-sashal@kernel.org>
 References: <20220223023233.242468-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,80 +58,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 37ef4c19b4c659926ce65a7ac709ceaefb211c40 ]
+[ Upstream commit 3d6cc9898efdfb062efb74dc18cfc700e082f5d5 ]
 
-Buttonpads are expected to map the INPUT_PROP_BUTTONPAD property bit
-and the BTN_LEFT key bit.
+When cifs_get_root() fails during cifs_smb3_do_mount() we call
+deactivate_locked_super() which eventually will call delayed_free() which
+will free the context.
+In this situation we should not proceed to enter the out: section in
+cifs_smb3_do_mount() and free the same resources a second time.
 
-As explained in the specification, where a device has a button type
-value of 0 (click-pad) or 1 (pressure-pad) there should not be
-discrete buttons:
-https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/touchpad-windows-precision-touchpad-collection#device-capabilities-feature-report
+[Thu Feb 10 12:59:06 2022] BUG: KASAN: use-after-free in rcu_cblist_dequeue+0x32/0x60
+[Thu Feb 10 12:59:06 2022] Read of size 8 at addr ffff888364f4d110 by task swapper/1/0
 
-However, some drivers map the BTN_RIGHT and/or BTN_MIDDLE key bits even
-though the device is a buttonpad and therefore does not have those
-buttons.
+[Thu Feb 10 12:59:06 2022] CPU: 1 PID: 0 Comm: swapper/1 Tainted: G           OE     5.17.0-rc3+ #4
+[Thu Feb 10 12:59:06 2022] Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS Hyper-V UEFI Release v4.0 12/17/2019
+[Thu Feb 10 12:59:06 2022] Call Trace:
+[Thu Feb 10 12:59:06 2022]  <IRQ>
+[Thu Feb 10 12:59:06 2022]  dump_stack_lvl+0x5d/0x78
+[Thu Feb 10 12:59:06 2022]  print_address_description.constprop.0+0x24/0x150
+[Thu Feb 10 12:59:06 2022]  ? rcu_cblist_dequeue+0x32/0x60
+[Thu Feb 10 12:59:06 2022]  kasan_report.cold+0x7d/0x117
+[Thu Feb 10 12:59:06 2022]  ? rcu_cblist_dequeue+0x32/0x60
+[Thu Feb 10 12:59:06 2022]  __asan_load8+0x86/0xa0
+[Thu Feb 10 12:59:06 2022]  rcu_cblist_dequeue+0x32/0x60
+[Thu Feb 10 12:59:06 2022]  rcu_core+0x547/0xca0
+[Thu Feb 10 12:59:06 2022]  ? call_rcu+0x3c0/0x3c0
+[Thu Feb 10 12:59:06 2022]  ? __this_cpu_preempt_check+0x13/0x20
+[Thu Feb 10 12:59:06 2022]  ? lock_is_held_type+0xea/0x140
+[Thu Feb 10 12:59:06 2022]  rcu_core_si+0xe/0x10
+[Thu Feb 10 12:59:06 2022]  __do_softirq+0x1d4/0x67b
+[Thu Feb 10 12:59:06 2022]  __irq_exit_rcu+0x100/0x150
+[Thu Feb 10 12:59:06 2022]  irq_exit_rcu+0xe/0x30
+[Thu Feb 10 12:59:06 2022]  sysvec_hyperv_stimer0+0x9d/0xc0
+...
+[Thu Feb 10 12:59:07 2022] Freed by task 58179:
+[Thu Feb 10 12:59:07 2022]  kasan_save_stack+0x26/0x50
+[Thu Feb 10 12:59:07 2022]  kasan_set_track+0x25/0x30
+[Thu Feb 10 12:59:07 2022]  kasan_set_free_info+0x24/0x40
+[Thu Feb 10 12:59:07 2022]  ____kasan_slab_free+0x137/0x170
+[Thu Feb 10 12:59:07 2022]  __kasan_slab_free+0x12/0x20
+[Thu Feb 10 12:59:07 2022]  slab_free_freelist_hook+0xb3/0x1d0
+[Thu Feb 10 12:59:07 2022]  kfree+0xcd/0x520
+[Thu Feb 10 12:59:07 2022]  cifs_smb3_do_mount+0x149/0xbe0 [cifs]
+[Thu Feb 10 12:59:07 2022]  smb3_get_tree+0x1a0/0x2e0 [cifs]
+[Thu Feb 10 12:59:07 2022]  vfs_get_tree+0x52/0x140
+[Thu Feb 10 12:59:07 2022]  path_mount+0x635/0x10c0
+[Thu Feb 10 12:59:07 2022]  __x64_sys_mount+0x1bf/0x210
+[Thu Feb 10 12:59:07 2022]  do_syscall_64+0x5c/0xc0
+[Thu Feb 10 12:59:07 2022]  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-This behavior has forced userspace applications like libinput to
-implement different workarounds and quirks to detect buttonpads and
-offer to the user the right set of features and configuration options.
-For more information:
-https://gitlab.freedesktop.org/libinput/libinput/-/merge_requests/726
+[Thu Feb 10 12:59:07 2022] Last potentially related work creation:
+[Thu Feb 10 12:59:07 2022]  kasan_save_stack+0x26/0x50
+[Thu Feb 10 12:59:07 2022]  __kasan_record_aux_stack+0xb6/0xc0
+[Thu Feb 10 12:59:07 2022]  kasan_record_aux_stack_noalloc+0xb/0x10
+[Thu Feb 10 12:59:07 2022]  call_rcu+0x76/0x3c0
+[Thu Feb 10 12:59:07 2022]  cifs_umount+0xce/0xe0 [cifs]
+[Thu Feb 10 12:59:07 2022]  cifs_kill_sb+0xc8/0xe0 [cifs]
+[Thu Feb 10 12:59:07 2022]  deactivate_locked_super+0x5d/0xd0
+[Thu Feb 10 12:59:07 2022]  cifs_smb3_do_mount+0xab9/0xbe0 [cifs]
+[Thu Feb 10 12:59:07 2022]  smb3_get_tree+0x1a0/0x2e0 [cifs]
+[Thu Feb 10 12:59:07 2022]  vfs_get_tree+0x52/0x140
+[Thu Feb 10 12:59:07 2022]  path_mount+0x635/0x10c0
+[Thu Feb 10 12:59:07 2022]  __x64_sys_mount+0x1bf/0x210
+[Thu Feb 10 12:59:07 2022]  do_syscall_64+0x5c/0xc0
+[Thu Feb 10 12:59:07 2022]  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-In order to avoid this issue clear the BTN_RIGHT and BTN_MIDDLE key
-bits when the input device is register if the INPUT_PROP_BUTTONPAD
-property bit is set.
-
-Notice that this change will not affect udev because it does not check
-for buttons. See systemd/src/udev/udev-builtin-input_id.c.
-
-List of known affected hardware:
-
- - Chuwi AeroBook Plus
- - Chuwi Gemibook
- - Framework Laptop
- - GPD Win Max
- - Huawei MateBook 2020
- - Prestigio Smartbook 141 C2
- - Purism Librem 14v1
- - StarLite Mk II   - AMI firmware
- - StarLite Mk II   - Coreboot firmware
- - StarLite Mk III  - AMI firmware
- - StarLite Mk III  - Coreboot firmware
- - StarLabTop Mk IV - AMI firmware
- - StarLabTop Mk IV - Coreboot firmware
- - StarBook Mk V
-
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Link: https://lore.kernel.org/r/20220208174806.17183-1-jose.exposito89@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reported-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/input.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/cifs/cifsfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index cadb368be8eff..cb8ff919ba82b 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -2120,6 +2120,12 @@ int input_register_device(struct input_dev *dev)
- 	/* KEY_RESERVED is not supposed to be transmitted to userspace. */
- 	__clear_bit(KEY_RESERVED, dev->keybit);
+diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
+index 74f405a05efc3..dba0d12c3db19 100644
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -753,6 +753,7 @@ cifs_do_mount(struct file_system_type *fs_type,
  
-+	/* Buttonpads should not map BTN_RIGHT and/or BTN_MIDDLE. */
-+	if (test_bit(INPUT_PROP_BUTTONPAD, dev->propbit)) {
-+		__clear_bit(BTN_RIGHT, dev->keybit);
-+		__clear_bit(BTN_MIDDLE, dev->keybit);
-+	}
-+
- 	/* Make sure that bitmasks not mentioned in dev->evbit are clean. */
- 	input_cleanse_bitmasks(dev);
- 
+ out_super:
+ 	deactivate_locked_super(sb);
++	return root;
+ out:
+ 	cifs_cleanup_volume_info(volume_info);
+ 	return root;
 -- 
 2.34.1
 
