@@ -2,162 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B10164C06E9
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 02:30:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ED7E4C079C
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:09:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235459AbiBWBbB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 20:31:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58438 "EHLO
+        id S236716AbiBWCJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:09:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232171AbiBWBbA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 20:31:00 -0500
-Received: from mail-41104.protonmail.ch (mail-41104.protonmail.ch [185.70.41.104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 144C849FBD
-        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 17:30:33 -0800 (PST)
-Received: from mail-0301.mail-europe.com (mail-0301.mail-europe.com [188.165.51.139])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (No client certificate requested)
-        by mail-41104.protonmail.ch (Postfix) with ESMTPS id 4K3JQ02khFz4x1HF
-        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 01:30:32 +0000 (UTC)
-Authentication-Results: mail-41104.protonmail.ch;
-        dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b="mvo7jVeS"
-Date:   Wed, 23 Feb 2022 01:30:23 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
-        s=protonmail2; t=1645579827;
-        bh=CQFxD1W39+Df70ddAmAdf4AQl7i9OvdeVhpyoh8lVhE=;
-        h=Date:To:From:Cc:Reply-To:Subject:Message-ID:From:To:Cc:Date:
-         Subject:Reply-To:Feedback-ID:Message-ID;
-        b=mvo7jVeSvzvjWXma7OZlSfTkGhoaZ9NX/KDBtfb+MAgm8/Kv8y6jQCkthz3aqmNVF
-         6tIQ0maSDG4WHKhwEDovLCXJoqtwCwdyySTzqlIr9Wsg0d/qYIQ6iIliVRCXho8OyC
-         y7/dsuj1YtNwC3Afgb3y/SeiaLNu3qtPz4bYoIZ4ABd9oEumVdgef3NaGtrVWa/9IL
-         VeqI6O9htqh0m5t2MSjxd0f1MMV0AHHGFXQR+ld5J0tJBaWhxnEDIKySk67quOFveZ
-         1lsL/FfGQ4/lLV1d2b0AuS9/sOLwg6hm6NQLBecphwvB4hCU+scszRgd2Dff9NRYSa
-         cHvDSeYeVyKVA==
-To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-From:   Alexander Lobakin <alobakin@pm.me>
-Cc:     Alexander Lobakin <alobakin@pm.me>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        Davidlohr Bueso <dbueso@suse.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Liam Howlett <liam.howlett@oracle.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-        linux-mips@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: [PATCH mips-fixes] MIPS: fix fortify panic when copying asm exception handlers
-Message-ID: <20220223012338.262041-1-alobakin@pm.me>
+        with ESMTP id S236659AbiBWCJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:09:45 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CDD563BA6F
+        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 18:09:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1645582158;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=W9LkpmwRUB9s3DzzklqywD2GBEtiMiXthflpW97NS2M=;
+        b=eWyH4UyQbNgh3HGIBNzKjBIRpS9OD98j+5Q6oOwfEI1W9ycTh5D55gGaO8HQCwHVOP26PN
+        YNzOTL5GyrZW7fceOiaMQvrXeLzr63uNyjGaGSFjltBdUdfIUmpSOA9QqEABVJ1ElCr9WH
+        +dC3bqSJwNp0huX8hYhKTL951P8evag=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-584-Lt-ro3HWOR6vhakQQrbTTQ-1; Tue, 22 Feb 2022 21:09:16 -0500
+X-MC-Unique: Lt-ro3HWOR6vhakQQrbTTQ-1
+Received: by mail-lj1-f199.google.com with SMTP id j17-20020a2e8011000000b002463682ffd5so4794247ljg.6
+        for <stable@vger.kernel.org>; Tue, 22 Feb 2022 18:09:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=W9LkpmwRUB9s3DzzklqywD2GBEtiMiXthflpW97NS2M=;
+        b=Efrw7OlhR62Mm2osxpTwWxgwE+kZBPVHhc2nkEEQv7mBFCToeIYUh7r+gy/iYQNoSN
+         R4KBTOg3vdGjd5xOq+h5qDgsAYsVbNgRY6uRqVXb2VjBYnzuhUHLkjnqbXoP9p3QGYFC
+         S7jd6CQ1DL60lYl8wy4Ct6BdLyX+/Sd1cjH9RbwgkCaeW8cTN6TgBEiJ90lodegB+Bwl
+         Mi6SB0sT4rwo5GgPE1e/uwGyy2Lez1nu8hCwGUKtGMmnNV8W+Af1hJFmO7F5Tt9NwWSs
+         lOaaa0NbXXFAFtm3rZYNQduaXinP9nDQI1vpCdgZUEsaflaMcCIMrysPGMO6lMGiwHYM
+         dsiA==
+X-Gm-Message-State: AOAM530aW1bR0msYYM6Zel+u9nRF7/+L29uiLAj6zo4UWzo0EOc+OK3X
+        K9SZoGkXKsFPCOGt2mU/YJA9voyiA+lBFOO7voo2gNzJ20vbvk+kwovjLDq8DLPm7NjCO9v2BCK
+        D+C1fxuMW2o6RjAzWcOjKHOsNIeGaLHFN
+X-Received: by 2002:ac2:4da1:0:b0:438:74be:5a88 with SMTP id h1-20020ac24da1000000b0043874be5a88mr17748767lfe.210.1645582155151;
+        Tue, 22 Feb 2022 18:09:15 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwWVsv8Sx14FGPZdp4dBv1csb/D6luqE37ndqXaLZ0eJ0z4lL/rN+eJyDfku6eJ6K+YiTb9ktJZ9PM21p2/UQY=
+X-Received: by 2002:ac2:4da1:0:b0:438:74be:5a88 with SMTP id
+ h1-20020ac24da1000000b0043874be5a88mr17748759lfe.210.1645582154950; Tue, 22
+ Feb 2022 18:09:14 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220222094742.16359-1-sgarzare@redhat.com>
+In-Reply-To: <20220222094742.16359-1-sgarzare@redhat.com>
+From:   Jason Wang <jasowang@redhat.com>
+Date:   Wed, 23 Feb 2022 10:09:03 +0800
+Message-ID: <CACGkMEtN_YO1Avi79bMyaCqLHMMpDaPvh1oVQPEMRYky_Zbugg@mail.gmail.com>
+Subject: Re: [PATCH v2] vhost/vsock: don't check owner in vhost_vsock_stop()
+ while releasing
+To:     Stefano Garzarella <sgarzare@redhat.com>
+Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        netdev <netdev@vger.kernel.org>,
+        virtualization <virtualization@lists.linux-foundation.org>,
+        syzbot <syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com>,
+        kvm <kvm@vger.kernel.org>,
+        Anirudh Rayabharam <mail@anirudhrb.com>,
+        syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Mike Christie <michael.christie@oracle.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-With KCFLAGS=3D"-O3", I was able to trigger a fortify-source
-memcpy() overflow panic on set_vi_srs_handler().
-Although O3 level is not supported in the mainline, under some
-conditions that may've happened with any optimization settings,
-it's just a matter of inlining luck. The panic itself is correct,
-more precisely, 50/50 false-positive and not at the same time.
-From the one side, no real overflow happens. Exception handler
-defined in asm just gets copied to some reserved places in the
-memory.
-But the reason behind is that C code refers to that exception
-handler declares it as `char`, i.e. something of 1 byte length.
-It's obvious that the asm function itself is way more than 1 byte,
-so fortify logics thought we are going to past the symbol declared.
-The standard way to refer to asm symbols from C code which is not
-supposed to be called from C is to declare them as
-`extern const u8[]`. This is fully correct from any point of view,
-as any code itself is just a bunch of bytes (including 0 as it is
-for syms like _stext/_etext/etc.), and the exact size is not known
-at the moment of compilation.
-Adjust the type of the except_vec_vi_*() and related variables.
-Make set_handler() take `const` as a second argument to avoid
-cast-away warnings and give a little more room for optimization.
+On Tue, Feb 22, 2022 at 5:47 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
+>
+> vhost_vsock_stop() calls vhost_dev_check_owner() to check the device
+> ownership. It expects current->mm to be valid.
+>
+> vhost_vsock_stop() is also called by vhost_vsock_dev_release() when
+> the user has not done close(), so when we are in do_exit(). In this
+> case current->mm is invalid and we're releasing the device, so we
+> should clean it anyway.
+>
+> Let's check the owner only when vhost_vsock_stop() is called
+> by an ioctl.
+>
+> When invoked from release we can not fail so we don't check return
+> code of vhost_vsock_stop(). We need to stop vsock even if it's not
+> the owner.
+>
+> Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+> Cc: stable@vger.kernel.org
+> Reported-by: syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com
+> Reported-and-tested-by: syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 
-Fixes: e01402b115cc ("More AP / SP bits for the 34K, the Malta bits and thi=
-ngs. Still wants")
-Fixes: c65a5480ff29 ("[MIPS] Fix potential latency problem due to non-atomi=
-c cpu_wait.")
-Cc: stable@vger.kernel.org # 3.10+
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
----
- arch/mips/include/asm/setup.h |  2 +-
- arch/mips/kernel/traps.c      | 22 +++++++++++-----------
- 2 files changed, 12 insertions(+), 12 deletions(-)
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-diff --git a/arch/mips/include/asm/setup.h b/arch/mips/include/asm/setup.h
-index bb36a400203d..8c56b862fd9c 100644
---- a/arch/mips/include/asm/setup.h
-+++ b/arch/mips/include/asm/setup.h
-@@ -16,7 +16,7 @@ static inline void setup_8250_early_printk_port(unsigned =
-long base,
- =09unsigned int reg_shift, unsigned int timeout) {}
- #endif
-
--extern void set_handler(unsigned long offset, void *addr, unsigned long le=
-n);
-+void set_handler(unsigned long offset, const void *addr, unsigned long len=
-);
- extern void set_uncached_handler(unsigned long offset, void *addr, unsigne=
-d long len);
-
- typedef void (*vi_handler_t)(void);
-diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
-index a486486b2355..246c6a6b0261 100644
---- a/arch/mips/kernel/traps.c
-+++ b/arch/mips/kernel/traps.c
-@@ -2091,19 +2091,19 @@ static void *set_vi_srs_handler(int n, vi_handler_t=
- addr, int srs)
- =09=09 * If no shadow set is selected then use the default handler
- =09=09 * that does normal register saving and standard interrupt exit
- =09=09 */
--=09=09extern char except_vec_vi, except_vec_vi_lui;
--=09=09extern char except_vec_vi_ori, except_vec_vi_end;
--=09=09extern char rollback_except_vec_vi;
--=09=09char *vec_start =3D using_rollback_handler() ?
--=09=09=09&rollback_except_vec_vi : &except_vec_vi;
-+=09=09extern const u8 except_vec_vi[], except_vec_vi_lui[];
-+=09=09extern const u8 except_vec_vi_ori[], except_vec_vi_end[];
-+=09=09extern const u8 rollback_except_vec_vi[];
-+=09=09const u8 *vec_start =3D using_rollback_handler() ?
-+=09=09=09=09      rollback_except_vec_vi : except_vec_vi;
- #if defined(CONFIG_CPU_MICROMIPS) || defined(CONFIG_CPU_BIG_ENDIAN)
--=09=09const int lui_offset =3D &except_vec_vi_lui - vec_start + 2;
--=09=09const int ori_offset =3D &except_vec_vi_ori - vec_start + 2;
-+=09=09const int lui_offset =3D except_vec_vi_lui - vec_start + 2;
-+=09=09const int ori_offset =3D except_vec_vi_ori - vec_start + 2;
- #else
--=09=09const int lui_offset =3D &except_vec_vi_lui - vec_start;
--=09=09const int ori_offset =3D &except_vec_vi_ori - vec_start;
-+=09=09const int lui_offset =3D except_vec_vi_lui - vec_start;
-+=09=09const int ori_offset =3D except_vec_vi_ori - vec_start;
- #endif
--=09=09const int handler_len =3D &except_vec_vi_end - vec_start;
-+=09=09const int handler_len =3D except_vec_vi_end - vec_start;
-
- =09=09if (handler_len > VECTORSPACING) {
- =09=09=09/*
-@@ -2311,7 +2311,7 @@ void per_cpu_trap_init(bool is_boot_cpu)
- }
-
- /* Install CPU exception handler */
--void set_handler(unsigned long offset, void *addr, unsigned long size)
-+void set_handler(unsigned long offset, const void *addr, unsigned long siz=
-e)
- {
- #ifdef CONFIG_CPU_MICROMIPS
- =09memcpy((void *)(ebase + offset), ((unsigned char *)addr - 1), size);
---
-2.35.1
-
+> ---
+> v2:
+> - initialized `ret` in vhost_vsock_stop [Dan]
+> - added comment about vhost_vsock_stop() calling in the code and an explanation
+>   in the commit message [MST]
+>
+> v1: https://lore.kernel.org/virtualization/20220221114916.107045-1-sgarzare@redhat.com
+> ---
+>  drivers/vhost/vsock.c | 21 ++++++++++++++-------
+>  1 file changed, 14 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> index d6ca1c7ad513..37f0b4274113 100644
+> --- a/drivers/vhost/vsock.c
+> +++ b/drivers/vhost/vsock.c
+> @@ -629,16 +629,18 @@ static int vhost_vsock_start(struct vhost_vsock *vsock)
+>         return ret;
+>  }
+>
+> -static int vhost_vsock_stop(struct vhost_vsock *vsock)
+> +static int vhost_vsock_stop(struct vhost_vsock *vsock, bool check_owner)
+>  {
+>         size_t i;
+> -       int ret;
+> +       int ret = 0;
+>
+>         mutex_lock(&vsock->dev.mutex);
+>
+> -       ret = vhost_dev_check_owner(&vsock->dev);
+> -       if (ret)
+> -               goto err;
+> +       if (check_owner) {
+> +               ret = vhost_dev_check_owner(&vsock->dev);
+> +               if (ret)
+> +                       goto err;
+> +       }
+>
+>         for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
+>                 struct vhost_virtqueue *vq = &vsock->vqs[i];
+> @@ -753,7 +755,12 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
+>          * inefficient.  Room for improvement here. */
+>         vsock_for_each_connected_socket(vhost_vsock_reset_orphans);
+>
+> -       vhost_vsock_stop(vsock);
+> +       /* Don't check the owner, because we are in the release path, so we
+> +        * need to stop the vsock device in any case.
+> +        * vhost_vsock_stop() can not fail in this case, so we don't need to
+> +        * check the return code.
+> +        */
+> +       vhost_vsock_stop(vsock, false);
+>         vhost_vsock_flush(vsock);
+>         vhost_dev_stop(&vsock->dev);
+>
+> @@ -868,7 +875,7 @@ static long vhost_vsock_dev_ioctl(struct file *f, unsigned int ioctl,
+>                 if (start)
+>                         return vhost_vsock_start(vsock);
+>                 else
+> -                       return vhost_vsock_stop(vsock);
+> +                       return vhost_vsock_stop(vsock, true);
+>         case VHOST_GET_FEATURES:
+>                 features = VHOST_VSOCK_FEATURES;
+>                 if (copy_to_user(argp, &features, sizeof(features)))
+> --
+> 2.35.1
+>
 
