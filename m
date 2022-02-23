@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80BF74C094F
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:39:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E064E4C0967
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:39:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237682AbiBWCjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:39:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58290 "EHLO
+        id S237434AbiBWCjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:39:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237807AbiBWCiE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:38:04 -0500
+        with ESMTP id S237842AbiBWCiX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:38:23 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD91D5C67A;
-        Tue, 22 Feb 2022 18:33:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71DAF5EDF3;
+        Tue, 22 Feb 2022 18:33:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B926F615C4;
-        Wed, 23 Feb 2022 02:33:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06709C340F4;
-        Wed, 23 Feb 2022 02:33:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 529DB614D3;
+        Wed, 23 Feb 2022 02:33:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 447D4C340E8;
+        Wed, 23 Feb 2022 02:33:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583585;
-        bh=ajqEBc+WHQgS/A0sHKtldUjwemPzGFKvKtzhAy1csHE=;
+        s=k20201202; t=1645583588;
+        bh=0J4jcFKw6gaKR0MPzB8D3qoZdK16pSHJvlNpqL7WFAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J8d7MPk3Y453pKxrl6qhfrzHYY9fVBg6DkJ0qwx2FsR5+amz++RbXjkf1826wFEAs
-         juZMB+3f5ZrMMZJkyKOWDii3mlSsXYxK85yg19MszLD7GQagZKuwhfBYWWYcf6Q9Gm
-         8j09XL//+n5LfvWKeCEbUhKI/fQpwa0Bz1o91TCVOk3p2+o+KXZ6UTdgk11AuXBWf/
-         NlwbOtUIJEjQFj/kga9i/dovqf9+7dqW57S1ksQDRq1m3mJW866IyHR5HY1uLs4WRW
-         aBJzIKBUvrA//geK1C/eQ059hO29xVMPn8pR+DrBTOg1QfpEAjbqGPiZ+Fy2v0QZWy
-         PCz1954Bwy5pw==
+        b=hKjhbzAMYJ2u58WEyfxI5D4sFnFSHHXxFVnuTmcp4+9c2U8v8odEUB1k6NiShHqv/
+         1bSRtcI6I46kM293F0zE4erMdKQZA3NUwBUKzQ8xu9cD/PzxbHbY+jqJZHVTgqVxRZ
+         qjFomkUz1es8uc0EV5v5m41EWsaI2TsFE8EDWxRiytSi479m7M6d/LFSk5GBx4PA2c
+         3A9QWSNwKB07+VNBFZzNNyrNDvbxR5Q5J73kztcQifRlEwHZLH2Zx5Yw1ckyKHSk1u
+         NpKbfyFQ0B0Sga23byVNol0mirb6C84aanNqT4G86mM1L23diitaxR/pJY2EC9wULG
+         oMR0B7rd+4KyQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     JaeMan Park <jaeman@google.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
-        kvalo@kernel.org, davem@davemloft.net, kuba@kernel.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 2/9] mac80211_hwsim: initialize ieee80211_tx_info at hw_scan_work
-Date:   Tue, 22 Feb 2022 21:32:53 -0500
-Message-Id: <20220223023300.242616-2-sashal@kernel.org>
+Cc:     Eric Anholt <eric@anholt.net>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        nsaenz@kernel.org, f.fainelli@gmail.com, rjui@broadcom.com,
+        sbranden@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
+        prabhakar.mahadev-lad.rj@bp.renesas.com, linux-i2c@vger.kernel.org,
+        linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 3/9] i2c: bcm2835: Avoid clock stretching timeouts
+Date:   Tue, 22 Feb 2022 21:32:54 -0500
+Message-Id: <20220223023300.242616-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223023300.242616-1-sashal@kernel.org>
 References: <20220223023300.242616-1-sashal@kernel.org>
@@ -58,49 +61,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: JaeMan Park <jaeman@google.com>
+From: Eric Anholt <eric@anholt.net>
 
-[ Upstream commit cacfddf82baf1470e5741edeecb187260868f195 ]
+[ Upstream commit 9495b9b31abe525ebd93da58de2c88b9f66d3a0e ]
 
-In mac80211_hwsim, the probe_req frame is created and sent while
-scanning. It is sent with ieee80211_tx_info which is not initialized.
-Uninitialized ieee80211_tx_info can cause problems when using
-mac80211_hwsim with wmediumd. wmediumd checks the tx_rates field of
-ieee80211_tx_info and doesn't relay probe_req frame to other clients
-even if it is a broadcasting message.
+The CLKT register contains at poweron 0x40, which at our typical 100kHz
+bus rate means .64ms. But there is no specified limit to how long devices
+should be able to stretch the clocks, so just disable the timeout. We
+still have a timeout wrapping the entire transfer.
 
-Call ieee80211_tx_prepare_skb() to initialize ieee80211_tx_info for
-the probe_req that is created by hw_scan_work in mac80211_hwsim.
-
-Signed-off-by: JaeMan Park <jaeman@google.com>
-Link: https://lore.kernel.org/r/20220113060235.546107-1-jaeman@google.com
-[fix memory leak]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Eric Anholt <eric@anholt.net>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+BugLink: https://github.com/raspberrypi/linux/issues/3064
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/i2c/busses/i2c-bcm2835.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index a965ce9261d3a..a34647efb5ea5 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -1987,6 +1987,15 @@ static void hw_scan_work(struct work_struct *work)
- 				memcpy(skb_put(probe, req->ie_len), req->ie,
- 				       req->ie_len);
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index 7ed09865cb4b9..4729c14b75017 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -28,6 +28,11 @@
+ #define BCM2835_I2C_FIFO	0x10
+ #define BCM2835_I2C_DIV		0x14
+ #define BCM2835_I2C_DEL		0x18
++/*
++ * 16-bit field for the number of SCL cycles to wait after rising SCL
++ * before deciding the slave is not responding. 0 disables the
++ * timeout detection.
++ */
+ #define BCM2835_I2C_CLKT	0x1c
  
-+			if (!ieee80211_tx_prepare_skb(hwsim->hw,
-+						      hwsim->hw_scan_vif,
-+						      probe,
-+						      hwsim->tmp_chan->band,
-+						      NULL)) {
-+				kfree_skb(probe);
-+				continue;
-+			}
-+
- 			local_bh_disable();
- 			mac80211_hwsim_tx_frame(hwsim->hw, probe,
- 						hwsim->tmp_chan);
+ #define BCM2835_I2C_C_READ	BIT(0)
+@@ -313,6 +318,12 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	adap->dev.of_node = pdev->dev.of_node;
+ 	adap->quirks = &bcm2835_i2c_quirks;
+ 
++	/*
++	 * Disable the hardware clock stretching timeout. SMBUS
++	 * specifies a limit for how long the device can stretch the
++	 * clock, but core I2C doesn't.
++	 */
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_CLKT, 0);
+ 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
+ 
+ 	ret = i2c_add_adapter(adap);
 -- 
 2.34.1
 
