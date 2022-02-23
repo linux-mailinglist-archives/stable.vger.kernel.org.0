@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2B5D4C085A
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:32:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F3394C0861
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 03:32:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237149AbiBWCbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Feb 2022 21:31:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44082 "EHLO
+        id S236963AbiBWCcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Feb 2022 21:32:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237003AbiBWCbV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:31:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9708F55743;
-        Tue, 22 Feb 2022 18:30:00 -0800 (PST)
+        with ESMTP id S236972AbiBWCbZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Feb 2022 21:31:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C3147077;
+        Tue, 22 Feb 2022 18:30:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E269CB81E01;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB9DA6153B;
+        Wed, 23 Feb 2022 02:29:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B510C340F4;
         Wed, 23 Feb 2022 02:29:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5214C340E8;
-        Wed, 23 Feb 2022 02:29:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583397;
-        bh=Dl5tMiO+jS54kG75k4x/iqAcisItCJw+zKFTifuUsl8=;
+        s=k20201202; t=1645583399;
+        bh=ZwPN0fPeRrpxsQO+JtmVkDSRuX+HuRtlC+wdai31fio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cCQsxvbRxIPRe4ZI1Xekg6U54tnJKpn716PvNC0Ztox/Hxecd2PMPIQpGdmkIrM1e
-         A1+SnCDmQ+EHuXPWLorjuBSqEI9/TBE+0AZaTcaFe8KR4JY2oxzpiWfjrxavnUD51M
-         J/AxTChlXu+YQ+5CbpWUm+pbnMd3sVhD1hGpL6ZH3SeqUuoz5XQp86twU2TKELvVyc
-         qAnnf6ax4ad7X+8zFJMnr6/T5Z7GkFn5o9S2QDtTyQz7q/HjAMXVrfhgcq1xIi68yw
-         zNwujg9ie/Ls7kBfhMeBRfPezwm+QL4TEmySX578q6s/VuYPZWAVwkZ+CndkUXIHsu
-         lGZXPdzMJwLcw==
+        b=m4PPHG5XagcZJUJMZtZnLeMEnb0/2WUTE+UIC0pohWPpM4qkCnuT5eyVJT7Shqyu9
+         FF6WgPNzVGNx5aTkIpe4WhpuEGTN40iuglmvhM8Fxe/qJGySV9kYQfilmJiCLZGi6/
+         5LxRQco0C9hS/0VraLJQfh1bNunxSPjjPM7Ft/5msjHI+34vxxk/kbDpdYzwxQr4DY
+         MPuqDugXJaIzD9rVpmeGBD3sj4BUXrgrSebeRp63Fc63fEwyhv4+A+SoTckI0sk5uK
+         DVkEL84G1GDqlVpi4b7bLKHiUjOJ2tFJerQZhRTqZ246tbj/tpLeUudneC8lzeLq79
+         OUE4yCmeYxurA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Neukum <oneukum@suse.com>,
-        Ross Maynard <bids.7405@bigpond.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, oliver@neukum.org,
-        kuba@kernel.org, linux-usb@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 14/28] USB: zaurus: support another broken Zaurus
-Date:   Tue, 22 Feb 2022 21:29:15 -0500
-Message-Id: <20220223022929.241127-14-sashal@kernel.org>
+Cc:     Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        nehal-bakulchandra.shah@amd.com, basavaraj.natikar@amd.com,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 15/28] HID: amd_sfh: Handle amd_sfh work buffer in PM ops
+Date:   Tue, 22 Feb 2022 21:29:16 -0500
+Message-Id: <20220223022929.241127-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220223022929.241127-1-sashal@kernel.org>
 References: <20220223022929.241127-1-sashal@kernel.org>
@@ -58,84 +58,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 
-[ Upstream commit 6605cc67ca18b9d583eb96e18a20f5f4e726103c ]
+[ Upstream commit 0cf74235f4403b760a37f77271d2ca3424001ff9 ]
 
-This SL-6000 says Direct Line, not Ethernet
+Since in the current amd_sfh design the sensor data is periodically
+obtained in the form of poll data, during the suspend/resume cycle,
+scheduling a delayed work adds no value.
 
-v2: added Reporter and Link
+So, cancel the work and restart back during the suspend/resume cycle
+respectively.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: Ross Maynard <bids.7405@bigpond.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215361
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc_ether.c | 12 ++++++++++++
- drivers/net/usb/zaurus.c    | 12 ++++++++++++
- 2 files changed, 24 insertions(+)
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/usb/cdc_ether.c b/drivers/net/usb/cdc_ether.c
-index eb3817d70f2b8..9b4dfa3001d6e 100644
---- a/drivers/net/usb/cdc_ether.c
-+++ b/drivers/net/usb/cdc_ether.c
-@@ -583,6 +583,11 @@ static const struct usb_device_id	products[] = {
- 	.bInterfaceSubClass	= USB_CDC_SUBCLASS_ETHERNET, \
- 	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+index 05c007b213f24..6eda5006fb116 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+@@ -287,6 +287,8 @@ static int __maybe_unused amd_mp2_pci_resume(struct device *dev)
+ 		}
+ 	}
  
-+#define ZAURUS_FAKE_INTERFACE \
-+	.bInterfaceClass	= USB_CLASS_COMM, \
-+	.bInterfaceSubClass	= USB_CDC_SUBCLASS_MDLM, \
-+	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
++	schedule_delayed_work(&cl_data->work_buffer, msecs_to_jiffies(AMD_SFH_IDLE_LOOP));
 +
- /* SA-1100 based Sharp Zaurus ("collie"), or compatible;
-  * wire-incompatible with true CDC Ethernet implementations.
-  * (And, it seems, needlessly so...)
-@@ -636,6 +641,13 @@ static const struct usb_device_id	products[] = {
- 	.idProduct              = 0x9032,	/* SL-6000 */
- 	ZAURUS_MASTER_INTERFACE,
- 	.driver_info		= 0,
-+}, {
-+	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
-+		 | USB_DEVICE_ID_MATCH_DEVICE,
-+	.idVendor               = 0x04DD,
-+	.idProduct              = 0x9032,	/* SL-6000 */
-+	ZAURUS_FAKE_INTERFACE,
-+	.driver_info		= 0,
- }, {
- 	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
- 		 | USB_DEVICE_ID_MATCH_DEVICE,
-diff --git a/drivers/net/usb/zaurus.c b/drivers/net/usb/zaurus.c
-index 8e717a0b559b3..7984f2157d222 100644
---- a/drivers/net/usb/zaurus.c
-+++ b/drivers/net/usb/zaurus.c
-@@ -256,6 +256,11 @@ static const struct usb_device_id	products [] = {
- 	.bInterfaceSubClass	= USB_CDC_SUBCLASS_ETHERNET, \
- 	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
+ 	return 0;
+ }
  
-+#define ZAURUS_FAKE_INTERFACE \
-+	.bInterfaceClass	= USB_CLASS_COMM, \
-+	.bInterfaceSubClass	= USB_CDC_SUBCLASS_MDLM, \
-+	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
+@@ -310,6 +312,8 @@ static int __maybe_unused amd_mp2_pci_suspend(struct device *dev)
+ 		}
+ 	}
+ 
++	cancel_delayed_work_sync(&cl_data->work_buffer);
 +
- /* SA-1100 based Sharp Zaurus ("collie"), or compatible. */
- {
- 	.match_flags	=   USB_DEVICE_ID_MATCH_INT_INFO
-@@ -313,6 +318,13 @@ static const struct usb_device_id	products [] = {
- 	.idProduct              = 0x9032,	/* SL-6000 */
- 	ZAURUS_MASTER_INTERFACE,
- 	.driver_info = ZAURUS_PXA_INFO,
-+}, {
-+	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
-+			    | USB_DEVICE_ID_MATCH_DEVICE,
-+	.idVendor		= 0x04DD,
-+	.idProduct		= 0x9032,	/* SL-6000 */
-+	ZAURUS_FAKE_INTERFACE,
-+	.driver_info = (unsigned long)&bogus_mdlm_info,
- }, {
- 	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
- 		 | USB_DEVICE_ID_MATCH_DEVICE,
+ 	return 0;
+ }
+ 
 -- 
 2.34.1
 
