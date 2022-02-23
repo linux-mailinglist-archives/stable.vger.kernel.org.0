@@ -2,68 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 117984C1A0E
-	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 18:44:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 904544C1A12
+	for <lists+stable@lfdr.de>; Wed, 23 Feb 2022 18:45:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243459AbiBWRpI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Feb 2022 12:45:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33950 "EHLO
+        id S243463AbiBWRpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Feb 2022 12:45:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243452AbiBWRpG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 12:45:06 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 827D741330;
-        Wed, 23 Feb 2022 09:44:38 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id qe15so3392360pjb.3;
-        Wed, 23 Feb 2022 09:44:38 -0800 (PST)
+        with ESMTP id S243457AbiBWRpJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 12:45:09 -0500
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD2A41630;
+        Wed, 23 Feb 2022 09:44:41 -0800 (PST)
+Received: by mail-pf1-x433.google.com with SMTP id g1so16053850pfv.1;
+        Wed, 23 Feb 2022 09:44:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=RfVO0n5bxGhQlU0yKBog2OCZbfoJHnMeC+GhXjg5mv4=;
-        b=FB50oQpMVTkvBsoC0KbxLE+VZpLrQTlWwFsy7EK9J9qAReHSUwWc6dczvqjrhoXiWW
-         hRNu28Fraan9kItEcBg/5xGB6GQMTjssUgAERodNsNe0Fc/JSRSxRlxh8oidw7118F9A
-         wz5l+ieHkRQ1Qi7tJoBgVGsUJ3pfayiCr4kPXHyiCh8CzaSR2wkpDlC4G6pze8nfFjY3
-         dzt44Pezz2s5tYfy1LgTQmBTYUf9chzIq0x58I2RnqWrkwY6maeZDCvdS3WRdkfuFyeW
-         DKXgPhGGph+LUKqLlCJzoHRSfpxKF2I4U8oCJARAbamrTt6bgKhRI0J+xK/DDKUlcZwQ
-         aGPg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Bo6oFnHJAbU/j6h7MDnhNKM3GTAQUQeHdOFA1uJIsUk=;
+        b=oJYZzP6GFPUp82PEMrpkxE2tpMjjHkYXVbYRnSdJyRdfqmTK7/EQNIaR8w3NIZmHya
+         sZ+/6BvzTAs1hlT+RxW8gsRDZHFwuNf+NUp7MamT38U+XeQpUnmZ0Rp8QJ7JiUMbSB7H
+         m2vqzA1DSdnjIcea62DI3tEfPfX/RCGDNuhE4H5nLSFyZPRl1SCSZePw7WmJQoLO4J4z
+         xaQRgYyVRuEI3+YwXjVHfCCQ5CZy8L/fMU8i0fNfvhFswvYPgwGqAWaniAJjWfiTdgvx
+         cW49KB6pZGJbSRy4w0F1lf8DatWYynCabPXB25oNKzl2fiOo9aI5M66wBLlmmRsnk2bY
+         BW8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=RfVO0n5bxGhQlU0yKBog2OCZbfoJHnMeC+GhXjg5mv4=;
-        b=Z1/1SG/0uyAo1pw/gYEF7ccGes5gGRkc3ha+y/Dvv0E6L6DTPG7CXYfAGAdp4Z6Q3S
-         aDL/YR/RhhXwQAVhe0et0zljVDPV0grQ2MvUna3ZfSTOzdAxSOPy7RbQ/vEgUDSfMAnB
-         X5l2tkOxZxKkPEArN8cdWJcJBTp6O+jE6/HXVWkJhBK1QeZWhbvGKkgqWdoq5vLJjrvL
-         TPktrRwrA6L7eq3UROvSk1i4KH/VMd4gUDfZTgGrxFpsLKc8QIazwcuvpcLkC4raTJJ2
-         VzZR8niU/feTae7pjib+2iH90HSONhlKSb26JTf4bkTubV6Dj3Gw6B1Cngin5A/7zsA2
-         X/hA==
-X-Gm-Message-State: AOAM533xYFMC88ya7cCkNXWNecQsS7VXinPkKRu3JVfA0qCceHgXYBII
-        QzIvCg/LofbL18rj1UJkAKqnvAEkbgY=
-X-Google-Smtp-Source: ABdhPJw2uax1PBCZviYrUXWX3Z3VY8N34gBZnt0PjeFXJifAOgXxCBirlhQDkTPeK64MbaURo4wz8g==
-X-Received: by 2002:a17:90a:7788:b0:1bc:6d1:a095 with SMTP id v8-20020a17090a778800b001bc06d1a095mr477839pjk.122.1645638277652;
-        Wed, 23 Feb 2022 09:44:37 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Bo6oFnHJAbU/j6h7MDnhNKM3GTAQUQeHdOFA1uJIsUk=;
+        b=1QUmvrX5wbYXf5JfI1UX2Xo71vm5rcCHCSf2DAcZTz8CoM9DhWRJngdikwwFWg8IKj
+         XHvHNQ8qIbLWUjr4w8gBKl6nj0XSTZZpOWWaWNv8vS1AYetoaQ8bJc66RojvovaTZ/IF
+         J+chbyZ83VSVIue7dAFLsocTYlg2w2NOsWnXu/ZkIxELLRnQCyJQ/Zq0D3eYI9WWat5V
+         hNVTbfeNo1q4xJZhDtM3u1QO+wwk3Vj8Q2AhI0WSU+bRvAtZxjwTcilVkKvLAFUKWMMX
+         Dn393oFCDfDhLMUh5x6VGxVTM3iqAvdoiC3W10+4BL/bMW3YffxOWM++PoCsAr4tonJc
+         ZTRw==
+X-Gm-Message-State: AOAM533S5qbfayeNlULGsLdMlGfcvptgRO3C9IR0Qp6yyLgBHzOq5XSO
+        SVxR7wWb/eO5PEnZV2az3PFQ3rTAcoQ=
+X-Google-Smtp-Source: ABdhPJwidJmEBQ9VvU3IKY6i4jO680dMGmsqMd6R3lsYnIOGnmZ99c2ZGxqVEhmgxaqFlAPkCPl3yw==
+X-Received: by 2002:a63:1145:0:b0:373:7f7c:4a22 with SMTP id 5-20020a631145000000b003737f7c4a22mr566726pgr.208.1645638280986;
+        Wed, 23 Feb 2022 09:44:40 -0800 (PST)
 Received: from 7YHHR73.igp.broadcom.net (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
-        by smtp.gmail.com with ESMTPSA id g18sm127422pfc.108.2022.02.23.09.44.35
+        by smtp.gmail.com with ESMTPSA id g18sm127422pfc.108.2022.02.23.09.44.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Feb 2022 09:44:36 -0800 (PST)
+        Wed, 23 Feb 2022 09:44:40 -0800 (PST)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
         david regan <dregan@mail.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Miquel Raynal <miquel.raynal@bootlin.com>,
-        Brian Norris <computersforpeace@gmail.com>,
-        Kamal Dasu <kdasu.kdev@gmail.com>,
         Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>,
-        linux-mtd@lists.infradead.org (open list:BROADCOM STB NAND FLASH DRIVER),
-        bcm-kernel-feedback-list@broadcom.com (open list:BROADCOM STB NAND
-        FLASH DRIVER), linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH RESEND stable 4.19] mtd: rawnand: brcmnand: Fixed incorrect sub-page ECC status
-Date:   Wed, 23 Feb 2022 09:44:29 -0800
-Message-Id: <20220223174431.1083-1-f.fainelli@gmail.com>
+        Brian Norris <computersforpeace@gmail.com>,
+        linux-mtd@lists.infradead.org (open list:NAND FLASH SUBSYSTEM),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH RESEND stable 4.14] mtd: rawnand: brcmnand: Fixed incorrect sub-page ECC status
+Date:   Wed, 23 Feb 2022 09:44:30 -0800
+Message-Id: <20220223174431.1083-2-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220223174431.1083-1-f.fainelli@gmail.com>
+References: <20220223174431.1083-1-f.fainelli@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -98,16 +98,16 @@ Signed-off-by: david regan <dregan@mail.com>
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Link: https://lore.kernel.org/linux-mtd/trinity-478e0c09-9134-40e8-8f8c-31c371225eda-1643237024774@3c-app-mailcom-lxa02
-[florian: make patch apply to 4.19]
+[florian: make patch apply to 4.14, file was renamed]
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- drivers/mtd/nand/raw/brcmnand/brcmnand.c | 2 +-
+ drivers/mtd/nand/brcmnand/brcmnand.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/raw/brcmnand/brcmnand.c b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-index 774ffa9e23f3..2b02f558b5e1 100644
---- a/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-+++ b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
+diff --git a/drivers/mtd/nand/brcmnand/brcmnand.c b/drivers/mtd/nand/brcmnand/brcmnand.c
+index c65724d0c725..0138c0c6a4b9 100644
+--- a/drivers/mtd/nand/brcmnand/brcmnand.c
++++ b/drivers/mtd/nand/brcmnand/brcmnand.c
 @@ -1637,7 +1637,7 @@ static int brcmnand_read_by_pio(struct mtd_info *mtd, struct nand_chip *chip,
  					mtd->oobsize / trans,
  					host->hwcfg.sector_size_1k);
