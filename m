@@ -2,63 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 694654C3119
-	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 17:17:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A353A4C317F
+	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 17:34:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229436AbiBXQSB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Feb 2022 11:18:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35162 "EHLO
+        id S229639AbiBXQdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Feb 2022 11:33:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229521AbiBXQRo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 11:17:44 -0500
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C23F143495
-        for <stable@vger.kernel.org>; Thu, 24 Feb 2022 08:17:04 -0800 (PST)
-Received: by mail-yb1-xb35.google.com with SMTP id j12so450826ybh.8
-        for <stable@vger.kernel.org>; Thu, 24 Feb 2022 08:17:04 -0800 (PST)
+        with ESMTP id S230076AbiBXQdR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 11:33:17 -0500
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE8131FE56D
+        for <stable@vger.kernel.org>; Thu, 24 Feb 2022 08:32:41 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id p9so5557426ejd.6
+        for <stable@vger.kernel.org>; Thu, 24 Feb 2022 08:32:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=M6/DsYcMdCQ5Jv7h2HtppDAD63hulQRUnEll08wdM0w=;
-        b=MMxNIcwAG1rEPw9GYtGcc1MbySE+4/aZhxOK9Arfa8JLcnH0cfZ64TEtJey0SODZ7C
-         QBiByPS+i5aydu3vs8H0awLJPCpykYptJU2HmxOfIPQy8vs+fSr3SUJJNxd/KVNH/kNZ
-         gjoFbkx/CDEUSFXXCM5T51pKHiPWXVwYVlaXGo94O4Cmtc1DR+BED9zBq+ATBB0gXAsU
-         9w8HCZaC1ZZAwHI9UCrFptnAwn1x1krO6meiyDfKd7+rSVqIb0MYvV2xW4o0BAq/KmF8
-         q69HHptkg51lHY1WR5Ir2y0+/4WIeubhQ74U4NMz+V9vB19oH7Z86WtRP9Ikzr/QZWt6
-         IMHA==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TtmeV9bgxOIabhJpHOR897CD9xgb87UemODU6yGgV2U=;
+        b=kuPalLo0ngHOxMvZ6qIgbB+moVrh17o+Lv9Ez7Ucqyo8MJkTddP+53mAdrQrjT/iIS
+         NBbuQpY9+EyL7o0cF9EUX6BiaG/emCBJwgZ7/O8LOzPt3zwXXcdR7BdF3oPNbstEtaWI
+         IEpIbLKdf7RuUHHHH74BbrDqcA7itr0BCaBeyWEfVAkr1eXo6yITFooJcpQfXjpLSX/N
+         Q00TNT7VNos313AB95PZ1Ztfl68NEuVi3Ghw1As1wnhd+/t9fByKElDKdjKiVesNlmeG
+         vgsJyynXcSf5AHf2vzLpP1zEFsoWFYmp1lebeWmVkb4/Y4nnwgoLUfDxWnIwz1JXLLGa
+         7GGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=M6/DsYcMdCQ5Jv7h2HtppDAD63hulQRUnEll08wdM0w=;
-        b=WtTjIchUi0AAiHasTgVdQMO4rOUzIRum8Rg9MGbU/pTolKllOedsFUjgMcndOojfKk
-         eeulcc5kkXOef7/0wjXbNoXBQCD8tkH9QdUurRtpYHEqYTy/HrubVEtBT9KHlr0Usb/B
-         HP+wz9Q3XQgIdxq7U03mPjvgncjXrf8qNknkM+pzaSPlUAkaxGQhijd/SCre42qlQ9Te
-         NCi9xa7pkcxQ46GGXQhhNV68ksNQ46alJI11295mC0dZukyjDM2f7iB1HYyPw57IBzaQ
-         lbtdIQlvL+rH2qaBT7eyXckp6jOAy0YvULuNKAxDVJzcQGansXx4EDrHAxCXAwOBvcqt
-         L6Mw==
-X-Gm-Message-State: AOAM533RxXbZL03pmJSHajp3C3biTwajjej1gVHDFsuNk/04zwioLQEh
-        MGtNsJeEbR4ZsDm7fMuy9LX00Jw1YaOJvk5K/MHIj5qdpSU=
-X-Google-Smtp-Source: ABdhPJx1PBFTzicPX+FhslEYT6ZwXv/E5aXyEeLEMZmHKuUh6nEpZizMLlaeQ3T+XDiafTBRLEZRxAV7na7hyyARMPw=
-X-Received: by 2002:a25:ad9b:0:b0:624:5db2:2084 with SMTP id
- z27-20020a25ad9b000000b006245db22084mr3073965ybi.132.1645719140249; Thu, 24
- Feb 2022 08:12:20 -0800 (PST)
-MIME-Version: 1.0
-References: <20220223135820.2252470-1-anders.roxell@linaro.org>
- <20220223135820.2252470-2-anders.roxell@linaro.org> <871qzsphfv.fsf@mpe.ellerman.id.au>
-In-Reply-To: <871qzsphfv.fsf@mpe.ellerman.id.au>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TtmeV9bgxOIabhJpHOR897CD9xgb87UemODU6yGgV2U=;
+        b=zPhcBsht7Ljg5aeGTPKpqg+SjsgNYrjZufLvH4I/vCtRFJnto318VVfaMmgLSxOzwU
+         tkNFRqGCgzVUx301lmTNYxUq4nqtWYjDyxPs6/PtzN0fd28x5KI9WhPwCttQZyrT8Ehb
+         CmyqWcLjF13+UC+PL0nFz4FqmhtMRLfSLeQJY7b/1tRJkNL1oI3zh8OmWvBFkI+hCJ+K
+         ZBu9Na65IPIVc8cgdyPZ8Th6p01dEbWUX7lKaX3fJVz/re/+TZc1iwIOmSFFXMJYB+3I
+         8+vaTz9LdNAbcgAusX8QvPy9uPoKzvpspkh9msN4szTMmfjd1ytqlpPLNTEKgjlgfpg9
+         9TJw==
+X-Gm-Message-State: AOAM531J8ArLK/cSTxuHcNhVkt3D/6tXMpgUgHc45Q0qCnUMPpuqFMT9
+        DpadFstCQUYCkzEqGJCrwdxC8D8p77Dm5Q==
+X-Google-Smtp-Source: ABdhPJwiKP+dfsndf3VPpMglOVWrIIfHrXym6SEpHnxWV0ApQvGlhQKCMMsZmT1onUav3oJu2Z4OkQ==
+X-Received: by 2002:ac2:5d67:0:b0:442:f135:3bcc with SMTP id h7-20020ac25d67000000b00442f1353bccmr2267428lft.452.1645719756809;
+        Thu, 24 Feb 2022 08:22:36 -0800 (PST)
+Received: from localhost (c-9b28e555.07-21-73746f28.bbcust.telenor.se. [85.229.40.155])
+        by smtp.gmail.com with ESMTPSA id v9sm242600lfr.130.2022.02.24.08.22.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 24 Feb 2022 08:22:36 -0800 (PST)
 From:   Anders Roxell <anders.roxell@linaro.org>
-Date:   Thu, 24 Feb 2022 17:12:09 +0100
-Message-ID: <CADYN=9L7L7+DOA6qYj4aOgg9rBhOrUCk5b4K5tr6wZ709WpsyA@mail.gmail.com>
-Subject: Re: [PATCH 2/3] powerpc: fix build errors
-To:     Michael Ellerman <mpe@ellerman.id.au>
+To:     mpe@ellerman.id.au
 Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        Anders Roxell <anders.roxell@linaro.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain; charset="UTF-8"
+Subject: [PATCHv2 1/3] powerpc: lib: sstep: fix 'sthcx' instruction
+Date:   Thu, 24 Feb 2022 17:22:13 +0100
+Message-Id: <20220224162215.3406642-1-anders.roxell@linaro.org>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -66,122 +68,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 24 Feb 2022 at 13:39, Michael Ellerman <mpe@ellerman.id.au> wrote:
->
-> Hi Anders,
+Looks like there been a copy paste mistake when added the instruction
+'stbcx' twice and one was probably meant to be 'sthcx'.
+Changing to 'sthcx' from 'stbcx'.
 
-Hi Michael,
+Cc: <stable@vger.kernel.org> # v4.13+
+Fixes: 350779a29f11 ("powerpc: Handle most loads and stores in instruction emulation code")
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+---
+ arch/powerpc/lib/sstep.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
->
-> Thanks for these, just a few comments below ...
+diff --git a/arch/powerpc/lib/sstep.c b/arch/powerpc/lib/sstep.c
+index bd3734d5be89..d2d29243fa6d 100644
+--- a/arch/powerpc/lib/sstep.c
++++ b/arch/powerpc/lib/sstep.c
+@@ -3389,7 +3389,7 @@ int emulate_loadstore(struct pt_regs *regs, struct instruction_op *op)
+ 			__put_user_asmx(op->val, ea, err, "stbcx.", cr);
+ 			break;
+ 		case 2:
+-			__put_user_asmx(op->val, ea, err, "stbcx.", cr);
++			__put_user_asmx(op->val, ea, err, "sthcx.", cr);
+ 			break;
+ #endif
+ 		case 4:
+-- 
+2.34.1
 
-I will resolve the comments below and resend a v2 shortly.
-
-Cheers,
-Anders
-
->
-> Anders Roxell <anders.roxell@linaro.org> writes:
-> > Building tinyconfig with gcc (Debian 11.2.0-16) and assembler (Debian
-> > 2.37.90.20220207) the following build error shows up:
-> >
-> >  {standard input}: Assembler messages:
-> >  {standard input}:1190: Error: unrecognized opcode: `stbcix'
-> >  {standard input}:1433: Error: unrecognized opcode: `lwzcix'
-> >  {standard input}:1453: Error: unrecognized opcode: `stbcix'
-> >  {standard input}:1460: Error: unrecognized opcode: `stwcix'
-> >  {standard input}:1596: Error: unrecognized opcode: `stbcix'
-> >  ...
-> >
-> > Rework to add assembler directives [1] around the instruction. Going
-> > through the them one by one shows that the changes should be safe.  Like
-> > __get_user_atomic_128_aligned() is only called in p9_hmi_special_emu(),
-> > which according to the name is specific to power9.  And __raw_rm_read*()
-> > are only called in things that are powernv or book3s_hv specific.
-> >
-> > [1] https://sourceware.org/binutils/docs/as/PowerPC_002dPseudo.html#PowerPC_002dPseudo
-> >
-> > Cc: <stable@vger.kernel.org>
-> > Co-developed-by: Arnd Bergmann <arnd@arndb.de>
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-> > ---
-> >  arch/powerpc/include/asm/io.h        | 46 +++++++++++++++++++++++-----
-> >  arch/powerpc/include/asm/uaccess.h   |  3 ++
-> >  arch/powerpc/platforms/powernv/rng.c |  6 +++-
-> >  3 files changed, 46 insertions(+), 9 deletions(-)
-> >
-> > diff --git a/arch/powerpc/include/asm/io.h b/arch/powerpc/include/asm/io.h
-> > index beba4979bff9..5ff6dec489f8 100644
-> > --- a/arch/powerpc/include/asm/io.h
-> > +++ b/arch/powerpc/include/asm/io.h
-> > @@ -359,25 +359,37 @@ static inline void __raw_writeq_be(unsigned long v, volatile void __iomem *addr)
-> >   */
-> >  static inline void __raw_rm_writeb(u8 val, volatile void __iomem *paddr)
-> >  {
-> > -     __asm__ __volatile__("stbcix %0,0,%1"
-> > +     __asm__ __volatile__(".machine \"push\"\n"
-> > +                          ".machine \"power6\"\n"
-> > +                          "stbcix %0,0,%1\n"
-> > +                          ".machine \"pop\"\n"
-> >               : : "r" (val), "r" (paddr) : "memory");
->
-> As Segher said it'd be cleaner without the embedded quotes.
->
-> > @@ -441,7 +465,10 @@ static inline unsigned int name(unsigned int port)       \
-> >       unsigned int x;                                 \
-> >       __asm__ __volatile__(                           \
-> >               "sync\n"                                \
-> > +             ".machine \"push\"\n"                   \
-> > +             ".machine \"power6\"\n"                 \
-> >               "0:"    op "    %0,0,%1\n"              \
-> > +             ".machine \"pop\"\n"                    \
-> >               "1:     twi     0,%0,0\n"               \
-> >               "2:     isync\n"                        \
-> >               "3:     nop\n"                          \
-> > @@ -465,7 +492,10 @@ static inline void name(unsigned int val, unsigned int port) \
-> >  {                                                    \
-> >       __asm__ __volatile__(                           \
-> >               "sync\n"                                \
-> > +             ".machine \"push\"\n"                   \
-> > +             ".machine \"power6\"\n"                 \
-> >               "0:" op " %0,0,%1\n"                    \
-> > +             ".machine \"pop\"\n"                    \
-> >               "1:     sync\n"                         \
-> >               "2:\n"                                  \
-> >               EX_TABLE(0b, 2b)                        \
->
-> It's not visible from the diff, but the above two are __do_in_asm and
-> __do_out_asm and are inside an ifdef CONFIG_PPC32.
->
-> AFAICS they're only used for:
->
-> __do_in_asm(_rec_inb, "lbzx")
-> __do_in_asm(_rec_inw, "lhbrx")
-> __do_in_asm(_rec_inl, "lwbrx")
-> __do_out_asm(_rec_outb, "stbx")
-> __do_out_asm(_rec_outw, "sthbrx")
-> __do_out_asm(_rec_outl, "stwbrx")
->
-> Which are all old instructions, so I don't think we need the machine
-> power6 for those two macros?
->
-> > diff --git a/arch/powerpc/platforms/powernv/rng.c b/arch/powerpc/platforms/powernv/rng.c
-> > index b4386714494a..5bf30ef6d928 100644
-> > --- a/arch/powerpc/platforms/powernv/rng.c
-> > +++ b/arch/powerpc/platforms/powernv/rng.c
-> > @@ -43,7 +43,11 @@ static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
-> >       unsigned long parity;
-> >
-> >       /* Calculate the parity of the value */
-> > -     asm ("popcntd %0,%1" : "=r" (parity) : "r" (val));
-> > +     asm (".machine \"push\"\n"
-> > +          ".machine \"power7\"\n"
-> > +          "popcntd %0,%1\n"
-> > +          ".machine \"pop\"\n"
-> > +          : "=r" (parity) : "r" (val));
->
-> This was actually present in an older CPU, but it doesn't really matter,
-> this is fine.
->
-> cheers
