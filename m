@@ -2,53 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9C544C2CFF
-	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 14:32:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 164624C2E3A
+	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 15:23:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234987AbiBXNcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Feb 2022 08:32:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48006 "EHLO
+        id S233603AbiBXOXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Feb 2022 09:23:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235015AbiBXNca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 08:32:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E9EB3BBC4;
-        Thu, 24 Feb 2022 05:31:51 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51907B825CD;
-        Thu, 24 Feb 2022 13:31:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08064C340EC;
-        Thu, 24 Feb 2022 13:31:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645709509;
-        bh=aDgHwHLlaNIdtT43THiW9lzUoMz27o+RJiZVrVu89lA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Omn8gcOAjIRuISt5tat3NXRjzlGmWi7T2wUJ14F8/pN7QWw+zUUOYj1skVjaw7sGg
-         F5CdZJinP5eRORKVojyF01K9Xsb+pNhv1M9lXETcLn/Qg0RGtnAlba8GyLeinovXpW
-         kxlThjKdBDmOEG8ldZCOabHP0jfQnKBN3VP5bFxPclMovzoltwpPqgQEFnayjr6VWn
-         N8wPH6mnLWjfNf5Zeg4FCSgzXYld6G45soYxWCJzxcWjPE9Wv3W0p5RGFM0SffTFHc
-         fby1miGrzcV8vipUL4ujRbiW5+7YBykSFFQEGX0NzzNRfUm3B7a3vc2D3hBzZdF99x
-         s6nNQXxO/5kuQ==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1nNEDk-0003j0-Iy; Thu, 24 Feb 2022 14:31:49 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Felix Becker <linux.felixbecker2@gmx.de>,
-        stable@vger.kernel.org
-Subject: [PATCH] USB: serial: simple: add Nokia phone driver
-Date:   Thu, 24 Feb 2022 14:31:09 +0100
-Message-Id: <20220224133109.10523-1-johan@kernel.org>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S230136AbiBXOXT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 09:23:19 -0500
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EBE010075C;
+        Thu, 24 Feb 2022 06:22:45 -0800 (PST)
+Received: by mail-ej1-x631.google.com with SMTP id qx21so4634149ejb.13;
+        Thu, 24 Feb 2022 06:22:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=zYTHUsVVhBwj0g4Gze0zy2RUZ5LyrxDkA+fp8E1dT/8=;
+        b=bUSWfnuHV6MsxDaAFBe/JODFU0yALi+lxDfaUl/fPb5TY2Nnf45hMpyf2aEVrRz6kh
+         8rCFA+jEIeielP42fOHvWQPq2OSgUZWG/SBNXBcgzKAxr5Loh2yVBatjbNGvFP8KRkFR
+         2lIBNm+P8achvv7DW8oxjPteqR1o7x/sxIKKypSF1AgtMxeemjaGQWIsOUSb2M/XnNcV
+         UNC9y4V4dZBF6oCEn0CpSFEHfazHkkHMaBuGNY0WVTdkVYuCvQBGwKigu4wUOuugBBZp
+         U+Wc32NEDol3lGb0vh8AT7ijboa+HvlM8/D7mBtBKd4bw05mBD0yuvJf6mXTE51236kF
+         HBYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
+         :subject:content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=zYTHUsVVhBwj0g4Gze0zy2RUZ5LyrxDkA+fp8E1dT/8=;
+        b=NmlYBZN/MZKsFsDTdjNcB6ts/S9E4QfInlHigTwBfvw8hG92lqhgOGlNGXfzThFOQv
+         OcjYnm8+ze2WB3X6klbjbuhJ9HjK+Rrlrda/B9MYhvLx1fzsaCAWgdUAW+y2ZqCZAREl
+         a6EaqJ6Y7VGU389ueP96ZZXKRNNk61WnmWI/Z59LQN2+XUhjuRASOZMxwKaI1UjV72+Q
+         aiyvLi8q5JOT6nXgefRLxty6S/SV7MQ9NT0hMQSdR2lM/TLx0wNzJGM08E00nlQyC99j
+         csKhRDAShFy28OlbS9uVQS5AbX29u9Zk0STFhFsHoKoZsSB8/kGp9nizwsU+mak7Il50
+         nrYA==
+X-Gm-Message-State: AOAM531jnhA7AZN1DSCGyCi6ucTk/u6Ph19ksoWuWv76TpU/ad4NdWXn
+        pODjCdC0PyQBNu8owD9cS4A=
+X-Google-Smtp-Source: ABdhPJzpx4N3xp1lLjkagnxhXCabnGndX91MAsGN9ExhB14AG7jRfTUCqS6EGeMdSNZnv+DNnPGwEA==
+X-Received: by 2002:a17:907:90c7:b0:6d1:c55:86a4 with SMTP id gk7-20020a17090790c700b006d10c5586a4mr2478924ejb.484.1645712564078;
+        Thu, 24 Feb 2022 06:22:44 -0800 (PST)
+Received: from ?IPV6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.googlemail.com with ESMTPSA id r1sm1433162ejh.52.2022.02.24.06.22.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 24 Feb 2022 06:22:43 -0800 (PST)
+Sender: Paolo Bonzini <paolo.bonzini@gmail.com>
+Message-ID: <e459dbcc-3a43-bd20-6f78-1a9d712ae020@redhat.com>
+Date:   Thu, 24 Feb 2022 15:22:41 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH] KVM: x86: nSVM: disallow userspace setting of
+ MSR_AMD64_TSC_RATIO to non default value when tsc scaling disabled
+Content-Language: en-US
+To:     Maxim Levitsky <mlevitsk@redhat.com>, kvm@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20220223115649.319134-1-mlevitsk@redhat.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20220223115649.319134-1-mlevitsk@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+        HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,62 +76,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add a new "simple" driver for certain Nokia phones, including Nokia 130
-(RM-1035) which exposes two serial ports in "charging only" mode.
+On 2/23/22 12:56, Maxim Levitsky wrote:
+> If nested tsc scaling is disabled, MSR_AMD64_TSC_RATIO should
+> never have non default value.
+> 
+> Due to way nested tsc scaling support was implmented in qemu,
+> it would set this msr to 0 when nested tsc scaling was disabled.
+> Ignore that value for now, as it causes no harm.
+> 
+> 
+> Fixes: 5228eb96a487 ("KVM: x86: nSVM: implement nested TSC scaling")
+> Cc: stable@vger.kernel.org
+> 
+> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+> ---
+>   arch/x86/kvm/svm/svm.c | 19 +++++++++++++++++--
+>   1 file changed, 17 insertions(+), 2 deletions(-)
 
-Reported-by: Felix Becker <linux.felixbecker2@gmx.de>
-Link: https://lore.kernel.org/r/20220208201506.6c65834d@gmx.de
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/serial/Kconfig             | 1 +
- drivers/usb/serial/usb-serial-simple.c | 7 +++++++
- 2 files changed, 8 insertions(+)
+Queued, thanks.
 
-diff --git a/drivers/usb/serial/Kconfig b/drivers/usb/serial/Kconfig
-index de5c01257060..ef8d1c73c754 100644
---- a/drivers/usb/serial/Kconfig
-+++ b/drivers/usb/serial/Kconfig
-@@ -66,6 +66,7 @@ config USB_SERIAL_SIMPLE
- 		- Libtransistor USB console
- 		- a number of Motorola phones
- 		- Motorola Tetra devices
-+		- Nokia mobile phones
- 		- Novatel Wireless GPS receivers
- 		- Siemens USB/MPI adapter.
- 		- ViVOtech ViVOpay USB device.
-diff --git a/drivers/usb/serial/usb-serial-simple.c b/drivers/usb/serial/usb-serial-simple.c
-index bd23a7cb1be2..c95dfe4a6f0f 100644
---- a/drivers/usb/serial/usb-serial-simple.c
-+++ b/drivers/usb/serial/usb-serial-simple.c
-@@ -91,6 +91,11 @@ DEVICE(moto_modem, MOTO_IDS);
- 	{ USB_DEVICE(0x0cad, 0x9016) }	/* TPG2200 */
- DEVICE(motorola_tetra, MOTOROLA_TETRA_IDS);
- 
-+/* Nokia mobile phone driver */
-+#define NOKIA_IDS()			\
-+	{ USB_DEVICE(0x0421, 0x069a) }	/* Nokia 130 (RM-1035) */
-+DEVICE_N(nokia, NOKIA_IDS, 2);
-+
- /* Novatel Wireless GPS driver */
- #define NOVATEL_IDS()			\
- 	{ USB_DEVICE(0x09d7, 0x0100) }	/* NovAtel FlexPack GPS */
-@@ -123,6 +128,7 @@ static struct usb_serial_driver * const serial_drivers[] = {
- 	&vivopay_device,
- 	&moto_modem_device,
- 	&motorola_tetra_device,
-+	&nokia_device,
- 	&novatel_gps_device,
- 	&hp4x_device,
- 	&suunto_device,
-@@ -140,6 +146,7 @@ static const struct usb_device_id id_table[] = {
- 	VIVOPAY_IDS(),
- 	MOTO_IDS(),
- 	MOTOROLA_TETRA_IDS(),
-+	NOKIA_IDS(),
- 	NOVATEL_IDS(),
- 	HP4X_IDS(),
- 	SUUNTO_IDS(),
--- 
-2.34.1
+Paolo
+
+> diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+> index 7038c76fa841..b80ad471776f 100644
+> --- a/arch/x86/kvm/svm/svm.c
+> +++ b/arch/x86/kvm/svm/svm.c
+> @@ -2705,8 +2705,23 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
+>   	u64 data = msr->data;
+>   	switch (ecx) {
+>   	case MSR_AMD64_TSC_RATIO:
+> -		if (!msr->host_initiated && !svm->tsc_scaling_enabled)
+> -			return 1;
+> +
+> +		if (!svm->tsc_scaling_enabled) {
+> +
+> +			if (!msr->host_initiated)
+> +				return 1;
+> +			/*
+> +			 * In case TSC scaling is not enabled, always
+> +			 * leave this MSR at the default value.
+> +			 *
+> +			 * Due to bug in qemu 6.2.0, it would try to set
+> +			 * this msr to 0 if tsc scaling is not enabled.
+> +			 * Ignore this value as well.
+> +			 */
+> +			if (data != 0 && data != svm->tsc_ratio_msr)
+> +				return 1;
+> +			break;
+> +		}
+>   
+>   		if (data & TSC_RATIO_RSVD)
+>   			return 1;
 
