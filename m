@@ -2,177 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64FD24C3539
-	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 19:59:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C40594C3551
+	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 20:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232344AbiBXS7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Feb 2022 13:59:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45126 "EHLO
+        id S233180AbiBXTFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Feb 2022 14:05:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232292AbiBXS7b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 13:59:31 -0500
-Received: from gnuweeb.org (gnuweeb.org [51.81.211.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0495818E42D;
-        Thu, 24 Feb 2022 10:59:00 -0800 (PST)
-Received: from integral2.. (unknown [36.78.50.60])
-        by gnuweeb.org (Postfix) with ESMTPSA id 81CFB7E2A3;
-        Thu, 24 Feb 2022 18:58:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnuweeb.org;
-        s=default; t=1645729140;
-        bh=FCgV7HQ6Sz7X4EcW0AHGQFLFZjP2p7gApc5nIKixJdk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ll07GBV4MJ5dFyQU6rmVP1mJAwWEhaWkrlN618dRWC4jaGKEnpf1i9SlQIDNK1r6q
-         2i2Aap4XKfirQn+9MbzRuYSNvBoAKAzAhif1KYa0J/YVm/c7PcANr2NSnVcqi9Cu+r
-         0DScWrfxF0rDJtS8CzB5oaGYzcgXvswWfyfu8GFnG5pjQpGYcryc1SlB5V+E+uGZLg
-         EeiPBek0alz7Vfkc2KUKxQxMjwraQ0IE1tDI7gFrlmxlRS7bNAlfK50qVmEaYWJ5C/
-         zEAdkGKX9GzYMJCKzBX06u12/ynxwbSP09K0IgWUOZttB/fXK2h9ZCYmZS5ipZ4mXE
-         CfPdfKeyP8h+g==
-From:   Ammar Faizi <ammarfaizi2@gnuweeb.org>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     Ammar Faizi <ammarfaizi2@gnuweeb.org>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Keyon Jie <yang.jie@linux.intel.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.com>,
-        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Subject: [PATCH v4] ASoC: SOF: Intel: Fix NULL ptr dereference when ENOMEM
-Date:   Fri, 25 Feb 2022 01:58:36 +0700
-Message-Id: <20220224185836.44907-1-ammarfaizi2@gnuweeb.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220224182818.40301-1-ammarfaizi2@gnuweeb.org>
-References: <20220224145124.15985-1-ammarfaizi2@gnuweeb.org> <cfe9e583-e20a-f1d6-2a81-2538ca3ca054@linux.intel.com> <Yhe/3rELNfFOdU4L@sirena.org.uk> <04e79b9c-ccb1-119a-c2e2-34c8ca336215@linux.intel.com> <20220224180850.34592-1-ammarfaizi2@gnuweeb.org> <YhfLCWm0Ms3E+j4z@sirena.org.uk> <20220224182818.40301-1-ammarfaizi2@gnuweeb.org>
+        with ESMTP id S229664AbiBXTFT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 14:05:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D19C81E3767;
+        Thu, 24 Feb 2022 11:04:48 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B066B828CA;
+        Thu, 24 Feb 2022 19:04:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBB17C340E9;
+        Thu, 24 Feb 2022 19:04:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1645729486;
+        bh=jDuI5h8fYq6fb6tCbrdAIXZK+ehpxE2FmsQTFDRp0+o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=NPP1y1NsGmd9F/iS/Pfgftz+6LR0TB0C30eStDClgzYqZQCM1mhnkhINwqXeWidLx
+         /7uqXIdUk0W9gaIgTdSlK45OLmEBz1AMeVxyrDn/fpMphvwLja6O7vbrgHpJUuE5tl
+         EvO5PNVPZhJVVoxbGl+cMzNa3dmuAoR1YgcPCedjNCuM740yv2blIT3rnDvf7zZIhB
+         7NmlrP06G0RgOChbwWoREmAqIzpeEziQJQfcyqISs1nlKlAZ2n4Ptq1k9o/ofl9o78
+         MUBJNxt5KOLkSH3xVlk/uqsKdJmcU2fS60+XT0jNElGenOGGJ1rrnUxemxTChZ3Ouk
+         0kcKnCEa9Uxjg==
+Date:   Thu, 24 Feb 2022 11:04:44 -0800
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Gilad Ben-Yossef <gilad@benyossef.com>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ofir Drang <ofir.drang@arm.com>,
+        Corentin Labbe <clabbe.montjoie@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] crypto: drbg: fix crypto api abuse
+Message-ID: <YhfWzLBq2A2nr5Ey@sol.localdomain>
+References: <20220223080400.139367-1-gilad@benyossef.com>
+ <Yhbjq3cVsMVUQLio@sol.localdomain>
+ <YhblA1qQ9XLb2nmO@sol.localdomain>
+ <CAOtvUMfFhQABmmZe7EH-o=ULEChm_t=KY7ORBRgm94O=1MiuFw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAOtvUMfFhQABmmZe7EH-o=ULEChm_t=KY7ORBRgm94O=1MiuFw@mail.gmail.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Do not call snd_dma_free_pages() when snd_dma_alloc_pages() returns
--ENOMEM because it leads to a NULL pointer dereference bug.
+On Thu, Feb 24, 2022 at 09:07:47AM +0200, Gilad Ben-Yossef wrote:
+> Hi Eric,
+> 
+> On Thu, Feb 24, 2022 at 3:53 AM Eric Biggers <ebiggers@kernel.org> wrote:
+> >
+> > On Wed, Feb 23, 2022 at 05:47:25PM -0800, Eric Biggers wrote:
+> > > On Wed, Feb 23, 2022 at 10:04:00AM +0200, Gilad Ben-Yossef wrote:
+> > > > the drbg code was binding the same buffer to two different
+> > > > scatter gather lists and submitting those as source and
+> > > > destination to a crypto api operation, thus potentially
+> > > > causing HW crypto drivers to perform overlapping DMA
+> > > > mappings which are not aware it is the same buffer.
+> > > >
+> > > > This can have serious consequences of data corruption of
+> > > > internal DRBG buffers and wrong RNG output.
+> > > >
+> > > > Fix this by reusing the same scatter gatther list for both
+> > > > src and dst.
+> > > >
+> > > > Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+> > > > Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+> > > > Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+> > > > Tested-on: r8a7795-salvator-x
+> > > > Tested-on: xilinx-zc706
+> > > > Fixes: 43490e8046b5d ("crypto: drbg - in-place cipher operation for CTR")
+> > > > Cc: stable@vger.kernel.org
+> > >
+> > > Where is it documented and tested that the API doesn't allow this?
+> > > I wasn't aware of this case; it sounds perfectly allowed to me.
+> > > There might be a lot of other users who do this, not just drbg.c.
+> > >
+> >
+> > Just quickly looking through the code I maintain, there is another place that
+> > uses scatterlists like this: in fscrypt_crypt_block() in fs/crypto/crypto.c, the
+> > source and destination can be the same.  That's just the code I maintain; I'm
+> > sure if you looked through the whole kernel you'd find a lot more.
+> >
+> > This sounds more like a driver bug, and a case we need to add self-tests for.
+> 
+> Thank you for the feedback. That is a very good question. Indeed, I
+> agree with you that in an ideal world the internal implementation details of DMA
+> mapping would not pop up and interfere with higher level layer logic.
+> 
+> Let me describe my point of view and I would be very happy to hear
+> where I am wrong:
+> 
+> The root cause underlying this is that, of course,  hardware crypto
+> drivers map the sglists passed to them for DMA . Indeed, we require
+> input to crypto
+> API as sglists of DMAable buffers (and not, say stack allocated buffers) because
+> of this. So far I am just stating the obvious...
+> 
+> Now, it looks like the DMA api, accessed via dma_map_sg(), does not
+> like overlapping mappings. The bug report that triggered this patch (see:
+> https://lkml.org/lkml/2022/2/20/240) was an oops message including this
+> warning: "DMA-API: ccree e6601000.crypto: cacheline tracking EEXIST,
+> overlapping mappings aren't supported".
+> 
+> The messages comes from add_dma_entry() in kernel.dma/debug.c,
+> because, as stated in the commit message that added this check in May 2021:
+> 
+> "Since, overlapping mappings are not supported by the DMA API we
+> should report an error if active_cacheline_insert returns -EEXIST."
+> (https://lkml.org/lkml/2021/5/18/572)
+> 
+> For now, I will take it at a given that this is proper and you do not
+> consider this
+> an issue in the DMA API.
+> 
+> Now, driver writers are of course aware of this DMA API limitation and thus we
+> check if the src sglist is the same as the dst sglist and if so only map once.
+> However, the underlying assumption is that the buffers pointed by different
+> sglists do not overlap. We do not iterate over all the sglist trying
+> to find overlaps.
+> 
+> When I see "we", it is because this behavior is not unique to the ccree driver:
+> 
+> Here is the same logic from a marvell cesa driver:
+> https://elixir.bootlin.com/linux/latest/source/drivers/crypto/marvell/cesa/cipher.c#L326
+> 
+> Here it is again in the camm driver:
+> https://elixir.bootlin.com/linux/latest/source/drivers/crypto/caam/caamalg.c#L1619
+> 
+> I do believe that at least all crypto HW drivers apply the same logic.
+> 
+> Of course, we can ask that every HW crypto driver (and possibly any other
+> sglist using HW driver) will add logic that scans each sglist for
+> overlapping buffers
+> and if found use a more sophisticated mapping (easy for a simple
+> sglist that has one buffer
+> identical to some other sglist, maybe more complicated if the overlap
+> is not identity).
+> The storage drivers sort of already do on some level, although I think
+> on a higher abstraction
+> layer than the drivers themselves if I'm not mistaken, though for
+> performance reasons.
+> This is certainly DOABLE in the sense that it can be achieved.
+> 
+> However, I don't think this is desirable. This will add non trivial
+> code with non trivial runtime
+> costs just to spot these cases. And we will need to fix ALL the hw
+> drivers, because, to the best
+> of my knowledge, none of them do this right now.
+> 
+> The remaining option is to enforce the rule of no overlap between
+> different sglists passed to the
+> crypto API. This seems much easier to me. Indeed, the fix I sent is a
+> one liner. I suspect all
+> other fixes are similar and I assume (but did not check) that there
+> are not many of those.
+> Indeed, I think it is much easier to impose the required limitation at
+> the API caller level.
+> It is not pretty, nor "just", but easier, I think.
+> 
+> I hope I've managed to explain my logic here.
+> 
+> I will note that even if we decide to follow the other route, we do
+> need to document and fix
+> probably every hw crypto (and possibly others) driver out there,
+> because AFAIK, no one is taking
+> into account this possibility right now.
 
-The dmesg says:
+Decryption in dm-crypt is another example where different scatterlists are used
+for in-place data.  (This is because like the fscrypt case, it has a helper
+function which handles both in-place and out-of-place data.)
 
-  [ T1387] sof-audio-pci-intel-tgl 0000:00:1f.3: error: memory alloc failed: -12
-  [ T1387] BUG: kernel NULL pointer dereference, address: 0000000000000000
-  [ T1387] #PF: supervisor read access in kernel mode
-  [ T1387] #PF: error_code(0x0000) - not-present page
-  [ T1387] PGD 0 P4D 0
-  [ T1387] Oops: 0000 [#1] PREEMPT SMP NOPTI
-  [ T1387] CPU: 6 PID: 1387 Comm: alsa-sink-HDA A Tainted: G        W         5.17.0-rc4-superb-owl-00055-g80d47f5de5e3
-  [ T1387] Hardware name: HP HP Laptop 14s-dq2xxx/87FD, BIOS F.15 09/15/2021
-  [ T1387] RIP: 0010:dma_free_noncontiguous+0x37/0x80
-  [ T1387] Code: [... snip ...]
-  [ T1387] RSP: 0000:ffffc90002b87770 EFLAGS: 00010246
-  [ T1387] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-  [ T1387] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff888101db30d0
-  [ T1387] RBP: 00000000fffffff4 R08: 0000000000000000 R09: 0000000000000000
-  [ T1387] R10: 0000000000000000 R11: ffffc90002b874d0 R12: 0000000000000001
-  [ T1387] R13: 0000000000058000 R14: ffff888105260c68 R15: ffff888105260828
-  [ T1387] FS:  00007f42e2ffd640(0000) GS:ffff888466b80000(0000) knlGS:0000000000000000
-  [ T1387] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [ T1387] CR2: 0000000000000000 CR3: 000000014acf0003 CR4: 0000000000770ee0
-  [ T1387] PKRU: 55555554
-  [ T1387] Call Trace:
-  [ T1387]  <TASK>
-  [ T1387]  cl_stream_prepare+0x10a/0x120 [snd_sof_intel_hda_common 146addf995b9279ae7f509621078cccbe4f875e1]
-  [... snip ...]
-  [ T1387]  </TASK>
+I don't think it is reasonable to "fix" all these users who are using the crypto
+API in a perfectly reasonable way.
 
-Cc: Daniel Baluta <daniel.baluta@nxp.com>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Cc: Keyon Jie <yang.jie@linux.intel.com>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Rander Wang <rander.wang@intel.com>
-Cc: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: sound-open-firmware@alsa-project.org
-Cc: alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org # v5.2+
-Fixes: d16046ffa6de040bf580a64d5f4d0aa18258a854 ("ASoC: SOF: Intel: Add Intel specific HDA firmware loader")
-Link: https://lore.kernel.org/lkml/20220224145124.15985-1-ammarfaizi2@gnuweeb.org/ # v1
-Link: https://lore.kernel.org/lkml/20220224180850.34592-1-ammarfaizi2@gnuweeb.org/ # v2
-Link: https://lore.kernel.org/lkml/20220224182818.40301-1-ammarfaizi2@gnuweeb.org/ # v3
-Reviewed-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
----
+Are you saying that dm-crypt, fscrypt, drbg, etc. never worked with any hardware
+crypto driver?  How could that possibly be the case?  Perhaps something changed
+in the DMA API recently that is causing this.  Or maybe it is specific to the
+implementation of the DMA API on the platform you are testing.
 
- v4:
-   - Remove 2 `Cc` tags after got the Reviewed-by tag from the CC'ed people
-     as they will be CC'ed anyway.
-   - Extra commit message cleanup.
-
- v3:
-   - Address comment from Mark Brown (strip not useful kernel log
-     from the commit message, again).
-
- v2:
-   - Append Reviewed-by tag from Peter Ujfalusi.
-   - Append Reviewed-by tag from Pierre-Louis Bossart.
-   - Address comment from Mark Brown (strip irrelevant kernel log
-     from the commit message).
-
- sound/soc/sof/intel/hda-loader.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
-
-diff --git a/sound/soc/sof/intel/hda-loader.c b/sound/soc/sof/intel/hda-loader.c
-index 33306d2023a7..9bbfdab8009d 100644
---- a/sound/soc/sof/intel/hda-loader.c
-+++ b/sound/soc/sof/intel/hda-loader.c
-@@ -47,7 +47,7 @@ static struct hdac_ext_stream *cl_stream_prepare(struct snd_sof_dev *sdev, unsig
- 	ret = snd_dma_alloc_pages(SNDRV_DMA_TYPE_DEV_SG, &pci->dev, size, dmab);
- 	if (ret < 0) {
- 		dev_err(sdev->dev, "error: memory alloc failed: %d\n", ret);
--		goto error;
-+		goto out_put;
- 	}
- 
- 	hstream->period_bytes = 0;/* initialize period_bytes */
-@@ -58,22 +58,23 @@ static struct hdac_ext_stream *cl_stream_prepare(struct snd_sof_dev *sdev, unsig
- 		ret = hda_dsp_iccmax_stream_hw_params(sdev, dsp_stream, dmab, NULL);
- 		if (ret < 0) {
- 			dev_err(sdev->dev, "error: iccmax stream prepare failed: %d\n", ret);
--			goto error;
-+			goto out_free;
- 		}
- 	} else {
- 		ret = hda_dsp_stream_hw_params(sdev, dsp_stream, dmab, NULL);
- 		if (ret < 0) {
- 			dev_err(sdev->dev, "error: hdac prepare failed: %d\n", ret);
--			goto error;
-+			goto out_free;
- 		}
- 		hda_dsp_stream_spib_config(sdev, dsp_stream, HDA_DSP_SPIB_ENABLE, size);
- 	}
- 
- 	return dsp_stream;
- 
--error:
--	hda_dsp_stream_put(sdev, direction, hstream->stream_tag);
-+out_free:
- 	snd_dma_free_pages(dmab);
-+out_put:
-+	hda_dsp_stream_put(sdev, direction, hstream->stream_tag);
- 	return ERR_PTR(ret);
- }
- 
-
-base-commit: 23d04328444a8fa0ca060c5e532220dac8e8bc26
--- 
-2.32.0
-
+- Eric
