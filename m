@@ -2,131 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 961FC4C273B
-	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 10:01:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B11944C26E2
+	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 10:00:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232155AbiBXIyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Feb 2022 03:54:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40832 "EHLO
+        id S229948AbiBXIzH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Feb 2022 03:55:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232151AbiBXIyO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 03:54:14 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4BB34163062
-        for <stable@vger.kernel.org>; Thu, 24 Feb 2022 00:53:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1645692824;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=thrYYz9q4DcC0rOHSVDRqBTRDM3HEZ49oAwiCU0vtIA=;
-        b=XHFcKxq3HjKYkfe724sAVLTbwSG+7nf/iJTFBAXnUG5J3SkNRVIzjINqBsmeXP6lvz7EEb
-        /U/h/lfubNzelj5p3WyGyLyf2vKvpIsQvxZhpeVJxpCJMJATLEjBYBl+yfgemfAKjcmEfn
-        2FNW2jCL/Hvmh1vIOWew5kW5vGdCUqw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-503-2e81YYi9MyyiXnp89lNAuQ-1; Thu, 24 Feb 2022 03:53:41 -0500
-X-MC-Unique: 2e81YYi9MyyiXnp89lNAuQ-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 41803800496;
-        Thu, 24 Feb 2022 08:53:39 +0000 (UTC)
-Received: from localhost (unknown [10.39.194.148])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id CA567607CB;
-        Thu, 24 Feb 2022 08:53:32 +0000 (UTC)
-Date:   Thu, 24 Feb 2022 08:53:31 +0000
-From:   Stefan Hajnoczi <stefanha@redhat.com>
-To:     Stefano Garzarella <sgarzare@redhat.com>
-Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com,
-        kvm@vger.kernel.org, Anirudh Rayabharam <mail@anirudhrb.com>,
-        syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com,
-        linux-kernel@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] vhost/vsock: don't check owner in vhost_vsock_stop()
- while releasing
-Message-ID: <YhdHi4wHLjUfD3WN@stefanha-x1.localdomain>
-References: <20220222094742.16359-1-sgarzare@redhat.com>
+        with ESMTP id S229970AbiBXIzF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 03:55:05 -0500
+Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59013163073
+        for <stable@vger.kernel.org>; Thu, 24 Feb 2022 00:54:36 -0800 (PST)
+Received: by mail-yb1-xb34.google.com with SMTP id p19so2446173ybc.6
+        for <stable@vger.kernel.org>; Thu, 24 Feb 2022 00:54:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=6LyzN4y/7LbQq4KLs8Ged395bQeALH2HjEMTuIFD+Xs=;
+        b=tAwCy0Juzg1LJ8ESx7tnClUCfRh342K9ktgq/9ycOepQOkGF9CWrlSBJzukQ7mqmFV
+         Pt7AAanY+jPfQzWR95zmKaW/I95lS5ogeAsxuA/jdj1yNBtVm7NVk2aD++jKbzR2jb6k
+         UoXDGlePz1zXsUNVO9Q3MxNgEJ8YkcrWpqBSKSt1++biYEMjuCiPtpV1jbcfEzMYQ01V
+         zUK3+uxr58G8KS4PEDGYWZ8C2a92mLQ75XrdJ6FN1bic/huriP+ZZ8+eFPJAcFxwj4Is
+         wnJ0LX7cL0xg6oLjxVZCyq9nggeCGg0QAXBJNFa2dKkmYKWi6pFR1Loyk7GAu8lL+zpS
+         YweA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=6LyzN4y/7LbQq4KLs8Ged395bQeALH2HjEMTuIFD+Xs=;
+        b=cDZw9azznHfBlMZtZNfcqoH2KxvB3M54lEHg7my6czBw1MsRrVxPc6ZZXuzsozVz8g
+         b2PbPrvrcMXcWN+W78+4Wb88pk8QjKqeSswvxCrYvkVzYZDU4jqDO5r1P2pm2sFKakan
+         Jj7rk4hx1joFGgkEosEx+ggCTNG/NW1BZVbjgrc3ONYNwzzsGi0jKhBYfPtnyevWICmL
+         jAgSGdlp9Vo5yPhRa5MHj8u4cevqv0c9Jnsuq5w2QXRdnFMBfAY1u8NZAV2AJN0lYbYy
+         Jj+lii+xs/Y/e0X14H9WG9XpeTZL+K84BRe8sZvsAjuzYpSjaQZtEjobzkOxGwICUOB4
+         Szfw==
+X-Gm-Message-State: AOAM530m1lojtodlPxR6zHjulqfsxAXRhhA4sW0+R3WZYEhn+yeM6xwq
+        i81dGgEfMfO2zEyH+wmo5RvOKuSAlsIqlTyHWCJm/Q==
+X-Google-Smtp-Source: ABdhPJzgM45SQS4CBJEv1rTkvY1iH0epa4IjtQbO2nqN04jCGY6MooN2Q2hDh8eRIbMCjtwSTvwYaLV/TkLEvPgMQws=
+X-Received: by 2002:a25:a4e8:0:b0:61e:1eb6:19bd with SMTP id
+ g95-20020a25a4e8000000b0061e1eb619bdmr1613695ybi.168.1645692875363; Thu, 24
+ Feb 2022 00:54:35 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="eMHA10fN330j9lI9"
-Content-Disposition: inline
-In-Reply-To: <20220222094742.16359-1-sgarzare@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+References: <20220224002024.429707-1-pcc@google.com>
+In-Reply-To: <20220224002024.429707-1-pcc@google.com>
+From:   Marco Elver <elver@google.com>
+Date:   Thu, 24 Feb 2022 09:54:23 +0100
+Message-ID: <CANpmjNOaZNtsJ+5pgJrpHb5VZtXjFs1i1L2S6Q_oqFo3hFt4Tg@mail.gmail.com>
+Subject: Re: [PATCH v2] kasan: fix more unit tests with CONFIG_UBSAN_LOCAL_BOUNDS
+ enabled
+To:     Peter Collingbourne <pcc@google.com>
+Cc:     Andrey Konovalov <andreyknvl@gmail.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Daniel Micay <danielmicay@gmail.com>,
+        kasan-dev@googlegroups.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 24 Feb 2022 at 01:20, Peter Collingbourne <pcc@google.com> wrote:
+>
+> This is a followup to commit f649dc0e0d7b ("kasan: fix unit tests
+> with CONFIG_UBSAN_LOCAL_BOUNDS enabled") that fixes tests that fail
+> as a result of __alloc_size annotations being added to the kernel
+> allocator functions.
+>
+> Link: https://linux-review.googlesource.com/id/I4334cafc5db600fda5cebb851b2ee9fd09fb46cc
+> Signed-off-by: Peter Collingbourne <pcc@google.com>
+> Cc: <stable@vger.kernel.org> # 5.16.x
+> Fixes: c37495d6254c ("slab: add __alloc_size attributes for better bounds checking")
 
---eMHA10fN330j9lI9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Reviewed-by: Marco Elver <elver@google.com>
 
-On Tue, Feb 22, 2022 at 10:47:42AM +0100, Stefano Garzarella wrote:
-> vhost_vsock_stop() calls vhost_dev_check_owner() to check the device
-> ownership. It expects current->mm to be valid.
->=20
-> vhost_vsock_stop() is also called by vhost_vsock_dev_release() when
-> the user has not done close(), so when we are in do_exit(). In this
-> case current->mm is invalid and we're releasing the device, so we
-> should clean it anyway.
->=20
-> Let's check the owner only when vhost_vsock_stop() is called
-> by an ioctl.
->=20
-> When invoked from release we can not fail so we don't check return
-> code of vhost_vsock_stop(). We need to stop vsock even if it's not
-> the owner.
->=20
-> Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-> Cc: stable@vger.kernel.org
-> Reported-by: syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com
-> Reported-and-tested-by: syzbot+3140b17cb44a7b174008@syzkaller.appspotmail=
-=2Ecom
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Thanks!
+
 > ---
 > v2:
-> - initialized `ret` in vhost_vsock_stop [Dan]
-> - added comment about vhost_vsock_stop() calling in the code and an expla=
-nation
->   in the commit message [MST]
->=20
-> v1: https://lore.kernel.org/virtualization/20220221114916.107045-1-sgarza=
-re@redhat.com
-> ---
->  drivers/vhost/vsock.c | 21 ++++++++++++++-------
->  1 file changed, 14 insertions(+), 7 deletions(-)
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---eMHA10fN330j9lI9
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmIXR4oACgkQnKSrs4Gr
-c8i0LQf/bGGbSYckr30SGrkHytT/rZHQYzSD8L7Mcj6YDjh7rV/lE31ATrVY9JY4
-qZ/hJTMlfAx8gqVYEmZrUh9xM09BjRAdSjGy92sdpbVYhWbr1D0HmDS+hQvFQjXs
-HHpjWQeHtKjAfw8nz6HfgcH3329t+oVH5V4RQ5pOeLNq0Tm58uYdhmf7IqIrb9TI
-LySJlzqTqsRzI8URPo6u9i+PqNhTnbjYTSBP2/WnAZeSrHUDXlOmeJ5cXGweinGe
-CiH+66Eay0ga1M/Xym1xsota2L8lfQlO9HF1XkTJiYEeQDYthIJUc7wuZvnftCgh
-ZND4ieEesa+iV+Lyaxno7s+gT0fLHw==
-=f2iv
------END PGP SIGNATURE-----
-
---eMHA10fN330j9lI9--
-
+> - use OPTIMIZER_HIDE_VAR instead of volatile
+>
+>  lib/test_kasan.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/lib/test_kasan.c b/lib/test_kasan.c
+> index 26a5c9007653..7c3dfb569445 100644
+> --- a/lib/test_kasan.c
+> +++ b/lib/test_kasan.c
+> @@ -185,6 +185,7 @@ static void kmalloc_pagealloc_oob_right(struct kunit *test)
+>         ptr = kmalloc(size, GFP_KERNEL);
+>         KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+>
+> +       OPTIMIZER_HIDE_VAR(ptr);
+>         KUNIT_EXPECT_KASAN_FAIL(test, ptr[size + OOB_TAG_OFF] = 0);
+>
+>         kfree(ptr);
+> @@ -295,6 +296,7 @@ static void krealloc_more_oob_helper(struct kunit *test,
+>                 KUNIT_EXPECT_KASAN_FAIL(test, ptr2[size2] = 'x');
+>
+>         /* For all modes first aligned offset after size2 must be inaccessible. */
+> +       OPTIMIZER_HIDE_VAR(ptr2);
+>         KUNIT_EXPECT_KASAN_FAIL(test,
+>                 ptr2[round_up(size2, KASAN_GRANULE_SIZE)] = 'x');
+>
+> @@ -319,6 +321,8 @@ static void krealloc_less_oob_helper(struct kunit *test,
+>         /* Must be accessible for all modes. */
+>         ptr2[size2 - 1] = 'x';
+>
+> +       OPTIMIZER_HIDE_VAR(ptr2);
+> +
+>         /* Generic mode is precise, so unaligned size2 must be inaccessible. */
+>         if (IS_ENABLED(CONFIG_KASAN_GENERIC))
+>                 KUNIT_EXPECT_KASAN_FAIL(test, ptr2[size2] = 'x');
+> --
+> 2.35.1.473.g83b2b277ed-goog
+>
