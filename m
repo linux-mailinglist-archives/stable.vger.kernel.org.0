@@ -2,170 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBEF14C232F
-	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 06:05:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D26A4C23BD
+	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 06:53:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230012AbiBXFGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Feb 2022 00:06:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32812 "EHLO
+        id S229735AbiBXFxv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Feb 2022 00:53:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229976AbiBXFGE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 00:06:04 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26DCC234023;
-        Wed, 23 Feb 2022 21:05:35 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id q1so734175plx.4;
-        Wed, 23 Feb 2022 21:05:35 -0800 (PST)
+        with ESMTP id S229545AbiBXFxs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 00:53:48 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6609120C187
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 21:53:18 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id v4so1092213pjh.2
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 21:53:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:subject:to:cc:references:in-reply-to:mime-version
-         :message-id:content-transfer-encoding;
-        bh=vBtZuAALJewLaq/BuuDCV2cJjk+dmoyjauh5TxA1GZA=;
-        b=f4abudYR5pA2Q0a3XJMCI15iR5dGcVBYCFgl303eFaqKWpTV0qK0byZ9kwsppS7jKE
-         luzTVEyU7Kw9LTjtOmyilGqGtDB+akg753wObRv5ozDqzlWH9/4eTO1wbpGZKaTki2zk
-         N0pK/RhySisLNpl+DGTN/3SlJniEvdwm9LxERjytaHc0iA0tT+OpFcm6vuXjvRrqX7Ju
-         OCW3b1bMg5O2dwh4IfZRzfDwy1XC59/VNCieT1jp9fStYQGXdkdnuLhXOr9i1Vl4ww1B
-         Q7egHzodaQnnRYMTZouiYw80+izMeTu0Do7sDI/x/SvSOCyUIPCCajPtrhbP/jb/GsIE
-         4+3w==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HN0BoHGE758sI1mR1iM3NuCpHrIXeGyffkxVw26aUA8=;
+        b=aL0dOruFPclmCIj3JhZnZRA7Or0+tZMH/tUWDuWPsD4X9F2U3nELhvBKe7nVLYkax2
+         aTV7XvDWYUmh7QQFPLJAwHeQIlBhe6ejfSfYJFvAHNEDLoYhGZbTyKIoHcCEVN5VcLYW
+         kACJ6U2swduUYGsGxgbnIic5JUl9wkshPsMkJXKijr+r1OWynKXahJICFAMwhcglTUMZ
+         RhFjX3VZ2Sgq3kMaYkq0izKzCF+//aWgcH5ixAbJlLAGQpnFDsb78TI8mTiQglR+zOAB
+         1vds/gv3VsUczBdx8vR34GLNYOZzHsrHJJWxTdEJa5uwhqiGOJRZsakE0qkARGCnGij1
+         aTEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:subject:to:cc:references:in-reply-to
-         :mime-version:message-id:content-transfer-encoding;
-        bh=vBtZuAALJewLaq/BuuDCV2cJjk+dmoyjauh5TxA1GZA=;
-        b=7hW9uu0rYRplbJqXWWu8zG2pMQhIyUr+mN2quyLym6+gohZLvLPBtkdRTBHtGtBjq/
-         g92Agu7P4wRiBXacxPpRv6gEO9wP+2vjJbBY0aMmuNh7ZjWlc4qCBtNph9ZB8E07mja/
-         RLSrrqZbiPm8ynCXu6TlH9Nu0yrzv1mLI76QzH6wOTgHwlrf8CNpQF8s1fUeaptYlO+o
-         +ChDGvLN179+VTni+bEPSVAZVfYabIyPd3VM0xiyYQywWBxLM0nLOU7WJfwiY5CEKuJ1
-         DauxUTPryxoECIAbUFD/Juj8QHb09riZxFF5lYejBwRq8O+Ig9uC60fgLRr62MFxezsA
-         17UQ==
-X-Gm-Message-State: AOAM531g0W3GzmsMPToO1pDlPsxfyfmwZstChpmg756RQSxI8Sr+psT0
-        hiFIl5ZR9my2NMftN3Hzy54=
-X-Google-Smtp-Source: ABdhPJyBN/C7+22VrKk36cqZqE7k05Vv39SYcBEW3Kep/d2b94LJARMfj2XGABlw4ty/tYQXypf6dg==
-X-Received: by 2002:a17:902:ce91:b0:150:3f7:5096 with SMTP id f17-20020a170902ce9100b0015003f75096mr1188262plg.128.1645679134652;
-        Wed, 23 Feb 2022 21:05:34 -0800 (PST)
-Received: from localhost (115-64-212-59.static.tpgi.com.au. [115.64.212.59])
-        by smtp.gmail.com with ESMTPSA id e20-20020a17090ab39400b001bc4f9ad3cbsm4569708pjr.3.2022.02.23.21.05.33
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HN0BoHGE758sI1mR1iM3NuCpHrIXeGyffkxVw26aUA8=;
+        b=h3KGfY9rgo0D/7uxyWt4adwHz7+dzttv/HKY6vWf/o5ctCPu9ZuOJsznBgppYoP5Qr
+         SDaoYab9GAVZlI7TcbBavn4XXyXpU3oIdY2mJQpY626oGsGc7ikamBdRb99kMynF+6nn
+         xEJ4U/vhWp1yquoQ+XH61tkg/KslEkrsz1QA17HnJmXQEmN9qfSItPiuRvp+RLvXY3pv
+         SXAoEMOs8SgJFQh6YiKDedjgMXxnnaLH6MxB2oNWfykTsP2gxiNzvZ7YFTfgGrBBWA+Y
+         qO7eIYDJTCl5uJxOSMcAZM7F2FWAFK7UL757b8WDhaGAwSJnzfqVFpjTR5poQwrlXkj4
+         18sQ==
+X-Gm-Message-State: AOAM532XgK5WSBv7/ozB79cux36S80g1GsuiQmzNBRG6xSDePHDjSid0
+        3zZQApgmET1DLCAlJJChMfkHEhDrEETZiUPke4o=
+X-Google-Smtp-Source: ABdhPJx1Kq5ejfPG66bbXwD3IixMEfNIKC9vz2YsSvcXUxm/QgnPKfjPAMLNFhqzp4cFdS+fVZdrHg==
+X-Received: by 2002:a17:90b:1642:b0:1b9:6b34:b68 with SMTP id il2-20020a17090b164200b001b96b340b68mr12896828pjb.99.1645681997826;
+        Wed, 23 Feb 2022 21:53:17 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c19-20020a17090ab29300b001bc13b4bf91sm4731585pjr.43.2022.02.23.21.53.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Feb 2022 21:05:34 -0800 (PST)
-Date:   Thu, 24 Feb 2022 15:05:28 +1000
-From:   Nicholas Piggin <npiggin@gmail.com>
-Subject: Re: [PATCH 2/3] powerpc: fix build errors
-To:     Anders Roxell <anders.roxell@linaro.org>, mpe@ellerman.id.au
-Cc:     Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-References: <20220223135820.2252470-1-anders.roxell@linaro.org>
-        <20220223135820.2252470-2-anders.roxell@linaro.org>
-        <1645670923.t0z533n7uu.astroid@bobo.none>
-In-Reply-To: <1645670923.t0z533n7uu.astroid@bobo.none>
+        Wed, 23 Feb 2022 21:53:17 -0800 (PST)
+Message-ID: <62171d4d.1c69fb81.d3bd.c6a2@mx.google.com>
+Date:   Wed, 23 Feb 2022 21:53:17 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Message-Id: <1645678884.dsm10mudmp.astroid@bobo.none>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Kernel: v4.19.231-1-g6c9f0f48e748
+Subject: stable-rc/queue/4.19 baseline: 84 runs,
+ 1 regressions (v4.19.231-1-g6c9f0f48e748)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Excerpts from Nicholas Piggin's message of February 24, 2022 12:54 pm:
-> Excerpts from Anders Roxell's message of February 23, 2022 11:58 pm:
->> Building tinyconfig with gcc (Debian 11.2.0-16) and assembler (Debian
->> 2.37.90.20220207) the following build error shows up:
->>=20
->>  {standard input}: Assembler messages:
->>  {standard input}:1190: Error: unrecognized opcode: `stbcix'
->>  {standard input}:1433: Error: unrecognized opcode: `lwzcix'
->>  {standard input}:1453: Error: unrecognized opcode: `stbcix'
->>  {standard input}:1460: Error: unrecognized opcode: `stwcix'
->>  {standard input}:1596: Error: unrecognized opcode: `stbcix'
->>  ...
->>=20
->> Rework to add assembler directives [1] around the instruction. Going
->> through the them one by one shows that the changes should be safe.  Like
->> __get_user_atomic_128_aligned() is only called in p9_hmi_special_emu(),
->> which according to the name is specific to power9.  And __raw_rm_read*()
->> are only called in things that are powernv or book3s_hv specific.
->>=20
->> [1] https://sourceware.org/binutils/docs/as/PowerPC_002dPseudo.html#Powe=
-rPC_002dPseudo
->=20
-> Thanks for doing this. There is a recent patch committed to binutils to w=
-ork
-> around this compiler bug.
->=20
-> https://sourceware.org/git/?p=3Dbinutils-gdb.git;a=3Dcommit;h=3Dcebc89b93=
-28
->=20
-> Not sure on the outlook for GCC fix. Either way unfortunately we have=20
-> toolchains in the wild now that will explode, so we might have to take=20
-> your patches for the time being.
+stable-rc/queue/4.19 baseline: 84 runs, 1 regressions (v4.19.231-1-g6c9f0f4=
+8e748)
 
-Perhaps not... Here's a hack that seems to work around the problem.
+Regressions Summary
+-------------------
 
-The issue of removing -many from the kernel and replacing it with
-appropriate architecture versions is an orthogonal one (that we
-should do). Either way this hack should be able to allow us to do
-that as well, on these problem toolchains.
-
-But for now it just uses -many as the trivial regression fix to get
-back to previous behaviour.
-
-Thanks,
-Nick
-
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
- arch/powerpc/include/asm/asm-compat.h | 28 +++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-diff --git a/arch/powerpc/include/asm/asm-compat.h b/arch/powerpc/include/a=
-sm/asm-compat.h
-index 2b736d9fbb1b..f9ac4a36f026 100644
---- a/arch/powerpc/include/asm/asm-compat.h
-+++ b/arch/powerpc/include/asm/asm-compat.h
-@@ -5,6 +5,34 @@
- #include <asm/types.h>
- #include <asm/ppc-opcode.h>
-=20
-+#ifndef __ASSEMBLY__
-+/*
-+ * gcc 10 started to emit a .machine directive at the beginning of generat=
-ed
-+ * .s files, which overrides assembler -Wa,-m<cpu> options passed down.
-+ * Unclear if this behaviour will be reverted.
-+ *
-+ * gas 2.38 commit b25f942e18d6 made .machine directive more strict, commi=
-t
-+ * cebc89b9328ea weakens it to take into account the gcc directive and all=
-ow
-+ * assembler -m<cpu> options to work.
-+ *
-+ * A combination of both results in an older machine -mcpu=3D code generat=
-ion
-+ * preventing newer mneumonics in inline asm being recognised because it
-+ * overrides our -Wa,-many option from being recognised.
-+ *
-+ * Emitting a .machine any directive by hand allows us to hack our way aro=
-und
-+ * this.
-+ *
-+ * XXX: verify versions and combinations.
-+ */
-+#ifdef CONFIG_CC_IS_GCC
-+#if (GCC_VERSION >=3D 100000)
-+#if (CONFIG_AS_VERSION =3D=3D 23800)
-+asm(".machine any");
-+#endif
-+#endif
-+#endif
-+#endif /* __ASSEMBLY__ */
-+
- #ifdef __powerpc64__
-=20
- /* operations for longs and pointers */
---=20
-2.23.0
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.231-1-g6c9f0f48e748/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.231-1-g6c9f0f48e748
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6c9f0f48e748fc581dae39e3ad45ebe3749870c9 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/6216e221038732d307c6296b
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.231=
+-1-g6c9f0f48e748/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.231=
+-1-g6c9f0f48e748/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220218.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6216e221038732d=
+307c6296e
+        failing since 2 days (last pass: v4.19.230-54-g25a309390ae3, first =
+fail: v4.19.230-58-gbd840138c177)
+        2 lines
+
+    2022-02-24T01:40:35.923521  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, w1_bus_master1/115
+    2022-02-24T01:40:35.932945  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
