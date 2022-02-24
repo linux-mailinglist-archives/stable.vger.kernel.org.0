@@ -2,63 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C46A84C3466
-	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 19:15:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 088034C34A6
+	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 19:24:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231968AbiBXSPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Feb 2022 13:15:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55124 "EHLO
+        id S232746AbiBXSYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Feb 2022 13:24:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231722AbiBXSPK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 13:15:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB283253146;
-        Thu, 24 Feb 2022 10:14:40 -0800 (PST)
+        with ESMTP id S229853AbiBXSY3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 13:24:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FD5225317F;
+        Thu, 24 Feb 2022 10:23:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58C3960C77;
-        Thu, 24 Feb 2022 18:14:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A536EC340E9;
-        Thu, 24 Feb 2022 18:14:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645726479;
-        bh=0tnbQuuR1loseTOVkHNgK1i4o0rJpGHkKLedHU7WA3Y=;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13783B826E6;
+        Thu, 24 Feb 2022 18:23:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43850C340E9;
+        Thu, 24 Feb 2022 18:23:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1645727036;
+        bh=8TGSW6w/JOL2VaPQZ77oAX4jTKb1mTWfqAmxorApL7U=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=O6+zhvkgE5SOGjZqosBUShYmmK30Kv6oXuH+8frrX8X8SvMchdAWwel+ZJEOfQ6lc
-         4m7g+jj+9gYoGKlZXTCNqUPpks/kYKqgaMSVzQLkptK0mxifR8qRFJk5jJNwElBSmS
-         KDUswDo8SYFm+etrVflVgBDCgavsDlBO10GkTkCLVfK1l8zJ6QUhCsQ44oUUDne2Y7
-         s3Mf548/EFjLhJl72LEWzsQx8Y7pdB0/Tq1AzLAIAlGntQZailpzkDPcKvc70Iv3Me
-         QvCJhh3xebooqo+2anPzZfcZFRzYDwZPduXv6jgWqLJJZsEPsRCBlORJWwl6+oaMRo
-         F+I9sZzzF4niw==
-Date:   Thu, 24 Feb 2022 18:14:33 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Cc:     Daniel Baluta <daniel.baluta@nxp.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Keyon Jie <yang.jie@linux.intel.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.com>, stable@vger.kernel.org,
-        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] ASoC: SOF: Intel: Fix NULL ptr dereference when ENOMEM
-Message-ID: <YhfLCWm0Ms3E+j4z@sirena.org.uk>
-References: <20220224145124.15985-1-ammarfaizi2@gnuweeb.org>
- <cfe9e583-e20a-f1d6-2a81-2538ca3ca054@linux.intel.com>
- <Yhe/3rELNfFOdU4L@sirena.org.uk>
- <04e79b9c-ccb1-119a-c2e2-34c8ca336215@linux.intel.com>
- <20220224180850.34592-1-ammarfaizi2@gnuweeb.org>
+        b=MVYBUkrpL6VrhgG6uRO7XyzXpZwPREqZiyTCNCgHB3xw1Ns4VvAu68ctN4i6GlPp4
+         Yh1mQMjYtHLEeU8j3mzhPfG/f9QmoaHmsfM/cC+LuIrH7M5j6wg8r3o5/Ch10cMaxu
+         InKnh5dZFJparcw9g5jSEh6MHO8Nr1T6D83qqZ+o=
+Date:   Thu, 24 Feb 2022 19:23:53 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Felix Becker <linux.felixbecker2@gmx.de>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] USB: serial: simple: add Nokia phone driver
+Message-ID: <YhfNOZnZdRigFAr7@kroah.com>
+References: <20220224133109.10523-1-johan@kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="zl5egPN1PrqPYZ2+"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220224180850.34592-1-ammarfaizi2@gnuweeb.org>
-X-Cookie: I smell a wumpus.
+In-Reply-To: <20220224133109.10523-1-johan@kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -69,40 +51,14 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Feb 24, 2022 at 02:31:09PM +0100, Johan Hovold wrote:
+> Add a new "simple" driver for certain Nokia phones, including Nokia 130
+> (RM-1035) which exposes two serial ports in "charging only" mode.
+> 
+> Reported-by: Felix Becker <linux.felixbecker2@gmx.de>
+> Link: https://lore.kernel.org/r/20220208201506.6c65834d@gmx.de
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Johan Hovold <johan@kernel.org>
 
---zl5egPN1PrqPYZ2+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 25, 2022 at 01:08:50AM +0700, Ammar Faizi wrote:
-
-> The dmesg says:
->=20
->   [ T1387] sof-audio-pci-intel-tgl 0000:00:1f.3: error: memory alloc fail=
-ed: -12
->   [ T1387] BUG: kernel NULL pointer dereference, address: 0000000000000000
->   [ T1387] #PF: supervisor read access in kernel mode
->   [ T1387] #PF: error_code(0x0000) - not-present page
->   [ T1387] PGD 0 P4D 0
->   [ T1387] Oops: 0000 [#1] PREEMPT SMP NOPTI
-
-This is still an enormous and not super useful section of backtrace, at
-a glance the backtrace is longer than the rest of the commit :(
-
---zl5egPN1PrqPYZ2+
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmIXywgACgkQJNaLcl1U
-h9D27QgAg7b99eY8qB9SbE2FGqEhJaR6N+rx0g1pg3KcyvVd85xyV0mqBabwfvvS
-9qNMyjpcHMpMlUWKNPtSAL7PcAmQcM2GJGD8TJRYgM9LcQHwEDcNABIu1nJIa2oD
-zls9hFti82GjNEaZZ5OTWLLfSAUvSCKHWtvtsQSAwAuZszqoYt5fgrKQvQDneWiG
-ybi3FB4/bp4msSyaqvoWtxVEaeiChIAerim9/umCqpP5xgfRbm5hjrVdBoHDVgTl
-ZK5SiLFxNEB3XZK4pqiHXqeHoryeLadPEZdabsdCmSjWLXPYQ08mtcUtctyF7q7d
-fPJlv7rZ+PWPWlibnrkfBRbK0bMDGQ==
-=Q3Zo
------END PGP SIGNATURE-----
-
---zl5egPN1PrqPYZ2+--
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
