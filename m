@@ -2,55 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FCB44C3954
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 00:00:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B74F4C39F4
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 00:56:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235764AbiBXW7a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Feb 2022 17:59:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38558 "EHLO
+        id S233412AbiBXX5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Feb 2022 18:57:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232548AbiBXW72 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 17:59:28 -0500
+        with ESMTP id S235531AbiBXX5L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 18:57:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1821F1795C2;
-        Thu, 24 Feb 2022 14:58:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18C5A260B;
+        Thu, 24 Feb 2022 15:56:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB3EA617FB;
-        Thu, 24 Feb 2022 22:58:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E197C340E9;
-        Thu, 24 Feb 2022 22:58:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 37FC161C5A;
+        Thu, 24 Feb 2022 23:56:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 847F4C340E9;
+        Thu, 24 Feb 2022 23:56:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645743537;
-        bh=gYd1RTI9rJtBrwrtL9+aQ/yOPEmRInBZHf3X2dw7+Sc=;
-        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-        b=DPduJ6jHZFqExPfWuPOkfbvB0jKRRXRsPAkkrdy+OqKcigkwTDhqDWgi48aPs8T8k
-         R1KwnYFHsieJH+Rqu7Ue9jztoJOEalYCOVcWQ9q1c0w0G8gEqcfwY+/7zTNmEkl7h1
-         fl4aGHwgGWHF7TaRMPMzScCq/SEHRNmhv1gZXl5/+mlfCr9Gk9GStz4NCpnpOsMSoI
-         FOowQv6QjfLlUIe2A1WYbBCFdrOXgL8XO0ukkG9xoCEY3YWOBC2IqWGzFO+HlF8835
-         fWGv1lywrgUWZzaf07h3RPsMCHUdQcNQlahogBhk3ODCQoYyW85JgZx0ECZ4ylNNre
-         wyJqGpFdOeqBg==
-From:   Mark Brown <broonie@kernel.org>
-To:     Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Cc:     Keyon Jie <yang.jie@linux.intel.com>, stable@vger.kernel.org,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        alsa-devel@alsa-project.org, Rander Wang <rander.wang@intel.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        sound-open-firmware@alsa-project.org, linux-kernel@vger.kernel.org,
-        Takashi Iwai <tiwai@suse.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Liam Girdwood <lgirdwood@gmail.com>
-In-Reply-To: <20220224185836.44907-1-ammarfaizi2@gnuweeb.org>
-References: <20220224145124.15985-1-ammarfaizi2@gnuweeb.org> <cfe9e583-e20a-f1d6-2a81-2538ca3ca054@linux.intel.com> <Yhe/3rELNfFOdU4L@sirena.org.uk> <04e79b9c-ccb1-119a-c2e2-34c8ca336215@linux.intel.com> <20220224180850.34592-1-ammarfaizi2@gnuweeb.org> <YhfLCWm0Ms3E+j4z@sirena.org.uk> <20220224182818.40301-1-ammarfaizi2@gnuweeb.org> <20220224185836.44907-1-ammarfaizi2@gnuweeb.org>
-Subject: Re: [PATCH v4] ASoC: SOF: Intel: Fix NULL ptr dereference when ENOMEM
-Message-Id: <164574353404.3982297.17368553261476958555.b4-ty@kernel.org>
-Date:   Thu, 24 Feb 2022 22:58:54 +0000
+        s=k20201202; t=1645746996;
+        bh=Ih5JYTd0Da7Xsf2nsb9SNMND0av004oSEgWifyEjasI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=PWh1cYEdCo157rEx2C5QP/ipoMslEVI7A3SLC5i1iaOLTTyxX8zcbnr0+HZxjS1Fu
+         1t9QEK1/3uIShNzfHYSl3jMMBvwbhm0S6cGSYRj/cOCYUt1Ob7FC44AVU9wkBJiXf+
+         ZFFxa1JArf2fOX4GuzDWKmyC95qqj/IKX/Un+hWBNj5HUtjE+rD77jYeLbJwglJQEQ
+         b4bq0Ysr1iKbUNSZ6dkIVxgE9qoAy1n9Tt1rNGJUg3z5gf4kLGqAjqV4o1BLMbfkrz
+         Un+Zi3uVFAXyexv2OYsGCjJ0VBuxrIfbGGpFBj8sAP5ct7H46liywAKXaK5VDdHRiT
+         R/IJfg58ujIbw==
+From:   Jaegeuk Kim <jaegeuk@kernel.org>
+To:     linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Asutosh Das <asutoshd@codeaurora.org>,
+        Avri Altman <avri.altman@wdc.com>,
+        Bean Huo <beanhuo@micron.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Can Guo <cang@codeaurora.org>
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] scsi: ufs: move shutting_down back to ufshcd_shutdown
+Date:   Thu, 24 Feb 2022 15:56:29 -0800
+Message-Id: <20220224235629.3804227-1-jaegeuk@kernel.org>
+X-Mailer: git-send-email 2.35.1.574.g5d30c73bfb-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -62,64 +58,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 25 Feb 2022 01:58:36 +0700, Ammar Faizi wrote:
-> Do not call snd_dma_free_pages() when snd_dma_alloc_pages() returns
-> -ENOMEM because it leads to a NULL pointer dereference bug.
-> 
-> The dmesg says:
-> 
->   [ T1387] sof-audio-pci-intel-tgl 0000:00:1f.3: error: memory alloc failed: -12
->   [ T1387] BUG: kernel NULL pointer dereference, address: 0000000000000000
->   [ T1387] #PF: supervisor read access in kernel mode
->   [ T1387] #PF: error_code(0x0000) - not-present page
->   [ T1387] PGD 0 P4D 0
->   [ T1387] Oops: 0000 [#1] PREEMPT SMP NOPTI
->   [ T1387] CPU: 6 PID: 1387 Comm: alsa-sink-HDA A Tainted: G        W         5.17.0-rc4-superb-owl-00055-g80d47f5de5e3
->   [ T1387] Hardware name: HP HP Laptop 14s-dq2xxx/87FD, BIOS F.15 09/15/2021
->   [ T1387] RIP: 0010:dma_free_noncontiguous+0x37/0x80
->   [ T1387] Code: [... snip ...]
->   [ T1387] RSP: 0000:ffffc90002b87770 EFLAGS: 00010246
->   [ T1387] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
->   [ T1387] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff888101db30d0
->   [ T1387] RBP: 00000000fffffff4 R08: 0000000000000000 R09: 0000000000000000
->   [ T1387] R10: 0000000000000000 R11: ffffc90002b874d0 R12: 0000000000000001
->   [ T1387] R13: 0000000000058000 R14: ffff888105260c68 R15: ffff888105260828
->   [ T1387] FS:  00007f42e2ffd640(0000) GS:ffff888466b80000(0000) knlGS:0000000000000000
->   [ T1387] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->   [ T1387] CR2: 0000000000000000 CR3: 000000014acf0003 CR4: 0000000000770ee0
->   [ T1387] PKRU: 55555554
->   [ T1387] Call Trace:
->   [ T1387]  <TASK>
->   [ T1387]  cl_stream_prepare+0x10a/0x120 [snd_sof_intel_hda_common 146addf995b9279ae7f509621078cccbe4f875e1]
->   [... snip ...]
->   [ T1387]  </TASK>
-> 
-> [...]
+The commit b294ff3e3449 ("scsi: ufs: core: Enable power management for wlun")
+moved hba->shutting_down from ufshcd_shutdown to ufshcd_wl_shutdown, which
+introduced regression as belows.
 
-Applied to
+ufshcd_err_handler started; HBA state eh_non_fatal; powered 1; shutting down 1; saved_err = 4; saved_uic_err = 64; force_reset = 0
+...
+task:init            state:D stack:    0 pid:    1 ppid:     0 flags:0x04000008
+Call trace:
+ __switch_to+0x25c/0x5e0
+ __schedule+0x68c/0xaa8
+ schedule+0x12c/0x24c
+ schedule_timeout+0x98/0x138
+ wait_for_common_io+0x13c/0x30c
+ blk_execute_rq+0xb0/0x10c
+ __scsi_execute+0x100/0x27c
+ ufshcd_set_dev_pwr_mode+0x1c8/0x408
+ __ufshcd_wl_suspend+0x564/0x688
+ ufshcd_wl_shutdown+0xa8/0xc0
+ device_shutdown+0x234/0x578
+ kernel_restart+0x4c/0x140
+ __arm64_sys_reboot+0x3a0/0x414
+ el0_svc_common+0xd0/0x1e4
+ el0_svc+0x28/0x88
+ el0_sync_handler+0x8c/0xf0
+ el0_sync+0x1c0/0x200
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-linus
+The init for reboot was stuck, since ufshcd_err_hanlder was skipped when
+shutting down WLUN. This patch allows to run the error handler and let
+disable it during final ufshcd_shutdown only.
 
-Thanks!
+Cc: stable@vger.kernel.org
+Fixes: b294ff3e3449 ("scsi: ufs: core: Enable power management for wlun")
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+---
+ drivers/scsi/ufs/ufshcd.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-[1/1] ASoC: SOF: Intel: Fix NULL ptr dereference when ENOMEM
-      commit: b7fb0ae09009d076964afe4c1a2bde1ee2bd88a9
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 460d2b440d2e..a37813b474d0 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -9178,10 +9178,6 @@ static void ufshcd_wl_shutdown(struct device *dev)
+ 
+ 	hba = shost_priv(sdev->host);
+ 
+-	down(&hba->host_sem);
+-	hba->shutting_down = true;
+-	up(&hba->host_sem);
+-
+ 	/* Turn on everything while shutting down */
+ 	ufshcd_rpm_get_sync(hba);
+ 	scsi_device_quiesce(sdev);
+@@ -9387,6 +9383,10 @@ EXPORT_SYMBOL(ufshcd_runtime_resume);
+  */
+ int ufshcd_shutdown(struct ufs_hba *hba)
+ {
++	down(&hba->host_sem);
++	hba->shutting_down = true;
++	up(&hba->host_sem);
++
+ 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
+ 		goto out;
+ 
+-- 
+2.35.1.574.g5d30c73bfb-goog
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
