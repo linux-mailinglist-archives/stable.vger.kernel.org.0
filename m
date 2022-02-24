@@ -2,73 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 164624C2E3A
-	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 15:23:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D0064C2EA0
+	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 15:45:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233603AbiBXOXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Feb 2022 09:23:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38076 "EHLO
+        id S235584AbiBXOo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Feb 2022 09:44:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230136AbiBXOXT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 09:23:19 -0500
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EBE010075C;
-        Thu, 24 Feb 2022 06:22:45 -0800 (PST)
-Received: by mail-ej1-x631.google.com with SMTP id qx21so4634149ejb.13;
-        Thu, 24 Feb 2022 06:22:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=zYTHUsVVhBwj0g4Gze0zy2RUZ5LyrxDkA+fp8E1dT/8=;
-        b=bUSWfnuHV6MsxDaAFBe/JODFU0yALi+lxDfaUl/fPb5TY2Nnf45hMpyf2aEVrRz6kh
-         8rCFA+jEIeielP42fOHvWQPq2OSgUZWG/SBNXBcgzKAxr5Loh2yVBatjbNGvFP8KRkFR
-         2lIBNm+P8achvv7DW8oxjPteqR1o7x/sxIKKypSF1AgtMxeemjaGQWIsOUSb2M/XnNcV
-         UNC9y4V4dZBF6oCEn0CpSFEHfazHkkHMaBuGNY0WVTdkVYuCvQBGwKigu4wUOuugBBZp
-         U+Wc32NEDol3lGb0vh8AT7ijboa+HvlM8/D7mBtBKd4bw05mBD0yuvJf6mXTE51236kF
-         HBYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
-         :subject:content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=zYTHUsVVhBwj0g4Gze0zy2RUZ5LyrxDkA+fp8E1dT/8=;
-        b=NmlYBZN/MZKsFsDTdjNcB6ts/S9E4QfInlHigTwBfvw8hG92lqhgOGlNGXfzThFOQv
-         OcjYnm8+ze2WB3X6klbjbuhJ9HjK+Rrlrda/B9MYhvLx1fzsaCAWgdUAW+y2ZqCZAREl
-         a6EaqJ6Y7VGU389ueP96ZZXKRNNk61WnmWI/Z59LQN2+XUhjuRASOZMxwKaI1UjV72+Q
-         aiyvLi8q5JOT6nXgefRLxty6S/SV7MQ9NT0hMQSdR2lM/TLx0wNzJGM08E00nlQyC99j
-         csKhRDAShFy28OlbS9uVQS5AbX29u9Zk0STFhFsHoKoZsSB8/kGp9nizwsU+mak7Il50
-         nrYA==
-X-Gm-Message-State: AOAM531jnhA7AZN1DSCGyCi6ucTk/u6Ph19ksoWuWv76TpU/ad4NdWXn
-        pODjCdC0PyQBNu8owD9cS4A=
-X-Google-Smtp-Source: ABdhPJzpx4N3xp1lLjkagnxhXCabnGndX91MAsGN9ExhB14AG7jRfTUCqS6EGeMdSNZnv+DNnPGwEA==
-X-Received: by 2002:a17:907:90c7:b0:6d1:c55:86a4 with SMTP id gk7-20020a17090790c700b006d10c5586a4mr2478924ejb.484.1645712564078;
-        Thu, 24 Feb 2022 06:22:44 -0800 (PST)
-Received: from ?IPV6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.googlemail.com with ESMTPSA id r1sm1433162ejh.52.2022.02.24.06.22.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 24 Feb 2022 06:22:43 -0800 (PST)
-Sender: Paolo Bonzini <paolo.bonzini@gmail.com>
-Message-ID: <e459dbcc-3a43-bd20-6f78-1a9d712ae020@redhat.com>
-Date:   Thu, 24 Feb 2022 15:22:41 +0100
+        with ESMTP id S230187AbiBXOo5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 09:44:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22DE117C431;
+        Thu, 24 Feb 2022 06:44:27 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1A9AB82334;
+        Thu, 24 Feb 2022 14:44:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53CA2C340EC;
+        Thu, 24 Feb 2022 14:44:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1645713864;
+        bh=w38XcZW4h/uXQcEPmQ0w+Knq1QM1qKJReRNuugwJW/E=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=dpI2lz8kRA6FpOZ1BXfO0Ar8Bmhu3vIpQwOiZJftAdbjKvobBzzA4XzhdbZrYQ3hw
+         CyvCjSiqiJQdoSLLl/rcs3h6siNoBKiqVnT04GsTGiOLWCyZU6NEhXU1fH470sDVFM
+         uWWbJF7iy5q1IwlAT8mUrKp3uLzOuEDlAPDfKHpgrxWbVxunVrzPrQ03txxD7qSl4n
+         HozsmceHA1gZXdrdHCyUpcQnhlxUEb2rgYITH+Uc+KfauUzp74UQEs3TmHA/o5JFzO
+         U+EjzuWkt9L2w1CWBVF22ynrJG9r1JALA7Wbu5FrMLoQp3sleHLQrMDQ84hVSRX3vf
+         nQuavD4hhfTrw==
+Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
+        id F26D05C00F7; Thu, 24 Feb 2022 06:44:23 -0800 (PST)
+Date:   Thu, 24 Feb 2022 06:44:23 -0800
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Feng Tang <feng.tang@intel.com>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Doug Smythies <dsmythies@telus.net>,
+        "Zhang, Rui" <rui.zhang@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+Subject: Re: CPU excessively long times between frequency scaling driver
+ calls - bisected
+Message-ID: <20220224144423.GV4285@paulmck-ThinkPad-P17-Gen-1>
+Reply-To: paulmck@kernel.org
+References: <e185b89fb97f47758a5e10239fc3eed0@intel.com>
+ <CAAYoRsXbBJtvJzh91nTXATLL1eb2EKbTVb8vEWa3Y6DfCWhZeg@mail.gmail.com>
+ <aaace653f12b79336b6f986ef5c4f9471445372a.camel@linux.intel.com>
+ <20220222073435.GB78951@shbuild999.sh.intel.com>
+ <CAJZ5v0iXQ=qXiZoF_qb1hdBh=yfZ13-of3y3LFu2m6gZh9peTw@mail.gmail.com>
+ <CAAYoRsX-iw+88R9ZizMwJw2qc99XJZ8Fe0M5ETOy4=RUNsxWhQ@mail.gmail.com>
+ <24f7d485dc60ba3ed5938230f477bf22a220d596.camel@linux.intel.com>
+ <20220223004041.GA4548@shbuild999.sh.intel.com>
+ <CAJZ5v0jsy0q3-ZqYvDrswY1F+tJsG6oNjNJPzz9zzkgdnoMwkw@mail.gmail.com>
+ <20220224080830.GD4548@shbuild999.sh.intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH] KVM: x86: nSVM: disallow userspace setting of
- MSR_AMD64_TSC_RATIO to non default value when tsc scaling disabled
-Content-Language: en-US
-To:     Maxim Levitsky <mlevitsk@redhat.com>, kvm@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20220223115649.319134-1-mlevitsk@redhat.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <20220223115649.319134-1-mlevitsk@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220224080830.GD4548@shbuild999.sh.intel.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -76,55 +72,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/23/22 12:56, Maxim Levitsky wrote:
-> If nested tsc scaling is disabled, MSR_AMD64_TSC_RATIO should
-> never have non default value.
+On Thu, Feb 24, 2022 at 04:08:30PM +0800, Feng Tang wrote:
+> On Wed, Feb 23, 2022 at 03:23:20PM +0100, Rafael J. Wysocki wrote:
+> > On Wed, Feb 23, 2022 at 1:40 AM Feng Tang <feng.tang@intel.com> wrote:
+> > >
+> > > On Tue, Feb 22, 2022 at 04:32:29PM -0800, srinivas pandruvada wrote:
+> > > > Hi Doug,
+> > > >
+> > > > On Tue, 2022-02-22 at 16:07 -0800, Doug Smythies wrote:
+> > > > > Hi All,
+> > > > >
+> > > > > I am about 1/2 way through testing Feng's "hacky debug patch",
+> > > > > let me know if I am wasting my time, and I'll abort. So far, it
+> > > > > works fine.
+> > > > This just proves that if you add some callback during long idle,  you
+> > > > will reach a less aggressive p-state. I think you already proved that
+> > > > with your results below showing 1W less average power ("Kernel 5.17-rc3
+> > > > + Feng patch (6 samples at 300 sec per").
+> > > >
+> > > > Rafael replied with one possible option. Alternatively when planing to
+> > > > enter deep idle, set P-state to min with a callback like we do in
+> > > > offline callback.
+> > >
+> > > Yes, if the system is going to idle, it makes sense to goto a lower
+> > > cpufreq first (also what my debug patch will essentially lead to).
+> > >
+> > > Given cprfreq-util's normal running frequency is every 10ms, doing
+> > > this before entering idle is not a big extra burden.
+> > 
+> > But this is not related to idle as such, but to the fact that idle
+> > sometimes stops the scheduler tick which otherwise would run the
+> > cpufreq governor callback on a regular basis.
+> > 
+> > It is stopping the tick that gets us into trouble, so I would avoid
+> > doing it if the current performance state is too aggressive.
 > 
-> Due to way nested tsc scaling support was implmented in qemu,
-> it would set this msr to 0 when nested tsc scaling was disabled.
-> Ignore that value for now, as it causes no harm.
+> I've tried to simulate Doug's environment by using his kconfig, and
+> offline my 36 CPUs Desktop to leave 12 CPUs online, and on it I can
+> still see Local timer interrupts when there is no active load, with
+> the longest interval between 2 timer interrupts is 4 seconds, while
+> idle class's task_tick_idle() will do nothing, and CFS'
+> task_tick_fair() will in turn call cfs_rq_util_change()
+
+Every four seconds?  Could you please post your .config?
+
+							Thanx, Paul
+
+> I searched the cfs/deadline/rt code, these three classes  all have
+> places to call cpufreq_update_util(), either in enqueue/dequeue or
+> changing running bandwidth. So I think entering idle also means the
+> system load is under a big change, and worth calling the cpufreq
+> callback.
 > 
+> > In principle, PM QoS can be used for that from intel_pstate, but there
+> > is a problem with that approach, because it is not obvious what value
+> > to give to it and it is not always guaranteed to work (say when all of
+> > the C-states except for C1 are disabled).
+> > 
+> > So it looks like a new mechanism is needed for that.
 > 
-> Fixes: 5228eb96a487 ("KVM: x86: nSVM: implement nested TSC scaling")
-> Cc: stable@vger.kernel.org
+> If you think idle class is not the right place to solve it, I can
+> also help testing new patches.
 > 
-> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-> ---
->   arch/x86/kvm/svm/svm.c | 19 +++++++++++++++++--
->   1 file changed, 17 insertions(+), 2 deletions(-)
-
-Queued, thanks.
-
-Paolo
-
-> diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-> index 7038c76fa841..b80ad471776f 100644
-> --- a/arch/x86/kvm/svm/svm.c
-> +++ b/arch/x86/kvm/svm/svm.c
-> @@ -2705,8 +2705,23 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
->   	u64 data = msr->data;
->   	switch (ecx) {
->   	case MSR_AMD64_TSC_RATIO:
-> -		if (!msr->host_initiated && !svm->tsc_scaling_enabled)
-> -			return 1;
-> +
-> +		if (!svm->tsc_scaling_enabled) {
-> +
-> +			if (!msr->host_initiated)
-> +				return 1;
-> +			/*
-> +			 * In case TSC scaling is not enabled, always
-> +			 * leave this MSR at the default value.
-> +			 *
-> +			 * Due to bug in qemu 6.2.0, it would try to set
-> +			 * this msr to 0 if tsc scaling is not enabled.
-> +			 * Ignore this value as well.
-> +			 */
-> +			if (data != 0 && data != svm->tsc_ratio_msr)
-> +				return 1;
-> +			break;
-> +		}
->   
->   		if (data & TSC_RATIO_RSVD)
->   			return 1;
-
+> Thanks,
+> Feng
+> 
