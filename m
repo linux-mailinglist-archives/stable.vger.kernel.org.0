@@ -2,139 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 763B14C2088
-	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 01:20:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D8A64C208A
+	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 01:20:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245226AbiBXAU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Feb 2022 19:20:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48040 "EHLO
+        id S245229AbiBXAVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Feb 2022 19:21:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232969AbiBXAU1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 19:20:27 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B08657B3C
-        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 16:19:59 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id cp23-20020a17090afb9700b001bbfe0fbe94so537090pjb.3
-        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 16:19:59 -0800 (PST)
+        with ESMTP id S232969AbiBXAVN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Feb 2022 19:21:13 -0500
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A0EA57B3C
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 16:20:45 -0800 (PST)
+Received: by mail-yb1-xb4a.google.com with SMTP id b64-20020a256743000000b0061e169a5f19so306414ybc.11
+        for <stable@vger.kernel.org>; Wed, 23 Feb 2022 16:20:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=DX2YoqSzRNHXCU9xU15fHBWXCLyFycz5b+F292zGRUU=;
-        b=GHmIyIVhefMmkEtQWwA9djcmXL2WbEE+4+E6NZwBfhVGGZbT1gRlnPiX1TgtZENxNW
-         pTXYhJ3RetcNlqBEcGeTbnMuTBsy4txfdLwgw3tRKAnf5ws5a53u6JYl1TT81+HlR+jg
-         9oMRpByLgao3L/iRvllu03UoOZvo1uUDZ8/m2+bNElScw2xrIdFpRulQ0O0YSLPk187T
-         KT8Mx7sEFzqyTFhriumJ7KfWyOj+czqtNhbb2OrpoWG8C3ngCN5eghZ5Gy7WWfS56Pyf
-         j9en9IjgjoyZWqLnWyylG63kbpZjeNBMUkstMhHOLVceS5NLyO1Sqn/jWfF0AoYUv+0o
-         MDWA==
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=d5dLzGHZ/03S2GwnSJZ7atIUIHBRbtyGlBVTRxvEnP4=;
+        b=PGhrk29E4gaPK0VSM9m4SYYFNB8byuIYTyilg6iL8qEgAy+DUiTuwXd7DwWukyrYDH
+         HODoiwtt41htHibpJCxw2SNj3gA/5wHQTPpT3FY7jUCgzKZFwnrFWiRL9etRFbbYwpfp
+         ZDbOwmboFlG6R+8FIOeJ+SE1/iyRV9rtgNBcHSrJGs6nNbTJUdiNe3po+yiRM7lowpcT
+         h4COXZ3g1PUUgIYa8UfcVw94kUnoARZHjSwXwBsmjFdxYXGPhHIdAPIgF6sIsUycN28Y
+         10boTttMhEfGpNXIS6ZYFYT/yS3orWUjXjSdB4rQGZ32OgUftqMZwsu3cfw6kgEzQSKD
+         G3iA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=DX2YoqSzRNHXCU9xU15fHBWXCLyFycz5b+F292zGRUU=;
-        b=tMSxxWYfajSaLDoFYXQBiPWkZe0WRzOGuUQKpcX2Uh58uwav141kpcuOjz+P2UqsGj
-         0s25AqktSi90tqnFmpl1MiLMm4zQqgwf1+YjuMvOEScI3JlD+nSqFgyMKODN375JBE/b
-         lVCROgTsF8aWbKFloTCz7Dm+C/T7H2SaaL4taLVSIjy1OtnO+pHT9S/BS3e/QgoQPBqv
-         TM0L3QR6md+AWhG6+ANjLs/x3ckgq7JrcOSm5e0SZE7G4mJlOvJR7bu1OSJj+J3dddAy
-         07jzZOd/k9CDwvd3foJeI7nr4MFeV7XYIymLClcYo6GRbV0Qgh5W1T2bZeAG5J0Oemfk
-         Gt1Q==
-X-Gm-Message-State: AOAM532yuazu5LNoDpQa0LgdrqibpXAYUxxjWz3sppcwDtXVKvNSEqR2
-        FDcdJ2Yzj+70C9JA90DsIHq40T/Kuqfou4foEQM=
-X-Google-Smtp-Source: ABdhPJzVPsjmHUcJot62evSNqwhW6YoNuHqYZocOTXJ5m2tlhF5HkCeA2yaowig2NmOWP7aWqubATw==
-X-Received: by 2002:a17:902:744a:b0:14f:a63b:577d with SMTP id e10-20020a170902744a00b0014fa63b577dmr306092plt.86.1645661998496;
-        Wed, 23 Feb 2022 16:19:58 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x26sm184736pfh.54.2022.02.23.16.19.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Feb 2022 16:19:58 -0800 (PST)
-Message-ID: <6216cf2e.1c69fb81.76b06.0be7@mx.google.com>
-Date:   Wed, 23 Feb 2022 16:19:58 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Kernel: v4.19.231
-Subject: stable/linux-4.19.y baseline: 91 runs, 1 regressions (v4.19.231)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=d5dLzGHZ/03S2GwnSJZ7atIUIHBRbtyGlBVTRxvEnP4=;
+        b=xbpAhyny+TSGN6XQS/wBG4NGSjlMG4NOrGv2Hlk72XvMCQdD2OYdm3r4c4M+eVZUxw
+         0tzNC0NPam4DS2idxIRqBlPXO+Ho1NGiJxNedP0eCYKYwO2wa4PmudSwdReOfJ89j48+
+         V5dy7mnFDJ3tD4IcOA69SQyYm1C8mc0h0OQ2qaK0hfpeLoBAsUcBvg8cto9IR8s4rrhb
+         lOIJNN6Z9vEtaxm13HcpM7Yh4PWnndKyWCilmC2SCfutIPsplUTjF+mOQ5V1z8V3Regj
+         uieaktZUU2r6tA7HXi49fA3ypZKgyeOzcZLFdA8JKTeKeWMYAH3kr+it3sNRt9f3A6zN
+         a+RQ==
+X-Gm-Message-State: AOAM532m9Ag9++5F9CVUWMbzpXry4nPctu4nFXZggq+CRazj5rWGijdZ
+        7NDyBf2UrU/WYCHLBLvcHCnClVk=
+X-Google-Smtp-Source: ABdhPJzHJzd8T2fG9kRGkhwLudz98Mmh+GT6Rb7XdX1haa3CGWXiOCcOvzUyS8xw4PF3T70uQA4HBkA=
+X-Received: from pcc-desktop.svl.corp.google.com ([2620:15c:2ce:200:ef38:18a6:8640:7dc1])
+ (user=pcc job=sendgmr) by 2002:a25:7:0:b0:623:abbe:e6e9 with SMTP id
+ 7-20020a250007000000b00623abbee6e9mr200654yba.547.1645662044312; Wed, 23 Feb
+ 2022 16:20:44 -0800 (PST)
+Date:   Wed, 23 Feb 2022 16:20:24 -0800
+Message-Id: <20220224002024.429707-1-pcc@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.35.1.473.g83b2b277ed-goog
+Subject: [PATCH v2] kasan: fix more unit tests with CONFIG_UBSAN_LOCAL_BOUNDS enabled
+From:   Peter Collingbourne <pcc@google.com>
+To:     Andrey Konovalov <andreyknvl@gmail.com>,
+        Marco Elver <elver@google.com>
+Cc:     Peter Collingbourne <pcc@google.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Daniel Micay <danielmicay@gmail.com>,
+        kasan-dev@googlegroups.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y baseline: 91 runs, 1 regressions (v4.19.231)
+This is a followup to commit f649dc0e0d7b ("kasan: fix unit tests
+with CONFIG_UBSAN_LOCAL_BOUNDS enabled") that fixes tests that fail
+as a result of __alloc_size annotations being added to the kernel
+allocator functions.
 
-Regressions Summary
--------------------
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+Link: https://linux-review.googlesource.com/id/I4334cafc5db600fda5cebb851b2ee9fd09fb46cc
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Cc: <stable@vger.kernel.org> # 5.16.x
+Fixes: c37495d6254c ("slab: add __alloc_size attributes for better bounds checking")
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+v2:
+- use OPTIMIZER_HIDE_VAR instead of volatile
 
+ lib/test_kasan.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
-/v4.19.231/plan/baseline/
+diff --git a/lib/test_kasan.c b/lib/test_kasan.c
+index 26a5c9007653..7c3dfb569445 100644
+--- a/lib/test_kasan.c
++++ b/lib/test_kasan.c
+@@ -185,6 +185,7 @@ static void kmalloc_pagealloc_oob_right(struct kunit *test)
+ 	ptr = kmalloc(size, GFP_KERNEL);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 
++	OPTIMIZER_HIDE_VAR(ptr);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ptr[size + OOB_TAG_OFF] = 0);
+ 
+ 	kfree(ptr);
+@@ -295,6 +296,7 @@ static void krealloc_more_oob_helper(struct kunit *test,
+ 		KUNIT_EXPECT_KASAN_FAIL(test, ptr2[size2] = 'x');
+ 
+ 	/* For all modes first aligned offset after size2 must be inaccessible. */
++	OPTIMIZER_HIDE_VAR(ptr2);
+ 	KUNIT_EXPECT_KASAN_FAIL(test,
+ 		ptr2[round_up(size2, KASAN_GRANULE_SIZE)] = 'x');
+ 
+@@ -319,6 +321,8 @@ static void krealloc_less_oob_helper(struct kunit *test,
+ 	/* Must be accessible for all modes. */
+ 	ptr2[size2 - 1] = 'x';
+ 
++	OPTIMIZER_HIDE_VAR(ptr2);
++
+ 	/* Generic mode is precise, so unaligned size2 must be inaccessible. */
+ 	if (IS_ENABLED(CONFIG_KASAN_GENERIC))
+ 		KUNIT_EXPECT_KASAN_FAIL(test, ptr2[size2] = 'x');
+-- 
+2.35.1.473.g83b2b277ed-goog
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.19.y
-  Describe: v4.19.231
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      1763074989b3fdb49c4b6e38ad7d70c69f93076e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/62169339e5737767c1c62992
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.231/=
-arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.231/=
-arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220218.1/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/62169339e573776=
-7c1c62995
-        failing since 43 days (last pass: v4.19.224, first fail: v4.19.225)
-        2 lines
-
-    2022-02-23T20:03:56.446695  <8>[   21.739929] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-02-23T20:03:56.491490  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/103
-    2022-02-23T20:03:56.501110  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2022-02-23T20:03:56.519493  <8>[   21.813201] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
