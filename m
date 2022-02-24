@@ -2,161 +2,266 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 012B94C2BED
-	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 13:41:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD75C4C2C04
+	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 13:46:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234426AbiBXMj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Feb 2022 07:39:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43858 "EHLO
+        id S232686AbiBXMqd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Feb 2022 07:46:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231701AbiBXMjz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 07:39:55 -0500
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE9322804DB;
-        Thu, 24 Feb 2022 04:39:24 -0800 (PST)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4K4CCD07MVz4xdl;
-        Thu, 24 Feb 2022 23:39:19 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1645706360;
-        bh=8EGa3eVWgTEde2gYL1wkBviDfIH/E8ovFgLPoK3d+ZA=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=Z7jT6vn3oi7dj7yRyZFUSJ33xHIOjzEkBxgWvQED7rbUeElVkn5TZSjvGL1xgTjTU
-         03oa7LTrNlJnR5xoPnkT2cPYIWZpWl+0VkAnpTkpKUzASb9zNA+jtrRcjMyLU+9KZh
-         QoeXdMDJ//OWfvhkt8lZwRbVAbA6nh5BeatTk1bKLM1SQdJNQzkH+sgatR9dJx1wOu
-         iwe7fQ9bU3sa9rcDzhO6w27FgQDYgyKwNMg6TEh0pL9qBhm1hNdJ6EEjzpzFBMlosz
-         8ybLHAXvgTLwGIQZ05zC+27evp33N91vl97MnWqYxfKWVV+3agjufpv1hUNGqdNlTL
-         Xx1LzKpeo8xoQ==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Anders Roxell <anders.roxell@linaro.org>
-Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        Anders Roxell <anders.roxell@linaro.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 2/3] powerpc: fix build errors
-In-Reply-To: <20220223135820.2252470-2-anders.roxell@linaro.org>
-References: <20220223135820.2252470-1-anders.roxell@linaro.org>
- <20220223135820.2252470-2-anders.roxell@linaro.org>
-Date:   Thu, 24 Feb 2022 23:39:16 +1100
-Message-ID: <871qzsphfv.fsf@mpe.ellerman.id.au>
+        with ESMTP id S232520AbiBXMqc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 07:46:32 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DD55328F949
+        for <stable@vger.kernel.org>; Thu, 24 Feb 2022 04:46:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1645706762;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RJEDc2Q2XnRo4yiaq/wUfWxJ4pjQE58p0MWyydExWwY=;
+        b=DxlkNiCdYLimqBnAp/ZGEF7IPHn9xZW1bFwknAXYAMw63syYpelmhxlZZMYwuwy4wJJCEs
+        Ieu1UagRCbrrxpGNd9GUnDcBSj1M0XV6irheoMG955GDoCuNXBQDN81riGJifAWaztnNDG
+        GKHvDxlSh52QSgD4qbmJdZkorPsqoBk=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-604-4eEdn1dqM4uEjL41IKih4g-1; Thu, 24 Feb 2022 07:46:01 -0500
+X-MC-Unique: 4eEdn1dqM4uEjL41IKih4g-1
+Received: by mail-ej1-f69.google.com with SMTP id kw5-20020a170907770500b006ba314a753eso1147619ejc.21
+        for <stable@vger.kernel.org>; Thu, 24 Feb 2022 04:46:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=RJEDc2Q2XnRo4yiaq/wUfWxJ4pjQE58p0MWyydExWwY=;
+        b=2Ch+EWnKGZvncRiPcwEmdgH5eBV9nfYSztxHDIqUD9M7Cb8HU75NR45bD0vyFb1G84
+         FetTPWkqe3ePzjHAY+zoAz7CZxGB0YyoZf6N71mGzLg1JiJA4MzGCapwkPgEWbsMHz/y
+         1tOwc45SEAiTIUkyFPM7ByEMdMNDhbgauE01UJjcIPyzN5EVUaA9o5dfJQekKxwQA40a
+         QK1cOjr/CvK1SBoZ7BcUgLGvAaEAblbKAO5pS47bX7Z65vu7c1CuZ3Sh+h+i4LmGWwIU
+         wVaOYXF4NErVNvY3vsJQlP5djyDnOwFCi48eiv4gwbSOZaQ44nqksfdF7yCUpzbFuKqI
+         /JDA==
+X-Gm-Message-State: AOAM533/J7zDOkZIz5krGDjYmkDk1xjHQUJco1fzheBNTYRYMbJ9AzSh
+        O8wPCou2gR/Ehn4/RBqEu6YvwdjL1AxHSeQFndGhFqPKtXnqjKLg39TlR2mmDWEvFvHAXf3vDr2
+        xJE6mgFwk0BaFvUNc
+X-Received: by 2002:a17:906:7751:b0:6ce:e3c:81a6 with SMTP id o17-20020a170906775100b006ce0e3c81a6mr2029243ejn.278.1645706759701;
+        Thu, 24 Feb 2022 04:45:59 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyFBH8hYxDstdVmnmh3/0yF4wTorYC6ZZIPDQ6owILPwc7gw2uwys3+1jy4whh76/bEEGBMfA==
+X-Received: by 2002:a17:906:7751:b0:6ce:e3c:81a6 with SMTP id o17-20020a170906775100b006ce0e3c81a6mr2029228ejn.278.1645706759380;
+        Thu, 24 Feb 2022 04:45:59 -0800 (PST)
+Received: from ?IPV6:2001:1c00:c1e:bf00:1db8:22d3:1bc9:8ca1? (2001-1c00-0c1e-bf00-1db8-22d3-1bc9-8ca1.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1db8:22d3:1bc9:8ca1])
+        by smtp.gmail.com with ESMTPSA id m4sm1313437ejl.45.2022.02.24.04.45.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 24 Feb 2022 04:45:58 -0800 (PST)
+Message-ID: <1ba8e841-c5fb-0665-1d33-a228249bd293@redhat.com>
+Date:   Thu, 24 Feb 2022 13:45:58 +0100
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [PATCH v3] platform/x86: amd-pmc: Set QOS during suspend on CZN
+ w/ timer wakeup
+Content-Language: en-US
+To:     Mario Limonciello <mario.limonciello@amd.com>,
+        Mark Gross <mgross@linux.intel.com>,
+        "open list:X86 PLATFORM DRIVERS" 
+        <platform-driver-x86@vger.kernel.org>
+Cc:     Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Goswami Sanket <Sanket.Goswami@amd.com>,
+        stable@vger.kernel.org,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+References: <20220223175237.6209-1-mario.limonciello@amd.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <20220223175237.6209-1-mario.limonciello@amd.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Anders,
+Hi,
 
-Thanks for these, just a few comments below ...
+On 2/23/22 18:52, Mario Limonciello wrote:
+> commit 59348401ebed ("platform/x86: amd-pmc: Add special handling for
+> timer based S0i3 wakeup") adds support for using another platform timer
+> in lieu of the RTC which doesn't work properly on some systems. This path
+> was validated and worked well before submission. During the 5.16-rc1 merge
+> window other patches were merged that caused this to stop working properly.
+> 
+> When this feature was used with 5.16-rc1 or later some OEM laptops with the
+> matching firmware requirements from that commit would shutdown instead of
+> program a timer based wakeup.
+> 
+> This was bisected to commit 8d89835b0467 ("PM: suspend: Do not pause
+> cpuidle in the suspend-to-idle path").  This wasn't supposed to cause any
+> negative impacts and also tested well on both Intel and ARM platforms.
+> However this changed the semantics of when CPUs are allowed to be in the
+> deepest state. For the AMD systems in question it appears this causes a
+> firmware crash for timer based wakeup.
+> 
+> It's hypothesized to be caused by the `amd-pmc` driver sending `OS_HINT`
+> and all the CPUs going into a deep state while the timer is still being
+> programmed. It's likely a firmware bug, but to avoid it don't allow setting
+> CPUs into the deepest state while using CZN timer wakeup path.
+> 
+> If later it's discovered that this also occurs from "regular" suspends
+> without a timer as well or on other silicon, this may be later expanded to
+> run in the suspend path for more scenarios.
+> 
+> Cc: stable@vger.kernel.org # 5.16+
+> Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Link: https://lore.kernel.org/linux-acpi/BL1PR12MB51570F5BD05980A0DCA1F3F4E23A9@BL1PR12MB5157.namprd12.prod.outlook.com/T/#mee35f39c41a04b624700ab2621c795367f19c90e
+> Fixes: 8d89835b0467 ("PM: suspend: Do not pause cpuidle in the suspend-to-idle path")
+> Fixes: 23f62d7ab25b ("PM: sleep: Pause cpuidle later and resume it earlier during system transitions")
+> Fixes: 59348401ebed ("platform/x86: amd-pmc: Add special handling for timer based S0i3 wakeup"
+> Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 
-Anders Roxell <anders.roxell@linaro.org> writes:
-> Building tinyconfig with gcc (Debian 11.2.0-16) and assembler (Debian
-> 2.37.90.20220207) the following build error shows up:
->
->  {standard input}: Assembler messages:
->  {standard input}:1190: Error: unrecognized opcode: `stbcix'
->  {standard input}:1433: Error: unrecognized opcode: `lwzcix'
->  {standard input}:1453: Error: unrecognized opcode: `stbcix'
->  {standard input}:1460: Error: unrecognized opcode: `stwcix'
->  {standard input}:1596: Error: unrecognized opcode: `stbcix'
->  ...
->
-> Rework to add assembler directives [1] around the instruction. Going
-> through the them one by one shows that the changes should be safe.  Like
-> __get_user_atomic_128_aligned() is only called in p9_hmi_special_emu(),
-> which according to the name is specific to power9.  And __raw_rm_read*()
-> are only called in things that are powernv or book3s_hv specific.
->
-> [1] https://sourceware.org/binutils/docs/as/PowerPC_002dPseudo.html#PowerPC_002dPseudo
->
-> Cc: <stable@vger.kernel.org>
-> Co-developed-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Thank you for your patch, I've applied this patch to my review-hans 
+branch:
+https://git.kernel.org/pub/scm/linux/kernel/git/pdx86/platform-drivers-x86.git/log/?h=review-hans
+
+I'll also add this to the pdx86/fixes branch and send a
+fixes pull-req to Linus with this included.
+
+Note it will show up in those branches once I've pushed my
+local branch there, which might take a while.
+
+Once I've run some tests on this branch the patches there will be
+added to the platform-drivers-x86/for-next branch and eventually
+will be included in the pdx86 pull-request to Linus for the next
+merge-window.
+
+Regards,
+
+Hans
+
+
 > ---
->  arch/powerpc/include/asm/io.h        | 46 +++++++++++++++++++++++-----
->  arch/powerpc/include/asm/uaccess.h   |  3 ++
->  arch/powerpc/platforms/powernv/rng.c |  6 +++-
->  3 files changed, 46 insertions(+), 9 deletions(-)
->
-> diff --git a/arch/powerpc/include/asm/io.h b/arch/powerpc/include/asm/io.h
-> index beba4979bff9..5ff6dec489f8 100644
-> --- a/arch/powerpc/include/asm/io.h
-> +++ b/arch/powerpc/include/asm/io.h
-> @@ -359,25 +359,37 @@ static inline void __raw_writeq_be(unsigned long v, volatile void __iomem *addr)
->   */
->  static inline void __raw_rm_writeb(u8 val, volatile void __iomem *paddr)
->  {
-> -	__asm__ __volatile__("stbcix %0,0,%1"
-> +	__asm__ __volatile__(".machine \"push\"\n"
-> +			     ".machine \"power6\"\n"
-> +			     "stbcix %0,0,%1\n"
-> +			     ".machine \"pop\"\n"
->  		: : "r" (val), "r" (paddr) : "memory");
-
-As Segher said it'd be cleaner without the embedded quotes.
-
-> @@ -441,7 +465,10 @@ static inline unsigned int name(unsigned int port)	\
->  	unsigned int x;					\
->  	__asm__ __volatile__(				\
->  		"sync\n"				\
-> +		".machine \"push\"\n"			\
-> +		".machine \"power6\"\n"			\
->  		"0:"	op "	%0,0,%1\n"		\
-> +		".machine \"pop\"\n"			\
->  		"1:	twi	0,%0,0\n"		\
->  		"2:	isync\n"			\
->  		"3:	nop\n"				\
-> @@ -465,7 +492,10 @@ static inline void name(unsigned int val, unsigned int port) \
->  {							\
->  	__asm__ __volatile__(				\
->  		"sync\n"				\
-> +		".machine \"push\"\n"			\
-> +		".machine \"power6\"\n"			\
->  		"0:" op " %0,0,%1\n"			\
-> +		".machine \"pop\"\n"			\
->  		"1:	sync\n"				\
->  		"2:\n"					\
->  		EX_TABLE(0b, 2b)			\
-
-It's not visible from the diff, but the above two are __do_in_asm and
-__do_out_asm and are inside an ifdef CONFIG_PPC32.
-
-AFAICS they're only used for:
-
-__do_in_asm(_rec_inb, "lbzx")
-__do_in_asm(_rec_inw, "lhbrx")
-__do_in_asm(_rec_inl, "lwbrx")
-__do_out_asm(_rec_outb, "stbx")
-__do_out_asm(_rec_outw, "sthbrx")
-__do_out_asm(_rec_outl, "stwbrx")
-
-Which are all old instructions, so I don't think we need the machine
-power6 for those two macros?
-
-> diff --git a/arch/powerpc/platforms/powernv/rng.c b/arch/powerpc/platforms/powernv/rng.c
-> index b4386714494a..5bf30ef6d928 100644
-> --- a/arch/powerpc/platforms/powernv/rng.c
-> +++ b/arch/powerpc/platforms/powernv/rng.c
-> @@ -43,7 +43,11 @@ static unsigned long rng_whiten(struct powernv_rng *rng, unsigned long val)
->  	unsigned long parity;
+> changes from v2->v3:
+>  * Create a define for the latency value, and document it
+>  * Minor comment rewording
+>  * Add Rafael's tag
+> 
+>  drivers/platform/x86/amd-pmc.c | 42 ++++++++++++++++++++++++++--------
+>  1 file changed, 33 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/platform/x86/amd-pmc.c b/drivers/platform/x86/amd-pmc.c
+> index 4c72ba68b315..18b0f6ee65ce 100644
+> --- a/drivers/platform/x86/amd-pmc.c
+> +++ b/drivers/platform/x86/amd-pmc.c
+> @@ -21,6 +21,7 @@
+>  #include <linux/module.h>
+>  #include <linux/pci.h>
+>  #include <linux/platform_device.h>
+> +#include <linux/pm_qos.h>
+>  #include <linux/rtc.h>
+>  #include <linux/suspend.h>
+>  #include <linux/seq_file.h>
+> @@ -85,6 +86,9 @@
+>  #define PMC_MSG_DELAY_MIN_US		50
+>  #define RESPONSE_REGISTER_LOOP_MAX	20000
 >  
->  	/* Calculate the parity of the value */
-> -	asm ("popcntd %0,%1" : "=r" (parity) : "r" (val));
-> +	asm (".machine \"push\"\n"
-> +	     ".machine \"power7\"\n"
-> +	     "popcntd %0,%1\n"
-> +	     ".machine \"pop\"\n"
-> +	     : "=r" (parity) : "r" (val));
+> +/* QoS request for letting CPUs in idle states, but not the deepest */
+> +#define AMD_PMC_MAX_IDLE_STATE_LATENCY	3
+> +
+>  #define SOC_SUBSYSTEM_IP_MAX	12
+>  #define DELAY_MIN_US		2000
+>  #define DELAY_MAX_US		3000
+> @@ -131,6 +135,7 @@ struct amd_pmc_dev {
+>  	struct device *dev;
+>  	struct pci_dev *rdev;
+>  	struct mutex lock; /* generic mutex lock */
+> +	struct pm_qos_request amd_pmc_pm_qos_req;
+>  #if IS_ENABLED(CONFIG_DEBUG_FS)
+>  	struct dentry *dbgfs_dir;
+>  #endif /* CONFIG_DEBUG_FS */
+> @@ -521,6 +526,14 @@ static int amd_pmc_verify_czn_rtc(struct amd_pmc_dev *pdev, u32 *arg)
+>  	rc = rtc_alarm_irq_enable(rtc_device, 0);
+>  	dev_dbg(pdev->dev, "wakeup timer programmed for %lld seconds\n", duration);
+>  
+> +	/*
+> +	 * Prevent CPUs from getting into deep idle states while sending OS_HINT
+> +	 * which is otherwise generally safe to send when at least one of the CPUs
+> +	 * is not in deep idle states.
+> +	 */
+> +	cpu_latency_qos_update_request(&pdev->amd_pmc_pm_qos_req, AMD_PMC_MAX_IDLE_STATE_LATENCY);
+> +	wake_up_all_idle_cpus();
+> +
+>  	return rc;
+>  }
+>  
+> @@ -538,24 +551,31 @@ static int __maybe_unused amd_pmc_suspend(struct device *dev)
+>  	/* Activate CZN specific RTC functionality */
+>  	if (pdev->cpu_id == AMD_CPU_ID_CZN) {
+>  		rc = amd_pmc_verify_czn_rtc(pdev, &arg);
+> -		if (rc < 0)
+> -			return rc;
+> +		if (rc)
+> +			goto fail;
+>  	}
+>  
+>  	/* Dump the IdleMask before we send hint to SMU */
+>  	amd_pmc_idlemask_read(pdev, dev, NULL);
+>  	msg = amd_pmc_get_os_hint(pdev);
+>  	rc = amd_pmc_send_cmd(pdev, arg, NULL, msg, 0);
+> -	if (rc)
+> +	if (rc) {
+>  		dev_err(pdev->dev, "suspend failed\n");
+> +		goto fail;
+> +	}
+>  
+>  	if (enable_stb)
+>  		rc = amd_pmc_write_stb(pdev, AMD_PMC_STB_PREDEF);
+> -	if (rc)	{
+> +	if (rc) {
+>  		dev_err(pdev->dev, "error writing to STB\n");
+> -		return rc;
+> +		goto fail;
+>  	}
+>  
+> +	return 0;
+> +fail:
+> +	if (pdev->cpu_id == AMD_CPU_ID_CZN)
+> +		cpu_latency_qos_update_request(&pdev->amd_pmc_pm_qos_req,
+> +						PM_QOS_DEFAULT_VALUE);
+>  	return rc;
+>  }
+>  
+> @@ -579,12 +599,15 @@ static int __maybe_unused amd_pmc_resume(struct device *dev)
+>  	/* Write data incremented by 1 to distinguish in stb_read */
+>  	if (enable_stb)
+>  		rc = amd_pmc_write_stb(pdev, AMD_PMC_STB_PREDEF + 1);
+> -	if (rc)	{
+> +	if (rc)
+>  		dev_err(pdev->dev, "error writing to STB\n");
+> -		return rc;
+> -	}
+>  
+> -	return 0;
+> +	/* Restore the QoS request back to defaults if it was set */
+> +	if (pdev->cpu_id == AMD_CPU_ID_CZN)
+> +		cpu_latency_qos_update_request(&pdev->amd_pmc_pm_qos_req,
+> +						PM_QOS_DEFAULT_VALUE);
+> +
+> +	return rc;
+>  }
+>  
+>  static const struct dev_pm_ops amd_pmc_pm_ops = {
+> @@ -722,6 +745,7 @@ static int amd_pmc_probe(struct platform_device *pdev)
+>  	amd_pmc_get_smu_version(dev);
+>  	platform_set_drvdata(pdev, dev);
+>  	amd_pmc_dbgfs_register(dev);
+> +	cpu_latency_qos_add_request(&dev->amd_pmc_pm_qos_req, PM_QOS_DEFAULT_VALUE);
+>  	return 0;
+>  
+>  err_pci_dev_put:
 
-This was actually present in an older CPU, but it doesn't really matter,
-this is fine.
-
-cheers
