@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21B234C34C6
-	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 19:29:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64FD24C3539
+	for <lists+stable@lfdr.de>; Thu, 24 Feb 2022 19:59:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230415AbiBXS3J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Feb 2022 13:29:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41204 "EHLO
+        id S232344AbiBXS7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Feb 2022 13:59:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230368AbiBXS3J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 13:29:09 -0500
+        with ESMTP id S232292AbiBXS7b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 13:59:31 -0500
 Received: from gnuweeb.org (gnuweeb.org [51.81.211.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0CC512B76F;
-        Thu, 24 Feb 2022 10:28:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0495818E42D;
+        Thu, 24 Feb 2022 10:59:00 -0800 (PST)
 Received: from integral2.. (unknown [36.78.50.60])
-        by gnuweeb.org (Postfix) with ESMTPSA id 014677E2A3;
-        Thu, 24 Feb 2022 18:28:32 +0000 (UTC)
+        by gnuweeb.org (Postfix) with ESMTPSA id 81CFB7E2A3;
+        Thu, 24 Feb 2022 18:58:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnuweeb.org;
-        s=default; t=1645727318;
-        bh=VCLpP+mfC5yC5cMO+0JDeJ/M40lflzsLuNleX1PqHFM=;
+        s=default; t=1645729140;
+        bh=FCgV7HQ6Sz7X4EcW0AHGQFLFZjP2p7gApc5nIKixJdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iizxB05mBRlsWLerBWLOhdxxfjyOmS1tTpb0mgou/nd2+hLHVvlf/LYrPBg6/uKgJ
-         nGHV0ZIEuOidHk8ekAKqgncu9ZAqftWV1RlmPRzD+ki/CazTDCEc+/Pla52/QnZQ5l
-         A0u+Xt6V44lLpXQKEp8akEk6J94FL7lnVXGpoX7XtzJMV8kvd3Z/r7a7gkIsOOWhsD
-         77T5qbUfeEKBwXvykN/5VeGiib/8yCna7iPH9MKU6SxjcPjWzL7rZp2PdOsn0bsglQ
-         i6uishd7V8rb+vbMGxCDMUVEla/kNxo8fmFFLym9ynNP9CLc2uBz1vYIsJunTdmjzn
-         ILoI0f2FhVGww==
+        b=ll07GBV4MJ5dFyQU6rmVP1mJAwWEhaWkrlN618dRWC4jaGKEnpf1i9SlQIDNK1r6q
+         2i2Aap4XKfirQn+9MbzRuYSNvBoAKAzAhif1KYa0J/YVm/c7PcANr2NSnVcqi9Cu+r
+         0DScWrfxF0rDJtS8CzB5oaGYzcgXvswWfyfu8GFnG5pjQpGYcryc1SlB5V+E+uGZLg
+         EeiPBek0alz7Vfkc2KUKxQxMjwraQ0IE1tDI7gFrlmxlRS7bNAlfK50qVmEaYWJ5C/
+         zEAdkGKX9GzYMJCKzBX06u12/ynxwbSP09K0IgWUOZttB/fXK2h9ZCYmZS5ipZ4mXE
+         CfPdfKeyP8h+g==
 From:   Ammar Faizi <ammarfaizi2@gnuweeb.org>
 To:     Mark Brown <broonie@kernel.org>
 Cc:     Ammar Faizi <ammarfaizi2@gnuweeb.org>,
@@ -35,19 +35,19 @@ Cc:     Ammar Faizi <ammarfaizi2@gnuweeb.org>,
         Kai Vehmanen <kai.vehmanen@linux.intel.com>,
         Keyon Jie <yang.jie@linux.intel.com>,
         Liam Girdwood <lgirdwood@gmail.com>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Rander Wang <rander.wang@intel.com>,
         Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.com>, stable@vger.kernel.org,
+        Takashi Iwai <tiwai@suse.com>,
         sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v3] ASoC: SOF: Intel: Fix NULL ptr dereference when ENOMEM
-Date:   Fri, 25 Feb 2022 01:28:18 +0700
-Message-Id: <20220224182818.40301-1-ammarfaizi2@gnuweeb.org>
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Subject: [PATCH v4] ASoC: SOF: Intel: Fix NULL ptr dereference when ENOMEM
+Date:   Fri, 25 Feb 2022 01:58:36 +0700
+Message-Id: <20220224185836.44907-1-ammarfaizi2@gnuweeb.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <YhfLCWm0Ms3E+j4z@sirena.org.uk>
-References: <20220224145124.15985-1-ammarfaizi2@gnuweeb.org> <cfe9e583-e20a-f1d6-2a81-2538ca3ca054@linux.intel.com> <Yhe/3rELNfFOdU4L@sirena.org.uk> <04e79b9c-ccb1-119a-c2e2-34c8ca336215@linux.intel.com> <20220224180850.34592-1-ammarfaizi2@gnuweeb.org> <YhfLCWm0Ms3E+j4z@sirena.org.uk>
+In-Reply-To: <20220224182818.40301-1-ammarfaizi2@gnuweeb.org>
+References: <20220224145124.15985-1-ammarfaizi2@gnuweeb.org> <cfe9e583-e20a-f1d6-2a81-2538ca3ca054@linux.intel.com> <Yhe/3rELNfFOdU4L@sirena.org.uk> <04e79b9c-ccb1-119a-c2e2-34c8ca336215@linux.intel.com> <20220224180850.34592-1-ammarfaizi2@gnuweeb.org> <YhfLCWm0Ms3E+j4z@sirena.org.uk> <20220224182818.40301-1-ammarfaizi2@gnuweeb.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -58,8 +58,6 @@ X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
-
-From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 
 Do not call snd_dma_free_pages() when snd_dma_alloc_pages() returns
 -ENOMEM because it leads to a NULL pointer dereference bug.
@@ -72,7 +70,7 @@ The dmesg says:
   [ T1387] #PF: error_code(0x0000) - not-present page
   [ T1387] PGD 0 P4D 0
   [ T1387] Oops: 0000 [#1] PREEMPT SMP NOPTI
-  [ T1387] CPU: 6 PID: 1387 Comm: alsa-sink-HDA A Tainted: G        W         5.17.0-rc4-superb-owl-00055-g80d47f5de5e3 #3 56590caeed02394520e20ca5a2059907eb2d5079
+  [ T1387] CPU: 6 PID: 1387 Comm: alsa-sink-HDA A Tainted: G        W         5.17.0-rc4-superb-owl-00055-g80d47f5de5e3
   [ T1387] Hardware name: HP HP Laptop 14s-dq2xxx/87FD, BIOS F.15 09/15/2021
   [ T1387] RIP: 0010:dma_free_noncontiguous+0x37/0x80
   [ T1387] Code: [... snip ...]
@@ -89,9 +87,7 @@ The dmesg says:
   [ T1387] Call Trace:
   [ T1387]  <TASK>
   [ T1387]  cl_stream_prepare+0x10a/0x120 [snd_sof_intel_hda_common 146addf995b9279ae7f509621078cccbe4f875e1]
-
   [... snip ...]
-
   [ T1387]  </TASK>
 
 Cc: Daniel Baluta <daniel.baluta@nxp.com>
@@ -100,42 +96,26 @@ Cc: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 Cc: Keyon Jie <yang.jie@linux.intel.com>
 Cc: Liam Girdwood <lgirdwood@gmail.com>
 Cc: Mark Brown <broonie@kernel.org>
-Cc: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Cc: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Cc: Rander Wang <rander.wang@intel.com>
 Cc: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
 Cc: Takashi Iwai <tiwai@suse.com>
-Fixes: d16046ffa6de040bf580a64d5f4d0aa18258a854 ("ASoC: SOF: Intel: Add Intel specific HDA firmware loader")
-Cc: stable@vger.kernel.org # v5.2+
 Cc: sound-open-firmware@alsa-project.org
 Cc: alsa-devel@alsa-project.org
 Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org # v5.2+
+Fixes: d16046ffa6de040bf580a64d5f4d0aa18258a854 ("ASoC: SOF: Intel: Add Intel specific HDA firmware loader")
 Link: https://lore.kernel.org/lkml/20220224145124.15985-1-ammarfaizi2@gnuweeb.org/ # v1
 Link: https://lore.kernel.org/lkml/20220224180850.34592-1-ammarfaizi2@gnuweeb.org/ # v2
+Link: https://lore.kernel.org/lkml/20220224182818.40301-1-ammarfaizi2@gnuweeb.org/ # v3
 Reviewed-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 ---
 
-On 2/25/22 1:14 AM, Mark Brown wrote:
-> On Fri, Feb 25, 2022 at 01:08:50AM +0700, Ammar Faizi wrote:
-> 
->> The dmesg says:
->>
->>    [ T1387] sof-audio-pci-intel-tgl 0000:00:1f.3: error: memory alloc failed: -12
->>    [ T1387] BUG: kernel NULL pointer dereference, address: 0000000000000000
->>    [ T1387] #PF: supervisor read access in kernel mode
->>    [ T1387] #PF: error_code(0x0000) - not-present page
->>    [ T1387] PGD 0 P4D 0
->>    [ T1387] Oops: 0000 [#1] PREEMPT SMP NOPTI
-> 
-> This is still an enormous and not super useful section of backtrace, at
-> a glance the backtrace is longer than the rest of the commit :(
-
-Should be okay now...
-
-"cl_stream_prepare()" and "RIP: 0010:dma_free_noncontiguous+0x37/0x80"
-should be the important parts to find this bug.
+ v4:
+   - Remove 2 `Cc` tags after got the Reviewed-by tag from the CC'ed people
+     as they will be CC'ed anyway.
+   - Extra commit message cleanup.
 
  v3:
    - Address comment from Mark Brown (strip not useful kernel log
