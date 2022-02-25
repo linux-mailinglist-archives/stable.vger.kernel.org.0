@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76FEF4C48AD
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:23:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 118504C48B1
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:23:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241999AbiBYPXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:23:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38102 "EHLO
+        id S242002AbiBYPXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:23:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242002AbiBYPXb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:23:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C612D1DA030
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:22:58 -0800 (PST)
+        with ESMTP id S242001AbiBYPXg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:23:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27ED11B60A4
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:23:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C09E6176C
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:22:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67C84C340E7;
-        Fri, 25 Feb 2022 15:22:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4EAAB830B8
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:23:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25879C36AE7;
+        Fri, 25 Feb 2022 15:22:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645802577;
-        bh=0hM/tOxwc5Zt/vPipRKO4zeNO30h/Ja9LcmdI4LW3Gg=;
+        s=korg; t=1645802580;
+        bh=p/qAOTYlBtxz6wWJ4UiOSOfltf+NXW2D7Ofemx2mTWE=;
         h=Subject:To:Cc:From:Date:From;
-        b=fln/z2GEnQfPkkdoaMgM/FeryHbRWlV7QJDrLF8qWDPlh8QkJ5S18oZpgs+wwKpsU
-         +DGsVPIw1KX4kitF2u0MeLghbDeefarGILhq1He0bj7rQtPn8uc5K7rjfLZSup05iX
-         Uv3jwlfKP+cAGsIH5KJV2pryC2NAA0dQ2vZmZ/x4=
-Subject: FAILED: patch "[PATCH] bnxt_en: Fix incorrect multicast rx mask setting when not" failed to apply to 5.10-stable tree
+        b=sqJ0/IJ3m/0lEB+xlJVzQH0BqV/sdc9miFdO+wEt+WhtmzOitBZnyxhhfq3Nn1UFp
+         ifmgEgwvyZzZp/BzSURKi1Z2PT+DEgA3Bsy/EpzzwHQODUseuGGk0cQNUUXwjXkNxk
+         q5BUuLd3+s/pUJojfPRDDiBubTvx2hNnsgP5PcvU=
+Subject: FAILED: patch "[PATCH] bnxt_en: Fix incorrect multicast rx mask setting when not" failed to apply to 5.4-stable tree
 To:     pavan.chebbi@broadcom.com, davem@davemloft.net,
         michael.chan@broadcom.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 25 Feb 2022 16:22:40 +0100
-Message-ID: <164580256011570@kroah.com>
+Message-ID: <164580256018126@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
