@@ -2,145 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A6B14C43EF
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 12:51:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A55044C4427
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 13:02:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238857AbiBYLvV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 06:51:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37110 "EHLO
+        id S235001AbiBYMCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 07:02:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240279AbiBYLvU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 06:51:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31444225034
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 03:50:46 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C22D3619F1
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 11:50:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFE3AC340E7;
-        Fri, 25 Feb 2022 11:50:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645789845;
-        bh=6QaLbdcJliTq5/fgDOxl2Chzvy5aL8kTTwl1A3izw4s=;
-        h=Subject:To:Cc:From:Date:From;
-        b=aV/zvTAiQl8Q6Irw0TXG1lUh0n6ODBWDeL2C/1ybOVYoQVEccMGx1oipLhgSJXkGY
-         HYNuhNhuGu/8KRYtw5q/2Msp0Sz5WxDf6DLQS6skRS7dOznNj3aQViFlZaLFj6JM25
-         PQFNlxIvT76zEVijOcmLJ6KE/vgOGj25kf1S41UY=
-Subject: FAILED: patch "[PATCH] drm/i915: Fix bw atomic check when switching between SAGV vs." failed to apply to 5.10-stable tree
-To:     ville.syrjala@linux.intel.com, stanislav.lisovskiy@intel.com,
-        tvrtko.ursulin@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 12:50:42 +0100
-Message-ID: <1645789842242144@kroah.com>
+        with ESMTP id S240420AbiBYMCX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 07:02:23 -0500
+Received: from new1-smtp.messagingengine.com (new1-smtp.messagingengine.com [66.111.4.221])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D70EF3700F;
+        Fri, 25 Feb 2022 04:01:48 -0800 (PST)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailnew.nyi.internal (Postfix) with ESMTP id A104D58020B;
+        Fri, 25 Feb 2022 07:01:46 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Fri, 25 Feb 2022 07:01:46 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm3; bh=lpk6Zx5vLH3g9YKAgyZ0UlC2jGDF3JNRknjCX1
+        k4WEM=; b=Ra85Lyrj7DE+Z6BJpWwApGJO/IWX+xfyjyySBy60QGUazgcCk1PpMN
+        sWkr+3Xa8AGMjioiyt4N4fDFvRNP0dEU+XExVYfIkjed76krycxgNx4ZkVDmoKeN
+        4xAxmQktAFnxbGQU9WwO04kGNUh6bnbs+LJlYESauGSHGK28j8QfTooGkbZnJYjh
+        nchggdgxm+DKs4OyEZa1t25/15zE9GsCV/J++IHGYflfQhzlPEMaOi3ACHQjfe9c
+        Yi9aVboSiu6tDsjaxt10IpTfp2Qt5SXrvcSOP3ajhiaJmPtG9nCbGJEJjZ/x2p2y
+        tyBLV2Y3s6rAtdwYhKm6f9H+2LBsTqPw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=lpk6Zx5vLH3g9YKAg
+        yZ0UlC2jGDF3JNRknjCX1k4WEM=; b=WAnr+3RwsYLSCEC9UhhdxxgWEdIrBKyZo
+        4OM6RAH4325BbXTKucDgEpM7FdFwf0I6sXWble0jxwGdGFb+701xTfFut3tCszNH
+        dwQw/dljKv7Ub/UQrZVvuQiTuiI/SOCsingGBhwEOGIoSSTbyArw4OoNfCZiANUO
+        tv3soaaAFjqhP8L4d/TWURRjLfj6LKcRobAoXhEyn6qXPmD2jvgCgD7DQEsZnJUo
+        kFdW4kuHjP3ECN2UtpcaHKv/w6Rkpu6wrK2xyPexT/OMDkGQOhPL1mHew75dFzoj
+        RsZTHIASvhjvOmGn/E6uCJZW63xhFrS16IUZVGANmt86CKZRj7gVQ==
+X-ME-Sender: <xms:J8UYYlFhAVAkXdSz7F7Ge-uN9BMOjhwhwBao-9ywwPtc-tBymUu7gg>
+    <xme:J8UYYqVRp4rApepZCAuBd7DTGDT-OpKzuDPFbsBeUOeAJRm_lBQtFJbncok6wSwzI
+    gTxfTP5cdmRsg>
+X-ME-Received: <xmr:J8UYYnJZFK5vCjZ3GUeCU87WxISIIpx6vMIPcUGgbbvj46XsXnxDqc_UUIRGbP4zdhaAEd25VZHqRc3_C5CghFBU8ATFqoAX>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrleeggdefiecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:KMUYYrHtAf32ms7u4rAKfZP7IrxWGkSvRnjr6fXHNoSUnsXGaGVegA>
+    <xmx:KMUYYrX-zk6FsDsIcLoby2WmmxhtJv6uGgNzzOXzDThXlsMPbR8vdQ>
+    <xmx:KMUYYmOtu8yaTUcvP0dbGhN2tIqElttzR7mM5TN1_znVwEQPCee4Kg>
+    <xmx:KsUYYiM_wVt7VfJRGHlQ4TaUtLzDSMXbXxKt3PbIblcX61cfV2t-2g>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 25 Feb 2022 07:01:43 -0500 (EST)
+Date:   Fri, 25 Feb 2022 13:01:02 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Dave Hansen <dave.hansen@intel.com>
+Cc:     Brian Geffon <bgeffon@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Willis Kung <williskung@google.com>,
+        Guenter Roeck <groeck@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH stable 5.4,5.10] x86/fpu: Correct pkru/xstate
+ inconsistency
+Message-ID: <YhjE/uAlxfL0/0zL@kroah.com>
+References: <543efc25-9b99-53cd-e305-d8b4d917b64b@intel.com>
+ <20220215192233.8717-1-bgeffon@google.com>
+ <e495d70b-f138-367d-e1d7-67c77149db7a@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e495d70b-f138-367d-e1d7-67c77149db7a@intel.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Feb 24, 2022 at 07:16:17AM -0800, Dave Hansen wrote:
+> On 2/15/22 11:22, Brian Geffon wrote:
+> > When eagerly switching PKRU in switch_fpu_finish() it checks that
+> > current is not a kernel thread as kernel threads will never use PKRU.
+> > It's possible that this_cpu_read_stable() on current_task
+> > (ie. get_current()) is returning an old cached value. To resolve this
+> > reference next_p directly rather than relying on current.
+> > 
+> > As written it's possible when switching from a kernel thread to a
+> > userspace thread to observe a cached PF_KTHREAD flag and never restore
+> > the PKRU. And as a result this issue only occurs when switching
+> > from a kernel thread to a userspace thread, switching from a non kernel
+> > thread works perfectly fine because all that is considered in that
+> > situation are the flags from some other non kernel task and the next fpu
+> > is passed in to switch_fpu_finish().
+> > 
+> > This behavior only exists between 5.2 and 5.13 when it was fixed by a
+> > rewrite decoupling PKRU from xstate, in:
+> >   commit 954436989cc5 ("x86/fpu: Remove PKRU handling from switch_fpu_finish()")
+> > 
+> > Unfortunately backporting the fix from 5.13 is probably not realistic as
+> > it's part of a 60+ patch series which rewrites most of the PKRU handling.
+> > 
+> > Fixes: 0cecca9d03c9 ("x86/fpu: Eager switch PKRU state")
+> > Signed-off-by: Brian Geffon <bgeffon@google.com>
+> > Signed-off-by: Willis Kung <williskung@google.com>
+> > Tested-by: Willis Kung <williskung@google.com>
+> > Cc: <stable@vger.kernel.org> # v5.4.x
+> > Cc: <stable@vger.kernel.org> # v5.10.x
+> 
+> I don't like forking the stable code from mainline.  But I also think
+> that backporting the FPU reworking that changed the PKRU handling is
+> likely to cause more bugs in stable than it fixes.
+> 
+> This fix is at least isolated to the protection keys code.
+> 
+> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+now queued up, thanks.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From ec663bca9128f13eada25cd0446e7fcb5fcdc088 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
-Date: Fri, 18 Feb 2022 08:40:35 +0200
-Subject: [PATCH] drm/i915: Fix bw atomic check when switching between SAGV vs.
- no SAGV
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-If the only thing that is changing is SAGV vs. no SAGV but
-the number of active planes and the total data rates end up
-unchanged we currently bail out of intel_bw_atomic_check()
-early and forget to actually compute the new WGV point
-mask and thus won't actually enable/disable SAGV as requested.
-This ends up poorly if we end up running with SAGV enabled
-when we shouldn't. Usually ends up in underruns.
-
-To fix this let's go through the QGV point mask computation
-if either the data rates/number of planes, or the state
-of SAGV is changing.
-
-v2: Check more carefully if things are changing to avoid
-    the extra calculations/debugs from introducing unwanted
-    overhead
-
-Cc: stable@vger.kernel.org
-Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com> #v1
-Fixes: 20f505f22531 ("drm/i915: Restrict qgv points which don't have enough bandwidth.")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220218064039.12834-3-ville.syrjala@linux.intel.com
-(cherry picked from commit 6b728595ffa51c087343c716bccbfc260f120e72)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/display/intel_bw.c b/drivers/gpu/drm/i915/display/intel_bw.c
-index 2da4aacc956b..8ac196e814d5 100644
---- a/drivers/gpu/drm/i915/display/intel_bw.c
-+++ b/drivers/gpu/drm/i915/display/intel_bw.c
-@@ -825,6 +825,7 @@ int intel_bw_atomic_check(struct intel_atomic_state *state)
- 	unsigned int max_bw_point = 0, max_bw = 0;
- 	unsigned int num_qgv_points = dev_priv->max_bw[0].num_qgv_points;
- 	unsigned int num_psf_gv_points = dev_priv->max_bw[0].num_psf_gv_points;
-+	bool changed = false;
- 	u32 mask = 0;
- 
- 	/* FIXME earlier gens need some checks too */
-@@ -868,6 +869,8 @@ int intel_bw_atomic_check(struct intel_atomic_state *state)
- 		new_bw_state->data_rate[crtc->pipe] = new_data_rate;
- 		new_bw_state->num_active_planes[crtc->pipe] = new_active_planes;
- 
-+		changed = true;
-+
- 		drm_dbg_kms(&dev_priv->drm,
- 			    "pipe %c data rate %u num active planes %u\n",
- 			    pipe_name(crtc->pipe),
-@@ -875,7 +878,19 @@ int intel_bw_atomic_check(struct intel_atomic_state *state)
- 			    new_bw_state->num_active_planes[crtc->pipe]);
- 	}
- 
--	if (!new_bw_state)
-+	old_bw_state = intel_atomic_get_old_bw_state(state);
-+	new_bw_state = intel_atomic_get_new_bw_state(state);
-+
-+	if (new_bw_state &&
-+	    intel_can_enable_sagv(dev_priv, old_bw_state) !=
-+	    intel_can_enable_sagv(dev_priv, new_bw_state))
-+		changed = true;
-+
-+	/*
-+	 * If none of our inputs (data rates, number of active
-+	 * planes, SAGV yes/no) changed then nothing to do here.
-+	 */
-+	if (!changed)
- 		return 0;
- 
- 	ret = intel_atomic_lock_global_state(&new_bw_state->base);
-@@ -961,7 +976,6 @@ int intel_bw_atomic_check(struct intel_atomic_state *state)
- 	 */
- 	new_bw_state->qgv_points_mask = ~allowed_points & mask;
- 
--	old_bw_state = intel_atomic_get_old_bw_state(state);
- 	/*
- 	 * If the actual mask had changed we need to make sure that
- 	 * the commits are serialized(in case this is a nomodeset, nonblocking)
-
