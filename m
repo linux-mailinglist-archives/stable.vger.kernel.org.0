@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A71304C48B4
+	by mail.lfdr.de (Postfix) with ESMTP id F1E944C48B5
 	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:23:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242001AbiBYPXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242003AbiBYPXm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 25 Feb 2022 10:23:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38688 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242004AbiBYPXl (ORCPT
+        with ESMTP id S242005AbiBYPXl (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:23:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C0CF49CA2
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:23:08 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB1D1986C2
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:23:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11135B830B8
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:23:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 626D6C340E7;
-        Fri, 25 Feb 2022 15:23:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38B256176C
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:23:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45932C340E7;
+        Fri, 25 Feb 2022 15:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645802585;
-        bh=BSJDPV4Z1bjZxpa+NOGeoCAqgj/tAJ5tJIkCui4CqUk=;
+        s=korg; t=1645802588;
+        bh=1iKxvFc8H2S6odKLdw3tUuOG8+C0iuIeE/aOMbL4JTs=;
         h=Subject:To:Cc:From:Date:From;
-        b=xZElDl0Ptq9bFBc4Cs8ydPTQohJ4XdKYt90sYqKid3prQIhtsjWLnaufxulKpdiiB
-         TKRLBcAtoZPUIWJBzZ+BUxjWw1JEBn3NAzLMovMVg2UY4K4C8g93OBXjrR63xsCM4b
-         sNxi/9wn8PauoVsgVdpxqCenDoArHthPKsY7ptEc=
-Subject: FAILED: patch "[PATCH] bnxt_en: Increase firmware message response DMA wait time" failed to apply to 5.15-stable tree
+        b=E0Z74iFZptiE1WxHr38lar2w2fTiIAObFFS1SizbAlzEJCyRfU8kaLyuPJYI1hb9j
+         jlyOiAoi8q7Vx7Pv7ueL2EVEWBQ2cKFtZFxVgt4/lGch6uAZAX4/bAKq1o1MoJFBIc
+         cr9Ws6C4+YrTzAQtlJLgrH1Ju9y5OrHHU0zbRN5Y=
+Subject: FAILED: patch "[PATCH] bnxt_en: Increase firmware message response DMA wait time" failed to apply to 5.16-stable tree
 To:     michael.chan@broadcom.com, davem@davemloft.net,
         vladimir.olovyannikov@broadcom.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 16:22:58 +0100
-Message-ID: <164580257814783@kroah.com>
+Date:   Fri, 25 Feb 2022 16:22:59 +0100
+Message-ID: <164580257973241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
