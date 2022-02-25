@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD1654C48C9
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:26:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF8A44C48C6
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:26:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241853AbiBYP01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:26:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50178 "EHLO
+        id S242042AbiBYP00 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:26:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242043AbiBYP01 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:26:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E7781EBAB8
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:25:55 -0800 (PST)
+        with ESMTP id S241853AbiBYP00 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:26:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E0191EA294
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:25:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E9726182F
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:25:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E04C340E7;
-        Fri, 25 Feb 2022 15:25:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0CF4BB830B8
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:25:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FF32C340E7;
+        Fri, 25 Feb 2022 15:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645802754;
-        bh=4j7sWomSUfwTv5aU7PASzR5QCUXKOhfwW5U7YFQ/lKU=;
+        s=korg; t=1645802751;
+        bh=nX65hjWSuRg7PBwWG220HVPMfNcQB0OrC7kM3eUW4Xs=;
         h=Subject:To:Cc:From:Date:From;
-        b=KbQrhI96jjFSOKlcPL7j80k/Geft4W9fyI2ic7suop3bpqNpGRCBfoP6q41a+M7+1
-         ofjpQoBvKk/g3Pu/JMliLf9BsBLY1ZiPEd7dqxmMLW8jY4GZwXJSm5Jx1Q4i0kv9zT
-         ruGsGJD/eE0/yeb/RPwDOrfFP3uqt/uke9YLRIt4=
-Subject: FAILED: patch "[PATCH] net/mlx5: Update the list of the PCI supported devices" failed to apply to 4.19-stable tree
+        b=M62/ZnK1qCib5enW248TxgT/DX5D70W8JsCvOiU0ko3GbAX9SRhyVUKNF02kAl2Lw
+         snO9pVuz3NcB7r8znplS0/gum8p4IsvWCMCRm5aaUkeuIP5Kkl4MpyEFoHf0V9D1QL
+         o4UNe3d6GjnI0ZxzKMQ7lJ3JYjn9VH9uI8zsic9g=
+Subject: FAILED: patch "[PATCH] net/mlx5: Update the list of the PCI supported devices" failed to apply to 5.4-stable tree
 To:     meirl@nvidia.com, gal@nvidia.com, saeedm@nvidia.com,
         tariqt@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 25 Feb 2022 16:25:36 +0100
-Message-ID: <1645802736140188@kroah.com>
+Message-ID: <16458027363315@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
