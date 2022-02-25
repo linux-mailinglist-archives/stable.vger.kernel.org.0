@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 814104C43B4
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 12:35:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 194C64C43B9
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 12:36:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236989AbiBYLfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 06:35:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49496 "EHLO
+        id S239762AbiBYLfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 06:35:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234758AbiBYLfl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 06:35:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3A91E4812
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 03:35:08 -0800 (PST)
+        with ESMTP id S234758AbiBYLft (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 06:35:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CE771E4812
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 03:35:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A8C8B82F01
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 11:35:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA3D8C340E7;
-        Fri, 25 Feb 2022 11:35:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE62161841
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 11:35:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEB7EC340E7;
+        Fri, 25 Feb 2022 11:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645788906;
-        bh=aHiSMIiGYHFeu/4qDGcNzoNvwnQrYJx8euf9Ts2kSo8=;
+        s=korg; t=1645788917;
+        bh=D54aGDwzhIMbNq2gjXO+P2HEQKT7eBWaXC8EbnoIdEY=;
         h=Subject:To:Cc:From:Date:From;
-        b=1p327Yy0pi90CKFwR0M1/k2HfvyZN+x/t+qHgQTKGjF1wJvRsSWlJnKxwe9Q9dyDw
-         P07M8AStqm9VikBrcf2L3UOXabsf0LH5Tzjl6u8F4tmB3z5EYS/+47/TAOx02p7CMQ
-         DLFnCywK4iDtqdcLZI3VLNIVXlGdTw0R9G+E4eTE=
-Subject: FAILED: patch "[PATCH] KVM: x86: Add KVM_CAP_ENABLE_CAP to x86" failed to apply to 4.9-stable tree
+        b=WQ8WYCtjervZYhbgsV2hp7KQSyOleiDjJQwqGLF+xFFT4Q9Z4MWq9lZNt1lIJvz1u
+         YxnttLxlZVfZzTaOgD4cvDDplvcXdYZF1NplHUmIXDSBkaU7z33bizk9afHnXg3A04
+         WZBSg4ISPL0EZzbjJ13bkJktW1rm5TISUGpQrkXk=
+Subject: FAILED: patch "[PATCH] KVM: x86: Add KVM_CAP_ENABLE_CAP to x86" failed to apply to 5.4-stable tree
 To:     aaronlewis@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 12:35:03 +0100
-Message-ID: <1645788903206212@kroah.com>
+Date:   Fri, 25 Feb 2022 12:35:04 +0100
+Message-ID: <1645788904222212@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
