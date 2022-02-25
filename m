@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 821C04C48C8
+	by mail.lfdr.de (Postfix) with ESMTP id CD1654C48C9
 	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:26:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238101AbiBYP0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:26:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49410 "EHLO
+        id S241853AbiBYP01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:26:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242042AbiBYP0P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:26:15 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC9DF1E014D
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:25:41 -0800 (PST)
+        with ESMTP id S242043AbiBYP01 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:26:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E7781EBAB8
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:25:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3B478CE26DC
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:25:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FD77C340E7;
-        Fri, 25 Feb 2022 15:25:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E9726182F
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:25:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E04C340E7;
+        Fri, 25 Feb 2022 15:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645802738;
-        bh=zxZjqvdgf//sDp60FGRhamfKrBAS5YQeZ8759/9yOsk=;
+        s=korg; t=1645802754;
+        bh=4j7sWomSUfwTv5aU7PASzR5QCUXKOhfwW5U7YFQ/lKU=;
         h=Subject:To:Cc:From:Date:From;
-        b=fdF4KzRn3SCfGQ17iMPtcibm6u/t/WBgKYv5HspZJunHGgqvFwZyyxYxXGXwMpk0n
-         eBRlYEg2nmKs/vSP0DF84DscLFMsC89Xt8dGVXgH0mj7/siIX6fAvKD4rhsw0PXzYW
-         abnNiq/MxuUOC/Y5QWRCW4+fCEJmM+04uLPWdMSU=
-Subject: FAILED: patch "[PATCH] net/mlx5: Update the list of the PCI supported devices" failed to apply to 4.14-stable tree
+        b=KbQrhI96jjFSOKlcPL7j80k/Geft4W9fyI2ic7suop3bpqNpGRCBfoP6q41a+M7+1
+         ofjpQoBvKk/g3Pu/JMliLf9BsBLY1ZiPEd7dqxmMLW8jY4GZwXJSm5Jx1Q4i0kv9zT
+         ruGsGJD/eE0/yeb/RPwDOrfFP3uqt/uke9YLRIt4=
+Subject: FAILED: patch "[PATCH] net/mlx5: Update the list of the PCI supported devices" failed to apply to 4.19-stable tree
 To:     meirl@nvidia.com, gal@nvidia.com, saeedm@nvidia.com,
         tariqt@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 16:25:35 +0100
-Message-ID: <164580273584251@kroah.com>
+Date:   Fri, 25 Feb 2022 16:25:36 +0100
+Message-ID: <1645802736140188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
