@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA88D4C48F3
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:30:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 746854C48FF
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:32:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232367AbiBYPbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:31:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36656 "EHLO
+        id S235017AbiBYPcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:32:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238908AbiBYPa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:30:59 -0500
+        with ESMTP id S233758AbiBYPcL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:32:11 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9173C218CCB
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:30:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7060A218CD9
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:31:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37FD3B8324A
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:30:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7564BC340F1;
-        Fri, 25 Feb 2022 15:30:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2ABCDB830AA
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:31:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5275CC340E7;
+        Fri, 25 Feb 2022 15:31:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645803023;
-        bh=XXbUQpqf+mmZIRudSgV97zrusJBZz+agpav857meN3c=;
+        s=korg; t=1645803096;
+        bh=3MNzy1ZW1OztaPmjbHLZ5HKkd1bjo7SZ9K6bwnWr8/w=;
         h=Subject:To:Cc:From:Date:From;
-        b=jc0cXTFpJZRrPK1z0IH3gS5HWnUxDR+bCmec6GZKanxAtQyZ0CrMro4PdF/5kGZSV
-         PNtQdugSNI6KQjXB1y8xoXF5kkF/aqSrnL2MGqxY2iqqUBLktL8a9l6vfeMwmNjVFo
-         kf08LfLIT1GUa6NbqkbNmHoH/tgqs/SrVLRbV4Kk=
-Subject: FAILED: patch "[PATCH] tipc: Fix end of loop tests for list_for_each_entry()" failed to apply to 4.14-stable tree
-To:     dan.carpenter@oracle.com, davem@davemloft.net
+        b=v/IK/Kj1JZCo6ea1iMyFX+KVzvbwoWQKLIXj+kFtIRacaz9F0i9rSWGJFvAs5j1m9
+         0H6TH8t72nhoBqkl2LwVyUElKFJEz1OpdU8URv7COAISQrnPtvTTu0isflalHwym+R
+         vGvIOwrhi2cUdQfRj0rc7Iynf20tV2yCqILNsGEQ=
+Subject: FAILED: patch "[PATCH] net: mv643xx_eth: process retval from of_get_mac_address" failed to apply to 5.10-stable tree
+To:     maukka@ext.kapsi.fi, andrew@lunn.ch, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 16:30:13 +0100
-Message-ID: <164580301315413@kroah.com>
+Date:   Fri, 25 Feb 2022 16:31:28 +0100
+Message-ID: <1645803088249159@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,46 +59,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a1f8fec4dac8bc7b172b2bdbd881e015261a6322 Mon Sep 17 00:00:00 2001
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Tue, 22 Feb 2022 16:43:12 +0300
-Subject: [PATCH] tipc: Fix end of loop tests for list_for_each_entry()
+From 42404d8f1c01861b22ccfa1d70f950242720ae57 Mon Sep 17 00:00:00 2001
+From: Mauri Sandberg <maukka@ext.kapsi.fi>
+Date: Wed, 23 Feb 2022 16:23:37 +0200
+Subject: [PATCH] net: mv643xx_eth: process retval from of_get_mac_address
 
-These tests are supposed to check if the loop exited via a break or not.
-However the tests are wrong because if we did not exit via a break then
-"p" is not a valid pointer.  In that case, it's the equivalent of
-"if (*(u32 *)sr == *last_key) {".  That's going to work most of the time,
-but there is a potential for those to be equal.
+Obtaining a MAC address may be deferred in cases when the MAC is stored
+in an NVMEM block, for example, and it may not be ready upon the first
+retrieval attempt and return EPROBE_DEFER.
 
-Fixes: 1593123a6a49 ("tipc: add name table dump to new netlink api")
-Fixes: 1a1a143daf84 ("tipc: add publication dump to new netlink api")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+It is also possible that a port that does not rely on NVMEM has been
+already created when getting the defer request. Thus, also the resources
+allocated previously must be freed when doing a roll-back.
 
-diff --git a/net/tipc/name_table.c b/net/tipc/name_table.c
-index 01396dd1c899..1d8ba233d047 100644
---- a/net/tipc/name_table.c
-+++ b/net/tipc/name_table.c
-@@ -967,7 +967,7 @@ static int __tipc_nl_add_nametable_publ(struct tipc_nl_msg *msg,
- 		list_for_each_entry(p, &sr->all_publ, all_publ)
- 			if (p->key == *last_key)
- 				break;
--		if (p->key != *last_key)
-+		if (list_entry_is_head(p, &sr->all_publ, all_publ))
- 			return -EPIPE;
- 	} else {
- 		p = list_first_entry(&sr->all_publ,
-diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-index 3e63c83e641c..7545321c3440 100644
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -3749,7 +3749,7 @@ static int __tipc_nl_list_sk_publ(struct sk_buff *skb,
- 			if (p->key == *last_publ)
- 				break;
+Fixes: 76723bca2802 ("net: mv643xx_eth: add DT parsing support")
+Signed-off-by: Mauri Sandberg <maukka@ext.kapsi.fi>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220223142337.41757-1-maukka@ext.kapsi.fi
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/drivers/net/ethernet/marvell/mv643xx_eth.c b/drivers/net/ethernet/marvell/mv643xx_eth.c
+index 105247582684..143ca8be5eb5 100644
+--- a/drivers/net/ethernet/marvell/mv643xx_eth.c
++++ b/drivers/net/ethernet/marvell/mv643xx_eth.c
+@@ -2704,6 +2704,16 @@ MODULE_DEVICE_TABLE(of, mv643xx_eth_shared_ids);
+ 
+ static struct platform_device *port_platdev[3];
+ 
++static void mv643xx_eth_shared_of_remove(void)
++{
++	int n;
++
++	for (n = 0; n < 3; n++) {
++		platform_device_del(port_platdev[n]);
++		port_platdev[n] = NULL;
++	}
++}
++
+ static int mv643xx_eth_shared_of_add_port(struct platform_device *pdev,
+ 					  struct device_node *pnp)
+ {
+@@ -2740,7 +2750,9 @@ static int mv643xx_eth_shared_of_add_port(struct platform_device *pdev,
+ 		return -EINVAL;
+ 	}
+ 
+-	of_get_mac_address(pnp, ppd.mac_addr);
++	ret = of_get_mac_address(pnp, ppd.mac_addr);
++	if (ret)
++		return ret;
+ 
+ 	mv643xx_eth_property(pnp, "tx-queue-size", ppd.tx_queue_size);
+ 	mv643xx_eth_property(pnp, "tx-sram-addr", ppd.tx_sram_addr);
+@@ -2804,21 +2816,13 @@ static int mv643xx_eth_shared_of_probe(struct platform_device *pdev)
+ 		ret = mv643xx_eth_shared_of_add_port(pdev, pnp);
+ 		if (ret) {
+ 			of_node_put(pnp);
++			mv643xx_eth_shared_of_remove();
+ 			return ret;
  		}
--		if (p->key != *last_publ) {
-+		if (list_entry_is_head(p, &tsk->publications, binding_sock)) {
- 			/* We never set seq or call nl_dump_check_consistent()
- 			 * this means that setting prev_seq here will cause the
- 			 * consistence check to fail in the netlink callback
+ 	}
+ 	return 0;
+ }
+ 
+-static void mv643xx_eth_shared_of_remove(void)
+-{
+-	int n;
+-
+-	for (n = 0; n < 3; n++) {
+-		platform_device_del(port_platdev[n]);
+-		port_platdev[n] = NULL;
+-	}
+-}
+ #else
+ static inline int mv643xx_eth_shared_of_probe(struct platform_device *pdev)
+ {
 
