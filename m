@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C4E14C48A8
+	by mail.lfdr.de (Postfix) with ESMTP id 2B38C4C48A7
 	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:22:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232171AbiBYPWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:22:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35382 "EHLO
+        id S242076AbiBYPXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:23:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231464AbiBYPWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:22:37 -0500
+        with ESMTP id S231464AbiBYPWs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:22:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E97131DD0DA
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:22:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76BF91DD0E4
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:22:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86E2B611CB
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:22:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AFA2C340E7;
-        Fri, 25 Feb 2022 15:22:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 11A4860C01
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:22:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FAB3C340E7;
+        Fri, 25 Feb 2022 15:22:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645802524;
-        bh=fKghM15w+0ClPIV0urA5Q4XqyG0xM98JsV3c3vMt/tw=;
+        s=korg; t=1645802535;
+        bh=PO8Lc2XkS/1a0pUReAkyfQroQfyG4WluybFPsJpW0iM=;
         h=Subject:To:Cc:From:Date:From;
-        b=QFcsTs2eBmm+yq8PKIgpzGhwnuMxTvW38zfzMMRhrjU1wZrKqtEFxkR4oNmp1N9QK
-         WDotH97peEDKG3JYJQ/q4UIUKpKZTxSwlhUnuESjVri4NkVWombuwlGsChTPbF4t4Y
-         5hpdaCpgnYOt/qE5K/76PrX4BOPnLsy00EUsjdGY=
-Subject: FAILED: patch "[PATCH] bnxt_en: Fix offline ethtool selftest with RDMA enabled" failed to apply to 5.10-stable tree
+        b=NOWknChMb+v7yX1nkVX1ZQ8T7J6p3oFVwmaq8IDTaI0+CvVufjiBopGpV+9S2LEXv
+         K10zYPipRXW/mcjPNSXL7Ge2gTVWF5nyBXLAyBEUKHO2k3f8qFdofWyiLrdE3ld1Zb
+         x6G85t3N/4Po3vbR9odcoXSQUgm4nLZXbAMrnNOM=
+Subject: FAILED: patch "[PATCH] bnxt_en: Fix offline ethtool selftest with RDMA enabled" failed to apply to 5.4-stable tree
 To:     michael.chan@broadcom.com, ben.li@broadcom.com,
         davem@davemloft.net, edwin.peer@broadcom.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 16:22:01 +0100
-Message-ID: <16458025211926@kroah.com>
+Date:   Fri, 25 Feb 2022 16:22:02 +0100
+Message-ID: <164580252222052@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
