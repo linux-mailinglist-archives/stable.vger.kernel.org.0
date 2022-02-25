@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 037294C490A
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:33:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A7DA4C4910
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:33:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242049AbiBYPdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:33:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41878 "EHLO
+        id S242130AbiBYPdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:33:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242132AbiBYPdr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:33:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4D9763E6
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:33:14 -0800 (PST)
+        with ESMTP id S242140AbiBYPdw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:33:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28411181E73
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:33:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4152C61889
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:33:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F106C340F0;
-        Fri, 25 Feb 2022 15:33:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BDDCAB830AA
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:33:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12ECFC340E7;
+        Fri, 25 Feb 2022 15:33:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645803193;
-        bh=Kqm1fFiVmlAgyyGC7IYWPlTCr6tF7GCH8DIP18AKzxk=;
+        s=korg; t=1645803196;
+        bh=h6HR1NhnSM7GUHdaySSI2E0QrzoKuiFE2Ozv8W7wOIo=;
         h=Subject:To:Cc:From:Date:From;
-        b=tRyeGlEs5gq1IjoGeT+AJHhJLDsgcHUE+CzAPDbI6JmEyu9OLLQA+rVEo9jkmOrg0
-         DZudMgOWq025T9+VaV6eRWNtNZpy7aZK4fDxVt/vk89un2xPzrYg5KMDK/QBZ+tXsy
-         OX5fzgA1UCMJRXywO6JnFjMmNgsoZiTnrlDIvE3c=
-Subject: FAILED: patch "[PATCH] net/mlx5e: TC, Reject rules with forward and drop actions" failed to apply to 5.15-stable tree
+        b=XA6k11tzLdxn+CMn61bxTbDrXsn0Vj/3SKrnodkS68evmFA2+P4/8gwAfpKYk16VQ
+         9lnUVBNbN7Oy/dXy5qh4sfNeJVjuGsETfbqyMiNpiTX+4zcW5h0AX8dJJlBpNoUfV0
+         0t1il8JyyHvjW4+zRZqPF6m4IWk435KREBXQoEks=
+Subject: FAILED: patch "[PATCH] net/mlx5e: TC, Reject rules with forward and drop actions" failed to apply to 5.10-stable tree
 To:     roid@nvidia.com, ozsh@nvidia.com, saeedm@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 25 Feb 2022 16:32:56 +0100
-Message-ID: <16458031760176@kroah.com>
+Message-ID: <1645803176250234@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
