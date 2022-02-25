@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 337D24C497B
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:47:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AF6D4C4984
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:48:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242152AbiBYPrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:47:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47226 "EHLO
+        id S237586AbiBYPsv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:48:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242178AbiBYPrQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:47:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 539EC1FCD8
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:46:44 -0800 (PST)
+        with ESMTP id S242324AbiBYPsu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:48:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A75C15169C
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:48:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D22946192C
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:46:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD72FC340E7;
-        Fri, 25 Feb 2022 15:46:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 939A761973
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:48:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99E5FC340E7;
+        Fri, 25 Feb 2022 15:48:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645804003;
-        bh=fs802bqjPDA0FQacyUaOPZqyW4ArTa5dOM/kFHPFD8A=;
+        s=korg; t=1645804095;
+        bh=gt6cbvUQSdoGbydZDkvtuC8wyBYSXbBfRP1Lr+CGyBM=;
         h=Subject:To:Cc:From:Date:From;
-        b=xiNU9ZHvqeouFDHMFUYXavCMAORN9mXvDkPxvWlT7oIvsd+Rl/L0Q4j/oyb89eFkv
-         Z0sNN8jYf2IlOWgggsoadI6RKfihnxkBAD5EogyZIbrYqVyUFa1Q3amlIgbq1A2hYW
-         JolQn/yCAU7I+90Eo+ksxP+As+qtCKfL+iNqYCm4=
-Subject: FAILED: patch "[PATCH] net/smc: Use a mutex for locking "struct smc_pnettable"" failed to apply to 5.4-stable tree
-To:     fmdefrancesco@gmail.com, kgraul@linux.ibm.com, kuba@kernel.org,
-        tonylu@linux.alibaba.com
+        b=Xq17RL4pm/0SQx/vZ/ETsiQn+XydRxQOQOWgq0/L//pdg084mLU8XxqwtiyYNDUng
+         nmXOGqrKhs2+wCwjDNyw6WroUAg81mmHenbL55VyBBhETMK7QjUA/uf3/GE6TNS/1a
+         DLra2eCynoBvEPSIZ4WtF0r74ABLqbrFzKq6qVzQ=
+Subject: FAILED: patch "[PATCH] net/mlx5: DR, Cache STE shadow memory" failed to apply to 5.4-stable tree
+To:     kliteyn@nvidia.com, saeedm@nvidia.com, valex@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 16:46:40 +0100
-Message-ID: <164580400025315@kroah.com>
+Date:   Fri, 25 Feb 2022 16:48:12 +0100
+Message-ID: <164580409236231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,219 +59,213 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7ff57e98fb78ad94edafbdc7435f2d745e9e6bb5 Mon Sep 17 00:00:00 2001
-From: "Fabio M. De Francesco" <fmdefrancesco@gmail.com>
-Date: Wed, 23 Feb 2022 11:02:52 +0100
-Subject: [PATCH] net/smc: Use a mutex for locking "struct smc_pnettable"
+From e5b2bc30c21139ae10f0e56989389d0bc7b7b1d6 Mon Sep 17 00:00:00 2001
+From: Yevgeny Kliteynik <kliteyn@nvidia.com>
+Date: Fri, 24 Dec 2021 01:07:30 +0200
+Subject: [PATCH] net/mlx5: DR, Cache STE shadow memory
 
-smc_pnetid_by_table_ib() uses read_lock() and then it calls smc_pnet_apply_ib()
-which, in turn, calls mutex_lock(&smc_ib_devices.mutex).
+During rule insertion on each ICM memory chunk we also allocate shadow memory
+used for management. This includes the hw_ste, dr_ste and miss list per entry.
+Since the scale of these allocations is large we noticed a performance hiccup
+that happens once malloc and free are stressed.
+In extreme usecases when ~1M chunks are freed at once, it might take up to 40
+seconds to complete this, up to the point the kernel sees this as self-detected
+stall on CPU:
 
-read_lock() disables preemption. Therefore, the code acquires a mutex while in
-atomic context and it leads to a SAC bug.
+ rcu: INFO: rcu_sched self-detected stall on CPU
 
-Fix this bug by replacing the rwlock with a mutex.
+To resolve this we will increase the reuse of shadow memory.
+Doing this we see that a time in the aforementioned usecase dropped from ~40
+seconds to ~8-10 seconds.
 
-Reported-and-tested-by: syzbot+4f322a6d84e991c38775@syzkaller.appspotmail.com
-Fixes: 64e28b52c7a6 ("net/smc: add pnet table namespace support")
-Confirmed-by: Tony Lu <tonylu@linux.alibaba.com>
-Signed-off-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220223100252.22562-1-fmdefrancesco@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 29cf8febd185 ("net/mlx5: DR, ICM pool memory allocator")
+Signed-off-by: Alex Vesker <valex@nvidia.com>
+Signed-off-by: Yevgeny Kliteynik <kliteyn@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index 0599246c0376..29f0a559d884 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -113,7 +113,7 @@ static int smc_pnet_remove_by_pnetid(struct net *net, char *pnet_name)
- 	pnettable = &sn->pnettable;
- 
- 	/* remove table entry */
--	write_lock(&pnettable->lock);
-+	mutex_lock(&pnettable->lock);
- 	list_for_each_entry_safe(pnetelem, tmp_pe, &pnettable->pnetlist,
- 				 list) {
- 		if (!pnet_name ||
-@@ -131,7 +131,7 @@ static int smc_pnet_remove_by_pnetid(struct net *net, char *pnet_name)
- 			rc = 0;
- 		}
- 	}
--	write_unlock(&pnettable->lock);
-+	mutex_unlock(&pnettable->lock);
- 
- 	/* if this is not the initial namespace, stop here */
- 	if (net != &init_net)
-@@ -192,7 +192,7 @@ static int smc_pnet_add_by_ndev(struct net_device *ndev)
- 	sn = net_generic(net, smc_net_id);
- 	pnettable = &sn->pnettable;
- 
--	write_lock(&pnettable->lock);
-+	mutex_lock(&pnettable->lock);
- 	list_for_each_entry_safe(pnetelem, tmp_pe, &pnettable->pnetlist, list) {
- 		if (pnetelem->type == SMC_PNET_ETH && !pnetelem->ndev &&
- 		    !strncmp(pnetelem->eth_name, ndev->name, IFNAMSIZ)) {
-@@ -206,7 +206,7 @@ static int smc_pnet_add_by_ndev(struct net_device *ndev)
- 			break;
- 		}
- 	}
--	write_unlock(&pnettable->lock);
-+	mutex_unlock(&pnettable->lock);
- 	return rc;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c
+index 7f6fd9c5e371..f496b7e9401b 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c
+@@ -136,37 +136,35 @@ static void dr_icm_pool_mr_destroy(struct mlx5dr_icm_mr *icm_mr)
+ 	kvfree(icm_mr);
  }
  
-@@ -224,7 +224,7 @@ static int smc_pnet_remove_by_ndev(struct net_device *ndev)
- 	sn = net_generic(net, smc_net_id);
- 	pnettable = &sn->pnettable;
+-static int dr_icm_chunk_ste_init(struct mlx5dr_icm_chunk *chunk)
++static int dr_icm_buddy_get_ste_size(struct mlx5dr_icm_buddy_mem *buddy)
+ {
+-	chunk->ste_arr = kvzalloc(chunk->num_of_entries *
+-				  sizeof(chunk->ste_arr[0]), GFP_KERNEL);
+-	if (!chunk->ste_arr)
+-		return -ENOMEM;
+-
+-	chunk->hw_ste_arr = kvzalloc(chunk->num_of_entries *
+-				     DR_STE_SIZE_REDUCED, GFP_KERNEL);
+-	if (!chunk->hw_ste_arr)
+-		goto out_free_ste_arr;
+-
+-	chunk->miss_list = kvmalloc(chunk->num_of_entries *
+-				    sizeof(chunk->miss_list[0]), GFP_KERNEL);
+-	if (!chunk->miss_list)
+-		goto out_free_hw_ste_arr;
++	/* We support only one type of STE size, both for ConnectX-5 and later
++	 * devices. Once the support for match STE which has a larger tag is
++	 * added (32B instead of 16B), the STE size for devices later than
++	 * ConnectX-5 needs to account for that.
++	 */
++	return DR_STE_SIZE_REDUCED;
++}
  
--	write_lock(&pnettable->lock);
-+	mutex_lock(&pnettable->lock);
- 	list_for_each_entry_safe(pnetelem, tmp_pe, &pnettable->pnetlist, list) {
- 		if (pnetelem->type == SMC_PNET_ETH && pnetelem->ndev == ndev) {
- 			dev_put_track(pnetelem->ndev, &pnetelem->dev_tracker);
-@@ -237,7 +237,7 @@ static int smc_pnet_remove_by_ndev(struct net_device *ndev)
- 			break;
- 		}
- 	}
--	write_unlock(&pnettable->lock);
-+	mutex_unlock(&pnettable->lock);
- 	return rc;
+-	return 0;
++static void dr_icm_chunk_ste_init(struct mlx5dr_icm_chunk *chunk, int offset)
++{
++	struct mlx5dr_icm_buddy_mem *buddy = chunk->buddy_mem;
++	int index = offset / DR_STE_SIZE;
+ 
+-out_free_hw_ste_arr:
+-	kvfree(chunk->hw_ste_arr);
+-out_free_ste_arr:
+-	kvfree(chunk->ste_arr);
+-	return -ENOMEM;
++	chunk->ste_arr = &buddy->ste_arr[index];
++	chunk->miss_list = &buddy->miss_list[index];
++	chunk->hw_ste_arr = buddy->hw_ste_arr +
++			    index * dr_icm_buddy_get_ste_size(buddy);
  }
  
-@@ -370,7 +370,7 @@ static int smc_pnet_add_eth(struct smc_pnettable *pnettable, struct net *net,
- 	strncpy(new_pe->eth_name, eth_name, IFNAMSIZ);
- 	rc = -EEXIST;
- 	new_netdev = true;
--	write_lock(&pnettable->lock);
-+	mutex_lock(&pnettable->lock);
- 	list_for_each_entry(tmp_pe, &pnettable->pnetlist, list) {
- 		if (tmp_pe->type == SMC_PNET_ETH &&
- 		    !strncmp(tmp_pe->eth_name, eth_name, IFNAMSIZ)) {
-@@ -385,9 +385,9 @@ static int smc_pnet_add_eth(struct smc_pnettable *pnettable, struct net *net,
- 					     GFP_ATOMIC);
- 		}
- 		list_add_tail(&new_pe->list, &pnettable->pnetlist);
--		write_unlock(&pnettable->lock);
-+		mutex_unlock(&pnettable->lock);
- 	} else {
--		write_unlock(&pnettable->lock);
-+		mutex_unlock(&pnettable->lock);
- 		kfree(new_pe);
- 		goto out_put;
- 	}
-@@ -448,7 +448,7 @@ static int smc_pnet_add_ib(struct smc_pnettable *pnettable, char *ib_name,
- 	new_pe->ib_port = ib_port;
- 
- 	new_ibdev = true;
--	write_lock(&pnettable->lock);
-+	mutex_lock(&pnettable->lock);
- 	list_for_each_entry(tmp_pe, &pnettable->pnetlist, list) {
- 		if (tmp_pe->type == SMC_PNET_IB &&
- 		    !strncmp(tmp_pe->ib_name, ib_name, IB_DEVICE_NAME_MAX)) {
-@@ -458,9 +458,9 @@ static int smc_pnet_add_ib(struct smc_pnettable *pnettable, char *ib_name,
- 	}
- 	if (new_ibdev) {
- 		list_add_tail(&new_pe->list, &pnettable->pnetlist);
--		write_unlock(&pnettable->lock);
-+		mutex_unlock(&pnettable->lock);
- 	} else {
--		write_unlock(&pnettable->lock);
-+		mutex_unlock(&pnettable->lock);
- 		kfree(new_pe);
- 	}
- 	return (new_ibdev) ? 0 : -EEXIST;
-@@ -605,7 +605,7 @@ static int _smc_pnet_dump(struct net *net, struct sk_buff *skb, u32 portid,
- 	pnettable = &sn->pnettable;
- 
- 	/* dump pnettable entries */
--	read_lock(&pnettable->lock);
-+	mutex_lock(&pnettable->lock);
- 	list_for_each_entry(pnetelem, &pnettable->pnetlist, list) {
- 		if (pnetid && !smc_pnet_match(pnetelem->pnet_name, pnetid))
- 			continue;
-@@ -620,7 +620,7 @@ static int _smc_pnet_dump(struct net *net, struct sk_buff *skb, u32 portid,
- 			break;
- 		}
- 	}
--	read_unlock(&pnettable->lock);
-+	mutex_unlock(&pnettable->lock);
- 	return idx;
+ static void dr_icm_chunk_ste_cleanup(struct mlx5dr_icm_chunk *chunk)
+ {
+-	kvfree(chunk->miss_list);
+-	kvfree(chunk->hw_ste_arr);
+-	kvfree(chunk->ste_arr);
++	struct mlx5dr_icm_buddy_mem *buddy = chunk->buddy_mem;
++
++	memset(chunk->hw_ste_arr, 0,
++	       chunk->num_of_entries * dr_icm_buddy_get_ste_size(buddy));
++	memset(chunk->ste_arr, 0,
++	       chunk->num_of_entries * sizeof(chunk->ste_arr[0]));
  }
  
-@@ -864,7 +864,7 @@ int smc_pnet_net_init(struct net *net)
- 	struct smc_pnetids_ndev *pnetids_ndev = &sn->pnetids_ndev;
- 
- 	INIT_LIST_HEAD(&pnettable->pnetlist);
--	rwlock_init(&pnettable->lock);
-+	mutex_init(&pnettable->lock);
- 	INIT_LIST_HEAD(&pnetids_ndev->list);
- 	rwlock_init(&pnetids_ndev->lock);
- 
-@@ -944,7 +944,7 @@ static int smc_pnet_find_ndev_pnetid_by_table(struct net_device *ndev,
- 	sn = net_generic(net, smc_net_id);
- 	pnettable = &sn->pnettable;
- 
--	read_lock(&pnettable->lock);
-+	mutex_lock(&pnettable->lock);
- 	list_for_each_entry(pnetelem, &pnettable->pnetlist, list) {
- 		if (pnetelem->type == SMC_PNET_ETH && ndev == pnetelem->ndev) {
- 			/* get pnetid of netdev device */
-@@ -953,7 +953,7 @@ static int smc_pnet_find_ndev_pnetid_by_table(struct net_device *ndev,
- 			break;
- 		}
- 	}
--	read_unlock(&pnettable->lock);
-+	mutex_unlock(&pnettable->lock);
- 	return rc;
+ static enum mlx5dr_icm_type
+@@ -189,6 +187,44 @@ static void dr_icm_chunk_destroy(struct mlx5dr_icm_chunk *chunk,
+ 	kvfree(chunk);
  }
  
-@@ -1156,7 +1156,7 @@ int smc_pnetid_by_table_ib(struct smc_ib_device *smcibdev, u8 ib_port)
- 	sn = net_generic(&init_net, smc_net_id);
- 	pnettable = &sn->pnettable;
++static int dr_icm_buddy_init_ste_cache(struct mlx5dr_icm_buddy_mem *buddy)
++{
++	int num_of_entries =
++		mlx5dr_icm_pool_chunk_size_to_entries(buddy->pool->max_log_chunk_sz);
++
++	buddy->ste_arr = kvcalloc(num_of_entries,
++				  sizeof(struct mlx5dr_ste), GFP_KERNEL);
++	if (!buddy->ste_arr)
++		return -ENOMEM;
++
++	/* Preallocate full STE size on non-ConnectX-5 devices since
++	 * we need to support both full and reduced with the same cache.
++	 */
++	buddy->hw_ste_arr = kvcalloc(num_of_entries,
++				     dr_icm_buddy_get_ste_size(buddy), GFP_KERNEL);
++	if (!buddy->hw_ste_arr)
++		goto free_ste_arr;
++
++	buddy->miss_list = kvmalloc(num_of_entries * sizeof(struct list_head), GFP_KERNEL);
++	if (!buddy->miss_list)
++		goto free_hw_ste_arr;
++
++	return 0;
++
++free_hw_ste_arr:
++	kvfree(buddy->hw_ste_arr);
++free_ste_arr:
++	kvfree(buddy->ste_arr);
++	return -ENOMEM;
++}
++
++static void dr_icm_buddy_cleanup_ste_cache(struct mlx5dr_icm_buddy_mem *buddy)
++{
++	kvfree(buddy->ste_arr);
++	kvfree(buddy->hw_ste_arr);
++	kvfree(buddy->miss_list);
++}
++
+ static int dr_icm_buddy_create(struct mlx5dr_icm_pool *pool)
+ {
+ 	struct mlx5dr_icm_buddy_mem *buddy;
+@@ -208,11 +244,19 @@ static int dr_icm_buddy_create(struct mlx5dr_icm_pool *pool)
+ 	buddy->icm_mr = icm_mr;
+ 	buddy->pool = pool;
  
--	read_lock(&pnettable->lock);
-+	mutex_lock(&pnettable->lock);
- 	list_for_each_entry(tmp_pe, &pnettable->pnetlist, list) {
- 		if (tmp_pe->type == SMC_PNET_IB &&
- 		    !strncmp(tmp_pe->ib_name, ib_name, IB_DEVICE_NAME_MAX) &&
-@@ -1166,7 +1166,7 @@ int smc_pnetid_by_table_ib(struct smc_ib_device *smcibdev, u8 ib_port)
- 			break;
- 		}
- 	}
--	read_unlock(&pnettable->lock);
-+	mutex_unlock(&pnettable->lock);
++	if (pool->icm_type == DR_ICM_TYPE_STE) {
++		/* Reduce allocations by preallocating and reusing the STE structures */
++		if (dr_icm_buddy_init_ste_cache(buddy))
++			goto err_cleanup_buddy;
++	}
++
+ 	/* add it to the -start- of the list in order to search in it first */
+ 	list_add(&buddy->list_node, &pool->buddy_mem_list);
  
- 	return rc;
+ 	return 0;
+ 
++err_cleanup_buddy:
++	mlx5dr_buddy_cleanup(buddy);
+ err_free_buddy:
+ 	kvfree(buddy);
+ free_mr:
+@@ -234,6 +278,9 @@ static void dr_icm_buddy_destroy(struct mlx5dr_icm_buddy_mem *buddy)
+ 
+ 	mlx5dr_buddy_cleanup(buddy);
+ 
++	if (buddy->pool->icm_type == DR_ICM_TYPE_STE)
++		dr_icm_buddy_cleanup_ste_cache(buddy);
++
+ 	kvfree(buddy);
  }
-@@ -1185,7 +1185,7 @@ int smc_pnetid_by_table_smcd(struct smcd_dev *smcddev)
- 	sn = net_generic(&init_net, smc_net_id);
- 	pnettable = &sn->pnettable;
  
--	read_lock(&pnettable->lock);
-+	mutex_lock(&pnettable->lock);
- 	list_for_each_entry(tmp_pe, &pnettable->pnetlist, list) {
- 		if (tmp_pe->type == SMC_PNET_IB &&
- 		    !strncmp(tmp_pe->ib_name, ib_name, IB_DEVICE_NAME_MAX)) {
-@@ -1194,7 +1194,7 @@ int smc_pnetid_by_table_smcd(struct smcd_dev *smcddev)
- 			break;
- 		}
- 	}
--	read_unlock(&pnettable->lock);
-+	mutex_unlock(&pnettable->lock);
+@@ -261,26 +308,18 @@ dr_icm_chunk_create(struct mlx5dr_icm_pool *pool,
+ 	chunk->byte_size =
+ 		mlx5dr_icm_pool_chunk_size_to_byte(chunk_size, pool->icm_type);
+ 	chunk->seg = seg;
++	chunk->buddy_mem = buddy_mem_pool;
  
- 	return rc;
+-	if (pool->icm_type == DR_ICM_TYPE_STE && dr_icm_chunk_ste_init(chunk)) {
+-		mlx5dr_err(pool->dmn,
+-			   "Failed to init ste arrays (order: %d)\n",
+-			   chunk_size);
+-		goto out_free_chunk;
+-	}
++	if (pool->icm_type == DR_ICM_TYPE_STE)
++		dr_icm_chunk_ste_init(chunk, offset);
+ 
+ 	buddy_mem_pool->used_memory += chunk->byte_size;
+-	chunk->buddy_mem = buddy_mem_pool;
+ 	INIT_LIST_HEAD(&chunk->chunk_list);
+ 
+ 	/* chunk now is part of the used_list */
+ 	list_add_tail(&chunk->chunk_list, &buddy_mem_pool->used_list);
+ 
+ 	return chunk;
+-
+-out_free_chunk:
+-	kvfree(chunk);
+-	return NULL;
  }
-diff --git a/net/smc/smc_pnet.h b/net/smc/smc_pnet.h
-index 14039272f7e4..80a88eea4949 100644
---- a/net/smc/smc_pnet.h
-+++ b/net/smc/smc_pnet.h
-@@ -29,7 +29,7 @@ struct smc_link_group;
-  * @pnetlist: List of PNETIDs
-  */
- struct smc_pnettable {
--	rwlock_t lock;
-+	struct mutex lock;
- 	struct list_head pnetlist;
+ 
+ static bool dr_icm_pool_is_sync_required(struct mlx5dr_icm_pool *pool)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h b/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h
+index c7c93131b762..dfa223415fe2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h
+@@ -160,6 +160,11 @@ struct mlx5dr_icm_buddy_mem {
+ 	 * sync_ste command sets them free.
+ 	 */
+ 	struct list_head	hot_list;
++
++	/* Memory optimisation */
++	struct mlx5dr_ste	*ste_arr;
++	struct list_head	*miss_list;
++	u8			*hw_ste_arr;
  };
  
+ int mlx5dr_buddy_init(struct mlx5dr_icm_buddy_mem *buddy,
 
