@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60CDF4C48FC
+	by mail.lfdr.de (Postfix) with ESMTP id ACE6D4C48FD
 	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:32:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234886AbiBYPcR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:32:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37238 "EHLO
+        id S238310AbiBYPcS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:32:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233758AbiBYPcR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:32:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 205B0218CEA
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:31:45 -0800 (PST)
+        with ESMTP id S233758AbiBYPcS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:32:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43DA4218CEA
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:31:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C64D4B83252
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:31:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A4ECC340E7;
-        Fri, 25 Feb 2022 15:31:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D40916184D
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:31:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF6F8C340E7;
+        Fri, 25 Feb 2022 15:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645803102;
-        bh=JuSDICo5kqVQh+Uy4cd0iuJiZMee8lZDahtbHENG9yQ=;
+        s=korg; t=1645803105;
+        bh=/0jciD+qwkuMo1SFod9tB2JK1O1od9rna/VirVXlTbU=;
         h=Subject:To:Cc:From:Date:From;
-        b=mpgv8PKpRMpY/R+08YnqnM9+Bshv8OA7lCI4cUzvEG991fHllRzLChQJuYHUHWrF2
-         7MQMyEH/17VTfVc7LT+54WSNxr3PfCzes7XQUufADLPQzMA0JGy0yXRaUfcjoNzfGx
-         HcWKI0son0Dm5UTw+NbVWOE+c/cahHcgoKG1sXQw=
-Subject: FAILED: patch "[PATCH] net: mv643xx_eth: process retval from of_get_mac_address" failed to apply to 4.14-stable tree
+        b=EX9mfRvTgG/c4JprZL1+0zmhkISsaDQzU+aOcbeBu0Ixa0lbhEBzS6YEsnShcHySz
+         hg1P3VsjtSoQDK4aAD62ExkkF4Gy41XVmnulfTl4qSzENv3qtAasZZdvSi0T8vvjXz
+         qiQwU4VSxrBX9yyoBBcxSAXLqSl0faCPeEzRqH8M=
+Subject: FAILED: patch "[PATCH] net: mv643xx_eth: process retval from of_get_mac_address" failed to apply to 4.19-stable tree
 To:     maukka@ext.kapsi.fi, andrew@lunn.ch, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 25 Feb 2022 16:31:30 +0100
-Message-ID: <164580309025231@kroah.com>
+Message-ID: <164580309016241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
