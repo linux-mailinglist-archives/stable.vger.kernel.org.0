@@ -2,164 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D9194C3A46
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 01:24:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FBF54C3A5A
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 01:29:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236016AbiBYAYU convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 24 Feb 2022 19:24:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47140 "EHLO
+        id S229558AbiBYAa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Feb 2022 19:30:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231464AbiBYAYU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 19:24:20 -0500
-Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05B201BBF78;
-        Thu, 24 Feb 2022 16:23:48 -0800 (PST)
-Received: from in01.mta.xmission.com ([166.70.13.51]:39456)
-        by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1nNOOh-001EAc-6r; Thu, 24 Feb 2022 17:23:47 -0700
-Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:56788 helo=email.froward.int.ebiederm.org.xmission.com)
-        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1nNOOe-000We2-VS; Thu, 24 Feb 2022 17:23:46 -0700
-From:   "Eric W. Biederman" <ebiederm@xmission.com>
-To:     "Dr. Thomas Orgis" <thomas.orgis@uni-hamburg.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        Balbir Singh <bsingharora@gmail.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-References: <20220221084915.554151737@linuxfoundation.org>
-        <20220221084916.628257481@linuxfoundation.org>
-        <20220221234610.0d23e2e0@plasteblaster>
-        <87sfsa8nmf.fsf@email.froward.int.ebiederm.org>
-        <20220223234027.30566235@plasteblaster>
-Date:   Thu, 24 Feb 2022 18:23:13 -0600
-In-Reply-To: <20220223234027.30566235@plasteblaster> (Thomas Orgis's message
-        of "Wed, 23 Feb 2022 23:40:27 +0100")
-Message-ID: <87ee3riyku.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S232415AbiBYAa0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Feb 2022 19:30:26 -0500
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4480829F432;
+        Thu, 24 Feb 2022 16:29:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1645748995; x=1677284995;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=qgXy+nZ9k7b2hV1pch5aywhZPG4UbRoN2lelAuEo3Qw=;
+  b=Vw7UMKBQOVYejKilcoMPT3oFIbGN72etkgSchpdUL0yiIku1Jflejucv
+   bVBAfnFEZ0ukF2Ymw4xsveUvNsizzDY0u0dX5Qjqb7RrXNJJeSCF9DgwR
+   T9P1T9OhoDpjqSVwjaCaaOBjACf6jZvnjPzRlKVCjxPpU7ZRCQ1pThkGR
+   Evb9N4I630SXyFjIHcmCISgYZacvywwfBr6VuHygXjJNQW7Ya2SzCiYWQ
+   xK+Ve2bipiigq2naVfirkdi9VgpCIu6DQ6h2Ge+f6tfcaUbkpRKp8Hs2y
+   e5MtHRPkWtzCdk1/h7LVcAOvZocAFsj26fnliGRAiRlgdz481sKDcLSqa
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10268"; a="338820559"
+X-IronPort-AV: E=Sophos;i="5.90,134,1643702400"; 
+   d="scan'208";a="338820559"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Feb 2022 16:29:54 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,134,1643702400"; 
+   d="scan'208";a="574417288"
+Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.189])
+  by orsmga001.jf.intel.com with ESMTP; 24 Feb 2022 16:29:52 -0800
+Date:   Fri, 25 Feb 2022 08:29:51 +0800
+From:   Feng Tang <feng.tang@intel.com>
+To:     "Paul E. McKenney" <paulmck@kernel.org>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Doug Smythies <dsmythies@telus.net>,
+        "Zhang, Rui" <rui.zhang@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
+Subject: Re: CPU excessively long times between frequency scaling driver
+ calls - bisected
+Message-ID: <20220225002951.GE4548@shbuild999.sh.intel.com>
+References: <CAAYoRsXbBJtvJzh91nTXATLL1eb2EKbTVb8vEWa3Y6DfCWhZeg@mail.gmail.com>
+ <aaace653f12b79336b6f986ef5c4f9471445372a.camel@linux.intel.com>
+ <20220222073435.GB78951@shbuild999.sh.intel.com>
+ <CAJZ5v0iXQ=qXiZoF_qb1hdBh=yfZ13-of3y3LFu2m6gZh9peTw@mail.gmail.com>
+ <CAAYoRsX-iw+88R9ZizMwJw2qc99XJZ8Fe0M5ETOy4=RUNsxWhQ@mail.gmail.com>
+ <24f7d485dc60ba3ed5938230f477bf22a220d596.camel@linux.intel.com>
+ <20220223004041.GA4548@shbuild999.sh.intel.com>
+ <CAJZ5v0jsy0q3-ZqYvDrswY1F+tJsG6oNjNJPzz9zzkgdnoMwkw@mail.gmail.com>
+ <20220224080830.GD4548@shbuild999.sh.intel.com>
+ <20220224144423.GV4285@paulmck-ThinkPad-P17-Gen-1>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-XM-SPF: eid=1nNOOe-000We2-VS;;;mid=<87ee3riyku.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX18uCExlTM8TG4mAl1nwHDJABZ9+OTQeHy0=
-X-SA-Exim-Connect-IP: 68.227.174.4
-X-SA-Exim-Mail-From: ebiederm@xmission.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220224144423.GV4285@paulmck-ThinkPad-P17-Gen-1>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
-X-Spam-DCC: XMission; sa06 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: **;"Dr. Thomas Orgis" <thomas.orgis@uni-hamburg.de>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 1493 ms - load_scoreonly_sql: 0.03 (0.0%),
-        signal_user_changed: 11 (0.7%), b_tie_ro: 10 (0.6%), parse: 0.96
-        (0.1%), extract_message_metadata: 16 (1.1%), get_uri_detail_list: 2.5
-        (0.2%), tests_pri_-1000: 19 (1.2%), tests_pri_-950: 1.23 (0.1%),
-        tests_pri_-900: 1.00 (0.1%), tests_pri_-90: 83 (5.6%), check_bayes: 82
-        (5.5%), b_tokenize: 9 (0.6%), b_tok_get_all: 10 (0.7%), b_comp_prob:
-        3.1 (0.2%), b_tok_touch_all: 56 (3.8%), b_finish: 0.83 (0.1%),
-        tests_pri_0: 1123 (75.2%), check_dkim_signature: 0.88 (0.1%),
-        check_dkim_adsp: 3.3 (0.2%), poll_dns_idle: 24 (1.6%), tests_pri_10:
-        2.3 (0.2%), tests_pri_500: 233 (15.6%), rewrite_mail: 0.00 (0.0%)
-Subject: Re: [PATCH 5.4 32/80] taskstats: Cleanup the use of task->exit_code
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-"Dr. Thomas Orgis" <thomas.orgis@uni-hamburg.de> writes:
+Hi Paul,
 
-> Am Tue, 22 Feb 2022 17:53:12 -0600
-> schrieb "Eric W. Biederman" <ebiederm@xmission.com>: 
->
->> How do you figure?
->
-> I admit that I am struggling with understanding where exit codes come
-> from in the non-usual cases. During my taskstats tests, I played with
-> writing a multithreaded application that does call pthread_exit() in
-> the main thread (pid==tgid), for example. I slowly had to learn just
-> how messy this can be …
->
-> Is it clearly defined what the exitcode of a task as part of a process
-> is/should/can mean, as opposed to the process as a whole?
+On Thu, Feb 24, 2022 at 06:44:23AM -0800, Paul E. McKenney wrote:
+[...]
+> > > > > Rafael replied with one possible option. Alternatively when planing to
+> > > > > enter deep idle, set P-state to min with a callback like we do in
+> > > > > offline callback.
+> > > >
+> > > > Yes, if the system is going to idle, it makes sense to goto a lower
+> > > > cpufreq first (also what my debug patch will essentially lead to).
+> > > >
+> > > > Given cprfreq-util's normal running frequency is every 10ms, doing
+> > > > this before entering idle is not a big extra burden.
+> > > 
+> > > But this is not related to idle as such, but to the fact that idle
+> > > sometimes stops the scheduler tick which otherwise would run the
+> > > cpufreq governor callback on a regular basis.
+> > > 
+> > > It is stopping the tick that gets us into trouble, so I would avoid
+> > > doing it if the current performance state is too aggressive.
+> > 
+> > I've tried to simulate Doug's environment by using his kconfig, and
+> > offline my 36 CPUs Desktop to leave 12 CPUs online, and on it I can
+> > still see Local timer interrupts when there is no active load, with
+> > the longest interval between 2 timer interrupts is 4 seconds, while
+> > idle class's task_tick_idle() will do nothing, and CFS'
+> > task_tick_fair() will in turn call cfs_rq_util_change()
+> 
+> Every four seconds?  Could you please post your .config?
+ 
+Aha, I didn't make it clear, that the timer interrupt was not always
+coming every 4 seconds, but when system is silent, the maxim interval
+between 2 timer interrupts was 4 seconds.
 
-In the code it is clearly defined.  The decoding is exactly the same
-as from an entire process and for a single threaded process there is no
-difference.
+When initially I checked this, I doubted if the timer interrupt are
+too few on the system, so I used Doug's config and tried to make my
+desktop silent (like disabling GUI), following is some trace_printk
+log, though I figured out later when idle thread is running, the
+idle class' scheduler tick will not help as it doesn't call cpufreq
+callback.
 
-Linux has a system 2 system calls "exit(2)" and "exit_group(2)" if a
-thread exits by itself whatever is passed to exit(2) is the exit code.
+          <idle>-0       [009] d.h1.   235.980053: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.981054: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.982053: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.983053: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.984053: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.985053: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.986054: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.987054: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.988054: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.989054: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.990054: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.991053: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.992054: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.993054: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   235.994054: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   236.331126: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   236.460130: hrtimer_interrupt: enter
+          <idle>-0       [009] d.s5.   236.460147: intel_pstate_update_util: old_state=48 new=27
+          <idle>-0       [009] d.h1.   238.380130: hrtimer_interrupt: enter
+          <idle>-0       [009] d.s5.   238.380147: intel_pstate_update_util: old_state=27 new=12
+          <idle>-0       [009] d.h1.   240.331133: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   240.364133: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   244.331135: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   248.331139: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   252.331138: hrtimer_interrupt: enter
+           <...>-1167    [009] d.h..   254.860056: hrtimer_interrupt: enter
+           snapd-1128    [009] d.h..   254.861054: hrtimer_interrupt: enter
+           snapd-1128    [009] d.h..   254.862055: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   254.863056: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   254.864056: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   254.865055: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   256.331133: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   260.331127: hrtimer_interrupt: enter
+          <idle>-0       [009] d.h1.   264.331135: hrtimer_interrupt: enter
 
-What pthread_exit passes to exit(2) I don't know.  I have not been able
-to trace glibc that far, and I have not instrumented up a kernel to see.
+Thanks,
+Feng
 
-For threads that are alive when exit_group(2) is called they all get the
-same final exit code.
-
->> For single-threaded processes ac_exitcode would always be reasonable,
->> and be what userspace passed to exit(3).
->
-> Yes. That is the one case where we all know what we are dealing with;-)
->
->> For multi-threaded processes ac_exitcode before my change was set to
->> some completely arbitrary value for the thread whose tgid == tid.
->
-> Isn't the only place where it really makes sense to set the exitcode
-> when the last task of the process exits? I guess that was the intention
-> of the earlier code — with the same wrong assumption that I fell victim
-> to for quite some time: That the group leader (first task, tgid == pid)
-> always exits last.
->
-> I do not know in which cases group member threads have meaningful exit
-> codes different from the last one (which is the one returned for the
-> process in whole … ?). I'd love to see the exact reasoning on how
-> multithreading got mapped into kernel tasks which used to track only
-> single-threaded processes before.
-
-The internal model in the kernel is there are tasks (which pthreads are
-mapped to in a 1-1 fashion).  These tasks were the original process
-abstraction.  In the case of CLONE_THREAD these tasks are glued together
-into a POSIX process, with shared signal handling.
-
-So from a kernel standpoint as it basically the original process
-abstraction it is all well defined what happens when an individual task
-exits.
-
->> With my change the value returned
->> is at least well defined.
->
-> But defined to what?
-
-See above.
-
->> Now maybe it would have been better to flag the bug fix with a version
->> number.  Unfortunately I did not even realize taskstats had a version
->> number.  I just know the code made no sense.
->
-> Well, fixing a bug that has been there from the beginning (of adding
-> multithreading, at least) is a significant change that one might want
-> to know about. And I do think that it fits to thouroughly fix these
-> issues that relate to identifying threads and processes (the shameless
-> plug of my taskstats patch that I'm working on since 2018, and only got
-> right in 2022, finally — I hope), while at that.
-
-It looks like the bug was in commit f3cef7a99469 ("[PATCH] csa: basic
-accounting over taskstats") in 2006 in 2.6.19-rc1 when taskstats were
-added.  That is long after CLONE_THREAD support was added in the 2.5
-development kernel.
-
-I have been working to get a single place that code can look to find the
-process exit status.  AKA so that the code can always set
-SIGNAL_GROUP_EXIT, and look at signal->group_exit_code.  Fixing this was
-just part of sorting out the misconceptions, and I didn't realize there
-was anyone that paying attention and cared.
-
-I will see if I can find some time to give your taskstats patch a
-review.
-
-Eric
+> 							Thanx, Paul
