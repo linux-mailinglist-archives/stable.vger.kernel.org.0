@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DAAF4C49E6
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:58:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23C624C49E3
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:58:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242513AbiBYP73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:59:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48794 "EHLO
+        id S237955AbiBYP7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:59:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242534AbiBYP72 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:59:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DECCB1E64F8
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:58:54 -0800 (PST)
+        with ESMTP id S242537AbiBYP7Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:59:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64B321E64D7
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:58:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AE8B61AA0
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:58:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79C1EC340E7;
-        Fri, 25 Feb 2022 15:58:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 81AE361AA0
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:58:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93431C340E7;
+        Fri, 25 Feb 2022 15:58:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645804733;
-        bh=ODv8GQ1fyiRmGEOjMT88/FLk5eh1BR8fp39NIHxDcnk=;
+        s=korg; t=1645804731;
+        bh=WyOnCQ6muLRE/vQovRuAO0FBwuB696F93h1rNEdTUi8=;
         h=Subject:To:Cc:From:Date:From;
-        b=RScK+NbBwaBMSOJyOPTSmlPKkH8cI6VEreTQIFifvAKK4PfCp9xIb1VrZ7gy0fd0Y
-         BTXfum8Obr0SHOpcDFHE9E316lsC4ytQJiX43Z/xaVCFGLmH2dWGjgR9Eg41ADAIB2
-         g6SnvPp3SKT/aLatH1uzz+3IN8eCltcpgJl4V4N4=
-Subject: FAILED: patch "[PATCH] net/mlx5e: Fix MPLSoUDP encap to use MPLS action information" failed to apply to 5.16-stable tree
+        b=ZTAEuT76voyg4QM48QZ2pRnGN5KU6T6iMA4yfmbf6bzyq4ksjxzyzvXXi7YHrVg8c
+         l+GuxVLHCnlDhq1j4ogrEG7pcP1d5qLCRS0IU0UnBm1zgbnDrM8aZO9RvtbEKdTyOe
+         SiNDAyDT/1PfeKxw00SJnWs4XhgywMjeygbA04Us=
+Subject: FAILED: patch "[PATCH] net/mlx5e: Fix MPLSoUDP encap to use MPLS action information" failed to apply to 5.10-stable tree
 To:     maord@nvidia.com, roid@nvidia.com, saeedm@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 25 Feb 2022 16:58:40 +0100
-Message-ID: <1645804720214224@kroah.com>
+Message-ID: <164580472015253@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
