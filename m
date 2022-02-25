@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7807A4C49E8
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 17:00:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24F224C4A66
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 17:18:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242537AbiBYP7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:59:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50940 "EHLO
+        id S242799AbiBYQTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 11:19:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242434AbiBYP7w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:59:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC3921DF856
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:59:19 -0800 (PST)
+        with ESMTP id S242803AbiBYQTN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 11:19:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06DCC403CD
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 08:18:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85946B83278
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:59:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8E41C340F0;
-        Fri, 25 Feb 2022 15:59:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9652361B44
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 16:18:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A636AC340E7;
+        Fri, 25 Feb 2022 16:18:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645804757;
-        bh=JGkVmkcT1WVerDI8zHppnAn9jcLpKAWSqI+yRcn5vbE=;
+        s=korg; t=1645805920;
+        bh=Pdb3QmvBRQMF6L0SfcgC368sBl6PCupwOW4IZ9WwFVQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=G4fY1W3biYXQvjaKB8Qh4tCFtOZXpBImjZUhQXPJDVO6ZBNJeDqNEUBLmR4P2RQSo
-         vaHtIJd+zFqZmxyGVQpB/xmKL5GzzrpTTc0OTWBhIyG3ZG441VN8/ePPyZ9qFYAwOW
-         njuBNbzfwKFTO9RMiIn7JHm2XYXZhVXnZXTNt9Do=
-Subject: FAILED: patch "[PATCH] net/mlx5e: TC, Skip redundant ct clear actions" failed to apply to 5.16-stable tree
-To:     roid@nvidia.com, lariel@nvidia.com, maord@nvidia.com,
-        saeedm@nvidia.com
+        b=o8eIKOwR5JMKRWf8qoXgfxdBHYfFkGAP2vs6Mdfngf0D3udElHg48DOe41CJxXr8j
+         3JerA7cpYuMmiNRoVViAO/w6e6VNMMsPoOr66R4vkUDkJhGaU47twF8poP6ROCEiCB
+         9iIIin2xtW71YCnhttMF4kkeY8JEtjipaNx1SmQU=
+Subject: FAILED: patch "[PATCH] net: dsa: microchip: fix bridging with more than two member" failed to apply to 5.16-stable tree
+To:     sss@secomea.com, davem@davemloft.net, o.rempel@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 16:59:06 +0100
-Message-ID: <1645804746127153@kroah.com>
+Date:   Fri, 25 Feb 2022 17:16:11 +0100
+Message-ID: <164580577118139@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -60,60 +59,79 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fb7e76ea3f3b6238dda2f19a4212052d2caf00aa Mon Sep 17 00:00:00 2001
-From: Roi Dayan <roid@nvidia.com>
-Date: Thu, 3 Feb 2022 09:42:19 +0200
-Subject: [PATCH] net/mlx5e: TC, Skip redundant ct clear actions
+From 3d00827a90db6f79abc7cdc553887f89a2e0a184 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Svenning=20S=C3=B8rensen?= <sss@secomea.com>
+Date: Fri, 18 Feb 2022 11:27:01 +0000
+Subject: [PATCH] net: dsa: microchip: fix bridging with more than two member
+ ports
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Offload of ct clear action is just resetting the reg_c register.
-It's done by allocating modify hdr resources which is limited.
-Doing it multiple times is redundant and wasting modify hdr resources
-and if resources depleted the driver will fail offloading the rule.
-Ignore redundant ct clear actions after the first one.
+Commit b3612ccdf284 ("net: dsa: microchip: implement multi-bridge support")
+plugged a packet leak between ports that were members of different bridges.
+Unfortunately, this broke another use case, namely that of more than two
+ports that are members of the same bridge.
 
-Fixes: 806401c20a0f ("net/mlx5e: CT, Fix multiple allocations and memleak of mod acts")
-Signed-off-by: Roi Dayan <roid@nvidia.com>
-Reviewed-by: Ariel Levkovich <lariel@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+After that commit, when a port is added to a bridge, hardware bridging
+between other member ports of that bridge will be cleared, preventing
+packet exchange between them.
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc/act/act.h b/drivers/net/ethernet/mellanox/mlx5/core/en/tc/act/act.h
-index 26efa33de56f..10a40487d536 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc/act/act.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc/act/act.h
-@@ -16,6 +16,7 @@ struct mlx5e_tc_act_parse_state {
- 	unsigned int num_actions;
- 	struct mlx5e_tc_flow *flow;
- 	struct netlink_ext_ack *extack;
-+	bool ct_clear;
- 	bool encap;
- 	bool decap;
- 	bool mpls_push;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc/act/ct.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc/act/ct.c
-index 06ec30cdb269..58cc33f1363d 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc/act/ct.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc/act/ct.c
-@@ -27,8 +27,13 @@ tc_act_parse_ct(struct mlx5e_tc_act_parse_state *parse_state,
- 		struct mlx5e_priv *priv,
- 		struct mlx5_flow_attr *attr)
- {
-+	bool clear_action = act->ct.action & TCA_CT_ACT_CLEAR;
- 	int err;
+Fix by ensuring that the Port VLAN Membership bitmap includes any existing
+ports in the bridge, not just the port being added.
+
+Fixes: b3612ccdf284 ("net: dsa: microchip: implement multi-bridge support")
+Signed-off-by: Svenning Sørensen <sss@secomea.com>
+Tested-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/drivers/net/dsa/microchip/ksz_common.c b/drivers/net/dsa/microchip/ksz_common.c
+index 55dbda04ea62..243f8ad6d06e 100644
+--- a/drivers/net/dsa/microchip/ksz_common.c
++++ b/drivers/net/dsa/microchip/ksz_common.c
+@@ -26,7 +26,7 @@ void ksz_update_port_member(struct ksz_device *dev, int port)
+ 	struct dsa_switch *ds = dev->ds;
+ 	u8 port_member = 0, cpu_port;
+ 	const struct dsa_port *dp;
+-	int i;
++	int i, j;
  
-+	/* It's redundant to do ct clear more than once. */
-+	if (clear_action && parse_state->ct_clear)
-+		return 0;
-+
- 	err = mlx5_tc_ct_parse_action(parse_state->ct_priv, attr,
- 				      &attr->parse_attr->mod_hdr_acts,
- 				      act, parse_state->extack);
-@@ -40,6 +45,8 @@ tc_act_parse_ct(struct mlx5e_tc_act_parse_state *parse_state,
- 	if (mlx5e_is_eswitch_flow(parse_state->flow))
- 		attr->esw_attr->split_count = attr->esw_attr->out_count;
+ 	if (!dsa_is_user_port(ds, port))
+ 		return;
+@@ -45,13 +45,33 @@ void ksz_update_port_member(struct ksz_device *dev, int port)
+ 			continue;
+ 		if (!dsa_port_bridge_same(dp, other_dp))
+ 			continue;
++		if (other_p->stp_state != BR_STATE_FORWARDING)
++			continue;
  
-+	parse_state->ct_clear = clear_action;
+-		if (other_p->stp_state == BR_STATE_FORWARDING &&
+-		    p->stp_state == BR_STATE_FORWARDING) {
++		if (p->stp_state == BR_STATE_FORWARDING) {
+ 			val |= BIT(port);
+ 			port_member |= BIT(i);
+ 		}
+ 
++		/* Retain port [i]'s relationship to other ports than [port] */
++		for (j = 0; j < ds->num_ports; j++) {
++			const struct dsa_port *third_dp;
++			struct ksz_port *third_p;
 +
- 	return 0;
- }
++			if (j == i)
++				continue;
++			if (j == port)
++				continue;
++			if (!dsa_is_user_port(ds, j))
++				continue;
++			third_p = &dev->ports[j];
++			if (third_p->stp_state != BR_STATE_FORWARDING)
++				continue;
++			third_dp = dsa_to_port(ds, j);
++			if (dsa_port_bridge_same(other_dp, third_dp))
++				val |= BIT(j);
++		}
++
+ 		dev->dev_ops->cfg_port_member(dev, i, val | cpu_port);
+ 	}
  
 
