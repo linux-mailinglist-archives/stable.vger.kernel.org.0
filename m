@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B4214C49C5
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:57:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27BE14C49C2
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:57:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242419AbiBYP43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:56:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40686 "EHLO
+        id S241426AbiBYP4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:56:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241307AbiBYP43 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:56:29 -0500
+        with ESMTP id S241307AbiBYP4c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:56:32 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CDD31D8326
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:55:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EABEA1D8326
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:55:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA38C61A55
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:55:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD177C340F0;
-        Fri, 25 Feb 2022 15:55:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8530961A7C
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:55:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90990C340F0;
+        Fri, 25 Feb 2022 15:55:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645804556;
-        bh=feOAWUfvuuZWabC+Il6CqbklQUzSuP2xewsNfMQ3V0A=;
+        s=korg; t=1645804558;
+        bh=sU6WK4Nsv65jTcduyokYnd4kZlkUeYGdmrMX7H5GloI=;
         h=Subject:To:Cc:From:Date:From;
-        b=hkhmb8s+TmRwuvhxBlsqgkoSnO48eeKEU+f+7Q7+KUTPW/k69PaeTHOuhTOluwUEP
-         Lx3rhtKuxp7LOE60LwE5QXayjvjR7yN9b9OpcNMxNoiIv9GvPjvGfubPNNf3IyBlu3
-         4mw9g/mXAn7Jl8NoyGbN1uDwOLbWeMZoN+uO4DGw=
-Subject: FAILED: patch "[PATCH] net/mlx5: DR, Don't allow match on IP w/o matching on full" failed to apply to 5.4-stable tree
+        b=KruTYs+HMn3XJDngELWeP/WNGnLzW2sDh01EOxaBg+Eu1GMEv5H7xcCusSY9PIUAt
+         yL9Y33YZBForsi2/6q6nxCY7bi9hq/cDpDPPZ8W6kkbz+Bq2QboXqrC7K0EP6ktvl1
+         dNHCUG75KxCmEvuGFKUrqW63xDXF3AscVsJPnPN0=
+Subject: FAILED: patch "[PATCH] net/mlx5: DR, Don't allow match on IP w/o matching on full" failed to apply to 5.10-stable tree
 To:     kliteyn@nvidia.com, saeedm@nvidia.com, valex@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 16:55:46 +0100
-Message-ID: <16458045462501@kroah.com>
+Date:   Fri, 25 Feb 2022 16:55:49 +0100
+Message-ID: <1645804549196198@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
