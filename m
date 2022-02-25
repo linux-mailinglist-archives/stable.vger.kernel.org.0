@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70E4C4C48EC
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:30:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA88D4C48F3
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:30:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242109AbiBYPav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:30:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36510 "EHLO
+        id S232367AbiBYPbA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:31:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240042AbiBYPau (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:30:50 -0500
+        with ESMTP id S238908AbiBYPa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:30:59 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA4762177D7
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:30:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9173C218CCB
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:30:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FD0AB830AA
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:30:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F38D7C340F0;
-        Fri, 25 Feb 2022 15:30:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37FD3B8324A
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:30:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7564BC340F1;
+        Fri, 25 Feb 2022 15:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645803015;
-        bh=gjysVgjbWkO9sKjDszKJFL9XXFkxMqdNjLTa41My0z0=;
+        s=korg; t=1645803023;
+        bh=XXbUQpqf+mmZIRudSgV97zrusJBZz+agpav857meN3c=;
         h=Subject:To:Cc:From:Date:From;
-        b=C6+nB5Muy6QpFR0QbMSboW7qBQ/SKevac3/jmqpFOv1SBJzyTEy2xL8fKjCIJjHTi
-         JDnKoOME/qoNg+W/PzHqNzIhPdE1QZmDkbLTy3l5cow3Uc6+9JVTbdM3QmbpcQCWz+
-         h8RsagrvYuOBbkNe9C6adVstnCjBX1wFTzvzxR0k=
-Subject: FAILED: patch "[PATCH] tipc: Fix end of loop tests for list_for_each_entry()" failed to apply to 4.9-stable tree
+        b=jc0cXTFpJZRrPK1z0IH3gS5HWnUxDR+bCmec6GZKanxAtQyZ0CrMro4PdF/5kGZSV
+         PNtQdugSNI6KQjXB1y8xoXF5kkF/aqSrnL2MGqxY2iqqUBLktL8a9l6vfeMwmNjVFo
+         kf08LfLIT1GUa6NbqkbNmHoH/tgqs/SrVLRbV4Kk=
+Subject: FAILED: patch "[PATCH] tipc: Fix end of loop tests for list_for_each_entry()" failed to apply to 4.14-stable tree
 To:     dan.carpenter@oracle.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 16:30:12 +0100
-Message-ID: <16458030121751@kroah.com>
+Date:   Fri, 25 Feb 2022 16:30:13 +0100
+Message-ID: <164580301315413@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
