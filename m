@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE6C4C48ED
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:30:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D654C48F1
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:30:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242091AbiBYP3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:29:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60698 "EHLO
+        id S239457AbiBYP36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:29:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242101AbiBYP3v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:29:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F3442177D7
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:29:19 -0800 (PST)
+        with ESMTP id S242102AbiBYP34 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:29:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA33C2177F0
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:29:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 08F27617E5
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:29:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C127C340E7;
-        Fri, 25 Feb 2022 15:29:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99AEFB83252
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:29:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6BECC340F0;
+        Fri, 25 Feb 2022 15:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645802958;
-        bh=O6kRX+DYW38hxtgnkth8h2JXQ/VCcx5VAszkPQD81jU=;
+        s=korg; t=1645802961;
+        bh=QyF/RksBrKrCfba0teqpMYCtjRxlXnKpOg/gRdTwj1c=;
         h=Subject:To:Cc:From:Date:From;
-        b=Fys74fI8yJ/HODEyGEnxJcGq/AH5xh3D9Yr9mU+R8boapUCYhh741BPsZPz8qclFG
-         Vw1Z52FLy3+jAH5cNmGYZ3vrtvx2noPp5vZRv/Zpz6Q0QfjV/KkRCz640g8BqlXW+Z
-         4GiecBuYkZeZGqtHSj6tu7TvHRWb3vsiChZeWQNU=
-Subject: FAILED: patch "[PATCH] net-timestamp: convert sk->sk_tskey to atomic_t" failed to apply to 5.4-stable tree
+        b=qv8Nc9Q1xj8NGVEbjRGv7RZCFgVU1SyAZWqeagluWNKSOD3BRFwEtARsuwnaCI4/M
+         jVMjizWjcDtfsMUJ49Sp80Mccmcnr4aQlNlcZ0FUpu0urcooSVCbmOVG3t4BXsAujK
+         44yOaRKIXmfaArAJfjjpRcTXBHH54fpJEUYft5zw=
+Subject: FAILED: patch "[PATCH] net-timestamp: convert sk->sk_tskey to atomic_t" failed to apply to 5.10-stable tree
 To:     edumazet@google.com, davem@davemloft.net,
         syzkaller@googlegroups.com, willemb@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 16:29:08 +0100
-Message-ID: <16458029488110@kroah.com>
+Date:   Fri, 25 Feb 2022 16:29:09 +0100
+Message-ID: <164580294989127@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
