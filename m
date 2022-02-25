@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0BC04C48EA
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:30:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC5454C48F0
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:30:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242090AbiBYP3n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:29:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59888 "EHLO
+        id S240174AbiBYP3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:29:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242091AbiBYP3m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:29:42 -0500
+        with ESMTP id S242086AbiBYP3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:29:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67F6F2177D1
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:29:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4384F2177C5
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:29:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0320761846
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:29:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B85EC340E7;
-        Fri, 25 Feb 2022 15:29:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D37CC6181A
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:29:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEA4DC340F0;
+        Fri, 25 Feb 2022 15:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645802949;
-        bh=39n/heWMBcv95ihk49NlhmBaXiP4wUcGSl/um7w78hw=;
+        s=korg; t=1645802952;
+        bh=/D3qX6zS/+TQc8D8ErbV+kt3f0rvebQl4w/6DmIT4Dc=;
         h=Subject:To:Cc:From:Date:From;
-        b=ar4404eGu5G6tQQP053zs9nL18bqdMvYpqI4GIkkJCM9MwiI4TImCFvK6UWD3tMV8
-         M4dUNaGPm0OuLW/fYmBb5pL22U1fH3j/dJCRBqOl0CoccsQ1IScRWmoohDwY6K4u9c
-         ilono2FZlVRgE4gI7c+df0pMO9eyRuPK/TXFCM1I=
-Subject: FAILED: patch "[PATCH] net-timestamp: convert sk->sk_tskey to atomic_t" failed to apply to 4.9-stable tree
+        b=UAsBD/x+g8detCuGI5CJdmmHttPpVifrJmIe95ow0ASQTkFqWtpYUJFe0pcN3ghyL
+         DLfOP8U1ql5jjv22snv0btOm/ZOjmyQg7jqfFiDiZG14RCsKB28TcCSGTNcb+bZ8Y/
+         8lMruR670jVnMUqM+Y5+VAdQ/2E7tEhzaEYydWPg=
+Subject: FAILED: patch "[PATCH] net-timestamp: convert sk->sk_tskey to atomic_t" failed to apply to 4.14-stable tree
 To:     edumazet@google.com, davem@davemloft.net,
         syzkaller@googlegroups.com, willemb@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 16:29:04 +0100
-Message-ID: <1645802944144225@kroah.com>
+Date:   Fri, 25 Feb 2022 16:29:05 +0100
+Message-ID: <1645802945357@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
