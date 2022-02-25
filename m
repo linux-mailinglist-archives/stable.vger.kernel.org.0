@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 377614C48E6
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:30:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E4C4C48EC
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:30:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242086AbiBYPaB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:30:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33272 "EHLO
+        id S242109AbiBYPav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:30:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242103AbiBYPaA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:30:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF1E12177F3
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:29:27 -0800 (PST)
+        with ESMTP id S240042AbiBYPau (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:30:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA4762177D7
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:30:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 629A8617A7
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:29:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73A01C340E7;
-        Fri, 25 Feb 2022 15:29:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FD0AB830AA
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:30:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F38D7C340F0;
+        Fri, 25 Feb 2022 15:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645802966;
-        bh=6Yfkwf/92iUqjXrFDOGEot7KfP8NBNsVC7heFJ6t0P4=;
+        s=korg; t=1645803015;
+        bh=gjysVgjbWkO9sKjDszKJFL9XXFkxMqdNjLTa41My0z0=;
         h=Subject:To:Cc:From:Date:From;
-        b=wiO6Uz09WvpMua/2uZc+BjbWFUXvsE139Vg4Yf1957QYr+Q/zQhjswrLIDDdwbn//
-         Ku2Q0rOssC0tIBmU5i9na6BUXs0aXwTU/3OG+crz7qpUMYT79TsxyfFTgYUFtnsq4t
-         dP0u6IzZUxVCLwAKvsyJSSGT6IgIKSCm2B7dlwBI=
-Subject: FAILED: patch "[PATCH] net-timestamp: convert sk->sk_tskey to atomic_t" failed to apply to 5.16-stable tree
-To:     edumazet@google.com, davem@davemloft.net,
-        syzkaller@googlegroups.com, willemb@google.com
+        b=C6+nB5Muy6QpFR0QbMSboW7qBQ/SKevac3/jmqpFOv1SBJzyTEy2xL8fKjCIJjHTi
+         JDnKoOME/qoNg+W/PzHqNzIhPdE1QZmDkbLTy3l5cow3Uc6+9JVTbdM3QmbpcQCWz+
+         h8RsagrvYuOBbkNe9C6adVstnCjBX1wFTzvzxR0k=
+Subject: FAILED: patch "[PATCH] tipc: Fix end of loop tests for list_for_each_entry()" failed to apply to 4.9-stable tree
+To:     dan.carpenter@oracle.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 16:29:11 +0100
-Message-ID: <164580295136154@kroah.com>
+Date:   Fri, 25 Feb 2022 16:30:12 +0100
+Message-ID: <16458030121751@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,152 +59,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a1cdec57e03a1352e92fbbe7974039dda4efcec0 Mon Sep 17 00:00:00 2001
-From: Eric Dumazet <edumazet@google.com>
-Date: Thu, 17 Feb 2022 09:05:02 -0800
-Subject: [PATCH] net-timestamp: convert sk->sk_tskey to atomic_t
+From a1f8fec4dac8bc7b172b2bdbd881e015261a6322 Mon Sep 17 00:00:00 2001
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Date: Tue, 22 Feb 2022 16:43:12 +0300
+Subject: [PATCH] tipc: Fix end of loop tests for list_for_each_entry()
 
-UDP sendmsg() can be lockless, this is causing all kinds
-of data races.
+These tests are supposed to check if the loop exited via a break or not.
+However the tests are wrong because if we did not exit via a break then
+"p" is not a valid pointer.  In that case, it's the equivalent of
+"if (*(u32 *)sr == *last_key) {".  That's going to work most of the time,
+but there is a potential for those to be equal.
 
-This patch converts sk->sk_tskey to remove one of these races.
-
-BUG: KCSAN: data-race in __ip_append_data / __ip_append_data
-
-read to 0xffff8881035d4b6c of 4 bytes by task 8877 on cpu 1:
- __ip_append_data+0x1c1/0x1de0 net/ipv4/ip_output.c:994
- ip_make_skb+0x13f/0x2d0 net/ipv4/ip_output.c:1636
- udp_sendmsg+0x12bd/0x14c0 net/ipv4/udp.c:1249
- inet_sendmsg+0x5f/0x80 net/ipv4/af_inet.c:819
- sock_sendmsg_nosec net/socket.c:705 [inline]
- sock_sendmsg net/socket.c:725 [inline]
- ____sys_sendmsg+0x39a/0x510 net/socket.c:2413
- ___sys_sendmsg net/socket.c:2467 [inline]
- __sys_sendmmsg+0x267/0x4c0 net/socket.c:2553
- __do_sys_sendmmsg net/socket.c:2582 [inline]
- __se_sys_sendmmsg net/socket.c:2579 [inline]
- __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2579
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-write to 0xffff8881035d4b6c of 4 bytes by task 8880 on cpu 0:
- __ip_append_data+0x1d8/0x1de0 net/ipv4/ip_output.c:994
- ip_make_skb+0x13f/0x2d0 net/ipv4/ip_output.c:1636
- udp_sendmsg+0x12bd/0x14c0 net/ipv4/udp.c:1249
- inet_sendmsg+0x5f/0x80 net/ipv4/af_inet.c:819
- sock_sendmsg_nosec net/socket.c:705 [inline]
- sock_sendmsg net/socket.c:725 [inline]
- ____sys_sendmsg+0x39a/0x510 net/socket.c:2413
- ___sys_sendmsg net/socket.c:2467 [inline]
- __sys_sendmmsg+0x267/0x4c0 net/socket.c:2553
- __do_sys_sendmmsg net/socket.c:2582 [inline]
- __se_sys_sendmmsg net/socket.c:2579 [inline]
- __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2579
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x0000054d -> 0x0000054e
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 8880 Comm: syz-executor.5 Not tainted 5.17.0-rc2-syzkaller-00167-gdcb85f85fa6f-dirty #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 09c2d251b707 ("net-timestamp: add key to disambiguate concurrent datagrams")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: 1593123a6a49 ("tipc: add name table dump to new netlink api")
+Fixes: 1a1a143daf84 ("tipc: add publication dump to new netlink api")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index ff9b508d9c5f..50aecd28b355 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -507,7 +507,7 @@ struct sock {
- #endif
- 	u16			sk_tsflags;
- 	u8			sk_shutdown;
--	u32			sk_tskey;
-+	atomic_t		sk_tskey;
- 	atomic_t		sk_zckey;
- 
- 	u8			sk_clockid;
-@@ -2667,7 +2667,7 @@ static inline void _sock_tx_timestamp(struct sock *sk, __u16 tsflags,
- 		__sock_tx_timestamp(tsflags, tx_flags);
- 		if (tsflags & SOF_TIMESTAMPING_OPT_ID && tskey &&
- 		    tsflags & SOF_TIMESTAMPING_TX_RECORD_MASK)
--			*tskey = sk->sk_tskey++;
-+			*tskey = atomic_inc_return(&sk->sk_tskey) - 1;
- 	}
- 	if (unlikely(sock_flag(sk, SOCK_WIFI_STATUS)))
- 		*tx_flags |= SKBTX_WIFI_STATUS;
-diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
-index a271688780a2..307ee1174a6e 100644
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -2006,7 +2006,7 @@ struct j1939_session *j1939_tp_send(struct j1939_priv *priv,
- 		/* set the end-packet for broadcast */
- 		session->pkt.last = session->pkt.total;
- 
--	skcb->tskey = session->sk->sk_tskey++;
-+	skcb->tskey = atomic_inc_return(&session->sk->sk_tskey) - 1;
- 	session->tskey = skcb->tskey;
- 
- 	return session;
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 9d0388bed0c1..6a15ce3eb1d3 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -4730,7 +4730,7 @@ static void __skb_complete_tx_timestamp(struct sk_buff *skb,
- 	if (sk->sk_tsflags & SOF_TIMESTAMPING_OPT_ID) {
- 		serr->ee.ee_data = skb_shinfo(skb)->tskey;
- 		if (sk_is_tcp(sk))
--			serr->ee.ee_data -= sk->sk_tskey;
-+			serr->ee.ee_data -= atomic_read(&sk->sk_tskey);
- 	}
- 
- 	err = sock_queue_err_skb(sk, skb);
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 4ff806d71921..6eb174805bf0 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -879,9 +879,9 @@ int sock_set_timestamping(struct sock *sk, int optname,
- 			if ((1 << sk->sk_state) &
- 			    (TCPF_CLOSE | TCPF_LISTEN))
- 				return -EINVAL;
--			sk->sk_tskey = tcp_sk(sk)->snd_una;
-+			atomic_set(&sk->sk_tskey, tcp_sk(sk)->snd_una);
- 		} else {
--			sk->sk_tskey = 0;
-+			atomic_set(&sk->sk_tskey, 0);
+diff --git a/net/tipc/name_table.c b/net/tipc/name_table.c
+index 01396dd1c899..1d8ba233d047 100644
+--- a/net/tipc/name_table.c
++++ b/net/tipc/name_table.c
+@@ -967,7 +967,7 @@ static int __tipc_nl_add_nametable_publ(struct tipc_nl_msg *msg,
+ 		list_for_each_entry(p, &sr->all_publ, all_publ)
+ 			if (p->key == *last_key)
+ 				break;
+-		if (p->key != *last_key)
++		if (list_entry_is_head(p, &sr->all_publ, all_publ))
+ 			return -EPIPE;
+ 	} else {
+ 		p = list_first_entry(&sr->all_publ,
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index 3e63c83e641c..7545321c3440 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -3749,7 +3749,7 @@ static int __tipc_nl_list_sk_publ(struct sk_buff *skb,
+ 			if (p->key == *last_publ)
+ 				break;
  		}
- 	}
- 
-diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
-index 139cec29ed06..7911916a480b 100644
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -991,7 +991,7 @@ static int __ip_append_data(struct sock *sk,
- 
- 	if (cork->tx_flags & SKBTX_ANY_SW_TSTAMP &&
- 	    sk->sk_tsflags & SOF_TIMESTAMPING_OPT_ID)
--		tskey = sk->sk_tskey++;
-+		tskey = atomic_inc_return(&sk->sk_tskey) - 1;
- 
- 	hh_len = LL_RESERVED_SPACE(rt->dst.dev);
- 
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index 2995f8d89e7e..304a295de84f 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -1465,7 +1465,7 @@ static int __ip6_append_data(struct sock *sk,
- 
- 	if (cork->tx_flags & SKBTX_ANY_SW_TSTAMP &&
- 	    sk->sk_tsflags & SOF_TIMESTAMPING_OPT_ID)
--		tskey = sk->sk_tskey++;
-+		tskey = atomic_inc_return(&sk->sk_tskey) - 1;
- 
- 	hh_len = LL_RESERVED_SPACE(rt->dst.dev);
- 
+-		if (p->key != *last_publ) {
++		if (list_entry_is_head(p, &tsk->publications, binding_sock)) {
+ 			/* We never set seq or call nl_dump_check_consistent()
+ 			 * this means that setting prev_seq here will cause the
+ 			 * consistence check to fail in the netlink callback
 
