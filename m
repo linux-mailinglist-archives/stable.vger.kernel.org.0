@@ -2,147 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C4554C45EA
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 14:20:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B0584C46AC
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 14:37:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241121AbiBYNUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 08:20:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56278 "EHLO
+        id S233093AbiBYNhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 08:37:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235510AbiBYNUe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 08:20:34 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D0C285701
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 05:20:02 -0800 (PST)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 2FA96212C0;
-        Fri, 25 Feb 2022 13:20:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1645795201; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=/MvNGVWn/fqPmfDt6G2RV7SA7btU5aJCsXBxXyvMvV8=;
-        b=PyGXP+48KYSDoGapAEkyoRET8KNhVMJ8tRALaZGmdvogG13C70Sv9o00ohTiw3dSgrjoZ2
-        gzcO5UWZmnpJWGl0YjsRqhav3VrVa15x5WwYnj8id/GpRl+502J9HapqRnDnE0Fiwz6Fn6
-        VxP33G4BwJizAQ8g4xekSkIddzqdeKM=
-Received: from ds.suse.cz (ds.suse.cz [10.100.12.205])
-        by relay2.suse.de (Postfix) with ESMTP id CE7E4A3B8B;
-        Fri, 25 Feb 2022 13:20:00 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id 8159ADA818; Fri, 25 Feb 2022 14:16:11 +0100 (CET)
-From:   David Sterba <dsterba@suse.com>
-Cc:     David Sterba <dsterba@suse.com>, stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Subject: [PATCH v2] btrfs: remove redundant check in up check_setget_bounds
-Date:   Fri, 25 Feb 2022 14:16:08 +0100
-Message-Id: <ea59f1a0b66e214ec12864931711b764605fbacb.1645794094.git.dsterba@suse.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S241531AbiBYNhj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 08:37:39 -0500
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45DA11168C2
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 05:37:00 -0800 (PST)
+Received: by mail-wm1-x342.google.com with SMTP id p4so1678237wmg.1
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 05:37:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=xVJHepNq93ePmAbCv1LHbdOWJcqWYQh8v11fr0KUdVw=;
+        b=aS8tAEVQiaFVB7hEVsTh9omzkXdZCep86IBdyMp7KtuevCM7/O1hPs8o9TzchJ01na
+         TNveBA+dQDgYvwTEt81QGf73xuC708EbBQ8BMp68KryFJj4Hh8S1GegJhA37QNmRh8XO
+         xf/sbpz/se3TdV9WaiN+PGzXsZKhGnCBJgzQCo7ZA9gju2ZbXMG5NdMKjd05UEQETmr3
+         zMylGqET0825F17p3WWiqoIyt72R4mH7DH4j4ilBPi2kYexI4W0wpqFntnyC1nchYpN+
+         gDp0dFZYFD1+qWYAMZaBFiK2MIF2n/Q6mbDeTvWqpeB3iEEG8GeLUNtbzp5oG9UzdwiV
+         So2w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=xVJHepNq93ePmAbCv1LHbdOWJcqWYQh8v11fr0KUdVw=;
+        b=6NscwlBlcA8tOLH8AIMGDjndMED4gk293ULbTsTDdHy2q6b8ePBIDJBRDXpvze3/vr
+         NAM4eRuf3aaC/BzZo23G24WGO5GbQxsZXz4jlQfA+g+o5xiJDEwe29JcHnL/Mp5VjSgH
+         NmiR4qdWYK191TUy+glNLgWZOMFGG+nLGtd40GJkfnRpmm3JFQFfHTg79KQ+NrRineqF
+         aMLS5MuyuezNK3qBbmCluzDM9kI1koEdzxMArPRxR+uh0x5iF2kKXBlrAotvmThD50Hs
+         WOcDqPNlW8Qxc3RceMIQkDz4K6WMe+UBVoqC53lHlyWZ0po8dXNwe+A/cIwEo+9FUOCS
+         iNOQ==
+X-Gm-Message-State: AOAM530t/71spWj/H+jMwTeqUkK4IT/h1aHImtlu0KaMdh1gnglRTMGK
+        STKy76cD3+iHTvljUmqItX3Bdxoh8JaxIMbHN9U=
+X-Google-Smtp-Source: ABdhPJx4+DLpOTCcphvnDgBpNOVuTEtPxToWmlI01iOrHS22mWeXhHWgKd3gHsL7QhEX/fFbhxQVsZLF8+d0BITzaQ4=
+X-Received: by 2002:a05:600c:2d81:b0:380:fd2d:c3eb with SMTP id
+ i1-20020a05600c2d8100b00380fd2dc3ebmr2782342wmg.87.1645796218511; Fri, 25 Feb
+ 2022 05:36:58 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:adf:fbc1:0:0:0:0:0 with HTTP; Fri, 25 Feb 2022 05:36:57
+ -0800 (PST)
+Reply-To: lilywilliam989@gmail.com
+From:   Lily William <rashidalawan3262@gmail.com>
+Date:   Fri, 25 Feb 2022 05:36:57 -0800
+Message-ID: <CANba1WLQpF2CaBDEB+UBEcPSFAxbbVk=ePhNVSPe19w5ycmMpw@mail.gmail.com>
+Subject: Hi Dear,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=4.8 required=5.0 tests=BAYES_40,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There are two separate checks in the bounds checker, the first one being
-a special case of the second. As this function is performance critical
-due to checking access to any eb member, reducing the size can slightly
-improve performance.
-
-On a release build on x86_64 the helper is completely inlined so the
-function call overhead is also gone.
-
-There was a report of 5% performance drop on metadata heavy workload,
-that disappeared after disabling asserts. The most significant part of
-that is the bounds checker.
-
-https://lore.kernel.org/linux-btrfs/20200724164147.39925-1-josef@toxicpanda.com/
-
-After the analysis, the optimized code removes the worst overhead which
-is the function call and the performance was restored.
-
-https://lore.kernel.org/linux-btrfs/20200730110943.GE3703@twin.jikos.cz/
-
-1. baseline, asserts on, setget check on
-
-run time:		46s
-run time with perf:	48s
-
-2. asserts on, comment out setget check
-
-run time:		44s
-run time with perf:	47s
-
-So this is confirms the 5% difference
-
-3. asserts on, optimized seget check
-
-run time:		44s
-run time with perf:	47s
-
-The optimizations are reducing the number of ifs to 1 and inlining the
-hot path. Low-level stuff, gets the performance back. Patch below.
-
-4. asserts off, no setget check
-
-run time:		44s
-run time with perf:	45s
-
-This verifies that asserts other than the setget check have negligible
-impact on performance and it's not harmful to keep them on.
-
-Analysis where the performance is lost:
-
-* check_setget_bounds is short function, but it's still a function call,
-  changing the flow of instructions and given how many times it's
-  called the overhead adds up
-
-* there are two conditions, one to check if the range is
-  completely outside (member_offset > eb->len) or partially inside
-  (member_offset + size > eb->len)
-
-CC: stable@vger.kernel.org # 5.10+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
----
-
-v2:
-
-- patch picked from the series in
-  https://lore.kernel.org/linux-btrfs/cover.1643904960.git.dsterba@suse.com/
-- changelog updated with numbers and analysis
-
- fs/btrfs/struct-funcs.c | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
-
-diff --git a/fs/btrfs/struct-funcs.c b/fs/btrfs/struct-funcs.c
-index f429256f56db..12455b2b41de 100644
---- a/fs/btrfs/struct-funcs.c
-+++ b/fs/btrfs/struct-funcs.c
-@@ -12,15 +12,10 @@ static bool check_setget_bounds(const struct extent_buffer *eb,
- {
- 	const unsigned long member_offset = (unsigned long)ptr + off;
- 
--	if (member_offset > eb->len) {
-+	if (unlikely(member_offset + size > eb->len)) {
- 		btrfs_warn(eb->fs_info,
--	"bad eb member start: ptr 0x%lx start %llu member offset %lu size %d",
--			(unsigned long)ptr, eb->start, member_offset, size);
--		return false;
--	}
--	if (member_offset + size > eb->len) {
--		btrfs_warn(eb->fs_info,
--	"bad eb member end: ptr 0x%lx start %llu member offset %lu size %d",
-+		"bad eb member %s: ptr 0x%lx start %llu member offset %lu size %d",
-+			(member_offset > eb->len ? "start" : "end"),
- 			(unsigned long)ptr, eb->start, member_offset, size);
- 		return false;
- 	}
 -- 
-2.34.1
+Hi Dear,
 
+My name is Lily William, I am from the United States of America. It's my
+pleasure to contact you for a new and special friendship. I will be glad to
+see your reply so we can get to know each other better.
+
+Yours
+Lily
