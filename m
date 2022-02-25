@@ -2,92 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EBF54C3E6E
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 07:34:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7CCA4C402D
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 09:34:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237847AbiBYGee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 01:34:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46674 "EHLO
+        id S235730AbiBYIej (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 03:34:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231359AbiBYGed (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 01:34:33 -0500
-X-Greylist: delayed 497 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 24 Feb 2022 22:33:59 PST
-Received: from zg8tmty1ljiyny4xntqumjca.icoremail.net (zg8tmty1ljiyny4xntqumjca.icoremail.net [165.227.154.27])
-        by lindbergh.monkeyblade.net (Postfix) with SMTP id 0CA3F269297;
-        Thu, 24 Feb 2022 22:33:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=pku.edu.cn; s=dkim; h=Received:Date:From:To:Cc:Subject:
-        In-Reply-To:References:Content-Transfer-Encoding:Content-Type:
-        MIME-Version:Message-ID; bh=cd1GW93tBI2kIBPDeF9M9y9aP+q7YS9rT4uQ
-        Mk9plc8=; b=b39gchF8YXboirv8nb20yp63EnmKb1e5tDhxoA2TlR1WIhXx0c1b
-        +JecD0QAPfJ+Zkr5QOKB8bZz1yBHKiJ/eRi7RWr9D3zHvkgxdcHM2vFl7MYGwkU6
-        EcMGt3jPPIe6czOMXsZgtTb0QUbutvBQtbPitdYP1XbPhg/6eQ/2Scg=
-Received: by ajax-webmail-front01 (Coremail) ; Fri, 25 Feb 2022 14:25:10
- +0800 (GMT+08:00)
-X-Originating-IP: [10.129.19.172]
-Date:   Fri, 25 Feb 2022 14:25:10 +0800 (GMT+08:00)
-X-CM-HeaderCharset: UTF-8
-From:   =?UTF-8?B?5YiY5rC45b+X?= <lyz_cs@pku.edu.cn>
-To:     "pavel machek" <pavel@denx.de>
-Cc:     "sasha levin" <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, "vinod koul" <vkoul@kernel.org>,
-        christophe.jaillet@wanadoo.fr, arnd@arndb.de,
-        laurent.pinchart@ideasonboard.com, dmaengine@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.16 24/30] dmaengine: shdma: Fix runtime PM
- imbalance on error
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version XT5.0.13 build 20210104(ab8c30b6)
- Copyright (c) 2002-2022 www.mailtech.cn
- mispb-1ea67e80-64e4-49d5-bd9f-3beeae24b9f2-pku.edu.cn
-In-Reply-To: <20220224223908.GA6522@duo.ucw.cz>
-References: <20220223022820.240649-1-sashal@kernel.org>
- <20220223022820.240649-24-sashal@kernel.org>
- <20220224223908.GA6522@duo.ucw.cz>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+        with ESMTP id S235206AbiBYIej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 03:34:39 -0500
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44B8F247769;
+        Fri, 25 Feb 2022 00:34:07 -0800 (PST)
+Received: from mail-wm1-f50.google.com ([209.85.128.50]) by
+ mrelayeu.kundenserver.de (mreue011 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1MvryJ-1oGATC2KAR-00swa3; Fri, 25 Feb 2022 09:34:05 +0100
+Received: by mail-wm1-f50.google.com with SMTP id p4so1213534wmg.1;
+        Fri, 25 Feb 2022 00:34:05 -0800 (PST)
+X-Gm-Message-State: AOAM531E/j6S13Yb+YVordzdIyMNOwY64v2CLQ+9k04WKi0/xa6c+JuP
+        +4SyB2M8ymkZJNufNUcXUk395TidptYOiLwOOe0=
+X-Google-Smtp-Source: ABdhPJxlT0ZeeZN0sp/wnlDP9vqKjX5249QxVFT0x3B4UnYiAZsJdwfn3z3PfGHyveoi2R5x9P4PLXraCF/IwsdQHuA=
+X-Received: by 2002:a05:600c:4ecb:b0:37c:9125:ac03 with SMTP id
+ g11-20020a05600c4ecb00b0037c9125ac03mr1654188wmq.98.1645778045094; Fri, 25
+ Feb 2022 00:34:05 -0800 (PST)
 MIME-Version: 1.0
-Message-ID: <12bdb8e2.89509.17f2f8e0337.Coremail.lyz_cs@pku.edu.cn>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID: 5oFpogBXOrhGdhhiloYiAg--.1378W
-X-CM-SenderInfo: irzqijirqukmo6sn3hxhgxhubq/1tbiAwEIBlPy7uUuEAAAsY
-X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VWxJw
-        CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
-        daVFxhVjvjDU=
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+References: <20220223135820.2252470-1-anders.roxell@linaro.org>
+ <20220223135820.2252470-2-anders.roxell@linaro.org> <1645670923.t0z533n7uu.astroid@bobo.none>
+ <1645678884.dsm10mudmp.astroid@bobo.none> <20220224171207.GM614@gate.crashing.org>
+ <1645748601.idp48wexp9.astroid@bobo.none>
+In-Reply-To: <1645748601.idp48wexp9.astroid@bobo.none>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Fri, 25 Feb 2022 09:33:49 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a0feJOsKMNP0zCdPho5XdD+NXFceUTTe1X6dA9OdWQntQ@mail.gmail.com>
+Message-ID: <CAK8P3a0feJOsKMNP0zCdPho5XdD+NXFceUTTe1X6dA9OdWQntQ@mail.gmail.com>
+Subject: Re: [PATCH 2/3] powerpc: fix build errors
+To:     Nicholas Piggin <npiggin@gmail.com>
+Cc:     Segher Boessenkool <segher@kernel.crashing.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:V3M9SmkRnE9os/eykVVe88xc1Z4Z0/NijhamjVkFNGxnP9lcJNX
+ XwYkh8mmSmoGRtLddGmzAMa4RkKZo3x9fRVOKsFKI2h6KQIfypCWZH/OoFIwW6CIYlwkdX+
+ xhG6K/vKjSoprdke6bsrF2DrT0iuyxq2p7jYFczcuMKOFfk9sEGDOy9EH2BC3c3LEE1z8JS
+ /Yh0OLOPlE+5PPsTWmg3g==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:qjY77EtsRBI=:8S4FHM4uubYJ99LtsrLa8B
+ 95RSBjhwuvOXrzuhBAYalx1kZMOnKHsnwNjzoI7ULwD/mJLuBZSFkrNYK4BKgFcpIM3BnIcmV
+ oZ/pkhsMYr5qLRo7Uz922ynpd+jWlJxWTPxRlFF7Ef1z/2o3+LNxSl0SmsOGnelKZdoTw1Vpz
+ Fs9drUBQpHI3n4SzV6ixubCWsPZ1hGSR+0iMxP8cik8cjvh9VQcuMqTMhM0divMhaftWA9woV
+ waV6Iecdx4SaZvmfX55nzbAtyzeHd0wNGtYgjNH629Uqxn8i8QsyE8LnpQw7FFih9ZKfJuwxe
+ HPBQBSNnrxf4wZwMryGIuwdNFjZ8Phpn6Dn1pviC9ZyccsfPbqqOK5xGRn/QM9uLPniVq5LEv
+ skvcZ3Sg9ZjcaSkbq2OCztQAd7UbU+couHNroosYbS0GBap6vjKdpAihUJiPuG8wGyTiHwNYg
+ +Qe2r5ZyTmXIbqux14fifBZa7uqPilmBVAtVXkhzZx9mndYFCXylEhJ/0oUjn9FeaJQWBCLub
+ ELRYmFQOEW3lmWqzyCK75Q5CjbELnghinJ56oYZgGkQjJwqLBVkpSpZNrm0SihGkh3geUTkCd
+ ToVxtm5yzGy1yZHq9xW+SPGLAx0e/7//EGhlKr9/MGXhGbBd2qt3+ioNkzchlcxy9UcHyjV3X
+ K78RwYVU4XmuGvS4fQnpSMp+0fprcefS+lWQiaGbQMT4KyiT2fr4bZzgABL+3S5JkVWk612a4
+ GtKcPsyud7xbf0oGPPlqYL0/z3sigKsNb8XFnZdbfQyq8Cbm9X0LyxrjFnp9Bmlsg3ZxRJgeO
+ /r+5wk8g5okbMLeYlZ4BNWAJRqPQdybc+/ZdoZ8E7TrvZF1GG8=
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PiAtLS0tLeWOn+Wni+mCruS7ti0tLS0tCj4g5Y+R5Lu25Lq6OiAiUGF2ZWwgTWFjaGVrIiA8cGF2
-ZWxAZGVueC5kZT4KPiDlj5HpgIHml7bpl7Q6IDIwMjItMDItMjUgMDY6Mzk6MDggKOaYn+acn+S6
-lCkKPiDmlLbku7bkuro6ICJTYXNoYSBMZXZpbiIgPHNhc2hhbEBrZXJuZWwub3JnPgo+IOaKhOmA
-gTogbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZywgc3RhYmxlQHZnZXIua2VybmVsLm9yZywg
-Illvbmd6aGkgTGl1IiA8bHl6X2NzQHBrdS5lZHUuY24+LCAiVmlub2QgS291bCIgPHZrb3VsQGtl
-cm5lbC5vcmc+LCBjaHJpc3RvcGhlLmphaWxsZXRAd2FuYWRvby5mciwgYXJuZEBhcm5kYi5kZSwg
-bGF1cmVudC5waW5jaGFydEBpZGVhc29uYm9hcmQuY29tLCBkbWFlbmdpbmVAdmdlci5rZXJuZWwu
-b3JnCj4g5Li76aKYOiBSZTogW1BBVENIIEFVVE9TRUwgNS4xNiAyNC8zMF0gZG1hZW5naW5lOiBz
-aGRtYTogRml4IHJ1bnRpbWUgUE0gaW1iYWxhbmNlIG9uIGVycm9yCj4gCj4gSGkhCj4gCj4gPiBG
-cm9tOiBZb25nemhpIExpdSA8bHl6X2NzQHBrdS5lZHUuY24+Cj4gPiAKPiA+IFsgVXBzdHJlYW0g
-Y29tbWl0IDQ1NTg5NmM1M2Q1YjgwMzczM2RkZDg0ZTFiZjhhNDMwNjQ0NDM5YjYgXQo+ID4gCj4g
-PiBwbV9ydW50aW1lX2dldF8oKSBpbmNyZW1lbnRzIHRoZSBydW50aW1lIFBNIHVzYWdlIGNvdW50
-ZXIgZXZlbgo+ID4gd2hlbiBpdCByZXR1cm5zIGFuIGVycm9yIGNvZGUsIHRodXMgYSBtYXRjaGlu
-ZyBkZWNyZW1lbnQgaXMgbmVlZGVkIG9uCj4gPiB0aGUgZXJyb3IgaGFuZGxpbmcgcGF0aCB0byBr
-ZWVwIHRoZSBjb3VudGVyIGJhbGFuY2VkLgo+IAo+IEkgZG9uJ3QgdGhpbmsgdGhhdCdzIHJpZ2h0
-Lgo+IAo+IE5vdGljZSB0aGF0IC1yZXQgaXMgaWdub3JlZCAoY2hlY2tlZCA0LjQgYW5kIDUuMTAp
-LCBzbyB3ZSBkb24ndAo+IGFjdHVhbGx5IGFib3J0L3JldHVybiBlcnJvcjsgd2UganVzdCBwcmlu
-dGsuIFdlJ2xsIGRvIHR3bwo+IHBtX3J1bnRpbWVfcHV0J3MgYWZ0ZXIgdGhlICJmaXgiLgoKVGhh
-bmsgeW91IHZlcnkgbXVjaCBmb3IgdGhlIGNvcnJlY3Rpb24uIEkgYW0gdmVyeSBzb3JyeSB0aGF0
-IEkgY2F1c2VkIHlvdSB1bm5lY2Vzc2FyeSB0cm91YmxlIGJlY2F1c2Ugb2YgbXkgY2FyZWxlc3Nu
-ZXNzLgpUaGUgcG1fcnVudGltZV9wdXQgaXMgaW5kZWVkIGNhbGxlZCBsYXRlciBpbiBfX2xkX2Ns
-ZWFudXAsIHNvIG9ubHkgcHJpbnRrIGlzIG5lZWRlZCBhdCAtcmV0IGFuZCB0aGUgcGF0Y2ggaXMg
-bm90IHJpZ2h0LgoKPiAKPiBQbGVhc2UgZHJvcCBmcm9tIC1zdGFibGUuCj4gCj4gQmVzdCByZWdh
-cmRzLAo+IAkJCQkJCQkJUGF2ZWwKPiAtLSAKPiBERU5YIFNvZnR3YXJlIEVuZ2luZWVyaW5nIEdt
-YkgsICAgICAgTWFuYWdpbmcgRGlyZWN0b3I6IFdvbGZnYW5nIERlbmsKPiBIUkIgMTY1MjM1IE11
-bmljaCwgT2ZmaWNlOiBLaXJjaGVuc3RyLjUsIEQtODIxOTQgR3JvZWJlbnplbGwsIEdlcm1hbnkK
+On Fri, Feb 25, 2022 at 1:32 AM Nicholas Piggin <npiggin@gmail.com> wrote:
+> Excerpts from Segher Boessenkool's message of February 25, 2022 3:12 am:
+> >> +#ifdef CONFIG_CC_IS_GCC
+> >> +#if (GCC_VERSION >= 100000)
+> >> +#if (CONFIG_AS_VERSION == 23800)
+> >> +asm(".machine any");
+> >> +#endif
+> >> +#endif
+> >> +#endif
+> >> +#endif /* __ASSEMBLY__ */
+> >
+> > Abusing toplevel asm like this is broken and you *will* end up with
+> > unhappiness all around.
+>
+> It actually unbreaks things and reduces my unhappiness. It's only done
+> for broken compiler versions and only where as does not have the
+> workaround for the breakage.
 
+It doesn't work with clang, which always passes explicit .machine
+statements around each inline asm, and it's also fundamentally
+incompatible with LTO builds. Generally speaking, you can't expect
+a top-level asm statement to have any effect inside of another
+function.
+
+        Arnd
