@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E719F4C4985
-	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:48:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B4214C49C5
+	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:57:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242311AbiBYPtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:49:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52216 "EHLO
+        id S242419AbiBYP43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:56:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242312AbiBYPs7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:48:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C162167FBF
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:48:26 -0800 (PST)
+        with ESMTP id S241307AbiBYP43 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:56:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CDD31D8326
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:55:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06660B830B7
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:48:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F112C340E7;
-        Fri, 25 Feb 2022 15:48:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA38C61A55
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:55:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD177C340F0;
+        Fri, 25 Feb 2022 15:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645804103;
-        bh=ztgAfHqaLkL8Qdhzzv/VhbtHrsKUZft2HrnqJ9wXP5s=;
+        s=korg; t=1645804556;
+        bh=feOAWUfvuuZWabC+Il6CqbklQUzSuP2xewsNfMQ3V0A=;
         h=Subject:To:Cc:From:Date:From;
-        b=y4xFAQfAWhoarXvqhaYHmhB796KJifLLUa0UzKJtbqP1wrlKrV3h7KzYna5OSA5Z+
-         Re9+pfaKod2hk47lSOFIGSLUTY8Dd0SGYiNg1nlI5CZRXWAqwBct9qsulSSmNmSb8N
-         pdjDP0N9FM7saWeIW+oe7qyWMZ6YoCvx0dVG/u/o=
-Subject: FAILED: patch "[PATCH] net/mlx5: DR, Cache STE shadow memory" failed to apply to 5.10-stable tree
+        b=hkhmb8s+TmRwuvhxBlsqgkoSnO48eeKEU+f+7Q7+KUTPW/k69PaeTHOuhTOluwUEP
+         Lx3rhtKuxp7LOE60LwE5QXayjvjR7yN9b9OpcNMxNoiIv9GvPjvGfubPNNf3IyBlu3
+         4mw9g/mXAn7Jl8NoyGbN1uDwOLbWeMZoN+uO4DGw=
+Subject: FAILED: patch "[PATCH] net/mlx5: DR, Don't allow match on IP w/o matching on full" failed to apply to 5.4-stable tree
 To:     kliteyn@nvidia.com, saeedm@nvidia.com, valex@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 16:48:13 +0100
-Message-ID: <164580409357104@kroah.com>
+Date:   Fri, 25 Feb 2022 16:55:46 +0100
+Message-ID: <16458045462501@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,213 +59,146 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e5b2bc30c21139ae10f0e56989389d0bc7b7b1d6 Mon Sep 17 00:00:00 2001
+From ffb0753b954763d94f52c901adfe58ed0d4005e6 Mon Sep 17 00:00:00 2001
 From: Yevgeny Kliteynik <kliteyn@nvidia.com>
-Date: Fri, 24 Dec 2021 01:07:30 +0200
-Subject: [PATCH] net/mlx5: DR, Cache STE shadow memory
+Date: Thu, 13 Jan 2022 14:52:48 +0200
+Subject: [PATCH] net/mlx5: DR, Don't allow match on IP w/o matching on full
+ ethertype/ip_version
 
-During rule insertion on each ICM memory chunk we also allocate shadow memory
-used for management. This includes the hw_ste, dr_ste and miss list per entry.
-Since the scale of these allocations is large we noticed a performance hiccup
-that happens once malloc and free are stressed.
-In extreme usecases when ~1M chunks are freed at once, it might take up to 40
-seconds to complete this, up to the point the kernel sees this as self-detected
-stall on CPU:
+Currently SMFS allows adding rule with matching on src/dst IP w/o matching
+on full ethertype or ip_version, which is not supported by HW.
+This patch fixes this issue and adds the check as it is done in DMFS.
 
- rcu: INFO: rcu_sched self-detected stall on CPU
-
-To resolve this we will increase the reuse of shadow memory.
-Doing this we see that a time in the aforementioned usecase dropped from ~40
-seconds to ~8-10 seconds.
-
-Fixes: 29cf8febd185 ("net/mlx5: DR, ICM pool memory allocator")
-Signed-off-by: Alex Vesker <valex@nvidia.com>
+Fixes: 26d688e33f88 ("net/mlx5: DR, Add Steering entry (STE) utilities")
 Signed-off-by: Yevgeny Kliteynik <kliteyn@nvidia.com>
+Reviewed-by: Alex Vesker <valex@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c
-index 7f6fd9c5e371..f496b7e9401b 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c
-@@ -136,37 +136,35 @@ static void dr_icm_pool_mr_destroy(struct mlx5dr_icm_mr *icm_mr)
- 	kvfree(icm_mr);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_matcher.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_matcher.c
+index e87cf498c77b..38971fe1dfe1 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_matcher.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_matcher.c
+@@ -13,18 +13,6 @@ static bool dr_mask_is_dmac_set(struct mlx5dr_match_spec *spec)
+ 	return (spec->dmac_47_16 || spec->dmac_15_0);
  }
  
--static int dr_icm_chunk_ste_init(struct mlx5dr_icm_chunk *chunk)
-+static int dr_icm_buddy_get_ste_size(struct mlx5dr_icm_buddy_mem *buddy)
- {
--	chunk->ste_arr = kvzalloc(chunk->num_of_entries *
--				  sizeof(chunk->ste_arr[0]), GFP_KERNEL);
--	if (!chunk->ste_arr)
--		return -ENOMEM;
+-static bool dr_mask_is_src_addr_set(struct mlx5dr_match_spec *spec)
+-{
+-	return (spec->src_ip_127_96 || spec->src_ip_95_64 ||
+-		spec->src_ip_63_32 || spec->src_ip_31_0);
+-}
 -
--	chunk->hw_ste_arr = kvzalloc(chunk->num_of_entries *
--				     DR_STE_SIZE_REDUCED, GFP_KERNEL);
--	if (!chunk->hw_ste_arr)
--		goto out_free_ste_arr;
+-static bool dr_mask_is_dst_addr_set(struct mlx5dr_match_spec *spec)
+-{
+-	return (spec->dst_ip_127_96 || spec->dst_ip_95_64 ||
+-		spec->dst_ip_63_32 || spec->dst_ip_31_0);
+-}
 -
--	chunk->miss_list = kvmalloc(chunk->num_of_entries *
--				    sizeof(chunk->miss_list[0]), GFP_KERNEL);
--	if (!chunk->miss_list)
--		goto out_free_hw_ste_arr;
-+	/* We support only one type of STE size, both for ConnectX-5 and later
-+	 * devices. Once the support for match STE which has a larger tag is
-+	 * added (32B instead of 16B), the STE size for devices later than
-+	 * ConnectX-5 needs to account for that.
-+	 */
-+	return DR_STE_SIZE_REDUCED;
-+}
- 
--	return 0;
-+static void dr_icm_chunk_ste_init(struct mlx5dr_icm_chunk *chunk, int offset)
-+{
-+	struct mlx5dr_icm_buddy_mem *buddy = chunk->buddy_mem;
-+	int index = offset / DR_STE_SIZE;
- 
--out_free_hw_ste_arr:
--	kvfree(chunk->hw_ste_arr);
--out_free_ste_arr:
--	kvfree(chunk->ste_arr);
--	return -ENOMEM;
-+	chunk->ste_arr = &buddy->ste_arr[index];
-+	chunk->miss_list = &buddy->miss_list[index];
-+	chunk->hw_ste_arr = buddy->hw_ste_arr +
-+			    index * dr_icm_buddy_get_ste_size(buddy);
- }
- 
- static void dr_icm_chunk_ste_cleanup(struct mlx5dr_icm_chunk *chunk)
+ static bool dr_mask_is_l3_base_set(struct mlx5dr_match_spec *spec)
  {
--	kvfree(chunk->miss_list);
--	kvfree(chunk->hw_ste_arr);
--	kvfree(chunk->ste_arr);
-+	struct mlx5dr_icm_buddy_mem *buddy = chunk->buddy_mem;
-+
-+	memset(chunk->hw_ste_arr, 0,
-+	       chunk->num_of_entries * dr_icm_buddy_get_ste_size(buddy));
-+	memset(chunk->ste_arr, 0,
-+	       chunk->num_of_entries * sizeof(chunk->ste_arr[0]));
+ 	return (spec->ip_protocol || spec->frag || spec->tcp_flags ||
+@@ -503,11 +491,11 @@ static int dr_matcher_set_ste_builders(struct mlx5dr_matcher *matcher,
+ 						    &mask, inner, rx);
+ 
+ 		if (outer_ipv == DR_RULE_IPV6) {
+-			if (dr_mask_is_dst_addr_set(&mask.outer))
++			if (DR_MASK_IS_DST_IP_SET(&mask.outer))
+ 				mlx5dr_ste_build_eth_l3_ipv6_dst(ste_ctx, &sb[idx++],
+ 								 &mask, inner, rx);
+ 
+-			if (dr_mask_is_src_addr_set(&mask.outer))
++			if (DR_MASK_IS_SRC_IP_SET(&mask.outer))
+ 				mlx5dr_ste_build_eth_l3_ipv6_src(ste_ctx, &sb[idx++],
+ 								 &mask, inner, rx);
+ 
+@@ -610,11 +598,11 @@ static int dr_matcher_set_ste_builders(struct mlx5dr_matcher *matcher,
+ 						    &mask, inner, rx);
+ 
+ 		if (inner_ipv == DR_RULE_IPV6) {
+-			if (dr_mask_is_dst_addr_set(&mask.inner))
++			if (DR_MASK_IS_DST_IP_SET(&mask.inner))
+ 				mlx5dr_ste_build_eth_l3_ipv6_dst(ste_ctx, &sb[idx++],
+ 								 &mask, inner, rx);
+ 
+-			if (dr_mask_is_src_addr_set(&mask.inner))
++			if (DR_MASK_IS_SRC_IP_SET(&mask.inner))
+ 				mlx5dr_ste_build_eth_l3_ipv6_src(ste_ctx, &sb[idx++],
+ 								 &mask, inner, rx);
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c
+index 7e61742e58a0..187e29b409b6 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_ste.c
+@@ -602,12 +602,34 @@ int mlx5dr_ste_set_action_decap_l3_list(struct mlx5dr_ste_ctx *ste_ctx,
+ 						 used_hw_action_num);
  }
  
- static enum mlx5dr_icm_type
-@@ -189,6 +187,44 @@ static void dr_icm_chunk_destroy(struct mlx5dr_icm_chunk *chunk,
- 	kvfree(chunk);
- }
- 
-+static int dr_icm_buddy_init_ste_cache(struct mlx5dr_icm_buddy_mem *buddy)
++static int dr_ste_build_pre_check_spec(struct mlx5dr_domain *dmn,
++				       struct mlx5dr_match_spec *spec)
 +{
-+	int num_of_entries =
-+		mlx5dr_icm_pool_chunk_size_to_entries(buddy->pool->max_log_chunk_sz);
-+
-+	buddy->ste_arr = kvcalloc(num_of_entries,
-+				  sizeof(struct mlx5dr_ste), GFP_KERNEL);
-+	if (!buddy->ste_arr)
-+		return -ENOMEM;
-+
-+	/* Preallocate full STE size on non-ConnectX-5 devices since
-+	 * we need to support both full and reduced with the same cache.
-+	 */
-+	buddy->hw_ste_arr = kvcalloc(num_of_entries,
-+				     dr_icm_buddy_get_ste_size(buddy), GFP_KERNEL);
-+	if (!buddy->hw_ste_arr)
-+		goto free_ste_arr;
-+
-+	buddy->miss_list = kvmalloc(num_of_entries * sizeof(struct list_head), GFP_KERNEL);
-+	if (!buddy->miss_list)
-+		goto free_hw_ste_arr;
-+
-+	return 0;
-+
-+free_hw_ste_arr:
-+	kvfree(buddy->hw_ste_arr);
-+free_ste_arr:
-+	kvfree(buddy->ste_arr);
-+	return -ENOMEM;
-+}
-+
-+static void dr_icm_buddy_cleanup_ste_cache(struct mlx5dr_icm_buddy_mem *buddy)
-+{
-+	kvfree(buddy->ste_arr);
-+	kvfree(buddy->hw_ste_arr);
-+	kvfree(buddy->miss_list);
-+}
-+
- static int dr_icm_buddy_create(struct mlx5dr_icm_pool *pool)
- {
- 	struct mlx5dr_icm_buddy_mem *buddy;
-@@ -208,11 +244,19 @@ static int dr_icm_buddy_create(struct mlx5dr_icm_pool *pool)
- 	buddy->icm_mr = icm_mr;
- 	buddy->pool = pool;
- 
-+	if (pool->icm_type == DR_ICM_TYPE_STE) {
-+		/* Reduce allocations by preallocating and reusing the STE structures */
-+		if (dr_icm_buddy_init_ste_cache(buddy))
-+			goto err_cleanup_buddy;
++	if (spec->ip_version) {
++		if (spec->ip_version != 0xf) {
++			mlx5dr_err(dmn,
++				   "Partial ip_version mask with src/dst IP is not supported\n");
++			return -EINVAL;
++		}
++	} else if (spec->ethertype != 0xffff &&
++		   (DR_MASK_IS_SRC_IP_SET(spec) || DR_MASK_IS_DST_IP_SET(spec))) {
++		mlx5dr_err(dmn,
++			   "Partial/no ethertype mask with src/dst IP is not supported\n");
++		return -EINVAL;
 +	}
 +
- 	/* add it to the -start- of the list in order to search in it first */
- 	list_add(&buddy->list_node, &pool->buddy_mem_list);
++	return 0;
++}
++
+ int mlx5dr_ste_build_pre_check(struct mlx5dr_domain *dmn,
+ 			       u8 match_criteria,
+ 			       struct mlx5dr_match_param *mask,
+ 			       struct mlx5dr_match_param *value)
+ {
+-	if (!value && (match_criteria & DR_MATCHER_CRITERIA_MISC)) {
++	if (value)
++		return 0;
++
++	if (match_criteria & DR_MATCHER_CRITERIA_MISC) {
+ 		if (mask->misc.source_port && mask->misc.source_port != 0xffff) {
+ 			mlx5dr_err(dmn,
+ 				   "Partial mask source_port is not supported\n");
+@@ -621,6 +643,14 @@ int mlx5dr_ste_build_pre_check(struct mlx5dr_domain *dmn,
+ 		}
+ 	}
  
++	if ((match_criteria & DR_MATCHER_CRITERIA_OUTER) &&
++	    dr_ste_build_pre_check_spec(dmn, &mask->outer))
++		return -EINVAL;
++
++	if ((match_criteria & DR_MATCHER_CRITERIA_INNER) &&
++	    dr_ste_build_pre_check_spec(dmn, &mask->inner))
++		return -EINVAL;
++
  	return 0;
- 
-+err_cleanup_buddy:
-+	mlx5dr_buddy_cleanup(buddy);
- err_free_buddy:
- 	kvfree(buddy);
- free_mr:
-@@ -234,6 +278,9 @@ static void dr_icm_buddy_destroy(struct mlx5dr_icm_buddy_mem *buddy)
- 
- 	mlx5dr_buddy_cleanup(buddy);
- 
-+	if (buddy->pool->icm_type == DR_ICM_TYPE_STE)
-+		dr_icm_buddy_cleanup_ste_cache(buddy);
-+
- 	kvfree(buddy);
  }
  
-@@ -261,26 +308,18 @@ dr_icm_chunk_create(struct mlx5dr_icm_pool *pool,
- 	chunk->byte_size =
- 		mlx5dr_icm_pool_chunk_size_to_byte(chunk_size, pool->icm_type);
- 	chunk->seg = seg;
-+	chunk->buddy_mem = buddy_mem_pool;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h
+index 1b3d484b99be..55fcb751e24a 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h
+@@ -798,6 +798,16 @@ struct mlx5dr_match_param {
+ 				       (_misc3)->icmpv4_code || \
+ 				       (_misc3)->icmpv4_header_data)
  
--	if (pool->icm_type == DR_ICM_TYPE_STE && dr_icm_chunk_ste_init(chunk)) {
--		mlx5dr_err(pool->dmn,
--			   "Failed to init ste arrays (order: %d)\n",
--			   chunk_size);
--		goto out_free_chunk;
--	}
-+	if (pool->icm_type == DR_ICM_TYPE_STE)
-+		dr_icm_chunk_ste_init(chunk, offset);
- 
- 	buddy_mem_pool->used_memory += chunk->byte_size;
--	chunk->buddy_mem = buddy_mem_pool;
- 	INIT_LIST_HEAD(&chunk->chunk_list);
- 
- 	/* chunk now is part of the used_list */
- 	list_add_tail(&chunk->chunk_list, &buddy_mem_pool->used_list);
- 
- 	return chunk;
--
--out_free_chunk:
--	kvfree(chunk);
--	return NULL;
- }
- 
- static bool dr_icm_pool_is_sync_required(struct mlx5dr_icm_pool *pool)
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h b/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h
-index c7c93131b762..dfa223415fe2 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h
-@@ -160,6 +160,11 @@ struct mlx5dr_icm_buddy_mem {
- 	 * sync_ste command sets them free.
- 	 */
- 	struct list_head	hot_list;
++#define DR_MASK_IS_SRC_IP_SET(_spec) ((_spec)->src_ip_127_96 || \
++				      (_spec)->src_ip_95_64  || \
++				      (_spec)->src_ip_63_32  || \
++				      (_spec)->src_ip_31_0)
 +
-+	/* Memory optimisation */
-+	struct mlx5dr_ste	*ste_arr;
-+	struct list_head	*miss_list;
-+	u8			*hw_ste_arr;
- };
- 
- int mlx5dr_buddy_init(struct mlx5dr_icm_buddy_mem *buddy,
++#define DR_MASK_IS_DST_IP_SET(_spec) ((_spec)->dst_ip_127_96 || \
++				      (_spec)->dst_ip_95_64  || \
++				      (_spec)->dst_ip_63_32  || \
++				      (_spec)->dst_ip_31_0)
++
+ struct mlx5dr_esw_caps {
+ 	u64 drop_icm_address_rx;
+ 	u64 drop_icm_address_tx;
 
