@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 118504C48B1
+	by mail.lfdr.de (Postfix) with ESMTP id A71304C48B4
 	for <lists+stable@lfdr.de>; Fri, 25 Feb 2022 16:23:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242002AbiBYPXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 10:23:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38436 "EHLO
+        id S242001AbiBYPXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 10:23:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242001AbiBYPXg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:23:36 -0500
+        with ESMTP id S242004AbiBYPXl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 10:23:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27ED11B60A4
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:23:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C0CF49CA2
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 07:23:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4EAAB830B8
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:23:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25879C36AE7;
-        Fri, 25 Feb 2022 15:22:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11135B830B8
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 15:23:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 626D6C340E7;
+        Fri, 25 Feb 2022 15:23:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645802580;
-        bh=p/qAOTYlBtxz6wWJ4UiOSOfltf+NXW2D7Ofemx2mTWE=;
+        s=korg; t=1645802585;
+        bh=BSJDPV4Z1bjZxpa+NOGeoCAqgj/tAJ5tJIkCui4CqUk=;
         h=Subject:To:Cc:From:Date:From;
-        b=sqJ0/IJ3m/0lEB+xlJVzQH0BqV/sdc9miFdO+wEt+WhtmzOitBZnyxhhfq3Nn1UFp
-         ifmgEgwvyZzZp/BzSURKi1Z2PT+DEgA3Bsy/EpzzwHQODUseuGGk0cQNUUXwjXkNxk
-         q5BUuLd3+s/pUJojfPRDDiBubTvx2hNnsgP5PcvU=
-Subject: FAILED: patch "[PATCH] bnxt_en: Fix incorrect multicast rx mask setting when not" failed to apply to 5.4-stable tree
-To:     pavan.chebbi@broadcom.com, davem@davemloft.net,
-        michael.chan@broadcom.com
+        b=xZElDl0Ptq9bFBc4Cs8ydPTQohJ4XdKYt90sYqKid3prQIhtsjWLnaufxulKpdiiB
+         TKRLBcAtoZPUIWJBzZ+BUxjWw1JEBn3NAzLMovMVg2UY4K4C8g93OBXjrR63xsCM4b
+         sNxi/9wn8PauoVsgVdpxqCenDoArHthPKsY7ptEc=
+Subject: FAILED: patch "[PATCH] bnxt_en: Increase firmware message response DMA wait time" failed to apply to 5.15-stable tree
+To:     michael.chan@broadcom.com, davem@davemloft.net,
+        vladimir.olovyannikov@broadcom.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 25 Feb 2022 16:22:40 +0100
-Message-ID: <164580256018126@kroah.com>
+Date:   Fri, 25 Feb 2022 16:22:58 +0100
+Message-ID: <164580257814783@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,67 +60,71 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8cdb15924252e27af16c4a8fe0fc606ce5fd04dc Mon Sep 17 00:00:00 2001
-From: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Date: Sun, 20 Feb 2022 04:05:50 -0500
-Subject: [PATCH] bnxt_en: Fix incorrect multicast rx mask setting when not
- requested
+From b891106da52b2c12dbaf73400f6d225b06a38d80 Mon Sep 17 00:00:00 2001
+From: Michael Chan <michael.chan@broadcom.com>
+Date: Sun, 20 Feb 2022 04:05:52 -0500
+Subject: [PATCH] bnxt_en: Increase firmware message response DMA wait time
 
-We should setup multicast only when net_device flags explicitly
-has IFF_MULTICAST set. Otherwise we will incorrectly turn it on
-even when not asked.  Fix it by only passing the multicast table
-to the firmware if IFF_MULTICAST is set.
+When polling for the firmware message response, we first poll for the
+response message header.  Once the valid length is detected in the
+header, we poll for the valid bit at the end of the message which
+signals DMA completion.  Normally, this poll time for DMA completion
+is extremely short (0 to a few usec).  But on some devices under some
+rare conditions, it can be up to about 20 msec.
 
-Fixes: 7d2837dd7a32 ("bnxt_en: Setup multicast properly after resetting device.")
-Signed-off-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Increase this delay to 50 msec and use udelay() for the first 10 usec
+for the common case, and usleep_range() beyond that.
+
+Also, change the error message to include the above delay time when
+printing the timeout value.
+
+Fixes: 3c8c20db769c ("bnxt_en: move HWRM API implementation into separate file")
+Reviewed-by: Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>
 Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 785436f6dd24..fc5b1d816bdb 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -4747,8 +4747,10 @@ static int bnxt_hwrm_cfa_l2_set_rx_mask(struct bnxt *bp, u16 vnic_id)
- 		return rc;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c
+index 566c9487ef55..b01d42928a53 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.c
+@@ -644,17 +644,23 @@ static int __hwrm_send(struct bnxt *bp, struct bnxt_hwrm_ctx *ctx)
  
- 	req->vnic_id = cpu_to_le32(vnic->fw_vnic_id);
--	req->num_mc_entries = cpu_to_le32(vnic->mc_list_count);
--	req->mc_tbl_addr = cpu_to_le64(vnic->mc_list_mapping);
-+	if (vnic->rx_mask & CFA_L2_SET_RX_MASK_REQ_MASK_MCAST) {
-+		req->num_mc_entries = cpu_to_le32(vnic->mc_list_count);
-+		req->mc_tbl_addr = cpu_to_le64(vnic->mc_list_mapping);
-+	}
- 	req->mask = cpu_to_le32(vnic->rx_mask);
- 	return hwrm_req_send_silent(bp, req);
+ 		/* Last byte of resp contains valid bit */
+ 		valid = ((u8 *)ctx->resp) + len - 1;
+-		for (j = 0; j < HWRM_VALID_BIT_DELAY_USEC; j++) {
++		for (j = 0; j < HWRM_VALID_BIT_DELAY_USEC; ) {
+ 			/* make sure we read from updated DMA memory */
+ 			dma_rmb();
+ 			if (*valid)
+ 				break;
+-			usleep_range(1, 5);
++			if (j < 10) {
++				udelay(1);
++				j++;
++			} else {
++				usleep_range(20, 30);
++				j += 20;
++			}
+ 		}
+ 
+ 		if (j >= HWRM_VALID_BIT_DELAY_USEC) {
+ 			hwrm_err(bp, ctx, "Error (timeout: %u) msg {0x%x 0x%x} len:%d v:%d\n",
+-				 hwrm_total_timeout(i), req_type,
++				 hwrm_total_timeout(i) + j, req_type,
+ 				 le16_to_cpu(ctx->req->seq_id), len, *valid);
+ 			goto exit;
+ 		}
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h b/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h
+index d52bd2d63aec..c98032e38188 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_hwrm.h
+@@ -90,7 +90,7 @@ static inline unsigned int hwrm_total_timeout(unsigned int n)
  }
-@@ -8651,7 +8653,7 @@ static int bnxt_init_chip(struct bnxt *bp, bool irq_re_init)
- 	if (bp->dev->flags & IFF_ALLMULTI) {
- 		vnic->rx_mask |= CFA_L2_SET_RX_MASK_REQ_MASK_ALL_MCAST;
- 		vnic->mc_list_count = 0;
--	} else {
-+	} else if (bp->dev->flags & IFF_MULTICAST) {
- 		u32 mask = 0;
  
- 		bnxt_mc_list_updated(bp, &mask);
-@@ -10779,7 +10781,7 @@ static void bnxt_set_rx_mode(struct net_device *dev)
- 	if (dev->flags & IFF_ALLMULTI) {
- 		mask |= CFA_L2_SET_RX_MASK_REQ_MASK_ALL_MCAST;
- 		vnic->mc_list_count = 0;
--	} else {
-+	} else if (dev->flags & IFF_MULTICAST) {
- 		mc_update = bnxt_mc_list_updated(bp, &mask);
- 	}
  
-@@ -10856,9 +10858,10 @@ static int bnxt_cfg_rx_mode(struct bnxt *bp)
- 	    !bnxt_promisc_ok(bp))
- 		vnic->rx_mask &= ~CFA_L2_SET_RX_MASK_REQ_MASK_PROMISCUOUS;
- 	rc = bnxt_hwrm_cfa_l2_set_rx_mask(bp, 0);
--	if (rc && vnic->mc_list_count) {
-+	if (rc && (vnic->rx_mask & CFA_L2_SET_RX_MASK_REQ_MASK_MCAST)) {
- 		netdev_info(bp->dev, "Failed setting MC filters rc: %d, turning on ALL_MCAST mode\n",
- 			    rc);
-+		vnic->rx_mask &= ~CFA_L2_SET_RX_MASK_REQ_MASK_MCAST;
- 		vnic->rx_mask |= CFA_L2_SET_RX_MASK_REQ_MASK_ALL_MCAST;
- 		vnic->mc_list_count = 0;
- 		rc = bnxt_hwrm_cfa_l2_set_rx_mask(bp, 0);
+-#define HWRM_VALID_BIT_DELAY_USEC	150
++#define HWRM_VALID_BIT_DELAY_USEC	50000
+ 
+ static inline bool bnxt_cfa_hwrm_message(u16 req_type)
+ {
 
