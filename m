@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B29C94C5420
-	for <lists+stable@lfdr.de>; Sat, 26 Feb 2022 07:16:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8E764C5423
+	for <lists+stable@lfdr.de>; Sat, 26 Feb 2022 07:17:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229882AbiBZGRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Feb 2022 01:17:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53048 "EHLO
+        id S229865AbiBZGRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Feb 2022 01:17:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229501AbiBZGRF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Feb 2022 01:17:05 -0500
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AB3918A780;
-        Fri, 25 Feb 2022 22:16:30 -0800 (PST)
-Received: from dggpeml500020.china.huawei.com (unknown [172.30.72.55])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4K5GWF4L55z1FDTd;
-        Sat, 26 Feb 2022 14:11:53 +0800 (CST)
+        with ESMTP id S229501AbiBZGRg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Feb 2022 01:17:36 -0500
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA5B318A780;
+        Fri, 25 Feb 2022 22:17:02 -0800 (PST)
+Received: from dggpeml500020.china.huawei.com (unknown [172.30.72.54])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4K5Gbk2SwFzdfj6;
+        Sat, 26 Feb 2022 14:15:46 +0800 (CST)
 Received: from huawei.com (10.175.127.227) by dggpeml500020.china.huawei.com
  (7.185.36.88) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.21; Sat, 26 Feb
- 2022 14:16:27 +0800
+ 2022 14:16:59 +0800
 From:   Baokun Li <libaokun1@huawei.com>
 To:     <linux-kernel@vger.kernel.org>
 CC:     <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>,
         <oliver.sang@intel.com>, <beibei.si@intel.com>, <jannh@google.com>,
         <mszeredi@redhat.com>, <torvalds@linux-foundation.org>,
         <libaokun1@huawei.com>, <yukuai3@huawei.com>
-Subject: [PATCH 5.4] fget: clarify and improve __fget_files() implementation
-Date:   Sat, 26 Feb 2022 14:32:01 +0800
-Message-ID: <20220226063201.167183-1-libaokun1@huawei.com>
+Subject: [PATCH 4.19] fget: clarify and improve __fget_files() implementation
+Date:   Sat, 26 Feb 2022 14:32:33 +0800
+Message-ID: <20220226063233.167755-1-libaokun1@huawei.com>
 X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
 X-Originating-IP: [10.175.127.227]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
  dggpeml500020.china.huawei.com (7.185.36.88)
 X-CFilter-Loop: Reflected
 X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
@@ -92,10 +92,10 @@ Signed-off-by: Baokun Li <libaokun1@huawei.com>
  1 file changed, 57 insertions(+), 16 deletions(-)
 
 diff --git a/fs/file.c b/fs/file.c
-index 09cefc944f86..51f53a7dc221 100644
+index 9a6a3bba53af..d6ca500a1053 100644
 --- a/fs/file.c
 +++ b/fs/file.c
-@@ -706,28 +706,69 @@ void do_close_on_exec(struct files_struct *files)
+@@ -677,28 +677,69 @@ void do_close_on_exec(struct files_struct *files)
  	spin_unlock(&files->file_lock);
  }
  
