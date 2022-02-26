@@ -2,160 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 380034C5265
-	for <lists+stable@lfdr.de>; Sat, 26 Feb 2022 01:07:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA8F04C52AE
+	for <lists+stable@lfdr.de>; Sat, 26 Feb 2022 01:24:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239990AbiBZAIV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 19:08:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59444 "EHLO
+        id S241263AbiBZAZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 19:25:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238742AbiBZAIV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 19:08:21 -0500
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C6C8A41B3;
-        Fri, 25 Feb 2022 16:07:44 -0800 (PST)
-Received: by mail-pj1-x1036.google.com with SMTP id m22so6182339pja.0;
-        Fri, 25 Feb 2022 16:07:44 -0800 (PST)
+        with ESMTP id S237834AbiBZAZI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 19:25:08 -0500
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE039199D79
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 16:24:34 -0800 (PST)
+Received: by mail-yb1-xb49.google.com with SMTP id a19-20020a25ca13000000b0061db44646b3so5016601ybg.2
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 16:24:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:subject:to:cc:references:in-reply-to:mime-version
-         :message-id:content-transfer-encoding;
-        bh=c5B6JRpH2tbmLBFBMPjCFNLPBgu4FT5DIbHXGYJdCK8=;
-        b=MmF7aDNZ0tCRKCA08hEFDy64f+YnQ2/g6cOWR4EuXliwFwbU0Vu48vP/mdNsKXQeyZ
-         EeSvXiWEUGzXToeTYPgpa6MFBK3iab+OaDsdhIKZxv4sdPiflwZZvHioYRhpL5iqKoQu
-         PJp8yRfo4e95feVAS+zetRfXI2De+dfnuJ7+Td+RwqYVjrdmIBUtIzApG5HZoJuLjuOi
-         OHquYyPAM9s74SnqQcjS+PKNRNsLV31TGtolp6h57rm2yCdYqog0aTTMiGntqVR4lfeI
-         ieDUgO/0TSqeVgvAI6Ovh8YoMMkroBoJSaBlcrEqhy3uUmvWWHmx4EzzVDzjcWp0JfbX
-         MV4g==
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=c5XxepI0RiJzH9nImzDTpadEG2SO2IU4ZT8K2Wm0fgw=;
+        b=iwU9nbdapI4QDtZoaxiJdFfKk1Aeelgfe69uZJ/lOO24OOX3A5QLJPiH4qboOUz+2t
+         zQ09GP9qcVBfCxpp8LeUQrCciTFqyr3ZfNXtHmQcDdshuU8oBAZQYGNMMsLvF1rrJSy0
+         xgl5ybIbuKPpkxSdP4WL+dvjKkd+mHI6inkn2YcaLxC09Mz1DhKHMnY5GFhO+SCythBy
+         J5KTKZYcptRIR/A8cB0AHU+KBOeaXdbwJSaeFWuzemzTsZh9FW8r2PUqyNenl0z+4moK
+         scvXa+QlOZ7lJ9J3duby8Kr1w1z/3ERSbJTInf29y1U66/ojmBs2Psy+xnZMhY6dGx+E
+         5nFA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:subject:to:cc:references:in-reply-to
-         :mime-version:message-id:content-transfer-encoding;
-        bh=c5B6JRpH2tbmLBFBMPjCFNLPBgu4FT5DIbHXGYJdCK8=;
-        b=f6Edy9BD9RHXfNWuKWxtNzYYs/u6gobAo3/7FexLz7Cy8r0Mfj6nAZnx/H8OU/apXM
-         agNg1Z+n2Ts9Wd2mT/lvFAXIkzNN3+h6JwB8xDYxOvcCF9OEChIWAO6r1W+M4hbyaNpR
-         ZwfxP/lagBVejWhiETh0TV+b8awTArxOJwk8NlcL9bOb8Dg0OEO6bnSw7IXqqRst3OCg
-         wwq/c9p6wUj51lZYueJQJpAUyJzxCiOYPGD8TXz5tWrvOnUU9WZpNOa/X3Rt0oRt3bNY
-         awNlFMPMPyL4413RYMzSCmTs/0n5/rwWG9VKWADLCzRK4q6nPNyJRXbjvkE+t+Lc7Kge
-         3iBQ==
-X-Gm-Message-State: AOAM533s5Q4IuhcULt0W5uBNJavodMe2/3uWf2CfeXba0494rE/jyUrM
-        9ra+yJ4lZgb5h+4MckK+8DStrng4YLA=
-X-Google-Smtp-Source: ABdhPJz8UcTnhJMjqVzj//IRynVGj6DHXJzLRxFY20AEWWT0+6hgtNUecNWrIpo0/D5GJEv1WjEHug==
-X-Received: by 2002:a17:902:8bcc:b0:14f:2294:232e with SMTP id r12-20020a1709028bcc00b0014f2294232emr9754162plo.105.1645834063924;
-        Fri, 25 Feb 2022 16:07:43 -0800 (PST)
-Received: from localhost (118-208-203-92.tpgi.com.au. [118.208.203.92])
-        by smtp.gmail.com with ESMTPSA id g9-20020a056a0023c900b004e10365c47dsm4550030pfc.192.2022.02.25.16.07.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Feb 2022 16:07:43 -0800 (PST)
-Date:   Sat, 26 Feb 2022 10:07:38 +1000
-From:   Nicholas Piggin <npiggin@gmail.com>
-Subject: Re: [PATCH 2/3] powerpc: fix build errors
-To:     Segher Boessenkool <segher@kernel.crashing.org>
-Cc:     Anders Roxell <anders.roxell@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        "# 3.4.x" <stable@vger.kernel.org>
-References: <20220223135820.2252470-1-anders.roxell@linaro.org>
-        <20220223135820.2252470-2-anders.roxell@linaro.org>
-        <1645670923.t0z533n7uu.astroid@bobo.none>
-        <1645678884.dsm10mudmp.astroid@bobo.none>
-        <CAK8P3a28XEN7aH-WdR=doBQKGskiTAeNsjbfvaD5YqEZNM=v0g@mail.gmail.com>
-        <1645694174.z03tip9set.astroid@bobo.none>
-        <CAK8P3a1LgZkAV2wX03hAgx527MuiFt5ABWFp1bGdsTGc=8OmMg@mail.gmail.com>
-        <1645700767.qxyu8a9wl9.astroid@bobo.none>
-        <20220224172948.GN614@gate.crashing.org>
-        <1645748553.sa2ewgy7dr.astroid@bobo.none>
-        <20220225222841.GS614@gate.crashing.org>
-In-Reply-To: <20220225222841.GS614@gate.crashing.org>
-MIME-Version: 1.0
-Message-Id: <1645833637.za1t01a9md.astroid@bobo.none>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=c5XxepI0RiJzH9nImzDTpadEG2SO2IU4ZT8K2Wm0fgw=;
+        b=Xk1PkflQZ3EW5DOYmhKjCMROVyQwJR0NYwW0qDAkQn83QQtEuVKiZ3wgwF9BqIhpEl
+         Vft4PqSDAKq5uRDzfwI2lQUSb5fdoSzop8z1MzgxnRMhtVScTYSr6KK+i9TErsCBs758
+         VU1pqV5ng09OB3f9deCXE/HmtFfu5wkq/pfCiCGezToyqgT40Zr48P0O6qe/A6tCqErH
+         4G5L9ILNN/mXxtRW/jrQ1thCOwql0a5BAAuwxqxqg1biyZDLXeXInrW8J3q8fNAWRXtw
+         CtqoLRCeh8n9q7w9/49kT+lbhLr8Xq2iPBdsSRXLNNEC/bSpT1a711kUtV+F1gfcVvOl
+         EU2w==
+X-Gm-Message-State: AOAM532qBawTau4P5gf2ocABkKBbODY1W3eKtBKWmwKqrmtICbO3RqEX
+        lvqfICJfOhlRXvBC95M7TeyNjuq8Wv8dvg==
+X-Google-Smtp-Source: ABdhPJzqsLR7y0lfbkwTXvPkY6+2FHJWcDSoxXSS/X5D8//dIU/36RB8yXNtw/F6Ve7tENac2apQuJ7ROS38pQ==
+X-Received: from shakeelb.svl.corp.google.com ([2620:15c:2cd:202:1a3e:f375:915f:ad7e])
+ (user=shakeelb job=sendgmr) by 2002:a25:2b0a:0:b0:624:a898:3e2f with SMTP id
+ r10-20020a252b0a000000b00624a8983e2fmr9753491ybr.643.1645835074125; Fri, 25
+ Feb 2022 16:24:34 -0800 (PST)
+Date:   Fri, 25 Feb 2022 16:24:12 -0800
+Message-Id: <20220226002412.113819-1-shakeelb@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.35.1.574.g5d30c73bfb-goog
+Subject: [PATCH] memcg: async flush memcg stats from perf sensitive codepaths
+From:   Shakeel Butt <shakeelb@google.com>
+To:     "=?UTF-8?q?Michal=20Koutn=C3=BD?=" <mkoutny@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Roman Gushchin <roman.gushchin@linux.dev>
+Cc:     Ivan Babrou <ivan@cloudflare.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        cgroups@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Daniel Dao <dqminh@cloudflare.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Excerpts from Segher Boessenkool's message of February 26, 2022 8:28 am:
-> On Fri, Feb 25, 2022 at 10:23:07AM +1000, Nicholas Piggin wrote:
->> Excerpts from Segher Boessenkool's message of February 25, 2022 3:29 am:
->> > On Thu, Feb 24, 2022 at 09:13:25PM +1000, Nicholas Piggin wrote:
->> >> Excerpts from Arnd Bergmann's message of February 24, 2022 8:20 pm:
->> >> > Again, there should be a minimum number of those .machine directive=
-s
->> >> > in inline asm as well, which tends to work out fine as long as the
->> >> > entire kernel is built with the correct -march=3D option for the mi=
-nimum
->> >> > supported CPU, and stays away from inline asm that requires a highe=
-r
->> >> > CPU level.
->> >>=20
->> >> There's really no advantage to them, and they're ugly and annoying
->> >> and if we applied the concept consistently for all asm they would gro=
-w=20
->> >> to a very large number.
->> >=20
->> > The advantage is that you get machine code that *works*.  There are
->> > quite a few mnemonics that translate to different instructions with
->> > different machine options!  We like to get the intended instructions
->> > instead of something that depends on what assembler options the user
->> > has passed behind our backs.
->> >=20
->> >> The idea they'll give you good static checking just doesn't really
->> >> pan out.
->> >=20
->> > That never was a goal of this at all.
->> >=20
->> > -many was very problematical for GCC itself.  We no longer use it.
->>=20
->> You have the wrong context. We're not talking about -many vs .machine
->> here.
->=20
-> Okay, so you have no idea what you are talking about?  Wow.
+Daniel Dao has reported [1] a regression on workloads that may trigger
+a lot of refaults (anon and file). The underlying issue is that flushing
+rstat is expensive. Although rstat flush are batched with (nr_cpus *
+MEMCG_BATCH) stat updates, it seems like there are workloads which
+genuinely do stat updates larger than batch value within short amount of
+time. Since the rstat flush can happen in the performance critical
+codepaths like page faults, such workload can suffer greatly.
 
-Wrong context. It's not about -many. We're past that everyone agrees=20
-it's wrong.
+The easiest fix for now is for performance critical codepaths trigger
+the rstat flush asynchronously. This patch converts the refault codepath
+to use async rstat flush. In addition, this patch has premptively
+converted mem_cgroup_wb_stats and shrink_node to also use the async
+rstat flush as they may also similar performance regressions.
 
-> The reason GCC uses .machine *itself* is because assembler -mmachine
-> options *cannot work*, for many reasons.  We hit problems often enough
-> that years ago we started moving away from it already.  The biggest
-> problems are that on one hand there are mnemonics that encode to
-> different instructions depending on target arch or cpu selected (like
-> mftb, lxvx, wait, etc.), and on the other hand GCC needs to switch that
-> target halfway through compilation (attribute((target(...)))).
->=20
-> Often these problems were hidden most of the time by us passing -many.
-> But not all of the time, and over time, problems became more frequent
-> and nasty.
->=20
-> Passing assembler -m options is nasty when you have to mix it with
-> .machine statements (and we need the latter no matter what), and it
+Link: https://lore.kernel.org/all/CA+wXwBSyO87ZX5PVwdHm-=dBjZYECGmfnydUicUyrQqndgX2MQ@mail.gmail.com [1]
+Fixes: 1f828223b799 ("memcg: flush lruvec stats in the refault")
+Reported-by: Daniel Dao <dqminh@cloudflare.com>
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>
+---
+ include/linux/memcontrol.h |  1 +
+ mm/memcontrol.c            | 10 +++++++++-
+ mm/vmscan.c                |  2 +-
+ mm/workingset.c            |  2 +-
+ 4 files changed, 12 insertions(+), 3 deletions(-)
 
-No it's not nasty, read the gas manual. -m specifies the machine and
-so does .machine. It's simple.
+diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
+index ef4b445392a9..bfdd48be60ff 100644
+--- a/include/linux/memcontrol.h
++++ b/include/linux/memcontrol.h
+@@ -998,6 +998,7 @@ static inline unsigned long lruvec_page_state_local(struct lruvec *lruvec,
+ }
+ 
+ void mem_cgroup_flush_stats(void);
++void mem_cgroup_flush_stats_async(void);
+ 
+ void __mod_memcg_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
+ 			      int val);
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index c695608c521c..4338e8d779b2 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -690,6 +690,14 @@ void mem_cgroup_flush_stats(void)
+ 		__mem_cgroup_flush_stats();
+ }
+ 
++void mem_cgroup_flush_stats_async(void)
++{
++	if (atomic_read(&stats_flush_threshold) > num_online_cpus()) {
++		atomic_set(&stats_flush_threshold, 0);
++		mod_delayed_work(system_unbound_wq, &stats_flush_dwork, 0);
++	}
++}
++
+ static void flush_memcg_stats_dwork(struct work_struct *w)
+ {
+ 	__mem_cgroup_flush_stats();
+@@ -4522,7 +4530,7 @@ void mem_cgroup_wb_stats(struct bdi_writeback *wb, unsigned long *pfilepages,
+ 	struct mem_cgroup *memcg = mem_cgroup_from_css(wb->memcg_css);
+ 	struct mem_cgroup *parent;
+ 
+-	mem_cgroup_flush_stats();
++	mem_cgroup_flush_stats_async();
+ 
+ 	*pdirty = memcg_page_state(memcg, NR_FILE_DIRTY);
+ 	*pwriteback = memcg_page_state(memcg, NR_WRITEBACK);
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index c6f77e3e6d59..b6c6b165c1ef 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -3188,7 +3188,7 @@ static void shrink_node(pg_data_t *pgdat, struct scan_control *sc)
+ 	 * Flush the memory cgroup stats, so that we read accurate per-memcg
+ 	 * lruvec stats for heuristics.
+ 	 */
+-	mem_cgroup_flush_stats();
++	mem_cgroup_flush_stats_async();
+ 
+ 	memset(&sc->nr, 0, sizeof(sc->nr));
+ 
+diff --git a/mm/workingset.c b/mm/workingset.c
+index b717eae4e0dd..a4f2b1aa5bcc 100644
+--- a/mm/workingset.c
++++ b/mm/workingset.c
+@@ -355,7 +355,7 @@ void workingset_refault(struct folio *folio, void *shadow)
+ 
+ 	mod_lruvec_state(lruvec, WORKINGSET_REFAULT_BASE + file, nr);
+ 
+-	mem_cgroup_flush_stats();
++	mem_cgroup_flush_stats_async();
+ 	/*
+ 	 * Compare the distance to the existing workingset size. We
+ 	 * don't activate pages that couldn't stay resident even if
+-- 
+2.35.1.574.g5d30c73bfb-goog
 
-> becomes completely unpredictable if the user passes other -m options
-> manually.
-> Inline assembler is inserted textually in the generated assembler code.
-> This is a big part of the strength of inline assembler.  It does mean
-> that if you need a different target selected for your assembler code
-> then you need to arrange for that in your assembler code.
->=20
-> So yes, this very much is about -many, other -m options, and .machine .
-> I discourage the kernel (as well as any other project) from using -m
-> options, especially -many, but that is your own choice of course.  I
-> get sick and tired from you calling a deliberate design decision we
-> arrived at after years of work and weighing alternatives a "bug" though.
-
-Alan posted a good summary here
-
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=3D102485#c10
-
-Thanks,
-Nick
