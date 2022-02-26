@@ -2,70 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D84D54C52B8
-	for <lists+stable@lfdr.de>; Sat, 26 Feb 2022 01:37:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEDA14C52C0
+	for <lists+stable@lfdr.de>; Sat, 26 Feb 2022 01:48:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236619AbiBZAhj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Feb 2022 19:37:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52314 "EHLO
+        id S240019AbiBZAtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Feb 2022 19:49:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbiBZAhi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 19:37:38 -0500
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 276F2186225
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 16:37:05 -0800 (PST)
-Received: by mail-lf1-x12c.google.com with SMTP id bu29so12153929lfb.0
-        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 16:37:05 -0800 (PST)
+        with ESMTP id S234434AbiBZAtV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Feb 2022 19:49:21 -0500
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F0D61E7A68
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 16:48:46 -0800 (PST)
+Received: by mail-pj1-x102a.google.com with SMTP id gb21so6181685pjb.5
+        for <stable@vger.kernel.org>; Fri, 25 Feb 2022 16:48:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=telus.net; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=61Og9Yekp5IRFCsiJKakDtTPAFN3mj4BaM4Rb6o1lXk=;
-        b=KzJabQUxmwVb5LeknTRMEx6TiZIhMXWUKtTVAaqZ8tEkQy8gPi72GgKo6KJyubSHnO
-         KPSaWLSOhZlGbh1PQkSHBobZS23/56j/yLXbyaIH41EK3uPm1zWBterVhKnxxSKHmg1I
-         QLH27J64qyNWWwSLhvxJsEHRxRQhelzkU/d2BcmA5hwJq3/Bjfo0UXeBAYXmJkiBpKSQ
-         Wesz6TGXin45FijgqQpEkwOVAs82lAq8SIoLshM6VqgoBeGqpbBAhu3StfDsswkicY6s
-         GIl0KthgMmdevTfLmc7qZlzEItFmMxIjjFnOXrv2k7XG01ijq05YvqzFa7fpDc1lz1cH
-         M5/g==
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:content-language:to:cc:from
+         :subject:content-transfer-encoding;
+        bh=lTgmKz4h0VFUW2G/G/MCnTKAAuCp3WKUZt3ECfO+bf4=;
+        b=w3qkq+eybtd2SLDQN77s/j8Rd6/JT53MQ9+1N6xcYg93MPw5jmU1Z84PpEICQkmi/9
+         NgsMREBLcmg1NrDoUjslYNoq22yvWRzxcbuRANHUTG6pLlKpnT1FlBIemu5BYxAUfXAI
+         E8ax3wI1zFsXfNOdTQxSLKszT1dkpj8GTs0BUbGkzoxa/9oDOBu5gMdfxZ6ufwyAyZFc
+         kLesiXDc43kCGYm7lHSY9paUTo15Zi07YLwks5Z05NvjGljfLSNpJhk47FJ1H4pN1i91
+         kg2ZtsafdW2x46mJ5ZuKCCWhHjX9QakZUhypoVbBhmXX5EW7vW3wuHUTRD9YA3Aq/Zki
+         ldHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=61Og9Yekp5IRFCsiJKakDtTPAFN3mj4BaM4Rb6o1lXk=;
-        b=FTQqCg59HrQyCUtpJbHg2F9vUv3ykBShaOPGouwvN1ta9UQIaWmqEQQcL4UKdypV6Q
-         rcvJQ5s9XdOk1pfx+9O+QvafEEWgTmO0VZ1yU73KHM3uTbJRaLZqQ2uG2wL98XwbQ5As
-         DPckvI8WCcjZE7bdD9MWMPl0ypcGCAm3sBazN8HneLrXMpP8iP8yiroFQyDhjPN6+tyL
-         A22f9KjtQFfsYo0BAKMw8HFTMt8xnQLkCWgtSE1aUOh7fynQ1ejR75vPQTvzPcrvIUof
-         CHaRLFQhCGdyxuO3vEm4dSt5o3l2tNqJZPcQYtt0BtyAwxMcoQXdV00Oi+B+Wi0VnjN8
-         BbhQ==
-X-Gm-Message-State: AOAM530PvlVODs8wzBkHxIxYVK8sjkVSelHAGb06zeCP9AnEAcn4BTSa
-        babfP7dah9XmwqBijS4i81aU5gdnjPDSh31Zctvplg==
-X-Google-Smtp-Source: ABdhPJyiU1PsNLMMlY/NOeiguOiai+BrMnQm5Mjpn43memHEapvTbzCUey8NIEKIi2eY+y+cjJ7npkoet/4nQZPgX+k=
-X-Received: by 2002:a05:6512:3408:b0:443:c898:520b with SMTP id
- i8-20020a056512340800b00443c898520bmr6123315lfr.465.1645835823405; Fri, 25
- Feb 2022 16:37:03 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:from:subject:content-transfer-encoding;
+        bh=lTgmKz4h0VFUW2G/G/MCnTKAAuCp3WKUZt3ECfO+bf4=;
+        b=Cn4ng2aUFUKzQ9BHB7f0bBHegzGHv7nabWAgjImNN/jrSed+f4Q7A1Au5ryDaCJI1C
+         tYQ6JUs7a/Ihx6kWkdAA0yL3a4QlrKcRTuebn2vTKcxFQA6KrAlXis9XjmXBYqUQKhQp
+         YSkACHnSawlvXWLP2VNzWmO0N+15WsuPvqhEtRJ7mGtDm+TjJd01iW1viLPUd8DPlfW1
+         V0zNu+HiKRZLoec6GS+jrlNOsKS1LNc6qYMxcJs0L/+6TWRwLmbUZJURUgL51ZnzjvfC
+         pmGz0gbOp94rFAkr0feNaGUz+35dw9Wv0dGG2F22o/srzu7oTtuwoFc3Jx2vWcQhde5k
+         7EMQ==
+X-Gm-Message-State: AOAM533LOLZnXAiFIE/imZ5BNDI4EsVmvbS9ojFbUTjkxjdYXqsL39m8
+        i4/ZGMCVzeOsCFflSZMdbN9QQxOpR8KstA==
+X-Google-Smtp-Source: ABdhPJwUKu4+G7SwwbeGXYsOXu0IXrgWgUiCU31fI9ytMCy/r8Qrh9Vny/YN5679KeKJCEh2IiA/dg==
+X-Received: by 2002:a17:903:4084:b0:14f:cf98:5515 with SMTP id z4-20020a170903408400b0014fcf985515mr9939287plc.124.1645836525638;
+        Fri, 25 Feb 2022 16:48:45 -0800 (PST)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id f15-20020a056a0022cf00b004f3b99a6c43sm4332822pfj.219.2022.02.25.16.48.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 25 Feb 2022 16:48:45 -0800 (PST)
+Message-ID: <99f64e12-04c3-35f5-53c3-c36fb5c6b2a9@linaro.org>
+Date:   Fri, 25 Feb 2022 16:48:44 -0800
 MIME-Version: 1.0
-References: <CAAYoRsXkyWf0vmEE2HvjF6pzCC4utxTF=7AFx1PJv4Evh=C+Ow@mail.gmail.com>
- <CAJZ5v0jsy0q3-ZqYvDrswY1F+tJsG6oNjNJPzz9zzkgdnoMwkw@mail.gmail.com>
- <20220224080830.GD4548@shbuild999.sh.intel.com> <5562542.DvuYhMxLoT@kreacher>
-In-Reply-To: <5562542.DvuYhMxLoT@kreacher>
-From:   Doug Smythies <dsmythies@telus.net>
-Date:   Fri, 25 Feb 2022 16:36:53 -0800
-Message-ID: <CAAYoRsW4LqNvSZ3Et5fqeFcHQ9j9-0u9Y-LN9DmpCS3wG3+NWg@mail.gmail.com>
-Subject: Re: CPU excessively long times between frequency scaling driver calls
- - bisected
-To:     "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc:     Feng Tang <feng.tang@intel.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Zhang, Rui" <rui.zhang@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "paulmck@kernel.org" <paulmck@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "x86@kernel.org" <x86@kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        dsmythies <dsmythies@telus.net>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Content-Language: en-US
+To:     Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Cc:     io-uring@vger.kernel.org, stable@vger.kernel.org
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+Subject: KASAN: use-after-free Read in __fdget_raw
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -76,227 +70,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 25, 2022 at 9:46 AM Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
->
-> On Thursday, February 24, 2022 9:08:30 AM CET Feng Tang wrote:
-...
-> > > So it looks like a new mechanism is needed for that.
-> >
-> > If you think idle class is not the right place to solve it, I can
-> > also help testing new patches.
->
-> So I have the appended experimental patch to address this issue that's not
-> been tested at all.  Caveat emptor.
+Hi Jens,
+Sysbot found an UAF bug in __fdget_raw [1].
+The issue triggers on 5.10 stable, and doesn't trigger on mainline.
+I was able to bisect it to the fixing commit:
+commit fb3a1f6c745c "io-wq: have manager wait for all workers to exit"
 
-Hi Rafael,
+The fix went in around 5.12 kernel and was part of a bigger series of uio fixes:
+https://lore.kernel.org/all/20210304002700.374417-3-axboe@kernel.dk/
 
-O.K., you gave fair warning.
+Then I found out that there is one more fix needed on top:
+"io-wq: fix race in freeing 'wq' and worker access"
+https://lore.kernel.org/all/20210310224358.1494503-2-axboe@kernel.dk/
 
-The patch applied fine.
-It does not compile for me.
-The function cpuidle_update_retain_tick does not exist.
-Shouldn't it be somewhere in cpuidle.c?
-I used the function cpuidle_disable_device as a template
-for searching and comparing.
+I have back ported the two patches to 5.10, see patch below, but the issue still
+triggers. See trace [2]
+Could you have a look and see what else could be missing. Any suggestion would
+be appreciated.
 
-Because all of my baseline results are with kernel 5.17-rc3,
-that is what I am still using.
+-- 
+Thanks,
+Tadeusz
 
-Error:
-ld: drivers/cpufreq/intel_pstate.o: in function `intel_pstate_update_perf_ctl':
-intel_pstate.c:(.text+0x2520): undefined reference to
-`cpuidle_update_retain_tick'
+[1] https://syzkaller.appspot.com/bug?id=54c4ddb7a0d44bd9fbdc22d19caff5f2098081fe
+[2] https://pastebin.linaro.org/view/raw/263a8d9f
 
-... Doug
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 3d5fc76b92d0..c39568971288 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -125,6 +125,9 @@ struct io_wq {
+  	refcount_t refs;
+  	struct completion done;
 
->
-> I've been looking for something relatively low-overhead and taking all of the
-> dependencies into account.
->
-> ---
->  drivers/cpufreq/intel_pstate.c     |   40 ++++++++++++++++++++++++++++---------
->  drivers/cpuidle/governors/ladder.c |    6 +++--
->  drivers/cpuidle/governors/menu.c   |    2 +
->  drivers/cpuidle/governors/teo.c    |    3 ++
->  include/linux/cpuidle.h            |    4 +++
->  5 files changed, 44 insertions(+), 11 deletions(-)
->
-> Index: linux-pm/drivers/cpuidle/governors/menu.c
-> ===================================================================
-> --- linux-pm.orig/drivers/cpuidle/governors/menu.c
-> +++ linux-pm/drivers/cpuidle/governors/menu.c
-> @@ -284,6 +284,8 @@ static int menu_select(struct cpuidle_dr
->         if (unlikely(delta < 0)) {
->                 delta = 0;
->                 delta_tick = 0;
-> +       } else if (dev->retain_tick) {
-> +               delta = delta_tick;
->         }
->         data->next_timer_ns = delta;
->
-> Index: linux-pm/drivers/cpuidle/governors/teo.c
-> ===================================================================
-> --- linux-pm.orig/drivers/cpuidle/governors/teo.c
-> +++ linux-pm/drivers/cpuidle/governors/teo.c
-> @@ -308,6 +308,9 @@ static int teo_select(struct cpuidle_dri
->         cpu_data->time_span_ns = local_clock();
->
->         duration_ns = tick_nohz_get_sleep_length(&delta_tick);
-> +       if (dev->retain_tick)
-> +               duration_ns = delta_tick;
-> +
->         cpu_data->sleep_length_ns = duration_ns;
->
->         /* Check if there is any choice in the first place. */
-> Index: linux-pm/include/linux/cpuidle.h
-> ===================================================================
-> --- linux-pm.orig/include/linux/cpuidle.h
-> +++ linux-pm/include/linux/cpuidle.h
-> @@ -93,6 +93,7 @@ struct cpuidle_device {
->         unsigned int            registered:1;
->         unsigned int            enabled:1;
->         unsigned int            poll_time_limit:1;
-> +       unsigned int            retain_tick:1;
->         unsigned int            cpu;
->         ktime_t                 next_hrtimer;
->
-> @@ -172,6 +173,8 @@ extern int cpuidle_play_dead(void);
->  extern struct cpuidle_driver *cpuidle_get_cpu_driver(struct cpuidle_device *dev);
->  static inline struct cpuidle_device *cpuidle_get_device(void)
->  {return __this_cpu_read(cpuidle_devices); }
-> +
-> +extern void cpuidle_update_retain_tick(bool val);
->  #else
->  static inline void disable_cpuidle(void) { }
->  static inline bool cpuidle_not_available(struct cpuidle_driver *drv,
-> @@ -211,6 +214,7 @@ static inline int cpuidle_play_dead(void
->  static inline struct cpuidle_driver *cpuidle_get_cpu_driver(
->         struct cpuidle_device *dev) {return NULL; }
->  static inline struct cpuidle_device *cpuidle_get_device(void) {return NULL; }
-> +static inline void cpuidle_update_retain_tick(bool val) { }
->  #endif
->
->  #ifdef CONFIG_CPU_IDLE
-> Index: linux-pm/drivers/cpufreq/intel_pstate.c
-> ===================================================================
-> --- linux-pm.orig/drivers/cpufreq/intel_pstate.c
-> +++ linux-pm/drivers/cpufreq/intel_pstate.c
-> @@ -19,6 +19,7 @@
->  #include <linux/list.h>
->  #include <linux/cpu.h>
->  #include <linux/cpufreq.h>
-> +#include <linux/cpuidle.h>
->  #include <linux/sysfs.h>
->  #include <linux/types.h>
->  #include <linux/fs.h>
-> @@ -1970,6 +1971,30 @@ static inline void intel_pstate_cppc_set
->  }
->  #endif /* CONFIG_ACPI_CPPC_LIB */
->
-> +static void intel_pstate_update_perf_ctl(struct cpudata *cpu)
-> +{
-> +       int pstate = cpu->pstate.current_pstate;
-> +
-> +       /*
-> +        * Avoid stopping the scheduler tick from cpuidle on CPUs in turbo
-> +        * P-states to prevent them from getting back to the high frequency
-> +        * right away after getting out of deep idle.
-> +        */
-> +       cpuidle_update_retain_tick(pstate > cpu->pstate.max_pstate);
-> +       wrmsrl(MSR_IA32_PERF_CTL, pstate_funcs.get_val(cpu, pstate));
-> +}
-> +
-> +static void intel_pstate_update_perf_ctl_wrapper(void *cpu_data)
-> +{
-> +       intel_pstate_update_perf_ctl(cpu_data);
-> +}
-> +
-> +static void intel_pstate_update_perf_ctl_on_cpu(struct cpudata *cpu)
-> +{
-> +       smp_call_function_single(cpu->cpu, intel_pstate_update_perf_ctl_wrapper,
-> +                                cpu, 1);
-> +}
-> +
->  static void intel_pstate_set_pstate(struct cpudata *cpu, int pstate)
->  {
->         trace_cpu_frequency(pstate * cpu->pstate.scaling, cpu->cpu);
-> @@ -1979,8 +2004,7 @@ static void intel_pstate_set_pstate(stru
->          * the CPU being updated, so force the register update to run on the
->          * right CPU.
->          */
-> -       wrmsrl_on_cpu(cpu->cpu, MSR_IA32_PERF_CTL,
-> -                     pstate_funcs.get_val(cpu, pstate));
-> +       intel_pstate_update_perf_ctl_on_cpu(cpu);
->  }
->
->  static void intel_pstate_set_min_pstate(struct cpudata *cpu)
-> @@ -2256,7 +2280,7 @@ static void intel_pstate_update_pstate(s
->                 return;
->
->         cpu->pstate.current_pstate = pstate;
-> -       wrmsrl(MSR_IA32_PERF_CTL, pstate_funcs.get_val(cpu, pstate));
-> +       intel_pstate_update_perf_ctl(cpu);
->  }
->
->  static void intel_pstate_adjust_pstate(struct cpudata *cpu)
-> @@ -2843,11 +2867,9 @@ static void intel_cpufreq_perf_ctl_updat
->                                           u32 target_pstate, bool fast_switch)
->  {
->         if (fast_switch)
-> -               wrmsrl(MSR_IA32_PERF_CTL,
-> -                      pstate_funcs.get_val(cpu, target_pstate));
-> +               intel_pstate_update_perf_ctl(cpu);
->         else
-> -               wrmsrl_on_cpu(cpu->cpu, MSR_IA32_PERF_CTL,
-> -                             pstate_funcs.get_val(cpu, target_pstate));
-> +               intel_pstate_update_perf_ctl_on_cpu(cpu);
->  }
->
->  static int intel_cpufreq_update_pstate(struct cpufreq_policy *policy,
-> @@ -2857,6 +2879,8 @@ static int intel_cpufreq_update_pstate(s
->         int old_pstate = cpu->pstate.current_pstate;
->
->         target_pstate = intel_pstate_prepare_request(cpu, target_pstate);
-> +       cpu->pstate.current_pstate = target_pstate;
-> +
->         if (hwp_active) {
->                 int max_pstate = policy->strict_target ?
->                                         target_pstate : cpu->max_perf_ratio;
-> @@ -2867,8 +2891,6 @@ static int intel_cpufreq_update_pstate(s
->                 intel_cpufreq_perf_ctl_update(cpu, target_pstate, fast_switch);
->         }
->
-> -       cpu->pstate.current_pstate = target_pstate;
-> -
->         intel_cpufreq_trace(cpu, fast_switch ? INTEL_PSTATE_TRACE_FAST_SWITCH :
->                             INTEL_PSTATE_TRACE_TARGET, old_pstate);
->
-> Index: linux-pm/drivers/cpuidle/governors/ladder.c
-> ===================================================================
-> --- linux-pm.orig/drivers/cpuidle/governors/ladder.c
-> +++ linux-pm/drivers/cpuidle/governors/ladder.c
-> @@ -61,10 +61,10 @@ static inline void ladder_do_selection(s
->   * ladder_select_state - selects the next state to enter
->   * @drv: cpuidle driver
->   * @dev: the CPU
-> - * @dummy: not used
-> + * @stop_tick: Whether or not to stop the scheduler tick
->   */
->  static int ladder_select_state(struct cpuidle_driver *drv,
-> -                              struct cpuidle_device *dev, bool *dummy)
-> +                              struct cpuidle_device *dev, bool *stop_tick)
->  {
->         struct ladder_device *ldev = this_cpu_ptr(&ladder_devices);
->         struct ladder_device_state *last_state;
-> @@ -73,6 +73,8 @@ static int ladder_select_state(struct cp
->         s64 latency_req = cpuidle_governor_latency_req(dev->cpu);
->         s64 last_residency;
->
-> +       *stop_tick = !dev->retain_tick;
-> +
->         /* Special case when user has set very strict latency requirement */
->         if (unlikely(latency_req == 0)) {
->                 ladder_do_selection(dev, ldev, last_idx, 0);
->
->
->
++	atomic_t worker_refs;
++	struct completion worker_done;
++
+  	struct hlist_node cpuhp_node;
+
+  	refcount_t use_refs;
+@@ -250,6 +253,10 @@ static void io_worker_exit(struct io_worker *worker)
+  	raw_spin_unlock_irq(&wqe->lock);
+
+  	kfree_rcu(worker, rcu);
++
++	if (atomic_dec_and_test(&wqe->wq->worker_refs))
++		complete(&wqe->wq->worker_done);
++
+  	if (refcount_dec_and_test(&wqe->wq->refs))
+  		complete(&wqe->wq->done);
+  }
+@@ -691,6 +698,7 @@ static bool create_io_worker(struct io_wq *wq, struct io_wqe 
+*wqe, int index)
+  		return false;
+
+  	refcount_set(&worker->ref, 1);
++	atomic_inc(&wq->worker_refs);
+  	worker->nulls_node.pprev = NULL;
+  	worker->wqe = wqe;
+  	spin_lock_init(&worker->lock);
+@@ -821,6 +829,14 @@ static int io_wq_manager(void *data)
+  	if (current->task_works)
+  		task_work_run();
+
++	rcu_read_lock();
++	for_each_node(node)
++		io_wq_for_each_worker(wq->wqes[node], io_wq_worker_wake, NULL);
++	rcu_read_unlock();
++
++	if (atomic_dec_and_test(&wq->worker_refs))
++		complete(&wq->worker_done);
++	wait_for_completion(&wq->worker_done);
+  out:
+  	if (refcount_dec_and_test(&wq->refs)) {
+  		complete(&wq->done);
+@@ -1134,6 +1150,8 @@ struct io_wq *io_wq_create(unsigned bounded, struct 
+io_wq_data *data)
+  	}
+
+  	init_completion(&wq->done);
++	init_completion(&wq->worker_done);
++	atomic_set(&wq->worker_refs, 0);
+
+  	wq->manager = kthread_create(io_wq_manager, wq, "io_wq_manager");
+  	if (!IS_ERR(wq->manager)) {
+@@ -1179,11 +1197,6 @@ static void __io_wq_destroy(struct io_wq *wq)
+  	if (wq->manager)
+  		kthread_stop(wq->manager);
+
+-	rcu_read_lock();
+-	for_each_node(node)
+-		io_wq_for_each_worker(wq->wqes[node], io_wq_worker_wake, NULL);
+-	rcu_read_unlock();
+-
+  	wait_for_completion(&wq->done);
+
+  	for_each_node(node)
+
