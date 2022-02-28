@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E97314C744F
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:44:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B078A4C734E
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236480AbiB1RmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:42:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33678 "EHLO
+        id S237984AbiB1Re3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:34:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236769AbiB1Rkg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:40:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60BBA986DE;
-        Mon, 28 Feb 2022 09:34:35 -0800 (PST)
+        with ESMTP id S238025AbiB1Rck (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:32:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 292F58BE1F;
+        Mon, 28 Feb 2022 09:29:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7536614AC;
-        Mon, 28 Feb 2022 17:34:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC80DC340E7;
-        Mon, 28 Feb 2022 17:34:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A4096145B;
+        Mon, 28 Feb 2022 17:29:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CE7FC340E7;
+        Mon, 28 Feb 2022 17:29:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069674;
-        bh=XFprmJuZOhsQUKyrrUZXt41mOVKvj1+Gs65IZBSSPBM=;
+        s=korg; t=1646069356;
+        bh=p8i4Tq1JhKBA4elh4tr7Rvc8i93blPcxJzdKjp36pJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aab0QNVRVhhgQbnqGfF/AF+TfWconvb7TXxhwB/ZLxyPw7jDqEs2G67oCbVOdLbg5
-         z0oP31OX53gM0hEFUG75VUnbnpJMDWEKXoaQ7/f5QDK3RezqGs/RNBRB/YgPpxTvah
-         lVVKBwBxX93MdGMoCO5pz/5AohdOfy4+cTDWiJ4I=
+        b=wtQBpqBE6FzLowuOQXHAxteeEh52XDMjfXTvc4nX2CAByDlMF4qEr5903IifuJJGP
+         wN7NUsf9ZcAe2Cfnf4gl+oz3ev3a/I3ySfDfKPwEcAkGmajctvZ0hKxtsF7MAWg3at
+         OAejvAIgZqI7aEKJ2v6NAyyQyniiVO6KFsiSvC5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Laibin Qiu <qiulaibin@huawei.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 50/80] configfs: fix a race in configfs_{,un}register_subsystem()
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Daehwan Jung <dh10.jung@samsung.com>
+Subject: [PATCH 4.19 25/34] usb: gadget: rndis: add spinlock for rndis response list
 Date:   Mon, 28 Feb 2022 18:24:31 +0100
-Message-Id: <20220228172317.705510418@linuxfoundation.org>
+Message-Id: <20220228172210.465026719@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
+References: <20220228172207.090703467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,98 +53,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Daehwan Jung <dh10.jung@samsung.com>
 
-[ Upstream commit 84ec758fb2daa236026506868c8796b0500c047d ]
+commit aaaba1c86d04dac8e49bf508b492f81506257da3 upstream.
 
-When configfs_register_subsystem() or configfs_unregister_subsystem()
-is executing link_group() or unlink_group(),
-it is possible that two processes add or delete list concurrently.
-Some unfortunate interleavings of them can cause kernel panic.
+There's no lock for rndis response list. It could cause list corruption
+if there're two different list_add at the same time like below.
+It's better to add in rndis_add_response / rndis_free_response
+/ rndis_get_next_response to prevent any race condition on response list.
 
-One of cases is:
-A --> B --> C --> D
-A <-- B <-- C <-- D
+[  361.894299] [1:   irq/191-dwc3:16979] list_add corruption.
+next->prev should be prev (ffffff80651764d0),
+but was ffffff883dc36f80. (next=ffffff80651764d0).
 
-     delete list_head *B        |      delete list_head *C
---------------------------------|-----------------------------------
-configfs_unregister_subsystem   |   configfs_unregister_subsystem
-  unlink_group                  |     unlink_group
-    unlink_obj                  |       unlink_obj
-      list_del_init             |         list_del_init
-        __list_del_entry        |           __list_del_entry
-          __list_del            |             __list_del
-            // next == C        |
-            next->prev = prev   |
-                                |               next->prev = prev
-            prev->next = next   |
-                                |                 // prev == B
-                                |                 prev->next = next
+[  361.904380] [1:   irq/191-dwc3:16979] Call trace:
+[  361.904391] [1:   irq/191-dwc3:16979]  __list_add_valid+0x74/0x90
+[  361.904401] [1:   irq/191-dwc3:16979]  rndis_msg_parser+0x168/0x8c0
+[  361.904409] [1:   irq/191-dwc3:16979]  rndis_command_complete+0x24/0x84
+[  361.904417] [1:   irq/191-dwc3:16979]  usb_gadget_giveback_request+0x20/0xe4
+[  361.904426] [1:   irq/191-dwc3:16979]  dwc3_gadget_giveback+0x44/0x60
+[  361.904434] [1:   irq/191-dwc3:16979]  dwc3_ep0_complete_data+0x1e8/0x3a0
+[  361.904442] [1:   irq/191-dwc3:16979]  dwc3_ep0_interrupt+0x29c/0x3dc
+[  361.904450] [1:   irq/191-dwc3:16979]  dwc3_process_event_entry+0x78/0x6cc
+[  361.904457] [1:   irq/191-dwc3:16979]  dwc3_process_event_buf+0xa0/0x1ec
+[  361.904465] [1:   irq/191-dwc3:16979]  dwc3_thread_interrupt+0x34/0x5c
 
-Fix this by adding mutex when calling link_group() or unlink_group(),
-but parent configfs_subsystem is NULL when config_item is root.
-So I create a mutex configfs_subsystem_mutex.
-
-Fixes: 7063fbf22611 ("[PATCH] configfs: User-driven configuration filesystem")
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Signed-off-by: Laibin Qiu <qiulaibin@huawei.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: f6281af9d62e ("usb: gadget: rndis: use list_for_each_entry_safe")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Daehwan Jung <dh10.jung@samsung.com>
+Link: https://lore.kernel.org/r/1645507768-77687-1-git-send-email-dh10.jung@samsung.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/configfs/dir.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/usb/gadget/function/rndis.c |    8 ++++++++
+ drivers/usb/gadget/function/rndis.h |    1 +
+ 2 files changed, 9 insertions(+)
 
-diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-index 32ddad3ec5d53..5ad27e484014f 100644
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -36,6 +36,14 @@
-  */
- DEFINE_SPINLOCK(configfs_dirent_lock);
+--- a/drivers/usb/gadget/function/rndis.c
++++ b/drivers/usb/gadget/function/rndis.c
+@@ -922,6 +922,7 @@ struct rndis_params *rndis_register(void
+ 	params->resp_avail = resp_avail;
+ 	params->v = v;
+ 	INIT_LIST_HEAD(&params->resp_queue);
++	spin_lock_init(&params->resp_lock);
+ 	pr_debug("%s: configNr = %d\n", __func__, i);
  
-+/*
-+ * All of link_obj/unlink_obj/link_group/unlink_group require that
-+ * subsys->su_mutex is held.
-+ * But parent configfs_subsystem is NULL when config_item is root.
-+ * Use this mutex when config_item is root.
-+ */
-+static DEFINE_MUTEX(configfs_subsystem_mutex);
-+
- static void configfs_d_iput(struct dentry * dentry,
- 			    struct inode * inode)
+ 	return params;
+@@ -1015,12 +1016,14 @@ void rndis_free_response(struct rndis_pa
  {
-@@ -1884,7 +1892,9 @@ int configfs_register_subsystem(struct configfs_subsystem *subsys)
- 		group->cg_item.ci_name = group->cg_item.ci_namebuf;
+ 	rndis_resp_t *r, *n;
  
- 	sd = root->d_fsdata;
-+	mutex_lock(&configfs_subsystem_mutex);
- 	link_group(to_config_group(sd->s_element), group);
-+	mutex_unlock(&configfs_subsystem_mutex);
- 
- 	inode_lock_nested(d_inode(root), I_MUTEX_PARENT);
- 
-@@ -1909,7 +1919,9 @@ int configfs_register_subsystem(struct configfs_subsystem *subsys)
- 	inode_unlock(d_inode(root));
- 
- 	if (err) {
-+		mutex_lock(&configfs_subsystem_mutex);
- 		unlink_group(group);
-+		mutex_unlock(&configfs_subsystem_mutex);
- 		configfs_release_fs();
++	spin_lock(&params->resp_lock);
+ 	list_for_each_entry_safe(r, n, &params->resp_queue, list) {
+ 		if (r->buf == buf) {
+ 			list_del(&r->list);
+ 			kfree(r);
+ 		}
  	}
- 	put_fragment(frag);
-@@ -1956,7 +1968,9 @@ void configfs_unregister_subsystem(struct configfs_subsystem *subsys)
++	spin_unlock(&params->resp_lock);
+ }
+ EXPORT_SYMBOL_GPL(rndis_free_response);
  
- 	dput(dentry);
+@@ -1030,14 +1033,17 @@ u8 *rndis_get_next_response(struct rndis
  
-+	mutex_lock(&configfs_subsystem_mutex);
- 	unlink_group(group);
-+	mutex_unlock(&configfs_subsystem_mutex);
- 	configfs_release_fs();
+ 	if (!length) return NULL;
+ 
++	spin_lock(&params->resp_lock);
+ 	list_for_each_entry_safe(r, n, &params->resp_queue, list) {
+ 		if (!r->send) {
+ 			r->send = 1;
+ 			*length = r->length;
++			spin_unlock(&params->resp_lock);
+ 			return r->buf;
+ 		}
+ 	}
+ 
++	spin_unlock(&params->resp_lock);
+ 	return NULL;
+ }
+ EXPORT_SYMBOL_GPL(rndis_get_next_response);
+@@ -1054,7 +1060,9 @@ static rndis_resp_t *rndis_add_response(
+ 	r->length = length;
+ 	r->send = 0;
+ 
++	spin_lock(&params->resp_lock);
+ 	list_add_tail(&r->list, &params->resp_queue);
++	spin_unlock(&params->resp_lock);
+ 	return r;
  }
  
--- 
-2.34.1
-
+--- a/drivers/usb/gadget/function/rndis.h
++++ b/drivers/usb/gadget/function/rndis.h
+@@ -174,6 +174,7 @@ typedef struct rndis_params {
+ 	void			(*resp_avail)(void *v);
+ 	void			*v;
+ 	struct list_head	resp_queue;
++	spinlock_t		resp_lock;
+ } rndis_params;
+ 
+ /* RNDIS Message parser and other useless functions */
 
 
