@@ -2,54 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 721AD4C7B00
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 21:51:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E58D04C7B06
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 21:53:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229478AbiB1UwA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 15:52:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40948 "EHLO
+        id S229521AbiB1UyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 15:54:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229470AbiB1Uv7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 15:51:59 -0500
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 654EDC1166
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 12:51:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1646081480; x=1677617480;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=xEb2idAH/lmibWMoECwh8vsAt7RdrKJzOul7Pm26Azc=;
-  b=GtMXzEMCE719nUpyJ9e+aRCDm9O97TOX57xw+JvKPJKPn5p/CybJLOmF
-   /DgoT7PBWAFhEJRMiNgiHl5wapbbIpsYGp5ZERHDS9BQCx/p7VaUGUPn3
-   E1yvfu4w9C0yepkaiNU/X/UX6iM6yYCKN1Dfg7vKnPjFwrWzpBq++GTb5
-   qvSjy8VOx9f+dbSd5rrO9f+LujZ1UPhqE5sbGLex4jFpQeu/T4Ualyn4A
-   qqF/hB5isbdG32Je3nZl83ceFzps4YL/3o6LGyqZqNrkiwCj+wsRzwfyv
-   1YFVmJW+QZibH9CaRWrJ5Rpt2PKglo5NNNnSSoHU7DZWrVbHAQut+KXAN
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10272"; a="277646467"
-X-IronPort-AV: E=Sophos;i="5.90,144,1643702400"; 
-   d="scan'208";a="277646467"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2022 12:51:19 -0800
-X-IronPort-AV: E=Sophos;i="5.90,144,1643702400"; 
-   d="scan'208";a="534616386"
-Received: from jekeller-desk.amr.corp.intel.com ([10.166.241.10])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2022 12:51:19 -0800
-From:   Jacob Keller <jacob.e.keller@intel.com>
-To:     stable@vger.kernel.org
-Cc:     Jacob Keller <jacob.e.keller@intel.com>
-Subject: [PATCH 3/3] ice: fix concurrent reset and removal of VFs
-Date:   Mon, 28 Feb 2022 12:51:14 -0800
-Message-Id: <20220228205114.3262532-3-jacob.e.keller@intel.com>
-X-Mailer: git-send-email 2.35.1.355.ge7e302376dd6
-In-Reply-To: <20220228205114.3262532-1-jacob.e.keller@intel.com>
-References: <20220228205114.3262532-1-jacob.e.keller@intel.com>
+        with ESMTP id S229492AbiB1UyI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 15:54:08 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19438286E2
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 12:53:29 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id bx5so12219432pjb.3
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 12:53:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=D8VNOAPwOMxMJCLWd3mDtTtl1lO1xybpXeNZ8wQw4dU=;
+        b=UMvkjpgZKb7BkVrTP4RZWSgD77FzBemPueo+2ArnE+h1ZUEM08QB0kZvf42MlLRR0T
+         X+e2pAEcCn7DTf+rBe6oVzcZSi/o2yBIPTf83+QGl8tCTXDnJ4cYsArBmHJRRb1o2aqv
+         f98Kab2J0ADRVKGh8fTPgSe7BnUa8N7WBmSqiInE4X1V7ytZHR2hsb8WJy9cccRQSuMY
+         8HnWN6ZZL7nk4cXIvzwSPVxTgjhXd5HHvw0lP0lN+xozQfUNQefhbcO9jaF9miefmMaw
+         Aj0Ow6udLmmmZ2HhgiuhKOZX2qordb5etGiyHs0zYGqMbqICcYQntb2HzuWPWskPmw6O
+         kYSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=D8VNOAPwOMxMJCLWd3mDtTtl1lO1xybpXeNZ8wQw4dU=;
+        b=irPVDgoM/Xd4iB14fq+bXsz9eASGC9IoivqKgU7DMr6W6+6mEEtmKZKwz7XmbdMRnp
+         A0M75Mkr0sew4sFeZ5odN0rbOKs2P9MI35RgVOvI2up10MPPQLlpRR6gDyKfApVAZ5wX
+         GqYtzE2r2WJm/51pwORanHI2CZ8BirXtxGoDRgL/HWR4cHsfg0aV9hpN93IHHXPmB8sI
+         lWTQE+o8/0534LWWiwj9r778kXI9BAe7JCWg6NWyyVIFjtPsH+qdvmQvO8Mmh4HIQQLJ
+         dRh5fgn0FHTfdO+qk9JJLXklMJwMRBiHb0dirpeIjJ2A5F32PaNCDxQE7hk1a4RZjndh
+         Hx1Q==
+X-Gm-Message-State: AOAM532EFDbIS/wEtdOvXigO5ZWz5cwUyGFEqXT84QM2grIzoTl3dbBj
+        Lm/qKKAxzVx3WTgLCXSPKdfVvU1NzWrIMUyc618=
+X-Google-Smtp-Source: ABdhPJwfJCpBvpqm/2HXDXwrS8n4oGaOX0RaSms4bj9TRHvoKr0f5DeVIJtQPTYkrIXTA/n+qwlQSw==
+X-Received: by 2002:a17:902:da88:b0:150:f47:24ac with SMTP id j8-20020a170902da8800b001500f4724acmr22323487plx.73.1646081608297;
+        Mon, 28 Feb 2022 12:53:28 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f31-20020a631f1f000000b003742e45f7d7sm11134584pgf.32.2022.02.28.12.53.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Feb 2022 12:53:27 -0800 (PST)
+Message-ID: <621d3647.1c69fb81.3cd82.bf9f@mx.google.com>
+Date:   Mon, 28 Feb 2022 12:53:27 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Kernel: v5.4.181-51-gb77a12b8d613
+Subject: stable-rc/linux-5.4.y baseline: 100 runs,
+ 2 regressions (v5.4.181-51-gb77a12b8d613)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,164 +70,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit fadead80fe4c033b5e514fcbadd20b55c4494112 upstream.
+stable-rc/linux-5.4.y baseline: 100 runs, 2 regressions (v5.4.181-51-gb77a1=
+2b8d613)
 
-[ The original upstream commit fixed c503e63200c6 ("ice: Stop processing
-VF messages during teardown"). This change is not in the 5.8 through 5.12
-stable trees. However, that commit was itself a fix for ddf30f7ff840 ("ice:
-Add handler to configure SR-IOV"). This fix originally reverted c503e63200c6
-and supplied this more complete fix based on properly locking reset and
-remove. This backport only applies the new fix, rather than applying the
-broken inbetween fix and then reverting it. ]
+Regressions Summary
+-------------------
 
-Commit c503e63200c6 ("ice: Stop processing VF messages during teardown")
-introduced a driver state flag, ICE_VF_DEINIT_IN_PROGRESS, which is
-intended to prevent some issues with concurrently handling messages from
-VFs while tearing down the VFs.
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-This change was motivated by crashes caused while tearing down and
-bringing up VFs in rapid succession.
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-It turns out that the fix actually introduces issues with the VF driver
-caused because the PF no longer responds to any messages sent by the VF
-during its .remove routine. This results in the VF potentially removing
-its DMA memory before the PF has shut down the device queues.
 
-Additionally, the fix doesn't actually resolve concurrency issues within
-the ice driver. It is possible for a VF to initiate a reset just prior
-to the ice driver removing VFs. This can result in the remove task
-concurrently operating while the VF is being reset. This results in
-similar memory corruption and panics purportedly fixed by that commit.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.181-51-gb77a12b8d613/plan/baseline/
 
-Fix this concurrency at its root by protecting both the reset and
-removal flows using the existing VF cfg_lock. This ensures that we
-cannot remove the VF while any outstanding critical tasks such as a
-virtchnl message or a reset are occurring.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.181-51-gb77a12b8d613
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      b77a12b8d61311504f44ad2458e742bc5c69aa96 =
 
-This locking change also fixes the root cause originally fixed by commit
-c503e63200c6 ("ice: Stop processing VF messages during teardown"), so we
-can simply revert it.
 
-Note that I kept these two changes together because simply reverting the
-original commit alone would leave the driver vulnerable to worse race
-conditions.
 
-Fixes: c503e63200c6 ("ice: Stop processing VF messages during teardown")
-Cc: <stable@vger.kernel.org> # 5.8.x: e6ba5273d4ed: ice: Fix race conditions between virtchnl handling and VF ndo ops
-Cc: <stable@vger.kernel.org> # 5.8.x: b385cca47363: ice: Fix not stopping Tx queues for VF
-Cc: <stable@vger.kernel.org> # 5.8.x
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
----
-This is for stable trees 5.8 through 5.12. I sent a series with this fix for
-5.13 and 5.14 separately since they have slightly different context.
+Test Regressions
+---------------- =
 
- drivers/net/ethernet/intel/ice/ice_main.c     |  2 ++
- .../net/ethernet/intel/ice/ice_virtchnl_pf.c  | 35 +++++++++++++------
- 2 files changed, 27 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index b61cd84be97f..171cb9198c8d 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -1601,7 +1601,9 @@ static void ice_handle_mdd_event(struct ice_pf *pf)
- 				 * reset, so print the event prior to reset.
- 				 */
- 				ice_print_vf_rx_mdd_event(vf);
-+				mutex_lock(&pf->vf[i].cfg_lock);
- 				ice_reset_vf(&pf->vf[i], false);
-+				mutex_unlock(&pf->vf[i].cfg_lock);
- 			}
- 		}
- 	}
-diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-index 8fa941231500..af1fbb2c1479 100644
---- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-@@ -360,22 +360,26 @@ void ice_free_vfs(struct ice_pf *pf)
- 	else
- 		dev_warn(dev, "VFs are assigned - not disabling SR-IOV\n");
- 
--	/* Avoid wait time by stopping all VFs at the same time */
--	ice_for_each_vf(pf, i)
--		ice_dis_vf_qs(&pf->vf[i]);
--
- 	tmp = pf->num_alloc_vfs;
- 	pf->num_qps_per_vf = 0;
- 	pf->num_alloc_vfs = 0;
- 	for (i = 0; i < tmp; i++) {
--		if (test_bit(ICE_VF_STATE_INIT, pf->vf[i].vf_states)) {
-+		struct ice_vf *vf = &pf->vf[i];
-+
-+		mutex_lock(&vf->cfg_lock);
-+
-+		ice_dis_vf_qs(vf);
-+
-+		if (test_bit(ICE_VF_STATE_INIT, vf->vf_states)) {
- 			/* disable VF qp mappings and set VF disable state */
--			ice_dis_vf_mappings(&pf->vf[i]);
--			set_bit(ICE_VF_STATE_DIS, pf->vf[i].vf_states);
--			ice_free_vf_res(&pf->vf[i]);
-+			ice_dis_vf_mappings(vf);
-+			set_bit(ICE_VF_STATE_DIS, vf->vf_states);
-+			ice_free_vf_res(vf);
- 		}
- 
--		mutex_destroy(&pf->vf[i].cfg_lock);
-+		mutex_unlock(&vf->cfg_lock);
-+
-+		mutex_destroy(&vf->cfg_lock);
- 	}
- 
- 	if (ice_sriov_free_msix_res(pf))
-@@ -1259,9 +1263,13 @@ bool ice_reset_all_vfs(struct ice_pf *pf, bool is_vflr)
- 	ice_for_each_vf(pf, v) {
- 		vf = &pf->vf[v];
- 
-+		mutex_lock(&vf->cfg_lock);
-+
- 		ice_vf_pre_vsi_rebuild(vf);
- 		ice_vf_rebuild_vsi(vf);
- 		ice_vf_post_vsi_rebuild(vf);
-+
-+		mutex_unlock(&vf->cfg_lock);
- 	}
- 
- 	ice_flush(hw);
-@@ -1308,6 +1316,8 @@ bool ice_reset_vf(struct ice_vf *vf, bool is_vflr)
- 	u32 reg;
- 	int i;
- 
-+	lockdep_assert_held(&vf->cfg_lock);
-+
- 	dev = ice_pf_to_dev(pf);
- 
- 	if (test_bit(__ICE_VF_RESETS_DISABLED, pf->state)) {
-@@ -1765,9 +1775,12 @@ void ice_process_vflr_event(struct ice_pf *pf)
- 		bit_idx = (hw->func_caps.vf_base_id + vf_id) % 32;
- 		/* read GLGEN_VFLRSTAT register to find out the flr VFs */
- 		reg = rd32(hw, GLGEN_VFLRSTAT(reg_idx));
--		if (reg & BIT(bit_idx))
-+		if (reg & BIT(bit_idx)) {
- 			/* GLGEN_VFLRSTAT bit will be cleared in ice_reset_vf */
-+			mutex_lock(&vf->cfg_lock);
- 			ice_reset_vf(vf, true);
-+			mutex_unlock(&vf->cfg_lock);
-+		}
- 	}
- }
- 
-@@ -1844,7 +1857,9 @@ ice_vf_lan_overflow_event(struct ice_pf *pf, struct ice_rq_event_info *event)
- 	if (!vf)
- 		return;
- 
-+	mutex_lock(&vf->cfg_lock);
- 	ice_vc_reset_vf(vf);
-+	mutex_unlock(&vf->cfg_lock);
- }
- 
- /**
--- 
-2.35.1.355.ge7e302376dd6
 
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/621cffc70e47282752c62975
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.181=
+-51-gb77a12b8d613/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.181=
+-51-gb77a12b8d613/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220218.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/621cffc70e47282752c62=
+976
+        failing since 74 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/621cffe0de92ae9c72c6296b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.181=
+-51-gb77a12b8d613/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.181=
+-51-gb77a12b8d613/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220218.1/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/621cffe0de92ae9c72c62=
+96c
+        failing since 74 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =20
