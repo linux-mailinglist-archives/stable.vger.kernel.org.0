@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD0F4C770E
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:10:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ABF04C758E
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236650AbiB1SL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:11:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60372 "EHLO
+        id S238931AbiB1Rza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:55:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241615AbiB1SKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:10:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D587B91FF;
-        Mon, 28 Feb 2022 09:50:19 -0800 (PST)
+        with ESMTP id S240573AbiB1RyY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA10D98587;
+        Mon, 28 Feb 2022 09:42:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9501760B2B;
-        Mon, 28 Feb 2022 17:49:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB926C340F4;
-        Mon, 28 Feb 2022 17:49:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F398EB815B4;
+        Mon, 28 Feb 2022 17:42:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 563C0C340E7;
+        Mon, 28 Feb 2022 17:42:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070582;
-        bh=Ctl1DITbHVbdBfKS48ElGs5/qHcBKH9J+pZSVWqw5OY=;
+        s=korg; t=1646070148;
+        bh=feNSroQfbv/1PQwanrzmB3kCqc3gNCv6CqxUvZfeVls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nyFHGui1ZSjJ+Ae/i1ikpXo3VJI2ajqFUOtOp6WyD814i4jfBJ+CgB8dSWRSWaTS2
-         foSwJDTE+z2qIPALCAYr4cgdZMc5ofWQ0hcby0QE7zHBtVYb9GIa4fjJf90m3RdBcV
-         c/CXLFOqVC1wI+XsiTtcZ+dRKS2Of66zhdt/mx4E=
+        b=qUq5dNAC5FBUC/WYKkBg1tyqNY9+R8JwKiFbGzdk+4HT7B0i2G5s3pvEdyY/b98Pm
+         EYldfhangWKD8MwxiRnc3skqpKv8vu3kuXztLpmTd/taYY87pKH16VWoOpvTUgHGR7
+         ccrWJ1sG4rWwVumkaC28m7FFyK0sa0b2JLqK2nog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.16 144/164] btrfs: reduce extent threshold for autodefrag
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.15 132/139] tty: n_gsm: fix wrong modem processing in convergence layer type 2
 Date:   Mon, 28 Feb 2022 18:25:06 +0100
-Message-Id: <20220228172412.951650926@linuxfoundation.org>
+Message-Id: <20220228172401.550558260@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,133 +52,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: daniel.starke@siemens.com <daniel.starke@siemens.com>
 
-commit 558732df2122092259ab4ef85594bee11dbb9104 upstream.
+commit 687f9ad43c52501f46164758e908a5dd181a87fc upstream.
 
-There is a big gap between inode_should_defrag() and autodefrag extent
-size threshold.  For inode_should_defrag() it has a flexible
-@small_write value. For compressed extent is 16K, and for non-compressed
-extent it's 64K.
+The function gsm_process_modem() exists to handle modem status bits of
+incoming frames. This includes incoming MSC (modem status command) frames
+and convergence layer type 2 data frames. The function, however, was only
+designed to handle MSC frames as it expects the command length. Within
+gsm_dlci_data() it is wrongly assumed that this is the same as the data
+frame length. This is only true if the data frame contains only 1 byte of
+payload.
 
-However for autodefrag extent size threshold, it's always fixed to the
-default value (256K).
+This patch names the length parameter of gsm_process_modem() in a generic
+manner to reflect its association. It also corrects all calls to the
+function to handle the variable number of modem status octets correctly in
+both cases.
 
-This means, the following write sequence will trigger autodefrag to
-defrag ranges which didn't trigger autodefrag:
-
-  pwrite 0 8k
-  sync
-  pwrite 8k 128K
-  sync
-
-The latter 128K write will also be considered as a defrag target (if
-other conditions are met). While only that 8K write is really
-triggering autodefrag.
-
-Such behavior can cause extra IO for autodefrag.
-
-Close the gap, by copying the @small_write value into inode_defrag, so
-that later autodefrag can use the same @small_write value which
-triggered autodefrag.
-
-With the existing transid value, this allows autodefrag really to scan
-the ranges which triggered autodefrag.
-
-Although this behavior change is mostly reducing the extent_thresh value
-for autodefrag, I believe in the future we should allow users to specify
-the autodefrag extent threshold through mount options, but that's an
-other problem to consider in the future.
-
-CC: stable@vger.kernel.org # 5.16+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 7263287af93d ("tty: n_gsm: Fixed logic to decode break signal from modem status")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220218073123.2121-6-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ctree.h |    2 +-
- fs/btrfs/file.c  |   15 ++++++++++++++-
- fs/btrfs/inode.c |    4 ++--
- 3 files changed, 17 insertions(+), 4 deletions(-)
+ drivers/tty/n_gsm.c |   23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -3315,7 +3315,7 @@ void btrfs_exclop_finish(struct btrfs_fs
- int __init btrfs_auto_defrag_init(void);
- void __cold btrfs_auto_defrag_exit(void);
- int btrfs_add_inode_defrag(struct btrfs_trans_handle *trans,
--			   struct btrfs_inode *inode);
-+			   struct btrfs_inode *inode, u32 extent_thresh);
- int btrfs_run_defrag_inodes(struct btrfs_fs_info *fs_info);
- void btrfs_cleanup_defrag_inodes(struct btrfs_fs_info *fs_info);
- int btrfs_sync_file(struct file *file, loff_t start, loff_t end, int datasync);
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -49,6 +49,15 @@ struct inode_defrag {
- 
- 	/* root objectid */
- 	u64 root;
-+
-+	/*
-+	 * The extent size threshold for autodefrag.
-+	 *
-+	 * This value is different for compressed/non-compressed extents,
-+	 * thus needs to be passed from higher layer.
-+	 * (aka, inode_should_defrag())
-+	 */
-+	u32 extent_thresh;
- };
- 
- static int __compare_inode_defrag(struct inode_defrag *defrag1,
-@@ -101,6 +110,8 @@ static int __btrfs_add_inode_defrag(stru
- 			 */
- 			if (defrag->transid < entry->transid)
- 				entry->transid = defrag->transid;
-+			entry->extent_thresh = min(defrag->extent_thresh,
-+						   entry->extent_thresh);
- 			return -EEXIST;
- 		}
- 	}
-@@ -126,7 +137,7 @@ static inline int __need_auto_defrag(str
-  * enabled
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1009,25 +1009,25 @@ static void gsm_control_reply(struct gsm
+  *	@tty: virtual tty bound to the DLCI
+  *	@dlci: DLCI to affect
+  *	@modem: modem bits (full EA)
+- *	@clen: command length
++ *	@slen: number of signal octets
+  *
+  *	Used when a modem control message or line state inline in adaption
+  *	layer 2 is processed. Sort out the local modem state and throttles
   */
- int btrfs_add_inode_defrag(struct btrfs_trans_handle *trans,
--			   struct btrfs_inode *inode)
-+			   struct btrfs_inode *inode, u32 extent_thresh)
+ 
+ static void gsm_process_modem(struct tty_struct *tty, struct gsm_dlci *dlci,
+-							u32 modem, int clen)
++							u32 modem, int slen)
  {
- 	struct btrfs_root *root = inode->root;
- 	struct btrfs_fs_info *fs_info = root->fs_info;
-@@ -152,6 +163,7 @@ int btrfs_add_inode_defrag(struct btrfs_
- 	defrag->ino = btrfs_ino(inode);
- 	defrag->transid = transid;
- 	defrag->root = root->root_key.objectid;
-+	defrag->extent_thresh = extent_thresh;
+ 	int  mlines = 0;
+ 	u8 brk = 0;
+ 	int fc;
  
- 	spin_lock(&fs_info->defrag_inodes_lock);
- 	if (!test_bit(BTRFS_INODE_IN_DEFRAG, &inode->runtime_flags)) {
-@@ -275,6 +287,7 @@ again:
- 	memset(&range, 0, sizeof(range));
- 	range.len = (u64)-1;
- 	range.start = cur;
-+	range.extent_thresh = defrag->extent_thresh;
+-	/* The modem status command can either contain one octet (v.24 signals)
+-	   or two octets (v.24 signals + break signals). The length field will
+-	   either be 2 or 3 respectively. This is specified in section
+-	   5.4.6.3.7 of the  27.010 mux spec. */
++	/* The modem status command can either contain one octet (V.24 signals)
++	 * or two octets (V.24 signals + break signals). This is specified in
++	 * section 5.4.6.3.7 of the 07.10 mux spec.
++	 */
  
- 	sb_start_write(fs_info->sb);
- 	ret = btrfs_defrag_file(inode, NULL, &range, defrag->transid,
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -561,12 +561,12 @@ static inline int inode_need_compress(st
- }
+-	if (clen == 2)
++	if (slen == 1)
+ 		modem = modem & 0x7f;
+ 	else {
+ 		brk = modem & 0x7f;
+@@ -1084,6 +1084,7 @@ static void gsm_control_modem(struct gsm
+ 	unsigned int brk = 0;
+ 	struct gsm_dlci *dlci;
+ 	int len = clen;
++	int slen;
+ 	const u8 *dp = data;
+ 	struct tty_struct *tty;
  
- static inline void inode_should_defrag(struct btrfs_inode *inode,
--		u64 start, u64 end, u64 num_bytes, u64 small_write)
-+		u64 start, u64 end, u64 num_bytes, u32 small_write)
- {
- 	/* If this is a small write inside eof, kick off a defrag */
- 	if (num_bytes < small_write &&
- 	    (start > 0 || end + 1 < inode->disk_i_size))
--		btrfs_add_inode_defrag(NULL, inode);
-+		btrfs_add_inode_defrag(NULL, inode, small_write);
- }
+@@ -1103,6 +1104,7 @@ static void gsm_control_modem(struct gsm
+ 		return;
+ 	dlci = gsm->dlci[addr];
  
- /*
++	slen = len;
+ 	while (gsm_read_ea(&modem, *dp++) == 0) {
+ 		len--;
+ 		if (len == 0)
+@@ -1119,7 +1121,7 @@ static void gsm_control_modem(struct gsm
+ 		modem |= (brk & 0x7f);
+ 	}
+ 	tty = tty_port_tty_get(&dlci->port);
+-	gsm_process_modem(tty, dlci, modem, clen);
++	gsm_process_modem(tty, dlci, modem, slen);
+ 	if (tty) {
+ 		tty_wakeup(tty);
+ 		tty_kref_put(tty);
+@@ -1567,6 +1569,7 @@ static void gsm_dlci_data(struct gsm_dlc
+ 	struct tty_struct *tty;
+ 	unsigned int modem = 0;
+ 	int len = clen;
++	int slen = 0;
+ 
+ 	if (debug & 16)
+ 		pr_debug("%d bytes for tty\n", len);
+@@ -1579,12 +1582,14 @@ static void gsm_dlci_data(struct gsm_dlc
+ 	case 2:		/* Asynchronous serial with line state in each frame */
+ 		while (gsm_read_ea(&modem, *data++) == 0) {
+ 			len--;
++			slen++;
+ 			if (len == 0)
+ 				return;
+ 		}
++		slen++;
+ 		tty = tty_port_tty_get(port);
+ 		if (tty) {
+-			gsm_process_modem(tty, dlci, modem, clen);
++			gsm_process_modem(tty, dlci, modem, slen);
+ 			tty_kref_put(tty);
+ 		}
+ 		fallthrough;
 
 
