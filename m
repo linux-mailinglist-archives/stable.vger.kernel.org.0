@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97E774C76AB
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:05:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AE564C7570
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:54:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239779AbiB1SFi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:05:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38518 "EHLO
+        id S234340AbiB1RzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:55:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240862AbiB1SER (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:04:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B61332ECF;
-        Mon, 28 Feb 2022 09:47:48 -0800 (PST)
+        with ESMTP id S239611AbiB1RxO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:53:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ED6DAA012;
+        Mon, 28 Feb 2022 09:40:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32AC96091F;
-        Mon, 28 Feb 2022 17:47:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44EABC340E7;
-        Mon, 28 Feb 2022 17:47:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 411BBB815BA;
+        Mon, 28 Feb 2022 17:40:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CC9DC340E7;
+        Mon, 28 Feb 2022 17:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070453;
-        bh=b15eEKyFsvxhv7wzv4TWKHP+1e+cw/Eu+//k6NfN7gs=;
+        s=korg; t=1646070036;
+        bh=5uF6y4pkw02E5d5b+6ZDIAcWCGP3fx5/Fm1OO0TLlEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zO8yQWQjt2JtxTP24F65NK6KXE2EQi/+KhNsTpXQr/zjFlgxepN9GGlfjw5JUHkSX
-         FvmeWXkSUUU5HREYCeLaDktRc6wSJCEjRQo2bo0g3g25xy2Tu548C2zKxULR1dO/IS
-         CvSSdwprw/zdm0CLMziHu7z4Laur8MObN/ZI4qpQ=
+        b=LITZ/A7vTYp45O5NF4E5SixxUsumwBvJ6/4DmyDWpxspTrDq+/D7kbYNfzmAx2i6n
+         zUPO+kKBzUcNUQInDuCfNJ1e0MQ71U2MvRjpwESlCP5SruYFb6NzfsG0AhYQE1YHxd
+         1XNO35fRfDyHW+rpXyImPR9tERj/q50+A+Ul5c0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.16 115/164] iio: adc: men_z188_adc: Fix a resource leak in an error handling path
+        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>
+Subject: [PATCH 5.15 103/139] sc16is7xx: Fix for incorrect data being transmitted
 Date:   Mon, 28 Feb 2022 18:24:37 +0100
-Message-Id: <20220228172410.836581504@linuxfoundation.org>
+Message-Id: <20220228172358.504935085@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Phil Elwell <phil@raspberrypi.com>
 
-commit e0a2e37f303828d030a83f33ffe14b36cb88d563 upstream.
+commit eebb0f4e894f1e9577a56b337693d1051dd6ebfd upstream.
 
-If iio_device_register() fails, a previous ioremap() is left unbalanced.
+UART drivers are meant to use the port spinlock within certain
+methods, to protect against reentrancy. The sc16is7xx driver does
+very little locking, presumably because when added it triggers
+"scheduling while atomic" errors. This is due to the use of mutexes
+within the regmap abstraction layer, and the mutex implementation's
+habit of sleeping the current thread while waiting for access.
+Unfortunately this lack of interlocking can lead to corruption of
+outbound data, which occurs when the buffer used for I2C transmission
+is used simultaneously by two threads - a work queue thread running
+sc16is7xx_tx_proc, and an IRQ thread in sc16is7xx_port_irq, both
+of which can call sc16is7xx_handle_tx.
 
-Update the error handling path and add the missing iounmap() call, as
-already done in the remove function.
+An earlier patch added efr_lock, a mutex that controls access to the
+EFR register. This mutex is already claimed in the IRQ handler, and
+all that is required is to claim the same mutex in sc16is7xx_tx_proc.
 
-Fixes: 74aeac4da66f ("iio: adc: Add MEN 16z188 ADC driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/320fc777863880247c2aff4a9d1a54ba69abf080.1643445149.git.christophe.jaillet@wanadoo.fr
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+See: https://github.com/raspberrypi/linux/issues/4885
+
+Fixes: 6393ff1c4435 ("sc16is7xx: Use threaded IRQ")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Link: https://lore.kernel.org/r/20220216160802.1026013-1-phil@raspberrypi.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/men_z188_adc.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/tty/serial/sc16is7xx.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/iio/adc/men_z188_adc.c
-+++ b/drivers/iio/adc/men_z188_adc.c
-@@ -103,6 +103,7 @@ static int men_z188_probe(struct mcb_dev
- 	struct z188_adc *adc;
- 	struct iio_dev *indio_dev;
- 	struct resource *mem;
-+	int ret;
+--- a/drivers/tty/serial/sc16is7xx.c
++++ b/drivers/tty/serial/sc16is7xx.c
+@@ -734,12 +734,15 @@ static irqreturn_t sc16is7xx_irq(int irq
+ static void sc16is7xx_tx_proc(struct kthread_work *ws)
+ {
+ 	struct uart_port *port = &(to_sc16is7xx_one(ws, tx_work)->port);
++	struct sc16is7xx_port *s = dev_get_drvdata(port->dev);
  
- 	indio_dev = devm_iio_device_alloc(&dev->dev, sizeof(struct z188_adc));
- 	if (!indio_dev)
-@@ -128,8 +129,14 @@ static int men_z188_probe(struct mcb_dev
- 	adc->mem = mem;
- 	mcb_set_drvdata(dev, indio_dev);
+ 	if ((port->rs485.flags & SER_RS485_ENABLED) &&
+ 	    (port->rs485.delay_rts_before_send > 0))
+ 		msleep(port->rs485.delay_rts_before_send);
  
--	return iio_device_register(indio_dev);
-+	ret = iio_device_register(indio_dev);
-+	if (ret)
-+		goto err_unmap;
++	mutex_lock(&s->efr_lock);
+ 	sc16is7xx_handle_tx(port);
++	mutex_unlock(&s->efr_lock);
+ }
  
-+	return 0;
-+
-+err_unmap:
-+	iounmap(adc->base);
- err:
- 	mcb_release_mem(mem);
- 	return -ENXIO;
+ static void sc16is7xx_reconf_rs485(struct uart_port *port)
 
 
