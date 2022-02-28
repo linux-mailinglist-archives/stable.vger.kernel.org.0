@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 970524C7721
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:11:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 381934C75A3
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239739AbiB1SLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:11:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60456 "EHLO
+        id S239161AbiB1Rzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:55:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241455AbiB1SJz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:09:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B7EBB45BC;
-        Mon, 28 Feb 2022 09:50:03 -0800 (PST)
+        with ESMTP id S240418AbiB1RyR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 116F2B18AD;
+        Mon, 28 Feb 2022 09:42:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1E2360915;
-        Mon, 28 Feb 2022 17:50:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1141C340E7;
-        Mon, 28 Feb 2022 17:50:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33F2BB815C6;
+        Mon, 28 Feb 2022 17:42:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EE0CC340E7;
+        Mon, 28 Feb 2022 17:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070601;
-        bh=BLTmIppxTsWdWze0CZzsQG7uFrPoMqr09GCc5EhtdPY=;
+        s=korg; t=1646070126;
+        bh=OW5+OUNm89gARk4f1MrpkJRAi39Z9FkxXGUPPWLts+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=evRiHM5R7JUuk5QeFvmnkRbF7ql9ZQ7HSpKZLLcqqL0JlIhMkQxfZZ0AuDORcSA/T
-         R3v8kQo8F0iJNAp9bJOJXXMM/j3p0iIKn5qWm2FVZCmU4axJlvTBRaSGjKyNcOvnj0
-         5JMRLF1xadrv59DGiv2VavR0uu/6PWKbvaKm7HdA=
+        b=TBv6zwDtCjBpflS3vgYV3y4RhESyqbka3vLhfz07x+NXrXj+V25dGC+J1k3cGE7K4
+         5sdBJfvElkXwxAKCbce48bQuQEo2FetPAZg5IVmClDFT/jDApCVz2yigBDl6ZGNRVw
+         ecgoWH7V4uY56OCL0J2LV4mVjNWjF14NPi4aXAW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Peter <sven@svenpeter.dev>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.16 148/164] tps6598x: clear int mask on probe failure
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Thierry Reding <treding@nvidia.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.15 136/139] gpio: tegra186: Fix chip_data type confusion
 Date:   Mon, 28 Feb 2022 18:25:10 +0100
-Message-Id: <20220228172413.258312561@linuxfoundation.org>
+Message-Id: <20220228172402.013192656@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Marc Zyngier <maz@kernel.org>
 
-commit aba2081e0a9c977396124aa6df93b55ed5912b19 upstream.
+commit d1e972ace42390de739cde87d96043dcbe502286 upstream.
 
-The interrupt mask is enabled before any potential failure points in
-the driver, which can leave a failure path where we exit with
-interrupts enabled but the device not live. This causes an infinite
-stream of interrupts on an Apple M1 Pro laptop on USB-C.
+The tegra186 GPIO driver makes the assumption that the pointer
+returned by irq_data_get_irq_chip_data() is a pointer to a
+tegra_gpio structure. Unfortunately, it is actually a pointer
+to the inner gpio_chip structure, as mandated by the gpiolib
+infrastructure. Nice try.
 
-Add a failure label that's used post enabling interrupts, where we
-mask them again before returning an error.
+The saving grace is that the gpio_chip is the first member of
+tegra_gpio, so the bug has gone undetected since... forever.
 
-Suggested-by: Sven Peter <sven@svenpeter.dev>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Link: https://lore.kernel.org/r/e6b80669-20f3-06e7-9ed5-8951a9c6db6f@kernel.dk
+Fix it by performing a container_of() on the pointer. This results
+in no additional code, and makes it possible to understand how
+the whole thing works.
+
+Fixes: 5b2b135a87fc ("gpio: Add Tegra186 support")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: Thierry Reding <treding@nvidia.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Link: https://lore.kernel.org/r/20220211093904.1112679-1-maz@kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tipd/core.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpio/gpio-tegra186.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
-index 6d27a5b5e3ca..7ffcda94d323 100644
---- a/drivers/usb/typec/tipd/core.c
-+++ b/drivers/usb/typec/tipd/core.c
-@@ -761,12 +761,12 @@ static int tps6598x_probe(struct i2c_client *client)
- 
- 	ret = tps6598x_read32(tps, TPS_REG_STATUS, &status);
- 	if (ret < 0)
--		return ret;
-+		goto err_clear_mask;
- 	trace_tps6598x_status(status);
- 
- 	ret = tps6598x_read32(tps, TPS_REG_SYSTEM_CONF, &conf);
- 	if (ret < 0)
--		return ret;
-+		goto err_clear_mask;
- 
- 	/*
- 	 * This fwnode has a "compatible" property, but is never populated as a
-@@ -855,7 +855,8 @@ static int tps6598x_probe(struct i2c_client *client)
- 	usb_role_switch_put(tps->role_sw);
- err_fwnode_put:
- 	fwnode_handle_put(fwnode);
--
-+err_clear_mask:
-+	tps6598x_write64(tps, TPS_REG_INT_MASK1, 0);
- 	return ret;
+--- a/drivers/gpio/gpio-tegra186.c
++++ b/drivers/gpio/gpio-tegra186.c
+@@ -337,9 +337,12 @@ static int tegra186_gpio_of_xlate(struct
+ 	return offset + pin;
  }
  
--- 
-2.35.1
-
++#define to_tegra_gpio(x) container_of((x), struct tegra_gpio, gpio)
++
+ static void tegra186_irq_ack(struct irq_data *data)
+ {
+-	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
++	struct tegra_gpio *gpio = to_tegra_gpio(gc);
+ 	void __iomem *base;
+ 
+ 	base = tegra186_gpio_get_base(gpio, data->hwirq);
+@@ -351,7 +354,8 @@ static void tegra186_irq_ack(struct irq_
+ 
+ static void tegra186_irq_mask(struct irq_data *data)
+ {
+-	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
++	struct tegra_gpio *gpio = to_tegra_gpio(gc);
+ 	void __iomem *base;
+ 	u32 value;
+ 
+@@ -366,7 +370,8 @@ static void tegra186_irq_mask(struct irq
+ 
+ static void tegra186_irq_unmask(struct irq_data *data)
+ {
+-	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
++	struct tegra_gpio *gpio = to_tegra_gpio(gc);
+ 	void __iomem *base;
+ 	u32 value;
+ 
+@@ -381,7 +386,8 @@ static void tegra186_irq_unmask(struct i
+ 
+ static int tegra186_irq_set_type(struct irq_data *data, unsigned int type)
+ {
+-	struct tegra_gpio *gpio = irq_data_get_irq_chip_data(data);
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(data);
++	struct tegra_gpio *gpio = to_tegra_gpio(gc);
+ 	void __iomem *base;
+ 	u32 value;
+ 
 
 
