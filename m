@@ -2,69 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90F654C6571
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 10:09:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 618CB4C6581
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 10:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234195AbiB1JJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 04:09:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35522 "EHLO
+        id S232513AbiB1JNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 04:13:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233731AbiB1JJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 04:09:43 -0500
-Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA4E149CAD
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 01:09:04 -0800 (PST)
-Received: by mail-yb1-xb33.google.com with SMTP id f38so7244948ybi.3
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 01:09:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=benyossef-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=FiyRI5DHlb96l/+rmBXOae4F7ATJ/xLo/4ohoO57pkc=;
-        b=cdKByohAsWXJXwPllDc7pyrfXAVLilSsZKbLHuCjxbOyvB0D8A+9rZpwdn3Ok3JVdy
-         PMne06PyJIyLBNmyxaAAbL3PIWzSkzQ2rTLaihsWtB/oZZmnuOCpgC+R0EUohg9BUTX9
-         1Zx/pyDlo8vGUrXneQhecsXYiesuPwo6XRzNYQ3zTU2lVUuRukRyKQBbyKSX8ExV9iEJ
-         AAIy0Sz7kf+zKkLoXLKUA1pQm7UYHb49/LL+dNqz1DWEHFk60qIJC8M2GOK++nRL36qR
-         mBsHrQvFixzpSEB6IVw63u3qpS0j/IzueLYptj1un7eNwjT+GacOaCx3yOHEMIs/qXFG
-         i0Jw==
+        with ESMTP id S231293AbiB1JNo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 04:13:44 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B631132041
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 01:13:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1646039584;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=9iIrm7jUNpWbOi4sKM9xr95M8UqXaHC8CNPDjaA3Rd4=;
+        b=fmqzgiI1u3D4FJp9KxAXQAXbyp03ppZAzXzXRB9fTkB/ZDqpSv27PbKXfqNrn4AFdD/lE9
+        OxuBltAf9xQ7JXziOrlKimU7TzoybNhY8dmVL5ApmRBR/4fUKxAqtadJayF/AHUEbv5PIB
+        BzD7GAkjykdcFi0lXnlPW7Y3baXw20A=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-616-MBlMiBNLOgureUyUX6qb2g-1; Mon, 28 Feb 2022 04:13:03 -0500
+X-MC-Unique: MBlMiBNLOgureUyUX6qb2g-1
+Received: by mail-wr1-f71.google.com with SMTP id p9-20020adf9589000000b001e333885ac1so1807211wrp.10
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 01:13:03 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=FiyRI5DHlb96l/+rmBXOae4F7ATJ/xLo/4ohoO57pkc=;
-        b=HxHaolJlKUrLGrDBXvRccW6VzdL+JFfH4Y82N8Ouo0SUo1UZI8auLgw006QW38jHgO
-         CN7P2YzVwSG+Py4ECmW6Go9gBoihsWp9YpCGAmRpHSrAh1g2GK4pOvcBrjADFMzcORq6
-         EaqTEx5jJ68oZpkIQRLODLeUwoGu9+a2XVySjKaavOS8Z4Zs+pJSGCzPPKhHF6ppjyb+
-         DwHWRvSsLYD23b9z+XE6pUyATxdaDgaFQW6PXpbpTG88Q2ULLSyY6d4e+pQ13PDe9g3T
-         SajW8jk1lNa9gYhvnHjxzNykZpO72fBVGBr9C8yoHPhsKjfE3lxyJRNTXUiuYv+r4s2R
-         8gMQ==
-X-Gm-Message-State: AOAM531rsc9QT9t2/llIivghYnDQwKyfYIan9Z5XA+yNWkMU80AOSQHN
-        ZJOwnTWyFIOanwT2+KCzMT83lIFSB+T7IC9Xty1oOQ==
-X-Google-Smtp-Source: ABdhPJxi5xP1NReREnqaUApMZPGYKwblM7pKFPpW8ybZdTK+TGL3WH1MfRBRieseBU2tUW8obscPn0cMtmzcquy83zg=
-X-Received: by 2002:a25:5047:0:b0:61a:ea8e:cc6d with SMTP id
- e68-20020a255047000000b0061aea8ecc6dmr17403314ybb.65.1646039343950; Mon, 28
- Feb 2022 01:09:03 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=9iIrm7jUNpWbOi4sKM9xr95M8UqXaHC8CNPDjaA3Rd4=;
+        b=Alca5T9QCgH6IOOVClldc6YJuHiNS1iBLsSljgr3D/w5YurawiyA84Rhf05UhE13su
+         5cP2hS5Z/PdPp4oWbFjfT16XSl1XEiI2noOXDHcUbZDrDhHNU/4Tex+N7g2IKaNq95Tj
+         fXUuZCeMQmxI9ymV3brTIPSdXWhVi6cRyCxzNaxl9FZspwqLaRnWh7AOee4376dYA0pg
+         YfuweeyIGAUIdx6ZM4Nj96KRb1gCxxdoMu8kwZyao5KqRhm8PHlLzi+EU1eClJklfeNw
+         FvPF+rkoUFNViyvbXAMoq4tmL+JxBuuEBzvc6RRKbqkjHwnjqwG0jtVRKpSrtYCu1yIj
+         JC/w==
+X-Gm-Message-State: AOAM533R+K1PUecYd2jPbf6ru2LkjzWk0tm7kEcYb+fN5732uYfohHQC
+        PwOiEpmHkkm9mvqmJVm6/2MCzfSN/Y/Y7K0AfMfPnIv16c8aejhceY8mT2mWhzt+KxbXy/yzVcz
+        cOohF2M8n/GU3vkMpTbcd0roQ7y1CoI6C1x+AkVNIhykL/nx9aJ9vRs2R6YHEVl5EtPQ=
+X-Received: by 2002:a5d:47a5:0:b0:1e8:88b3:16b7 with SMTP id 5-20020a5d47a5000000b001e888b316b7mr15358800wrb.417.1646039582304;
+        Mon, 28 Feb 2022 01:13:02 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwyiC6VdfBtJFx/nf7vo5YK6s31W+jtjjwm+T+JxE7pWjeW+95YY22Xj5xB5kG+PadYBUTN2w==
+X-Received: by 2002:a5d:47a5:0:b0:1e8:88b3:16b7 with SMTP id 5-20020a5d47a5000000b001e888b316b7mr15358782wrb.417.1646039582044;
+        Mon, 28 Feb 2022 01:13:02 -0800 (PST)
+Received: from kherbst.pingu.com (ip1f10bb48.dynamic.kabel-deutschland.de. [31.16.187.72])
+        by smtp.gmail.com with ESMTPSA id u25-20020a05600c211900b003817667ab55sm1192630wml.33.2022.02.28.01.13.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Feb 2022 01:13:01 -0800 (PST)
+From:   Karol Herbst <kherbst@redhat.com>
+To:     stable@vger.kernel.org
+Cc:     Karol Herbst <kherbst@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH] Revert "drm/nouveau/pmu/gm200-: avoid touching PMU outside of DEVINIT/PREOS/ACR"
+Date:   Mon, 28 Feb 2022 10:12:59 +0100
+Message-Id: <20220228091259.996188-1-kherbst@redhat.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-References: <20220223080400.139367-1-gilad@benyossef.com> <Yhbjq3cVsMVUQLio@sol.localdomain>
- <YhblA1qQ9XLb2nmO@sol.localdomain> <CAOtvUMfFhQABmmZe7EH-o=ULEChm_t=KY7ORBRgm94O=1MiuFw@mail.gmail.com>
- <YhfWzLBq2A2nr5Ey@sol.localdomain> <CAOtvUMcDcouMPmVUYpYEPdxPS+7_r9S_OXz1FR5tQJM6hWzRmA@mail.gmail.com>
-In-Reply-To: <CAOtvUMcDcouMPmVUYpYEPdxPS+7_r9S_OXz1FR5tQJM6hWzRmA@mail.gmail.com>
-From:   Gilad Ben-Yossef <gilad@benyossef.com>
-Date:   Mon, 28 Feb 2022 11:09:05 +0200
-Message-ID: <CAOtvUMdX2N9XcBV81rSKz=orZ-3XHWW8ChXnuKAeiAsQy5P_Vg@mail.gmail.com>
-Subject: Re: [PATCH] crypto: drbg: fix crypto api abuse
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ofir Drang <ofir.drang@arm.com>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,35 +73,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+This reverts commit c9ec3d85c0eef7c71cdc68db758e0f0e378132c0.
 
-On Sun, Feb 27, 2022 at 12:12 PM Gilad Ben-Yossef <gilad@benyossef.com> wro=
-te:
-...
+This commit causes a regression if 4cdd2450bf739bada353e82d27b00db9af8c3001
+is not applied as well. This was fixed for 5.16, 5.15 and 5.10.
 
+On older stable branches backporting this commit is complicated as relevant
+code changed quite a bit. Furthermore most of the affected hardware barely
+works on those and users would want to use the newer kernels anyway.
 
->
-> I think the right thing to do right now is to verify that we indeed
-> have a general issue and not something specific to one singular
-> platform
-> So the question becomes - do indeed the DMA api forbits aliased
-> mappings and if so, under what conditions?
->
-> Any ideas on how to check this?
+Cc: stable@vger.kernel.org # 5.4 4.19 and 4.14
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Link: https://gitlab.freedesktop.org/drm/nouveau/-/issues/149
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+---
+ .../gpu/drm/nouveau/nvkm/subdev/pmu/base.c    | 37 ++++++++-----------
+ 1 file changed, 16 insertions(+), 21 deletions(-)
 
-OK, I've looked into this further and I think I was wrong.
-The DMA api doesn't like overlapping writable mappings, but it seems
-an overlapping read-only and writable mapping are fine.
-If so I can indeed resolve this in the driver code by better
-specifying DMA direction. Let me give this a go and let's drop this
-patch in the meantime.
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c
+index 105b4be467a3..ea2e11771bca 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c
+@@ -88,13 +88,20 @@ nvkm_pmu_fini(struct nvkm_subdev *subdev, bool suspend)
+ 	return 0;
+ }
+ 
+-static void
++static int
+ nvkm_pmu_reset(struct nvkm_pmu *pmu)
+ {
+ 	struct nvkm_device *device = pmu->subdev.device;
+ 
+ 	if (!pmu->func->enabled(pmu))
+-		return;
++		return 0;
++
++	/* Inhibit interrupts, and wait for idle. */
++	nvkm_wr32(device, 0x10a014, 0x0000ffff);
++	nvkm_msec(device, 2000,
++		if (!nvkm_rd32(device, 0x10a04c))
++			break;
++	);
+ 
+ 	/* Reset. */
+ 	if (pmu->func->reset)
+@@ -105,37 +112,25 @@ nvkm_pmu_reset(struct nvkm_pmu *pmu)
+ 		if (!(nvkm_rd32(device, 0x10a10c) & 0x00000006))
+ 			break;
+ 	);
++
++	return 0;
+ }
+ 
+ static int
+ nvkm_pmu_preinit(struct nvkm_subdev *subdev)
+ {
+ 	struct nvkm_pmu *pmu = nvkm_pmu(subdev);
+-	nvkm_pmu_reset(pmu);
+-	return 0;
++	return nvkm_pmu_reset(pmu);
+ }
+ 
+ static int
+ nvkm_pmu_init(struct nvkm_subdev *subdev)
+ {
+ 	struct nvkm_pmu *pmu = nvkm_pmu(subdev);
+-	struct nvkm_device *device = pmu->subdev.device;
+-
+-	if (!pmu->func->init)
+-		return 0;
+-
+-	if (pmu->func->enabled(pmu)) {
+-		/* Inhibit interrupts, and wait for idle. */
+-		nvkm_wr32(device, 0x10a014, 0x0000ffff);
+-		nvkm_msec(device, 2000,
+-			if (!nvkm_rd32(device, 0x10a04c))
+-				break;
+-		);
+-
+-		nvkm_pmu_reset(pmu);
+-	}
+-
+-	return pmu->func->init(pmu);
++	int ret = nvkm_pmu_reset(pmu);
++	if (ret == 0 && pmu->func->init)
++		ret = pmu->func->init(pmu);
++	return ret;
+ }
+ 
+ static int
+-- 
+2.35.1
 
-Thank you and sorry for the noise.
-
-Gilad
-
---=20
-Gilad Ben-Yossef
-Chief Coffee Drinker
-
-values of =CE=B2 will give rise to dom!
