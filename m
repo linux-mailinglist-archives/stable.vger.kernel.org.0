@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8FF14C73A6
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAA0E4C749C
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238286AbiB1RhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:37:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33620 "EHLO
+        id S235781AbiB1Rpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:45:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238291AbiB1RhK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5772689CD9;
-        Mon, 28 Feb 2022 09:32:03 -0800 (PST)
+        with ESMTP id S238862AbiB1RnT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:43:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 094F19A4E5;
+        Mon, 28 Feb 2022 09:35:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6604D61357;
-        Mon, 28 Feb 2022 17:32:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F897C340E7;
-        Mon, 28 Feb 2022 17:31:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1414B61375;
+        Mon, 28 Feb 2022 17:35:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18F12C340E7;
+        Mon, 28 Feb 2022 17:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069519;
-        bh=y1SU/BTsz0Cz1b5TkDBk+IMdQX/XvpIL1a+b4XrJ5wg=;
+        s=korg; t=1646069715;
+        bh=KpiCJSOCMTZiDWqLlKadY57iMfFkeIoGxU63WBrxqjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SxHgYrObN4hJziQMHXTc395KP6rbVqTI7SNFW0N+fXqHZ4Z7+32nxdbY1rdPA5GPg
-         Z6vS6T8l1xlKTuZA/u8zhiW5WBygf+/cy6sy3nDveVba/pmoFFWpnIPAUEYZ2gnaH2
-         kTf1UjvPY9HqNz4zXJUV8SxYrV2Ds7Xf/GXLQvq4=
+        b=qMWxNYJlj5Z+NOjQ7RPc9XhatS7IzX7Tm5PN8AN12D1rXfIyZIyUEpI8WBpnC+hMA
+         YNZUziD6/sBq0Yeov+1phCtZn9TFRpuRV8DMD5/bbW7tEkfulY3aBAaP82feSWFUTl
+         rS9DOf/jWxmUMn+9WjAj8TwWswg/JEX/9VnijVlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.4 49/53] tty: n_gsm: fix NULL pointer access due to DLCI release
-Date:   Mon, 28 Feb 2022 18:24:47 +0100
-Message-Id: <20220228172251.843432793@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH 5.10 67/80] usb: dwc3: gadget: Let the interrupt handler disable bottom halves.
+Date:   Mon, 28 Feb 2022 18:24:48 +0100
+Message-Id: <20220228172319.855409031@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
-References: <20220228172248.232273337@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: daniel.starke@siemens.com <daniel.starke@siemens.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit 96b169f05cdcc844b400695184d77e42071d14f2 upstream.
+commit 84918a89d6efaff075de570b55642b6f4ceeac6d upstream.
 
-The here fixed commit made the tty hangup asynchronous to avoid a circular
-locking warning. I could not reproduce this warning. Furthermore, due to
-the asynchronous hangup the function call now gets queued up while the
-underlying tty is being freed. Depending on the timing this results in a
-NULL pointer access in the global work queue scheduler. To be precise in
-process_one_work(). Therefore, the previous commit made the issue worse
-which it tried to fix.
+The interrupt service routine registered for the gadget is a primary
+handler which mask the interrupt source and a threaded handler which
+handles the source of the interrupt. Since the threaded handler is
+voluntary threaded, the IRQ-core does not disable bottom halves before
+invoke the handler like it does for the forced-threaded handler.
 
-This patch fixes this by falling back to the old behavior which uses a
-blocking tty hangup call before freeing up the associated tty.
+Due to changes in networking it became visible that a network gadget's
+completions handler may schedule a softirq which remains unprocessed.
+The gadget's completion handler is usually invoked either in hard-IRQ or
+soft-IRQ context. In this context it is enough to just raise the softirq
+because the softirq itself will be handled once that context is left.
+In the case of the voluntary threaded handler, there is nothing that
+will process pending softirqs. Which means it remain queued until
+another random interrupt (on this CPU) fires and handles it on its exit
+path or another thread locks and unlocks a lock with the bh suffix.
+Worst case is that the CPU goes idle and the NOHZ complains about
+unhandled softirqs.
 
-Fixes: 7030082a7415 ("tty: n_gsm: avoid recursive locking with async port hangup")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220218073123.2121-4-daniel.starke@siemens.com
+Disable bottom halves before acquiring the lock (and disabling
+interrupts) and enable them after dropping the lock. This ensures that
+any pending softirqs will handled right away.
+
+Link: https://lkml.kernel.org/r/c2a64979-73d1-2c22-e048-c275c9f81558@samsung.com
+Fixes: e5f68b4a3e7b0 ("Revert "usb: dwc3: gadget: remove unnecessary _irqsave()"")
+Cc: stable <stable@kernel.org>
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Link: https://lore.kernel.org/r/Yg/YPejVQH3KkRVd@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1722,7 +1722,12 @@ static void gsm_dlci_release(struct gsm_
- 		gsm_destroy_network(dlci);
- 		mutex_unlock(&dlci->mutex);
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -3775,9 +3775,11 @@ static irqreturn_t dwc3_thread_interrupt
+ 	unsigned long flags;
+ 	irqreturn_t ret = IRQ_NONE;
  
--		tty_hangup(tty);
-+		/* We cannot use tty_hangup() because in tty_kref_put() the tty
-+		 * driver assumes that the hangup queue is free and reuses it to
-+		 * queue release_one_tty() -> NULL pointer panic in
-+		 * process_one_work().
-+		 */
-+		tty_vhangup(tty);
++	local_bh_disable();
+ 	spin_lock_irqsave(&dwc->lock, flags);
+ 	ret = dwc3_process_event_buf(evt);
+ 	spin_unlock_irqrestore(&dwc->lock, flags);
++	local_bh_enable();
  
- 		tty_port_tty_set(&dlci->port, NULL);
- 		tty_kref_put(tty);
+ 	return ret;
+ }
 
 
