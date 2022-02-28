@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D4784C7687
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EFAC4C7359
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:34:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232965AbiB1SFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:05:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42352 "EHLO
+        id S238149AbiB1Reh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:34:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240546AbiB1SDj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:03:39 -0500
+        with ESMTP id S238870AbiB1Rd6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54794111;
-        Mon, 28 Feb 2022 09:47:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA2C393992;
+        Mon, 28 Feb 2022 09:30:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7506760BFB;
-        Mon, 28 Feb 2022 17:46:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80D9AC340E7;
-        Mon, 28 Feb 2022 17:46:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF96E6140B;
+        Mon, 28 Feb 2022 17:30:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E592CC340F1;
+        Mon, 28 Feb 2022 17:30:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070412;
-        bh=5hvlb5yPepNK+KcRoK2PHjEsLVxj1za/XygrWEYMfRk=;
+        s=korg; t=1646069443;
+        bh=0Ur9b9NVUv1Ys4I0wG9XQmOVmgDkBGlKP/zekti89a8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hjOBL9+pITBQRDXCkuFRWLR+tYsg7yUtwO9b7oUiKX0U5EnY8UW60iQ+7MsiJ6jrv
-         lLg/KHKUU5Om/uPPaCX1TIX0fqt9eX+ypmdkaZsLgSvoWVqS7UdDIbA9DfFwWFHqfp
-         gAvY0MJQmId2IeWdnqiGCtfPUdpmu4pwRdgQvxN8=
+        b=RtbzzRTNEFqpRBGZ/64H6+NfCY+T3Y6U5BEBDQKDzFa2ZJSQ0quABRQGmFV+4TYAL
+         CJrHf0eoZXLIuIQQxcvamXuaVD8q1QaKZW2hIrKbJgW97D3A4XBdmJQp/ezfV8xS65
+         UzFkHpIKp4HIjGiGf/5i1E8u1SFhXWeFOMQdbRJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maher Sanalla <msanalla@nvidia.com>,
-        Avihai Horon <avihaih@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.16 097/164] net/mlx5: Update log_max_qp value to be 17 at most
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Matthias Reichl <hias@horus.com>,
+        Maxime Ripard <maxime@cerno.tech>
+Subject: [PATCH 5.4 21/53] drm/edid: Always set RGB444
 Date:   Mon, 28 Feb 2022 18:24:19 +0100
-Message-Id: <20220228172408.571546631@linuxfoundation.org>
+Message-Id: <20220228172249.865887796@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maher Sanalla <msanalla@nvidia.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-commit 7f839965b2d77e1926ad08b23c51d60988f10a99 upstream.
+commit ecbd4912a693b862e25cba0a6990a8c95b00721e upstream.
 
-Currently, log_max_qp value is dependent on what FW reports as its max capability.
-In reality, due to a bug, some FWs report a value greater than 17, even though they
-don't support log_max_qp > 17.
+In order to fill the drm_display_info structure each time an EDID is
+read, the code currently will call drm_add_display_info with the parsed
+EDID.
 
-This FW issue led the driver to exhaust memory on startup.
-Thus, log_max_qp value is set to be no more than 17 regardless
-of what FW reports, as it was before the cited commit.
+drm_add_display_info will then call drm_reset_display_info to reset all
+the fields to 0, and then set them to the proper value depending on the
+EDID.
 
-Fixes: f79a609ea6bf ("net/mlx5: Update log_max_qp value to FW max capability")
-Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
-Reviewed-by: Avihai Horon <avihaih@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+In the color_formats case, we will thus report that we don't support any
+color format, and then fill it back with RGB444 plus the additional
+formats described in the EDID Feature Support byte.
+
+However, since that byte only contains format-related bits since the 1.4
+specification, this doesn't happen if the EDID is following an earlier
+specification. In turn, it means that for one of these EDID, we end up
+with color_formats set to 0.
+
+The EDID 1.3 specification never really specifies what it means by RGB
+exactly, but since both HDMI and DVI will use RGB444, it's fairly safe
+to assume it's supposed to be RGB444.
+
+Let's move the addition of RGB444 to color_formats earlier in
+drm_add_display_info() so that it's always set for a digital display.
+
+Fixes: da05a5a71ad8 ("drm: parse color format support for digital displays")
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reported-by: Matthias Reichl <hias@horus.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220203115416.1137308-1-maxime@cerno.tech
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c |    2 +-
+ drivers/gpu/drm/drm_edid.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -510,7 +510,7 @@ static int handle_hca_cap(struct mlx5_co
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -4659,6 +4659,7 @@ u32 drm_add_display_info(struct drm_conn
+ 	if (!(edid->input & DRM_EDID_INPUT_DIGITAL))
+ 		return quirks;
  
- 	/* Check log_max_qp from HCA caps to set in current profile */
- 	if (prof->log_max_qp == LOG_MAX_SUPPORTED_QPS) {
--		prof->log_max_qp = MLX5_CAP_GEN_MAX(dev, log_max_qp);
-+		prof->log_max_qp = min_t(u8, 17, MLX5_CAP_GEN_MAX(dev, log_max_qp));
- 	} else if (MLX5_CAP_GEN_MAX(dev, log_max_qp) < prof->log_max_qp) {
- 		mlx5_core_warn(dev, "log_max_qp value in current profile is %d, changing it to HCA capability limit (%d)\n",
- 			       prof->log_max_qp,
++	info->color_formats |= DRM_COLOR_FORMAT_RGB444;
+ 	drm_parse_cea_ext(connector, edid);
+ 
+ 	/*
+@@ -4707,7 +4708,6 @@ u32 drm_add_display_info(struct drm_conn
+ 	DRM_DEBUG("%s: Assigning EDID-1.4 digital sink color depth as %d bpc.\n",
+ 			  connector->name, info->bpc);
+ 
+-	info->color_formats |= DRM_COLOR_FORMAT_RGB444;
+ 	if (edid->features & DRM_EDID_FEATURE_RGB_YCRCB444)
+ 		info->color_formats |= DRM_COLOR_FORMAT_YCRCB444;
+ 	if (edid->features & DRM_EDID_FEATURE_RGB_YCRCB422)
 
 
