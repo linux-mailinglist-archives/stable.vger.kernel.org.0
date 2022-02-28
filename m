@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1E684C74BB
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F2D4C7616
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:59:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233741AbiB1Rq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:46:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33326 "EHLO
+        id S237191AbiB1R7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:59:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240052AbiB1RpC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:45:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A477D36152;
-        Mon, 28 Feb 2022 09:37:39 -0800 (PST)
+        with ESMTP id S239819AbiB1R65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:58:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3377057B27;
+        Mon, 28 Feb 2022 09:45:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 85499614CC;
-        Mon, 28 Feb 2022 17:37:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88E9DC340E7;
-        Mon, 28 Feb 2022 17:37:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14C4860916;
+        Mon, 28 Feb 2022 17:45:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D424C340E7;
+        Mon, 28 Feb 2022 17:44:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069858;
-        bh=oYdLpNFMJoWpUsGNteMjbuQJIBxw4NVt3rpKOLt7l1k=;
+        s=korg; t=1646070300;
+        bh=B7FyR6OsbPh4DxAfAuyYQOG/G0gHPy9kl+NpBW031cA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KNhVp+3ho132MGHrJjxSTf/G0bj3jOAHjUYzwVB5CLkqXUtDgZuUhOdYfun7Gl8wV
-         EO83Pizc5oT50LkJgchz0ZgDBb0N4snRhhAgSjKodxBfIbP7vssi3NDJrQIrxXWFIz
-         gxq0TpjY0r1CY5BnOsoAIRJyeLeXOLHRJqw1epLQ=
+        b=PU5s900m1qFMKAY9wmCd1sh5GSAioKHlxKdDYAOgbklqE2TW0OaEluDosJNOQ/Et/
+         fKWY7Qe9c8/tPzhZvOm9+kfBVhy++D/GbB7uuMuoX8coOX+Cn7sVIlvcrChUDPhQ/z
+         PS0ooa+pWsNTVUHJ302zIk6sck7ljnzlV10UliNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.15 010/139] selinux: fix misuse of mutex_is_locked()
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Qiang Yu <qiang.yu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.16 022/164] drm/amdgpu: check vm ready by amdgpu_vm->evicting flag
 Date:   Mon, 28 Feb 2022 18:23:04 +0100
-Message-Id: <20220228172348.760488567@linuxfoundation.org>
+Message-Id: <20220228172402.072667800@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Qiang Yu <qiang.yu@amd.com>
 
-commit ce2fc710c9d2b25afc710f49bb2065b4439a62bc upstream.
+commit c1a66c3bc425ff93774fb2f6eefa67b83170dd7e upstream.
 
-mutex_is_locked() tests whether the mutex is locked *by any task*, while
-here we want to test if it is held *by the current task*. To avoid
-false/missed WARNINGs, use lockdep_assert_is_held() and
-lockdep_assert_is_not_held() instead, which do the right thing (though
-they are a no-op if CONFIG_LOCKDEP=n).
+Workstation application ANSA/META v21.1.4 get this error dmesg when
+running CI test suite provided by ANSA/META:
+[drm:amdgpu_gem_va_ioctl [amdgpu]] *ERROR* Couldn't update BO_VA (-16)
 
+This is caused by:
+1. create a 256MB buffer in invisible VRAM
+2. CPU map the buffer and access it causes vm_fault and try to move
+   it to visible VRAM
+3. force visible VRAM space and traverse all VRAM bos to check if
+   evicting this bo is valuable
+4. when checking a VM bo (in invisible VRAM), amdgpu_vm_evictable()
+   will set amdgpu_vm->evicting, but latter due to not in visible
+   VRAM, won't really evict it so not add it to amdgpu_vm->evicted
+5. before next CS to clear the amdgpu_vm->evicting, user VM ops
+   ioctl will pass amdgpu_vm_ready() (check amdgpu_vm->evicted)
+   but fail in amdgpu_vm_bo_update_mapping() (check
+   amdgpu_vm->evicting) and get this error log
+
+This error won't affect functionality as next CS will finish the
+waiting VM ops. But we'd better clear the error log by checking
+the amdgpu_vm->evicting flag in amdgpu_vm_ready() to stop calling
+amdgpu_vm_bo_update_mapping() later.
+
+Another reason is amdgpu_vm->evicted list holds all BOs (both
+user buffer and page table), but only page table BOs' eviction
+prevent VM ops. amdgpu_vm->evicting flag is set only for page
+table BOs, so we should use evicting flag instead of evicted list
+in amdgpu_vm_ready().
+
+The side effect of this change is: previously blocked VM op (user
+buffer in "evicted" list but no page table in it) gets done
+immediately.
+
+v2: update commit comments.
+
+Acked-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Qiang Yu <qiang.yu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Fixes: 2554a48f4437 ("selinux: measure state and policy capabilities")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/selinux/ima.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/security/selinux/ima.c
-+++ b/security/selinux/ima.c
-@@ -77,7 +77,7 @@ void selinux_ima_measure_state_locked(st
- 	size_t policy_len;
- 	int rc = 0;
- 
--	WARN_ON(!mutex_is_locked(&state->policy_mutex));
-+	lockdep_assert_held(&state->policy_mutex);
- 
- 	state_str = selinux_ima_collect_state(state);
- 	if (!state_str) {
-@@ -117,7 +117,7 @@ void selinux_ima_measure_state_locked(st
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+@@ -768,11 +768,16 @@ int amdgpu_vm_validate_pt_bos(struct amd
+  * Check if all VM PDs/PTs are ready for updates
+  *
+  * Returns:
+- * True if eviction list is empty.
++ * True if VM is not evicting.
   */
- void selinux_ima_measure_state(struct selinux_state *state)
+ bool amdgpu_vm_ready(struct amdgpu_vm *vm)
  {
--	WARN_ON(mutex_is_locked(&state->policy_mutex));
-+	lockdep_assert_not_held(&state->policy_mutex);
+-	return list_empty(&vm->evicted);
++	bool ret;
++
++	amdgpu_vm_eviction_lock(vm);
++	ret = !vm->evicting;
++	amdgpu_vm_eviction_unlock(vm);
++	return ret;
+ }
  
- 	mutex_lock(&state->policy_mutex);
- 	selinux_ima_measure_state_locked(state);
+ /**
 
 
