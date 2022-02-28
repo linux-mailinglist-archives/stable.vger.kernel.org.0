@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04E3B4C74B4
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51E474C75D0
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:56:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235568AbiB1RqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:46:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58758 "EHLO
+        id S239475AbiB1R4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:56:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239981AbiB1Ro4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:44:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AAE51C934;
-        Mon, 28 Feb 2022 09:37:27 -0800 (PST)
+        with ESMTP id S238939AbiB1Ryq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDB88185;
+        Mon, 28 Feb 2022 09:44:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FC05B815A2;
-        Mon, 28 Feb 2022 17:37:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00D39C340F4;
-        Mon, 28 Feb 2022 17:37:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4364B81085;
+        Mon, 28 Feb 2022 17:44:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFE69C340E7;
+        Mon, 28 Feb 2022 17:44:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069842;
-        bh=8nZwytck0DMPcr5ZnZ+Icewa0jqQwwjvxZ2VrBat8Cc=;
+        s=korg; t=1646070259;
+        bh=syIQldVdX7I9vkT6zF0HEwnuMxLsFBKjlVxG6GEJKu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ow49PMVFuv12MExQrLd4MaqGlHPzK+TMZi/PNPGWmQUNKjKXBSs7pZoj7EdihGRrX
-         Utp7VQ2xhsDt67Pp4yDZlIyKmBwPbNuD2VwnytJjB1w4M8MWk8bnj1AVmaWFsvnA+A
-         lZGolLvY+qJ80eG9uTixyzL6HLv3gUK9QWTsXQlA=
+        b=02rxw8IiMEio/YykV64XcFrTGiD5pZg09vAb/KYLfu7rMJX0RhyVIHsiwV6Kc8Hpg
+         HQRVE8At/zhR+1RPhHgJqIz/71JcFY9ClcbQc5dF5J000W/98nMuL8/HqKlLxJh0rp
+         0BPf8LPKrTGRc89jGeJjqvM+5HRVMmafp1x7hUXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars Persson <larper@axis.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>
-Subject: [PATCH 5.15 031/139] optee: use driver internal tee_context for some rpc
+        stable@vger.kernel.org, Vikas Gupta <vikas.gupta@broadcom.com>,
+        Somnath Kotur <somnath.kotur@broadcom.com>,
+        Kalesh AP <kalesh-anakkur.purayil@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 043/164] bnxt_en: Fix devlink fw_activate
 Date:   Mon, 28 Feb 2022 18:23:25 +0100
-Message-Id: <20220228172351.040835985@linuxfoundation.org>
+Message-Id: <20220228172404.168604422@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,131 +56,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Kalesh AP <kalesh-anakkur.purayil@broadcom.com>
 
-commit aceeafefff736057e8f93f19bbfbef26abd94604 upstream.
+commit 1278d17a1fb860e7eab4bc3ff4b026a87cbf5105 upstream.
 
-Adds a driver private tee_context by moving the tee_context in struct
-optee_notif to struct optee. This tee_context was previously used when
-doing internal calls to secure world to deliver notification.
+To install a livepatch, first flash the package to NVM, and then
+activate the patch through the "HWRM_FW_LIVEPATCH" fw command.
+To uninstall a patch from NVM, flash the removal package and then
+activate it through the "HWRM_FW_LIVEPATCH" fw command.
 
-The new driver internal tee_context is now also when allocating driver
-private shared memory. This decouples the shared memory object from its
-original tee_context. This is needed when the life time of such a memory
-allocation outlives the client tee_context.
+The "HWRM_FW_LIVEPATCH" fw command has to consider following scenarios:
 
-This patch fixes the problem described below:
+1. no patch in NVM and no patch active. Do nothing.
+2. patch in NVM, but not active. Activate the patch currently in NVM.
+3. patch is not in NVM, but active. Deactivate the patch.
+4. patch in NVM and the patch active. Do nothing.
 
-The addition of a shutdown hook by commit f25889f93184 ("optee: fix tee out
-of memory failure seen during kexec reboot") introduced a kernel shutdown
-regression that can be triggered after running the OP-TEE xtest suites.
+Fix the code to handle these scenarios during devlink "fw_activate".
 
-Once the shutdown hook is called it is not possible to communicate any more
-with the supplicant process because the system is not scheduling task any
-longer. Thus if the optee driver shutdown path receives a supplicant RPC
-request from the OP-TEE we will deadlock the kernel's shutdown.
+To install and activate a live patch:
+devlink dev flash pci/0000:c1:00.0 file thor_patch.pkg
+devlink -f dev reload pci/0000:c1:00.0 action fw_activate limit no_reset
 
-Fixes: f25889f93184 ("optee: fix tee out of memory failure seen during kexec reboot")
-Fixes: 217e0250cccb ("tee: use reference counting for tee_context")
-Reported-by: Lars Persson <larper@axis.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-[JW: backport to 5.15-stable + update commit message]
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+To remove and deactivate a live patch:
+devlink dev flash pci/0000:c1:00.0 file thor_patch_rem.pkg
+devlink -f dev reload pci/0000:c1:00.0 action fw_activate limit no_reset
+
+Fixes: 3c4153394e2c ("bnxt_en: implement firmware live patching")
+Reviewed-by: Vikas Gupta <vikas.gupta@broadcom.com>
+Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
+Signed-off-by: Kalesh AP <kalesh-anakkur.purayil@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/optee/core.c          |    8 ++++++++
- drivers/tee/optee/optee_private.h |    2 ++
- drivers/tee/optee/rpc.c           |    8 +++++---
- 3 files changed, 15 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c |   39 +++++++++++++++++-----
+ 1 file changed, 31 insertions(+), 8 deletions(-)
 
---- a/drivers/tee/optee/core.c
-+++ b/drivers/tee/optee/core.c
-@@ -588,6 +588,7 @@ static int optee_remove(struct platform_
- 	/* Unregister OP-TEE specific client devices on TEE bus */
- 	optee_unregister_devices();
- 
-+	teedev_close_context(optee->ctx);
- 	/*
- 	 * Ask OP-TEE to free all cached shared memory objects to decrease
- 	 * reference counters and also avoid wild pointers in secure world
-@@ -633,6 +634,7 @@ static int optee_probe(struct platform_d
- 	struct optee *optee = NULL;
- 	void *memremaped_shm = NULL;
- 	struct tee_device *teedev;
-+	struct tee_context *ctx;
- 	u32 sec_caps;
- 	int rc;
- 
-@@ -719,6 +721,12 @@ static int optee_probe(struct platform_d
- 	optee_supp_init(&optee->supp);
- 	optee->memremaped_shm = memremaped_shm;
- 	optee->pool = pool;
-+	ctx = teedev_open(optee->teedev);
-+	if (IS_ERR(ctx)) {
-+		rc = PTR_ERR(ctx);
-+		goto err;
-+	}
-+	optee->ctx = ctx;
- 
- 	/*
- 	 * Ensure that there are no pre-existing shm objects before enabling
---- a/drivers/tee/optee/optee_private.h
-+++ b/drivers/tee/optee/optee_private.h
-@@ -70,6 +70,7 @@ struct optee_supp {
-  * struct optee - main service struct
-  * @supp_teedev:	supplicant device
-  * @teedev:		client device
-+ * @ctx:		driver internal TEE context
-  * @invoke_fn:		function to issue smc or hvc
-  * @call_queue:		queue of threads waiting to call @invoke_fn
-  * @wait_queue:		queue of threads from secure world waiting for a
-@@ -87,6 +88,7 @@ struct optee {
- 	struct tee_device *supp_teedev;
- 	struct tee_device *teedev;
- 	optee_invoke_fn *invoke_fn;
-+	struct tee_context *ctx;
- 	struct optee_call_queue call_queue;
- 	struct optee_wait_queue wait_queue;
- 	struct optee_supp supp;
---- a/drivers/tee/optee/rpc.c
-+++ b/drivers/tee/optee/rpc.c
-@@ -285,6 +285,7 @@ static struct tee_shm *cmd_alloc_suppl(s
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
+@@ -366,6 +366,16 @@ bnxt_dl_livepatch_report_err(struct bnxt
+ 	}
  }
  
- static void handle_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
-+					  struct optee *optee,
- 					  struct optee_msg_arg *arg,
- 					  struct optee_call_ctx *call_ctx)
++/* Live patch status in NVM */
++#define BNXT_LIVEPATCH_NOT_INSTALLED	0
++#define BNXT_LIVEPATCH_INSTALLED	FW_LIVEPATCH_QUERY_RESP_STATUS_FLAGS_INSTALL
++#define BNXT_LIVEPATCH_REMOVED		FW_LIVEPATCH_QUERY_RESP_STATUS_FLAGS_ACTIVE
++#define BNXT_LIVEPATCH_MASK		(FW_LIVEPATCH_QUERY_RESP_STATUS_FLAGS_INSTALL | \
++					 FW_LIVEPATCH_QUERY_RESP_STATUS_FLAGS_ACTIVE)
++#define BNXT_LIVEPATCH_ACTIVATED	BNXT_LIVEPATCH_MASK
++
++#define BNXT_LIVEPATCH_STATE(flags)	((flags) & BNXT_LIVEPATCH_MASK)
++
+ static int
+ bnxt_dl_livepatch_activate(struct bnxt *bp, struct netlink_ext_ack *extack)
  {
-@@ -314,7 +315,8 @@ static void handle_rpc_func_cmd_shm_allo
- 		shm = cmd_alloc_suppl(ctx, sz);
- 		break;
- 	case OPTEE_RPC_SHM_TYPE_KERNEL:
--		shm = tee_shm_alloc(ctx, sz, TEE_SHM_MAPPED | TEE_SHM_PRIV);
-+		shm = tee_shm_alloc(optee->ctx, sz,
-+				    TEE_SHM_MAPPED | TEE_SHM_PRIV);
- 		break;
- 	default:
- 		arg->ret = TEEC_ERROR_BAD_PARAMETERS;
-@@ -471,7 +473,7 @@ static void handle_rpc_func_cmd(struct t
- 		break;
- 	case OPTEE_RPC_CMD_SHM_ALLOC:
- 		free_pages_list(call_ctx);
--		handle_rpc_func_cmd_shm_alloc(ctx, arg, call_ctx);
-+		handle_rpc_func_cmd_shm_alloc(ctx, optee, arg, call_ctx);
- 		break;
- 	case OPTEE_RPC_CMD_SHM_FREE:
- 		handle_rpc_func_cmd_shm_free(ctx, arg);
-@@ -502,7 +504,7 @@ void optee_handle_rpc(struct tee_context
+@@ -373,8 +383,9 @@ bnxt_dl_livepatch_activate(struct bnxt *
+ 	struct hwrm_fw_livepatch_query_input *query_req;
+ 	struct hwrm_fw_livepatch_output *patch_resp;
+ 	struct hwrm_fw_livepatch_input *patch_req;
++	u16 flags, live_patch_state;
++	bool activated = false;
+ 	u32 installed = 0;
+-	u16 flags;
+ 	u8 target;
+ 	int rc;
  
- 	switch (OPTEE_SMC_RETURN_GET_RPC_FUNC(param->a0)) {
- 	case OPTEE_SMC_RPC_FUNC_ALLOC:
--		shm = tee_shm_alloc(ctx, param->a1,
-+		shm = tee_shm_alloc(optee->ctx, param->a1,
- 				    TEE_SHM_MAPPED | TEE_SHM_PRIV);
- 		if (!IS_ERR(shm) && !tee_shm_get_pa(shm, 0, &pa)) {
- 			reg_pair_from_64(&param->a1, &param->a2, pa);
+@@ -393,7 +404,6 @@ bnxt_dl_livepatch_activate(struct bnxt *
+ 		hwrm_req_drop(bp, query_req);
+ 		return rc;
+ 	}
+-	patch_req->opcode = FW_LIVEPATCH_REQ_OPCODE_ACTIVATE;
+ 	patch_req->loadtype = FW_LIVEPATCH_REQ_LOADTYPE_NVM_INSTALL;
+ 	patch_resp = hwrm_req_hold(bp, patch_req);
+ 
+@@ -406,12 +416,20 @@ bnxt_dl_livepatch_activate(struct bnxt *
+ 		}
+ 
+ 		flags = le16_to_cpu(query_resp->status_flags);
+-		if (~flags & FW_LIVEPATCH_QUERY_RESP_STATUS_FLAGS_INSTALL)
++		live_patch_state = BNXT_LIVEPATCH_STATE(flags);
++
++		if (live_patch_state == BNXT_LIVEPATCH_NOT_INSTALLED)
+ 			continue;
+-		if ((flags & FW_LIVEPATCH_QUERY_RESP_STATUS_FLAGS_ACTIVE) &&
+-		    !strncmp(query_resp->active_ver, query_resp->install_ver,
+-			     sizeof(query_resp->active_ver)))
++
++		if (live_patch_state == BNXT_LIVEPATCH_ACTIVATED) {
++			activated = true;
+ 			continue;
++		}
++
++		if (live_patch_state == BNXT_LIVEPATCH_INSTALLED)
++			patch_req->opcode = FW_LIVEPATCH_REQ_OPCODE_ACTIVATE;
++		else if (live_patch_state == BNXT_LIVEPATCH_REMOVED)
++			patch_req->opcode = FW_LIVEPATCH_REQ_OPCODE_DEACTIVATE;
+ 
+ 		patch_req->fw_target = target;
+ 		rc = hwrm_req_send(bp, patch_req);
+@@ -423,8 +441,13 @@ bnxt_dl_livepatch_activate(struct bnxt *
+ 	}
+ 
+ 	if (!rc && !installed) {
+-		NL_SET_ERR_MSG_MOD(extack, "No live patches found");
+-		rc = -ENOENT;
++		if (activated) {
++			NL_SET_ERR_MSG_MOD(extack, "Live patch already activated");
++			rc = -EEXIST;
++		} else {
++			NL_SET_ERR_MSG_MOD(extack, "No live patches found");
++			rc = -ENOENT;
++		}
+ 	}
+ 	hwrm_req_drop(bp, query_req);
+ 	hwrm_req_drop(bp, patch_req);
 
 
