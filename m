@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3505E4C7374
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 521524C72F6
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:31:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238034AbiB1Rfa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:35:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39886 "EHLO
+        id S237129AbiB1RbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:31:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238080AbiB1Rey (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:34:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 561187E084;
-        Mon, 28 Feb 2022 09:31:15 -0800 (PST)
+        with ESMTP id S235581AbiB1Ral (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:30:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8B0275C07;
+        Mon, 28 Feb 2022 09:28:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 497EDB815AB;
-        Mon, 28 Feb 2022 17:31:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0B2BC340E7;
-        Mon, 28 Feb 2022 17:31:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52AD961366;
+        Mon, 28 Feb 2022 17:28:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67D42C340E7;
+        Mon, 28 Feb 2022 17:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069462;
-        bh=InIoslegLjVX1Yt8uC/7lVQLPHklSm5DBQNu2ZKpfd0=;
+        s=korg; t=1646069304;
+        bh=n1C6owpLgNwjx+El9E0AT/7N/2KvJH9zm209lQ/YAnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ln7aUeRHpzN031nnkYcn+TXdzMBQ4wotRMExwqWdIdztYOq2vQP9t1c5R6tfln/55
-         fAHLgzLehDXEFHCQMoPfgIapIWC0+qX3sNDiFD5J6DaWTWGQp5c0hqCuRGfbV8xnBp
-         XdZ/jAzxIDq41CAkATuh7dudWhMx0NTeAwSlwMx8=
+        b=fSTsV0WQhPaZXXabtlzr+SVMd+y72ORQuMv6J1IoRqjltdF9YrREJDumvLEd3QuuL
+         oozuxAZo2fx+bbe5yYPXw0zhTC+mfSUc5rL2q+by6Gftx9DKI8INqqMwhOztkWa+JB
+         7DCXjVkZM3N/4FPuG++G15KXUbYY6N7i2som/IUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 05/53] parisc/unaligned: Fix ldw() and stw() unalignment handlers
-Date:   Mon, 28 Feb 2022 18:24:03 +0100
-Message-Id: <20220228172248.682710207@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Xin Long <lucien.xin@gmail.com>
+Subject: [PATCH 4.14 08/31] ping: remove pr_err from ping_lookup
+Date:   Mon, 28 Feb 2022 18:24:04 +0100
+Message-Id: <20220228172200.673878080@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
-References: <20220228172248.232273337@linuxfoundation.org>
+In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
+References: <20220228172159.515152296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,49 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit a97279836867b1cb50a3d4f0b1bf60e0abe6d46c upstream.
+commit cd33bdcbead882c2e58fdb4a54a7bd75b610a452 upstream.
 
-Fix 3 bugs:
+As Jakub noticed, prints should be avoided on the datapath.
+Also, as packets would never come to the else branch in
+ping_lookup(), remove pr_err() from ping_lookup().
 
-a) emulate_stw() doesn't return the error code value, so faulting
-instructions are not reported and aborted.
-
-b) Tell emulate_ldw() to handle fldw_l as floating point instruction
-
-c) Tell emulate_ldw() to handle ldw_m as integer instruction
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org
+Fixes: 35a79e64de29 ("ping: fix the dif and sdif check in ping_lookup")
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/1ef3f2fcd31bd681a193b1fcf235eee1603819bd.1645674068.git.lucien.xin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/unaligned.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/ipv4/ping.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/parisc/kernel/unaligned.c
-+++ b/arch/parisc/kernel/unaligned.c
-@@ -340,7 +340,7 @@ static int emulate_stw(struct pt_regs *r
- 	: "r" (val), "r" (regs->ior), "r" (regs->isr)
- 	: "r19", "r20", "r21", "r22", "r1", FIXUP_BRANCH_CLOBBER );
+--- a/net/ipv4/ping.c
++++ b/net/ipv4/ping.c
+@@ -192,7 +192,6 @@ static struct sock *ping_lookup(struct n
+ 			 (int)ident, &ipv6_hdr(skb)->daddr, dif);
+ #endif
+ 	} else {
+-		pr_err("ping: protocol(%x) is not supported\n", ntohs(skb->protocol));
+ 		return NULL;
+ 	}
  
--	return 0;
-+	return ret;
- }
- static int emulate_std(struct pt_regs *regs, int frreg, int flop)
- {
-@@ -619,10 +619,10 @@ void handle_unaligned(struct pt_regs *re
- 	{
- 	case OPCODE_FLDW_L:
- 		flop=1;
--		ret = emulate_ldw(regs, R2(regs->iir),0);
-+		ret = emulate_ldw(regs, R2(regs->iir), 1);
- 		break;
- 	case OPCODE_LDW_M:
--		ret = emulate_ldw(regs, R2(regs->iir),1);
-+		ret = emulate_ldw(regs, R2(regs->iir), 0);
- 		break;
- 
- 	case OPCODE_FSTW_L:
 
 
