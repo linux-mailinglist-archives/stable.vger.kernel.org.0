@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDAA14C7307
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:31:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 365754C769A
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237070AbiB1RbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:31:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47412 "EHLO
+        id S230478AbiB1SFV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:05:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235039AbiB1RaW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:30:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14251541B3;
-        Mon, 28 Feb 2022 09:28:23 -0800 (PST)
+        with ESMTP id S240090AbiB1SDA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:03:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A9119E9FE;
+        Mon, 28 Feb 2022 09:46:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D9146135F;
-        Mon, 28 Feb 2022 17:28:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FA12C340E7;
-        Mon, 28 Feb 2022 17:28:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 182EFB815C8;
+        Mon, 28 Feb 2022 17:46:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7215DC340F0;
+        Mon, 28 Feb 2022 17:46:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069302;
-        bh=CRd4rCeCLKeHll0cDyYiFg6oShG+mdo264UAokc0Yw8=;
+        s=korg; t=1646070363;
+        bh=hASjgU5IbImGYbBcnUlqosQGVE2k2Av8fnxVz6ioyzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LcwnO99yogfhHtUX6JDfqvZpoYbM5Y5hY7hrr8CikN0rb4y62Q7UynbSLXWb4Ng4d
-         NXkoextAUGfc/+mgkyMrk+KYEUrlUHO6wqvkH5jh5xJd1scrRaYqOV5EUMAN12ehew
-         DvGydP+Oe9kVrmEZyrsI9AFBY1VU0DgNPhrJ5a6A=
+        b=YqUqIGohxPXSoj6bdRbdvcLzdQoMjpefE0tu/AsKqg72Uru3+ol9ieT+m+jtC8/OI
+         SQdB2+cHtYIF5lVK1tcmKZnXt+HYTPlP9NWS4057EXRN/XJ+kPxWhjZe2hD7EKR7pU
+         Fe7HEHGHFRzlqWpc2WLReidsv0UgE/XEamxWtPpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 07/31] serial: 8250: of: Fix mapped region size when using reg-offset property
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 081/164] net: dsa: avoid call to __dev_set_promiscuity() while rtnl_mutex isnt held
 Date:   Mon, 28 Feb 2022 18:24:03 +0100
-Message-Id: <20220228172200.579201488@linuxfoundation.org>
+Message-Id: <20220228172407.321734179@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
-References: <20220228172159.515152296@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit d06b1cf28297e27127d3da54753a3a01a2fa2f28 upstream.
+commit 8940e6b669ca1196ce0a0549c819078096390f76 upstream.
 
-8250_of supports a reg-offset property which is intended to handle
-cases where the device registers start at an offset inside the region
-of memory allocated to the device. The Xilinx 16550 UART, for which this
-support was initially added, requires this. However, the code did not
-adjust the overall size of the mapped region accordingly, causing the
-driver to request an area of memory past the end of the device's
-allocation. For example, if the UART was allocated an address of
-0xb0130000, size of 0x10000 and reg-offset of 0x1000 in the device
-tree, the region of memory reserved was b0131000-b0140fff, which caused
-the driver for the region starting at b0140000 to fail to probe.
+If the DSA master doesn't support IFF_UNICAST_FLT, then the following
+call path is possible:
 
-Fix this by subtracting reg-offset from the mapped region size.
+dsa_slave_switchdev_event_work
+-> dsa_port_host_fdb_add
+   -> dev_uc_add
+      -> __dev_set_rx_mode
+         -> __dev_set_promiscuity
 
-Fixes: b912b5e2cfb3 ([POWERPC] Xilinx: of_serial support for Xilinx uart 16550.)
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20220112194214.881844-1-robert.hancock@calian.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Since the blamed commit, dsa_slave_switchdev_event_work() no longer
+holds rtnl_lock(), which triggers the ASSERT_RTNL() from
+__dev_set_promiscuity().
+
+Taking rtnl_lock() around dev_uc_add() is impossible, because all the
+code paths that call dsa_flush_workqueue() do so from contexts where the
+rtnl_mutex is already held - so this would lead to an instant deadlock.
+
+dev_uc_add() in itself doesn't require the rtnl_mutex for protection.
+There is this comment in __dev_set_rx_mode() which assumes so:
+
+		/* Unicast addresses changes may only happen under the rtnl,
+		 * therefore calling __dev_set_promiscuity here is safe.
+		 */
+
+but it is from commit 4417da668c00 ("[NET]: dev: secondary unicast
+address support") dated June 2007, and in the meantime, commit
+f1f28aa3510d ("netdev: Add addr_list_lock to struct net_device."), dated
+July 2008, has added &dev->addr_list_lock to protect this instead of the
+global rtnl_mutex.
+
+Nonetheless, __dev_set_promiscuity() does assume rtnl_mutex protection,
+but it is the uncommon path of what we typically expect dev_uc_add()
+to do. So since only the uncommon path requires rtnl_lock(), just check
+ahead of time whether dev_uc_add() would result into a call to
+__dev_set_promiscuity(), and handle that condition separately.
+
+DSA already configures the master interface to be promiscuous if the
+tagger requires this. We can extend this to also cover the case where
+the master doesn't handle dev_uc_add() (doesn't support IFF_UNICAST_FLT),
+and on the premise that we'd end up making it promiscuous during
+operation anyway, either if a DSA slave has a non-inherited MAC address,
+or if the bridge notifies local FDB entries for its own MAC address, the
+address of a station learned on a foreign port, etc.
+
+Fixes: 0faf890fc519 ("net: dsa: drop rtnl_lock from dsa_slave_switchdev_event_work")
+Reported-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_of.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ net/dsa/master.c |    7 ++++++-
+ net/dsa/port.c   |   20 ++++++++++++++------
+ 2 files changed, 20 insertions(+), 7 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_of.c
-+++ b/drivers/tty/serial/8250/8250_of.c
-@@ -102,8 +102,17 @@ static int of_platform_serial_setup(stru
- 	port->mapsize = resource_size(&resource);
+--- a/net/dsa/master.c
++++ b/net/dsa/master.c
+@@ -260,11 +260,16 @@ static void dsa_netdev_ops_set(struct ne
+ 	dev->dsa_ptr->netdev_ops = ops;
+ }
  
- 	/* Check for shifted address mapping */
--	if (of_property_read_u32(np, "reg-offset", &prop) == 0)
-+	if (of_property_read_u32(np, "reg-offset", &prop) == 0) {
-+		if (prop >= port->mapsize) {
-+			dev_warn(&ofdev->dev, "reg-offset %u exceeds region size %pa\n",
-+				 prop, &port->mapsize);
-+			ret = -EINVAL;
-+			goto err_unprepare;
-+		}
-+
- 		port->mapbase += prop;
-+		port->mapsize -= prop;
++/* Keep the master always promiscuous if the tagging protocol requires that
++ * (garbles MAC DA) or if it doesn't support unicast filtering, case in which
++ * it would revert to promiscuous mode as soon as we call dev_uc_add() on it
++ * anyway.
++ */
+ static void dsa_master_set_promiscuity(struct net_device *dev, int inc)
+ {
+ 	const struct dsa_device_ops *ops = dev->dsa_ptr->tag_ops;
+ 
+-	if (!ops->promisc_on_master)
++	if ((dev->priv_flags & IFF_UNICAST_FLT) && !ops->promisc_on_master)
+ 		return;
+ 
+ 	rtnl_lock();
+--- a/net/dsa/port.c
++++ b/net/dsa/port.c
+@@ -777,9 +777,15 @@ int dsa_port_host_fdb_add(struct dsa_por
+ 	struct dsa_port *cpu_dp = dp->cpu_dp;
+ 	int err;
+ 
+-	err = dev_uc_add(cpu_dp->master, addr);
+-	if (err)
+-		return err;
++	/* Avoid a call to __dev_set_promiscuity() on the master, which
++	 * requires rtnl_lock(), since we can't guarantee that is held here,
++	 * and we can't take it either.
++	 */
++	if (cpu_dp->master->priv_flags & IFF_UNICAST_FLT) {
++		err = dev_uc_add(cpu_dp->master, addr);
++		if (err)
++			return err;
 +	}
  
- 	/* Compatibility with the deprecated pxa driver and 8250_pxa drivers. */
- 	if (of_device_is_compatible(np, "mrvl,mmp-uart"))
+ 	return dsa_port_notify(dp, DSA_NOTIFIER_HOST_FDB_ADD, &info);
+ }
+@@ -796,9 +802,11 @@ int dsa_port_host_fdb_del(struct dsa_por
+ 	struct dsa_port *cpu_dp = dp->cpu_dp;
+ 	int err;
+ 
+-	err = dev_uc_del(cpu_dp->master, addr);
+-	if (err)
+-		return err;
++	if (cpu_dp->master->priv_flags & IFF_UNICAST_FLT) {
++		err = dev_uc_del(cpu_dp->master, addr);
++		if (err)
++			return err;
++	}
+ 
+ 	return dsa_port_notify(dp, DSA_NOTIFIER_HOST_FDB_DEL, &info);
+ }
 
 
