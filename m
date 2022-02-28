@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6A1B4C7625
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EFEC4C74D1
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:48:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235599AbiB1R77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:59:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42502 "EHLO
+        id S232248AbiB1Rsi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:48:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239314AbiB1R71 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:59:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7052D88B16;
-        Mon, 28 Feb 2022 09:45:21 -0800 (PST)
+        with ESMTP id S238806AbiB1Rrp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:47:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92EA7888F1;
+        Mon, 28 Feb 2022 09:38:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4B955CE17D8;
-        Mon, 28 Feb 2022 17:45:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2961DC340E7;
-        Mon, 28 Feb 2022 17:45:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33B58B815A6;
+        Mon, 28 Feb 2022 17:38:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 893E3C340E7;
+        Mon, 28 Feb 2022 17:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070311;
-        bh=TCc4XpVKrrwrvqe8z+8VZ37YD+Mdl9sfJq6e6QUpPwU=;
+        s=korg; t=1646069885;
+        bh=Om8+rVBysDWELT0kes9emjuIoy4hLxF5bRKgmKIMhJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QsDkrRvEgR1QD4dgkCXNpYphBvQcdWJgt2JeyCfR0QFcyzEl/7PJELfBs5PT/Jjgw
-         yUEwiAJ2h/586itxpQFFylcdMXXK32xMZ3ARdw8C91Nx5LkxQWG2qOo2DhBSxMpFCt
-         03C2hL0IVrwTN7N7bMpRlqiprfEf8wIo60l1RJwY=
+        b=Yv2YexqFLVayHLCtlPky01pb38tzwHe9ZxWy+ZXpu6PPwwyijIpXzwQ7jmZ+zuZwx
+         UPLG0rq4W/nODMYDyN199KbqvlbeUViI2pS20C1VMTrVCbitvci195n9ztDn00DDJV
+         9N2gKaLn8PkpoB2leLJJ9seSuef/ea/o9ZfC+0gA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-Subject: [PATCH 5.16 026/164] drm/i915: Fix bw atomic check when switching between SAGV vs. no SAGV
+        stable@vger.kernel.org, Liang Zhang <zhangliang5@huawei.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 014/139] KVM: x86/mmu: make apf token non-zero to fix bug
 Date:   Mon, 28 Feb 2022 18:23:08 +0100
-Message-Id: <20220228172402.504294614@linuxfoundation.org>
+Message-Id: <20220228172349.184013379@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,85 +53,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Liang Zhang <zhangliang5@huawei.com>
 
-commit ec663bca9128f13eada25cd0446e7fcb5fcdc088 upstream.
+commit 6f3c1fc53d86d580d8d6d749c4af23705e4f6f79 upstream.
 
-If the only thing that is changing is SAGV vs. no SAGV but
-the number of active planes and the total data rates end up
-unchanged we currently bail out of intel_bw_atomic_check()
-early and forget to actually compute the new WGV point
-mask and thus won't actually enable/disable SAGV as requested.
-This ends up poorly if we end up running with SAGV enabled
-when we shouldn't. Usually ends up in underruns.
+In current async pagefault logic, when a page is ready, KVM relies on
+kvm_arch_can_dequeue_async_page_present() to determine whether to deliver
+a READY event to the Guest. This function test token value of struct
+kvm_vcpu_pv_apf_data, which must be reset to zero by Guest kernel when a
+READY event is finished by Guest. If value is zero meaning that a READY
+event is done, so the KVM can deliver another.
+But the kvm_arch_setup_async_pf() may produce a valid token with zero
+value, which is confused with previous mention and may lead the loss of
+this READY event.
 
-To fix this let's go through the QGV point mask computation
-if either the data rates/number of planes, or the state
-of SAGV is changing.
+This bug may cause task blocked forever in Guest:
+ INFO: task stress:7532 blocked for more than 1254 seconds.
+       Not tainted 5.10.0 #16
+ "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+ task:stress          state:D stack:    0 pid: 7532 ppid:  1409
+ flags:0x00000080
+ Call Trace:
+  __schedule+0x1e7/0x650
+  schedule+0x46/0xb0
+  kvm_async_pf_task_wait_schedule+0xad/0xe0
+  ? exit_to_user_mode_prepare+0x60/0x70
+  __kvm_handle_async_pf+0x4f/0xb0
+  ? asm_exc_page_fault+0x8/0x30
+  exc_page_fault+0x6f/0x110
+  ? asm_exc_page_fault+0x8/0x30
+  asm_exc_page_fault+0x1e/0x30
+ RIP: 0033:0x402d00
+ RSP: 002b:00007ffd31912500 EFLAGS: 00010206
+ RAX: 0000000000071000 RBX: ffffffffffffffff RCX: 00000000021a32b0
+ RDX: 000000000007d011 RSI: 000000000007d000 RDI: 00000000021262b0
+ RBP: 00000000021262b0 R08: 0000000000000003 R09: 0000000000000086
+ R10: 00000000000000eb R11: 00007fefbdf2baa0 R12: 0000000000000000
+ R13: 0000000000000002 R14: 000000000007d000 R15: 0000000000001000
 
-v2: Check more carefully if things are changing to avoid
-    the extra calculations/debugs from introducing unwanted
-    overhead
-
+Signed-off-by: Liang Zhang <zhangliang5@huawei.com>
+Message-Id: <20220222031239.1076682-1-zhangliang5@huawei.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com> #v1
-Fixes: 20f505f22531 ("drm/i915: Restrict qgv points which don't have enough bandwidth.")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220218064039.12834-3-ville.syrjala@linux.intel.com
-(cherry picked from commit 6b728595ffa51c087343c716bccbfc260f120e72)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_bw.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ arch/x86/kvm/mmu/mmu.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/display/intel_bw.c
-+++ b/drivers/gpu/drm/i915/display/intel_bw.c
-@@ -681,6 +681,7 @@ int intel_bw_atomic_check(struct intel_a
- 	unsigned int max_bw_point = 0, max_bw = 0;
- 	unsigned int num_qgv_points = dev_priv->max_bw[0].num_qgv_points;
- 	unsigned int num_psf_gv_points = dev_priv->max_bw[0].num_psf_gv_points;
-+	bool changed = false;
- 	u32 mask = 0;
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -3889,12 +3889,23 @@ static void shadow_page_table_clear_floo
+ 	walk_shadow_page_lockless_end(vcpu);
+ }
  
- 	/* FIXME earlier gens need some checks too */
-@@ -724,6 +725,8 @@ int intel_bw_atomic_check(struct intel_a
- 		new_bw_state->data_rate[crtc->pipe] = new_data_rate;
- 		new_bw_state->num_active_planes[crtc->pipe] = new_active_planes;
- 
-+		changed = true;
++static u32 alloc_apf_token(struct kvm_vcpu *vcpu)
++{
++	/* make sure the token value is not 0 */
++	u32 id = vcpu->arch.apf.id;
 +
- 		drm_dbg_kms(&dev_priv->drm,
- 			    "pipe %c data rate %u num active planes %u\n",
- 			    pipe_name(crtc->pipe),
-@@ -731,7 +734,19 @@ int intel_bw_atomic_check(struct intel_a
- 			    new_bw_state->num_active_planes[crtc->pipe]);
- 	}
- 
--	if (!new_bw_state)
-+	old_bw_state = intel_atomic_get_old_bw_state(state);
-+	new_bw_state = intel_atomic_get_new_bw_state(state);
++	if (id << 12 == 0)
++		vcpu->arch.apf.id = 1;
 +
-+	if (new_bw_state &&
-+	    intel_can_enable_sagv(dev_priv, old_bw_state) !=
-+	    intel_can_enable_sagv(dev_priv, new_bw_state))
-+		changed = true;
++	return (vcpu->arch.apf.id++ << 12) | vcpu->vcpu_id;
++}
 +
-+	/*
-+	 * If none of our inputs (data rates, number of active
-+	 * planes, SAGV yes/no) changed then nothing to do here.
-+	 */
-+	if (!changed)
- 		return 0;
+ static bool kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
+ 				    gfn_t gfn)
+ {
+ 	struct kvm_arch_async_pf arch;
  
- 	ret = intel_atomic_lock_global_state(&new_bw_state->base);
-@@ -814,7 +829,6 @@ int intel_bw_atomic_check(struct intel_a
- 	 */
- 	new_bw_state->qgv_points_mask = ~allowed_points & mask;
- 
--	old_bw_state = intel_atomic_get_old_bw_state(state);
- 	/*
- 	 * If the actual mask had changed we need to make sure that
- 	 * the commits are serialized(in case this is a nomodeset, nonblocking)
+-	arch.token = (vcpu->arch.apf.id++ << 12) | vcpu->vcpu_id;
++	arch.token = alloc_apf_token(vcpu);
+ 	arch.gfn = gfn;
+ 	arch.direct_map = vcpu->arch.mmu->direct_map;
+ 	arch.cr3 = vcpu->arch.mmu->get_guest_pgd(vcpu);
 
 
