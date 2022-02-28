@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1618E4C7596
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 200934C75AA
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235908AbiB1Rzl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:55:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47836 "EHLO
+        id S236606AbiB1Rzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:55:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240717AbiB1Ryc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D40B933364;
-        Mon, 28 Feb 2022 09:42:48 -0800 (PST)
+        with ESMTP id S240742AbiB1Ryd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:33 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1B814EF60;
+        Mon, 28 Feb 2022 09:42:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57B9E609EE;
-        Mon, 28 Feb 2022 17:42:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A2F3C340E7;
-        Mon, 28 Feb 2022 17:42:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 46087CE17D2;
+        Mon, 28 Feb 2022 17:42:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 230DEC340E7;
+        Mon, 28 Feb 2022 17:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070167;
-        bh=H5afrEMBcaQ1QX0wDf3EYgdzqPZ8LQJerIuF+PCrhek=;
+        s=korg; t=1646070170;
+        bh=0kLHFsDZCk0ZTM/V8Kf2IsrIaPAGMGwqKe7xccMH9p4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ePJ0fOCrIHvOw/7fuVGasDTpFxyc0vzpDr0zH+Xl4PoidUNtgnTt3OFwoLgIgt0wL
-         JxMC9QMtHmtPltWVB+3zRMjX26/usWDQL9aIyPTOHI83hwkDmqE7jqDnl9axIsypvG
-         ysqE7XRtbt3NdVMuNCRSRlegg8y/Vd+Nz3Xoeob4=
+        b=vmgkx74WkIpVYeMZ187pbKNNfnfsLPAUin22reBWGxXLf5M3Dm3j9DgWK8BhAPUJq
+         qXSL+NQKBBcg0n8v84TcOot95Fy8eXG0KZzfy1Tx2jI667/Qbm2k46FxjXhs7Vw2jY
+         o0mqfNMI/BjxFp2q+eZt/APeOrcbsLMBu8AG9VUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com
-Subject: [PATCH 5.16 011/164] vhost/vsock: dont check owner in vhost_vsock_stop() while releasing
-Date:   Mon, 28 Feb 2022 18:22:53 +0100
-Message-Id: <20220228172400.851408749@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.16 012/164] parisc/unaligned: Fix fldd and fstd unaligned handlers on 32-bit kernel
+Date:   Mon, 28 Feb 2022 18:22:54 +0100
+Message-Id: <20220228172400.970689091@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
 References: <20220228172359.567256961@linuxfoundation.org>
@@ -57,85 +52,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Helge Deller <deller@gmx.de>
 
-commit a58da53ffd70294ebea8ecd0eb45fd0d74add9f9 upstream.
+commit dd2288f4a020d693360e3e8d72f8b9d9c25f5ef6 upstream.
 
-vhost_vsock_stop() calls vhost_dev_check_owner() to check the device
-ownership. It expects current->mm to be valid.
+Usually the kernel provides fixup routines to emulate the fldd and fstd
+floating-point instructions if they load or store 8-byte from/to a not
+natuarally aligned memory location.
 
-vhost_vsock_stop() is also called by vhost_vsock_dev_release() when
-the user has not done close(), so when we are in do_exit(). In this
-case current->mm is invalid and we're releasing the device, so we
-should clean it anyway.
+On a 32-bit kernel I noticed that those unaligned handlers didn't worked and
+instead the application got a SEGV.
+While checking the code I found two problems:
 
-Let's check the owner only when vhost_vsock_stop() is called
-by an ioctl.
+First, the OPCODE_FLDD_L and OPCODE_FSTD_L cases were ifdef'ed out by the
+CONFIG_PA20 option, and as such those weren't built on a pure 32-bit kernel.
+This is now fixed by moving the CONFIG_PA20 #ifdef to prevent the compilation
+of OPCODE_LDD_L and OPCODE_FSTD_L only, and handling the fldd and fstd
+instructions.
 
-When invoked from release we can not fail so we don't check return
-code of vhost_vsock_stop(). We need to stop vsock even if it's not
-the owner.
+The second problem are two bugs in the 32-bit inline assembly code, where the
+wrong registers where used. The calculation of the natural alignment used %2
+(vall) instead of %3 (ior), and the first word was stored back to address %1
+(valh) instead of %3 (ior).
 
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+Signed-off-by: Helge Deller <deller@gmx.de>
 Cc: stable@vger.kernel.org
-Reported-by: syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/vsock.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ arch/parisc/kernel/unaligned.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -629,16 +629,18 @@ err:
- 	return ret;
- }
- 
--static int vhost_vsock_stop(struct vhost_vsock *vsock)
-+static int vhost_vsock_stop(struct vhost_vsock *vsock, bool check_owner)
- {
- 	size_t i;
--	int ret;
-+	int ret = 0;
- 
- 	mutex_lock(&vsock->dev.mutex);
- 
--	ret = vhost_dev_check_owner(&vsock->dev);
--	if (ret)
--		goto err;
-+	if (check_owner) {
-+		ret = vhost_dev_check_owner(&vsock->dev);
-+		if (ret)
-+			goto err;
+--- a/arch/parisc/kernel/unaligned.c
++++ b/arch/parisc/kernel/unaligned.c
+@@ -397,7 +397,7 @@ static int emulate_std(struct pt_regs *r
+ 	__asm__ __volatile__ (
+ "	mtsp	%4, %%sr1\n"
+ "	zdep	%2, 29, 2, %%r19\n"
+-"	dep	%%r0, 31, 2, %2\n"
++"	dep	%%r0, 31, 2, %3\n"
+ "	mtsar	%%r19\n"
+ "	zvdepi	-2, 32, %%r19\n"
+ "1:	ldw	0(%%sr1,%3),%%r20\n"
+@@ -409,7 +409,7 @@ static int emulate_std(struct pt_regs *r
+ "	andcm	%%r21, %%r19, %%r21\n"
+ "	or	%1, %%r20, %1\n"
+ "	or	%2, %%r21, %2\n"
+-"3:	stw	%1,0(%%sr1,%1)\n"
++"3:	stw	%1,0(%%sr1,%3)\n"
+ "4:	stw	%%r1,4(%%sr1,%3)\n"
+ "5:	stw	%2,8(%%sr1,%3)\n"
+ "	copy	%%r0, %0\n"
+@@ -596,7 +596,6 @@ void handle_unaligned(struct pt_regs *re
+ 		ret = ERR_NOTHANDLED;	/* "undefined", but lets kill them. */
+ 		break;
+ 	}
+-#ifdef CONFIG_PA20
+ 	switch (regs->iir & OPCODE2_MASK)
+ 	{
+ 	case OPCODE_FLDD_L:
+@@ -607,14 +606,15 @@ void handle_unaligned(struct pt_regs *re
+ 		flop=1;
+ 		ret = emulate_std(regs, R2(regs->iir),1);
+ 		break;
++#ifdef CONFIG_PA20
+ 	case OPCODE_LDD_L:
+ 		ret = emulate_ldd(regs, R2(regs->iir),0);
+ 		break;
+ 	case OPCODE_STD_L:
+ 		ret = emulate_std(regs, R2(regs->iir),0);
+ 		break;
+-	}
+ #endif
 +	}
- 
- 	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
- 		struct vhost_virtqueue *vq = &vsock->vqs[i];
-@@ -753,7 +755,12 @@ static int vhost_vsock_dev_release(struc
- 	 * inefficient.  Room for improvement here. */
- 	vsock_for_each_connected_socket(vhost_vsock_reset_orphans);
- 
--	vhost_vsock_stop(vsock);
-+	/* Don't check the owner, because we are in the release path, so we
-+	 * need to stop the vsock device in any case.
-+	 * vhost_vsock_stop() can not fail in this case, so we don't need to
-+	 * check the return code.
-+	 */
-+	vhost_vsock_stop(vsock, false);
- 	vhost_vsock_flush(vsock);
- 	vhost_dev_stop(&vsock->dev);
- 
-@@ -868,7 +875,7 @@ static long vhost_vsock_dev_ioctl(struct
- 		if (start)
- 			return vhost_vsock_start(vsock);
- 		else
--			return vhost_vsock_stop(vsock);
-+			return vhost_vsock_stop(vsock, true);
- 	case VHOST_GET_FEATURES:
- 		features = VHOST_VSOCK_FEATURES;
- 		if (copy_to_user(argp, &features, sizeof(features)))
+ 	switch (regs->iir & OPCODE3_MASK)
+ 	{
+ 	case OPCODE_FLDW_L:
 
 
