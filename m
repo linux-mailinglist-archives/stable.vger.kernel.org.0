@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAEB94C75F0
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:56:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00D104C74BF
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239216AbiB1R5F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:57:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50044 "EHLO
+        id S237562AbiB1Rqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:46:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239289AbiB1RzS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:55:18 -0500
+        with ESMTP id S238289AbiB1RpV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:45:21 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E37B45418E;
-        Mon, 28 Feb 2022 09:44:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C63C43B024;
+        Mon, 28 Feb 2022 09:37:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9AADBB815C6;
-        Mon, 28 Feb 2022 17:44:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA744C36AEB;
-        Mon, 28 Feb 2022 17:44:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0699B815A2;
+        Mon, 28 Feb 2022 17:37:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DEEEC340E7;
+        Mon, 28 Feb 2022 17:37:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070278;
-        bh=DYAZNilmD8cCnmy4h4SXlX7Bd/ZLe909alZgUubnF3E=;
+        s=korg; t=1646069861;
+        bh=TQEvo4SlinlRCuCloRelj2WzOa4s+iA4H9FM7v2aA1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QcvaMB6Kl2zg0I2hr2c3bewED4g78M36ZKYZbbJbWiY8uTTy6TPo47yacXNk2C5TI
-         UkMkJi/bvpUxQJ4IM83cFUgDFpy216jNgDQTpIYHY8WfSj3tOrWEZcdK1yBcOgHxji
-         ixIF1pFXG6MfyfKFuCdhDYbFmhPwCW00UtZhuKnQ=
+        b=fpj0H9yiEFI5o2aT0sui7N7UVJKLkxm3ndrj7yD5d2djcLmv3DqDRbBedZ44Yl4Ta
+         kisVTIGgwIyUbJoVIlN923QvWsWtl9pAgXqOJtCvsixceSuJ7lIxpQLoXqYh1NXAi5
+         0Cn9YZ2iHNqBfgtgQwYu9C2WuoSxF3dRNnFD2L6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.16 049/164] hwmon: Handle failure to register sensor with thermal zone correctly
+        stable@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 037/139] mptcp: fix race in incoming ADD_ADDR option processing
 Date:   Mon, 28 Feb 2022 18:23:31 +0100
-Message-Id: <20220228172404.661831798@linuxfoundation.org>
+Message-Id: <20220228172351.651137729@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,89 +56,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit 1b5f517cca36292076d9e38fa6e33a257703e62e upstream.
+commit 837cf45df163a3780bc04b555700231e95b31dc9 upstream.
 
-If an attempt is made to a sensor with a thermal zone and it fails,
-the call to devm_thermal_zone_of_sensor_register() may return -ENODEV.
-This may result in crashes similar to the following.
+If an MPTCP endpoint received multiple consecutive incoming
+ADD_ADDR options, mptcp_pm_add_addr_received() can overwrite
+the current remote address value after the PM lock is released
+in mptcp_pm_nl_add_addr_received() and before such address
+is echoed.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000000003cd
-...
-Internal error: Oops: 96000021 [#1] PREEMPT SMP
-...
-pstate: 60400009 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : mutex_lock+0x18/0x60
-lr : thermal_zone_device_update+0x40/0x2e0
-sp : ffff800014c4fc60
-x29: ffff800014c4fc60 x28: ffff365ee3f6e000 x27: ffffdde218426790
-x26: ffff365ee3f6e000 x25: 0000000000000000 x24: ffff365ee3f6e000
-x23: ffffdde218426870 x22: ffff365ee3f6e000 x21: 00000000000003cd
-x20: ffff365ee8bf3308 x19: ffffffffffffffed x18: 0000000000000000
-x17: ffffdde21842689c x16: ffffdde1cb7a0b7c x15: 0000000000000040
-x14: ffffdde21a4889a0 x13: 0000000000000228 x12: 0000000000000000
-x11: 0000000000000000 x10: 0000000000000000 x9 : 0000000000000000
-x8 : 0000000001120000 x7 : 0000000000000001 x6 : 0000000000000000
-x5 : 0068000878e20f07 x4 : 0000000000000000 x3 : 00000000000003cd
-x2 : ffff365ee3f6e000 x1 : 0000000000000000 x0 : 00000000000003cd
-Call trace:
- mutex_lock+0x18/0x60
- hwmon_notify_event+0xfc/0x110
- 0xffffdde1cb7a0a90
- 0xffffdde1cb7a0b7c
- irq_thread_fn+0x2c/0xa0
- irq_thread+0x134/0x240
- kthread+0x178/0x190
- ret_from_fork+0x10/0x20
-Code: d503201f d503201f d2800001 aa0103e4 (c8e47c02)
+Fix the issue caching the remote address value a little earlier
+and always using the cached value after releasing the PM lock.
 
-Jon Hunter reports that the exact call sequence is:
-
-hwmon_notify_event()
-  --> hwmon_thermal_notify()
-    --> thermal_zone_device_update()
-      --> update_temperature()
-        --> mutex_lock()
-
-The hwmon core needs to handle all errors returned from calls
-to devm_thermal_zone_of_sensor_register(). If the call fails
-with -ENODEV, report that the sensor was not attached to a
-thermal zone  but continue to register the hwmon device.
-
-Reported-by: Jon Hunter <jonathanh@nvidia.com>
-Cc: Dmitry Osipenko <digetx@gmail.com>
-Fixes: 1597b374af222 ("hwmon: Add notification support")
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: f7efc7771eac ("mptcp: drop argument port from mptcp_pm_announce_addr")
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/hwmon.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ net/mptcp/pm_netlink.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- a/drivers/hwmon/hwmon.c
-+++ b/drivers/hwmon/hwmon.c
-@@ -214,12 +214,14 @@ static int hwmon_thermal_add_sensor(stru
+--- a/net/mptcp/pm_netlink.c
++++ b/net/mptcp/pm_netlink.c
+@@ -606,6 +606,7 @@ static void mptcp_pm_nl_add_addr_receive
+ 	unsigned int add_addr_accept_max;
+ 	struct mptcp_addr_info remote;
+ 	unsigned int subflows_max;
++	bool reset_port = false;
+ 	int i, nr;
  
- 	tzd = devm_thermal_zone_of_sensor_register(dev, index, tdata,
- 						   &hwmon_thermal_ops);
--	/*
--	 * If CONFIG_THERMAL_OF is disabled, this returns -ENODEV,
--	 * so ignore that error but forward any other error.
--	 */
--	if (IS_ERR(tzd) && (PTR_ERR(tzd) != -ENODEV))
--		return PTR_ERR(tzd);
-+	if (IS_ERR(tzd)) {
-+		if (PTR_ERR(tzd) != -ENODEV)
-+			return PTR_ERR(tzd);
-+		dev_info(dev, "temp%d_input not attached to any thermal zone\n",
-+			 index + 1);
-+		devm_kfree(dev, tdata);
-+		return 0;
+ 	add_addr_accept_max = mptcp_pm_get_add_addr_accept_max(msk);
+@@ -615,15 +616,19 @@ static void mptcp_pm_nl_add_addr_receive
+ 		 msk->pm.add_addr_accepted, add_addr_accept_max,
+ 		 msk->pm.remote.family);
+ 
+-	if (lookup_subflow_by_daddr(&msk->conn_list, &msk->pm.remote))
++	remote = msk->pm.remote;
++	if (lookup_subflow_by_daddr(&msk->conn_list, &remote))
+ 		goto add_addr_echo;
+ 
++	/* pick id 0 port, if none is provided the remote address */
++	if (!remote.port) {
++		reset_port = true;
++		remote.port = sk->sk_dport;
 +	}
++
+ 	/* connect to the specified remote address, using whatever
+ 	 * local address the routing configuration will pick.
+ 	 */
+-	remote = msk->pm.remote;
+-	if (!remote.port)
+-		remote.port = sk->sk_dport;
+ 	nr = fill_local_addresses_vec(msk, addrs);
  
- 	err = devm_add_action(dev, hwmon_thermal_remove_sensor, &tdata->node);
- 	if (err)
+ 	msk->pm.add_addr_accepted++;
+@@ -636,8 +641,12 @@ static void mptcp_pm_nl_add_addr_receive
+ 		__mptcp_subflow_connect(sk, &addrs[i], &remote);
+ 	spin_lock_bh(&msk->pm.lock);
+ 
++	/* be sure to echo exactly the received address */
++	if (reset_port)
++		remote.port = 0;
++
+ add_addr_echo:
+-	mptcp_pm_announce_addr(msk, &msk->pm.remote, true);
++	mptcp_pm_announce_addr(msk, &remote, true);
+ 	mptcp_pm_nl_addr_send_ack(msk);
+ }
+ 
 
 
