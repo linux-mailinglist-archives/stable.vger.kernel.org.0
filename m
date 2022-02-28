@@ -2,44 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 732A04C7556
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:54:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0864E4C734F
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237123AbiB1Rwi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:52:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51434 "EHLO
+        id S238009AbiB1Re3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:34:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239095AbiB1RwF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:52:05 -0500
+        with ESMTP id S238634AbiB1Rdl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D34D892853;
-        Mon, 28 Feb 2022 09:39:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEFBF91AF7;
+        Mon, 28 Feb 2022 09:30:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D56A6156C;
-        Mon, 28 Feb 2022 17:39:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 728B1C340F0;
-        Mon, 28 Feb 2022 17:39:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D5F6612FA;
+        Mon, 28 Feb 2022 17:30:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A292C340F5;
+        Mon, 28 Feb 2022 17:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069975;
-        bh=fgZzkQjkbAagoP4rnlg/a+Ei0i1DrRGNQBnLmB8BQVA=;
+        s=korg; t=1646069424;
+        bh=P9+8LyoE7wfKYtVa8BQKxcGYP08SrbQhU1GkxwKfPiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P/5xSCkEtxT1IJk/+xXccXzI44ItV0Wqac4+AeeJj6KFP87xqdeu47p4jTnhTfUN5
-         10moPrJ/by7mDdsmCtkA2zDvmVc5fnjk34qkb8XVM0eon/joLiFytmjh1EXHsIdqLK
-         fPu8hTgvKOzqHz2Im4pdye3dY3k/CYvxhZpnLm00=
+        b=YRiy8wbSNxOjtjV39dOCkaiy+GL0vCh/c22KoSnjQuLbQ0CnZIUbSPCT1NyJNm/CD
+         1FrqISLSXx0bvlTRgaZFnEm75LNBQs7MuibTs7x4psEls2aH+Gd4WJUSWDvycwSRf0
+         5GZOlZCILCQ3S+DHY55tMo+99E1LGPU5ZTynNhoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Mark Bloch <mbloch@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.15 079/139] net/mlx5: Fix possible deadlock on rule deletion
+        stable@vger.kernel.org,
+        Alexey Bayduraev <alexey.v.bayduraev@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Antonov <alexander.antonov@linux.intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexei Budankov <abudankov@huawei.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.4 15/53] perf data: Fix double free in perf_session__delete()
 Date:   Mon, 28 Feb 2022 18:24:13 +0100
-Message-Id: <20220228172356.016899592@linuxfoundation.org>
+Message-Id: <20220228172249.441146466@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +63,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: Alexey Bayduraev <alexey.v.bayduraev@linux.intel.com>
 
-commit b645e57debca846f51b3209907546ea857ddd3f5 upstream.
+commit 69560e366fc4d5fca7bebb0e44edbfafc8bcaf05 upstream.
 
-Add missing call to up_write_ref_node() which releases the semaphore
-in case the FTE doesn't have destinations, such in drop rule case.
+When perf_data__create_dir() fails, it calls close_dir(), but
+perf_session__delete() also calls close_dir() and since dir.version and
+dir.nr were initialized by perf_data__create_dir(), a double free occurs.
 
-Fixes: 465e7baab6d9 ("net/mlx5: Fix deletion of duplicate rules")
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+This patch moves the initialization of dir.version and dir.nr after
+successful initialization of dir.files, that prevents double freeing.
+This behavior is already implemented in perf_data__open_dir().
+
+Fixes: 145520631130bd64 ("perf data: Add perf_data__(create_dir|close_dir) functions")
+Signed-off-by: Alexey Bayduraev <alexey.v.bayduraev@linux.intel.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Antonov <alexander.antonov@linux.intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexei Budankov <abudankov@huawei.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220218152341.5197-2-alexey.v.bayduraev@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/util/data.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-@@ -2041,6 +2041,8 @@ void mlx5_del_flow_rules(struct mlx5_flo
- 		fte->node.del_hw_func = NULL;
- 		up_write_ref_node(&fte->node, false);
- 		tree_put_node(&fte->node, false);
-+	} else {
-+		up_write_ref_node(&fte->node, false);
+--- a/tools/perf/util/data.c
++++ b/tools/perf/util/data.c
+@@ -44,10 +44,6 @@ int perf_data__create_dir(struct perf_da
+ 	if (!files)
+ 		return -ENOMEM;
+ 
+-	data->dir.version = PERF_DIR_VERSION;
+-	data->dir.files   = files;
+-	data->dir.nr      = nr;
+-
+ 	for (i = 0; i < nr; i++) {
+ 		struct perf_data_file *file = &files[i];
+ 
+@@ -62,6 +58,9 @@ int perf_data__create_dir(struct perf_da
+ 		file->fd = ret;
  	}
- 	kfree(handle);
- }
+ 
++	data->dir.version = PERF_DIR_VERSION;
++	data->dir.files   = files;
++	data->dir.nr      = nr;
+ 	return 0;
+ 
+ out_err:
 
 
