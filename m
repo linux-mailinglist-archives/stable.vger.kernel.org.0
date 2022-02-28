@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B078A4C734E
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70F474C73C5
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:38:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237984AbiB1Re3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:34:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47394 "EHLO
+        id S235314AbiB1RjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:39:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238025AbiB1Rck (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:32:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 292F58BE1F;
-        Mon, 28 Feb 2022 09:29:19 -0800 (PST)
+        with ESMTP id S238305AbiB1Rh0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2801FA78;
+        Mon, 28 Feb 2022 09:32:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A4096145B;
-        Mon, 28 Feb 2022 17:29:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CE7FC340E7;
-        Mon, 28 Feb 2022 17:29:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30E70609EE;
+        Mon, 28 Feb 2022 17:32:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 471E4C340E7;
+        Mon, 28 Feb 2022 17:32:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069356;
-        bh=p8i4Tq1JhKBA4elh4tr7Rvc8i93blPcxJzdKjp36pJI=;
+        s=korg; t=1646069544;
+        bh=m3D1UtU+qGhEenIw23BRw2gMcv27uFHzZlSA1vb5nuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wtQBpqBE6FzLowuOQXHAxteeEh52XDMjfXTvc4nX2CAByDlMF4qEr5903IifuJJGP
-         wN7NUsf9ZcAe2Cfnf4gl+oz3ev3a/I3ySfDfKPwEcAkGmajctvZ0hKxtsF7MAWg3at
-         OAejvAIgZqI7aEKJ2v6NAyyQyniiVO6KFsiSvC5E=
+        b=pLdgsf1X9hXOopK6lNVWvaWqAckKn+JLF4jOkEcPfMVICvdQNwA0dRWaFCc1WDwax
+         IdPFB/3epfN4/tv6XUkkxgLUj+B0lxMsGxZXeaXf/c2o3mKeqfzIcFKNn8arFiJ/Hu
+         099P0pTclThqJNRcSMiAKA4Psi/NkqGjhXZAg3Nc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Daehwan Jung <dh10.jung@samsung.com>
-Subject: [PATCH 4.19 25/34] usb: gadget: rndis: add spinlock for rndis response list
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 33/53] iio: adc: men_z188_adc: Fix a resource leak in an error handling path
 Date:   Mon, 28 Feb 2022 18:24:31 +0100
-Message-Id: <20220228172210.465026719@linuxfoundation.org>
+Message-Id: <20220228172250.668376063@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
-References: <20220228172207.090703467@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,103 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daehwan Jung <dh10.jung@samsung.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit aaaba1c86d04dac8e49bf508b492f81506257da3 upstream.
+commit e0a2e37f303828d030a83f33ffe14b36cb88d563 upstream.
 
-There's no lock for rndis response list. It could cause list corruption
-if there're two different list_add at the same time like below.
-It's better to add in rndis_add_response / rndis_free_response
-/ rndis_get_next_response to prevent any race condition on response list.
+If iio_device_register() fails, a previous ioremap() is left unbalanced.
 
-[  361.894299] [1:   irq/191-dwc3:16979] list_add corruption.
-next->prev should be prev (ffffff80651764d0),
-but was ffffff883dc36f80. (next=ffffff80651764d0).
+Update the error handling path and add the missing iounmap() call, as
+already done in the remove function.
 
-[  361.904380] [1:   irq/191-dwc3:16979] Call trace:
-[  361.904391] [1:   irq/191-dwc3:16979]  __list_add_valid+0x74/0x90
-[  361.904401] [1:   irq/191-dwc3:16979]  rndis_msg_parser+0x168/0x8c0
-[  361.904409] [1:   irq/191-dwc3:16979]  rndis_command_complete+0x24/0x84
-[  361.904417] [1:   irq/191-dwc3:16979]  usb_gadget_giveback_request+0x20/0xe4
-[  361.904426] [1:   irq/191-dwc3:16979]  dwc3_gadget_giveback+0x44/0x60
-[  361.904434] [1:   irq/191-dwc3:16979]  dwc3_ep0_complete_data+0x1e8/0x3a0
-[  361.904442] [1:   irq/191-dwc3:16979]  dwc3_ep0_interrupt+0x29c/0x3dc
-[  361.904450] [1:   irq/191-dwc3:16979]  dwc3_process_event_entry+0x78/0x6cc
-[  361.904457] [1:   irq/191-dwc3:16979]  dwc3_process_event_buf+0xa0/0x1ec
-[  361.904465] [1:   irq/191-dwc3:16979]  dwc3_thread_interrupt+0x34/0x5c
-
-Fixes: f6281af9d62e ("usb: gadget: rndis: use list_for_each_entry_safe")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Daehwan Jung <dh10.jung@samsung.com>
-Link: https://lore.kernel.org/r/1645507768-77687-1-git-send-email-dh10.jung@samsung.com
+Fixes: 74aeac4da66f ("iio: adc: Add MEN 16z188 ADC driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/320fc777863880247c2aff4a9d1a54ba69abf080.1643445149.git.christophe.jaillet@wanadoo.fr
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/rndis.c |    8 ++++++++
- drivers/usb/gadget/function/rndis.h |    1 +
- 2 files changed, 9 insertions(+)
+ drivers/iio/adc/men_z188_adc.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/rndis.c
-+++ b/drivers/usb/gadget/function/rndis.c
-@@ -922,6 +922,7 @@ struct rndis_params *rndis_register(void
- 	params->resp_avail = resp_avail;
- 	params->v = v;
- 	INIT_LIST_HEAD(&params->resp_queue);
-+	spin_lock_init(&params->resp_lock);
- 	pr_debug("%s: configNr = %d\n", __func__, i);
+--- a/drivers/iio/adc/men_z188_adc.c
++++ b/drivers/iio/adc/men_z188_adc.c
+@@ -103,6 +103,7 @@ static int men_z188_probe(struct mcb_dev
+ 	struct z188_adc *adc;
+ 	struct iio_dev *indio_dev;
+ 	struct resource *mem;
++	int ret;
  
- 	return params;
-@@ -1015,12 +1016,14 @@ void rndis_free_response(struct rndis_pa
- {
- 	rndis_resp_t *r, *n;
+ 	indio_dev = devm_iio_device_alloc(&dev->dev, sizeof(struct z188_adc));
+ 	if (!indio_dev)
+@@ -129,8 +130,14 @@ static int men_z188_probe(struct mcb_dev
+ 	adc->mem = mem;
+ 	mcb_set_drvdata(dev, indio_dev);
  
-+	spin_lock(&params->resp_lock);
- 	list_for_each_entry_safe(r, n, &params->resp_queue, list) {
- 		if (r->buf == buf) {
- 			list_del(&r->list);
- 			kfree(r);
- 		}
- 	}
-+	spin_unlock(&params->resp_lock);
- }
- EXPORT_SYMBOL_GPL(rndis_free_response);
+-	return iio_device_register(indio_dev);
++	ret = iio_device_register(indio_dev);
++	if (ret)
++		goto err_unmap;
  
-@@ -1030,14 +1033,17 @@ u8 *rndis_get_next_response(struct rndis
- 
- 	if (!length) return NULL;
- 
-+	spin_lock(&params->resp_lock);
- 	list_for_each_entry_safe(r, n, &params->resp_queue, list) {
- 		if (!r->send) {
- 			r->send = 1;
- 			*length = r->length;
-+			spin_unlock(&params->resp_lock);
- 			return r->buf;
- 		}
- 	}
- 
-+	spin_unlock(&params->resp_lock);
- 	return NULL;
- }
- EXPORT_SYMBOL_GPL(rndis_get_next_response);
-@@ -1054,7 +1060,9 @@ static rndis_resp_t *rndis_add_response(
- 	r->length = length;
- 	r->send = 0;
- 
-+	spin_lock(&params->resp_lock);
- 	list_add_tail(&r->list, &params->resp_queue);
-+	spin_unlock(&params->resp_lock);
- 	return r;
- }
- 
---- a/drivers/usb/gadget/function/rndis.h
-+++ b/drivers/usb/gadget/function/rndis.h
-@@ -174,6 +174,7 @@ typedef struct rndis_params {
- 	void			(*resp_avail)(void *v);
- 	void			*v;
- 	struct list_head	resp_queue;
-+	spinlock_t		resp_lock;
- } rndis_params;
- 
- /* RNDIS Message parser and other useless functions */
++	return 0;
++
++err_unmap:
++	iounmap(adc->base);
+ err:
+ 	mcb_release_mem(mem);
+ 	return -ENXIO;
 
 
