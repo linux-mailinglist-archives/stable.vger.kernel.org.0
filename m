@@ -2,177 +2,239 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EF6B4C7AE3
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 21:48:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E8F64C7ADF
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 21:48:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229613AbiB1Uqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 15:46:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51292 "EHLO
+        id S229454AbiB1Ur4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 15:47:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229919AbiB1Uqx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 15:46:53 -0500
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64C2927FD4
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 12:46:11 -0800 (PST)
-Received: by mail-pj1-x102b.google.com with SMTP id g7-20020a17090a708700b001bb78857ccdso240313pjk.1
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 12:46:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=L8JEIwHbnjfnbrHGB8HmORKlRcamD72tkThVNtNE5+Q=;
-        b=lcLDVxs4gvDGJ3MA+LlTyrgLXFoKqIzED2gFMdbiZxTKoxgSQMlaANWuHLUF0GV1xF
-         0sTgCIgahg/w9yHHKLxjqThKXd52M3zhIzrALVLlH0WZuNYjY7hjpi1WshuF8gN64VWI
-         lMtTCqa0TH7m/bdC4rLf9cZP9NnA44nIFyWXs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=L8JEIwHbnjfnbrHGB8HmORKlRcamD72tkThVNtNE5+Q=;
-        b=bxTVqfVqnL6o4IMW2jdvQyzN10O2VnpZYS4PUi9sEopNsXD3KiFgzUKGvLIgVKIOGC
-         cqT8Z3lyOJ6HdddDEaxa9HJJLbmWiqkWwgHeWcFElNPyB9fZa1C+Y0qp74N1dBbJCq8g
-         4rjOwrPqlbBSF4pnVVVq4EUcRnZnSe55YSyh7EA5nVuYAiPZvoD9HgvcRLB38j+rHdIt
-         LQVrrQSTYYoga0m6WC/mvRXJ3yCSTgpC2DsdR0LDz8Oimnv0oTGMrIh3MXi9oA4zv+S7
-         w1Exxr0b4yFNgsdar/NqYJFcTtAr4CRhjR/NcNeNSwze8gaBm9tXJm4xL2L62zdpGCew
-         TS5w==
-X-Gm-Message-State: AOAM531hKnm7fZi1uUqhsy5SHTRIu4kXc+P7CMrcjyD2id4yvzaOIjO7
-        R8rR75lGCmxAQGo1iE75Ai8ufA==
-X-Google-Smtp-Source: ABdhPJxwzHoZn8pFzNDQnpmFvA1UslmJRrpff/i6ocs8O6PtPqf/AReIoLelwIe0jA7xJtLLu9tJww==
-X-Received: by 2002:a17:902:9041:b0:14f:1c23:1eb1 with SMTP id w1-20020a170902904100b0014f1c231eb1mr21788975plz.173.1646081170908;
-        Mon, 28 Feb 2022 12:46:10 -0800 (PST)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id me10-20020a17090b17ca00b001b9e6f62045sm208940pjb.41.2022.02.28.12.46.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Feb 2022 12:46:10 -0800 (PST)
-Date:   Mon, 28 Feb 2022 12:46:09 -0800
-From:   Kees Cook <keescook@chromium.org>
-To:     matoro <matoro_mailinglist_kernel@matoro.tk>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Eric Biederman <ebiederm@xmission.com>,
-        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        stable@vger.kernel.org,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        Anthony Yznaga <anthony.yznaga@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        regressions@lists.linux.dev, linux-ia64@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] binfmt_elf: Avoid total_mapping_size for ET_EXEC
-Message-ID: <202202281245.DF46393@keescook>
-References: <20220228194613.1149432-1-keescook@chromium.org>
- <5d44f028b2d739395c92e4b3036e2bbf@matoro.tk>
+        with ESMTP id S230028AbiB1Urz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 15:47:55 -0500
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E484912AA4
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 12:47:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1646081235; x=1677617235;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=dwYQaNawrciD0AZ+jSj8GNi4JgFsNukZuAt+jKqb/0k=;
+  b=floGY9Js98LTRra/xbb3RFOhm/MRzLzWi86SvmvygBiMllMxfOWG2Xfe
+   pHZhgYMnylwqUCyfEjIhopw1dxDDu8PzeFqrAB1er5LiJDC7OgecB3VWR
+   MXWc4jVstAYifUx6EeW0ZrYk10GpPumhZAfY1Z8cK+XITBUXsDz+nWJQz
+   JINzYPbfM4VF0oaNl6fWPf0V2+TviakaLKIi+46Ku7MEfEC0+DKOLhf9g
+   dDxqeL66d6Xzki3CyWwqO2yQ7e7S/Wd6rj/RXigwtWq/kkDbuk5bUb0qi
+   erDzelREph8WXSmWcj0eWkmigl6+i5DEra0PasUy7ar90nKTTf09yOHNG
+   A==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10272"; a="252717108"
+X-IronPort-AV: E=Sophos;i="5.90,144,1643702400"; 
+   d="scan'208";a="252717108"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2022 12:47:08 -0800
+X-IronPort-AV: E=Sophos;i="5.90,144,1643702400"; 
+   d="scan'208";a="708793110"
+Received: from jekeller-desk.amr.corp.intel.com ([10.166.241.10])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2022 12:47:07 -0800
+From:   Jacob Keller <jacob.e.keller@intel.com>
+To:     stable@vger.kernel.org
+Cc:     Jacob Keller <jacob.e.keller@intel.com>
+Subject: [PATCH 1/2] ice: Fix race conditions between virtchnl handling and VF ndo ops
+Date:   Mon, 28 Feb 2022 12:46:59 -0800
+Message-Id: <20220228204700.3260650-1-jacob.e.keller@intel.com>
+X-Mailer: git-send-email 2.35.1.355.ge7e302376dd6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5d44f028b2d739395c92e4b3036e2bbf@matoro.tk>
-X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 28, 2022 at 03:31:00PM -0500, matoro wrote:
-> On 2022-02-28 14:46, Kees Cook wrote:
-> > Partially revert commit 5f501d555653 ("binfmt_elf: reintroduce using
-> > MAP_FIXED_NOREPLACE").
-> > 
-> > At least ia64 has ET_EXEC PT_LOAD segments that are not virtual-address
-> > contiguous (but _are_ file-offset contiguous). This would result in
-> > giant mapping attempts to cover the entire span, including the virtual
-> > address range hole. Disable total_mapping_size for ET_EXEC, which
-> > reduces the MAP_FIXED_NOREPLACE coverage to only the first PT_LOAD:
-> > 
-> > $ readelf -lW /usr/bin/gcc
-> > ...
-> > Program Headers:
-> >   Type Offset   VirtAddr           PhysAddr           FileSiz  MemSiz
-> > ...
-> > ...
-> >   LOAD 0x000000 0x4000000000000000 0x4000000000000000 0x00b5a0 0x00b5a0
-> > ...
-> >   LOAD 0x00b5a0 0x600000000000b5a0 0x600000000000b5a0 0x0005ac 0x000710
-> > ...
-> > ...
-> >        ^^^^^^^^ ^^^^^^^^^^^^^^^^^^                    ^^^^^^^^ ^^^^^^^^
-> > 
-> > File offset range     : 0x000000-0x00bb4c
-> > 			0x00bb4c bytes
-> > 
-> > Virtual address range : 0x4000000000000000-0x600000000000bcb0
-> > 			0x200000000000bcb0 bytes
-> > 
-> > Ironically, this is the reverse of the problem that originally caused
-> > problems with ET_EXEC and MAP_FIXED_NOREPLACE: overlaps. This problem is
-> > with holes. Future work could restore full coverage if load_elf_binary()
-> > were to perform mappings in a separate phase from the loading (where
-> > it could resolve both overlaps and holes).
-> > 
-> > Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> > Cc: Eric Biederman <ebiederm@xmission.com>
-> > Cc: linux-fsdevel@vger.kernel.org
-> > Cc: linux-mm@kvack.org
-> > Reported-by: matoro <matoro_mailinglist_kernel@matoro.tk>
-> > Reported-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-> > Fixes: 5f501d555653 ("binfmt_elf: reintroduce using
-> > MAP_FIXED_NOREPLACE")
-> > Link:
-> > https://lore.kernel.org/r/a3edd529-c42d-3b09-135c-7e98a15b150f@leemhuis.info
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Kees Cook <keescook@chromium.org>
-> > ---
-> > matoro (or anyone else) can you please test this?
-> > ---
-> >  fs/binfmt_elf.c | 25 ++++++++++++++++++-------
-> >  1 file changed, 18 insertions(+), 7 deletions(-)
-> > 
-> > diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
-> > index 9bea703ed1c2..474b44032c65 100644
-> > --- a/fs/binfmt_elf.c
-> > +++ b/fs/binfmt_elf.c
-> > @@ -1136,14 +1136,25 @@ static int load_elf_binary(struct linux_binprm
-> > *bprm)
-> >  			 * is then page aligned.
-> >  			 */
-> >  			load_bias = ELF_PAGESTART(load_bias - vaddr);
-> > -		}
-> > 
-> > -		/*
-> > -		 * Calculate the entire size of the ELF mapping (total_size).
-> > -		 * (Note that first_pt_load is set to false later once the
-> > -		 * initial mapping is performed.)
-> > -		 */
-> > -		if (first_pt_load) {
-> > +			/*
-> > +			 * Calculate the entire size of the ELF mapping
-> > +			 * (total_size), used for the initial mapping,
-> > +			 * due to first_pt_load which is set to false later
-> > +			 * once the initial mapping is performed.
-> > +			 *
-> > +			 * Note that this is only sensible when the LOAD
-> > +			 * segments are contiguous (or overlapping). If
-> > +			 * used for LOADs that are far apart, this would
-> > +			 * cause the holes between LOADs to be mapped,
-> > +			 * running the risk of having the mapping fail,
-> > +			 * as it would be larger than the ELF file itself.
-> > +			 *
-> > +			 * As a result, only ET_DYN does this, since
-> > +			 * some ET_EXEC (e.g. ia64) may have virtual
-> > +			 * memory holes between LOADs.
-> > +			 *
-> > +			 */
-> >  			total_size = total_mapping_size(elf_phdata,
-> >  							elf_ex->e_phnum);
-> >  			if (!total_size) {
-> 
-> This does not apply for me, I'm looking around and can't find any reference
-> to the first_pt_load variable you're removing there?  What commit/tag are
-> you applying this on top of?
+From: Brett Creeley <brett.creeley@intel.com>
 
-Ah, yeah, this is against linux-next. Let me send a backport, one sec...
+commit e6ba5273d4ede03d075d7a116b8edad1f6115f4d upstream.
 
+[I had to fix the cherry-pick manually as the patch added a line around
+some context that was missing.]
+
+The VF can be configured via the PF's ndo ops at the same time the PF is
+receiving/handling virtchnl messages. This has many issues, with
+one of them being the ndo op could be actively resetting a VF (i.e.
+resetting it to the default state and deleting/re-adding the VF's VSI)
+while a virtchnl message is being handled. The following error was seen
+because a VF ndo op was used to change a VF's trust setting while the
+VIRTCHNL_OP_CONFIG_VSI_QUEUES was ongoing:
+
+[35274.192484] ice 0000:88:00.0: Failed to set LAN Tx queue context, error: ICE_ERR_PARAM
+[35274.193074] ice 0000:88:00.0: VF 0 failed opcode 6, retval: -5
+[35274.193640] iavf 0000:88:01.0: PF returned error -5 (IAVF_ERR_PARAM) to our request 6
+
+Fix this by making sure the virtchnl handling and VF ndo ops that
+trigger VF resets cannot run concurrently. This is done by adding a
+struct mutex cfg_lock to each VF structure. For VF ndo ops, the mutex
+will be locked around the critical operations and VFR. Since the ndo ops
+will trigger a VFR, the virtchnl thread will use mutex_trylock(). This
+is done because if any other thread (i.e. VF ndo op) has the mutex, then
+that means the current VF message being handled is no longer valid, so
+just ignore it.
+
+This issue can be seen using the following commands:
+
+for i in {0..50}; do
+        rmmod ice
+        modprobe ice
+
+        sleep 1
+
+        echo 1 > /sys/class/net/ens785f0/device/sriov_numvfs
+        echo 1 > /sys/class/net/ens785f1/device/sriov_numvfs
+
+        ip link set ens785f1 vf 0 trust on
+        ip link set ens785f0 vf 0 trust on
+
+        sleep 2
+
+        echo 0 > /sys/class/net/ens785f0/device/sriov_numvfs
+        echo 0 > /sys/class/net/ens785f1/device/sriov_numvfs
+        sleep 1
+        echo 1 > /sys/class/net/ens785f0/device/sriov_numvfs
+        echo 1 > /sys/class/net/ens785f1/device/sriov_numvfs
+
+        ip link set ens785f1 vf 0 trust on
+        ip link set ens785f0 vf 0 trust on
+done
+
+Fixes: 7c710869d64e ("ice: Add handlers for VF netdevice operations")
+Cc: <stable@vger.kernel.org> # 5.14.x
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+---
+This should apply to 5.14.x
+
+ .../net/ethernet/intel/ice/ice_virtchnl_pf.c  | 25 +++++++++++++++++++
+ .../net/ethernet/intel/ice/ice_virtchnl_pf.h  |  5 ++++
+ 2 files changed, 30 insertions(+)
+
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+index 7e3ae4cc17a3..d2f79d579745 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+@@ -646,6 +646,8 @@ void ice_free_vfs(struct ice_pf *pf)
+ 			set_bit(ICE_VF_STATE_DIS, pf->vf[i].vf_states);
+ 			ice_free_vf_res(&pf->vf[i]);
+ 		}
++
++		mutex_destroy(&pf->vf[i].cfg_lock);
+ 	}
+ 
+ 	if (ice_sriov_free_msix_res(pf))
+@@ -1892,6 +1894,8 @@ static void ice_set_dflt_settings_vfs(struct ice_pf *pf)
+ 		 */
+ 		ice_vf_ctrl_invalidate_vsi(vf);
+ 		ice_vf_fdir_init(vf);
++
++		mutex_init(&vf->cfg_lock);
+ 	}
+ }
+ 
+@@ -4080,6 +4084,8 @@ ice_set_vf_port_vlan(struct net_device *netdev, int vf_id, u16 vlan_id, u8 qos,
+ 		return 0;
+ 	}
+ 
++	mutex_lock(&vf->cfg_lock);
++
+ 	vf->port_vlan_info = vlanprio;
+ 
+ 	if (vf->port_vlan_info)
+@@ -4089,6 +4095,7 @@ ice_set_vf_port_vlan(struct net_device *netdev, int vf_id, u16 vlan_id, u8 qos,
+ 		dev_info(dev, "Clearing port VLAN on VF %d\n", vf_id);
+ 
+ 	ice_vc_reset_vf(vf);
++	mutex_unlock(&vf->cfg_lock);
+ 
+ 	return 0;
+ }
+@@ -4463,6 +4470,15 @@ void ice_vc_process_vf_msg(struct ice_pf *pf, struct ice_rq_event_info *event)
+ 		return;
+ 	}
+ 
++	/* VF is being configured in another context that triggers a VFR, so no
++	 * need to process this message
++	 */
++	if (!mutex_trylock(&vf->cfg_lock)) {
++		dev_info(dev, "VF %u is being configured in another context that will trigger a VFR, so there is no need to handle this message\n",
++			 vf->vf_id);
++		return;
++	}
++
+ 	switch (v_opcode) {
+ 	case VIRTCHNL_OP_VERSION:
+ 		err = ice_vc_get_ver_msg(vf, msg);
+@@ -4551,6 +4567,8 @@ void ice_vc_process_vf_msg(struct ice_pf *pf, struct ice_rq_event_info *event)
+ 		dev_info(dev, "PF failed to honor VF %d, opcode %d, error %d\n",
+ 			 vf_id, v_opcode, err);
+ 	}
++
++	mutex_unlock(&vf->cfg_lock);
+ }
+ 
+ /**
+@@ -4666,6 +4684,8 @@ int ice_set_vf_mac(struct net_device *netdev, int vf_id, u8 *mac)
+ 		return -EINVAL;
+ 	}
+ 
++	mutex_lock(&vf->cfg_lock);
++
+ 	/* VF is notified of its new MAC via the PF's response to the
+ 	 * VIRTCHNL_OP_GET_VF_RESOURCES message after the VF has been reset
+ 	 */
+@@ -4684,6 +4704,7 @@ int ice_set_vf_mac(struct net_device *netdev, int vf_id, u8 *mac)
+ 	}
+ 
+ 	ice_vc_reset_vf(vf);
++	mutex_unlock(&vf->cfg_lock);
+ 	return 0;
+ }
+ 
+@@ -4713,11 +4734,15 @@ int ice_set_vf_trust(struct net_device *netdev, int vf_id, bool trusted)
+ 	if (trusted == vf->trusted)
+ 		return 0;
+ 
++	mutex_lock(&vf->cfg_lock);
++
+ 	vf->trusted = trusted;
+ 	ice_vc_reset_vf(vf);
+ 	dev_info(ice_pf_to_dev(pf), "VF %u is now %strusted\n",
+ 		 vf_id, trusted ? "" : "un");
+ 
++	mutex_unlock(&vf->cfg_lock);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h
+index 38b4dc82c5c1..a750e9a9d712 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h
+@@ -74,6 +74,11 @@ struct ice_mdd_vf_events {
+ struct ice_vf {
+ 	struct ice_pf *pf;
+ 
++	/* Used during virtchnl message handling and NDO ops against the VF
++	 * that will trigger a VFR
++	 */
++	struct mutex cfg_lock;
++
+ 	u16 vf_id;			/* VF ID in the PF space */
+ 	u16 lan_vsi_idx;		/* index into PF struct */
+ 	u16 ctrl_vsi_idx;
 -- 
-Kees Cook
+2.35.1.355.ge7e302376dd6
+
