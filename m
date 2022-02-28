@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06D724C7583
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4A284C76F6
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:10:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239255AbiB1RzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:55:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47870 "EHLO
+        id S234777AbiB1SKp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:10:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240286AbiB1RyK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90751986F3;
-        Mon, 28 Feb 2022 09:41:59 -0800 (PST)
+        with ESMTP id S240072AbiB1SHw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:07:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F4005D1B9;
+        Mon, 28 Feb 2022 09:48:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F14F6153C;
-        Mon, 28 Feb 2022 17:41:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FE8EC340E7;
-        Mon, 28 Feb 2022 17:41:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A49C4B81085;
+        Mon, 28 Feb 2022 17:48:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C7CBC340E7;
+        Mon, 28 Feb 2022 17:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070110;
-        bh=XF1c6l+ZV+WORH4b/vACdr35+2Do/8pE/ilyF5icJuo=;
+        s=korg; t=1646070494;
+        bh=kHjlrUGxe5V6yIekYKm6DoIIlAVCwygVHRQyvgZOCHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pqZ4YwfmtkbaZ4f7xNtKJxBgn3CE1sZbKgoySFy6CMt9VDyYjJJAQaQgoqtVwjeVt
-         oQdHx8NxICu9OiKdQt5BimzNoXFeCkJ7pFQoCSrQRnAK2z4DW5R/qjmSERmbbEusQt
-         vxrURP2WMDkZQxv6Gq7ydbMsmU1VDt3ESwQpMh2I=
+        b=jb0kvsKSoR8UGPFyhCAvcQb/TCKl0S4PwV4rhRu4yuWKgHQadnsa9OSbANifRF9/i
+         kxabNyvtwHkuEie2CQz1LPv0HWXECAAdskZRpjK2ZXfJko3oK+Mj7ORrQuq/6KZA2U
+         L/R/UfaNpO5SPbirqzNnbea6gIlZ4nCXDn1/3OEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Md Haris Iqbal <haris.iqbal@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Prasad Kumpatla <quic_pkumpatl@quicinc.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 090/139] RDMA/rtrs-clt: Move free_permit from free_clt to rtrs_clt_close
+Subject: [PATCH 5.16 102/164] regmap-irq: Update interrupt clear register for proper reset
 Date:   Mon, 28 Feb 2022 18:24:24 +0100
-Message-Id: <20220228172357.092149071@linuxfoundation.org>
+Message-Id: <20220228172409.044902805@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +57,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Md Haris Iqbal <haris.iqbal@ionos.com>
+From: Prasad Kumpatla <quic_pkumpatl@quicinc.com>
 
-[ Upstream commit c46fa8911b17e3f808679061a8af8bee219f4602 ]
+[ Upstream commit d04ad245d67a3991dfea5e108e4c452c2ab39bac ]
 
-Error path of rtrs_clt_open() calls free_clt(), where free_permit is
-called.  This is wrong since error path of rtrs_clt_open() does not need
-to call free_permit().
+With the existing logic where clear_ack is true (HW doesn’t support
+auto clear for ICR), interrupt clear register reset is not handled
+properly. Due to this only the first interrupts get processed properly
+and further interrupts are blocked due to not resetting interrupt
+clear register.
 
-Also, moving free_permits() call to rtrs_clt_close(), makes it more
-aligned with the call to alloc_permit() in rtrs_clt_open().
+Example for issue case where Invert_ack is false and clear_ack is true:
 
-Fixes: 6a98d71daea1 ("RDMA/rtrs: client: main functionality")
-Link: https://lore.kernel.org/r/20220217030929.323849-2-haris.iqbal@ionos.com
-Signed-off-by: Md Haris Iqbal <haris.iqbal@ionos.com>
-Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+    Say Default ISR=0x00 & ICR=0x00 and ISR is triggered with 2
+    interrupts making ISR = 0x11.
+
+    Step 1: Say ISR is set 0x11 (store status_buff = ISR). ISR needs to
+            be cleared with the help of ICR once the Interrupt is processed.
+
+    Step 2: Write ICR = 0x11 (status_buff), this will clear the ISR to 0x00.
+
+    Step 3: Issue - In the existing code, ICR is written with ICR =
+            ~(status_buff) i.e ICR = 0xEE -> This will block all the interrupts
+            from raising except for interrupts 0 and 4. So expectation here is to
+            reset ICR, which will unblock all the interrupts.
+
+            if (chip->clear_ack) {
+                 if (chip->ack_invert && !ret)
+                  ........
+                 else if (!ret)
+                     ret = regmap_write(map, reg,
+                            ~data->status_buf[i]);
+
+So writing 0 and 0xff (when ack_invert is true) should have no effect, other
+than clearing the ACKs just set.
+
+Fixes: 3a6f0fb7b8eb ("regmap: irq: Add support to clear ack registers")
+Signed-off-by: Prasad Kumpatla <quic_pkumpatl@quicinc.com>
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20220217085007.30218-1-quic_pkumpatl@quicinc.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-clt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/base/regmap/regmap-irq.c | 20 ++++++--------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-index 3272514f05405..a23438bacf12c 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-@@ -2753,7 +2753,6 @@ static struct rtrs_clt *alloc_clt(const char *sessname, size_t paths_num,
- 
- static void free_clt(struct rtrs_clt *clt)
- {
--	free_permits(clt);
- 	free_percpu(clt->pcpu_path);
- 
- 	/*
-@@ -2869,6 +2868,7 @@ void rtrs_clt_close(struct rtrs_clt *clt)
- 		rtrs_clt_destroy_sess_files(sess, NULL);
- 		kobject_put(&sess->kobj);
- 	}
-+	free_permits(clt);
- 	free_clt(clt);
- }
- EXPORT_SYMBOL(rtrs_clt_close);
+diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
+index d2656581a6085..4a446259a184e 100644
+--- a/drivers/base/regmap/regmap-irq.c
++++ b/drivers/base/regmap/regmap-irq.c
+@@ -189,11 +189,9 @@ static void regmap_irq_sync_unlock(struct irq_data *data)
+ 				ret = regmap_write(map, reg, d->mask_buf[i]);
+ 			if (d->chip->clear_ack) {
+ 				if (d->chip->ack_invert && !ret)
+-					ret = regmap_write(map, reg,
+-							   d->mask_buf[i]);
++					ret = regmap_write(map, reg, UINT_MAX);
+ 				else if (!ret)
+-					ret = regmap_write(map, reg,
+-							   ~d->mask_buf[i]);
++					ret = regmap_write(map, reg, 0);
+ 			}
+ 			if (ret != 0)
+ 				dev_err(d->map->dev, "Failed to ack 0x%x: %d\n",
+@@ -556,11 +554,9 @@ static irqreturn_t regmap_irq_thread(int irq, void *d)
+ 						data->status_buf[i]);
+ 			if (chip->clear_ack) {
+ 				if (chip->ack_invert && !ret)
+-					ret = regmap_write(map, reg,
+-							data->status_buf[i]);
++					ret = regmap_write(map, reg, UINT_MAX);
+ 				else if (!ret)
+-					ret = regmap_write(map, reg,
+-							~data->status_buf[i]);
++					ret = regmap_write(map, reg, 0);
+ 			}
+ 			if (ret != 0)
+ 				dev_err(map->dev, "Failed to ack 0x%x: %d\n",
+@@ -817,13 +813,9 @@ int regmap_add_irq_chip_fwnode(struct fwnode_handle *fwnode,
+ 					d->status_buf[i] & d->mask_buf[i]);
+ 			if (chip->clear_ack) {
+ 				if (chip->ack_invert && !ret)
+-					ret = regmap_write(map, reg,
+-						(d->status_buf[i] &
+-						 d->mask_buf[i]));
++					ret = regmap_write(map, reg, UINT_MAX);
+ 				else if (!ret)
+-					ret = regmap_write(map, reg,
+-						~(d->status_buf[i] &
+-						  d->mask_buf[i]));
++					ret = regmap_write(map, reg, 0);
+ 			}
+ 			if (ret != 0) {
+ 				dev_err(map->dev, "Failed to ack 0x%x: %d\n",
 -- 
 2.34.1
 
