@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 951694C7481
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A2674C75C9
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:56:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238576AbiB1Rpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:45:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33880 "EHLO
+        id S235986AbiB1R40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:56:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239462AbiB1RoM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:44:12 -0500
+        with ESMTP id S240757AbiB1Rye (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:34 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886DB9D4ED;
-        Mon, 28 Feb 2022 09:36:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B88BE50072;
+        Mon, 28 Feb 2022 09:42:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22A01614C9;
-        Mon, 28 Feb 2022 17:36:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3970BC340FB;
-        Mon, 28 Feb 2022 17:36:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A4326066C;
+        Mon, 28 Feb 2022 17:42:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 501C2C340E7;
+        Mon, 28 Feb 2022 17:42:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069784;
-        bh=B67488vlLg8wvpE4eeP01HLsZ1yBWp4dAWwWJBaCMPM=;
+        s=korg; t=1646070178;
+        bh=ACZ/mF0AOC6mrgyh/xkDP9r2lrB+sF7VRAOiOBErrLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHvtsqAOe0b8Yzie5EvE72lXXl9TjO2Sx1gzkRljp65ryrf1wx5dveA55P2CBZ9ih
-         0QoEh8JuEQ8JyOI+FXZav6EHrjPssYNoxHns79JX1Ev9acrWAK8v1eCdqrRDFG7/PI
-         1MQzex9YTR969wMRvkeOvAnNn3/+sSQdyc4LILZU=
+        b=vGbL3W8/4hWn88wJ0lfPMZXz0Gv7sM3Xp/b3b3PN/l754/L+7XixQBlykLi76CqD2
+         wwCKBEe/857e6exax22MmXk0Vw59z37jQuZuVh8x/xDBR7iB92mtJMP5vdGoS9B9og
+         sXzYX72sj7zyhuDZekKwcrUCHJV96JNsFWfDSrgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        "Masami Ichikawa(CIP)" <masami.ichikawa@cybertrust.co.jp>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.15 003/139] cgroup-v1: Correct privileges check in release_agent writes
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.16 015/164] KVM: x86: nSVM: disallow userspace setting of MSR_AMD64_TSC_RATIO to non default value when tsc scaling disabled
 Date:   Mon, 28 Feb 2022 18:22:57 +0100
-Message-Id: <20220228172347.935048104@linuxfoundation.org>
+Message-Id: <20220228172401.290195192@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Koutný <mkoutny@suse.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit 467a726b754f474936980da793b4ff2ec3e382a7 upstream.
+commit e910a53fb4f20aa012e46371ffb4c32c8da259b4 upstream.
 
-The idea is to check: a) the owning user_ns of cgroup_ns, b)
-capabilities in init_user_ns.
+If nested tsc scaling is disabled, MSR_AMD64_TSC_RATIO should
+never have non default value.
 
-The commit 24f600856418 ("cgroup-v1: Require capabilities to set
-release_agent") got this wrong in the write handler of release_agent
-since it checked user_ns of the opener (may be different from the owning
-user_ns of cgroup_ns).
-Secondly, to avoid possibly confused deputy, the capability of the
-opener must be checked.
+Due to way nested tsc scaling support was implmented in qemu,
+it would set this msr to 0 when nested tsc scaling was disabled.
+Ignore that value for now, as it causes no harm.
 
-Fixes: 24f600856418 ("cgroup-v1: Require capabilities to set release_agent")
+Fixes: 5228eb96a487 ("KVM: x86: nSVM: implement nested TSC scaling")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/stable/20220216121142.GB30035@blackbody.suse.cz/
-Signed-off-by: Michal Koutný <mkoutny@suse.com>
-Reviewed-by: Masami Ichikawa(CIP) <masami.ichikawa@cybertrust.co.jp>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220223115649.319134-1-mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup-v1.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kvm/svm/svm.c |   19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -549,6 +549,7 @@ static ssize_t cgroup_release_agent_writ
- 					  char *buf, size_t nbytes, loff_t off)
- {
- 	struct cgroup *cgrp;
-+	struct cgroup_file_ctx *ctx;
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -2903,8 +2903,23 @@ static int svm_set_msr(struct kvm_vcpu *
+ 	u64 data = msr->data;
+ 	switch (ecx) {
+ 	case MSR_AMD64_TSC_RATIO:
+-		if (!msr->host_initiated && !svm->tsc_scaling_enabled)
+-			return 1;
++
++		if (!svm->tsc_scaling_enabled) {
++
++			if (!msr->host_initiated)
++				return 1;
++			/*
++			 * In case TSC scaling is not enabled, always
++			 * leave this MSR at the default value.
++			 *
++			 * Due to bug in qemu 6.2.0, it would try to set
++			 * this msr to 0 if tsc scaling is not enabled.
++			 * Ignore this value as well.
++			 */
++			if (data != 0 && data != svm->tsc_ratio_msr)
++				return 1;
++			break;
++		}
  
- 	BUILD_BUG_ON(sizeof(cgrp->root->release_agent_path) < PATH_MAX);
- 
-@@ -556,8 +557,9 @@ static ssize_t cgroup_release_agent_writ
- 	 * Release agent gets called with all capabilities,
- 	 * require capabilities to set release agent.
- 	 */
--	if ((of->file->f_cred->user_ns != &init_user_ns) ||
--	    !capable(CAP_SYS_ADMIN))
-+	ctx = of->priv;
-+	if ((ctx->ns->user_ns != &init_user_ns) ||
-+	    !file_ns_capable(of->file, &init_user_ns, CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	cgrp = cgroup_kn_lock_live(of->kn, false);
+ 		if (data & TSC_RATIO_RSVD)
+ 			return 1;
 
 
