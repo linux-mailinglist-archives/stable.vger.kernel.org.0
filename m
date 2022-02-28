@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED2194C73CD
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24FFB4C75EE
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:56:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234611AbiB1RjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:39:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42016 "EHLO
+        id S232797AbiB1R5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:57:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238556AbiB1Rh7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8F815620A;
-        Mon, 28 Feb 2022 09:33:00 -0800 (PST)
+        with ESMTP id S239326AbiB1Rwx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:52:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6512AA8EEB;
+        Mon, 28 Feb 2022 09:40:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 551A561357;
-        Mon, 28 Feb 2022 17:33:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7249BC340E7;
-        Mon, 28 Feb 2022 17:32:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF09AB815AB;
+        Mon, 28 Feb 2022 17:39:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C760C340E7;
+        Mon, 28 Feb 2022 17:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069579;
-        bh=sSEoqc+9YPIsgkNANlmTg3KrERRDy6bUKBQeTnevo34=;
+        s=korg; t=1646069997;
+        bh=dpF4urbp5iZlP0BJCXxiiiVzWi4jaSUBnkePsHMbduI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0HhU0Tm3QH/oWmNtuuluvpyJrw36pGaYGqqZ4yrfREsTmg5kQY/7hrAkjlbh2oh6C
-         aHvvv67qWOyoMs8sfY7tGRBD4mebw7AU0qz4MQ5CceiTFCEf+eydGU/C6uPRKsoOsW
-         DRcZsy2NSlUVqaojWUpUei9iYPlAelae2tPzTf5c=
+        b=jVjvVA6NSkgnm2xb9dFSkglpkh/wqoyOQc3C/T9lozsU9kuh+lQ0Ebci8NVuysxty
+         YcsshUetlBvYjo6m/2OcOzrse2mmJyZFXhb4l5rIAphk/BlHAYR40Cp4TDBa3girCF
+         MKjrOFghqvRa74bjRtS7iFVpbXx6z8jyzw/v96js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Su Yue <l@damenly.su>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 03/80] btrfs: tree-checker: check item_size for dev_item
+        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.15 050/139] bpf: Fix crash due to incorrect copy_map_value
 Date:   Mon, 28 Feb 2022 18:23:44 +0100
-Message-Id: <20220228172312.111075326@linuxfoundation.org>
+Message-Id: <20220228172352.969056863@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Su Yue <l@damenly.su>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-commit ea1d1ca4025ac6c075709f549f9aa036b5b6597d upstream.
+commit a8abb0c3dc1e28454851a00f8b7333d9695d566c upstream.
 
-Check item size before accessing the device item to avoid out of bound
-access, similar to inode_item check.
+When both bpf_spin_lock and bpf_timer are present in a BPF map value,
+copy_map_value needs to skirt both objects when copying a value into and
+out of the map. However, the current code does not set both s_off and
+t_off in copy_map_value, which leads to a crash when e.g. bpf_spin_lock
+is placed in map value with bpf_timer, as bpf_map_update_elem call will
+be able to overwrite the other timer object.
 
-Signed-off-by: Su Yue <l@damenly.su>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+When the issue is not fixed, an overwriting can produce the following
+splat:
+
+[root@(none) bpf]# ./test_progs -t timer_crash
+[   15.930339] bpf_testmod: loading out-of-tree module taints kernel.
+[   16.037849] ==================================================================
+[   16.038458] BUG: KASAN: user-memory-access in __pv_queued_spin_lock_slowpath+0x32b/0x520
+[   16.038944] Write of size 8 at addr 0000000000043ec0 by task test_progs/325
+[   16.039399]
+[   16.039514] CPU: 0 PID: 325 Comm: test_progs Tainted: G           OE     5.16.0+ #278
+[   16.039983] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ArchLinux 1.15.0-1 04/01/2014
+[   16.040485] Call Trace:
+[   16.040645]  <TASK>
+[   16.040805]  dump_stack_lvl+0x59/0x73
+[   16.041069]  ? __pv_queued_spin_lock_slowpath+0x32b/0x520
+[   16.041427]  kasan_report.cold+0x116/0x11b
+[   16.041673]  ? __pv_queued_spin_lock_slowpath+0x32b/0x520
+[   16.042040]  __pv_queued_spin_lock_slowpath+0x32b/0x520
+[   16.042328]  ? memcpy+0x39/0x60
+[   16.042552]  ? pv_hash+0xd0/0xd0
+[   16.042785]  ? lockdep_hardirqs_off+0x95/0xd0
+[   16.043079]  __bpf_spin_lock_irqsave+0xdf/0xf0
+[   16.043366]  ? bpf_get_current_comm+0x50/0x50
+[   16.043608]  ? jhash+0x11a/0x270
+[   16.043848]  bpf_timer_cancel+0x34/0xe0
+[   16.044119]  bpf_prog_c4ea1c0f7449940d_sys_enter+0x7c/0x81
+[   16.044500]  bpf_trampoline_6442477838_0+0x36/0x1000
+[   16.044836]  __x64_sys_nanosleep+0x5/0x140
+[   16.045119]  do_syscall_64+0x59/0x80
+[   16.045377]  ? lock_is_held_type+0xe4/0x140
+[   16.045670]  ? irqentry_exit_to_user_mode+0xa/0x40
+[   16.046001]  ? mark_held_locks+0x24/0x90
+[   16.046287]  ? asm_exc_page_fault+0x1e/0x30
+[   16.046569]  ? asm_exc_page_fault+0x8/0x30
+[   16.046851]  ? lockdep_hardirqs_on+0x7e/0x100
+[   16.047137]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[   16.047405] RIP: 0033:0x7f9e4831718d
+[   16.047602] Code: b4 0c 00 0f 05 eb a9 66 0f 1f 44 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d b3 6c 0c 00 f7 d8 64 89 01 48
+[   16.048764] RSP: 002b:00007fff488086b8 EFLAGS: 00000206 ORIG_RAX: 0000000000000023
+[   16.049275] RAX: ffffffffffffffda RBX: 00007f9e48683740 RCX: 00007f9e4831718d
+[   16.049747] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00007fff488086d0
+[   16.050225] RBP: 00007fff488086f0 R08: 00007fff488085d7 R09: 00007f9e4cb594a0
+[   16.050648] R10: 0000000000000000 R11: 0000000000000206 R12: 00007f9e484cde30
+[   16.051124] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[   16.051608]  </TASK>
+[   16.051762] ==================================================================
+
+Fixes: 68134668c17f ("bpf: Add map side support for bpf timers.")
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20220209070324.1093182-2-memxor@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tree-checker.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ include/linux/bpf.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/tree-checker.c
-+++ b/fs/btrfs/tree-checker.c
-@@ -947,6 +947,7 @@ static int check_dev_item(struct extent_
- 			  struct btrfs_key *key, int slot)
- {
- 	struct btrfs_dev_item *ditem;
-+	const u32 item_size = btrfs_item_size_nr(leaf, slot);
- 
- 	if (key->objectid != BTRFS_DEV_ITEMS_OBJECTID) {
- 		dev_item_err(leaf, slot,
-@@ -954,6 +955,13 @@ static int check_dev_item(struct extent_
- 			     key->objectid, BTRFS_DEV_ITEMS_OBJECTID);
- 		return -EUCLEAN;
- 	}
-+
-+	if (unlikely(item_size != sizeof(*ditem))) {
-+		dev_item_err(leaf, slot, "invalid item size: has %u expect %zu",
-+			     item_size, sizeof(*ditem));
-+		return -EUCLEAN;
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -221,7 +221,8 @@ static inline void copy_map_value(struct
+ 	if (unlikely(map_value_has_spin_lock(map))) {
+ 		s_off = map->spin_lock_off;
+ 		s_sz = sizeof(struct bpf_spin_lock);
+-	} else if (unlikely(map_value_has_timer(map))) {
 +	}
-+
- 	ditem = btrfs_item_ptr(leaf, slot, struct btrfs_dev_item);
- 	if (btrfs_device_id(leaf, ditem) != key->offset) {
- 		dev_item_err(leaf, slot,
++	if (unlikely(map_value_has_timer(map))) {
+ 		t_off = map->timer_off;
+ 		t_sz = sizeof(struct bpf_timer);
+ 	}
 
 
