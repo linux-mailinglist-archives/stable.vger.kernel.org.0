@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6937B4C75E8
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:56:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6859D4C7331
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239264AbiB1R45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:56:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56094 "EHLO
+        id S237532AbiB1ReE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:34:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239468AbiB1RxF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:53:05 -0500
+        with ESMTP id S237555AbiB1Rcq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:32:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DB8DA996B;
-        Mon, 28 Feb 2022 09:40:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D69BC8BF3C;
+        Mon, 28 Feb 2022 09:29:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FFB26154F;
-        Mon, 28 Feb 2022 17:40:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 187C8C340E7;
-        Mon, 28 Feb 2022 17:40:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C33D26135F;
+        Mon, 28 Feb 2022 17:29:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D744CC340E7;
+        Mon, 28 Feb 2022 17:29:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070022;
-        bh=kcKxsW8Q8xpBHWLZSMDqe7m3Do9CkKyNlANTKWSkuSE=;
+        s=korg; t=1646069359;
+        bh=LC9GLPRNXxE7G7VL7b6l3jW0/NAL6RtstC9Wj+2iMi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vEKpcRkYJWsIklHQxRVDeHOXXg0DlbIAmkQ6e30SFDHEm9d5tpTwCWOnglEBkaVRw
-         IGnxbLYNFONushT/QUGQ9f7wssKQCFjrZhc59+S2q7xAtgNWZZc/mob8lstb6w8P8V
-         lEA8xKr2vqDBbeAebEaQ5Q9OeTHEJhByaO2EXrwM=
+        b=f7sG9Sdt+CDw5Z5ZpuCyRLnU9wJm7Lk/yk8v7TmLAt0xJPFzFBZUT7O5ALmLy45tQ
+         1mdhTslK/S+8aqeWdWSKCL90X9p8VNvk9u6h0rrIPeHee4N7ILZAbZVx25YUI6PTlk
+         27N9fZM6DcK2NJq+DONFi/NXzWlb3TLEvptNt0u4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 098/139] iio: adc: tsc2046: fix memory corruption by preventing array overflow
+        stable@vger.kernel.org,
+        Szymon Heidrich <szymon.heidrich@gmail.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 4.19 26/34] USB: gadget: validate endpoint index for xilinx udc
 Date:   Mon, 28 Feb 2022 18:24:32 +0100
-Message-Id: <20220228172357.946505749@linuxfoundation.org>
+Message-Id: <20220228172210.565401327@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
+References: <20220228172207.090703467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Szymon Heidrich <szymon.heidrich@gmail.com>
 
-commit b7a78a8adaa8849c02f174d707aead0f85dca0da upstream.
+commit 7f14c7227f342d9932f9b918893c8814f86d2a0d upstream.
 
-On one side we have indio_dev->num_channels includes all physical channels +
-timestamp channel. On other side we have an array allocated only for
-physical channels. So, fix memory corruption by ARRAY_SIZE() instead of
-num_channels variable.
+Assure that host may not manipulate the index to point
+past endpoint array.
 
-Note the first case is a cleanup rather than a fix as the software
-timestamp channel bit in active_scanmask is never set by the IIO core.
-
-Fixes: 9374e8f5a38d ("iio: adc: add ADC driver for the TI TSC2046 controller")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/r/20220107081401.2816357-1-o.rempel@pengutronix.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Cc: stable <stable@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ti-tsc2046.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/udc-xilinx.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/iio/adc/ti-tsc2046.c b/drivers/iio/adc/ti-tsc2046.c
-index d84ae6b008c1..e8fc4d01f30b 100644
---- a/drivers/iio/adc/ti-tsc2046.c
-+++ b/drivers/iio/adc/ti-tsc2046.c
-@@ -388,7 +388,7 @@ static int tsc2046_adc_update_scan_mode(struct iio_dev *indio_dev,
- 	mutex_lock(&priv->slock);
- 
- 	size = 0;
--	for_each_set_bit(ch_idx, active_scan_mask, indio_dev->num_channels) {
-+	for_each_set_bit(ch_idx, active_scan_mask, ARRAY_SIZE(priv->l)) {
- 		size += tsc2046_adc_group_set_layout(priv, group, ch_idx);
- 		tsc2046_adc_group_set_cmd(priv, group, ch_idx);
- 		group++;
-@@ -548,7 +548,7 @@ static int tsc2046_adc_setup_spi_msg(struct tsc2046_adc_priv *priv)
- 	 * enabled.
- 	 */
- 	size = 0;
--	for (ch_idx = 0; ch_idx < priv->dcfg->num_channels; ch_idx++)
-+	for (ch_idx = 0; ch_idx < ARRAY_SIZE(priv->l); ch_idx++)
- 		size += tsc2046_adc_group_set_layout(priv, ch_idx, ch_idx);
- 
- 	priv->tx = devm_kzalloc(&priv->spi->dev, size, GFP_KERNEL);
--- 
-2.35.1
-
+--- a/drivers/usb/gadget/udc/udc-xilinx.c
++++ b/drivers/usb/gadget/udc/udc-xilinx.c
+@@ -1613,6 +1613,8 @@ static void xudc_getstatus(struct xusb_u
+ 		break;
+ 	case USB_RECIP_ENDPOINT:
+ 		epnum = udc->setup.wIndex & USB_ENDPOINT_NUMBER_MASK;
++		if (epnum >= XUSB_MAX_ENDPOINTS)
++			goto stall;
+ 		target_ep = &udc->ep[epnum];
+ 		epcfgreg = udc->read_fn(udc->addr + target_ep->offset);
+ 		halt = epcfgreg & XUSB_EP_CFG_STALL_MASK;
+@@ -1680,6 +1682,10 @@ static void xudc_set_clear_feature(struc
+ 	case USB_RECIP_ENDPOINT:
+ 		if (!udc->setup.wValue) {
+ 			endpoint = udc->setup.wIndex & USB_ENDPOINT_NUMBER_MASK;
++			if (endpoint >= XUSB_MAX_ENDPOINTS) {
++				xudc_ep0_stall(udc);
++				return;
++			}
+ 			target_ep = &udc->ep[endpoint];
+ 			outinbit = udc->setup.wIndex & USB_ENDPOINT_DIR_MASK;
+ 			outinbit = outinbit >> 7;
 
 
