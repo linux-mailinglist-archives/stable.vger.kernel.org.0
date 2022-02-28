@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D93F94C769D
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E97314C744F
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:44:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235600AbiB1SFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:05:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44196 "EHLO
+        id S236480AbiB1RmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:42:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240488AbiB1SDg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:03:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72CC2B250A;
-        Mon, 28 Feb 2022 09:47:18 -0800 (PST)
+        with ESMTP id S236769AbiB1Rkg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:40:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60BBA986DE;
+        Mon, 28 Feb 2022 09:34:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2F8160B2B;
-        Mon, 28 Feb 2022 17:47:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13A53C340E7;
-        Mon, 28 Feb 2022 17:47:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D7536614AC;
+        Mon, 28 Feb 2022 17:34:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC80DC340E7;
+        Mon, 28 Feb 2022 17:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070437;
-        bh=gq/WVgKat1vpQ26apfGtrbtSVgS8xU5ty2S32PBT2DU=;
+        s=korg; t=1646069674;
+        bh=XFprmJuZOhsQUKyrrUZXt41mOVKvj1+Gs65IZBSSPBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ACh8+ZsSK/aqDEM4tcIrWEGbUHtzrKPDMMSuMWcRfkXUIOzppCuhzcU0ZaH1WyyG/
-         mmfBO2DPINpS+uQnTBJS/dAJlnx2sSwkA7YCYzQ9rpOLxchwSW9kY5joUNzHk05ylx
-         4I+hBbgON+uqrCk/a/ke9wVZzKiI+Gy7N9WnX0Vw=
+        b=aab0QNVRVhhgQbnqGfF/AF+TfWconvb7TXxhwB/ZLxyPw7jDqEs2G67oCbVOdLbg5
+         z0oP31OX53gM0hEFUG75VUnbnpJMDWEKXoaQ7/f5QDK3RezqGs/RNBRB/YgPpxTvah
+         lVVKBwBxX93MdGMoCO5pz/5AohdOfy4+cTDWiJ4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+831661966588c802aae9@syzkaller.appspotmail.com,
-        Bart Van Assche <bvanassche@acm.org>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 109/164] RDMA/ib_srp: Fix a deadlock
+        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
+        Laibin Qiu <qiulaibin@huawei.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 50/80] configfs: fix a race in configfs_{,un}register_subsystem()
 Date:   Mon, 28 Feb 2022 18:24:31 +0100
-Message-Id: <20220228172409.727065773@linuxfoundation.org>
+Message-Id: <20220228172317.705510418@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,43 +54,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: ChenXiaoSong <chenxiaosong2@huawei.com>
 
-[ Upstream commit 081bdc9fe05bb23248f5effb6f811da3da4b8252 ]
+[ Upstream commit 84ec758fb2daa236026506868c8796b0500c047d ]
 
-Remove the flush_workqueue(system_long_wq) call since flushing
-system_long_wq is deadlock-prone and since that call is redundant with a
-preceding cancel_work_sync()
+When configfs_register_subsystem() or configfs_unregister_subsystem()
+is executing link_group() or unlink_group(),
+it is possible that two processes add or delete list concurrently.
+Some unfortunate interleavings of them can cause kernel panic.
 
-Link: https://lore.kernel.org/r/20220215210511.28303-3-bvanassche@acm.org
-Fixes: ef6c49d87c34 ("IB/srp: Eliminate state SRP_TARGET_DEAD")
-Reported-by: syzbot+831661966588c802aae9@syzkaller.appspotmail.com
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+One of cases is:
+A --> B --> C --> D
+A <-- B <-- C <-- D
+
+     delete list_head *B        |      delete list_head *C
+--------------------------------|-----------------------------------
+configfs_unregister_subsystem   |   configfs_unregister_subsystem
+  unlink_group                  |     unlink_group
+    unlink_obj                  |       unlink_obj
+      list_del_init             |         list_del_init
+        __list_del_entry        |           __list_del_entry
+          __list_del            |             __list_del
+            // next == C        |
+            next->prev = prev   |
+                                |               next->prev = prev
+            prev->next = next   |
+                                |                 // prev == B
+                                |                 prev->next = next
+
+Fix this by adding mutex when calling link_group() or unlink_group(),
+but parent configfs_subsystem is NULL when config_item is root.
+So I create a mutex configfs_subsystem_mutex.
+
+Fixes: 7063fbf22611 ("[PATCH] configfs: User-driven configuration filesystem")
+Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Signed-off-by: Laibin Qiu <qiulaibin@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srp/ib_srp.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/configfs/dir.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index e174e853f8a40..285b766e4e704 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -4047,9 +4047,11 @@ static void srp_remove_one(struct ib_device *device, void *client_data)
- 		spin_unlock(&host->target_lock);
+diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
+index 32ddad3ec5d53..5ad27e484014f 100644
+--- a/fs/configfs/dir.c
++++ b/fs/configfs/dir.c
+@@ -36,6 +36,14 @@
+  */
+ DEFINE_SPINLOCK(configfs_dirent_lock);
  
- 		/*
--		 * Wait for tl_err and target port removal tasks.
-+		 * srp_queue_remove_work() queues a call to
-+		 * srp_remove_target(). The latter function cancels
-+		 * target->tl_err_work so waiting for the remove works to
-+		 * finish is sufficient.
- 		 */
--		flush_workqueue(system_long_wq);
- 		flush_workqueue(srp_remove_wq);
++/*
++ * All of link_obj/unlink_obj/link_group/unlink_group require that
++ * subsys->su_mutex is held.
++ * But parent configfs_subsystem is NULL when config_item is root.
++ * Use this mutex when config_item is root.
++ */
++static DEFINE_MUTEX(configfs_subsystem_mutex);
++
+ static void configfs_d_iput(struct dentry * dentry,
+ 			    struct inode * inode)
+ {
+@@ -1884,7 +1892,9 @@ int configfs_register_subsystem(struct configfs_subsystem *subsys)
+ 		group->cg_item.ci_name = group->cg_item.ci_namebuf;
  
- 		kfree(host);
+ 	sd = root->d_fsdata;
++	mutex_lock(&configfs_subsystem_mutex);
+ 	link_group(to_config_group(sd->s_element), group);
++	mutex_unlock(&configfs_subsystem_mutex);
+ 
+ 	inode_lock_nested(d_inode(root), I_MUTEX_PARENT);
+ 
+@@ -1909,7 +1919,9 @@ int configfs_register_subsystem(struct configfs_subsystem *subsys)
+ 	inode_unlock(d_inode(root));
+ 
+ 	if (err) {
++		mutex_lock(&configfs_subsystem_mutex);
+ 		unlink_group(group);
++		mutex_unlock(&configfs_subsystem_mutex);
+ 		configfs_release_fs();
+ 	}
+ 	put_fragment(frag);
+@@ -1956,7 +1968,9 @@ void configfs_unregister_subsystem(struct configfs_subsystem *subsys)
+ 
+ 	dput(dentry);
+ 
++	mutex_lock(&configfs_subsystem_mutex);
+ 	unlink_group(group);
++	mutex_unlock(&configfs_subsystem_mutex);
+ 	configfs_release_fs();
+ }
+ 
 -- 
 2.34.1
 
