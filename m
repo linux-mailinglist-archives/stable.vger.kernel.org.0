@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9D8B4C760F
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:58:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC8E94C74F4
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:48:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234861AbiB1R7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:59:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50874 "EHLO
+        id S238705AbiB1RtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:49:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239824AbiB1R65 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:58:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52B5B580C5;
-        Mon, 28 Feb 2022 09:45:02 -0800 (PST)
+        with ESMTP id S238720AbiB1Rs7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:48:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86178A1BF4;
+        Mon, 28 Feb 2022 09:38:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48D3D6090B;
-        Mon, 28 Feb 2022 17:44:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33FC0C340E7;
-        Mon, 28 Feb 2022 17:44:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B73BB815B3;
+        Mon, 28 Feb 2022 17:38:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D41C1C340E7;
+        Mon, 28 Feb 2022 17:38:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070297;
-        bh=8qBI7gZERXpRyiJ/Rc32j/N4WaHgIoGnhInB+ZudHF0=;
+        s=korg; t=1646069927;
+        bh=DYAZNilmD8cCnmy4h4SXlX7Bd/ZLe909alZgUubnF3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O4PR413/aOAUav7mxv9jCrzh9sIsZ2TBLcTGl4bWxGZ2Td3LJpbOZaJ+2o61UinDD
-         /Tq3GntHYjKd3nVUpYUx8DqYl3b6TxtHJOVMckbwQMedtwA3LAugvREaP0L0gBFEms
-         P/NEVHhmUogkN3ByZ668ZCYzkwhcc3BuYwoDLSSE=
+        b=vXI5GksOx1gSk7xpxjoNq28p394Ewndg4yW/DmbRvPOLwdpR14N+e3wvO/hlpviag
+         PZNdDcM4+rz9RT30YMP4397MBGXtuPN7vIRt2DY9of0dk74xNJVr2k0UW2RvJJdMfo
+         aiGwy8ylGagd016TYfZetJe815tduMMU2v1VZHpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.16 056/164] bpf: Fix crash due to incorrect copy_map_value
-Date:   Mon, 28 Feb 2022 18:23:38 +0100
-Message-Id: <20220228172405.253762544@linuxfoundation.org>
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.15 045/139] hwmon: Handle failure to register sensor with thermal zone correctly
+Date:   Mon, 28 Feb 2022 18:23:39 +0100
+Message-Id: <20220228172352.445874237@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,84 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit a8abb0c3dc1e28454851a00f8b7333d9695d566c upstream.
+commit 1b5f517cca36292076d9e38fa6e33a257703e62e upstream.
 
-When both bpf_spin_lock and bpf_timer are present in a BPF map value,
-copy_map_value needs to skirt both objects when copying a value into and
-out of the map. However, the current code does not set both s_off and
-t_off in copy_map_value, which leads to a crash when e.g. bpf_spin_lock
-is placed in map value with bpf_timer, as bpf_map_update_elem call will
-be able to overwrite the other timer object.
+If an attempt is made to a sensor with a thermal zone and it fails,
+the call to devm_thermal_zone_of_sensor_register() may return -ENODEV.
+This may result in crashes similar to the following.
 
-When the issue is not fixed, an overwriting can produce the following
-splat:
+Unable to handle kernel NULL pointer dereference at virtual address 00000000000003cd
+...
+Internal error: Oops: 96000021 [#1] PREEMPT SMP
+...
+pstate: 60400009 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : mutex_lock+0x18/0x60
+lr : thermal_zone_device_update+0x40/0x2e0
+sp : ffff800014c4fc60
+x29: ffff800014c4fc60 x28: ffff365ee3f6e000 x27: ffffdde218426790
+x26: ffff365ee3f6e000 x25: 0000000000000000 x24: ffff365ee3f6e000
+x23: ffffdde218426870 x22: ffff365ee3f6e000 x21: 00000000000003cd
+x20: ffff365ee8bf3308 x19: ffffffffffffffed x18: 0000000000000000
+x17: ffffdde21842689c x16: ffffdde1cb7a0b7c x15: 0000000000000040
+x14: ffffdde21a4889a0 x13: 0000000000000228 x12: 0000000000000000
+x11: 0000000000000000 x10: 0000000000000000 x9 : 0000000000000000
+x8 : 0000000001120000 x7 : 0000000000000001 x6 : 0000000000000000
+x5 : 0068000878e20f07 x4 : 0000000000000000 x3 : 00000000000003cd
+x2 : ffff365ee3f6e000 x1 : 0000000000000000 x0 : 00000000000003cd
+Call trace:
+ mutex_lock+0x18/0x60
+ hwmon_notify_event+0xfc/0x110
+ 0xffffdde1cb7a0a90
+ 0xffffdde1cb7a0b7c
+ irq_thread_fn+0x2c/0xa0
+ irq_thread+0x134/0x240
+ kthread+0x178/0x190
+ ret_from_fork+0x10/0x20
+Code: d503201f d503201f d2800001 aa0103e4 (c8e47c02)
 
-[root@(none) bpf]# ./test_progs -t timer_crash
-[   15.930339] bpf_testmod: loading out-of-tree module taints kernel.
-[   16.037849] ==================================================================
-[   16.038458] BUG: KASAN: user-memory-access in __pv_queued_spin_lock_slowpath+0x32b/0x520
-[   16.038944] Write of size 8 at addr 0000000000043ec0 by task test_progs/325
-[   16.039399]
-[   16.039514] CPU: 0 PID: 325 Comm: test_progs Tainted: G           OE     5.16.0+ #278
-[   16.039983] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ArchLinux 1.15.0-1 04/01/2014
-[   16.040485] Call Trace:
-[   16.040645]  <TASK>
-[   16.040805]  dump_stack_lvl+0x59/0x73
-[   16.041069]  ? __pv_queued_spin_lock_slowpath+0x32b/0x520
-[   16.041427]  kasan_report.cold+0x116/0x11b
-[   16.041673]  ? __pv_queued_spin_lock_slowpath+0x32b/0x520
-[   16.042040]  __pv_queued_spin_lock_slowpath+0x32b/0x520
-[   16.042328]  ? memcpy+0x39/0x60
-[   16.042552]  ? pv_hash+0xd0/0xd0
-[   16.042785]  ? lockdep_hardirqs_off+0x95/0xd0
-[   16.043079]  __bpf_spin_lock_irqsave+0xdf/0xf0
-[   16.043366]  ? bpf_get_current_comm+0x50/0x50
-[   16.043608]  ? jhash+0x11a/0x270
-[   16.043848]  bpf_timer_cancel+0x34/0xe0
-[   16.044119]  bpf_prog_c4ea1c0f7449940d_sys_enter+0x7c/0x81
-[   16.044500]  bpf_trampoline_6442477838_0+0x36/0x1000
-[   16.044836]  __x64_sys_nanosleep+0x5/0x140
-[   16.045119]  do_syscall_64+0x59/0x80
-[   16.045377]  ? lock_is_held_type+0xe4/0x140
-[   16.045670]  ? irqentry_exit_to_user_mode+0xa/0x40
-[   16.046001]  ? mark_held_locks+0x24/0x90
-[   16.046287]  ? asm_exc_page_fault+0x1e/0x30
-[   16.046569]  ? asm_exc_page_fault+0x8/0x30
-[   16.046851]  ? lockdep_hardirqs_on+0x7e/0x100
-[   16.047137]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[   16.047405] RIP: 0033:0x7f9e4831718d
-[   16.047602] Code: b4 0c 00 0f 05 eb a9 66 0f 1f 44 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d b3 6c 0c 00 f7 d8 64 89 01 48
-[   16.048764] RSP: 002b:00007fff488086b8 EFLAGS: 00000206 ORIG_RAX: 0000000000000023
-[   16.049275] RAX: ffffffffffffffda RBX: 00007f9e48683740 RCX: 00007f9e4831718d
-[   16.049747] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00007fff488086d0
-[   16.050225] RBP: 00007fff488086f0 R08: 00007fff488085d7 R09: 00007f9e4cb594a0
-[   16.050648] R10: 0000000000000000 R11: 0000000000000206 R12: 00007f9e484cde30
-[   16.051124] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-[   16.051608]  </TASK>
-[   16.051762] ==================================================================
+Jon Hunter reports that the exact call sequence is:
 
-Fixes: 68134668c17f ("bpf: Add map side support for bpf timers.")
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220209070324.1093182-2-memxor@gmail.com
+hwmon_notify_event()
+  --> hwmon_thermal_notify()
+    --> thermal_zone_device_update()
+      --> update_temperature()
+        --> mutex_lock()
+
+The hwmon core needs to handle all errors returned from calls
+to devm_thermal_zone_of_sensor_register(). If the call fails
+with -ENODEV, report that the sensor was not attached to a
+thermal zone  but continue to register the hwmon device.
+
+Reported-by: Jon Hunter <jonathanh@nvidia.com>
+Cc: Dmitry Osipenko <digetx@gmail.com>
+Fixes: 1597b374af222 ("hwmon: Add notification support")
+Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/bpf.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hwmon/hwmon.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -224,7 +224,8 @@ static inline void copy_map_value(struct
- 	if (unlikely(map_value_has_spin_lock(map))) {
- 		s_off = map->spin_lock_off;
- 		s_sz = sizeof(struct bpf_spin_lock);
--	} else if (unlikely(map_value_has_timer(map))) {
+--- a/drivers/hwmon/hwmon.c
++++ b/drivers/hwmon/hwmon.c
+@@ -214,12 +214,14 @@ static int hwmon_thermal_add_sensor(stru
+ 
+ 	tzd = devm_thermal_zone_of_sensor_register(dev, index, tdata,
+ 						   &hwmon_thermal_ops);
+-	/*
+-	 * If CONFIG_THERMAL_OF is disabled, this returns -ENODEV,
+-	 * so ignore that error but forward any other error.
+-	 */
+-	if (IS_ERR(tzd) && (PTR_ERR(tzd) != -ENODEV))
+-		return PTR_ERR(tzd);
++	if (IS_ERR(tzd)) {
++		if (PTR_ERR(tzd) != -ENODEV)
++			return PTR_ERR(tzd);
++		dev_info(dev, "temp%d_input not attached to any thermal zone\n",
++			 index + 1);
++		devm_kfree(dev, tdata);
++		return 0;
 +	}
-+	if (unlikely(map_value_has_timer(map))) {
- 		t_off = map->timer_off;
- 		t_sz = sizeof(struct bpf_timer);
- 	}
+ 
+ 	err = devm_add_action(dev, hwmon_thermal_remove_sensor, &tdata->node);
+ 	if (err)
 
 
