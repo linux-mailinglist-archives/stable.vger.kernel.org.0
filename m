@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E55A4C76AC
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:05:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26E944C7338
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239780AbiB1SFj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:05:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38700 "EHLO
+        id S237681AbiB1ReK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:34:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240898AbiB1SEW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:04:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10E4C36318;
-        Mon, 28 Feb 2022 09:47:54 -0800 (PST)
+        with ESMTP id S238404AbiB1Rd1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B91890277;
+        Mon, 28 Feb 2022 09:29:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 00A2160B2B;
-        Mon, 28 Feb 2022 17:47:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1534AC340E7;
-        Mon, 28 Feb 2022 17:47:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C74CB815AC;
+        Mon, 28 Feb 2022 17:29:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D4EAC340E7;
+        Mon, 28 Feb 2022 17:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070464;
-        bh=urQX6y50ENfkDfckR2XgPPLuEaOQejttoMPgSiW3WW0=;
+        s=korg; t=1646069388;
+        bh=oh/sasvbWZ6S2kcQyCU00pN818bGxsywW0dhY8vbDRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgonQewmRdY0puyaF+Ti7FIil1bBc6ezSrIkgfadryFcvqu7SxRovfPtLJ/vizAxx
-         D3Vq5c2rrpiCMBrMSsa6gUv7Y7Npmc0cEXPpHKCm88cLs6NbsVi+leQ5JN+bm6mz1u
-         3chJ2jf0YS8lzJDEYlnakTYifSWbbt2wEcJFD0wA=
+        b=gBeI/L+6zKUH469U5+Vf8InkkiXYPX67XqW5sEnpP5GrP42M0wsaRTUp5YZImYGc/
+         D602sHibzxlrm03unm4joMDapS1Faes+ts+llUsl006a0nyWhKyaYbQ9pKnj3PWMry
+         fjme4MLahkW/yqsPpv65Bxa1ve7zCTmWYnHV0g34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Savaton <guillaume@baierouge.fr>,
-        Samuel Holland <samuel@sholland.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 101/164] gpio: rockchip: Reset int_bothedge when changing trigger
-Date:   Mon, 28 Feb 2022 18:24:23 +0100
-Message-Id: <20220228172408.954586862@linuxfoundation.org>
+        Ben Skeggs <bskeggs@redhat.com>, Lyude Paul <lyude@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>
+Subject: [PATCH 4.19 18/34] Revert "drm/nouveau/pmu/gm200-: avoid touching PMU outside of DEVINIT/PREOS/ACR"
+Date:   Mon, 28 Feb 2022 18:24:24 +0100
+Message-Id: <20220228172209.919418318@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
+References: <20220228172207.090703467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,104 +53,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Karol Herbst <kherbst@redhat.com>
 
-[ Upstream commit 7920af5c826cb4a7ada1ae26fdd317642805adc2 ]
+This reverts commit c9ec3d85c0eef7c71cdc68db758e0f0e378132c0.
 
-With v2 hardware, an IRQ can be configured to trigger on both edges via
-a bit in the int_bothedge register. Currently, the driver sets this bit
-when changing the trigger type to IRQ_TYPE_EDGE_BOTH, but fails to reset
-this bit if the trigger type is later changed to something else. This
-causes spurious IRQs, and when using gpio-keys with wakeup-event-action
-set to EV_ACT_(DE)ASSERTED, those IRQs translate into spurious wakeups.
+This commit causes a regression if 4cdd2450bf739bada353e82d27b00db9af8c3001
+is not applied as well. This was fixed for 5.16, 5.15 and 5.10.
 
-Fixes: 3bcbd1a85b68 ("gpio/rockchip: support next version gpio controller")
-Reported-by: Guillaume Savaton <guillaume@baierouge.fr>
-Tested-by: Guillaume Savaton <guillaume@baierouge.fr>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+On older stable branches backporting this commit is complicated as relevant
+code changed quite a bit. Furthermore most of the affected hardware barely
+works on those and users would want to use the newer kernels anyway.
+
+Cc: stable@vger.kernel.org # 5.4 4.19 and 4.14
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Link: https://gitlab.freedesktop.org/drm/nouveau/-/issues/149
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-rockchip.c | 56 +++++++++++++++++++-----------------
- 1 file changed, 29 insertions(+), 27 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c |   37 ++++++++++---------------
+ 1 file changed, 16 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/gpio/gpio-rockchip.c b/drivers/gpio/gpio-rockchip.c
-index ce63cbd14d69a..24155c038f6d0 100644
---- a/drivers/gpio/gpio-rockchip.c
-+++ b/drivers/gpio/gpio-rockchip.c
-@@ -410,10 +410,8 @@ static int rockchip_irq_set_type(struct irq_data *d, unsigned int type)
- 	level = rockchip_gpio_readl(bank, bank->gpio_regs->int_type);
- 	polarity = rockchip_gpio_readl(bank, bank->gpio_regs->int_polarity);
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c
+@@ -70,13 +70,20 @@ nvkm_pmu_fini(struct nvkm_subdev *subdev
+ 	return 0;
+ }
  
--	switch (type) {
--	case IRQ_TYPE_EDGE_BOTH:
-+	if (type == IRQ_TYPE_EDGE_BOTH) {
- 		if (bank->gpio_type == GPIO_TYPE_V2) {
--			bank->toggle_edge_mode &= ~mask;
- 			rockchip_gpio_writel_bit(bank, d->hwirq, 1,
- 						 bank->gpio_regs->int_bothedge);
- 			goto out;
-@@ -431,30 +429,34 @@ static int rockchip_irq_set_type(struct irq_data *d, unsigned int type)
- 			else
- 				polarity |= mask;
- 		}
--		break;
--	case IRQ_TYPE_EDGE_RISING:
--		bank->toggle_edge_mode &= ~mask;
--		level |= mask;
--		polarity |= mask;
--		break;
--	case IRQ_TYPE_EDGE_FALLING:
--		bank->toggle_edge_mode &= ~mask;
--		level |= mask;
--		polarity &= ~mask;
--		break;
--	case IRQ_TYPE_LEVEL_HIGH:
--		bank->toggle_edge_mode &= ~mask;
--		level &= ~mask;
--		polarity |= mask;
--		break;
--	case IRQ_TYPE_LEVEL_LOW:
--		bank->toggle_edge_mode &= ~mask;
--		level &= ~mask;
--		polarity &= ~mask;
--		break;
--	default:
--		ret = -EINVAL;
--		goto out;
-+	} else {
-+		if (bank->gpio_type == GPIO_TYPE_V2) {
-+			rockchip_gpio_writel_bit(bank, d->hwirq, 0,
-+						 bank->gpio_regs->int_bothedge);
-+		} else {
-+			bank->toggle_edge_mode &= ~mask;
-+		}
-+		switch (type) {
-+		case IRQ_TYPE_EDGE_RISING:
-+			level |= mask;
-+			polarity |= mask;
-+			break;
-+		case IRQ_TYPE_EDGE_FALLING:
-+			level |= mask;
-+			polarity &= ~mask;
-+			break;
-+		case IRQ_TYPE_LEVEL_HIGH:
-+			level &= ~mask;
-+			polarity |= mask;
-+			break;
-+		case IRQ_TYPE_LEVEL_LOW:
-+			level &= ~mask;
-+			polarity &= ~mask;
-+			break;
-+		default:
-+			ret = -EINVAL;
-+			goto out;
-+		}
- 	}
+-static void
++static int
+ nvkm_pmu_reset(struct nvkm_pmu *pmu)
+ {
+ 	struct nvkm_device *device = pmu->subdev.device;
  
- 	rockchip_gpio_writel(bank, level, bank->gpio_regs->int_type);
--- 
-2.34.1
-
+ 	if (!pmu->func->enabled(pmu))
+-		return;
++		return 0;
++
++	/* Inhibit interrupts, and wait for idle. */
++	nvkm_wr32(device, 0x10a014, 0x0000ffff);
++	nvkm_msec(device, 2000,
++		if (!nvkm_rd32(device, 0x10a04c))
++			break;
++	);
+ 
+ 	/* Reset. */
+ 	if (pmu->func->reset)
+@@ -87,37 +94,25 @@ nvkm_pmu_reset(struct nvkm_pmu *pmu)
+ 		if (!(nvkm_rd32(device, 0x10a10c) & 0x00000006))
+ 			break;
+ 	);
++
++	return 0;
+ }
+ 
+ static int
+ nvkm_pmu_preinit(struct nvkm_subdev *subdev)
+ {
+ 	struct nvkm_pmu *pmu = nvkm_pmu(subdev);
+-	nvkm_pmu_reset(pmu);
+-	return 0;
++	return nvkm_pmu_reset(pmu);
+ }
+ 
+ static int
+ nvkm_pmu_init(struct nvkm_subdev *subdev)
+ {
+ 	struct nvkm_pmu *pmu = nvkm_pmu(subdev);
+-	struct nvkm_device *device = pmu->subdev.device;
+-
+-	if (!pmu->func->init)
+-		return 0;
+-
+-	if (pmu->func->enabled(pmu)) {
+-		/* Inhibit interrupts, and wait for idle. */
+-		nvkm_wr32(device, 0x10a014, 0x0000ffff);
+-		nvkm_msec(device, 2000,
+-			if (!nvkm_rd32(device, 0x10a04c))
+-				break;
+-		);
+-
+-		nvkm_pmu_reset(pmu);
+-	}
+-
+-	return pmu->func->init(pmu);
++	int ret = nvkm_pmu_reset(pmu);
++	if (ret == 0 && pmu->func->init)
++		ret = pmu->func->init(pmu);
++	return ret;
+ }
+ 
+ static int
 
 
