@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01ECA4C7713
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:11:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D2DD4C770C
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:10:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237295AbiB1SL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:11:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36830 "EHLO
+        id S230322AbiB1SLU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:11:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241853AbiB1SK0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:10:26 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAEB1BF965;
-        Mon, 28 Feb 2022 09:50:49 -0800 (PST)
+        with ESMTP id S241549AbiB1SKD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:10:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C4B1B8213;
+        Mon, 28 Feb 2022 09:50:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 219B1CE17CB;
+        by ams.source.kernel.org (Postfix) with ESMTPS id A79BEB815C3;
+        Mon, 28 Feb 2022 17:50:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1BBCC340E7;
         Mon, 28 Feb 2022 17:50:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 474CCC340E7;
-        Mon, 28 Feb 2022 17:50:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070606;
-        bh=V6newwJbWXuT//dCdjfZeDJPjFDcTXvCBqBZ7lsONFE=;
+        s=korg; t=1646070609;
+        bh=6UwCDOJqRhPGFGmGm2PxiDMylLrzjuY/whP3p9ohKBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ShOxmcE1Oh2uaF1wG9dcq5gfEgyRUO4M2EugYmWO/ufqFpiaSMXOoOsA74FWUxh+Z
-         bVmI5D/CdoCaf776QIzO8AmCJJmY8e24re7PBjPWNKSKgYoCqH49Rwgeqv5mOqyUy6
-         O7t0Ci1QDemOu/qqYaBtV0dD3PO0N7n+6TaC2vas=
+        b=qaBCk5zrYB9zLrP+04pcdUKFg1E9xLrrW4EzoPscoGsFGiw3egCzVn/qejkDO6gYz
+         VENaCBty3YVQN6KRJP30ScJPM1XczIP1X7oTFaisI9CcLhF6bX2/htofLEyRK5zoO5
+         u+oWFJHILyBnJNaL/M/X1fL/qzavF4ZkeH0MDIcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Anup Patel <anup@brainfault.org>,
+        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
         Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.16 150/164] riscv: fix nommu_k210_sdcard_defconfig
-Date:   Mon, 28 Feb 2022 18:25:12 +0100
-Message-Id: <20220228172413.413552577@linuxfoundation.org>
+Subject: [PATCH 5.16 151/164] riscv: fix oops caused by irqsoff latency tracer
+Date:   Mon, 28 Feb 2022 18:25:13 +0100
+Message-Id: <20220228172413.489437652@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
 References: <20220228172359.567256961@linuxfoundation.org>
@@ -55,33 +53,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Changbin Du <changbin.du@gmail.com>
 
-commit 762e52f79c95ea20a7229674ffd13b94d7d8959c upstream.
+commit 22e2100b1b07d6f5acc71cc1acb53f680c677d77 upstream.
 
-Instead of an arbitrary delay, use the "rootwait" kernel option to wait
-for the mmc root device to be ready.
+The trace_hardirqs_{on,off}() require the caller to setup frame pointer
+properly. This because these two functions use macro 'CALLER_ADDR1' (aka.
+__builtin_return_address(1)) to acquire caller info. If the $fp is used
+for other purpose, the code generated this macro (as below) could trigger
+memory access fault.
 
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Fixes: 7e09fd3994c5 ("riscv: Add Canaan Kendryte K210 SD card defconfig")
+   0xffffffff8011510e <+80>:    ld      a1,-16(s0)
+   0xffffffff80115112 <+84>:    ld      s2,-8(a1)  # <-- paging fault here
+
+The oops message during booting if compiled with 'irqoff' tracer enabled:
+[    0.039615][    T0] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000f8
+[    0.041925][    T0] Oops [#1]
+[    0.042063][    T0] Modules linked in:
+[    0.042864][    T0] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.17.0-rc1-00233-g9a20c48d1ed2 #29
+[    0.043568][    T0] Hardware name: riscv-virtio,qemu (DT)
+[    0.044343][    T0] epc : trace_hardirqs_on+0x56/0xe2
+[    0.044601][    T0]  ra : restore_all+0x12/0x6e
+[    0.044721][    T0] epc : ffffffff80126a5c ra : ffffffff80003b94 sp : ffffffff81403db0
+[    0.044801][    T0]  gp : ffffffff8163acd8 tp : ffffffff81414880 t0 : 0000000000000020
+[    0.044882][    T0]  t1 : 0098968000000000 t2 : 0000000000000000 s0 : ffffffff81403de0
+[    0.044967][    T0]  s1 : 0000000000000000 a0 : 0000000000000001 a1 : 0000000000000100
+[    0.045046][    T0]  a2 : 0000000000000000 a3 : 0000000000000000 a4 : 0000000000000000
+[    0.045124][    T0]  a5 : 0000000000000000 a6 : 0000000000000000 a7 : 0000000054494d45
+[    0.045210][    T0]  s2 : ffffffff80003b94 s3 : ffffffff81a8f1b0 s4 : ffffffff80e27b50
+[    0.045289][    T0]  s5 : ffffffff81414880 s6 : ffffffff8160fa00 s7 : 00000000800120e8
+[    0.045389][    T0]  s8 : 0000000080013100 s9 : 000000000000007f s10: 0000000000000000
+[    0.045474][    T0]  s11: 0000000000000000 t3 : 7fffffffffffffff t4 : 0000000000000000
+[    0.045548][    T0]  t5 : 0000000000000000 t6 : ffffffff814aa368
+[    0.045620][    T0] status: 0000000200000100 badaddr: 00000000000000f8 cause: 000000000000000d
+[    0.046402][    T0] [<ffffffff80003b94>] restore_all+0x12/0x6e
+
+This because the $fp(aka. $s0) register is not used as frame pointer in the
+assembly entry code.
+
+	resume_kernel:
+		REG_L s0, TASK_TI_PREEMPT_COUNT(tp)
+		bnez s0, restore_all
+		REG_L s0, TASK_TI_FLAGS(tp)
+                andi s0, s0, _TIF_NEED_RESCHED
+                beqz s0, restore_all
+                call preempt_schedule_irq
+                j restore_all
+
+To fix above issue, here we add one extra level wrapper for function
+trace_hardirqs_{on,off}() so they can be safely called by low level entry
+code.
+
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Fixes: 3c4697982982 ("riscv: Enable LOCKDEP_SUPPORT & fixup TRACE_IRQFLAGS_SUPPORT")
 Cc: stable@vger.kernel.org
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/configs/nommu_k210_sdcard_defconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/kernel/Makefile    |    2 ++
+ arch/riscv/kernel/entry.S     |   10 +++++-----
+ arch/riscv/kernel/trace_irq.c |   27 +++++++++++++++++++++++++++
+ arch/riscv/kernel/trace_irq.h |   11 +++++++++++
+ 4 files changed, 45 insertions(+), 5 deletions(-)
+ create mode 100644 arch/riscv/kernel/trace_irq.c
+ create mode 100644 arch/riscv/kernel/trace_irq.h
 
---- a/arch/riscv/configs/nommu_k210_sdcard_defconfig
-+++ b/arch/riscv/configs/nommu_k210_sdcard_defconfig
-@@ -23,7 +23,7 @@ CONFIG_SLOB=y
- CONFIG_SOC_CANAAN=y
- CONFIG_SMP=y
- CONFIG_NR_CPUS=2
--CONFIG_CMDLINE="earlycon console=ttySIF0 rootdelay=2 root=/dev/mmcblk0p1 ro"
-+CONFIG_CMDLINE="earlycon console=ttySIF0 root=/dev/mmcblk0p1 rootwait ro"
- CONFIG_CMDLINE_FORCE=y
- # CONFIG_SECCOMP is not set
- # CONFIG_STACKPROTECTOR is not set
+--- a/arch/riscv/kernel/Makefile
++++ b/arch/riscv/kernel/Makefile
+@@ -50,6 +50,8 @@ obj-$(CONFIG_MODULE_SECTIONS)	+= module-
+ obj-$(CONFIG_FUNCTION_TRACER)	+= mcount.o ftrace.o
+ obj-$(CONFIG_DYNAMIC_FTRACE)	+= mcount-dyn.o
+ 
++obj-$(CONFIG_TRACE_IRQFLAGS)	+= trace_irq.o
++
+ obj-$(CONFIG_RISCV_BASE_PMU)	+= perf_event.o
+ obj-$(CONFIG_PERF_EVENTS)	+= perf_callchain.o
+ obj-$(CONFIG_HAVE_PERF_REGS)	+= perf_regs.o
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -108,7 +108,7 @@ _save_context:
+ .option pop
+ 
+ #ifdef CONFIG_TRACE_IRQFLAGS
+-	call trace_hardirqs_off
++	call __trace_hardirqs_off
+ #endif
+ 
+ #ifdef CONFIG_CONTEXT_TRACKING
+@@ -143,7 +143,7 @@ skip_context_tracking:
+ 	li t0, EXC_BREAKPOINT
+ 	beq s4, t0, 1f
+ #ifdef CONFIG_TRACE_IRQFLAGS
+-	call trace_hardirqs_on
++	call __trace_hardirqs_on
+ #endif
+ 	csrs CSR_STATUS, SR_IE
+ 
+@@ -234,7 +234,7 @@ ret_from_exception:
+ 	REG_L s0, PT_STATUS(sp)
+ 	csrc CSR_STATUS, SR_IE
+ #ifdef CONFIG_TRACE_IRQFLAGS
+-	call trace_hardirqs_off
++	call __trace_hardirqs_off
+ #endif
+ #ifdef CONFIG_RISCV_M_MODE
+ 	/* the MPP value is too large to be used as an immediate arg for addi */
+@@ -270,10 +270,10 @@ restore_all:
+ 	REG_L s1, PT_STATUS(sp)
+ 	andi t0, s1, SR_PIE
+ 	beqz t0, 1f
+-	call trace_hardirqs_on
++	call __trace_hardirqs_on
+ 	j 2f
+ 1:
+-	call trace_hardirqs_off
++	call __trace_hardirqs_off
+ 2:
+ #endif
+ 	REG_L a0, PT_STATUS(sp)
+--- /dev/null
++++ b/arch/riscv/kernel/trace_irq.c
+@@ -0,0 +1,27 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) 2022 Changbin Du <changbin.du@gmail.com>
++ */
++
++#include <linux/irqflags.h>
++#include <linux/kprobes.h>
++#include "trace_irq.h"
++
++/*
++ * trace_hardirqs_on/off require the caller to setup frame pointer properly.
++ * Otherwise, CALLER_ADDR1 might trigger an pagging exception in kernel.
++ * Here we add one extra level so they can be safely called by low
++ * level entry code which $fp is used for other purpose.
++ */
++
++void __trace_hardirqs_on(void)
++{
++	trace_hardirqs_on();
++}
++NOKPROBE_SYMBOL(__trace_hardirqs_on);
++
++void __trace_hardirqs_off(void)
++{
++	trace_hardirqs_off();
++}
++NOKPROBE_SYMBOL(__trace_hardirqs_off);
+--- /dev/null
++++ b/arch/riscv/kernel/trace_irq.h
+@@ -0,0 +1,11 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2022 Changbin Du <changbin.du@gmail.com>
++ */
++#ifndef __TRACE_IRQ_H
++#define __TRACE_IRQ_H
++
++void __trace_hardirqs_on(void);
++void __trace_hardirqs_off(void);
++
++#endif /* __TRACE_IRQ_H */
 
 
