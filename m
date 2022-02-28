@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 705434C733D
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 240594C76AE
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:05:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236800AbiB1ReR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:34:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47854 "EHLO
+        id S232586AbiB1SFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:05:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238261AbiB1RdJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DEE18F60E;
-        Mon, 28 Feb 2022 09:29:41 -0800 (PST)
+        with ESMTP id S240905AbiB1SEW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:04:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495EC35259;
+        Mon, 28 Feb 2022 09:47:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80EC1B815B4;
-        Mon, 28 Feb 2022 17:29:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C652DC340F0;
-        Mon, 28 Feb 2022 17:29:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D9FA60915;
+        Mon, 28 Feb 2022 17:47:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9609C340E7;
+        Mon, 28 Feb 2022 17:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069378;
-        bh=dJvvTdOKze1LEBJ2pjIfODfo5RKWSqU2e5+8IBShljM=;
+        s=korg; t=1646070459;
+        bh=0fw9T+tZAvMBuO779pLSBg40CJqtPfcQQrG7q6rLaZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W4gqsjwlDoIZPfIa9ktsKmZNdmECk2vgCn/Z23U1rsaS6gVon/wRWcN369OydM3cQ
-         +fVQ/5n68aNeVEC8HDIPbmAmsq6MfbybDxOQy9vzXDmlKw8S9SoHvm5xm0mvP6GGbK
-         VAGD4WKvNgnlgpxClm/efX63OESKL5lPOTQa90gU=
+        b=NT5F/PPmnY8sRUyHBWdqxReOQmuRg0RFw6FHypkF9e3f0kXp8Rwu1BMMQkLEs2xHE
+         IuKMhI8pH/Q4vtOHDCdRfRwM92OkpcLtnpX4Mo4Q0pCJ9dY9SS3Ho6wIjjvcRKvlJO
+         Le2APQga4zupR0AorM1WFsoEcdeAnDHrRcQX0lGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hongyu Xie <xiehongyu1@kylinos.cn>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 33/34] xhci: Prevent futile URB re-submissions due to incorrect return value.
+        stable@vger.kernel.org,
+        Cosmin Tanislav <cosmin.tanislav@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.16 117/164] iio: adc: ad7124: fix mask used for setting AIN_BUFP & AIN_BUFM bits
 Date:   Mon, 28 Feb 2022 18:24:39 +0100
-Message-Id: <20220228172211.178473066@linuxfoundation.org>
+Message-Id: <20220228172410.953885784@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
-References: <20220228172207.090703467@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongyu Xie <xiehongyu1@kylinos.cn>
+From: Cosmin Tanislav <demonsingur@gmail.com>
 
-commit 243a1dd7ba48c120986dd9e66fee74bcb7751034 upstream.
+commit 0e33d15f1dce9e3a80a970ea7f0b27837168aeca upstream.
 
-The -ENODEV return value from xhci_check_args() is incorrectly changed
-to -EINVAL in a couple places before propagated further.
+According to page 90 of the datasheet [1], AIN_BUFP is bit 6 and
+AIN_BUFM is bit 5 of the CONFIG_0 -> CONFIG_7 registers.
 
-xhci_check_args() returns 4 types of value, -ENODEV, -EINVAL, 1 and 0.
-xhci_urb_enqueue and xhci_check_streams_endpoint return -EINVAL if
-the return value of xhci_check_args <= 0.
-This causes problems for example r8152_submit_rx, calling usb_submit_urb
-in drivers/net/usb/r8152.c.
-r8152_submit_rx will never get -ENODEV after submiting an urb when xHC
-is halted because xhci_urb_enqueue returns -EINVAL in the very beginning.
+Fix the mask used for setting these bits.
 
-[commit message and header edit -Mathias]
+[1]: https://www.analog.com/media/en/technical-documentation/data-sheets/ad7124-8.pdf
 
-Fixes: 203a86613fb3 ("xhci: Avoid NULL pointer deref when host dies.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hongyu Xie <xiehongyu1@kylinos.cn>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220215123320.1253947-3-mathias.nyman@linux.intel.com
+Fixes: 0eaecea6e487 ("iio: adc: ad7124: Add buffered input support")
+Signed-off-by: Cosmin Tanislav <cosmin.tanislav@analog.com>
+Link: https://lore.kernel.org/r/20220112200036.694490-1-cosmin.tanislav@analog.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/iio/adc/ad7124.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1464,9 +1464,12 @@ static int xhci_urb_enqueue(struct usb_h
- 	struct urb_priv	*urb_priv;
- 	int num_tds;
+--- a/drivers/iio/adc/ad7124.c
++++ b/drivers/iio/adc/ad7124.c
+@@ -76,7 +76,7 @@
+ #define AD7124_CONFIG_REF_SEL(x)	FIELD_PREP(AD7124_CONFIG_REF_SEL_MSK, x)
+ #define AD7124_CONFIG_PGA_MSK		GENMASK(2, 0)
+ #define AD7124_CONFIG_PGA(x)		FIELD_PREP(AD7124_CONFIG_PGA_MSK, x)
+-#define AD7124_CONFIG_IN_BUFF_MSK	GENMASK(7, 6)
++#define AD7124_CONFIG_IN_BUFF_MSK	GENMASK(6, 5)
+ #define AD7124_CONFIG_IN_BUFF(x)	FIELD_PREP(AD7124_CONFIG_IN_BUFF_MSK, x)
  
--	if (!urb || xhci_check_args(hcd, urb->dev, urb->ep,
--					true, true, __func__) <= 0)
-+	if (!urb)
- 		return -EINVAL;
-+	ret = xhci_check_args(hcd, urb->dev, urb->ep,
-+					true, true, __func__);
-+	if (ret <= 0)
-+		return ret ? ret : -EINVAL;
- 
- 	slot_id = urb->dev->slot_id;
- 	ep_index = xhci_get_endpoint_index(&urb->ep->desc);
-@@ -3210,7 +3213,7 @@ static int xhci_check_streams_endpoint(s
- 		return -EINVAL;
- 	ret = xhci_check_args(xhci_to_hcd(xhci), udev, ep, 1, true, __func__);
- 	if (ret <= 0)
--		return -EINVAL;
-+		return ret ? ret : -EINVAL;
- 	if (usb_ss_max_streams(&ep->ss_ep_comp) == 0) {
- 		xhci_warn(xhci, "WARN: SuperSpeed Endpoint Companion"
- 				" descriptor for ep 0x%x does not support streams\n",
+ /* AD7124_FILTER_X */
 
 
