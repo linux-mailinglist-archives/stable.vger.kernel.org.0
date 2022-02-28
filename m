@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B2E84C7690
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F285B4C73D1
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239386AbiB1SFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:05:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34346 "EHLO
+        id S238418AbiB1Riw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:38:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240247AbiB1SDU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:03:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B5B4B16F7;
-        Mon, 28 Feb 2022 09:46:46 -0800 (PST)
+        with ESMTP id S233239AbiB1RiY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:38:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 805A285669;
+        Mon, 28 Feb 2022 09:33:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B321F60BBF;
-        Mon, 28 Feb 2022 17:46:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4C48C340E7;
-        Mon, 28 Feb 2022 17:46:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63C62B815B4;
+        Mon, 28 Feb 2022 17:33:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7BB2C340E7;
+        Mon, 28 Feb 2022 17:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070399;
-        bh=/hFzPLZdxNyr7sNhIlWRmhRcp4xlGHvWKKPXk1bmKxI=;
+        s=korg; t=1646069625;
+        bh=9UeXGo99m0LxgDlUp16RQJ3NOi3KlH6cTMp6KlLsTGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GDEqV8+TQD5/jEIq4KrqvsqwYaWaMbd4P2NhueKcrcxi5NydgJXSYTgYUzTcH4KeN
-         scej+6bLNWjFL9X94Az4x4+rukO0WD8em1bBg7N1mq4WB1It4KQg9COh61tdSYIIUy
-         BPbSgDe8srrJY00UVWssroxO6R4VMhx3Y3+TV5jE=
+        b=L1fGNzSeSMaoTRaNByosBmWCM39Y98GxrKl0NSnDHqlQDnCCFhHhf0d2SHjOLlBGN
+         XWsTNv++qSFSFI53fNJm26lMZHmjapH6zrUzqH3W2aZYqudxhMk7jSJL33WP3Hy56f
+         vmOYVQVzACGWPUFqhRHPX2pzkyx8dIN5VCScJAZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yevgeny Kliteynik <kliteyn@nvidia.com>,
-        Alex Vesker <valex@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.16 093/164] net/mlx5: DR, Fix the threshold that defines when pool sync is initiated
+        stable@vger.kernel.org, Paul Blakey <paulb@nvidia.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 34/80] net/sched: act_ct: Fix flow table lookup after ct clear or switching zones
 Date:   Mon, 28 Feb 2022 18:24:15 +0100
-Message-Id: <20220228172408.235458838@linuxfoundation.org>
+Message-Id: <20220228172315.596722738@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,55 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yevgeny Kliteynik <kliteyn@nvidia.com>
+From: Paul Blakey <paulb@nvidia.com>
 
-commit ecd9c5cd46e013659e2fad433057bad1ba66888e upstream.
+commit 2f131de361f6d0eaff17db26efdb844c178432f8 upstream.
 
-When deciding whether to start syncing and actually free all the "hot"
-ICM chunks, we need to consider the type of the ICM chunks that we're
-dealing with. For instance, the amount of available ICM for MODIFY_ACTION
-is significantly lower than the usual STE ICM, so the threshold should
-account for that - otherwise we can deplete MODIFY_ACTION memory just by
-creating and deleting the same modify header action in a continuous loop.
+Flow table lookup is skipped if packet either went through ct clear
+action (which set the IP_CT_UNTRACKED flag on the packet), or while
+switching zones and there is already a connection associated with
+the packet. This will result in no SW offload of the connection,
+and the and connection not being removed from flow table with
+TCP teardown (fin/rst packet).
 
-This patch replaces the hard-coded threshold with a dynamic value.
+To fix the above, remove these unneccary checks in flow
+table lookup.
 
-Fixes: 1c58651412bb ("net/mlx5: DR, ICM memory pools sync optimization")
-Signed-off-by: Yevgeny Kliteynik <kliteyn@nvidia.com>
-Reviewed-by: Alex Vesker <valex@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 46475bb20f4b ("net/sched: act_ct: Software offload of established flows")
+Signed-off-by: Paul Blakey <paulb@nvidia.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c |   11 ++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ net/sched/act_ct.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_icm_pool.c
-@@ -4,7 +4,6 @@
- #include "dr_types.h"
+--- a/net/sched/act_ct.c
++++ b/net/sched/act_ct.c
+@@ -514,11 +514,6 @@ static bool tcf_ct_flow_table_lookup(str
+ 	struct nf_conn *ct;
+ 	u8 dir;
  
- #define DR_ICM_MODIFY_HDR_ALIGN_BASE 64
--#define DR_ICM_SYNC_THRESHOLD_POOL (64 * 1024 * 1024)
- 
- struct mlx5dr_icm_pool {
- 	enum mlx5dr_icm_type icm_type;
-@@ -324,10 +323,14 @@ dr_icm_chunk_create(struct mlx5dr_icm_po
- 
- static bool dr_icm_pool_is_sync_required(struct mlx5dr_icm_pool *pool)
- {
--	if (pool->hot_memory_size > DR_ICM_SYNC_THRESHOLD_POOL)
--		return true;
-+	int allow_hot_size;
- 
--	return false;
-+	/* sync when hot memory reaches half of the pool size */
-+	allow_hot_size =
-+		mlx5dr_icm_pool_chunk_size_to_byte(pool->max_log_chunk_sz,
-+						   pool->icm_type) / 2;
-+
-+	return pool->hot_memory_size > allow_hot_size;
- }
- 
- static int dr_icm_pool_sync_all_buddy_pools(struct mlx5dr_icm_pool *pool)
+-	/* Previously seen or loopback */
+-	ct = nf_ct_get(skb, &ctinfo);
+-	if ((ct && !nf_ct_is_template(ct)) || ctinfo == IP_CT_UNTRACKED)
+-		return false;
+-
+ 	switch (family) {
+ 	case NFPROTO_IPV4:
+ 		if (!tcf_ct_flow_table_fill_tuple_ipv4(skb, &tuple, &tcph))
 
 
