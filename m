@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B7784C7520
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:51:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AE7C4C72FC
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:31:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238914AbiB1Rvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:51:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50256 "EHLO
+        id S236473AbiB1RbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:31:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239046AbiB1RvA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:51:00 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ED9A8F639;
-        Mon, 28 Feb 2022 09:39:14 -0800 (PST)
+        with ESMTP id S236624AbiB1Ral (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:30:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D72476E0F;
+        Mon, 28 Feb 2022 09:28:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 07237CE17CB;
-        Mon, 28 Feb 2022 17:39:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 296DEC340F4;
-        Mon, 28 Feb 2022 17:39:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E982261368;
+        Mon, 28 Feb 2022 17:28:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A895C340E7;
+        Mon, 28 Feb 2022 17:28:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069951;
-        bh=x3Ks4l3oF8qlXekP7bV+zF2mkX7O9rC2XCw9cam+juA=;
+        s=korg; t=1646069307;
+        bh=o94hYCFRSnzlDf+I9xTdnx7GOnIE5nmw3pfFfFJDXVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ePZ7Gyi1vTg0a0aK5WO/5fPR4QWc/UT6FVzPMzXRO4h7Jhc3HpVbtluiA2YuJVyKX
-         m/ra5/frP1uZG8Ubr54vz9aAnB7pGSmkab33XtY2fwk1Py5Uk1aSOELjN5dm5S9HSx
-         2tWSgYm1JndmnRNXDzYqOJRxu9OZCTo6kYGGBRNU=
+        b=tkfzdbT7z6huN9Q5ZY8PUCKN6/9cSp3CZufaq1BzNwha07BZ0G2bUQbq/XzC/mhPT
+         1OAvhtqyV7/ZRkf+ccx6FCGMos+BlC/Zgdz4JDsErDNkKgxlb6+CQx3qVC6o50r1vA
+         jyjZCDlBUaw76hTPns99o8dEtdthKg2jidkj4FZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baruch Siach <baruch.siach@siklu.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 071/139] net: mdio-ipq4019: add delay after clock enable
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 09/31] net: __pskb_pull_tail() & pskb_carve_frag_list() drop_monitor friends
 Date:   Mon, 28 Feb 2022 18:24:05 +0100
-Message-Id: <20220228172355.210584515@linuxfoundation.org>
+Message-Id: <20220228172200.844848580@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
+References: <20220228172159.515152296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baruch Siach <baruch.siach@siklu.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit b6ad6261d27708567b309fdb3102b12c42a070cc upstream.
+commit ef527f968ae05c6717c39f49c8709a7e2c19183a upstream.
 
-Experimentation shows that PHY detect might fail when the code attempts
-MDIO bus read immediately after clock enable. Add delay to stabilize the
-clock before bus access.
+Whenever one of these functions pull all data from an skb in a frag_list,
+use consume_skb() instead of kfree_skb() to avoid polluting drop
+monitoring.
 
-PHY detect failure started to show after commit 7590fc6f80ac ("net:
-mdio: Demote probed message to debug print") that removed coincidental
-delay between clock enable and bus access.
-
-10ms is meant to match the time it take to send the probed message over
-UART at 115200 bps. This might be a far overshoot.
-
-Fixes: 23a890d493e3 ("net: mdio: Add the reset function for IPQ MDIO driver")
-Signed-off-by: Baruch Siach <baruch.siach@siklu.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 6fa01ccd8830 ("skbuff: Add pskb_extract() helper function")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220220154052.1308469-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/mdio/mdio-ipq4019.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/core/skbuff.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/mdio/mdio-ipq4019.c
-+++ b/drivers/net/mdio/mdio-ipq4019.c
-@@ -200,7 +200,11 @@ static int ipq_mdio_reset(struct mii_bus
- 	if (ret)
- 		return ret;
- 
--	return clk_prepare_enable(priv->mdio_clk);
-+	ret = clk_prepare_enable(priv->mdio_clk);
-+	if (ret == 0)
-+		mdelay(10);
-+
-+	return ret;
- }
- 
- static int ipq4019_mdio_probe(struct platform_device *pdev)
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -1974,7 +1974,7 @@ void *__pskb_pull_tail(struct sk_buff *s
+ 		/* Free pulled out fragments. */
+ 		while ((list = skb_shinfo(skb)->frag_list) != insp) {
+ 			skb_shinfo(skb)->frag_list = list->next;
+-			kfree_skb(list);
++			consume_skb(list);
+ 		}
+ 		/* And insert new clone at head. */
+ 		if (clone) {
+@@ -5408,7 +5408,7 @@ static int pskb_carve_frag_list(struct s
+ 	/* Free pulled out fragments. */
+ 	while ((list = shinfo->frag_list) != insp) {
+ 		shinfo->frag_list = list->next;
+-		kfree_skb(list);
++		consume_skb(list);
+ 	}
+ 	/* And insert new clone at head. */
+ 	if (clone) {
 
 
