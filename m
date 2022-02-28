@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BA394C7644
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:01:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 699F34C73BA
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:38:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239441AbiB1SBy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:01:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43802 "EHLO
+        id S233248AbiB1Riz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:38:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239466AbiB1R7x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:59:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD33E96839;
-        Mon, 28 Feb 2022 09:45:33 -0800 (PST)
+        with ESMTP id S238573AbiB1RiA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:38:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4485153E0A;
+        Mon, 28 Feb 2022 09:33:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7388B815CC;
-        Mon, 28 Feb 2022 17:45:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39BE0C340E7;
-        Mon, 28 Feb 2022 17:45:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D17E761359;
+        Mon, 28 Feb 2022 17:33:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7B62C340E7;
+        Mon, 28 Feb 2022 17:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070322;
-        bh=e9qSJssGN+HZrIwdyr6Y6yzckhlwCSUpu93cFoY6+y8=;
+        s=korg; t=1646069595;
+        bh=/3wMuk5dVomCtEwH4m1c/LTp++Sgz0IwaN6J265Drmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uyzdydi/07K4ljM9xeFR9UDMs0Aepk0EKmxY5i/kS+JoIG/oa8UlhZMG5jIzr8lx8
-         +r4PhzYRJBRE9S0BBQy3lP0NkSxKy0YRe1HQ2TI/Leq4muaLgBuuRr0ryyF31w58+u
-         JGMckzsdxGAs4T0zq+w31SU1UIU75+znzBbIY9NA=
+        b=PoSby5mww/dfFpnWSvghIxIroMPBOsStH7CzuHkp5+9nySLLWMbKwOUwWJKTOtK4x
+         mbSEXzAnRmPoEHoGIblFvq6e13rivGKPLl8Rj1RoIJBC/+H9Se3SxlRr6KLgHjHuO1
+         V5hkEYN1Is9NJ/vMlH8LoqAMHyOZyGK39GeJEwk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mauri Sandberg <maukka@ext.kapsi.fi>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 067/164] net: mv643xx_eth: process retval from of_get_mac_address
+        stable@vger.kernel.org, Liang Zhang <zhangliang5@huawei.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 08/80] KVM: x86/mmu: make apf token non-zero to fix bug
 Date:   Mon, 28 Feb 2022 18:23:49 +0100
-Message-Id: <20220228172406.228283840@linuxfoundation.org>
+Message-Id: <20220228172312.554378128@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +53,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauri Sandberg <maukka@ext.kapsi.fi>
+From: Liang Zhang <zhangliang5@huawei.com>
 
-commit 42404d8f1c01861b22ccfa1d70f950242720ae57 upstream.
+commit 6f3c1fc53d86d580d8d6d749c4af23705e4f6f79 upstream.
 
-Obtaining a MAC address may be deferred in cases when the MAC is stored
-in an NVMEM block, for example, and it may not be ready upon the first
-retrieval attempt and return EPROBE_DEFER.
+In current async pagefault logic, when a page is ready, KVM relies on
+kvm_arch_can_dequeue_async_page_present() to determine whether to deliver
+a READY event to the Guest. This function test token value of struct
+kvm_vcpu_pv_apf_data, which must be reset to zero by Guest kernel when a
+READY event is finished by Guest. If value is zero meaning that a READY
+event is done, so the KVM can deliver another.
+But the kvm_arch_setup_async_pf() may produce a valid token with zero
+value, which is confused with previous mention and may lead the loss of
+this READY event.
 
-It is also possible that a port that does not rely on NVMEM has been
-already created when getting the defer request. Thus, also the resources
-allocated previously must be freed when doing a roll-back.
+This bug may cause task blocked forever in Guest:
+ INFO: task stress:7532 blocked for more than 1254 seconds.
+       Not tainted 5.10.0 #16
+ "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+ task:stress          state:D stack:    0 pid: 7532 ppid:  1409
+ flags:0x00000080
+ Call Trace:
+  __schedule+0x1e7/0x650
+  schedule+0x46/0xb0
+  kvm_async_pf_task_wait_schedule+0xad/0xe0
+  ? exit_to_user_mode_prepare+0x60/0x70
+  __kvm_handle_async_pf+0x4f/0xb0
+  ? asm_exc_page_fault+0x8/0x30
+  exc_page_fault+0x6f/0x110
+  ? asm_exc_page_fault+0x8/0x30
+  asm_exc_page_fault+0x1e/0x30
+ RIP: 0033:0x402d00
+ RSP: 002b:00007ffd31912500 EFLAGS: 00010206
+ RAX: 0000000000071000 RBX: ffffffffffffffff RCX: 00000000021a32b0
+ RDX: 000000000007d011 RSI: 000000000007d000 RDI: 00000000021262b0
+ RBP: 00000000021262b0 R08: 0000000000000003 R09: 0000000000000086
+ R10: 00000000000000eb R11: 00007fefbdf2baa0 R12: 0000000000000000
+ R13: 0000000000000002 R14: 000000000007d000 R15: 0000000000001000
 
-Fixes: 76723bca2802 ("net: mv643xx_eth: add DT parsing support")
-Signed-off-by: Mauri Sandberg <maukka@ext.kapsi.fi>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220223142337.41757-1-maukka@ext.kapsi.fi
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Liang Zhang <zhangliang5@huawei.com>
+Message-Id: <20220222031239.1076682-1-zhangliang5@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mv643xx_eth.c |   24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+ arch/x86/kvm/mmu/mmu.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/marvell/mv643xx_eth.c
-+++ b/drivers/net/ethernet/marvell/mv643xx_eth.c
-@@ -2700,6 +2700,16 @@ MODULE_DEVICE_TABLE(of, mv643xx_eth_shar
- 
- static struct platform_device *port_platdev[3];
- 
-+static void mv643xx_eth_shared_of_remove(void)
-+{
-+	int n;
-+
-+	for (n = 0; n < 3; n++) {
-+		platform_device_del(port_platdev[n]);
-+		port_platdev[n] = NULL;
-+	}
-+}
-+
- static int mv643xx_eth_shared_of_add_port(struct platform_device *pdev,
- 					  struct device_node *pnp)
- {
-@@ -2736,7 +2746,9 @@ static int mv643xx_eth_shared_of_add_por
- 		return -EINVAL;
- 	}
- 
--	of_get_mac_address(pnp, ppd.mac_addr);
-+	ret = of_get_mac_address(pnp, ppd.mac_addr);
-+	if (ret)
-+		return ret;
- 
- 	mv643xx_eth_property(pnp, "tx-queue-size", ppd.tx_queue_size);
- 	mv643xx_eth_property(pnp, "tx-sram-addr", ppd.tx_sram_addr);
-@@ -2800,21 +2812,13 @@ static int mv643xx_eth_shared_of_probe(s
- 		ret = mv643xx_eth_shared_of_add_port(pdev, pnp);
- 		if (ret) {
- 			of_node_put(pnp);
-+			mv643xx_eth_shared_of_remove();
- 			return ret;
- 		}
- 	}
- 	return 0;
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -3631,12 +3631,23 @@ static void shadow_page_table_clear_floo
+ 	walk_shadow_page_lockless_end(vcpu);
  }
  
--static void mv643xx_eth_shared_of_remove(void)
--{
--	int n;
--
--	for (n = 0; n < 3; n++) {
--		platform_device_del(port_platdev[n]);
--		port_platdev[n] = NULL;
--	}
--}
- #else
- static inline int mv643xx_eth_shared_of_probe(struct platform_device *pdev)
++static u32 alloc_apf_token(struct kvm_vcpu *vcpu)
++{
++	/* make sure the token value is not 0 */
++	u32 id = vcpu->arch.apf.id;
++
++	if (id << 12 == 0)
++		vcpu->arch.apf.id = 1;
++
++	return (vcpu->arch.apf.id++ << 12) | vcpu->vcpu_id;
++}
++
+ static bool kvm_arch_setup_async_pf(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
+ 				    gfn_t gfn)
  {
+ 	struct kvm_arch_async_pf arch;
+ 
+-	arch.token = (vcpu->arch.apf.id++ << 12) | vcpu->vcpu_id;
++	arch.token = alloc_apf_token(vcpu);
+ 	arch.gfn = gfn;
+ 	arch.direct_map = vcpu->arch.mmu->direct_map;
+ 	arch.cr3 = vcpu->arch.mmu->get_guest_pgd(vcpu);
 
 
