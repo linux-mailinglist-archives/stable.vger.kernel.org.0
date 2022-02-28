@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 945004C772A
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:11:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7FD24C757F
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239931AbiB1SLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:11:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46364 "EHLO
+        id S239242AbiB1RzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:55:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240498AbiB1SJA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:09:00 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B31CD5DE5E;
-        Mon, 28 Feb 2022 09:48:36 -0800 (PST)
+        with ESMTP id S240064AbiB1Rxx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:53:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B49CEB0C7C;
+        Mon, 28 Feb 2022 09:41:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0EFEFCE1795;
-        Mon, 28 Feb 2022 17:48:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBBC2C340E7;
-        Mon, 28 Feb 2022 17:48:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9280161590;
+        Mon, 28 Feb 2022 17:41:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6E2AC340F0;
+        Mon, 28 Feb 2022 17:41:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070505;
-        bh=bHavJjo8Tb1+1QO5Z8TYuLDXUUuT+DNd/J37Wc1hUSk=;
+        s=korg; t=1646070089;
+        bh=7lSeKmtAk7TmkQrY5ZdGX1u07q8whDThD0ZzKg+6csA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sZHgJ9j/uFG8vXSeJ5ZmDPvPbQTRyxGQtjs5itAGaIP98Vh76fgFgJiIl5wEOZb8Y
-         OpvUhIb/1br2uKemvuWgLRUlshJO8dsPPpxXIZ3DxFLDEOUIJaG7s8QE/VMyVP2Oxp
-         sR3uAz4UrpwBLfdBRiLXCNWUQ8yKWekZuzSrLKWI=
+        b=GQc6bnvIhBSzhgjmvGEexWZAsFoBnL80UgRKp8tEfzb54JFO/gn25qBFJ2d0KQF1x
+         vsWG661i0Vn3scrxmg5yuGgqsK9G9yHxx6zL/neYdbgUr/kJj6auPRKr7XBD/C8poa
+         spmH6BCYLViznw+rqDte7TCBq02lLKBjeEiVPDN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 5.16 132/164] usb: dwc3: gadget: Let the interrupt handler disable bottom halves.
+        stable@vger.kernel.org,
+        =?UTF-8?q?D=C4=81vis=20Mos=C4=81ns?= <davispuh@gmail.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 120/139] btrfs: prevent copying too big compressed lzo segment
 Date:   Mon, 28 Feb 2022 18:24:54 +0100
-Message-Id: <20220228172412.033096286@linuxfoundation.org>
+Message-Id: <20220228172400.226471387@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Dāvis Mosāns <davispuh@gmail.com>
 
-commit 84918a89d6efaff075de570b55642b6f4ceeac6d upstream.
+commit 741b23a970a79d5d3a1db2d64fa2c7b375a4febb upstream.
 
-The interrupt service routine registered for the gadget is a primary
-handler which mask the interrupt source and a threaded handler which
-handles the source of the interrupt. Since the threaded handler is
-voluntary threaded, the IRQ-core does not disable bottom halves before
-invoke the handler like it does for the forced-threaded handler.
+Compressed length can be corrupted to be a lot larger than memory
+we have allocated for buffer.
+This will cause memcpy in copy_compressed_segment to write outside
+of allocated memory.
 
-Due to changes in networking it became visible that a network gadget's
-completions handler may schedule a softirq which remains unprocessed.
-The gadget's completion handler is usually invoked either in hard-IRQ or
-soft-IRQ context. In this context it is enough to just raise the softirq
-because the softirq itself will be handled once that context is left.
-In the case of the voluntary threaded handler, there is nothing that
-will process pending softirqs. Which means it remain queued until
-another random interrupt (on this CPU) fires and handles it on its exit
-path or another thread locks and unlocks a lock with the bh suffix.
-Worst case is that the CPU goes idle and the NOHZ complains about
-unhandled softirqs.
+This mostly results in stuck read syscall but sometimes when using
+btrfs send can get #GP
 
-Disable bottom halves before acquiring the lock (and disabling
-interrupts) and enable them after dropping the lock. This ensures that
-any pending softirqs will handled right away.
+  kernel: general protection fault, probably for non-canonical address 0x841551d5c1000: 0000 [#1] PREEMPT SMP NOPTI
+  kernel: CPU: 17 PID: 264 Comm: kworker/u256:7 Tainted: P           OE     5.17.0-rc2-1 #12
+  kernel: Workqueue: btrfs-endio btrfs_work_helper [btrfs]
+  kernel: RIP: 0010:lzo_decompress_bio (./include/linux/fortify-string.h:225 fs/btrfs/lzo.c:322 fs/btrfs/lzo.c:394) btrfs
+  Code starting with the faulting instruction
+  ===========================================
+     0:*  48 8b 06                mov    (%rsi),%rax              <-- trapping instruction
+     3:   48 8d 79 08             lea    0x8(%rcx),%rdi
+     7:   48 83 e7 f8             and    $0xfffffffffffffff8,%rdi
+     b:   48 89 01                mov    %rax,(%rcx)
+     e:   44 89 f0                mov    %r14d,%eax
+    11:   48 8b 54 06 f8          mov    -0x8(%rsi,%rax,1),%rdx
+  kernel: RSP: 0018:ffffb110812efd50 EFLAGS: 00010212
+  kernel: RAX: 0000000000001000 RBX: 000000009ca264c8 RCX: ffff98996e6d8ff8
+  kernel: RDX: 0000000000000064 RSI: 000841551d5c1000 RDI: ffffffff9500435d
+  kernel: RBP: ffff989a3be856c0 R08: 0000000000000000 R09: 0000000000000000
+  kernel: R10: 0000000000000000 R11: 0000000000001000 R12: ffff98996e6d8000
+  kernel: R13: 0000000000000008 R14: 0000000000001000 R15: 000841551d5c1000
+  kernel: FS:  0000000000000000(0000) GS:ffff98a09d640000(0000) knlGS:0000000000000000
+  kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  kernel: CR2: 00001e9f984d9ea8 CR3: 000000014971a000 CR4: 00000000003506e0
+  kernel: Call Trace:
+  kernel:  <TASK>
+  kernel: end_compressed_bio_read (fs/btrfs/compression.c:104 fs/btrfs/compression.c:1363 fs/btrfs/compression.c:323) btrfs
+  kernel: end_workqueue_fn (fs/btrfs/disk-io.c:1923) btrfs
+  kernel: btrfs_work_helper (fs/btrfs/async-thread.c:326) btrfs
+  kernel: process_one_work (./arch/x86/include/asm/jump_label.h:27 ./include/linux/jump_label.h:212 ./include/trace/events/workqueue.h:108 kernel/workqueue.c:2312)
+  kernel: worker_thread (./include/linux/list.h:292 kernel/workqueue.c:2455)
+  kernel: ? process_one_work (kernel/workqueue.c:2397)
+  kernel: kthread (kernel/kthread.c:377)
+  kernel: ? kthread_complete_and_exit (kernel/kthread.c:332)
+  kernel: ret_from_fork (arch/x86/entry/entry_64.S:301)
+  kernel:  </TASK>
 
-Link: https://lkml.kernel.org/r/c2a64979-73d1-2c22-e048-c275c9f81558@samsung.com
-Fixes: e5f68b4a3e7b0 ("Revert "usb: dwc3: gadget: remove unnecessary _irqsave()"")
-Cc: stable <stable@kernel.org>
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Link: https://lore.kernel.org/r/Yg/YPejVQH3KkRVd@linutronix.de
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Dāvis Mosāns <davispuh@gmail.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/lzo.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -4131,9 +4131,11 @@ static irqreturn_t dwc3_thread_interrupt
- 	unsigned long flags;
- 	irqreturn_t ret = IRQ_NONE;
+--- a/fs/btrfs/lzo.c
++++ b/fs/btrfs/lzo.c
+@@ -363,6 +363,17 @@ int lzo_decompress_bio(struct list_head
+ 		kunmap(cur_page);
+ 		cur_in += LZO_LEN;
  
-+	local_bh_disable();
- 	spin_lock_irqsave(&dwc->lock, flags);
- 	ret = dwc3_process_event_buf(evt);
- 	spin_unlock_irqrestore(&dwc->lock, flags);
-+	local_bh_enable();
++		if (seg_len > lzo1x_worst_compress(PAGE_SIZE)) {
++			/*
++			 * seg_len shouldn't be larger than we have allocated
++			 * for workspace->cbuf
++			 */
++			btrfs_err(fs_info, "unexpectedly large lzo segment len %u",
++					seg_len);
++			ret = -EIO;
++			goto out;
++		}
++
+ 		/* Copy the compressed segment payload into workspace */
+ 		copy_compressed_segment(cb, workspace->cbuf, seg_len, &cur_in);
  
- 	return ret;
- }
 
 
