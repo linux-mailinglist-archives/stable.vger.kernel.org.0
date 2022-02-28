@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C845F4C75B0
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50C874C75BB
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239190AbiB1R4L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:56:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51162 "EHLO
+        id S230474AbiB1R4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:56:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240783AbiB1Ryp (ORCPT
+        with ESMTP id S240786AbiB1Ryp (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CE5952E72;
-        Mon, 28 Feb 2022 09:43:22 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2B652E74;
+        Mon, 28 Feb 2022 09:43:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA075B815B3;
-        Mon, 28 Feb 2022 17:43:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C5C6C340E7;
-        Mon, 28 Feb 2022 17:43:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEA0D608C4;
+        Mon, 28 Feb 2022 17:43:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF4DCC340F0;
+        Mon, 28 Feb 2022 17:43:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070199;
-        bh=LooQy0wNydj8kHhRYE5mtQl6DAH/C3OhSN4ERmFREeI=;
+        s=korg; t=1646070202;
+        bh=tZIKfWR+H3BlXKJ0ATaZf8/I7giSuWW2xGUyyzNSUi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KUrWy9kIB70MvQA+1IiCdCBYwKHBPsCJ04wJqZLDl2S/5Ib2T1llGH6BvVnvVDhLz
-         37WTBdnMAdZ5NsWehc6aHCFy6Ik9WrqNxrdeJjJsszsWGC/kOSAQ5SBiV2D3YzSCYo
-         d/jCwDtLBkzKQ2NmwAKy3lVdAOHEmAxo3MCxLMWk=
+        b=ka7BXfF9XlieE5F150XyutzDUGVhOwt84evGE2BoX3KrclQeBAD+O7QpR/vrKnD8X
+         dwbdte3cPksWVRe14dRvLLQIjFNIwWOt5eNBb4WS9IzKWHvlAwRxWMoEizugC5qvMB
+         uHwGUJAxK2jMC/eyOLm1xcG4t771OJmF11CFQWEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Daniel Micay <danielmicay@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Nathan Chancellor <nathan@kernel.org>, linux-mm@kvack.org,
-        llvm@lists.linux.dev, David Rientjes <rientjes@google.com>
-Subject: [PATCH 5.16 006/164] slab: remove __alloc_size attribute from __kmalloc_track_caller
-Date:   Mon, 28 Feb 2022 18:22:48 +0100
-Message-Id: <20220228172400.279076305@linuxfoundation.org>
+        stable@vger.kernel.org, Siarhei Volkau <lis8215@gmail.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.16 007/164] clk: jz4725b: fix mmc0 clock gating
+Date:   Mon, 28 Feb 2022 18:22:49 +0100
+Message-Id: <20220228172400.393088220@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
 References: <20220228172359.567256961@linuxfoundation.org>
@@ -61,57 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Siarhei Volkau <lis8215@gmail.com>
 
-commit 93dd04ab0b2b32ae6e70284afc764c577156658e upstream.
+commit 2f0754f27a230fee6e6d753f07585cee03bedfe3 upstream.
 
-Commit c37495d6254c ("slab: add __alloc_size attributes for better
-bounds checking") added __alloc_size attributes to a bunch of kmalloc
-function prototypes.  Unfortunately the change to __kmalloc_track_caller
-seems to cause clang to generate broken code and the first time this is
-called when booting, the box will crash.
+The mmc0 clock gate bit was mistakenly assigned to "i2s" clock.
+You can find that the same bit is assigned to "mmc0" too.
+It leads to mmc0 hang for a long time after any sound activity
+also it  prevented PM_SLEEP to work properly.
+I guess it was introduced by copy-paste from jz4740 driver
+where it is really controls I2S clock gate.
 
-While the compiler problems are being reworked and attempted to be
-solved [1], let's just drop the attribute to solve the issue now.  Once
-it is resolved it can be added back.
-
-[1] https://github.com/ClangBuiltLinux/linux/issues/1599
-
-Fixes: c37495d6254c ("slab: add __alloc_size attributes for better bounds checking")
-Cc: stable <stable@vger.kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Daniel Micay <danielmicay@gmail.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org
-Cc: llvm@lists.linux.dev
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Link: https://lore.kernel.org/r/20220218131358.3032912-1-gregkh@linuxfoundation.org
+Fixes: 226dfa4726eb ("clk: Add Ingenic jz4725b CGU driver")
+Signed-off-by: Siarhei Volkau <lis8215@gmail.com>
+Tested-by: Siarhei Volkau <lis8215@gmail.com>
+Reviewed-by: Paul Cercueil <paul@crapouillou.net>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220205171849.687805-2-lis8215@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/slab.h |    3 +--
+ drivers/clk/ingenic/jz4725b-cgu.c |    3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/include/linux/slab.h
-+++ b/include/linux/slab.h
-@@ -669,8 +669,7 @@ static inline __alloc_size(1, 2) void *k
-  * allocator where we care about the real place the memory allocation
-  * request comes from.
-  */
--extern void *__kmalloc_track_caller(size_t size, gfp_t flags, unsigned long caller)
--				   __alloc_size(1);
-+extern void *__kmalloc_track_caller(size_t size, gfp_t flags, unsigned long caller);
- #define kmalloc_track_caller(size, flags) \
- 	__kmalloc_track_caller(size, flags, _RET_IP_)
+--- a/drivers/clk/ingenic/jz4725b-cgu.c
++++ b/drivers/clk/ingenic/jz4725b-cgu.c
+@@ -139,11 +139,10 @@ static const struct ingenic_cgu_clk_info
+ 	},
  
+ 	[JZ4725B_CLK_I2S] = {
+-		"i2s", CGU_CLK_MUX | CGU_CLK_DIV | CGU_CLK_GATE,
++		"i2s", CGU_CLK_MUX | CGU_CLK_DIV,
+ 		.parents = { JZ4725B_CLK_EXT, JZ4725B_CLK_PLL_HALF, -1, -1 },
+ 		.mux = { CGU_REG_CPCCR, 31, 1 },
+ 		.div = { CGU_REG_I2SCDR, 0, 1, 9, -1, -1, -1 },
+-		.gate = { CGU_REG_CLKGR, 6 },
+ 	},
+ 
+ 	[JZ4725B_CLK_SPI] = {
 
 
