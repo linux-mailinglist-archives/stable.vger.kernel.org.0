@@ -2,54 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A8D64C72BD
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E99A4C75CD
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:56:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234665AbiB1R2h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:28:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45492 "EHLO
+        id S239460AbiB1R4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:56:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235360AbiB1R1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:27:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7FF886E33;
-        Mon, 28 Feb 2022 09:26:39 -0800 (PST)
+        with ESMTP id S238997AbiB1Ryq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C56465DD;
+        Mon, 28 Feb 2022 09:44:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 578AC6135F;
-        Mon, 28 Feb 2022 17:26:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39065C340E7;
-        Mon, 28 Feb 2022 17:26:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1AFBDB81187;
+        Mon, 28 Feb 2022 17:44:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F8CAC340E7;
+        Mon, 28 Feb 2022 17:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069198;
-        bh=kuQiJW0brriozdXOalWB15eIoZJ2iz/Cl+8zU+MUPn4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hOSqGoIm6aAiNrrAsaGtgEctsLw6WG7WX+Eo8TNLL9FRoxvtLPM9MEXNcYZx1iKHR
-         yMFsnSU/HtiUimluHN1AMyvpAfsNuAc3jY4n/dts32+SKUEhpDDM0dJv7H71wB9kiw
-         WHaDjmtuwfXVXZQcM9ng50O4b5wwJt6SVoBmy7G8=
+        s=korg; t=1646070264;
+        bh=fWel57NGuWYRtGpTpjkrapYfIXQoCTYPPo3Nr8rT9gc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ES5HMqi5D0epO3NcYhNZSGfFx32j80xH8/dtleLRKDLMTatdF85nHuhLdWnWrDMqK
+         AW3tZgF3jVMvDv2kT4SXrYGIIzp5jeX9DnHMX3pJ4fLUUdyrcOV47QoFiS0rphoEe7
+         AuG+RmanIuE66bhWFg115q2b2MwX5D9aZIVpVexI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 4.9 00/29] 4.9.304-rc1 review
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Ben Li <ben.li@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 045/164] bnxt_en: Fix offline ethtool selftest with RDMA enabled
 Date:   Mon, 28 Feb 2022 18:23:27 +0100
-Message-Id: <20220228172141.744228435@linuxfoundation.org>
+Message-Id: <20220228172404.345412145@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-MIME-Version: 1.0
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.304-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.304-rc1
-X-KernelTest-Deadline: 2022-03-02T17:21+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,152 +55,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.304 release.
-There are 29 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Michael Chan <michael.chan@broadcom.com>
 
-Responses should be made by Wed, 02 Mar 2022 17:20:16 +0000.
-Anything received after that time might be too late.
+commit 6758f937669dba14c6aac7ca004edda42ec1b18d upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.304-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
+For offline (destructive) self tests, we need to stop the RDMA driver
+first.  Otherwise, the RDMA driver will run into unrecoverable errors
+when destructive firmware tests are being performed.
 
-thanks,
+The irq_re_init parameter used in the half close and half open
+sequence when preparing the NIC for offline tests should be set to
+true because the RDMA driver will free all IRQs before the offline
+tests begin.
 
-greg k-h
+Fixes: 55fd0cf320c3 ("bnxt_en: Add external loopback test to ethtool selftest.")
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Reviewed-by: Ben Li <ben.li@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c         |   10 +++++-----
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |   12 +++++++++---
+ 2 files changed, 14 insertions(+), 8 deletions(-)
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.304-rc1
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    fget: clarify and improve __fget_files() implementation
-
-Miaohe Lin <linmiaohe@huawei.com>
-    memblock: use kfree() to release kmalloced memblock regions
-
-daniel.starke@siemens.com <daniel.starke@siemens.com>
-    tty: n_gsm: fix proper link termination after failed open
-
-daniel.starke@siemens.com <daniel.starke@siemens.com>
-    tty: n_gsm: fix encoding of control signal octet bit DV
-
-Hongyu Xie <xiehongyu1@kylinos.cn>
-    xhci: Prevent futile URB re-submissions due to incorrect return value.
-
-Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-    usb: dwc3: gadget: Let the interrupt handler disable bottom halves.
-
-Daniele Palmas <dnlplm@gmail.com>
-    USB: serial: option: add Telit LE910R1 compositions
-
-Slark Xiao <slark_xiao@163.com>
-    USB: serial: option: add support for DW5829e
-
-Steven Rostedt (Google) <rostedt@goodmis.org>
-    tracefs: Set the group ownership in apply_options() not parse_options()
-
-Szymon Heidrich <szymon.heidrich@gmail.com>
-    USB: gadget: validate endpoint index for xilinx udc
-
-Daehwan Jung <dh10.jung@samsung.com>
-    usb: gadget: rndis: add spinlock for rndis response list
-
-Dmytro Bagrii <dimich.dmb@gmail.com>
-    Revert "USB: serial: ch341: add new Product ID for CH341A"
-
-Sergey Shtylyov <s.shtylyov@omp.ru>
-    ata: pata_hpt37x: disable primary channel on HPT371
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    iio: adc: men_z188_adc: Fix a resource leak in an error handling path
-
-Bart Van Assche <bvanassche@acm.org>
-    RDMA/ib_srp: Fix a deadlock
-
-ChenXiaoSong <chenxiaosong2@huawei.com>
-    configfs: fix a race in configfs_{,un}register_subsystem()
-
-Gal Pressman <gal@nvidia.com>
-    net/mlx5e: Fix wrong return value on ioctl EEPROM query failure
-
-Maxime Ripard <maxime@cerno.tech>
-    drm/edid: Always set RGB444
-
-Paul Blakey <paulb@nvidia.com>
-    openvswitch: Fix setting ipv6 fields causing hw csum failure
-
-Tao Liu <thomas.liu@ucloud.cn>
-    gso: do not skip outer ip header in case of ipip and net_failover
-
-Eric Dumazet <edumazet@google.com>
-    net: __pskb_pull_tail() & pskb_carve_frag_list() drop_monitor friends
-
-Robert Hancock <robert.hancock@calian.com>
-    serial: 8250: of: Fix mapped region size when using reg-offset property
-
-Alexey Khoroshilov <khoroshilov@ispras.ru>
-    serial: 8250: fix error handling in of_platform_serial_probe()
-
-Oliver Neukum <oneukum@suse.com>
-    USB: zaurus: support another broken Zaurus
-
-Oliver Neukum <oneukum@suse.com>
-    sr9700: sanity check for packet length
-
-Helge Deller <deller@gmx.de>
-    parisc/unaligned: Fix ldw() and stw() unalignment handlers
-
-Helge Deller <deller@gmx.de>
-    parisc/unaligned: Fix fldd and fstd unaligned handlers on 32-bit kernel
-
-Stefano Garzarella <sgarzare@redhat.com>
-    vhost/vsock: don't check owner in vhost_vsock_stop() while releasing
-
-david regan <dregan@mail.com>
-    mtd: rawnand: brcmnand: Fixed incorrect sub-page ECC status
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/parisc/kernel/unaligned.c                     | 14 ++---
- drivers/ata/pata_hpt37x.c                          | 14 +++++
- drivers/gpu/drm/drm_edid.c                         |  2 +-
- drivers/iio/adc/men_z188_adc.c                     |  9 ++-
- drivers/infiniband/ulp/srp/ib_srp.c                |  6 +-
- drivers/mtd/nand/brcmnand/brcmnand.c               |  2 +-
- .../net/ethernet/mellanox/mlx5/core/en_ethtool.c   |  2 +-
- drivers/net/usb/cdc_ether.c                        | 12 ++++
- drivers/net/usb/sr9700.c                           |  2 +-
- drivers/net/usb/zaurus.c                           | 12 ++++
- drivers/tty/n_gsm.c                                |  4 +-
- drivers/tty/serial/8250/8250_of.c                  | 30 ++++++---
- drivers/usb/dwc3/gadget.c                          |  2 +
- drivers/usb/gadget/function/rndis.c                |  8 +++
- drivers/usb/gadget/function/rndis.h                |  1 +
- drivers/usb/gadget/udc/udc-xilinx.c                |  6 ++
- drivers/usb/host/xhci.c                            |  9 ++-
- drivers/usb/serial/ch341.c                         |  1 -
- drivers/usb/serial/option.c                        | 12 ++++
- drivers/vhost/vsock.c                              | 21 ++++---
- fs/configfs/dir.c                                  | 14 +++++
- fs/file.c                                          | 73 +++++++++++++++++-----
- fs/tracefs/inode.c                                 |  5 +-
- include/net/checksum.h                             |  5 ++
- mm/memblock.c                                      | 10 ++-
- net/core/skbuff.c                                  |  4 +-
- net/ipv4/af_inet.c                                 |  5 +-
- net/ipv6/ip6_offload.c                             |  2 +
- net/openvswitch/actions.c                          | 46 +++++++++++---
- 30 files changed, 269 insertions(+), 68 deletions(-)
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -10310,12 +10310,12 @@ int bnxt_half_open_nic(struct bnxt *bp)
+ 		goto half_open_err;
+ 	}
+ 
+-	rc = bnxt_alloc_mem(bp, false);
++	rc = bnxt_alloc_mem(bp, true);
+ 	if (rc) {
+ 		netdev_err(bp->dev, "bnxt_alloc_mem err: %x\n", rc);
+ 		goto half_open_err;
+ 	}
+-	rc = bnxt_init_nic(bp, false);
++	rc = bnxt_init_nic(bp, true);
+ 	if (rc) {
+ 		netdev_err(bp->dev, "bnxt_init_nic err: %x\n", rc);
+ 		goto half_open_err;
+@@ -10324,7 +10324,7 @@ int bnxt_half_open_nic(struct bnxt *bp)
+ 
+ half_open_err:
+ 	bnxt_free_skbs(bp);
+-	bnxt_free_mem(bp, false);
++	bnxt_free_mem(bp, true);
+ 	dev_close(bp->dev);
+ 	return rc;
+ }
+@@ -10334,9 +10334,9 @@ half_open_err:
+  */
+ void bnxt_half_close_nic(struct bnxt *bp)
+ {
+-	bnxt_hwrm_resource_free(bp, false, false);
++	bnxt_hwrm_resource_free(bp, false, true);
+ 	bnxt_free_skbs(bp);
+-	bnxt_free_mem(bp, false);
++	bnxt_free_mem(bp, true);
+ }
+ 
+ void bnxt_reenable_sriov(struct bnxt *bp)
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -25,6 +25,7 @@
+ #include "bnxt_hsi.h"
+ #include "bnxt.h"
+ #include "bnxt_hwrm.h"
++#include "bnxt_ulp.h"
+ #include "bnxt_xdp.h"
+ #include "bnxt_ptp.h"
+ #include "bnxt_ethtool.h"
+@@ -3526,9 +3527,12 @@ static void bnxt_self_test(struct net_de
+ 	if (!offline) {
+ 		bnxt_run_fw_tests(bp, test_mask, &test_results);
+ 	} else {
+-		rc = bnxt_close_nic(bp, false, false);
+-		if (rc)
++		bnxt_ulp_stop(bp);
++		rc = bnxt_close_nic(bp, true, false);
++		if (rc) {
++			bnxt_ulp_start(bp, rc);
+ 			return;
++		}
+ 		bnxt_run_fw_tests(bp, test_mask, &test_results);
+ 
+ 		buf[BNXT_MACLPBK_TEST_IDX] = 1;
+@@ -3538,6 +3542,7 @@ static void bnxt_self_test(struct net_de
+ 		if (rc) {
+ 			bnxt_hwrm_mac_loopback(bp, false);
+ 			etest->flags |= ETH_TEST_FL_FAILED;
++			bnxt_ulp_start(bp, rc);
+ 			return;
+ 		}
+ 		if (bnxt_run_loopback(bp))
+@@ -3563,7 +3568,8 @@ static void bnxt_self_test(struct net_de
+ 		}
+ 		bnxt_hwrm_phy_loopback(bp, false, false);
+ 		bnxt_half_close_nic(bp);
+-		rc = bnxt_open_nic(bp, false, true);
++		rc = bnxt_open_nic(bp, true, true);
++		bnxt_ulp_start(bp, rc);
+ 	}
+ 	if (rc || bnxt_test_irq(bp)) {
+ 		buf[BNXT_IRQ_TEST_IDX] = 1;
 
 
