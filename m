@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D7E74C72A4
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65FEE4C74F1
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:48:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234496AbiB1R21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:28:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45494 "EHLO
+        id S237689AbiB1RtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:49:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235540AbiB1R1t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:27:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 494F388B3C;
-        Mon, 28 Feb 2022 09:26:53 -0800 (PST)
+        with ESMTP id S239116AbiB1RsF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:48:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3F2AA1468;
+        Mon, 28 Feb 2022 09:38:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD82561359;
-        Mon, 28 Feb 2022 17:26:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE168C340E7;
-        Mon, 28 Feb 2022 17:26:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B2E0B815A2;
+        Mon, 28 Feb 2022 17:38:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F0BC340F0;
+        Mon, 28 Feb 2022 17:38:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069212;
-        bh=ME5hYI9dA5CJMdTQviur9WnfT8yjCYRmFBcC3IX9d6s=;
+        s=korg; t=1646069916;
+        bh=3B5j5QUX5u08xk4aMJYKkON1UIdDY6Rc2wo7wVIuseg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BYEKe33jtOb5qDPFGAuWXN6kmJaW9ERwxc2wJyGEoycE9Gpd4Cv9p8q+CNuTMI0f
-         gQLJnxr/DmM8dDPqCUd1VVdFthK4L6Rh55NYIDKUlshiPKhMhEkdVvhfFxiy4rK1+m
-         n1ikd4dJXsd2uW5ni5mK2yfdlp+Bl3LiAcHZQ7h4=
+        b=czGPzOH1yYs/ZOtA1w/BSvm/vqMBz2CWXn+08ozggtzcwPw2wlEgMe1K7lXX++axB
+         9Xe7nwGUUcet/Mu0J6GwZbpdNYEXuKPA1Xj8ibCYR27qmxhThWj7FXy6k/BTRyEi2b
+         46CD4V4LdwsUdsMk4CIMEvaURC+rdhaOyRL7npKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 4.9 26/29] tty: n_gsm: fix encoding of control signal octet bit DV
+        stable@vger.kernel.org, Tao Liu <thomas.liu@ucloud.cn>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 059/139] gso: do not skip outer ip header in case of ipip and net_failover
 Date:   Mon, 28 Feb 2022 18:23:53 +0100
-Message-Id: <20220228172144.329264359@linuxfoundation.org>
+Message-Id: <20220228172353.905687989@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
-References: <20220228172141.744228435@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,44 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: daniel.starke@siemens.com <daniel.starke@siemens.com>
+From: Tao Liu <thomas.liu@ucloud.cn>
 
-commit 737b0ef3be6b319d6c1fd64193d1603311969326 upstream.
+commit cc20cced0598d9a5ff91ae4ab147b3b5e99ee819 upstream.
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.4.6.3.7 describes the encoding of the
-control signal octet used by the MSC (modem status command). The same
-encoding is also used in convergence layer type 2 as described in chapter
-5.5.2. Table 7 and 24 both require the DV (data valid) bit to be set 1 for
-outgoing control signal octets sent by the DTE (data terminal equipment),
-i.e. for the initiator side.
-Currently, the DV bit is only set if CD (carrier detect) is on, regardless
-of the side.
+We encounter a tcp drop issue in our cloud environment. Packet GROed in
+host forwards to a VM virtio_net nic with net_failover enabled. VM acts
+as a IPVS LB with ipip encapsulation. The full path like:
+host gro -> vm virtio_net rx -> net_failover rx -> ipvs fullnat
+ -> ipip encap -> net_failover tx -> virtio_net tx
 
-This patch fixes this behavior by setting the DV bit on the initiator side
-unconditionally.
+When net_failover transmits a ipip pkt (gso_type = 0x0103, which means
+SKB_GSO_TCPV4, SKB_GSO_DODGY and SKB_GSO_IPXIP4), there is no gso
+did because it supports TSO and GSO_IPXIP4. But network_header points to
+inner ip header.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220218073123.2121-1-daniel.starke@siemens.com
+Call Trace:
+ tcp4_gso_segment        ------> return NULL
+ inet_gso_segment        ------> inner iph, network_header points to
+ ipip_gso_segment
+ inet_gso_segment        ------> outer iph
+ skb_mac_gso_segment
+
+Afterwards virtio_net transmits the pkt, only inner ip header is modified.
+And the outer one just keeps unchanged. The pkt will be dropped in remote
+host.
+
+Call Trace:
+ inet_gso_segment        ------> inner iph, outer iph is skipped
+ skb_mac_gso_segment
+ __skb_gso_segment
+ validate_xmit_skb
+ validate_xmit_skb_list
+ sch_direct_xmit
+ __qdisc_run
+ __dev_queue_xmit        ------> virtio_net
+ dev_hard_start_xmit
+ __dev_queue_xmit        ------> net_failover
+ ip_finish_output2
+ ip_output
+ iptunnel_xmit
+ ip_tunnel_xmit
+ ipip_tunnel_xmit        ------> ipip
+ dev_hard_start_xmit
+ __dev_queue_xmit
+ ip_finish_output2
+ ip_output
+ ip_forward
+ ip_rcv
+ __netif_receive_skb_one_core
+ netif_receive_skb_internal
+ napi_gro_receive
+ receive_buf
+ virtnet_poll
+ net_rx_action
+
+The root cause of this issue is specific with the rare combination of
+SKB_GSO_DODGY and a tunnel device that adds an SKB_GSO_ tunnel option.
+SKB_GSO_DODGY is set from external virtio_net. We need to reset network
+header when callbacks.gso_segment() returns NULL.
+
+This patch also includes ipv6_gso_segment(), considering SIT, etc.
+
+Fixes: cb32f511a70b ("ipip: add GSO/TSO support")
+Signed-off-by: Tao Liu <thomas.liu@ucloud.cn>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/af_inet.c     |    5 ++++-
+ net/ipv6/ip6_offload.c |    2 ++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -444,7 +444,7 @@ static u8 gsm_encode_modem(const struct
- 		modembits |= MDM_RTR;
- 	if (dlci->modem_tx & TIOCM_RI)
- 		modembits |= MDM_IC;
--	if (dlci->modem_tx & TIOCM_CD)
-+	if (dlci->modem_tx & TIOCM_CD || dlci->gsm->initiator)
- 		modembits |= MDM_DV;
- 	return modembits;
- }
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -1380,8 +1380,11 @@ struct sk_buff *inet_gso_segment(struct
+ 	}
+ 
+ 	ops = rcu_dereference(inet_offloads[proto]);
+-	if (likely(ops && ops->callbacks.gso_segment))
++	if (likely(ops && ops->callbacks.gso_segment)) {
+ 		segs = ops->callbacks.gso_segment(skb, features);
++		if (!segs)
++			skb->network_header = skb_mac_header(skb) + nhoff - skb->head;
++	}
+ 
+ 	if (IS_ERR_OR_NULL(segs))
+ 		goto out;
+--- a/net/ipv6/ip6_offload.c
++++ b/net/ipv6/ip6_offload.c
+@@ -114,6 +114,8 @@ static struct sk_buff *ipv6_gso_segment(
+ 	if (likely(ops && ops->callbacks.gso_segment)) {
+ 		skb_reset_transport_header(skb);
+ 		segs = ops->callbacks.gso_segment(skb, features);
++		if (!segs)
++			skb->network_header = skb_mac_header(skb) + nhoff - skb->head;
+ 	}
+ 
+ 	if (IS_ERR_OR_NULL(segs))
 
 
