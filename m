@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C5F54C73C6
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:38:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE9A94C72A9
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235095AbiB1Rir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:38:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42234 "EHLO
+        id S230436AbiB1R2P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:28:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238623AbiB1RiD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:38:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78C8574B7;
-        Mon, 28 Feb 2022 09:33:28 -0800 (PST)
+        with ESMTP id S236828AbiB1R2B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:28:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 943D175E7D;
+        Mon, 28 Feb 2022 09:27:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51251B815B8;
-        Mon, 28 Feb 2022 17:33:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B57CFC340E7;
-        Mon, 28 Feb 2022 17:33:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 757D06136C;
+        Mon, 28 Feb 2022 17:27:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84D15C340E7;
+        Mon, 28 Feb 2022 17:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069606;
-        bh=4kI2/S/n0O9DmlesOVz381oQ0Q7ZzS08IRJIbGGKo1U=;
+        s=korg; t=1646069233;
+        bh=2zvg6oDjmjAan848l3vmaj/3GJAGyiCXrLg5Ps/bTKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UGn1aFEV3USaW6G7q0KBh2UJ3EycY6RtwJgkQV+6O0NzCCLIB7UKwH9oi/qbo75uU
-         y18DmsAzHeKPmt7qNBlFnFxJ4BgYOP7ByT6oeixR9zq572f22ACrQNG5tRyFyNrbOa
-         /f2bV46G7ZiV10jN+Ty9Fpa+YAusJ5y+6HFerRhk=
+        b=iZbzp1BCMw/5Hb6S6YIbX/lzIvxGgbUYdEK1XsWEyIb83axHMgyA+wbHdZYh2Wwet
+         DXJexgH4pBAZbNES8rF1IGiHtcOUE5notpQEqrcZnpXDNeyhmT44qItzYmiAf63SIg
+         sqvono5hP5iQkk1DxX/RH8beTGeYfLUGW/x9Pb28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        io-uring <io-uring@vger.kernel.org>,
-        syzbot <syzkaller@googlegroups.com>
-Subject: [PATCH 5.10 27/80] io_uring: add a schedule point in io_add_buffers()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Matthias Reichl <hias@horus.com>,
+        Maxime Ripard <maxime@cerno.tech>
+Subject: [PATCH 4.14 12/31] drm/edid: Always set RGB444
 Date:   Mon, 28 Feb 2022 18:24:08 +0100
-Message-Id: <20220228172314.816217341@linuxfoundation.org>
+Message-Id: <20220228172201.062133722@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
+References: <20220228172159.515152296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,87 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-commit f240762f88b4b1b58561939ffd44837759756477 upstream.
+commit ecbd4912a693b862e25cba0a6990a8c95b00721e upstream.
 
-Looping ~65535 times doing kmalloc() calls can trigger soft lockups,
-especially with DEBUG features (like KASAN).
+In order to fill the drm_display_info structure each time an EDID is
+read, the code currently will call drm_add_display_info with the parsed
+EDID.
 
-[  253.536212] watchdog: BUG: soft lockup - CPU#64 stuck for 26s! [b219417889:12575]
-[  253.544433] Modules linked in: vfat fat i2c_mux_pca954x i2c_mux spidev cdc_acm xhci_pci xhci_hcd sha3_generic gq(O)
-[  253.544451] CPU: 64 PID: 12575 Comm: b219417889 Tainted: G S         O      5.17.0-smp-DEV #801
-[  253.544457] RIP: 0010:kernel_text_address (./include/asm-generic/sections.h:192 ./include/linux/kallsyms.h:29 kernel/extable.c:67 kernel/extable.c:98)
-[  253.544464] Code: 0f 93 c0 48 c7 c1 e0 63 d7 a4 48 39 cb 0f 92 c1 20 c1 0f b6 c1 5b 5d c3 90 0f 1f 44 00 00 55 48 89 e5 41 57 41 56 53 48 89 fb <48> c7 c0 00 00 80 a0 41 be 01 00 00 00 48 39 c7 72 0c 48 c7 c0 40
-[  253.544468] RSP: 0018:ffff8882d8baf4c0 EFLAGS: 00000246
-[  253.544471] RAX: 1ffff1105b175e00 RBX: ffffffffa13ef09a RCX: 00000000a13ef001
-[  253.544474] RDX: ffffffffa13ef09a RSI: ffff8882d8baf558 RDI: ffffffffa13ef09a
-[  253.544476] RBP: ffff8882d8baf4d8 R08: ffff8882d8baf5e0 R09: 0000000000000004
-[  253.544479] R10: ffff8882d8baf5e8 R11: ffffffffa0d59a50 R12: ffff8882eab20380
-[  253.544481] R13: ffffffffa0d59a50 R14: dffffc0000000000 R15: 1ffff1105b175eb0
-[  253.544483] FS:  00000000016d3380(0000) GS:ffff88af48c00000(0000) knlGS:0000000000000000
-[  253.544486] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  253.544488] CR2: 00000000004af0f0 CR3: 00000002eabfa004 CR4: 00000000003706e0
-[  253.544491] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  253.544492] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  253.544494] Call Trace:
-[  253.544496]  <TASK>
-[  253.544498] ? io_queue_sqe (fs/io_uring.c:7143)
-[  253.544505] __kernel_text_address (kernel/extable.c:78)
-[  253.544508] unwind_get_return_address (arch/x86/kernel/unwind_frame.c:19)
-[  253.544514] arch_stack_walk (arch/x86/kernel/stacktrace.c:27)
-[  253.544517] ? io_queue_sqe (fs/io_uring.c:7143)
-[  253.544521] stack_trace_save (kernel/stacktrace.c:123)
-[  253.544527] ____kasan_kmalloc (mm/kasan/common.c:39 mm/kasan/common.c:45 mm/kasan/common.c:436 mm/kasan/common.c:515)
-[  253.544531] ? ____kasan_kmalloc (mm/kasan/common.c:39 mm/kasan/common.c:45 mm/kasan/common.c:436 mm/kasan/common.c:515)
-[  253.544533] ? __kasan_kmalloc (mm/kasan/common.c:524)
-[  253.544535] ? kmem_cache_alloc_trace (./include/linux/kasan.h:270 mm/slab.c:3567)
-[  253.544541] ? io_issue_sqe (fs/io_uring.c:4556 fs/io_uring.c:4589 fs/io_uring.c:6828)
-[  253.544544] ? __io_queue_sqe (fs/io_uring.c:?)
-[  253.544551] __kasan_kmalloc (mm/kasan/common.c:524)
-[  253.544553] kmem_cache_alloc_trace (./include/linux/kasan.h:270 mm/slab.c:3567)
-[  253.544556] ? io_issue_sqe (fs/io_uring.c:4556 fs/io_uring.c:4589 fs/io_uring.c:6828)
-[  253.544560] io_issue_sqe (fs/io_uring.c:4556 fs/io_uring.c:4589 fs/io_uring.c:6828)
-[  253.544564] ? __kasan_slab_alloc (mm/kasan/common.c:45 mm/kasan/common.c:436 mm/kasan/common.c:469)
-[  253.544567] ? __kasan_slab_alloc (mm/kasan/common.c:39 mm/kasan/common.c:45 mm/kasan/common.c:436 mm/kasan/common.c:469)
-[  253.544569] ? kmem_cache_alloc_bulk (mm/slab.h:732 mm/slab.c:3546)
-[  253.544573] ? __io_alloc_req_refill (fs/io_uring.c:2078)
-[  253.544578] ? io_submit_sqes (fs/io_uring.c:7441)
-[  253.544581] ? __se_sys_io_uring_enter (fs/io_uring.c:10154 fs/io_uring.c:10096)
-[  253.544584] ? __x64_sys_io_uring_enter (fs/io_uring.c:10096)
-[  253.544587] ? do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-[  253.544590] ? entry_SYSCALL_64_after_hwframe (??:?)
-[  253.544596] __io_queue_sqe (fs/io_uring.c:?)
-[  253.544600] io_queue_sqe (fs/io_uring.c:7143)
-[  253.544603] io_submit_sqe (fs/io_uring.c:?)
-[  253.544608] io_submit_sqes (fs/io_uring.c:?)
-[  253.544612] __se_sys_io_uring_enter (fs/io_uring.c:10154 fs/io_uring.c:10096)
-[  253.544616] __x64_sys_io_uring_enter (fs/io_uring.c:10096)
-[  253.544619] do_syscall_64 (arch/x86/entry/common.c:50 arch/x86/entry/common.c:80)
-[  253.544623] entry_SYSCALL_64_after_hwframe (??:?)
+drm_add_display_info will then call drm_reset_display_info to reset all
+the fields to 0, and then set them to the proper value depending on the
+EDID.
 
-Fixes: ddf0322db79c ("io_uring: add IORING_OP_PROVIDE_BUFFERS")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Pavel Begunkov <asml.silence@gmail.com>
-Cc: io-uring <io-uring@vger.kernel.org>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20220215041003.2394784-1-eric.dumazet@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+In the color_formats case, we will thus report that we don't support any
+color format, and then fill it back with RGB444 plus the additional
+formats described in the EDID Feature Support byte.
+
+However, since that byte only contains format-related bits since the 1.4
+specification, this doesn't happen if the EDID is following an earlier
+specification. In turn, it means that for one of these EDID, we end up
+with color_formats set to 0.
+
+The EDID 1.3 specification never really specifies what it means by RGB
+exactly, but since both HDMI and DVI will use RGB444, it's fairly safe
+to assume it's supposed to be RGB444.
+
+Let's move the addition of RGB444 to color_formats earlier in
+drm_add_display_info() so that it's always set for a digital display.
+
+Fixes: da05a5a71ad8 ("drm: parse color format support for digital displays")
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reported-by: Matthias Reichl <hias@horus.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220203115416.1137308-1-maxime@cerno.tech
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/drm_edid.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4058,6 +4058,7 @@ static int io_add_buffers(struct io_prov
- 		} else {
- 			list_add_tail(&buf->list, &(*head)->list);
- 		}
-+		cond_resched();
- 	}
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -4418,6 +4418,7 @@ static void drm_add_display_info(struct
+ 	if (!(edid->input & DRM_EDID_INPUT_DIGITAL))
+ 		return;
  
- 	return i ? i : -ENOMEM;
++	info->color_formats |= DRM_COLOR_FORMAT_RGB444;
+ 	drm_parse_cea_ext(connector, edid);
+ 
+ 	/*
+@@ -4466,7 +4467,6 @@ static void drm_add_display_info(struct
+ 	DRM_DEBUG("%s: Assigning EDID-1.4 digital sink color depth as %d bpc.\n",
+ 			  connector->name, info->bpc);
+ 
+-	info->color_formats |= DRM_COLOR_FORMAT_RGB444;
+ 	if (edid->features & DRM_EDID_FEATURE_RGB_YCRCB444)
+ 		info->color_formats |= DRM_COLOR_FORMAT_YCRCB444;
+ 	if (edid->features & DRM_EDID_FEATURE_RGB_YCRCB422)
 
 
