@@ -2,99 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A97B74C795D
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 20:59:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 976E34C799A
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 21:09:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229730AbiB1T7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 14:59:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37578 "EHLO
+        id S229745AbiB1UAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 15:00:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229745AbiB1T7m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 14:59:42 -0500
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1EDD31DFB
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 11:59:03 -0800 (PST)
-Received: by mail-ej1-x62b.google.com with SMTP id vz16so27176649ejb.0
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 11:59:03 -0800 (PST)
+        with ESMTP id S229706AbiB1UAr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 15:00:47 -0500
+Received: from mail-oo1-xc2a.google.com (mail-oo1-xc2a.google.com [IPv6:2607:f8b0:4864:20::c2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E91B37BFC
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 12:00:08 -0800 (PST)
+Received: by mail-oo1-xc2a.google.com with SMTP id i6-20020a4ac506000000b0031c5ac6c078so20003232ooq.6
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 12:00:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=kMFmAvHoAKKkiQ1f57Jq6yU7a1iO5tuTpJwDfWZVr9I=;
-        b=JEQHJQPyLp/dB+FdsNChTBytzX1TL+U6rgJJ3nQTfugYlH6ap21WN+NC0WFhpb356M
-         ez9SXThMrDkY6qDEXlKgKT2O5nwI1gui/vR5smuqmM956wStF3WHQAKjQeC0dPuSM6ph
-         koz9jk6irkkxcHW6kR6GvWKl2RODcGtI5BdLj0j4/u7tlGlpPtZN0cQhVgm4XU5e4ZTp
-         PclpjqDWMXS5MAKN5OftySsiRO8lJ3pQ9zuudJViGmplQyFYymt9VnVlQ2aYhiDV3plm
-         R+AjiFKkJdvg7/RAoIpIpvYEj4bboYvqrPoYTEniZH3MrlNsfpp2Wc/VCxqC7dUEWXot
-         IkJQ==
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+3/hnEGttHw+ykEYwuEW4fvQITLLLeGWeScAdvHl/KA=;
+        b=gma3fcbTcxZs3ntTjPMhGnHZHMQhmpr/uq9NeQaA/FpHt4PaWcWXyyH8LNzrSfx0a6
+         hWWWhBwmCCtiQdtL9EGlRtEH8eX0XZkWrQPYviWFPnRfcZ58Bo9uYvkT9gadQpsFyn4l
+         OGvWJt25QD5DNWSKVbQC9N8mNXyRpjj5T5esY=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=kMFmAvHoAKKkiQ1f57Jq6yU7a1iO5tuTpJwDfWZVr9I=;
-        b=mkzGIK40o0riRBok/IHNIQM5JaP00tjBAVhGtkkocUvyfqZAC6IYBnjIIwtIXqN0w5
-         oNR0tHg8O8gevlgl03FzQk76xXenE55Zl1RyFJwjjCH7AqnyvdgZOMZgWYB6HjUt7t02
-         4VdpSgiHMMe625RMNypJwevBmsT1DJq8E2Czga8llnZyrG/qe9WR/uKgPRRTYeHPFpuI
-         KjvC0e+mTPHxkqT9Eg0E2ZrUnTLlO78WCAIOyGn+gT9ecZx2H6KDBqviDj8Rt9sag6zf
-         DamZgH2DxJMlImNLAtVdr2UN7LBw1IHB25sSv/8kvhNn8W9AtifGAL3APLJnnO0UUVLU
-         DoQA==
-X-Gm-Message-State: AOAM533IShGtt8isgU0DXQ/WvXROXukFhgbj/pwIMcbQFE311Bd7HSta
-        yfTM6D/8JPrMDFe+k0bX85Bm8CP2rh3Szxo71VE=
-X-Google-Smtp-Source: ABdhPJzMEcA3EkFU+Ov36X4iB8H1okmfYzrUqbnBrS9QBugndT4cVtK1Ku3s8Vl1fUthwHT5Ue/SOwtLsXX7iSQybvk=
-X-Received: by 2002:a17:907:c92:b0:6b5:c8ae:7918 with SMTP id
- gi18-20020a1709070c9200b006b5c8ae7918mr15791062ejc.531.1646078342277; Mon, 28
- Feb 2022 11:59:02 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+3/hnEGttHw+ykEYwuEW4fvQITLLLeGWeScAdvHl/KA=;
+        b=0o5IfdOyaX49yH57KtEHCOlZalkUN3Qa1uk/Jd2gsHnG+XfnY571em6Wghv5RLt1by
+         djSQTD05wj4IeHnWO7sL9GiPRz74YsDqHjuomb0TnTh5M/XfAuLREbyg7eV+I+O1dr8/
+         0LoJNDvmwTEMI4a1hVkOPDkv3sLGOZDzMZLBBOBDpVu8btsK+IJvWShdUIUVNIBmLaRl
+         DQY0u0FbVv5TlzW+imdCE0eKPlHBQj8y2CJw6z+KZc0WqfZ38A2RBbpxEul5/ivXEZMq
+         Hb/7X2NHxa+FefGASgp/KX5fX8x0Xv4SVQ1HaHrbQjmYCMz2aP/Kcz0TDDLohkTAPffd
+         7R6Q==
+X-Gm-Message-State: AOAM533mS3hraNIuOuFklmiT3WFx+gGVfisGJXESvrbkfpSNrOHiR2N/
+        /4JFLr6Yd3+gKf88lidAaV3TfVnbDoIqqQ==
+X-Google-Smtp-Source: ABdhPJzIHcFmZyvUeZ42CoBQT5BORELnq9QIDy+D71/3fssC6/fE36PImQkZXfxTdNAl1bXgqp9rdg==
+X-Received: by 2002:a05:6870:1b8c:b0:d6:df12:9be1 with SMTP id hm12-20020a0568701b8c00b000d6df129be1mr1704194oab.138.1646078405977;
+        Mon, 28 Feb 2022 12:00:05 -0800 (PST)
+Received: from mail-oi1-f179.google.com (mail-oi1-f179.google.com. [209.85.167.179])
+        by smtp.gmail.com with ESMTPSA id n23-20020a9d7417000000b005afc3371166sm5401864otk.81.2022.02.28.12.00.03
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 28 Feb 2022 12:00:03 -0800 (PST)
+Received: by mail-oi1-f179.google.com with SMTP id y7so14265220oih.5
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 12:00:03 -0800 (PST)
+X-Received: by 2002:aca:5e86:0:b0:2ce:de77:5256 with SMTP id
+ s128-20020aca5e86000000b002cede775256mr12030360oib.117.1646078402626; Mon, 28
+ Feb 2022 12:00:02 -0800 (PST)
 MIME-Version: 1.0
-Received: by 2002:a17:906:3ad6:0:0:0:0 with HTTP; Mon, 28 Feb 2022 11:59:01
- -0800 (PST)
-Reply-To: anwarialima@gmail.com
-From:   Alima Anwari <khuntamar5@gmail.com>
-Date:   Mon, 28 Feb 2022 19:59:01 +0000
-Message-ID: <CAOdLAAKpBjOZC0WthO29zga2hypn8_FAR5VeH_0Jg=Ge8AhE3g@mail.gmail.com>
-Subject: =?UTF-8?B?44GT44KT44Gr44Gh44Gv?=
-To:     undisclosed-recipients:;
+References: <20220215235420.1284208-1-briannorris@chromium.org>
+ <20220215155417.2.Ic15a2ef69c540aee8732703103e2cff51fb9c399@changeid> <6344d1828760d4d8625a87243fcc5f5b1096b9d4.camel@oss.nxp.com>
+In-Reply-To: <6344d1828760d4d8625a87243fcc5f5b1096b9d4.camel@oss.nxp.com>
+From:   Brian Norris <briannorris@chromium.org>
+Date:   Mon, 28 Feb 2022 11:59:51 -0800
+X-Gmail-Original-Message-ID: <CA+ASDXOFcmLO_UBfzZ37NmQ3i3n_=5XPcHa_7=OLFvg6xg=YHg@mail.gmail.com>
+Message-ID: <CA+ASDXOFcmLO_UBfzZ37NmQ3i3n_=5XPcHa_7=OLFvg6xg=YHg@mail.gmail.com>
+Subject: Re: [PATCH 2/2] drm/atomic: Force bridge self-refresh-exit on CRTC switch
+To:     Liu Ying <victor.liu@oss.nxp.com>
+Cc:     Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        stable <stable@vger.kernel.org>, Sean Paul <sean@poorly.run>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
-X-Spam-Status: Yes, score=5.4 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no
+X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:62b listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5001]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [khuntamar5[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [khuntamar5[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.6 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-LS0gDQropqrmhJvjgarjgovlj4vkurrjgIHjgZPjgpPjgavjgaHjga/jgILjgqLjg5Xjgqzjg4vj
-grnjgr/jg7Pjga7jgqLjg6rjg57jg7vjgqLjg7Pjg6/jg6rjgafjgZnjgILov5Tkv6HjgZfjgabj
-gY/jgaDjgZXjgYTjgIINCuengeOBq+aIu+OBo+OBpuOAgeOBguOBquOBn+OBqOWFseacieOBmeOC
-i+e3iuaApeOBruWVj+mhjOOBjOOBguOCiuOBvuOBmeOAgiDjgYrlvoXjgaHjgZfjgabjgYrjgorj
-gb7jgZkNCuOBguOBquOBn+OBruW/nOetlOOBruOBn+OCgeOBq+OAgg0K44GC44KK44GM44Go44GG
-44CCDQrjgqLjg6rjg57jgIINCg==
+Hi Liu,
+
+On Mon, Feb 28, 2022 at 1:02 AM Liu Ying <victor.liu@oss.nxp.com> wrote:
+> On Tue, 2022-02-15 at 15:54 -0800, Brian Norris wrote:
+> > --- a/drivers/gpu/drm/drm_atomic_helper.c
+> > +++ b/drivers/gpu/drm/drm_atomic_helper.c
+> > @@ -1011,9 +1011,19 @@ crtc_needs_disable(struct drm_crtc_state *old_state,
+> >               return drm_atomic_crtc_effectively_active(old_state);
+> >
+> >       /*
+> > -      * We need to run through the crtc_funcs->disable() function if the CRTC
+> > -      * is currently on, if it's transitioning to self refresh mode, or if
+> > -      * it's in self refresh mode and needs to be fully disabled.
+> > +      * We need to disable bridge(s) and CRTC if we're transitioning out of
+> > +      * self-refresh and changing CRTCs at the same time, because the
+> > +      * bridge tracks self-refresh status via CRTC state.
+> > +      */
+> > +     if (old_state->self_refresh_active && new_state->enable &&
+> > +         old_state->crtc != new_state->crtc)
+> > +             return true;
+>
+> I think 'new_state->enable' should be changed to 'new_state->active',
+> because 'active' is the one to enable/disable the CRTC while 'enable'
+> reflects whether a mode blob is set to CRTC state.  The overall logic
+> added above is ok to me. Let's see if others have any comments.
+
+Thanks for the review, and good catch. This actually shows that most
+of my development was before commit 69e630016ef4 ("drm/atomic: Check
+new_crtc_state->active to determine if CRTC needs disable in self
+refresh mode"). In fact, the "state->enable" condition was included
+here mostly as a complement to the "!state->enable" condition that was
+present previously, and I didn't adapt it properly upon rebase.
+
+In practice, this portion of the condition is not needed at all; we
+really want to exit PSR on CRTC-switch regardless of the new-CRTC
+state. So rather than change "enable" to "active", I plan to remove it
+entirely.
+
+I'll give it some local tests and send v2 eventually.
+
+Thanks,
+Brian
