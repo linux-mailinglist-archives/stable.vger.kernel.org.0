@@ -2,119 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06B644C6704
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 11:18:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D8CF4C670B
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 11:21:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231539AbiB1KTK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 05:19:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42932 "EHLO
+        id S231634AbiB1KWP convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 28 Feb 2022 05:22:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbiB1KTJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 05:19:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 149EE42ED4;
-        Mon, 28 Feb 2022 02:18:31 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A94A261320;
-        Mon, 28 Feb 2022 10:18:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17F5DC340E7;
-        Mon, 28 Feb 2022 10:18:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1646043510;
-        bh=7ScyWwOVVGtMOk8c5/t+4srA6OPpuWDgrvhjwqRsEgE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=lPPuD1220/VQdT1E1OaecvRoCQmza/F46WBx8P658CH3eCNM49lOnETpxdW08bLp8
-         Y7LU+0Q1gcOIkQVi9rq0ySb8JPLO0TYtchzK2vjmRj/74UEPXpW+dOPz/LnTDiZpU3
-         ecj5HY1qCXU+YRpTvoeBMr9uwW+ZX0+0yOYPGybg5ChFgDGonGlEI4o6I5IdlubMjY
-         oCfMVMYy7jOshPkV2XTu6gq3xGYoNCkMUIRrMEctzSIGRKEF6+FMyzPmtl/eqjUmnt
-         00QkSuJgMwYMw+iZxD94R59E9Fis3X2gN483SZ/FLO7pBOeCFBCmbWD8WvZpmJDG6O
-         yGMhGlJa69doQ==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1nOd6n-0003KK-TQ; Mon, 28 Feb 2022 11:18:26 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>
-Cc:     Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org,
-        Tim Harvey <tharvey@gateworks.com>
-Subject: [PATCH] arm64: dts: imx8mm-venice: fix spi2 pin configuration
-Date:   Mon, 28 Feb 2022 11:16:17 +0100
-Message-Id: <20220228101617.12694-1-johan@kernel.org>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S229514AbiB1KWO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 05:22:14 -0500
+Received: from cloud-lucky.263xmail.com (cloud-lucky.263xmail.com [119.61.0.162])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75CAC51E51
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 02:21:34 -0800 (PST)
+Received: from sales?hengqin.gov.cn (unknown [192.168.165.100])
+        by cloud-lucky.263xmail.com (Postfix) with ESMTP id 0AC4733CD4A
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 18:21:31 +0800 (CST)
+X-263anti-spam: KSV:0;BIG:0;
+X-KSVirus-check: 0
+X-ABS-CHECKED: 0
+X-SKE-CHECKED: 0
+X-ANTISPAM-LEVEL: 2
+Received: from com (localhost [127.0.0.1])
+        by proxysmtp.263.net (Postfix) with ESMTP id 06CD537147
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 18:21:25 +0800 (CST)
+X-RL-SENDER: sales@hengqin.gov.cn
+X-FST-TO: stable@vger.kernel.org
+X-SENDER-IP: 218.104.194.131
+X-LOGIN-NAME: 
+X-UNIQUE-TAG: <f86effeac6b6faa2b9773b4717e290a2>
+X-SENDER: sales@hengqin.gov.cn
+X-DNS-TYPE: 0
+Received: from com (unknown [218.104.194.131])
+        by proxysmtp.263.net (Postfix) whith ESMTP id 777866VJ0E;
+        Mon, 28 Feb 2022 18:21:26 +0800 (CST)
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM:                                                                                        
+X-RM-SPAM-FLAG: 00000000
+Received: from info.rzwrcuo3dg3etndmcja2yrx4sh.nx.internal.cloudapp.net (unknown[20.206.114.120])
+        by rmsmtp-host001-12001 (RichMail) with SMTP id 2ee1621c80da135-627f9;
+        Mon, 28 Feb 2022 18:21:26 +0800 (CST)
+X-RM-TRANSID: 2ee1621c80da135-627f9
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: Re:Investment
+To:     Recipients <sales@hengqin.gov.cn>
+From:   "Ms. Reem A.. " <sales@hengqin.gov.cn>
+Date:   Mon, 28 Feb 2022 10:21:07 +0000
+Reply-To: reem.alhashimi@yandex.com
+Message-Id: <20220228102126.06CD537147@proxysmtp.263.net>
+X-Spam-Status: Yes, score=5.2 required=5.0 tests=BAYES_50,
+        FREEMAIL_FORGED_REPLYTO,FREEMAIL_REPLYTO,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,RCVD_IN_VALIDITY_RPBL,SPF_HELO_NONE,
+        T_SCC_BODY_TEXT_LINE,T_SPF_PERMERROR autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  1.3 RCVD_IN_VALIDITY_RPBL RBL: Relay in Validity RPBL,
+        *      https://senderscore.org/blocklistlookup/
+        *      [119.61.0.162 listed in bl.score.senderscore.com]
+        * -0.0 RCVD_IN_MSPIKE_H2 RBL: Average reputation (+2)
+        *      [119.61.0.162 listed in wl.mailspike.net]
+        *  0.0 T_SPF_PERMERROR SPF: test of record failed (permerror)
+        * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [119.61.0.162 listed in list.dnswl.org]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Due to what looks like a copy-paste error, the ECSPI2_MISO pad is not
-muxed for SPI mode and causes reads from a slave-device connected to the
-SPI header to always return zero.
+Hello,
 
-Configure the ECSPI2_MISO pad for SPI mode on the gw71xx, gw72xx and
-gw73xx families of boards that got this wrong.
+My name is Ms. Reem bint Ebrahim Al Hashimy. Cabinet Member and Minister of State for International Cooperation, UAE.
+I am also the Director General and board representative on the higher committee of the EXPO 2020/2021 in Dubai.
 
-Fixes: 6f30b27c5ef5 ("arm64: dts: imx8mm: Add Gateworks i.MX 8M Mini Development Kits")
-Cc: stable@vger.kernel.org      # 5.12
-Cc: Tim Harvey <tharvey@gateworks.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi | 2 +-
- arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi | 2 +-
- arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+I would start by tendering my unreserved apologies for barging into your privacy. I have a financial investment proposition
+that might interest you. Please reply for more details if you are interested. Reply only to my private
+Email: reem2018@daum.net
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
-index 28012279f6f6..ecf6c9a6db90 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
-@@ -166,7 +166,7 @@ pinctrl_spi2: spi2grp {
- 		fsl,pins = <
- 			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
- 			MX8MM_IOMUXC_ECSPI2_MOSI_ECSPI2_MOSI	0xd6
--			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
-+			MX8MM_IOMUXC_ECSPI2_MISO_ECSPI2_MISO	0xd6
- 			MX8MM_IOMUXC_ECSPI2_SS0_GPIO5_IO13	0xd6
- 		>;
- 	};
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi
-index 27afa46a253a..6e0f0a2f6970 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi
-@@ -231,7 +231,7 @@ pinctrl_spi2: spi2grp {
- 		fsl,pins = <
- 			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
- 			MX8MM_IOMUXC_ECSPI2_MOSI_ECSPI2_MOSI	0xd6
--			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
-+			MX8MM_IOMUXC_ECSPI2_MISO_ECSPI2_MISO	0xd6
- 			MX8MM_IOMUXC_ECSPI2_SS0_GPIO5_IO13	0xd6
- 		>;
- 	};
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi
-index a59e849c7be2..6c4c9ae9715f 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi
-@@ -280,7 +280,7 @@ pinctrl_spi2: spi2grp {
- 		fsl,pins = <
- 			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
- 			MX8MM_IOMUXC_ECSPI2_MOSI_ECSPI2_MOSI	0xd6
--			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
-+			MX8MM_IOMUXC_ECSPI2_MISO_ECSPI2_MISO	0xd6
- 			MX8MM_IOMUXC_ECSPI2_SS0_GPIO5_IO13	0xd6
- 		>;
- 	};
--- 
-2.34.1
+Best Regards,
+Ms. Reem Al-Hashimi
+
 
