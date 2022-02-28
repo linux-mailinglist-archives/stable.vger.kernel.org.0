@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE4504C747C
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D13A04C75A2
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235113AbiB1RpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:45:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58716 "EHLO
+        id S239158AbiB1Rzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:55:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239220AbiB1Rnv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:43:51 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 661A59BBA1;
-        Mon, 28 Feb 2022 09:35:57 -0800 (PST)
+        with ESMTP id S240386AbiB1RyQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48403B1895;
+        Mon, 28 Feb 2022 09:42:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B1EBACE17AC;
-        Mon, 28 Feb 2022 17:35:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7D76C340E7;
-        Mon, 28 Feb 2022 17:35:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6526EB815C2;
+        Mon, 28 Feb 2022 17:42:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C08B2C340E7;
+        Mon, 28 Feb 2022 17:42:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069754;
-        bh=HPk5hm2HB6OtjumJUjenYe8eRWx4uz9qEzBAfyzBkdo=;
+        s=korg; t=1646070124;
+        bh=/BUH6X6Lf9OT0xsbSheMjAlZZE59F3xBuVRrMWxHapc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MS9STqSTbPyOulapWIdVlxH1wt/o35oS5FXvzT8aYlossjfQ0zovlA1jcKh92BZKF
-         hIya1MWY3Gz8/yAZ8WqpAGGIuxGV7ZZgQl/GJgKtdqu3UhoVfN/z9gXocCl+YPShuC
-         aS9JamZ1B3bGDHAjKYWEOYyZHzvzELl6bH+Eq8xw=
+        b=NygE5+wR2DOfpbuxC7/NKUMy/5VPuIC7uU+uDntCeT35NTYSyQqgz1q5e0qYZ2T0G
+         jl226GUxiZEhedc8lqsPCwdz0Xz8o3XBELrBj8MnV37NEepKPBReaay9+pVhbOOBnD
+         3Q1Pxc2KWdmyQivMzCGFJDZCvw+SG21dJrgsoye4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Mike Rapoport <rppt@linux.ibm.com>
-Subject: [PATCH 5.10 80/80] memblock: use kfree() to release kmalloced memblock regions
+        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.15 127/139] riscv: fix oops caused by irqsoff latency tracer
 Date:   Mon, 28 Feb 2022 18:25:01 +0100
-Message-Id: <20220228172321.477435372@linuxfoundation.org>
+Message-Id: <20220228172401.024088700@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Changbin Du <changbin.du@gmail.com>
 
-commit c94afc46cae7ad41b2ad6a99368147879f4b0e56 upstream.
+commit 22e2100b1b07d6f5acc71cc1acb53f680c677d77 upstream.
 
-memblock.{reserved,memory}.regions may be allocated using kmalloc() in
-memblock_double_array(). Use kfree() to release these kmalloced regions
-indicated by memblock_{reserved,memory}_in_slab.
+The trace_hardirqs_{on,off}() require the caller to setup frame pointer
+properly. This because these two functions use macro 'CALLER_ADDR1' (aka.
+__builtin_return_address(1)) to acquire caller info. If the $fp is used
+for other purpose, the code generated this macro (as below) could trigger
+memory access fault.
 
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Fixes: 3010f876500f ("mm: discard memblock data later")
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+   0xffffffff8011510e <+80>:    ld      a1,-16(s0)
+   0xffffffff80115112 <+84>:    ld      s2,-8(a1)  # <-- paging fault here
+
+The oops message during booting if compiled with 'irqoff' tracer enabled:
+[    0.039615][    T0] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000f8
+[    0.041925][    T0] Oops [#1]
+[    0.042063][    T0] Modules linked in:
+[    0.042864][    T0] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.17.0-rc1-00233-g9a20c48d1ed2 #29
+[    0.043568][    T0] Hardware name: riscv-virtio,qemu (DT)
+[    0.044343][    T0] epc : trace_hardirqs_on+0x56/0xe2
+[    0.044601][    T0]  ra : restore_all+0x12/0x6e
+[    0.044721][    T0] epc : ffffffff80126a5c ra : ffffffff80003b94 sp : ffffffff81403db0
+[    0.044801][    T0]  gp : ffffffff8163acd8 tp : ffffffff81414880 t0 : 0000000000000020
+[    0.044882][    T0]  t1 : 0098968000000000 t2 : 0000000000000000 s0 : ffffffff81403de0
+[    0.044967][    T0]  s1 : 0000000000000000 a0 : 0000000000000001 a1 : 0000000000000100
+[    0.045046][    T0]  a2 : 0000000000000000 a3 : 0000000000000000 a4 : 0000000000000000
+[    0.045124][    T0]  a5 : 0000000000000000 a6 : 0000000000000000 a7 : 0000000054494d45
+[    0.045210][    T0]  s2 : ffffffff80003b94 s3 : ffffffff81a8f1b0 s4 : ffffffff80e27b50
+[    0.045289][    T0]  s5 : ffffffff81414880 s6 : ffffffff8160fa00 s7 : 00000000800120e8
+[    0.045389][    T0]  s8 : 0000000080013100 s9 : 000000000000007f s10: 0000000000000000
+[    0.045474][    T0]  s11: 0000000000000000 t3 : 7fffffffffffffff t4 : 0000000000000000
+[    0.045548][    T0]  t5 : 0000000000000000 t6 : ffffffff814aa368
+[    0.045620][    T0] status: 0000000200000100 badaddr: 00000000000000f8 cause: 000000000000000d
+[    0.046402][    T0] [<ffffffff80003b94>] restore_all+0x12/0x6e
+
+This because the $fp(aka. $s0) register is not used as frame pointer in the
+assembly entry code.
+
+	resume_kernel:
+		REG_L s0, TASK_TI_PREEMPT_COUNT(tp)
+		bnez s0, restore_all
+		REG_L s0, TASK_TI_FLAGS(tp)
+                andi s0, s0, _TIF_NEED_RESCHED
+                beqz s0, restore_all
+                call preempt_schedule_irq
+                j restore_all
+
+To fix above issue, here we add one extra level wrapper for function
+trace_hardirqs_{on,off}() so they can be safely called by low level entry
+code.
+
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Fixes: 3c4697982982 ("riscv: Enable LOCKDEP_SUPPORT & fixup TRACE_IRQFLAGS_SUPPORT")
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memblock.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/riscv/kernel/Makefile    |    2 ++
+ arch/riscv/kernel/entry.S     |   10 +++++-----
+ arch/riscv/kernel/trace_irq.c |   27 +++++++++++++++++++++++++++
+ arch/riscv/kernel/trace_irq.h |   11 +++++++++++
+ 4 files changed, 45 insertions(+), 5 deletions(-)
+ create mode 100644 arch/riscv/kernel/trace_irq.c
+ create mode 100644 arch/riscv/kernel/trace_irq.h
 
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -366,14 +366,20 @@ void __init memblock_discard(void)
- 		addr = __pa(memblock.reserved.regions);
- 		size = PAGE_ALIGN(sizeof(struct memblock_region) *
- 				  memblock.reserved.max);
--		__memblock_free_late(addr, size);
-+		if (memblock_reserved_in_slab)
-+			kfree(memblock.reserved.regions);
-+		else
-+			__memblock_free_late(addr, size);
- 	}
+--- a/arch/riscv/kernel/Makefile
++++ b/arch/riscv/kernel/Makefile
+@@ -50,6 +50,8 @@ obj-$(CONFIG_MODULE_SECTIONS)	+= module-
+ obj-$(CONFIG_FUNCTION_TRACER)	+= mcount.o ftrace.o
+ obj-$(CONFIG_DYNAMIC_FTRACE)	+= mcount-dyn.o
  
- 	if (memblock.memory.regions != memblock_memory_init_regions) {
- 		addr = __pa(memblock.memory.regions);
- 		size = PAGE_ALIGN(sizeof(struct memblock_region) *
- 				  memblock.memory.max);
--		__memblock_free_late(addr, size);
-+		if (memblock_memory_in_slab)
-+			kfree(memblock.memory.regions);
-+		else
-+			__memblock_free_late(addr, size);
- 	}
++obj-$(CONFIG_TRACE_IRQFLAGS)	+= trace_irq.o
++
+ obj-$(CONFIG_RISCV_BASE_PMU)	+= perf_event.o
+ obj-$(CONFIG_PERF_EVENTS)	+= perf_callchain.o
+ obj-$(CONFIG_HAVE_PERF_REGS)	+= perf_regs.o
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -108,7 +108,7 @@ _save_context:
+ .option pop
  
- 	memblock_memory = NULL;
+ #ifdef CONFIG_TRACE_IRQFLAGS
+-	call trace_hardirqs_off
++	call __trace_hardirqs_off
+ #endif
+ 
+ #ifdef CONFIG_CONTEXT_TRACKING
+@@ -144,7 +144,7 @@ skip_context_tracking:
+ 	li t0, EXC_BREAKPOINT
+ 	beq s4, t0, 1f
+ #ifdef CONFIG_TRACE_IRQFLAGS
+-	call trace_hardirqs_on
++	call __trace_hardirqs_on
+ #endif
+ 	csrs CSR_STATUS, SR_IE
+ 
+@@ -235,7 +235,7 @@ ret_from_exception:
+ 	REG_L s0, PT_STATUS(sp)
+ 	csrc CSR_STATUS, SR_IE
+ #ifdef CONFIG_TRACE_IRQFLAGS
+-	call trace_hardirqs_off
++	call __trace_hardirqs_off
+ #endif
+ #ifdef CONFIG_RISCV_M_MODE
+ 	/* the MPP value is too large to be used as an immediate arg for addi */
+@@ -271,10 +271,10 @@ restore_all:
+ 	REG_L s1, PT_STATUS(sp)
+ 	andi t0, s1, SR_PIE
+ 	beqz t0, 1f
+-	call trace_hardirqs_on
++	call __trace_hardirqs_on
+ 	j 2f
+ 1:
+-	call trace_hardirqs_off
++	call __trace_hardirqs_off
+ 2:
+ #endif
+ 	REG_L a0, PT_STATUS(sp)
+--- /dev/null
++++ b/arch/riscv/kernel/trace_irq.c
+@@ -0,0 +1,27 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) 2022 Changbin Du <changbin.du@gmail.com>
++ */
++
++#include <linux/irqflags.h>
++#include <linux/kprobes.h>
++#include "trace_irq.h"
++
++/*
++ * trace_hardirqs_on/off require the caller to setup frame pointer properly.
++ * Otherwise, CALLER_ADDR1 might trigger an pagging exception in kernel.
++ * Here we add one extra level so they can be safely called by low
++ * level entry code which $fp is used for other purpose.
++ */
++
++void __trace_hardirqs_on(void)
++{
++	trace_hardirqs_on();
++}
++NOKPROBE_SYMBOL(__trace_hardirqs_on);
++
++void __trace_hardirqs_off(void)
++{
++	trace_hardirqs_off();
++}
++NOKPROBE_SYMBOL(__trace_hardirqs_off);
+--- /dev/null
++++ b/arch/riscv/kernel/trace_irq.h
+@@ -0,0 +1,11 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2022 Changbin Du <changbin.du@gmail.com>
++ */
++#ifndef __TRACE_IRQ_H
++#define __TRACE_IRQ_H
++
++void __trace_hardirqs_on(void);
++void __trace_hardirqs_off(void);
++
++#endif /* __TRACE_IRQ_H */
 
 
