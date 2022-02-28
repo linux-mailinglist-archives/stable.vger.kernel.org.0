@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E8204C756F
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:54:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1225D4C738D
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:36:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239130AbiB1RzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:55:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54632 "EHLO
+        id S238240AbiB1RgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:36:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239568AbiB1RxM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:53:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEF16A9E29;
-        Mon, 28 Feb 2022 09:40:34 -0800 (PST)
+        with ESMTP id S238238AbiB1Rfn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:35:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B949A95A1E;
+        Mon, 28 Feb 2022 09:31:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F400614C9;
-        Mon, 28 Feb 2022 17:40:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7DD2C340E7;
-        Mon, 28 Feb 2022 17:40:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37DACB815B8;
+        Mon, 28 Feb 2022 17:31:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FE02C340F1;
+        Mon, 28 Feb 2022 17:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070034;
-        bh=MYv5chMPEwF/MLEvEC21x/Ewh4vWl1yYcspTrkmq+AY=;
+        s=korg; t=1646069486;
+        bh=p8i4Tq1JhKBA4elh4tr7Rvc8i93blPcxJzdKjp36pJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jHxOOcTWWoJMRFGzytwGcQO3w/8Fq7ijgp0ad1jxwlvI6TDbWMYXzhvI9p9JhdqjH
-         5N/5MPVU/J0AT2FJNRGsrS7Ok16GcD9awmsiDfL29OZGw1ZXsax8TRAsB67tXgncVi
-         gvZEditsqEfn/TZQB3CtnRszyz5wY8AZyzS+JRj4=
+        b=QD1VEN0iKUqLavvXScMRd/Zk2Zk1yhbBFEQOvi+95Is/LtJz9eUJLjqI4vjQTjJwJ
+         Z/RPE+mKOb3fDXDySPyXAJPWi+dt1BwMgtpr1SadVAfyIjoF3SwwKBBwEfnc9j/Cnj
+         wVhKfJNd5vIGUXqgtmvZwEBulk4ZCbDTpYMpoId0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 102/139] iio: Fix error handling for PM
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Daehwan Jung <dh10.jung@samsung.com>
+Subject: [PATCH 5.4 38/53] usb: gadget: rndis: add spinlock for rndis response list
 Date:   Mon, 28 Feb 2022 18:24:36 +0100
-Message-Id: <20220228172358.401125919@linuxfoundation.org>
+Message-Id: <20220228172251.050260261@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,168 +53,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Daehwan Jung <dh10.jung@samsung.com>
 
-commit 632fe0bb8c5b9c06ec961f575ee42a6fff5eceeb upstream.
+commit aaaba1c86d04dac8e49bf508b492f81506257da3 upstream.
 
-The pm_runtime_enable will increase power disable depth.
-If the probe fails, we should use pm_runtime_disable() to balance
-pm_runtime_enable(). In the PM Runtime docs:
-    Drivers in ->remove() callback should undo the runtime PM changes done
-    in ->probe(). Usually this means calling pm_runtime_disable(),
-    pm_runtime_dont_use_autosuspend() etc.
-We should do this in error handling.
+There's no lock for rndis response list. It could cause list corruption
+if there're two different list_add at the same time like below.
+It's better to add in rndis_add_response / rndis_free_response
+/ rndis_get_next_response to prevent any race condition on response list.
 
-Fix this problem for the following drivers: bmc150, bmg160, kmx61,
-kxcj-1013, mma9551, mma9553.
+[  361.894299] [1:   irq/191-dwc3:16979] list_add corruption.
+next->prev should be prev (ffffff80651764d0),
+but was ffffff883dc36f80. (next=ffffff80651764d0).
 
-Fixes: 7d0ead5c3f00 ("iio: Reconcile operation order between iio_register/unregister and pm functions")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220106112309.16879-1-linmq006@gmail.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[  361.904380] [1:   irq/191-dwc3:16979] Call trace:
+[  361.904391] [1:   irq/191-dwc3:16979]  __list_add_valid+0x74/0x90
+[  361.904401] [1:   irq/191-dwc3:16979]  rndis_msg_parser+0x168/0x8c0
+[  361.904409] [1:   irq/191-dwc3:16979]  rndis_command_complete+0x24/0x84
+[  361.904417] [1:   irq/191-dwc3:16979]  usb_gadget_giveback_request+0x20/0xe4
+[  361.904426] [1:   irq/191-dwc3:16979]  dwc3_gadget_giveback+0x44/0x60
+[  361.904434] [1:   irq/191-dwc3:16979]  dwc3_ep0_complete_data+0x1e8/0x3a0
+[  361.904442] [1:   irq/191-dwc3:16979]  dwc3_ep0_interrupt+0x29c/0x3dc
+[  361.904450] [1:   irq/191-dwc3:16979]  dwc3_process_event_entry+0x78/0x6cc
+[  361.904457] [1:   irq/191-dwc3:16979]  dwc3_process_event_buf+0xa0/0x1ec
+[  361.904465] [1:   irq/191-dwc3:16979]  dwc3_thread_interrupt+0x34/0x5c
+
+Fixes: f6281af9d62e ("usb: gadget: rndis: use list_for_each_entry_safe")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Daehwan Jung <dh10.jung@samsung.com>
+Link: https://lore.kernel.org/r/1645507768-77687-1-git-send-email-dh10.jung@samsung.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/bmc150-accel-core.c  |    5 ++++-
- drivers/iio/accel/kxcjk-1013.c         |    5 ++++-
- drivers/iio/accel/mma9551.c            |    5 ++++-
- drivers/iio/accel/mma9553.c            |    5 ++++-
- drivers/iio/gyro/bmg160_core.c         |    5 ++++-
- drivers/iio/imu/kmx61.c                |    5 ++++-
- drivers/iio/magnetometer/bmc150_magn.c |    5 +++--
- 7 files changed, 27 insertions(+), 8 deletions(-)
+ drivers/usb/gadget/function/rndis.c |    8 ++++++++
+ drivers/usb/gadget/function/rndis.h |    1 +
+ 2 files changed, 9 insertions(+)
 
---- a/drivers/iio/accel/bmc150-accel-core.c
-+++ b/drivers/iio/accel/bmc150-accel-core.c
-@@ -1782,11 +1782,14 @@ int bmc150_accel_core_probe(struct devic
- 	ret = iio_device_register(indio_dev);
- 	if (ret < 0) {
- 		dev_err(dev, "Unable to register iio device\n");
--		goto err_trigger_unregister;
-+		goto err_pm_cleanup;
+--- a/drivers/usb/gadget/function/rndis.c
++++ b/drivers/usb/gadget/function/rndis.c
+@@ -922,6 +922,7 @@ struct rndis_params *rndis_register(void
+ 	params->resp_avail = resp_avail;
+ 	params->v = v;
+ 	INIT_LIST_HEAD(&params->resp_queue);
++	spin_lock_init(&params->resp_lock);
+ 	pr_debug("%s: configNr = %d\n", __func__, i);
+ 
+ 	return params;
+@@ -1015,12 +1016,14 @@ void rndis_free_response(struct rndis_pa
+ {
+ 	rndis_resp_t *r, *n;
+ 
++	spin_lock(&params->resp_lock);
+ 	list_for_each_entry_safe(r, n, &params->resp_queue, list) {
+ 		if (r->buf == buf) {
+ 			list_del(&r->list);
+ 			kfree(r);
+ 		}
+ 	}
++	spin_unlock(&params->resp_lock);
+ }
+ EXPORT_SYMBOL_GPL(rndis_free_response);
+ 
+@@ -1030,14 +1033,17 @@ u8 *rndis_get_next_response(struct rndis
+ 
+ 	if (!length) return NULL;
+ 
++	spin_lock(&params->resp_lock);
+ 	list_for_each_entry_safe(r, n, &params->resp_queue, list) {
+ 		if (!r->send) {
+ 			r->send = 1;
+ 			*length = r->length;
++			spin_unlock(&params->resp_lock);
+ 			return r->buf;
+ 		}
  	}
  
- 	return 0;
++	spin_unlock(&params->resp_lock);
+ 	return NULL;
+ }
+ EXPORT_SYMBOL_GPL(rndis_get_next_response);
+@@ -1054,7 +1060,9 @@ static rndis_resp_t *rndis_add_response(
+ 	r->length = length;
+ 	r->send = 0;
  
-+err_pm_cleanup:
-+	pm_runtime_dont_use_autosuspend(dev);
-+	pm_runtime_disable(dev);
- err_trigger_unregister:
- 	bmc150_accel_unregister_triggers(data, BMC150_ACCEL_TRIGGERS - 1);
- err_buffer_cleanup:
---- a/drivers/iio/accel/kxcjk-1013.c
-+++ b/drivers/iio/accel/kxcjk-1013.c
-@@ -1589,11 +1589,14 @@ static int kxcjk1013_probe(struct i2c_cl
- 	ret = iio_device_register(indio_dev);
- 	if (ret < 0) {
- 		dev_err(&client->dev, "unable to register iio device\n");
--		goto err_buffer_cleanup;
-+		goto err_pm_cleanup;
- 	}
++	spin_lock(&params->resp_lock);
+ 	list_add_tail(&r->list, &params->resp_queue);
++	spin_unlock(&params->resp_lock);
+ 	return r;
+ }
  
- 	return 0;
+--- a/drivers/usb/gadget/function/rndis.h
++++ b/drivers/usb/gadget/function/rndis.h
+@@ -174,6 +174,7 @@ typedef struct rndis_params {
+ 	void			(*resp_avail)(void *v);
+ 	void			*v;
+ 	struct list_head	resp_queue;
++	spinlock_t		resp_lock;
+ } rndis_params;
  
-+err_pm_cleanup:
-+	pm_runtime_dont_use_autosuspend(&client->dev);
-+	pm_runtime_disable(&client->dev);
- err_buffer_cleanup:
- 	iio_triggered_buffer_cleanup(indio_dev);
- err_trigger_unregister:
---- a/drivers/iio/accel/mma9551.c
-+++ b/drivers/iio/accel/mma9551.c
-@@ -495,11 +495,14 @@ static int mma9551_probe(struct i2c_clie
- 	ret = iio_device_register(indio_dev);
- 	if (ret < 0) {
- 		dev_err(&client->dev, "unable to register iio device\n");
--		goto out_poweroff;
-+		goto err_pm_cleanup;
- 	}
- 
- 	return 0;
- 
-+err_pm_cleanup:
-+	pm_runtime_dont_use_autosuspend(&client->dev);
-+	pm_runtime_disable(&client->dev);
- out_poweroff:
- 	mma9551_set_device_state(client, false);
- 
---- a/drivers/iio/accel/mma9553.c
-+++ b/drivers/iio/accel/mma9553.c
-@@ -1134,12 +1134,15 @@ static int mma9553_probe(struct i2c_clie
- 	ret = iio_device_register(indio_dev);
- 	if (ret < 0) {
- 		dev_err(&client->dev, "unable to register iio device\n");
--		goto out_poweroff;
-+		goto err_pm_cleanup;
- 	}
- 
- 	dev_dbg(&indio_dev->dev, "Registered device %s\n", name);
- 	return 0;
- 
-+err_pm_cleanup:
-+	pm_runtime_dont_use_autosuspend(&client->dev);
-+	pm_runtime_disable(&client->dev);
- out_poweroff:
- 	mma9551_set_device_state(client, false);
- 	return ret;
---- a/drivers/iio/gyro/bmg160_core.c
-+++ b/drivers/iio/gyro/bmg160_core.c
-@@ -1188,11 +1188,14 @@ int bmg160_core_probe(struct device *dev
- 	ret = iio_device_register(indio_dev);
- 	if (ret < 0) {
- 		dev_err(dev, "unable to register iio device\n");
--		goto err_buffer_cleanup;
-+		goto err_pm_cleanup;
- 	}
- 
- 	return 0;
- 
-+err_pm_cleanup:
-+	pm_runtime_dont_use_autosuspend(dev);
-+	pm_runtime_disable(dev);
- err_buffer_cleanup:
- 	iio_triggered_buffer_cleanup(indio_dev);
- err_trigger_unregister:
---- a/drivers/iio/imu/kmx61.c
-+++ b/drivers/iio/imu/kmx61.c
-@@ -1385,7 +1385,7 @@ static int kmx61_probe(struct i2c_client
- 	ret = iio_device_register(data->acc_indio_dev);
- 	if (ret < 0) {
- 		dev_err(&client->dev, "Failed to register acc iio device\n");
--		goto err_buffer_cleanup_mag;
-+		goto err_pm_cleanup;
- 	}
- 
- 	ret = iio_device_register(data->mag_indio_dev);
-@@ -1398,6 +1398,9 @@ static int kmx61_probe(struct i2c_client
- 
- err_iio_unregister_acc:
- 	iio_device_unregister(data->acc_indio_dev);
-+err_pm_cleanup:
-+	pm_runtime_dont_use_autosuspend(&client->dev);
-+	pm_runtime_disable(&client->dev);
- err_buffer_cleanup_mag:
- 	if (client->irq > 0)
- 		iio_triggered_buffer_cleanup(data->mag_indio_dev);
---- a/drivers/iio/magnetometer/bmc150_magn.c
-+++ b/drivers/iio/magnetometer/bmc150_magn.c
-@@ -962,13 +962,14 @@ int bmc150_magn_probe(struct device *dev
- 	ret = iio_device_register(indio_dev);
- 	if (ret < 0) {
- 		dev_err(dev, "unable to register iio device\n");
--		goto err_disable_runtime_pm;
-+		goto err_pm_cleanup;
- 	}
- 
- 	dev_dbg(dev, "Registered device %s\n", name);
- 	return 0;
- 
--err_disable_runtime_pm:
-+err_pm_cleanup:
-+	pm_runtime_dont_use_autosuspend(dev);
- 	pm_runtime_disable(dev);
- err_buffer_cleanup:
- 	iio_triggered_buffer_cleanup(indio_dev);
+ /* RNDIS Message parser and other useless functions */
 
 
