@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E4AD4C72BC
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B9604C7561
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:54:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234279AbiB1R2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:28:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45380 "EHLO
+        id S238499AbiB1Ryt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:54:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237225AbiB1R2G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:28:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F0B62E9;
-        Mon, 28 Feb 2022 09:27:22 -0800 (PST)
+        with ESMTP id S239156AbiB1RwB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:52:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F99291341;
+        Mon, 28 Feb 2022 09:39:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91B7E6135F;
-        Mon, 28 Feb 2022 17:27:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BDC7C340E7;
-        Mon, 28 Feb 2022 17:27:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0CD1B815BB;
+        Mon, 28 Feb 2022 17:39:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1193EC340F0;
+        Mon, 28 Feb 2022 17:39:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069242;
-        bh=syfSvU/7y2CmgSCUm/TKqAHV3WuNmsFV4FablvfBExk=;
+        s=korg; t=1646069970;
+        bh=CddVVUFIMUYm1CX/7EsfuhiY7pLEr+i9IuKyrRICjow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VSIlNTZB+2ujE6Se1Ije/s5oSdfa6uW/PS7kx6ZUs8oRbSeLv4M2OCKbvZDW3qtGq
-         6i20XRJ6LkfjK072luOHMsxqTyNaBy+9oiQa6YKpbnW5HG66QEvbSssA1V2DmMqYHl
-         ZslvR02ly1AwOj90W5l50281mCvE0bT5avUut/k4=
+        b=Ysxo7U4FQCGGD0Pt29KwH8CikcfINepXVdsoY1HXCLvfLYmpU2EksXLLhmU29nRri
+         gEiVOdPQLLQ+30mTfcQBIj9yopSwp/uLF+YfEgYfzTNF+M88ZAbzgCg0WUZv8axagu
+         phdwlvYhOTGoyyOMlyqfFg/e56Rj5qdZYkq3s/eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+831661966588c802aae9@syzkaller.appspotmail.com,
-        Bart Van Assche <bvanassche@acm.org>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/31] RDMA/ib_srp: Fix a deadlock
+        stable@vger.kernel.org, Cris Forno <cforno12@outlook.com>,
+        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        Dany Madden <drt@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 077/139] ibmvnic: schedule failover only if vioctl fails
 Date:   Mon, 28 Feb 2022 18:24:11 +0100
-Message-Id: <20220228172201.340337725@linuxfoundation.org>
+Message-Id: <20220228172355.825625607@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
-References: <20220228172159.515152296@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,45 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 
-[ Upstream commit 081bdc9fe05bb23248f5effb6f811da3da4b8252 ]
+commit 277f2bb14361790a70e4b3c649e794b75a91a597 upstream.
 
-Remove the flush_workqueue(system_long_wq) call since flushing
-system_long_wq is deadlock-prone and since that call is redundant with a
-preceding cancel_work_sync()
+If client is unable to initiate a failover reset via H_VIOCTL hcall, then
+it should schedule a failover reset as a last resort. Otherwise, there is
+no need to do a last resort.
 
-Link: https://lore.kernel.org/r/20220215210511.28303-3-bvanassche@acm.org
-Fixes: ef6c49d87c34 ("IB/srp: Eliminate state SRP_TARGET_DEAD")
-Reported-by: syzbot+831661966588c802aae9@syzkaller.appspotmail.com
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 334c42414729 ("ibmvnic: improve failover sysfs entry")
+Reported-by: Cris Forno <cforno12@outlook.com>
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Signed-off-by: Dany Madden <drt@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220221210545.115283-1-drt@linux.ibm.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/ulp/srp/ib_srp.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index 9f7287f45d06f..63358c4c8e57c 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -3683,9 +3683,11 @@ static void srp_remove_one(struct ib_device *device, void *client_data)
- 		spin_unlock(&host->target_lock);
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -5733,10 +5733,14 @@ static ssize_t failover_store(struct dev
+ 		   be64_to_cpu(session_token));
+ 	rc = plpar_hcall_norets(H_VIOCTL, adapter->vdev->unit_address,
+ 				H_SESSION_ERR_DETECTED, session_token, 0, 0);
+-	if (rc)
++	if (rc) {
+ 		netdev_err(netdev,
+ 			   "H_VIOCTL initiated failover failed, rc %ld\n",
+ 			   rc);
++		goto last_resort;
++	}
++
++	return count;
  
- 		/*
--		 * Wait for tl_err and target port removal tasks.
-+		 * srp_queue_remove_work() queues a call to
-+		 * srp_remove_target(). The latter function cancels
-+		 * target->tl_err_work so waiting for the remove works to
-+		 * finish is sufficient.
- 		 */
--		flush_workqueue(system_long_wq);
- 		flush_workqueue(srp_remove_wq);
- 
- 		kfree(host);
--- 
-2.34.1
-
+ last_resort:
+ 	netdev_dbg(netdev, "Trying to send CRQ_CMD, the last resort\n");
 
 
