@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26E944C7338
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C87844C7405
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237681AbiB1ReK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:34:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41948 "EHLO
+        id S234166AbiB1RkM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:40:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238404AbiB1Rd1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B91890277;
-        Mon, 28 Feb 2022 09:29:58 -0800 (PST)
+        with ESMTP id S233680AbiB1Rjx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:39:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2715392857;
+        Mon, 28 Feb 2022 09:34:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C74CB815AC;
-        Mon, 28 Feb 2022 17:29:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D4EAC340E7;
-        Mon, 28 Feb 2022 17:29:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B170CB815B4;
+        Mon, 28 Feb 2022 17:34:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06C84C340E7;
+        Mon, 28 Feb 2022 17:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069388;
-        bh=oh/sasvbWZ6S2kcQyCU00pN818bGxsywW0dhY8vbDRc=;
+        s=korg; t=1646069652;
+        bh=QO6fTW2VcelMu6EAiAhXnvwL+tqQreU8tzQFXXvOUVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gBeI/L+6zKUH469U5+Vf8InkkiXYPX67XqW5sEnpP5GrP42M0wsaRTUp5YZImYGc/
-         D602sHibzxlrm03unm4joMDapS1Faes+ts+llUsl006a0nyWhKyaYbQ9pKnj3PWMry
-         fjme4MLahkW/yqsPpv65Bxa1ve7zCTmWYnHV0g34=
+        b=g/bLjDb48qbJ1MBrDveAwlZ/L+AZOF5+gtPcRe0cb/f6PlPgeR2rMPyX4pq15q8d7
+         KYU0UiTpJ7mGmGL9oVR3J9ozy32Mte3H5rGLDG0DSxK53jPRlQQP2rybiIpl3yRVSH
+         vDa7PtqwkBz1hObV91ATPylE7BAR6j4n24yG8zus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ben Skeggs <bskeggs@redhat.com>, Lyude Paul <lyude@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>
-Subject: [PATCH 4.19 18/34] Revert "drm/nouveau/pmu/gm200-: avoid touching PMU outside of DEVINIT/PREOS/ACR"
+        stable@vger.kernel.org, Ariel Levkovich <lariel@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.10 43/80] net/mlx5: Fix wrong limitation of metadata match on ecpf
 Date:   Mon, 28 Feb 2022 18:24:24 +0100
-Message-Id: <20220228172209.919418318@linuxfoundation.org>
+Message-Id: <20220228172316.750087654@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
-References: <20220228172207.090703467@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,96 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karol Herbst <kherbst@redhat.com>
+From: Ariel Levkovich <lariel@nvidia.com>
 
-This reverts commit c9ec3d85c0eef7c71cdc68db758e0f0e378132c0.
+commit 07666c75ad17d7389b18ac0235c8cf41e1504ea8 upstream.
 
-This commit causes a regression if 4cdd2450bf739bada353e82d27b00db9af8c3001
-is not applied as well. This was fixed for 5.16, 5.15 and 5.10.
+Match metadata support check returns false for ecpf device.
+However, this support does exist for ecpf and therefore this
+limitation should be removed to allow feature such as stacked
+devices and internal port offloaded to be supported.
 
-On older stable branches backporting this commit is complicated as relevant
-code changed quite a bit. Furthermore most of the affected hardware barely
-works on those and users would want to use the newer kernels anyway.
-
-Cc: stable@vger.kernel.org # 5.4 4.19 and 4.14
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: Lyude Paul <lyude@redhat.com>
-Link: https://gitlab.freedesktop.org/drm/nouveau/-/issues/149
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Fixes: 92ab1eb392c6 ("net/mlx5: E-Switch, Enable vport metadata matching if firmware supports it")
+Signed-off-by: Ariel Levkovich <lariel@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c |   37 ++++++++++---------------
- 1 file changed, 16 insertions(+), 21 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c
-@@ -70,13 +70,20 @@ nvkm_pmu_fini(struct nvkm_subdev *subdev
- 	return 0;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -2037,10 +2037,6 @@ esw_check_vport_match_metadata_supported
+ 	if (!MLX5_CAP_ESW_FLOWTABLE(esw->dev, flow_source))
+ 		return false;
+ 
+-	if (mlx5_core_is_ecpf_esw_manager(esw->dev) ||
+-	    mlx5_ecpf_vport_exists(esw->dev))
+-		return false;
+-
+ 	return true;
  }
  
--static void
-+static int
- nvkm_pmu_reset(struct nvkm_pmu *pmu)
- {
- 	struct nvkm_device *device = pmu->subdev.device;
- 
- 	if (!pmu->func->enabled(pmu))
--		return;
-+		return 0;
-+
-+	/* Inhibit interrupts, and wait for idle. */
-+	nvkm_wr32(device, 0x10a014, 0x0000ffff);
-+	nvkm_msec(device, 2000,
-+		if (!nvkm_rd32(device, 0x10a04c))
-+			break;
-+	);
- 
- 	/* Reset. */
- 	if (pmu->func->reset)
-@@ -87,37 +94,25 @@ nvkm_pmu_reset(struct nvkm_pmu *pmu)
- 		if (!(nvkm_rd32(device, 0x10a10c) & 0x00000006))
- 			break;
- 	);
-+
-+	return 0;
- }
- 
- static int
- nvkm_pmu_preinit(struct nvkm_subdev *subdev)
- {
- 	struct nvkm_pmu *pmu = nvkm_pmu(subdev);
--	nvkm_pmu_reset(pmu);
--	return 0;
-+	return nvkm_pmu_reset(pmu);
- }
- 
- static int
- nvkm_pmu_init(struct nvkm_subdev *subdev)
- {
- 	struct nvkm_pmu *pmu = nvkm_pmu(subdev);
--	struct nvkm_device *device = pmu->subdev.device;
--
--	if (!pmu->func->init)
--		return 0;
--
--	if (pmu->func->enabled(pmu)) {
--		/* Inhibit interrupts, and wait for idle. */
--		nvkm_wr32(device, 0x10a014, 0x0000ffff);
--		nvkm_msec(device, 2000,
--			if (!nvkm_rd32(device, 0x10a04c))
--				break;
--		);
--
--		nvkm_pmu_reset(pmu);
--	}
--
--	return pmu->func->init(pmu);
-+	int ret = nvkm_pmu_reset(pmu);
-+	if (ret == 0 && pmu->func->init)
-+		ret = pmu->func->init(pmu);
-+	return ret;
- }
- 
- static int
 
 
