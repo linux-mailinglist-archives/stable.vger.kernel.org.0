@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47C514C7408
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 025474C72D3
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235060AbiB1RkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:40:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37390 "EHLO
+        id S234797AbiB1R3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:29:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238011AbiB1Rjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:39:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC05A91341;
-        Mon, 28 Feb 2022 09:34:09 -0800 (PST)
+        with ESMTP id S236211AbiB1R2z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:28:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB3C117E3D;
+        Mon, 28 Feb 2022 09:27:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38A20B815B8;
-        Mon, 28 Feb 2022 17:34:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 924E3C340E7;
-        Mon, 28 Feb 2022 17:34:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84CA061362;
+        Mon, 28 Feb 2022 17:27:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AF1DC340E7;
+        Mon, 28 Feb 2022 17:27:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069646;
-        bh=+l3jU0nvv1HAdt1l7oH7jBuox343EAywraz1n02pq30=;
+        s=korg; t=1646069274;
+        bh=/qxJZRIDq9NYVZooC34vVb1sF2Rt52/aik8Fo/ZPXsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ntvs8eFVBoMNXhP6oGQ3QWz7uHVUVDtt6CniZRzKh2E9HSHIvnasC89O0Tg/qA/rj
-         Jk19Ycx9Er5SXx00CWmtNL+PrCGG6DSiv2WJiWvYKRl8cHXkp6IrxFcYcuDX8tpV7n
-         nC2VWhD6y8wftdrfN/OG12J2Fw8fGnT9SfhoaAyo=
+        b=aln1y1hLYDY2kxCVQtydNSLYWA8IVIaReYq4b4kERDqid1og3wRswdCgnWt4jjDol
+         +xLdbIW6uJWbd0kRLBdAlsMTk45I9a8k1tHY37ApMoFrT2MQ0CM+qJCd9MzGUPHa6o
+         975tjmfbGyChWkEzt5VJOuoD6g+K8+DpG18a9XgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 41/80] udp_tunnel: Fix end of loop test in udp_tunnel_nic_unregister()
+        stable@vger.kernel.org, Hongyu Xie <xiehongyu1@kylinos.cn>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.14 26/31] xhci: Prevent futile URB re-submissions due to incorrect return value.
 Date:   Mon, 28 Feb 2022 18:24:22 +0100
-Message-Id: <20220228172316.511306586@linuxfoundation.org>
+Message-Id: <20220228172202.357336349@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172159.515152296@linuxfoundation.org>
+References: <20220228172159.515152296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Hongyu Xie <xiehongyu1@kylinos.cn>
 
-commit de7b2efacf4e83954aed3f029d347dfc0b7a4f49 upstream.
+commit 243a1dd7ba48c120986dd9e66fee74bcb7751034 upstream.
 
-This test is checking if we exited the list via break or not.  However
-if it did not exit via a break then "node" does not point to a valid
-udp_tunnel_nic_shared_node struct.  It will work because of the way
-the structs are laid out it's the equivalent of
-"if (info->shared->udp_tunnel_nic_info != dev)" which will always be
-true, but it's not the right way to test.
+The -ENODEV return value from xhci_check_args() is incorrectly changed
+to -EINVAL in a couple places before propagated further.
 
-Fixes: 74cc6d182d03 ("udp_tunnel: add the ability to share port tables")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+xhci_check_args() returns 4 types of value, -ENODEV, -EINVAL, 1 and 0.
+xhci_urb_enqueue and xhci_check_streams_endpoint return -EINVAL if
+the return value of xhci_check_args <= 0.
+This causes problems for example r8152_submit_rx, calling usb_submit_urb
+in drivers/net/usb/r8152.c.
+r8152_submit_rx will never get -ENODEV after submiting an urb when xHC
+is halted because xhci_urb_enqueue returns -EINVAL in the very beginning.
+
+[commit message and header edit -Mathias]
+
+Fixes: 203a86613fb3 ("xhci: Avoid NULL pointer deref when host dies.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hongyu Xie <xiehongyu1@kylinos.cn>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220215123320.1253947-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/udp_tunnel_nic.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/udp_tunnel_nic.c
-+++ b/net/ipv4/udp_tunnel_nic.c
-@@ -846,7 +846,7 @@ udp_tunnel_nic_unregister(struct net_dev
- 		list_for_each_entry(node, &info->shared->devices, list)
- 			if (node->dev == dev)
- 				break;
--		if (node->dev != dev)
-+		if (list_entry_is_head(node, &info->shared->devices, list))
- 			return;
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1397,9 +1397,12 @@ static int xhci_urb_enqueue(struct usb_h
+ 	struct urb_priv	*urb_priv;
+ 	int num_tds;
  
- 		list_del(&node->list);
+-	if (!urb || xhci_check_args(hcd, urb->dev, urb->ep,
+-					true, true, __func__) <= 0)
++	if (!urb)
+ 		return -EINVAL;
++	ret = xhci_check_args(hcd, urb->dev, urb->ep,
++					true, true, __func__);
++	if (ret <= 0)
++		return ret ? ret : -EINVAL;
+ 
+ 	slot_id = urb->dev->slot_id;
+ 	ep_index = xhci_get_endpoint_index(&urb->ep->desc);
+@@ -3026,7 +3029,7 @@ static int xhci_check_streams_endpoint(s
+ 		return -EINVAL;
+ 	ret = xhci_check_args(xhci_to_hcd(xhci), udev, ep, 1, true, __func__);
+ 	if (ret <= 0)
+-		return -EINVAL;
++		return ret ? ret : -EINVAL;
+ 	if (usb_ss_max_streams(&ep->ss_ep_comp) == 0) {
+ 		xhci_warn(xhci, "WARN: SuperSpeed Endpoint Companion"
+ 				" descriptor for ep 0x%x does not support streams\n",
 
 
