@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2C224C7409
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49BD64C757C
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:54:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233558AbiB1Rk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:40:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33138 "EHLO
+        id S235485AbiB1RzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:55:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235998AbiB1RjY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:39:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3AA490CD2;
-        Mon, 28 Feb 2022 09:34:06 -0800 (PST)
+        with ESMTP id S240053AbiB1Rxw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:53:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86485B0C6F;
+        Mon, 28 Feb 2022 09:41:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A1DAB815A6;
-        Mon, 28 Feb 2022 17:34:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD3C7C340E7;
-        Mon, 28 Feb 2022 17:34:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF36BB815D2;
+        Mon, 28 Feb 2022 17:41:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 324D0C340E7;
+        Mon, 28 Feb 2022 17:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069644;
-        bh=UetJ5oyp/PARJAuwEtlGVz+riQ4VPsAix6ryU2qb2oE=;
+        s=korg; t=1646070069;
+        bh=kHjlrUGxe5V6yIekYKm6DoIIlAVCwygVHRQyvgZOCHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4BKFHjXwJF2MEwlom7CGw7Es27Z1W41P9SQoYkVHm0eKrlttinX21j782q1PZ3jy
-         Mw6P0D/yzOO7sV49kjIeQPvQ82eurj/Q0qdcRgzDCMrG2jIEgKeZ9zP/NuxvYcVuYs
-         JTHJ9myZGBlcVONfz3ohS9k/X85x+Y7oohXDAa30=
+        b=ukZlbXzr6g1kCVVj2zS4wNKnHC0w9Nh8dkbkRDo1sTEeDXkvBYetnia8w4jCj/E0t
+         DDcu0XPl+cKdC0JhfS7U6b7HqKMiiMxYftrlegDXNM6H0pH0RE8SfF8IVgAL8xVrM5
+         n+WmIkOjVPl7qQIhKFIxe0iUyMCEGCwxu3ZHVpOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.10 40/80] surface: surface3_power: Fix battery readings on batteries without a serial number
+        Prasad Kumpatla <quic_pkumpatl@quicinc.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 087/139] regmap-irq: Update interrupt clear register for proper reset
 Date:   Mon, 28 Feb 2022 18:24:21 +0100
-Message-Id: <20220228172316.417155470@linuxfoundation.org>
+Message-Id: <20220228172356.797876633@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +57,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Prasad Kumpatla <quic_pkumpatl@quicinc.com>
 
-commit 21d90aaee8d5c2a097ef41f1430d97661233ecc6 upstream.
+[ Upstream commit d04ad245d67a3991dfea5e108e4c452c2ab39bac ]
 
-The battery on the 2nd hand Surface 3 which I recently bought appears to
-not have a serial number programmed in. This results in any I2C reads from
-the registers containing the serial number failing with an I2C NACK.
+With the existing logic where clear_ack is true (HW doesn’t support
+auto clear for ICR), interrupt clear register reset is not handled
+properly. Due to this only the first interrupts get processed properly
+and further interrupts are blocked due to not resetting interrupt
+clear register.
 
-This was causing mshw0011_bix() to fail causing the battery readings to
-not work at all.
+Example for issue case where Invert_ack is false and clear_ack is true:
 
-Ignore EREMOTEIO (I2C NACK) errors when retrieving the serial number and
-continue with an empty serial number to fix this.
+    Say Default ISR=0x00 & ICR=0x00 and ISR is triggered with 2
+    interrupts making ISR = 0x11.
 
-Fixes: b1f81b496b0d ("platform/x86: surface3_power: MSHW0011 rev-eng implementation")
-BugLink: https://github.com/linux-surface/linux-surface/issues/608
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Reviewed-by: Maximilian Luz <luzmaximilian@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220224101848.7219-1-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Step 1: Say ISR is set 0x11 (store status_buff = ISR). ISR needs to
+            be cleared with the help of ICR once the Interrupt is processed.
+
+    Step 2: Write ICR = 0x11 (status_buff), this will clear the ISR to 0x00.
+
+    Step 3: Issue - In the existing code, ICR is written with ICR =
+            ~(status_buff) i.e ICR = 0xEE -> This will block all the interrupts
+            from raising except for interrupts 0 and 4. So expectation here is to
+            reset ICR, which will unblock all the interrupts.
+
+            if (chip->clear_ack) {
+                 if (chip->ack_invert && !ret)
+                  ........
+                 else if (!ret)
+                     ret = regmap_write(map, reg,
+                            ~data->status_buf[i]);
+
+So writing 0 and 0xff (when ack_invert is true) should have no effect, other
+than clearing the ACKs just set.
+
+Fixes: 3a6f0fb7b8eb ("regmap: irq: Add support to clear ack registers")
+Signed-off-by: Prasad Kumpatla <quic_pkumpatl@quicinc.com>
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20220217085007.30218-1-quic_pkumpatl@quicinc.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/surface3_power.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/base/regmap/regmap-irq.c | 20 ++++++--------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
 
---- a/drivers/platform/x86/surface3_power.c
-+++ b/drivers/platform/x86/surface3_power.c
-@@ -233,14 +233,21 @@ static int mshw0011_bix(struct mshw0011_
- 	}
- 	bix->last_full_charg_capacity = ret;
- 
--	/* get serial number */
-+	/*
-+	 * Get serial number, on some devices (with unofficial replacement
-+	 * battery?) reading any of the serial number range addresses gets
-+	 * nacked in this case just leave the serial number empty.
-+	 */
- 	ret = i2c_smbus_read_i2c_block_data(client, MSHW0011_BAT0_REG_SERIAL_NO,
- 					    sizeof(buf), buf);
--	if (ret != sizeof(buf)) {
-+	if (ret == -EREMOTEIO) {
-+		/* no serial number available */
-+	} else if (ret != sizeof(buf)) {
- 		dev_err(&client->dev, "Error reading serial no: %d\n", ret);
- 		return ret;
-+	} else {
-+		snprintf(bix->serial, ARRAY_SIZE(bix->serial), "%3pE%6pE", buf + 7, buf);
- 	}
--	snprintf(bix->serial, ARRAY_SIZE(bix->serial), "%3pE%6pE", buf + 7, buf);
- 
- 	/* get cycle count */
- 	ret = i2c_smbus_read_word_data(client, MSHW0011_BAT0_REG_CYCLE_CNT);
+diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
+index d2656581a6085..4a446259a184e 100644
+--- a/drivers/base/regmap/regmap-irq.c
++++ b/drivers/base/regmap/regmap-irq.c
+@@ -189,11 +189,9 @@ static void regmap_irq_sync_unlock(struct irq_data *data)
+ 				ret = regmap_write(map, reg, d->mask_buf[i]);
+ 			if (d->chip->clear_ack) {
+ 				if (d->chip->ack_invert && !ret)
+-					ret = regmap_write(map, reg,
+-							   d->mask_buf[i]);
++					ret = regmap_write(map, reg, UINT_MAX);
+ 				else if (!ret)
+-					ret = regmap_write(map, reg,
+-							   ~d->mask_buf[i]);
++					ret = regmap_write(map, reg, 0);
+ 			}
+ 			if (ret != 0)
+ 				dev_err(d->map->dev, "Failed to ack 0x%x: %d\n",
+@@ -556,11 +554,9 @@ static irqreturn_t regmap_irq_thread(int irq, void *d)
+ 						data->status_buf[i]);
+ 			if (chip->clear_ack) {
+ 				if (chip->ack_invert && !ret)
+-					ret = regmap_write(map, reg,
+-							data->status_buf[i]);
++					ret = regmap_write(map, reg, UINT_MAX);
+ 				else if (!ret)
+-					ret = regmap_write(map, reg,
+-							~data->status_buf[i]);
++					ret = regmap_write(map, reg, 0);
+ 			}
+ 			if (ret != 0)
+ 				dev_err(map->dev, "Failed to ack 0x%x: %d\n",
+@@ -817,13 +813,9 @@ int regmap_add_irq_chip_fwnode(struct fwnode_handle *fwnode,
+ 					d->status_buf[i] & d->mask_buf[i]);
+ 			if (chip->clear_ack) {
+ 				if (chip->ack_invert && !ret)
+-					ret = regmap_write(map, reg,
+-						(d->status_buf[i] &
+-						 d->mask_buf[i]));
++					ret = regmap_write(map, reg, UINT_MAX);
+ 				else if (!ret)
+-					ret = regmap_write(map, reg,
+-						~(d->status_buf[i] &
+-						  d->mask_buf[i]));
++					ret = regmap_write(map, reg, 0);
+ 			}
+ 			if (ret != 0) {
+ 				dev_err(map->dev, "Failed to ack 0x%x: %d\n",
+-- 
+2.34.1
+
 
 
