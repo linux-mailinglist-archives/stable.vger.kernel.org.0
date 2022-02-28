@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86EE14C74BC
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 525434C729F
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:27:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238559AbiB1Rq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:46:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58740 "EHLO
+        id S233016AbiB1R1a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:27:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235780AbiB1RpG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:45:06 -0500
+        with ESMTP id S235124AbiB1R1R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:27:17 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6E723B3F5;
-        Mon, 28 Feb 2022 09:37:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D6A989309;
+        Mon, 28 Feb 2022 09:26:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E978161357;
-        Mon, 28 Feb 2022 17:37:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B100C340E7;
-        Mon, 28 Feb 2022 17:37:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 68E8F61365;
+        Mon, 28 Feb 2022 17:26:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D4E0C340E7;
+        Mon, 28 Feb 2022 17:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069864;
-        bh=9nxveOHMsj4ZaiMKU38DDizVd4iIeE9jIrHU6DIUYJY=;
+        s=korg; t=1646069187;
+        bh=1hGyolwMLVbFy5rQ8VkYCl7rOXKuk1PElccLrSmZjEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wU0RpNwmqxM+GDfmmzV1c/naiH5eF2SRnt6dOcftQGXzbS7mKHamk1a8VObW6YeF2
-         84Q9TjNEsAEtuxy3lelE5fMDH8YUHmuKSYJiQUThrqhpDFO+6sLG/RYbgHHsWhm7tp
-         HCg+AOKAilNzDFSuSDi1XL4CS2/Knbux8QpPtSrU=
+        b=lVvdhSGS1BmZ1V08UubG34LtUPHOai/sVdkoAdJo/UXOQ1xq7rD9PifzT+Mg6Vig1
+         o92ZBeNupZcBReGqFv/xyk8JEQ4u2GBNjOKzPKxaJ/F7gRpe9XpR77KCzYmxy6ZQE7
+         Y5ENJAssc9DUFiE9+5Sc3l6qORvHY9cmNqHfGKcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Ross Maynard <bids.7405@bigpond.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 038/139] mptcp: add mibs counter for ignored incoming options
-Date:   Mon, 28 Feb 2022 18:23:32 +0100
-Message-Id: <20220228172351.755107471@linuxfoundation.org>
+Subject: [PATCH 4.9 06/29] USB: zaurus: support another broken Zaurus
+Date:   Mon, 28 Feb 2022 18:23:33 +0100
+Message-Id: <20220228172142.239200816@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
+References: <20220228172141.744228435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,89 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit f73c1194634506ab60af0debef04671fc431a435 upstream.
+commit 6605cc67ca18b9d583eb96e18a20f5f4e726103c upstream.
 
-The MPTCP in kernel path manager has some constraints on incoming
-addresses announce processing, so that in edge scenarios it can
-end-up dropping (ignoring) some of such announces.
+This SL-6000 says Direct Line, not Ethernet
 
-The above is not very limiting in practice since such scenarios are
-very uncommon and MPTCP will recover due to ADD_ADDR retransmissions.
+v2: added Reporter and Link
 
-This patch adds a few MIB counters to account for such drop events
-to allow easier introspection of the critical scenarios.
-
-Fixes: f7efc7771eac ("mptcp: drop argument port from mptcp_pm_announce_addr")
-Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: Ross Maynard <bids.7405@bigpond.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215361
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/mib.c |    2 ++
- net/mptcp/mib.h |    2 ++
- net/mptcp/pm.c  |    8 ++++++--
- 3 files changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/usb/cdc_ether.c |   12 ++++++++++++
+ drivers/net/usb/zaurus.c    |   12 ++++++++++++
+ 2 files changed, 24 insertions(+)
 
---- a/net/mptcp/mib.c
-+++ b/net/mptcp/mib.c
-@@ -35,12 +35,14 @@ static const struct snmp_mib mptcp_snmp_
- 	SNMP_MIB_ITEM("AddAddr", MPTCP_MIB_ADDADDR),
- 	SNMP_MIB_ITEM("EchoAdd", MPTCP_MIB_ECHOADD),
- 	SNMP_MIB_ITEM("PortAdd", MPTCP_MIB_PORTADD),
-+	SNMP_MIB_ITEM("AddAddrDrop", MPTCP_MIB_ADDADDRDROP),
- 	SNMP_MIB_ITEM("MPJoinPortSynRx", MPTCP_MIB_JOINPORTSYNRX),
- 	SNMP_MIB_ITEM("MPJoinPortSynAckRx", MPTCP_MIB_JOINPORTSYNACKRX),
- 	SNMP_MIB_ITEM("MPJoinPortAckRx", MPTCP_MIB_JOINPORTACKRX),
- 	SNMP_MIB_ITEM("MismatchPortSynRx", MPTCP_MIB_MISMATCHPORTSYNRX),
- 	SNMP_MIB_ITEM("MismatchPortAckRx", MPTCP_MIB_MISMATCHPORTACKRX),
- 	SNMP_MIB_ITEM("RmAddr", MPTCP_MIB_RMADDR),
-+	SNMP_MIB_ITEM("RmAddrDrop", MPTCP_MIB_RMADDRDROP),
- 	SNMP_MIB_ITEM("RmSubflow", MPTCP_MIB_RMSUBFLOW),
- 	SNMP_MIB_ITEM("MPPrioTx", MPTCP_MIB_MPPRIOTX),
- 	SNMP_MIB_ITEM("MPPrioRx", MPTCP_MIB_MPPRIORX),
---- a/net/mptcp/mib.h
-+++ b/net/mptcp/mib.h
-@@ -28,12 +28,14 @@ enum linux_mptcp_mib_field {
- 	MPTCP_MIB_ADDADDR,		/* Received ADD_ADDR with echo-flag=0 */
- 	MPTCP_MIB_ECHOADD,		/* Received ADD_ADDR with echo-flag=1 */
- 	MPTCP_MIB_PORTADD,		/* Received ADD_ADDR with a port-number */
-+	MPTCP_MIB_ADDADDRDROP,		/* Dropped incoming ADD_ADDR */
- 	MPTCP_MIB_JOINPORTSYNRX,	/* Received a SYN MP_JOIN with a different port-number */
- 	MPTCP_MIB_JOINPORTSYNACKRX,	/* Received a SYNACK MP_JOIN with a different port-number */
- 	MPTCP_MIB_JOINPORTACKRX,	/* Received an ACK MP_JOIN with a different port-number */
- 	MPTCP_MIB_MISMATCHPORTSYNRX,	/* Received a SYN MP_JOIN with a mismatched port-number */
- 	MPTCP_MIB_MISMATCHPORTACKRX,	/* Received an ACK MP_JOIN with a mismatched port-number */
- 	MPTCP_MIB_RMADDR,		/* Received RM_ADDR */
-+	MPTCP_MIB_RMADDRDROP,		/* Dropped incoming RM_ADDR */
- 	MPTCP_MIB_RMSUBFLOW,		/* Remove a subflow */
- 	MPTCP_MIB_MPPRIOTX,		/* Transmit a MP_PRIO */
- 	MPTCP_MIB_MPPRIORX,		/* Received a MP_PRIO */
---- a/net/mptcp/pm.c
-+++ b/net/mptcp/pm.c
-@@ -194,6 +194,8 @@ void mptcp_pm_add_addr_received(struct m
- 		mptcp_pm_add_addr_send_ack(msk);
- 	} else if (mptcp_pm_schedule_work(msk, MPTCP_PM_ADD_ADDR_RECEIVED)) {
- 		pm->remote = *addr;
-+	} else {
-+		__MPTCP_INC_STATS(sock_net((struct sock *)msk), MPTCP_MIB_ADDADDRDROP);
- 	}
+--- a/drivers/net/usb/cdc_ether.c
++++ b/drivers/net/usb/cdc_ether.c
+@@ -555,6 +555,11 @@ static const struct usb_device_id	produc
+ 	.bInterfaceSubClass	= USB_CDC_SUBCLASS_ETHERNET, \
+ 	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
  
- 	spin_unlock_bh(&pm->lock);
-@@ -234,8 +236,10 @@ void mptcp_pm_rm_addr_received(struct mp
- 		mptcp_event_addr_removed(msk, rm_list->ids[i]);
++#define ZAURUS_FAKE_INTERFACE \
++	.bInterfaceClass	= USB_CLASS_COMM, \
++	.bInterfaceSubClass	= USB_CDC_SUBCLASS_MDLM, \
++	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
++
+ /* SA-1100 based Sharp Zaurus ("collie"), or compatible;
+  * wire-incompatible with true CDC Ethernet implementations.
+  * (And, it seems, needlessly so...)
+@@ -610,6 +615,13 @@ static const struct usb_device_id	produc
+ 	.driver_info		= 0,
+ }, {
+ 	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
++		 | USB_DEVICE_ID_MATCH_DEVICE,
++	.idVendor               = 0x04DD,
++	.idProduct              = 0x9032,	/* SL-6000 */
++	ZAURUS_FAKE_INTERFACE,
++	.driver_info		= 0,
++}, {
++	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
+ 		 | USB_DEVICE_ID_MATCH_DEVICE,
+ 	.idVendor               = 0x04DD,
+ 	/* reported with some C860 units */
+--- a/drivers/net/usb/zaurus.c
++++ b/drivers/net/usb/zaurus.c
+@@ -268,6 +268,11 @@ static const struct usb_device_id	produc
+ 	.bInterfaceSubClass	= USB_CDC_SUBCLASS_ETHERNET, \
+ 	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
  
- 	spin_lock_bh(&pm->lock);
--	mptcp_pm_schedule_work(msk, MPTCP_PM_RM_ADDR_RECEIVED);
--	pm->rm_list_rx = *rm_list;
-+	if (mptcp_pm_schedule_work(msk, MPTCP_PM_RM_ADDR_RECEIVED))
-+		pm->rm_list_rx = *rm_list;
-+	else
-+		__MPTCP_INC_STATS(sock_net((struct sock *)msk), MPTCP_MIB_RMADDRDROP);
- 	spin_unlock_bh(&pm->lock);
- }
- 
++#define ZAURUS_FAKE_INTERFACE \
++	.bInterfaceClass	= USB_CLASS_COMM, \
++	.bInterfaceSubClass	= USB_CDC_SUBCLASS_MDLM, \
++	.bInterfaceProtocol	= USB_CDC_PROTO_NONE
++
+ /* SA-1100 based Sharp Zaurus ("collie"), or compatible. */
+ {
+ 	.match_flags	=   USB_DEVICE_ID_MATCH_INT_INFO
+@@ -327,6 +332,13 @@ static const struct usb_device_id	produc
+ 	.driver_info = ZAURUS_PXA_INFO,
+ }, {
+ 	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
++			    | USB_DEVICE_ID_MATCH_DEVICE,
++	.idVendor		= 0x04DD,
++	.idProduct		= 0x9032,	/* SL-6000 */
++	ZAURUS_FAKE_INTERFACE,
++	.driver_info = (unsigned long)&bogus_mdlm_info,
++}, {
++	.match_flags    =   USB_DEVICE_ID_MATCH_INT_INFO
+ 		 | USB_DEVICE_ID_MATCH_DEVICE,
+ 	.idVendor               = 0x04DD,
+ 	/* reported with some C860 units */
 
 
