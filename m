@@ -2,55 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66E474C7303
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:31:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A98204C7685
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230052AbiB1Rb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:31:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47526 "EHLO
+        id S233391AbiB1SE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:04:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236796AbiB1Rat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:30:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D54254195;
-        Mon, 28 Feb 2022 09:28:35 -0800 (PST)
+        with ESMTP id S240230AbiB1SDT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:03:19 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 008AD57490;
+        Mon, 28 Feb 2022 09:46:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10E1DB815A6;
-        Mon, 28 Feb 2022 17:28:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C678C340E7;
-        Mon, 28 Feb 2022 17:28:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 73B5BCE17D1;
+        Mon, 28 Feb 2022 17:46:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47202C340E7;
+        Mon, 28 Feb 2022 17:46:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069312;
-        bh=W5B5qur26hpjJoevcD+w0AR6/wqSRLTdfabBzzG6hqM=;
+        s=korg; t=1646070374;
+        bh=akJ9BNSMLrkTuZdNgGnq3DXFdrq53gMNLhFQRyzT/CI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNRvVXnC+T6e7Qoa++CfT8aqI2mhce+/KQ7hdPrIOThcqS5MgmzJ8HKdrKK/RjkDg
-         zfH9mMxC8sNFAJrzYJYiXsa6ODnGU4XJVShdvdhnyuGwPPlFG57IMSbojd0AP3gGDS
-         i+IT/Dwvc4wxC1+maCy1yCDkB3RuqTBRfyydJ7B8=
+        b=VRUroKlhmhwHPGWXSg3cIKSzEgwKpWNwq4d8D3IC4Ucda4R0X4u3midlda+uMgRdu
+         KEe3eEM9GylPyoeHt0xsusCHDZkykJ6uW9MDkCP7OhilXW8muVlR4AkYbkG1pBIi6f
+         WlExjhHqGik8v4aRAhVKLLM8Xmk/OjHcJmJSWHtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhao Gongyi <zhaogongyi@huawei.com>,
-        Zhang Qiao <zhangqiao22@huawei.com>,
-        Waiman Long <longman@redhat.com>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 4.19 01/34] cgroup/cpuset: Fix a race between cpuset_attach() and cpu hotplug
+        stable@vger.kernel.org,
+        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        syzbot+4f322a6d84e991c38775@syzkaller.appspotmail.com,
+        Tony Lu <tonylu@linux.alibaba.com>
+Subject: [PATCH 5.16 085/164] net/smc: Use a mutex for locking "struct smc_pnettable"
 Date:   Mon, 28 Feb 2022 18:24:07 +0100
-Message-Id: <20220228172208.566431934@linuxfoundation.org>
+Message-Id: <20220228172407.627246809@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
-References: <20220228172207.090703467@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,59 +57,220 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qiao <zhangqiao22@huawei.com>
+From: Fabio M. De Francesco <fmdefrancesco@gmail.com>
 
-commit 05c7b7a92cc87ff8d7fde189d0fade250697573c upstream.
+commit 7ff57e98fb78ad94edafbdc7435f2d745e9e6bb5 upstream.
 
-As previously discussed(https://lkml.org/lkml/2022/1/20/51),
-cpuset_attach() is affected with similar cpu hotplug race,
-as follow scenario:
+smc_pnetid_by_table_ib() uses read_lock() and then it calls smc_pnet_apply_ib()
+which, in turn, calls mutex_lock(&smc_ib_devices.mutex).
 
-     cpuset_attach()				cpu hotplug
-    ---------------------------            ----------------------
-    down_write(cpuset_rwsem)
-    guarantee_online_cpus() // (load cpus_attach)
-					sched_cpu_deactivate
-					  set_cpu_active()
-					  // will change cpu_active_mask
-    set_cpus_allowed_ptr(cpus_attach)
-      __set_cpus_allowed_ptr_locked()
-       // (if the intersection of cpus_attach and
-         cpu_active_mask is empty, will return -EINVAL)
-    up_write(cpuset_rwsem)
+read_lock() disables preemption. Therefore, the code acquires a mutex while in
+atomic context and it leads to a SAC bug.
 
-To avoid races such as described above, protect cpuset_attach() call
-with cpu_hotplug_lock.
+Fix this bug by replacing the rwlock with a mutex.
 
-Fixes: be367d099270 ("cgroups: let ss->can_attach and ss->attach do whole threadgroups at a time")
-Cc: stable@vger.kernel.org # v2.6.32+
-Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
-Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
-Acked-by: Waiman Long <longman@redhat.com>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-and-tested-by: syzbot+4f322a6d84e991c38775@syzkaller.appspotmail.com
+Fixes: 64e28b52c7a6 ("net/smc: add pnet table namespace support")
+Confirmed-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220223100252.22562-1-fmdefrancesco@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cpuset.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/smc/smc_pnet.c |   42 +++++++++++++++++++++---------------------
+ net/smc/smc_pnet.h |    2 +-
+ 2 files changed, 22 insertions(+), 22 deletions(-)
 
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -1528,6 +1528,7 @@ static void cpuset_attach(struct cgroup_
- 	cgroup_taskset_first(tset, &css);
- 	cs = css_cs(css);
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -112,7 +112,7 @@ static int smc_pnet_remove_by_pnetid(str
+ 	pnettable = &sn->pnettable;
  
-+	cpus_read_lock();
- 	mutex_lock(&cpuset_mutex);
+ 	/* remove table entry */
+-	write_lock(&pnettable->lock);
++	mutex_lock(&pnettable->lock);
+ 	list_for_each_entry_safe(pnetelem, tmp_pe, &pnettable->pnetlist,
+ 				 list) {
+ 		if (!pnet_name ||
+@@ -130,7 +130,7 @@ static int smc_pnet_remove_by_pnetid(str
+ 			rc = 0;
+ 		}
+ 	}
+-	write_unlock(&pnettable->lock);
++	mutex_unlock(&pnettable->lock);
  
- 	/* prepare for attach */
-@@ -1583,6 +1584,7 @@ static void cpuset_attach(struct cgroup_
- 		wake_up(&cpuset_attach_wq);
+ 	/* if this is not the initial namespace, stop here */
+ 	if (net != &init_net)
+@@ -191,7 +191,7 @@ static int smc_pnet_add_by_ndev(struct n
+ 	sn = net_generic(net, smc_net_id);
+ 	pnettable = &sn->pnettable;
  
- 	mutex_unlock(&cpuset_mutex);
-+	cpus_read_unlock();
+-	write_lock(&pnettable->lock);
++	mutex_lock(&pnettable->lock);
+ 	list_for_each_entry_safe(pnetelem, tmp_pe, &pnettable->pnetlist, list) {
+ 		if (pnetelem->type == SMC_PNET_ETH && !pnetelem->ndev &&
+ 		    !strncmp(pnetelem->eth_name, ndev->name, IFNAMSIZ)) {
+@@ -205,7 +205,7 @@ static int smc_pnet_add_by_ndev(struct n
+ 			break;
+ 		}
+ 	}
+-	write_unlock(&pnettable->lock);
++	mutex_unlock(&pnettable->lock);
+ 	return rc;
  }
  
- /* The various types of files and directories in a cpuset file system */
+@@ -223,7 +223,7 @@ static int smc_pnet_remove_by_ndev(struc
+ 	sn = net_generic(net, smc_net_id);
+ 	pnettable = &sn->pnettable;
+ 
+-	write_lock(&pnettable->lock);
++	mutex_lock(&pnettable->lock);
+ 	list_for_each_entry_safe(pnetelem, tmp_pe, &pnettable->pnetlist, list) {
+ 		if (pnetelem->type == SMC_PNET_ETH && pnetelem->ndev == ndev) {
+ 			dev_put(pnetelem->ndev);
+@@ -236,7 +236,7 @@ static int smc_pnet_remove_by_ndev(struc
+ 			break;
+ 		}
+ 	}
+-	write_unlock(&pnettable->lock);
++	mutex_unlock(&pnettable->lock);
+ 	return rc;
+ }
+ 
+@@ -371,7 +371,7 @@ static int smc_pnet_add_eth(struct smc_p
+ 
+ 	rc = -EEXIST;
+ 	new_netdev = true;
+-	write_lock(&pnettable->lock);
++	mutex_lock(&pnettable->lock);
+ 	list_for_each_entry(tmp_pe, &pnettable->pnetlist, list) {
+ 		if (tmp_pe->type == SMC_PNET_ETH &&
+ 		    !strncmp(tmp_pe->eth_name, eth_name, IFNAMSIZ)) {
+@@ -381,9 +381,9 @@ static int smc_pnet_add_eth(struct smc_p
+ 	}
+ 	if (new_netdev) {
+ 		list_add_tail(&new_pe->list, &pnettable->pnetlist);
+-		write_unlock(&pnettable->lock);
++		mutex_unlock(&pnettable->lock);
+ 	} else {
+-		write_unlock(&pnettable->lock);
++		mutex_unlock(&pnettable->lock);
+ 		kfree(new_pe);
+ 		goto out_put;
+ 	}
+@@ -444,7 +444,7 @@ static int smc_pnet_add_ib(struct smc_pn
+ 	new_pe->ib_port = ib_port;
+ 
+ 	new_ibdev = true;
+-	write_lock(&pnettable->lock);
++	mutex_lock(&pnettable->lock);
+ 	list_for_each_entry(tmp_pe, &pnettable->pnetlist, list) {
+ 		if (tmp_pe->type == SMC_PNET_IB &&
+ 		    !strncmp(tmp_pe->ib_name, ib_name, IB_DEVICE_NAME_MAX)) {
+@@ -454,9 +454,9 @@ static int smc_pnet_add_ib(struct smc_pn
+ 	}
+ 	if (new_ibdev) {
+ 		list_add_tail(&new_pe->list, &pnettable->pnetlist);
+-		write_unlock(&pnettable->lock);
++		mutex_unlock(&pnettable->lock);
+ 	} else {
+-		write_unlock(&pnettable->lock);
++		mutex_unlock(&pnettable->lock);
+ 		kfree(new_pe);
+ 	}
+ 	return (new_ibdev) ? 0 : -EEXIST;
+@@ -601,7 +601,7 @@ static int _smc_pnet_dump(struct net *ne
+ 	pnettable = &sn->pnettable;
+ 
+ 	/* dump pnettable entries */
+-	read_lock(&pnettable->lock);
++	mutex_lock(&pnettable->lock);
+ 	list_for_each_entry(pnetelem, &pnettable->pnetlist, list) {
+ 		if (pnetid && !smc_pnet_match(pnetelem->pnet_name, pnetid))
+ 			continue;
+@@ -616,7 +616,7 @@ static int _smc_pnet_dump(struct net *ne
+ 			break;
+ 		}
+ 	}
+-	read_unlock(&pnettable->lock);
++	mutex_unlock(&pnettable->lock);
+ 	return idx;
+ }
+ 
+@@ -860,7 +860,7 @@ int smc_pnet_net_init(struct net *net)
+ 	struct smc_pnetids_ndev *pnetids_ndev = &sn->pnetids_ndev;
+ 
+ 	INIT_LIST_HEAD(&pnettable->pnetlist);
+-	rwlock_init(&pnettable->lock);
++	mutex_init(&pnettable->lock);
+ 	INIT_LIST_HEAD(&pnetids_ndev->list);
+ 	rwlock_init(&pnetids_ndev->lock);
+ 
+@@ -940,7 +940,7 @@ static int smc_pnet_find_ndev_pnetid_by_
+ 	sn = net_generic(net, smc_net_id);
+ 	pnettable = &sn->pnettable;
+ 
+-	read_lock(&pnettable->lock);
++	mutex_lock(&pnettable->lock);
+ 	list_for_each_entry(pnetelem, &pnettable->pnetlist, list) {
+ 		if (pnetelem->type == SMC_PNET_ETH && ndev == pnetelem->ndev) {
+ 			/* get pnetid of netdev device */
+@@ -949,7 +949,7 @@ static int smc_pnet_find_ndev_pnetid_by_
+ 			break;
+ 		}
+ 	}
+-	read_unlock(&pnettable->lock);
++	mutex_unlock(&pnettable->lock);
+ 	return rc;
+ }
+ 
+@@ -1141,7 +1141,7 @@ int smc_pnetid_by_table_ib(struct smc_ib
+ 	sn = net_generic(&init_net, smc_net_id);
+ 	pnettable = &sn->pnettable;
+ 
+-	read_lock(&pnettable->lock);
++	mutex_lock(&pnettable->lock);
+ 	list_for_each_entry(tmp_pe, &pnettable->pnetlist, list) {
+ 		if (tmp_pe->type == SMC_PNET_IB &&
+ 		    !strncmp(tmp_pe->ib_name, ib_name, IB_DEVICE_NAME_MAX) &&
+@@ -1151,7 +1151,7 @@ int smc_pnetid_by_table_ib(struct smc_ib
+ 			break;
+ 		}
+ 	}
+-	read_unlock(&pnettable->lock);
++	mutex_unlock(&pnettable->lock);
+ 
+ 	return rc;
+ }
+@@ -1170,7 +1170,7 @@ int smc_pnetid_by_table_smcd(struct smcd
+ 	sn = net_generic(&init_net, smc_net_id);
+ 	pnettable = &sn->pnettable;
+ 
+-	read_lock(&pnettable->lock);
++	mutex_lock(&pnettable->lock);
+ 	list_for_each_entry(tmp_pe, &pnettable->pnetlist, list) {
+ 		if (tmp_pe->type == SMC_PNET_IB &&
+ 		    !strncmp(tmp_pe->ib_name, ib_name, IB_DEVICE_NAME_MAX)) {
+@@ -1179,7 +1179,7 @@ int smc_pnetid_by_table_smcd(struct smcd
+ 			break;
+ 		}
+ 	}
+-	read_unlock(&pnettable->lock);
++	mutex_unlock(&pnettable->lock);
+ 
+ 	return rc;
+ }
+--- a/net/smc/smc_pnet.h
++++ b/net/smc/smc_pnet.h
+@@ -29,7 +29,7 @@ struct smc_link_group;
+  * @pnetlist: List of PNETIDs
+  */
+ struct smc_pnettable {
+-	rwlock_t lock;
++	struct mutex lock;
+ 	struct list_head pnetlist;
+ };
+ 
 
 
