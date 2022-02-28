@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A4484C6377
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 08:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF4F34C636E
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 08:00:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232674AbiB1HAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 02:00:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41086 "EHLO
+        id S233500AbiB1HAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 02:00:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232045AbiB1HAU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 02:00:20 -0500
+        with ESMTP id S233497AbiB1HAX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 02:00:23 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DECC50E2F
-        for <stable@vger.kernel.org>; Sun, 27 Feb 2022 22:59:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 978CF5468A
+        for <stable@vger.kernel.org>; Sun, 27 Feb 2022 22:59:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34F8CB80E45
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 06:59:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65AD8C340E7;
-        Mon, 28 Feb 2022 06:59:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 516D0B80E41
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 06:59:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92137C340E7;
+        Mon, 28 Feb 2022 06:59:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646031579;
-        bh=qcTWpn5mpaMJpNULWgR69fy+OSnbC+GgEFzdAnmhKrw=;
+        s=korg; t=1646031583;
+        bh=FIaACmDun02huOz5CCa+GACs/MXEmlbKNnr0Kg5CR2g=;
         h=Subject:To:Cc:From:Date:From;
-        b=v2qxbNNq38r1E9Gmaj3Ah62maFgLNZYs/OyDziAHa7QOwnI0c/KuORTBYMyBq8Mcf
-         1eUPmbBDqb12F+o15vf59t/HRF0qEaFD7evy/jyebrtT9nOPS4bAE+1iCLOKxf58qO
-         O/FFBsUL14He/KmdGS7ISFpefPs7Sy4GnYKT3WBk=
-Subject: FAILED: patch "[PATCH] btrfs: prevent copying too big compressed lzo segment" failed to apply to 5.10-stable tree
+        b=Jwe3OI9RHT8hqGUYhl6mQvVOclkWaZ40QpTLeCcjyq5v+rPv//yvEZa9+Gm+8VCPA
+         sJhM8nZ04w6NSozuEGIWtTVydxhNjxtyDXbc1exj6n7gIvuabrjSwg5R/44AbWvmXT
+         llzVH/YWMk4nVRRoX7yjgDdk8rAIsvS47Sv/uIHk=
+Subject: FAILED: patch "[PATCH] btrfs: prevent copying too big compressed lzo segment" failed to apply to 5.4-stable tree
 To:     davispuh@gmail.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Feb 2022 07:58:28 +0100
-Message-ID: <164603150858232@kroah.com>
+Date:   Mon, 28 Feb 2022 07:58:30 +0100
+Message-ID: <16460315105254@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
