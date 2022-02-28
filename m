@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD3784C76A0
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:05:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 705434C733D
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239777AbiB1SFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:05:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34342 "EHLO
+        id S236800AbiB1ReR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:34:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240819AbiB1SEH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:04:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA2252AF3;
-        Mon, 28 Feb 2022 09:47:37 -0800 (PST)
+        with ESMTP id S238261AbiB1RdJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DEE18F60E;
+        Mon, 28 Feb 2022 09:29:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCCB260180;
-        Mon, 28 Feb 2022 17:47:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF491C340E7;
-        Mon, 28 Feb 2022 17:47:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80EC1B815B4;
+        Mon, 28 Feb 2022 17:29:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C652DC340F0;
+        Mon, 28 Feb 2022 17:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070456;
-        bh=Ig6iiXM5kdjbiATJC7zMaVmkMdHlc7IqYSCKrSrGdak=;
+        s=korg; t=1646069378;
+        bh=dJvvTdOKze1LEBJ2pjIfODfo5RKWSqU2e5+8IBShljM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1a1n9ZGUglSS3Fj9wM3sblfGm2KWvoIAA+/mPeZ2fxgm1ooTzYlVoBTIm7rKiOlZI
-         c1uUNDfffFdqmx65Olnvc7tMdYtHP2pjqlKUhWP8AoAO8OcTyDwvGQCTxCo2H/Yrav
-         WnVHwXSLJey5YpsAAaUiq9U2Dlh5+Ngo+nHWi28I=
+        b=W4gqsjwlDoIZPfIa9ktsKmZNdmECk2vgCn/Z23U1rsaS6gVon/wRWcN369OydM3cQ
+         +fVQ/5n68aNeVEC8HDIPbmAmsq6MfbybDxOQy9vzXDmlKw8S9SoHvm5xm0mvP6GGbK
+         VAGD4WKvNgnlgpxClm/efX63OESKL5lPOTQa90gU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.16 116/164] iio: adc: tsc2046: fix memory corruption by preventing array overflow
-Date:   Mon, 28 Feb 2022 18:24:38 +0100
-Message-Id: <20220228172410.894334670@linuxfoundation.org>
+        stable@vger.kernel.org, Hongyu Xie <xiehongyu1@kylinos.cn>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 33/34] xhci: Prevent futile URB re-submissions due to incorrect return value.
+Date:   Mon, 28 Feb 2022 18:24:39 +0100
+Message-Id: <20220228172211.178473066@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172207.090703467@linuxfoundation.org>
+References: <20220228172207.090703467@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Hongyu Xie <xiehongyu1@kylinos.cn>
 
-commit b7a78a8adaa8849c02f174d707aead0f85dca0da upstream.
+commit 243a1dd7ba48c120986dd9e66fee74bcb7751034 upstream.
 
-On one side we have indio_dev->num_channels includes all physical channels +
-timestamp channel. On other side we have an array allocated only for
-physical channels. So, fix memory corruption by ARRAY_SIZE() instead of
-num_channels variable.
+The -ENODEV return value from xhci_check_args() is incorrectly changed
+to -EINVAL in a couple places before propagated further.
 
-Note the first case is a cleanup rather than a fix as the software
-timestamp channel bit in active_scanmask is never set by the IIO core.
+xhci_check_args() returns 4 types of value, -ENODEV, -EINVAL, 1 and 0.
+xhci_urb_enqueue and xhci_check_streams_endpoint return -EINVAL if
+the return value of xhci_check_args <= 0.
+This causes problems for example r8152_submit_rx, calling usb_submit_urb
+in drivers/net/usb/r8152.c.
+r8152_submit_rx will never get -ENODEV after submiting an urb when xHC
+is halted because xhci_urb_enqueue returns -EINVAL in the very beginning.
 
-Fixes: 9374e8f5a38d ("iio: adc: add ADC driver for the TI TSC2046 controller")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/r/20220107081401.2816357-1-o.rempel@pengutronix.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[commit message and header edit -Mathias]
+
+Fixes: 203a86613fb3 ("xhci: Avoid NULL pointer deref when host dies.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hongyu Xie <xiehongyu1@kylinos.cn>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220215123320.1253947-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ti-tsc2046.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/adc/ti-tsc2046.c
-+++ b/drivers/iio/adc/ti-tsc2046.c
-@@ -388,7 +388,7 @@ static int tsc2046_adc_update_scan_mode(
- 	mutex_lock(&priv->slock);
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1464,9 +1464,12 @@ static int xhci_urb_enqueue(struct usb_h
+ 	struct urb_priv	*urb_priv;
+ 	int num_tds;
  
- 	size = 0;
--	for_each_set_bit(ch_idx, active_scan_mask, indio_dev->num_channels) {
-+	for_each_set_bit(ch_idx, active_scan_mask, ARRAY_SIZE(priv->l)) {
- 		size += tsc2046_adc_group_set_layout(priv, group, ch_idx);
- 		tsc2046_adc_group_set_cmd(priv, group, ch_idx);
- 		group++;
-@@ -548,7 +548,7 @@ static int tsc2046_adc_setup_spi_msg(str
- 	 * enabled.
- 	 */
- 	size = 0;
--	for (ch_idx = 0; ch_idx < priv->dcfg->num_channels; ch_idx++)
-+	for (ch_idx = 0; ch_idx < ARRAY_SIZE(priv->l); ch_idx++)
- 		size += tsc2046_adc_group_set_layout(priv, ch_idx, ch_idx);
+-	if (!urb || xhci_check_args(hcd, urb->dev, urb->ep,
+-					true, true, __func__) <= 0)
++	if (!urb)
+ 		return -EINVAL;
++	ret = xhci_check_args(hcd, urb->dev, urb->ep,
++					true, true, __func__);
++	if (ret <= 0)
++		return ret ? ret : -EINVAL;
  
- 	priv->tx = devm_kzalloc(&priv->spi->dev, size, GFP_KERNEL);
+ 	slot_id = urb->dev->slot_id;
+ 	ep_index = xhci_get_endpoint_index(&urb->ep->desc);
+@@ -3210,7 +3213,7 @@ static int xhci_check_streams_endpoint(s
+ 		return -EINVAL;
+ 	ret = xhci_check_args(xhci_to_hcd(xhci), udev, ep, 1, true, __func__);
+ 	if (ret <= 0)
+-		return -EINVAL;
++		return ret ? ret : -EINVAL;
+ 	if (usb_ss_max_streams(&ep->ss_ep_comp) == 0) {
+ 		xhci_warn(xhci, "WARN: SuperSpeed Endpoint Companion"
+ 				" descriptor for ep 0x%x does not support streams\n",
 
 
