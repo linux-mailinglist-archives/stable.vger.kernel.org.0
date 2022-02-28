@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 069544C75AB
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1618E4C7596
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239325AbiB1Rz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:55:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46992 "EHLO
+        id S235908AbiB1Rzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:55:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240705AbiB1Ryb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 140F02980F;
-        Mon, 28 Feb 2022 09:42:46 -0800 (PST)
+        with ESMTP id S240717AbiB1Ryc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D40B933364;
+        Mon, 28 Feb 2022 09:42:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B6AD615B4;
-        Mon, 28 Feb 2022 17:42:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B45A4C340E7;
-        Mon, 28 Feb 2022 17:42:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57B9E609EE;
+        Mon, 28 Feb 2022 17:42:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A2F3C340E7;
+        Mon, 28 Feb 2022 17:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070165;
-        bh=oYdLpNFMJoWpUsGNteMjbuQJIBxw4NVt3rpKOLt7l1k=;
+        s=korg; t=1646070167;
+        bh=H5afrEMBcaQ1QX0wDf3EYgdzqPZ8LQJerIuF+PCrhek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmA66K7YEdZ9Y48g2ATfA85hzd1XEBiCVZWKsKf71XbzRgf7dUhZx0voMzK+lDVPS
-         bflwEOhbkdBJtd4R3/BI9qJiD1Q9u5N9FjakW8ZHilTBm9WqUDGACS9gkhxmeK6hX9
-         dnlUBh2Q9GF3jDJ2PeSAB0JL5lIZqZucH0XL+fag=
+        b=ePJ0fOCrIHvOw/7fuVGasDTpFxyc0vzpDr0zH+Xl4PoidUNtgnTt3OFwoLgIgt0wL
+         JxMC9QMtHmtPltWVB+3zRMjX26/usWDQL9aIyPTOHI83hwkDmqE7jqDnl9axIsypvG
+         ysqE7XRtbt3NdVMuNCRSRlegg8y/Vd+Nz3Xoeob4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.16 010/164] selinux: fix misuse of mutex_is_locked()
-Date:   Mon, 28 Feb 2022 18:22:52 +0100
-Message-Id: <20220228172400.731941088@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com
+Subject: [PATCH 5.16 011/164] vhost/vsock: dont check owner in vhost_vsock_stop() while releasing
+Date:   Mon, 28 Feb 2022 18:22:53 +0100
+Message-Id: <20220228172400.851408749@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
 References: <20220228172359.567256961@linuxfoundation.org>
@@ -53,44 +57,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-commit ce2fc710c9d2b25afc710f49bb2065b4439a62bc upstream.
+commit a58da53ffd70294ebea8ecd0eb45fd0d74add9f9 upstream.
 
-mutex_is_locked() tests whether the mutex is locked *by any task*, while
-here we want to test if it is held *by the current task*. To avoid
-false/missed WARNINGs, use lockdep_assert_is_held() and
-lockdep_assert_is_not_held() instead, which do the right thing (though
-they are a no-op if CONFIG_LOCKDEP=n).
+vhost_vsock_stop() calls vhost_dev_check_owner() to check the device
+ownership. It expects current->mm to be valid.
 
+vhost_vsock_stop() is also called by vhost_vsock_dev_release() when
+the user has not done close(), so when we are in do_exit(). In this
+case current->mm is invalid and we're releasing the device, so we
+should clean it anyway.
+
+Let's check the owner only when vhost_vsock_stop() is called
+by an ioctl.
+
+When invoked from release we can not fail so we don't check return
+code of vhost_vsock_stop(). We need to stop vsock even if it's not
+the owner.
+
+Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
 Cc: stable@vger.kernel.org
-Fixes: 2554a48f4437 ("selinux: measure state and policy capabilities")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Reported-by: syzbot+1e3ea63db39f2b4440e0@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+3140b17cb44a7b174008@syzkaller.appspotmail.com
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/selinux/ima.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/vhost/vsock.c |   21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
---- a/security/selinux/ima.c
-+++ b/security/selinux/ima.c
-@@ -77,7 +77,7 @@ void selinux_ima_measure_state_locked(st
- 	size_t policy_len;
- 	int rc = 0;
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -629,16 +629,18 @@ err:
+ 	return ret;
+ }
  
--	WARN_ON(!mutex_is_locked(&state->policy_mutex));
-+	lockdep_assert_held(&state->policy_mutex);
- 
- 	state_str = selinux_ima_collect_state(state);
- 	if (!state_str) {
-@@ -117,7 +117,7 @@ void selinux_ima_measure_state_locked(st
-  */
- void selinux_ima_measure_state(struct selinux_state *state)
+-static int vhost_vsock_stop(struct vhost_vsock *vsock)
++static int vhost_vsock_stop(struct vhost_vsock *vsock, bool check_owner)
  {
--	WARN_ON(mutex_is_locked(&state->policy_mutex));
-+	lockdep_assert_not_held(&state->policy_mutex);
+ 	size_t i;
+-	int ret;
++	int ret = 0;
  
- 	mutex_lock(&state->policy_mutex);
- 	selinux_ima_measure_state_locked(state);
+ 	mutex_lock(&vsock->dev.mutex);
+ 
+-	ret = vhost_dev_check_owner(&vsock->dev);
+-	if (ret)
+-		goto err;
++	if (check_owner) {
++		ret = vhost_dev_check_owner(&vsock->dev);
++		if (ret)
++			goto err;
++	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
+ 		struct vhost_virtqueue *vq = &vsock->vqs[i];
+@@ -753,7 +755,12 @@ static int vhost_vsock_dev_release(struc
+ 	 * inefficient.  Room for improvement here. */
+ 	vsock_for_each_connected_socket(vhost_vsock_reset_orphans);
+ 
+-	vhost_vsock_stop(vsock);
++	/* Don't check the owner, because we are in the release path, so we
++	 * need to stop the vsock device in any case.
++	 * vhost_vsock_stop() can not fail in this case, so we don't need to
++	 * check the return code.
++	 */
++	vhost_vsock_stop(vsock, false);
+ 	vhost_vsock_flush(vsock);
+ 	vhost_dev_stop(&vsock->dev);
+ 
+@@ -868,7 +875,7 @@ static long vhost_vsock_dev_ioctl(struct
+ 		if (start)
+ 			return vhost_vsock_start(vsock);
+ 		else
+-			return vhost_vsock_stop(vsock);
++			return vhost_vsock_stop(vsock, true);
+ 	case VHOST_GET_FEATURES:
+ 		features = VHOST_VSOCK_FEATURES;
+ 		if (copy_to_user(argp, &features, sizeof(features)))
 
 
