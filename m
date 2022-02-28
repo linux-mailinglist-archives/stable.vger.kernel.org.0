@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2885E4C747A
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AB714C7728
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:11:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238312AbiB1RpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:45:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33492 "EHLO
+        id S239919AbiB1SLw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 13:11:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239120AbiB1Rnp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:43:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1171C9BAF3;
-        Mon, 28 Feb 2022 09:35:44 -0800 (PST)
+        with ESMTP id S240615AbiB1SJG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:09:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 421035E745;
+        Mon, 28 Feb 2022 09:48:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 99619614CD;
-        Mon, 28 Feb 2022 17:35:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5210C340E7;
-        Mon, 28 Feb 2022 17:35:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA037B81085;
+        Mon, 28 Feb 2022 17:48:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 252F1C340F0;
+        Mon, 28 Feb 2022 17:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069743;
-        bh=W+oyjTCIxWodUCtLNaLKp1/WhBPmLkZ4yWLomJTkxbk=;
+        s=korg; t=1646070513;
+        bh=Mctlrf3HdcCTbx63QSjhn56D0LeSP5fiFh6Za9eOODA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U1MoFrqmeI/sVDkE2Cl0IFXtRVc/xhO2+qzILeg4n6QTGuxNKlS8y7sKeLSe58QEN
-         njAGe1Rv3UkrRhtnvAfxOeM8eSZOPFs9Umhtmu53pTY9XzwlAuTW2xlconsjBwBxFV
-         yaAWrY7QRKCYVI9ONcsA6qTxJG5U4hvm4h3f4270=
+        b=N03bRiF7bf0sXFFa90cp86UofG7lpR/IuKkbDUL14Tlcxy3cLq7wLPgw6boan/1jJ
+         lE2duhLDUlzOKg+eh/8Pf384N7l+o7z79CTudyPWh8mL0bjOz1n25rgtbBIQQ78iKj
+         N+aQ64C+Xhq96p2kDUas8Ytys6qhAzFV02HxsRjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.10 76/80] tty: n_gsm: fix NULL pointer access due to DLCI release
+        stable@vger.kernel.org,
+        Christophe Kerello <christophe.kerello@foss.st.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 5.16 135/164] nvmem: core: Fix a conflict between MTD and NVMEM on wp-gpios property
 Date:   Mon, 28 Feb 2022 18:24:57 +0100
-Message-Id: <20220228172320.940705546@linuxfoundation.org>
+Message-Id: <20220228172412.262480435@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
+References: <20220228172359.567256961@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: daniel.starke@siemens.com <daniel.starke@siemens.com>
+From: Christophe Kerello <christophe.kerello@foss.st.com>
 
-commit 96b169f05cdcc844b400695184d77e42071d14f2 upstream.
+commit f6c052afe6f802d87c74153b7a57c43b2e9faf07 upstream.
 
-The here fixed commit made the tty hangup asynchronous to avoid a circular
-locking warning. I could not reproduce this warning. Furthermore, due to
-the asynchronous hangup the function call now gets queued up while the
-underlying tty is being freed. Depending on the timing this results in a
-NULL pointer access in the global work queue scheduler. To be precise in
-process_one_work(). Therefore, the previous commit made the issue worse
-which it tried to fix.
+Wp-gpios property can be used on NVMEM nodes and the same property can
+be also used on MTD NAND nodes. In case of the wp-gpios property is
+defined at NAND level node, the GPIO management is done at NAND driver
+level. Write protect is disabled when the driver is probed or resumed
+and is enabled when the driver is released or suspended.
 
-This patch fixes this by falling back to the old behavior which uses a
-blocking tty hangup call before freeing up the associated tty.
+When no partitions are defined in the NAND DT node, then the NAND DT node
+will be passed to NVMEM framework. If wp-gpios property is defined in
+this node, the GPIO resource is taken twice and the NAND controller
+driver fails to probe.
 
-Fixes: 7030082a7415 ("tty: n_gsm: avoid recursive locking with async port hangup")
+It would be possible to set config->wp_gpio at MTD level before calling
+nvmem_register function but NVMEM framework will toggle this GPIO on
+each write when this GPIO should only be controlled at NAND level driver
+to ensure that the Write Protect has not been enabled.
+
+A way to fix this conflict is to add a new boolean flag in nvmem_config
+named ignore_wp. In case ignore_wp is set, the GPIO resource will
+be managed by the provider.
+
+Fixes: 2a127da461a9 ("nvmem: add support for the write-protect pin")
 Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220218073123.2121-4-daniel.starke@siemens.com
+Signed-off-by: Christophe Kerello <christophe.kerello@foss.st.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220220151432.16605-2-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/nvmem/core.c           |    2 +-
+ include/linux/nvmem-provider.h |    4 +++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1719,7 +1719,12 @@ static void gsm_dlci_release(struct gsm_
- 		gsm_destroy_network(dlci);
- 		mutex_unlock(&dlci->mutex);
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -771,7 +771,7 @@ struct nvmem_device *nvmem_register(cons
  
--		tty_hangup(tty);
-+		/* We cannot use tty_hangup() because in tty_kref_put() the tty
-+		 * driver assumes that the hangup queue is free and reuses it to
-+		 * queue release_one_tty() -> NULL pointer panic in
-+		 * process_one_work().
-+		 */
-+		tty_vhangup(tty);
- 
- 		tty_port_tty_set(&dlci->port, NULL);
- 		tty_kref_put(tty);
+ 	if (config->wp_gpio)
+ 		nvmem->wp_gpio = config->wp_gpio;
+-	else
++	else if (!config->ignore_wp)
+ 		nvmem->wp_gpio = gpiod_get_optional(config->dev, "wp",
+ 						    GPIOD_OUT_HIGH);
+ 	if (IS_ERR(nvmem->wp_gpio)) {
+--- a/include/linux/nvmem-provider.h
++++ b/include/linux/nvmem-provider.h
+@@ -70,7 +70,8 @@ struct nvmem_keepout {
+  * @word_size:	Minimum read/write access granularity.
+  * @stride:	Minimum read/write access stride.
+  * @priv:	User context passed to read/write callbacks.
+- * @wp-gpio:   Write protect pin
++ * @wp-gpio:	Write protect pin
++ * @ignore_wp:  Write Protect pin is managed by the provider.
+  *
+  * Note: A default "nvmem<id>" name will be assigned to the device if
+  * no name is specified in its configuration. In such case "<id>" is
+@@ -92,6 +93,7 @@ struct nvmem_config {
+ 	enum nvmem_type		type;
+ 	bool			read_only;
+ 	bool			root_only;
++	bool			ignore_wp;
+ 	struct device_node	*of_node;
+ 	bool			no_of_node;
+ 	nvmem_reg_read_t	reg_read;
 
 
