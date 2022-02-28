@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB6BF4C7692
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:04:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B50964C7293
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:26:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239433AbiB1SFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:05:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44032 "EHLO
+        id S234926AbiB1R1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:27:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240333AbiB1SD0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:03:26 -0500
+        with ESMTP id S234469AbiB1R0w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:26:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078DBB238F;
-        Mon, 28 Feb 2022 09:47:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D6C588793;
+        Mon, 28 Feb 2022 09:26:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE23460916;
-        Mon, 28 Feb 2022 17:46:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00853C340E7;
-        Mon, 28 Feb 2022 17:46:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C40E6136C;
+        Mon, 28 Feb 2022 17:26:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46200C340E7;
+        Mon, 28 Feb 2022 17:26:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070418;
-        bh=w5n1J63yLXEMxOjwktRPcCizXyJY1VAAx5CKeW7zaWc=;
+        s=korg; t=1646069168;
+        bh=MGp52dmwQ7DlmOumLG7PkgGz+jwZUqoURvU/XT/ah+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=07ay4FusS7DPwMNqoq7xaHS2p4h5B5ZwNCKrsbzw9K659B3Sz7JPjo3CnGDFmHCgR
-         Hmv7AY25Ig6amNfCDgRfqtXSfwQOjZTX5iu32yR2i4LZl2gr3qQnnAQUiJdzTVENji
-         lxa+Rdp0qtwh9CZflx93tyB1WfbyTLepldN+GmUE=
+        b=GbEqXKWgxzIo05pHs53xD6rfkc8uaF38SGTGrwc4UT4o5yMAVxMXHuifR9zes+Udi
+         0zyj9sZWMECgcbyBk8o87IcGNSLIQuzzXp7HLTKSv+7RD2klH7FqfJQ4wPur4AAsAm
+         5K3U41+vizHoh75fc3Dui8De88OEDBQPpUMz0pMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.16 062/164] net: __pskb_pull_tail() & pskb_carve_frag_list() drop_monitor friends
-Date:   Mon, 28 Feb 2022 18:23:44 +0100
-Message-Id: <20220228172405.820372600@linuxfoundation.org>
+        stable@vger.kernel.org, Dmytro Bagrii <dimich.dmb@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 18/29] Revert "USB: serial: ch341: add new Product ID for CH341A"
+Date:   Mon, 28 Feb 2022 18:23:45 +0100
+Message-Id: <20220228172143.702416174@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
+References: <20220228172141.744228435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Dmytro Bagrii <dimich.dmb@gmail.com>
 
-commit ef527f968ae05c6717c39f49c8709a7e2c19183a upstream.
+commit 198a7ebd5fa17b4d0be8cb70240ee1be885175c0 upstream.
 
-Whenever one of these functions pull all data from an skb in a frag_list,
-use consume_skb() instead of kfree_skb() to avoid polluting drop
-monitoring.
+This reverts commit 46ee4abb10a07bd8f8ce910ee6b4ae6a947d7f63.
 
-Fixes: 6fa01ccd8830 ("skbuff: Add pskb_extract() helper function")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220220154052.1308469-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+CH341 has Product ID 0x5512 in EPP/MEM mode which is used for
+I2C/SPI/GPIO interfaces. In asynchronous serial interface mode
+CH341 has PID 0x5523 which is already in the table.
+
+Mode is selected by corresponding jumper setting.
+
+Signed-off-by: Dmytro Bagrii <dimich.dmb@gmail.com>
+Link: https://lore.kernel.org/r/20220210164137.4376-1-dimich.dmb@gmail.com
+Link: https://lore.kernel.org/r/YJ0OCS/sh+1ifD/q@hovoldconsulting.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/skbuff.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/ch341.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -2254,7 +2254,7 @@ void *__pskb_pull_tail(struct sk_buff *s
- 		/* Free pulled out fragments. */
- 		while ((list = skb_shinfo(skb)->frag_list) != insp) {
- 			skb_shinfo(skb)->frag_list = list->next;
--			kfree_skb(list);
-+			consume_skb(list);
- 		}
- 		/* And insert new clone at head. */
- 		if (clone) {
-@@ -6227,7 +6227,7 @@ static int pskb_carve_frag_list(struct s
- 	/* Free pulled out fragments. */
- 	while ((list = shinfo->frag_list) != insp) {
- 		shinfo->frag_list = list->next;
--		kfree_skb(list);
-+		consume_skb(list);
- 	}
- 	/* And insert new clone at head. */
- 	if (clone) {
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -70,7 +70,6 @@
+ 
+ 
+ static const struct usb_device_id id_table[] = {
+-	{ USB_DEVICE(0x1a86, 0x5512) },
+ 	{ USB_DEVICE(0x1a86, 0x5523) },
+ 	{ USB_DEVICE(0x1a86, 0x7522) },
+ 	{ USB_DEVICE(0x1a86, 0x7523) },
 
 
