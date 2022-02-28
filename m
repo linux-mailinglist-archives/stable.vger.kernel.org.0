@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A7A94C74DF
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:48:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B34DF4C73BD
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:38:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232519AbiB1Rsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:48:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51578 "EHLO
+        id S233987AbiB1Ri7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:38:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238997AbiB1RsA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:48:00 -0500
+        with ESMTP id S238565AbiB1RiA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:38:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DA09F6FE;
-        Mon, 28 Feb 2022 09:38:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E993F39141;
+        Mon, 28 Feb 2022 09:33:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F2946153E;
-        Mon, 28 Feb 2022 17:38:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24A68C340F1;
-        Mon, 28 Feb 2022 17:38:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8555961358;
+        Mon, 28 Feb 2022 17:33:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B94FC340E7;
+        Mon, 28 Feb 2022 17:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069899;
-        bh=g8s+VFhAuJ9aW9Bqzrl2wZBLCq4Rz/A0aZORghQBWiw=;
+        s=korg; t=1646069589;
+        bh=0kLHFsDZCk0ZTM/V8Kf2IsrIaPAGMGwqKe7xccMH9p4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dQp9rg1scx0McSWeYT1cLj75378xi9YYDoEVR8Ie7RT0Ef/xEH3VgpoxFy3KwsNYR
-         Asr/phALyJMRi+pm+PCUvI3TsYr5WhM5MrzCGfvH/v3reIATBTZroWaRkM73SLJI4C
-         BInT9MWaqJDHl20Vr5xqmAzYQseu2C0VsftQAmqM=
+        b=lRa8uq80OicttXBp0ASyLvR2FI/D2+19WAZpOFK3uZthNCORQ5zYrEREKpx9LJcUq
+         GNONo3O8lTv5obPS6b13taoXE4oQKFChox3HJoRs8A+RZHGl6YCnCezr9s5ATmPfHt
+         b67mdYdunjjpk6yp1TlgYocNgKYu5xucFcXkgAhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.15 053/139] bpf: Fix a bpf_timer initialization issue
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.10 06/80] parisc/unaligned: Fix fldd and fstd unaligned handlers on 32-bit kernel
 Date:   Mon, 28 Feb 2022 18:23:47 +0100
-Message-Id: <20220228172353.291251909@linuxfoundation.org>
+Message-Id: <20220228172312.435153056@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,110 +52,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Helge Deller <deller@gmx.de>
 
-commit 5eaed6eedbe9612f642ad2b880f961d1c6c8ec2b upstream.
+commit dd2288f4a020d693360e3e8d72f8b9d9c25f5ef6 upstream.
 
-The patch in [1] intends to fix a bpf_timer related issue,
-but the fix caused existing 'timer' selftest to fail with
-hang or some random errors. After some debug, I found
-an issue with check_and_init_map_value() in the hashtab.c.
-More specifically, in hashtab.c, we have code
-  l_new = bpf_map_kmalloc_node(&htab->map, ...)
-  check_and_init_map_value(&htab->map, l_new...)
-Note that bpf_map_kmalloc_node() does not do initialization
-so l_new contains random value.
+Usually the kernel provides fixup routines to emulate the fldd and fstd
+floating-point instructions if they load or store 8-byte from/to a not
+natuarally aligned memory location.
 
-The function check_and_init_map_value() intends to zero the
-bpf_spin_lock and bpf_timer if they exist in the map.
-But I found bpf_spin_lock is zero'ed but bpf_timer is not zero'ed.
-With [1], later copy_map_value() skips copying of
-bpf_spin_lock and bpf_timer. The non-zero bpf_timer caused
-random failures for 'timer' selftest.
-Without [1], for both bpf_spin_lock and bpf_timer case,
-bpf_timer will be zero'ed, so 'timer' self test is okay.
+On a 32-bit kernel I noticed that those unaligned handlers didn't worked and
+instead the application got a SEGV.
+While checking the code I found two problems:
 
-For check_and_init_map_value(), why bpf_spin_lock is zero'ed
-properly while bpf_timer not. In bpf uapi header, we have
-  struct bpf_spin_lock {
-        __u32   val;
-  };
-  struct bpf_timer {
-        __u64 :64;
-        __u64 :64;
-  } __attribute__((aligned(8)));
+First, the OPCODE_FLDD_L and OPCODE_FSTD_L cases were ifdef'ed out by the
+CONFIG_PA20 option, and as such those weren't built on a pure 32-bit kernel.
+This is now fixed by moving the CONFIG_PA20 #ifdef to prevent the compilation
+of OPCODE_LDD_L and OPCODE_FSTD_L only, and handling the fldd and fstd
+instructions.
 
-The initialization code:
-  *(struct bpf_spin_lock *)(dst + map->spin_lock_off) =
-      (struct bpf_spin_lock){};
-  *(struct bpf_timer *)(dst + map->timer_off) =
-      (struct bpf_timer){};
-It appears the compiler has no obligation to initialize anonymous fields.
-For example, let us use clang with bpf target as below:
-  $ cat t.c
-  struct bpf_timer {
-        unsigned long long :64;
-  };
-  struct bpf_timer2 {
-        unsigned long long a;
-  };
+The second problem are two bugs in the 32-bit inline assembly code, where the
+wrong registers where used. The calculation of the natural alignment used %2
+(vall) instead of %3 (ior), and the first word was stored back to address %1
+(valh) instead of %3 (ior).
 
-  void test(struct bpf_timer *t) {
-    *t = (struct bpf_timer){};
-  }
-  void test2(struct bpf_timer2 *t) {
-    *t = (struct bpf_timer2){};
-  }
-  $ clang -target bpf -O2 -c -g t.c
-  $ llvm-objdump -d t.o
-   ...
-   0000000000000000 <test>:
-       0:       95 00 00 00 00 00 00 00 exit
-   0000000000000008 <test2>:
-       1:       b7 02 00 00 00 00 00 00 r2 = 0
-       2:       7b 21 00 00 00 00 00 00 *(u64 *)(r1 + 0) = r2
-       3:       95 00 00 00 00 00 00 00 exit
-
-gcc11.2 does not have the above issue. But from
-  INTERNATIONAL STANDARD ©ISO/IEC ISO/IEC 9899:201x
-  Programming languages — C
-  http://www.open-std.org/Jtc1/sc22/wg14/www/docs/n1547.pdf
-  page 157:
-  Except where explicitly stated otherwise, for the purposes of
-  this subclause unnamed members of objects of structure and union
-  type do not participate in initialization. Unnamed members of
-  structure objects have indeterminate value even after initialization.
-
-To fix the problem, let use memset for bpf_timer case in
-check_and_init_map_value(). For consistency, memset is also
-used for bpf_spin_lock case.
-
-  [1] https://lore.kernel.org/bpf/20220209070324.1093182-2-memxor@gmail.com/
-
-Fixes: 68134668c17f3 ("bpf: Add map side support for bpf timers.")
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220211194953.3142152-1-yhs@fb.com
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/bpf.h |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/parisc/kernel/unaligned.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -206,11 +206,9 @@ static inline bool map_value_has_timer(c
- static inline void check_and_init_map_value(struct bpf_map *map, void *dst)
- {
- 	if (unlikely(map_value_has_spin_lock(map)))
--		*(struct bpf_spin_lock *)(dst + map->spin_lock_off) =
--			(struct bpf_spin_lock){};
-+		memset(dst + map->spin_lock_off, 0, sizeof(struct bpf_spin_lock));
- 	if (unlikely(map_value_has_timer(map)))
--		*(struct bpf_timer *)(dst + map->timer_off) =
--			(struct bpf_timer){};
-+		memset(dst + map->timer_off, 0, sizeof(struct bpf_timer));
- }
- 
- /* copy everything but bpf_spin_lock and bpf_timer. There could be one of each. */
+--- a/arch/parisc/kernel/unaligned.c
++++ b/arch/parisc/kernel/unaligned.c
+@@ -397,7 +397,7 @@ static int emulate_std(struct pt_regs *r
+ 	__asm__ __volatile__ (
+ "	mtsp	%4, %%sr1\n"
+ "	zdep	%2, 29, 2, %%r19\n"
+-"	dep	%%r0, 31, 2, %2\n"
++"	dep	%%r0, 31, 2, %3\n"
+ "	mtsar	%%r19\n"
+ "	zvdepi	-2, 32, %%r19\n"
+ "1:	ldw	0(%%sr1,%3),%%r20\n"
+@@ -409,7 +409,7 @@ static int emulate_std(struct pt_regs *r
+ "	andcm	%%r21, %%r19, %%r21\n"
+ "	or	%1, %%r20, %1\n"
+ "	or	%2, %%r21, %2\n"
+-"3:	stw	%1,0(%%sr1,%1)\n"
++"3:	stw	%1,0(%%sr1,%3)\n"
+ "4:	stw	%%r1,4(%%sr1,%3)\n"
+ "5:	stw	%2,8(%%sr1,%3)\n"
+ "	copy	%%r0, %0\n"
+@@ -596,7 +596,6 @@ void handle_unaligned(struct pt_regs *re
+ 		ret = ERR_NOTHANDLED;	/* "undefined", but lets kill them. */
+ 		break;
+ 	}
+-#ifdef CONFIG_PA20
+ 	switch (regs->iir & OPCODE2_MASK)
+ 	{
+ 	case OPCODE_FLDD_L:
+@@ -607,14 +606,15 @@ void handle_unaligned(struct pt_regs *re
+ 		flop=1;
+ 		ret = emulate_std(regs, R2(regs->iir),1);
+ 		break;
++#ifdef CONFIG_PA20
+ 	case OPCODE_LDD_L:
+ 		ret = emulate_ldd(regs, R2(regs->iir),0);
+ 		break;
+ 	case OPCODE_STD_L:
+ 		ret = emulate_std(regs, R2(regs->iir),0);
+ 		break;
+-	}
+ #endif
++	}
+ 	switch (regs->iir & OPCODE3_MASK)
+ 	{
+ 	case OPCODE_FLDW_L:
 
 
