@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3772D4C76F9
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:10:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2885E4C747A
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:45:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234850AbiB1SKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:10:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40192 "EHLO
+        id S238312AbiB1RpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:45:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240518AbiB1SJB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:09:01 -0500
+        with ESMTP id S239120AbiB1Rnp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:43:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E36BB5E140;
-        Mon, 28 Feb 2022 09:48:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1171C9BAF3;
+        Mon, 28 Feb 2022 09:35:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5011E60748;
-        Mon, 28 Feb 2022 17:48:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59532C340E7;
-        Mon, 28 Feb 2022 17:48:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99619614CD;
+        Mon, 28 Feb 2022 17:35:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5210C340E7;
+        Mon, 28 Feb 2022 17:35:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070510;
-        bh=+6N8+7VcYRDuliUP9Kw7HwRQhd1SqB77Fx6ru+a3Wmg=;
+        s=korg; t=1646069743;
+        bh=W+oyjTCIxWodUCtLNaLKp1/WhBPmLkZ4yWLomJTkxbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YTAxgC1uMMBZZ2M0p/w9CNhMsnPIxH235p93TBp8GQl4dcR/qXA+TO07rb9zUdXAF
-         Byu9iXT8WZOEUDsJENRcbnuOO15/d3BQlYxfkFbQUaV2gw9ko/UTw4chCR1Ms0qWll
-         Js6RnEn66KEbYy+HFmy7WZoDBXewle9srWu3mnU4=
+        b=U1MoFrqmeI/sVDkE2Cl0IFXtRVc/xhO2+qzILeg4n6QTGuxNKlS8y7sKeLSe58QEN
+         njAGe1Rv3UkrRhtnvAfxOeM8eSZOPFs9Umhtmu53pTY9XzwlAuTW2xlconsjBwBxFV
+         yaAWrY7QRKCYVI9ONcsA6qTxJG5U4hvm4h3f4270=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hongyu Xie <xiehongyu1@kylinos.cn>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.16 134/164] xhci: Prevent futile URB re-submissions due to incorrect return value.
-Date:   Mon, 28 Feb 2022 18:24:56 +0100
-Message-Id: <20220228172412.183961892@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.10 76/80] tty: n_gsm: fix NULL pointer access due to DLCI release
+Date:   Mon, 28 Feb 2022 18:24:57 +0100
+Message-Id: <20220228172320.940705546@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
+References: <20220228172311.789892158@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongyu Xie <xiehongyu1@kylinos.cn>
+From: daniel.starke@siemens.com <daniel.starke@siemens.com>
 
-commit 243a1dd7ba48c120986dd9e66fee74bcb7751034 upstream.
+commit 96b169f05cdcc844b400695184d77e42071d14f2 upstream.
 
-The -ENODEV return value from xhci_check_args() is incorrectly changed
-to -EINVAL in a couple places before propagated further.
+The here fixed commit made the tty hangup asynchronous to avoid a circular
+locking warning. I could not reproduce this warning. Furthermore, due to
+the asynchronous hangup the function call now gets queued up while the
+underlying tty is being freed. Depending on the timing this results in a
+NULL pointer access in the global work queue scheduler. To be precise in
+process_one_work(). Therefore, the previous commit made the issue worse
+which it tried to fix.
 
-xhci_check_args() returns 4 types of value, -ENODEV, -EINVAL, 1 and 0.
-xhci_urb_enqueue and xhci_check_streams_endpoint return -EINVAL if
-the return value of xhci_check_args <= 0.
-This causes problems for example r8152_submit_rx, calling usb_submit_urb
-in drivers/net/usb/r8152.c.
-r8152_submit_rx will never get -ENODEV after submiting an urb when xHC
-is halted because xhci_urb_enqueue returns -EINVAL in the very beginning.
+This patch fixes this by falling back to the old behavior which uses a
+blocking tty hangup call before freeing up the associated tty.
 
-[commit message and header edit -Mathias]
-
-Fixes: 203a86613fb3 ("xhci: Avoid NULL pointer deref when host dies.")
+Fixes: 7030082a7415 ("tty: n_gsm: avoid recursive locking with async port hangup")
 Cc: stable@vger.kernel.org
-Signed-off-by: Hongyu Xie <xiehongyu1@kylinos.cn>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220215123320.1253947-3-mathias.nyman@linux.intel.com
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220218073123.2121-4-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/tty/n_gsm.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1611,9 +1611,12 @@ static int xhci_urb_enqueue(struct usb_h
- 	struct urb_priv	*urb_priv;
- 	int num_tds;
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1719,7 +1719,12 @@ static void gsm_dlci_release(struct gsm_
+ 		gsm_destroy_network(dlci);
+ 		mutex_unlock(&dlci->mutex);
  
--	if (!urb || xhci_check_args(hcd, urb->dev, urb->ep,
--					true, true, __func__) <= 0)
-+	if (!urb)
- 		return -EINVAL;
-+	ret = xhci_check_args(hcd, urb->dev, urb->ep,
-+					true, true, __func__);
-+	if (ret <= 0)
-+		return ret ? ret : -EINVAL;
+-		tty_hangup(tty);
++		/* We cannot use tty_hangup() because in tty_kref_put() the tty
++		 * driver assumes that the hangup queue is free and reuses it to
++		 * queue release_one_tty() -> NULL pointer panic in
++		 * process_one_work().
++		 */
++		tty_vhangup(tty);
  
- 	slot_id = urb->dev->slot_id;
- 	ep_index = xhci_get_endpoint_index(&urb->ep->desc);
-@@ -3330,7 +3333,7 @@ static int xhci_check_streams_endpoint(s
- 		return -EINVAL;
- 	ret = xhci_check_args(xhci_to_hcd(xhci), udev, ep, 1, true, __func__);
- 	if (ret <= 0)
--		return -EINVAL;
-+		return ret ? ret : -EINVAL;
- 	if (usb_ss_max_streams(&ep->ss_ep_comp) == 0) {
- 		xhci_warn(xhci, "WARN: SuperSpeed Endpoint Companion"
- 				" descriptor for ep 0x%x does not support streams\n",
+ 		tty_port_tty_set(&dlci->port, NULL);
+ 		tty_kref_put(tty);
 
 
