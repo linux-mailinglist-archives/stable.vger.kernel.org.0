@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5256C4C76CC
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:06:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5DB64C739A
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:36:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239692AbiB1SHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:07:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40608 "EHLO
+        id S238276AbiB1Rgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:36:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239702AbiB1SFc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:05:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BE9E5418A;
-        Mon, 28 Feb 2022 09:48:01 -0800 (PST)
+        with ESMTP id S238280AbiB1Rg0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:36:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FFA29681E;
+        Mon, 28 Feb 2022 09:31:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 636BAB81187;
-        Mon, 28 Feb 2022 17:47:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3577C340E7;
-        Mon, 28 Feb 2022 17:47:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1AAACB815AB;
+        Mon, 28 Feb 2022 17:31:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EA00C340F3;
+        Mon, 28 Feb 2022 17:31:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070467;
-        bh=HtR2CxzOO8ZDLXGj1j6x+l8s1x2I1wdNHqufAAZ25hU=;
+        s=korg; t=1646069500;
+        bh=0uozSdYEpm4wPeKQjXI6P7p2CNOcuYuCBw5SCjpmGnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08p+Cdcp+OWd1eI5caZe/6Oh8b2mR10xv9BZgc6dc8jGWUC7CIGbcDVivar5oKa4Z
-         VRG0gFdRNKBDpxVGqCnRKumA24xbhTolhwl3og+QwMF0mOxGwg8e09A+T5FixIQJ51
-         d1EYF16CEhtL5KzAU7S61Qa9NczWwH6bvaOI45Qc=
+        b=Rg072FYeCZojlFw5guDixWR1d7DexwJ53guKPe24FNLXUQLq3LzQNlrtD/bnt2pAE
+         asZk374rCqfi6xwxnDiqrxi+aMW3qKBqyb0f+yEhSC7UReJ6TLQj5cpxkRwIP+6t2Z
+         iMRH2M7PJ3ELvFfOhiHvCnkNP8t48qaGlmddnE0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mario Tesi <mario.tesi@st.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.16 119/164] iio: imu: st_lsm6dsx: wait for settling time in st_lsm6dsx_read_oneshot
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.4 43/53] usb: dwc3: pci: Fix Bay Trail phy GPIO mappings
 Date:   Mon, 28 Feb 2022 18:24:41 +0100
-Message-Id: <20220228172411.078345606@linuxfoundation.org>
+Message-Id: <20220228172251.430271739@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit ea85bf906466191b58532bb19f4fbb4591f0a77e upstream.
+commit 62e3f0afe246720f7646eb1b034a6897dac34405 upstream.
 
-We need to wait for sensor settling time (~ 3/ODR) before reading data
-in st_lsm6dsx_read_oneshot routine in order to avoid corrupted samples.
+When the Bay Trail phy GPIO mappings where added cs and reset were swapped,
+this did not cause any issues sofar, because sofar they were always driven
+high/low at the same time.
 
-Fixes: 290a6ce11d93 ("iio: imu: add support to lsm6dsx driver")
-Reported-by: Mario Tesi <mario.tesi@st.com>
-Tested-by: Mario Tesi <mario.tesi@st.com>
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Link: https://lore.kernel.org/r/b41ebda5535895298716c76d939f9f165fcd2d13.1644098120.git.lorenzo@kernel.org
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Note the new mapping has been verified both in /sys/kernel/debug/gpio
+output on Android factory images on multiple devices, as well as in
+the schematics for some devices.
+
+Fixes: 5741022cbdf3 ("usb: dwc3: pci: Add GPIO lookup table on platforms without ACPI GPIO resources")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220213130524.18748-3-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/dwc3-pci.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-@@ -1374,8 +1374,12 @@ static int st_lsm6dsx_read_oneshot(struc
- 	if (err < 0)
- 		return err;
- 
-+	/*
-+	 * we need to wait for sensor settling time before
-+	 * reading data in order to avoid corrupted samples
-+	 */
- 	delay = 1000000000 / sensor->odr;
--	usleep_range(delay, 2 * delay);
-+	usleep_range(3 * delay, 4 * delay);
- 
- 	err = st_lsm6dsx_read_locked(hw, addr, &data, sizeof(data));
- 	if (err < 0)
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -81,8 +81,8 @@ static const struct acpi_gpio_mapping ac
+ static struct gpiod_lookup_table platform_bytcr_gpios = {
+ 	.dev_id		= "0000:00:16.0",
+ 	.table		= {
+-		GPIO_LOOKUP("INT33FC:00", 54, "reset", GPIO_ACTIVE_HIGH),
+-		GPIO_LOOKUP("INT33FC:02", 14, "cs", GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("INT33FC:00", 54, "cs", GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("INT33FC:02", 14, "reset", GPIO_ACTIVE_HIGH),
+ 		{}
+ 	},
+ };
 
 
