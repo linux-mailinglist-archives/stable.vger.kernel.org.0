@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F6C44C73DD
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 770374C733B
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:33:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237074AbiB1Rit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:38:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42200 "EHLO
+        id S237749AbiB1ReO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:34:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238588AbiB1RiB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:38:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9928B5715F;
-        Mon, 28 Feb 2022 09:33:24 -0800 (PST)
+        with ESMTP id S238525AbiB1Rde (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:33:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DED2C90FF8;
+        Mon, 28 Feb 2022 09:30:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EABDC61374;
-        Mon, 28 Feb 2022 17:33:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B271C340E7;
-        Mon, 28 Feb 2022 17:33:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F21C3B815B8;
+        Mon, 28 Feb 2022 17:30:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E4B3C340E7;
+        Mon, 28 Feb 2022 17:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069603;
-        bh=AlViE/H7ZXnf4ci5Vul7W8Ps8FfyT9x32LR/bzpcLZs=;
+        s=korg; t=1646069407;
+        bh=KkzO5SfNgv6pefqurUmAIt4FKijkSthd8pPmqIR/5/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=siy4q2CVDfE4pCvgYF/rblB55H/t5ZVPUQd/EsLRWYc2XArz14ksT0acaYRZuayre
-         eusmUGzuHcjW38ZkXUmfudVFja/DPrimZZeBc1DKHTt4y70+3a3nz+YA5MsrWgvznJ
-         gncBA/T43I8iK0mI9RXP3tEgfZSr5Kpgds7thrUU=
+        b=n6Y6cTnqE4qkNvQkRmzk6AztpWZ7BML3toqaRHz7Ys3eUKw5BlPcaUfqZVPd0qHo5
+         VvUn7f6yH2CsP/R4ZRX3g8kDIssSS5WPlNhW4+6gn9DsSUu5hKgLww7Fr2yW54erU1
+         SKE60jHFWWWUsktmUdCVdC+Eqz9V4gXwbsKwxtds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars Persson <larper@axis.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>
-Subject: [PATCH 5.10 18/80] optee: use driver internal tee_context for some rpc
+        stable@vger.kernel.org, Zhao Gongyi <zhaogongyi@huawei.com>,
+        Zhang Qiao <zhangqiao22@huawei.com>,
+        Waiman Long <longman@redhat.com>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.4 01/53] cgroup/cpuset: Fix a race between cpuset_attach() and cpu hotplug
 Date:   Mon, 28 Feb 2022 18:23:59 +0100
-Message-Id: <20220228172313.789030930@linuxfoundation.org>
+Message-Id: <20220228172248.327750002@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,131 +58,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Zhang Qiao <zhangqiao22@huawei.com>
 
-commit aceeafefff736057e8f93f19bbfbef26abd94604 upstream.
+commit 05c7b7a92cc87ff8d7fde189d0fade250697573c upstream.
 
-Adds a driver private tee_context by moving the tee_context in struct
-optee_notif to struct optee. This tee_context was previously used when
-doing internal calls to secure world to deliver notification.
+As previously discussed(https://lkml.org/lkml/2022/1/20/51),
+cpuset_attach() is affected with similar cpu hotplug race,
+as follow scenario:
 
-The new driver internal tee_context is now also when allocating driver
-private shared memory. This decouples the shared memory object from its
-original tee_context. This is needed when the life time of such a memory
-allocation outlives the client tee_context.
+     cpuset_attach()				cpu hotplug
+    ---------------------------            ----------------------
+    down_write(cpuset_rwsem)
+    guarantee_online_cpus() // (load cpus_attach)
+					sched_cpu_deactivate
+					  set_cpu_active()
+					  // will change cpu_active_mask
+    set_cpus_allowed_ptr(cpus_attach)
+      __set_cpus_allowed_ptr_locked()
+       // (if the intersection of cpus_attach and
+         cpu_active_mask is empty, will return -EINVAL)
+    up_write(cpuset_rwsem)
 
-This patch fixes the problem described below:
+To avoid races such as described above, protect cpuset_attach() call
+with cpu_hotplug_lock.
 
-The addition of a shutdown hook by commit f25889f93184 ("optee: fix tee out
-of memory failure seen during kexec reboot") introduced a kernel shutdown
-regression that can be triggered after running the OP-TEE xtest suites.
-
-Once the shutdown hook is called it is not possible to communicate any more
-with the supplicant process because the system is not scheduling task any
-longer. Thus if the optee driver shutdown path receives a supplicant RPC
-request from the OP-TEE we will deadlock the kernel's shutdown.
-
-Fixes: f25889f93184 ("optee: fix tee out of memory failure seen during kexec reboot")
-Fixes: 217e0250cccb ("tee: use reference counting for tee_context")
-Reported-by: Lars Persson <larper@axis.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-[JW: backport to 5.10-stable + update commit message]
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Fixes: be367d099270 ("cgroups: let ss->can_attach and ss->attach do whole threadgroups at a time")
+Cc: stable@vger.kernel.org # v2.6.32+
+Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
+Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
+Acked-by: Waiman Long <longman@redhat.com>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/optee/core.c          |    8 ++++++++
- drivers/tee/optee/optee_private.h |    2 ++
- drivers/tee/optee/rpc.c           |    8 +++++---
- 3 files changed, 15 insertions(+), 3 deletions(-)
+ kernel/cgroup/cpuset.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tee/optee/core.c
-+++ b/drivers/tee/optee/core.c
-@@ -588,6 +588,7 @@ static int optee_remove(struct platform_
- 	/* Unregister OP-TEE specific client devices on TEE bus */
- 	optee_unregister_devices();
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -2204,6 +2204,7 @@ static void cpuset_attach(struct cgroup_
+ 	cgroup_taskset_first(tset, &css);
+ 	cs = css_cs(css);
  
-+	teedev_close_context(optee->ctx);
- 	/*
- 	 * Ask OP-TEE to free all cached shared memory objects to decrease
- 	 * reference counters and also avoid wild pointers in secure world
-@@ -633,6 +634,7 @@ static int optee_probe(struct platform_d
- 	struct optee *optee = NULL;
- 	void *memremaped_shm = NULL;
- 	struct tee_device *teedev;
-+	struct tee_context *ctx;
- 	u32 sec_caps;
- 	int rc;
++	cpus_read_lock();
+ 	percpu_down_write(&cpuset_rwsem);
  
-@@ -719,6 +721,12 @@ static int optee_probe(struct platform_d
- 	optee_supp_init(&optee->supp);
- 	optee->memremaped_shm = memremaped_shm;
- 	optee->pool = pool;
-+	ctx = teedev_open(optee->teedev);
-+	if (IS_ERR(ctx)) {
-+		rc = PTR_ERR(ctx);
-+		goto err;
-+	}
-+	optee->ctx = ctx;
+ 	/* prepare for attach */
+@@ -2259,6 +2260,7 @@ static void cpuset_attach(struct cgroup_
+ 		wake_up(&cpuset_attach_wq);
  
- 	/*
- 	 * Ensure that there are no pre-existing shm objects before enabling
---- a/drivers/tee/optee/optee_private.h
-+++ b/drivers/tee/optee/optee_private.h
-@@ -70,6 +70,7 @@ struct optee_supp {
-  * struct optee - main service struct
-  * @supp_teedev:	supplicant device
-  * @teedev:		client device
-+ * @ctx:		driver internal TEE context
-  * @invoke_fn:		function to issue smc or hvc
-  * @call_queue:		queue of threads waiting to call @invoke_fn
-  * @wait_queue:		queue of threads from secure world waiting for a
-@@ -87,6 +88,7 @@ struct optee {
- 	struct tee_device *supp_teedev;
- 	struct tee_device *teedev;
- 	optee_invoke_fn *invoke_fn;
-+	struct tee_context *ctx;
- 	struct optee_call_queue call_queue;
- 	struct optee_wait_queue wait_queue;
- 	struct optee_supp supp;
---- a/drivers/tee/optee/rpc.c
-+++ b/drivers/tee/optee/rpc.c
-@@ -284,6 +284,7 @@ static struct tee_shm *cmd_alloc_suppl(s
+ 	percpu_up_write(&cpuset_rwsem);
++	cpus_read_unlock();
  }
  
- static void handle_rpc_func_cmd_shm_alloc(struct tee_context *ctx,
-+					  struct optee *optee,
- 					  struct optee_msg_arg *arg,
- 					  struct optee_call_ctx *call_ctx)
- {
-@@ -313,7 +314,8 @@ static void handle_rpc_func_cmd_shm_allo
- 		shm = cmd_alloc_suppl(ctx, sz);
- 		break;
- 	case OPTEE_MSG_RPC_SHM_TYPE_KERNEL:
--		shm = tee_shm_alloc(ctx, sz, TEE_SHM_MAPPED | TEE_SHM_PRIV);
-+		shm = tee_shm_alloc(optee->ctx, sz,
-+				    TEE_SHM_MAPPED | TEE_SHM_PRIV);
- 		break;
- 	default:
- 		arg->ret = TEEC_ERROR_BAD_PARAMETERS;
-@@ -470,7 +472,7 @@ static void handle_rpc_func_cmd(struct t
- 		break;
- 	case OPTEE_MSG_RPC_CMD_SHM_ALLOC:
- 		free_pages_list(call_ctx);
--		handle_rpc_func_cmd_shm_alloc(ctx, arg, call_ctx);
-+		handle_rpc_func_cmd_shm_alloc(ctx, optee, arg, call_ctx);
- 		break;
- 	case OPTEE_MSG_RPC_CMD_SHM_FREE:
- 		handle_rpc_func_cmd_shm_free(ctx, arg);
-@@ -501,7 +503,7 @@ void optee_handle_rpc(struct tee_context
- 
- 	switch (OPTEE_SMC_RETURN_GET_RPC_FUNC(param->a0)) {
- 	case OPTEE_SMC_RPC_FUNC_ALLOC:
--		shm = tee_shm_alloc(ctx, param->a1,
-+		shm = tee_shm_alloc(optee->ctx, param->a1,
- 				    TEE_SHM_MAPPED | TEE_SHM_PRIV);
- 		if (!IS_ERR(shm) && !tee_shm_get_pa(shm, 0, &pa)) {
- 			reg_pair_from_64(&param->a1, &param->a2, pa);
+ /* The various types of files and directories in a cpuset file system */
 
 
