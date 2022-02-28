@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18D624C7B02
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 21:51:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 721AD4C7B00
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 21:51:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229470AbiB1UwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 15:52:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41038 "EHLO
+        id S229478AbiB1UwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 15:52:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229492AbiB1UwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 15:52:01 -0500
+        with ESMTP id S229470AbiB1Uv7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 15:51:59 -0500
 Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95C23C12C0
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 12:51:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 654EDC1166
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 12:51:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1646081481; x=1677617481;
+  t=1646081480; x=1677617480;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=V2AdQN+owiRKbPacz9IgsoQDV8p/sLkgarNPaaNGqas=;
-  b=kP6vAsA9TIylbk+ZC6/TMLI6ea7dfqLE5b/JWkPN5DXWuqj/OFyJuOC0
-   heq3z+6zcLuYvDDH/+taG8F0be5IIPyLYqzwZ1IO5vBCo/Nt6e3JcAch/
-   63hcGaJ5gJqwotBrdY2r5XkBGtA8ViBLk3tphlmp3XLALsMxc87eIKZsV
-   Fg8TwKxsJ+ts03iHi85isTsCDBcnMpb8bC3yt16RAD+emBElORCXhWCe9
-   PgtV8C6+rjfgttDr5IuILIftVzPhbwhWj1fBoR5aP6u+jBpeq83hayc9I
-   MHFJhOYyPa8bY11ul+x1hqTX6DldrGnWbBM/bd3XtzQwiZHJ4JeD81005
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10272"; a="277646469"
+  bh=xEb2idAH/lmibWMoECwh8vsAt7RdrKJzOul7Pm26Azc=;
+  b=GtMXzEMCE719nUpyJ9e+aRCDm9O97TOX57xw+JvKPJKPn5p/CybJLOmF
+   /DgoT7PBWAFhEJRMiNgiHl5wapbbIpsYGp5ZERHDS9BQCx/p7VaUGUPn3
+   E1yvfu4w9C0yepkaiNU/X/UX6iM6yYCKN1Dfg7vKnPjFwrWzpBq++GTb5
+   qvSjy8VOx9f+dbSd5rrO9f+LujZ1UPhqE5sbGLex4jFpQeu/T4Ualyn4A
+   qqF/hB5isbdG32Je3nZl83ceFzps4YL/3o6LGyqZqNrkiwCj+wsRzwfyv
+   1YFVmJW+QZibH9CaRWrJ5Rpt2PKglo5NNNnSSoHU7DZWrVbHAQut+KXAN
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10272"; a="277646467"
 X-IronPort-AV: E=Sophos;i="5.90,144,1643702400"; 
-   d="scan'208";a="277646469"
+   d="scan'208";a="277646467"
 Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2022 12:51:20 -0800
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2022 12:51:19 -0800
 X-IronPort-AV: E=Sophos;i="5.90,144,1643702400"; 
-   d="scan'208";a="534616383"
+   d="scan'208";a="534616386"
 Received: from jekeller-desk.amr.corp.intel.com ([10.166.241.10])
   by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2022 12:51:19 -0800
 From:   Jacob Keller <jacob.e.keller@intel.com>
 To:     stable@vger.kernel.org
 Cc:     Jacob Keller <jacob.e.keller@intel.com>
-Subject: [PATCH 2/3] ice: Fix not stopping Tx queues for VFs
-Date:   Mon, 28 Feb 2022 12:51:13 -0800
-Message-Id: <20220228205114.3262532-2-jacob.e.keller@intel.com>
+Subject: [PATCH 3/3] ice: fix concurrent reset and removal of VFs
+Date:   Mon, 28 Feb 2022 12:51:14 -0800
+Message-Id: <20220228205114.3262532-3-jacob.e.keller@intel.com>
 X-Mailer: git-send-email 2.35.1.355.ge7e302376dd6
 In-Reply-To: <20220228205114.3262532-1-jacob.e.keller@intel.com>
 References: <20220228205114.3262532-1-jacob.e.keller@intel.com>
@@ -57,123 +57,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brett Creeley <brett.creeley@intel.com>
+commit fadead80fe4c033b5e514fcbadd20b55c4494112 upstream.
 
-commit b385cca47363316c6d9a74ae9db407bbc281f815 upstream.
+[ The original upstream commit fixed c503e63200c6 ("ice: Stop processing
+VF messages during teardown"). This change is not in the 5.8 through 5.12
+stable trees. However, that commit was itself a fix for ddf30f7ff840 ("ice:
+Add handler to configure SR-IOV"). This fix originally reverted c503e63200c6
+and supplied this more complete fix based on properly locking reset and
+remove. This backport only applies the new fix, rather than applying the
+broken inbetween fix and then reverting it. ]
 
-[ This commit is already in stable/linux-5.10.y as d83832d4a838 ("ice: Fix
-not stopping Tx queues for VFs"). It's missing from v5.8, v5.9, v5.11, and
-v5.12 ]
+Commit c503e63200c6 ("ice: Stop processing VF messages during teardown")
+introduced a driver state flag, ICE_VF_DEINIT_IN_PROGRESS, which is
+intended to prevent some issues with concurrently handling messages from
+VFs while tearing down the VFs.
 
-When a VF is removed and/or reset its Tx queues need to be
-stopped from the PF. This is done by calling the ice_dis_vf_qs()
-function, which calls ice_vsi_stop_lan_tx_rings(). Currently
-ice_dis_vf_qs() is protected by the VF state bit ICE_VF_STATE_QS_ENA.
-Unfortunately, this is causing the Tx queues to not be disabled in some
-cases and when the VF tries to re-enable/reconfigure its Tx queues over
-virtchnl the op is failing. This is because a VF can be reset and/or
-removed before the ICE_VF_STATE_QS_ENA bit is set, but the Tx queues
-were already configured via ice_vsi_cfg_single_txq() in the
-VIRTCHNL_OP_CONFIG_VSI_QUEUES op. However, the ICE_VF_STATE_QS_ENA bit
-is set on a successful VIRTCHNL_OP_ENABLE_QUEUES, which will always
-happen after the VIRTCHNL_OP_CONFIG_VSI_QUEUES op.
+This change was motivated by crashes caused while tearing down and
+bringing up VFs in rapid succession.
 
-This was causing the following error message when loading the ice
-driver, creating VFs, and modifying VF trust in an endless loop:
+It turns out that the fix actually introduces issues with the VF driver
+caused because the PF no longer responds to any messages sent by the VF
+during its .remove routine. This results in the VF potentially removing
+its DMA memory before the PF has shut down the device queues.
 
-[35274.192484] ice 0000:88:00.0: Failed to set LAN Tx queue context, error: ICE_ERR_PARAM
-[35274.193074] ice 0000:88:00.0: VF 0 failed opcode 6, retval: -5
-[35274.193640] iavf 0000:88:01.0: PF returned error -5 (IAVF_ERR_PARAM) to our request 6
+Additionally, the fix doesn't actually resolve concurrency issues within
+the ice driver. It is possible for a VF to initiate a reset just prior
+to the ice driver removing VFs. This can result in the remove task
+concurrently operating while the VF is being reset. This results in
+similar memory corruption and panics purportedly fixed by that commit.
 
-Fix this by always calling ice_dis_vf_qs() and silencing the error
-message in ice_vsi_stop_tx_ring() since the calling code ignores the
-return anyway. Also, all other places that call ice_vsi_stop_tx_ring()
-catch the error, so this doesn't affect those flows since there was no
-change to the values the function returns.
+Fix this concurrency at its root by protecting both the reset and
+removal flows using the existing VF cfg_lock. This ensures that we
+cannot remove the VF while any outstanding critical tasks such as a
+virtchnl message or a reset are occurring.
 
-Other solutions were considered (i.e. tracking which VF queues had been
-"started/configured" in VIRTCHNL_OP_CONFIG_VSI_QUEUES, but it seemed
-more complicated than it was worth. This solution also brings in the
-chance for other unexpected conditions due to invalid state bit checks.
-So, the proposed solution seemed like the best option since there is no
-harm in failing to stop Tx queues that were never started.
+This locking change also fixes the root cause originally fixed by commit
+c503e63200c6 ("ice: Stop processing VF messages during teardown"), so we
+can simply revert it.
 
-This issue can be seen using the following commands:
+Note that I kept these two changes together because simply reverting the
+original commit alone would leave the driver vulnerable to worse race
+conditions.
 
-for i in {0..50}; do
-        rmmod ice
-        modprobe ice
-
-        sleep 1
-
-        echo 1 > /sys/class/net/ens785f0/device/sriov_numvfs
-        echo 1 > /sys/class/net/ens785f1/device/sriov_numvfs
-
-        ip link set ens785f1 vf 0 trust on
-        ip link set ens785f0 vf 0 trust on
-
-        sleep 2
-
-        echo 0 > /sys/class/net/ens785f0/device/sriov_numvfs
-        echo 0 > /sys/class/net/ens785f1/device/sriov_numvfs
-        sleep 1
-        echo 1 > /sys/class/net/ens785f0/device/sriov_numvfs
-        echo 1 > /sys/class/net/ens785f1/device/sriov_numvfs
-
-        ip link set ens785f1 vf 0 trust on
-        ip link set ens785f0 vf 0 trust on
-done
-
-Fixes: 77ca27c41705 ("ice: add support for virtchnl_queue_select.[tx|rx]_queues bitmap")
-Cc: stable@vger.kernel.org # 5.8.x
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Fixes: c503e63200c6 ("ice: Stop processing VF messages during teardown")
+Cc: <stable@vger.kernel.org> # 5.8.x: e6ba5273d4ed: ice: Fix race conditions between virtchnl handling and VF ndo ops
+Cc: <stable@vger.kernel.org> # 5.8.x: b385cca47363: ice: Fix not stopping Tx queues for VF
+Cc: <stable@vger.kernel.org> # 5.8.x
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
 Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 ---
-This is for stable trees 5.8 through 5.12, excepting 5.10 which already has
-it. I sent a series with these fixes for 5.13 and 5.14 separately.
+This is for stable trees 5.8 through 5.12. I sent a series with this fix for
+5.13 and 5.14 separately since they have slightly different context.
 
- drivers/net/ethernet/intel/ice/ice_base.c        | 2 +-
- drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c | 6 ++----
- 2 files changed, 3 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_main.c     |  2 ++
+ .../net/ethernet/intel/ice/ice_virtchnl_pf.c  | 35 +++++++++++++------
+ 2 files changed, 27 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_base.c b/drivers/net/ethernet/intel/ice/ice_base.c
-index 1148d768f8ed..203a3b21adc8 100644
---- a/drivers/net/ethernet/intel/ice/ice_base.c
-+++ b/drivers/net/ethernet/intel/ice/ice_base.c
-@@ -859,7 +859,7 @@ ice_vsi_stop_tx_ring(struct ice_vsi *vsi, enum ice_disq_rst_src rst_src,
- 	} else if (status == ICE_ERR_DOES_NOT_EXIST) {
- 		dev_dbg(ice_pf_to_dev(vsi->back), "LAN Tx queues do not exist, nothing to disable\n");
- 	} else if (status) {
--		dev_err(ice_pf_to_dev(vsi->back), "Failed to disable LAN Tx queues, error: %s\n",
-+		dev_dbg(ice_pf_to_dev(vsi->back), "Failed to disable LAN Tx queues, error: %s\n",
- 			ice_stat_str(status));
- 		return -ENODEV;
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index b61cd84be97f..171cb9198c8d 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -1601,7 +1601,9 @@ static void ice_handle_mdd_event(struct ice_pf *pf)
+ 				 * reset, so print the event prior to reset.
+ 				 */
+ 				ice_print_vf_rx_mdd_event(vf);
++				mutex_lock(&pf->vf[i].cfg_lock);
+ 				ice_reset_vf(&pf->vf[i], false);
++				mutex_unlock(&pf->vf[i].cfg_lock);
+ 			}
+ 		}
  	}
 diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-index 66da8f540454..8fa941231500 100644
+index 8fa941231500..af1fbb2c1479 100644
 --- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
 +++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-@@ -362,8 +362,7 @@ void ice_free_vfs(struct ice_pf *pf)
+@@ -360,22 +360,26 @@ void ice_free_vfs(struct ice_pf *pf)
+ 	else
+ 		dev_warn(dev, "VFs are assigned - not disabling SR-IOV\n");
  
- 	/* Avoid wait time by stopping all VFs at the same time */
- 	ice_for_each_vf(pf, i)
--		if (test_bit(ICE_VF_STATE_QS_ENA, pf->vf[i].vf_states))
--			ice_dis_vf_qs(&pf->vf[i]);
-+		ice_dis_vf_qs(&pf->vf[i]);
- 
+-	/* Avoid wait time by stopping all VFs at the same time */
+-	ice_for_each_vf(pf, i)
+-		ice_dis_vf_qs(&pf->vf[i]);
+-
  	tmp = pf->num_alloc_vfs;
  	pf->num_qps_per_vf = 0;
-@@ -1329,8 +1328,7 @@ bool ice_reset_vf(struct ice_vf *vf, bool is_vflr)
+ 	pf->num_alloc_vfs = 0;
+ 	for (i = 0; i < tmp; i++) {
+-		if (test_bit(ICE_VF_STATE_INIT, pf->vf[i].vf_states)) {
++		struct ice_vf *vf = &pf->vf[i];
++
++		mutex_lock(&vf->cfg_lock);
++
++		ice_dis_vf_qs(vf);
++
++		if (test_bit(ICE_VF_STATE_INIT, vf->vf_states)) {
+ 			/* disable VF qp mappings and set VF disable state */
+-			ice_dis_vf_mappings(&pf->vf[i]);
+-			set_bit(ICE_VF_STATE_DIS, pf->vf[i].vf_states);
+-			ice_free_vf_res(&pf->vf[i]);
++			ice_dis_vf_mappings(vf);
++			set_bit(ICE_VF_STATE_DIS, vf->vf_states);
++			ice_free_vf_res(vf);
+ 		}
  
- 	vsi = pf->vsi[vf->lan_vsi_idx];
+-		mutex_destroy(&pf->vf[i].cfg_lock);
++		mutex_unlock(&vf->cfg_lock);
++
++		mutex_destroy(&vf->cfg_lock);
+ 	}
  
--	if (test_bit(ICE_VF_STATE_QS_ENA, vf->vf_states))
--		ice_dis_vf_qs(vf);
-+	ice_dis_vf_qs(vf);
+ 	if (ice_sriov_free_msix_res(pf))
+@@ -1259,9 +1263,13 @@ bool ice_reset_all_vfs(struct ice_pf *pf, bool is_vflr)
+ 	ice_for_each_vf(pf, v) {
+ 		vf = &pf->vf[v];
  
- 	/* Call Disable LAN Tx queue AQ whether or not queues are
- 	 * enabled. This is needed for successful completion of VFR.
++		mutex_lock(&vf->cfg_lock);
++
+ 		ice_vf_pre_vsi_rebuild(vf);
+ 		ice_vf_rebuild_vsi(vf);
+ 		ice_vf_post_vsi_rebuild(vf);
++
++		mutex_unlock(&vf->cfg_lock);
+ 	}
+ 
+ 	ice_flush(hw);
+@@ -1308,6 +1316,8 @@ bool ice_reset_vf(struct ice_vf *vf, bool is_vflr)
+ 	u32 reg;
+ 	int i;
+ 
++	lockdep_assert_held(&vf->cfg_lock);
++
+ 	dev = ice_pf_to_dev(pf);
+ 
+ 	if (test_bit(__ICE_VF_RESETS_DISABLED, pf->state)) {
+@@ -1765,9 +1775,12 @@ void ice_process_vflr_event(struct ice_pf *pf)
+ 		bit_idx = (hw->func_caps.vf_base_id + vf_id) % 32;
+ 		/* read GLGEN_VFLRSTAT register to find out the flr VFs */
+ 		reg = rd32(hw, GLGEN_VFLRSTAT(reg_idx));
+-		if (reg & BIT(bit_idx))
++		if (reg & BIT(bit_idx)) {
+ 			/* GLGEN_VFLRSTAT bit will be cleared in ice_reset_vf */
++			mutex_lock(&vf->cfg_lock);
+ 			ice_reset_vf(vf, true);
++			mutex_unlock(&vf->cfg_lock);
++		}
+ 	}
+ }
+ 
+@@ -1844,7 +1857,9 @@ ice_vf_lan_overflow_event(struct ice_pf *pf, struct ice_rq_event_info *event)
+ 	if (!vf)
+ 		return;
+ 
++	mutex_lock(&vf->cfg_lock);
+ 	ice_vc_reset_vf(vf);
++	mutex_unlock(&vf->cfg_lock);
+ }
+ 
+ /**
 -- 
 2.35.1.355.ge7e302376dd6
 
