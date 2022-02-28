@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D2DD4C770C
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 19:10:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1DF94C758D
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230322AbiB1SLU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 13:11:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34376 "EHLO
+        id S236779AbiB1Rz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:55:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241549AbiB1SKD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 13:10:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C4B1B8213;
-        Mon, 28 Feb 2022 09:50:13 -0800 (PST)
+        with ESMTP id S240512AbiB1RyV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:21 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 256F795499;
+        Mon, 28 Feb 2022 09:42:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A79BEB815C3;
-        Mon, 28 Feb 2022 17:50:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1BBCC340E7;
-        Mon, 28 Feb 2022 17:50:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B6765CE17C4;
+        Mon, 28 Feb 2022 17:42:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3474C340E7;
+        Mon, 28 Feb 2022 17:42:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070609;
-        bh=6UwCDOJqRhPGFGmGm2PxiDMylLrzjuY/whP3p9ohKBk=;
+        s=korg; t=1646070135;
+        bh=Y/HwuWoVeX6s5vjmTTbWIMIxw4Y0IfWt9Ob2FSFADWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qaBCk5zrYB9zLrP+04pcdUKFg1E9xLrrW4EzoPscoGsFGiw3egCzVn/qejkDO6gYz
-         VENaCBty3YVQN6KRJP30ScJPM1XczIP1X7oTFaisI9CcLhF6bX2/htofLEyRK5zoO5
-         u+oWFJHILyBnJNaL/M/X1fL/qzavF4ZkeH0MDIcU=
+        b=XkhPLyWVS7rKohtYorrfC/bbYx6JKOKoCyMLKV67VUt7g3llr2gSX0C0wn55FF2C6
+         5YbHSFf20UrUDjoquTw/oVe7WxIkUvhUg8xRroPXxbO1ZRn7S4bGuyEj4d+WmA22e0
+         iMzU8n9vE3cEQroDX4eGE3vVIy8fuaXeIxrcre3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.16 151/164] riscv: fix oops caused by irqsoff latency tracer
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.15 139/139] ice: fix concurrent reset and removal of VFs
 Date:   Mon, 28 Feb 2022 18:25:13 +0100
-Message-Id: <20220228172413.489437652@linuxfoundation.org>
+Message-Id: <20220228172402.329445589@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
-References: <20220228172359.567256961@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,167 +54,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changbin Du <changbin.du@gmail.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-commit 22e2100b1b07d6f5acc71cc1acb53f680c677d77 upstream.
+commit fadead80fe4c033b5e514fcbadd20b55c4494112 upstream.
 
-The trace_hardirqs_{on,off}() require the caller to setup frame pointer
-properly. This because these two functions use macro 'CALLER_ADDR1' (aka.
-__builtin_return_address(1)) to acquire caller info. If the $fp is used
-for other purpose, the code generated this macro (as below) could trigger
-memory access fault.
+Commit c503e63200c6 ("ice: Stop processing VF messages during teardown")
+introduced a driver state flag, ICE_VF_DEINIT_IN_PROGRESS, which is
+intended to prevent some issues with concurrently handling messages from
+VFs while tearing down the VFs.
 
-   0xffffffff8011510e <+80>:    ld      a1,-16(s0)
-   0xffffffff80115112 <+84>:    ld      s2,-8(a1)  # <-- paging fault here
+This change was motivated by crashes caused while tearing down and
+bringing up VFs in rapid succession.
 
-The oops message during booting if compiled with 'irqoff' tracer enabled:
-[    0.039615][    T0] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000f8
-[    0.041925][    T0] Oops [#1]
-[    0.042063][    T0] Modules linked in:
-[    0.042864][    T0] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.17.0-rc1-00233-g9a20c48d1ed2 #29
-[    0.043568][    T0] Hardware name: riscv-virtio,qemu (DT)
-[    0.044343][    T0] epc : trace_hardirqs_on+0x56/0xe2
-[    0.044601][    T0]  ra : restore_all+0x12/0x6e
-[    0.044721][    T0] epc : ffffffff80126a5c ra : ffffffff80003b94 sp : ffffffff81403db0
-[    0.044801][    T0]  gp : ffffffff8163acd8 tp : ffffffff81414880 t0 : 0000000000000020
-[    0.044882][    T0]  t1 : 0098968000000000 t2 : 0000000000000000 s0 : ffffffff81403de0
-[    0.044967][    T0]  s1 : 0000000000000000 a0 : 0000000000000001 a1 : 0000000000000100
-[    0.045046][    T0]  a2 : 0000000000000000 a3 : 0000000000000000 a4 : 0000000000000000
-[    0.045124][    T0]  a5 : 0000000000000000 a6 : 0000000000000000 a7 : 0000000054494d45
-[    0.045210][    T0]  s2 : ffffffff80003b94 s3 : ffffffff81a8f1b0 s4 : ffffffff80e27b50
-[    0.045289][    T0]  s5 : ffffffff81414880 s6 : ffffffff8160fa00 s7 : 00000000800120e8
-[    0.045389][    T0]  s8 : 0000000080013100 s9 : 000000000000007f s10: 0000000000000000
-[    0.045474][    T0]  s11: 0000000000000000 t3 : 7fffffffffffffff t4 : 0000000000000000
-[    0.045548][    T0]  t5 : 0000000000000000 t6 : ffffffff814aa368
-[    0.045620][    T0] status: 0000000200000100 badaddr: 00000000000000f8 cause: 000000000000000d
-[    0.046402][    T0] [<ffffffff80003b94>] restore_all+0x12/0x6e
+It turns out that the fix actually introduces issues with the VF driver
+caused because the PF no longer responds to any messages sent by the VF
+during its .remove routine. This results in the VF potentially removing
+its DMA memory before the PF has shut down the device queues.
 
-This because the $fp(aka. $s0) register is not used as frame pointer in the
-assembly entry code.
+Additionally, the fix doesn't actually resolve concurrency issues within
+the ice driver. It is possible for a VF to initiate a reset just prior
+to the ice driver removing VFs. This can result in the remove task
+concurrently operating while the VF is being reset. This results in
+similar memory corruption and panics purportedly fixed by that commit.
 
-	resume_kernel:
-		REG_L s0, TASK_TI_PREEMPT_COUNT(tp)
-		bnez s0, restore_all
-		REG_L s0, TASK_TI_FLAGS(tp)
-                andi s0, s0, _TIF_NEED_RESCHED
-                beqz s0, restore_all
-                call preempt_schedule_irq
-                j restore_all
+Fix this concurrency at its root by protecting both the reset and
+removal flows using the existing VF cfg_lock. This ensures that we
+cannot remove the VF while any outstanding critical tasks such as a
+virtchnl message or a reset are occurring.
 
-To fix above issue, here we add one extra level wrapper for function
-trace_hardirqs_{on,off}() so they can be safely called by low level entry
-code.
+This locking change also fixes the root cause originally fixed by commit
+c503e63200c6 ("ice: Stop processing VF messages during teardown"), so we
+can simply revert it.
 
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
-Fixes: 3c4697982982 ("riscv: Enable LOCKDEP_SUPPORT & fixup TRACE_IRQFLAGS_SUPPORT")
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Note that I kept these two changes together because simply reverting the
+original commit alone would leave the driver vulnerable to worse race
+conditions.
+
+Fixes: c503e63200c6 ("ice: Stop processing VF messages during teardown")
+Cc: <stable@vger.kernel.org> # e6ba5273d4ed: ice: Fix race conditions between virtchnl handling and VF ndo ops
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/Makefile    |    2 ++
- arch/riscv/kernel/entry.S     |   10 +++++-----
- arch/riscv/kernel/trace_irq.c |   27 +++++++++++++++++++++++++++
- arch/riscv/kernel/trace_irq.h |   11 +++++++++++
- 4 files changed, 45 insertions(+), 5 deletions(-)
- create mode 100644 arch/riscv/kernel/trace_irq.c
- create mode 100644 arch/riscv/kernel/trace_irq.h
+ drivers/net/ethernet/intel/ice/ice.h             |    1 
+ drivers/net/ethernet/intel/ice/ice_main.c        |    2 +
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c |   42 +++++++++++++----------
+ 3 files changed, 27 insertions(+), 18 deletions(-)
 
---- a/arch/riscv/kernel/Makefile
-+++ b/arch/riscv/kernel/Makefile
-@@ -50,6 +50,8 @@ obj-$(CONFIG_MODULE_SECTIONS)	+= module-
- obj-$(CONFIG_FUNCTION_TRACER)	+= mcount.o ftrace.o
- obj-$(CONFIG_DYNAMIC_FTRACE)	+= mcount-dyn.o
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -231,7 +231,6 @@ enum ice_pf_state {
+ 	ICE_VFLR_EVENT_PENDING,
+ 	ICE_FLTR_OVERFLOW_PROMISC,
+ 	ICE_VF_DIS,
+-	ICE_VF_DEINIT_IN_PROGRESS,
+ 	ICE_CFG_BUSY,
+ 	ICE_SERVICE_SCHED,
+ 	ICE_SERVICE_DIS,
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -1679,7 +1679,9 @@ static void ice_handle_mdd_event(struct
+ 				 * reset, so print the event prior to reset.
+ 				 */
+ 				ice_print_vf_rx_mdd_event(vf);
++				mutex_lock(&pf->vf[i].cfg_lock);
+ 				ice_reset_vf(&pf->vf[i], false);
++				mutex_unlock(&pf->vf[i].cfg_lock);
+ 			}
+ 		}
+ 	}
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+@@ -615,8 +615,6 @@ void ice_free_vfs(struct ice_pf *pf)
+ 	struct ice_hw *hw = &pf->hw;
+ 	unsigned int tmp, i;
  
-+obj-$(CONFIG_TRACE_IRQFLAGS)	+= trace_irq.o
-+
- obj-$(CONFIG_RISCV_BASE_PMU)	+= perf_event.o
- obj-$(CONFIG_PERF_EVENTS)	+= perf_callchain.o
- obj-$(CONFIG_HAVE_PERF_REGS)	+= perf_regs.o
---- a/arch/riscv/kernel/entry.S
-+++ b/arch/riscv/kernel/entry.S
-@@ -108,7 +108,7 @@ _save_context:
- .option pop
+-	set_bit(ICE_VF_DEINIT_IN_PROGRESS, pf->state);
+-
+ 	if (!pf->vf)
+ 		return;
  
- #ifdef CONFIG_TRACE_IRQFLAGS
--	call trace_hardirqs_off
-+	call __trace_hardirqs_off
- #endif
+@@ -632,22 +630,26 @@ void ice_free_vfs(struct ice_pf *pf)
+ 	else
+ 		dev_warn(dev, "VFs are assigned - not disabling SR-IOV\n");
  
- #ifdef CONFIG_CONTEXT_TRACKING
-@@ -143,7 +143,7 @@ skip_context_tracking:
- 	li t0, EXC_BREAKPOINT
- 	beq s4, t0, 1f
- #ifdef CONFIG_TRACE_IRQFLAGS
--	call trace_hardirqs_on
-+	call __trace_hardirqs_on
- #endif
- 	csrs CSR_STATUS, SR_IE
+-	/* Avoid wait time by stopping all VFs at the same time */
+-	ice_for_each_vf(pf, i)
+-		ice_dis_vf_qs(&pf->vf[i]);
+-
+ 	tmp = pf->num_alloc_vfs;
+ 	pf->num_qps_per_vf = 0;
+ 	pf->num_alloc_vfs = 0;
+ 	for (i = 0; i < tmp; i++) {
+-		if (test_bit(ICE_VF_STATE_INIT, pf->vf[i].vf_states)) {
++		struct ice_vf *vf = &pf->vf[i];
++
++		mutex_lock(&vf->cfg_lock);
++
++		ice_dis_vf_qs(vf);
++
++		if (test_bit(ICE_VF_STATE_INIT, vf->vf_states)) {
+ 			/* disable VF qp mappings and set VF disable state */
+-			ice_dis_vf_mappings(&pf->vf[i]);
+-			set_bit(ICE_VF_STATE_DIS, pf->vf[i].vf_states);
+-			ice_free_vf_res(&pf->vf[i]);
++			ice_dis_vf_mappings(vf);
++			set_bit(ICE_VF_STATE_DIS, vf->vf_states);
++			ice_free_vf_res(vf);
+ 		}
  
-@@ -234,7 +234,7 @@ ret_from_exception:
- 	REG_L s0, PT_STATUS(sp)
- 	csrc CSR_STATUS, SR_IE
- #ifdef CONFIG_TRACE_IRQFLAGS
--	call trace_hardirqs_off
-+	call __trace_hardirqs_off
- #endif
- #ifdef CONFIG_RISCV_M_MODE
- 	/* the MPP value is too large to be used as an immediate arg for addi */
-@@ -270,10 +270,10 @@ restore_all:
- 	REG_L s1, PT_STATUS(sp)
- 	andi t0, s1, SR_PIE
- 	beqz t0, 1f
--	call trace_hardirqs_on
-+	call __trace_hardirqs_on
- 	j 2f
- 1:
--	call trace_hardirqs_off
-+	call __trace_hardirqs_off
- 2:
- #endif
- 	REG_L a0, PT_STATUS(sp)
---- /dev/null
-+++ b/arch/riscv/kernel/trace_irq.c
-@@ -0,0 +1,27 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (C) 2022 Changbin Du <changbin.du@gmail.com>
-+ */
+-		mutex_destroy(&pf->vf[i].cfg_lock);
++		mutex_unlock(&vf->cfg_lock);
 +
-+#include <linux/irqflags.h>
-+#include <linux/kprobes.h>
-+#include "trace_irq.h"
++		mutex_destroy(&vf->cfg_lock);
+ 	}
+ 
+ 	if (ice_sriov_free_msix_res(pf))
+@@ -683,7 +685,6 @@ void ice_free_vfs(struct ice_pf *pf)
+ 				i);
+ 
+ 	clear_bit(ICE_VF_DIS, pf->state);
+-	clear_bit(ICE_VF_DEINIT_IN_PROGRESS, pf->state);
+ 	clear_bit(ICE_FLAG_SRIOV_ENA, pf->flags);
+ }
+ 
+@@ -1567,6 +1568,8 @@ bool ice_reset_all_vfs(struct ice_pf *pf
+ 	ice_for_each_vf(pf, v) {
+ 		vf = &pf->vf[v];
+ 
++		mutex_lock(&vf->cfg_lock);
 +
-+/*
-+ * trace_hardirqs_on/off require the caller to setup frame pointer properly.
-+ * Otherwise, CALLER_ADDR1 might trigger an pagging exception in kernel.
-+ * Here we add one extra level so they can be safely called by low
-+ * level entry code which $fp is used for other purpose.
-+ */
+ 		vf->driver_caps = 0;
+ 		ice_vc_set_default_allowlist(vf);
+ 
+@@ -1581,6 +1584,8 @@ bool ice_reset_all_vfs(struct ice_pf *pf
+ 		ice_vf_pre_vsi_rebuild(vf);
+ 		ice_vf_rebuild_vsi(vf);
+ 		ice_vf_post_vsi_rebuild(vf);
 +
-+void __trace_hardirqs_on(void)
-+{
-+	trace_hardirqs_on();
-+}
-+NOKPROBE_SYMBOL(__trace_hardirqs_on);
++		mutex_unlock(&vf->cfg_lock);
+ 	}
+ 
+ 	ice_flush(hw);
+@@ -1627,6 +1632,8 @@ bool ice_reset_vf(struct ice_vf *vf, boo
+ 	u32 reg;
+ 	int i;
+ 
++	lockdep_assert_held(&vf->cfg_lock);
 +
-+void __trace_hardirqs_off(void)
-+{
-+	trace_hardirqs_off();
-+}
-+NOKPROBE_SYMBOL(__trace_hardirqs_off);
---- /dev/null
-+++ b/arch/riscv/kernel/trace_irq.h
-@@ -0,0 +1,11 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Copyright (C) 2022 Changbin Du <changbin.du@gmail.com>
-+ */
-+#ifndef __TRACE_IRQ_H
-+#define __TRACE_IRQ_H
-+
-+void __trace_hardirqs_on(void);
-+void __trace_hardirqs_off(void);
-+
-+#endif /* __TRACE_IRQ_H */
+ 	dev = ice_pf_to_dev(pf);
+ 
+ 	if (test_bit(ICE_VF_RESETS_DISABLED, pf->state)) {
+@@ -2113,9 +2120,12 @@ void ice_process_vflr_event(struct ice_p
+ 		bit_idx = (hw->func_caps.vf_base_id + vf_id) % 32;
+ 		/* read GLGEN_VFLRSTAT register to find out the flr VFs */
+ 		reg = rd32(hw, GLGEN_VFLRSTAT(reg_idx));
+-		if (reg & BIT(bit_idx))
++		if (reg & BIT(bit_idx)) {
+ 			/* GLGEN_VFLRSTAT bit will be cleared in ice_reset_vf */
++			mutex_lock(&vf->cfg_lock);
+ 			ice_reset_vf(vf, true);
++			mutex_unlock(&vf->cfg_lock);
++		}
+ 	}
+ }
+ 
+@@ -2192,7 +2202,9 @@ ice_vf_lan_overflow_event(struct ice_pf
+ 	if (!vf)
+ 		return;
+ 
++	mutex_lock(&vf->cfg_lock);
+ 	ice_vc_reset_vf(vf);
++	mutex_unlock(&vf->cfg_lock);
+ }
+ 
+ /**
+@@ -4429,10 +4441,6 @@ void ice_vc_process_vf_msg(struct ice_pf
+ 	struct device *dev;
+ 	int err = 0;
+ 
+-	/* if de-init is underway, don't process messages from VF */
+-	if (test_bit(ICE_VF_DEINIT_IN_PROGRESS, pf->state))
+-		return;
+-
+ 	dev = ice_pf_to_dev(pf);
+ 	if (ice_validate_vf_id(pf, vf_id)) {
+ 		err = -EINVAL;
 
 
