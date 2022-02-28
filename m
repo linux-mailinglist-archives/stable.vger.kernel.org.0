@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE904C75BE
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB7784C75BC
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:55:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239214AbiB1R4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239455AbiB1R4V (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Feb 2022 12:56:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47290 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240773AbiB1Ryl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C490752E21;
-        Mon, 28 Feb 2022 09:43:14 -0800 (PST)
+        with ESMTP id S240781AbiB1Ryo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:54:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DCBE52E70;
+        Mon, 28 Feb 2022 09:43:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 833C5B815B8;
-        Mon, 28 Feb 2022 17:43:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF871C340E7;
-        Mon, 28 Feb 2022 17:43:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3813BB815B4;
+        Mon, 28 Feb 2022 17:43:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 913D0C340E7;
+        Mon, 28 Feb 2022 17:43:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646070192;
-        bh=/lkHRovb7tuP7QSBAxNGLBNV4Hp3gGZsWicNkv1v7mo=;
+        s=korg; t=1646070196;
+        bh=iFga6YH+/J5P1F70DLuXYIdRRbydZYEXgQ/zFZRibA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehCV4HV6bHAv+jRrM+jW5Coz2X+Qw2DbILRuR93rtpv/UMOY+lvkPh8cEzaRNXOmk
-         YpbE33xf7VuD82rNOu9hdkFvCMXwKXrgAaZ2GGgYG/GGn6CaQVvjTGWZTI9PJ3G/9e
-         cs8GS8jhSXmHOlCdFkUC3FJuImck/CwGfQH8Jf/k=
+        b=j+abLN+aHn1vmAyJ/AhciN1UxaOGYjr9r7rtNGC8I4Pyb5AmlSmIVf+8D1riD8ImO
+         Kus9VKY9A6x0/GnmWLP/85RzBGeAcf8PptEnyeofcYifzNJ3MT6a+6vHGtISg36Ett
+         7M1lNwepswaNTUErvZ2gu5uiQ1cjgxESiRZBngtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
-        Su Yue <l@damenly.su>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.16 004/164] btrfs: tree-checker: check item_size for inode_item
-Date:   Mon, 28 Feb 2022 18:22:46 +0100
-Message-Id: <20220228172400.058457347@linuxfoundation.org>
+        stable@vger.kernel.org, Su Yue <l@damenly.su>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.16 005/164] btrfs: tree-checker: check item_size for dev_item
+Date:   Mon, 28 Feb 2022 18:22:47 +0100
+Message-Id: <20220228172400.168572315@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220228172359.567256961@linuxfoundation.org>
 References: <20220228172359.567256961@linuxfoundation.org>
@@ -55,111 +55,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Su Yue <l@damenly.su>
 
-commit 0c982944af27d131d3b74242f3528169f66950ad upstream.
+commit ea1d1ca4025ac6c075709f549f9aa036b5b6597d upstream.
 
-while mounting the crafted image, out-of-bounds access happens:
+Check item size before accessing the device item to avoid out of bound
+access, similar to inode_item check.
 
-  [350.429619] UBSAN: array-index-out-of-bounds in fs/btrfs/struct-funcs.c:161:1
-  [350.429636] index 1048096 is out of range for type 'page *[16]'
-  [350.429650] CPU: 0 PID: 9 Comm: kworker/u8:1 Not tainted 5.16.0-rc4 #1
-  [350.429652] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-  [350.429653] Workqueue: btrfs-endio-meta btrfs_work_helper [btrfs]
-  [350.429772] Call Trace:
-  [350.429774]  <TASK>
-  [350.429776]  dump_stack_lvl+0x47/0x5c
-  [350.429780]  ubsan_epilogue+0x5/0x50
-  [350.429786]  __ubsan_handle_out_of_bounds+0x66/0x70
-  [350.429791]  btrfs_get_16+0xfd/0x120 [btrfs]
-  [350.429832]  check_leaf+0x754/0x1a40 [btrfs]
-  [350.429874]  ? filemap_read+0x34a/0x390
-  [350.429878]  ? load_balance+0x175/0xfc0
-  [350.429881]  validate_extent_buffer+0x244/0x310 [btrfs]
-  [350.429911]  btrfs_validate_metadata_buffer+0xf8/0x100 [btrfs]
-  [350.429935]  end_bio_extent_readpage+0x3af/0x850 [btrfs]
-  [350.429969]  ? newidle_balance+0x259/0x480
-  [350.429972]  end_workqueue_fn+0x29/0x40 [btrfs]
-  [350.429995]  btrfs_work_helper+0x71/0x330 [btrfs]
-  [350.430030]  ? __schedule+0x2fb/0xa40
-  [350.430033]  process_one_work+0x1f6/0x400
-  [350.430035]  ? process_one_work+0x400/0x400
-  [350.430036]  worker_thread+0x2d/0x3d0
-  [350.430037]  ? process_one_work+0x400/0x400
-  [350.430038]  kthread+0x165/0x190
-  [350.430041]  ? set_kthread_struct+0x40/0x40
-  [350.430043]  ret_from_fork+0x1f/0x30
-  [350.430047]  </TASK>
-  [350.430077] BTRFS warning (device loop0): bad eb member start: ptr 0xffe20f4e start 20975616 member offset 4293005178 size 2
-
-check_leaf() is checking the leaf:
-
-  corrupt leaf: root=4 block=29396992 slot=1, bad key order, prev (16140901064495857664 1 0) current (1 204 12582912)
-  leaf 29396992 items 6 free space 3565 generation 6 owner DEV_TREE
-  leaf 29396992 flags 0x1(WRITTEN) backref revision 1
-  fs uuid a62e00e8-e94e-4200-8217-12444de93c2e
-  chunk uuid cecbd0f7-9ca0-441e-ae9f-f782f9732bd8
-	  item 0 key (16140901064495857664 INODE_ITEM 0) itemoff 3955 itemsize 40
-		  generation 0 transid 0 size 0 nbytes 17592186044416
-		  block group 0 mode 52667 links 33 uid 0 gid 2104132511 rdev 94223634821136
-		  sequence 100305 flags 0x2409000(none)
-		  atime 0.0 (1970-01-01 08:00:00)
-		  ctime 2973280098083405823.4294967295 (-269783007-01-01 21:37:03)
-		  mtime 18446744071572723616.4026825121 (1902-04-16 12:40:00)
-		  otime 9249929404488876031.4294967295 (622322949-04-16 04:25:58)
-	  item 1 key (1 DEV_EXTENT 12582912) itemoff 3907 itemsize 48
-		  dev extent chunk_tree 3
-		  chunk_objectid 256 chunk_offset 12582912 length 8388608
-		  chunk_tree_uuid cecbd0f7-9ca0-441e-ae9f-f782f9732bd8
-
-The corrupted leaf of device tree has an inode item. The leaf passed
-checksum and others checks in validate_extent_buffer until check_leaf_item().
-Because of the key type BTRFS_INODE_ITEM, check_inode_item() is called even we
-are in the device tree. Since the
-item offset + sizeof(struct btrfs_inode_item) > eb->len, out-of-bounds access
-is triggered.
-
-The item end vs leaf boundary check has been done before
-check_leaf_item(), so fix it by checking item size in check_inode_item()
-before access of the inode item in extent buffer.
-
-Other check functions except check_dev_item() in check_leaf_item()
-have their item size checks.
-The commit for check_dev_item() is followed.
-
-No regression observed during running fstests.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=215299
-CC: stable@vger.kernel.org # 5.10+
-CC: Wenqing Liu <wenqingliu0120@gmail.com>
 Signed-off-by: Su Yue <l@damenly.su>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tree-checker.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/btrfs/tree-checker.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 --- a/fs/btrfs/tree-checker.c
 +++ b/fs/btrfs/tree-checker.c
-@@ -1007,6 +1007,7 @@ static int check_inode_item(struct exten
- 	struct btrfs_inode_item *iitem;
- 	u64 super_gen = btrfs_super_generation(fs_info->super_copy);
- 	u32 valid_mask = (S_IFMT | S_ISUID | S_ISGID | S_ISVTX | 0777);
+@@ -965,6 +965,7 @@ static int check_dev_item(struct extent_
+ 			  struct btrfs_key *key, int slot)
+ {
+ 	struct btrfs_dev_item *ditem;
 +	const u32 item_size = btrfs_item_size_nr(leaf, slot);
- 	u32 mode;
- 	int ret;
- 	u32 flags;
-@@ -1016,6 +1017,12 @@ static int check_inode_item(struct exten
- 	if (unlikely(ret < 0))
- 		return ret;
  
-+	if (unlikely(item_size != sizeof(*iitem))) {
-+		generic_err(leaf, slot, "invalid item size: has %u expect %zu",
-+			    item_size, sizeof(*iitem));
+ 	if (unlikely(key->objectid != BTRFS_DEV_ITEMS_OBJECTID)) {
+ 		dev_item_err(leaf, slot,
+@@ -972,6 +973,13 @@ static int check_dev_item(struct extent_
+ 			     key->objectid, BTRFS_DEV_ITEMS_OBJECTID);
+ 		return -EUCLEAN;
+ 	}
++
++	if (unlikely(item_size != sizeof(*ditem))) {
++		dev_item_err(leaf, slot, "invalid item size: has %u expect %zu",
++			     item_size, sizeof(*ditem));
 +		return -EUCLEAN;
 +	}
 +
- 	iitem = btrfs_item_ptr(leaf, slot, struct btrfs_inode_item);
- 
- 	/* Here we use super block generation + 1 to handle log tree */
+ 	ditem = btrfs_item_ptr(leaf, slot, struct btrfs_dev_item);
+ 	if (unlikely(btrfs_device_id(leaf, ditem) != key->offset)) {
+ 		dev_item_err(leaf, slot,
 
 
