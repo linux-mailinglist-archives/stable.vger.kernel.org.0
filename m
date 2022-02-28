@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA3A94C74C4
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:46:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B331D4C7284
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:26:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233146AbiB1Rqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:46:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58916 "EHLO
+        id S233861AbiB1R0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:26:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238586AbiB1Rpf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:45:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 684B151E71;
-        Mon, 28 Feb 2022 09:37:56 -0800 (PST)
+        with ESMTP id S233653AbiB1R02 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:26:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4DD476E04;
+        Mon, 28 Feb 2022 09:25:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8C0D6153F;
-        Mon, 28 Feb 2022 17:37:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF6CFC340E7;
-        Mon, 28 Feb 2022 17:37:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DEB2B815AB;
+        Mon, 28 Feb 2022 17:25:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9294C340F1;
+        Mon, 28 Feb 2022 17:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069875;
-        bh=D3q8cqG2Ibv+SluBi02J/zPBPdJPjyboVMnSitY9ASA=;
+        s=korg; t=1646069146;
+        bh=yC33GZMrlqD0i2w93NF1iJJZDlo/CRXfu2IKUrbZvqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=01e+QRjFDfW8Xmx6KaFnviB3tYLttBYpA4Lc/0YRf70hFu2WHR9uF7sMCkq2ith6v
-         bxjdVH1uTb6GvQXzQUJzg4UnwopdaxElxA3L7lT5WtNswSyKOBsZkMkP0ejtz327qR
-         bhMeU3pUlkSn5Zs0OOLov1ZNEntjSwnpq4ThaU7s=
+        b=Biks0AlaBumy632OvNFKYRa6cjrhJFsvo0sKXYmisHB3I5LKg4BRXoiZZMJE7Rx6q
+         J5rmufNbBUm0iaTD7AX1kZC+uZN0eptKHcB18aQGe29XGY9v70HTPNvihuamRl2CeZ
+         ZPB/4ox7E8ZhmYFbjmpykQPjCyMx3CnQz3wPVByY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Tao Liu <thomas.liu@ucloud.cn>,
+        Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 042/139] bnxt_en: Fix active FEC reporting to ethtool
-Date:   Mon, 28 Feb 2022 18:23:36 +0100
-Message-Id: <20220228172352.144920971@linuxfoundation.org>
+Subject: [PATCH 4.9 10/29] gso: do not skip outer ip header in case of ipip and net_failover
+Date:   Mon, 28 Feb 2022 18:23:37 +0100
+Message-Id: <20220228172142.482484537@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
-References: <20220228172347.614588246@linuxfoundation.org>
+In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
+References: <20220228172141.744228435@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Somnath Kotur <somnath.kotur@broadcom.com>
+From: Tao Liu <thomas.liu@ucloud.cn>
 
-commit 84d3c83e6ea7d46cf3de3a54578af73eb24a64f2 upstream.
+commit cc20cced0598d9a5ff91ae4ab147b3b5e99ee819 upstream.
 
-ethtool --show-fec <interface> does not show anything when the Active
-FEC setting in the chip is set to None.  Fix it to properly return
-ETHTOOL_FEC_OFF in that case.
+We encounter a tcp drop issue in our cloud environment. Packet GROed in
+host forwards to a VM virtio_net nic with net_failover enabled. VM acts
+as a IPVS LB with ipip encapsulation. The full path like:
+host gro -> vm virtio_net rx -> net_failover rx -> ipvs fullnat
+ -> ipip encap -> net_failover tx -> virtio_net tx
 
-Fixes: 8b2775890ad8 ("bnxt_en: Report FEC settings to ethtool.")
-Signed-off-by: Somnath Kotur <somnath.kotur@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+When net_failover transmits a ipip pkt (gso_type = 0x0103, which means
+SKB_GSO_TCPV4, SKB_GSO_DODGY and SKB_GSO_IPXIP4), there is no gso
+did because it supports TSO and GSO_IPXIP4. But network_header points to
+inner ip header.
+
+Call Trace:
+ tcp4_gso_segment        ------> return NULL
+ inet_gso_segment        ------> inner iph, network_header points to
+ ipip_gso_segment
+ inet_gso_segment        ------> outer iph
+ skb_mac_gso_segment
+
+Afterwards virtio_net transmits the pkt, only inner ip header is modified.
+And the outer one just keeps unchanged. The pkt will be dropped in remote
+host.
+
+Call Trace:
+ inet_gso_segment        ------> inner iph, outer iph is skipped
+ skb_mac_gso_segment
+ __skb_gso_segment
+ validate_xmit_skb
+ validate_xmit_skb_list
+ sch_direct_xmit
+ __qdisc_run
+ __dev_queue_xmit        ------> virtio_net
+ dev_hard_start_xmit
+ __dev_queue_xmit        ------> net_failover
+ ip_finish_output2
+ ip_output
+ iptunnel_xmit
+ ip_tunnel_xmit
+ ipip_tunnel_xmit        ------> ipip
+ dev_hard_start_xmit
+ __dev_queue_xmit
+ ip_finish_output2
+ ip_output
+ ip_forward
+ ip_rcv
+ __netif_receive_skb_one_core
+ netif_receive_skb_internal
+ napi_gro_receive
+ receive_buf
+ virtnet_poll
+ net_rx_action
+
+The root cause of this issue is specific with the rare combination of
+SKB_GSO_DODGY and a tunnel device that adds an SKB_GSO_ tunnel option.
+SKB_GSO_DODGY is set from external virtio_net. We need to reset network
+header when callbacks.gso_segment() returns NULL.
+
+This patch also includes ipv6_gso_segment(), considering SIT, etc.
+
+Fixes: cb32f511a70b ("ipip: add GSO/TSO support")
+Signed-off-by: Tao Liu <thomas.liu@ucloud.cn>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv4/af_inet.c     |    5 ++++-
+ net/ipv6/ip6_offload.c |    2 ++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -1942,6 +1942,9 @@ static int bnxt_get_fecparam(struct net_
- 	case PORT_PHY_QCFG_RESP_ACTIVE_FEC_FEC_RS272_IEEE_ACTIVE:
- 		fec->active_fec |= ETHTOOL_FEC_LLRS;
- 		break;
-+	case PORT_PHY_QCFG_RESP_ACTIVE_FEC_FEC_NONE_ACTIVE:
-+		fec->active_fec |= ETHTOOL_FEC_OFF;
-+		break;
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -1238,8 +1238,11 @@ struct sk_buff *inet_gso_segment(struct
  	}
- 	return 0;
- }
+ 
+ 	ops = rcu_dereference(inet_offloads[proto]);
+-	if (likely(ops && ops->callbacks.gso_segment))
++	if (likely(ops && ops->callbacks.gso_segment)) {
+ 		segs = ops->callbacks.gso_segment(skb, features);
++		if (!segs)
++			skb->network_header = skb_mac_header(skb) + nhoff - skb->head;
++	}
+ 
+ 	if (IS_ERR_OR_NULL(segs))
+ 		goto out;
+--- a/net/ipv6/ip6_offload.c
++++ b/net/ipv6/ip6_offload.c
+@@ -96,6 +96,8 @@ static struct sk_buff *ipv6_gso_segment(
+ 	if (likely(ops && ops->callbacks.gso_segment)) {
+ 		skb_reset_transport_header(skb);
+ 		segs = ops->callbacks.gso_segment(skb, features);
++		if (!segs)
++			skb->network_header = skb_mac_header(skb) + nhoff - skb->head;
+ 	}
+ 
+ 	if (IS_ERR_OR_NULL(segs))
 
 
