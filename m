@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE4AD4C6326
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 07:38:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A35DE4C6328
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 07:38:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233258AbiB1Gim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 01:38:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35246 "EHLO
+        id S233267AbiB1Giq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 01:38:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231642AbiB1Gim (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 01:38:42 -0500
+        with ESMTP id S231642AbiB1Gip (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 01:38:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9C3F1E3F5
-        for <stable@vger.kernel.org>; Sun, 27 Feb 2022 22:38:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2012926AC9
+        for <stable@vger.kernel.org>; Sun, 27 Feb 2022 22:38:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7815460FE9
-        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 06:38:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BC88C340E7;
-        Mon, 28 Feb 2022 06:38:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B10A760FE9
+        for <stable@vger.kernel.org>; Mon, 28 Feb 2022 06:38:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9D7DC340F2;
+        Mon, 28 Feb 2022 06:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646030283;
-        bh=PzWqwa70JALgGxUpDdR8Rw7VhbZ4wX2ndXo+ss5Mqbs=;
+        s=korg; t=1646030287;
+        bh=246KpcA5dekgprwZvGv4D3a4u9lLijTYuHPGy9+ybGM=;
         h=Subject:To:Cc:From:Date:From;
-        b=cz7tQW9lFmpCiDm1hfvZK6MRUS0TXVzuHFqH5NUv6xHOJjUiBSOkdDVS3fJKmzhqD
-         Mpfj+azYUPp8MAhw6DFJScNCao93B5oKa1Nsa4h9mSzYEb2tidVFvOyJ/B6BJ9SoS0
-         JEIYXIPv3Xm9C5JXn3to07qTs7JX+dATxSkzkaFo=
-Subject: FAILED: patch "[PATCH] ata: pata_hpt37x: fix PCI clock detection" failed to apply to 4.14-stable tree
+        b=h/5TpbR5Tg3S9MguxU0nnDqZ0Y+WEfB6uODP9Ia7l7ZWATRql9POUVfgziFMJJSVu
+         fqPmtZA6lxRQNvWZotOVZODN3Z/9424Xw50oa7VyN9rCvJHXCjYkZiqeRgYkjOlWFh
+         uCGGgVOBnb5D0RDkpqVQecZyDCFzYBZpdaYmyMDE=
+Subject: FAILED: patch "[PATCH] ata: pata_hpt37x: fix PCI clock detection" failed to apply to 4.9-stable tree
 To:     s.shtylyov@omp.ru, damien.lemoal@opensource.wdc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Feb 2022 07:37:42 +0100
-Message-ID: <164603026274191@kroah.com>
+Date:   Mon, 28 Feb 2022 07:37:43 +0100
+Message-ID: <164603026343149@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
