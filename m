@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF2DD4C73EB
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E4674C75D8
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:56:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236512AbiB1Rj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:39:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42230 "EHLO
+        id S239371AbiB1R4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:56:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238349AbiB1RhO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:14 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE91F8AE54;
-        Mon, 28 Feb 2022 09:32:11 -0800 (PST)
+        with ESMTP id S239973AbiB1Rxo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:53:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 408D5AF1FF;
+        Mon, 28 Feb 2022 09:41:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id ACE7BCE17BE;
-        Mon, 28 Feb 2022 17:32:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 999E5C340E7;
-        Mon, 28 Feb 2022 17:32:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54E09614C9;
+        Mon, 28 Feb 2022 17:41:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ACC2C340E7;
+        Mon, 28 Feb 2022 17:41:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069527;
-        bh=c3+ZF2Am26AFS69yXSGDqrLPBKoFtoySafESdM+LLg8=;
+        s=korg; t=1646070077;
+        bh=+6N8+7VcYRDuliUP9Kw7HwRQhd1SqB77Fx6ru+a3Wmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QQ+yX7qc0mQ8juWZ4/SDktg1aK5hlsTj2sYwla1cG709SMaXC3UeKvoknPMw85NKO
-         6K6niKh/RCf1QKn4Tumx9BrT1g1f1tKO7EH92+d6Zl0NjuxQG/ab8DfP9tE/eD+SqF
-         LxPR1XWezv7jrcJswDxm4KeAt4KoCLjW+mgKy2dI=
+        b=It8imby7RrkYOV2lirzUWX1Z/DmwESA9RMbODf9dhlZe4Xs5Tx7T+vGiBeVLQEQnI
+         pcP+5rlU3ENjjXTpiOAKaA+xm7LVynMLw0TLV4I1ZnJQ8fvCPnh9CAoK8hYB5/PCmE
+         wMJU1GQgy3dcoo7O913cmjDqEly2vVs89hpVc7Mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Mike Rapoport <rppt@linux.ibm.com>
-Subject: [PATCH 5.4 52/53] memblock: use kfree() to release kmalloced memblock regions
+        stable@vger.kernel.org, Hongyu Xie <xiehongyu1@kylinos.cn>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.15 116/139] xhci: Prevent futile URB re-submissions due to incorrect return value.
 Date:   Mon, 28 Feb 2022 18:24:50 +0100
-Message-Id: <20220228172252.234235570@linuxfoundation.org>
+Message-Id: <20220228172359.793979798@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
-References: <20220228172248.232273337@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,46 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Hongyu Xie <xiehongyu1@kylinos.cn>
 
-commit c94afc46cae7ad41b2ad6a99368147879f4b0e56 upstream.
+commit 243a1dd7ba48c120986dd9e66fee74bcb7751034 upstream.
 
-memblock.{reserved,memory}.regions may be allocated using kmalloc() in
-memblock_double_array(). Use kfree() to release these kmalloced regions
-indicated by memblock_{reserved,memory}_in_slab.
+The -ENODEV return value from xhci_check_args() is incorrectly changed
+to -EINVAL in a couple places before propagated further.
 
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Fixes: 3010f876500f ("mm: discard memblock data later")
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+xhci_check_args() returns 4 types of value, -ENODEV, -EINVAL, 1 and 0.
+xhci_urb_enqueue and xhci_check_streams_endpoint return -EINVAL if
+the return value of xhci_check_args <= 0.
+This causes problems for example r8152_submit_rx, calling usb_submit_urb
+in drivers/net/usb/r8152.c.
+r8152_submit_rx will never get -ENODEV after submiting an urb when xHC
+is halted because xhci_urb_enqueue returns -EINVAL in the very beginning.
+
+[commit message and header edit -Mathias]
+
+Fixes: 203a86613fb3 ("xhci: Avoid NULL pointer deref when host dies.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hongyu Xie <xiehongyu1@kylinos.cn>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220215123320.1253947-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memblock.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -348,14 +348,20 @@ void __init memblock_discard(void)
- 		addr = __pa(memblock.reserved.regions);
- 		size = PAGE_ALIGN(sizeof(struct memblock_region) *
- 				  memblock.reserved.max);
--		__memblock_free_late(addr, size);
-+		if (memblock_reserved_in_slab)
-+			kfree(memblock.reserved.regions);
-+		else
-+			__memblock_free_late(addr, size);
- 	}
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1611,9 +1611,12 @@ static int xhci_urb_enqueue(struct usb_h
+ 	struct urb_priv	*urb_priv;
+ 	int num_tds;
  
- 	if (memblock.memory.regions != memblock_memory_init_regions) {
- 		addr = __pa(memblock.memory.regions);
- 		size = PAGE_ALIGN(sizeof(struct memblock_region) *
- 				  memblock.memory.max);
--		__memblock_free_late(addr, size);
-+		if (memblock_memory_in_slab)
-+			kfree(memblock.memory.regions);
-+		else
-+			__memblock_free_late(addr, size);
- 	}
- }
- #endif
+-	if (!urb || xhci_check_args(hcd, urb->dev, urb->ep,
+-					true, true, __func__) <= 0)
++	if (!urb)
+ 		return -EINVAL;
++	ret = xhci_check_args(hcd, urb->dev, urb->ep,
++					true, true, __func__);
++	if (ret <= 0)
++		return ret ? ret : -EINVAL;
+ 
+ 	slot_id = urb->dev->slot_id;
+ 	ep_index = xhci_get_endpoint_index(&urb->ep->desc);
+@@ -3330,7 +3333,7 @@ static int xhci_check_streams_endpoint(s
+ 		return -EINVAL;
+ 	ret = xhci_check_args(xhci_to_hcd(xhci), udev, ep, 1, true, __func__);
+ 	if (ret <= 0)
+-		return -EINVAL;
++		return ret ? ret : -EINVAL;
+ 	if (usb_ss_max_streams(&ep->ss_ep_comp) == 0) {
+ 		xhci_warn(xhci, "WARN: SuperSpeed Endpoint Companion"
+ 				" descriptor for ep 0x%x does not support streams\n",
 
 
