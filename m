@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42E794C7458
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:44:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FC8E4C73F4
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236674AbiB1RmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:42:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34698 "EHLO
+        id S233409AbiB1Rjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:39:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237296AbiB1Rkv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:40:51 -0500
+        with ESMTP id S238234AbiB1Rhk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:37:40 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 036AC986EF;
-        Mon, 28 Feb 2022 09:34:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC2FD25C58;
+        Mon, 28 Feb 2022 09:32:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E24D614B9;
-        Mon, 28 Feb 2022 17:34:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4A3BC340E7;
-        Mon, 28 Feb 2022 17:34:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD20661365;
+        Mon, 28 Feb 2022 17:32:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0DBCC340E7;
+        Mon, 28 Feb 2022 17:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069677;
-        bh=G+HCGVUC2PQfxtePcridXiIDi4gJcTA+2ZpAax29vKo=;
+        s=korg; t=1646069547;
+        bh=YapyDaCD7iBiLBcrtI8n+txzlNjyNo+E6ZIxHkcKEO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QHgU06fUNLY1TrGmW764DiZoqlDkmhsNJqckWCjKLN/0sg8DdoHC4zXc+FTUAuIvP
-         hmg9iHy1pOMbtVh6u3w0NXT4VzV0Abcw5YbKVeRkBNHuRzOaMr3UHJrCXnSWMXBkuF
-         1fcdmv0p+z+N0//ymjGVxSKNYHTmGUK968QFkWaw=
+        b=s8jcS2mzloaOUU9WiZ9GttLmmlP/yACDHmvHZAI9K5CESntp6kWKEGfH90msz0G/B
+         lQgSmSbu/UAl7zKH/B90AXzNLOkUykpFp+TI4eOTXmkL2cDJ7h4KEl9KsseqznEkyy
+         KJg6zjXEub09Y7l0NijhYmiAmLxYVqitDtos97EY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+831661966588c802aae9@syzkaller.appspotmail.com,
-        Bart Van Assche <bvanassche@acm.org>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 51/80] RDMA/ib_srp: Fix a deadlock
+        Cosmin Tanislav <cosmin.tanislav@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 34/53] iio: adc: ad7124: fix mask used for setting AIN_BUFP & AIN_BUFM bits
 Date:   Mon, 28 Feb 2022 18:24:32 +0100
-Message-Id: <20220228172317.898897092@linuxfoundation.org>
+Message-Id: <20220228172250.747090700@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172311.789892158@linuxfoundation.org>
-References: <20220228172311.789892158@linuxfoundation.org>
+In-Reply-To: <20220228172248.232273337@linuxfoundation.org>
+References: <20220228172248.232273337@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,45 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Cosmin Tanislav <demonsingur@gmail.com>
 
-[ Upstream commit 081bdc9fe05bb23248f5effb6f811da3da4b8252 ]
+commit 0e33d15f1dce9e3a80a970ea7f0b27837168aeca upstream.
 
-Remove the flush_workqueue(system_long_wq) call since flushing
-system_long_wq is deadlock-prone and since that call is redundant with a
-preceding cancel_work_sync()
+According to page 90 of the datasheet [1], AIN_BUFP is bit 6 and
+AIN_BUFM is bit 5 of the CONFIG_0 -> CONFIG_7 registers.
 
-Link: https://lore.kernel.org/r/20220215210511.28303-3-bvanassche@acm.org
-Fixes: ef6c49d87c34 ("IB/srp: Eliminate state SRP_TARGET_DEAD")
-Reported-by: syzbot+831661966588c802aae9@syzkaller.appspotmail.com
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix the mask used for setting these bits.
+
+[1]: https://www.analog.com/media/en/technical-documentation/data-sheets/ad7124-8.pdf
+
+Fixes: 0eaecea6e487 ("iio: adc: ad7124: Add buffered input support")
+Signed-off-by: Cosmin Tanislav <cosmin.tanislav@analog.com>
+Link: https://lore.kernel.org/r/20220112200036.694490-1-cosmin.tanislav@analog.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/ulp/srp/ib_srp.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/iio/adc/ad7124.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index 86d5c4c92b363..b4ccb333a8342 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -4045,9 +4045,11 @@ static void srp_remove_one(struct ib_device *device, void *client_data)
- 		spin_unlock(&host->target_lock);
+--- a/drivers/iio/adc/ad7124.c
++++ b/drivers/iio/adc/ad7124.c
+@@ -63,7 +63,7 @@
+ #define AD7124_CONFIG_REF_SEL(x)	FIELD_PREP(AD7124_CONFIG_REF_SEL_MSK, x)
+ #define AD7124_CONFIG_PGA_MSK		GENMASK(2, 0)
+ #define AD7124_CONFIG_PGA(x)		FIELD_PREP(AD7124_CONFIG_PGA_MSK, x)
+-#define AD7124_CONFIG_IN_BUFF_MSK	GENMASK(7, 6)
++#define AD7124_CONFIG_IN_BUFF_MSK	GENMASK(6, 5)
+ #define AD7124_CONFIG_IN_BUFF(x)	FIELD_PREP(AD7124_CONFIG_IN_BUFF_MSK, x)
  
- 		/*
--		 * Wait for tl_err and target port removal tasks.
-+		 * srp_queue_remove_work() queues a call to
-+		 * srp_remove_target(). The latter function cancels
-+		 * target->tl_err_work so waiting for the remove works to
-+		 * finish is sufficient.
- 		 */
--		flush_workqueue(system_long_wq);
- 		flush_workqueue(srp_remove_wq);
- 
- 		kfree(host);
--- 
-2.34.1
-
+ /* AD7124_FILTER_X */
 
 
