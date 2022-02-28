@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB4004C72C4
-	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:28:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA3A94C74C4
+	for <lists+stable@lfdr.de>; Mon, 28 Feb 2022 18:46:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237247AbiB1R2G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Feb 2022 12:28:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45406 "EHLO
+        id S233146AbiB1Rqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Feb 2022 12:46:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235090AbiB1R11 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:27:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3C3185658;
-        Mon, 28 Feb 2022 09:26:38 -0800 (PST)
+        with ESMTP id S238586AbiB1Rpf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Feb 2022 12:45:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 684B151E71;
+        Mon, 28 Feb 2022 09:37:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BF67B815B0;
-        Mon, 28 Feb 2022 17:26:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA05C340E7;
-        Mon, 28 Feb 2022 17:26:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8C0D6153F;
+        Mon, 28 Feb 2022 17:37:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF6CFC340E7;
+        Mon, 28 Feb 2022 17:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1646069196;
-        bh=usIFlN/FEikYYvUp7TbxxzRds9hM5Or9jnjcluoau0s=;
+        s=korg; t=1646069875;
+        bh=D3q8cqG2Ibv+SluBi02J/zPBPdJPjyboVMnSitY9ASA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eczhViAfmNaTZKteWJzdNFsXTvHT5XASG2L3KcYG/qO8s/NgxPGRsIcpitMA9RB+d
-         5jWFvQZH4AF1BPRTpiRRkzyL4jEi9u0t3Pn+nbNWMP3fzXLme0tgdUlG0Ml0IBRePA
-         5CYfOf17o++x6M4944cGiacxTdmrgxwJeuUEqZPs=
+        b=01e+QRjFDfW8Xmx6KaFnviB3tYLttBYpA4Lc/0YRf70hFu2WHR9uF7sMCkq2ith6v
+         bxjdVH1uTb6GvQXzQUJzg4UnwopdaxElxA3L7lT5WtNswSyKOBsZkMkP0ejtz327qR
+         bhMeU3pUlkSn5Zs0OOLov1ZNEntjSwnpq4ThaU7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 09/29] net: __pskb_pull_tail() & pskb_carve_frag_list() drop_monitor friends
+        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 042/139] bnxt_en: Fix active FEC reporting to ethtool
 Date:   Mon, 28 Feb 2022 18:23:36 +0100
-Message-Id: <20220228172142.423342346@linuxfoundation.org>
+Message-Id: <20220228172352.144920971@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220228172141.744228435@linuxfoundation.org>
-References: <20220228172141.744228435@linuxfoundation.org>
+In-Reply-To: <20220228172347.614588246@linuxfoundation.org>
+References: <20220228172347.614588246@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Somnath Kotur <somnath.kotur@broadcom.com>
 
-commit ef527f968ae05c6717c39f49c8709a7e2c19183a upstream.
+commit 84d3c83e6ea7d46cf3de3a54578af73eb24a64f2 upstream.
 
-Whenever one of these functions pull all data from an skb in a frag_list,
-use consume_skb() instead of kfree_skb() to avoid polluting drop
-monitoring.
+ethtool --show-fec <interface> does not show anything when the Active
+FEC setting in the chip is set to None.  Fix it to properly return
+ETHTOOL_FEC_OFF in that case.
 
-Fixes: 6fa01ccd8830 ("skbuff: Add pskb_extract() helper function")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220220154052.1308469-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 8b2775890ad8 ("bnxt_en: Report FEC settings to ethtool.")
+Signed-off-by: Somnath Kotur <somnath.kotur@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/skbuff.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -1716,7 +1716,7 @@ unsigned char *__pskb_pull_tail(struct s
- 		/* Free pulled out fragments. */
- 		while ((list = skb_shinfo(skb)->frag_list) != insp) {
- 			skb_shinfo(skb)->frag_list = list->next;
--			kfree_skb(list);
-+			consume_skb(list);
- 		}
- 		/* And insert new clone at head. */
- 		if (clone) {
-@@ -4951,7 +4951,7 @@ static int pskb_carve_frag_list(struct s
- 	/* Free pulled out fragments. */
- 	while ((list = shinfo->frag_list) != insp) {
- 		shinfo->frag_list = list->next;
--		kfree_skb(list);
-+		consume_skb(list);
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -1942,6 +1942,9 @@ static int bnxt_get_fecparam(struct net_
+ 	case PORT_PHY_QCFG_RESP_ACTIVE_FEC_FEC_RS272_IEEE_ACTIVE:
+ 		fec->active_fec |= ETHTOOL_FEC_LLRS;
+ 		break;
++	case PORT_PHY_QCFG_RESP_ACTIVE_FEC_FEC_NONE_ACTIVE:
++		fec->active_fec |= ETHTOOL_FEC_OFF;
++		break;
  	}
- 	/* And insert new clone at head. */
- 	if (clone) {
+ 	return 0;
+ }
 
 
